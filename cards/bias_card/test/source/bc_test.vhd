@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.2  2004/05/12 16:49:07  erniel
+-- removed components already in all_test
+--
 -- Revision 1.1  2004/05/11 23:04:40  mandana
 -- initial release - copied from all_test
 --
@@ -343,7 +346,13 @@ begin
                dac_dat_o => dac_dat,
                dac_ncs_o => dac_ncs,
                dac_clk_o => dac_clk,
-               dac_nclr_o=> dac_nclr);   
+               
+               dac_nclr_o=> dac_nclr,
+               
+               lvds_dac_dat_o => lvds_dac_dat,
+               lvds_dac_ncs_o => lvds_dac_ncs,
+               lvds_dac_clk_o => lvds_dac_clk
+               );   
      
 
       

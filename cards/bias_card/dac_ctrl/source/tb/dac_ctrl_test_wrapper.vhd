@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.2 2004/04/23 00:52:12 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.3 2004/04/29 20:53:59 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/04/23 00:52:12 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/29 20:53:59 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.3  2004/04/29 20:53:59  mandana
+-- added dac_nclr signal and removed tx signals from wrapper
+--
 -- Revision 1.2  2004/04/23 00:52:12  mandana
 -- fixed ack timing, dac_count_clk now counts the acks
 --
@@ -69,10 +72,16 @@ entity dac_ctrl_test_wrapper is
       -- transmitter signals removed!
                 
       -- extended signals
-      dac_dat_o : out std_logic_vector (32 downto 0); 
-      dac_ncs_o : out std_logic_vector (32 downto 0); 
-      dac_clk_o : out std_logic_vector (32 downto 0);
-      dac_nclr_o: out std_logic
+      dac_dat_o : out std_logic_vector (31 downto 0); 
+      dac_ncs_o : out std_logic_vector (31 downto 0); 
+      dac_clk_o : out std_logic_vector (31 downto 0);
+
+      dac_nclr_o: out std_logic;
+      
+      lvds_dac_dat_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_clk_o: out std_logic
+      
    );   
 end;  
 
@@ -104,7 +113,7 @@ architecture rtl of dac_ctrl_test_wrapper is
    signal val_clk  : std_logic;
    signal dac_count_clk: std_logic;
    signal idac_rst : std_logic;
-   
+     
 begin
 
 -- instantiate a counter for idac to go through all 32 DACs
@@ -135,13 +144,18 @@ begin
 --
 ------------------------------------------------------------------------
       dac_ctrl_test : dac_ctrl
-
       generic map(DAC32_CTRL_ADDR      => FLUX_FB_ADDR ,
                   DAC_LVDS_CTRL_ADDR   => BIAS_ADDR )
 
-      port map(dac_data_o   => dac_dat_o,
-               dac_ncs_o    => dac_ncs_o,
-               dac_clk_o    => dac_clk_o,
+      port map(dac_data_o (31 downto 0) => dac_dat_o (31 downto 0),
+               dac_data_o (32) => lvds_dac_dat_o,
+               
+               dac_ncs_o (31 downto 0)  => dac_ncs_o (31 downto 0),
+               dac_ncs_o (32)           => lvds_dac_ncs_o,
+               
+               dac_clk_o (31 downto 0)  => dac_clk_o (31 downto 0),
+               dac_clk_o (32)           => lvds_dac_clk_o,
+               
                dac_nclr_o   => dac_nclr_o,
                clk_i        => clk_i,
                rst_i        => rst_i,

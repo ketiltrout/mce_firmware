@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.2  2004/05/12 16:49:07  erniel
+-- removed components already in all_test
+--
 -- Revision 1.1  2004/05/11 23:04:40  mandana
 -- initial release - copied from all_test
 --
@@ -179,10 +182,16 @@ package bc_test_pack is
           -- transmitter signals removed!
           
           -- extended signals
-          dac_dat_o : out std_logic_vector (32 downto 0); 
-          dac_ncs_o : out std_logic_vector (32 downto 0); 
-          dac_clk_o : out std_logic_vector (32 downto 0);
-          dac_nclr_o: out std_logic);   
+          dac_dat_o : out std_logic_vector (31 downto 0); 
+          dac_ncs_o : out std_logic_vector (31 downto 0); 
+          dac_clk_o : out std_logic_vector (31 downto 0);
+          
+          dac_nclr_o: out std_logic;
+          
+          lvds_dac_dat_o : out std_logic;
+          lvds_dac_ncs_o : out std_logic;
+          lvds_dac_clk_o : out std_logic
+          );   
   end component;  
   
 
