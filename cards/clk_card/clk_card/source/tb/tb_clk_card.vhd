@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_clk_card.vhd,v 1.4 2004/12/08 22:15:12 bburger Exp $
+-- $Id: tb_clk_card.vhd,v 1.5 2004/12/14 20:17:38 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_clk_card.vhd,v $
+-- Revision 1.5  2004/12/14 20:17:38  bburger
+-- Bryce:  Repaired some problems with frame_timing and added a list of frame_timing-initialization commands to clk_card
+--
 -- Revision 1.4  2004/12/08 22:15:12  bburger
 -- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
 --
@@ -667,118 +670,118 @@ begin
       
       do_reset;    
       
-      command <= command_wb;
-      address_id <= row_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000040"; -- 64 clock cycles
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= num_rows_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000029"; -- 41 rows
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= sample_delay_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000006";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= sample_num_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000032";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= fb_dly_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= flx_lp_init_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 150 us;
-
-----------------------------------------------------------
--- wb, rb, go, st, rs commands
-------------------------------------------------------      
 --      command <= command_wb;
---      address_id <= use_dv_cmd;
+--      address_id <= row_len_cmd;
 --      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 50 us;
---      
---      command <= command_rb;
---      address_id <= use_dv_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000002";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 50 us;
---      
---      command <= command_go;
---      address_id <= use_dv_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000000";
+--      data       <= X"00000040"; -- 64 clock cycles
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      
 --      wait for 50 us;
 --
---      command <= command_st;
---      address_id <= use_dv_cmd;
+--      command <= command_wb;
+--      address_id <= num_rows_cmd;
 --      data_valid <= X"00000001";
---      data       <= X"00000000";
+--      data       <= X"00000029"; -- 41 rows
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      
 --      wait for 50 us;
---      
---      command <= command_rs;
---      address_id <= use_dv_cmd;
+--
+--      command <= command_wb;
+--      address_id <= sample_delay_cmd;
 --      data_valid <= X"00000001";
---      data       <= X"00000000";
+--      data       <= X"00000006";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      
 --      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= sample_num_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000032";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= fb_dly_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= flx_lp_init_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 150 us;
+
+----------------------------------------------------------
+-- wb, rb, go, st, rs commands
+------------------------------------------------------      
+      command <= command_wb;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+      
+      command <= command_rb;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+      
+      command <= command_go;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+
+      command <= command_st;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+      
+      command <= command_rs;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
 ------------------------------------------------------
 -- bc_dac_ctrl commands
 ------------------------------------------------------      
