@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.8  2004/10/28 20:42:27  erniel
+-- fixed synthesis warning in process stateNS
+--
 -- Revision 1.7  2004/10/13 04:01:15  erniel
 -- parameterized watchdog timer limit
 --
@@ -85,15 +88,14 @@ port(clk_i : in std_logic;
      cmd_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
      
      -- Reply interface:
-     reply_rdy_o : out std_logic;
+     wb_rdy_o : out std_logic;
+     wb_err_o : out std_logic;
                
      reply_buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
      reply_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
      reply_buf_wren_o : out std_logic;
      
      -- Wishbone interface:
-     wait_i : in std_logic;  --external signal that tells Wishbone master to insert a wait state
-     
      dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
      tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
@@ -104,13 +106,16 @@ port(clk_i : in std_logic;
      dat_i 	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i  : in std_logic;
      
+     err_i  : in std_logic;  -- external signal that tells Wishbone master that a slave does not exist
+     wait_i : in std_logic;  -- external signal that tells Wishbone master to insert a wait state
+     
      -- Watchdog reset interface:
      wdt_rst_o : out std_logic);
 end dispatch_wishbone;
 
 architecture rtl of dispatch_wishbone is
 
-type master_states is (IDLE, WB_CYCLE, DONE);
+type master_states is (IDLE, WB_CYCLE, DONE, ERROR);
 signal pres_state : master_states;
 signal next_state : master_states;
 
@@ -176,7 +181,7 @@ begin
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, cmd_rdy_i, ack_i, addr, data_size_i)
+   stateNS: process(pres_state, cmd_rdy_i, ack_i, err_i, addr, data_size_i)
    begin
       case pres_state is
          when IDLE =>     if(cmd_rdy_i = '1') then
@@ -187,63 +192,68 @@ begin
                               
          when WB_CYCLE => if(addr = data_size_i-1 and ack_i = '1') then    -- slave has accepted last piece of data
                              next_state <= DONE;
+                          elsif(err_i = '1') then                          -- slave does not exist, abort
+                             next_state <= ERROR;
                           else
                              next_state <= WB_CYCLE;
                           end if;
                                                       
          when DONE =>     next_state <= IDLE;
+         
+         when ERROR =>    next_state <= IDLE;
       end case;
    end process stateNS;
    
    stateOut: process(pres_state, cmd_type_i, param_id_i, cmd_buf_data_i, wait_i, tga_addr)
    begin
+      addr_o <= (others => '0');
+      dat_o  <= (others => '0');
+      we_o   <= '0';
+      stb_o  <= '0';
+      cyc_o  <= '0';
+      tga_o  <= (others => '0');
+    
+      addr_clr <= '0';
+    
+      wb_rdy_o <= '0';
+      wb_err_o <= '0';
+                            
       case pres_state is
-         when IDLE =>     addr_o              <= (others => '0');
-                          dat_o               <= (others => '0');
-                          we_o                <= '0';
-                          stb_o               <= '0';
-                          cyc_o               <= '0';
-                          tga_o               <= (others => '0');
-                          addr_clr            <= '1';
-                          reply_rdy_o         <= '0';
+         when IDLE =>     addr_clr <= '1';
+                          
          
-         when WB_CYCLE => addr_o              <= param_id_i;
-                          dat_o               <= cmd_buf_data_i;
-                          cyc_o               <= '1';
-                          tga_o               <= tga_addr;
-                          addr_clr            <= '0';
-                          reply_rdy_o         <= '0';          
-                                                                    
-                          if(cmd_type_i = READ_BLOCK) then   -- all commands are "writes" except READ_BLOCK
-                             we_o             <= '0';
+         when WB_CYCLE => addr_o <= param_id_i;
+                          dat_o  <= cmd_buf_data_i;
+                          cyc_o  <= '1';
+                          tga_o  <= tga_addr;
+                                                          
+                          if(cmd_type_i = WRITE_CMD) then
+                             we_o  <= '1';
                           else
-                             we_o             <= '1';
+                             we_o  <= '0';
                           end if;
                           
-                          if(wait_i = '1') then              -- insert master wait state
-                             stb_o            <= '0';
+                          -- insert master wait state
+                          if(wait_i = '1') then
+                             stb_o <= '0';
                           else
-                             stb_o            <= '1';
+                             stb_o <= '1';
                           end if;
                           
-         when DONE =>     addr_o              <= (others => '0');
-                          dat_o               <= (others => '0');
-                          we_o                <= '0';
-                          stb_o               <= '0';
-                          cyc_o               <= '0';
-                          tga_o               <= (others => '0');
-                          addr_clr            <= '0';
-                          reply_rdy_o         <= '1';
+         when DONE =>     wb_rdy_o <= '1';
+         
+         when ERROR =>    wb_rdy_o <= '1';
+                          wb_err_o <= '1';
       end case;
    end process stateOut;
    
    -- command buffer used during WRITE_BLOCK commands:
-   cmd_buf_addr_o   <= buf_addr when cmd_type_i /= READ_BLOCK else (others => '0');
+   cmd_buf_addr_o   <= buf_addr when cmd_type_i = WRITE_CMD else (others => '0');
    -- cmd_buf_data_i is wishbone dat_o
       
    -- reply buffer used during READ_BLOCK commands:
-   reply_buf_addr_o <= buf_addr when cmd_type_i = READ_BLOCK else (others => '0');
-   reply_buf_data_o <= dat_i    when cmd_type_i = READ_BLOCK else (others => '0');
-   reply_buf_wren_o <= '1'      when cmd_type_i = READ_BLOCK and pres_state = WB_CYCLE else '0';
+   reply_buf_addr_o <= buf_addr when cmd_type_i = READ_CMD else (others => '0');
+   reply_buf_data_o <= dat_i    when cmd_type_i = READ_CMD else (others => '0');
+   reply_buf_wren_o <= '1'      when cmd_type_i = READ_CMD and pres_state = WB_CYCLE else '0';
    
 end rtl;
