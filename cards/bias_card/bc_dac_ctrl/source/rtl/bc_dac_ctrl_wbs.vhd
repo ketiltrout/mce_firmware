@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.3 2005/01/07 01:32:03 bench2 Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.4 2005/01/17 23:01:04 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.4  2005/01/17 23:01:04  mandana
+-- removed mem_clk_i
+-- read from RAM is performed in 2 clk_i cycles, added an extra state for read
+--
 -- Revision 1.3  2005/01/07 01:32:03  bench2
 -- Mandana: watch for debug ports
 --
@@ -182,6 +186,8 @@ begin
          when RD2 =>
             if(cyc_i = '0') then
                next_state <= IDLE;
+            else
+               next_state <= RD1;
             end if;           
          
          when others =>
@@ -225,7 +231,7 @@ begin
             ack_o <= '0';
          
          when RD2 =>
-            ack_o <= '1';
+            ack_o  <= '1';
             
             if(cyc_i = '0') then
                flux_fb_changed_o <= '1';
