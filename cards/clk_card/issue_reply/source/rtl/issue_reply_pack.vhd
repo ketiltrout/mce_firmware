@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.29 2004/10/12 14:22:31 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.30 2004/11/09 14:42:34 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.30  2004/11/09 14:42:34  dca
+-- reply_translator component declaration modified
+--
 -- Revision 1.29  2004/10/12 14:22:31  dca
 -- Various component declations for fibre_tx changed (i.e. nTrp removed)
 -- due to fibre_tx_fifo becoming synchronous megafunction.
@@ -442,8 +445,8 @@ port(
      m_op_done_i             : in  std_logic;                                               -- macro op done
      m_op_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
      m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);  -- command code vector - indicates if data or reply (and which command)
- --    m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
- --    m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
+     m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
+     m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    -- indicate number of packet words to be read from reply queue
      fibre_word_req_o        : out std_logic;                                               -- asserted to requeset next fibre word
