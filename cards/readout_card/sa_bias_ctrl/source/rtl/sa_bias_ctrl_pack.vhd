@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: sa_bias_ctrl_pack.vhd,v $
+-- Revision 1.3  2004/11/26 18:27:33  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/16 18:35:00  anthonyk
 -- Changed SPI_DATA_WIDTH to SA_BIAS_SPI_DATA_WIDTH
 --
@@ -58,7 +61,7 @@ package sa_bias_ctrl_pack is
    ---------------------------------------------------------------------------------
    
                                                                
-   constant FAST_TO_SLOW_RATIO       : integer := 2;         -- fast to slow clock ratio
+   constant FAST_TO_SLOW_RATIO       : integer := 4;         -- fast to slow clock ratio
    
      
    ---------------------------------------------------------------------------------
