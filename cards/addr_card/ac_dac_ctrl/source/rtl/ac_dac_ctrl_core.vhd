@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_core.vhd,v 1.1 2004/11/20 01:20:44 bburger Exp $
+-- $Id: ac_dac_ctrl_core.vhd,v 1.2 2005/01/08 00:58:20 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_core.vhd,v $
+-- Revision 1.2  2005/01/08 00:58:20  bburger
+-- Bryce:  mem_clk_i is no longer used to clock internal registers
+--
 -- Revision 1.1  2004/11/20 01:20:44  bburger
 -- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
 --
@@ -99,7 +102,7 @@ end ac_dac_ctrl_core;
 architecture rtl of ac_dac_ctrl_core is
 
 -- Row Addressing FSM signals:
-type row_states is (IDLE, LOAD_ON_VAL, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL);                
+type row_states is (IDLE, UPDATE_VALS, LOAD_ON_VAL, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL);                
 signal row_current_state   : row_states;
 signal row_next_state      : row_states;
 signal row_num_int         : integer;
@@ -135,19 +138,6 @@ begin
       count_o => row_num_int
    );
 
---   frame_edge(0) <= '1' when  row_switch_i = '1' and restart_frame_aligned_i = '1' else '0';
---   received_restart_frame: reg
---   generic map(
---      WIDTH   => 1
---   )
---   port map(
---      clk_i   => clk_i,
---      rst_i   => rst_i,
---      ena_i   => row_switch_i,
---      reg_i   => frame_edge,
---      reg_o   => reset_count
---   );   
-            
    on_off_addr_o <= std_logic_vector(conv_unsigned(row_num_int, ROW_ADDR_WIDTH));
    dac_id_int <= conv_integer(dac_id_i);
    
@@ -208,8 +198,11 @@ begin
       case row_current_state is 
          when IDLE =>
             if(restart_frame_aligned_i = '1' and mux_en = '1') then
-               row_next_state <= LOAD_ON_VAL;
+               row_next_state <= UPDATE_VALS;
             end if;
+         -- This state is here so that the on_ram address and off_ram address have time to be updated before we latch those values out to the DACs
+         when UPDATE_VALS =>
+            row_next_state <= LOAD_ON_VAL;
          when LOAD_ON_VAL =>
             if(row_en_i = '1') then
                row_next_state <= LATCH_ON_VAL;
@@ -247,15 +240,16 @@ begin
             dac_data      <= (others => '0');
             dac_clks_o    <= (others => '0');
             load_new_vals <= '0';
-         when LOAD_ON_VAL =>
-            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
-            dac_clks_o <= (others => '0');
+         when UPDATE_VALS =>
             if(frame_aligned_reg = '0') then   
                load_new_vals <= '1';
             elsif(frame_aligned_reg = '1') then
                load_new_vals <= '1';
                frame_restart <= '1';
             end if;
+         when LOAD_ON_VAL =>
+            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_clks_o <= (others => '0');
          when LATCH_ON_VAL =>
             dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
