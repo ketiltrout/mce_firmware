@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.13  2004/11/26 00:11:50  erniel
+-- changed command type definitions
+-- changed status code definitions
+--
 -- Revision 1.12  2004/10/21 09:19:35  dca
 -- width of error table entries changed.
 -- COMMAND_SUCCESS added
@@ -144,17 +148,6 @@ package command_pack is
     
    constant FIBRE_PREAMBLE1 : std_logic_vector := x"A5";
    constant FIBRE_PREAMBLE2 : std_logic_vector := x"5A";
-   
-
-   ------------------------------------------------------------------------
-   -- Error Number Table
-   ------------------------------------------------------------------------
-   -- list of errors / error numbers to be returned to Linux PC (word 3 of reply packet)
-  
-     
-   constant COMMAND_SUCCESS    : std_logic_vector (BB_STATUS_WIDTH-1 downto 0) := conv_std_logic_vector(0,BB_STATUS_WIDTH);
-   constant FIBRE_CHECKSUM_ERR : std_logic_vector (BB_STATUS_WIDTH-1 downto 0) := conv_std_logic_vector(1,BB_STATUS_WIDTH);
-   
    
 
    ------------------------------------------------------------------------
