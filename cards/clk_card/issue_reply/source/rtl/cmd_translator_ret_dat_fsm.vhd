@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.12 2004/09/02 23:41:33 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.13 2004/09/09 18:26:05 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/02 23:41:33 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/09 18:26:05 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.13  2004/09/09 18:26:05  jjacob
+-- added 3 outputs:
+-- >       cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+-- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
+-- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
+--
 -- Revision 1.12  2004/09/02 23:41:33  jjacob
 -- cleaning up and formatting
 --
@@ -168,6 +174,10 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal ret_dat_cmd_valid               : std_logic;  
    signal ret_dat_stop_ack                : std_logic;
    signal ret_dat_start_ack               : std_logic;
+   
+   signal ret_dat_stop_mux                : std_logic;
+   signal ret_dat_stop_reg                : std_logic;
+   signal ret_dat_stop_mux_sel            : std_logic_vector(1 downto 0);
    
    signal card_addr                       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); 
    signal parameter_id                    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
@@ -336,6 +346,9 @@ begin
 
    process(current_state, ret_dat_start, ret_dat_stop_i, current_seq_num, ret_dat_s_seq_stop_num, ack_i)
    begin
+     --[JJ] quick fix
+     ret_dat_stop_mux_sel <= "00"; -- hold value;
+   
       case current_state is
 
          when RETURN_DATA_IDLE =>
@@ -344,7 +357,7 @@ begin
             else
                next_state <= RETURN_DATA_IDLE;
             end if;
-      
+            ret_dat_stop_mux_sel <= "11"; -- reset value
 --         when RETURN_DATA_IDLE =>
 --            if ret_dat_start = '1' and ack_i = '0' then
 --               next_state <= RETURN_DATA_1ST;
@@ -359,6 +372,7 @@ begin
                next_state <= RETURN_DATA_PAUSE;
             elsif ack_i = '1' and ret_dat_stop_i = '1' then
                next_state <= RETURN_DATA_LAST_PAUSE;
+               ret_dat_stop_mux_sel <= "01"; -- grab ret_dat_stop_i;
             else
                next_state <= RETURN_DATA_1ST;
             end if;
@@ -368,6 +382,7 @@ begin
                next_state <= RETURN_DATA_PAUSE;
             elsif ack_i = '1' and ret_dat_stop_i = '1' then
                next_state <= RETURN_DATA_LAST_PAUSE;
+               ret_dat_stop_mux_sel <= "01"; -- grab ret_dat_stop_i;
             else
                next_state <= RETURN_DATA;
             end if;
@@ -378,8 +393,18 @@ begin
          when RETURN_DATA_LAST_PAUSE =>
             next_state <= RETURN_DATA_LAST;
 
+--         when RETURN_DATA_PAUSE =>
+--            if ret_dat_stop_i = '1' or current_seq_num >= ret_dat_s_seq_stop_num then
+--               next_state <= RETURN_DATA_LAST;
+--            else
+--               next_state <= RETURN_DATA;
+--            end if;
+
          when RETURN_DATA_PAUSE =>
-            if ret_dat_stop_i = '1' or current_seq_num >= ret_dat_s_seq_stop_num then
+            if ret_dat_stop_i = '1' then
+               ret_dat_stop_mux_sel <= "01"; -- grab ret_dat_stop_i;
+               next_state <= RETURN_DATA_LAST;
+            elsif current_seq_num >= ret_dat_s_seq_stop_num then   
                next_state <= RETURN_DATA_LAST;
             else
                next_state <= RETURN_DATA;
@@ -418,6 +443,19 @@ begin
             
       end case;
    end process;
+
+   process(clk_i, rst_i)
+   begin
+      if rst_i = '1' then
+         ret_dat_stop_reg <= '0';
+      elsif clk_i'event and clk_i='1' then
+         ret_dat_stop_reg <= ret_dat_stop_mux;
+      end if;
+   end process;
+   
+   ret_dat_stop_mux <= ret_dat_stop_reg when ret_dat_stop_mux_sel = "00" else
+                       ret_dat_stop_i   when ret_dat_stop_mux_sel = "01" else
+                       '0';
 
 ------------------------------------------------------------------------
 --
@@ -559,7 +597,7 @@ begin
          when RETURN_DATA | RETURN_DATA_LAST  =>      --RETURN_DATA_STOP | RETURN_DATA_DONE | | RETURN_DATA_1ST | RETURN_DATA_ACK_1ST
               mux_sel           <= CURRENT_NUM_SEL;
 
-         when RETURN_DATA_PAUSE =>        
+         when RETURN_DATA_PAUSE | RETURN_DATA_LAST_PAUSE =>        
             mux_sel             <= CURRENT_NUM_PLUS_1_SEL;
   
          when others =>            
@@ -575,10 +613,14 @@ begin
 ------------------------------------------------------------------------
 
    ret_dat_stop_ack        <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i = '1'          else '0';
-   cmd_stop_o              <= ret_dat_stop_ack;
+   cmd_stop_o              <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg   = '1'          else '0';
+   --cmd_stop_o              <= ret_dat_stop_ack;
    
+--   last_frame_o            <= '1' when current_state = RETURN_DATA_LAST and 
+--                              (ret_dat_stop_i = '1' or current_seq_num >= ret_dat_s_seq_stop_num) else '0';
+--
    last_frame_o            <= '1' when current_state = RETURN_DATA_LAST and 
-                              (ret_dat_stop_i = '1' or current_seq_num >= ret_dat_s_seq_stop_num) else '0';
+                              (ret_dat_stop_reg  = '1' or current_seq_num >= ret_dat_s_seq_stop_num) else '0';
 
 
 ------------------------------------------------------------------------
