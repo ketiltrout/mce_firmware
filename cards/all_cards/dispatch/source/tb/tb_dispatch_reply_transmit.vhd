@@ -30,13 +30,19 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_dispatch_reply_transmit.vhd,v $
+-- Revision 1.1  2004/09/10 16:54:24  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.std_logic_arith.all;
+
+library sys_param;
+use sys_param.command_pack.all;
 
 library work;
 use work.dispatch_pack.all;
@@ -48,6 +54,7 @@ architecture BEH of TB_DISPATCH_REPLY_TRANSMIT is
 
    component DISPATCH_REPLY_TRANSMIT
       port(CLK_I         : in std_logic ;
+           MEM_CLK_I     : in std_logic ;
            COMM_CLK_I    : in std_logic ;
            RST_I         : in std_logic ;
            LVDS_TX_O     : out std_logic ;
@@ -71,10 +78,12 @@ architecture BEH of TB_DISPATCH_REPLY_TRANSMIT is
            lvds_i     : in std_logic);
    end component;
 
-   constant PERIOD : time := 80 ns;
-   constant COMM_PERIOD : time := 10 ns;
+   constant PERIOD : time := 20000 ps;
+   constant MEM_PERIOD : time := 5000 ps;
+   constant COMM_PERIOD : time := 2500 ps;
    
    signal W_CLK_I         : std_logic := '1';
+   signal W_MEM_CLK_I     : std_logic := '1';
    signal W_COMM_CLK_I    : std_logic := '1';
    signal W_RST_I         : std_logic ;
    signal W_LVDS_TX_O     : std_logic ;
@@ -94,6 +103,7 @@ begin
 
    DUT : DISPATCH_REPLY_TRANSMIT
       port map(CLK_I         => W_CLK_I,
+               MEM_CLK_I     => W_MEM_CLK_I,
                COMM_CLK_I    => W_COMM_CLK_I,
                RST_I         => W_RST_I,
                LVDS_TX_O     => W_LVDS_TX_O,
@@ -106,6 +116,7 @@ begin
                BUF_ADDR_O    => W_BUF_ADDR_O);
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
+   W_MEM_CLK_I <= not W_MEM_CLK_I after MEM_PERIOD/2;
    W_COMM_CLK_I <= not W_COMM_CLK_I after COMM_PERIOD/2;
    
    reply_buf_model: process(W_COMM_CLK_I)
@@ -169,7 +180,7 @@ begin
       W_HEADER1_I     <= (others => '0');
       W_HEADER2_I     <= (others => '0');
       
-      wait for 10 us;
+      wait for PERIOD;
    end transmit;
    
    begin
@@ -191,6 +202,10 @@ begin
       transmit("10101010101010100000000000000010", "11110000000010111010000000000000", "11111111000000000000000000000000");
       
       transmit("10101010101010100000000000001000", "00000000000000000000000000011111", "00000000000000000000000000000000");
+      
+      transmit("10101010101010100000000000001000", "00000000000000000000000000011111", "00000000000000000000000000000000");
+      
+      wait for 50 us;
       
       assert false report "End of simulation." severity FAILURE;
 
