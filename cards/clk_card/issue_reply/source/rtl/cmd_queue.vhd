@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.25 2004/07/26 19:31:13 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.26 2004/07/27 01:36:04 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.26  2004/07/27 01:36:04  bench2
+-- Bryce: in progress
+--
 -- Revision 1.25  2004/07/26 19:31:13  bench2
 -- Bryce: in progress
 --
@@ -191,6 +194,7 @@ signal crc_done             : std_logic;
 signal crc_valid            : std_logic;
 signal crc_checksum         : std_logic_vector(CHECKSUM_BUS_WIDTH-1 downto 0);
 signal crc_start            : std_logic; --Not part of the interface to the crc block; enables sh_reg and bit_ctr.
+signal crc_reg              : std_logic_vector(CHECKSUM_BUS_WIDTH-1 downto 0);
 
 -- Shift Register signals:
 signal sh_reg_serial_o      : std_logic;
@@ -952,6 +956,7 @@ begin
    -- There should be enough time in the sync period following the timeout_sync of a m-op to get rid of all it's u-ops and still have time to issue the u-ops that need to be issued during that period
    -- That is why we don't check for a range here - just for the sync period that is the timeout
    -- This second conditions checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
+   -- This condition won't work properly if a frame period is too short to issue a command within the correct period.
    uop_send_expired <= '1' when (sync_count_slv = timeout_sync or
                                 (sync_count_slv = timeout_sync - 1 and clk_count > START_OF_BLACKOUT)) else '0';
 
@@ -1051,8 +1056,8 @@ begin
             uop_data_count           <= (others => '0');
             uop_data_size            <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
-            previous_send_state      <= RESET;
             
+            previous_send_state      <= RESET;
             send_ptr                 <= ADDR_ZERO;
          
          when LOAD =>
@@ -1064,6 +1069,7 @@ begin
             uop_data_count           <= (others => '0');
             uop_data_size            <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
+            
             previous_send_state      <= LOAD;
          
          when HEADER_A =>
@@ -1080,6 +1086,7 @@ begin
             sh_reg_parallel_i        <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
 
             previous_send_state      <= HEADER_A;
+            send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
          
          when HEADER_B =>
             cmd_tx_start             <= '1';
@@ -1093,7 +1100,6 @@ begin
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
             previous_send_state      <= HEADER_B;
-            
             send_ptr                 <= send_ptr + 1;
          
          when DATA =>
@@ -1107,8 +1113,7 @@ begin
             cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             
-            previous_send_state      <= DATA;
-            
+            previous_send_state      <= DATA;            
             send_ptr                 <= send_ptr + 1;
          
          when MORE_DATA =>
@@ -1123,7 +1128,6 @@ begin
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
             previous_send_state      <= MORE_DATA;
-            
             send_ptr                 <= send_ptr + 1;
          
          when CHECKSUM =>
@@ -1133,20 +1137,21 @@ begin
             crc_start                <= '0';
             crc_num_bits             <= 0;
             uop_data_size            <= (others => '0');
-            cmd_tx_dat(31 downto  0) <= crc_checksum;
+            cmd_tx_dat(31 downto  0) <= crc_reg;
             sh_reg_parallel_i        <= (others => '0');
-            previous_send_state      <= CHECKSUM;
             
-            send_ptr                 <= send_ptr + 1; -- Move the pointer to the next u-op
+            previous_send_state      <= CHECKSUM;
+            --send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
          
          when PREGNANT_PAUSE =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             crc_start                <= '0';
-            -- uop_data_size            <= not to be zero'ed here.  This is an intermediate state between the HEADER, DATA and CHECKSUM states
+            --uop_data_size            <= '0';  Not to be zero'ed here.  This is an intermediate state between the HEADER, DATA and CHECKSUM states
             sh_reg_parallel_i        <= (others => '0');
-            previous_send_state      <= PREGNANT_PAUSE;
+
+            --previous_send_state      <= PREGNANT_PAUSE;  Not to be changed here.  This variable needs to be maintained as it is through the PREGNANT_PAUSE state so that it can branch correctly in the send_state_NS FSM.
          
          when NEXT_UOP =>
             cmd_tx_start             <= '0';
@@ -1179,8 +1184,7 @@ begin
    -- CRC logic
    crc_ena           <= '1' when bit_ctr_count < 32 else '0';   
    crc_data          <= sh_reg_serial_o;
--- This signal is assigned in the send FSM
---   sh_reg_parallel_i <= qa_sig(QUEUE_WIDTH-1 downto 0);
+   crc_reg           <= crc_checksum when crc_done = '1' else crc_reg;
 
 end behav;
 
