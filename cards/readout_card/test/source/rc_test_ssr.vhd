@@ -31,8 +31,11 @@
 -- connect ADCs to parallel DACs and run a square wave on serial DACs
 --
 -- Revision history:
--- <date $Date: 2004/12/08 20:56:59 $>    - <initials $Author: bench1 $>
+-- <date $Date: 2004/12/08 22:40:10 $>    - <initials $Author: bench2 $>
 -- $Log: rc_test_ssr.vhd,v $
+-- Revision 1.3  2004/12/08 22:40:10  bench2
+-- mandana: added state machine to apply slow enable
+--
 -- Revision 1.2  2004/12/08 20:56:59  bench1
 -- Mandana: slowing down the enable
 --
@@ -136,11 +139,16 @@ architecture behaviour of rc_test is
         e0 : out std_logic);
    end component;
   
-   -- controller states:
-   type states is (IDLE, WAIT_FOR_DONE, DONE); 
+   constant IDLE : std_logic_vector(1 downto 0) :="00";
+   constant WAIT_FOR_DONE : std_logic_vector(1 downto 0) :="01";
+   constant DONE : std_logic_vector(1 downto 0) :="10";
+   constant QUIET : std_logic_vector(1 downto 0) :="11";
 
-   signal present_state         : states;
-   signal next_state            : states;
+   -- controller states:
+ --  type states is (IDLE, WAIT_FOR_DONE, DONE, QUIET); 
+   
+   signal present_state         : std_logic_vector(1 downto 0);
+   signal next_state            : std_logic_vector(1 downto 0);
 
    signal clk : std_logic;   
    signal rst : std_logic;
@@ -163,6 +171,7 @@ architecture behaviour of rc_test is
    
    signal en_toggle, en_toggle_slow, en_dac: std_logic;
    signal clk_count: integer;
+   signal clk_count1: integer;
    signal nclk     : std_logic;
    signal dac_done    : std_logic;
    
@@ -175,7 +184,7 @@ begin
                e0 => outclk);
 
    en_toggle_div_16: counter
-   generic map(MAX => 16,
+   generic map(MAX => 128,
                STEP_SIZE => 1,
                WRAP_AROUND => '1',
                UP_COUNTER => '1')
@@ -186,7 +195,19 @@ begin
             count_i => 0 ,
             count_o => clk_count);
    en_toggle_slow   <= '1' when clk_count = 1 else '0';
-     
+
+   en_dac_count: counter
+   generic map(MAX => 255,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
+   port map(clk_i   => clk,
+            rst_i   => not en_toggle_slow,
+            ena_i   => '1',
+            load_i  => '0',
+            count_i => 0 ,
+            count_o => clk_count1);
+   en_dac   <= '1' when clk_count1 < 6 and clk_count1 > 0 else '0';
      
    rc_serial_dac : rc_serial_dac_test_wrapper
       port map(
@@ -222,41 +243,6 @@ begin
 --               dac_clk_o   => dac_FB_clk);
 
    
-     -- state register:
-   state_FF: process(clk, n_rst)
-   begin
-      if(n_rst = '0') then 
-         present_state <= IDLE;
-      elsif(clk'event and clk = '1') then
-         present_state <= next_state;
-      end if;
-   end process state_FF;
-   ---------------------------------------------------------------   
-   state_NS: process(present_state, en_toggle_slow, dac_done)
-   begin
-      case present_state is
-         when IDLE =>     
-            if(en_toggle_slow = '1') then
-               next_state <= WAIT_FOR_DONE;
-            else
-               next_state <= IDLE;
-            end if;
-            
-         when WAIT_FOR_DONE =>
-            if (dac_done  <= '1') then
-               next_state <= DONE;
-            else
-               next_state <= WAIT_FOR_DONE;
-            end if;
-            
-         when DONE =>
-            next_state <= IDLE;
-         when others =>
-            next_state <= IDLE;
-      end case;   
-   end process state_NS;        
-  ---------------------------------------------------------------      
-   en_dac <= '1' when present_state = WAIT_FOR_DONE else '0';
                
    dac_dat        <= test_dac_data;
    dac_clk       <= test_dac_clk;
@@ -295,7 +281,11 @@ begin
       
       nclk <= not(clk);
       dac_FB_clk <= (others => nclk);
-      smb_clk <= en_dac;
-      smb_data <= dac_done;
-      
+      smb_clk <= dac_done;
+      smb_data <= en_dac;
+      mictor(0) <= clk;
+      mictor(1) <= en_toggle_slow;
+      mictor(2) <= dac_done;
+      mictor(3) <= en_dac;
+      mictor(5 downto 4) <= present_state;
 end behaviour;
