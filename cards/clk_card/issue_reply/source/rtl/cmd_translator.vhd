@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.25 2004/12/16 18:53:05 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.26 2005/02/19 22:40:17 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/12/16 18:53:05 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2005/02/19 22:40:17 $> -     <text>      - <initials $Author: mandana $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.26  2005/02/19 22:40:17  mandana
+-- jjacob: registered all outputs going to cmd_queue
+--
 -- Revision 1.25  2004/12/16 18:53:05  bench2
 -- Mandana: added comments on how to disable internal commands
 --
@@ -159,8 +162,7 @@ port(
       rst_i             : in     std_logic;
       clk_i             : in     std_logic;
 
-      -- inputs from fibre_rx      
-
+      -- inputs from fibre_rx
       card_id_i         : in    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
       cmd_code_i        : in    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
       cmd_data_i        : in    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- the data
@@ -173,6 +175,10 @@ port(
       -- output to fibre_rx
       ack_o             : out std_logic;
       
+      -- ret_dat_wbs interface:
+      start_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      stop_seq_num_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
       -- other inputs 
       sync_pulse_i      : in    std_logic;
       sync_number_i     : in    std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);     --(7 downto 0);
@@ -262,8 +268,6 @@ architecture rtl of cmd_translator is
    signal internal_cmd_type            : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
    signal internal_cmd_ack             : std_logic;
    
---   signal macro_instr_rdy            : std_logic;
---   signal cmd_code                   : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);
    signal ret_dat_cmd_stop           : std_logic;
    signal ret_dat_last_frame         : std_logic;
 
@@ -273,50 +277,36 @@ architecture rtl of cmd_translator is
    constant START_CMD                : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0) := x"474F";
    constant STOP_CMD                 : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0) := x"5354";
    
---   signal parameter_id               : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
---   signal card_addr                  : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-
-
-
    -- registered signals going to cmd_queue
-   signal card_addr_reg       	   : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-   signal parameter_id_reg    	   : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
-   signal data_size_reg       	   : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
-   signal data_reg            	   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       
-   signal data_clk_reg        	   : std_logic;
-   signal macro_instr_rdy_reg 	   : std_logic;
-   signal cmd_type_reg        	   : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);   
-   signal cmd_stop_reg        	   : std_logic; 
-   signal last_frame_reg      	   : std_logic; 
-   signal internal_cmd_reg    	   : std_logic;                                       
-   signal m_op_seq_num_reg    	   : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
-   signal frame_seq_num_reg   	   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal frame_sync_num_reg  	   : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0); 
-				   
-   signal card_addr		   : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-   signal parameter_id		   : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
-   signal data_size		   : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
-   signal data			   : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       
-   signal data_clk		   : std_logic;
-   signal macro_instr_rdy	   : std_logic;
-   signal cmd_type		   : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);   
+   signal card_addr_reg             : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal parameter_id_reg          : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+   signal data_size_reg             : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+   signal data_reg                  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       
+   signal data_clk_reg              : std_logic;
+   signal macro_instr_rdy_reg       : std_logic;
+   signal cmd_type_reg              : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);   
+   signal cmd_stop_reg              : std_logic; 
+   signal last_frame_reg            : std_logic; 
+   signal internal_cmd_reg          : std_logic;                                       
+   signal m_op_seq_num_reg          : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+   signal frame_seq_num_reg         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal frame_sync_num_reg        : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0); 
+               
+   signal card_addr        : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal parameter_id        : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+   signal data_size        : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+   signal data          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       
+   signal data_clk         : std_logic;
+   signal macro_instr_rdy     : std_logic;
+   signal cmd_type         : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);   
    signal cmd_stop_cmd_queue       : std_logic; 
-   signal last_frame		   : std_logic; 
-   signal internal_cmd		   : std_logic;                                       
-   signal m_op_seq_num		   : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
-   signal frame_seq_num	           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   signal frame_sync_num	   : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0); 
-
-
-
-
-
-
-
-
-
+   signal last_frame       : std_logic; 
+   signal internal_cmd        : std_logic;                                       
+   signal m_op_seq_num        : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+   signal frame_seq_num            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal frame_sync_num      : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
+   
 begin
-
 
 ------------------------------------------------------------------------
 --
@@ -351,7 +341,6 @@ begin
 
                   ret_dat_start        <= '0';
                   ret_dat_stop         <= '1';
-                  --ret_dat_stop_ack     <= '1';
                   
                   ret_dat_s_start      <= '0';
                   ret_dat_s_ack        <= '0';
@@ -361,17 +350,17 @@ begin
                   
                end if;   
                
-            when RET_DAT_S_ADDR     =>
-            
-               ret_dat_start           <= '0';
-               ret_dat_stop            <= '0';
-              
-               ret_dat_s_start         <= '1';
-               ret_dat_s_ack           <= '1';
-       
-               cmd_start               <= '0';
-               cmd_stop                <= '0';
-
+--            when RET_DAT_S_ADDR     =>
+--            
+--               ret_dat_start           <= '0';
+--               ret_dat_stop            <= '0';
+--              
+--               ret_dat_s_start         <= '1';
+--               ret_dat_s_ack           <= '1';
+--       
+--               cmd_start               <= '0';
+--               cmd_stop                <= '0';
+--
 --            ---------------------------------------------------------------------------------
 --            -- Address Card Specific
 --                  
@@ -425,7 +414,6 @@ begin
 --                 STRT_MUX_ADDR      |
 --                 ROW_ORDER_ADDR     |
 --                 
-----                 DBL_BUFF_ADDR      |
 --                 ACTV_ROW_ADDR      |
 --                 USE_DV_ADDR        |
 --
@@ -547,13 +535,13 @@ begin
       internal_cmd_start      <= '0';  
    elsif clk_i'event and clk_i = '1' then   
    -- in order to disable internal commands, start commenting from here
-   --   if time >= 300 then --1000000 then  -- 1x10^6 us = 1s
-   --      timer_rst            <= '1';
-   --      internal_cmd_start   <= '1';      
-   --   else
-   --      timer_rst            <= '0';
-   --      internal_cmd_start   <= '0';      
-   --   end if;
+      if time >= 1000000 then --1000000 then  -- 1x10^6 us = 1s
+         timer_rst            <= '1';
+         internal_cmd_start   <= '1';      
+      else
+         timer_rst            <= '0';
+         internal_cmd_start   <= '0';      
+      end if;
    -- end of comments for disabling internal commands.
    end if;
    end process;
@@ -639,10 +627,8 @@ begin
 ------------------------------------------------------------------------ 
 
 i_return_data_cmd : cmd_translator_ret_dat_fsm
-
-port map(
-
-     -- global inputs
+   port map(
+      -- global inputs
       rst_i                  => rst_i,
       clk_i                  => clk_i,
 
@@ -654,6 +640,10 @@ port map(
       data_clk_i                 => data_clk_i,                          -- for clocking out the data
       cmd_code_i             => cmd_code_i,
       
+      -- ret_dat_wbs interface:
+      start_seq_num_i        => start_seq_num_i,
+      stop_seq_num_i         => stop_seq_num_i, 
+
       -- other inputs
       sync_pulse_i           => sync_pulse_i,
       sync_number_i          => sync_number_i,   -- a counter of synch pulses 
@@ -662,7 +652,6 @@ port map(
       ret_dat_cmd_valid_o    => ret_dat_cmd_valid,
     
       ret_dat_s_start_i      => ret_dat_s_start,
-      ret_dat_s_done_o       => ret_dat_s_done,
  
       -- outputs to the macro-instruction arbiter
       card_addr_o            => ret_dat_cmd_card_addr,    -- specifies which card the command is targetting

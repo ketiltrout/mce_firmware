@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.76 2005/02/17 22:59:02 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.77 2005/02/20 00:13:59 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.77  2005/02/20 00:13:59  bburger
+-- Bryce:  added a uop_timeout signal to the interface that will tell the cmd_queue to skip a command if it times out in the reply_queue
+--
 -- Revision 1.76  2005/02/17 22:59:02  bburger
 -- Bryce:  fixed certain timing problems in cmd_queue
 --
@@ -219,7 +222,7 @@ signal data_size_mux        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_size_mux_sel    : std_logic;
 
 -- Send FSM:  sends u-ops over the bus backplane
-type send_states is (LOAD, BUFFER_CMD_PARAM, ISSUE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, DATA, MORE_DATA, CHECKSUM, NEXT_UOP, PAUSE, BRANCH, LATCH_CRC);
+type send_states is (LOAD, BUFFER_CMD_PARAM, ISSUE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, SOME_DATA, MORE_DATA, CHECKSUM, NEXT_UOP, PAUSE, BRANCH, LATCH_CRC);
 signal present_send_state   : send_states;
 signal next_send_state      : send_states;
 signal previous_send_state  : send_states;
@@ -509,7 +512,7 @@ begin
          when INSERT_HDR3 =>
             next_insert_state <= INSERT_HDR4;
          when INSERT_HDR4 =>
-            if((cmd_type_i = READ_BLOCK) or (data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0) = x"0000")) then
+            if((cmd_type_i = READ_BLOCK) or (cmd_type_i = DATA) or (data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0) = x"0000")) then
                next_insert_state <= DONE;
             else
                next_insert_state <= DATA_STROBE_DETECT;
@@ -547,6 +550,7 @@ begin
          when "010" => data_sig_mux <= (new_card_addr & par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) & mop_i & num_uops_inserted_slv);
          when "011" => data_sig_mux <= "00000000000000000000000000000" & internal_cmd_i & cmd_stop_i & last_frame_i;
          when "100" => data_sig_mux <= frame_seq_num_i; 
+         when "101" => data_sig_mux <= (issue_sync_i & cmd_type_i & "0000101001000");
          when others => data_sig_mux <= data_i;
       end case;
    end process;
@@ -600,7 +604,13 @@ begin
             data_count_mux_sel     <= "11";
             mop_ack_o              <= '0';
             insert_uop_ack         <= '0';
-            data_sig_mux_sel       <= "001";
+
+            if(cmd_type_i = DATA) then
+               data_sig_mux_sel    <= "101";
+            else
+               data_sig_mux_sel       <= "001";
+            end if;
+
             free_ptr_mux_sel       <= "01";
             data_size_mux_sel      <= '1';
             one_more               <= '1';
@@ -629,14 +639,14 @@ begin
             -- In this implememtation, data are not replicated for other u-ops, if the m-op generates several u-ops.
             -- This means that all m-ops with data can only generate a single u-op..for now.
             -- If a m-op is issued with data and generated several u-ops, only the last one will have data.
-            if(num_uops_inserted = num_uops and data_size_reg /= x"0000" and cmd_type_i /= READ_BLOCK) then
+            if(num_uops_inserted = num_uops and data_size_reg /= x"0000" and cmd_type_i /= READ_BLOCK and cmd_type_i /= DATA) then
                mop_ack_o           <= '1';
             else 
                mop_ack_o           <= '0';
             end if;
             
             insert_uop_ack         <= '0';
-            data_sig_mux_sel       <= "100";
+            data_sig_mux_sel    <= "100";
             free_ptr_mux_sel       <= "01";
 
          when DATA_STROBE_DETECT =>
@@ -672,7 +682,7 @@ begin
             -- If there is no data with the m-op, then asserting mop_ack_o in the INSERT_HDR2 state would be too soon
             -- In this case, by delaying its assertion until DONE, we ensure that the cmd_translator doesn't try to insert the next m_op too soon.
             -- I think that I might have to register num_uops_inserted and num_uops to make sure that they are valid when I do this check
-            if(num_uops_inserted = num_uops and (data_size_reg = x"0000" or cmd_type_i = READ_BLOCK)) then
+            if(num_uops_inserted = num_uops and (data_size_reg = x"0000" or cmd_type_i = READ_BLOCK or cmd_type_i = DATA)) then
                mop_ack_o          <= '1';
             else
                mop_ack_o          <= '0';
@@ -729,13 +739,13 @@ begin
 
          -- This signal is to be used to determine when there is a u-op to retire.  
          -- This signal should not be asserted until the entire u-op pointed to by retire_ptr has been issued (not including the CRC).   
-         if((retire_ptr < send_ptr) and (retire_cmd_code /= READ_BLOCK) and (send_ptr - retire_ptr >= CQ_NUM_CMD_HEADER_WORDS + retire_data_size)) then
+         if((retire_ptr < send_ptr) and (retire_cmd_code /= READ_BLOCK and retire_cmd_code /= DATA) and (send_ptr - retire_ptr >= CQ_NUM_CMD_HEADER_WORDS + retire_data_size)) then
             uop_to_retire <= '1';
-         elsif((retire_ptr > send_ptr) and (retire_cmd_code /= READ_BLOCK) and (retire_ptr - send_ptr <= QUEUE_LEN - CQ_NUM_CMD_HEADER_WORDS - retire_data_size)) then
+         elsif((retire_ptr > send_ptr) and (retire_cmd_code /= READ_BLOCK and retire_cmd_code /= DATA) and (retire_ptr - send_ptr <= QUEUE_LEN - CQ_NUM_CMD_HEADER_WORDS - retire_data_size)) then
             uop_to_retire <= '1';
-         elsif((retire_ptr < send_ptr) and (retire_cmd_code = READ_BLOCK) and (send_ptr - retire_ptr >= CQ_NUM_CMD_HEADER_WORDS)) then
+         elsif((retire_ptr < send_ptr) and (retire_cmd_code = READ_BLOCK or retire_cmd_code = DATA) and (send_ptr - retire_ptr >= CQ_NUM_CMD_HEADER_WORDS)) then
             uop_to_retire <= '1';
-         elsif((retire_ptr > send_ptr) and (retire_cmd_code = READ_BLOCK) and (retire_ptr - send_ptr <= QUEUE_LEN - CQ_NUM_CMD_HEADER_WORDS)) then
+         elsif((retire_ptr > send_ptr) and (retire_cmd_code = READ_BLOCK or retire_cmd_code = DATA) and (retire_ptr - send_ptr <= QUEUE_LEN - CQ_NUM_CMD_HEADER_WORDS)) then
             uop_to_retire <= '1';
          else
             uop_to_retire <= '0';
@@ -849,7 +859,7 @@ begin
             retire_ptr_mux_sel <= "101"; 
 
          when HEADER_D =>
-            if(retire_cmd_code = READ_BLOCK) then
+            if(retire_cmd_code = READ_BLOCK or retire_cmd_code = DATA) then
                retire_ptr_mux_sel <= "101";
             else
                retire_ptr_mux_sel <= "110";
@@ -1230,7 +1240,7 @@ begin
          when HEADER_D =>
             next_send_state <= PAUSE;
          
-         when DATA =>
+         when SOME_DATA =>
             next_send_state <= PAUSE;
          
          when MORE_DATA =>
@@ -1245,12 +1255,12 @@ begin
                if(previous_send_state = HEADER_A) then
                   next_send_state <= HEADER_B;
                elsif(previous_send_state = HEADER_B) then
-                  if(send_data_size_int = 0 or send_cmd_code = READ_BLOCK) then
+                  if(send_data_size_int = 0 or send_cmd_code = READ_BLOCK or send_cmd_code = DATA) then
                      next_send_state <= CHECKSUM;
                   else
-                     next_send_state <= DATA;
+                     next_send_state <= SOME_DATA;
                   end if;
-               elsif(previous_send_state = DATA) then
+               elsif(previous_send_state = SOME_DATA) then
                   if(uop_data_count < send_data_size) then
                      next_send_state <= MORE_DATA;
                   else
@@ -1258,7 +1268,7 @@ begin
                   end if;
                elsif(previous_send_state = MORE_DATA) then
                   if(uop_data_count < send_data_size) then
-                     next_send_state <= DATA;
+                     next_send_state <= SOME_DATA;
                   else
                      next_send_state <= CHECKSUM;
                   end if;
@@ -1343,7 +1353,7 @@ begin
             bit_ctr_ena              <= '1';
             bit_ctr_load             <= '1';            
             
-            if(send_cmd_code = READ_BLOCK) then
+            if(send_cmd_code = READ_BLOCK or send_cmd_code = DATA) then
                crc_num_bits_mux_sel     <= "10";
             else
                crc_num_bits_mux_sel     <= "01";
@@ -1365,7 +1375,7 @@ begin
             update_prev_state        <= '1';
             send_ptr_mux_sel         <= "011"; 
         
-         when DATA =>
+         when SOME_DATA =>
             lvds_tx_rdy              <= '1';
             bit_ctr_ena              <= '1';
             bit_ctr_load             <= '1';

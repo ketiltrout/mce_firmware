@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.35 2005/02/20 00:13:59 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.36 2005/02/20 02:00:29 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/02/20 00:13:59 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/02/20 02:00:29 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.36  2005/02/20 02:00:29  bburger
+-- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
+--
 -- Revision 1.35  2005/02/20 00:13:59  bburger
 -- Bryce:  added a uop_timeout signal to the interface that will tell the cmd_queue to skip a command if it times out in the reply_queue
 --
@@ -124,7 +127,11 @@ entity issue_reply is
       fibre_clkw_i      : in std_logic;                          -- in phase with 25MHz hotlink clock
 
       -- lvds_tx interface
-      lvds_cmd_o              : out std_logic;  -- transmitter output pin
+      lvds_cmd_o        : out std_logic;  -- transmitter output pin
+
+      -- ret_dat_wbs interface:
+      start_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      stop_seq_num_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- sync_gen interface
       sync_pulse_i      : in std_logic;
@@ -357,6 +364,9 @@ begin
          reply_param_id_o    => reply_param_id,
          reply_card_id_o     => reply_card_id,         
          
+         start_seq_num_i     => start_seq_num_i,
+         stop_seq_num_i      => stop_seq_num_i,
+
          sync_pulse_i        => sync_pulse_i,
          sync_number_i       => sync_number_i
       );

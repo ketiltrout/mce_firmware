@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.16 2004/10/08 19:45:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.17 2004/11/14 22:33:29 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,71 +33,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/08 19:45:26 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/11/14 22:33:29 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
--- Revision 1.16  2004/10/08 19:45:26  bburger
--- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
---
--- Revision 1.15  2004/09/30 22:34:44  erniel
--- using new command_pack constants
---
--- Revision 1.14  2004/09/11 00:21:27  jjacob
--- fixed syn number and timing of last, stop signals to cmd_queue
---
--- Revision 1.13  2004/09/09 18:26:05  jjacob
--- added 3 outputs:
--- >       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
--- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
--- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
---
--- Revision 1.12  2004/09/02 23:41:33  jjacob
--- cleaning up and formatting
---
--- Revision 1.11  2004/09/02 18:24:36  jjacob
--- cleaning up and formatting
---
--- Revision 1.10  2004/08/06 00:29:56  jjacob
--- added +1 to the current sync number so ret_dat commands always start
--- on the next sync pulse
---
--- Revision 1.9  2004/08/05 18:14:52  jjacob
--- changed frame_sync_num_o to use the parameter
--- SYNC_NUM_WIDTH
---
--- Revision 1.8  2004/07/28 23:38:34  jjacob
--- added:
--- library sys_param;
--- use sys_param.command_pack.all;
--- overhauled state machine structure
---
--- Revision 1.7  2004/07/06 20:12:39  jjacob
--- decoupled the current_sync_num and current_seq_num from the
--- sync_number_i input
---
--- Revision 1.6  2004/07/05 23:38:10  jjacob
--- added ack_o signal to cmd_translator_ret_dat_fsm to control the
--- acknowledge signal back to the fibre_rx block
---
--- Revision 1.5  2004/06/21 17:02:14  jjacob
--- first stable version, doesn't yet have macro-instruction buffer, doesn't have
--- "quick" acknolwedgements for instructions that require them, no error
--- handling, basically no return path logic yet.  Have implemented ret_dat
--- instructions, and "simple" instructions.  Not all instructions are fully
--- implemented yet.
---
--- Revision 1.4  2004/06/10 21:15:32  jjacob
--- no message
---
--- Revision 1.3  2004/06/09 23:36:02  jjacob
--- cleaned formatting
---
--- Revision 1.2  2004/06/03 23:39:47  jjacob
--- safety checkin
---
--- Revision 1.1  2004/05/28 15:52:27  jjacob
--- first version
---
+-- Revision 1.17  2004/11/14 22:33:29  bburger
+-- Jonathan : modified cmd_type_o to output the "STOP" command code on the last frame of data when a "STOP" command is received.
 --
 -- 
 -----------------------------------------------------------------------------
@@ -119,16 +59,12 @@ library work;
 use work.sync_gen_pack.all;
 
 entity cmd_translator_ret_dat_fsm is
-
 port(
-
-     -- global inputs
-
+      -- global inputs
       rst_i                   : in     std_logic;
       clk_i                   : in     std_logic;
 
       -- inputs from fibre_rx      
-
       card_addr_i             : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_i          : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_i             : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
@@ -136,6 +72,10 @@ port(
       data_clk_i              : in std_logic;                                                    -- for clocking out the data
       cmd_code_i              : in std_logic_vector (15 downto 0);
       
+      -- ret_dat_wbs interface:
+      start_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      stop_seq_num_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
       -- other inputs
       sync_pulse_i            : in std_logic;
       sync_number_i           : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);                      -- a counter of synch pulses 
@@ -145,7 +85,6 @@ port(
       ret_dat_cmd_valid_o     : out std_logic;
     
       ret_dat_s_start_i       : in std_logic;
-      ret_dat_s_done_o        : out std_logic;
       
       frame_seq_num_o         : out std_logic_vector (31 downto 0);
       frame_sync_num_o        : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);   -- (7 downto 0);
@@ -161,7 +100,6 @@ port(
       cmd_stop_o              : out std_logic;                      
       last_frame_o            : out std_logic;
       
-      
       ret_dat_fsm_working_o   : out std_logic;                                                    -- indicates the state machine is busy
       
       -- input from the macro-instruction arbiter
@@ -169,7 +107,6 @@ port(
 
       -- output to the cmd_translator top level
       ack_o                   : out std_logic                                           -- acknowledge signal going back to the fibre_rx block
-
    ); 
      
 end cmd_translator_ret_dat_fsm;
@@ -199,14 +136,6 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal parameter_id_reg                : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
    signal data_size_reg                   : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
    signal data_reg                        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-   
-   signal ret_dat_s_seq_start_num         : std_logic_vector (31 downto 0);
-   signal ret_dat_s_seq_start_num_mux     : std_logic_vector (31 downto 0);
-   signal ret_dat_s_seq_start_num_mux_sel : std_logic;
-   
-   signal ret_dat_s_seq_stop_num          : std_logic_vector (31 downto 0);
-   signal ret_dat_s_seq_stop_num_mux      : std_logic_vector (31 downto 0);
-   signal ret_dat_s_seq_stop_num_mux_sel  : std_logic;
    
    signal word_count                      : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
    
@@ -238,100 +167,6 @@ architecture rtl of cmd_translator_ret_dat_fsm is
 
 begin
 
-   -- dummy assignment, get rid of this signal later
-   ret_dat_s_done_o        <= '0';
-
-------------------------------------------------------------------------
---
--- recirculation mux and process for capturing start and stop frame numbers
--- July 26, 2004
---
-------------------------------------------------------------------------
- 
-   ret_dat_s_seq_start_num_mux <= data_i when ret_dat_s_seq_start_num_mux_sel = '1' else ret_dat_s_seq_start_num;  
-   ret_dat_s_seq_stop_num_mux  <= data_i when ret_dat_s_seq_stop_num_mux_sel = '1'  else ret_dat_s_seq_stop_num;
-   
-   process(clk_i, rst_i)
-   begin
-      if rst_i = '1' then
-         ret_dat_s_seq_start_num <= (others=>'0');
-         ret_dat_s_seq_stop_num  <= (others=>'0');
-      elsif clk_i'event and clk_i = '1' then
-         ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num_mux;
-         ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num_mux;
-      end if;
-   end process;
-   
-  
-------------------------------------------------------------------------
---
--- synchronous state machine for grabbing ret_dat_s data
--- July 26, 2004
---
-------------------------------------------------------------------------
-
-   process(ret_dat_s_start_i, data_clk_i,
-           sync_current_state, ret_dat_start_i, ret_dat_done)
-           
-   begin
-
-      ret_dat_s_seq_stop_num_mux_sel  <= '0';
-      ret_dat_s_seq_start_num_mux_sel <= '0';
-      ret_dat_start                   <= '0';
-      
-      case sync_current_state is
-         when IDLE =>
-            if ret_dat_s_start_i = '1' then          
-               if data_clk_i = '1' then
-                  ret_dat_s_seq_start_num_mux_sel <= '1';
-                  sync_next_state          <= SET_SEQ_NUM_2;
-               else
-                  sync_next_state          <= SET_SEQ_NUM_1;
-               end if;
-            elsif ret_dat_start_i = '1' then
-               ret_dat_start               <= '1';  
-               sync_next_state             <= RETURN_DATA_WAIT;
-            elsif ret_dat_done = '1' then
-               ret_dat_start               <= '0';       
-               sync_next_state             <= IDLE;
-            else
-               sync_next_state             <= IDLE;
-            end if;
-         
-         when SET_SEQ_NUM_1 =>
-            if data_clk_i = '1' then
-               ret_dat_s_seq_start_num_mux_sel <= '1';
-               sync_next_state             <= SET_SEQ_NUM_2;
-            else
-               sync_next_state             <= SET_SEQ_NUM_1;
-            end if;
-
-         when SET_SEQ_NUM_2 =>
-            if data_clk_i = '1' then
-               ret_dat_s_seq_stop_num_mux_sel  <= '1';
-               if ret_dat_start_i = '1' then
-                  sync_next_state          <= RETURN_DATA_WAIT;
-               else
-                  sync_next_state          <= IDLE;
-               end if;
-            else
-               sync_next_state             <= SET_SEQ_NUM_2;
-            end if;
-                         
-         when RETURN_DATA_WAIT =>
-            if ret_dat_done = '1' then
-               sync_next_state             <= IDLE;
-            else
-               sync_next_state             <= RETURN_DATA_WAIT;
-               ret_dat_start               <= '1';
-            end if;
-
-         when others =>
-            sync_next_state                <= IDLE;
-    
-      end case;  
-   end process;
- 
 ------------------------------------------------------------------------
 --
 -- sequencer for state machines
@@ -355,7 +190,7 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, ret_dat_start, ret_dat_stop_i, current_seq_num, ret_dat_s_seq_stop_num, ack_i)
+   process(current_state, ret_dat_start, ret_dat_stop_i, current_seq_num, stop_seq_num_i, ack_i)
    begin
      --[JJ] quick fix
      ret_dat_stop_mux_sel <= "00"; -- hold value;
@@ -369,14 +204,6 @@ begin
                next_state <= RETURN_DATA_IDLE;
             end if;
             ret_dat_stop_mux_sel <= "11"; -- reset value
---         when RETURN_DATA_IDLE =>
---            if ret_dat_start = '1' and ack_i = '0' then
---               next_state <= RETURN_DATA_1ST;
---            elsif ret_dat_start = '1' and ack_i = '1' then
---               next_state <= RETURN_DATA_ACK_1ST;
---            else
---               next_state <= RETURN_DATA_IDLE;
---            end if;
       
          when RETURN_DATA_1ST =>
             if ack_i = '1' and ret_dat_stop_i = '0' then
@@ -398,24 +225,14 @@ begin
                next_state <= RETURN_DATA;
             end if;
 
---         when RETURN_DATA_ACK_1ST =>
---            next_state    <= RETURN_DATA_PAUSE;
-
          when RETURN_DATA_LAST_PAUSE =>
             next_state <= RETURN_DATA_LAST;
-
---         when RETURN_DATA_PAUSE =>
---            if ret_dat_stop_i = '1' or current_seq_num >= ret_dat_s_seq_stop_num then
---               next_state <= RETURN_DATA_LAST;
---            else
---               next_state <= RETURN_DATA;
---            end if;
 
          when RETURN_DATA_PAUSE =>
             if ret_dat_stop_i = '1' then
                ret_dat_stop_mux_sel <= "01"; -- grab ret_dat_stop_i;
                next_state <= RETURN_DATA_LAST;
-            elsif current_seq_num >= ret_dat_s_seq_stop_num then   
+            elsif current_seq_num >= stop_seq_num_i then   
                next_state <= RETURN_DATA_LAST;
             else
                next_state <= RETURN_DATA;
@@ -428,27 +245,6 @@ begin
                next_state <= RETURN_DATA_LAST;
             end if;     
 
---         when RETURN_DATA_PAUSE =>
---            if ret_dat_stop_i = '1' then
---               next_state <= RETURN_DATA_STOP;
---            elsif current_seq_num >= ret_dat_s_seq_stop_num then
---               next_state <= RETURN_DATA_DONE;
---            else
---               next_state <= RETURN_DATA;
---            end if;
---                    
---         when RETURN_DATA_STOP =>
---            next_state    <= RETURN_DATA_IDLE;
-            
-       
-      
---         when RETURN_DATA_DONE =>
---            if ack_i = '1' then
---               next_state <= RETURN_DATA_IDLE;
---            else
---               next_state <= RETURN_DATA_DONE;
---            end if;    
-                        
          when others =>
             next_state    <= RETURN_DATA_IDLE;
             
@@ -467,6 +263,43 @@ begin
    ret_dat_stop_mux <= ret_dat_stop_reg when ret_dat_stop_mux_sel = "00" else
                        ret_dat_stop_i   when ret_dat_stop_mux_sel = "01" else
                        '0';
+
+------------------------------------------------------------------------
+--
+-- synchronous state machine for grabbing ret_dat_s data
+-- July 26, 2004
+--
+------------------------------------------------------------------------
+
+   process(sync_current_state, ret_dat_start_i, ret_dat_done)
+   begin
+      ret_dat_start                   <= '0';
+      case sync_current_state is
+         
+         when IDLE =>
+            if ret_dat_start_i = '1' then
+               ret_dat_start               <= '1';  
+               sync_next_state             <= RETURN_DATA_WAIT;
+            elsif ret_dat_done = '1' then
+               ret_dat_start               <= '0';       
+               sync_next_state             <= IDLE;
+            else
+               sync_next_state             <= IDLE;
+            end if;
+
+         when RETURN_DATA_WAIT =>
+            if ret_dat_done = '1' then
+               sync_next_state             <= IDLE;
+            else
+               sync_next_state             <= RETURN_DATA_WAIT;
+               ret_dat_start               <= '1';
+            end if;
+
+         when others =>
+            sync_next_state                <= IDLE;
+    
+      end case;  
+   end process;
 
 ------------------------------------------------------------------------
 --
@@ -533,39 +366,7 @@ begin
                ret_dat_cmd_valid       <= '1';
                macro_instr_rdy_o       <= '1';
                ret_dat_fsm_working     <= '1';
-            end if;           
-
-            
---         when RETURN_DATA_LAST =>
---           if ack_i = '1' then
---               ret_dat_cmd_valid       <= '1';
---               macro_instr_rdy_o       <= '1';
---               ret_dat_done            <= '1';
---               ret_dat_fsm_working     <= '1';
---            else
---               ret_dat_cmd_valid       <= '1';
---               macro_instr_rdy_o       <= '1';
---               ret_dat_fsm_working     <= '1';
---            end if;           
-         
-
-                  
---         when RETURN_DATA_STOP =>  -- JJ Need to take some action, like send response back to Linux machine
---            ret_dat_done               <= '1';
---            ret_dat_fsm_working        <= '1';
---   
---         when RETURN_DATA_DONE =>  -- JJ Need to take some action, like send response back to Linux machine
---            if ack_i = '1' then
---               ret_dat_cmd_valid       <= '1';
---               macro_instr_rdy_o       <= '1';
---               ret_dat_done            <= '1';
---               ret_dat_fsm_working     <= '1';
---            else
---               ret_dat_cmd_valid       <= '1';
---               macro_instr_rdy_o       <= '1';
---               ret_dat_fsm_working     <= '1';
---            end if;           
- 
+            end if;
       end case;
    end process;
  
@@ -623,16 +424,9 @@ begin
 --
 ------------------------------------------------------------------------
 
-   ret_dat_stop_ack        <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i = '1'          else '0';
-   cmd_stop                <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg   = '1'      else '0';
-   
-   
---   last_frame_o            <= '1' when current_state = RETURN_DATA_LAST and 
---                              (ret_dat_stop_i = '1' or current_seq_num >= ret_dat_s_seq_stop_num) else '0';
---
-   last_frame_o            <= '1' when current_state = RETURN_DATA_LAST and 
-                              (ret_dat_stop_reg  = '1' or current_seq_num >= ret_dat_s_seq_stop_num) else '0';
-
+   ret_dat_stop_ack        <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i    = '1' else '0';   
+   cmd_stop                <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg  = '1' else '0';   
+   last_frame_o            <= '1' when current_state = RETURN_DATA_LAST and (ret_dat_stop_reg = '1' or current_seq_num >= stop_seq_num_i) else '0';
 
 ------------------------------------------------------------------------
 --
@@ -668,10 +462,10 @@ begin
                        current_sync_num_reg        when mux_sel = CURRENT_NUM_SEL        else
                        current_sync_num_reg;
                        
-   current_sync_num_reg_plus_1 <= current_sync_num_reg + 1; -- this is the sync pulse increment value for issuing ret_dat commands on consecutive
+   current_sync_num_reg_plus_1 <= current_sync_num_reg + 10; -- this is the sync pulse increment value for issuing ret_dat commands on consecutive
                                                                     -- frames of data.  Ex: if you want every 1000 frames, change to "+ 1000"
 
-   current_seq_num  <= ret_dat_s_seq_start_num     when mux_sel = INPUT_NUM_SEL          else
+   current_seq_num  <= start_seq_num_i             when mux_sel = INPUT_NUM_SEL          else
                        current_seq_num_reg_plus_1  when mux_sel = CURRENT_NUM_PLUS_1_SEL else
                        current_seq_num_reg         when mux_sel = CURRENT_NUM_SEL        else
                        current_seq_num_reg;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.14 2005/02/17 22:42:12 bburger Exp $
+-- $Id: clk_card.vhd,v 1.15 2005/02/21 22:27:53 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,51 +29,8 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
--- Revision 1.14  2005/02/17 22:42:12  bburger
--- Bryce:  changes to synchronization in the MCE in response to two problems
--- - a rising edge on the sync line during configuration
--- - an errant pulse on the restart_frame_1row_post_o from frame_timing block
---
--- Revision 1.13  2005/01/19 23:39:06  bburger
--- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
---
--- Revision 1.12  2005/01/18 22:20:47  bburger
--- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
---
--- Revision 1.11  2005/01/14 12:26:12  dca
--- 'special character reset' firmware added to top level.
---
--- Revision 1.10  2005/01/13 03:14:51  bburger
--- Bryce:
--- addr_card and clk_card:  added slot_id functionality, removed mem_clock
--- sync_gen and frame_timing:  added custom counters and registers
---
--- Revision 1.9  2005/01/12 22:09:24  mandana
--- removed mem_clk_i from dispatch interface
---
--- Revision 1.8  2004/12/08 22:15:12  bburger
--- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
---
--- Revision 1.7  2004/11/30 22:58:47  bburger
--- Bryce:  reply_queue integration
---
--- Revision 1.6  2004/11/29 23:35:32  bench2
--- Greg: Added err_i and extended FIBRE_CHECKSUM_ERR to 8-bits for reply_argument in reply_translator.vhd
---
--- Revision 1.5  2004/11/29 10:37:07  dca
--- Changed PLL instantiation.
---
--- Revision 1.4  2004/11/25 15:18:18  dca
--- moved a signal
---
--- Revision 1.3  2004/11/25 15:15:51  dca
--- various signals removed from architecture
---
--- Revision 1.2  2004/11/25 01:09:12  bench2
--- Greg: Changed issue_reply block instantiation and corresponding signals in the tcl file
---
--- Revision 1.1  2004/11/24 01:15:52  bench2
--- Greg: Broke apart issue reply and created pack files for all of its sub-components
+-- Revision 1.15  2005/02/21 22:27:53  mandana
+-- added firmware revision CC_REVISION (fw_rev)
 --
 -----------------------------------------------------------------------------
 
@@ -93,6 +50,7 @@ use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
 use work.issue_reply_pack.all;
 use work.cc_reset_pack.all;
+use work.ret_dat_wbs_pack.all;
 
 
 entity clk_card is
@@ -201,6 +159,10 @@ signal fibre_clk     : std_logic;
 -- sync_gen interface
 signal sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
+-- ret_dat_wbs interface
+signal start_seq_num : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal stop_seq_num  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+
 -- wishbone bus (from master)
 signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal addr : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -219,8 +181,10 @@ signal sync_gen_ack        : std_logic;
 signal frame_timing_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack    : std_logic;
 signal slave_err           : std_logic;
-signal fw_rev_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal fw_rev_ack           : std_logic;
+signal fw_rev_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal fw_rev_ack          : std_logic;
+signal ret_dat_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal ret_dat_ack         : std_logic;
       
 -- lvds_tx interface
 signal sync       : std_logic;
@@ -231,6 +195,8 @@ signal lvds_reply_cc_a     : std_logic;
 
 -- For testing
 signal debug             : std_logic_vector(31 downto 0);
+signal fib_tx_data       : std_logic_vector (7 downto 0);
+signal fib_tx_ena        : std_logic;
 
 component cc_pll
    port(
@@ -247,6 +213,15 @@ end component;
 
 begin
 
+   mictor_o(8 downto 1) <= fibre_rx_data;
+   mictor_o(9) <= fibre_rx_rdy;
+   
+   mictor_e(8 downto 1) <= fib_tx_data;
+   mictor_e(9) <= fib_tx_ena;
+   
+   fibre_tx_data <= fib_tx_data;
+   fibre_tx_ena <= fib_tx_ena;
+   
    -- This is an active-low enable signal for the TTL transmitter.  This line is used as a BClr.
    ttl_txena1 <= '0';
    -- ttl_tx1 is an active-low reset transmitted accross the bus backplane to clear FPGA registers (BClr)
@@ -259,18 +234,20 @@ begin
          fw_rev_data       when FW_REV_ADDR,              
          led_data          when LED_ADDR,
          sync_gen_data     when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR,
+         ret_dat_data      when RET_DAT_S_ADDR,
          (others => '0')   when others;
          
    with addr select
       slave_ack <= 
-         fw_rev_ack       when FW_REV_ADDR,
-         led_ack          when LED_ADDR,
-         sync_gen_ack     when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR,
-         '0'              when others;
+         fw_rev_ack        when FW_REV_ADDR,
+         led_ack           when LED_ADDR,
+         sync_gen_ack      when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR,
+         ret_dat_ack       when RET_DAT_S_ADDR,
+         '0'               when others;
          
    with addr select
       slave_err <= 
-         '0'              when FW_REV_ADDR | LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR, --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when FW_REV_ADDR | LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | RET_DAT_S_ADDR, --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
    pll0: cc_pll
@@ -404,9 +381,9 @@ begin
          cksum_err_o       => open,
     
          -- fibre transmitter interface
-         tx_data_o         => fibre_tx_data,     -- byte of data to be transmitted
+         tx_data_o         => fib_tx_data,     -- byte of data to be transmitted
          tsc_nTd_o         => fibre_tx_sc_nd,    -- hotlink tx special char/ data sel
-         nFena_o           => fibre_tx_ena,      -- hotlink tx enable
+         nFena_o           => fib_tx_ena,      -- hotlink tx enable
    
          -- 25MHz clock for fibre_tx_control
          fibre_clkw_i      => fibre_clk,
@@ -414,6 +391,11 @@ begin
          -- lvds_tx interface
          lvds_cmd_o        => cmd,
 
+         -- ret_dat_wbs interface:
+         start_seq_num_i   => start_seq_num,
+         stop_seq_num_i    => stop_seq_num,
+         
+         -- sync_gen interface
          sync_pulse_i      => sync,
          sync_number_i     => sync_num
       );
@@ -428,5 +410,27 @@ begin
       rx_data_i  =>  fibre_rx_data,
       reset_o    =>  sc_rst     
    );
+
+   ret_dat_param: ret_dat_wbs       
+      port map
+      (
+         -- cmd_translator interface:
+         start_seq_num_o => start_seq_num,
+         stop_seq_num_o  => stop_seq_num,
+
+         -- global interface
+         clk_i           => clk,
+         rst_i           => rst, 
+         
+         -- wishbone interface:
+         dat_i           => data,         
+         addr_i          => addr,         
+         tga_i           => tga,
+         we_i            => we,          
+         stb_i           => stb,          
+         cyc_i           => cyc,       
+         dat_o           => ret_dat_data,
+         ack_o           => ret_dat_ack
+      );
       
 end top;

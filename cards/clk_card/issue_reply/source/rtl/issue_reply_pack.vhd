@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.37 2005/01/12 21:53:01 mandana Exp $
+-- $Id: issue_reply_pack.vhd,v 1.38 2005/01/12 22:18:24 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.38  2005/01/12 22:18:24  mandana
+-- added comm_clk_i (shouldn't have removed it!)
+--
 -- Revision 1.37  2005/01/12 21:53:01  mandana
 -- Updated cmd_queue interface by deleting comm_clk_i
 --
@@ -93,7 +96,11 @@ component issue_reply
       fibre_clkw_i      : in std_logic;                          -- in phase with 25MHz hotlink clock
 
       -- lvds_tx interface
-      lvds_cmd_o              : out std_logic;  -- transmitter output pin
+      lvds_cmd_o        : out std_logic;  -- transmitter output pin
+
+      -- ret_dat_wbs interface:
+      start_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      stop_seq_num_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- sync_gen interface
       sync_pulse_i      : in std_logic;

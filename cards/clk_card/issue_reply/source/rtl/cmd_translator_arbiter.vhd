@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.19 2004/12/03 07:45:25 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.21 2004/12/05 21:32:22 jjacob Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/12/03 07:45:25 $> -     <text>      - <initials $Author: jjacob $>
+-- <date $Date: 2004/12/05 21:32:22 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.21  2004/12/05 21:32:22  jjacob
+-- synchronized timing of internal_cmd_o signal and macro_instr_rdy_o signal
+--
 -- Revision 1.19  2004/12/03 07:45:25  jjacob
 -- debugging internal commands
 --
@@ -181,7 +184,7 @@ port(
       internal_cmd_parameter_id_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
       internal_cmd_data_size_i       : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);     -- data_size_i, indicates number of 16-bit words of data
       internal_cmd_data_i            : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- data will be passed straight thru in 16-bit words
-      internal_cmd_data_clk_i        : in std_logic;							                                        -- for clocking in the data
+      internal_cmd_data_clk_i        : in std_logic;                                                            -- for clocking in the data
       internal_cmd_macro_instr_rdy_i : in std_logic;                                               -- ='1' when the data is valid, else it's '0'
       internal_cmd_type_i            : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);     -- this is a re-mapping of the cmd_code into a 3-bit number
       
@@ -449,6 +452,9 @@ begin
                            internal_cmd_parameter_id_i;
                                                        
    data_size_o          <= simple_cmd_data_size_i       when data_mux_sel = "00" else 
+-- If a ret_dat command has been received, the data size from the arbiter must be 0 because the reply_translator mis-handles the reply otherwise.
+-- Thus, the 328 words (0x00000148) will have to be hardcoded in cmd_queue 
+--                           x"00000148"                  when data_mux_sel = "01" else -- fix this in fibre_rx! data_size should be '0', not '1' for ret_dat commands. ret_dat_data_size_i;
                            (others=>'0')                when data_mux_sel = "01" else -- fix this in fibre_rx! data_size should be '0', not '1' for ret_dat commands. ret_dat_data_size_i;
                            internal_cmd_data_size_i;
                                                         
