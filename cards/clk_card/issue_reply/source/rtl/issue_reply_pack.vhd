@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.3 2004/05/11 17:35:14 jjacob Exp $
+-- $Id: issue_reply_pack.vhd,v 1.4 2004/05/17 22:54:13 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.4  2004/05/17 22:54:13  jjacob
+-- modified DATA_SIZE_BUS_WIDTH = 8 from 16
+--
 -- Revision 1.3  2004/05/11 17:35:14  jjacob
 -- increased parameter ID to 24 bits, even though we only use bottom 8 bits.
 --
@@ -53,6 +56,6 @@ package issue_reply_pack is
    constant UOP_BUS_WIDTH        : integer := 8 - MOP_BUS_WIDTH;
    constant UOP_STATUS_BUS_WIDTH : integer := 8;
    constant DATA_SIZE_BUS_WIDTH  : integer := 8;
-   constant DATA_BUS_WIDTH       : integer := 16;
+   constant DATA_BUS_WIDTH       : integer := 32;
 
 end issue_reply_pack;
