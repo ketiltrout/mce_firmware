@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: rx_protocol_fsm.vhd,v 1.9 2004/05/20 15:43:59 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: rx_protocol_fsm.vhd,v 1.11 2004/06/14 13:07:31 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/05/20 15:43:59 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/14 13:07:31 $>	-		<text>		- <initials $Author: dca $>
 -- <$log$>
 -----------------------------------------------------------------------------
 library ieee;
