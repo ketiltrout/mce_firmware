@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.31 2004/12/09 01:56:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.32 2004/12/16 22:05:40 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/12/09 01:56:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/12/16 22:05:40 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.32  2004/12/16 22:05:40  bburger
+-- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
+--
 -- Revision 1.31  2004/12/09 01:56:22  bburger
 -- Bryce:  updated the port map on the reply_translator to match the entity
 --
@@ -389,7 +392,6 @@ begin
 
         -- Clock lines
         clk_i           => clk_i,
-        comm_clk_i      => comm_clk_i,
         mem_clk_i       => mem_clk_i,
         rst_i           => rst_i
      );
