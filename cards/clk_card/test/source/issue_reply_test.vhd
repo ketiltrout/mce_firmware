@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.10 2004/10/08 19:45:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.11 2004/10/13 05:44:58 bench2 Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/08 19:45:26 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/10/13 05:44:58 $> -     <text>      - <initials $Author: bench2 $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.11  2004/10/13 05:44:58  bench2
+-- Bryce:  Added a new top-level signal to the clock card issue_reply_test block:  fibre_ckr aka fibre_clkr
+--
 -- Revision 1.10  2004/10/08 19:45:26  bburger
 -- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
 --
@@ -113,7 +116,10 @@ port(
       fibre_rx_sc_nd     : in std_logic;                      -- rsc_nRd_i
       fibre_rx_ckr       : in std_logic;                      -- fibre_clkr_i
 
-
+      -- outputs to the bus backplane
+      lvds_cmd           : out std_logic;
+      lvds_clk           : out std_logic;          
+      
       -- output to the test header
       test               : out std_logic_vector(38 downto 11)  -- cksum_err
                                                                -- card_addr
@@ -177,20 +183,19 @@ architecture rtl of issue_reply_test is
     
     signal rst           : std_logic;
 
-      -- temporary signals to simulate the sync pulse counter
-
-      signal count                : integer;
-      signal count_rst            : std_logic;
-      signal sync_number_mux_sel  : std_logic;
-      signal sync_number_mux      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      
-      type state is               (IDLE, COUNTING, INCREMENT);
-      signal current_state, next_state : state;
-      constant SYNC_PERIOD        : integer := 3000;--1400; -- time in micro-seconds
-      
-      
-      
-      signal debug : std_logic_vector(31 downto 0);
+    -- temporary signals to simulate the sync pulse counter
+    signal count                : integer;
+    signal count_rst            : std_logic;
+    signal sync_number_mux_sel  : std_logic;
+    signal sync_number_mux      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+    
+    type state is               (IDLE, COUNTING, INCREMENT);
+    signal current_state, next_state : state;
+    constant SYNC_PERIOD        : integer := 3000;--1400; -- time in micro-seconds
+    
+    
+    
+    signal debug : std_logic_vector(31 downto 0);
 
 
 ------------------------------------------------------------------------
@@ -243,15 +248,15 @@ port(
 end component;
 
 component issue_reply_test_pll
-   PORT
-   (
-      inclk0      : IN STD_LOGIC  := '0';
-      c0        : OUT STD_LOGIC ;
-      c1        : OUT STD_LOGIC ;
-      e0        : OUT STD_LOGIC ;
-      e1        : OUT STD_LOGIC 
+   port(
+      inclk0 : in std_logic  := '0';
+      e2     : out std_logic ;
+      c0     : out std_logic ;
+      c1     : out std_logic ;
+      e0     : out std_logic ;
+      e1     : out std_logic 
    );    
-END component;
+end component;
 
 begin
 
@@ -353,7 +358,7 @@ begin
       );
    
    rx_ack <= rx_rdy;
-
+   lvds_cmd <= tx;
 
 
 ------------------------------------------------------------------------
@@ -365,11 +370,12 @@ begin
 pll : issue_reply_test_pll
    port map
    (
-      inclk0           => inclk,
-      c0    => pll_clk,
-      c1    => clk_200mhz,
-      e0    => fibre_rx_clk,
-      e1    => fibre_tx_clk  -- this one is here for CC001 because fibre_rx_clk is not connected to the pll,
+      inclk0            => inclk,
+      e2                => lvds_clk,
+      c0                => pll_clk,
+      c1                => clk_200mhz,
+      e0                => fibre_rx_clk,
+      e1                => fibre_tx_clk  -- this one is here for CC001 because fibre_rx_clk is not connected to the pll,
                                -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
    );
 
