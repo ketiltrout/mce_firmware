@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.6  2004/10/13 04:37:38  erniel
+-- corrected missing generic in dispatch component declaration
+--
 -- Revision 1.5  2004/10/13 03:57:50  erniel
 -- added WATCHDOG_LIMIT constant
 -- added component declaration for top-level
@@ -97,7 +100,8 @@ package dispatch_pack is
         param_id_i       : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
         cmd_buf_data_i   : in std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
         cmd_buf_addr_o   : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
-        reply_rdy_o      : out std_logic;
+        wb_rdy_o         : out std_logic;
+        wb_err_o         : out std_logic;
         reply_buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
         reply_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
         reply_buf_wren_o : out std_logic;
@@ -110,6 +114,7 @@ package dispatch_pack is
         cyc_o            : out std_logic;
         dat_i           	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
         ack_i            : in std_logic;
+        err_i            : in std_logic;
         wdt_rst_o        : out std_logic);
    end component;
    
