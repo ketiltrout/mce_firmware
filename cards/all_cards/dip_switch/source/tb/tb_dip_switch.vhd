@@ -20,7 +20,7 @@
 
 -- tb_dip_switch.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_dip_switch.vhd,v 1.2 2004/03/29 21:40:31 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,12 @@
 -- This file implements the testbench for the DIP switch interface
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/03/29 21:40:31 $>	- <initials $Author: erniel $>
+-- $Log: tb_dip_switch.vhd,v $
+-- Revision 1.2  2004/03/29 21:40:31  erniel
+-- added rty_o signal to component
+-- added tga_i signal to component
+--
 --
 -----------------------------------------------------------------------------
 
@@ -51,7 +55,8 @@ end TB_DIP_SWITCH;
 architecture BEH of TB_DIP_SWITCH is
 
    component DIP_SWITCH
-      port(dip_switch_i  : in std_logic_vector(DIP_SWITCH_BITS-1 downto 0);
+      generic(WIDTH : in integer range 1 to 16 := 4);
+      port(dip_switch_i  : in std_logic_vector(WIDTH-1 downto 0);
            clk_i  : in std_logic;
            rst_i  : in std_logic;
            addr_i : in std_logic_vector(WB_ADDR_WIDTH - 1 downto 0);
@@ -68,7 +73,7 @@ architecture BEH of TB_DIP_SWITCH is
 
 --   constant PERIOD : time :=  20 ns;
 
-   signal W_DIP_SWITCH_I   : std_logic_vector ( DIP_SWITCH_BITS - 1 downto 0 ) := "10010010";
+   signal W_DIP_SWITCH_I   : std_logic_vector ( 7 downto 0 ) := "10010010";
    signal W_CLK_I          : std_logic := '1';
    signal W_RST_I          : std_logic ;
    signal W_DAT_I          : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
