@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: reply_queue_pack.vhd,v 1.1 2004/10/21 00:45:38 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -28,7 +28,10 @@
 -- This is the reply_queue pack file.
 --
 -- Revision history:
--- $Log$
+-- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.1  2004/10/21 00:45:38  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
@@ -46,27 +49,39 @@ package reply_queue_pack is
    
    component reply_queue
       port(
-          -- reply_queue interface
-         uop_rdy_i         : in std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
-         uop_ack_o         : out std_logic; -- Tells the reply_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
-         uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
+         -- cmd_queue interface
+         uop_rdy_i         : in std_logic;                                           
+         uop_ack_o         : out std_logic;                                          
+         uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
          
          -- reply_translator interface 
-         m_op_done_o       : out std_logic;                                            -- macro op done
-         m_op_ok_nEr_o     : out std_logic;                                            -- macro op success ('1') or error ('0') 
-         m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);    -- command code vector - indicates if data or reply (and which command)
-         m_op_param_id_o   : out std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);    -- m_op parameter id passed from reply_queue
-         m_op_card_id_o    : out std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- m_op card id passed from reply_queue
-         fibre_word_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);    -- packet word read from reply queue
-         num_fibre_words_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);    -- indicate number of packet words to be read from reply queue
-         fibre_word_req_i  : in std_logic;                                            -- asserted to requeset next fibre word
-         m_op_ack_i        : in std_logic;                                            -- asserted to indicate to reply queue the the packet has been processed      
-         cmd_stop_o        : out std_logic;                                          -- indicates a STOP command was recieved
-         last_frame_o      : out std_logic;                                          -- indicates the last frame of data for a ret_dat command
-         frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         m_op_done_o       : out std_logic;
+         m_op_error_code_o : out std_logic_vector(BB_STATUS_WIDTH-1 downto 0); 
+         m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+         m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
+         m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
+         fibre_word_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
+         num_fibre_words_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);    
+         fibre_word_req_i  : in std_logic; 
+         fibre_word_rdy_o  : out std_logic;
+         m_op_ack_i        : in std_logic;    
+         cmd_stop_o        : out std_logic;                                          
+         last_frame_o      : out std_logic;                                          
+         frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
+        
+         -- Bus Backplane interface
+         lvds_rx0a         : in std_logic;
+         lvds_rx1a         : in std_logic;
+         lvds_rx2a         : in std_logic;
+         lvds_rx3a         : in std_logic;
+         lvds_rx4a         : in std_logic;
+         lvds_rx5a         : in std_logic;
+         lvds_rx6a         : in std_logic;
+         lvds_rx7a         : in std_logic;
          
          -- Global signals
          clk_i             : in std_logic;
+         comm_clk_i        : in std_logic;
          rst_i             : in std_logic
       );
    end component;
@@ -79,7 +94,7 @@ package reply_queue_pack is
          uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
          
          -- reply_translator interface 
-         m_op_done_o       : out std_logic;
+         m_op_done_i       : in std_logic; -- From the lvds_rx fifo fsm, lets the reply_queue_retire fsm that the m-op has been located
          m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
          m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
          m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: reply_queue_retire.vhd,v 1.1 2004/10/21 00:45:38 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,7 +29,10 @@
 -- block on the clock card.
 --
 -- Revision history:
--- $Log$
+-- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.1  2004/10/21 00:45:38  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
@@ -53,7 +56,7 @@ entity reply_queue_retire is
       uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            -- Done
       
       -- reply_translator interface 
-      m_op_done_o       : out std_logic;
+      m_op_done_i       : in std_logic;
       m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); -- Done
       m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- Done
       m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- Done
@@ -156,6 +159,9 @@ begin
    -- Internal signal assignments to the lvds_rx fifo's
    mop_num_o         <= header_b(PARAM_ID_END-1 downto MOP_END);
    uop_num_o         <= header_b(MOP_END-1 downto UOP_END);
+   
+   -- The acknowledgement of a m-op sent comes from the reply_translator
+   uop_ack_o         <= m_op_ack_i;
    
    ---------------------------------------------------------
    -- Retire FSM:

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.21 2004/10/15 01:47:48 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.22 2004/10/19 06:13:51 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.22  2004/10/19 06:13:51  bburger
+-- Bryce:  reply_queue development and simulation
+--
 -- Revision 1.21  2004/10/15 01:47:48  bburger
 -- Bryce:  working on the retire functionality
 --
@@ -126,8 +129,34 @@ architecture BEH of TB_CMD_QUEUE is
    -- reply_queue interface
    signal uop_rdy_o       : std_logic := '0'; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
    signal uop_ack_i       : std_logic := '0'; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
+   signal uop_ack         : std_logic := '0'; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
    signal uop_o           : std_logic_vector(QUEUE_WIDTH-1 downto 0) := (others => '0'); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
+   -- reply_translator interface 
+   signal m_op_done_o       : std_logic;
+   signal m_op_error_code_o : std_logic_vector(BB_STATUS_WIDTH-1 downto 0); 
+   signal m_op_cmd_code_o   : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); -- Done
+   signal m_op_param_id_o   : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- Done
+   signal m_op_card_id_o    : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- Done
+   signal fibre_word_o      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
+   signal num_fibre_words_o : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);    -- Done
+   signal fibre_word_req_i  : std_logic := '0'; 
+   signal fibre_word_rdy_o  : std_logic;
+   signal m_op_ack_i        : std_logic := '0';    
+   signal cmd_stop_o        : std_logic;                                          -- Done
+   signal last_frame_o      : std_logic;                                          -- Done
+   signal frame_seq_num_o   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     -- Done
+   
+   -- Bus Backplane interface
+   signal lvds_rx0a         : std_logic;
+   signal lvds_rx1a         : std_logic;
+   signal lvds_rx2a         : std_logic;
+   signal lvds_rx3a         : std_logic;
+   signal lvds_rx4a         : std_logic;
+   signal lvds_rx5a         : std_logic;
+   signal lvds_rx6a         : std_logic;
+   signal lvds_rx7a         : std_logic;
+      
    -- cmd_translator interface
    signal card_addr_i     : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0) := (others => '0'); -- The card address of the m-op
    signal par_id_i        : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0) := (others => '0'); -- The parameter id of the m-op
@@ -151,8 +180,8 @@ architecture BEH of TB_CMD_QUEUE is
    signal sync_i          : std_logic := '1'; -- The sync pulse determines when and when not to issue u-ops
    signal sync_num_i      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0) := (others => '0');
    signal clk_i           : std_logic := '1'; -- Advances the state machines
-   --signal clk_400mhz_i    : std_logic := '1';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
    signal rst_i           : std_logic := '0';  -- Resets all FSMs
+   signal comm_clk_i      : std_logic := '0';
 
    signal count_value     : integer := 0;
    signal rx_dat          : std_logic_vector(31 downto 0);
@@ -174,7 +203,7 @@ begin
 
          -- reply_queue interface
          uop_rdy_o     => uop_rdy_o,
-         uop_ack_i     => uop_ack_i,
+         uop_ack_i     => uop_ack,
          uop_o         => uop_o,
 
          -- cmd_translator
@@ -205,25 +234,49 @@ begin
       
    dut2 : reply_queue
       port map(
-         uop_rdy_i     => uop_rdy_o,  
-         uop_ack_o     => uop_ack_i,  
-         uop_i         => uop_o,  
-             
-         clk_i         => clk_i,  
-         rst_i         => rst_i    
+         uop_rdy_i         => uop_rdy_o,
+         uop_ack_o         => uop_ack_i,
+         uop_i             => uop_o,
+         
+         m_op_done_o       => m_op_done_o,      
+         m_op_error_code_o => m_op_error_code_o,
+         m_op_cmd_code_o   => m_op_cmd_code_o,  
+         m_op_param_id_o   => m_op_param_id_o,  
+         m_op_card_id_o    => m_op_card_id_o,   
+         fibre_word_o      => fibre_word_o,     
+         num_fibre_words_o => num_fibre_words_o,
+         fibre_word_req_i  => fibre_word_req_i, 
+         fibre_word_rdy_o  => fibre_word_rdy_o, 
+         m_op_ack_i        => m_op_ack_i,       
+         cmd_stop_o        => cmd_stop_o,       
+         last_frame_o      => last_frame_o,     
+         frame_seq_num_o   => frame_seq_num_o,  
+        
+         lvds_rx0a         => lvds_rx0a,        
+         lvds_rx1a         => lvds_rx1a,        
+         lvds_rx2a         => lvds_rx2a,        
+         lvds_rx3a         => lvds_rx3a,        
+         lvds_rx4a         => lvds_rx4a,        
+         lvds_rx5a         => lvds_rx5a,        
+         lvds_rx6a         => lvds_rx6a,        
+         lvds_rx7a         => lvds_rx7a,        
+                                       
+         clk_i             => clk_i,
+         comm_clk_i        => comm_clk_i,
+         rst_i             => rst_i
       );
       
    rx : lvds_rx
       port map(
-        clk_i          => clk_i,
-        comm_clk_i     => clk_200mhz_i,
-        rst_i          => rst_i,
-     
-        dat_o          => rx_dat,
-        rdy_o          => rx_rdy,
-        ack_i          => rx_ack,
-     
-        lvds_i         => tx_o
+         clk_i          => clk_i,
+         comm_clk_i     => clk_200mhz_i,
+         rst_i          => rst_i,
+      
+         dat_o          => rx_dat,
+         rdy_o          => rx_rdy,
+         ack_i          => rx_ack,
+      
+         lvds_i         => tx_o
       );
       
    sync_pulse_mgr : sync_gen
@@ -240,6 +293,7 @@ begin
    sync_i <= not sync_i after CLOCK_PERIOD*(END_OF_FRAME+1)/2; -- The sync frequency is actually ~19 kHz.
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
    clk_200mhz_i <= not clk_200mhz_i after CLOCK_PERIOD/8;
+   comm_clk_i <= not comm_clk_i after CLOCK_PERIOD;
    rx_ack <= rx_rdy;
 
    -- Create stimulus
@@ -424,18 +478,21 @@ begin
       assert false report " Simulation done." severity FAILURE;
    end process STIMULI;
    
---   uop_ack : process
---   begin
---      L2: while uop_rdy_o = '0' loop
---         uop_ack_i <= '0';         
---         wait for CLOCK_PERIOD;
---      end loop;
---
---      wait for 10*CLOCK_PERIOD;
---      uop_ack_i <= '1';
---      wait for CLOCK_PERIOD;
---      uop_ack_i <= '0';         
---   end process uop_ack;
+   
+   -- Typically, m_op_ack_i will be asserted by the reply_translator after sending out a packet in response to and m_op_done_o pulse
+   -- Right now, I override the m_op_ack_i pulse from the testbench.
+   uop_ack_proc : process
+   begin
+      L2: while uop_rdy_o = '0' loop
+         uop_ack <= '0';         
+         wait for CLOCK_PERIOD;
+      end loop;
+      
+      wait for 100*CLOCK_PERIOD;
+      uop_ack <= '1';
+      wait for CLOCK_PERIOD;
+      uop_ack <= '0';         
+   end process uop_ack_proc;
    
 end BEH;
 

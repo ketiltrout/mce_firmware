@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.58 2004/10/15 01:47:48 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.59 2004/10/19 06:13:51 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.59  2004/10/19 06:13:51  bburger
+-- Bryce:  reply_queue development and simulation
+--
 -- Revision 1.58  2004/10/15 01:47:48  bburger
 -- Bryce:  working on the retire functionality
 --
@@ -160,7 +163,9 @@ signal next_retire_state    : retire_states;
 signal retired              : std_logic; --Out, to the u-op counter fsm
 --signal uop_timed_out        : std_logic;
 signal uop_to_retire        : std_logic;
-signal uop_data_size_r_int  : integer;
+signal retire_data_size_int  : integer;
+signal retire_data_size_en  : std_logic;
+signal retire_data_size     : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
 -- Generate FSM:  translates M-ops into u-ops
 type gen_uop_states is (IDLE, INSERT, CLEANUP, RESET, DONE);
@@ -222,7 +227,7 @@ constant INT_ZERO           : integer := 0;
 
 -- [JJ]
 signal queue_space_mux      : integer;
-signal queue_space_mux_sel  : std_logic_vector(1 downto 0);
+signal queue_space_mux_sel  : std_logic_vector(2 downto 0);
 
 signal data_sig_mux         : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal data_sig_mux_sel     : std_logic_vector(2 downto 0);
@@ -383,13 +388,14 @@ begin
       end if;
    end process;
    
-   uop_data_size_r_int <= conv_integer(qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END));
-   queue_space_mux <= queue_space when queue_space_mux_sel = "00" else
-                      queue_space + BB_NUM_CMD_HEADER_WORDS + uop_data_size_r_int when queue_space_mux_sel = "01" else
-                      queue_space - 1 when queue_space_mux_sel = "10" else
-                      QUEUE_LEN;   -- when queue_space_mux_sel = "11";
+   retire_data_size_int <= conv_integer(retire_data_size);
+   queue_space_mux <= queue_space when queue_space_mux_sel = "000" else
+                      queue_space + CQ_NUM_CMD_HEADER_WORDS + retire_data_size_int when queue_space_mux_sel = "001" else
+                      queue_space - 1 when queue_space_mux_sel = "010" else
+                      queue_space + CQ_NUM_CMD_HEADER_WORDS + retire_data_size_int - 1 when queue_space_mux_sel = "011" else
+                      QUEUE_LEN when queue_space_mux_sel = "100";
                         
-   queue_space_mux_sel <= "11" when queue_init_value_sel = '1' else wren_sig & retired;
+   queue_space_mux_sel <= "100" when queue_init_value_sel = '1' else '0' & wren_sig & retired;
 
    -- Initialization logic for queue_space to set it to 255 on startup
    process(queue_cur_state)
@@ -641,7 +647,7 @@ begin
    begin
       if(rst_i = '1') then
          present_retire_state <= IDLE;
-         retire_ptr <= (others=>'0');
+         retire_ptr <= (others => '0');
 
       elsif(clk_i'event and clk_i = '1') then
          present_retire_state <= next_retire_state;
@@ -650,19 +656,31 @@ begin
       end if;
    end process retire_state_FF;
 
+   retire_data_size_reg : reg
+      generic map(
+         WIDTH      => QUEUE_ADDR_WIDTH
+      )
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => retire_data_size_en,
+         reg_i      => qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END),
+         reg_o      => retire_data_size
+      );
+
    -- Re-circulation muxes
    retire_ptr_mux <= retire_ptr when retire_ptr_mux_sel = "000" else
                      ADDR_ZERO  when retire_ptr_mux_sel = "001" else
-                     retire_ptr + CQ_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when retire_ptr_mux_sel = "010" else
+                     retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size when retire_ptr_mux_sel = "010" else
                      retire_ptr + 1 when retire_ptr_mux_sel = "101" else
-                     retire_ptr + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when retire_ptr_mux_sel = "110";
+                     retire_ptr + 1 + retire_data_size when retire_ptr_mux_sel = "110";
    
                            
    -- This signal is to be used to determine when there is a u-op to retire.  
    -- This signal should not be asserted until the entire u-op pointed to by retire_ptr has been issued.
    uop_to_retire <= '1' when
-      ((retire_ptr < send_ptr) and (send_ptr > retire_ptr + BB_NUM_CMD_HEADER_WORDS + qb_sig(COMMAND_TYPE_END-1 downto DATA_SIZE_END))) or
-      ((retire_ptr > send_ptr) and (send_ptr > QUEUE_LEN - retire_ptr + BB_NUM_CMD_HEADER_WORDS + qb_sig(COMMAND_TYPE_END-1 downto DATA_SIZE_END)))
+      ((retire_ptr < send_ptr) and (send_ptr > retire_ptr + CQ_NUM_CMD_HEADER_WORDS + qb_sig(COMMAND_TYPE_END-1 downto DATA_SIZE_END))) or
+      ((retire_ptr > send_ptr) and (send_ptr > QUEUE_LEN - retire_ptr + CQ_NUM_CMD_HEADER_WORDS + qb_sig(COMMAND_TYPE_END-1 downto DATA_SIZE_END)))
       else '0';
    
    retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire)
@@ -671,8 +689,9 @@ begin
          when IDLE =>
             if(uop_to_retire = '1') then
                next_retire_state <= HEADER_B;
-            else
-               next_retire_state <= IDLE;
+-- This causes a glitch in the next_retire_state signal when it is in IDLE
+--            else
+--               next_retire_state <= IDLE;
             end if;
          when HEADER_B =>
             next_retire_state <= HEADER_C;
@@ -700,6 +719,7 @@ begin
    begin
       -- defaults
       retire_ptr_mux_sel <= "000"; -- hold value
+      retire_data_size_en <= '0';
    
       case present_retire_state is
          when IDLE =>
@@ -707,6 +727,7 @@ begin
             retired        <= '0';
             if(next_retire_state = HEADER_B) then
                retire_ptr_mux_sel <= "101";
+               retire_data_size_en <= '1';
                uop_rdy_o      <= '1';
             else
                uop_rdy_o      <= '0';
@@ -728,7 +749,7 @@ begin
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
             retired        <= '0';
-            retire_ptr_mux_sel <= "101"; 
+            retire_ptr_mux_sel <= "110"; 
             
          when STATUS =>
             uop_rdy_o      <= '0';
@@ -1085,8 +1106,9 @@ begin
                elsif(previous_send_state = CHECKSUM) then
                   next_send_state <= LOAD;
                end if;
-            else
-               next_send_state <= PAUSE;
+-- This statement causes a glitch in the next_send_state signal
+--            else
+--               next_send_state <= PAUSE;
             end if;
          when NEXT_UOP =>
             -- Skip to the next u-op

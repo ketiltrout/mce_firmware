@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: reply_queue.vhd,v 1.1 2004/10/21 00:45:38 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,7 +29,10 @@
 -- on the clock card.
 --
 -- Revision history:
--- $Log$
+-- $Log: reply_queue.vhd,v $
+-- Revision 1.1  2004/10/21 00:45:38  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
@@ -46,24 +49,24 @@ use work.reply_queue_pack.all;
 entity reply_queue is
    port(
       -- cmd_queue interface
-      uop_rdy_i         : in std_logic;                                           -- Done
-      uop_ack_o         : out std_logic;                                          -- Done
-      uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            -- Done
+      uop_rdy_i         : in std_logic;                                           
+      uop_ack_o         : out std_logic;                                          
+      uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
       
       -- reply_translator interface 
       m_op_done_o       : out std_logic;
       m_op_error_code_o : out std_logic_vector(BB_STATUS_WIDTH-1 downto 0); 
-      m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); -- Done
-      m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- Done
-      m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- Done
+      m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
+      m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
       fibre_word_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
-      num_fibre_words_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);    -- Done
+      num_fibre_words_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);    
       fibre_word_req_i  : in std_logic; 
       fibre_word_rdy_o  : out std_logic;
       m_op_ack_i        : in std_logic;    
-      cmd_stop_o        : out std_logic;                                          -- Done
-      last_frame_o      : out std_logic;                                          -- Done
-      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     -- Done
+      cmd_stop_o        : out std_logic;                                          
+      last_frame_o      : out std_logic;                                          
+      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
      
       -- Bus Backplane interface
       lvds_rx0a         : in std_logic;
@@ -87,6 +90,7 @@ architecture behav of reply_queue is
    -- Internal interface signals to/from the lvds_rx fifo's
    signal mop_num   : std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
    signal uop_num   : std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
+   signal mop_done  : std_logic := '0';
 --   signal data_rdy  : std_logic;
 --   signal data_stb  : std_logic;
 --   signal data      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -95,13 +99,15 @@ architecture behav of reply_queue is
    
 begin   
    
+   m_op_done_o <= mop_done;
+   
    rqr : reply_queue_retire
       port map(
          uop_rdy_i         => uop_rdy_i,
          uop_ack_o         => uop_ack_o,
          uop_i             => uop_i,     
          
-         m_op_done_o       => m_op_done_o,       
+         m_op_done_i       => mop_done,       
          m_op_cmd_code_o   => m_op_cmd_code_o,   
          m_op_param_id_o   => m_op_param_id_o,   
          m_op_card_id_o    => m_op_card_id_o,    
