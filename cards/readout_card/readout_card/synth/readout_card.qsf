@@ -33,7 +33,7 @@
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "4.1 SP2"
+set_global_assignment -name LAST_QUARTUS_VERSION 4.1
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
@@ -41,6 +41,7 @@ set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/readout_card_pack.vhd
@@ -53,9 +54,9 @@ set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_ctrl
 set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_ctrl_pack.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
@@ -530,6 +531,7 @@ set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
 set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF SMART
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
 set_global_assignment -name FAMILY Stratix
+set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name TOP_LEVEL_ENTITY readout_card
 set_global_assignment -name AUTO_ENABLE_SMART_COMPILE on
 
@@ -537,11 +539,33 @@ set_global_assignment -name AUTO_ENABLE_SMART_COMPILE on
 # ==================
 set_global_assignment -name DEVICE EP1S30F780C5
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
+set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
+set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD LVTTL
+set_instance_assignment -name IO_STANDARD LVDS -to adc1_clk
+set_instance_assignment -name IO_STANDARD LVTTL -to red_led
+set_instance_assignment -name IO_STANDARD LVDS -to adc2_clk
+set_instance_assignment -name IO_STANDARD LVDS -to adc3_clk
+set_instance_assignment -name IO_STANDARD LVDS -to adc4_clk
+set_instance_assignment -name IO_STANDARD LVDS -to adc5_clk
+set_instance_assignment -name IO_STANDARD LVDS -to adc6_clk
+set_instance_assignment -name IO_STANDARD LVDS -to adc7_clk
+set_instance_assignment -name IO_STANDARD LVDS -to adc8_clk
+
+# Timing Analysis Assignments
+# ===========================
+set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 4000
+
+# Assembler Assignments
+# =====================
+set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP on
+set_global_assignment -name ENABLE_SIGNALTAP off
 set_global_assignment -name USE_SIGNALTAP_FILE readout_card.stp
 
 # LogicLock Region Assignments
@@ -553,32 +577,11 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "50.0 MHz" -section_id clk
-	set_global_assignment -name DUTY_CYCLE 50 -section_id clk
+	set_global_assignment -name BASED_ON_CLOCK_SETTINGS inclk -section_id clk
+	set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 2 -section_id clk
 
 # end CLOCK(clk)
 # --------------
-
-# ------------------
-# start CLOCK(clk_i)
-
-	# Timing Assignments
-	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "50.0 MHz" -section_id clk_i
-	set_global_assignment -name DUTY_CYCLE 50 -section_id clk_i
-
-# end CLOCK(clk_i)
-# ----------------
-
-# ---------------------
-# start CLOCK(comm_clk)
-
-	# Timing Assignments
-	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "200.0 MHz" -section_id comm_clk
-
-# end CLOCK(comm_clk)
-# -------------------
 
 # ------------------
 # start CLOCK(inclk)
@@ -591,12 +594,126 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 # end CLOCK(inclk)
 # ----------------
 
-# --------------------
-# start CLOCK(mem_clk)
+# -----------------------------
+# start TIMEGROUP("ADC Inputs")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_clk -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_rdy -section_id "ADC Inputs"
+
+# end TIMEGROUP("ADC Inputs")
+# ---------------------------
+
+# ------------------------------
+# start TIMEGROUP("ADC Outputs")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_clk -section_id "ADC Outputs"
+
+# end TIMEGROUP("ADC Outputs")
+# ----------------------------
+
+# ----------------------------------
+# start TIMEGROUP("DAC Data Output")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat -section_id "DAC Data Output"
+
+# end TIMEGROUP("DAC Data Output")
+# --------------------------------
+
+# ---------------------------------
+# start TIMEGROUP("DAC clk Output")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk -section_id "DAC clk Output"
+
+# end TIMEGROUP("DAC clk Output")
+# -------------------------------
+
+# ---------------------------------
+# start TIMEGROUP("serial DAC clk")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk -section_id "serial DAC clk"
+
+# end TIMEGROUP("serial DAC clk")
+# -------------------------------
+
+# -------------------------------------
+# start TIMEGROUP("serial DAC data&cs")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs -section_id "serial DAC data&cs"
+
+# end TIMEGROUP("serial DAC data&cs")
+# -----------------------------------
+
+# --------------------------
+# start ENTITY(readout_card)
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "200.0 MHz" -section_id mem_clk
+	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
+	set_instance_assignment -name SETUP_RELATIONSHIP 15ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "flux_loop:i_flux_loop\|wbs_fb_data:i_wbs_fb_data\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 15ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "flux_loop:i_flux_loop\|wbs_frame_data:i_wbs_frame_data\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "flux_loop:i_flux_loop\|wbs_frame_data:i_wbs_frame_data\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "flux_loop:i_flux_loop\|wbs_fb_data:i_wbs_fb_data\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 15ns -from "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|shift_reg*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "dispatch:i_dispatch\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "dispatch:i_dispatch\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "dispatch:i_dispatch\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|fifo:tx_buffer\|*"
+	set_instance_assignment -name HOLD_RELATIONSHIP "-45ns" -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|async_tx:transmit\|*"
 
-# end CLOCK(mem_clk)
-# ------------------
+	# Analysis & Synthesis Assignments
+	# ================================
+	set_instance_assignment -name MAX_FANOUT 100 -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_calc:i_fsfb_calc\|fsfb_processor:i_fsfb_processor\|fsfb_proc_pidz:i_fsfb_proc_pidz\|calc_shift_state\[3\]"
+
+# end ENTITY(readout_card)
+# ------------------------

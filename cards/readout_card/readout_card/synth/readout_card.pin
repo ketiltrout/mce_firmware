@@ -60,7 +60,7 @@
  -- RESERVED_INPUT    : Pin is tri-stated and should be connected to the board.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
+Quartus II Version 4.1 Build 181 06/29/2004 SJ Full Version
 CHIP  "readout_card"  ASSIGNED TO AN: EP1S30F780C5
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -95,10 +95,10 @@ RESERVED_INPUT               : AA1       :        :                   :         
 RESERVED_INPUT               : AA2       :        :                   :         : 6         :                
 RESERVED_INPUT               : AA3       :        :                   :         : 6         :                
 RESERVED_INPUT               : AA4       :        :                   :         : 6         :                
-RESERVED_INPUT               : AA5       :        :                   :         : 6         :                
-adc3_clk                     : AA6       : output : LVTTL             :         : 6         : Y              
-RESERVED_INPUT               : AA7       :        :                   :         : 6         :                
-adc2_clk                     : AA8       : output : LVTTL             :         : 6         : Y              
+adc3_clk(n)                  : AA5       : output : LVDS              :         : 6         : N              
+adc3_clk                     : AA6       : output : LVDS              :         : 6         : Y              
+adc2_clk(n)                  : AA7       : output : LVDS              :         : 6         : N              
+adc2_clk                     : AA8       : output : LVDS              :         : 6         : Y              
 bias_dac_ncs[2]              : AA9       : output : LVTTL             :         : 7         : Y              
 offset_dac_ncs[2]            : AA10      : output : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AA11      :        :                   :         : 7         :                
@@ -110,7 +110,7 @@ GND                          : AA16      : gnd    :                   :         
 GND+                         : AA17      :        :                   :         : 8         :                
 RESERVED_INPUT               : AA18      :        :                   :         : 8         :                
 RESERVED_INPUT               : AA19      :        :                   :         : 8         :                
-RESERVED_INPUT               : AA20      :        :                   :         : 8         :                
+~CRC_ERROR~                  : AA20      : output : LVTTL             :         : 8         : N              
 adc3_ovr                     : AA21      : input  : LVTTL             :         : 1         : Y              
 adc4_rdy                     : AA22      : input  : LVTTL             :         : 1         : Y              
 adc4_dat[2]                  : AA23      : input  : LVTTL             :         : 1         : Y              
@@ -123,8 +123,8 @@ RESERVED_INPUT               : AB1       :        :                   :         
 RESERVED_INPUT               : AB2       :        :                   :         : 6         :                
 RESERVED_INPUT               : AB3       :        :                   :         : 6         :                
 RESERVED_INPUT               : AB4       :        :                   :         : 6         :                
-RESERVED_INPUT               : AB5       :        :                   :         : 6         :                
-adc1_clk                     : AB6       : output : LVTTL             :         : 6         : Y              
+adc1_clk(n)                  : AB5       : output : LVDS              :         : 6         : N              
+adc1_clk                     : AB6       : output : LVDS              :         : 6         : Y              
 dac_clk[2]                   : AB7       : output : LVTTL             :         : 7         : Y              
 dac_dat[2]                   : AB8       : output : LVTTL             :         : 7         : Y              
 bias_dac_ncs[3]              : AB9       : output : LVTTL             :         : 7         : Y              
@@ -737,10 +737,10 @@ VCCIO6                       : U1        : power  :                   : 3.3V    
 RESERVED_INPUT               : U2        :        :                   :         : 6         :                
 RESERVED_INPUT               : U3        :        :                   :         : 6         :                
 RESERVED_INPUT               : U4        :        :                   :         : 6         :                
-adc8_clk                     : U5        : output : LVTTL             :         : 6         : Y              
-RESERVED_INPUT               : U6        :        :                   :         : 6         :                
-RESERVED_INPUT               : U7        :        :                   :         : 6         :                
-adc7_clk                     : U8        : output : LVTTL             :         : 6         : Y              
+adc8_clk                     : U5        : output : LVDS              :         : 6         : Y              
+adc8_clk(n)                  : U6        : output : LVDS              :         : 6         : N              
+adc7_clk(n)                  : U7        : output : LVDS              :         : 6         : N              
+adc7_clk                     : U8        : output : LVDS              :         : 6         : Y              
 RESERVED_INPUT               : U9        :        :                   :         : 6         :                
 RESERVED_INPUT               : U10       :        :                   :         : 6         :                
 VCCINT                       : U11       : power  :                   : 1.5V    :           :                
@@ -769,8 +769,8 @@ RESERVED_INPUT               : V5        :        :                   :         
 RESERVED_INPUT               : V6        :        :                   :         : 6         :                
 RESERVED_INPUT               : V7        :        :                   :         : 6         :                
 RESERVED_INPUT               : V8        :        :                   :         : 6         :                
-RESERVED_INPUT               : V9        :        :                   :         : 6         :                
-adc6_clk                     : V10       : output : LVTTL             :         : 6         : Y              
+adc6_clk(n)                  : V9        : output : LVDS              :         : 6         : N              
+adc6_clk                     : V10       : output : LVDS              :         : 6         : Y              
 bias_dac_ncs[1]              : V11       : output : LVTTL             :         : 7         : Y              
 VCCINT                       : V12       : power  :                   : 1.5V    :           :                
 GND                          : V13       : gnd    :                   :         : 1         :                
@@ -821,10 +821,10 @@ RESERVED_INPUT               : Y1        :        :                   :         
 RESERVED_INPUT               : Y2        :        :                   :         : 6         :                
 RESERVED_INPUT               : Y3        :        :                   :         : 6         :                
 RESERVED_INPUT               : Y4        :        :                   :         : 6         :                
-adc4_clk                     : Y5        : output : LVTTL             :         : 6         : Y              
-RESERVED_INPUT               : Y6        :        :                   :         : 6         :                
-RESERVED_INPUT               : Y7        :        :                   :         : 6         :                
-adc5_clk                     : Y8        : output : LVTTL             :         : 6         : Y              
+adc4_clk                     : Y5        : output : LVDS              :         : 6         : Y              
+adc4_clk(n)                  : Y6        : output : LVDS              :         : 6         : N              
+adc5_clk(n)                  : Y7        : output : LVDS              :         : 6         : N              
+adc5_clk                     : Y8        : output : LVDS              :         : 6         : Y              
 offset_dac_ncs[1]            : Y9        : output : LVTTL             :         : 7         : Y              
 dac_clk[1]                   : Y10       : output : LVTTL             :         : 7         : Y              
 dac_dat[1]                   : Y11       : output : LVTTL             :         : 7         : Y              
