@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.11 2004/10/21 16:07:07 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.12 2004/11/11 17:15:02 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/10/21 16:07:07 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/11 17:15:02 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.12  2004/11/11 17:15:02  dca
+-- *** empty log message ***
+--
 -- Revision 1.11  2004/10/21 16:07:07  dca
 -- 'm_op_error_code_i' added to testbed.
 -- 'fibre_word_rdy_i' signal added to testbed.
@@ -127,7 +130,7 @@ port(
      m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
      m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
-     num_fibre_words_i       : in  std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    -- indicate number of packet words to be read from reply queue
+     num_fibre_words_i       : in  integer ;                                                -- indicate number of packet words to be read from reply queue
      fibre_word_req_o        : out std_logic;                                               -- asserted to requeset next fibre word
      fibre_word_rdy_i        : in std_logic;
      m_op_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
@@ -170,7 +173,7 @@ signal   m_op_card_id   : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0)  
 signal   fibre_word     : std_logic_vector (PACKET_WORD_WIDTH-1      downto 0)   := (others => '0');
 signal   fibre_word_req : std_logic;
 signal   fibre_word_rdy : std_logic   := '0';
-signal   num_fibre_words: std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0) := (others => '0');
+signal   num_fibre_words: integer := 0;
 signal   m_op_ack       : std_logic;
      
 signal   tx_ff          : std_logic                                              := '0';
@@ -467,7 +470,7 @@ begin
       m_op_cmd_code           <= WRITE_BLOCK;
       m_op_done               <= '1';       
       m_op_error_code         <= (others => '0' );   
-      num_fibre_words         <= conv_std_logic_vector(0,BB_DATA_SIZE_WIDTH); 
+      num_fibre_words         <= 0; 
       
           
       wait until txd = FIBRE_PREAMBLE1;
@@ -495,7 +498,7 @@ begin
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_error_code         <= (others => '0' );
-      num_fibre_words         <= (others => '0' );
+      num_fibre_words         <= 0;
       
       assert false report "test 4: WB (OK) reply finised..." severity NOTE;    
       
@@ -525,7 +528,7 @@ begin
       m_op_cmd_code           <= WRITE_BLOCK;
       m_op_done               <= '1';       
       m_op_error_code         <= (others => '1');
-      num_fibre_words         <= conv_std_logic_vector(0,BB_DATA_SIZE_WIDTH); 
+      num_fibre_words         <= 0; 
       
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
@@ -552,7 +555,7 @@ begin
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_error_code         <= (others => '0' );
-      num_fibre_words         <= (others => '0' );
+      num_fibre_words         <= 0;
       
       assert false report "test 5: WB (ER) reply finised..." severity NOTE;    
       
@@ -582,7 +585,7 @@ begin
       m_op_cmd_code           <= READ_BLOCK;
       m_op_done               <= '1';       
       m_op_error_code         <= (others => '0' );
-      num_fibre_words         <= conv_std_logic_vector(16,BB_DATA_SIZE_WIDTH); 
+      num_fibre_words         <= 16; 
       
       
               
@@ -599,7 +602,7 @@ begin
       assert false report "test 6: success word 'OK' txmitted" severity NOTE;
       
       
-      for i in 1 to (conv_integer(num_fibre_words)) loop 
+      for i in 1 to (num_fibre_words) loop 
       
          fibre_byte <= conv_std_logic_vector(i,8);
          wait until fibre_word_req = '1';
@@ -622,7 +625,7 @@ begin
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_error_code         <= (others => '0' );
-      num_fibre_words         <= (others => '0' );
+      num_fibre_words         <= 0;
       
       assert false report "test 6: RB reply finised..." severity NOTE;    
       
@@ -652,7 +655,7 @@ begin
       m_op_cmd_code           <= READ_BLOCK;
       m_op_done               <= '1';       
       m_op_error_code         <= (others => '1' );
-      num_fibre_words         <= conv_std_logic_vector(0,BB_DATA_SIZE_WIDTH); 
+      num_fibre_words         <= 0; 
       
       
               
@@ -678,7 +681,7 @@ begin
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_error_code         <= (others => '0');
-      num_fibre_words         <= (others => '0');
+      num_fibre_words         <= 0;
       
       assert false report "test 7: RB reply finised (ER)..." severity NOTE;    
       
@@ -708,7 +711,7 @@ begin
       m_op_cmd_code           <= DATA;
       m_op_done               <= '1';       
       m_op_error_code         <= (others => '0' );
-      num_fibre_words         <= conv_std_logic_vector(100,BB_DATA_SIZE_WIDTH); 
+      num_fibre_words         <= 100; 
       
       cmd_stop                <= '0'; 
       last_frame              <= '1';   -- lets make it the last frame
@@ -726,7 +729,7 @@ begin
                    
 
     --  for i in 1 to (to_integer(unsigned(num_fibre_words))) loop 
-      for i in 1 to (conv_integer(num_fibre_words)) loop 
+      for i in 1 to (num_fibre_words) loop 
          frame_data <= (i * 32) + 1; 
          
          
@@ -763,7 +766,7 @@ begin
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_error_code         <= (others => '0');
-      num_fibre_words         <= (others => '0');
+      num_fibre_words         <= 0;
       cmd_stop                <= '0'; 
       last_frame              <= '0';   
       
@@ -808,7 +811,7 @@ begin
       m_op_cmd_code           <= START;
       m_op_done               <= '1';       
       m_op_error_code         <= (others => '0' );
-      num_fibre_words         <= conv_std_logic_vector(1,BB_DATA_SIZE_WIDTH); 
+      num_fibre_words         <= 1; 
       
       
               
@@ -820,7 +823,7 @@ begin
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_error_code         <= (others => '0');
-      num_fibre_words         <= (others => '0');
+      num_fibre_words         <= 0;
       
       assert false report "test 10: finised ........." severity NOTE;    
       

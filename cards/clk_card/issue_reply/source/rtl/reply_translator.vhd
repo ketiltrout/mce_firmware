@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.16 2004/11/04 16:33:09 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.17 2004/11/11 17:05:10 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/04 16:33:09 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/11 17:05:10 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.17  2004/11/11 17:05:10  dca
+-- status word and sequence word now included in data packet.
+--
 -- Revision 1.16  2004/11/04 16:33:09  dca
 -- ***Comment added  (no change to code)***
 -- The current version of code must run with clk_i
@@ -140,7 +143,8 @@ port(
      m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
      m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- packet word read from reply queue
-     num_fibre_words_i       : in  std_logic_vector (BB_DATA_SIZE_WIDTH-1     downto 0);    -- indicate number of packet words to be read from reply queue
+--     num_fibre_words_i       : in  std_logic_vector (BB_DATA_SIZE_WIDTH-1     downto 0);    -- indicate number of packet words to be read from reply queue
+     num_fibre_words_i       : in  integer ;                                                   -- indicate number of packet words to be read from reply queue
      fibre_word_req_o        : out std_logic;                                               -- asserted to requeset next fibre word
      fibre_word_rdy_i        : in std_logic;
      m_op_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
@@ -452,8 +456,8 @@ tx_fw_o                     <= write_fifo;
 
 -- for a read block the packet size is alway 3 + the number of words to be read on fibre_word_i
  
-rb_packet_size          <= conv_integer(num_fibre_words_i) + 3 ;     -- size readblock + words1, 2 and 4(checksum)
-data_packet_size        <= conv_integer(num_fibre_words_i) + 3 ;     -- number fibre words + status + seq_number + checksum word
+rb_packet_size          <= num_fibre_words_i + 3 ;     -- size readblock + words1, 2 and 4(checksum)
+data_packet_size        <= num_fibre_words_i + 3 ;     -- number fibre words + status + seq_number + checksum word
 
 
 -- recirculation MUX selectors 
@@ -1083,7 +1087,7 @@ txd_o              <= fibre_byte;
        when TX_WORDN_3 =>
        
           if --(m_op_done_reply = '1' or m_op_done_data = '1') and 
-             (fibre_word_count < (conv_integer(num_fibre_words_i))  ) then          
+             (fibre_word_count < num_fibre_words_i ) then          
             
              fibre_next_state <= REQ_Q_WORD;                 -- another fibre word to read fromn Q
           else
