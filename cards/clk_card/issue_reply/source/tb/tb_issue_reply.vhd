@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.8 2004/08/06 00:14:53 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.9 2004/08/11 00:11:14 jjacob Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/08/06 00:14:53 $> - <text> - <initials $Author: jjacob $>
+-- <date $Date: 2004/08/11 00:11:14 $> - <text> - <initials $Author: jjacob $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -41,6 +41,9 @@ library work;
 use work.fibre_rx_pack.all;
 use work.issue_reply_pack.all;
 use work.async_pack.all;
+
+library components;
+use components.component_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -127,6 +130,25 @@ architecture tb of tb_issue_reply is
    signal   data         : std_logic_vector (31 downto 0) := X"00000001";--integer := 1;
   
    signal   count        : integer;
+
+
+
+
+      -- temporary signals to simulate the sync pulse counter
+
+      signal sync_count           : integer;
+      signal count_rst            : std_logic;
+      signal sync_number_mux_sel  : std_logic;
+      signal sync_number_mux      : std_logic_vector(7 downto 0);
+      
+      type state is               (IDLE, COUNTING, INCREMENT);
+      signal current_state, next_state : state;
+      constant SYNC_PERIOD        : integer := 53; -- time in micro-seconds
+      
+    signal sync_pulse    : std_logic;
+    signal sync_number   : std_logic_vector(7 downto 0);
+    
+ 
    
 component issue_reply
 
@@ -166,8 +188,10 @@ port(
       
       
       -- lvds_tx interface
-      tx_o          : out std_logic;  -- transmitter output pin
-      clk_200mhz_i   : in std_logic  -- PLL locked 25MHz input clock for the
+      tx_o           : out std_logic;  -- transmitter output pin
+      clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
+      sync_pulse_i   : in std_logic;
+      sync_number_i  : in std_logic_vector (7 downto 0)
 
 
    ); 
@@ -217,7 +241,9 @@ port map(
       
       -- lvds_tx interface
       tx_o          => t_tx,  -- transmitter output pin
-      clk_200mhz_i   => t_clk_200mhz_i  -- PLL locked 25MHz input clock for the
+      clk_200mhz_i   => t_clk_200mhz_i,  -- PLL locked 25MHz input clock for the
+      sync_pulse_i      => sync_pulse,
+      sync_number_i     => sync_number
 
 
    ); 
@@ -733,7 +759,67 @@ stimuli : process
 
    end process stimuli;
        
+------------------------------------------------------------------------
+--
+-- temporary sync_number counter
+--
+------------------------------------------------------------------------
+
+    i_timer : us_timer
+    port map(clk           => t_clk_i,
+           timer_reset_i   => count_rst,
+           timer_count_o   => sync_count
+           );
+           
+
+   process(current_state, sync_count)
+   begin
    
+      -- default
+      count_rst           <= '0';
+      sync_number_mux_sel <= '0'; -- hold value
+   
+      case current_state is
+         when IDLE =>
+            next_state <= COUNTING;
+            count_rst  <= '1';
+            
+         when COUNTING =>
+            if sync_count >= SYNC_PERIOD then
+               --count_rst           <= '1';
+               --sync_number_mux_sel <= '1';
+               next_state <= INCREMENT;
+            else
+               next_state <= COUNTING;
+            end if;
+            
+         when INCREMENT =>
+            count_rst           <= '1';
+            sync_number_mux_sel <= '1';
+            next_state <= COUNTING;
+            
+         when others =>
+            next_state <= IDLE;
+                     
+      end case;
+   end process;
+
+
+   process(t_clk_i, t_rst_i)
+   begin
+      if t_rst_i = '1' then
+         sync_number    <= (others=>'0');
+         current_state <= IDLE;
+      elsif t_clk_i'event and t_clk_i = '1' then
+         current_state <= next_state;
+         sync_number    <= sync_number_mux;
+      end if;
+   end process;
+
+   sync_number_mux <= sync_number + 1 when sync_number_mux_sel = '1' else sync_number;
+
+   sync_pulse <= sync_number_mux_sel;
+  
    
  
 end tb;
