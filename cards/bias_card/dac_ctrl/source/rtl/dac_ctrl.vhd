@@ -33,8 +33,11 @@
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/21 20:40:26 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/21 20:56:37 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.9  2004/04/21 20:56:37  mandana
+-- change cmd names to match new wishbone pack
+--
 -- Revision 1.8  2004/04/21 20:40:26  mandana
 -- change MAX_DAC_BC to MAX_FLUX_FB
 --
@@ -104,7 +107,7 @@ end dac_ctrl;
 
 architecture rtl of dac_ctrl is
 
--- DAC CTLR:
+-- DAC CTRL:
 -- State encoding and state variables:
 
 -- controller states:
@@ -132,6 +135,8 @@ signal spi_lvds_busy   : std_logic; -- indicates data is being sent to the lvds 
 signal spi_busy        : std_logic; -- indicates data is being sent to the 32 dacs
 
 signal idac            : integer range 0 to 32;
+signal idac_rst        : std_logic;
+signal idac_clk        : std_logic;
 signal k               : integer range 0 to 32;
 
 -- parallel data signals for DAC
@@ -161,6 +166,15 @@ signal read_lsb_en     : std_logic;
 signal read_msb_en     : std_logic;
 
 begin
+
+   idac_counter: counter_xstep 
+   generic map(MAX => 30)
+   port map(clk_i   => idac_clk,
+            rst_i   => idac_rst,
+            ena_i   => '1',
+            step_i  => 2,
+            count_o => idac);
+   
 
 update_bias_count <= conv_std_logic_vector(UPDATE_BIAS,32); 
 dac_ncs_o <= dac_ncs;
@@ -245,13 +259,16 @@ dac_ncs_o <= dac_ncs;
    begin
       case current_state is
          when IDLE  =>       
-            idac        <= 0;            
+            idac_rst    <= '1';
+            idac_clk    <= '0';
             write_buf   <= (others => 'Z');  
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
             
          when WR_DAC32_CMD =>  
+            idac_rst    <= '0';
+            idac_clk    <= '0';            
             -- use the previously-set idac value
             write_buf   <= dat_i;            
             read_lsb_en <= '1';
@@ -259,6 +276,8 @@ dac_ncs_o <= dac_ncs;
             rst_nxt_sync<= '0';                        
          
          when WR_DAC32_STORE =>
+            idac_rst    <= '0';         
+            idac_clk    <= '0';
             -- use the previously-set idac value
             write_buf   <= (others => 'Z'); 
             read_lsb_en <= '1';
@@ -282,32 +301,33 @@ dac_ncs_o <= dac_ncs;
                dac_data_p (idac + 1) <= read_buf (31 downto 16);
             end if;   
                                        
-         when WR_DAC32_NXT =>  
-            idac <= idac + 2;
-            if idac > 28 then
-               idac  <= 0;
-            end if;  
+         when WR_DAC32_NXT =>
+            idac_rst    <= '0';
+            idac_clk    <= '1';
             write_buf   <= (others => 'Z');
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
 
-         when WR_DAC32_DONE =>  
-            idac  <= 0;
+         when WR_DAC32_DONE => 
+            idac_rst    <= '0';
+            idac_clk    <= '0';         
             write_buf   <= (others => 'Z');
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
             
          when WR_DAC_LVDS_CMD =>
-            idac        <= 0;            
+            idac_rst    <= '1';
+            idac_clk    <= '0';         
             write_buf   <= dat_i;
             read_lsb_en <= '1';                                      
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
          
          when DAC_LVDS_STORE =>
-            idac        <= 0;            
+            idac_rst    <= '0';
+            idac_clk    <= '0';                  
             write_buf   <= (others => 'Z'); 
             read_lsb_en <= '1';
             read_msb_en <= '0';
@@ -323,7 +343,8 @@ dac_ncs_o <= dac_ncs;
             end if;   
                                  
          when WR_DAC_LVDS_DONE =>
-            idac        <= 0;
+            idac_rst    <= '1';
+            idac_clk    <= '0';         
             write_buf   <= (others => 'Z');
             read_lsb_en <= '0';                                
             read_msb_en <= '0';
@@ -331,14 +352,16 @@ dac_ncs_o <= dac_ncs;
             
          when RESYNC_CMD =>            
             -- reset counter on next sync pulse
-            idac        <= 0;
+            idac_rst    <= '1';
+            idac_clk    <= '0';         
             write_buf   <= (others => 'Z');
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '1';            
          
          when OUT_SYNC_CMD =>
-            idac        <= 0;
+            idac_rst    <= '1';
+            idac_clk    <= '0';         
             write_buf   <= (others => 'Z');
             read_lsb_en <= '0';
             read_msb_en <= '0';
@@ -414,7 +437,7 @@ dac_ncs_o <= dac_ncs;
       end if;
    end process snd_dac32_state_FF;
    
-   snd_dac32_state_NS: process (snd_dac32_current_state, read_count)
+   snd_dac32_state_NS: process (snd_dac32_current_state, send_dac32, read_count)
    begin 
       case snd_dac32_current_state is 
          when SND_DAC32_IDLE => 
@@ -550,7 +573,7 @@ dac_ncs_o <= dac_ncs;
    --    1. wishbone writes FLUX_FB, BIAS, RESYNC_NXT cmds to DAC_CTRL
    --    2. DAC_CTRL data is ready to be read on wishbone
    ack_o <= '1' when (current_state = OUT_SYNC_CMD     or current_state = WR_DAC32_NXT or 
-                      current_state = WR_DAC_LVDS_DONE or current_state = RESYNC_CMD) else '0';
+                      current_state = WR_DAC_LVDS_DONE or current_state = RESYNC_CMD) and stb_i = '1' else '0';
    rty_o <= '0'; -- for now
    
    dat_o <= error_count when (current_state = OUT_SYNC_CMD) else (others => '0');
@@ -562,7 +585,7 @@ dac_ncs_o <= dac_ncs;
    write_resync     <= '1' when ( addr_i = RESYNC_ADDR    and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';                               
    
    -- if command is fully received, now we can send the data to the dacs
-   send_dac32       <= '1' when (current_state = WR_DAC32_DONE and cyc_i = '0') else '0';
+   send_dac32       <= '1' when (current_state = WR_DAC32_DONE ) else '0';
    send_dac_lvds    <= '1' when (current_state = WR_DAC_LVDS_DONE) else '0';
    
    spi_busy         <= '1' when (dac_ncs (0) = '0'  or dac_ncs(1) = '0'  or dac_ncs(2) = '0'  or dac_ncs(3) = '0'  or
