@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/29 00:39:30 $> - <initials $Author: bench2 $>
+-- <date $Date: 2004/08/19 19:54:21 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.9  2004/08/19 19:54:21  bburger
+-- Bryce:  added new parameter ids, and moved some around that didn't belong in a category
+--
 -- Revision 1.8  2004/07/29 00:39:30  bench2
 -- Bryce: added new constants
 --
@@ -128,8 +131,8 @@ package wishbone_pack is
    constant SAMP_NUM_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"18";
    constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"19";
    constant FB_DLY_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1A";
-   constant RAMP_LEN_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1B";
-   constant RAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1C";
+   constant RAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1B";
+   constant RAMP_AMP_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1C";
    constant FB_CONST_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1D";
 
    constant GAINP0_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"70";
