@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.3  2004/11/30 03:01:36  erniel
+-- eliminated separate status fifo (combined with header fifo)
+-- eliminated WRITE_STATUS state
+-- moved WRITE_HEADER state to after WRITE_DATA state
+--
 -- Revision 1.2  2004/11/12 19:45:57  erniel
 -- added nack_i (negative ack) port
 -- implemented discard current packet on nack_i
@@ -108,13 +113,12 @@ signal crc_rdy   : std_logic;
 --------------------------------------------------
 -- FIFO write control:
 
-type write_ctrl_states is (WRITE_INIT, GET_HEADERS, WRITE_HEADER, WRITE_DATA, WRITE_STATUS, WRITE_DONE);
+type write_ctrl_states is (WRITE_INIT, GET_HEADERS, WRITE_DATA, WRITE_HEADER, WRITE_DONE);
 signal wr_pres_state : write_ctrl_states;
 signal wr_next_state : write_ctrl_states;
 
 signal data_wr : std_logic;
 signal header_wr : std_logic;
-signal status_wr : std_logic;
 signal wr_done : std_logic;
 
 signal wr_count_ena : std_logic;
@@ -137,7 +141,6 @@ signal rd_next_state : read_ctrl_states;
 
 signal data_rd : std_logic;
 signal header_rd : std_logic;
-signal status_rd : std_logic;
 signal rd_done : std_logic;
 
 signal rd_count_ena : std_logic;
@@ -147,11 +150,9 @@ signal rd_count : integer;
 signal data_err : std_logic;
 
 signal temp_header : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal temp_status : std_logic_vector(BB_STATUS_WIDTH-1 downto 0);
+signal cur_header  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
 signal packets : integer;
-
-signal cur_header : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
 begin
 
@@ -564,7 +565,6 @@ begin
       rdy_o        <= '0';
       data_rd      <= '0';
       header_rd    <= '0';
-      status_rd    <= '0';
       rd_count_ena <= '0';
       rd_count_clr <= '0';
       rd_done      <= '0';
@@ -585,13 +585,11 @@ begin
                                  rd_count_ena    <= '1';         
 
          when DISCARD_HEADER =>  header_rd       <= '1';
-                                 status_rd       <= '1';
                                  rd_count_ena    <= '1';
                                  rd_count_clr    <= '1';
                                  rd_done         <= '1';
                                
          when READ_DONE =>       header_rd       <= '1';
-                                 status_rd       <= '1';
                                  rd_count_ena    <= '1';
                                  rd_count_clr    <= '1';
                                  rd_done         <= '1';
