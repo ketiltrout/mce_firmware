@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_rs232_data_tx.vhd,v $
+-- Revision 1.2  2004/05/05 21:30:13  erniel
+-- modified behaviour of start signal
+--
 -- Revision 1.1  2004/05/05 03:51:14  erniel
 -- initial version
 --
@@ -167,6 +170,8 @@ begin
       
       do_start;
       
+      do_transmit;
+      do_transmit;
       do_transmit;
       do_transmit;
       do_transmit;
