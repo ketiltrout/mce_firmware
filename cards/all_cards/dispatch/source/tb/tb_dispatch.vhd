@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch.vhd,v $
+-- Revision 1.4  2005/01/05 23:24:33  erniel
+-- updated lvds_tx component
+--
 -- Revision 1.3  2004/11/26 01:44:15  erniel
 -- updated test cases to reflect new command_type encoding
 -- added test cases to exercise status/error bits
@@ -58,6 +61,8 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.dispatch_pack.all;
+use work.slot_id_pack.all;
+
 
 entity TB_DISPATCH is
 end TB_DISPATCH;
@@ -66,10 +71,7 @@ architecture BEH of TB_DISPATCH is
 
    component DISPATCH
 
-      generic(CARD   : std_logic_vector ( BB_CARD_ADDRESS_WIDTH - 1 downto 0 )  := READOUT_CARD_1 );
-
       port(CLK_I          : in std_logic ;
-           MEM_CLK_I      : in std_logic ;
            COMM_CLK_I     : in std_logic ;
            RST_I          : in std_logic ;
            LVDS_CMD_I     : in std_logic ;
@@ -83,14 +85,13 @@ architecture BEH of TB_DISPATCH is
            DAT_I          : in std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
            ACK_I          : in std_logic ;
            ERR_I          : in std_logic ;
-           WDT_RST_O      : out std_logic );
+           WDT_RST_O      : out std_logic ;
+           SLOT_I         : in std_logic_vector(SLOT_ID_BITS-1 downto 0));
 
    end component;
 
    component LVDS_TX
       port(CLK_I        : in std_logic ;
-           MEM_CLK_I    : in std_logic ;
-           COMM_CLK_I   : in std_logic ;
            RST_I        : in std_logic ;
            DAT_I        : in std_logic_vector ( 31 downto 0 );
            RDY_I        : in std_logic ;
@@ -181,10 +182,7 @@ begin
 
    DUT : DISPATCH
 
-      generic map(CARD   => BIAS_CARD_1 )
-
       port map(CLK_I          => W_CLK_I,
-               MEM_CLK_I      => W_MEM_CLK_I,
                COMM_CLK_I     => W_COMM_CLK_I,
                RST_I          => W_RST_I,
                LVDS_CMD_I     => W_LVDS_CMD,
@@ -198,12 +196,11 @@ begin
                DAT_I          => W_DAT_I,
                ACK_I          => W_ACK_I,
                ERR_I          => W_ERR_I,
-               WDT_RST_O      => W_WDT_RST_O);
+               WDT_RST_O      => W_WDT_RST_O,
+               SLOT_I         => "0010");
 
    TX : LVDS_TX
       port map(CLK_I        => W_CLK_I,
-               MEM_CLK_I    => W_MEM_CLK_I,
-               COMM_CLK_I   => W_COMM_CLK_I,
                RST_I        => W_RST_I,
                DAT_I        => W_LVDS_DAT_I,
                RDY_I        => W_LVDS_RDY_I,
