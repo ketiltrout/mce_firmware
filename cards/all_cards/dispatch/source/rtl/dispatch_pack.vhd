@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.4  2004/09/27 23:00:24  erniel
+-- added component declarations
+-- moved constants to command_pack
+--
 -- Revision 1.3  2004/08/28 03:10:01  erniel
 -- renamed some constants
 --
@@ -53,6 +57,9 @@ use sys_param.wishbone_pack.all;
 
 package dispatch_pack is
 
+   -- Watchdog timer limit, in microseconds:
+   constant WATCHDOG_LIMIT : integer := 180000;
+   
    -- CRC polynomial:
    constant CRC32 : std_logic_vector(31 downto 0) := "00000100110000010001110110110111";
    
@@ -63,7 +70,7 @@ package dispatch_pack is
    
    -- component declarations:
    component dispatch_cmd_receive
-   generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1);
+   generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := CLOCK_CARD);
    port(clk_i      : in std_logic;
         comm_clk_i : in std_logic;
         rst_i      : in std_logic;		
@@ -125,4 +132,22 @@ package dispatch_pack is
         q         : out std_logic_vector (BUF_DATA_WIDTH-1 downto 0));
    end component;
    
+   component dispatch 
+   port(clk_i        : in std_logic;
+        mem_clk_i    : in std_logic;
+        comm_clk_i   : in std_logic;
+        rst_i        : in std_logic;		
+        lvds_cmd_i   : in std_logic;
+        lvds_reply_o : out std_logic;
+        dat_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        addr_o       : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+        tga_o        : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_o         : out std_logic;
+        stb_o        : out std_logic;
+        cyc_o        : out std_logic;
+        dat_i       	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        ack_i        : in std_logic;
+        wdt_rst_o    : out std_logic);
+   end component;
+     
 end dispatch_pack;
