@@ -1,3 +1,38 @@
+-- Copyright (c) 2003 SCUBA-2 Project
+--                  All Rights Reserved
+--
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+--  The copyright notice above does not evidence any
+--  actual or intended publication of such source code.
+--
+--  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+--  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+--  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+--  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+--  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+--
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+--
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+--
+--
+-- dispatch.vhd
+--
+-- Project:	      SCUBA-2
+-- Author:        Ernie Lin
+-- Organisation:  UBC
+--
+-- Description:
+-- Top-level file for dispatch module
+--
+-- Revision history:
+-- 
+-- $Log$
+--
+-----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -13,8 +48,9 @@ library work;
 use work.dispatch_pack.all;
 
 entity dispatch is
-generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1);
+generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := CLOCK_CARD);
 port(clk_i      : in std_logic;
+     mem_clk_i  : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;		
      
@@ -48,20 +84,23 @@ signal wb_reply_rdy : std_logic;
 signal reply_rdy    : std_logic;
 signal reply_ack    : std_logic;
 
-signal uop_status : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal uop_status_ld : std_logic;
 
-signal cmd_type        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
-signal cmd_data_size   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal reply_data_size : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
-signal cmd_header0 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal cmd_header1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal cmd_hdr0   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal cmd_hdr1   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_hdr0 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_hdr1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_hdr2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
+signal cmd_header0   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal cmd_header1   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal reply_header0 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal reply_header1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal reply_header2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
-signal header_ld : std_logic;
+signal cmd_hdr_ld   : std_logic;
 
 signal cmd_buf_wren   : std_logic;
 signal cmd_buf_wrdata : std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
@@ -85,27 +124,43 @@ begin
             lvds_cmd_i => lvds_cmd_i,
             cmd_rdy_o  => cmd_rdy,
             cmd_err_o  => cmd_err,
-            header0_o  => cmd_header0,
-            header1_o  => cmd_header1,
+            header0_o  => cmd_hdr0,
+            header1_o  => cmd_hdr1,
             buf_data_o => cmd_buf_wrdata,
             buf_addr_o => cmd_buf_wraddr,
             buf_wren_o => cmd_buf_wren);
    
+   cmd0 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
+            ena_i => cmd_hdr_ld,
+            reg_i => cmd_hdr0,
+            reg_o => cmd_header0);
+   
+   cmd1 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
+            ena_i => cmd_hdr_ld,
+            reg_i => cmd_hdr1,
+            reg_o => cmd_header1);
+            
    receive_buf : dispatch_data_buf
    port map(data      => cmd_buf_wrdata,
             wren      => cmd_buf_wren,
             wraddress => cmd_buf_wraddr,
             rdaddress => cmd_buf_rdaddr,
-            clock     => comm_clk_i,
+            clock     => mem_clk_i,
             q         => cmd_buf_rddata);
    
    wishbone : dispatch_wishbone
    port map(clk_i            => clk_i,
             rst_i            => rst_i,
             cmd_rdy_i        => wb_cmd_rdy,
-            data_size_i      => cmd_data_size,
-            cmd_type_i       => cmd_type,
-            param_id_i       => reply_header1(BB_PARAMETER_ID'range),
+            data_size_i      => cmd_header0(BB_DATA_SIZE'range),
+            cmd_type_i       => cmd_header0(BB_COMMAND_TYPE'range),
+            param_id_i       => cmd_header1(BB_PARAMETER_ID'range),
             cmd_buf_data_i   => cmd_buf_rddata,
             cmd_buf_addr_o   => cmd_buf_rdaddr,
             reply_rdy_o      => wb_reply_rdy,
@@ -135,50 +190,48 @@ begin
             header2_i   => reply_header2,
             buf_data_i  => reply_buf_rddata,
             buf_addr_o  => reply_buf_rdaddr);
-     
+
+   reply_data_size <= cmd_header0(BB_DATA_SIZE'range) when (cmd_header0(BB_COMMAND_TYPE'range) = READ_BLOCK or 
+                                                            cmd_header0(BB_COMMAND_TYPE'range) = DATA) 
+                                                      else (others => '0');
+   
+   reply_hdr0 <= cmd_header0(BB_PREAMBLE'range) & cmd_header0(BB_COMMAND_TYPE'range) & reply_data_size;
+   reply_hdr1 <= cmd_header1;
+   reply_hdr2 <= (SUCCESS & "000000000000000000000000") when (cmd_rdy = '1') else
+                 (FAIL    & "000000000000000000000000") when (cmd_err = '1') else
+                 (others => '0');
+                                                      
+   reply0 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
+            ena_i => '1',
+            reg_i => reply_hdr0,
+            reg_o => reply_header0);
+            
+   reply1 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
+            ena_i => '1',
+            reg_i => reply_hdr1,
+            reg_o => reply_header1);
+            
+   reply2 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
+            ena_i => uop_status_ld,
+            reg_i => reply_hdr2,
+            reg_o => reply_header2);
+                 
    transmit_buf : dispatch_data_buf
    port map(data      => reply_buf_wrdata,
             wren      => reply_buf_wren,
             wraddress => reply_buf_wraddr,
             rdaddress => reply_buf_rdaddr,
-            clock     => comm_clk_i,
-            q         => reply_buf_rddata);
-   
-   hdr0_cmdtype : reg
-   generic map(WIDTH => BB_COMMAND_TYPE_WIDTH)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => header_ld,
-            reg_i  => cmd_header0(BB_COMMAND_TYPE'range),
-            reg_o  => cmd_type);
-   
-   hdr0_datasize : reg
-   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => header_ld,
-            reg_i  => cmd_header0(BB_DATA_SIZE'range),
-            reg_o  => cmd_data_size);
-   
-   reply_data_size <= cmd_data_size when (cmd_type = READ_BLOCK or cmd_type = DATA) else (others => '0');
-   
-   reply_header0 <= BB_PREAMBLE & cmd_type & reply_data_size;
-   
-   hdr1 : reg
-   generic map(WIDTH => PACKET_WORD_WIDTH)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => header_ld,
-            reg_i  => cmd_header1,
-            reg_o  => reply_header1);
-            
-   hdr2 : reg
-   generic map(WIDTH => PACKET_WORD_WIDTH)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => header_ld,
-            reg_i  => uop_status,
-            reg_o  => reply_header2);
+            clock     => mem_clk_i,
+            q         => reply_buf_rddata);            
             
             
    ---------------------------------------------------------
@@ -221,20 +274,16 @@ begin
       end case;
    end process stateNS;
    
-   stateOut: process(pres_state, cmd_rdy, cmd_err)
+   stateOut: process(pres_state)
    begin
-      header_ld  <= '0';
-      wb_cmd_rdy <= '0';
-      reply_rdy  <= '0';
-      uop_status <= (others => '0');
+      cmd_hdr_ld    <= '0';
+      uop_status_ld <= '0';      
+      wb_cmd_rdy    <= '0';
+      reply_rdy     <= '0';
       
       case pres_state is
-         when FETCH =>   if(cmd_err = '1') then
-                            uop_status <= FAIL & "000000000000000000000000";
-                         elsif(cmd_rdy = '1') then
-                            uop_status <= SUCCESS & "000000000000000000000000";
-                         end if;
-                         header_ld <= '1';                         
+         when FETCH =>   cmd_hdr_ld    <= '1';                         
+                         uop_status_ld <= '1';
          
          when EXECUTE => wb_cmd_rdy <= '1';
          
