@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.1 2004/04/21 16:52:51 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.2 2004/04/23 00:52:12 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/04/21 16:52:51 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/23 00:52:12 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.2  2004/04/23 00:52:12  mandana
+-- fixed ack timing, dac_count_clk now counts the acks
+--
 -- Revision 1.1  2004/04/21 16:52:51  mandana
 -- Initial release
 --
@@ -63,17 +66,13 @@ entity dac_ctrl_test_wrapper is
       en_i      : in std_logic;    -- enable signal
       done_o    : out std_logic;   -- done ouput signal
       
-      -- transmitter signals
-      tx_busy_i : in std_logic;    -- transmit busy flag
-      tx_ack_i  : in std_logic;    -- transmit ack
-      tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-      tx_we_o   : out std_logic;   -- transmit write flag
-      tx_stb_o  : out std_logic;   -- transmit strobe flag      
-      
+      -- transmitter signals removed!
+                
       -- extended signals
       dac_dat_o : out std_logic_vector (32 downto 0); 
       dac_ncs_o : out std_logic_vector (32 downto 0); 
-      dac_clk_o : out std_logic_vector (32 downto 0)      
+      dac_clk_o : out std_logic_vector (32 downto 0);
+      dac_nclr_o: out std_logic
    );   
 end;  
 
@@ -143,6 +142,7 @@ begin
       port map(dac_data_o   => dac_dat_o,
                dac_ncs_o    => dac_ncs_o,
                dac_clk_o    => dac_clk_o,
+               dac_nclr_o   => dac_nclr_o,
                clk_i        => clk_i,
                rst_i        => rst_i,
                dat_i        => dat_o,
@@ -223,9 +223,9 @@ begin
 	    we_o      <= '0';
 	    stb_o     <= '0';
 	    cyc_o     <= '0';                          
-	    tx_data_o <= (others => '0');
-	    tx_we_o   <= '0';
-	    tx_stb_o  <= '0';
+--	    tx_data_o <= (others => '0');
+--	    tx_we_o   <= '0';
+--	    tx_stb_o  <= '0';
 	    done_o    <= '0';
          
          when DAC32 =>    
@@ -236,9 +236,6 @@ begin
             we_o      <= '1';
   	    stb_o     <= '1';
 	    cyc_o     <= '1';                           
-	    tx_data_o <= (others => '0');
-	    tx_we_o   <= '0';
-	    tx_stb_o  <= '0';
 	    done_o    <= '0';
                           
          when DAC32_NXT =>    
@@ -256,9 +253,6 @@ begin
 	       stb_o     <= '0';
 	       cyc_o     <= '1';      	       
 	    end if;   
-	    tx_data_o <= (others => '0');
-	    tx_we_o   <= '0';
-	    tx_stb_o  <= '0';
 	    done_o    <= '0';
                                                     
          when LVDS_DAC =>
@@ -269,9 +263,6 @@ begin
 	    we_o      <= '1';
 	    stb_o     <= '1';
 	    cyc_o     <= '1';                          
-	    tx_data_o <= (others => '0');
-	    tx_we_o   <= '0';
-	    tx_stb_o  <= '0';
 	    done_o    <= '0';
          
          when LVDS_DONE =>
@@ -282,9 +273,6 @@ begin
 	    we_o      <= '0';
 	    stb_o     <= '0';
 	    cyc_o     <= '0';                          
-	    tx_data_o <= (others => '0');
-	    tx_we_o   <= '0';
-	    tx_stb_o  <= '0';
 	    done_o    <= '0';
                   
          when DONE =>     
@@ -295,9 +283,6 @@ begin
 	    we_o      <= '0';
 	    stb_o     <= '0';
 	    cyc_o     <= '0';                          
-	    tx_data_o <= (others => '0');
-	    tx_we_o   <= '0';
-	    tx_stb_o  <= '0';
 	    done_o    <= '1';
                           
       end case;

@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/21 20:28:50 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/23 00:53:26 $>	- <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.3  2004/04/23 00:53:26  mandana
+-- Sends enable signal 4 times(i.e. 4 DAC values examined)
+--
 -- Revision 1.2  2004/04/21 20:28:50  mandana
 -- fixed errors
 --
@@ -53,14 +56,10 @@ architecture BEH of TB_DAC_CTRL_TEST_WRAPPER is
            CLK_I       : in std_logic ;
            EN_I        : in std_logic ;
            DONE_O      : out std_logic ;
-           TX_BUSY_I   : in std_logic ;
-           TX_ACK_I    : in std_logic ;
-           TX_DATA_O   : out std_logic_vector ( 7 downto 0 );
-           TX_WE_O     : out std_logic ;
-           TX_STB_O    : out std_logic ;
            DAC_DAT_O   : out std_logic_vector ( 32 downto 0 );
            DAC_NCS_O   : out std_logic_vector ( 32 downto 0 );
-           DAC_CLK_O   : out std_logic_vector ( 32 downto 0 ) );
+           DAC_CLK_O   : out std_logic_vector ( 32 downto 0 );
+           DAC_NCLR_O  : out std_logic );
 
    end component;
 
@@ -74,6 +73,7 @@ architecture BEH of TB_DAC_CTRL_TEST_WRAPPER is
    signal W_DAC_DAT_O   : std_logic_vector ( 32 downto 0 );
    signal W_DAC_NCS_O   : std_logic_vector ( 32 downto 0 );
    signal W_DAC_CLK_O   : std_logic_vector ( 32 downto 0 ) ;
+   signal W_DAC_NCLR_O  : std_logic;
    signal zero          : std_logic := '0';
 
 begin
@@ -83,14 +83,10 @@ begin
                CLK_I       => W_CLK_I,
                EN_I        => W_EN_I,
                DONE_O      => W_DONE_O,
-               TX_BUSY_I   => zero,
-               TX_ACK_I    => zero,
-               TX_DATA_O   => open,
-               TX_WE_O     => open,
-               TX_STB_O    => open,
                DAC_DAT_O   => W_DAC_DAT_O,
                DAC_NCS_O   => W_DAC_NCS_O,
-               DAC_CLK_O   => W_DAC_CLK_O);
+               DAC_CLK_O   => W_DAC_CLK_O,
+               DAC_NCLR_O  => W_DAC_NCLR_O);
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
 

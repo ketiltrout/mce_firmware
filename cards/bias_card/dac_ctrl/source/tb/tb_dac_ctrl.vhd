@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.4 2004/04/19 23:43:37 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.5 2004/04/21 20:01:32 bburger Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Mandana Amiri
@@ -30,8 +30,11 @@
 -- Testbench to test dac_ctrl module for bias card
 --
 -- Revision history:
--- <date $Date: 2004/04/19 23:43:37 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/21 20:01:32 $>	- <initials $Author: bburger $>
 -- $Log: tb_dac_ctrl.vhd,v $
+-- Revision 1.5  2004/04/21 20:01:32  bburger
+-- Changed address moniker
+--
 -- Revision 1.4  2004/04/19 23:43:37  mandana
 -- added coverage for range checking
 --
@@ -68,6 +71,7 @@ architecture BEH of TB_DAC_CTRL is
       port(dac_data_o   : out std_logic_vector ( 32 downto 0 );
            dac_ncs_o    : out std_logic_vector ( 32 downto 0 );
            dac_clk_o    : out std_logic_vector ( 32 downto 0 );
+           dac_nclr_o   : out std_logic;
            clk_i        : in std_logic ;
            rst_i        : in std_logic ;
            dat_i        : in std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
@@ -89,6 +93,7 @@ architecture BEH of TB_DAC_CTRL is
    signal W_DAC_DATA_O   : std_logic_vector ( 32 downto 0 );
    signal W_DAC_NCS_O    : std_logic_vector ( 32 downto 0 );
    signal W_DAC_CLK_O    : std_logic_vector ( 32 downto 0 );
+   signal W_DAC_NCLR_O   : std_logic;
    signal W_CLK_I        : std_logic := '0';
    signal W_RST_I        : std_logic ;
    signal W_DAT_I        : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
@@ -115,6 +120,7 @@ begin
       port map(dac_data_o   => W_DAC_DATA_O,
                dac_ncs_o    => W_DAC_NCS_O,
                dac_clk_o    => W_DAC_CLK_O,
+               dac_nclr_o   => W_DAC_NCLR_O,
                clk_i        => W_CLK_I,
                rst_i        => W_RST_I,
                dat_i        => W_DAT_I,
