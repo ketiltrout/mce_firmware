@@ -29,6 +29,8 @@
 -- This testbench tests the integration of eight flux_loop_ctrl and one of
 -- wbs_fb_data and wbs_frame_data.
 -- 
+-- The architecture of this test bench follows tb2_flux_loop_ctrl.
+--
 -- The frame_timing signals are provided to the testbench by instantiating the 
 -- frame_timing library component. 
 -- 
@@ -40,19 +42,24 @@
 -- value generated block(LFSR) to assign values  to adc_dat_i.
 --
 -- The following operation is performed:
+--
+-- Emulating the behaviour of the Dispatch, we write new values inot P/I/D/Z,
+-- adc_offset, filter_coeff, servo_mode, ramp_step_size, ramp_amp, const_val,
+-- num_ramp_frame_cycles, sa_bias, and offset_dat paramters.
 -- 
 -- We write a new piece of data to adc_dat_i on the FALLING edge of the clk
 -- to mimick the data coming from A/D.  Note that data from A/D is ready on the
 -- falling edge of adc_en_clk.
 --
--- Moreover, we configure the PIDZ coefficient
--- queues for calculating the PIDZ error value in lock mode and select the
--- servo lock mode.
---
+-- We excite wbs_frame_data by emulating proper commands as sent by Dispatch
+-- and we monitor wbs_frame_data output and perform selfcheck.
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb1_flux_loop.vhd,v $
+-- Revision 1.1  2004/12/07 19:48:19  mohsen
+-- Anthony & Mohsen: Initial release
+--
 --
 --
 --
