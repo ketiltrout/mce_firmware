@@ -30,19 +30,22 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_dispatch_crc_test.vhd,v $
+-- Revision 1.1  2004/08/04 19:43:19  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.std_logic_1164.all;
 
-entity TB_DISPATCH_TEST is
-end TB_DISPATCH_TEST;
+entity TB_DISPATCH_CRC_TEST is
+end TB_DISPATCH_CRC_TEST;
 
-architecture BEH of TB_DISPATCH_TEST is
+architecture BEH of TB_DISPATCH_CRC_TEST is
 
-   component DISPATCH_TEST
+   component DISPATCH_CRC_TEST
       port(CLK_I       : in std_logic ;
            RST_I       : in std_logic ;
            RX_DATA     : in std_logic_vector ( 31 downto 0 );
@@ -66,7 +69,7 @@ architecture BEH of TB_DISPATCH_TEST is
 
 begin
 
-   DUT : DISPATCH_TEST
+   DUT : DISPATCH_CRC_TEST
       port map(CLK_I       => W_CLK_I,
                RST_I       => W_RST_I,
                RX_DATA     => W_RX_DATA,

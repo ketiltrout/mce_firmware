@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: dispatch_crc_test.vhd,v $
+-- Revision 1.1  2004/08/04 19:43:19  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -43,7 +46,7 @@ library components;
 use components.component_pack.all;
 
 
-entity dispatch_test is
+entity dispatch_crc_test is
 generic(TEMP : std_logic_vector(3 downto 0) := "0000");
 port(clk_i : in std_logic;
      rst_i : in std_logic;
@@ -55,9 +58,9 @@ port(clk_i : in std_logic;
      word_done : out std_logic;
      
      cmd_data : out std_logic_vector(31 downto 0));
-end dispatch_test;     
+end dispatch_crc_test;     
 
-architecture rtl of dispatch_test is
+architecture rtl of dispatch_crc_test is
 type crc_states is (IDLE_CRC, INITIALIZE_CRC, CALCULATE_CRC, CALC_CRC_DONE, PAUSE_NEXT, LOAD_NEXT);
 signal crc_pres_state : crc_states;
 signal crc_next_state : crc_states;
@@ -106,9 +109,7 @@ begin
    
    crc_bit_counter : counter
       generic map(MAX         => 32,
-                  STEP_SIZE   => 1,
-                  WRAP_AROUND => '0',
-                  UP_COUNTER  => '1')
+                  WRAP_AROUND => '0')
       port map(clk_i   => clk_i,
                rst_i   => rst_i,
                ena_i   => '1',
