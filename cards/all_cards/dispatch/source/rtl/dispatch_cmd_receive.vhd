@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.7  2004/10/18 20:48:16  erniel
+-- corrected sensitivity list in processes rx_stateNS and rx_stateOut
+--
 -- Revision 1.6  2004/09/27 23:02:22  erniel
 -- using updated constants from command_pack
 --
@@ -77,8 +80,8 @@ port(clk_i      : in std_logic;
      
      lvds_cmd_i : in std_logic;
      
-     cmd_rdy_o : out std_logic;  -- indicates received command is valid
-     cmd_err_o : out std_logic;  -- indicates received command had an error in it
+     cmd_rdy_o : out std_logic;  -- indicates receive completed
+     cmd_err_o : out std_logic;  -- indicates command failed CRC check
      
      -- Command header words:
      header0_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -125,8 +128,9 @@ type crc_states is (IDLE_CRC, INITIALIZE_CRC, CALCULATE_CRC, CRC_WORD_DONE, SYNC
 signal crc_pres_state : crc_states;
 signal crc_next_state : crc_states;
 
-signal data_size_ld : std_logic;
-signal data_size    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+signal data_size_ld   : std_logic;
+signal data_size_temp : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+signal data_size      : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal data_shreg_ena : std_logic;
 signal data_shreg_ld  : std_logic;
@@ -171,11 +175,15 @@ begin
       port map(clk_i => clk_i,
                rst_i => rst_i,
                ena_i => data_size_ld,
-               reg_i => lvds_rx_data(BB_DATA_SIZE'range),
+               reg_i => data_size_temp,
                reg_o => data_size);
 
-   -- number of bits to be processed by CRC is (# of data words + 2 header words + 1 CRC word) * 32
-   crc_num_bits <= conv_integer((data_size + 3) & "00000");     
+   -- for READ commands, data size is 0.  
+   -- for WRITE commands, data size is given by data size field of packet.
+   data_size_temp <= (others => '0') when lvds_rx_data(BB_COMMAND_TYPE'range) = READ_CMD else lvds_rx_data(BB_DATA_SIZE'range);
+   
+   -- number of bits to be processed by CRC is (2 header words + 1 CRC word + data size) * 32 bits/word
+   crc_num_bits <= conv_integer((data_size + 3) & "00000");
 
    crc_data_reg : shift_reg
       generic map(WIDTH => PACKET_WORD_WIDTH)
@@ -185,7 +193,7 @@ begin
                load_i     => data_shreg_ld,
                clr_i      => '0',
                shr_i      => '1',            -- CRC is calculated LSB first
-               serial_i   => crc_cur_bit,  -- this makes the shift register a rotator! (eliminates need for separate buffer)
+               serial_i   => crc_cur_bit,    -- this makes the shift register a rotator! (eliminates need for separate buffer)
                serial_o   => crc_cur_bit,
                parallel_i => lvds_rx_data,
                parallel_o => crc_word_out);
@@ -226,7 +234,7 @@ begin
    
    -- Notes: - CRC receiver starts on valid preamble boundaries.
    --        - If receiver loses packet sync, words will be ignored:
-   --             1. wait until return to CRC idle state (could be up to 8191 words later), then
+   --             1. wait until return to CRC idle state (could be up to 8k words later), then
    --             2. wait until valid preamble is detected.
    
    crc_stateNS: process(crc_pres_state, lvds_rx_rdy, lvds_rx_data, crc_bit_count, crc_done)
@@ -395,9 +403,9 @@ begin
                            end if;
                            
          when PARSE_HDR => if(cmd_valid = '1') then                           -- if this command is for this card
-                              if(cmd_type = WRITE_BLOCK) then                    -- if this command is a WRITE, next word is data
+                              if(cmd_type = WRITE_CMD) then                      -- if this command is a READ, next word is CRC
                                  rx_next_state <= RX_DATA;
-                              else                                               -- if this command is not a WRITE, next word is CRC
+                              else                                               -- if this command is a WRITE, next word is data
                                  rx_next_state <= RX_CRC;            
                               end if;
                            else                                               -- otherwise, skip it
@@ -434,7 +442,7 @@ begin
                               rx_next_state <= SKIP_CMD;
                            end if;
                           
-         when INCR_SKIP => if(data_word_count = cmd_data_size) then               -- if we have skipped over all data words AND the CRC word
+         when INCR_SKIP => if(data_word_count = cmd_data_size) then           -- if we have skipped over all data words AND the CRC word
                               rx_next_state <= RX_HDR;
                            else
                               rx_next_state <= SKIP_CMD;
@@ -481,8 +489,9 @@ begin
                                        header1_o           <= temp1;
                                        cmd_rdy_o           <= '1';
          
-         when ERROR =>                 header0_o           <= "10101010101010100000000000000000";
-                                       header1_o           <= "00000000000000000000000000000000";
+         when ERROR =>                 header0_o           <= "10101010101010100000000000000000";  -- preamble with no data
+                                       header1_o           <= (others => '0');                     -- null fields
+                                       cmd_rdy_o           <= '1';
                                        cmd_err_o           <= '1';
                                                
          when others =>                null;
