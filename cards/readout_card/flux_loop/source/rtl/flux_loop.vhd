@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id$
+-- $Id: flux_loop.vhd,v 1.1 2004/08/25 23:07:10 bburger Exp $
 -- Description:
 -- Readout Card flux loop
 --
 -- Revision history:
--- $Log$
+-- $Log: flux_loop.vhd,v $
+-- Revision 1.1  2004/08/25 23:07:10  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
@@ -84,63 +87,100 @@ end flux_loop;
 
 architecture behav of flux_loop is
 
-   constant ADDR_ZERO          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0) := (others => '0');
-   constant ADDR_FULL_SCALE    : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0) := (others => '1');
+   -- Coadded data queue inputs/ouputs
+   subtype coadded_queue_addr is std_logic_vector(CD_Q_ADDR_WIDTH-1 downto 0);
+   type coadded_queue_addr_array is array (0 to 1) of coadded_queue_addr;
+   subtype coadded_queue_wren is std_logic;
+   type coadded_queue_wren_array is array (0 to 1) of coadded_queue_wren;
+   subtype coadded_queue_data is std_logic_vector(CD_Q_WIDTH-1 downto 0);
+   type coadded_queue_data_array is array (0 to 1) of coadded_queue_data;
+   signal coadded_data        : coadded_queue_data_array;
+   signal coadded_wren        : coadded_queue_wren_array;
+   signal coadded_wadd        : coadded_queue_addr_array;
+   signal coadded_radd_a0     : coadded_queue_addr_array;
+   signal coadded_radd_b0     : coadded_queue_addr_array;
+   signal coadded_qa0         : coadded_queue_data_array;
+   signal coadded_qb0         : coadded_queue_data_array;
+   signal coadded_radd_a1     : coadded_queue_addr_array;
+   signal coadded_radd_b1     : coadded_queue_addr_array;
+   signal coadded_qa1         : coadded_queue_data_array;
+   signal coadded_qb1         : coadded_queue_data_array;
    
-   -- Calculated parameter queue inputs/ouputs
-   subtype param_queue_addr is std_logic_vector(CD_Q_ADDR_WIDTH-1 downto 0);
-   type param_queue_addr_array is array (0 to 1) of param_queue_addr;
-   subtype param_queue_wren is std_logic;
-   type param_queue_wren_array is array (0 to 1) of param_queue_wren;
-   subtype param_queue_data is std_logic_vector(CD_Q_WIDTH-1 downto 0);
-   type param_queue_data_array is array (0 to 1) of param_queue_data;
-   signal param_data   : param_queue_data_array;
-   signal param_wren   : param_queue_wren_array;
-   signal param_wadd   : param_queue_addr_array;
-   signal param_radd_a : param_queue_addr_array;
-   signal param_radd_b : param_queue_addr_array;
-   signal param_qa     : param_queue_data_array;
-   signal param_qb     : param_queue_data_array;
+   -- Coadded data queue management signals
+   signal coadded_sample_ptr  : std_logic_vector(CD_Q_ADDR_WIDTH-1 downto 0);
+   signal coadded_wishbone_ptr: std_logic_vector(CD_Q_ADDR_WIDTH-1 downto 0);
+   signal coadded_fsfb_ptr    : std_logic_vector(CD_Q_ADDR_WIDTH-1 downto 0);
+   signal even_odd            : std_logic;
+   signal sample_delay        : std_logic_vector(31 downto 0);
+
+   -- First-stage feedback queue inputs/ouputs
+   subtype fsfb_queue_addr is std_logic_vector(FSFB_Q_ADDR_WIDTH-1 downto 0);
+   type fsfb_queue_addr_array is array (0 to 1) of fsfb_queue_addr;
+   subtype fsfb_queue_wren is std_logic;
+   type fsfb_queue_wren_array is array (0 to 1) of fsfb_queue_wren;
+   subtype fsfb_queue_data is std_logic_vector(FSFB_Q_WIDTH-1 downto 0);
+   type fsfb_queue_data_array is array (0 to 1) of fsfb_queue_data;
+   signal fsfb_data           : fsfb_queue_data_array;
+   signal fsfb_wren           : fsfb_queue_wren_array;
+   signal fsfb_wadd           : fsfb_queue_addr_array;
+   signal fsfb_radd_a0        : fsfb_queue_addr_array;
+   signal fsfb_radd_b0        : fsfb_queue_addr_array;
+   signal fsfb_qa0            : fsfb_queue_data_array;
+   signal fsfb_qb0            : fsfb_queue_data_array;
+   signal fsfb_radd_a1        : fsfb_queue_addr_array;
+   signal fsfb_radd_b1        : fsfb_queue_addr_array;
+   signal fsfb_qa1            : fsfb_queue_data_array;
+   signal fsfb_qb1            : fsfb_queue_data_array;
+   
+   -- First-stage feedback queue management signals
+   signal fsfb_calc_ptr       : std_logic_vector(FSFB_Q_ADDR_WIDTH-1 downto 0);
+   signal fsfb_wishbone_ptr   : std_logic_vector(FSFB_Q_ADDR_WIDTH-1 downto 0);
+   signal fsfb_ctrl_ptr       : std_logic_vector(FSFB_Q_ADDR_WIDTH-1 downto 0);
+   signal fsfb_filter_ptr     : std_logic_vector(FSFB_Q_ADDR_WIDTH-1 downto 0);
    
    -- Raw data queue inputs/outputs
    subtype raw_queue_addr is std_logic_vector(RD_Q_ADDR_WIDTH-1 downto 0);
-   --type raw_queue_addr_array is array (0 to 1) of raw_queue_addr;
    subtype raw_queue_wren is std_logic;
-   --type raw_queue_wren_array is array (0 to 1) of raw_queue_wren;
    subtype raw_queue_data is std_logic_vector(RD_Q_WIDTH-1 downto 0);
-   --type raw_queue_dat_array is array (0 to 1) of raw_queue_dat;
-   signal raw_data     : raw_queue_data;
-   signal raw_wren     : raw_queue_wren;
-   signal raw_wadd     : raw_queue_addr;
-   signal raw_radd_a   : raw_queue_addr;
-   signal raw_radd_b   : raw_queue_addr;
-   signal raw_qa       : raw_queue_data;
-   signal raw_qb       : raw_queue_data;
+   signal raw_data            : raw_queue_data;
+   signal raw_wren            : raw_queue_wren;
+   signal raw_wadd            : raw_queue_addr;
+   signal raw_radd_a          : raw_queue_addr;
+   signal raw_radd_b          : raw_queue_addr;
+   signal raw_qa              : raw_queue_data;
+   signal raw_qb              : raw_queue_data;
 
-   -- Queue management variables
-   signal param_rw_ptr : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
-   signal even_odd     : std_logic;
-   signal sample_delay : std_logic_vector(31 downto 0);
+   -- P, I, D and Z coefficient queue inputs/outputs
+   subtype pidz_queue_addr is std_logic_vector(PIDZ_Q_ADDR_WIDTH-1 downto 0);
+   subtype pidz_queue_wren is std_logic;
+   subtype pidz_queue_data is std_logic_vector(PIDZ_Q_WIDTH-1 downto 0);
+   signal pidz_data            : pidz_queue_data;
+   signal pidz_wren            : pidz_queue_wren;
+   signal pidz_wadd            : pidz_queue_addr;
+   signal pidz_radd_a          : pidz_queue_addr;
+   signal pidz_radd_b          : pidz_queue_addr;
+   signal pidz_qa              : pidz_queue_data;
+   signal pidz_qb              : pidz_queue_data;
 
    -- adc_sample FSM
-   type adc_sample_states is (IDLE, RESET, DELAY, COADD);
+   type adc_sample_states is (IDLE, DELAY, COADD);
    signal present_adc_sample_state : adc_sample_states;
    signal next_adc_sample_state    : adc_sample_states;
-   signal coadded_val  : std_logic_vector(31 downto 0);
+   signal coadded_val         : std_logic_vector(31 downto 0);
    
    -- first_stage_fb_calc FSM
-   type first_stage_fb_calc_states is (IDLE, RESET);
+   type first_stage_fb_calc_states is (IDLE);
    signal present_first_stage_fb_calc_state : first_stage_fb_calc_states;
    signal next_first_stage_fb_calc_state    : first_stage_fb_calc_states;
    
    -- first_stage_fb_ctrl FSM
-   type first_stage_fb_ctrl_states is (IDLE, RESET);
+   type first_stage_fb_ctrl_states is (IDLE);
    signal present_first_stage_fb_ctrl_state : first_stage_fb_ctrl_states;
    signal next_first_stage_fb_ctrl_state    : first_stage_fb_ctrl_states;
 
    -- Constants that can be removed when the sync_counter and frame_timer are moved out of this block
-   constant HIGH       : std_logic := '1';
-   constant LOW        : std_logic := '0';
+   constant HIGH              : std_logic := '1';
+   constant LOW               : std_logic := '0';
 
 begin
 
@@ -148,32 +188,110 @@ begin
 -- Instantiations
 ------------------------------------------------------------------------ 
 
-   -- Calculated parameter queue 0
-   coadded_data_queue_0: coadded_data_queue
+   -- Coadded data queue 0
+   coadded_data_queue_0a: coadded_data_queue
       port map(
-         data        => param_data(0),
-         wraddress   => param_wadd(0),
-         rdaddress_a => param_radd_a(0),
-         rdaddress_b => param_radd_b(0),
-         wren        => param_wren_sig(0),
+         data        => coadded_data(0),
+         wraddress   => coadded_wadd(0),
+         rdaddress_a => coadded_radd_a0(0),
+         rdaddress_b => coadded_radd_b0(0),
+         wren        => coadded_wren_sig(0),
          clock       => clk_200mhz_i,  
-         qa          => param_qa(0),         
-         qb          => param_qb(0) 
+         qa          => coadded_qa0(0),         
+         qb          => coadded_qb0(0) 
       );
 
-   -- Calculated parameter queue 1
-   coadded_data_queue_1: coadded_data_queue
+   -- Replica of coadded data queue 0, for additional read ports
+   coadded_data_queue_0b: coadded_data_queue
       port map(
-         data        => param_data(1),
-         wraddress   => param_wadd(1),
-         rdaddress_a => param_radd_a(1),
-         rdaddress_b => param_radd_b(1),
-         wren        => param_wren_sig(1),
+         data        => coadded_data(0),
+         wraddress   => coadded_wadd(0),
+         rdaddress_a => coadded_radd_a1(0),
+         rdaddress_b => coadded_radd_b1(0),
+         wren        => coadded_wren_sig(0),
          clock       => clk_200mhz_i,  
-         qa          => param_qa(1),         
-         qb          => param_qb(1) 
+         qa          => coadded_qa1(0),         
+         qb          => coadded_qb1(0) 
+      );
+
+   -- Coadded data queue 1
+   coadded_data_queue_1a: coadded_data_queue
+      port map(
+         data        => coadded_data(1),
+         wraddress   => coadded_wadd(1),
+         rdaddress_a => coadded_radd_a0(1),
+         rdaddress_b => coadded_radd_b0(1),
+         wren        => coadded_wren_sig(1),
+         clock       => clk_200mhz_i,  
+         qa          => coadded_qa0(1),         
+         qb          => coadded_qb0(1) 
+      );
+
+   -- Replica
+   coadded_data_queue_1b: coadded_data_queue
+      port map(
+         data        => coadded_data(1),
+         wraddress   => coadded_wadd(1),
+         rdaddress_a => coadded_radd_a1(1),
+         rdaddress_b => coadded_radd_b1(1),
+         wren        => coadded_wren_sig(1),
+         clock       => clk_200mhz_i,  
+         qa          => coadded_qa1(1),         
+         qb          => coadded_qb1(1) 
       );
       
+   -- First stage feedback queue 0
+   first_stage_fb_queue_0a: first_stage_fb_queue
+      port map(
+         data        => fsfb_data(0),
+         wraddress   => fsfb_wadd(0),
+         rdaddress_a => fsfb_radd_a0(0),
+         rdaddress_b => fsfb_radd_b0(0),
+         wren        => fsfb_wren_sig(0),
+         clock       => clk_200mhz_i,  
+         qa          => fsfb_qa0(0),         
+         qb          => fsfb_qb0(0) 
+      );
+
+   -- Replica
+   first_stage_fb_queue_0b: first_stage_fb_queue
+      port map(
+         data        => fsfb_data(0),
+         wraddress   => fsfb_wadd(0),
+         rdaddress_a => fsfb_radd_a1(0),
+         rdaddress_b => fsfb_radd_b1(0),
+         wren        => fsfb_wren_sig(0),
+         clock       => clk_200mhz_i,  
+         qa          => fsfb_qa1(0),         
+         qb          => fsfb_qb1(0) 
+      );
+
+   -- First stage feedback queue 1
+   first_stage_fb_queue_1a: first_stage_fb_queue
+      port map(
+         data        => fsfb_data(1),
+         wraddress   => fsfb_wadd(1),
+         rdaddress_a => fsfb_radd_a0(1),
+         rdaddress_b => fsfb_radd_b0(1),
+         wren        => fsfb_wren_sig(1),
+         clock       => clk_200mhz_i,  
+         qa          => fsfb_qa0(1),         
+         qb          => fsfb_qb0(1) 
+      );
+
+   -- Replica
+   first_stage_fb_queue_1b: first_stage_fb_queue
+      port map(
+         data        => fsfb_data(1),
+         wraddress   => fsfb_wadd(1),
+         rdaddress_a => fsfb_radd_a1(1),
+         rdaddress_b => fsfb_radd_b1(1),
+         wren        => fsfb_wren_sig(1),
+         clock       => clk_200mhz_i,  
+         qa          => fsfb_qa1(1),         
+         qb          => fsfb_qb1(1) 
+      );
+
    -- Raw data queue
    raw_data_queue_0: raw_data_queue
       port map(
@@ -186,6 +304,20 @@ begin
          qa          => raw_qa,         
          qb          => raw_qb 
       );   
+
+
+   -- P, I, D, Z coefficient queue
+   pidz_queue: pidz_coeff_queue
+      port map(
+         data        => pidz_data,
+         wraddress   => pidz_wadd,
+         rdaddress_a => pidz_radd_a,
+         rdaddress_b => pidz_radd_b,
+         wren        => pidz_wren_sig,
+         clock       => clk_200mhz_i,  
+         qa          => pidz_qa,         
+         qb          => pidz_qb 
+      );   
       
 ------------------------------------------------------------------------
 -- adc_sample FSM:  for co-adding and logging raw data
@@ -197,7 +329,7 @@ begin
    adc_sample_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_adc_sample_state <= RESET;
+         present_adc_sample_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
          present_adc_sample_state <= next_adc_sample_state;
       end if;
@@ -206,8 +338,6 @@ begin
    adc_sample_state_NS: process(present_adc_sample_state)
    begin
       case present_adc_sample_state is
-         when RESET =>
-            next_adc_sample_state <= IDLE;
          when IDLE =>
             next_adc_sample_state <= IDLE;
          when DELAY =>
@@ -222,7 +352,6 @@ begin
    adc_sample_state_out: process(present_adc_sample_state) 
    begin
       case present_adc_sample_state is
-         when RESET =>
          when IDLE =>
          when DELAY =>
          when COADD =>
@@ -230,4 +359,17 @@ begin
       end case;
    end process;
    
+------------------------------------------------------------------------
+-- wishbone FSM:  for communication with the dispatch block
+------------------------------------------------------------------------ 
+------------------------------------------------------------------------
+-- fsfb_calc FSM:  for calculating the first-stage feedback
+------------------------------------------------------------------------ 
+------------------------------------------------------------------------
+-- fsfb_ctrl FSM:  for outputting the first-stage feedback to DAC
+------------------------------------------------------------------------ 
+------------------------------------------------------------------------
+-- filter FSM:  for filtering first-stage feedback values
+------------------------------------------------------------------------ 
+
 end behav;
