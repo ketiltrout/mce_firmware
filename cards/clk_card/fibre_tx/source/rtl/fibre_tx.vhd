@@ -27,9 +27,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/30 11:04:41 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/31 12:58:30 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.1  2004/08/31 12:58:30  dca
+-- Initial Version
+--
 
 
 library ieee;
@@ -46,23 +49,20 @@ use sys_param.command_pack.all;
 entity fibre_tx is
       port(       
       -- global inputs
-         rst_i        : in     std_logic;
+         rst_i        : in     std_logic;                         -- global reset
          
       -- interface to reply_translator
       
-         txd_i        : in     std_logic_vector (7 downto 0);
-         tx_fw_i      : in     std_logic;        
-         tx_ff_o      : out    std_logic;
+         txd_i        : in     std_logic_vector (7 downto 0);     -- FIFO input byte
+         tx_fw_i      : in     std_logic;                         -- FIFO write request
+         tx_ff_o      : out    std_logic;                         -- FIFO full flag
       
-       -- interface to HOTLINK transmitter
-         tx_fr_i      : in     std_logic;
-         ft_clkw_i    : in     std_logic;
-         nTrp_i       : in     std_logic;
-         tx_fe_o      : out    std_logic; 
-         tx_data_o    : out    std_logic_vector (7 downto 0);
-         tsc_nTd_o    : out    std_logic;
-         nFena_o      : out    std_logic;
-         tx_fr_o      : out    std_logic
+      -- interface to HOTLINK transmitter
+         ft_clkw_i    : in     std_logic;                          -- 25MHz hotlink clock
+         nTrp_i       : in     std_logic;                          -- hotlink tx read pulse (active low)
+         tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+         tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
+         nFena_o      : out    std_logic                           -- hotlink tx enable
       );
 
 end fibre_tx;
@@ -82,20 +82,9 @@ architecture behav of fibre_tx is
 
 
    -- Internal signal declarations
-   signal tx_fr       : std_logic;                                        -- transmit fifo read request
-   signal tx_fw       : std_logic;                                        -- transmit fifo write request
+   signal tx_fr       : std_logic;                                        -- transmit fifo read request 
    signal tx_fe       : std_logic;                                        -- transmit fifo empty
-   signal tx_ff       : std_logic;                                        -- transmit fifo full
-
-   signal txd         : std_logic_vector(TX_FIFO_DATA_WIDTH-1 DOWNTO 0);  -- data input to fifo
-   signal tx_data     : std_logic_vector(TX_FIFO_DATA_WIDTH-1 DOWNTO 0);  -- data ouput of fifo
-
-   signal ft_clkw     : std_logic;                                        -- 25MHz hotlink clock
-   signal nTrp        : std_logic;                                        -- hotlink tx read pulse (active low)
-   signal tsc_nTd     : std_logic;                                        -- hotlink tx special char/ data sel
-   signal nFena       : std_logic;                                        -- hotlink tx enable
-
-  
+   
               
    begin
  
@@ -107,21 +96,21 @@ architecture behav of fibre_tx is
       port map (
          rst_i       => rst_i,
          tx_fr_i     => tx_fr,
-         tx_fw_i     => tx_fw,
-         txd_i       => txd,
+         tx_fw_i     => tx_fw_i,
+         txd_i       => txd_i,
          tx_fe_o     => tx_fe,
-         tx_ff_o     => tx_ff,
-         tx_data_o   => tx_data
+         tx_ff_o     => tx_ff_o,
+         tx_data_o   => tx_data_o
    );
    
  
    I1: fibre_tx_control 
       port map ( 
-         ft_clkw_i   =>   ft_clkw,
-         nTrp_i      =>   nTrp,
+         ft_clkw_i   =>   ft_clkw_i,
+         nTrp_i      =>   nTrp_i,
          tx_fe_i     =>   tx_fe,
-         tsc_nTd_o   =>   tsc_nTd,
-         nFena_o     =>   nFena,
+         tsc_nTd_o   =>   tsc_nTd_o,
+         nFena_o     =>   nFena_o,
          tx_fr_o     =>   tx_fr
    );
    
