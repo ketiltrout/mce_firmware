@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.4 2004/04/16 00:41:44 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.5 2004/04/16 21:58:05 bburger Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/16 00:41:44 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/04/16 21:58:05 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.5  2004/04/16 21:58:05  bburger
+-- bug fixes
+--
 -- Revision 1.4  2004/04/16 00:41:44  bburger
 -- renamed some signals
 --
@@ -92,15 +95,14 @@ architecture beh of frame_timing is
    rstr : reg
       generic map(WIDTH => 32)
       port map(
-         clk_i => clk_i,
+         clk_i => sync_i,
          rst_i => reg_rst,
-         ena_i => sync_i,
+         ena_i => '1',
          reg_i  => count,
          reg_o => clk_error
       );
 
    count <= conv_std_logic_vector(count_int, 32);
-   reg_rst <= '0';
 
    -- Inputs/Outputs
    clk_count_o <= count;
@@ -113,11 +115,14 @@ architecture beh of frame_timing is
       -- Re-sync to the true frame, counter wrap-around
       if (sync_i'event and sync_i = '1' and frame_rst = '1') then
          counter_rst <= '1';
+         reg_rst     <= '1';
          frame_rst <= '0';
       elsif (count_int = END_OF_FRAME) then
          counter_rst <= '1';
+         reg_rst     <= '0';
       else
          counter_rst <= '0';
+         reg_rst     <= '0';
       end if;
 
       -- Detect a Frame Reset signal
