@@ -19,7 +19,7 @@
 --
 -- tx_fifo_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tx_fifo_pack.vhd,v 1.1 2004/04/20 09:37:15 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson	
@@ -29,11 +29,11 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date$> - <text> - <initials $Author$>
+-- <date $Date: 2004/04/20 09:37:15 $> - <text> - <initials $Author: dca $>
 -- $LOG$
 
 
-libraray ieee;
+library ieee;
 use ieee.std_logic_1164.all;
 
 package tx_fifo_pack is
