@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.4 2004/08/24 13:29:06 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.5 2004/08/25 14:21:04 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/24 13:29:06 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/25 14:21:04 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.5  2004/08/25 14:21:04  dca
+-- States added to FSM to process data frames...
+--
 -- Revision 1.4  2004/08/24 13:29:06  dca
 -- REPLY FSM changed to FIBRE FSM.
 -- This FSM will write all fibre packets (reply and data)
@@ -158,10 +161,10 @@ signal reply_word2_1         : byte;                       -- reply word 2 byte 
 signal reply_word2_2         : byte;                       -- reply word 2 byte 2 
 signal reply_word2_3         : byte;                       -- reply word 2 byte 3 
             
-signal reply_word3_0         : byte;                       -- reply word 3 byte 0 
-signal reply_word3_1         : byte;                       -- reply word 3 byte 1 
-signal reply_word3_2         : byte;                       -- reply word 3 byte 2 
-signal reply_word3_3         : byte;                       -- reply word 3 byte 3 
+signal wordN_0         : byte;                       -- reply word 3 byte 0 
+signal wordN_1         : byte;                       -- reply word 3 byte 1 
+signal wordN_2         : byte;                       -- reply word 3 byte 2 
+signal wordN_3         : byte;                       -- reply word 3 byte 3 
 
 -- packet header registers /  definitions 
 
@@ -218,10 +221,10 @@ signal reply_word2_1mux_sel   : std_logic ;
 signal reply_word2_2mux_sel   : std_logic ;
 signal reply_word2_3mux_sel   : std_logic ;
 
-signal reply_word3_0mux_sel   : std_logic ;    
-signal reply_word3_1mux_sel   : std_logic ;   
-signal reply_word3_2mux_sel   : std_logic ;
-signal reply_word3_3mux_sel   : std_logic ;
+signal wordN_0mux_sel   : std_logic ;    
+signal wordN_1mux_sel   : std_logic ;   
+signal wordN_2mux_sel   : std_logic ;
+signal wordN_3mux_sel   : std_logic ;
 
 
 signal packet_header3_0mux_sel : std_logic ;
@@ -257,10 +260,11 @@ signal reply_word2_1mux        : byte;
 signal reply_word2_2mux        : byte;
 signal reply_word2_3mux        : byte;
 
-signal reply_word3_0mux       : byte;
-signal reply_word3_1mux       : byte;
-signal reply_word3_2mux       : byte;
-signal reply_word3_3mux       : byte;
+signal wordN_0mux       : byte;
+signal wordN_1mux       : byte;
+signal wordN_2mux       : byte;
+signal wordN_3mux       : byte;
+
 
 
 -- Finite State Machines defined here:
@@ -272,24 +276,25 @@ signal reply_word3_3mux       : byte;
 type fibre_state is           (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, REPLY_ER, 
                                DATA_FRAME, REQ_Q_WORD , READ_Q_WORD,    
                                                                       
-                               LD_RP_HEAD1_0, TX_RP_HEAD1_0, LD_RP_HEAD1_1, TX_RP_HEAD1_1,
-                               LD_RP_HEAD1_2, TX_RP_HEAD1_2, LD_RP_HEAD1_3, TX_RP_HEAD1_3,
-                               LD_RP_HEAD2_0, TX_RP_HEAD2_0, LD_RP_HEAD2_1, TX_RP_HEAD2_1,
-                               LD_RP_HEAD2_2, TX_RP_HEAD2_2, LD_RP_HEAD2_3, TX_RP_HEAD2_3,
-                               LD_RP_HEAD3_0, TX_RP_HEAD3_0, LD_RP_HEAD3_1, TX_RP_HEAD3_1,
-                               LD_RP_HEAD3_2, TX_RP_HEAD3_2, LD_RP_HEAD3_3, TX_RP_HEAD3_3,
-                               LD_RP_HEAD4_0, TX_RP_HEAD4_0, LD_RP_HEAD4_1, TX_RP_HEAD4_1,
-                               LD_RP_HEAD4_2, TX_RP_HEAD4_2, LD_RP_HEAD4_3, TX_RP_HEAD4_3,
+                               LD_HEAD1_0, TX_HEAD1_0, LD_HEAD1_1, TX_HEAD1_1,
+                               LD_HEAD1_2, TX_HEAD1_2, LD_HEAD1_3, TX_HEAD1_3,
+                               LD_HEAD2_0, TX_HEAD2_0, LD_HEAD2_1, TX_HEAD2_1,
+                               LD_HEAD2_2, TX_HEAD2_2, LD_HEAD2_3, TX_HEAD2_3,
+                               LD_HEAD3_0, TX_HEAD3_0, LD_HEAD3_1, TX_HEAD3_1,
+                               LD_HEAD3_2, TX_HEAD3_2, LD_HEAD3_3, TX_HEAD3_3,
+                               LD_HEAD4_0, TX_HEAD4_0, LD_HEAD4_1, TX_HEAD4_1,
+                               LD_HEAD4_2, TX_HEAD4_2, LD_HEAD4_3, TX_HEAD4_3,
                                
                                LD_RP_WORD1_0, TX_RP_WORD1_0, LD_RP_WORD1_1, TX_RP_WORD1_1,
                                LD_RP_WORD1_2, TX_RP_WORD1_2, LD_RP_WORD1_3, TX_RP_WORD1_3,
                                LD_RP_WORD2_0, TX_RP_WORD2_0, LD_RP_WORD2_1, TX_RP_WORD2_1,
                                LD_RP_WORD2_2, TX_RP_WORD2_2, LD_RP_WORD2_3, TX_RP_WORD2_3,
-                               LD_RP_WORD3_0, TX_RP_WORD3_0, LD_RP_WORD3_1, TX_RP_WORD3_1,
-                               LD_RP_WORD3_2, TX_RP_WORD3_2, LD_RP_WORD3_3, TX_RP_WORD3_3,
                                
-                               LD_RP_CKSUM0,  TX_RP_CKSUM0,  LD_RP_CKSUM1,  TX_RP_CKSUM1,   
-                               LD_RP_CKSUM2,  TX_RP_CKSUM2,  LD_RP_CKSUM3,  TX_RP_CKSUM3
+                               LD_WORDN_0, TX_WORDN_0, LD_WORDN_1, TX_WORDN_1,
+                               LD_WORDN_2, TX_WORDN_2, LD_WORDN_3, TX_WORDN_3,
+                               
+                               LD_CKSUM0,  TX_CKSUM0,  LD_CKSUM1,  TX_CKSUM1,   
+                               LD_CKSUM2,  TX_CKSUM2,  LD_CKSUM3,  TX_CKSUM3
                                
                                
                                );
@@ -379,10 +384,10 @@ reply_word2_2mux   <= card_id_i    ( 7 downto 0) when reply_word2_2mux_sel = '1'
 reply_word2_3mux   <= card_id_i    (15 downto 8) when reply_word2_3mux_sel = '1' else reply_word2_3;
 
 --  reply word 3 recirculation mux structures
-reply_word3_0mux   <= reply_data   ( 7 downto  0) when reply_word3_0mux_sel = '1' else reply_word3_0;
-reply_word3_1mux   <= reply_data   (15 downto  8) when reply_word3_1mux_sel = '1' else reply_word3_1;
-reply_word3_2mux   <= reply_data   (23 downto 16) when reply_word3_2mux_sel = '1' else reply_word3_2;
-reply_word3_3mux   <= reply_data   (31 downto 24) when reply_word3_3mux_sel = '1' else reply_word3_3;
+wordN_0mux   <= reply_data   ( 7 downto  0) when wordN_0mux_sel = '1' else wordN_0;
+wordN_1mux   <= reply_data   (15 downto  8) when wordN_1mux_sel = '1' else wordN_1;
+wordN_2mux   <= reply_data   (23 downto 16) when wordN_2mux_sel = '1' else wordN_2;
+wordN_3mux   <= reply_data   (31 downto 24) when wordN_3mux_sel = '1' else wordN_3;
 
 
 -- checksum calculator input recirculation strucutre 
@@ -421,10 +426,10 @@ txd_o              <= fibre_byte;
         reply_word2_2   <= (others => '0');
         reply_word2_3   <= (others => '0');
         
-        reply_word3_0   <= (others => '0');
-        reply_word3_1   <= (others => '0');
-        reply_word3_2   <= (others => '0');
-        reply_word3_3   <= (others => '0');
+        wordN_0   <= (others => '0');
+        wordN_1   <= (others => '0');
+        wordN_2   <= (others => '0');
+        wordN_3   <= (others => '0');
         
         checksum_in <= (others => '0');
         
@@ -450,10 +455,10 @@ txd_o              <= fibre_byte;
         reply_word2_2   <= reply_word2_2mux;
         reply_word2_3   <= reply_word2_3mux;
         
-        reply_word3_0   <= reply_word3_0mux;
-        reply_word3_1   <= reply_word3_1mux;
-        reply_word3_2   <= reply_word3_2mux;
-        reply_word3_3   <= reply_word3_3mux;
+        wordN_0   <= wordN_0mux;
+        wordN_1   <= wordN_1mux;
+        wordN_2   <= wordN_2mux;
+        wordN_3   <= wordN_3mux;
         
         checksum_in <= checksum_in_mux;
            
@@ -516,183 +521,183 @@ txd_o              <= fibre_byte;
          end if;  
          
       when  CK_ER_REPLY | REPLY_GO_RS | REPLY_OK | REPLY_ER =>
-            fibre_next_state <= LD_RP_HEAD1_0;
+            fibre_next_state <= LD_HEAD1_0;
           
       when  DATA_FRAME => 
-            fibre_next_state <= LD_RP_HEAD1_0;
+            fibre_next_state <= LD_HEAD1_0;
              
           
 -- transmit reply header states
        
-       when LD_RP_HEAD1_0 =>
+       when LD_HEAD1_0 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD1_0;
+             fibre_next_state <= LD_HEAD1_0;
           else
-             fibre_next_state <= TX_RP_HEAD1_0;
+             fibre_next_state <= TX_HEAD1_0;
           end if;   
              
-       when TX_RP_HEAD1_0 =>
-          fibre_next_state <= LD_RP_HEAD1_1; 
+       when TX_HEAD1_0 =>
+          fibre_next_state <= LD_HEAD1_1; 
   
            
-       when LD_RP_HEAD1_1 =>
+       when LD_HEAD1_1 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD1_1;
+             fibre_next_state <= LD_HEAD1_1;
           else
-             fibre_next_state <= TX_RP_HEAD1_1;
+             fibre_next_state <= TX_HEAD1_1;
           end if;  
            
        
-       when TX_RP_HEAD1_1 =>
-          fibre_next_state <= LD_RP_HEAD1_2; 
+       when TX_HEAD1_1 =>
+          fibre_next_state <= LD_HEAD1_2; 
           
-       when LD_RP_HEAD1_2 =>
+       when LD_HEAD1_2 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD1_2;
+             fibre_next_state <= LD_HEAD1_2;
           else
-             fibre_next_state <= TX_RP_HEAD1_2;
+             fibre_next_state <= TX_HEAD1_2;
           end if;  
            
            
-       when TX_RP_HEAD1_2 =>
-          fibre_next_state <= LD_RP_HEAD1_3;
+       when TX_HEAD1_2 =>
+          fibre_next_state <= LD_HEAD1_3;
            
-       when LD_RP_HEAD1_3 =>
+       when LD_HEAD1_3 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD1_3;
+             fibre_next_state <= LD_HEAD1_3;
           else
-             fibre_next_state <= TX_RP_HEAD1_3;
+             fibre_next_state <= TX_HEAD1_3;
           end if;  
            
            
-       when TX_RP_HEAD1_3 =>
-          fibre_next_state <= LD_RP_HEAD2_0;
+       when TX_HEAD1_3 =>
+          fibre_next_state <= LD_HEAD2_0;
            
-       when LD_RP_HEAD2_0 =>
+       when LD_HEAD2_0 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD2_0;
+             fibre_next_state <= LD_HEAD2_0;
           else
-             fibre_next_state <= TX_RP_HEAD2_0;
+             fibre_next_state <= TX_HEAD2_0;
           end if;  
            
-       when TX_RP_HEAD2_0 =>
-          fibre_next_state <= LD_RP_HEAD2_1;
+       when TX_HEAD2_0 =>
+          fibre_next_state <= LD_HEAD2_1;
            
-       when LD_RP_HEAD2_1 =>
+       when LD_HEAD2_1 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD2_1;
+             fibre_next_state <= LD_HEAD2_1;
           else
-             fibre_next_state <= TX_RP_HEAD2_1;
+             fibre_next_state <= TX_HEAD2_1;
           end if;    
        
-       when TX_RP_HEAD2_1 =>
-          fibre_next_state <= LD_RP_HEAD2_2;
+       when TX_HEAD2_1 =>
+          fibre_next_state <= LD_HEAD2_2;
        
-       when LD_RP_HEAD2_2 =>
+       when LD_HEAD2_2 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD2_2;
+             fibre_next_state <= LD_HEAD2_2;
           else
-             fibre_next_state <= TX_RP_HEAD2_2;
+             fibre_next_state <= TX_HEAD2_2;
           end if;  
           
        
-       when TX_RP_HEAD2_2 =>
-         fibre_next_state <= LD_RP_HEAD2_3;
+       when TX_HEAD2_2 =>
+         fibre_next_state <= LD_HEAD2_3;
        
-       when LD_RP_HEAD2_3 =>
+       when LD_HEAD2_3 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD2_3;
+             fibre_next_state <= LD_HEAD2_3;
           else
-             fibre_next_state <= TX_RP_HEAD2_3;
+             fibre_next_state <= TX_HEAD2_3;
           end if;  
           
        
-       when TX_RP_HEAD2_3 =>
-          fibre_next_state <= LD_RP_HEAD3_0;
+       when TX_HEAD2_3 =>
+          fibre_next_state <= LD_HEAD3_0;
            
-       when LD_RP_HEAD3_0 =>
+       when LD_HEAD3_0 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD3_0;
+             fibre_next_state <= LD_HEAD3_0;
           else
-             fibre_next_state <= TX_RP_HEAD3_0;
+             fibre_next_state <= TX_HEAD3_0;
           end if;  
            
            
-       when TX_RP_HEAD3_0 =>
-         fibre_next_state <= LD_RP_HEAD3_1;
+       when TX_HEAD3_0 =>
+         fibre_next_state <= LD_HEAD3_1;
            
-       when LD_RP_HEAD3_1 =>
+       when LD_HEAD3_1 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD3_1;
+             fibre_next_state <= LD_HEAD3_1;
           else
-             fibre_next_state <= TX_RP_HEAD3_1;
+             fibre_next_state <= TX_HEAD3_1;
           end if;  
           
        
-       when TX_RP_HEAD3_1 =>
-          fibre_next_state <= LD_RP_HEAD3_2;
+       when TX_HEAD3_1 =>
+          fibre_next_state <= LD_HEAD3_2;
        
-       when LD_RP_HEAD3_2 =>
+       when LD_HEAD3_2 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD3_2;
+             fibre_next_state <= LD_HEAD3_2;
           else
-             fibre_next_state <= TX_RP_HEAD3_2;
+             fibre_next_state <= TX_HEAD3_2;
           end if;   
        
-       when TX_RP_HEAD3_2 =>
-          fibre_next_state <= LD_RP_HEAD3_3;
+       when TX_HEAD3_2 =>
+          fibre_next_state <= LD_HEAD3_3;
        
-       when LD_RP_HEAD3_3 =>
+       when LD_HEAD3_3 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD3_3;
+             fibre_next_state <= LD_HEAD3_3;
           else
-             fibre_next_state <= TX_RP_HEAD3_3;
+             fibre_next_state <= TX_HEAD3_3;
           end if;  
            
-       when TX_RP_HEAD3_3 =>
-         fibre_next_state <= LD_RP_HEAD4_0;
+       when TX_HEAD3_3 =>
+         fibre_next_state <= LD_HEAD4_0;
        
-       when LD_RP_HEAD4_0 =>
+       when LD_HEAD4_0 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD4_0;
+             fibre_next_state <= LD_HEAD4_0;
           else
-             fibre_next_state <= TX_RP_HEAD4_0;
+             fibre_next_state <= TX_HEAD4_0;
           end if;  
            
        
-       when TX_RP_HEAD4_0 =>
-          fibre_next_state <= LD_RP_HEAD4_1;
+       when TX_HEAD4_0 =>
+          fibre_next_state <= LD_HEAD4_1;
        
-       when LD_RP_HEAD4_1 =>
+       when LD_HEAD4_1 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD4_1;
+             fibre_next_state <= LD_HEAD4_1;
           else
-             fibre_next_state <= TX_RP_HEAD4_1;
+             fibre_next_state <= TX_HEAD4_1;
           end if;     
            
-       when TX_RP_HEAD4_1 =>
-           fibre_next_state <= LD_RP_HEAD4_2;
+       when TX_HEAD4_1 =>
+           fibre_next_state <= LD_HEAD4_2;
        
-       when LD_RP_HEAD4_2 =>
+       when LD_HEAD4_2 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD4_2;
+             fibre_next_state <= LD_HEAD4_2;
           else
-             fibre_next_state <= TX_RP_HEAD4_2;
+             fibre_next_state <= TX_HEAD4_2;
           end if;  
          
    
-       when TX_RP_HEAD4_2 =>
-          fibre_next_state <= LD_RP_HEAD4_3;
+       when TX_HEAD4_2 =>
+          fibre_next_state <= LD_HEAD4_3;
   
-       when LD_RP_HEAD4_3 =>
+       when LD_HEAD4_3 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_HEAD4_3;
+             fibre_next_state <= LD_HEAD4_3;
           else
-             fibre_next_state <= TX_RP_HEAD4_3;
+             fibre_next_state <= TX_HEAD4_3;
           end if;  
          
   
-       when TX_RP_HEAD4_3 =>
+       when TX_HEAD4_3 =>
        
           if packet_header3_0 = ASCII_P then       -- if packet is a reply
              fibre_next_state <= LD_RP_WORD1_0;
@@ -789,7 +794,7 @@ txd_o              <= fibre_byte;
        when TX_RP_WORD2_3 =>
        
           if m_op_done_reply = '0' then         -- if immediate reply i.e. GO, RS or checksum error
-             fibre_next_state <= LD_RP_WORD3_0;
+             fibre_next_state <= LD_WORDN_0;
           else
              fibre_next_state <= REQ_Q_WORD;   -- else if WB, ST or RB need to request reply packet word(s)
           end if;
@@ -798,54 +803,54 @@ txd_o              <= fibre_byte;
 -- these reply word 3 states are for checksum error replies 
 -- and GO / RS replies
           
-       when LD_RP_WORD3_0 =>
+       when LD_WORDN_0 =>
            
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_WORD3_0;
+             fibre_next_state <= LD_WORDN_0;
           else
-             fibre_next_state <= TX_RP_WORD3_0;
+             fibre_next_state <= TX_WORDN_0;
           end if; 
           
-       when TX_RP_WORD3_0 =>
-          fibre_next_state <= LD_RP_WORD3_1;
+       when TX_WORDN_0 =>
+          fibre_next_state <= LD_WORDN_1;
 
-       when LD_RP_WORD3_1 =>
+       when LD_WORDN_1 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_WORD3_1;
+             fibre_next_state <= LD_WORDN_1;
           else
-             fibre_next_state <= TX_RP_WORD3_1;
+             fibre_next_state <= TX_WORDN_1;
           end if; 
           
-       when TX_RP_WORD3_1 =>
-          fibre_next_state <= LD_RP_WORD3_2;          
+       when TX_WORDN_1 =>
+          fibre_next_state <= LD_WORDN_2;          
              
              
-       when LD_RP_WORD3_2 =>
+       when LD_WORDN_2 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_WORD3_2;
+             fibre_next_state <= LD_WORDN_2;
           else
-             fibre_next_state <= TX_RP_WORD3_2;
+             fibre_next_state <= TX_WORDN_2;
           end if; 
           
-       when TX_RP_WORD3_2 =>
-          fibre_next_state <= LD_RP_WORD3_3;        
+       when TX_WORDN_2 =>
+          fibre_next_state <= LD_WORDN_3;        
              
         
-       when LD_RP_WORD3_3 =>
+       when LD_WORDN_3 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_WORD3_3;
+             fibre_next_state <= LD_WORDN_3;
           else
-             fibre_next_state <= TX_RP_WORD3_3;
+             fibre_next_state <= TX_WORDN_3;
           end if; 
           
-       when TX_RP_WORD3_3 =>
+       when TX_WORDN_3 =>
        
           if (m_op_done_reply = '1' or m_op_done_data = '1') and 
              (fibre_word_count < (to_integer(unsigned(num_fibre_words_i)))  ) then
              
              fibre_next_state <= REQ_Q_WORD;                 -- another fibre word to read fromn Q
           else
-             fibre_next_state <= LD_RP_CKSUM0;               -- no word words in Q.  tx checksum.
+             fibre_next_state <= LD_CKSUM0;               -- no word words in Q.  tx checksum.
           end if;
            
        
@@ -858,51 +863,51 @@ txd_o              <= fibre_byte;
           fibre_next_state <= READ_Q_WORD;
           
        when READ_Q_WORD =>
-          fibre_next_state <= LD_RP_WORD3_0;
+          fibre_next_state <= LD_WORDN_0;
           
        
                 
        
      -- transmit checksum  states 
         
-       when LD_RP_CKSUM0 =>
+       when LD_CKSUM0 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_CKSUM0;
+             fibre_next_state <= LD_CKSUM0;
           else
-             fibre_next_state <= TX_RP_CKSUM0;
+             fibre_next_state <= TX_CKSUM0;
           end if; 
           
-       when TX_RP_CKSUM0 =>
-          fibre_next_state <= LD_RP_CKSUM1;  
+       when TX_CKSUM0 =>
+          fibre_next_state <= LD_CKSUM1;  
        
-       when LD_RP_CKSUM1 =>
+       when LD_CKSUM1 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_CKSUM1;
+             fibre_next_state <= LD_CKSUM1;
           else
-             fibre_next_state <= TX_RP_CKSUM1;
+             fibre_next_state <= TX_CKSUM1;
           end if; 
        
-       when TX_RP_CKSUM1 =>
-          fibre_next_state <= LD_RP_CKSUM2;  
+       when TX_CKSUM1 =>
+          fibre_next_state <= LD_CKSUM2;  
                                  
-       when LD_RP_CKSUM2 =>
+       when LD_CKSUM2 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_CKSUM2;
+             fibre_next_state <= LD_CKSUM2;
           else
-             fibre_next_state <= TX_RP_CKSUM2;
+             fibre_next_state <= TX_CKSUM2;
           end if; 
        
-       when TX_RP_CKSUM2 =>  
-          fibre_next_state <= LD_RP_CKSUM3;  
+       when TX_CKSUM2 =>  
+          fibre_next_state <= LD_CKSUM3;  
                       
-       when LD_RP_CKSUM3 =>
+       when LD_CKSUM3 =>
           if tx_ff_i = '1' then 
-             fibre_next_state <= LD_RP_CKSUM3;
+             fibre_next_state <= LD_CKSUM3;
           else
-             fibre_next_state <= TX_RP_CKSUM3;
+             fibre_next_state <= TX_CKSUM3;
           end if;                    
                    
-       when TX_RP_CKSUM3 =>  
+       when TX_CKSUM3 =>  
           fibre_next_state <= FIBRE_IDLE;      
             
       when OTHERS =>
@@ -919,9 +924,9 @@ txd_o              <= fibre_byte;
       reply_size, m_op_done_reply, m_op_done_data,
       packet_header3_0, packet_header3_1, packet_header3_2, packet_header3_3,
       packet_header4_0, packet_header4_1, packet_header4_2, packet_header4_3,
-      reply_word1_0,   reply_word1_1,   reply_word1_2,   reply_word1_3,
-      reply_word2_0,   reply_word2_1,   reply_word2_2,   reply_word2_3,
-      reply_word3_0,   reply_word3_1,   reply_word3_2,   reply_word3_3
+      reply_word1_0,    reply_word1_1,    reply_word1_2,    reply_word1_3,
+      reply_word2_0,    reply_word2_1,    reply_word2_2,    reply_word2_3,
+      wordN_0,          wordN_1,          wordN_2,          wordN_3
    )
    ----------------------------------------------------------------------------
    begin
@@ -939,10 +944,10 @@ txd_o              <= fibre_byte;
       reply_word1_0mux_sel     <= '0';
       reply_word1_1mux_sel     <= '0';
       
-      reply_word3_0mux_sel     <= '0';
-      reply_word3_1mux_sel     <= '0';
-      reply_word3_2mux_sel     <= '0';
-      reply_word3_3mux_sel     <= '0';
+      wordN_0mux_sel           <= '0';
+      wordN_1mux_sel           <= '0';
+      wordN_2mux_sel           <= '0';
+      wordN_3mux_sel           <= '0';
       
       txing_packet             <= '1';  
       write_fifo               <= '0';  
@@ -973,7 +978,12 @@ txd_o              <= fibre_byte;
             checksum_load              <= (others => '0');     -- reset checksum calculator input
             checksum_in_mux_sel        <= '1';                 -- register reset checksum calculator input
             reply_size                 <=  0 ;                 -- reset reply size 
-           
+            
+            packet_size                <= (others => '0');     -- reset packet size
+            reply_status               <= (others => '0');     -- reset reply status
+            reply_data                 <= (others => '0');     -- reset reply/data word
+            packet_type                <= (others => '0');     -- reset packet type
+            
       when CK_ER_REPLY =>              -- checksum error state
   
             reply_status( 7 downto 0)  <= ASCII_R ;
@@ -996,10 +1006,10 @@ txd_o              <= fibre_byte;
             reply_word1_0mux_sel       <= '1';
             reply_word1_1mux_sel       <= '1';
           
-            reply_word3_0mux_sel       <= '1';
-            reply_word3_1mux_sel       <= '1';
-            reply_word3_2mux_sel       <= '1';
-            reply_word3_3mux_sel       <= '1';
+            wordN_0mux_sel             <= '1';
+            wordN_1mux_sel             <= '1';
+            wordN_2mux_sel             <= '1';
+            wordN_3mux_sel             <= '1';
      
             
       when REPLY_GO_RS =>              -- command is reset or go....so generate an instant reply...
@@ -1023,10 +1033,10 @@ txd_o              <= fibre_byte;
             reply_word1_0mux_sel       <= '1';              -- register the reply_status
             reply_word1_1mux_sel       <= '1';              -- register the reply_status
             
-            reply_word3_0mux_sel       <= '1';              -- register reply word 3 byte 0
-            reply_word3_1mux_sel       <= '1';              -- register reply word 3 byte 1
-            reply_word3_2mux_sel       <= '1';              -- register reply word 3 byte 2
-            reply_word3_3mux_sel       <= '1';              -- register reply word 3 byte 3
+            wordN_0mux_sel             <= '1';              -- register reply word 3 byte 0
+            wordN_1mux_sel             <= '1';              -- register reply word 3 byte 1
+            wordN_2mux_sel             <= '1';              -- register reply word 3 byte 2
+            wordN_3mux_sel             <= '1';              -- register reply word 3 byte 3
            
       when REPLY_OK    =>   
     
@@ -1085,131 +1095,131 @@ txd_o              <= fibre_byte;
             packet_header4_3mux_sel    <= '1';               -- register packet header 4 byte 3
 
 
-       when LD_RP_HEAD1_0 =>
+       when LD_HEAD1_0 =>
            fibre_byte                  <=  packet_header1_0;
            write_fifo                  <= '0';
              
-       when TX_RP_HEAD1_0 =>
+       when TX_HEAD1_0 =>
            fibre_byte                  <=  packet_header1_0;
            write_fifo                  <= '1';
            
-       when LD_RP_HEAD1_1 =>
+       when LD_HEAD1_1 =>
            fibre_byte                  <=  packet_header1_1;
            write_fifo                  <= '0';
        
-       when TX_RP_HEAD1_1 =>
+       when TX_HEAD1_1 =>
            fibre_byte                  <=  packet_header1_1;
            write_fifo                  <= '1';
           
-       when LD_RP_HEAD1_2 =>
+       when LD_HEAD1_2 =>
            fibre_byte                  <=  packet_header1_2;
            write_fifo                  <= '0'; 
            
-       when TX_RP_HEAD1_2 =>
+       when TX_HEAD1_2 =>
            fibre_byte                  <=  packet_header1_2;
            write_fifo                  <= '1';
            
-       when LD_RP_HEAD1_3 =>
+       when LD_HEAD1_3 =>
            fibre_byte                  <=  packet_header1_3;
            write_fifo                  <= '0';
            
-       when TX_RP_HEAD1_3 =>
+       when TX_HEAD1_3 =>
            fibre_byte                  <=  packet_header1_3;
            write_fifo                  <= '1';
            
-       when LD_RP_HEAD2_0 =>
+       when LD_HEAD2_0 =>
            fibre_byte                  <=  packet_header2_0;
            write_fifo                  <= '0';
            
-       when TX_RP_HEAD2_0 =>
+       when TX_HEAD2_0 =>
            fibre_byte                  <=  packet_header2_0;
            write_fifo                  <= '1';
            
-       when LD_RP_HEAD2_1 =>
+       when LD_HEAD2_1 =>
            fibre_byte                  <=  packet_header2_1;
            write_fifo                  <= '0';
        
-       when TX_RP_HEAD2_1 =>
+       when TX_HEAD2_1 =>
            fibre_byte                  <=  packet_header2_1;
            write_fifo                  <= '1';
        
-       when LD_RP_HEAD2_2 =>
+       when LD_HEAD2_2 =>
            fibre_byte                  <=  packet_header2_2;
            write_fifo                  <= '0';
        
-       when TX_RP_HEAD2_2 =>
+       when TX_HEAD2_2 =>
            fibre_byte                  <=  packet_header2_2;
            write_fifo                  <= '1';
        
-       when LD_RP_HEAD2_3 =>
+       when LD_HEAD2_3 =>
            fibre_byte                  <=  packet_header2_3;
            write_fifo                  <= '0';
        
-       when TX_RP_HEAD2_3 =>
+       when TX_HEAD2_3 =>
            fibre_byte                  <=  packet_header2_3;
            write_fifo                  <= '1';
            
-       when LD_RP_HEAD3_0 =>
+       when LD_HEAD3_0 =>
            fibre_byte                  <=  packet_header3_0;
            write_fifo                  <= '0';
            
-       when TX_RP_HEAD3_0 =>
+       when TX_HEAD3_0 =>
            fibre_byte                  <=  packet_header3_0;
            write_fifo                  <= '1';
            
-       when LD_RP_HEAD3_1 =>
+       when LD_HEAD3_1 =>
            fibre_byte                  <=  packet_header3_1;
            write_fifo                  <= '0';
        
-       when TX_RP_HEAD3_1 =>
+       when TX_HEAD3_1 =>
            fibre_byte                  <=  packet_header3_1;
            write_fifo                  <= '1';
        
-       when LD_RP_HEAD3_2 =>
+       when LD_HEAD3_2 =>
            fibre_byte                  <=  packet_header3_2;
            write_fifo                  <= '0';
        
-       when TX_RP_HEAD3_2 =>
+       when TX_HEAD3_2 =>
            fibre_byte                  <=  packet_header3_2;
            write_fifo                  <= '1';
        
-       when LD_RP_HEAD3_3 =>
+       when LD_HEAD3_3 =>
            fibre_byte                  <=  packet_header3_3;
            write_fifo                  <= '0';
        
-       when TX_RP_HEAD3_3 =>
+       when TX_HEAD3_3 =>
            fibre_byte                  <=  packet_header3_3;
            write_fifo                  <= '1';
        
-       when LD_RP_HEAD4_0 =>
+       when LD_HEAD4_0 =>
            fibre_byte                  <=  packet_header4_0;
            write_fifo                  <= '0';
        
-       when TX_RP_HEAD4_0 =>
+       when TX_HEAD4_0 =>
            fibre_byte                  <=  packet_header4_0;
            write_fifo                  <= '1';
        
-       when LD_RP_HEAD4_1 =>
+       when LD_HEAD4_1 =>
            fibre_byte                  <=  packet_header4_1;
            write_fifo                  <= '0';
            
-       when TX_RP_HEAD4_1 =>
+       when TX_HEAD4_1 =>
            fibre_byte                  <=  packet_header4_1;
            write_fifo                  <= '1';
        
-       when LD_RP_HEAD4_2 =>
+       when LD_HEAD4_2 =>
            fibre_byte                  <=  packet_header4_2;
            write_fifo                  <= '0';
    
-       when TX_RP_HEAD4_2 =>
+       when TX_HEAD4_2 =>
            fibre_byte                  <=  packet_header4_2;
            write_fifo                  <= '1';
   
-       when LD_RP_HEAD4_3 =>
+       when LD_HEAD4_3 =>
            fibre_byte                  <=  packet_header4_3;
            write_fifo                  <= '0';
   
-       when TX_RP_HEAD4_3 =>
+       when TX_HEAD4_3 =>
            fibre_byte                  <=  packet_header4_3;
            write_fifo                  <= '1';
            
@@ -1293,82 +1303,82 @@ txd_o              <= fibre_byte;
            fibre_byte                  <=  reply_word2_3;
            write_fifo                  <= '1';
            
-       when LD_RP_WORD3_0 =>
-             fibre_byte                <=  reply_word3_0;
+       when LD_WORDN_0 =>
+             fibre_byte                <=  wordN_0;
              write_fifo                <= '0';
            
-            checksum_load              <= reply_word3_3 & reply_word3_2 & reply_word3_1 & reply_word3_0;
+            checksum_load              <= wordN_3 & wordN_2 & wordN_1 & wordN_0;
             checksum_in_mux_sel        <= '1';
  
-       when TX_RP_WORD3_0 =>
-           fibre_byte                  <=  reply_word3_0;
+       when TX_WORDN_0 =>
+           fibre_byte                  <=  wordN_0;
            write_fifo                  <= '1';
            
            -- this assignemnt MUST be in a state that is only held for one clock cycle 
            ena_fibre_count             <= '1'; 
            
-       when LD_RP_WORD3_1 =>
-           fibre_byte                  <=  reply_word3_1;
+       when LD_WORDN_1 =>
+           fibre_byte                  <=  wordN_1;
            write_fifo                  <= '0';
            
        
-       when TX_RP_WORD3_1 =>
-           fibre_byte                  <=  reply_word3_1;
+       when TX_WORDN_1 =>
+           fibre_byte                  <=  wordN_1;
            write_fifo                  <= '1';
     
          -- this assignemnt MUST be in a state that is only held for one clock cycle   
            ena_checksum                <= '1';       
        
-       when LD_RP_WORD3_2 =>
-           fibre_byte                  <=  reply_word3_2;
+       when LD_WORDN_2 =>
+           fibre_byte                  <=  wordN_2;
            write_fifo                  <= '0';
        
-       when TX_RP_WORD3_2 =>
-           fibre_byte                  <=  reply_word3_2;
+       when TX_WORDN_2 =>
+           fibre_byte                  <=  wordN_2;
            write_fifo                  <= '1';
        
-       when LD_RP_WORD3_3 =>
-           fibre_byte                  <=  reply_word3_3;
+       when LD_WORDN_3 =>
+           fibre_byte                  <=  wordN_3;
            write_fifo                  <= '0';
        
-       when TX_RP_WORD3_3 =>
-           fibre_byte                  <=  reply_word3_3;
+       when TX_WORDN_3 =>
+           fibre_byte                  <=  wordN_3;
            write_fifo                  <= '1';    
      
-       when LD_RP_CKSUM0 =>
+       when LD_CKSUM0 =>
            fibre_byte                  <=  checksum( 7 downto 0);
            write_fifo                  <= '0';
        
-       when TX_RP_CKSUM0 =>
+       when TX_CKSUM0 =>
            fibre_byte                  <=  checksum( 7 downto 0);
            write_fifo                  <= '1';
            
-       when LD_RP_CKSUM1 =>
+       when LD_CKSUM1 =>
            fibre_byte                  <=  checksum(15 downto 8);
            write_fifo                  <= '0';
           
        
-       when TX_RP_CKSUM1 =>
+       when TX_CKSUM1 =>
            fibre_byte                  <=  checksum(15 downto 8);
            write_fifo                  <= '1';
           
                                  
-       when LD_RP_CKSUM2 =>
+       when LD_CKSUM2 =>
            fibre_byte                  <=  checksum(23 downto 16);
            write_fifo                  <= '0';
          
        
-       when TX_RP_CKSUM2 =>  
+       when TX_CKSUM2 =>  
            fibre_byte                  <=  checksum(23 downto 16);
            write_fifo                  <= '1';
           
                       
-       when LD_RP_CKSUM3 =>
+       when LD_CKSUM3 =>
            fibre_byte                  <=  checksum(31 downto 24);
            write_fifo                  <= '0';
                 
                    
-       when TX_RP_CKSUM3 =>  
+       when TX_CKSUM3 =>  
            fibre_byte                  <=  checksum(31 downto 24);
            write_fifo                  <= '1';
            
@@ -1385,17 +1395,17 @@ txd_o              <= fibre_byte;
        when REQ_Q_WORD  =>
            fibre_word_req_o            <= '1';
            reply_data                  <= fibre_word_i;             
-           reply_word3_0mux_sel        <= '1';
-           reply_word3_1mux_sel        <= '1';
-           reply_word3_2mux_sel        <= '1';
-           reply_word3_3mux_sel        <= '1';          
+           wordN_0mux_sel              <= '1';
+           wordN_1mux_sel              <= '1';
+           wordN_2mux_sel              <= '1';
+           wordN_3mux_sel              <= '1';          
       
        when READ_Q_WORD =>
           reply_data                  <= fibre_word_i;             
-          reply_word3_0mux_sel        <= '1';
-          reply_word3_1mux_sel        <= '1';
-          reply_word3_2mux_sel        <= '1';
-          reply_word3_3mux_sel        <= '1';   
+          wordN_0mux_sel              <= '1';
+          wordN_1mux_sel              <= '1';
+          wordN_2mux_sel              <= '1';
+          wordN_3mux_sel              <= '1';   
            
                    
       when OTHERS => 
