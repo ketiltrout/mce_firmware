@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.2 2004/06/03 23:39:39 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.3 2004/06/04 23:01:17 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/03 23:39:39 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/04 23:01:17 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.3  2004/06/04 23:01:17  jjacob
+-- daily update/ safety checkin
+--
 -- Revision 1.2  2004/06/03 23:39:39  jjacob
 -- safety checkin
 --
@@ -95,6 +98,12 @@ port(
       data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
       data_clk_o        :  out std_logic;
       macro_instr_rdy_o :  out std_logic;
+
+
+      -- outputs to the micro instruction sequence generator
+      m_op_seq_num_o        : out std_logic_vector ( 7 downto 0);
+      frame_seq_num_o       : out std_logic_vector (31 downto 0);
+      frame_sync_num_o        : out std_logic_vector (7 downto 0);
 
 
       -- outputs to reply_translator for commands that require quick acknowldgements
@@ -162,6 +171,8 @@ architecture rtl of cmd_translator is
    signal ret_dat_cmd_data_size       :  std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
    signal ret_dat_cmd_data            :  std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
    signal ret_dat_cmd_data_clk        :  std_logic;
+   
+   signal ret_dat_fsm_working         : std_logic;
 
    -- signals to the arbiter, (then to micro-op  sequence generator )
    signal simple_cmd_ack         :  std_logic;                                          -- ready signal
@@ -262,7 +273,9 @@ port(
       data_size_o       : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o            : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o        : out std_logic;							                          -- for clocking out the data
-      macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
+      macro_instr_rdy_o : out std_logic;             										  -- ='1' when the data is valid, else it's '0'
+      
+      ret_dat_fsm_working_o : out std_logic;                                       
       
      frame_seq_num_o       : out std_logic_vector (31 downto 0);
      frame_sync_num_o        : out std_logic_vector (7 downto 0);      
@@ -297,13 +310,13 @@ port(
       ret_dat_parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targett_ig
       ret_dat_data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       ret_dat_data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      ret_dat_data_clk_i        : in std_logic;							                          -- for clocking out the data
+      ret_dat_data_clk_i        : in std_logic;							                                 -- for clocking out the data
       ret_dat_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      
+      ret_dat_fsm_working_i     : in std_logic;
  
       -- output to the 'return data' state machine
       ret_dat_ack_o             : out std_logic;                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
-
+      
 
 
       -- inputs from the 'simple commands' state machine
@@ -745,6 +758,7 @@ port map(
       data_o               => ret_dat_cmd_data,  -- data will be passed straight thru in 16-bit words
       data_clk_o        			=> ret_dat_cmd_data_clk,	                          -- for clocking out the data
       macro_instr_rdy_o      => ret_dat_cmd_ack,                                 -- ='1' when the data is valid, else it's '0'
+      ret_dat_fsm_working_o  =>   ret_dat_fsm_working,    
       
       frame_seq_num_o       => frame_seq_num,
       frame_sync_num_o      => frame_sync_num,    
@@ -829,7 +843,7 @@ port map(
       ret_dat_data_i              =>   ret_dat_cmd_data ,-- data will be passed straight thru in 16-bit words
       ret_dat_data_clk_i        			=>	     ret_dat_cmd_data_clk ,                    -- for clocking out the data
       ret_dat_macro_instr_rdy_i    =>       ret_dat_cmd_ack ,                              -- ='1' when the data is valid, else it's '0'
-      
+      ret_dat_fsm_working_i        =>   ret_dat_fsm_working, 
  
       -- output to the 'return data' state machine
       ret_dat_ack_o                 =>    ret_dat_ack ,       -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
@@ -850,9 +864,9 @@ port map(
 
 
       -- outputs to the micro instruction sequence generator
-      m_op_seq_num_o        =>m_op_seq_num,
-      frame_seq_num_o       =>frame_seq_num,
-      frame_sync_num_o       =>frame_sync_num,
+      m_op_seq_num_o        =>m_op_seq_num_o,
+      frame_seq_num_o       =>frame_seq_num_o,
+      frame_sync_num_o       =>frame_sync_num_o,
       
       -- outputs to the micro-instruction generator
       card_addr_o        => card_addr_o,-- specifies which card the command is targetting
