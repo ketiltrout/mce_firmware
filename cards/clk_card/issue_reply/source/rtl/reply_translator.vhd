@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.24 2004/12/02 12:31:20 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.25 2004/12/03 17:18:06 dca Exp $>
 --
 -- Project:          Scuba 2
 -- Author:           David Atkinson
@@ -30,9 +30,13 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/12/02 12:31:20 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/12/03 17:18:06 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.25  2004/12/03 17:18:06  dca
+-- mop_error_code_i width changed.
+-- Various changes made to accomodate this
+--
 -- Revision 1.24  2004/12/02 12:31:20  dca
 -- m_op_* signals names changed to mop_* for consistency across issue_reply.
 --
@@ -1408,6 +1412,7 @@ txd_o              <= fibre_byte;
       init_head_count          <=  0;
         
       head_q_mux_sel           <= '0'; 
+      checksum_load            <= (others => '0');
       
       case fibre_current_state is
 
