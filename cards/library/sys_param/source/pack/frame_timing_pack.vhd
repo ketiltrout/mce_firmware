@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.4 2004/04/02 01:11:04 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.5 2004/04/02 01:12:04 bburger Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/02 01:11:04 $> - <text> - <initials $Author: bburger $>
--- $Log$
+-- <date $Date: 2004/04/02 01:12:04 $> - <text> - <initials $Author: bburger $>
+-- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.5  2004/04/02 01:12:04  bburger
+-- added a log field to header
+--
 --
 ------------------------------------------------------------------------
 
@@ -50,7 +53,7 @@ use ieee.std_logic_1164.all;
 package frame_timing_pack is
 
    constant MUX_LINE_PERIOD : integer := 64;  -- 64 50MHz cycles
-   constant END_OF_FRAME    : integer := (41*MUX_LINE_PERIOD);
+   constant END_OF_FRAME    : integer := 8;--(41*MUX_LINE_PERIOD);
 
    -- Bias Card frame structure   
    constant UPDATE_BIAS : integer := 0;
