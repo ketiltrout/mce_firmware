@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.9 2004/08/04 17:12:14 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.10 2004/08/20 23:59:45 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/08/04 17:12:14 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/08/20 23:59:45 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.10  2004/08/20 23:59:45  bburger
+-- Bryce:  now expects sync pulses on the last clock cycle in a frame, and restarts clk_count on the next cycle in a frame
+--
 -- Revision 1.9  2004/08/04 17:12:14  bburger
 -- Bryce:  END_OF_FRAME finishes at 41*61-1 instead of 41*61.
 --
@@ -119,18 +122,23 @@ package frame_timing_pack is
    ------------------------------------------------------------------------------------
    -- Bias Card frame structure
    constant UPDATE_BIAS : integer := 2;
+   
    ------------------------------------------------------------------------------------
    -- Address Card frame structure
    constant SEL_ROW : int_array41:= (
-     0*MUX_LINE_PERIOD, 1*MUX_LINE_PERIOD, 2*MUX_LINE_PERIOD, 3*MUX_LINE_PERIOD, 4*MUX_LINE_PERIOD,
-     5*MUX_LINE_PERIOD, 6*MUX_LINE_PERIOD, 7*MUX_LINE_PERIOD, 8*MUX_LINE_PERIOD, 9*MUX_LINE_PERIOD,
-    10*MUX_LINE_PERIOD,11*MUX_LINE_PERIOD,12*MUX_LINE_PERIOD,13*MUX_LINE_PERIOD,14*MUX_LINE_PERIOD,
-    15*MUX_LINE_PERIOD,16*MUX_LINE_PERIOD,17*MUX_LINE_PERIOD,18*MUX_LINE_PERIOD,19*MUX_LINE_PERIOD,
-    20*MUX_LINE_PERIOD,21*MUX_LINE_PERIOD,22*MUX_LINE_PERIOD,23*MUX_LINE_PERIOD,24*MUX_LINE_PERIOD,
-    25*MUX_LINE_PERIOD,26*MUX_LINE_PERIOD,27*MUX_LINE_PERIOD,28*MUX_LINE_PERIOD,29*MUX_LINE_PERIOD,
-    30*MUX_LINE_PERIOD,31*MUX_LINE_PERIOD,32*MUX_LINE_PERIOD,33*MUX_LINE_PERIOD,34*MUX_LINE_PERIOD,
-    35*MUX_LINE_PERIOD,36*MUX_LINE_PERIOD,37*MUX_LINE_PERIOD,38*MUX_LINE_PERIOD,39*MUX_LINE_PERIOD,
-    40*MUX_LINE_PERIOD);
+    0*MUX_LINE_PERIOD, 1*MUX_LINE_PERIOD, 2*MUX_LINE_PERIOD, 3*MUX_LINE_PERIOD, 4*MUX_LINE_PERIOD,
+    5*MUX_LINE_PERIOD, 6*MUX_LINE_PERIOD, 7*MUX_LINE_PERIOD, 8*MUX_LINE_PERIOD, 9*MUX_LINE_PERIOD,
+   10*MUX_LINE_PERIOD,11*MUX_LINE_PERIOD,12*MUX_LINE_PERIOD,13*MUX_LINE_PERIOD,14*MUX_LINE_PERIOD,
+   15*MUX_LINE_PERIOD,16*MUX_LINE_PERIOD,17*MUX_LINE_PERIOD,18*MUX_LINE_PERIOD,19*MUX_LINE_PERIOD,
+   20*MUX_LINE_PERIOD,21*MUX_LINE_PERIOD,22*MUX_LINE_PERIOD,23*MUX_LINE_PERIOD,24*MUX_LINE_PERIOD,
+   25*MUX_LINE_PERIOD,26*MUX_LINE_PERIOD,27*MUX_LINE_PERIOD,28*MUX_LINE_PERIOD,29*MUX_LINE_PERIOD,
+   30*MUX_LINE_PERIOD,31*MUX_LINE_PERIOD,32*MUX_LINE_PERIOD,33*MUX_LINE_PERIOD,34*MUX_LINE_PERIOD,
+   35*MUX_LINE_PERIOD,36*MUX_LINE_PERIOD,37*MUX_LINE_PERIOD,38*MUX_LINE_PERIOD,39*MUX_LINE_PERIOD,
+   40*MUX_LINE_PERIOD);
+    
+   ------------------------------------------------------------------------------------
+   -- Readout Card frame structure
+
 
    ------------------------------------------------------------------------------------
    -- Frame Timing Interface
