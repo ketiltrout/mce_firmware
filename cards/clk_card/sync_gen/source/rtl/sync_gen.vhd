@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.6  2004/10/23 02:28:48  bburger
+-- Bryce:  Work out a couple of bugs to do with the initialization window
+--
 -- Revision 1.5  2004/10/22 01:55:31  bburger
 -- Bryce:  adding timing signals for RC flux_loop
 --
@@ -62,7 +65,6 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library sys_param;
-use sys_param.frame_timing_pack.all;
 use sys_param.command_pack.all;
 
 library components;
@@ -70,6 +72,7 @@ use components.component_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
 
 entity sync_gen is
    port(

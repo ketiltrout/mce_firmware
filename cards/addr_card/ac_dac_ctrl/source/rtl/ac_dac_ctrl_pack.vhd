@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: ac_dac_ctrl_pack.vhd,v 1.3 2004/11/02 07:38:09 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block must be coupled with frame_timing and wbs_ac_dac_ctrl blocks to work properly
 --
 -- Revision history:
--- $Log$
+-- $Log: ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.3  2004/11/02 07:38:09  bburger
+-- Bryce:  ac_dac_ctrl in progress
+--
 --   
 --
 -----------------------------------------------------------------------------
@@ -38,11 +41,11 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.data_types_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.command_pack.all;
 
 library work;
 use work.wbs_ac_dac_ctrl_pack.all;
+use work.frame_timing_pack.all;
 
 package ac_dac_ctrl_pack is
 

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.6 2004/04/29 20:53:59 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.7 2004/10/26 23:58:17 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Mandana Amiri
@@ -30,8 +30,11 @@
 -- Testbench to test dac_ctrl module for bias card
 --
 -- Revision history:
--- <date $Date: 2004/04/29 20:53:59 $> - <initials $Author: mandana $>
+-- <date $Date: 2004/10/26 23:58:17 $> - <initials $Author: bburger $>
 -- $Log: tb_dac_ctrl.vhd,v $
+-- Revision 1.7  2004/10/26 23:58:17  bburger
+-- Bryce:  dac_ctrl logic now works with the new frame_timing block
+--
 -- Revision 1.6  2004/04/29 20:53:59  mandana
 -- added dac_nclr signal and removed tx signals from wrapper
 --
@@ -53,13 +56,17 @@
 --
 -----------------------------------------------------------------------------
 library ieee, work, sys_param, components;
+
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
+
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
+
 use components.component_pack.all;
 
 entity TB_DAC_CTRL is

@@ -19,11 +19,11 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.8 2004/06/23 19:41:57 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.9 2004/07/21 22:30:15 erniel Exp $>
 
 --
--- Project:	      SCUBA-2
--- Author:	      Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:        Mandana Amiri
 -- 
 -- Organisation:  UBC
 --
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/06/23 19:41:57 $>	- <initials $Author: bench2 $>
+-- <date $Date: 2004/07/21 22:30:15 $> - <initials $Author: erniel $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.9  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.8  2004/06/23 19:41:57  bench2
 -- Mandana: added lvds_spi_start signal to be routed to test header
 --
@@ -61,14 +64,18 @@
 -----------------------------------------------------------------------------
 
 library ieee, sys_param, components, work;
+
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
+
 use components.component_pack.all;
+
 use work.dac_ctrl_pack.all;
+use work.frame_timing_pack.all;
 
 -----------------------------------------------------------------------------
                      
@@ -275,7 +282,7 @@ begin
             send_dac32_start    <= '0';
             send_dac_lvds_start <= '0';
             val_clk   <= '0';
-	    done_o    <= '0';
+       done_o    <= '0';
                           
          when SPI_START =>     
             for idac in 0 to 32 loop
@@ -284,7 +291,7 @@ begin
             send_dac32_start    <= '1';
             send_dac_lvds_start <= '1';
             val_clk   <= '0';
-	    done_o    <= '0';
+       done_o    <= '0';
 
           when DONE =>    
             for idac in 0 to 32 loop
@@ -293,8 +300,8 @@ begin
             send_dac32_start    <= '0';
             send_dac_lvds_start <= '0';
             val_clk   <= '0';
-	    done_o    <= '1';
-	                              
+       done_o    <= '1';
+                                 
       end case;
    end process state_out;
  end;

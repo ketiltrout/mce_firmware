@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.19 2004/11/11 17:03:39 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.20 2004/11/15 19:30:58 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/11 17:03:39 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/15 19:30:58 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.20  2004/11/15 19:30:58  bburger
+-- Bryce : Modified the line "uop_ack_i       => uop_rdy_stg5" to emulate the reply_queue's response until the reply_queue is integrated.
+--
 -- Revision 1.19  2004/11/11 17:03:39  dca
 -- *** empty log message ***
 --
@@ -124,8 +127,6 @@ use work.sync_gen_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
-
---use sys_param.frame_timing_pack.all;
 
 entity issue_reply is
 

@@ -33,8 +33,11 @@
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/10/26 23:58:17 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/06 03:12:01 $> - <initials $Author: bburger $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.16  2004/11/06 03:12:01  bburger
+-- Bryce:  debugging
+--
 -- Revision 1.15  2004/10/26 23:58:17  bburger
 -- Bryce:  dac_ctrl logic now works with the new frame_timing block
 --
@@ -92,11 +95,13 @@ use ieee.std_logic_unsigned.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
 
 library components;
 use components.component_pack.all;
+
+library work;
+use work.frame_timing_pack.all;
 
 entity dac_ctrl is
 generic(DAC32_CTRL_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := FLUX_FB_ADDR  ;

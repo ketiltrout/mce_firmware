@@ -20,8 +20,8 @@
 
 -- ac_dac_ctrl_test.vhd
 --
--- Project:	      SCUBA-2
--- Author:	      Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:        Mandana Amiri
 -- Organisation:      UBC
 --
 -- Description:
@@ -49,12 +49,13 @@ use ieee.std_logic_unsigned.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
 
 library components;
 use components.component_pack.all;
 
+library work;
+use work.frame_timing_pack.all;
 
 entity ac_dac_ctrl_test is
    port (
@@ -195,7 +196,7 @@ begin
             for idac in 0 to 40 loop
                dac_clk_o(idac) <= '0';
             end loop;
-	    done_o    <= '0';
+       done_o    <= '0';
          
          when PUSH_DATA =>    
 --            for ibus in 0 to 10 loop
@@ -217,7 +218,7 @@ begin
             for idac in 0 to 40 loop
                dac_clk_o(idac) <= '0';
             end loop;
-	    done_o    <= '0';
+       done_o    <= '0';
                           
          when CLKNOW =>    
 --            for ibus in 0 to 10 loop
@@ -239,7 +240,7 @@ begin
             for idac in 0 to 40 loop
                dac_clk_o(idac) <= '1';
             end loop;
-	    done_o    <= '0';
+       done_o    <= '0';
 
           when DONE =>    
 --            for ibus in 0 to 10 loop
@@ -261,8 +262,8 @@ begin
             for idac in 0 to 40 loop
                dac_clk_o(idac) <= '0';
             end loop;
-	    done_o    <= '1';
-	                              
+       done_o    <= '1';
+                                 
       end case;
    end process state_out;
    

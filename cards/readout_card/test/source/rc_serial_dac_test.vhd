@@ -20,8 +20,8 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- Project:	      SCUBA-2
--- Author:	      Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:        Mandana Amiri
 -- 
 -- Organisation:  UBC
 --
@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/16 18:06:12 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/21 22:26:24 $> - <initials $Author: erniel $>
 -- $Log: rc_serial_dac_test.vhd,v $
+-- Revision 1.6  2004/07/21 22:26:24  erniel
+-- updated counter component
+--
 -- Revision 1.5  2004/07/16 18:06:12  bench1
 -- Mandana: less fixed values
 --
@@ -55,13 +58,18 @@
 -----------------------------------------------------------------------------
 
 library ieee, sys_param, components, work;
+
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
+
 use components.component_pack.all;
+
+use work.frame_timing_pack.all;
+
 -----------------------------------------------------------------------------
                      
 entity rc_serial_dac_test_wrapper is
@@ -259,7 +267,7 @@ begin
             end loop;
             send_dac_start    <= '1';
             val_clk           <= '0';
-	    done_fix          <= '0';
+       done_fix          <= '0';
                           
          when PUSH_DATA_RAMP =>    
             for idac in 0 to 7 loop
@@ -269,22 +277,22 @@ begin
 
          when SPI_START =>     -- we may need to hold ramp data in this state        
                      for idac in 0 to 7 loop
-	                dac_data_p(idac) <= data(idx);
-	             end loop;
+                   dac_data_p(idac) <= data(idx);
+                end loop;
 
             send_dac_start    <= '1';
             val_clk   <= '0';
-	--    done_o    <= '0';
+   --    done_o    <= '0';
 
           when DONE =>        -- we may need to hold ramp data in this state 
             send_dac_start    <= '0';
             val_clk   <= '0';
             if en_fix = '1' then   
-	       done_fix      <= '1';
-	    end if;   
+          done_fix      <= '1';
+       end if;   
             -- for fix values, we want to assert done_o after one value is loaded
             -- but for the ramp done_o signal is asserted in a process.
-	    
+       
       end case;
    end process state_out;
 -----------------------------------------------------------------   

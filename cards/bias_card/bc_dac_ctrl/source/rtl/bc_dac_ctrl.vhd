@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id$
+-- $Id: bc_dac_ctrl.vhd,v 1.1 2004/11/11 01:47:10 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -27,7 +27,10 @@
 -- Description:
 -- 
 -- Revision history:
--- $Log$
+-- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.1  2004/11/11 01:47:10  bburger
+-- Bryce:  new
+--
 --   
 --
 -- 
@@ -41,7 +44,6 @@ use ieee.std_logic_arith.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
 use sys_param.command_pack.all;
 
@@ -51,6 +53,7 @@ use components.component_pack.all;
 library work;
 use work.wbs_bc_dac_ctrl_pack.all;
 use work.bc_dac_ctrl_pack.all;
+use work.frame_timing_pack.all;
 
 entity bc_dac_ctrl is
    port

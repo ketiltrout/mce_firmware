@@ -20,8 +20,8 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- Project:	      SCUBA-2
--- Author:	      Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:        Mandana Amiri
 -- 
 -- Organisation:  UBC
 --
@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/19 23:17:25 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/21 22:29:29 $> - <initials $Author: erniel $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.6  2004/07/21 22:29:29  erniel
+-- updated counter component
+--
 -- Revision 1.5  2004/07/19 23:17:25  bench1
 -- Mandana: deleted the left-over dac_clk_o and done_o assignments
 --
@@ -58,10 +61,13 @@ library ieee, sys_param, components, work;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
+
 use components.component_pack.all;
+
+use work.frame_timing_pack.all;
 
 -----------------------------------------------------------------------------
                      
@@ -282,23 +288,23 @@ begin
          when IDLE =>        
             data_fix <= "00000000000000";   
             dac_clk_fix <= (others => '0');
-	    done_fix    <= '0';
+       done_fix    <= '0';
          
          when PUSH_DATA =>    
             data_fix <= fix(idat);           
             dac_clk_fix <= (others => '0');
-	    done_fix    <= '0';
+       done_fix    <= '0';
                           
          when CLKNOW =>    
             data_fix <= fix(idat);
             dac_clk_fix <= (others => '1');
-	    done_fix    <= '0';
+       done_fix    <= '0';
 
           when DONE =>    
             data_fix <= "00000000000000";
             dac_clk_fix <= (others => '0');
-	    done_fix    <= '1';
-	                              
+       done_fix    <= '1';
+                                 
       end case;
    end process state_out;
    

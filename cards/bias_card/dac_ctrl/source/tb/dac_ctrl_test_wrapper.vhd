@@ -19,11 +19,11 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.8 2004/05/20 21:54:06 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.9 2004/07/21 22:30:15 erniel Exp $>
 
 --
--- Project:	      SCUBA-2
--- Author:	      Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:        Mandana Amiri
 -- 
 -- Organisation:  UBC
 --
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/05/20 21:54:06 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/21 22:30:15 $> - <initials $Author: erniel $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.9  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.8  2004/05/20 21:54:06  mandana
 -- slowed down the clk to clk_i/8
 --
@@ -69,11 +72,14 @@ library ieee, sys_param, components, work;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
+
 use components.component_pack.all;
+
 use work.dac_ctrl_pack.all;
+use work.frame_timing_pack.all;
 
 -----------------------------------------------------------------------------
                      
@@ -329,156 +335,156 @@ begin
             idac_rst  <= '1';
             ramp_rst  <= '1';
             addr_o    <= (others => '0');
-	    tga_o     <= (others => '0');
-	    dat_o     <= (others => '0');
-	    we_o      <= '0';
-	    stb_o     <= '0';
-	    cyc_o     <= '0';                          
-	    done_o    <= '0';
+       tga_o     <= (others => '0');
+       dat_o     <= (others => '0');
+       we_o      <= '0';
+       stb_o     <= '0';
+       cyc_o     <= '0';                          
+       done_o    <= '0';
          
          when DAC32 =>    
             idac_rst  <= '0';
             ramp_rst  <= '1';
             addr_o    <= FLUX_FB_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= data(idx);
+       tga_o     <= (others => '0');
+       dat_o     <= data(idx);
             we_o      <= '1';
-  	    stb_o     <= '1';
-	    cyc_o     <= '1';                           
-	    done_o    <= '0';
+       stb_o     <= '1';
+       cyc_o     <= '1';                           
+       done_o    <= '0';
                           
          when DAC32_NXT =>    
             idac_rst  <= '0';
             ramp_rst  <= '1';
-	    tga_o     <= (others => '0');
-	    dat_o     <= (others => '0');
-	    if (idac = 16) then
+       tga_o     <= (others => '0');
+       dat_o     <= (others => '0');
+       if (idac = 16) then
                addr_o    <= (others => '0');
-	       we_o      <= '0';
-	       stb_o     <= '0';
-	       cyc_o     <= '0';       
-	    else	    
+          we_o      <= '0';
+          stb_o     <= '0';
+          cyc_o     <= '0';       
+       else     
                addr_o    <= FLUX_FB_ADDR;
-	       we_o      <= '1';
-	       stb_o     <= '0';
-	       cyc_o     <= '1';      	       
-	    end if;   
-	    done_o    <= '0';
+          we_o      <= '1';
+          stb_o     <= '0';
+          cyc_o     <= '1';                
+       end if;   
+       done_o    <= '0';
                                                     
          when LVDS_DAC =>
             idac_rst  <= '1';
             ramp_rst  <= '1';
             addr_o    <= BIAS_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= data(idx);
-	    we_o      <= '1';
-	    stb_o     <= '1';
-	    cyc_o     <= '1';                          
-	    done_o    <= '0';
+       tga_o     <= (others => '0');
+       dat_o     <= data(idx);
+       we_o      <= '1';
+       stb_o     <= '1';
+       cyc_o     <= '1';                          
+       done_o    <= '0';
          
          when LVDS_DONE =>
             idac_rst  <= '1';
             ramp_rst  <= '1';
            addr_o    <= BIAS_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= data(idx);
-	    we_o      <= '0';
-	    stb_o     <= '0';
-	    cyc_o     <= '0';                          
-	    done_o    <= '0';
+       tga_o     <= (others => '0');
+       dat_o     <= data(idx);
+       we_o      <= '0';
+       stb_o     <= '0';
+       cyc_o     <= '0';                          
+       done_o    <= '0';
 
          when RESYNC =>
             idac_rst  <= '1';
             ramp_rst  <= '1';
            addr_o    <= RESYNC_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= (others => '0');
-	    we_o      <= '1';
-	    stb_o     <= '1';
-	    cyc_o     <= '1';                          
-	    done_o    <= '0';
+       tga_o     <= (others => '0');
+       dat_o     <= (others => '0');
+       we_o      <= '1';
+       stb_o     <= '1';
+       cyc_o     <= '1';                          
+       done_o    <= '0';
 
          when RESYNC_DONE =>
             idac_rst  <= '1';
             ramp_rst  <= '1';
            addr_o    <= RESYNC_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= (others => '0');
-	    we_o      <= '0';
-	    stb_o     <= '0';
-	    cyc_o     <= '0';                          
-	    done_o    <= '0';
-	                      
+       tga_o     <= (others => '0');
+       dat_o     <= (others => '0');
+       we_o      <= '0';
+       stb_o     <= '0';
+       cyc_o     <= '0';                          
+       done_o    <= '0';
+                         
          when GO_RAMP =>
             idac_rst  <= '0';
             ramp_rst  <= '0';
             addr_o    <= FLUX_FB_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= ramp_data;
-	    we_o      <= '1';
-	    stb_o     <= '1';
-	    cyc_o     <= '1';                          
-	    done_o    <= '0';
+       tga_o     <= (others => '0');
+       dat_o     <= ramp_data;
+       we_o      <= '1';
+       stb_o     <= '1';
+       cyc_o     <= '1';                          
+       done_o    <= '0';
 
          when GO_RAMP_NXT =>
             idac_rst  <= '0';
             ramp_rst  <= '0';
             addr_o    <= FLUX_FB_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= ramp_data;
-	    we_o      <= '1';
-	    stb_o     <= '0';
-	    cyc_o     <= '1';                          
-	    done_o    <= '0';
+       tga_o     <= (others => '0');
+       dat_o     <= ramp_data;
+       we_o      <= '1';
+       stb_o     <= '0';
+       cyc_o     <= '1';                          
+       done_o    <= '0';
 
          when RESYNC2 =>
             idac_rst  <= '0';
             ramp_rst  <= '0';
             addr_o    <= RESYNC_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= (others => '0');
-	    we_o      <= '1';
-	    stb_o     <= '1';
-	    cyc_o     <= '1';                          
-	    if en_i = '1' then
-	       done_o <= '1';
-	    else
-	       done_o <= '0';
+       tga_o     <= (others => '0');
+       dat_o     <= (others => '0');
+       we_o      <= '1';
+       stb_o     <= '1';
+       cyc_o     <= '1';                          
+       if en_i = '1' then
+          done_o <= '1';
+       else
+          done_o <= '0';
             end if;
             
          when RESYNC2_DONE =>
             idac_rst  <= '0';
             ramp_rst  <= '0';
             addr_o    <= RESYNC_ADDR;
-	    tga_o     <= (others => '0');
-	    dat_o     <= (others => '0');
-	    we_o      <= '0';
-	    stb_o     <= '0';
-	    cyc_o     <= '0';                          
-	    done_o    <= '0';
+       tga_o     <= (others => '0');
+       dat_o     <= (others => '0');
+       we_o      <= '0';
+       stb_o     <= '0';
+       cyc_o     <= '0';                          
+       done_o    <= '0';
 
          when DONE =>     
             idac_rst  <= '0';
             ramp_rst  <= '1';
             addr_o    <= (others => '0');
-	    tga_o     <= (others => '0');
-	    dat_o     <= (others => '0');
-	    we_o      <= '0';
-	    stb_o     <= '0';
-	    cyc_o     <= '0';                          
-	    done_o    <= '1';
+       tga_o     <= (others => '0');
+       dat_o     <= (others => '0');
+       we_o      <= '0';
+       stb_o     <= '0';
+       cyc_o     <= '0';                          
+       done_o    <= '1';
 
-	 when others =>    
+    when others =>    
             idac_rst  <= '1';
             ramp_rst  <= '1';
             addr_o    <= (others => '0');
-	    tga_o     <= (others => '0');
-	    dat_o     <= (others => '0');
-	    we_o      <= '0';
-	    stb_o     <= '0';
-	    cyc_o     <= '0';                          
-	    done_o    <= '0';
-	                              
+       tga_o     <= (others => '0');
+       dat_o     <= (others => '0');
+       we_o      <= '0';
+       stb_o     <= '0';
+       cyc_o     <= '0';                          
+       done_o    <= '0';
+                                 
       end case;
    end process state_out;
    

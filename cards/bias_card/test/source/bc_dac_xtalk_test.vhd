@@ -20,8 +20,8 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- Project:	      SCUBA-2
--- Author:	      Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:        Mandana Amiri
 -- 
 -- Organisation:  UBC
 --
@@ -34,14 +34,18 @@
 -----------------------------------------------------------------------------
 
 library ieee, sys_param, components, work;
+
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
+
 use components.component_pack.all;
+
 use work.dac_ctrl_pack.all;
+use work.frame_timing_pack.all;
 
 -----------------------------------------------------------------------------
                      
@@ -271,7 +275,7 @@ begin
             dac_data_p (32) <= data1;
             send_dac32_start    <= '0';
             send_dac_lvds_start <= '0';
-	                              
+                                 
       end case;
    end process state_out;
   

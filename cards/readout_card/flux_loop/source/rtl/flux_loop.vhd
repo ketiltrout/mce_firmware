@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id: flux_loop.vhd,v 1.3 2004/08/27 01:04:33 bburger Exp $
+-- $Id: flux_loop.vhd,v 1.4 2004/08/31 00:00:04 bburger Exp $
 -- Description:
 -- Readout Card flux loop
 --
 -- Revision history:
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.4  2004/08/31 00:00:04  bburger
+-- Bryce:  removed compilation errors
+--
 -- Revision 1.3  2004/08/27 01:04:33  bburger
 -- Bryce:  in progress
 --
@@ -47,7 +50,6 @@ use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
---use sys_param.frame_timing_pack.all;
 use sys_param.command_pack.all;
 use sys_param.data_types_pack.all;
 

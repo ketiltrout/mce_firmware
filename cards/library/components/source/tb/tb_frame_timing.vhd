@@ -1,6 +1,6 @@
 -- tb_frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_frame_timing.vhd,v 1.4 2004/08/20 23:59:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_frame_timing.vhd,v 1.5 2004/10/23 02:28:48 bburger Exp $>
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date: 2004/08/20 23:59:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/10/23 02:28:48 $> -     <text>      - <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -20,8 +20,10 @@ use IEEE.std_logic_1164.all;
 use IEEE.std_logic_unsigned.all;
 
 library sys_param;
-use sys_param.frame_timing_pack.all;
 use sys_param.general_pack.all;
+
+library work;
+use work.frame_timing_pack.all;
 
 entity TB_FRAME_TIMING is
 end TB_FRAME_TIMING;

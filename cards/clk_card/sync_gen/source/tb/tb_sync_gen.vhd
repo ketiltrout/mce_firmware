@@ -5,10 +5,10 @@ use ieee.std_logic_unsigned.all;
 library sys_param;
 use sys_param.general_pack.all;
 use sys_param.command_pack.all;
-use sys_param.frame_timing_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
 
 entity tb_sync_gen is
 end tb_sync_gen;

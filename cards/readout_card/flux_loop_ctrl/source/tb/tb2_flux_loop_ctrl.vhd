@@ -21,7 +21,7 @@
 --
 -- tb2_flux_loop_ctrl.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi & Anthony Ko
 -- Organisation:  UBC
 --
@@ -29,7 +29,7 @@
 -- This testbench tests the integration of three blocks within flux_loop_ctrl.
 -- These blocks are: adc_sample_coadd, fsfb_calc, and fsfb_ctrl.  The 
 -- frame_timing signals are provided to the testbench by instantiating the 
--- frame_timing library	component. 
+-- frame_timing library component. 
 -- 
 -- This testbench is for: 
 -- 
@@ -50,6 +50,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.2  2004/11/08 23:57:11  mohsen
+-- Sorted out parameters.  Also, incorporated fsfb_ctrl in the testbench and done self check.
+--
 -- Revision 1.1  2004/10/28 19:50:04  mohsen
 -- created
 --
@@ -68,14 +71,13 @@ use components.component_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
-
 
 library work;
 use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
 use work.fsfb_ctrl_pack.all;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
 
 
 
@@ -403,7 +405,7 @@ architecture beh of tb2_flux_loop_ctrl is
          -- lock mode setting and invalid
          when others => const_val_o         <= (others => 'X');
                         ramp_step_size_o    <= (others => 'X');
-		        ramp_amp_o          <= (others => 'X');
+              ramp_amp_o          <= (others => 'X');
                         ramp_frame_cycles_o <= (others => 'X');
       end case sel;
    end procedure cfg_test_mode;

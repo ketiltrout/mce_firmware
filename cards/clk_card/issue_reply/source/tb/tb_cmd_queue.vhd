@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.23 2004/10/22 01:54:38 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.24 2004/10/29 23:09:22 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.24  2004/10/29 23:09:22  bburger
+-- Bryce:  Weekend update
+--
 -- Revision 1.23  2004/10/22 01:54:38  bburger
 -- Bryce:  fixed bugs
 --
@@ -49,7 +52,6 @@ library sys_param;
 use sys_param.general_pack.all;
 use sys_param.wishbone_pack.all;
 use sys_param.command_pack.all;
-use sys_param.frame_timing_pack.all;
 
 library work;
 use work.cmd_queue_pack.all;
@@ -58,6 +60,7 @@ use work.cmd_queue_ram40_pack.all;
 use work.async_pack.all;
 use work.sync_gen_pack.all;
 use work.reply_queue_pack.all;
+use work.frame_timing_pack.all;
 
 entity TB_CMD_QUEUE is
 end TB_CMD_QUEUE;

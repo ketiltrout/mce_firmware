@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.62 2004/11/02 07:38:09 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.63 2004/11/15 19:32:07 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.63  2004/11/15 19:32:07  bburger
+-- Bryce : fixed a bug that affected the uop_rdy_o signal
+--
 -- Revision 1.62  2004/11/02 07:38:09  bburger
 -- Bryce:  ac_dac_ctrl in progress
 --
@@ -49,7 +52,6 @@ use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.command_pack.all;
 
 library components;
@@ -60,6 +62,7 @@ use work.cmd_queue_ram40_pack.all;
 use work.sync_gen_pack.all;
 use work.async_pack.all;
 use work.cmd_queue_pack.all;
+use work.frame_timing_pack.all;
 
 entity cmd_queue is
    port(
