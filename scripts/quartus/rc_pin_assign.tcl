@@ -31,13 +31,14 @@
 #
 # Revision history:
 #
+# $Log$
 #
 #
 #############################################################################
 
 # print welcome message
 puts "\n\nReadout Card Pin Assignment Script v1.0"
-puts "-------------------------------------"
+puts "---------------------------------------"
 
 
 # include Quartus Tcl API
@@ -192,192 +193,356 @@ puts "   Assigned: LVDS pins."
 cmp add_assignment $top_name "" n7Vok LOCATION "Pin_J10"
 cmp add_assignment $top_name "" minus7Vok LOCATION "Pin_J9"
 cmp add_assignment $top_name "" n15Vok LOCATION "Pin_H10"
-
 puts "   Assigned: Power supply status pin."
 
-### mictor connector header (LSB in the left-most position, MSB in the right-most)
-set mictor {E13 D13 C13 E12 B13 D12 C12 B12 B11 D11 C11 A11 B10 C10 A10 E10  A9  A8  B8  B9  D9  E8  C8  D8  C7  C6  D7  A7  D6  B7  A6  E6}
-set i 0
-foreach {a} $mictor {
-	cmp add_assignment $top_name "" "mictor\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+# assign mictor connector header
+cmp add_assignment $top_name "" "mictor\[0\]" LOCATION "Pin_E13"
+cmp add_assignment $top_name "" "mictor\[1\]" LOCATION "Pin_D13"
+cmp add_assignment $top_name "" "mictor\[2\]" LOCATION "Pin_C13"
+cmp add_assignment $top_name "" "mictor\[3\]" LOCATION "Pin_E12"
+cmp add_assignment $top_name "" "mictor\[4\]" LOCATION "Pin_B13"
+cmp add_assignment $top_name "" "mictor\[5\]" LOCATION "Pin_D12"
+cmp add_assignment $top_name "" "mictor\[6\]" LOCATION "Pin_C12"
+cmp add_assignment $top_name "" "mictor\[7\]" LOCATION "Pin_B12"
+cmp add_assignment $top_name "" "mictor\[8\]" LOCATION "Pin_B11"
+cmp add_assignment $top_name "" "mictor\[9\]" LOCATION "Pin_D11"
+cmp add_assignment $top_name "" "mictor\[10\]" LOCATION "Pin_C11"
+cmp add_assignment $top_name "" "mictor\[11\]" LOCATION "Pin_A11"
+cmp add_assignment $top_name "" "mictor\[12\]" LOCATION "Pin_B10"
+cmp add_assignment $top_name "" "mictor\[13\]" LOCATION "Pin_C10"
+cmp add_assignment $top_name "" "mictor\[14\]" LOCATION "Pin_A10"
+cmp add_assignment $top_name "" "mictor\[15\]" LOCATION "Pin_E10"
+cmp add_assignment $top_name "" "mictor\[16\]" LOCATION "Pin_A9"
+cmp add_assignment $top_name "" "mictor\[17\]" LOCATION "Pin_A8"
+cmp add_assignment $top_name "" "mictor\[18\]" LOCATION "Pin_B8"
+cmp add_assignment $top_name "" "mictor\[19\]" LOCATION "Pin_B9"
+cmp add_assignment $top_name "" "mictor\[20\]" LOCATION "Pin_D9"
+cmp add_assignment $top_name "" "mictor\[21\]" LOCATION "Pin_E8"
+cmp add_assignment $top_name "" "mictor\[22\]" LOCATION "Pin_C8"
+cmp add_assignment $top_name "" "mictor\[23\]" LOCATION "Pin_D8"
+cmp add_assignment $top_name "" "mictor\[24\]" LOCATION "Pin_C7"
+cmp add_assignment $top_name "" "mictor\[25\]" LOCATION "Pin_C6"
+cmp add_assignment $top_name "" "mictor\[26\]" LOCATION "Pin_D7"
+cmp add_assignment $top_name "" "mictor\[27\]" LOCATION "Pin_A7"
+cmp add_assignment $top_name "" "mictor\[28\]" LOCATION "Pin_D6"
+cmp add_assignment $top_name "" "mictor\[29\]" LOCATION "Pin_B7"
+cmp add_assignment $top_name "" "mictor\[30\]" LOCATION "Pin_A6"
+cmp add_assignment $top_name "" "mictor\[31\]" LOCATION "Pin_E6"
+puts "   Assigned: Mictor header pins."
 
-
-### Serial DAC PINS
-##  the order is dac1, dac2,...., dac8 
-set dac_clk {AE8 Y10 AB7 AC5 AG20 AB22 AB20 AB18}
-set bias_dac_ncs {AH3 V11 AA9 AB9 AH16 AC24 AD24 AC22}
-set offset_dac_ncs {AE7 Y9 AA10 AB12 AF18 AC23 AB21 AC20}
-set dac_dat {AG10 Y11 AB8 AC6 AE23 AE25 Y20 V18}  
-
-set i 0
-foreach {a} $dac_clk {
-	cmp add_assignment $top_name "" "dac_clk\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
-foreach {a} $dac_ncs {
-	cmp add_assignment $top_name "" "bias_dac_ncs\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
-foreach {a} $dac_ncs {
-	cmp add_assignment $top_name "" "offset_dac_ncs\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
-set i 0
-foreach {a} $dac_dat {
-	cmp add_assignment $top_name "" "dac_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
+# assign serial DAC
+cmp add_assignment $top_name "" "dac_clk\[1\]" LOCATION "Pin_AE8"
+cmp add_assignment $top_name "" "dac_clk\[2\]" LOCATION "Pin_Y10"
+cmp add_assignment $top_name "" "dac_clk\[3\]" LOCATION "Pin_AB7"
+cmp add_assignment $top_name "" "dac_clk\[4\]" LOCATION "Pin_AC5"
+cmp add_assignment $top_name "" "dac_clk\[5\]" LOCATION "Pin_AG20"
+cmp add_assignment $top_name "" "dac_clk\[6\]" LOCATION "Pin_AB22"
+cmp add_assignment $top_name "" "dac_clk\[7\]" LOCATION "Pin_AB20"
+cmp add_assignment $top_name "" "dac_clk\[8\]" LOCATION "Pin_AB18"
+cmp add_assignment $top_name "" "dac_dat\[1\]" LOCATION "Pin_AG10"
+cmp add_assignment $top_name "" "dac_dat\[2\]" LOCATION "Pin_Y11"
+cmp add_assignment $top_name "" "dac_dat\[3\]" LOCATION "Pin_AB8"
+cmp add_assignment $top_name "" "dac_dat\[4\]" LOCATION "Pin_AC6"
+cmp add_assignment $top_name "" "dac_dat\[5\]" LOCATION "Pin_AE23"
+cmp add_assignment $top_name "" "dac_dat\[6\]" LOCATION "Pin_AE25"
+cmp add_assignment $top_name "" "dac_dat\[7\]" LOCATION "Pin_Y20"
+cmp add_assignment $top_name "" "dac_dat\[8\]" LOCATION "Pin_V18"
+cmp add_assignment $top_name "" "bias_dac_ncs\[1\]" LOCATION "Pin_AH3"
+cmp add_assignment $top_name "" "bias_dac_ncs\[2\]" LOCATION "Pin_V11"
+cmp add_assignment $top_name "" "bias_dac_ncs\[3\]" LOCATION "Pin_AA9"
+cmp add_assignment $top_name "" "bias_dac_ncs\[4\]" LOCATION "Pin_AB9"
+cmp add_assignment $top_name "" "bias_dac_ncs\[5\]" LOCATION "Pin_AH16"
+cmp add_assignment $top_name "" "bias_dac_ncs\[6\]" LOCATION "Pin_AC24"
+cmp add_assignment $top_name "" "bias_dac_ncs\[7\]" LOCATION "Pin_AD24"
+cmp add_assignment $top_name "" "bias_dac_ncs\[8\]" LOCATION "Pin_AC22"
+cmp add_assignment $top_name "" "offset_dac_ncs\[1\]" LOCATION "Pin_AE7"
+cmp add_assignment $top_name "" "offset_dac_ncs\[2\]" LOCATION "Pin_Y9"
+cmp add_assignment $top_name "" "offset_dac_ncs\[3\]" LOCATION "Pin_AA10"
+cmp add_assignment $top_name "" "offset_dac_ncs\[4\]" LOCATION "Pin_AB12"
+cmp add_assignment $top_name "" "offset_dac_ncs\[5\]" LOCATION "Pin_AF18"
+cmp add_assignment $top_name "" "offset_dac_ncs\[6\]" LOCATION "Pin_AC23"
+cmp add_assignment $top_name "" "offset_dac_ncs\[7\]" LOCATION "Pin_AB21"
+cmp add_assignment $top_name "" "offset_dac_ncs\[8\]" LOCATION "Pin_AC20"
 puts "   Assigned: Serial DAC pins."
 
-### Parallel DAC PINS
-##  the order is dac1, dac2,...., dac8 
-set dac_FB_clk {N10 C2 F2 M10 AG12 AH4 AG18 AG8}
-set dac_FB1_dat {N9 M3 M4 N5 N6 L1 L2 N7 N8 L3 L4 N4 N3 K1}  
-set dac_FB2_dat {C1 H5 H6 D2 D1 H7 H8 E2 E1 J5 J6 F4 F3 K6}
-set dac_FB3_dat {F1 J8 J7 G3 G4 K8 K7 G2 G1 L7 L8 H4 H3 L6}
-set dac_FB4_dat {M9 K4 K3 M6 M5 J1 J2 M8 M7 J3 J4 L10 L9 H1}
-set dac_FB5_dat {AF12 AE12 AG13 AD12 AF13 AE13 AD13 AE16 AF16 AD16 AG16 AD17 AE17 AG17}
-set dac_FB6_dat {AE5 AG3 AG5 AG4 AF4 AH5 AF5 AE6 AG6 AH6 AD6 AF7 AH7 AG7}
-set dac_FB7_dat {AE18 AD18 AH19 AG19 AF19 AD19 AE19 AH20 AH21 AF20 AE20 AF21 AG21 AE21}
-set dac_FB8_dat {AF8 AD8 AH9 AH8 AE9 AF9 AG9 AD10 AF10 AH10 AE10 AF11 AE11 AH11}
 
-set i 0
-foreach {a} $dac_FB_clk {
-	cmp add_assignment $top_name "" "dac_FB_clk\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+# assign parallel DAC
+cmp add_assignment $top_name "" "dac_FB1_clk" LOCATION "Pin_N10"
+cmp add_assignment $top_name "" "dac_FB1_dat\[0\]" LOCATION "Pin_N9"
+cmp add_assignment $top_name "" "dac_FB1_dat\[1\]" LOCATION "Pin_M3"
+cmp add_assignment $top_name "" "dac_FB1_dat\[2\]" LOCATION "Pin_M4"
+cmp add_assignment $top_name "" "dac_FB1_dat\[3\]" LOCATION "Pin_N5"
+cmp add_assignment $top_name "" "dac_FB1_dat\[4\]" LOCATION "Pin_N6"
+cmp add_assignment $top_name "" "dac_FB1_dat\[5\]" LOCATION "Pin_L1"
+cmp add_assignment $top_name "" "dac_FB1_dat\[6\]" LOCATION "Pin_L2"
+cmp add_assignment $top_name "" "dac_FB1_dat\[7\]" LOCATION "Pin_N7"
+cmp add_assignment $top_name "" "dac_FB1_dat\[8\]" LOCATION "Pin_N8"
+cmp add_assignment $top_name "" "dac_FB1_dat\[9\]" LOCATION "Pin_L3"
+cmp add_assignment $top_name "" "dac_FB1_dat\[10\]" LOCATION "Pin_L4"
+cmp add_assignment $top_name "" "dac_FB1_dat\[11\]" LOCATION "Pin_N4"
+cmp add_assignment $top_name "" "dac_FB1_dat\[12\]" LOCATION "Pin_N3"
+cmp add_assignment $top_name "" "dac_FB1_dat\[13\]" LOCATION "Pin_K1"
 
-set i 0
-foreach {a} $dac_FB1_dat {
-	cmp add_assignment $top_name "" "dac_FB1_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_FB2_clk" LOCATION "Pin_C2"
+cmp add_assignment $top_name "" "dac_FB2_dat\[0\]" LOCATION "Pin_C1"
+cmp add_assignment $top_name "" "dac_FB2_dat\[1\]" LOCATION "Pin_H5"
+cmp add_assignment $top_name "" "dac_FB2_dat\[2\]" LOCATION "Pin_H6"
+cmp add_assignment $top_name "" "dac_FB2_dat\[3\]" LOCATION "Pin_D2"
+cmp add_assignment $top_name "" "dac_FB2_dat\[4\]" LOCATION "Pin_D1"
+cmp add_assignment $top_name "" "dac_FB2_dat\[5\]" LOCATION "Pin_H7"
+cmp add_assignment $top_name "" "dac_FB2_dat\[6\]" LOCATION "Pin_H8"
+cmp add_assignment $top_name "" "dac_FB2_dat\[7\]" LOCATION "Pin_E2"
+cmp add_assignment $top_name "" "dac_FB2_dat\[8\]" LOCATION "Pin_E1"
+cmp add_assignment $top_name "" "dac_FB2_dat\[9\]" LOCATION "Pin_J5"
+cmp add_assignment $top_name "" "dac_FB2_dat\[10\]" LOCATION "Pin_J6"
+cmp add_assignment $top_name "" "dac_FB2_dat\[11\]" LOCATION "Pin_F4"
+cmp add_assignment $top_name "" "dac_FB2_dat\[12\]" LOCATION "Pin_F3"
+cmp add_assignment $top_name "" "dac_FB2_dat\[13\]" LOCATION "Pin_K6"
 
-set i 0
-foreach {a} $dac_FB2_dat {
-	cmp add_assignment $top_name "" "dac_FB2_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_FB3_clk" LOCATION "Pin_F2"
+cmp add_assignment $top_name "" "dac_FB3_dat\[0\]" LOCATION "Pin_F1"
+cmp add_assignment $top_name "" "dac_FB3_dat\[1\]" LOCATION "Pin_J8"
+cmp add_assignment $top_name "" "dac_FB3_dat\[2\]" LOCATION "Pin_J7"
+cmp add_assignment $top_name "" "dac_FB3_dat\[3\]" LOCATION "Pin_G3"
+cmp add_assignment $top_name "" "dac_FB3_dat\[4\]" LOCATION "Pin_G4"
+cmp add_assignment $top_name "" "dac_FB3_dat\[5\]" LOCATION "Pin_K8"
+cmp add_assignment $top_name "" "dac_FB3_dat\[6\]" LOCATION "Pin_K7"
+cmp add_assignment $top_name "" "dac_FB3_dat\[7\]" LOCATION "Pin_G2"
+cmp add_assignment $top_name "" "dac_FB3_dat\[8\]" LOCATION "Pin_G1"
+cmp add_assignment $top_name "" "dac_FB3_dat\[9\]" LOCATION "Pin_L7"
+cmp add_assignment $top_name "" "dac_FB3_dat\[10\]" LOCATION "Pin_L8"
+cmp add_assignment $top_name "" "dac_FB3_dat\[11\]" LOCATION "Pin_H4"
+cmp add_assignment $top_name "" "dac_FB3_dat\[12\]" LOCATION "Pin_H3"
+cmp add_assignment $top_name "" "dac_FB3_dat\[13\]" LOCATION "Pin_L6"
 
-set i 0
-foreach {a} $dac_FB3_dat {
-	cmp add_assignment $top_name "" "dac_FB3_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_FB4_clk" LOCATION "Pin_M10"
+cmp add_assignment $top_name "" "dac_FB4_dat\[0\]" LOCATION "Pin_M9"
+cmp add_assignment $top_name "" "dac_FB4_dat\[1\]" LOCATION "Pin_K4"
+cmp add_assignment $top_name "" "dac_FB4_dat\[2\]" LOCATION "Pin_K3"
+cmp add_assignment $top_name "" "dac_FB4_dat\[3\]" LOCATION "Pin_M6"
+cmp add_assignment $top_name "" "dac_FB4_dat\[4\]" LOCATION "Pin_M5"
+cmp add_assignment $top_name "" "dac_FB4_dat\[5\]" LOCATION "Pin_J1"
+cmp add_assignment $top_name "" "dac_FB4_dat\[6\]" LOCATION "Pin_J2"
+cmp add_assignment $top_name "" "dac_FB4_dat\[7\]" LOCATION "Pin_M8"
+cmp add_assignment $top_name "" "dac_FB4_dat\[8\]" LOCATION "Pin_M7"
+cmp add_assignment $top_name "" "dac_FB4_dat\[9\]" LOCATION "Pin_J3"
+cmp add_assignment $top_name "" "dac_FB4_dat\[10\]" LOCATION "Pin_J4"
+cmp add_assignment $top_name "" "dac_FB4_dat\[11\]" LOCATION "Pin_L10"
+cmp add_assignment $top_name "" "dac_FB4_dat\[12\]" LOCATION "Pin_L9"
+cmp add_assignment $top_name "" "dac_FB4_dat\[13\]" LOCATION "Pin_H1"
 
-set i 0
-foreach {a} $dac_FB4_dat {
-	cmp add_assignment $top_name "" "dac_FB4_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_FB5_clk" LOCATION "Pin_AG12"
+cmp add_assignment $top_name "" "dac_FB5_dat\[0\]" LOCATION "Pin_AF12"
+cmp add_assignment $top_name "" "dac_FB5_dat\[1\]" LOCATION "Pin_AE12"
+cmp add_assignment $top_name "" "dac_FB5_dat\[2\]" LOCATION "Pin_AG13"
+cmp add_assignment $top_name "" "dac_FB5_dat\[3\]" LOCATION "Pin_AD12"
+cmp add_assignment $top_name "" "dac_FB5_dat\[4\]" LOCATION "Pin_AF13"
+cmp add_assignment $top_name "" "dac_FB5_dat\[5\]" LOCATION "Pin_AE13"
+cmp add_assignment $top_name "" "dac_FB5_dat\[6\]" LOCATION "Pin_AD13"
+cmp add_assignment $top_name "" "dac_FB5_dat\[7\]" LOCATION "Pin_AE16"
+cmp add_assignment $top_name "" "dac_FB5_dat\[8\]" LOCATION "Pin_AF16"
+cmp add_assignment $top_name "" "dac_FB5_dat\[9\]" LOCATION "Pin_AD16"
+cmp add_assignment $top_name "" "dac_FB5_dat\[10\]" LOCATION "Pin_AG16"
+cmp add_assignment $top_name "" "dac_FB5_dat\[11\]" LOCATION "Pin_AD17"
+cmp add_assignment $top_name "" "dac_FB5_dat\[12\]" LOCATION "Pin_AE17"
+cmp add_assignment $top_name "" "dac_FB5_dat\[13\]" LOCATION "Pin_AG17"
 
-set i 0
-foreach {a} $dac_FB5_dat {
-	cmp add_assignment $top_name "" "dac_FB5_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_FB6_clk" LOCATION "Pin_AH4"
+cmp add_assignment $top_name "" "dac_FB6_dat\[0\]" LOCATION "Pin_AE5"
+cmp add_assignment $top_name "" "dac_FB6_dat\[1\]" LOCATION "Pin_AG3"
+cmp add_assignment $top_name "" "dac_FB6_dat\[2\]" LOCATION "Pin_AG5"
+cmp add_assignment $top_name "" "dac_FB6_dat\[3\]" LOCATION "Pin_AG4"
+cmp add_assignment $top_name "" "dac_FB6_dat\[4\]" LOCATION "Pin_AF4"
+cmp add_assignment $top_name "" "dac_FB6_dat\[5\]" LOCATION "Pin_AH5"
+cmp add_assignment $top_name "" "dac_FB6_dat\[6\]" LOCATION "Pin_AF5"
+cmp add_assignment $top_name "" "dac_FB6_dat\[7\]" LOCATION "Pin_AE6"
+cmp add_assignment $top_name "" "dac_FB6_dat\[8\]" LOCATION "Pin_AG6"
+cmp add_assignment $top_name "" "dac_FB6_dat\[9\]" LOCATION "Pin_AH6"
+cmp add_assignment $top_name "" "dac_FB6_dat\[10\]" LOCATION "Pin_AD6"
+cmp add_assignment $top_name "" "dac_FB6_dat\[11\]" LOCATION "Pin_AF7"
+cmp add_assignment $top_name "" "dac_FB6_dat\[12\]" LOCATION "Pin_AH7"
+cmp add_assignment $top_name "" "dac_FB6_dat\[13\]" LOCATION "Pin_AG7"
 
-set i 0
-foreach {a} $dac_FB6_dat {
-	cmp add_assignment $top_name "" "dac_FB6_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_FB7_clk" LOCATION "Pin_AG18"
+cmp add_assignment $top_name "" "dac_FB7_dat\[0\]" LOCATION "Pin_AE18"
+cmp add_assignment $top_name "" "dac_FB7_dat\[1\]" LOCATION "Pin_AD18"
+cmp add_assignment $top_name "" "dac_FB7_dat\[2\]" LOCATION "Pin_AH19"
+cmp add_assignment $top_name "" "dac_FB7_dat\[3\]" LOCATION "Pin_AG19"
+cmp add_assignment $top_name "" "dac_FB7_dat\[4\]" LOCATION "Pin_AF19"
+cmp add_assignment $top_name "" "dac_FB7_dat\[5\]" LOCATION "Pin_AD19"
+cmp add_assignment $top_name "" "dac_FB7_dat\[6\]" LOCATION "Pin_AE19"
+cmp add_assignment $top_name "" "dac_FB7_dat\[7\]" LOCATION "Pin_AH20"
+cmp add_assignment $top_name "" "dac_FB7_dat\[8\]" LOCATION "Pin_AH21"
+cmp add_assignment $top_name "" "dac_FB7_dat\[9\]" LOCATION "Pin_AF20"
+cmp add_assignment $top_name "" "dac_FB7_dat\[10\]" LOCATION "Pin_AE20"
+cmp add_assignment $top_name "" "dac_FB7_dat\[11\]" LOCATION "Pin_AF21"
+cmp add_assignment $top_name "" "dac_FB7_dat\[12\]" LOCATION "Pin_AG21"
+cmp add_assignment $top_name "" "dac_FB7_dat\[13\]" LOCATION "Pin_AE21"
 
-set i 0
-foreach {a} $dac_FB7_dat {
-	cmp add_assignment $top_name "" "dac_FB7_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
-set i 0
-foreach {a} $dac_FB8_dat {
-	cmp add_assignment $top_name "" "dac_FB8_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
+cmp add_assignment $top_name "" "dac_FB8_clk" LOCATION "Pin_AG8"
+cmp add_assignment $top_name "" "dac_FB8_dat\[0\]" LOCATION "Pin_AF8"
+cmp add_assignment $top_name "" "dac_FB8_dat\[1\]" LOCATION "Pin_AD8"
+cmp add_assignment $top_name "" "dac_FB8_dat\[2\]" LOCATION "Pin_AH9"
+cmp add_assignment $top_name "" "dac_FB8_dat\[3\]" LOCATION "Pin_AH8"
+cmp add_assignment $top_name "" "dac_FB8_dat\[4\]" LOCATION "Pin_AE9"
+cmp add_assignment $top_name "" "dac_FB8_dat\[5\]" LOCATION "Pin_AF9"
+cmp add_assignment $top_name "" "dac_FB8_dat\[6\]" LOCATION "Pin_AG9"
+cmp add_assignment $top_name "" "dac_FB8_dat\[7\]" LOCATION "Pin_AD10"
+cmp add_assignment $top_name "" "dac_FB8_dat\[8\]" LOCATION "Pin_AF10"
+cmp add_assignment $top_name "" "dac_FB8_dat\[9\]" LOCATION "Pin_AH10"
+cmp add_assignment $top_name "" "dac_FB8_dat\[10\]" LOCATION "Pin_AE10"
+cmp add_assignment $top_name "" "dac_FB8_dat\[11\]" LOCATION "Pin_AF11"
+cmp add_assignment $top_name "" "dac_FB8_dat\[12\]" LOCATION "Pin_AE11"
+cmp add_assignment $top_name "" "dac_FB8_dat\[13\]" LOCATION "Pin_AH11"
 puts "   Assigned: Parallel DAC pins."
 
-### ADC PINS
-##  the order is adc1, adc2,...., adc8 
-set adc_clk {AB6 AA8 AA6 Y5 Y8 V10 U8 U5}
-set adc_rdy {W22 AH22  N19 AA22  W28  M19  F27  C27}
-set adc_ovr {AG22 N20 AA21 W27 M20 F28 C28 W21}
-set adc1_dat {AB26 AB25  W23  W24 AB28 AB27  V22  V21 AA25 AA26  V24  V23 AA28 AA27}  
-set adc2_dat {AF22  AE22  AH23  AF23  AD23  AG23  AH24  AE24  AG24  AF25  AH25  AG25  AH26  AG26}
-set adc3_dat {M25 M26 N22 N21 L27 L28 N24 N23 L25 L26 N26 N25 K27 K28}
-set adc4_dat {AF28 AF27 AA23 AA24 AE28 AE27  Y24  Y23 AD28 AD27  Y21  Y22 AC28 AC27}
-set adc5_dat {U20 U19 W25 W26 U23 U24 Y27 Y28 U22 U21 Y25 Y26 V20 V19}
-set adc6_dat {K26 K25 M24 M23 J27 J28 M22 M21 J25 J26 L20 L19 H27 H28}
-set adc7_dat {J22 J21 G25 G26 K22 K21 G28 G27 L21 L22 H25 H26 L24 L23}
-set adc8_dat {H23 H24 D28 D27 H21 H22 E28 E27 J23 J24 F26 F25 K24 K23}
 
-set i 0
-foreach {a} $adc_clk {
-	cmp add_assignment $top_name "" "adc_clk\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+# assign ADC
+cmp add_assignment $top_name "" "adc1_clk" LOCATION "Pin_AB6"
+cmp add_assignment $top_name "" "adc1_rdy" LOCATION "Pin_W22"
+cmp add_assignment $top_name "" "adc1_ovr" LOCATION "Pin_AG22"
+cmp add_assignment $top_name "" "adc1_dat\[0\]" LOCATION "Pin_AB26"
+cmp add_assignment $top_name "" "adc1_dat\[1\]" LOCATION "Pin_AB25"
+cmp add_assignment $top_name "" "adc1_dat\[2\]" LOCATION "Pin_W23"
+cmp add_assignment $top_name "" "adc1_dat\[3\]" LOCATION "Pin_W24"
+cmp add_assignment $top_name "" "adc1_dat\[4\]" LOCATION "Pin_AB28"
+cmp add_assignment $top_name "" "adc1_dat\[5\]" LOCATION "Pin_AB27"
+cmp add_assignment $top_name "" "adc1_dat\[6\]" LOCATION "Pin_V22"
+cmp add_assignment $top_name "" "adc1_dat\[7\]" LOCATION "Pin_V21"
+cmp add_assignment $top_name "" "adc1_dat\[8\]" LOCATION "Pin_AA25"
+cmp add_assignment $top_name "" "adc1_dat\[9\]" LOCATION "Pin_AA26"
+cmp add_assignment $top_name "" "adc1_dat\[10\]" LOCATION "Pin_V24"
+cmp add_assignment $top_name "" "adc1_dat\[11\]" LOCATION "Pin_V23"
+cmp add_assignment $top_name "" "adc1_dat\[12\]" LOCATION "Pin_AA28"
+cmp add_assignment $top_name "" "adc1_dat\[13\]" LOCATION "Pin_AA27"
 
-set i 0
-foreach {a} $adc_rdy {
-	cmp add_assignment $top_name "" "adc_rdy\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "adc2_clk" LOCATION "Pin_AA8"
+cmp add_assignment $top_name "" "adc2_rdy" LOCATION "Pin_AH22"
+cmp add_assignment $top_name "" "adc2_ovr" LOCATION "Pin_N20"
+cmp add_assignment $top_name "" "adc2_dat\[0\]" LOCATION "Pin_AF22"
+cmp add_assignment $top_name "" "adc2_dat\[1\]" LOCATION "Pin_AE22"
+cmp add_assignment $top_name "" "adc2_dat\[2\]" LOCATION "Pin_AH23"
+cmp add_assignment $top_name "" "adc2_dat\[3\]" LOCATION "Pin_AF23"
+cmp add_assignment $top_name "" "adc2_dat\[4\]" LOCATION "Pin_AD23"
+cmp add_assignment $top_name "" "adc2_dat\[5\]" LOCATION "Pin_AG23"
+cmp add_assignment $top_name "" "adc2_dat\[6\]" LOCATION "Pin_AH24"
+cmp add_assignment $top_name "" "adc2_dat\[7\]" LOCATION "Pin_AE24"
+cmp add_assignment $top_name "" "adc2_dat\[8\]" LOCATION "Pin_AG24"
+cmp add_assignment $top_name "" "adc2_dat\[9\]" LOCATION "Pin_AF25"
+cmp add_assignment $top_name "" "adc2_dat\[10\]" LOCATION "Pin_AH25"
+cmp add_assignment $top_name "" "adc2_dat\[11\]" LOCATION "Pin_AG25"
+cmp add_assignment $top_name "" "adc2_dat\[12\]" LOCATION "Pin_AH26"
+cmp add_assignment $top_name "" "adc2_dat\[13\]" LOCATION "Pin_AG26"
 
-set i 0
-foreach {a} $adc1_dat {
-	cmp add_assignment $top_name "" "adc1_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "adc3_clk" LOCATION "Pin_AA6"
+cmp add_assignment $top_name "" "adc3_rdy" LOCATION "Pin_N19"
+cmp add_assignment $top_name "" "adc3_ovr" LOCATION "Pin_AA21"
+cmp add_assignment $top_name "" "adc3_dat\[0\]" LOCATION "Pin_M25"
+cmp add_assignment $top_name "" "adc3_dat\[1\]" LOCATION "Pin_M26"
+cmp add_assignment $top_name "" "adc3_dat\[2\]" LOCATION "Pin_N22"
+cmp add_assignment $top_name "" "adc3_dat\[3\]" LOCATION "Pin_N21"
+cmp add_assignment $top_name "" "adc3_dat\[4\]" LOCATION "Pin_L27"
+cmp add_assignment $top_name "" "adc3_dat\[5\]" LOCATION "Pin_L28"
+cmp add_assignment $top_name "" "adc3_dat\[6\]" LOCATION "Pin_N24"
+cmp add_assignment $top_name "" "adc3_dat\[7\]" LOCATION "Pin_N23"
+cmp add_assignment $top_name "" "adc3_dat\[8\]" LOCATION "Pin_L25"
+cmp add_assignment $top_name "" "adc3_dat\[9\]" LOCATION "Pin_L26"
+cmp add_assignment $top_name "" "adc3_dat\[10\]" LOCATION "Pin_N26"
+cmp add_assignment $top_name "" "adc3_dat\[11\]" LOCATION "Pin_N25"
+cmp add_assignment $top_name "" "adc3_dat\[12\]" LOCATION "Pin_K27"
+cmp add_assignment $top_name "" "adc3_dat\[13\]" LOCATION "Pin_K28"
 
-set i 0
-foreach {a} $adc2_dat {
-	cmp add_assignment $top_name "" "adc2_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "adc4_clk" LOCATION "Pin_Y5"
+cmp add_assignment $top_name "" "adc4_rdy" LOCATION "Pin_AA22"
+cmp add_assignment $top_name "" "adc4_ovr" LOCATION "Pin_W27"
+cmp add_assignment $top_name "" "adc4_dat\[0\]" LOCATION "Pin_AF28"
+cmp add_assignment $top_name "" "adc4_dat\[1\]" LOCATION "Pin_AF27"
+cmp add_assignment $top_name "" "adc4_dat\[2\]" LOCATION "Pin_AA23"
+cmp add_assignment $top_name "" "adc4_dat\[3\]" LOCATION "Pin_AA24"
+cmp add_assignment $top_name "" "adc4_dat\[4\]" LOCATION "Pin_AE28"
+cmp add_assignment $top_name "" "adc4_dat\[5\]" LOCATION "Pin_AE27"
+cmp add_assignment $top_name "" "adc4_dat\[6\]" LOCATION "Pin_Y24"
+cmp add_assignment $top_name "" "adc4_dat\[7\]" LOCATION "Pin_Y23"
+cmp add_assignment $top_name "" "adc4_dat\[8\]" LOCATION "Pin_AD28"
+cmp add_assignment $top_name "" "adc4_dat\[9\]" LOCATION "Pin_AD27"
+cmp add_assignment $top_name "" "adc4_dat\[10\]" LOCATION "Pin_Y21"
+cmp add_assignment $top_name "" "adc4_dat\[11\]" LOCATION "Pin_Y22"
+cmp add_assignment $top_name "" "adc4_dat\[12\]" LOCATION "Pin_AC28"
+cmp add_assignment $top_name "" "adc4_dat\[13\]" LOCATION "Pin_AC27"
 
-set i 0
-foreach {a} $adc3_dat {
-	cmp add_assignment $top_name "" "adc3_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "adc5_clk" LOCATION "Pin_Y8"
+cmp add_assignment $top_name "" "adc5_rdy" LOCATION "Pin_W28"
+cmp add_assignment $top_name "" "adc5_ovr" LOCATION "Pin_M20"
+cmp add_assignment $top_name "" "adc5_dat\[0\]" LOCATION "Pin_U20"
+cmp add_assignment $top_name "" "adc5_dat\[1\]" LOCATION "Pin_U19"
+cmp add_assignment $top_name "" "adc5_dat\[2\]" LOCATION "Pin_W25"
+cmp add_assignment $top_name "" "adc5_dat\[3\]" LOCATION "Pin_W26"
+cmp add_assignment $top_name "" "adc5_dat\[4\]" LOCATION "Pin_U23"
+cmp add_assignment $top_name "" "adc5_dat\[5\]" LOCATION "Pin_U24"
+cmp add_assignment $top_name "" "adc5_dat\[6\]" LOCATION "Pin_Y27"
+cmp add_assignment $top_name "" "adc5_dat\[7\]" LOCATION "Pin_Y28"
+cmp add_assignment $top_name "" "adc5_dat\[8\]" LOCATION "Pin_U22"
+cmp add_assignment $top_name "" "adc5_dat\[9\]" LOCATION "Pin_U21"
+cmp add_assignment $top_name "" "adc5_dat\[10\]" LOCATION "Pin_Y25"
+cmp add_assignment $top_name "" "adc5_dat\[11\]" LOCATION "Pin_Y26"
+cmp add_assignment $top_name "" "adc5_dat\[12\]" LOCATION "Pin_V20"
+cmp add_assignment $top_name "" "adc5_dat\[13\]" LOCATION "Pin_V19"
 
-set i 0
-foreach {a} $adc4_dat {
-	cmp add_assignment $top_name "" "adc4_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "adc6_clk" LOCATION "Pin_V10"
+cmp add_assignment $top_name "" "adc6_rdy" LOCATION "Pin_M19"
+cmp add_assignment $top_name "" "adc6_ovr" LOCATION "Pin_F28"
+cmp add_assignment $top_name "" "adc6_dat\[0\]" LOCATION "Pin_K26"
+cmp add_assignment $top_name "" "adc6_dat\[1\]" LOCATION "Pin_K25"
+cmp add_assignment $top_name "" "adc6_dat\[2\]" LOCATION "Pin_M24"
+cmp add_assignment $top_name "" "adc6_dat\[3\]" LOCATION "Pin_M23"
+cmp add_assignment $top_name "" "adc6_dat\[4\]" LOCATION "Pin_J27"
+cmp add_assignment $top_name "" "adc6_dat\[5\]" LOCATION "Pin_J28"
+cmp add_assignment $top_name "" "adc6_dat\[6\]" LOCATION "Pin_M22"
+cmp add_assignment $top_name "" "adc6_dat\[7\]" LOCATION "Pin_M21"
+cmp add_assignment $top_name "" "adc6_dat\[8\]" LOCATION "Pin_J25"
+cmp add_assignment $top_name "" "adc6_dat\[9\]" LOCATION "Pin_J26"
+cmp add_assignment $top_name "" "adc6_dat\[10\]" LOCATION "Pin_L20"
+cmp add_assignment $top_name "" "adc6_dat\[11\]" LOCATION "Pin_L19"
+cmp add_assignment $top_name "" "adc6_dat\[12\]" LOCATION "Pin_H27"
+cmp add_assignment $top_name "" "adc6_dat\[13\]" LOCATION "Pin_H28"
 
-set i 0
-foreach {a} $adc5_dat {
-	cmp add_assignment $top_name "" "adc5_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "adc7_clk" LOCATION "Pin_U8"
+cmp add_assignment $top_name "" "adc7_rdy" LOCATION "Pin_F27"
+cmp add_assignment $top_name "" "adc7_ovr" LOCATION "Pin_C28"
+cmp add_assignment $top_name "" "adc7_dat\[0\]" LOCATION "Pin_J22"
+cmp add_assignment $top_name "" "adc7_dat\[1\]" LOCATION "Pin_J21"
+cmp add_assignment $top_name "" "adc7_dat\[2\]" LOCATION "Pin_G25"
+cmp add_assignment $top_name "" "adc7_dat\[3\]" LOCATION "Pin_G26"
+cmp add_assignment $top_name "" "adc7_dat\[4\]" LOCATION "Pin_K22"
+cmp add_assignment $top_name "" "adc7_dat\[5\]" LOCATION "Pin_K21"
+cmp add_assignment $top_name "" "adc7_dat\[6\]" LOCATION "Pin_G28"
+cmp add_assignment $top_name "" "adc7_dat\[7\]" LOCATION "Pin_G27"
+cmp add_assignment $top_name "" "adc7_dat\[8\]" LOCATION "Pin_L21"
+cmp add_assignment $top_name "" "adc7_dat\[9\]" LOCATION "Pin_L22"
+cmp add_assignment $top_name "" "adc7_dat\[10\]" LOCATION "Pin_H25"
+cmp add_assignment $top_name "" "adc7_dat\[11\]" LOCATION "Pin_H26"
+cmp add_assignment $top_name "" "adc7_dat\[12\]" LOCATION "Pin_L24"
+cmp add_assignment $top_name "" "adc7_dat\[13\]" LOCATION "Pin_L23"
 
-set i 0
-foreach {a} $adc6_dat {
-	cmp add_assignment $top_name "" "adc6_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
-set i 0
-foreach {a} $adc7_dat {
-	cmp add_assignment $top_name "" "adc7_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
-set i 0
-foreach {a} $adc8_dat {
-	cmp add_assignment $top_name "" "adc8_dat\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-
+cmp add_assignment $top_name "" "adc8_clk" LOCATION "Pin_U5"
+cmp add_assignment $top_name "" "adc8_rdy" LOCATION "Pin_C27"
+cmp add_assignment $top_name "" "adc8_ovr" LOCATION "Pin_W21"
+cmp add_assignment $top_name "" "adc8_dat\[0\]" LOCATION "Pin_H23"
+cmp add_assignment $top_name "" "adc8_dat\[1\]" LOCATION "Pin_H24"
+cmp add_assignment $top_name "" "adc8_dat\[2\]" LOCATION "Pin_D28"
+cmp add_assignment $top_name "" "adc8_dat\[3\]" LOCATION "Pin_D27"
+cmp add_assignment $top_name "" "adc8_dat\[4\]" LOCATION "Pin_H21"
+cmp add_assignment $top_name "" "adc8_dat\[5\]" LOCATION "Pin_H22"
+cmp add_assignment $top_name "" "adc8_dat\[6\]" LOCATION "Pin_E28"
+cmp add_assignment $top_name "" "adc8_dat\[7\]" LOCATION "Pin_E27"
+cmp add_assignment $top_name "" "adc8_dat\[8\]" LOCATION "Pin_J23"
+cmp add_assignment $top_name "" "adc8_dat\[9\]" LOCATION "Pin_J24"
+cmp add_assignment $top_name "" "adc8_dat\[10\]" LOCATION "Pin_F26"
+cmp add_assignment $top_name "" "adc8_dat\[11\]" LOCATION "Pin_F25"
+cmp add_assignment $top_name "" "adc8_dat\[12\]" LOCATION "Pin_K24"
+cmp add_assignment $top_name "" "adc8_dat\[13\]" LOCATION "Pin_K23"
 puts "   Assigned: ADC pins."
+
 
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
