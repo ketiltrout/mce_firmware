@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.8 2004/08/03 20:00:55 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.9 2004/08/05 18:14:42 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/03 20:00:55 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/05 18:14:42 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.9  2004/08/05 18:14:42  jjacob
+-- changed frame_sync_num_o to use the parameter
+-- SYNC_NUM_BUS_WIDTH
+--
 -- Revision 1.8  2004/08/03 20:00:55  jjacob
 -- updating the macro_instr_rdy signal and cleaning up
 --
@@ -128,6 +132,9 @@ port(
  
       -- output to the ret_dat state machine
       simple_cmd_ack_o             : out std_logic ;  
+      
+      -- input for sync_number for simple commands
+      sync_number_i                : in    std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
 
 
       -- outputs to the micro instruction sequence generator
@@ -185,9 +192,10 @@ architecture rtl of cmd_translator_arbiter is
    signal current_state, next_state : state;
    signal m_op_seq_num_next_state, m_op_seq_num_cur_state : state;
    
-   signal arbiter_mux      : std_logic;
+   signal arbiter_mux               : std_logic;
  
-   signal ret_dat_pending  : std_logic;
+   signal ret_dat_pending           : std_logic;
+   signal sync_number_plus_1        : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
    
    constant SIMPLE_CMD : std_logic := '0';
    constant RET_DAT    : std_logic := '1';
@@ -383,7 +391,10 @@ begin
    data_clk_o           <= simple_cmd_data_clk_i        when data_mux_sel = '0' else ret_dat_data_clk_i;
    
    frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
-   frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
+   frame_sync_num_o     <= sync_number_plus_1           when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
+   --frame_sync_num_o     <= x"01"                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
+   
+   sync_number_plus_1   <= sync_number_i + 1;
 
 --   frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else frame_seq_num;
 --   frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else frame_sync_num;
