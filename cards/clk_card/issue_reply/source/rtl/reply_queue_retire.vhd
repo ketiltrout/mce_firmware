@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.4 2004/11/13 03:25:34 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.5 2004/11/25 01:32:37 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,12 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.5  2004/11/25 01:32:37  bburger
+-- Bryce:
+-- - Changed to cmd_code over the bus backplane to read/write only
+-- - Added interface signals for internal commands
+-- - RB command data-sizes are correctly handled
+--
 -- Revision 1.4  2004/11/13 03:25:34  bburger
 -- Bryce:  integration with ernie's side of reply_queue
 --
@@ -212,7 +218,7 @@ begin
       end case;
    end process;
 
-   retire_state_out: process(present_retire_state, next_retire_state)
+   retire_state_out: process(present_retire_state, uop_rdy_i) --next_retire_state)
    begin
    
       -- Default values
@@ -224,7 +230,8 @@ begin
 
       case present_retire_state is
          when IDLE =>
-            if (next_retire_state = HEADERB) then
+--            if (next_retire_state = HEADERB) then
+            if(uop_rdy_i = '1') then
                header_a_en <= '1';
             end if;
          
