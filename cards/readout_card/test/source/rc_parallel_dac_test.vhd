@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/06/12 01:03:07 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/06/22 20:52:35 $>	- <initials $Author: mandana $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.2  2004/06/22 20:52:35  mandana
+-- fixed synthesis errors
+--
 -- Revision 1.1  2004/06/12 01:03:07  mandana
 -- Initial release
 --
@@ -85,8 +88,8 @@ architecture rtl of rc_parallel_dac_test_wrapper is
 type states is (IDLE, PUSH_DATA, CLKNOW, DONE); 
 signal present_state         : states;
 signal next_state            : states;
-type   array_of_6_word14 is array (5 downto 0) of word14; 
-signal data_fix     : array_of_6_word14;
+type   array_of_8_word14 is array (7 downto 0) of word14; 
+signal data_fix     : array_of_8_word14;
 
 signal data_ramp: word14;
 signal idat     : integer;
@@ -170,7 +173,7 @@ begin
  
 
  fix_data_count: counter
-   generic map(MAX => 5)
+   generic map(MAX => 7)
    port map(clk_i   => en_i,
             rst_i   => rst_i,
             ena_i   => logic1,
@@ -186,7 +189,9 @@ begin
    data_fix (2) <= "00000000000010";--x0002
    data_fix (3) <= "00000000000100";--x0004
    data_fix (4) <= "00000000001000";--x0008
-   data_fix (5) <= "11111111111111";--x3fff full scale
+   data_fix (5) <= "00000000010000";--x0010
+   data_fix (6) <= "00000000100000";--x0020
+   data_fix (7) <= "11111111111111";--x3fff full scale
 
   -- state register:
    state_FF: process(clk_i, rst_i)
