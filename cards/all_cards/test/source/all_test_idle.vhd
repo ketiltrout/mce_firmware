@@ -1,8 +1,7 @@
----------------------------------------------------------------------
--- Copyright (c) 2003 UK Astronomy Technology Centre
---                All Rights Reserved
+-- Copyright (c) 2003 SCUBA-2 Project
+--                  All Rights Reserved
 --
---  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE UK ATC
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
 --  The copyright notice above does not evidence any
 --  actual or intended publication of such source code.
 --
@@ -12,21 +11,29 @@
 --  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
 --  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
 --
--- Project:             Scuba 2
--- Author:              Neil Gruending
--- Organisation:        UBC Physics and Astronomy
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+--
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+--
+--
+-- all_test_idle.vhd
+--
+-- Project:	      SCUBA-2
+-- Author:	       Ernie Lin
+-- Organisation:  UBC
 --
 -- Description:
--- Idle state function.
--- 
--- Revision History:
+-- Idle state for common items test
 --
--- $Log$
+-- Revision history:
 --
--- Feb 15, 2004: Initial version - NRG
--- Feb 25, 2004: Added serial commands - NRG
--- Feb 28, 2004: Capitalized state names - NRG
--- Mar 01, 2004: Added CMD_LED_3 - NRG
+-- $Log: all_test_idle.vhd,v $
+-- Revision 1.1  2004/04/28 20:16:13  erniel
+-- initial version
+--
 ---------------------------------------------------------------------
 
 library ieee;
@@ -74,14 +81,17 @@ architecture behaviour of all_test_idle is
    signal tx_strobe : std_logic;
    
    -- receiver definitions
-   type rx_states is (RX_WAIT_TX, RX_WAIT1, RX_DONE, RX_ERROR, RX_POWER,
-                      RX_ID, RX_RX, RX_TX, RX_FIBRE, RX_LED, RX_SRAM);
+   type rx_states is (RX_WAIT_TX, RX_WAIT1, RX_WAIT2, RX_DONE, RX_ERROR);
    signal rx_state : rx_states;
    signal rx_newdata : std_logic;
    signal rx_newdata_clr : std_logic;
    
    signal error : std_logic;
    signal done : std_logic;
+
+   signal cmd1 : std_logic_vector(7 downto 0);
+   signal cmd2 : std_logic_vector(7 downto 0);
+
 begin
    
    ------------------------------------------------------------------
@@ -115,21 +125,14 @@ begin
          tx_tbuf <= tx_buffer(ptr);
       end if;
    end process transmit;
+
    tx_flag <= not(tx_ack_i or tx_busy_i or tx_done);
    
-   -- tx_mux controls tx_data_o so that we can switch between
-   -- tx_buffer and rx_data_i to echo input characters.
-   tx_mux : process (clk_i)
-   begin
-      if Rising_Edge(clk_i) then
-         if (tx_done = '0') then
-            tx_data_o <= tx_tbuf;
-         else
-            tx_data_o <= rx_data_i;
-         end if;
-      end if;
-   end process tx_mux;
-   
+   -- switch between tx_buffer and rx_data_i to echo input characters:
+   with tx_done select
+      tx_data_o <= tx_tbuf when '0',
+                   rx_data_i when others;
+
    -- tx_strobe controls the transmit strobe lines
    tx_strobe_ctl : process (rst_i, en_i, clk_i)
    begin
@@ -179,8 +182,8 @@ begin
          done <= '0';
          error <= '0';
          rx_newdata_clr <= '1';
-         cmd1_o <= (others => '0');
-         cmd2_o <= (others => '0');
+         cmd1 <= (others => '0');
+         cmd2 <= (others => '0');
       elsif Rising_Edge(clk_i) then
          case rx_state is
             when RX_WAIT_TX =>
@@ -193,181 +196,59 @@ begin
                
             when RX_WAIT1 =>
                if (rx_newdata = '1') then
---                  case rx_data_i is
---                     when CMD_RESET | CMD_STATUS | CMD_WATCHDOG |
---                          CMD_JTAG | CMD_EEPROM | CMD_TEMP =>
-                  if((rx_data_i = CMD_RESET) or 
-                     (rx_data_i = CMD_STATUS) or 
-                     (rx_data_i = CMD_WATCHDOG) or 
-                     (rx_data_i = CMD_JTAG) or 
-                     (rx_data_i = CMD_EEPROM) or 
-                     (rx_data_i = CMD_TEMP)) then
-                        -- got a single character command - we're done
-                        rx_state <= RX_DONE;
-                        
---                     when CMD_ID =>
-                  elsif(rx_data_i = CMD_ID) then
-                        -- ID command - get second byte
-                        rx_state <= RX_ID;
-                        
---                     when CMD_RX =>
-                  elsif(rx_data_i = CMD_RX) then
-                        -- rx command - get second byte
-                        rx_state <= RX_RX;
-                        
---                     when CMD_TX =>
-                  elsif(rx_data_i = CMD_TX) then
-                        -- tx command - get second byte
-                        rx_state <= RX_TX;
-                        
---                     when CMD_FIBRE =>
---                        -- fibre optic command - get second byte
---                        rx_state <= RX_FIBRE;
+                  if(rx_data_i = CMD_RESET or 
+                     rx_data_i = CMD_STATUS or 
+                     rx_data_i = CMD_WATCHDOG or 
+                     rx_data_i = CMD_JTAG or 
+                     rx_data_i = CMD_EEPROM or 
+                     rx_data_i = CMD_TEMP) then
+                     -- got a single character command - we're done
+                     rx_state <= RX_DONE;
 
---                     when CMD_LED =>
-                  elsif(rx_data_i = CMD_LED) then
-                        -- LED command - get second byte
-                        rx_state <= RX_LED;
-                        
---                     when CMD_SRAM =>
---                        -- SRAM command - get second byte
---                        rx_state <= RX_SRAM;
---                     when CMD_POWER =>
---                        -- power command - get second byte
---                        rx_state <= RX_POWER;
---                     when others =>
-                  else
-                        -- we received a bad character
-                        rx_state <= RX_ERROR;
---                  end case;
-                  end if;
-                  rx_newdata_clr <= '1';
-                  cmd1_o <= rx_data_i;
-               end if;
-               
-            when RX_ID =>               
-               if (rx_newdata = '1') then
-                  if ((rx_data_i = CMD_ID_SLOT) or
-                      (rx_data_i = CMD_ID_SERIAL) or
-                      (rx_data_i = CMD_ID_ARRAY) or
-                      (rx_data_i = CMD_ID_BOX)) then
-                     -- we've recieved a proper ID command
-                     rx_state <= RX_DONE;
-                  else
-                     -- we received a bad character
-                     rx_state <= RX_ERROR;
-                  end if;
-                  rx_newdata_clr <= '1';
-                  cmd2_o <= rx_data_i;
-               else
-                  rx_newdata_clr <= '0';
-               end if;
-               
-            when RX_RX =>               
-               if (rx_newdata = '1') then
-                  if ((rx_data_i = CMD_RX_0) or
-                      (rx_data_i = CMD_RX_1) or
-                      (rx_data_i = CMD_RX_2) or
-                      (rx_data_i = CMD_RX_3) or
-                      (rx_data_i = CMD_RX_4) or
-                      (rx_data_i = CMD_RX_5) or
-                      (rx_data_i = CMD_RX_6) or
-                      (rx_data_i = CMD_RX_7)) then
-                     -- we've recieved a proper rx command
-                     rx_state <= RX_DONE;
-                  else
-                     -- we received a bad character
-                     rx_state <= RX_ERROR;
-                  end if;
-                  rx_newdata_clr <= '1';
-                  cmd2_o <= rx_data_i;
-               else
-                  rx_newdata_clr <= '0';
-               end if;
-               
-            when RX_TX =>               
-               if (rx_newdata = '1') then
-                  if ((rx_data_i = CMD_TX_0) or
-                      (rx_data_i = CMD_TX_1) or
-                      (rx_data_i = CMD_TX_2)) then
-                     -- we've recieved a proper tx command
-                     rx_state <= RX_DONE;
-                  else
-                     -- we received a bad character
-                     rx_state <= RX_ERROR;
-                  end if;
-                  rx_newdata_clr <= '1';
-                  cmd2_o <= rx_data_i;
-               else
-                  rx_newdata_clr <= '0';
-               end if;
+                  elsif(rx_data_i = CMD_ID or
+                        rx_data_i = CMD_RX or
+                        rx_data_i = CMD_TX or
+                        rx_data_i = CMD_LED) then
+                     rx_state <= RX_WAIT2;
 
---            when RX_FIBRE =>               
---               if (rx_newdata = '1') then
---                  if ((rx_data_i = CMD_FIBRE_READ) or
---                      (rx_data_i = CMD_FIBRE_WRITE) or
---                      (rx_data_i = CMD_FIBRE_FLAG)) then
---                     -- we've recieved a proper fibre optic command
---                     rx_state <= RX_DONE;
---                  else
---                     -- we received a bad character
---                     rx_state <= RX_ERROR;
---                  end if;
---                  rx_newdata_clr <= '1';
---                  cmd2_o <= rx_data_i;
---               else
---                  rx_newdata_clr <= '0';
---               end if;
-               
-            when RX_LED =>               
-               if (rx_newdata = '1') then
-                  if ((rx_data_i = CMD_LED_1) or
-                      (rx_data_i = CMD_LED_2) or
-                      (rx_data_i = CMD_LED_3)) then
-                     -- we've recieved a proper led command
-                     rx_state <= RX_DONE;
                   else
                      -- we received a bad character
                      rx_state <= RX_ERROR;
                   end if;
                   rx_newdata_clr <= '1';
-                  cmd2_o <= rx_data_i;
-               else
-                  rx_newdata_clr <= '0';
+                  cmd1 <= rx_data_i;
                end if;
-
---            when RX_SRAM =>               
---               if (rx_newdata = '1') then
---                  if ((rx_data_i = CMD_SRAM_0) or
---                      (rx_data_i = CMD_SRAM_1)) then
---                     -- we've recieved a proper SRAM command
---                     rx_state <= RX_DONE;
---                  else
---                     -- we received a bad character
---                     rx_state <= RX_ERROR;
---                  end if;
---                  rx_newdata_clr <= '1';
---                  cmd2_o <= rx_data_i;
---               else
---                  rx_newdata_clr <= '0';
---               end if;
---            
---            when RX_POWER =>               
---               if (rx_newdata = '1') then
---                  if ((rx_data_i = CMD_POWER_READ) or
---                      (rx_data_i = CMD_POWER_WRITE)) then
---                     -- we've recieved a proper power command
---                     rx_state <= RX_DONE;
---                  else
---                     -- we received a bad character
---                     rx_state <= RX_ERROR;
---                  end if;
---                  rx_newdata_clr <= '1';
---                  cmd2_o <= rx_data_i;
---               else
---                  rx_newdata_clr <= '0';
---               end if;
             
+            when RX_WAIT2 =>
+               if(rx_newdata = '1') then   
+                  if(rx_data_i = CMD_ID_SLOT or
+                     rx_data_i = CMD_ID_SERIAL or
+                     rx_data_i = CMD_ID_ARRAY or
+                     rx_data_i = CMD_ID_BOX or
+                     rx_data_i = CMD_RX_0 or
+                     rx_data_i = CMD_RX_1 or
+                     rx_data_i = CMD_RX_2 or
+                     rx_data_i = CMD_RX_3 or
+                     rx_data_i = CMD_RX_4 or
+                     rx_data_i = CMD_RX_5 or
+                     rx_data_i = CMD_RX_6 or
+                     rx_data_i = CMD_RX_7 or
+                     rx_data_i = CMD_TX_0 or
+                     rx_data_i = CMD_TX_1 or
+                     rx_data_i = CMD_TX_2 or
+                     rx_data_i = CMD_LED_1 or
+                     rx_data_i = CMD_LED_2 or
+                     rx_data_i = CMD_LED_3) then
+                     rx_state <= RX_DONE;
+                  else
+                     rx_state <= RX_ERROR;
+                  end if;
+                  rx_newdata_clr <= '1';
+                  cmd2 <= rx_data_i;
+               else
+                  rx_newdata_clr <= '0';
+               end if;
+           
             when RX_DONE =>
                -- wait for the last character to transmit
                if (tx_active = '0') then
@@ -388,4 +269,6 @@ begin
    end process receiver;
    done_o <= done;
    
+   cmd1_o <= cmd1;
+   cmd2_o <= cmd2;
 end;
