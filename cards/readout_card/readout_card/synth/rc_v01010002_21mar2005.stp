@@ -1,0 +1,372 @@
+<session sof_file="">
+  <display_tree gui_logging_enabled="0">
+    <display_branch instance="auto_signaltap_0" signal_set="USE_GLOBAL_TEMP" trigger="USE_GLOBAL_TEMP"/>
+  </display_tree>
+  <instance entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="3"/>
+    <signal_set global_temp="1" is_expanded="true" name="signal_set: 2005/03/17 18:41:16  #0">
+      <clock name="rc_pll:i_rc_pll|altpll:altpll_component|_clk0" polarity="posedge"/>
+      <config ram_type="AUTO" reserved_data_nodes="0" reserved_trigger_nodes="0" sample_depth="16384" trigger_in_enable="no" trigger_out_enable="no"/>
+      <top_entity/>
+      <signal_vec>
+        <trigger_input_vec>
+          <wire connection_status="true" name="adc1_dat[0]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[10]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[11]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[12]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[13]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[1]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[2]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[3]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[4]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[5]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[6]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[7]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[8]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[9]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[10]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[11]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[12]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[13]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[14]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[15]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[16]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[17]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[18]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[19]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[20]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[21]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[22]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[23]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[24]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[25]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[26]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[27]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[28]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[29]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[30]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[31]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[8]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[9]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|ack_frame_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[10]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[11]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[12]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[13]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[14]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[15]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[16]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[17]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[18]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[19]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[20]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[21]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[22]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[23]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[24]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[25]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[26]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[27]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[28]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[29]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[30]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[31]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[8]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[9]" tap_mode="classic" type="combinatorial"/>
+        </trigger_input_vec>
+        <data_input_vec>
+          <wire connection_status="true" name="adc1_dat[0]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[10]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[11]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[12]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[13]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[1]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[2]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[3]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[4]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[5]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[6]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[7]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[8]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="adc1_dat[9]" tap_mode="classic" type="input pin"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[10]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[11]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[12]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[13]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[14]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[15]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[16]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[17]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[18]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[19]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[20]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[21]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[22]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[23]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[24]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[25]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[26]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[27]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[28]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[29]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[30]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[31]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[8]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="dispatch:i_dispatch|dat_o[9]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|ack_frame_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[0]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[10]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[11]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[12]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[13]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[14]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[15]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[16]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[17]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[18]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[19]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[1]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[20]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[21]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[22]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[23]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[24]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[25]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[26]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[27]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[28]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[29]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[2]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[30]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[31]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[3]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[4]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[5]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[6]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[7]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[8]" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="flux_loop:i_flux_loop|dat_frame_o[9]" tap_mode="classic" type="combinatorial"/>
+        </data_input_vec>
+      </signal_vec>
+      <presentation>
+        <setup_view>
+          <bus link="all" name="adc1_dat" order="msb_to_lsb" radix="hex" state="collapse" type="input pin">
+            <net name="adc1_dat[13]"/>
+            <net name="adc1_dat[12]"/>
+            <net name="adc1_dat[11]"/>
+            <net name="adc1_dat[10]"/>
+            <net name="adc1_dat[9]"/>
+            <net name="adc1_dat[8]"/>
+            <net name="adc1_dat[7]"/>
+            <net name="adc1_dat[6]"/>
+            <net name="adc1_dat[5]"/>
+            <net name="adc1_dat[4]"/>
+            <net name="adc1_dat[3]"/>
+            <net name="adc1_dat[2]"/>
+            <net name="adc1_dat[1]"/>
+            <net name="adc1_dat[0]"/>
+          </bus>
+          <bus link="all" name="dispatch:i_dispatch|dat_o" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net name="dispatch:i_dispatch|dat_o[31]"/>
+            <net name="dispatch:i_dispatch|dat_o[30]"/>
+            <net name="dispatch:i_dispatch|dat_o[29]"/>
+            <net name="dispatch:i_dispatch|dat_o[28]"/>
+            <net name="dispatch:i_dispatch|dat_o[27]"/>
+            <net name="dispatch:i_dispatch|dat_o[26]"/>
+            <net name="dispatch:i_dispatch|dat_o[25]"/>
+            <net name="dispatch:i_dispatch|dat_o[24]"/>
+            <net name="dispatch:i_dispatch|dat_o[23]"/>
+            <net name="dispatch:i_dispatch|dat_o[22]"/>
+            <net name="dispatch:i_dispatch|dat_o[21]"/>
+            <net name="dispatch:i_dispatch|dat_o[20]"/>
+            <net name="dispatch:i_dispatch|dat_o[19]"/>
+            <net name="dispatch:i_dispatch|dat_o[18]"/>
+            <net name="dispatch:i_dispatch|dat_o[17]"/>
+            <net name="dispatch:i_dispatch|dat_o[16]"/>
+            <net name="dispatch:i_dispatch|dat_o[15]"/>
+            <net name="dispatch:i_dispatch|dat_o[14]"/>
+            <net name="dispatch:i_dispatch|dat_o[13]"/>
+            <net name="dispatch:i_dispatch|dat_o[12]"/>
+            <net name="dispatch:i_dispatch|dat_o[11]"/>
+            <net name="dispatch:i_dispatch|dat_o[10]"/>
+            <net name="dispatch:i_dispatch|dat_o[9]"/>
+            <net name="dispatch:i_dispatch|dat_o[8]"/>
+            <net name="dispatch:i_dispatch|dat_o[7]"/>
+            <net name="dispatch:i_dispatch|dat_o[6]"/>
+            <net name="dispatch:i_dispatch|dat_o[5]"/>
+            <net name="dispatch:i_dispatch|dat_o[4]"/>
+            <net name="dispatch:i_dispatch|dat_o[3]"/>
+            <net name="dispatch:i_dispatch|dat_o[2]"/>
+            <net name="dispatch:i_dispatch|dat_o[1]"/>
+            <net name="dispatch:i_dispatch|dat_o[0]"/>
+          </bus>
+          <bus link="all" name="flux_loop:i_flux_loop|dat_frame_o" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net name="flux_loop:i_flux_loop|dat_frame_o[31]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[30]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[29]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[28]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[27]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[26]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[25]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[24]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[23]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[22]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[21]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[20]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[19]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[18]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[17]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[16]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[15]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[14]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[13]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[12]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[11]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[10]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[9]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[8]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[7]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[6]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[5]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[4]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[3]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[2]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[1]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[0]"/>
+          </bus>
+          <net name="flux_loop:i_flux_loop|ack_frame_o"/>
+        </setup_view>
+        <data_view>
+          <bus link="all" name="adc1_dat" order="msb_to_lsb" radix="hex" state="collapse" type="input pin">
+            <net name="adc1_dat[13]"/>
+            <net name="adc1_dat[12]"/>
+            <net name="adc1_dat[11]"/>
+            <net name="adc1_dat[10]"/>
+            <net name="adc1_dat[9]"/>
+            <net name="adc1_dat[8]"/>
+            <net name="adc1_dat[7]"/>
+            <net name="adc1_dat[6]"/>
+            <net name="adc1_dat[5]"/>
+            <net name="adc1_dat[4]"/>
+            <net name="adc1_dat[3]"/>
+            <net name="adc1_dat[2]"/>
+            <net name="adc1_dat[1]"/>
+            <net name="adc1_dat[0]"/>
+          </bus>
+          <bus link="all" name="dispatch:i_dispatch|dat_o" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net name="dispatch:i_dispatch|dat_o[31]"/>
+            <net name="dispatch:i_dispatch|dat_o[30]"/>
+            <net name="dispatch:i_dispatch|dat_o[29]"/>
+            <net name="dispatch:i_dispatch|dat_o[28]"/>
+            <net name="dispatch:i_dispatch|dat_o[27]"/>
+            <net name="dispatch:i_dispatch|dat_o[26]"/>
+            <net name="dispatch:i_dispatch|dat_o[25]"/>
+            <net name="dispatch:i_dispatch|dat_o[24]"/>
+            <net name="dispatch:i_dispatch|dat_o[23]"/>
+            <net name="dispatch:i_dispatch|dat_o[22]"/>
+            <net name="dispatch:i_dispatch|dat_o[21]"/>
+            <net name="dispatch:i_dispatch|dat_o[20]"/>
+            <net name="dispatch:i_dispatch|dat_o[19]"/>
+            <net name="dispatch:i_dispatch|dat_o[18]"/>
+            <net name="dispatch:i_dispatch|dat_o[17]"/>
+            <net name="dispatch:i_dispatch|dat_o[16]"/>
+            <net name="dispatch:i_dispatch|dat_o[15]"/>
+            <net name="dispatch:i_dispatch|dat_o[14]"/>
+            <net name="dispatch:i_dispatch|dat_o[13]"/>
+            <net name="dispatch:i_dispatch|dat_o[12]"/>
+            <net name="dispatch:i_dispatch|dat_o[11]"/>
+            <net name="dispatch:i_dispatch|dat_o[10]"/>
+            <net name="dispatch:i_dispatch|dat_o[9]"/>
+            <net name="dispatch:i_dispatch|dat_o[8]"/>
+            <net name="dispatch:i_dispatch|dat_o[7]"/>
+            <net name="dispatch:i_dispatch|dat_o[6]"/>
+            <net name="dispatch:i_dispatch|dat_o[5]"/>
+            <net name="dispatch:i_dispatch|dat_o[4]"/>
+            <net name="dispatch:i_dispatch|dat_o[3]"/>
+            <net name="dispatch:i_dispatch|dat_o[2]"/>
+            <net name="dispatch:i_dispatch|dat_o[1]"/>
+            <net name="dispatch:i_dispatch|dat_o[0]"/>
+          </bus>
+          <bus link="all" name="flux_loop:i_flux_loop|dat_frame_o" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net name="flux_loop:i_flux_loop|dat_frame_o[31]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[30]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[29]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[28]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[27]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[26]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[25]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[24]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[23]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[22]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[21]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[20]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[19]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[18]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[17]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[16]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[15]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[14]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[13]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[12]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[11]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[10]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[9]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[8]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[7]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[6]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[5]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[4]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[3]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[2]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[1]"/>
+            <net name="flux_loop:i_flux_loop|dat_frame_o[0]"/>
+          </bus>
+          <net name="flux_loop:i_flux_loop|ack_frame_o"/>
+        </data_view>
+      </presentation>
+      <trigger CRC="C7CF00C0" global_temp="1" is_expanded="true" name="trigger: 2005/03/17 18:41:16  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+        <events>
+          <level enabled="yes" type="basic">
+            <op_node/>
+          </level>
+        </events>
+      </trigger>
+    </signal_set>
+    <position_info>
+      <single attribute="active tab" value="1"/>
+      <single attribute="setup horizontal scroll position" value="13"/>
+      <single attribute="setup vertical scroll position" value="0"/>
+    </position_info>
+  </instance>
+  <mnemonics/>
+  <global_info>
+    <single attribute="active instance" value="0"/>
+    <single attribute="sof manager hidden" value="1"/>
+    <multi attribute="column width" size="18" value="34,34,252,108,68,115,161,168,101,101,101,101,101,101,101,101,107,78"/>
+    <multi attribute="window position" size="7" value="1054,612,374,135,347,50,125"/>
+  </global_info>
+</session>
