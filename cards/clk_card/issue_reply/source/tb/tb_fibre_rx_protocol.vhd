@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.2 2004/10/13 08:38:58 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.3 2004/10/13 09:25:08 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,8 +32,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/13 08:38:58 $>	-		<text>		- <initials $Author: dca $>
--- $Log: fibre_rx_protocol.vhd,v $
+-- <date $Date: 2004/10/13 09:25:08 $>	-		<text>		- <initials $Author: dca $>
+-- $Log: tb_fibre_rx_protocol.vhd,v $
+-- Revision 1.3  2004/10/13 09:25:08  dca
+-- no message
+--
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -48,6 +51,7 @@ use ieee.NUMERIC_STD.all;
 
 library work;
 use work.issue_reply_pack.all;
+use work.fibre_rx_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
