@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date: 2005/01/18 22:01:16 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/01/18 23:49:44 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.8  2005/01/18 23:49:44  bench1
+-- Mandana: fixed the signed summation
+--
 -- Revision 1.7  2005/01/18 22:01:16  mandana
 -- changed to signed operation
 --
@@ -144,7 +147,7 @@ architecture behaviour of rc_noise1000_test is
         e0 : out std_logic);
    end component;
 
-   constant N_SAMPLES : integer := 200;   
+   constant N_SAMPLES : integer := 256;   
 
    signal zero : std_logic;
    signal one : std_logic;
@@ -172,17 +175,17 @@ begin
    adc7_clk <= clk;
    adc8_clk <= clk;
    
-   co_add: process(adc1_rdy, n_rst)
+   co_add: process(adc8_rdy, n_rst)
    begin
       if(n_rst = '1') then
          sum <= (others => '0');
          nsample <= 0;
-      elsif(adc1_rdy'event and adc1_rdy = '1') then  
+      elsif(adc8_rdy'event and adc8_rdy = '1') then  
          case nsample  is
             when N_SAMPLES - 1 =>
                en <= '1';
                nsample <= nsample + 1;
-                 sum <= sum + adc1_dat;
+               sum <= sum + adc8_dat;
                
             when N_SAMPLES =>   
                nsample <= 0;
@@ -191,16 +194,19 @@ begin
 
             when others  =>
                nsample <= nsample + 1;
-               sum <= sum + adc1_dat;
+               sum <= sum + adc8_dat;
                en <= '0';
                
          end case;  
        end if;
    end process co_add;
    
-   mictor (13 downto 0) <= sum (23) & sum(22 downto 10);
-   mictor (14)          <= clk;
-   mictor (15)          <= adc1_rdy;
-   mictor (31)          <= adc1_rdy and en;
+   mictor (14 downto 0) <= sum (23) & sum(21 downto 8);
+--   mictor (14)          <= clk;
+--   mictor (15)          <= adc8_rdy;
+--   mictor (15)          <= en;
+   mictor (16)          <= adc8_rdy;
+   mictor (30)          <= en;
+   mictor (31)          <= adc8_rdy and en;
 
 end behaviour;
