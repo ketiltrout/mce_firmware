@@ -50,6 +50,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.5  2004/11/24 23:33:45  mohsen
+-- Change in wbs_fb_data Interface
+--
 -- Revision 1.4  2004/11/19 23:21:43  anthonyk
 -- Added various sa_bias/offset ctrl related changes including automated check for sa_bias/offset ctrl blocks
 --
@@ -79,14 +82,19 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 library work;
+
+-- library for flux_loop_ctrl
 use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
 use work.fsfb_ctrl_pack.all;
 use work.offset_ctrl_pack.all;
 use work.sa_bias_ctrl_pack.all;
-use work.sync_gen_pack.all;
-use work.frame_timing_pack.all;
 
+-- library for frame timing core
+use work.frame_timing_core_pack.all;
+
+-- library for sync gen core
+use work.sync_gen_core_pack.all;
 
 
 entity tb2_flux_loop_ctrl is
@@ -114,7 +122,7 @@ architecture beh of tb2_flux_loop_ctrl is
     clk_25_i                  : in  std_logic;
     rst_i                     : in  std_logic;
 
-    -- Frame timing signals
+    -- Frame timing_core signals
     adc_coadd_en_i            : in  std_logic;
     restart_frame_1row_prev_i : in  std_logic;
     restart_frame_aligned_i   : in  std_logic;
@@ -123,6 +131,7 @@ architecture beh of tb2_flux_loop_ctrl is
     initialize_window_i       : in  std_logic;
     num_rows_sub1_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
     dac_dat_en_i              : in  std_logic;
+    
     -- Wishbone Slave (wbs) Frame Data signals
     coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
     coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
@@ -183,7 +192,7 @@ architecture beh of tb2_flux_loop_ctrl is
   end component;
 
  
-
+    -- flux_loop_ctrl signals
     signal adc_dat_i                 : std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
     signal adc_ovr_i                 : std_logic;
     signal adc_rdy_i                 : std_logic;
@@ -245,7 +254,7 @@ architecture beh of tb2_flux_loop_ctrl is
     signal fsfb_ctrl_dat_o           : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data
       
 
-
+  -- tb2 signals
   constant PERIOD                  : time := 20 ns;
   constant EDGE_DEPENDENCY         : time := 2 ns;  --shows clk edge dependency
   constant RESET_WINDOW            : time := 8*PERIOD;
@@ -348,6 +357,7 @@ architecture beh of tb2_flux_loop_ctrl is
   signal sample_num_i         : integer := 40;
   signal sample_delay_i       : integer := 10;
   signal feedback_delay_i     : integer := 6;
+  signal clk_200_i            : std_logic;
   signal sync                 : std_logic;
   
   -- offset/sa_bias ctrl test signals
@@ -624,47 +634,72 @@ begin  -- beh
 
 
   -----------------------------------------------------------------------------
-  -- Instantiate frame_timing
+  -- Instantiate frame_timing_core
   -----------------------------------------------------------------------------
-  i_frame_timing : frame_timing
+  i_frame_timing_core : frame_timing_core
 
     port map (
-    clk_i                     => clk_50_i,
-    rst_i                     => rst_i,
-    sync_i                    => sync,
-    frame_rst_i               => rst_i,
-    init_window_req_i         => init_window_req_i,
-    sample_num_i              => sample_num_i,
-    sample_delay_i            => sample_delay_i,
-    feedback_delay_i          => feedback_delay_i,
-    address_on_delay_i        => 2,
-    update_bias_o             => open,
     dac_dat_en_o              => dac_dat_en_i,
     adc_coadd_en_o            => adc_coadd_en_i,
     restart_frame_1row_prev_o => restart_frame_1row_prev_i,
     restart_frame_aligned_o   => restart_frame_aligned_i,
     restart_frame_1row_post_o => restart_frame_1row_post_i,
+    initialize_window_o       => initialize_window_i,
     row_switch_o              => row_switch_i,
-    initialize_window_o       => initialize_window_i);
+    row_en_o                  => open,
+    update_bias_o             => open,
+    row_len_i                 => 64,
+    num_rows_i                => 41,
+    sample_delay_i            => sample_delay_i,
+    sample_num_i              => sample_num_i,
+    feedback_delay_i          => feedback_delay_i,
+    address_on_delay_i        => 2,
+    resync_req_i              => '0',
+    resync_ack_o              => open,
+    init_window_req_i         => init_window_req_i,
+    init_window_ack_o         => open,
+    clk_i                     => clk_50_i,
+    mem_clk_i                 => clk_200_i,
+    rst_i                     => rst_i,
+    sync_i                    => sync);
+    
 
 
   -----------------------------------------------------------------------------
-  -- Instantiate sync_gen
+  -- Instantiate sync_gen_core
   -----------------------------------------------------------------------------
-  i_sync_gen : sync_gen
+  i_sync_gen_core : sync_gen_core
+
     port map (
-    clk_i      => clk_50_i,
-    rst_i      => rst_i,
+    dv_en_i    => 0,
     dv_i       => '0',
-    dv_en_i    => '0',
     sync_o     => sync,
-    sync_num_o => open);
+    sync_num_o => open,
+    clk_i      => clk_50_i,
+    mem_clk_i  => clk_200_i,
+    rst_i      => rst_i);
 
   
   -----------------------------------------------------------------------------
   -- Clocking
   -----------------------------------------------------------------------------
 
+  clocking_200: process
+  begin  -- process clocking
+
+    clk_200_i <= '1';
+    wait for PERIOD/2;
+    
+    while (not finish_tb2) loop
+      clk_200_i <= not clk_200_i;
+      wait for PERIOD/2;
+    end loop;
+
+    wait;
+    
+  end process clocking_200;
+ 
+  
   clocking_50: process
   begin  -- process clocking
 
