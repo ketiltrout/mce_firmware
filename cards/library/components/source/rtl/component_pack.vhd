@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.11 2004/07/07 19:33:52 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.12 2004/07/07 19:43:19 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.12  2004/07/07 19:43:19  erniel
+-- updated lfsr port declaration
+--
 -- Revision 1.11  2004/07/07 19:33:52  erniel
 -- added generic lfsr
 --
@@ -455,8 +458,8 @@ port(clk    : in std_logic;
      ena    : in std_logic;
      load   : in std_logic;
      clr    : in std_logic;
-     data_i : in std_logic_vector(WIDTH-1 downto 0);
-     data_o : out std_logic_vector(WIDTH-1 downto 0));
+     lfsr_i : in std_logic_vector(WIDTH-1 downto 0);
+     lfsr_o : out std_logic_vector(WIDTH-1 downto 0));
 end component;
 
 end component_pack;

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lfsr.vhd,v $
+-- Revision 1.2  2004/07/07 19:42:08  erniel
+-- renamed parallel data to data_i/o
+--
 -- Revision 1.1  2004/07/07 19:29:28  erniel
 -- initial version
 --
@@ -47,8 +50,8 @@ entity lfsr is
         ena    : in std_logic;
         load   : in std_logic;
         clr    : in std_logic;
-        data_i : in std_logic_vector(WIDTH-1 downto 0);
-        data_o : out std_logic_vector(WIDTH-1 downto 0));
+        lfsr_i : in std_logic_vector(WIDTH-1 downto 0);
+        lfsr_o : out std_logic_vector(WIDTH-1 downto 0));
 end lfsr;
 
 architecture behav of lfsr is
@@ -147,7 +150,7 @@ begin
             if(clr = '1') then
                data <= (others => '0');
             elsif(load = '1') then
-               data <= data_i;
+               data <= lfsr_i;
             else
                data <= fb & data(1 to WIDTH-1);
             end if;
@@ -155,6 +158,6 @@ begin
       end if;
    end process;
    
-   data_o <= data;
+   lfsr_o <= data;
 
 end behav;
