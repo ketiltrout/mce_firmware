@@ -31,7 +31,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: readout_card_pack.vhd,v $
+-- Revision 1.1  2004/12/07 20:22:21  mohsen
+-- Anthony & Mohsen: Initial release
+--
 --
 --
 --
@@ -203,7 +206,15 @@ package readout_card_pack is
 
   -- The component declaration is defined in leds_pack.  To avoid error in
   -- compilation, we omit the declaration in this pack file.
- 
+
+
+  -----------------------------------------------------------------------------
+  -- Firmware Revision Component
+  -----------------------------------------------------------------------------
+
+  -- The component declaration is defined in fw_rev_pack.  To avoid error in
+  -- compilation, we omit the declaration in this pack file.
+  
   
   -----------------------------------------------------------------------------
   -- 
