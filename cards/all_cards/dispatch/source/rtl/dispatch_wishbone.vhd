@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.4  2004/09/10 16:42:12  erniel
+-- added reply acknowledge signal
+--
 -- Revision 1.3  2004/08/25 20:17:35  erniel
 -- modified addr_ena timing
 --
@@ -93,7 +96,10 @@ port(clk_i : in std_logic;
      cyc_o  : out std_logic;
      
      dat_i 	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     ack_i  : in std_logic);
+     ack_i  : in std_logic;
+     
+     -- Watchdog interface:
+     wdt_rst_o : out std_logic);
 end dispatch_wishbone;
 
 architecture rtl of dispatch_wishbone is
@@ -108,6 +114,9 @@ signal addr : integer;
 
 signal buf_addr : std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
 signal tga_addr : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+
+signal timer_rst : std_logic;
+signal timer     : integer;
 
 begin
   
@@ -129,6 +138,24 @@ begin
    buf_addr <= conv_std_logic_vector(addr, BUF_ADDR_WIDTH);
    tga_addr <= conv_std_logic_vector(addr, WB_TAG_ADDR_WIDTH);
    
+   
+   ---------------------------------------------------------
+   -- Watchdog timer
+   ---------------------------------------------------------
+   
+   -- When in IDLE, kick the watchdog every 180 ms (allow timer to free-count to 180 ms)
+   
+   -- When in WB_CYCLE or DONE, do not kick the watchdog (hold timer at 0).  
+   -- If the wishbone hangs, the external watchdog will be allowed to reset the FPGA (since it is not being kicked)
+   
+   wdt : us_timer
+   port map (clk => clk_i,
+             timer_reset_i => timer_rst,
+             timer_count_o => timer);
+   
+   timer_rst <= '1' when timer = 180000 or pres_state = WB_CYCLE or pres_state = DONE else '0';   -- 180,000 us = 180 ms
+   wdt_rst_o <= '1' when timer = 180000 else '0';
+         
    
    ---------------------------------------------------------
    -- Wishbone protocol FSM
