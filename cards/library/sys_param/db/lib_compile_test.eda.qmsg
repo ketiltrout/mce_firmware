@@ -1,2 +1,0 @@
-{  "Info" "IQEXE_SEPARATOR" "" "Info: *******************************************************************" {  } {  } 0 }
-{  "Info" "IQEXE_START_BANNER_PRODUCT" "EDA Netlist Writer " "Info: Running Quartus II EDA Netlist Writer" { { "Info" "IQEXE_START_BANNER_VERSION" "Version 3.0 Build 199 06/26/2003 SJ Full Version " "Info: Version 3.0 Build 199 06/26/2003 SJ Full Version" {  } {  } 0} { "Info" "IQEXE_START_BANNER_TIME" "Fri Mar 05 13:02:30 2004 " "Info: Processing started: Fri Mar 05 13:02:30 2004" {  } {
