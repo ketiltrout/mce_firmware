@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.11  2005/03/23 23:23:46  erniel
+-- added synchronizer on lvds_i
+--
 -- Revision 1.10  2005/03/23 19:05:02  bburger
 -- Bryce:  Test commital
 --
@@ -245,12 +248,16 @@ begin
 
 
    -- double synchronizer for ack_i and lvds_i:
-   process(comm_clk_i)
+   process(rst_i, comm_clk_i)
    begin
-      if(comm_clk_i = '1') then
-         ack_temp <= ack_i;
-         ack      <= ack_temp;
-         
+      if(rst_i = '1') then
+         ack_temp  <= '0';
+         ack       <= '0';      
+         lvds_temp <= '1';   -- idle state of lvds line is high
+         lvds      <= '1';
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
+         ack_temp  <= ack_i;
+         ack       <= ack_temp;
          lvds_temp <= lvds_i;
          lvds      <= lvds_temp;
       end if;
