@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.15 2004/09/02 23:41:43 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.16 2004/09/09 18:25:38 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/02 23:41:43 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/09 18:25:38 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.16  2004/09/09 18:25:38  jjacob
+-- added 3 outputs:
+-- >       cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+-- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
+-- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
+--
 -- Revision 1.15  2004/09/02 23:41:43  jjacob
 -- cleaning up and formatting
 --
@@ -598,13 +604,13 @@ port map(
       ack_i                         => ack_i                    -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
 
    ); 
-  
+      
    -- outputs to the reply_translator
    reply_cmd_rcvd_er_o <= cksum_err_i;
-   reply_cmd_rcvd_ok_o <= macro_instr_rdy;
+   reply_cmd_rcvd_ok_o <= cmd_rdy_i;
    reply_cmd_code_o    <= cmd_code_i;
-   reply_param_id_o    <= parameter_id;
-   reply_card_id_o     <= card_addr;   
+   reply_param_id_o    <= param_id_i;
+   reply_card_id_o     <= card_id_i;   
    
    macro_instr_rdy_o   <= macro_instr_rdy;
    card_addr_o         <= card_addr;
