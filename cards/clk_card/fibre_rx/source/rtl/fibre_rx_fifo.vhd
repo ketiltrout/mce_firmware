@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.1 2004/06/28 11:07:31 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.2 2004/06/28 13:45:48 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -36,7 +36,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/28 11:07:31 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 13:45:48 $>	-		<text>		- <initials $Author: dca $>
 --
 --
 -----------------------------------------------------------------------------
@@ -49,8 +49,8 @@ use work.component_pack.all;
 
 entity fibre_rx_fifo is
    generic( 
-      fifo_size : Positive
-   );
+      addr_size : Positive                               -- read/write address size
+   );                                                    -- note that fifo size = 2**address size
    port( 
       rst_i     : in     std_logic;                       -- global reset
       rx_fr_i   : in     std_logic;                       -- fifo read request
@@ -68,7 +68,7 @@ architecture behav of fibre_rx_fifo is
 begin
    -- Instance port mappings.
    I0 : async_fifo
-      generic map(fifo_size => fifo_size)
+      generic map(addr_size => addr_size)
       port map(
          rst_i    => rst_i,
          read_i   => rx_fr_i,
