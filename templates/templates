@@ -11,7 +11,7 @@ vasetType 1
 fg "49152,49152,49152"
 )
 xt "269480,230900,273000,236000"
-iconName "C:\\scuba2_cvs\\scuba2_repository\\logos\\ubc.jpg"
+iconName "C:\\scuba2_repository\\logos\\ubc.jpg"
 )
 )
 *2 (CommentGraphic
@@ -307,7 +307,7 @@ vasetType 1
 fg "49152,49152,49152"
 )
 xt "257000,231112,267000,236000"
-iconName "C:\\scuba2_cvs\\scuba2_repository\\logos\\ATC.jpg"
+iconName "C:\\scuba2_repository\\logos\\ATC.jpg"
 )
 )
 *15 (CommentText
