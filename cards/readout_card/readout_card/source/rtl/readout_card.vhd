@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.6  2005/01/13 22:38:54  mohsen
+-- Dispatch interface change
+--
 -- Revision 1.5  2004/12/21 22:06:51  bburger
 -- Bryce:  update
 --
@@ -119,7 +122,6 @@ port(
   adc7_clk        : out std_logic;
   adc8_clk        : out std_logic;
 
-
   -- DAC Interface
   dac_FB1_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   dac_FB2_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
@@ -130,14 +132,12 @@ port(
   dac_FB7_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   dac_FB8_dat     : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   dac_FB_clk      : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-
   
   -- Sa_bias and Offset_ctrl Interface
   dac_clk         : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
   dac_dat         : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
   bias_dac_ncs    : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
   offset_dac_ncs  : out std_logic_vector(7 downto 0);  -- Note number of channels are hard coded
-
   
   -- LVDS interface:
   lvds_cmd        : in std_logic;
@@ -146,12 +146,23 @@ port(
   lvds_txa        : out std_logic;
   lvds_txb        : out std_logic;
 
+  -- TTL interface:
+  ttl_dir1        : out std_logic;
+  ttl_in1         : in std_logic;
+  ttl_out1        : out std_logic;
+  
+  ttl_dir2        : out std_logic;
+  ttl_in2         : in std_logic;
+  ttl_out2        : out std_logic;
+  
+  ttl_dir3        : out std_logic;
+  ttl_in3         : in std_logic;
+  ttl_out3        : out std_logic;
 
   -- LED Interface
   red_led         : out std_logic;
   ylw_led         : out std_logic;
   grn_led         : out std_logic;
-
   
   -- miscellaneous ports
   dip_sw3         : in std_logic;
@@ -240,8 +251,11 @@ signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 
 begin
-   rst <= not rst_n;
 
+   -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
+   -- The transmitter is disabled because the Clock Card is driving this line.
+   ttl_dir1 <= '1';
+   rst <= (not rst_n) and (not ttl_in1);
    
    ----------------------------------------------------------------------------
    -- PLL Instantiation

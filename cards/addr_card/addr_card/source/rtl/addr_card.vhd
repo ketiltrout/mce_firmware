@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.7  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.6  2004/12/08 22:15:12  bburger
 -- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
 --
@@ -71,11 +76,6 @@ use work.ac_dac_ctrl_pack.all;
 
 entity addr_card is
    port(
-      -- simulation signals
---      clk        : in std_logic;
---      mem_clk    : in std_logic;
---      comm_clk   : in std_logic;
-
       -- PLL input:
       inclk      : in std_logic;
       rst_n      : in std_logic;
@@ -88,9 +88,17 @@ entity addr_card is
       lvds_txb   : out std_logic;
       
       -- TTL interface:
-      ttl_nrx    : in std_logic_vector(3 downto 1);
-      ttl_tx     : out std_logic_vector(3 downto 1);
-      ttl_txena  : out std_logic_vector(3 downto 1);
+      ttl_nrx1   : in std_logic_vector;
+      ttl_tx1    : out std_logic_vector;
+      ttl_txena1 : out std_logic_vector;
+      
+      ttl_nrx2   : in std_logic_vector;
+      ttl_tx2    : out std_logic_vector;
+      ttl_txena2 : out std_logic_vector;
+      
+      ttl_nrx3   : in std_logic_vector;
+      ttl_tx3    : out std_logic_vector;
+      ttl_txena3 : out std_logic_vector;
       
       -- eeprom interface:
       eeprom_si  : in std_logic;
@@ -165,8 +173,6 @@ signal row_en                : std_logic;
 
 -- DAC hardware interface:
 signal dac_data : w14_array11;   
---signal dac_clks : std_logic_vector(NUM_OF_ROWS downto 0);
-
 
 component ac_pll
 port(inclk0 : in std_logic;
@@ -176,7 +182,11 @@ port(inclk0 : in std_logic;
 end component;
 
 begin
-   rst <= not rst_n;
+   
+   -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
+   -- The transmitter is disabled because the Clock Card is driving this line.
+   ttl_txena1 <= '1';
+   rst <= (not rst_n) or (not ttl_nrx1);
    
    pll0: ac_pll
    port map(inclk0 => inclk,
@@ -185,12 +195,8 @@ begin
             c2 => comm_clk);
             
    cmd0: dispatch
---      generic map(
---         CARD => ADDRESS_CARD
---         )
       port map(
          clk_i                      => clk,
---         mem_clk_i                  => mem_clk,
          comm_clk_i                 => comm_clk,
          rst_i                      => rst,
         

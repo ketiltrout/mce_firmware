@@ -32,6 +32,11 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.12  2004/12/06 07:22:35  bburger
+# Bryce:
+# Created pack files for the card top-levels.
+# Added some simulation signals to the top-levels (i.e. clocks)
+#
 # Revision 1.11  2004/11/25 01:09:12  bench2
 # Greg: Changed issue_reply block instantiation and corresponding signals in the tcl file
 #
@@ -163,15 +168,15 @@ puts "   Assigned: LVDS pins."
 
 
 # assign spare TTL
-cmp add_assignment $top_name "" "ttl_nrx\[1\]" LOCATION "Pin_L24"
-cmp add_assignment $top_name "" "ttl_nrx\[2\]" LOCATION "Pin_H26"
-cmp add_assignment $top_name "" "ttl_nrx\[3\]" LOCATION "Pin_H25"
-cmp add_assignment $top_name "" "ttl_tx\[1\]" LOCATION "Pin_L21"
-cmp add_assignment $top_name "" "ttl_tx\[2\]" LOCATION "Pin_G27"
-cmp add_assignment $top_name "" "ttl_tx\[3\]" LOCATION "Pin_G28"
-cmp add_assignment $top_name "" "ttl_txena\[1\]" LOCATION "Pin_K22"
-cmp add_assignment $top_name "" "ttl_txena\[2\]" LOCATION "Pin_G26"
-cmp add_assignment $top_name "" "ttl_txena\[3\]" LOCATION "Pin_G25"
+cmp add_assignment $top_name "" "ttl_nrx1" LOCATION "Pin_L24"
+cmp add_assignment $top_name "" "ttl_nrx2" LOCATION "Pin_H26"
+cmp add_assignment $top_name "" "ttl_nrx3" LOCATION "Pin_H25"
+cmp add_assignment $top_name "" "ttl_tx1" LOCATION "Pin_L21"
+cmp add_assignment $top_name "" "ttl_tx2" LOCATION "Pin_G27"
+cmp add_assignment $top_name "" "ttl_tx3" LOCATION "Pin_G28"
+cmp add_assignment $top_name "" "ttl_txena1" LOCATION "Pin_K22"
+cmp add_assignment $top_name "" "ttl_txena2" LOCATION "Pin_G26"
+cmp add_assignment $top_name "" "ttl_txena3" LOCATION "Pin_G25"
 puts "   Assigned: Spare TTL pins."
 
 

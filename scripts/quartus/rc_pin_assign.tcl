@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: rc_pin_assign.tcl,v $
+# Revision 1.9  2004/12/17 01:17:23  bench2
+# *** empty log message ***
+#
 # Revision 1.8  2004/12/06 07:22:35  bburger
 # Bryce:
 # Created pack files for the card top-levels.
@@ -118,17 +121,17 @@ cmp add_assignment $top_name "" card_id LOCATION "Pin_A16"
 puts "   Assigned: ID pins."
 
 # assign spare TTL
-cmp add_assignment $top_name "" "ttl_dir\[1\]" LOCATION "Pin_G7"
-cmp add_assignment $top_name "" "ttl_in\[1\]" LOCATION "Pin_F7"
-cmp add_assignment $top_name "" "ttl_out\[1\]" LOCATION "Pin_F11"
+cmp add_assignment $top_name "" "ttl_dir1" LOCATION "Pin_G7"
+cmp add_assignment $top_name "" "ttl_in1" LOCATION "Pin_F7"
+cmp add_assignment $top_name "" "ttl_out1" LOCATION "Pin_F11"
 
-cmp add_assignment $top_name "" "ttl_dir\[2\]" LOCATION "Pin_G9"
-cmp add_assignment $top_name "" "ttl_in\[2\]" LOCATION "Pin_F8"
-cmp add_assignment $top_name "" "ttl_out\[2\]" LOCATION "Pin_G8"
+cmp add_assignment $top_name "" "ttl_dir2" LOCATION "Pin_G9"
+cmp add_assignment $top_name "" "ttl_in2" LOCATION "Pin_F8"
+cmp add_assignment $top_name "" "ttl_out2" LOCATION "Pin_G8"
 
-cmp add_assignment $top_name "" "ttl_dir\[3\]" LOCATION "Pin_H9"
-cmp add_assignment $top_name "" "ttl_in\[3\]" LOCATION "Pin_F9"
-cmp add_assignment $top_name "" "ttl_out\[3\]" LOCATION "Pin_G12"
+cmp add_assignment $top_name "" "ttl_dir3" LOCATION "Pin_H9"
+cmp add_assignment $top_name "" "ttl_in3" LOCATION "Pin_F9"
+cmp add_assignment $top_name "" "ttl_out3" LOCATION "Pin_G12"
 puts "   Assigned: Spare TTL pins."
 
 # assign PLL pins

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.6 2005/01/12 22:37:11 mandana Exp $
+-- $Id: bias_card.vhd,v 1.7 2005/01/17 23:03:11 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.7  2005/01/17 23:03:11  mandana
+-- removed mem_clk_i from bc_dac_ctrl
+--
 -- Revision 1.6  2005/01/12 22:37:11  mandana
 -- added slot_id to dispatch interface
 -- removed mem_clk_i from dispatch interface
@@ -83,9 +86,17 @@ entity bias_card is
       lvds_txb   : out std_logic;
       
       -- TTL interface:
-      ttl_nrx    : in std_logic_vector(3 downto 1);
-      ttl_tx     : out std_logic_vector(3 downto 1);
-      ttl_txena  : out std_logic_vector(3 downto 1);
+      ttl_nrx1   : in std_logic_vector;
+      ttl_tx1    : out std_logic_vector;
+      ttl_txena1 : out std_logic_vector;
+      
+      ttl_nrx2   : in std_logic_vector;
+      ttl_tx2    : out std_logic_vector;
+      ttl_txena2 : out std_logic_vector;
+      
+      ttl_nrx3   : in std_logic_vector;
+      ttl_tx3    : out std_logic_vector;
+      ttl_txena3 : out std_logic_vector;
 
       -- eeprom interface:
       eeprom_si  : in std_logic;
@@ -166,8 +177,12 @@ end component;
 
 begin
    
-   rst <= not rst_n;
-   mictor <= debug;
+   -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
+   -- The transmitter is disabled because the Clock Card is driving this line.
+   ttl_txena1 <= '1';
+   rst <= (not rst_n) or (not ttl_nrx1);
+   
+   mictor   <= debug;
    test (4) <= dac_ncs_temp(0);
    test (6) <= dac_data_temp(0);
    test (8) <= dac_sclk_temp(0);

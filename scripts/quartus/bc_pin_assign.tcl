@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.12  2005/01/06 01:16:14  bench2
+# Mandana: reversed dac0 to dac15 pin assignments to match new boards
+#
 # Revision 1.11  2004/12/22 18:26:26  bburger
 # Mandana: changed mictor assignment to 0 to 31 and swapped odd and even pods
 #
@@ -142,15 +145,15 @@ puts "   Assigned: LVDS pins."
 
 
 # assign TTL pins
-cmp add_assignment $top_name "" "ttl_nrx\[1\]" LOCATION "Pin_U19"
-cmp add_assignment $top_name "" "ttl_nrx\[2\]" LOCATION "Pin_U20"
-cmp add_assignment $top_name "" "ttl_nrx\[3\]" LOCATION "Pin_W28"
-cmp add_assignment $top_name "" "ttl_tx\[1\]" LOCATION "Pin_Y26"
-cmp add_assignment $top_name "" "ttl_tx\[2\]" LOCATION "Pin_U21"
-cmp add_assignment $top_name "" "ttl_tx\[3\]" LOCATION "Pin_Y28"
-cmp add_assignment $top_name "" "ttl_txena\[1\]" LOCATION "Pin_Y25"
-cmp add_assignment $top_name "" "ttl_txena\[2\]" LOCATION "Pin_U22"
-cmp add_assignment $top_name "" "ttl_txena\[3\]" LOCATION "Pin_Y27"
+cmp add_assignment $top_name "" "ttl_nrx1" LOCATION "Pin_U19"
+cmp add_assignment $top_name "" "ttl_nrx2" LOCATION "Pin_U20"
+cmp add_assignment $top_name "" "ttl_nrx3" LOCATION "Pin_W28"
+cmp add_assignment $top_name "" "ttl_tx1" LOCATION "Pin_Y26"
+cmp add_assignment $top_name "" "ttl_tx2" LOCATION "Pin_U21"
+cmp add_assignment $top_name "" "ttl_tx3" LOCATION "Pin_Y28"
+cmp add_assignment $top_name "" "ttl_txena1" LOCATION "Pin_Y25"
+cmp add_assignment $top_name "" "ttl_txena2" LOCATION "Pin_U22"
+cmp add_assignment $top_name "" "ttl_txena3" LOCATION "Pin_Y27"
 puts "   Assigned: Spare TTL pins."
 
 

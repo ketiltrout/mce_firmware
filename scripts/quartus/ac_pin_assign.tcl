@@ -32,6 +32,11 @@
 # Revision history:
 #
 # $Log: ac_pin_assign.tcl,v $
+# Revision 1.13  2004/12/06 07:22:35  bburger
+# Bryce:
+# Created pack files for the card top-levels.
+# Added some simulation signals to the top-levels (i.e. clocks)
+#
 # Revision 1.12  2004/05/25 21:42:17  mandana
 # changed the LSB to MSB order on bus 0 to 9 to the correct order
 #
@@ -118,15 +123,15 @@ puts "   Assigned: LVDS pins."
 
 
 # assign TTL pins
-cmp add_assignment $top_name "" "ttl_nrx\[1\]" LOCATION "Pin_U19"
-cmp add_assignment $top_name "" "ttl_nrx\[2\]" LOCATION "Pin_U20"
-cmp add_assignment $top_name "" "ttl_nrx\[3\]" LOCATION "Pin_W28"
-cmp add_assignment $top_name "" "ttl_tx\[1\]" LOCATION "Pin_Y26"
-cmp add_assignment $top_name "" "ttl_tx\[2\]" LOCATION "Pin_U21"
-cmp add_assignment $top_name "" "ttl_tx\[3\]" LOCATION "Pin_Y28"
-cmp add_assignment $top_name "" "ttl_txena\[1\]" LOCATION "Pin_Y25"
-cmp add_assignment $top_name "" "ttl_txena\[2\]" LOCATION "Pin_U22"
-cmp add_assignment $top_name "" "ttl_txena\[3\]" LOCATION "Pin_Y27"
+cmp add_assignment $top_name "" "ttl_nrx1" LOCATION "Pin_U19"
+cmp add_assignment $top_name "" "ttl_nrx2" LOCATION "Pin_U20"
+cmp add_assignment $top_name "" "ttl_nrx3" LOCATION "Pin_W28"
+cmp add_assignment $top_name "" "ttl_tx1" LOCATION "Pin_Y26"
+cmp add_assignment $top_name "" "ttl_tx2" LOCATION "Pin_U21"
+cmp add_assignment $top_name "" "ttl_tx3" LOCATION "Pin_Y28"
+cmp add_assignment $top_name "" "ttl_txena1" LOCATION "Pin_Y25"
+cmp add_assignment $top_name "" "ttl_txena2" LOCATION "Pin_U22"
+cmp add_assignment $top_name "" "ttl_txena3" LOCATION "Pin_Y27"
 puts "   Assigned: Spare TTL pins."
 
 
