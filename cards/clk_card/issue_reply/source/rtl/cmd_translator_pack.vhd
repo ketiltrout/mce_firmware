@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_translator_pack.vhd,v 1.3 2004/12/03 07:45:32 jjacob Exp $
+-- $Id: cmd_translator_pack.vhd,v 1.4 2005/03/04 03:45:58 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_translator_pack.vhd,v $
+-- Revision 1.4  2005/03/04 03:45:58  bburger
+-- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
+--
 -- Revision 1.3  2004/12/03 07:45:32  jjacob
 -- debugging internal commands
 --
@@ -47,6 +50,7 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
@@ -107,8 +111,9 @@ port(
       reply_card_id_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
 
       -- ret_dat_wbs interface:
-      start_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      stop_seq_num_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- other inputs
       sync_pulse_i      : in    std_logic;
@@ -168,8 +173,9 @@ component cmd_translator_ret_dat_fsm
       cmd_code_i              : in std_logic_vector (15 downto 0);
   
       -- ret_dat_wbs interface:
-      start_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      stop_seq_num_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      start_seq_num_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i             : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- other inputs
       sync_pulse_i            : in std_logic;

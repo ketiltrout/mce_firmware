@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.20 2005/03/14 21:30:20 bburger Exp $
+-- $Id: clk_card.vhd,v 1.21 2005/03/16 02:20:58 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.21  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.20  2005/03/14 21:30:20  bburger
 -- bryce:  commital for a new tag:  cc_v01010003
 --
@@ -159,7 +162,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"01010004";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"01010007";
 
 -- reset
 signal rst           : std_logic;
@@ -177,6 +180,7 @@ signal sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 -- ret_dat_wbs interface
 signal start_seq_num : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal stop_seq_num  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal data_rate     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
 -- wishbone bus (from master)
 signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -249,7 +253,7 @@ begin
          fw_rev_data       when FW_REV_ADDR,              
          led_data          when LED_ADDR,
          sync_gen_data     when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR,
-         ret_dat_data      when RET_DAT_S_ADDR,
+         ret_dat_data      when RET_DAT_S_ADDR | DATA_RATE_ADDR,
          (others => '0')   when others;
          
    with addr select
@@ -257,12 +261,12 @@ begin
          fw_rev_ack        when FW_REV_ADDR,
          led_ack           when LED_ADDR,
          sync_gen_ack      when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR,
-         ret_dat_ack       when RET_DAT_S_ADDR,
+         ret_dat_ack       when RET_DAT_S_ADDR | DATA_RATE_ADDR,
          '0'               when others;
          
    with addr select
       slave_err <= 
-         '0'              when FW_REV_ADDR | LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | RET_DAT_S_ADDR, --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when FW_REV_ADDR | LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | RET_DAT_S_ADDR | DATA_RATE_ADDR, --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
    pll0: cc_pll
@@ -360,7 +364,6 @@ begin
       
          --  Global signals
          clk_i       => clk,
---         mem_clk_i   => mem_clk,
          rst_i       => rst
       );
 
@@ -373,7 +376,6 @@ begin
          rst_i             => rst,
          clk_i             => clk,
          comm_clk_i        => comm_clk,
---         mem_clk_i         => mem_clk,
          
          -- bus backplane interface
          lvds_reply_ac_a   => lvds_reply_ac_a,   
@@ -409,6 +411,7 @@ begin
          -- ret_dat_wbs interface:
          start_seq_num_i   => start_seq_num,
          stop_seq_num_i    => stop_seq_num,
+         data_rate_i       => data_rate,
          
          -- sync_gen interface
          sync_pulse_i      => sync,
@@ -434,6 +437,7 @@ begin
          -- cmd_translator interface:
          start_seq_num_o => start_seq_num,
          stop_seq_num_o  => stop_seq_num,
+         data_rate_o     => data_rate,
 
          -- global interface
          clk_i           => clk,

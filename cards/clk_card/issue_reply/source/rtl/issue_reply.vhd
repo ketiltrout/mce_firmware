@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.37 2005/03/04 03:45:58 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.38 2005/03/16 02:20:58 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/03/04 03:45:58 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/03/16 02:20:58 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.38  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.37  2005/03/04 03:45:58  bburger
 -- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
 --
@@ -89,6 +92,7 @@ use work.reply_queue_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 entity issue_reply is
    port(
@@ -133,8 +137,9 @@ entity issue_reply is
       lvds_cmd_o        : out std_logic;  -- transmitter output pin
 
       -- ret_dat_wbs interface:
-      start_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      stop_seq_num_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- sync_gen interface
       sync_pulse_i      : in std_logic;
@@ -369,6 +374,7 @@ begin
          
          start_seq_num_i     => start_seq_num_i,
          stop_seq_num_i      => stop_seq_num_i,
+         data_rate_i         => data_rate_i,
 
          sync_pulse_i        => sync_pulse_i,
          sync_number_i       => sync_number_i

@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/02/21 18:51:18 $> - <initials $Author: mandana $>
+-- <date $Date: 2005/02/22 18:17:14 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.22  2005/02/22 18:17:14  bburger
+-- Bryce:  removed the redundant fmsr_vsn command
+--
 -- Revision 1.21  2005/02/21 18:51:18  mandana
 -- changed fw_rev command
 --
@@ -237,6 +240,7 @@ package wishbone_pack is
    constant SRAM2_CONT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D";
    constant SRAM1_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
    constant SRAM2_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
+   constant DATA_RATE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
 
    -- Power Card Specific
    constant BRST_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";

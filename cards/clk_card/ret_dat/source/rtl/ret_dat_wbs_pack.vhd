@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_wbs_pack.vhd,v 1.3 2005/01/26 01:27:20 mandana Exp $
+-- $Id: ret_dat_wbs_pack.vhd,v 1.1 2005/03/05 01:31:36 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with wbs_ac_dac_ctrl
 --
 -- Revision history:
--- $Log: ac_dac_ctrl_wbs_pack.vhd,v $
+-- $Log: ret_dat_wbs_pack.vhd,v $
+-- Revision 1.1  2005/03/05 01:31:36  bburger
+-- Bryce:  New
+--
 -- Revision 1.3  2005/01/26 01:27:20  mandana
 -- removed mem_clk_i
 --
@@ -54,28 +57,36 @@ library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
+library work;
+use work.sync_gen_pack.all;
+
 package ret_dat_wbs_pack is
+
+-- Data rate is calculated as "1 data packet per x frames".  A smaller x values yields a larger data rate, and vice versa
+constant MIN_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000FFFF";
+constant MAX_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000000A";
 
 component ret_dat_wbs is        
    port
    (
       -- cmd_translator interface:
-      start_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      stop_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      start_seq_num_o : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_o     : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- global interface
-      clk_i           : in std_logic;
-      rst_i           : in std_logic; 
+      clk_i          : in std_logic;
+      rst_i          : in std_logic; 
       
       -- wishbone interface:
-      dat_i           : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i          : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i           : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i            : in std_logic;
-      stb_i           : in std_logic;
-      cyc_i           : in std_logic;
-      dat_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o           : out std_logic
+      dat_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i         : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i          : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i           : in std_logic;
+      stb_i          : in std_logic;
+      cyc_i          : in std_logic;
+      dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o          : out std_logic
    );     
 end component;
 

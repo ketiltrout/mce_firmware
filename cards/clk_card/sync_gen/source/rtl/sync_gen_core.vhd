@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.8  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.7  2005/02/17 22:42:12  bburger
 -- Bryce:  changes to synchronization in the MCE in response to two problems
 -- - a rising edge on the sync line during configuration
@@ -94,6 +97,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -134,8 +138,8 @@ architecture beh of sync_gen_core is
    signal new_frame_period : std_logic;   
    signal clk_count        : integer;
    signal clk_count_new    : integer;
-   signal sync_count       : integer;
-   signal sync_count_new   : integer;
+   signal sync_count       : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0); --: integer;
+   signal sync_count_new   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0); --integer;
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    
    signal sync_num_mux     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -146,7 +150,6 @@ architecture beh of sync_gen_core is
 begin      
 
    frame_end <= (num_rows_i*row_len_i)-1;
-
    clk_count_new <= (clk_count + 1) when clk_count < frame_end else 0;
    clk_cntr: process(clk_i, rst_i)
    begin
@@ -157,11 +160,11 @@ begin
       end if;
    end process clk_cntr;
 
-   sync_count_new <= (sync_count + 1) when sync_count < 255 else 0;
+   sync_count_new <= sync_count + "00000001";
    sync_cntr: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         sync_count <= 0;
+         sync_count <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(new_frame_period = '1') then
             sync_count <= sync_count_new;
@@ -243,6 +246,6 @@ begin
       end case;
    end process;
    
-   sync_num_mux <= sync_num when sync_num_mux_sel = '0' else std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_WIDTH));
+   sync_num_mux <= sync_num when sync_num_mux_sel = '0' else sync_count;
 
 end beh;

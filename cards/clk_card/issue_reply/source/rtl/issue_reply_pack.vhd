@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.39 2005/03/04 03:45:58 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.40 2005/03/16 02:20:58 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.40  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.39  2005/03/04 03:45:58  bburger
 -- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
 --
@@ -53,6 +56,7 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
@@ -102,8 +106,9 @@ component issue_reply
       lvds_cmd_o        : out std_logic;  -- transmitter output pin
 
       -- ret_dat_wbs interface:
-      start_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      stop_seq_num_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- sync_gen interface
       sync_pulse_i      : in std_logic;

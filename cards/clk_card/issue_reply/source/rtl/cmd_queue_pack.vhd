@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.20 2005/02/20 00:13:59 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.21 2005/03/16 02:20:58 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.21  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.20  2005/02/20 00:13:59  bburger
 -- Bryce:  added a uop_timeout signal to the interface that will tell the cmd_queue to skip a command if it times out in the reply_queue
 --
@@ -107,7 +110,7 @@ use work.cmd_queue_ram40_pack.all;
 
 package cmd_queue_pack is
    
-constant MAX_NUM_UOPS     : integer :=   1;
+constant MAX_NUM_UOPS     : integer :=   3;
 
 -- Calculated constants for inputing data on the correct lines into/out-of the queue
 -- The following fields make up the first four lines of each u-op entry in the queue:

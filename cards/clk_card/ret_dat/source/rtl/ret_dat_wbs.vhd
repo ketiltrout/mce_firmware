@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: ret_dat_wbs.vhd,v 1.1 2005/03/05 01:31:36 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -27,7 +27,10 @@
 -- Description:
 --
 -- Revision history:
--- $Log$
+-- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.1  2005/03/05 01:31:36  bburger
+-- Bryce:  New
+--
 --
 -----------------------------------------------------------------------------
 library ieee;
@@ -43,6 +46,7 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.ret_dat_wbs_pack.all;
+use work.sync_gen_pack.all;
 
 entity ret_dat_wbs is        
    port
@@ -50,6 +54,7 @@ entity ret_dat_wbs is
       -- cmd_translator interface:
       start_seq_num_o : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_o     : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- global interface
       clk_i          : in std_logic;
@@ -70,21 +75,24 @@ end ret_dat_wbs;
 architecture rtl of ret_dat_wbs is
 
    -- FSM inputs
-   signal wr_cmd           : std_logic;
-   signal rd_cmd           : std_logic;
-   signal master_wait      : std_logic;
+   signal wr_cmd            : std_logic;
+   signal rd_cmd            : std_logic;
+   signal master_wait       : std_logic;
 
    -- RAM/Register signals
-   signal start_wren       : std_logic;   
-   signal stop_wren        : std_logic;
+   signal start_wren        : std_logic;   
+   signal stop_wren         : std_logic;
+   signal data_rate_wren    : std_logic;
    
-   signal start_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal stop_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal start_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal stop_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal data_rate_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal clamped_rate_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    -- WBS states:
-   type states is (IDLE, WR, RD1, RD2, WR_START, WR_STOP, RD_START, RD_STOP); 
-   signal current_state    : states;
-   signal next_state       : states;
+   type states is (IDLE, WR, RD1, RD2, WR_START, WR_STOP, WR_RATE, RD_START, RD_STOP, RD_RATE); 
+   signal current_state     : states;
+   signal next_state        : states;
    
 begin
 
@@ -114,6 +122,23 @@ begin
          reg_o             => stop_data
       );
 
+   data_rate_o <= 
+      MAX_DATA_RATE(15 downto 0) when data_rate_data < MAX_DATA_RATE else 
+      MIN_DATA_RATE(15 downto 0) when data_rate_data > MIN_DATA_RATE else
+      data_rate_data(15 downto 0);
+
+   data_rate_reg : reg
+      generic map(
+         WIDTH             => WB_DATA_WIDTH
+      )
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => data_rate_wren,
+         reg_i             => dat_i,
+         reg_o             => data_rate_data
+      );
+
 ------------------------------------------------------------
 --  WB FSM
 ------------------------------------------------------------   
@@ -129,25 +154,31 @@ begin
    end process state_FF;
    
    -- Transition table for DAC controller
-   state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
+   state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i, addr_i)
    begin
       -- Default assignments
       next_state <= current_state;
       
       case current_state is
          when IDLE =>
-            if(wr_cmd = '1') then
-               next_state <= WR_START;            
-            elsif(rd_cmd = '1') then
-               next_state <= RD_START;
-            end if;                  
-            
-         when WR_START =>     
-            if(cyc_i = '0') then
+            if(wr_cmd = '1' and addr_i = RET_DAT_S_ADDR) then
+               next_state <= WR_STOP;            
+            elsif(wr_cmd = '1' and addr_i = DATA_RATE_ADDR) then
+               next_state <= IDLE;
+            elsif(rd_cmd = '1' and addr_i = RET_DAT_S_ADDR) then
+               next_state <= RD_STOP;
+            elsif(rd_cmd = '1' and addr_i = DATA_RATE_ADDR) then
                next_state <= IDLE;
             else
-               next_state <= WR_STOP;
-            end if;
+               next_state <= IDLE;
+            end if;                  
+            
+--         when WR_START =>     
+--            if(cyc_i = '0') then
+--               next_state <= IDLE;
+--            else
+--               next_state <= WR_STOP;
+--            end if;
             
          when WR_STOP =>
             if(cyc_i = '0') then
@@ -156,12 +187,19 @@ begin
                next_state <= WR_STOP;
             end if;
             
-         when RD_START =>
-            if(cyc_i = '0') then
+         when WR_RATE =>
+            if(cyc_i = '0') then 
                next_state <= IDLE;
             else
-               next_state <= RD_STOP;
+               next_state <= WR_RATE;
             end if;
+            
+--         when RD_START =>
+--            if(cyc_i = '0') then
+--               next_state <= IDLE;
+--            else
+--               next_state <= RD_STOP;
+--            end if;
 
          when RD_STOP =>
             if(cyc_i = '0') then
@@ -170,6 +208,13 @@ begin
               next_state <= RD_STOP;
             end if;
          
+--         when RD_RATE =>
+--            if(cyc_i = '0') then
+--               next_state <= IDLE;
+--            else
+--              next_state <= RD_RATE;
+--            end if;
+
          when others =>
             next_state <= IDLE;
 
@@ -177,33 +222,53 @@ begin
    end process state_NS;
    
    -- Output states for DAC controller   
-   state_out: process(current_state, stb_i)
+   state_out: process(current_state, stb_i, wr_cmd, addr_i, rd_cmd)
    begin
       -- Default assignments
-      start_wren <= '0';
-      stop_wren  <= '0';
-      ack_o      <= '0';
+      start_wren      <= '0';
+      stop_wren       <= '0';
+      data_rate_wren  <= '0';
+      ack_o           <= '0';
       
       case current_state is         
+         
          when IDLE  =>                   
+            if(wr_cmd = '1' and addr_i = RET_DAT_S_ADDR) then
+               ack_o          <= '1';
+               start_wren     <= '1';
+            elsif(wr_cmd = '1' and addr_i = DATA_RATE_ADDR) then
+               ack_o          <= '1';
+               data_rate_wren <= '1';
+            elsif(rd_cmd = '1') then
+               ack_o          <= '1';
+            end if;
             
          when WR_START =>
             ack_o <= '1';
             if(stb_i = '1') then
-               start_wren    <= '1';
+               start_wren <= '1';
             end if;
          
          when WR_STOP =>
             ack_o <= '1';
             if(stb_i = '1') then
-               stop_wren    <= '1';
+               stop_wren <= '1';
             end if;
 
-         when RD_START =>
+         when WR_RATE =>
             ack_o <= '1';
+            if(stb_i = '1') then
+               data_rate_wren <= '1';
+            end if;
+
+--         when RD_START =>
+--            ack_o <= '1';
 
          when RD_STOP =>
             ack_o <= '1';
+
+--         when RD_RATE =>
+--            ack_o <= '1';
          
          when others =>
          
@@ -214,19 +279,25 @@ begin
 --  Wishbone interface 
 ------------------------------------------------------------
    
-   with current_state select dat_o <=
-      start_data      when RD_START,
-      stop_data       when RD_STOP,
-      (others => '0') when others;
+--   with current_state select dat_o <=
+--      start_data      when RD_START,
+--      stop_data       when RD_STOP,
+--      data_rate_data  when RD_RATE,
+--      (others => '0') when others;
    
-   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
+   dat_o <= 
+      start_data     when (addr_i = RET_DAT_S_ADDR and current_state = IDLE) else
+      stop_data      when (addr_i = RET_DAT_S_ADDR and current_state = RD_STOP) else
+      data_rate_data when (addr_i = DATA_RATE_ADDR and current_state = IDLE) else (others => '0');
+   
+   master_wait <= '1' when (stb_i = '0' and cyc_i = '1') else '0';   
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = RET_DAT_S_ADDR) else '0'; 
+      (addr_i = RET_DAT_S_ADDR or addr_i = DATA_RATE_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = RET_DAT_S_ADDR) else '0'; 
+      (addr_i = RET_DAT_S_ADDR or addr_i = DATA_RATE_ADDR) else '0'; 
       
 end rtl;

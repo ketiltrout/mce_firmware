@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.18 2005/03/04 03:45:58 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.19 2005/03/12 02:19:00 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/03/04 03:45:58 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/03/12 02:19:00 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.19  2005/03/12 02:19:00  bburger
+-- bryce:  bug fixes
+--
 -- Revision 1.18  2005/03/04 03:45:58  bburger
 -- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
 --
@@ -51,7 +54,7 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library sys_param;
---use sys_param.wishbone_pack.all;
+use sys_param.wishbone_pack.all;
 --use sys_param.general_pack.all;
 use sys_param.command_pack.all;
 
@@ -76,8 +79,9 @@ port(
       cmd_code_i              : in std_logic_vector (15 downto 0);
       
       -- ret_dat_wbs interface:
-      start_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      stop_seq_num_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      start_seq_num_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i             : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- other inputs
       sync_pulse_i            : in std_logic;
@@ -194,7 +198,6 @@ begin
    process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i)
    begin
      next_state <= current_state;
-     --[JJ] quick fix
      ret_dat_stop_mux_sel <= "00"; -- hold value;
    
       case current_state is
@@ -469,7 +472,7 @@ begin
    ret_dat_stop_ack        <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i    = '1' else '0';   
    cmd_stop                <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg  = '1' else '0';   
    last_frame_o            <= '1' when (current_state = RETURN_DATA_LAST and (ret_dat_stop_reg = '1' or current_seq_num >= stop_seq_num_i)) 
-                                       or (current_state = RETURN_DATA_SINGLE_FRAME or current_state = RETURN_DATA_SINGLE_FRAME_PAUSE1) else '0';
+                                    or (current_state = RETURN_DATA_SINGLE_FRAME or current_state = RETURN_DATA_SINGLE_FRAME_PAUSE1) else '0';
 
 ------------------------------------------------------------------------
 --
@@ -505,7 +508,7 @@ begin
                        current_sync_num_reg        when mux_sel = CURRENT_NUM_SEL        else
                        current_sync_num_reg;
                        
-   current_sync_num_reg_plus_1 <= current_sync_num_reg + 10; -- this is the sync pulse increment value for issuing ret_dat commands on consecutive
+   current_sync_num_reg_plus_1 <= current_sync_num_reg + data_rate_i; -- this is the sync pulse increment value for issuing ret_dat commands on consecutive
                                                                     -- frames of data.  Ex: if you want every 1000 frames, change to "+ 1000"
 
    current_seq_num  <= start_seq_num_i             when mux_sel = INPUT_NUM_SEL          else
