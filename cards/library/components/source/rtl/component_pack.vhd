@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.13 2004/07/07 20:21:38 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.14 2004/07/16 22:56:16 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.14  2004/07/16 22:56:16  erniel
+-- updated crc component
+--
 -- Revision 1.13  2004/07/07 20:21:38  erniel
 -- renamed lfsr data port (again) to lfsr_i/o
 --
@@ -260,12 +263,12 @@ package component_pack is
            rst    : in std_logic;
            clr_i  : in std_logic;
            ena_i  : in std_logic;
-     
            data_i : in std_logic;
            poly_i : in std_logic_vector(POLY_WIDTH downto 1);
      
-           done_o  : out std_logic;
-           valid_o : out std_logic);
+           done_o     : out std_logic;
+           valid_o    : out std_logic;
+           checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
       end component;
    
 ------------------------------------------------------------
