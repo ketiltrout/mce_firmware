@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/12/14 19:57:55 $> - <text> - <initials $Author: erniel $>
+-- <date $Date: 2004/12/17 09:59:29 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.17  2004/12/17 09:59:29  dca
+-- fixed bug where FSM output signal 'dec_addr_ena' was previously unassigned in  two states.
+--
 -- Revision 1.16  2004/12/14 19:57:55  erniel
 -- attempted fix on inferred latches
 --
@@ -716,7 +719,7 @@ begin
  
 
    -- assign counts to address vectors - mode 4
-   -- the LS  bits determine the channle
+   -- the LS  bits determine the channel
    -- the rest the 'row'.
  
   
@@ -743,11 +746,12 @@ begin
    
     dat_out_mux_sel <= data_mode_reg(1 downto 0);
    
-    wbs_data        <= filtered_dat   when dat_out_mux_sel = "00" else
-                       unfiltered_dat when dat_out_mux_sel = "01" else
-                       fb_error_dat   when dat_out_mux_sel = "10" else
-                       raw_dat;
-                 
+
+    with dat_out_mux_sel select
+       wbs_data     <= filtered_dat   when "00",
+                       unfiltered_dat when "01",
+                       fb_error_dat   when "10",
+                       raw_dat        when others;
                  
  
  
@@ -755,47 +759,48 @@ begin
 --                 Channel select MUXs
 ---------------------------------------------------------------------------------------------
  
-  
- 
- 
-   filtered_dat   <= filtered_dat_ch0_i when ch_mux_sel = "000" else
-                     filtered_dat_ch1_i when ch_mux_sel = "001" else
-                     filtered_dat_ch2_i when ch_mux_sel = "010" else
-                     filtered_dat_ch3_i when ch_mux_sel = "011" else
-                     filtered_dat_ch4_i when ch_mux_sel = "100" else
-                     filtered_dat_ch5_i when ch_mux_sel = "101" else
-                     filtered_dat_ch6_i when ch_mux_sel = "110" else
-                     filtered_dat_ch7_i;
- 
- 
-   unfiltered_dat <= fsfb_dat_ch0_i when ch_mux_sel = "000" else
-                     fsfb_dat_ch1_i when ch_mux_sel = "001" else
-                     fsfb_dat_ch2_i when ch_mux_sel = "010" else
-                     fsfb_dat_ch3_i when ch_mux_sel = "011" else
-                     fsfb_dat_ch4_i when ch_mux_sel = "100" else
-                     fsfb_dat_ch5_i when ch_mux_sel = "101" else
-                     fsfb_dat_ch6_i when ch_mux_sel = "110" else
-                     fsfb_dat_ch7_i;
+                       
+   with ch_mux_sel select
+      filtered_dat  <= filtered_dat_ch0_i when "000",
+                       filtered_dat_ch1_i when "001",
+                       filtered_dat_ch2_i when "010",
+                       filtered_dat_ch3_i when "011",
+                       filtered_dat_ch4_i when "100",
+                       filtered_dat_ch5_i when "101",
+                       filtered_dat_ch6_i when "110",
+                       filtered_dat_ch7_i when others;
+
+   with ch_mux_sel select
+      unfiltered_dat <= fsfb_dat_ch0_i when "000", 
+                        fsfb_dat_ch1_i when "001",
+                        fsfb_dat_ch2_i when "010",
+                        fsfb_dat_ch3_i when "011",
+                        fsfb_dat_ch4_i when "100",
+                        fsfb_dat_ch5_i when "101",
+                        fsfb_dat_ch6_i when "110",
+                        fsfb_dat_ch7_i when others;
  
    
-   fb_error_dat    <= fsfb_dat_ch0_i (31 downto 16) & coadded_dat_ch0_i(31 downto 16) when ch_mux_sel = "000" else
-                      fsfb_dat_ch1_i (31 downto 16) & coadded_dat_ch1_i(31 downto 16) when ch_mux_sel = "001" else 
-                      fsfb_dat_ch2_i (31 downto 16) & coadded_dat_ch2_i(31 downto 16) when ch_mux_sel = "010" else
-                      fsfb_dat_ch3_i (31 downto 16) & coadded_dat_ch3_i(31 downto 16) when ch_mux_sel = "011" else
-                      fsfb_dat_ch4_i (31 downto 16) & coadded_dat_ch4_i(31 downto 16) when ch_mux_sel = "100" else
-                      fsfb_dat_ch5_i (31 downto 16) & coadded_dat_ch5_i(31 downto 16) when ch_mux_sel = "101" else
-                      fsfb_dat_ch6_i (31 downto 16) & coadded_dat_ch6_i(31 downto 16) when ch_mux_sel = "110" else
-                      fsfb_dat_ch7_i (31 downto 16) & coadded_dat_ch7_i(31 downto 16);
+   with ch_mux_sel select
+      fb_error_dat   <= fsfb_dat_ch0_i (31 downto 16) & coadded_dat_ch0_i(31 downto 16) when "000",
+                        fsfb_dat_ch1_i (31 downto 16) & coadded_dat_ch1_i(31 downto 16) when "001",
+                        fsfb_dat_ch2_i (31 downto 16) & coadded_dat_ch2_i(31 downto 16) when "010",
+                        fsfb_dat_ch3_i (31 downto 16) & coadded_dat_ch3_i(31 downto 16) when "011",
+                        fsfb_dat_ch4_i (31 downto 16) & coadded_dat_ch4_i(31 downto 16) when "100",
+                        fsfb_dat_ch5_i (31 downto 16) & coadded_dat_ch5_i(31 downto 16) when "101",
+                        fsfb_dat_ch6_i (31 downto 16) & coadded_dat_ch6_i(31 downto 16) when "110",
+                        fsfb_dat_ch7_i (31 downto 16) & coadded_dat_ch7_i(31 downto 16) when others;
       
-   raw_dat(31 downto 16) <= (others => '0');
-   raw_dat(15 downto  0) <= raw_dat_ch0_i when raw_ch_mux_sel = "000" else
-                            raw_dat_ch1_i when raw_ch_mux_sel = "001" else 
-                            raw_dat_ch2_i when raw_ch_mux_sel = "010" else
-                            raw_dat_ch3_i when raw_ch_mux_sel = "011" else
-                            raw_dat_ch4_i when raw_ch_mux_sel = "100" else
-                            raw_dat_ch5_i when raw_ch_mux_sel = "101" else
-                            raw_dat_ch6_i when raw_ch_mux_sel = "110" else
-                            raw_dat_ch7_i; 
+   raw_dat(31 downto 16)    <= (others => '0');
+   with raw_ch_mux_sel select
+      raw_dat(15 downto  0) <= raw_dat_ch0_i when "000",
+                               raw_dat_ch1_i when "001", 
+                               raw_dat_ch2_i when "010",
+                               raw_dat_ch3_i when "011",
+                               raw_dat_ch4_i when "100",
+                               raw_dat_ch5_i when "101",
+                               raw_dat_ch6_i when "110",
+                               raw_dat_ch7_i when others;
        
   
 
