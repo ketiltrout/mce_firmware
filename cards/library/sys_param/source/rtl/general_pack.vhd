@@ -28,8 +28,11 @@
 -- pack file for general_pack
 --
 -- Revision history:
--- <date $Date: 2004/07/29 00:24:41 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/29 23:45:20 $>	- <initials $Author: mandana $>
 -- $Log: general_pack.vhd,v $
+-- Revision 1.4  2004/07/29 23:45:20  mandana
+-- moved address card constants to ac_dac_ctrl_pack.vhd
+--
 -- Revision 1.3  2004/07/29 00:24:41  mandana
 -- add AC parameters
 --
@@ -41,15 +44,18 @@ use ieee.std_logic_1164.all;
 
 package general_pack is
 
-   -- clock card global fpga clock:  50 MHz  
-   -- (pls modify both parameters if you change the clock frequency)
-   constant CLOCK_PERIOD_NS : integer := 20;
-   constant CLOCK_PERIOD    : time    := 20 ns;
+   -- NOTE: please modify both parameters if you change a clock frequency
    
-   -- max and min allowable DAC settings on Bias card
-   constant MAX_FLUX_FB      : std_logic_vector (15 downto 0) := x"FFFF";
-   constant MIN_FLUX_FB      : std_logic_vector (15 downto 0) := x"0000";
-   constant MAX_BIAS         : std_logic_vector (15 downto 0) := x"FFFF";
-   constant MIN_BIAS         : std_logic_vector (15 downto 0) := x"0000";
+   -- clock card global fpga clock:  50 MHz  
+   constant CLOCK_PERIOD_PS    : integer := 20000;
+   constant CLOCK_PERIOD       : time    := 20000 ps;
+   
+   -- clock card global fpga clock:  200 MHz     
+   constant MEM_CLK_PERIOD_PS  : integer := 5000;
+   constant MEM_CLK_PERIOD     : time    := 5000 ps;
+   
+   -- clock card global fpga clock:  400 MHz     
+   constant COMM_CLK_PERIOD_PS : integer := 2500;
+   constant COMM_CLK_PERIOD    : time    := 2500 ps;
          
 end general_pack;
