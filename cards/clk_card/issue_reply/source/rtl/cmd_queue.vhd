@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.73 2004/12/14 06:01:23 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.74 2004/12/16 22:05:40 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.74  2004/12/16 22:05:40  bburger
+-- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
+--
 -- Revision 1.73  2004/12/14 06:01:23  bburger
 -- Bryce:  Fixed a bug in the cmd_queue retire FSM that didn't allow the pointer to wrap properly
 --
@@ -132,7 +135,6 @@ entity cmd_queue is
 
       -- Clock lines
       clk_i           : in std_logic; -- Advances the state machines
-      comm_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
       mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
       rst_i           : in std_logic  -- Resets all FSMs
    );
@@ -341,8 +343,6 @@ begin
    cmd_tx2: lvds_tx
       port map(
          clk_i      => clk_i,
-         comm_clk_i => comm_clk_i,
-         mem_clk_i  => mem_clk_i,
          rst_i      => rst_i,
          dat_i      => cmd_tx_dat,
          rdy_i      => lvds_tx_rdy,
