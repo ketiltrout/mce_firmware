@@ -29,8 +29,11 @@
 -- Stand-alone test module for readout card. It only routes the ADC outputs to DAC inputs. 
 --
 -- Revision history:
--- -- <date $Date$>    - <initials $Author$>
--- $Log$
+-- -- <date $Date: 2004/07/20 22:19:50 $>    - <initials $Author: mandana $>
+-- $Log: rc_noise_test.vhd,v $
+-- Revision 1.1  2004/07/20 22:19:50  mandana
+-- Initial release, samples ADC at 50MHz, routes ADC LSb to DAC MSb
+--
 --
 -----------------------------------------------------------------------------
 
@@ -142,20 +145,22 @@ begin
    adc7_clk <= clk;
    adc8_clk <= clk;
    
-   dac_FB1_dat(13 downto 6) <= adc1_dat(7 downto 0);
-   dac_FB2_dat(13 downto 6) <= adc2_dat(7 downto 0);
-   dac_FB3_dat(13 downto 6) <= adc3_dat(7 downto 0);
-   dac_FB4_dat(13 downto 6) <= adc4_dat(7 downto 0);
-   dac_FB5_dat(13 downto 6) <= adc5_dat(7 downto 0);
-   dac_FB6_dat(13 downto 6) <= adc6_dat(7 downto 0);
-   dac_FB7_dat(13 downto 6) <= adc7_dat(7 downto 0);
-   dac_FB8_dat(13 downto 6) <= adc8_dat(7 downto 0);
+   dac_FB1_dat(12 downto 0) <= adc1_dat(12 downto 0);
+   dac_FB2_dat(12 downto 0) <= adc2_dat(12 downto 0);
+   dac_FB3_dat(12 downto 0) <= adc3_dat(12 downto 0);
+   dac_FB4_dat(12 downto 0) <= adc4_dat(12 downto 0);
+   dac_FB5_dat(12 downto 0) <= adc5_dat(12 downto 0);
+   dac_FB6_dat(12 downto 0) <= adc6_dat(12 downto 0);
+   dac_FB7_dat(12 downto 0) <= adc7_dat(12 downto 0);
+   dac_FB8_dat(12 downto 0) <= adc8_dat(12 downto 0);
+   
+   dac_FB1_dat(13) <= not(adc1_dat(13)); --adc is signed
 
    nclk <= not(clk);
    dac_FB_clk <= (others => nclk);
    mictor (13 downto 0) <= adc1_dat(13 downto 0);
    mictor (14)          <= adc1_rdy;
-   mictor (15)          <= clk;
+   mictor (15)          <= adc1_ovr;
    mictor (29 downto 16)<= adc2_dat(13 downto 0);
    mictor (30)          <= adc2_rdy;
    mictor (31)          <= clk;
