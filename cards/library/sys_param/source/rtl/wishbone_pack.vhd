@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/08/19 19:54:21 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/08/19 20:06:10 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.10  2004/08/19 20:06:10  bburger
+-- Bryce:  changed a parameter name
+--
 -- Revision 1.9  2004/08/19 19:54:21  bburger
 -- Bryce:  added new parameter ids, and moved some around that didn't belong in a category
 --
@@ -129,7 +132,6 @@ package wishbone_pack is
    constant COL_ENBL_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
    constant SAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"17";
    constant SAMP_NUM_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"18";
-   constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"19";
    constant FB_DLY_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1A";
    constant RAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1B";
    constant RAMP_AMP_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1C";
@@ -174,6 +176,7 @@ package wishbone_pack is
 
    -- All FPGA Cards
    constant RET_DAT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"30";
+   constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"31";
    constant ROW_ORDER_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"33";
    constant RET_DAT_S_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"34";
    constant USE_DV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"37";
