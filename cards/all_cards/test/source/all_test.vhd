@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: all_test.vhd,v $
+-- Revision 1.1  2004/04/28 20:16:13  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -45,7 +48,8 @@ use work.all_test_pack.all;
 entity all_test is
    port(
       reset_n : in std_logic;
-      clk : in std_logic;
+      inclk : in std_logic;
+      outclk : out std_logic;
       txd : out std_logic;
       rxd : in std_logic;
       
@@ -78,10 +82,18 @@ end all_test;
 
 architecture behaviour of all_test is
    
+   component pll
+   port(inclk0 : in std_logic;
+        c0 : out std_logic;
+        e0 : out std_logic);
+   end component;
+
    constant MAX_STATES : integer := 12;
    signal zero : std_logic;
    signal one : std_logic;
    signal reset : std_logic;
+   signal int_reset : std_logic;
+   signal clk : std_logic;
 
    -- transmitter signals
    signal tx_clock : std_logic;
@@ -171,6 +183,11 @@ architecture behaviour of all_test is
    signal array_id_stb  : std_logic;
    
 begin
+   clk_gen : pll
+      port map(inclk0 => inclk,
+               c0 => clk,
+               e0 => outclk);
+
    -- RS232 interface start
    receiver : async_rx
       port map(rx_i => rxd,
@@ -335,7 +352,7 @@ begin
       
    zero <= '0';
    one <= '1';                         
-   reset <= not reset_n;
+   reset <= not reset_n or int_reset;
    
    -- functionality of async_mux:
    
@@ -367,6 +384,7 @@ begin
    cmd_proc : process (reset, clk)
    begin
       if (reset = '1') then
+         int_reset <= '0';
          sel_vec <= SEL_RESET;
          cmd_state <= CMD_RESET;
       elsif Rising_Edge(clk) then
@@ -392,8 +410,6 @@ begin
             when CMD_DECODE =>
                -- activate the appropiate test module
                cmd_state <= CMD_EXECUTE;
---               case cmd1 is
---                  when CMD_LED =>
                if(cmd1 = CMD_LED) then
                      -- toggle a LED
                      if (cmd2 = CMD_LED_1) then
@@ -404,12 +420,10 @@ begin
                         sel_vec <= SEL_LED_FAULT;
                      end if;
                      
---                  when CMD_WATCHDOG =>
                elsif(cmd1 = CMD_WATCHDOG) then
                      -- kick watchdog
                      sel_vec <= SEL_WATCHDOG;
-                     
---                  when CMD_TX =>
+
                elsif(cmd1 = CMD_TX) then
                      -- random number tx test
                      if (cmd2 = CMD_TX_0) then
@@ -420,15 +434,6 @@ begin
                         sel_vec <= SEL_LVDS_TX_SPARE;
                      end if;
                   
---                  when CMD_SRAM =>
---                     -- SRAM verification
---                     if(cmd2 = CMD_SRAM_0) then
---                        sel_vec <= SEL_SRAM_0;
---                     else
---                        sel_vec <= SEL_SRAM_1;
---                     end if;
-                     
---                  when CMD_ID =>
                elsif(cmd1 = CMD_ID) then
                      if(cmd2 = CMD_ID_SLOT) then
                         sel_vec <= SEL_SLOT_ID;
@@ -437,18 +442,20 @@ begin
                      elsif(cmd2 = CMD_ID_SERIAL) then
                         sel_vec <= SEL_CARD_ID;
                      end if;
-                     
---                  when others =>
+
+               elsif(cmd1 = CMD_RESET) then
+                  int_reset <= '1';
+
                else
-                     -- must not be implemented yet!
-                     sel_vec <= (others => '0');
-                     cmd_state <= CMD_WAIT;
---               end case;
+                  -- must not be implemented yet!
+                  sel_vec <= (others => '0');
+                  cmd_state <= CMD_WAIT;
                end if;
                
             when CMD_EXECUTE =>
                -- wait for thet test to complete
                if (done_vec /= DONE_NULL) then
+                  int_reset <= '0';
                   sel_vec <= (others => '0');
                   cmd_state <= CMD_WAIT;
                end if;
