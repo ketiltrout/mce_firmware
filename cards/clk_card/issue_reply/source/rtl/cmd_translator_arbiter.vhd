@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.2 2004/06/09 23:35:54 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.4 2004/06/21 17:01:51 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,16 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/09 23:35:54 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/21 17:01:51 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.4  2004/06/21 17:01:51  jjacob
+-- first stable version, doesn't yet have macro-instruction buffer, doesn't have
+-- "quick" acknolwedgements for instructions that require them, no error
+-- handling, basically no return path logic yet.  Have implemented ret_dat
+-- instructions, and "simple" instructions.  Not all instructions are fully
+-- implemented yet.
+--
 -- Revision 1.2  2004/06/09 23:35:54  jjacob
 -- cleaned formatting
 --
@@ -68,6 +75,7 @@ use sys_param.general_pack.all;
 entity cmd_translator_arbiter is
 
 --generic(cmd_translator_ADDR               : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := EEPROM_ADDR  );
+
 
 port(
 

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.8 2004/06/29 22:42:31 jjacob Exp $
+-- $Id: issue_reply_pack.vhd,v 1.9 2004/06/30 23:14:40 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.9  2004/06/30 23:14:40  bburger
+-- bug fix: DATA_SIZE_BUS_WIDTH is =32, was =8
+--
 -- Revision 1.8  2004/06/29 22:42:31  jjacob
 -- updating testbench, not even the first version yet.  This is a safety
 -- check-in
@@ -225,8 +228,8 @@ port(
       frame_sync_num_o        : out std_logic_vector (7 downto 0);
 
       -- input from the macro-instruction arbiter
-      ack_i                   : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
-
+      ack_i                   : in std_logic;                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
+      ack_o                   : out std_logic
 
    );
 
@@ -290,7 +293,4 @@ port(
 end component;
 
 
-
-
->>>>>>> 1.8
 end issue_reply_pack;
