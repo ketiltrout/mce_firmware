@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.2 2004/07/08 20:21:39 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.3 2004/07/12 15:48:18 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Jonathan Jacob
@@ -34,9 +34,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/08 20:21:39 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/12 15:48:18 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.3  2004/07/12 15:48:18  jjacob
+-- Added an extra output e1 to the pll because fibre_rx_clk is not connected
+-- to the pll, but fibre_tx_clk is (connected to e1), and it's shorted to
+-- fibre_rx_clk. This is on the CC001 board which I'm currently testing on.
+-- Also shifted the bits by one from test(38:17) -> test(37:16).
+--
 -- Revision 1.2  2004/07/08 20:21:39  jjacob
 -- modified test(38 downto 0) to test(38 downto 11)
 --
@@ -87,16 +93,17 @@ port(
       fibre_rx_sc_nd     : in std_logic;                      -- rsc_nRd_i
 
       -- output to simulated u-op sequence generator (logic analyzer)
-      test               : out std_logic_vector(38 downto 11); -- cksum_err
+      test               : out std_logic_vector(38 downto 11)  -- cksum_err
                                                                -- card_addr
                                                                -- parameter_id
                                                                -- data
                                                                -- data_clk
                                                                -- macro_instr_rdy
                                                                -- data_size
+                                                               -- ack_i (routed from dip_sw2)
 
       -- inputs from the simulated u-op sequence generator (dip switch)
-      dip_sw2            : in std_logic                       --ack_i
+      --dip_sw2            : in std_logic                        -- ack_i
 
      ); 
      
@@ -116,16 +123,24 @@ architecture rtl of issue_reply_test is
 
    signal cksum_err       : std_logic;                                         -- connected to test(11)
    signal card_addr       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- connected to test(15 downto 12)
-   signal parameter_id    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);    -- connected to test(24 downto 17)
+   signal parameter_id    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);    -- connected to test(23 downto 16)
    
-   signal data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);      -- connected to test(32 downto 25)
-   signal data_clk        : std_logic;                                         -- connected to test(33)
-   signal macro_instr_rdy : std_logic;                                         -- connected to test(34)
-   signal data_size       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- connected to test(38 downto 35)
+   signal data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);      -- connected to test(31 downto 24)
+   signal data_clk        : std_logic;                                         -- connected to test(32)
+   signal macro_instr_rdy : std_logic;                                         -- connected to test(33)
+   signal data_size       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- connected to test(37 downto 34)
+
+   --signal dip_sw2_ack     : std_logic;                                         -- connected to test(38)
+
 
    signal ground          : std_logic;
    signal ground8         : std_logic_vector(7 downto 0);
    signal ground32        : std_logic_vector(31 downto 0);
+
+   signal simulated_ack   : std_logic;
+
+   type state is (IDLE, WAIT1, WAIT2, ACK);
+   signal next_state, current_state  : state;
 
 
 ------------------------------------------------------------------------
@@ -163,7 +178,7 @@ port(
       frame_sync_num_o  :  out std_logic_vector(7 downto 0);
       
       -- input from the micro-op sequence generator
-      ack_i             : in std_logic     
+      ack_i             :  in std_logic     
 
    ); 
 end component;
@@ -193,6 +208,10 @@ begin
    test(32)           <= data_clk;
    test(33)           <= macro_instr_rdy;
    test(37 downto 34) <= data_size(3 downto 0);
+   
+   --dip_sw2_ack        <= dip_sw2;
+   test(38)           <= simulated_ack; --dip_sw2;
+   
 
    ground             <= '0';
    ground8            <= (others=>'0');
@@ -232,7 +251,7 @@ begin
             frame_sync_num_o  => ground8,
       
             -- input from the micro-op sequence generator
-            ack_i             => dip_sw2
+            ack_i             => simulated_ack --dip_sw2
            ); 
 
 ------------------------------------------------------------------------
@@ -251,6 +270,44 @@ pll : issue_reply_test_pll
 		                                 -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
 	);
 
+------------------------------------------------------------------------
+--
+-- create simulated cmd_ack_i signal here
+--
+------------------------------------------------------------------------
+
+   process(current_state, macro_instr_rdy)
+   begin
+      case current_state is
+         when IDLE =>
+            if macro_instr_rdy = '1' then
+               next_state <= WAIT1;
+            else
+               next_state <= IDLE;
+            end if;
+
+         simulated_ack <= '0';
+
+         when WAIT1  => next_state    <= WAIT2;
+                        simulated_ack <= '0';
+
+         when WAIT2  => next_state    <= ACK;
+                        simulated_ack <= '0';
+
+         when ACK    => next_state    <= IDLE;
+                        simulated_ack <= '1';
+
+         when others => next_state    <= IDLE;
+                        simulated_ack <= '0';
+      end case;
+   end process;
+
+   process(inclk)
+   begin
+      if inclk'event and inclk = '1' then
+         current_state <= next_state;
+      end if;
+   end process;
 
 
 end rtl; 
