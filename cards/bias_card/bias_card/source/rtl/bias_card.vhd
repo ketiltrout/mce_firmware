@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.5 2005/01/07 01:33:23 bench2 Exp $
+-- $Id: bias_card.vhd,v 1.6 2005/01/12 22:37:11 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.6  2005/01/12 22:37:11  mandana
+-- added slot_id to dispatch interface
+-- removed mem_clk_i from dispatch interface
+--
 -- Revision 1.5  2005/01/07 01:33:23  bench2
 -- Mandana: remove spi_clk from PLL, it is divided down by a counter in bc_dac_core module now.
 --
@@ -248,7 +252,6 @@ begin
          
          -- Global Signals      
          clk_i                      => clk,
-         mem_clk_i                  => mem_clk,
          rst_i                      => rst,
          debug                      => debug
       );                         
