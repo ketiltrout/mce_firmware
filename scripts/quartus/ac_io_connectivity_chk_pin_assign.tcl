@@ -11,7 +11,10 @@
 # Modified for the clock card by Neil Gruending, Mar 4, 2004
 # 
 # Revision History:
-# $Log: stratix_pin_assign.tcl,v $
+# $Log: ac_io_connectivity_chk_pin_assign.tcl,v $
+# Revision 1.1  2004/04/16 00:27:45  jjacob
+# new test
+#
 # Revision 1.3  2004/04/07 16:28:02  erniel
 # added SRAM bank 0 pins
 # added SRAM bank 1 pins

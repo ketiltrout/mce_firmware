@@ -30,7 +30,10 @@
 -- 
 -- Revision History:
 --
--- $Log$
+-- $Log: cc_test_reset.vhd,v $
+-- Revision 1.1  2004/06/09 22:13:38  erniel
+-- initial version
+--
 --
 ---------------------------------------------------------------------
 

@@ -22,7 +22,10 @@
 -- Revision History:
 -- Dec 29, 2003: Initial version - NRG
 --
--- $Log$
+-- $Log: tb_async.vhd,v $
+-- Revision 1.1  2004/04/28 02:57:14  erniel
+-- renamed file from async_tb
+--
 --
 ---------------------------------------------------------------------
 

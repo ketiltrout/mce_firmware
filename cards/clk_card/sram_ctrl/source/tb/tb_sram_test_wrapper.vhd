@@ -20,7 +20,7 @@
 
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: tb_sram_test_wrapper.vhd,v 1.2 2004/03/25 20:24:47 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_sram_test_wrapper.vhd,v 1.1 2004/04/16 00:09:58 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,11 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/03/25 20:24:47 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/04/16 00:09:58 $>	- <initials $Author: mandana $>
 -- $Log: tb_sram_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/16 00:09:58  mandana
+-- initial release to new directory structure
+--
 -- Revision 1.2  2004/03/25 20:24:47  erniel
 -- added copyright and log header
 --

@@ -20,7 +20,7 @@
 
 -- utils_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: hex2ascii.vhd,v 1.1 2004/04/14 22:16:23 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: utils_pack.vhd,v 1.1 2004/05/20 23:51:14 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Neil Gruending
@@ -30,8 +30,11 @@
 -- Defines utility functions.
 --
 -- Revision history:
--- <$Date$>
--- $Log$
+-- <$Date: 2004/05/20 23:51:14 $>
+-- $Log: utils_pack.vhd,v $
+-- Revision 1.1  2004/05/20 23:51:14  erniel
+-- relocated old cc_test files
+--
 --
 -----------------------------------------------------------------------------
 

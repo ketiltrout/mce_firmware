@@ -14,7 +14,7 @@
 -- Vancouver BC, V6T 1Z1
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: lvds_test.vhd,v 1.1 2004/04/14 00:04:51 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: lvds_test.vhd,v 1.1 2004/07/12 23:45:18 erniel Exp $>
 --
 -- Project: SCUBA-2
 -- Author: Bryce Burger
@@ -24,8 +24,11 @@
 -- LVDS loopback and DIP/LED test
 --
 -- Revision history:
--- <date $Date: 2004/04/14 00:04:51 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/07/12 23:45:18 $> - <text> - <initials $Author: erniel $>
 -- $Log: lvds_test.vhd,v $
+-- Revision 1.1  2004/07/12 23:45:18  erniel
+-- moved to clk_card/test/source
+--
 -- Revision 1.1  2004/04/14 00:04:51  bburger
 -- new
 --
