@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.2  2004/08/21 00:00:31  bburger
+-- Bryce:  now issues a sync pulse on the last cycle of a frame.
+--
 -- Revision 1.1  2004/08/05 00:19:33  bburger
 -- Bryce:  new
 --
@@ -75,6 +78,9 @@ architecture beh of sync_gen is
    signal clk_count        : integer;
    signal sync_count       : integer;
    signal sync_num         : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+   
+   signal sync_num_mux     : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+   signal sync_num_mux_sel : std_logic;
 
    begin      
       clk_ctr: counter
@@ -118,8 +124,10 @@ architecture beh of sync_gen is
       begin
          if(rst_i = '1') then
             current_state <= RESET;
+            sync_num      <= (others=>'0');
          elsif(clk_i'event and clk_i = '1') then
             current_state <= next_state;
+            sync_num      <= sync_num_mux;
          end if;
       end process;
 
@@ -160,20 +168,27 @@ architecture beh of sync_gen is
          case current_state is
             when RESET =>
                --sync_o <= '0';
-               sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
+               sync_num_mux_sel <= '1';
+               --sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
             when SYNC_LOW =>
                --sync_o <= '0';
-               sync_num <= sync_num;
+               sync_num_mux_sel <= '0';
+               --sync_num <= sync_num;
             when SYNC_HIGH =>
                --sync_o     <= '1';
-               sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
+               sync_num_mux_sel <= '1';
+               --sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
             when DV_RECEIVED =>
                --sync_o <= '0';
-               sync_num <= sync_num;
+               sync_num_mux_sel <= '0';
+               --sync_num <= sync_num;
             when others =>
                --sync_o <= '0';
-               sync_num <= sync_num;
+               sync_num_mux_sel <= '0';
+               --sync_num <= sync_num;
          end case;
       end process;
+      
+      sync_num_mux <= sync_num when sync_num_mux_sel = '0' else std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
 
 end beh;
