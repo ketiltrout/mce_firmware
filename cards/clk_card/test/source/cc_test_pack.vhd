@@ -30,7 +30,10 @@
 -- 
 -- Revision History:
 --
--- $Log$
+-- $Log: cc_test_pack.vhd,v $
+-- Revision 1.1  2004/06/09 22:13:38  erniel
+-- initial version
+--
 --
 ---------------------------------------------------------------------
 
@@ -76,7 +79,7 @@ package cc_test_pack is
    constant CMD_FIBRE      : std_logic_vector(7 downto 0) := conv_std_logic_vector(102,8);   -- f
    constant CMD_FIBRE_BIST : std_logic_vector(7 downto 0) := conv_std_logic_vector(98,8);    -- b
    constant CMD_FIBRE_TX   : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t
-   constant CMD_FIBRE_RX   : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r
+   constant CMD_FIBRE_RX   : std_logic_vector(7 downto 0) := conv_std_logic_vector(82,8);   -- R
    
    -- Three character commands ------------------------------------------
    
@@ -198,7 +201,28 @@ package cc_test_pack is
    
    ------------------------------------------------------------------
    -- SRAM
-   
+   component sram_test_wrapper
+   port( 
+        rst_i  : in std_logic;    
+        clk_i  : in std_logic;    
+        en_i   : in std_logic;    
+        done_o : out std_logic;   
+         
+        -- RS232 signals
+         
+        -- physical pins
+        addr_o  : out std_logic_vector(19 downto 0);
+        data_bi : inout std_logic_vector(15 downto 0); 
+        n_ble_o : out std_logic;
+        n_bhe_o : out std_logic;
+        n_oe_o  : out std_logic;
+        n_ce1_o : out std_logic;
+        ce2_o   : out std_logic;
+        n_we_o  : out std_logic;
+        pass    : out std_logic;
+        fail    : out std_logic);
+   end component;
+
    ------------------------------------------------------------------
    -- EEPROM   
    
