@@ -1,6 +1,6 @@
 -- tb_frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_frame_timing.vhd,v 1.2 2004/03/29 19:33:08 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_frame_timing.vhd,v 1.1 2004/04/02 20:01:33 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date: 2004/03/29 19:33:08 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2004/04/02 20:01:33 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ end TB_FRAME_TIMING;
 
 architecture BEH of TB_FRAME_TIMING is
 
-   signal tb_clk_o : std_logic;
+--   signal tb_clk_o : std_logic;
    signal tb_sync_o : std_logic;
    signal tb_rst_on_next_sync_o : std_logic;
    signal tb_cycle_count_i : std_logic_vector(31 downto 0);
@@ -46,7 +46,7 @@ begin
 
    DUT : frame_timing
       port map(
-         clk_i => tb_clk_o,
+         clk_i => W_CLK_I,
          sync_i => tb_sync_o,
          rst_on_next_sync_i => tb_rst_on_next_sync_o,
          cycle_count_o => tb_cycle_count_i,
