@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.3  2004/11/26 01:41:38  erniel
+-- added support for status/error bits
+--
 -- Revision 1.2  2004/10/13 04:02:35  erniel
 -- added registers for command and reply packet headers
 -- modified reply packet data size logic
@@ -191,6 +194,7 @@ begin
    
    transmitter : dispatch_reply_transmit
    port map(clk_i       => clk_i,
+            mem_clk_i   => mem_clk_i,
             comm_clk_i  => comm_clk_i,
             rst_i       => rst_i,
             lvds_tx_o   => lvds_reply_o,

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.8  2004/11/29 23:35:32  bench2
+-- Greg: Added err_i and extended FIBRE_CHECKSUM_ERR to 8-bits for reply_argument in reply_translator.vhd
+--
 -- Revision 1.7  2004/11/26 01:35:13  erniel
 -- updated dispatch_wishbone component
 --
@@ -123,6 +126,7 @@ package dispatch_pack is
    
    component dispatch_reply_transmit
    port(clk_i       : in std_logic;
+        mem_clk_i   : in std_logic;
         comm_clk_i  : in std_logic;
         rst_i       : in std_logic;    
         lvds_tx_o   : out std_logic;
