@@ -19,7 +19,7 @@
 --
 -- tx_control_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tx_control_pack.vhd,v 1.1 2004/04/20 09:36:36 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson	
@@ -29,7 +29,7 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date$> - <text> - <initials $Author$>
+-- <date $Date: 2004/04/20 09:36:36 $> - <text> - <initials $Author: dca $>
 -- $LOG$
 
 
@@ -41,7 +41,7 @@ package tx_control_pack is
 component tx_control 
    port( 
       ft_clkw_i : in     std_logic;
-      n_Trp_i   : in     std_logic;
+      nTrp_i   : in     std_logic;
       tx_fe_i   : in     std_logic;
       tsc_nTd_o : out    std_logic;
       nFena_o   : out    std_logic;
