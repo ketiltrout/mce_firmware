@@ -1,5 +1,5 @@
 Assembler report for tx_reply_wrapper compilation.
-Thu Oct 07 16:09:31 2004
+Tue Oct 12 15:15:50 2004
 Version 3.0 Build 199 06/26/2003 SJ Full Version
 
 Command: quartus_asm --import_settings_files=off --export_settings_files=off tx_reply_wrapper -c tx_reply_wrapper
@@ -49,16 +49,16 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Thu Oct 07 16:09:31 2004 ;
+; Flow Status              ; Successful - Tue Oct 12 15:15:50 2004 ;
 ; Compiler Setting Name    ; tx_reply_wrapper                      ;
 ; Top-level Entity Name    ; tx_reply_wrapper                      ;
 ; Family                   ; Stratix                               ;
 ; Device                   ; EP1S10F780C6ES                        ;
-; Total logic elements     ; 3,841 / 10,570 ( 36 % )               ;
-; Total pins               ; 18 / 426 ( 4 % )                      ;
-; Total memory bits        ; 70,656 / 920,448 ( 7 % )              ;
+; Total logic elements     ; 978 / 10,570 ( 9 % )                  ;
+; Total pins               ; 17 / 426 ( 3 % )                      ;
+; Total memory bits        ; 19,200 / 920,448 ( 2 % )              ;
 ; DSP block 9-bit elements ; 0 / 48 ( 0 % )                        ;
-; Total PLLs               ; 0 / 6 ( 0 % )                         ;
+; Total PLLs               ; 1 / 6 ( 16 % )                        ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                         ;
 --------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 10/07/2004 16:03:10 ;
+; Start date & time     ; 10/12/2004 15:12:41 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; tx_reply_wrapper    ;
 -----------------------------------------------
@@ -79,17 +79,17 @@ party's intellectual property, are provided herein.
 ---------------------------------------
 ; Module Name          ; Elapsed Time ;
 ---------------------------------------
-; Analysis & Synthesis ; 00:01:31     ;
-; Fitter               ; 00:04:17     ;
-; Assembler            ; 00:00:28     ;
-; Total                ; 00:06:16     ;
+; Analysis & Synthesis ; 00:00:58     ;
+; Fitter               ; 00:01:41     ;
+; Assembler            ; 00:00:27     ;
+; Total                ; 00:03:06     ;
 ---------------------------------------
 
 
 -----------------------------------------------------------------
 ; Assembler Summary                                             ;
 -----------------------------------------------------------------
-; Assembler Status      ; Successful - Thu Oct 07 16:09:31 2004 ;
+; Assembler Status      ; Successful - Tue Oct 12 15:15:50 2004 ;
 ; Compiler Setting Name ; tx_reply_wrapper                      ;
 ; Top-level Entity Name ; tx_reply_wrapper                      ;
 ; Family                ; Stratix                               ;
@@ -150,7 +150,7 @@ party's intellectual property, are provided herein.
 -----------------------------------
 ; Device         ; EP1S10F780C6ES ;
 ; JTAG usercode  ; 0xFFFFFFFF     ;
-; Checksum       ; 0x0040521B     ;
+; Checksum       ; 0x001DBD96     ;
 -----------------------------------
 
 
@@ -161,7 +161,7 @@ party's intellectual property, are provided herein.
 --------------------------------
 ; Device         ; EPC4        ;
 ; JTAG usercode  ; 0xFFFFFFFF  ;
-; Checksum       ; 0x05125E65  ;
+; Checksum       ; 0x05422ACC  ;
 --------------------------------
 
 
@@ -171,10 +171,10 @@ party's intellectual property, are provided herein.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
   Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Thu Oct 07 16:09:08 2004
+  Info: Processing started: Tue Oct 12 15:15:27 2004
 Info: Command: quartus_asm --import_settings_files=off --export_settings_files=off tx_reply_wrapper -c tx_reply_wrapper
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-  Info: Processing ended: Thu Oct 07 16:09:31 2004
+  Info: Processing ended: Tue Oct 12 15:15:50 2004
   Info: Elapsed time: 00:00:22
 Info: Writing report file tx_reply_wrapper.asm.rpt
 

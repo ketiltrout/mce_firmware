@@ -181,7 +181,7 @@ NC                           : AD17      :        :                   :         
 RESERVED_INPUT               : AD18      :        :                   :         : 8         :                
 tx_data_o[0]                 : AD19      : output : LVTTL             :         : 8         : Y              
 GND                          : AD20      :        :                   :         : 8         :                
-ant16_trig_o                 : AD21      : output : LVTTL             :         : 8         : Y              
+RESERVED_INPUT               : AD21      :        :                   :         : 8         :                
 GND                          : AD22      :        :                   :         : 8         :                
 stim2_i                      : AD23      : input  : LVTTL             :         : 8         : Y              
 NC                           : AD24      :        :                   :         : 1         :                
@@ -397,7 +397,7 @@ NC                           : E11       :        :                   :         
 NC                           : E12       :        :                   :         : 1         :                
 NC                           : E13       :        :                   :         : 1         :                
 GNDG_PLL5                    : E14       : gnd    :                   :         : 1         :                
-RESERVED_INPUT               : E15       :        :                   :         : 9         :                
+fibre_clkw_o                 : E15       : output : LVTTL             :         : 9         : N              
 NC                           : E16       :        :                   :         : 1         :                
 NC                           : E17       :        :                   :         : 1         :                
 GND                          : E18       :        :                   :         : 3         :                
@@ -631,7 +631,7 @@ RESERVED_INPUT               : N21       :        :                   :         
 RESERVED_INPUT               : N22       :        :                   :         : 2         :                
 RESERVED_INPUT               : N23       :        :                   :         : 2         :                
 RESERVED_INPUT               : N24       :        :                   :         : 2         :                
-ft_clkw_i                    : N25       : input  : LVTTL             :         : 2         : N              
+RESERVED_INPUT               : N25       :        :                   :         : 2         :                
 RESERVED_INPUT               : N26       :        :                   :         : 2         :                
 GND+                         : N27       :        :                   :         : 2         :                
 RESERVED_INPUT               : N28       :        :                   :         : 2         :                
