@@ -81,7 +81,7 @@ entity rc_io_toggle is
 --      pll5_out       : out std_logic(3 downto 0);
 --      pll6_out       : out std_logic(3 downto 0);
       
-      adc_clk	     : out std_logic(7 downto 0);
+      adc_clk	     : out std_logic_vector(7 downto 0);
       eeprom_si      : out std_logic;
       eeprom_sck     : out std_logic;
       eeprom_cs      : out std_logic;      
