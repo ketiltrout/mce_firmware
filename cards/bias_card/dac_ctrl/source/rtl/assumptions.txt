@@ -3,6 +3,8 @@ assumptions:
 1. 32 dacs and the lvds dac have 2 seperate slave address
 2. If WB doesn't send out the 32 words, then we update as many DACs as possible. The slave is dumb and there is no mechanism to return an error.
 3. The bias values are always updated with what Clock card suggests, even if the bias value is the same as last submitted to the DAC.
-4. We assume that DAC can be programmed MAX range.
+4. MAX and MIN allowable setting for DACs are specified in sys_param/general_pack.vhd
 5. There is a dedicated command	from cmd_fsm to read the cycle_error from this slave.
 6. There is a dedicated command from cmd_fsm to resync.
+7. If a 2nd FLUX_BIAS_ADDR is issued, before the first one is sent down the SPI, then the later values take over for the next SPI transmission.
+8.  
