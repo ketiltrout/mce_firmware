@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/21 20:00:27 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/21 20:28:50 $>	- <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.2  2004/04/21 20:28:50  mandana
+-- fixed errors
+--
 -- Revision 1.1  2004/04/21 20:00:27  mandana
 -- Initial release
 --   
@@ -93,16 +96,39 @@ begin
 
    STIMULI : process
    begin
--- we shouldn't reset the wrapper, because we want the next enable to    
---      W_RST_I       <= '0';
---      wait for PERIOD;
---      W_RST_        <= '1';
---      wait for PERIOD;
+      W_RST_I       <= '0';
+      wait for PERIOD;
+      W_RST_I       <= '1';
+      wait for PERIOD;
       W_RST_I       <= '0';     
+
+      -- set all DACs to the first value
+      W_EN_I        <= '1';      
+      wait until W_DONE_O = '1';
+      W_EN_I        <= '0';
+      WAIT for PERIOD*200; -- wait enough for SPI data to go out
+
+      -- set all the DACs to the second value      
       W_EN_I        <= '1';
       wait until W_DONE_O = '1';
       W_EN_I        <= '0';
+      WAIT for PERIOD*200;
       
+      -- set all the DACs to the third value      
+      W_EN_I        <= '1';
+      wait until W_DONE_O = '1';
+      W_EN_I        <= '0';
+      WAIT for PERIOD*200;
+
+      -- set all the DACs to the forth value      
+      W_EN_I        <= '1';
+      wait until W_DONE_O = '1';
+      W_EN_I        <= '0';
+      WAIT for PERIOD*200;
+      
+      assert FALSE report "Simulation done." severity failure;    
+      wait;
+
    end process STIMULI;
 
 end BEH;
