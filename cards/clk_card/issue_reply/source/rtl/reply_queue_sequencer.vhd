@@ -32,6 +32,12 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.10  2005/02/20 00:42:25  erniel
+-- added MATCHED state
+-- fixed bugs in state transitions
+-- modified packet discard logic
+-- modified data ready logic
+--
 -- Revision 1.9  2005/02/09 20:50:40  erniel
 -- added support for data size calculation using an accumulator
 -- added support for command timeouts
@@ -177,7 +183,9 @@ begin
    
    seq_num <= macro_op_i & micro_op_i;
    
-   error_o <= ac_data_i(31 downto 29)  & bc1_data_i(31 downto 29) & bc2_data_i(31 downto 29) & bc3_data_i(31 downto 29) &
+   error_o <= (others => '0');
+
+   -- error_o <= ac_data_i(31 downto 29)  & bc1_data_i(31 downto 29) & bc2_data_i(31 downto 29) & bc3_data_i(31 downto 29) &
               rc1_data_i(31 downto 29) & rc2_data_i(31 downto 29) & rc3_data_i(31 downto 29) & rc4_data_i(31 downto 29) &
               cc_data_i(31 downto 29) & "000";
    
