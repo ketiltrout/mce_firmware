@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.8 2004/11/30 04:57:48 erniel Exp $
+-- $Id: reply_queue_pack.vhd,v 1.9 2004/11/30 22:58:47 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.9  2004/11/30 22:58:47  bburger
+-- Bryce:  reply_queue integration
+--
 -- Revision 1.8  2004/11/30 04:57:48  erniel
 -- fixed error code width
 --
@@ -172,10 +175,9 @@ end component;
            done_o : out std_logic);
    end component;
 
-component reply_queue_sequencer
-   port(
-      clk_i : in std_logic;
-      rst_i : in std_logic;
+   component reply_queue_sequencer
+      port(clk_i : in std_logic;
+           rst_i : in std_logic;
      
            -- receiver FIFO interfaces:
            ac_data_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -252,8 +254,8 @@ component reply_queue_sequencer
       macro_op_i  : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
       micro_op_i  : in std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
       card_addr_i : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      match_o     : out std_logic;
-           start_i     : in std_logic);
-end component;   
+      cmd_valid_i : in std_logic;
+      match_o     : out std_logic);
+   end component;   
    
 end reply_queue_pack;
