@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: async_fifo.vhd,v 1.6 2004/06/15 10:28:15 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: async_fifo.vhd,v 1.1 2004/06/28 12:28:17 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -36,7 +36,7 @@
 -- Revision history:
 -- 29th March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/15 10:28:15 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 12:28:17 $>	-		<text>		- <initials $Author: dca $>
 --
 -- <$log$>
 -----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ begin
    end process fifo_state;
         
    ----------------------------------------------------------------------------
-   flag_fifo : process(fifo_count)
+   flag_fifo : process(fifo_count, last_count)
    ----------------------------------------------------------------------------
    -- process which sets the full and empty flags depending on fifo_count
    -- when write_pointer and read_pointer are equal (fifo_count = 0) then the 
