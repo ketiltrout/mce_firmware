@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.48 2004/09/02 01:14:52 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.49 2004/09/03 00:39:25 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.49  2004/09/03 00:39:25  bburger
+-- Bryce:  modified the interface to include debug_o, and updated the lvds_tx interface to use bsy and rdy signals implemented in lvds_tx.vhd v1.6
+--
 -- Revision 1.48  2004/09/02 01:14:52  bburger
 -- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
 --
@@ -1387,14 +1390,20 @@ begin
 --            send_ptr_mux_sel         <= "11"; --ADDR_ZERO
 --            --send_ptr                 <= ADDR_ZERO;
          
-         when LOAD =>
+         when LOAD =>            
             -- Debug
             send_state <= "0001";
 
             lvds_tx_rdy              <= '0';
 
             crc_clr                  <= '1';
-            bit_ctr_ena              <= '0';
+            
+            if(bit_ctr_count < 32) then
+               bit_ctr_ena           <= '1';
+            else
+               bit_ctr_ena           <= '0';
+            end if;
+            
             bit_ctr_load             <= '0';
             
             crc_num_bits_mux_sel     <= "10";
