@@ -37,7 +37,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: sa_bias_clk_domain_crosser.vhd,v $
+-- Revision 1.1  2004/11/10 00:23:33  anthonyk
+-- Initial release
+--
 --
 --
 
@@ -75,6 +78,7 @@ architecture rtl of sa_bias_clk_domain_crosser is
    signal shift_reg             : std_logic_vector(NUM_TIMES_FASTER-1 downto 0);    -- shift register for sampling the fast input
    signal ext_pulse             : std_logic;                                        -- extended version of the fast input for 
                                                                                     -- slow clock sampling
+   signal output_slow_meta      : std_logic;                                        -- internal sampler signal to avoid metastability
    
    
 begin
@@ -108,21 +112,32 @@ begin
         end if;
       end if;
    end process sample_extender;
-           
-      
+   
+   
    -- Resample the input pulse (extended version) in the slow clock domain.
    -- Output is now converted to the slow clock domain
+   -- Avoid metastability issue by having an extra meta FF
+   
+   sampler_meta : process (rst_i, clk_slow)
+   begin
+      if (rst_i = '1') then
+         output_slow_meta <= '0';
+      elsif (clk_slow'event and clk_slow = '1') then
+         if ext_pulse = '1' then
+            output_slow_meta <= '1';
+         else
+            output_slow_meta <= '0';
+         end if;
+      end if;
+   end process sampler_meta;
+ 
    
    sampler_slow : process (rst_i, clk_slow)
    begin
       if (rst_i = '1') then
          output_slow <= '0';
       elsif (clk_slow'event and clk_slow = '1') then
-         if ext_pulse = '1' then
-            output_slow <= '1';
-         else
-            output_slow <= '0';
-         end if;
+         output_slow <= output_slow_meta;
       end if;
    end process sampler_slow;
    
