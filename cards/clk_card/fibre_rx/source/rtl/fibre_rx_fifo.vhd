@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.2 2004/06/28 10:41:41 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.1 2004/06/28 11:07:31 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -36,7 +36,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/28 10:41:41 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 11:07:31 $>	-		<text>		- <initials $Author: dca $>
 --
 --
 -----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.async_fifo_pack.all;
+use work.component_pack.all;
 
 entity fibre_rx_fifo is
    generic( 
@@ -62,7 +62,6 @@ entity fibre_rx_fifo is
    );
 
 end fibre_rx_fifo ;
-
 
 architecture behav of fibre_rx_fifo is
    
