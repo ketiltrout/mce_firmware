@@ -29,8 +29,11 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2004/05/17 19:09:34 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/05/25 23:29:33 $>	- <initials $Author: erniel $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.6  2004/05/25 23:29:33  erniel
+-- synthesized, ramp and fixed value test debugged
+--
 -- Revision 1.5  2004/05/17 19:09:34  erniel
 -- expanded dac_dat_o into 11 separate 14-bit vectors
 --
@@ -95,7 +98,7 @@ end ac_test;
 
 architecture behaviour of ac_test is
    
-   component pll
+   component pll_in25m_out50m
    port(inclk0 : in std_logic;
         c0 : out std_logic;
         e0 : out std_logic);
@@ -229,7 +232,7 @@ architecture behaviour of ac_test is
    signal ramp_ena : std_logic;
 
 begin
-   clk_gen : pll
+   clk_gen : pll_in25m_out50m
       port map(inclk0 => inclk,
                c0 => clk,
                e0 => outclk);
