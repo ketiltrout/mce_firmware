@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.9  2005/03/23 01:56:11  erniel
+-- added "when others" statements to FSMs
+--
 -- Revision 1.8  2005/01/12 22:40:30  erniel
 -- removed clk_i from ports
 -- modified rdy_o / ack_i logic
@@ -174,6 +177,7 @@ begin
    
    stateNS: process(pres_state, lvds_i, sample_count)
    begin
+      next_state <= pres_state;
       case pres_state is
          when IDLE =>   if(lvds_i = '0') then
                            next_state <= RECV;
