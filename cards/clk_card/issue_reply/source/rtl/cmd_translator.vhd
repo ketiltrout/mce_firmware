@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.8 2004/07/05 23:38:56 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.9 2004/07/28 23:39:05 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/05 23:38:56 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/28 23:39:05 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.9  2004/07/28 23:39:05  jjacob
+-- added:
+-- library sys_param;
+-- use sys_param.command_pack.all;
+--
 -- Revision 1.8  2004/07/05 23:38:56  jjacob
 -- added ack_o signal to cmd_translator_ret_dat_fsm to control the
 -- acknowledge signal back to the fibre_rx block
@@ -125,7 +130,7 @@ port(
       -- outputs to the micro instruction sequence generator
       m_op_seq_num_o        : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
-      frame_sync_num_o      : out std_logic_vector (7 downto 0);
+      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
 
 
       -- outputs to reply_translator for commands that require quick acknowldgements
@@ -179,7 +184,7 @@ architecture rtl of cmd_translator is
    signal ret_dat_fsm_working        : std_logic;
    
    signal frame_seq_num              : std_logic_vector(31 downto 0);
-   signal frame_sync_num             : std_logic_vector (7 downto 0);
+   signal frame_sync_num             : std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
    --signal m_op_seq_num               : std_logic_vector( 7 downto 0);
 
    -- 'simple command' signals to the arbiter, (then to micro-op  sequence generator )

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.7 2004/07/30 23:31:32 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.8 2004/08/03 20:00:55 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/30 23:31:32 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/03 20:00:55 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.8  2004/08/03 20:00:55  jjacob
+-- updating the macro_instr_rdy signal and cleaning up
+--
 -- Revision 1.7  2004/07/30 23:31:32  jjacob
 -- safety checkin for the long weekend
 --
@@ -128,9 +131,9 @@ port(
 
 
       -- outputs to the micro instruction sequence generator
-      m_op_seq_num_o        : out std_logic_vector ( 7 downto 0);
+      m_op_seq_num_o        : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);--( 7 downto 0);
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
-      frame_sync_num_o      : out std_logic_vector (7 downto 0);
+      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
       
       -- outputs to the macro-instruction arbiter
       card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting

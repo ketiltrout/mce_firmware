@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.7 2004/07/06 20:12:39 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.8 2004/07/28 23:38:34 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/06 20:12:39 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/28 23:38:34 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.8  2004/07/28 23:38:34  jjacob
+-- added:
+-- library sys_param;
+-- use sys_param.command_pack.all;
+-- overhauled state machine structure
+--
 -- Revision 1.7  2004/07/06 20:12:39  jjacob
 -- decoupled the current_sync_num and current_seq_num from the
 -- sync_number_i input
@@ -114,7 +120,7 @@ port(
       ret_dat_s_done_o        : out std_logic;
       
       frame_seq_num_o         : out std_logic_vector (31 downto 0);
-      frame_sync_num_o        : out std_logic_vector (7 downto 0);
+      frame_sync_num_o        : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
       
       -- outputs to the macro-instruction arbiter
       card_addr_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting

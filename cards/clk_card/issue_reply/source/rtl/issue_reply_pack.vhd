@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.17 2004/07/22 01:17:00 bench2 Exp $
+-- $Id: issue_reply_pack.vhd,v 1.18 2004/07/22 23:09:02 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.18  2004/07/22 23:09:02  bench2
+-- Bryce: moved system-level constants to command_pack
+--
 -- Revision 1.17  2004/07/22 01:17:00  bench2
 -- Bryce:  in progress
 --
@@ -143,7 +146,7 @@ port(
       -- outputs to the micro instruction sequence generator
       m_op_seq_num_o        : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
-      frame_sync_num_o      : out std_logic_vector (7 downto 0);
+      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
 
 
       -- outputs to reply_translator for commands that require quick acknowldgements
@@ -237,7 +240,7 @@ port(
       ret_dat_fsm_working_o   : out std_logic;
 
       frame_seq_num_o         : out std_logic_vector (31 downto 0);
-      frame_sync_num_o        : out std_logic_vector (7 downto 0);
+      frame_sync_num_o        : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
 
       -- input from the macro-instruction arbiter
       ack_i                   : in std_logic;                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
@@ -285,9 +288,9 @@ port(
       simple_cmd_ack_o             : out std_logic ;
 
       -- outputs to the micro instruction sequence generator
-      m_op_seq_num_o               : out std_logic_vector ( 7 downto 0);
+      m_op_seq_num_o               : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);--( 7 downto 0);
       frame_seq_num_o              : out std_logic_vector (31 downto 0);
-      frame_sync_num_o             : out std_logic_vector (7 downto 0);
+      frame_sync_num_o             : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
 
       -- outputs to the micro-instruction generator
       card_addr_o                  : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
