@@ -22,18 +22,15 @@
 -- rc_test.vhd
 --
 -- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Author:	      Mandana Amiri
 -- Organisation:  UBC
 --
 -- Description:
 -- Test module for readout card
 --
 -- Revision history:
--- 
--- $Log: rc_test.vhd,v $
--- Revision 1.1  2004/06/11 20:52:42  erniel
--- initial version
---
+-- <date $Date$>	- <initials $Author$>
+-- $Log$ 
 --
 -----------------------------------------------------------------------------
 
@@ -42,6 +39,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library work;
+use work.async_pack.all;
 use work.rc_test_pack.all;
 
 entity rc_test is
@@ -61,8 +59,26 @@ entity rc_test is
       lvds_txb  : out std_logic;
       lvds_cmd   : in std_logic;
       lvds_sync  : in std_logic;
-      lvds_spare : in std_logic);
+      lvds_spare : in std_logic;
       
+      -- rc serial dac interface
+      dac_data  : out std_logic_vector (7 downto 0); 
+      dac_ncs   : out std_logic_vector (7 downto 0); 
+      dac_sclk  : out std_logic_vector (7 downto 0);
+
+      -- rc serial dac interface
+      dac_FB1_data : out std_logic_vector (13 downto 0);
+      dac_FB2_data : out std_logic_vector (13 downto 0);
+      dac_FB3_data : out std_logic_vector (13 downto 0);
+      dac_FB4_data : out std_logic_vector (13 downto 0);
+      dac_FB5_data : out std_logic_vector (13 downto 0);
+      dac_FB6_data : out std_logic_vector (13 downto 0);
+      dac_FB7_data : out std_logic_vector (13 downto 0);
+
+      dac_FB_clk   : out std_logic_vector (7 downto 0);      
+      
+      --test pins
+      test : out std_logic_vector(16 downto 3));
 end rc_test;
 
 architecture behaviour of rc_test is
@@ -70,16 +86,22 @@ architecture behaviour of rc_test is
    component pll
    port(inclk0 : in std_logic;
         c0 : out std_logic;
+        c1 : out std_logic;
         e0 : out std_logic);
    end component;
 
-   
    signal zero : std_logic;
    signal one : std_logic;
    
    signal clk : std_logic;   
    signal rst : std_logic;
    signal int_rst : std_logic;
+   
+   signal dip : std_logic_vector(1 downto 0);
+   signal dac_test_ncs: std_logic_vector(31 downto 0);
+   signal dac_test_sclk: std_logic_vector(31 downto 0);
+   signal dac_test_data: std_logic_vector(31 downto 0);
+
 
    -- transmitter signals
    signal tx_clock : std_logic;
@@ -99,7 +121,7 @@ architecture behaviour of rc_test is
    signal rx_ack   : std_logic;
    
    -- state constants
-   constant MAX_STATES : integer := 9;
+   constant MAX_STATES : integer := 10;
 
    constant INDEX_RESET      : integer := 0;
    constant INDEX_IDLE       : integer := 1;
@@ -109,7 +131,9 @@ architecture behaviour of rc_test is
    constant INDEX_RX_SYNC    : integer := 5;
    constant INDEX_RX_SPARE   : integer := 6;     
    constant INDEX_DEBUG      : integer := 7;
-      
+   constant INDEX_SDAC       : integer := 8;
+   constant INDEX_PDAC       : integer := 9;
+         
    constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
    constant SEL_TX_A       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_A => '1', others => '0');
@@ -118,7 +142,9 @@ architecture behaviour of rc_test is
    constant SEL_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
    constant SEL_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0');         
    constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-   
+   constant SEL_SDAC       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SDAC => '1', others => '0');
+   constant SEL_PDAC       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_PDAC => '1', others => '0');
+      
    constant DONE_NULL       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant DONE_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -128,6 +154,8 @@ architecture behaviour of rc_test is
    constant DONE_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
    constant DONE_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0'); 
    constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
+   constant DONE_SDAC       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SDAC => '1', others => '0');
+   constant DONE_PDAC       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_PDAC => '1', others => '0');
 
    -- state signals
    type states is (RESET, FETCH, DECODE, EXECUTE);
@@ -160,14 +188,22 @@ architecture behaviour of rc_test is
    signal rx_sync_stb   : std_logic;
    signal rx_spare_stb  : std_logic;   
    signal debug_stb     : std_logic;
+   signal test_dac_ncs      : std_logic_vector (7 downto 0);
+   signal test_dac_sclk     : std_logic_vector (7 downto 0);
+   signal test_dac_data     : std_logic_vector (7 downto 0);   
    
    signal test_data : std_logic_vector(31 downto 0);
+   signal spi_start : std_logic;
+
+   signal rx_clk : std_logic;
+   signal dac_test_mode : std_logic_vector(1 downto 0);
    
 begin
---   clk_gen : pll
---      port map(inclk0 => inclk,
---               c0 => clk,
---               e0 => outclk);
+   clk_gen : pll
+      port map(inclk0 => inclk,
+               c0 => clk,
+               c1 => rx_clk,
+               e0 => outclk);
 
    -- RS232 interface start
    receiver : async_rx
@@ -255,6 +291,7 @@ begin
    rx_cmd : lvds_rx_test_wrapper
       port map(rst_i     => rst,
                clk_i     => clk,
+               rx_clk_i  => rx_clk,
                en_i      => sel(INDEX_RX_CMD),
                done_o    => done(INDEX_RX_CMD),
                lvds_i    => lvds_cmd,
@@ -268,6 +305,7 @@ begin
    rx_sync : lvds_rx_test_wrapper
       port map(rst_i     => rst,
                clk_i     => clk,
+               rx_clk_i  => rx_clk,
                en_i      => sel(INDEX_RX_SYNC),
                done_o    => done(INDEX_RX_SYNC),
                lvds_i    => lvds_sync,
@@ -281,6 +319,7 @@ begin
    rx_spare : lvds_rx_test_wrapper
       port map(rst_i     => rst,
                clk_i     => clk,
+               rx_clk_i  => rx_clk,
                en_i      => sel(INDEX_RX_SPARE),
                done_o    => done(INDEX_RX_SPARE),
                lvds_i    => lvds_spare,
@@ -293,7 +332,7 @@ begin
 
                
    debug_tx : rs232_data_tx
-      generic map(WIDTH => 40)
+      generic map(WIDTH => 32)
       port map(clk_i   => clk,
                rst_i   => rst,
                data_i  => test_data,
@@ -306,34 +345,46 @@ begin
                tx_we_o   => debug_we,
                tx_stb_o  => debug_stb); 
                
-   dac_ctrl : dac_ctrl_test_wrapper
+   rc_serial_dac : rc_serial_dac_test_wrapper
       port map(
                -- basic signals
                rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel(INDEX_DAC_CTRL),
-               done_o    => done(INDEX_DAC_CTRL),
+               en_i      => sel(INDEX_SDAC,
+               mode      => dac_test_mode,
+               done_o    => done(INDEX_SDAC),
                
                -- transmitter signals removed!
                          
                -- extended signals
-               dac_dat_o => dac_dat,
-               dac_ncs_o => dac_ncs,
-               dac_clk_o => dac_clk,
-               
-               dac_nclr_o=> dac_nclr,
-               
-               lvds_dac_dat_o => lvds_dac_dat,
-               lvds_dac_ncs_o => lvds_dac_ncs,
-               lvds_dac_clk_o => lvds_dac_clk
-               );   
-     
+               dac_dat_o => test_dac_data,
+               dac_ncs_o => test_dac_ncs,
+               dac_clk_o => test_dac_sclk);
 
-      
+   rc_parallel_dac : rc_parallel_dac_test_wrapper
+      port map(rst_i       => rst,
+               clk_i       => clk,
+               en_i        => sel(INDEX_PDAC),
+               done_o      => done(INDEX_PDAC),
+               
+               dac0_dat_o  => dac_FB1_data,
+               dac1_dat_o  => dac_FB2_data,
+               dac2_dat_o  => dac_FB3_data,
+               dac3_dat_o  => dac_FB4_data,
+               dac4_dat_o  => dac_FB5_data,
+               dac5_dat_o  => dac_FB6_data,
+               dac6_dat_o  => dac_FB7_data,
+               dac7_dat_o  => dac_FB8_data,
+               dac_clk_o   => dac_FB_clk);
+
+   dac_data <= test_dac_data;
+   dac_ncs  <= test_dac_ncs;
+   dac_clk  <= test_dac_sclk;
+   
    zero <= '0';
    one <= '1';                         
    rst <= not n_rst or int_rst;
-   test_data <= "5C00B1ED00";
+   test_data <= "10110000000010111111101011001110";  -- 0xB00BFACE
    
    -- functionality of async_mux:
    
@@ -371,6 +422,7 @@ begin
          int_rst <= '0';
          sel <= SEL_RESET;
          cmd_state <= RESET;
+         dac_test_mode  <= "00";
       elsif Rising_Edge(clk) then
          case cmd_state is
             when RESET => 
@@ -416,8 +468,24 @@ begin
                elsif(cmd1 = CMD_RESET) then
                   int_rst <= '1';
                   
-               elsif(cmd1 = CMD_DAC) then
-	          sel <= SEL_DAC_CTRL;               
+               elsif(cmd1 = CMD_SDAC) then
+                   if (cmd2 = CMD_DAC_FIX) then
+                      if (dac_test_mode = "00") then
+	                 sel <= SEL_SDAC;
+                      end if;                      
+                   elsif (cmd2 = CMD_DAC_RAMP) then
+                      dac_test_mode <= "01";
+                      sel <= SEL_SDAC;               
+                   end if;   
+               elsif(cmd1 = CMD_PDAC) then
+                   if (cmd2 = CMD_DAC_FIX) then
+                      if (dac_test_mode = "00") then
+	                 sel <= SEL_SDAC;
+                      end if;                      
+                   elsif (cmd2 = CMD_DAC_RAMP) then
+                      dac_test_mode <= "01";
+                      sel <= SEL_SDAC;               
+                   end if;   
                   
                else
                   -- must not be implemented yet!
@@ -439,4 +507,12 @@ begin
          end case;
       end if;
    end process cmd_proc;
+
+   test(3) <= sel(INDEX_DAC_FIX);
+   test(4) <= done(INDEX_DAC_FIX);
+   test(6) <= dac_test_ncs(0);
+   test(8) <= dac_test_sclk(0);
+   test(10) <= dac_test_data(0);
+   test(11) <= lvds_cmd;
+   test(14) <= spi_start;
 end behaviour;
