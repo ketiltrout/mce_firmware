@@ -20,7 +20,7 @@
 
 -- hex2ascii.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: hex2ascii.vhd,v 1.1 2004/03/22 20:26:32 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,11 @@
 -- Implements hexadecimal-to-ascii decoder
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/03/22 20:26:32 $>	- <initials $Author: erniel $>
+-- $Log: hex2ascii.vhd,v $
+-- Revision 1.1  2004/03/22 20:26:32  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -63,7 +66,27 @@ begin
          when "1100" => ascii_o <= "01000011";   -- C hex = 67 ascii
          when "1101" => ascii_o <= "01000100";   -- D hex = 68 ascii
          when "1110" => ascii_o <= "01000101";   -- E hex = 69 ascii
-         when others => ascii_o <= "01000110";   -- F hex = 70 ascii
+         when "1111" => ascii_o <= "01000110";   -- F hex = 70 ascii
+
+         when "LLLL" => ascii_o <= "00110000";   -- 0 hex = 48 ascii
+         when "LLLH" => ascii_o <= "00110001";   -- 1 hex = 49 ascii
+         when "LLHL" => ascii_o <= "00110010";   -- 2 hex = 50 ascii
+         when "LLHH" => ascii_o <= "00110011";   -- 3 hex = 51 ascii
+         when "LHLL" => ascii_o <= "00110100";   -- 4 hex = 52 ascii
+         when "LHLH" => ascii_o <= "00110101";   -- 5 hex = 53 ascii
+         when "LHHL" => ascii_o <= "00110110";   -- 6 hex = 54 ascii
+         when "LHHH" => ascii_o <= "00110111";   -- 7 hex = 55 ascii
+         when "HLLL" => ascii_o <= "00111000";   -- 8 hex = 56 ascii
+         when "HLLH" => ascii_o <= "00111001";   -- 9 hex = 57 ascii
+         when "HLHL" => ascii_o <= "01000001";   -- A hex = 65 ascii
+         when "HLHH" => ascii_o <= "01000010";   -- B hex = 66 ascii
+         when "HHLL" => ascii_o <= "01000011";   -- C hex = 67 ascii
+         when "HHLH" => ascii_o <= "01000100";   -- D hex = 68 ascii
+         when "HHHL" => ascii_o <= "01000101";   -- E hex = 69 ascii
+         when "HHHH" => ascii_o <= "01000110";   -- F hex = 70 ascii
+         
+         when others => ascii_o <= "00111111";   -- anything else prints out "?" 
+
       end case;
    end process decode;
 end behav;
