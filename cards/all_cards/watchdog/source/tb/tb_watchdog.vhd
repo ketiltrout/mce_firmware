@@ -1,6 +1,6 @@
 -- tb_watchdog.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_watchdog.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -42,6 +42,7 @@ architecture BEH of TB_WATCHDOG is
    signal W_DAT_I : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
    signal W_DAT_O : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
    signal W_ADDR_I : std_logic_vector ( WB_ADDR_WIDTH - 1 downto 0 );
+   signal dummy : std_logic_vector ( WB_TAG_ADDR_WIDTH - 1 downto 0 );
    signal W_WE_I : std_logic;
    signal W_STB_I : std_logic;
    signal W_ACK_O : std_logic;
@@ -76,13 +77,15 @@ begin
       generic map(
          SLAVE_SEL  => WATCHDOG_ADDR,
          ADDR_WIDTH => WB_ADDR_WIDTH,
-         DATA_WIDTH => WB_DATA_WIDTH
+         DATA_WIDTH => WB_DATA_WIDTH,
+         TAG_ADDR_WIDTH => WB_TAG_ADDR_WIDTH
       )
       port map(
          CLK_I => W_CLK_I,
          RST_I => W_RST_I,
          DAT_I => W_DAT_I,
          ADDR_I => W_ADDR_I,
+         TGA_I => dummy,
          WE_I => W_WE_I,
          STB_I => W_STB_I,
          CYC_I => W_CYC_I,

@@ -1,6 +1,6 @@
 -- tb_leds.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_leds.vhd,v 1.5 2004/03/06 01:14:19 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/06 01:14:19 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -42,6 +42,7 @@ architecture BEH of TB_LEDS is
    signal W_DAT_I : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
    signal W_DAT_O : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
    signal W_ADDR_I : std_logic_vector ( WB_ADDR_WIDTH - 1 downto 0 );
+   signal dummy : std_logic_vector ( WB_TAG_ADDR_WIDTH - 1 downto 0 );
    signal W_WE_I : std_logic;
    signal W_STB_I : std_logic;
    signal W_ACK_O : std_logic;
@@ -76,7 +77,8 @@ begin
       generic map(
          SLAVE_SEL  => LEDS_ADDR,
          ADDR_WIDTH => WB_ADDR_WIDTH,
-         DATA_WIDTH => WB_DATA_WIDTH
+         DATA_WIDTH => WB_DATA_WIDTH,
+         TAG_ADDR_WIDTH => WB_TAG_ADDR_WIDTH         
       )
       port map(
          CLK_I => W_CLK_I,
@@ -84,6 +86,7 @@ begin
          DAT_I => W_DAT_I,
          DAT_O => W_DAT_O,
          ADDR_I => W_ADDR_I,
+         TGA_I => dummy,
          WE_I => W_WE_I,
          STB_I => W_STB_I,
          ACK_O => W_ACK_O,

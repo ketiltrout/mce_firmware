@@ -1,6 +1,6 @@
 -- tb_array_id.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_array_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA 2
 -- Author:		bburger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -40,6 +40,7 @@ architecture BEH of TB_ARRAY_ID is
    signal W_DAT_I       : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
    signal W_DAT_O       : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
    signal W_ADDR_I      : std_logic_vector ( WB_ADDR_WIDTH - 1 downto 0 );
+   signal dummy         : std_logic_vector ( WB_TAG_ADDR_WIDTH - 1 downto 0 );
    signal W_WE_I        : std_logic ;
    signal W_STB_I       : std_logic ;
    signal W_ACK_O       : std_logic ;
@@ -71,14 +72,16 @@ begin
       generic map(
                ARRAY_ID_ADDR  => ARRAY_ID_ADDR,
                ARRAY_ID_ADDR_WIDTH => WB_ADDR_WIDTH,
-               ARRAY_ID_DATA_WIDTH => WB_DATA_WIDTH)
-   
+               ARRAY_ID_DATA_WIDTH => WB_DATA_WIDTH,
+               TAG_ADDR_WIDTH => WB_TAG_ADDR_WIDTH
+               )   
       port map(ARRAY_ID_I   => W_ARRAY_ID_I,
                CLK_I       => W_CLK_I,
                RST_I       => W_RST_I,
                DAT_I       => W_DAT_I,
                DAT_O       => W_DAT_O,
                ADDR_I      => W_ADDR_I,
+               TGA_I       => dummy,
                WE_I        => W_WE_I,
                STB_I       => W_STB_I,
                ACK_O       => W_ACK_O,
