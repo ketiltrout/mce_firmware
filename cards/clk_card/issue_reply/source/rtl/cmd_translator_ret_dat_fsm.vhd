@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.4 2004/06/10 21:15:32 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.5 2004/06/21 17:02:14 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,16 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/10 21:15:32 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/21 17:02:14 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.5  2004/06/21 17:02:14  jjacob
+-- first stable version, doesn't yet have macro-instruction buffer, doesn't have
+-- "quick" acknolwedgements for instructions that require them, no error
+-- handling, basically no return path logic yet.  Have implemented ret_dat
+-- instructions, and "simple" instructions.  Not all instructions are fully
+-- implemented yet.
+--
 -- Revision 1.4  2004/06/10 21:15:32  jjacob
 -- no message
 --
@@ -110,7 +117,11 @@ port(
       ret_dat_fsm_working_o   : out std_logic;                										  -- indicates the state machine is busy
       
       -- input from the macro-instruction arbiter
-      ack_i                   : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
+      ack_i                   : in std_logic;                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
+
+      -- new output to the cmd_translator top level, this used to go straight from arbiter to top level, but now we
+      -- need to multiplex this signal here
+      ack_o                   : out std_logic  -- acknowledge signal going back to the fibre_rx block
 
    ); 
      
@@ -136,11 +147,12 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    
    signal word_count              : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
    
-   type a_state is                 (IDLE, SET_SEQ_NUM, RETURN_DATA_ASYNC_WAIT);  --asychronous states  
-   signal async_state             : a_state;
+   type sync_state is                 (IDLE, SET_SEQ_NUM_1, SET_SEQ_NUM_2, RETURN_DATA_ASYNC_WAIT);  --asychronous states  
+   signal sync_next_state, sync_current_state             : sync_state;
    
    type state is                   (RETURN_DATA_IDLE, RETURN_DATA_STOP, RETURN_DATA_DONE, 
-                                    RETURN_DATA_PAUSE, RETURN_DATA, RETURN_DATA_ACK, RETURN_DATA_LAST); --synchronous states
+                                    RETURN_DATA_PAUSE, RETURN_DATA, RETURN_DATA_ACK, RETURN_DATA_1ST, 
+                                    RETURN_DATA_ACK_1ST, RETURN_DATA_LAST); --synchronous states
    signal next_state, current_state : state;
 
 
@@ -156,14 +168,126 @@ begin
 --
 ------------------------------------------------------------------------
 
-   aysnc_fsm: process(ret_dat_s_start_i, data_i, word_count, data_size_i,
-                      ret_dat_start_i, rst_i, ret_dat_done)
+--   aysnc_fsm: process(ret_dat_s_start_i, data_i, word_count, data_size_i,
+--                      ret_dat_start_i, rst_i, ret_dat_done)
+--           -- not including async_state, ret_dat_s_seq_stop/start_num in sensitivity list on purpose
+--   begin
+--
+--      
+--   
+--      case async_state is
+--         when IDLE =>
+--        
+--            if rst_i = '1' then
+--            
+--               ret_dat_s_seq_start_num <= (others => '0');
+--               ret_dat_s_seq_stop_num  <= (others => '0');
+--               --ret_dat_s_done_o        <= '0';
+--               ret_dat_start           <= '0';
+--               
+--               async_state             <= IDLE;
+--       
+--            elsif ret_dat_s_start_i = '1' then
+--            
+--               ret_dat_s_seq_start_num <= data_i;
+--               ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+--               --ret_dat_s_done_o        <= '0';
+--               ret_dat_start           <= '0';
+--           
+--               async_state             <= SET_SEQ_NUM;
+--               
+--            elsif ret_dat_start_i = '1' then
+--            
+--               --ret_dat_s_done_o        <= '0';
+--               ret_dat_start           <= '1';
+--           
+--               async_state             <= RETURN_DATA_ASYNC_WAIT;
+--               
+--            elsif ret_dat_done = '1' then
+--            
+--               -- make other signal assignment here also
+--               --ret_dat_s_done_o        <= '0';
+--               ret_dat_start           <= '0';
+--               
+--               async_state             <= IDLE;
+--               
+--            else
+--           
+--               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
+--               ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+--               --ret_dat_s_done_o        <= '0';
+--               ret_dat_start           <= '0';
+--               
+--               async_state             <= IDLE;
+--
+--            end if;
+--         
+--         when SET_SEQ_NUM =>
+--         
+--            if word_count > data_size_i then
+--             
+--               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
+--               ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+--               --ret_dat_s_done_o        <= '1';
+--               ret_dat_start           <= '0';
+--               
+--               
+--               if ret_dat_start_i = '1' then
+--                  async_state <= RETURN_DATA_ASYNC_WAIT;
+--               else
+--                  async_state <= IDLE;
+--               end if;
+--
+--            else  
+--
+--               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;    
+--               ret_dat_s_seq_stop_num  <= data_i;
+--               --ret_dat_s_done_o        <= '0';
+--               ret_dat_start           <= '0';
+--
+--               async_state <= SET_SEQ_NUM;
+--               
+--            end if;
+--            
+--         when RETURN_DATA_ASYNC_WAIT =>
+--            if ret_dat_done = '1' then
+--            
+--               -- make other signal assignment here also
+--               async_state             <= IDLE;
+--               ret_dat_start           <= '0';
+--            else
+--               async_state <= RETURN_DATA_ASYNC_WAIT;
+--               ret_dat_start <= '1';
+--            end if;
+--            
+--            --ret_dat_s_done_o        <= '0';
+--            
+--         when others =>
+--            --ret_dat_s_done_o        <= '0';
+--            ret_dat_start           <= '0';
+--            async_state <= IDLE;
+--    
+--      end case;
+--   
+--   end process;
+--
+--
+
+
+------------------------------------------------------------------------
+--
+-- synchronous state machine
+--
+------------------------------------------------------------------------
+
+   process(ret_dat_s_start_i, data_i, data_clk_i,
+           sync_current_state, ret_dat_start_i, rst_i, ret_dat_done)
            -- not including async_state, ret_dat_s_seq_stop/start_num in sensitivity list on purpose
    begin
 
       
    
-      case async_state is
+      case sync_current_state is
          when IDLE =>
         
             if rst_i = '1' then
@@ -173,23 +297,36 @@ begin
                --ret_dat_s_done_o        <= '0';
                ret_dat_start           <= '0';
                
-               async_state             <= IDLE;
+               sync_next_state             <= IDLE;
        
             elsif ret_dat_s_start_i = '1' then
             
-               ret_dat_s_seq_start_num <= data_i;
-               ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
-               --ret_dat_s_done_o        <= '0';
-               ret_dat_start           <= '0';
-           
-               async_state             <= SET_SEQ_NUM;
+
+               
+               if data_clk_i'event and data_clk_i = '1' then
+                  ret_dat_s_seq_start_num <= data_i;    
+                  ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+                  --ret_dat_s_done_o        <= '0';
+                  ret_dat_start           <= '0';
+
+                  sync_next_state <= SET_SEQ_NUM_2;
+                  
+               else
+               
+                  ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;--data_i;
+                  ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+                  --ret_dat_s_done_o        <= '0';
+                  ret_dat_start           <= '0';
+                  sync_next_state             <= SET_SEQ_NUM_1;
+                  
+               end if;
                
             elsif ret_dat_start_i = '1' then
             
                --ret_dat_s_done_o        <= '0';
                ret_dat_start           <= '1';
            
-               async_state             <= RETURN_DATA_ASYNC_WAIT;
+               sync_next_state             <= RETURN_DATA_ASYNC_WAIT;
                
             elsif ret_dat_done = '1' then
             
@@ -197,7 +334,7 @@ begin
                --ret_dat_s_done_o        <= '0';
                ret_dat_start           <= '0';
                
-               async_state             <= IDLE;
+               sync_next_state             <= IDLE;
                
             else
            
@@ -206,45 +343,90 @@ begin
                --ret_dat_s_done_o        <= '0';
                ret_dat_start           <= '0';
                
-               async_state             <= IDLE;
+               sync_next_state             <= IDLE;
 
             end if;
          
-         when SET_SEQ_NUM =>
-         
-            if word_count > data_size_i then
-             
-               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
+         when SET_SEQ_NUM_1 =>
+            if data_clk_i'event and data_clk_i = '1' then
+               ret_dat_s_seq_start_num <= data_i;    
                ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
-               --ret_dat_s_done_o        <= '1';
+               --ret_dat_s_done_o        <= '0';
                ret_dat_start           <= '0';
-               
-               
-               if ret_dat_start_i = '1' then
-                  async_state <= RETURN_DATA_ASYNC_WAIT;
-               else
-                  async_state <= IDLE;
-               end if;
 
-            else  
-
+               sync_next_state <= SET_SEQ_NUM_2;
+            end if;
+            
+         when SET_SEQ_NUM_2 =>
+            if data_clk_i'event and data_clk_i = '1' then
                ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;    
                ret_dat_s_seq_stop_num  <= data_i;
                --ret_dat_s_done_o        <= '0';
                ret_dat_start           <= '0';
 
-               async_state <= SET_SEQ_NUM;
-               
+               if ret_dat_start_i = '1' then
+                  sync_next_state <= RETURN_DATA_ASYNC_WAIT;
+               else
+                  sync_next_state <= IDLE;
+               end if;
             end if;
+               
+--            if word_count > data_size_i then
+--             
+--               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
+--               ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+--               --ret_dat_s_done_o        <= '1';
+--               ret_dat_start           <= '0';
+--               
+--               
+--               if ret_dat_start_i = '1' then
+--                  sync_next_state <= RETURN_DATA_ASYNC_WAIT;
+--               else
+--                  sync_next_state <= IDLE;
+--               end if;
+--
+--            else
+               --if data_clk_i'event and data_clk_i = '1' then
+--                  if word_count = 0 or word_count = 1 then
+--                     ret_dat_s_seq_start_num <= data_i;    
+--                     ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+--                     --ret_dat_s_done_o        <= '0';
+--                     ret_dat_start           <= '0';
+--
+--                     sync_next_state <= SET_SEQ_NUM;
+--                  else
+--                     ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;    
+--                     ret_dat_s_seq_stop_num  <= data_i;
+--                     --ret_dat_s_done_o        <= '0';
+--                     ret_dat_start           <= '0';
+--
+--                     if ret_dat_start_i = '1' then
+--                        sync_next_state <= RETURN_DATA_ASYNC_WAIT;
+--                     else
+--                        sync_next_state <= IDLE;
+--                     end if;
+--                  end if;
+
+--
+--                     sync_next_state <= SET_SEQ_NUM;
+--
+--               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;    
+--               ret_dat_s_seq_stop_num  <= data_i;
+--               --ret_dat_s_done_o        <= '0';
+--               ret_dat_start           <= '0';
+--
+--               sync_next_state <= SET_SEQ_NUM;
+               
+            --end if;
             
          when RETURN_DATA_ASYNC_WAIT =>
             if ret_dat_done = '1' then
             
                -- make other signal assignment here also
-               async_state             <= IDLE;
+               sync_next_state             <= IDLE;
                ret_dat_start           <= '0';
             else
-               async_state <= RETURN_DATA_ASYNC_WAIT;
+               sync_next_state <= RETURN_DATA_ASYNC_WAIT;
                ret_dat_start <= '1';
             end if;
             
@@ -253,11 +435,46 @@ begin
          when others =>
             --ret_dat_s_done_o        <= '0';
             ret_dat_start           <= '0';
-            async_state <= IDLE;
+            sync_next_state <= IDLE;
     
       end case;
    
    end process;
+ 
+
+------------------------------------------------------------------------
+--
+-- sequencer for synchronous state machine based on clk_i 
+--
+------------------------------------------------------------------------
+
+   process(rst_i, clk_i)
+   begin
+      if rst_i = '1' then
+         sync_current_state <= IDLE;
+      elsif clk_i'event and clk_i = '1' then
+         sync_current_state <= sync_next_state;
+      end if;
+   end process;
+------------------------------------------------------------------------
+--
+-- word count
+--
+------------------------------------------------------------------------ 
+-- write a counter based on data_clk
+--   process (sync_current_state, data_clk_i) -- purposely didn't include word_count in sensitivity list
+--   begin
+--      case sync_current_state is
+--         when IDLE =>
+--            word_count <= (others => '0');
+--         when SET_SEQ_NUM =>
+--            if data_clk_i'event and data_clk_i='1' then
+--               word_count <= word_count + 1;
+--            end if;
+--         when others =>
+--            word_count <= (others => '0');
+--      end case;
+--   end process;
  
 ------------------------------------------------------------------------
 --
@@ -288,13 +505,28 @@ begin
          when RETURN_DATA_IDLE =>
          
             if ret_dat_start = '1' and ack_i = '0' then
-               next_state <= RETURN_DATA;
+               next_state <= RETURN_DATA_1ST;
+--            if ret_dat_start = '1' and ack_i = '0' then
+--               next_state <= RETURN_DATA;
             elsif ret_dat_start = '1' and ack_i = '1' then
-               next_state <= RETURN_DATA_ACK;
+               next_state <= RETURN_DATA_ACK_1ST;
+--            elsif ret_dat_start = '1' and ack_i = '1' then
+--               next_state <= RETURN_DATA_ACK;
             else
                next_state <= RETURN_DATA_IDLE;
             end if;
       
+         when RETURN_DATA_1ST =>
+        
+            if ack_i = '1' then
+               next_state <= RETURN_DATA_PAUSE;--RETURN_DATA_ACK; --
+            elsif ret_dat_stop_i = '1' then
+               next_state <= RETURN_DATA_LAST;
+            else
+               next_state <= RETURN_DATA_1ST;
+            end if;
+
+
          when RETURN_DATA =>
         
             if ack_i = '1' then
@@ -304,6 +536,9 @@ begin
             else
                next_state <= RETURN_DATA;
             end if;
+
+         when RETURN_DATA_ACK_1ST =>
+            next_state <= RETURN_DATA_PAUSE;
             
          when RETURN_DATA_ACK =>
             next_state <= RETURN_DATA_PAUSE;
@@ -351,8 +586,17 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, card_addr_i, parameter_id_i, data_size_i, data_i, ack_i)
+   process(current_state, ack_i) --card_addr_i, parameter_id_i, data_size_i, data_i, 
    begin
+   
+      -- defulat assignments
+      ack_o                   <= '0';
+      
+--     card_addr               <= card_addr;              -- capture and hold the card_addr
+--     parameter_id            <= parameter_id;           -- capture and hold the parameter_id
+--     data_size               <= data_size;              -- capture and hold the data_size
+--     data                    <= data;
+      
       case current_state is
       
          when RETURN_DATA_IDLE =>
@@ -364,20 +608,33 @@ begin
                ret_dat_done            <= '0';
                ret_dat_fsm_working     <= '1';
                
+               
             else
 
-               card_addr               <= card_addr_i;              -- capture and hold the card_addr
-               parameter_id            <= parameter_id_i;           -- capture and hold the parameter_id
-               data_size               <= data_size_i;              -- capture and hold the data_size
-               data                    <= data_i;                   -- capture and hold the data
+--               card_addr               <= card_addr_i;              -- capture and hold the card_addr
+--               parameter_id            <= parameter_id_i;           -- capture and hold the parameter_id
+--               data_size               <= data_size_i;              -- capture and hold the data_size
+--               data                    <= data_i;                   -- capture and hold the data
             
                ret_dat_cmd_valid       <= '0';
                macro_instr_rdy_o       <= '0';               -- ='1' when the data is valid, else it's '0'
                ret_dat_done            <= '0';
             
                ret_dat_fsm_working     <= '0';
+               
 
             end if;
+
+         when RETURN_DATA_1ST | RETURN_DATA_ACK_1ST =>
+
+            ret_dat_cmd_valid       <= '1';
+            macro_instr_rdy_o       <= '1';
+            ret_dat_done            <= '0';
+            ret_dat_fsm_working     <= '1';  
+            
+            ack_o                   <= ack_i;
+            
+
   
          when RETURN_DATA | RETURN_DATA_ACK =>
 
@@ -386,6 +643,7 @@ begin
             ret_dat_done            <= '0';
             ret_dat_fsm_working     <= '1';  
             
+            
          when RETURN_DATA_LAST =>
          
            if ack_i = '1' then
@@ -393,11 +651,13 @@ begin
                macro_instr_rdy_o       <= '1';
                ret_dat_done            <= '1';
                ret_dat_fsm_working     <= '1';
+               
             else
                ret_dat_cmd_valid       <= '1';
                macro_instr_rdy_o       <= '1';
                ret_dat_done            <= '0';
                ret_dat_fsm_working     <= '1';
+               
             end if;           
          
          when RETURN_DATA_PAUSE =>
@@ -406,6 +666,7 @@ begin
             macro_instr_rdy_o       <= '0';
             ret_dat_done            <= '0';
             ret_dat_fsm_working     <= '1';
+            
                   
          when RETURN_DATA_STOP =>  -- JJ Need to take some action, like send response back to Linux machine
 
@@ -430,10 +691,10 @@ begin
             
          when others =>
          
-            card_addr               <= (others => '0');
-            parameter_id            <= (others => '0');
-            data_size               <= (others => '0');
-            data                    <= (others => '0');
+--            card_addr               <= (others => '0');
+--            parameter_id            <= (others => '0');
+--            data_size               <= (others => '0');
+--            data                    <= (others => '0');
          
             ret_dat_cmd_valid       <= '0';
             macro_instr_rdy_o       <= '0';               -- ='1' when the data is valid, else it's '0'
@@ -445,6 +706,24 @@ begin
    
    ret_dat_cmd_valid_o     <=    ret_dat_cmd_valid;
    ret_dat_fsm_working_o   <=    ret_dat_fsm_working;
+
+
+   -- re-circulation muxes
+   card_addr		<= card_addr_i     when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
+                   (others => '0') when rst_i = '1' else
+                   card_addr;
+  
+   parameter_id <= parameter_id_i  when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
+                   (others => '0') when rst_i = '1' else
+                   parameter_id;
+                   
+   data_size		<= data_size_i     when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
+                   (others => '0') when rst_i = '1' else
+                   data_size;                 
+  
+   data		<= data_i          when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
+                   (others => '0') when rst_i = '1' else
+                   data;      
 
 
 ------------------------------------------------------------------------
@@ -470,13 +749,19 @@ begin
                       
 
 
-   process(current_state, sync_number_i, ret_dat_s_seq_start_num, ret_dat_start)
+   process(current_state, sync_number_i, ret_dat_s_seq_start_num, ret_dat_start, rst_i)
    begin
       case current_state is
       
          when RETURN_DATA_IDLE =>
          
-            if ret_dat_start = '1' then
+            if rst_i = '1' then
+            
+               current_sync_num        <= (others => '0');
+               current_seq_num         <= (others => '0');
+            
+         
+            elsif ret_dat_start = '1' then
             
                current_sync_num        <= current_sync_num;   -- each new ret_dat command must corresponding to the next sync pulse
                current_seq_num         <= current_seq_num;    -- this keeps track of what frame number we are on in the sequence of frames
@@ -488,7 +773,8 @@ begin
 
             end if;
 
-         when RETURN_DATA | RETURN_DATA_LAST | RETURN_DATA_ACK | RETURN_DATA_STOP | RETURN_DATA_DONE =>
+         when RETURN_DATA | RETURN_DATA_LAST | RETURN_DATA_ACK | RETURN_DATA_STOP |
+              RETURN_DATA_DONE | RETURN_DATA_1ST | RETURN_DATA_ACK_1ST =>
       
             current_sync_num        <= current_sync_num;   -- each new ret_dat command must corresponding to the next sync pulse
             current_seq_num         <= current_seq_num;    -- this keeps track of what frame number we are on in the sequence of frames
@@ -570,25 +856,7 @@ begin
       
    end process;
 
-------------------------------------------------------------------------
---
--- word count
---
------------------------------------------------------------------------- 
--- write a counter based on data_clk
-   process (async_state, data_clk_i) -- purposely didn't include word_count in sensitivity list
-   begin
-      case async_state is
-         when IDLE =>
-            word_count <= (others => '0');
-         when SET_SEQ_NUM =>
-            if data_clk_i'event and data_clk_i='1' then
-               word_count <= word_count + 1;
-            end if;
-         when others =>
-            word_count <= (others => '0');
-      end case;
-   end process;
+
 
       
 end rtl;
