@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/29 00:29:01 $> - <initials $Author: mandana $>
+-- <date $Date: 2004/07/29 00:39:30 $> - <initials $Author: bench2 $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.8  2004/07/29 00:39:30  bench2
+-- Bryce: added new constants
+--
 -- Revision 1.7  2004/07/29 00:29:01  mandana
 -- added MUX_ON/MUX_OFF default values
 --
@@ -109,6 +112,9 @@ package wishbone_pack is
    constant ON_BIAS_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"02";
    constant OFF_BIAS_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"03";
    constant ROW_MAP_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"04";
+   constant SWTCH_DLY_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"05";
+   constant ACTV_ROW_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"06";
+   constant STRT_MUX_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
 
    -- Readout Card Specific
    constant FST_ST_FB_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"10";
@@ -118,6 +124,13 @@ package wishbone_pack is
    constant COL_MAP_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"14";
    constant ENBL_SERVO_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"15";
    constant COL_ENBL_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
+   constant SAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"17";
+   constant SAMP_NUM_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"18";
+   constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"19";
+   constant FB_DLY_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1A";
+   constant RAMP_LEN_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1B";
+   constant RAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1C";
+   constant FB_CONST_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1D";
 
    constant GAINP0_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"70";
    constant GAINP1_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"71";
@@ -143,22 +156,26 @@ package wishbone_pack is
    constant ZERO5_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"85";
    constant ZERO6_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"86";
    constant ZERO7_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"87";
-
+   constant GAIND0_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"88";
+   constant GAIND1_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"89";
+   constant GAIND2_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8A";
+   constant GAIND3_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8B";
+   constant GAIND4_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8C";
+   constant GAIND5_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8D";
+   constant GAIND6_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8E";
+   constant GAIND7_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8F";
+   
    -- Bias Card Specific
    constant FLUX_FB_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"20";
    constant BIAS_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"21";
 
-   -- System
+   -- All FPGA Cards
    constant RET_DAT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"30";
-   constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"31";
-   constant STRT_MUX_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"32";
    constant ROW_ORDER_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"33";
    constant RET_DAT_S_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"34";
-   constant DBL_BUFF_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"35";
-   constant ACTV_ROW_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"36";
    constant USE_DV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"37";
 
-   -- Any Card
+   -- Any FPGA Card
    constant STATUS_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"40";
    constant RST_WTCHDG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"41";
    constant RST_REG_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"42";
