@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: rs232_rx.vhd,v $
+-- Revision 1.2  2004/12/17 00:21:30  erniel
+-- removed clock divider logic (moved to async_rx)
+-- modified buffering to allow word to persist until next word ready
+-- reworked FSM to handle new async_rx interface
+--
 -- Revision 1.1  2004/06/18 22:14:24  erniel
 -- initial version
 --
@@ -57,7 +62,7 @@ end rs232_rx;
 
 architecture rtl of rs232_rx is
 component async_rx
-generic(CLK_DIV_FACTOR : integer := 217);
+generic(CLK_DIV_FACTOR : integer := 2);
 port(comm_clk_i : in std_logic;
      rst_i      : in std_logic;
      
@@ -80,7 +85,7 @@ signal next_state : states;
 begin
 
    receiver: async_rx
-   generic map(CLK_DIV_FACTOR => 434)
+   generic map(CLK_DIV_FACTOR => 108)
    port map(comm_clk_i => comm_clk_i,
             rst_i      => rst_i,
             dat_o      => rx_data,
