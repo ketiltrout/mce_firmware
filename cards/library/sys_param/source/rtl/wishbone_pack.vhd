@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/11/04 00:08:18 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/16 08:54:04 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.18  2004/11/16 08:54:04  bburger
+-- Bryce :  updated to match the mce1_1.xml file
+--
 -- Revision 1.17  2004/11/04 00:08:18  bburger
 -- Bryce:  small updates
 --
@@ -170,7 +173,6 @@ package wishbone_pack is
    constant RET_DAT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
    constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"17";
    constant CAPTR_RAW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"18";
-   constant FLX_LP_INIT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"19";
    constant FILT_COEF_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1A";
    constant SERVO_MODE_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1B";
    constant RAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1C";
@@ -190,6 +192,7 @@ package wishbone_pack is
    constant FB_DLY_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"34";
    constant ROW_DLY_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"35";
    constant RESYNC_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"36";
+   constant FLX_LP_INIT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"37";
 
    -- Any FPGA Card
    constant RST_WTCHDG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"41";

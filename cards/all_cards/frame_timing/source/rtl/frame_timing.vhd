@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.18 2004/11/08 23:40:29 bburger Exp $
+-- $Id: frame_timing.vhd,v 1.1 2004/11/15 20:03:41 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,8 +28,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/11/08 23:40:29 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/15 20:03:41 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.1  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.18  2004/11/08 23:40:29  bburger
 -- Bryce:  small modifications
 --
@@ -60,31 +63,34 @@ use components.component_pack.all;
 
 entity frame_timing is
    port(
+      -- Global signals
       clk_i                      : in std_logic;
       rst_i                      : in std_logic;
       sync_i                     : in std_logic;
       frame_rst_i                : in std_logic;
       
-      -- Where does this signal come from?  Is it a re-sync request?  Or does it come from the flux_loop?
-      init_window_req_i          : in std_logic;
-      
-      -- Readout Card inputs
-      sample_num_i               : in integer;
-      sample_delay_i             : in integer;
-      feedback_delay_i           : in integer;
-      
-      -- Address Card input
-      address_on_delay_i         : in integer;
-         
-      update_bias_o              : out std_logic;
+      -- Readout Card
       dac_dat_en_o               : out std_logic;
       adc_coadd_en_o             : out std_logic;
       restart_frame_1row_prev_o  : out std_logic;
       restart_frame_aligned_o    : out std_logic; 
       restart_frame_1row_post_o  : out std_logic;
+      initialize_window_o        : out std_logic;
+      
+      -- Address Card
       row_switch_o               : out std_logic;
       row_en_o                   : out std_logic;
-      initialize_window_o        : out std_logic
+         
+      -- Bias Card
+      update_bias_o              : out std_logic;
+      
+      -- frame_timing_wbs
+      sample_num_i               : in integer;
+      sample_delay_i             : in integer;
+      feedback_delay_i           : in integer;
+      address_on_delay_i         : in integer;
+      init_window_req_i          : in std_logic;
+      init_window_ack_o          : out std_logic
    );
 end frame_timing;
 
