@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.14 2004/07/09 10:19:15 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.15 2004/07/16 18:23:31 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.15  2004/07/16 18:23:31  erniel
+-- in progress
+--
 -- Revision 1.14  2004/07/09 10:19:15  dca
 -- Ports "retiring_busy_o", and "clk_i" added to
 -- cmd_translator_m_op_table entity.
@@ -91,6 +94,8 @@ package issue_reply_pack is
    constant DATA_BUS_WIDTH       : integer := 32;
    constant SYNC_NUM_BUS_WIDTH   : integer := 8;
    constant CMD_CODE_BUS_WIDTH   : integer := 16;
+   constant CHECKSUM_BUS_WIDTH   : integer := 32;
+   constant PREAMBLE_BUS_WIDTH   : integer := 16;
 
    -- used in cmd_queue
    constant ISSUE_SYNC_BUS_WIDTH   : integer := SYNC_NUM_BUS_WIDTH;  -- The width of the data field for the absolute sync count at which an instruction was issued
