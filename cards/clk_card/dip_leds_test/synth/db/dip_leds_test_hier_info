@@ -1,8 +1,0 @@
-|dip_leds_test
-dip3 => status_led.DATAIN
-dip4 => pow_ok_led.DATAIN
-nfault_led <= <VCC>
-status_led <= dip3.DB_MAX_OUTPUT_PORT_TYPE
-pow_ok_led <= dip4.DB_MAX_OUTPUT_PORT_TYPE
-
-
