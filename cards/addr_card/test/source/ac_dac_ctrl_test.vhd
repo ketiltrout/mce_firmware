@@ -94,8 +94,8 @@ architecture rtl of ac_dac_ctrl_test is
 type states is (IDLE, PUSH_DATA, CLKNOW, DONE); 
 signal present_state         : states;
 signal next_state            : states;
-type   array_of_6_word14 is array (5 downto 0) of word14; 
-signal data     : array_of_6_word14;
+type   array_of_15_word14 is array (14 downto 0) of word14; 
+signal data     : array_of_15_word14;
 signal idat     : integer;
 signal idac     : integer;
 signal ibus     : integer;
@@ -111,7 +111,7 @@ begin
    
 -- instantiate a counter for idac to go through all 32 DACs
    data_count: counter
-   generic map(MAX => 5)
+   generic map(MAX => 14)
    port map(clk_i   => en_i,
             rst_i   => rst_i,
             ena_i   => logic1,
@@ -127,7 +127,16 @@ begin
    data (2) <= "00000000000010";--x0002
    data (3) <= "00000000000100";--x0004
    data (4) <= "00000000001000";--x0008
-   data (5) <= "11111111111111";--x3fff full scale
+   data (5) <= "00000000010000";--x0010
+   data (6) <= "00000000100000";--x0020
+   data (7) <= "00000001000000";--x0040
+   data (8) <= "00000010000000";--x0080
+   data (9) <= "00000100000000";--x0100
+   data (10) <= "00010000000000";--x0200
+   data (11) <= "00100000000000";--x0400
+   data (12) <= "01000000000000";--x0800
+   data (13) <= "10000000000000";--x1000
+   data (14) <= "11111111111111";--x3fff full scale
 
   -- state register:
    state_FF: process(clk_i, rst_i)
