@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_fsfb_ctrl.vhd,v $
+-- Revision 1.2  2004/11/26 18:27:02  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.1  2004/11/05 02:13:22  mohsen
 -- Initial release
 --
@@ -215,7 +218,7 @@ begin  -- beh
 
       wait for 5*PERIOD;
 
-      fsfb_ctrl_dat_i     <= x"00003B17";   -- negative value for 14-bit data
+      fsfb_ctrl_dat_i     <= x"FFFFFB17";   -- negative value for 14-bit data
       wait for PERIOD;
       fsfb_ctrl_dat_rdy_i <= '1',
                              '0' after PERIOD;
@@ -236,7 +239,7 @@ begin  -- beh
       dac_dat_en_i <= '1';
 
       wait for 4*PERIOD;
-      fsfb_ctrl_dat_i     <= x"00002145";    -- negarive value for 14-bit
+      fsfb_ctrl_dat_i     <= x"FFFFE145";    -- negarive value for 14-bit
       wait for 2*PERIOD;
       fsfb_ctrl_dat_rdy_i <= '1',
                              '0' after PERIOD;
@@ -254,7 +257,7 @@ begin  -- beh
       fsfb_ctrl_lock_en_i <= '0';
       wait for 15*PERIOD;
 
-      fsfb_ctrl_dat_i     <= x"000038AE";   -- negative value for 14-bit
+      fsfb_ctrl_dat_i     <= x"FFFFF8AE";   -- negative value for 14-bit
       wait for 3*PERIOD;
       fsfb_ctrl_dat_rdy_i <= '1',
                              '0' after PERIOD;
