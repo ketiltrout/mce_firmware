@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.8  2004/12/15 01:48:04  erniel
+-- removed clock divider logic (moved to async_tx)
+-- added FIFO buffer
+-- reworked FSM to handle FIFO buffer
+--
 -- Revision 1.7  2004/09/01 17:17:01  erniel
 -- added buffer_out to process sensitivity list
 --
@@ -95,7 +100,7 @@ signal tx_data : std_logic_vector(7 downto 0);
 signal tx_rdy  : std_logic;
 signal tx_busy : std_logic;
 
-signal byte_count     : integer range 0 to 3;
+signal byte_count     : integer range 0 to 4;
 signal byte_count_ena : std_logic;
 signal byte_count_clr : std_logic;
 
