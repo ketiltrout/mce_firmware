@@ -38,15 +38,15 @@ package fibre_rx_pack is
 ---------------------------------------
 
    component fibre_rx_fifo 
-      generic(fifo_size : Positive);
-      port( 
-         rst_i     : in     std_logic;
-         rx_fr_i   : in     std_logic;
-         rx_fw_i   : in     std_logic;
-         rx_data_i : in     std_logic_vector (7 DOWNTO 0);
-         rx_fe_o   : out    std_logic;
-         rx_ff_o   : out    std_logic;
-         rxd_o     : out    std_logic_vector (7 DOWNTO 0)
+      generic(addr_size : Positive);                           -- read/write address size
+      port(                                                    -- note: fifo size is 2**addr_size
+         rst_i     : in     std_logic;                         -- global reset
+         rx_fr_i   : in     std_logic;                         -- fifo read request
+         rx_fw_i   : in     std_logic;                         -- fifo write request
+         rx_data_i : in     std_logic_vector (7 DOWNTO 0);     -- data input
+         rx_fe_o   : out    std_logic;                         -- fifo empty flag
+         rx_ff_o   : out    std_logic;                         -- fifo full flag
+         rxd_o     : out    std_logic_vector (7 DOWNTO 0)      -- data output
       );
 
    end component;
