@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: fifo.vhd,v $
+-- Revision 1.1  2004/10/25 18:58:49  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -66,39 +69,40 @@ port(clk_i     : in std_logic;
 end fifo;
 
 architecture rtl of fifo is
+
 component altsyncram
-generic(operation_mode         : string;
-        width_a                : natural; 
-        widthad_a              : natural;
-        width_b                : natural;
-        widthad_b              : natural;
-        lpm_type               : string;
-        width_byteena_a        : natural;
-        outdata_reg_b          : string;
-        indata_aclr_a          : string;
-        wrcontrol_aclr_a       : string;
-        address_aclr_a         : string;
-        address_reg_b          : string;
-        address_aclr_b         : string;
-        outdata_aclr_b         : string;
-        intended_device_family : string);
-port(wren_a    : in std_logic;
-     clock0    : in std_logic;
-     address_a : in std_logic_vector(ADDR_WIDTH-1 downto 0);
-     address_b : in std_logic_vector(ADDR_WIDTH-1 downto 0);
-     data_a    : in std_logic_vector(DATA_WIDTH-1 downto 0);
-     q_b       : out std_logic_vector(DATA_WIDTH-1 downto 0));
+   generic(operation_mode         : string;
+           width_a                : natural; 
+           widthad_a              : natural;
+           width_b                : natural;
+           widthad_b              : natural;
+           lpm_type               : string;
+           width_byteena_a        : natural;
+           outdata_reg_b          : string;
+           indata_aclr_a          : string;
+           wrcontrol_aclr_a       : string;
+           address_aclr_a         : string;
+           address_reg_b          : string;
+           address_aclr_b         : string;
+           outdata_aclr_b         : string;
+           intended_device_family : string);
+   port(clock0    : in std_logic;
+        wren_a    : in std_logic;
+        address_a : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+        data_a    : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        address_b : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+        q_b       : out std_logic_vector(DATA_WIDTH-1 downto 0));
 end component;
 
 component lpm_counter
-generic(lpm_width     : NATURAL;
-        lpm_type      : STRING;
-        lpm_direction : STRING);
-port(clock  : in std_logic;
-     cnt_en : in std_logic;
-     sclr   : in std_logic;
-     aclr   : in std_logic;
-     q      : out std_logic_vector(ADDR_WIDTH-1 downto 0));
+   generic(lpm_width     : NATURAL;
+           lpm_type      : STRING;
+           lpm_direction : STRING);
+   port(clock  : in std_logic;
+        cnt_en : in std_logic;
+        sclr   : in std_logic;
+        aclr   : in std_logic;
+        q      : out std_logic_vector(ADDR_WIDTH-1 downto 0));
 end component;
 
 -- storage controls:
@@ -128,27 +132,27 @@ begin
 
    
    fifo_storage : altsyncram
-   generic map(operation_mode => "DUAL_PORT",
-               width_a => DATA_WIDTH,
-               widthad_a => ADDR_WIDTH,
-               width_b => DATA_WIDTH,
-               widthad_b => ADDR_WIDTH,
-               lpm_type => "altsyncram",
-               width_byteena_a => 1,
-               outdata_reg_b => "UNREGISTERED",
-               indata_aclr_a => "NONE",
-               wrcontrol_aclr_a => "NONE",
-               address_aclr_a => "NONE",
-               address_reg_b => "CLOCK0",
-               address_aclr_b => "NONE",
-               outdata_aclr_b => "NONE",
+   generic map(operation_mode         => "DUAL_PORT",
+               width_a                => DATA_WIDTH,
+               widthad_a              => ADDR_WIDTH,
+               width_b                => DATA_WIDTH,
+               widthad_b              => ADDR_WIDTH,
+               lpm_type               => "altsyncram",
+               width_byteena_a        => 1,
+               outdata_reg_b          => "UNREGISTERED",
+               indata_aclr_a          => "NONE",
+               wrcontrol_aclr_a       => "NONE",
+               address_aclr_a         => "NONE",
+               address_reg_b          => "CLOCK0",
+               address_aclr_b         => "NONE",
+               outdata_aclr_b         => "NONE",
                intended_device_family => "Stratix")
-   port map(wren_a => write_ena,
-            clock0 => mem_clk_i,
+   port map(clock0    => mem_clk_i,
+            wren_a    => write_ena,
             address_a => write_addr,
+            data_a    => data_i,
             address_b => read_addr,
-            data_a => data_i,
-            q_b => data_out);
+            q_b       => data_out);
    
    write_pointer: lpm_counter
    generic map(lpm_width     => ADDR_WIDTH,
