@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$   
+-- <date $Date: 2004/04/21 20:00:27 $>	- <initials $Author: mandana $>
+-- $Log: tb_dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/21 20:00:27  mandana
+-- Initial release
+--   
 --
 -----------------------------------------------------------------------------
 library IEEE;
@@ -95,9 +98,9 @@ begin
 --      wait for PERIOD;
 --      W_RST_        <= '1';
 --      wait for PERIOD;
-      W_RST_I       <= '0'      
+      W_RST_I       <= '0';     
       W_EN_I        <= '1';
-      wait for W_DONE_O = '1';
+      wait until W_DONE_O = '1';
       W_EN_I        <= '0';
       
    end process STIMULI;
