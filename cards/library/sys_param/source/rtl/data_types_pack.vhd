@@ -29,8 +29,11 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2004/05/14 20:52:21 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/06 21:33:25 $>	- <initials $Author: erniel $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.4  2004/07/06 21:33:25  erniel
+-- added constants for logic 0 and logic 1
+--
 -- Revision 1.3  2004/05/14 20:52:21  mandana
 -- changed frame_timing values to integer(Bias_count)
 --
@@ -73,6 +76,7 @@ package data_types_pack is
    subtype word64         is std_logic_vector(63 downto 0);
    
    subtype word14    is std_logic_vector(13 downto 0); -- for address card dacs
-   type    w_array11 is array (10 downto 0) of word14; -- for address card bus 
-   type    w_array41 is array (40 downto 0) of integer; -- for address card rows
+   type    w_array11 is array (10 downto 0) of word14; -- for address card bus (just keep it for old code and test code's sake)
+   type    w14_array11 is array (10 downto 0) of word14; -- for address card bus (new naming convention)
+   type    int_array41 is array (40 downto 0) of integer; -- for address card rows
 end data_types_pack;
