@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.2 2004/04/15 18:19:36 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.3 2004/04/16 23:31:11 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Mandana Amiri
@@ -30,8 +30,11 @@
 -- Testbench to test dac_ctrl module for bias card
 --
 -- Revision history:
--- <date $Date: 2004/04/15 18:19:36 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/16 23:31:11 $>	- <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl.vhd,v $
+-- Revision 1.3  2004/04/16 23:31:11  mandana
+-- completed out_sync_cmd and resync_cmd
+--
 -- Revision 1.2  2004/04/15 18:19:36  mandana
 -- debugged do_dac32_cmd & do_dac_lvds_cmd
 --
@@ -207,10 +210,10 @@ begin
 --  Issue BIAS_ADDR (DAC_LVDS_CMD)
 --
 ------------------------------------------------------------   
-   procedure dac_lvds_cmd is
+   procedure dac_lvds_cmd (ldata: in word32) is
    begin
       W_RST_I        <= '0';
-      W_DAT_I        <= data(0);
+      W_DAT_I        <= ldata;
       W_ADDR_I       <= BIAS_ADDR;
       W_TGA_I        <= (others => '0');
       W_WE_I         <= '1';
@@ -294,7 +297,7 @@ begin
 ------------------------------------------------------------   
 
   begin
-   data (0) <= "11110000001100110101010101010101";--ff005555
+   data (0) <= "11110000001100110100000000000101";--f0334005
    data (1) <= "10101010101010101010101010101010";--aaaaaaaa
    data (2) <= "00000000000000000000000000000000";--00000000
    data (3) <= "11101110111011101110111011101110";--eeeeeeee
@@ -313,13 +316,21 @@ begin
   
    do_nop;
    do_reset;
-   
-   dac_lvds_cmd;
+
+   dac_lvds_cmd (x"FFFFFFFF"); -- coverage on MAX_DAC_BC out of range setting
+   do_nop;
+
+   dac_lvds_cmd (x"00000000"); -- coverage on MIN_DAC_BC out of range setting
+   do_nop;   
+
+   dac_lvds_cmd(data(0));
    do_nop;
    
    dac32_cmd (data);   
    do_nop;
-   
+    
+   data (1) <= "01010000100011001101111011110111";--508cdef7
+   dac32_cmd (data);
    resync_cmd;
    do_nop;
    
