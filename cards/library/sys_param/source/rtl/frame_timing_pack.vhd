@@ -20,19 +20,22 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.1 2004/04/14 21:56:40 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.2 2004/04/16 00:41:16 bburger Exp $>
 --
--- Project:		 SCUBA-2
--- Author:		 Bryce Burger
--- Organisation:	UBC
+-- Project:     SCUBA-2
+-- Author:      Bryce Burger
+-- Organisation:  UBC
 --
 -- Description:
--- This records all of the constants needed for frame synchronization 
+-- This records all of the constants needed for frame synchronization
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/14 21:56:40 $> - <text> - <initials $Author: jjacob $>
+-- <date $Date: 2004/04/16 00:41:16 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.2  2004/04/16 00:41:16  bburger
+-- renamed some signals
+--
 -- Revision 1.1  2004/04/14 21:56:40  jjacob
 -- new directory structure
 --
@@ -48,20 +51,20 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
--- This package contains the timing information for the cards in the 
+-- This package contains the timing information for the cards in the
 -- MCE that need to be synchronized to an overall frame structure.
 -- The frame structure is resolved to 50Mhz clock cycles.
--- If the resolution freqency changes, then all the constants below 
+-- If the resolution freqency changes, then all the constants below
 -- will need to be adjusted.
--- Multiplexing by the MCE will occur at 781.250kHz, meaning that 
--- address-dwell times will be 1.280us or the duration of 64 50MHz 
+-- Multiplexing by the MCE will occur at 781.250kHz, meaning that
+-- address-dwell times will be 1.280us or the duration of 64 50MHz
 -- cycles.
 package frame_timing_pack is
 
-   constant MUX_LINE_PERIOD : integer := 64;  -- 64 50MHz cycles
-   constant END_OF_FRAME    : integer := 8;--(41*MUX_LINE_PERIOD);
+   constant MUX_LINE_PERIOD : integer := 64; -- 64 50MHz cycles
+   constant END_OF_FRAME    : integer := 41*MUX_LINE_PERIOD; --(41*MUX_LINE_PERIOD);
 
-   -- Bias Card frame structure   
+   -- Bias Card frame structure
    constant UPDATE_BIAS : integer := 0;
 
    -- Address Card frame structure
@@ -106,7 +109,7 @@ package frame_timing_pack is
    constant SEL_ROW38 : integer := 38*MUX_LINE_PERIOD;
    constant SEL_ROW39 : integer := 39*MUX_LINE_PERIOD;
    constant SEL_ROWDARK : integer := 40*MUX_LINE_PERIOD;
-   
+
    component frame_timing is
       port(
          clk_i       : in std_logic;
@@ -116,6 +119,6 @@ package frame_timing_pack is
          clk_error_o : out std_logic_vector(31 downto 0)
       );
    end component;
-   
-   
+
+
 end frame_timing_pack;
