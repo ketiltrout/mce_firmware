@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: rs232_data_tx.vhd,v $
+-- Revision 1.3  2004/05/12 23:15:58  erniel
+-- added CR/LF prior to sending string
+--
 -- Revision 1.2  2004/05/05 21:21:40  erniel
 -- modified generic WIDTH range
 --
@@ -208,7 +211,7 @@ begin
    end process;
    
    
-   out_logic : process(present_state)
+   out_logic : process(present_state, tx_data)
    begin
       -- default values:
       shift_ena  <= '0';
