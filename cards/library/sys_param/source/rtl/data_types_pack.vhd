@@ -29,8 +29,11 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2004/04/14 21:56:40 $>	- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/28 17:41:36 $>	- <initials $Author: mandana $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.2  2004/04/28 17:41:36  mandana
+-- added data types for address card
+--
 -- Revision 1.1  2004/04/14 21:56:40  jjacob
 -- new directory structure
 --
@@ -64,5 +67,5 @@ package data_types_pack is
    
    subtype word14    is std_logic_vector(13 downto 0); -- for address card dacs
    type    w_array11 is array (10 downto 0) of word14; -- for address card bus 
-
+   type    w_array41 is array (40 downto 0) of integer; -- for address card rows
 end data_types_pack;
