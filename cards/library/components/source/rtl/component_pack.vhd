@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.2 2004/04/15 18:47:40 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.3 2004/04/23 00:53:59 mandana Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -30,20 +30,11 @@
 -- This file contains the declarations for the component library.
 --
 -- Revision history:
--- Jan. 9 2004   - Package created      - JJ
---               - Added tristate
-
--- Jan. 14 2004  - Added up counter     - EL
---               - Added shift register
---               - Added CRC generator
-
--- Jan. 15 2004  - Added usec counter   - EL
-
--- Feb. 3  2004  - Added 1-wire modules - EL
-
--- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date: 2004/04/15 18:47:40 $>	-		<text>		- <initials $Author: mandana $>
+--
 -- $Log: component_pack.vhd,v $
+-- Revision 1.3  2004/04/23 00:53:59  mandana
+-- added counter_xstep
+--
 -- Revision 1.2  2004/04/15 18:47:40  mandana
 -- added write_spi_with_cs
 --
@@ -61,6 +52,19 @@
 --
 -- Revision 1.4  2004/03/23 02:08:53  erniel
 -- Added generic counter
+--
+-- Jan. 9 2004   - Package created      - JJ
+--               - Added tristate
+
+-- Jan. 14 2004  - Added up counter     - EL
+--               - Added shift register
+--               - Added CRC generator
+
+-- Jan. 15 2004  - Added usec counter   - EL
+
+-- Feb. 3  2004  - Added 1-wire modules - EL
+
+-- Mar. 3  2004  - Added generic reg    - EL
 --
 ------------------------------------------------------------------------
 
@@ -359,6 +363,27 @@ component prand
       en_i : in std_logic;    -- calculation enable line
       out_o : out std_logic_vector (size - 1 downto 0)   -- random output
    );
+end component;
+
+------------------------------------------------------------
+--
+-- RS232 data transmit controller
+--
+------------------------------------------------------------ 
+
+component rs232_data_tx
+generic(WIDTH : in integer range 1 to 1024 := 8);
+port(clk_i   : in std_logic;
+     rst_i   : in std_logic;
+     data_i  : in std_logic_vector(WIDTH-1 downto 0);
+     start_i : in std_logic;
+     done_o  : out std_logic;
+
+     tx_busy_i : in std_logic;
+     tx_ack_i  : in std_logic;
+     tx_data_o : out std_logic_vector(7 downto 0);
+     tx_we_o   : out std_logic;
+     tx_stb_o  : out std_logic);
 end component;
 
 end component_pack;
