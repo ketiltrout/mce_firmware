@@ -20,7 +20,7 @@
 
 
 # The default values for assignments are stored in the file
-#		addr_card_assignment_defaults.qdf
+#		addr_card_self_test_assignment_defaults.qdf
 # If this file doesn't exist, and for assignments not listed, see file
 #		assignment_defaults.qdf
 
@@ -52,8 +52,6 @@ set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_p
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_ramdq.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_tx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
@@ -93,6 +91,8 @@ set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/wb_slave.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/addr_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/addr_card.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/packet_ram.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/addr_card_self_test.vhd
 
 # Pin & Location Assignments
 # ==========================
@@ -393,12 +393,12 @@ set_global_assignment -name FMAX_REQUIREMENT "20.0 ns"
 
 # Analysis & Synthesis Assignments
 # ================================
+set_global_assignment -name TOP_LEVEL_ENTITY addr_card_self_test
 set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 5
 set_global_assignment -name FAMILY Stratix
 set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
-set_global_assignment -name TOP_LEVEL_ENTITY addr_card
 
 # Fitter Assignments
 # ==================
@@ -440,7 +440,13 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 
 	# Project-Wide Assignments
 	# ========================
-	set_parameter -name "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|tpram_32bit_x_64:off_ram|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_0hf1:auto_generated|ram_block1a13~portb_address_reg5" "ac_dac_ctrl:ac_dac_ctrl_slave\|ac_dac_ctrl_core:acdcc\|reg:\\gen_dac_data_reg:10:dac_data_reg\|reg_o\[11\]" -to None -comment "ac_pll:pll0\|altpll:altpll_component\|_clk0"
+	set_parameter -name "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|tpram_32bit_x_64:off_ram|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_0hf1:auto_generated|ram_block1a13~portb_address_reg5" "ac_dac_ctrl:ac_dac_ctrl_slave\|ac_dac_ctrl_core:acdcc\|reg:\\gen_dac_data_reg:10:dac_data_reg\|reg_o\[11\]" -to None -entity addr_card -comment "ac_pll:pll0\|altpll:altpll_component\|_clk0"
+
+# end ENTITY(addr_card)
+# ---------------------
+
+# ---------------------------------
+# start ENTITY(addr_card_self_test)
 
 	# Timing Assignments
 	# ==================
@@ -457,5 +463,5 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "ac_dac_ctrl:ac_dac_ctrl_slave\|ac_dac_ctrl_wbs:wbi\|tpram_32bit_x_64:row_order_ram\|*" -to "ac_dac_ctrl:ac_dac_ctrl_slave\|ac_dac_ctrl_wbs:wbi\|tpram_32bit_x_64:off_ram\|*"
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
 
-# end ENTITY(addr_card)
-# ---------------------
+# end ENTITY(addr_card_self_test)
+# -------------------------------
