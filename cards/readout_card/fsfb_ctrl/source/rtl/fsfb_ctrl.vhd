@@ -69,6 +69,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.4  2004/12/14 19:59:47  bench2
+-- Fix unused condition
+--
 -- Revision 1.3  2004/12/04 03:11:14  mohsen
 -- Corrected error in not using the sign
 --
@@ -124,6 +127,7 @@ end fsfb_ctrl;
 architecture rtl of fsfb_ctrl is
 
   signal fsfb_ctrl_dat        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+  signal fsfb_ctrl_mux_dat    : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   signal dac_dat              : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   signal fsfb_ctrl_dat_mapped : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   signal latch_dac_dat        : std_logic;
@@ -142,6 +146,11 @@ begin  -- rtl
   -- are interested in the lowest significant 14 bits.
   -----------------------------------------------------------------------------
 
+  with fsfb_ctrl_lock_en_i select
+    fsfb_ctrl_mux_dat <=
+    fsfb_ctrl_dat_i(FSFB_DAT_WIDTH-1) & fsfb_ctrl_dat_i (FSFB_ACCURACY_POSITION-1 downto (FSFB_ACCURACY_POSITION - DAC_DAT_WIDTH +1)) when '1',
+    fsfb_ctrl_dat_i (DAC_DAT_WIDTH-1 downto 0) when others;
+  
   i_latch_fsfb_dat: process (clk_50_i, rst_i)
   begin  -- process i_latch_fsfb_dat
     if rst_i = '1' then                 -- asynchronous reset (active high)
@@ -149,7 +158,7 @@ begin  -- rtl
       
     elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
       if fsfb_ctrl_dat_rdy_i='1' then
-        fsfb_ctrl_dat <= fsfb_ctrl_dat_i(FSFB_DAT_WIDTH-1) & fsfb_ctrl_dat_i (FSFB_ACCURACY_POSITION-1 downto (FSFB_ACCURACY_POSITION - DAC_DAT_WIDTH +1));
+        fsfb_ctrl_dat <= fsfb_ctrl_mux_dat;
       else
         fsfb_ctrl_dat <= fsfb_ctrl_dat;
       end if;
