@@ -1,0 +1,31 @@
+FILES
+{
+	VHDL_FILE = ..\..\scuba2_repository\cards\library\sys_param\source\rtl\general_pack.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\library\sys_param\source\rtl\wishbone_pack.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\library\sys_param\source\rtl\command_pack.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\library\components\source\rtl\component_pack.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\clk_card\issue_reply\source\rtl\issue_reply_pack.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\library\components\source\rtl\async_fifo.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\clk_card\fibre_tx\source\rtl\fibre_tx_fifo.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\clk_card\fibre_tx\source\rtl\fibre_tx_control.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\clk_card\fibre_tx\source\rtl\fibre_tx.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\clk_card\issue_reply\source\rtl\reply_translator.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\clk_card\issue_reply\source\rtl\tx_reply.vhd;
+	VHDL_FILE = ..\..\scuba2_repository\cards\clk_card\issue_reply\source\rtl\tx_reply_wrapper.vhd;
+	TCL_SCRIPT_FILE = nios_pin_assign.tcl;
+	SIGNALTAP_FILE = Stp1.stp;
+	SIGNALTAP_FILE = Stp1.stp;
+}
+COMPILER_SETTINGS_LIST
+{
+	COMPILER_SETTINGS = tx_reply_wrapper;
+}
+SIMULATOR_SETTINGS_LIST
+{
+	SIMULATOR_SETTINGS = tx_reply_wrapper;
+}
+SOFTWARE_SETTINGS_LIST
+{
+	SOFTWARE_SETTINGS = Debug;
+	SOFTWARE_SETTINGS = Release;
+}
