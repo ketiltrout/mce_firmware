@@ -34,6 +34,7 @@ FILES
 	VHDL_FILE = ..\..\..\all_cards\async\source\tb\lvds_tx_test_wrapper.vhd;
 	VHDL_FILE = ..\source\pll.vhd;
 	VHDL_FILE = ..\source\rc_parallel_dac_test.vhd;
+	VHDL_FILE = ..\..\..\clk_card\test\source\sram_test.vhd;
 	VHDL_FILE = ..\source\rc_serial_dac_test.vhd;
 	VHDL_FILE = ..\source\rc_test_pack.vhd;
 	VHDL_FILE = ..\source\rc_test_idle.vhd;
