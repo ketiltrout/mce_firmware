@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.6 2004/09/29 15:06:16 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.2 2004/10/11 13:39:00 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,8 +28,9 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/09/29 15:06:16 $> - <text> - <initials $Author: dca $>
--- <log $log$>
+-- <date $Date: 2004/10/11 13:39:00 $> - <text> - <initials $Author: dca $>
+
+-- $ Log: tb_fibre_rx.vhd,v $
 
 
 library ieee;
