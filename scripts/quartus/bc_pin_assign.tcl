@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.5  2004/05/15 02:13:32  erniel
+# unrolled foreach loops
+#
 # Revision 1.4  2004/05/15 00:17:40  erniel
 # renamed signals to match similar signals in other scripts
 # modified script general structure
@@ -126,7 +129,7 @@ puts "   Assigned: Spare TTL pins."
 
 
 # assign PLL pins
-# PLL5 in     = lvds_clk
+# PLL5 in     = inclk  (from LVDS)
 # PLL5 out[0] = outclk (for observing PLL)
 # PLL5 out[1] = N/C
 # PLL5 out[2] = N/C
@@ -136,7 +139,7 @@ puts "   Assigned: Spare TTL pins."
 # PLL6 out[1] = N/C
 # PLL6 out[2] = N/C
 # PLL6 out[3] = N/C
-cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_K17"
+cmp add_assignment $top_name "" inclk LOCATION "Pin_K17"
 cmp add_assignment $top_name "" outclk LOCATION "Pin_E15"
 cmp add_assignment $top_name "" "pll5_out\[1\]" LOCATION "Pin_K14"
 cmp add_assignment $top_name "" "pll5_out\[2\]" LOCATION "Pin_C15"

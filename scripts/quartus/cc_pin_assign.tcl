@@ -32,6 +32,10 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.4  2004/05/14 18:44:37  erniel
+# renamed spare TTL pins
+# renamed SMB pins
+#
 # Revision 1.3  2004/05/12 18:36:47  erniel
 # added device settings
 #
@@ -145,10 +149,10 @@ puts "   Assigned: Spare TTL pins."
 
 
 # assign PLL pins
-# PLL5 in     = CLK
-# PLL5 out[0] = CLKOUT    (lvds clock)
-# PLL5 out[1] = FT_CLKW   (fibre tx clock)
-# PLL5 out[2] = FR_REFCLK (fibre rx clock)
+# PLL5 in     = CLK       (from crystal via CPLD)
+# PLL5 out[0] = CLKOUT    (to lvds clock)
+# PLL5 out[1] = FT_CLKW   (to fibre tx clock)
+# PLL5 out[2] = FR_REFCLK (to fibre rx clock)
 # PLL5 out[3] = pllout    (for observing PLL)
 cmp add_assignment $top_name "" inclk LOCATION "Pin_K17"
 cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_E15"
