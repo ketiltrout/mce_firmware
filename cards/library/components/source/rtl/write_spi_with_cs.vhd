@@ -29,8 +29,11 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2004/04/19 23:40:07 $> - <initials $Author: mandana $>
+-- <date $Date: 2004/10/27 00:00:35 $> - <initials $Author: bburger $>
 -- $Log: write_spi_with_cs.vhd,v $
+-- Revision 1.4  2004/10/27 00:00:35  bburger
+-- Bryce:  ports were out of date with the component library
+--
 -- Revision 1.3  2004/04/19 23:40:07  mandana
 -- fixed misallignment between data and clk
 --
@@ -85,11 +88,8 @@ signal spi_ncs       : std_logic;
 
 -- shift register signals
 signal shift_reg_data : std_logic;
-signal shift_reg_en   : std_logic;
 signal shift_reg_load : std_logic;
-signal shift_reg_clr  : std_logic;
 signal shl            : std_logic;
-signal zero           : std_logic;
 
 begin
 
@@ -146,7 +146,10 @@ begin
             else
                next_state <= WRITE;
             end if;
-
+         
+         when others =>
+            next_state <= IDLE;
+            
       end case;
    end process;
 
@@ -160,59 +163,39 @@ begin
    
    process(current_state, start_i, count)
    begin
+      
+      done_o <= '0';
+      shift_reg_load  <= '0';
+      reset_counter   <= '0';
+      spi_ncs_o       <= '0';
+      run_spi_clk     <= '0';
+      
       case current_state is
          when IDLE =>
-            
             if start_i = '1' then
-               run_spi_clk     <= '0'; 
-               shift_reg_en    <= '1';
-               spi_ncs_o       <= '0';
                reset_counter   <= '1';
                shift_reg_load  <= '1';
-               shift_reg_clr   <= '0';
-               done_o          <= '0';
             else
-               run_spi_clk     <= '0';
-               shift_reg_en    <= '1';
                spi_ncs_o       <= '1';
                reset_counter   <= '1';
                shift_reg_load  <= '1';
-               shift_reg_clr   <= '0';
-               done_o          <= '0'; 
             end if;           
             
          when START => 
-               run_spi_clk     <= '1'; 
-               shift_reg_en    <= '1';
-               spi_ncs_o       <= '0';
-               reset_counter   <= '0';
-               shift_reg_load  <= '0';
-               shift_reg_clr   <= '0';
-               done_o          <= '0';
-             
-         
-         when WRITE =>
-         
-            if count >= DATA_LENGTH - 1 then
-               run_spi_clk     <= '1'; 
-               shift_reg_en    <= '1';
-               spi_ncs_o       <= '0';
-               reset_counter   <= '0';
-               shift_reg_load  <= '0';
-               shift_reg_clr   <= '0';
-               done_o          <= '1';
-            
-            else
+            reset_counter      <= '1';
+            run_spi_clk        <= '1';
 
-               run_spi_clk     <= '1'; 
-               shift_reg_en    <= '1';
-               spi_ncs_o       <= '0';
-               reset_counter   <= '0';
-               shift_reg_load  <= '0';
-               shift_reg_clr   <= '0';
-               done_o          <= '0';
+         when WRITE =>
+            run_spi_clk     <= '1';
+            if count >= DATA_LENGTH - 1 then
+               shift_reg_load  <= '1';
+               spi_ncs_o       <= '1';
+               done_o          <= '1';
             end if;
-                        
+         
+         when others =>
+            null;
+            
       end case;
    end process;
             
@@ -224,18 +207,17 @@ begin
 ------------------------------------------------------------------------
 
    shl  <= '0';
-   zero <= '0';
    
    spi_shift : shift_reg
    
    generic map (WIDTH => DATA_LENGTH)
    port map(clk_i      => n_spi_clk,
         rst_i          => rst_i,
-        ena_i          => shift_reg_en,
+        ena_i          => '1',
         load_i         => shift_reg_load,
-        clr_i          => shift_reg_clr,
+        clr_i          => '0',
         shr_i          => shl, -- '0'
-        serial_i     => zero,
+        serial_i     => '0',
         serial_o     => shift_reg_data,
         parallel_i   => parallel_data_i,
         parallel_o   => open);
