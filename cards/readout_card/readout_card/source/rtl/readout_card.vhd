@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.3  2004/12/07 20:22:21  mohsen
+-- Anthony & Mohsen: Initial release
+--
 -- Revision 1.2  2004/12/06 07:22:34  bburger
 -- Bryce:
 -- Created pack files for the card top-levels.
@@ -65,15 +68,15 @@ use work.frame_timing_pack.all;
 
 entity readout_card is
 generic(
-  CARD                  : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1
+  CARD            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1
      );
 port(
 
   -- Global Interface
-  rst_n                    : in std_logic;
+  rst_n           : in std_logic;
 
   -- PLL Interface
-  inclk                    : in std_logic;
+  inclk           : in std_logic;
   
   -- ADC Interface
   adc1_dat        : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
@@ -163,19 +166,21 @@ architecture top of readout_card is
 
   
 -- Global signals
-signal clk_50                  : std_logic;
-signal clk_200                 : std_logic;
-signal clk_25                  : std_logic;
+signal clk_50                  : std_logic;  -- system clk
+signal clk_200_mem             : std_logic;  -- memory clk
+signal clk_200_comm            : std_logic;  -- communication clk
+signal clk_25                  : std_logic;  -- spi clk
 signal rst                     : std_logic;
 
 
--- dispatch output signals 
+-- dispatch interface signals 
 signal dispatch_dat_out        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal dispatch_addr_out       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
 signal dispatch_tga_out        : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
 signal dispatch_we_out         : std_logic;
 signal dispatch_stb_out        : std_logic;
 signal dispatch_cyc_out        : std_logic;
+signal dispatch_err_in         : std_logic;
 
 
 -- WBS MUX output siganls
@@ -184,7 +189,6 @@ signal dispatch_ack_in         : std_logic;
 
 
 -- frame_timing output signals
-
 signal dac_dat_en              : std_logic;
 signal adc_coadd_en            : std_logic;
 signal restart_frame_1row_prev : std_logic;
@@ -240,8 +244,8 @@ begin
      port map (
          inclk0 => inclk,
          c0     => clk_50,
-         c1     => clk_200,
-         c2     => clk_200,
+         c1     => clk_200_mem,
+         c2     => clk_200_comm,
          c3     => clk_25);
 
    
@@ -254,8 +258,8 @@ begin
          CARD => CARD)
      port map (
          clk_i        => clk_50,
-         mem_clk_i    => clk_200,
-         comm_clk_i   => clk_50,
+         mem_clk_i    => clk_200_mem,
+         comm_clk_i   => clk_200_comm,
          rst_i        => rst,
          lvds_cmd_i   => lvds_cmd,
          lvds_reply_o => lvds_txa,
@@ -267,25 +271,25 @@ begin
          cyc_o        => dispatch_cyc_out,
          dat_i        => dispatch_dat_in,
          ack_i        => dispatch_ack_in,
+         err_i        => dispatch_err_in,
          wdt_rst_o    => wdog);
 
 
   -----------------------------------------------------------------------------
   -- Output MUX to Dispatch:
   -- 
-  -- 1. addr_i selects which wbs is sending its output to the dispatch.  The
-  -- defulat connection is to data=0.
+  -- 1. dispatch_addr_out selects which wbs is sending its output to the
+  -- dispatch.  The defulat connection is to data=0.
   --
   -- 2. Acknowlege is ORing of the acknowledge signals from all Admins.
+  --
+  -- 3. Generate dispatch_err_in signal based on dispatch_addr_out.
   -----------------------------------------------------------------------------
 
-   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft;
-
- 
 
    with dispatch_addr_out select
      dispatch_dat_in <=
-     dat_fb          when    GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
+     dat_fb          when   GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
                             GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
                             GAINP6_ADDR | GAINP7_ADDR |
                             GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
@@ -303,13 +307,49 @@ begin
                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                             SA_BIAS_ADDR   | OFFSET_ADDR,
-     dat_frame       when    DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR,
-     dat_led         when    LED_ADDR,
-     dat_ft          when    ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
+     dat_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR,
+     dat_led         when   LED_ADDR,
+     dat_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                             RESYNC_ADDR | FLX_LP_INIT_ADDR,
     
      (others => '0') when others;        -- default to zero
+
+
+   
+   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft;
+
+ 
+
+   with dispatch_addr_out select
+     dispatch_err_in <=
+     '0'             when   GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
+                            GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
+                            GAINP6_ADDR | GAINP7_ADDR |
+                            GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
+                            GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR |
+                            GAINI6_ADDR | GAINI7_ADDR |
+                            GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
+                            GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
+                            GAIND6_ADDR | GAIND7_ADDR |
+                            ZERO0_ADDR | ZERO1_ADDR | ZERO2_ADDR | ZERO3_ADDR |
+                            ZERO4_ADDR | ZERO5_ADDR | ZERO6_ADDR | ZERO7_ADDR |
+                            ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
+                            ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
+                            ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
+                            ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
+                            FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
+                            RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
+                            SA_BIAS_ADDR   | OFFSET_ADDR |
+                            DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR |
+                            LED_ADDR |
+                            ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
+                            SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
+                            RESYNC_ADDR | FLX_LP_INIT_ADDR,
+    
+     '1'             when others;        
+
+   
 
    
 
@@ -338,7 +378,7 @@ begin
          dat_o                     => dat_ft,
          ack_o                     => ack_ft,
          clk_i                     => clk_50,
-         mem_clk_i                 => clk_200,
+         mem_clk_i                 => clk_200_mem,
          rst_i                     => rst,
          sync_i                    => lvds_sync);
    
