@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.14 2004/10/06 21:48:53 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.15 2004/10/21 16:06:19 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,16 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/10/06 21:48:53 $> - <text> - <initials $Author: erniel $>
+-- <date $Date: 2004/10/21 16:06:19 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.15  2004/10/21 16:06:19  dca
+-- error code/word 3 now decoded from new input 'm_op_error_code_i'.
+-- FSM changed accordinly.
+--
+-- fibre_word_rdy_i signal added to handshake with reply_queue for
+-- data on fibre_word_i
+--
 -- Revision 1.14  2004/10/06 21:48:53  erniel
 -- using new command_pack constants
 -- using conv_integer and conv_std_logic_vector macros
@@ -99,6 +106,7 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.issue_reply_pack.all;
+
 
 library sys_param;
 use sys_param.command_pack.all;
