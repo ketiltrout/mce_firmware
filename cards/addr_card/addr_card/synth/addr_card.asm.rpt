@@ -1,5 +1,5 @@
 Assembler report for addr_card
-Fri Dec 17 16:46:07 2004
+Thu Jan 20 11:38:03 2005
 Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
 
 
@@ -44,7 +44,7 @@ party's intellectual property, are provided herein.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Fri Dec 17 16:46:07 2004 ;
+; Assembler Status      ; Successful - Thu Jan 20 11:38:03 2005 ;
 ; Revision Name         ; addr_card                             ;
 ; Top-level Entity Name ; addr_card                             ;
 ; Family                ; Stratix                               ;
@@ -105,7 +105,7 @@ party's intellectual property, are provided herein.
 +----------------+-----------------------------------------------------------------------------+
 ; Device         ; EP1S10F780C5                                                                ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                                  ;
-; Checksum       ; 0x002BE05E                                                                  ;
+; Checksum       ; 0x002DC85E                                                                  ;
 +----------------+-----------------------------------------------------------------------------+
 
 
@@ -116,7 +116,7 @@ party's intellectual property, are provided herein.
 +----------------+-----------------------------------------------------------------------------+
 ; Device         ; EPC4                                                                        ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                                  ;
-; Checksum       ; 0x06040851                                                                  ;
+; Checksum       ; 0x0604D08F                                                                  ;
 +----------------+-----------------------------------------------------------------------------+
 
 
@@ -126,10 +126,10 @@ party's intellectual property, are provided herein.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
     Info: Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
-    Info: Processing started: Fri Dec 17 16:46:02 2004
+    Info: Processing started: Thu Jan 20 11:37:59 2005
 Info: Command: quartus_asm --import_settings_files=off --export_settings_files=off addr_card -c addr_card
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-    Info: Processing ended: Fri Dec 17 16:46:07 2004
+    Info: Processing ended: Thu Jan 20 11:38:03 2005
     Info: Elapsed time: 00:00:04
 
 

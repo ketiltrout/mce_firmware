@@ -115,8 +115,8 @@ NC                           : AA21      :        :                   :         
 NC                           : AA22      :        :                   :         : 1         :                
 NC                           : AA23      :        :                   :         : 1         :                
 NC                           : AA24      :        :                   :         : 1         :                
-RESERVED_INPUT               : AA25      :        :                   :         : 1         :                
-RESERVED_INPUT               : AA26      :        :                   :         : 1         :                
+ttl_tx3                      : AA25      : output : LVTTL             :         : 1         : N              
+ttl_nrx3                     : AA26      : input  : LVTTL             :         : 1         : N              
 RESERVED_INPUT               : AA27      :        :                   :         : 1         :                
 lvds_sync                    : AA28      : input  : LVTTL             :         : 1         : Y              
 RESERVED_INPUT               : AB1       :        :                   :         : 6         :                
@@ -165,7 +165,7 @@ GND                          : AC15      : gnd    :                   :         
 MSEL0                        : AC16      :        :                   :         : 8         :                
 GND+                         : AC17      :        :                   :         : 8         :                
 PLL_ENA                      : AC18      :        :                   :         : 8         :                
-RESERVED_INPUT               : AC19      :        :                   :         : 8         :                
+ttl_txena3                   : AC19      : output : LVTTL             :         : 8         : N              
 NC                           : AC20      :        :                   :         : 1         :                
 RESERVED_INPUT               : AC21      :        :                   :         : 8         :                
 NC                           : AC22      :        :                   :         : 1         :                
@@ -437,7 +437,7 @@ NC                           : F9        :        :                   :         
 dac_data4[1]                 : F10       : output : LVTTL             :         : 4         : Y              
 NC                           : F11       :        :                   :         : 1         :                
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
-altera_reserved_tms          : F13       : input  : LVTTL             :         : 4         : N              
+TMS                          : F13       : input  :                   :         : 4         :                
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    : 1         :                
 VCC_PLL5_OUTA                : F15       : power  :                   : 3.3V    : 9         :                
 DCLK                         : F16       :        :                   :         : 3         :                
@@ -465,7 +465,7 @@ NC                           : G9        :        :                   :         
 dac_clk[22]                  : G10       : output : LVTTL             :         : 4         : Y              
 RESERVED_INPUT               : G11       :        :                   :         : 4         :                
 NC                           : G12       :        :                   :         : 1         :                
-altera_reserved_tdi          : G13       : input  : LVTTL             :         : 4         : N              
+TDI                          : G13       : input  :                   :         : 4         :                
 GNDA_PLL5                    : G14       : gnd    :                   :         : 1         :                
 GND                          : G15       : gnd    :                   :         : 1         :                
 VCC_PLL5_OUTB                : G16       : power  :                   : 3.3V    : 10        :                
@@ -493,7 +493,7 @@ NC                           : H9        :        :                   :         
 NC                           : H10       :        :                   :         : 1         :                
 RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : LVTTL             :         : 4         : N              
-altera_reserved_tdo          : H13       : output : LVTTL             :         : 4         : N              
+TDO                          : H13       : output :                   :         : 4         :                
 RESERVED_INPUT               : H14       :        :                   :         : 9         :                
 RESERVED_INPUT               : H15       :        :                   :         : 9         :                
 GND                          : H16       : gnd    :                   :         : 1         :                
@@ -548,7 +548,7 @@ dac_clk[8]                   : K8        : output : LVTTL             :         
 GND                          : K9        :        :                   :         : 5         :                
 NC                           : K10       :        :                   :         : 1         :                
 RESERVED_INPUT               : K11       :        :                   :         : 4         :                
-altera_reserved_tck          : K12       : input  : LVTTL             :         : 4         : N              
+TCK                          : K12       : input  :                   :         : 4         :                
 GND+                         : K13       :        :                   :         : 4         :                
 RESERVED_INPUT               : K14       :        :                   :         : 9         :                
 RESERVED_INPUT               : K15       :        :                   :         : 9         :                
@@ -576,7 +576,7 @@ dac_clk[10]                  : L8        : output : LVTTL             :         
 dac_data2[1]                 : L9        : output : LVTTL             :         : 5         : Y              
 dac_data2[0]                 : L10       : output : LVTTL             :         : 5         : Y              
 RESERVED_INPUT               : L11       :        :                   :         : 4         :                
-altera_reserved_ntrst        : L12       : input  : LVTTL             :         : 4         : N              
+TRST                         : L12       : input  :                   :         : 4         :                
 RESERVED_INPUT               : L13       :        :                   :         : 4         :                
 GND                          : L14       : gnd    :                   :         : 1         :                
 GND                          : L15       : gnd    :                   :         : 1         :                
@@ -675,7 +675,7 @@ VCCA_PLL1                    : P23       : power  :                   : 1.5V    
 GNDA_PLL1                    : P24       : gnd    :                   :         : 1         :                
 GND+                         : P25       :        :                   :         : 2         :                
 RESERVED_INPUT               : P26       :        :                   :         : 2         :                
-GND+                         : P27       :        :                   :         : 2         :                
+ttl_nrx1                     : P27       : input  : LVTTL             :         : 2         : N              
 GND                          : P28       : gnd    :                   :         : 1         :                
 GND                          : R1        : gnd    :                   :         : 1         :                
 GND+                         : R2        :        :                   :         : 6         :                
@@ -751,10 +751,10 @@ VCCINT                       : U15       : power  :                   : 1.5V    
 GND                          : U16       : gnd    :                   :         : 1         :                
 VCCINT                       : U17       : power  :                   : 1.5V    :           :                
 GND                          : U18       : gnd    :                   :         : 1         :                
-ttl_nrx[1]                   : U19       : input  : LVTTL             :         : 1         : Y              
-ttl_nrx[2]                   : U20       : input  : LVTTL             :         : 1         : Y              
-ttl_tx[2]                    : U21       : output : LVTTL             :         : 1         : Y              
-ttl_txena[2]                 : U22       : output : LVTTL             :         : 1         : Y              
+RESERVED_INPUT               : U19       :        :                   :         : 1         :                
+RESERVED_INPUT               : U20       :        :                   :         : 1         :                
+RESERVED_INPUT               : U21       :        :                   :         : 1         :                
+RESERVED_INPUT               : U22       :        :                   :         : 1         :                
 RESERVED_INPUT               : U23       :        :                   :         : 1         :                
 RESERVED_INPUT               : U24       :        :                   :         : 1         :                
 eeprom_cs                    : U25       : output : LVTTL             :         : 1         : Y              
@@ -800,10 +800,10 @@ NC                           : W8        :        :                   :         
 GND                          : W9        :        :                   :         : 6         :                
 RESERVED_INPUT               : W10       :        :                   :         : 7         :                
 RESERVED_INPUT               : W11       :        :                   :         : 7         :                
-RESERVED_INPUT               : W12       :        :                   :         : 7         :                
+ttl_txena1                   : W12       : output : LVTTL             :         : 7         : N              
 GND+                         : W13       :        :                   :         : 7         :                
 RESERVED_INPUT               : W14       :        :                   :         : 11        :                
-RESERVED_INPUT               : W15       :        :                   :         : 11        :                
+ttl_txena2                   : W15       : output : LVTTL             :         : 11        : N              
 RESERVED_INPUT               : W16       :        :                   :         : 12        :                
 MSEL1                        : W17       :        :                   :         : 8         :                
 RESERVED_INPUT               : W18       :        :                   :         : 8         :                
@@ -816,7 +816,7 @@ RESERVED_INPUT               : W24       :        :                   :         
 RESERVED_INPUT               : W25       :        :                   :         : 1         :                
 RESERVED_INPUT               : W26       :        :                   :         : 1         :                
 RESERVED_INPUT               : W27       :        :                   :         : 1         :                
-ttl_nrx[3]                   : W28       : input  : LVTTL             :         : 1         : Y              
+RESERVED_INPUT               : W28       :        :                   :         : 1         :                
 dac_data8[8]                 : Y1        : output : LVTTL             :         : 6         : Y              
 dac_data8[9]                 : Y2        : output : LVTTL             :         : 6         : Y              
 RESERVED_INPUT               : Y3        :        :                   :         : 6         :                
@@ -827,21 +827,21 @@ NC                           : Y7        :        :                   :         
 NC                           : Y8        :        :                   :         : 1         :                
 RESERVED_INPUT               : Y9        :        :                   :         : 7         :                
 NC                           : Y10       :        :                   :         : 1         :                
-RESERVED_INPUT               : Y11       :        :                   :         : 7         :                
+ttl_nrx2                     : Y11       : input  : LVTTL             :         : 7         : N              
 nIO_PULLUP                   : Y12       :        :                   :         : 7         :                
 RESERVED_INPUT               : Y13       :        :                   :         : 7         :                
 VCCIO7                       : Y14       : power  :                   : 3.3V    : 7         :                
 VCCIO8                       : Y15       : power  :                   : 3.3V    : 8         :                
 RESERVED_INPUT               : Y16       :        :                   :         : 12        :                
 mictor[16]                   : Y17       : output : LVTTL             :         : 8         : Y              
-RESERVED_INPUT               : Y18       :        :                   :         : 8         :                
+ttl_tx2                      : Y18       : output : LVTTL             :         : 8         : N              
 RESERVED_INPUT               : Y19       :        :                   :         : 8         :                
 NC                           : Y20       :        :                   :         : 1         :                
 NC                           : Y21       :        :                   :         : 1         :                
 NC                           : Y22       :        :                   :         : 1         :                
 NC                           : Y23       :        :                   :         : 1         :                
 NC                           : Y24       :        :                   :         : 1         :                
-ttl_txena[1]                 : Y25       : output : LVTTL             :         : 1         : Y              
-ttl_tx[1]                    : Y26       : output : LVTTL             :         : 1         : Y              
-ttl_txena[3]                 : Y27       : output : LVTTL             :         : 1         : Y              
-ttl_tx[3]                    : Y28       : output : LVTTL             :         : 1         : Y              
+RESERVED_INPUT               : Y25       :        :                   :         : 1         :                
+ttl_tx1                      : Y26       : output : LVTTL             :         : 1         : N              
+RESERVED_INPUT               : Y27       :        :                   :         : 1         :                
+RESERVED_INPUT               : Y28       :        :                   :         : 1         :                

@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_clk_card.vhd,v 1.7 2004/12/21 22:06:51 bburger Exp $
+-- $Id: tb_clk_card.vhd,v 1.8 2005/01/19 23:39:06 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_clk_card.vhd,v $
+-- Revision 1.8  2005/01/19 23:39:06  bburger
+-- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
+--
 -- Revision 1.7  2004/12/21 22:06:51  bburger
 -- Bryce:  update
 --
@@ -902,7 +905,7 @@ begin
 
       -- This is a 'WB ac on_bias 0 1 2 .. 40' command
       -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
-      command <= command_rb;
+      command <= command_wb;
       address_id <= off_bias_cmd;
       data_valid <= X"00000029"; --41 values
       data       <= X"00000000";

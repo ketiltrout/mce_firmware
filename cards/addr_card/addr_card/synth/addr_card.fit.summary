@@ -1,13 +1,13 @@
-Flow Status : Successful - Fri Dec 17 16:46:01 2004
+Flow Status : Successful - Thu Jan 20 11:37:56 2005
 Quartus II Version : 4.1 Build 208 09/10/2004 SP 2 SJ Full Version
 Revision Name : addr_card
 Top-level Entity Name : addr_card
 Family : Stratix
 Device : EP1S10F780C5
 Timing Models : Production
-Total logic elements : 1,984 / 10,570 ( 18 % )
+Total logic elements : 2,177 / 10,570 ( 20 % )
 Total pins : 275 / 427 ( 64 % )
-Total memory bits : 12,544 / 920,448 ( 1 % )
-DSP block 9-bit elements : 0 / 48 ( 0 % )
+Total memory bits : 12,928 / 920,448 ( 1 % )
+DSP block 9-bit elements : 8 / 48 ( 16 % )
 Total PLLs : 1 / 6 ( 16 % )
 Total DLLs : 0 / 2 ( 0 % )
