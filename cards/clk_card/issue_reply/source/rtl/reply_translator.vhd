@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.3 2004/08/23 14:22:49 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.4 2004/08/24 13:29:06 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,14 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/23 14:22:49 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/24 13:29:06 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.4  2004/08/24 13:29:06  dca
+-- REPLY FSM changed to FIBRE FSM.
+-- This FSM will write all fibre packets (reply and data)
+-- to the transmit FIFO.
+--
 -- Revision 1.3  2004/08/23 14:22:49  dca
 -- First pass at reply FSM coded and simulated.
 -- (Data FSM not done yet)
@@ -47,6 +52,14 @@
 -- 
 -----------------------------------------------------------------------------
 
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-- NOTE (DA) 
+-- WHAT HAPPENS If STOP COMMAND COMES IN WITH A CHECKSUM ERROR WHILE
+-- READING OUT DATA FRAMES.....?
+-- NEED TO ADD CODE TO HANDLE THIS SITUATION.....
+-- CURRENTLY ERROR STOP WOULD JUST BE MISSED....(?)
+-- ALL OTHER CONDITIONS SHOULD BE COVERERD.....(NO NESTED LOOPS)
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -64,31 +77,31 @@ entity reply_translator is
 
 port(
      -- global inputs 
-     rst_i                   : in  std_logic;
-     clk_i                   : in  std_logic;
+     rst_i                   : in  std_logic;                                            -- global reset
+     clk_i                   : in  std_logic;                                            -- global clock
 
      -- signals to/from cmd_translator
      
-     cmd_rcvd_er_i           : in  std_logic;                   
-     cmd_rcvd_ok_i           : in  std_logic;         
-     cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);
-     card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
-     param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  
-     cmd_ack_o	              : out std_logic; 
+     cmd_rcvd_er_i           : in  std_logic;                                            -- command received on fibre with checksum error
+     cmd_rcvd_ok_i           : in  std_logic;                                            -- command received on fibre - no checksum error
+     cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);    -- fibre command code
+     card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- fibre command card id
+     param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- fibre command parameter id
+     cmd_ack_o	              : out std_logic;                                            -- acknowledge instruction from cmd_translator
        
      -- signals to/from reply queue 
-     m_op_done_i             : in  std_logic; 
-     m_op_ok_nEr_i           : in  std_logic;
-     reply_nData_i           : in  std_logic; 
-     fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);
-     num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);
-     fibre_word_req_o        : out std_logic;
-     m_op_ack_o              : out std_logic;
+     m_op_done_i             : in  std_logic;                                            -- macro op done
+     m_op_ok_nEr_i           : in  std_logic;                                            -- macro op success ('1') or error ('0') 
+     reply_nData_i           : in  std_logic;                                            -- macro op completion should generate a reply packet ('1') or a data packet ('0')
+     fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- packet word read from reply queue
+     num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
+     fibre_word_req_o        : out std_logic;                                            -- asserted to requeset next fibre word
+     m_op_ack_o              : out std_logic;                                            -- asserted to indicate to reply queue the the packet has been processed
      
      -- signals to / from fibre_tx
-     tx_ff_i                 : in std_logic;
-     tx_fw_o                 : out std_logic; 
-     txd_o                   : out std_logic_vector (7 downto 0)
+     tx_ff_i                 : in std_logic;                                             -- transmit fifo full
+     tx_fw_o                 : out std_logic;                                            -- transmit fifo write request
+     txd_o                   : out std_logic_vector (7 downto 0)                         -- transmit fifo data input
      );      
 end reply_translator;
 
@@ -130,91 +143,65 @@ constant ERROR_WORD_WIDTH    : integer := 32;
 constant CHECKSUM_ER_NUM     : std_logic_vector (ERROR_WORD_WIDTH-1 downto 0) := X"00000001" ;
 constant NUM_HEAD_WORDS      : integer := 4;
 constant NUM_REPLY_WORDS     : integer := 4;
-
 constant NUM_REPLY_BYTES     : integer := (NUM_HEAD_WORDS * 4) + (NUM_REPLY_WORDS *4);
-
-
 
 
 -- reply word registers
 
---signal reply_word1           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);     	-- reply word 1
---signal reply_word2           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);     	-- reply word 2
---signal reply_word3_63        : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);     	-- reply word 3 (or for RB 3 to 63)
-
-signal reply_word1_0         : byte;                     -- reply word 1 byte 0 
-signal reply_word1_1         : byte;                     -- reply word 1 byte 1 
-signal reply_word1_2         : byte;                     -- reply word 1 byte 2 
-signal reply_word1_3         : byte;                     -- reply word 1 byte 3 
+signal reply_word1_0         : byte;                       -- reply word 1 byte 0 
+signal reply_word1_1         : byte;                       -- reply word 1 byte 1 
+signal reply_word1_2         : byte;                       -- reply word 1 byte 2 
+signal reply_word1_3         : byte;                       -- reply word 1 byte 3 
             
-signal reply_word2_0         : byte;                     -- reply word 2 byte 0 
-signal reply_word2_1         : byte;                     -- reply word 2 byte 1 
-signal reply_word2_2         : byte;                     -- reply word 2 byte 2 
-signal reply_word2_3         : byte;                     -- reply word 2 byte 3 
+signal reply_word2_0         : byte;                       -- reply word 2 byte 0 
+signal reply_word2_1         : byte;                       -- reply word 2 byte 1 
+signal reply_word2_2         : byte;                       -- reply word 2 byte 2 
+signal reply_word2_3         : byte;                       -- reply word 2 byte 3 
             
-signal reply_word3_0         : byte;                     -- reply word 3 byte 0 
-signal reply_word3_1         : byte;                     -- reply word 3 byte 1 
-signal reply_word3_2         : byte;                     -- reply word 3 byte 2 
-signal reply_word3_3         : byte;                     -- reply word 3 byte 3 
+signal reply_word3_0         : byte;                       -- reply word 3 byte 0 
+signal reply_word3_1         : byte;                       -- reply word 3 byte 1 
+signal reply_word3_2         : byte;                       -- reply word 3 byte 2 
+signal reply_word3_3         : byte;                       -- reply word 3 byte 3 
 
+-- packet header registers /  definitions 
 
-
-signal rpy_checksum              : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);     	-- reply word 4 (or for RB 64)
-signal rpy_checksum_in           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  	  -- word checksum is to be updated with 
-signal rpy_checksum_in_mux       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); 
-signal rpy_checksum_load         : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); 
-signal rpy_checksum_in_mux_sel   : std_logic;
-
-signal dat_checksum              : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);     	-- lst word in data packet
-signal dat_checksum_in           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  	  -- word checksum is to be updated with 
-signal dat_checksum_in_mux       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); 
-signal dat_checksum_load         : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); 
-signal dat_checksum_in_mux_sel   : std_logic;
-
-
--- reply header defined
-
-constant reply_header1_0     : byte := FIBRE_PREAMBLE1;
-constant reply_header1_1     : byte := FIBRE_PREAMBLE1;
-constant reply_header1_2     : byte := FIBRE_PREAMBLE1;
-constant reply_header1_3     : byte := FIBRE_PREAMBLE1;
+constant packet_header1_0     : byte := FIBRE_PREAMBLE1;   -- packet header word 1 byte 0
+constant packet_header1_1     : byte := FIBRE_PREAMBLE1;   -- packet header word 1 byte 1
+constant packet_header1_2     : byte := FIBRE_PREAMBLE1;   -- packet header word 1 byte 2
+constant packet_header1_3     : byte := FIBRE_PREAMBLE1;   -- packet header word 1 byte 3
             
-constant reply_header2_0     : byte := FIBRE_PREAMBLE2;
-constant reply_header2_1     : byte := FIBRE_PREAMBLE2;
-constant reply_header2_2     : byte := FIBRE_PREAMBLE2;
-constant reply_header2_3     : byte := FIBRE_PREAMBLE2;
+constant packet_header2_0     : byte := FIBRE_PREAMBLE2;   -- packet header word 2 byte 0
+constant packet_header2_1     : byte := FIBRE_PREAMBLE2;   -- packet header word 2 byte 1
+constant packet_header2_2     : byte := FIBRE_PREAMBLE2;   -- packet header word 2 byte 2
+constant packet_header2_3     : byte := FIBRE_PREAMBLE2;   -- packet header word 2 byte 3
             
-constant reply_header3_0     : byte := ASCII_P;
-constant reply_header3_1     : byte := ASCII_R;
-constant reply_header3_2     : byte := ASCII_SP;
-constant reply_header3_3     : byte := ASCII_SP;
+signal   packet_header3_0     : byte ;                     -- packet header word 3 byte 0
+signal   packet_header3_1     : byte ;                     -- packet header word 3 byte 1
+signal   packet_header3_2     : byte ;                     -- packet header word 3 byte 2
+signal   packet_header3_3     : byte ;                     -- packet header word 3 byte 3
             
-signal   reply_header4_0     : byte; 
-signal   reply_header4_1     : byte; 
-signal   reply_header4_2     : byte; 
-signal   reply_header4_3     : byte;
+signal   packet_header4_0     : byte ;                     -- packet header word 4 byte 0
+signal   packet_header4_1     : byte ;                     -- packet header word 4 byte 1
+signal   packet_header4_2     : byte ;                     -- packet header word 4 byte 2
+signal   packet_header4_3     : byte ;                     -- packet header word 4 byte 3
 
--- data header defined
 
-constant data_header1_0      : byte := FIBRE_PREAMBLE1;
-constant data_header1_1      : byte := FIBRE_PREAMBLE1;
-constant data_header1_2      : byte := FIBRE_PREAMBLE1;
-constant data_header1_3      : byte := FIBRE_PREAMBLE1;
-            
-constant data_header2_0      : byte := FIBRE_PREAMBLE2;
-constant data_header2_1      : byte := FIBRE_PREAMBLE2;
-constant data_header2_2      : byte := FIBRE_PREAMBLE2;
-constant data_header2_3      : byte := FIBRE_PREAMBLE2;
-            
-constant data_header3_0      : byte := ASCII_A;
-constant data_header3_1      : byte := ASCII_D;
-constant data_header3_2      : byte := ASCII_SP;
-constant data_header3_3      : byte := ASCII_SP;
+-- checksum signals
 
-signal   data_header4_0      : byte;
-signal   data_header4_1      : byte;
-signal   data_header4_2      : byte;
-signal   data_header4_3      : byte;
+signal checksum              : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); 	-- checksum word (output from checksum calculator)
+signal checksum_in           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  -- input to checksum calculator  
+
+-- recirculation MUX structure used to hold checksum_in value  
+signal checksum_in_mux       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  -- MUX output
+signal checksum_load         : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  -- new checksum_in value loaded here  
+signal checksum_in_mux_sel   : std_logic;                                    -- asserted to register the checksum_load value
+
+
+-- packet header word 3 options  - reply or data packet...
+
+constant DATA_PACKET          : std_logic_vector(DATA_BUS_WIDTH-1 downto 0) := ASCII_SP & ASCII_SP & ASCII_D & ASCII_A;
+constant REPLY_PACKET         : std_logic_vector(DATA_BUS_WIDTH-1 downto 0) := ASCII_SP & ASCII_SP & ASCII_R & ASCII_P; 
+
 
 
 -- recircluation MUX structure used for registers....
@@ -237,30 +224,38 @@ signal reply_word3_2mux_sel   : std_logic ;
 signal reply_word3_3mux_sel   : std_logic ;
 
 
-signal reply_header4_0mux_sel : std_logic ;
-signal reply_header4_1mux_sel : std_logic ;
-signal reply_header4_2mux_sel : std_logic ;
-signal reply_header4_3mux_sel : std_logic ;
+signal packet_header3_0mux_sel : std_logic ;
+signal packet_header3_1mux_sel : std_logic ;
+signal packet_header3_2mux_sel : std_logic ;
+signal packet_header3_3mux_sel : std_logic ;
 
-signal txd_mux_sel            : std_logic ;
+signal packet_header4_0mux_sel : std_logic ;
+signal packet_header4_1mux_sel : std_logic ;
+signal packet_header4_2mux_sel : std_logic ;
+signal packet_header4_3mux_sel : std_logic ;
 
 
 -- re-circulation mux outputs..
 
-signal reply_header4_0mux     : byte;
-signal reply_header4_1mux     : byte;
-signal reply_header4_2mux     : byte;
-signal reply_header4_3mux     : byte;
+signal packet_header3_0mux     : byte;
+signal packet_header3_1mux     : byte;
+signal packet_header3_2mux     : byte;
+signal packet_header3_3mux     : byte;
 
-signal reply_word1_0mux       : byte;
-signal reply_word1_1mux       : byte;
-signal reply_word1_2mux       : byte;
-signal reply_word1_3mux       : byte;
+signal packet_header4_0mux     : byte;
+signal packet_header4_1mux     : byte;
+signal packet_header4_2mux     : byte;
+signal packet_header4_3mux     : byte;
 
-signal reply_word2_0mux       : byte;
-signal reply_word2_1mux       : byte;
-signal reply_word2_2mux       : byte;
-signal reply_word2_3mux       : byte;
+signal reply_word1_0mux        : byte;
+signal reply_word1_1mux        : byte;
+signal reply_word1_2mux        : byte;
+signal reply_word1_3mux        : byte;
+
+signal reply_word2_0mux        : byte;
+signal reply_word2_1mux        : byte;
+signal reply_word2_2mux        : byte;
+signal reply_word2_3mux        : byte;
 
 signal reply_word3_0mux       : byte;
 signal reply_word3_1mux       : byte;
@@ -268,18 +263,15 @@ signal reply_word3_2mux       : byte;
 signal reply_word3_3mux       : byte;
 
 
+-- Finite State Machines defined here:
 
-
--- FSM state variables:
-
--- fibre packet FSM
+-- FIBRE PACKET FSM
 -- handles the writting off all packets (replies and data) to the
 -- fibre transmit FIFO (fibre_tx_fifo) 
 
 type fibre_state is           (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, REPLY_ER, 
                                DATA_FRAME, REQ_Q_WORD , READ_Q_WORD,    
-                                        
-                               
+                                                                      
                                LD_RP_HEAD1_0, TX_RP_HEAD1_0, LD_RP_HEAD1_1, TX_RP_HEAD1_1,
                                LD_RP_HEAD1_2, TX_RP_HEAD1_2, LD_RP_HEAD1_3, TX_RP_HEAD1_3,
                                LD_RP_HEAD2_0, TX_RP_HEAD2_0, LD_RP_HEAD2_1, TX_RP_HEAD2_1,
@@ -288,15 +280,6 @@ type fibre_state is           (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, R
                                LD_RP_HEAD3_2, TX_RP_HEAD3_2, LD_RP_HEAD3_3, TX_RP_HEAD3_3,
                                LD_RP_HEAD4_0, TX_RP_HEAD4_0, LD_RP_HEAD4_1, TX_RP_HEAD4_1,
                                LD_RP_HEAD4_2, TX_RP_HEAD4_2, LD_RP_HEAD4_3, TX_RP_HEAD4_3,
-                               
-                               LD_DA_HEAD1_0, TX_DA_HEAD1_0, LD_DA_HEAD1_1, TX_DA_HEAD1_1,
-                               LD_DA_HEAD1_2, TX_DA_HEAD1_2, LD_DA_HEAD1_3, TX_DA_HEAD1_3,
-                               LD_DA_HEAD2_0, TX_DA_HEAD2_0, LD_DA_HEAD2_1, TX_DA_HEAD2_1,
-                               LD_DA_HEAD2_2, TX_DA_HEAD2_2, LD_DA_HEAD2_3, TX_DA_HEAD2_3,
-                               LD_DA_HEAD3_0, TX_DA_HEAD3_0, LD_DA_HEAD3_1, TX_DA_HEAD3_1,
-                               LD_DA_HEAD3_2, TX_DA_HEAD3_2, LD_DA_HEAD3_3, TX_DA_HEAD3_3,
-                               LD_DA_HEAD4_0, TX_DA_HEAD4_0, LD_DA_HEAD4_1, TX_DA_HEAD4_1,
-                               LD_DA_HEAD4_2, TX_DA_HEAD4_2, LD_DA_HEAD4_3, TX_DA_HEAD4_3,
                                
                                LD_RP_WORD1_0, TX_RP_WORD1_0, LD_RP_WORD1_1, TX_RP_WORD1_1,
                                LD_RP_WORD1_2, TX_RP_WORD1_2, LD_RP_WORD1_3, TX_RP_WORD1_3,
@@ -311,11 +294,13 @@ type fibre_state is           (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, R
                                
                                );
       
-
 signal   fibre_current_state       : fibre_state;
 signal   fibre_next_state          : fibre_state;
       
 
+-- LOCAL COMMAND FSM
+-- handles local commands 
+-- currently doesn't do anything!
 
 -- Local command FSM                              
 type local_state is            (LOCAL_IDLE, LOCAL_TEST);
@@ -325,59 +310,44 @@ signal   local_current_state        : local_state;
 signal   local_next_state           : local_state;
 
 
+-- some local signals
 
+signal packet_size           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);   -- this value is written to the packet header word 4
+signal fibre_word_count      : integer;                                       -- used to count how many words have been read from the reply_queue  
 
--- some control signals
+signal txing_packet          : std_logic;                                     -- asserted when txing a packet 
 
-signal reply_size             : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-signal fibre_word_count       : integer;
+signal reply_status          : std_logic_vector (15 downto 0);                -- this word is writen to reply word 1 to indicate if 'OK' or 'ER' 
+signal reply_data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- this word is the reply or data word read from cmd_queue
+signal packet_type           : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- indicates reply or data packet - written to header word 3
 
-signal transmitting_reply    : std_logic;
-signal transmitting_data     : std_logic;
+signal m_op_done_reply       : std_logic;                                     -- asserted high when processing reply m_op pacekt
+signal m_op_done_data        : std_logic;                                     -- asserted high when processing data m_op packet
 
-signal reply_status          : std_logic_vector (15 downto 0);
-signal reply_data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);
+signal rst_checksum          : std_logic;                                     -- signal asserted to reset packet checksum
+signal ena_checksum          : std_logic;                                     -- signal assertd to update packet checksum with checksum_in value
 
-signal m_op_done_reply       : std_logic;
-signal m_op_done_data        : std_logic;
-signal update_reply          : std_logic;
-signal rb_reply              : std_logic;
-signal num_tx_bytes          : integer;
+signal ena_fibre_count       : std_logic;                                     -- signal asserted to reset fibre count 
+signal rst_fibre_count       : std_logic;                                     -- signal asserted to enable fibre count (i.e inc by 1) 
 
-signal rst_dat_cksum         : std_logic;       -- signal to reset data packet checksum
-signal ena_dat_cksum         : std_logic;       -- signal to update data packet checksum
+signal fibre_byte            : byte;                                          -- output byte to  be written to tranmit FIFO
+signal write_fifo            : std_logic;                                     -- asserted high when writing to transmit FIFO fibre_tx_fifo
 
-signal rst_rpy_cksum         : std_logic;       -- signal to reset reply packet checksum
-signal ena_rpy_cksum         : std_logic;       -- singal to update reply packet checksum
-
-signal ena_fibre_count       : std_logic;
-signal rst_fibre_count       : std_logic;
-
--- data byte stream output for two FSMs
--- outputs multiplexed.... 
-
-signal data_byte            : byte;
-signal reply_byte           : byte;
-
-signal rb_size              : integer;
-
-
-signal write_fifo           : std_logic;
+signal reply_size               : integer;
 
 
 
 begin
 
 
-m_op_done_reply <= m_op_done_i and reply_nData_i;
-m_op_done_data  <= m_op_done_i and not(reply_nData_i);  
+m_op_done_reply             <= m_op_done_i and reply_nData_i;                 -- these inputs (from reply_queue) should hold true until m_op_ack_o asserted
+m_op_done_data              <= m_op_done_i and not(reply_nData_i);            -- these inputs (from reply_queue) should hold true until m_op_ack_o asserted
+
+tx_fw_o                     <= write_fifo;                                    -- map write_fifo signal to output tx_fw_o
 
 
-tx_fw_o         <= write_fifo;
-
--- catch data from cmd_translator with recirculation mux structure
-
-
+-- recirculation MUX selectors 
+-- used to register command code, parameter id and card id from cmd_translator
 reply_word1_2mux_sel        <= cmd_rcvd_er_i OR cmd_rcvd_ok_i;
 reply_word1_3mux_sel        <= cmd_rcvd_er_i OR cmd_rcvd_ok_i;
 reply_word2_0mux_sel        <= cmd_rcvd_er_i OR cmd_rcvd_ok_i;
@@ -385,52 +355,61 @@ reply_word2_1mux_sel        <= cmd_rcvd_er_i OR cmd_rcvd_ok_i;
 reply_word2_2mux_sel        <= cmd_rcvd_er_i OR cmd_rcvd_ok_i;
 reply_word2_3mux_sel        <= cmd_rcvd_er_i OR cmd_rcvd_ok_i;
 
-reply_header4_0mux <= reply_size ( 7 downto  0)  when reply_header4_0mux_sel = '1' else reply_header4_0;
-reply_header4_1mux <= reply_size (15 downto  8)  when reply_header4_1mux_sel = '1' else reply_header4_1;
-reply_header4_2mux <= reply_size (23 downto 16)  when reply_header4_2mux_sel = '1' else reply_header4_2;
-reply_header4_3mux <= reply_size (31 downto 24)  when reply_header4_3mux_sel = '1' else reply_header4_3;
+-- packet header recirculation mux structures
+packet_header3_0mux <= packet_type ( 7 downto  0)  when packet_header3_0mux_sel = '1' else packet_header3_0;
+packet_header3_1mux <= packet_type (15 downto  8)  when packet_header3_1mux_sel = '1' else packet_header3_1;
+packet_header3_2mux <= packet_type (23 downto 16)  when packet_header3_2mux_sel = '1' else packet_header3_2;
+packet_header3_3mux <= packet_type (31 downto 24)  when packet_header3_3mux_sel = '1' else packet_header3_3;
 
+packet_header4_0mux <= packet_size ( 7 downto  0)  when packet_header4_0mux_sel = '1' else packet_header4_0;
+packet_header4_1mux <= packet_size (15 downto  8)  when packet_header4_1mux_sel = '1' else packet_header4_1;
+packet_header4_2mux <= packet_size (23 downto 16)  when packet_header4_2mux_sel = '1' else packet_header4_2;
+packet_header4_3mux <= packet_size (31 downto 24)  when packet_header4_3mux_sel = '1' else packet_header4_3;
+
+--  reply word 1 recirculation mux structures
 reply_word1_0mux   <= reply_status ( 7 downto 0) when reply_word1_0mux_sel = '1' else reply_word1_0;
 reply_word1_1mux   <= reply_status (15 downto 8) when reply_word1_1mux_sel = '1' else reply_word1_1;
 reply_word1_2mux   <= cmd_code_i   ( 7 downto 0) when reply_word1_2mux_sel = '1' else reply_word1_2;
 reply_word1_3mux   <= cmd_code_i   (15 downto 8) when reply_word1_3mux_sel = '1' else reply_word1_3;
 
+--  reply word 2 recirculation mux structures
 reply_word2_0mux   <= param_id_i   ( 7 downto 0) when reply_word2_0mux_sel = '1' else reply_word2_0;
 reply_word2_1mux   <= param_id_i   (15 downto 8) when reply_word2_1mux_sel = '1' else reply_word2_1;
 reply_word2_2mux   <= card_id_i    ( 7 downto 0) when reply_word2_2mux_sel = '1' else reply_word2_2;
 reply_word2_3mux   <= card_id_i    (15 downto 8) when reply_word2_3mux_sel = '1' else reply_word2_3;
 
+--  reply word 3 recirculation mux structures
 reply_word3_0mux   <= reply_data   ( 7 downto  0) when reply_word3_0mux_sel = '1' else reply_word3_0;
 reply_word3_1mux   <= reply_data   (15 downto  8) when reply_word3_1mux_sel = '1' else reply_word3_1;
 reply_word3_2mux   <= reply_data   (23 downto 16) when reply_word3_2mux_sel = '1' else reply_word3_2;
 reply_word3_3mux   <= reply_data   (31 downto 24) when reply_word3_3mux_sel = '1' else reply_word3_3;
 
 
--- ena_rpy_cksum  update mux
-
-rpy_checksum_in_mux    <= rpy_checksum_load  when rpy_checksum_in_mux_sel = '1' else rpy_checksum_in;
-dat_checksum_in_mux    <= dat_checksum_load  when dat_checksum_in_mux_sel = '1' else dat_checksum_in;
+-- checksum calculator input recirculation strucutre 
+checksum_in_mux    <= checksum_load  when checksum_in_mux_sel = '1' else checksum_in;
 
 
--- data output mux
-
-txd_mux_sel        <= not (transmitting_reply) ;             -- '0' for reply bytes, '1' for data bytes
-txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
-
+-- data output.  
+txd_o              <= fibre_byte;
 
 
   ------------------------------------------------------------------------------
   register_cmd: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to register reply words provided by cmd_translator 
+  -- process to register recircualtion MUX outputs 
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
      
-        reply_header4_0 <= (others => '0');  
-        reply_header4_1 <= (others => '0'); 
-        reply_header4_2 <= (others => '0');
-        reply_header4_3 <= (others => '0'); 
+        packet_header3_0 <= (others => '0');  
+        packet_header3_1 <= (others => '0'); 
+        packet_header3_2 <= (others => '0');
+        packet_header3_3 <= (others => '0'); 
+     
+        packet_header4_0 <= (others => '0');  
+        packet_header4_1 <= (others => '0'); 
+        packet_header4_2 <= (others => '0');
+        packet_header4_3 <= (others => '0'); 
 
         reply_word1_0   <= (others => '0');
         reply_word1_1   <= (others => '0');
@@ -447,15 +426,19 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
         reply_word3_2   <= (others => '0');
         reply_word3_3   <= (others => '0');
         
-        rpy_checksum_in <= (others => '0');
-        dat_checksum_in <= (others => '0');
+        checksum_in <= (others => '0');
         
      elsif (clk_i'EVENT and clk_i = '1') then
      
-        reply_header4_0 <= reply_header4_0mux;
-        reply_header4_1 <= reply_header4_1mux;
-        reply_header4_2 <= reply_header4_2mux;
-        reply_header4_3 <= reply_header4_3mux;
+        packet_header3_0 <= packet_header3_0mux;
+        packet_header3_1 <= packet_header3_1mux;
+        packet_header3_2 <= packet_header3_2mux;
+        packet_header3_3 <= packet_header3_3mux;
+     
+        packet_header4_0 <= packet_header4_0mux;
+        packet_header4_1 <= packet_header4_1mux;
+        packet_header4_2 <= packet_header4_2mux;
+        packet_header4_3 <= packet_header4_3mux;
         
         reply_word1_0   <= reply_word1_0mux;
         reply_word1_1   <= reply_word1_1mux;
@@ -472,15 +455,11 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
         reply_word3_2   <= reply_word3_2mux;
         reply_word3_3   <= reply_word3_3mux;
         
-        rpy_checksum_in <= rpy_checksum_in_mux;
-        dat_checksum_in <= dat_checksum_in_mux;
-        
+        checksum_in <= checksum_in_mux;
+           
      end if;
   end process register_cmd;
-  
-  
-
-            
+              
             
         
    ---------------------------------------------------------------------------
@@ -505,7 +484,7 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
    fibre_fsm_nextstate : process (
       fibre_current_state, cmd_rcvd_ok_i, cmd_rcvd_er_i, m_op_done_reply,
       m_op_done_data, cmd_code_i, m_op_ok_nEr_i, tx_ff_i, num_fibre_words_i,
-      fibre_word_count
+      fibre_word_count, packet_header3_0
    )
    ----------------------------------------------------------------------------
    begin
@@ -540,7 +519,7 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
             fibre_next_state <= LD_RP_HEAD1_0;
           
       when  DATA_FRAME => 
-            fibre_next_state <= LD_DA_HEAD1_0;
+            fibre_next_state <= LD_RP_HEAD1_0;
              
           
 -- transmit reply header states
@@ -714,8 +693,13 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
          
   
        when TX_RP_HEAD4_3 =>
-           fibre_next_state <= LD_RP_WORD1_0;
- 
+       
+          if packet_header3_0 = ASCII_P then       -- if packet is a reply
+             fibre_next_state <= LD_RP_WORD1_0;
+          else                                     -- else must be data packet so to request words from reply_queue....
+             fibre_next_state <= REQ_Q_WORD;
+          end if;
+          
  
  
  -- transmit reply word states
@@ -804,13 +788,10 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
 
        when TX_RP_WORD2_3 =>
        
-          -- debug
-      --     fibre_next_state <= FIBRE_IDLE;
-      
-          if m_op_done_reply = '0' then         -- if not informed by reply_queue i.e. check error GO or RS
+          if m_op_done_reply = '0' then         -- if immediate reply i.e. GO, RS or checksum error
              fibre_next_state <= LD_RP_WORD3_0;
           else
-             fibre_next_state <= REQ_Q_WORD;   -- else if WB, ST or RB
+             fibre_next_state <= REQ_Q_WORD;   -- else if WB, ST or RB need to request reply packet word(s)
           end if;
        
           
@@ -859,7 +840,9 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
           
        when TX_RP_WORD3_3 =>
        
-          if m_op_done_reply = '1' and (fibre_word_count < (to_integer(unsigned(num_fibre_words_i)))  ) then
+          if (m_op_done_reply = '1' or m_op_done_data = '1') and 
+             (fibre_word_count < (to_integer(unsigned(num_fibre_words_i)))  ) then
+             
              fibre_next_state <= REQ_Q_WORD;                 -- another fibre word to read fromn Q
           else
              fibre_next_state <= LD_RP_CKSUM0;               -- no word words in Q.  tx checksum.
@@ -932,9 +915,10 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
          
    -------------------------------------------------------------------------
    reply_fsm_output : process (
-      fibre_current_state, rpy_checksum, fibre_word_i, num_fibre_words_i,
-      rb_size, m_op_done_reply, 
-      reply_header4_0, reply_header4_1, reply_header4_2, reply_header4_3,
+      fibre_current_state, checksum, fibre_word_i, num_fibre_words_i,
+      reply_size, m_op_done_reply, m_op_done_data,
+      packet_header3_0, packet_header3_1, packet_header3_2, packet_header3_3,
+      packet_header4_0, packet_header4_1, packet_header4_2, packet_header4_3,
       reply_word1_0,   reply_word1_1,   reply_word1_2,   reply_word1_3,
       reply_word2_0,   reply_word2_1,   reply_word2_2,   reply_word2_3,
       reply_word3_0,   reply_word3_1,   reply_word3_2,   reply_word3_3
@@ -942,62 +926,75 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
    ----------------------------------------------------------------------------
    begin
    
-      reply_header4_0mux_sel  <= '0';
-      reply_header4_1mux_sel  <= '0';
-      reply_header4_2mux_sel  <= '0';
-      reply_header4_3mux_sel  <= '0';
+      packet_header3_0mux_sel  <= '0';
+      packet_header3_1mux_sel  <= '0';
+      packet_header3_2mux_sel  <= '0';
+      packet_header3_3mux_sel  <= '0';
+        
+      packet_header4_0mux_sel  <= '0';
+      packet_header4_1mux_sel  <= '0';
+      packet_header4_2mux_sel  <= '0';
+      packet_header4_3mux_sel  <= '0';
 
-      reply_word1_0mux_sel    <= '0';
-      reply_word1_1mux_sel    <= '0';
+      reply_word1_0mux_sel     <= '0';
+      reply_word1_1mux_sel     <= '0';
       
-      reply_word3_0mux_sel    <= '0';
-      reply_word3_1mux_sel    <= '0';
-      reply_word3_2mux_sel    <= '0';
-      reply_word3_3mux_sel    <= '0';
+      reply_word3_0mux_sel     <= '0';
+      reply_word3_1mux_sel     <= '0';
+      reply_word3_2mux_sel     <= '0';
+      reply_word3_3mux_sel     <= '0';
       
-      transmitting_reply      <= '1';  
-      write_fifo           <= '0';  
-      fibre_word_req_o        <= '0';
+      txing_packet             <= '1';  
+      write_fifo               <= '0';  
+      fibre_word_req_o         <= '0';
     
-      rst_dat_cksum           <= '0' ;
-      ena_dat_cksum           <= '0' ;
-      rst_rpy_cksum           <= '0' ;
-      ena_rpy_cksum           <= '0' ;
-            
-      rpy_checksum_in_mux_sel <= '0';
+      rst_checksum             <= '0' ;
+      ena_checksum             <= '0' ;
+             
+      checksum_in_mux_sel      <= '0';
       
-      cmd_ack_o               <= '0';
-      rst_fibre_count         <= '0';
-      ena_fibre_count         <= '0';
+      cmd_ack_o                <= '0';
+      rst_fibre_count          <= '0';
+      ena_fibre_count          <= '0';
       
-      m_op_ack_o              <= '0';
+      m_op_ack_o               <= '0';
+      
+      fibre_byte               <= (others => '0');
       
       case fibre_current_state is
 
 
-      when FIBRE_IDLE =>
-            transmitting_reply         <= '0';   
-            rst_dat_cksum              <= '1';
-            rst_rpy_cksum              <= '1'; 
-            rst_fibre_count            <= '1';
-            rpy_checksum_load          <= (others => '0');
-            rpy_checksum_in_mux_sel    <= '1';
-            rb_size                    <=  0 ;
-           
-      when CK_ER_REPLY =>
+
+      when FIBRE_IDLE =>               -- Idle state - no packets to process
       
+            txing_packet               <= '0';                 -- indicate no longer tranmitting packet
+            rst_checksum               <= '1';                 -- reset checksum
+            rst_fibre_count            <= '1';                 -- reset fibre count
+            checksum_load              <= (others => '0');     -- reset checksum calculator input
+            checksum_in_mux_sel        <= '1';                 -- register reset checksum calculator input
+            reply_size                 <=  0 ;                 -- reset reply size 
+           
+      when CK_ER_REPLY =>              -- checksum error state
   
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
-            reply_size                 <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
+            packet_size                <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
             reply_data                 <= CHECKSUM_ER_NUM;
+            packet_type                <= ASCII_SP & ASCII_SP & ASCII_R & ASCII_P ;
             
+      
+            packet_header3_0mux_sel    <= '1';
+            packet_header3_1mux_sel    <= '1';
+            packet_header3_2mux_sel    <= '1';
+            packet_header3_3mux_sel    <= '1';
+
+            packet_header4_0mux_sel    <= '1';
+            packet_header4_1mux_sel    <= '1';
+            packet_header4_2mux_sel    <= '1';
+            packet_header4_3mux_sel    <= '1';
+         
             reply_word1_0mux_sel       <= '1';
             reply_word1_1mux_sel       <= '1';
-            reply_header4_0mux_sel     <= '1';
-            reply_header4_1mux_sel     <= '1';
-            reply_header4_2mux_sel     <= '1';
-            reply_header4_3mux_sel     <= '1';
           
             reply_word3_0mux_sel       <= '1';
             reply_word3_1mux_sel       <= '1';
@@ -1005,362 +1002,400 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
             reply_word3_3mux_sel       <= '1';
      
             
-      when REPLY_GO_RS =>
+      when REPLY_GO_RS =>              -- command is reset or go....so generate an instant reply...
       
-            reply_status( 7 downto 0)  <= ASCII_K ;
+            reply_status( 7 downto 0)  <= ASCII_K ;             
             reply_status(15 downto 8)  <= ASCII_O ;
-            reply_size                 <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
+            packet_size                <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
             reply_data                 <= (others => '0');   -- reply word 3 is 0
+            packet_type                <= REPLY_PACKET;
                         
-            reply_header4_0mux_sel     <= '1';               -- register reply size 
-            reply_header4_1mux_sel     <= '1';               -- register reply size 
-            reply_header4_2mux_sel     <= '1';               -- register reply size 
-            reply_header4_3mux_sel     <= '1';               -- register reply size 
-
-            reply_word1_0mux_sel       <= '1';               -- register the reply_status
-            reply_word1_1mux_sel       <= '1';               -- register the reply_status
+            packet_header3_0mux_sel    <= '1';              -- register packet type (b0)
+            packet_header3_1mux_sel    <= '1';              -- register packet type (b1)
+            packet_header3_2mux_sel    <= '1';              -- register packet type (b2)
+            packet_header3_3mux_sel    <= '1';              -- register packet type (b3)
             
-            reply_word3_0mux_sel       <= '1';               -- register reply word 3 byte 0
-            reply_word3_1mux_sel       <= '1';               -- register reply word 3 byte 1
-            reply_word3_2mux_sel       <= '1';               -- register reply word 3 byte 2
-            reply_word3_3mux_sel       <= '1';               -- register reply word 3 byte 3
+            packet_header4_0mux_sel    <= '1';              -- register packet size 
+            packet_header4_1mux_sel    <= '1';              -- register packet size 
+            packet_header4_2mux_sel    <= '1';              -- register packet size 
+            packet_header4_3mux_sel    <= '1';              -- register packet size 
+
+            reply_word1_0mux_sel       <= '1';              -- register the reply_status
+            reply_word1_1mux_sel       <= '1';              -- register the reply_status
+            
+            reply_word3_0mux_sel       <= '1';              -- register reply word 3 byte 0
+            reply_word3_1mux_sel       <= '1';              -- register reply word 3 byte 1
+            reply_word3_2mux_sel       <= '1';              -- register reply word 3 byte 2
+            reply_word3_3mux_sel       <= '1';              -- register reply word 3 byte 3
            
       when REPLY_OK    =>   
     
-            rb_size                    <= to_integer(unsigned(num_fibre_words_i)) + 3 ; 
-            reply_size                 <= std_logic_vector(to_unsigned(rb_size,DATA_BUS_WIDTH));
+            reply_size                 <= to_integer(unsigned(num_fibre_words_i)) + 3 ; 
+            packet_size                <= std_logic_vector(to_unsigned(reply_size,DATA_BUS_WIDTH));
             reply_status( 7 downto 0)  <= ASCII_K ;
             reply_status(15 downto 8)  <= ASCII_O ;
+            packet_type                <= REPLY_PACKET; 
 
             reply_word1_0mux_sel       <= '1';               -- register the reply_status 
             reply_word1_1mux_sel       <= '1';               -- register the reply_status  
+            
+            packet_header3_0mux_sel    <= '1';
+            packet_header3_1mux_sel    <= '1';
+            packet_header3_2mux_sel    <= '1';
+            packet_header3_3mux_sel    <= '1';
                     
-            reply_header4_0mux_sel     <= '1';               -- register reply word 3 byte 0
-            reply_header4_1mux_sel     <= '1';               -- register reply word 3 byte 1
-            reply_header4_2mux_sel     <= '1';               -- register reply word 3 byte 2
-            reply_header4_3mux_sel     <= '1';               -- register reply word 3 byte 3
+            packet_header4_0mux_sel    <= '1';               -- register reply word 3 byte 0
+            packet_header4_1mux_sel    <= '1';               -- register reply word 3 byte 1
+            packet_header4_2mux_sel    <= '1';               -- register reply word 3 byte 2
+            packet_header4_3mux_sel    <= '1';               -- register reply word 3 byte 3
             
       when REPLY_ER    =>   
     
-            reply_size <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
+            packet_size <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
+            packet_type                <= REPLY_PACKET;
               
             reply_word1_0mux_sel       <= '1';               -- register the reply_status 
-            reply_word1_1mux_sel       <= '1';               -- register the reply_status        
-            reply_header4_0mux_sel     <= '1';               -- register reply word 3 byte 0
-            reply_header4_1mux_sel     <= '1';               -- register reply word 3 byte 1
-            reply_header4_2mux_sel     <= '1';               -- register reply word 3 byte 2
-            reply_header4_3mux_sel     <= '1';               -- register reply word 3 byte 3
+            reply_word1_1mux_sel       <= '1';               -- register the reply_status
+            
+            packet_header3_0mux_sel    <= '1';               -- register packet header 3 byte 0
+            packet_header3_1mux_sel    <= '1';               -- register packet header 3 byte 1
+            packet_header3_2mux_sel    <= '1';               -- register packet header 3 byte 2
+            packet_header3_3mux_sel    <= '1';               -- register packet header 3 byte 3
+                    
+            packet_header4_0mux_sel    <= '1';               -- register packet header 4 byte 0
+            packet_header4_1mux_sel    <= '1';               -- register packet header 4 byte 1
+            packet_header4_2mux_sel    <= '1';               -- register packet header 4 byte 2
+            packet_header4_3mux_sel    <= '1';               -- register packet header 4 byte 3
+                        
+       when DATA_FRAME     =>   
+    
+            packet_size                <= num_fibre_words_i;
+            packet_type                <= DATA_PACKET;
+
+            packet_header3_0mux_sel    <= '1';               -- register packet header 3 byte 0
+            packet_header3_1mux_sel    <= '1';               -- register packet header 3 byte 1
+            packet_header3_2mux_sel    <= '1';               -- register packet header 3 byte 2
+            packet_header3_3mux_sel    <= '1';               -- register packet header 3 byte 3
+                    
+            packet_header4_0mux_sel    <= '1';               -- register packet header 4 byte 0
+            packet_header4_1mux_sel    <= '1';               -- register packet header 4 byte 1
+            packet_header4_2mux_sel    <= '1';               -- register packet header 4 byte 2
+            packet_header4_3mux_sel    <= '1';               -- register packet header 4 byte 3
+
 
        when LD_RP_HEAD1_0 =>
-           reply_byte <=  reply_header1_0;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header1_0;
+           write_fifo                  <= '0';
              
        when TX_RP_HEAD1_0 =>
-           reply_byte <=  reply_header1_0;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header1_0;
+           write_fifo                  <= '1';
            
        when LD_RP_HEAD1_1 =>
-           reply_byte <=  reply_header1_1;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header1_1;
+           write_fifo                  <= '0';
        
        when TX_RP_HEAD1_1 =>
-           reply_byte <=  reply_header1_1;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header1_1;
+           write_fifo                  <= '1';
           
        when LD_RP_HEAD1_2 =>
-           reply_byte <=  reply_header1_2;
-           write_fifo    <= '0'; 
+           fibre_byte                  <=  packet_header1_2;
+           write_fifo                  <= '0'; 
            
        when TX_RP_HEAD1_2 =>
-           reply_byte <=  reply_header1_2;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header1_2;
+           write_fifo                  <= '1';
            
        when LD_RP_HEAD1_3 =>
-           reply_byte <=  reply_header1_3;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header1_3;
+           write_fifo                  <= '0';
            
        when TX_RP_HEAD1_3 =>
-           reply_byte <=  reply_header1_3;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header1_3;
+           write_fifo                  <= '1';
            
        when LD_RP_HEAD2_0 =>
-           reply_byte <=  reply_header2_0;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header2_0;
+           write_fifo                  <= '0';
            
        when TX_RP_HEAD2_0 =>
-           reply_byte <=  reply_header2_0;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header2_0;
+           write_fifo                  <= '1';
            
        when LD_RP_HEAD2_1 =>
-           reply_byte <=  reply_header2_1;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header2_1;
+           write_fifo                  <= '0';
        
        when TX_RP_HEAD2_1 =>
-           reply_byte <=  reply_header2_1;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header2_1;
+           write_fifo                  <= '1';
        
        when LD_RP_HEAD2_2 =>
-           reply_byte <=  reply_header2_2;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header2_2;
+           write_fifo                  <= '0';
        
        when TX_RP_HEAD2_2 =>
-           reply_byte <=  reply_header2_2;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header2_2;
+           write_fifo                  <= '1';
        
        when LD_RP_HEAD2_3 =>
-           reply_byte <=  reply_header2_3;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header2_3;
+           write_fifo                  <= '0';
        
        when TX_RP_HEAD2_3 =>
-           reply_byte <=  reply_header2_3;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header2_3;
+           write_fifo                  <= '1';
            
        when LD_RP_HEAD3_0 =>
-           reply_byte <=  reply_header3_0;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header3_0;
+           write_fifo                  <= '0';
            
        when TX_RP_HEAD3_0 =>
-           reply_byte <=  reply_header3_0;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header3_0;
+           write_fifo                  <= '1';
            
        when LD_RP_HEAD3_1 =>
-           reply_byte <=  reply_header3_1;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header3_1;
+           write_fifo                  <= '0';
        
        when TX_RP_HEAD3_1 =>
-           reply_byte <=  reply_header3_1;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header3_1;
+           write_fifo                  <= '1';
        
        when LD_RP_HEAD3_2 =>
-           reply_byte <=  reply_header3_2;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header3_2;
+           write_fifo                  <= '0';
        
        when TX_RP_HEAD3_2 =>
-           reply_byte <=  reply_header3_2;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header3_2;
+           write_fifo                  <= '1';
        
        when LD_RP_HEAD3_3 =>
-           reply_byte <=  reply_header3_3;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header3_3;
+           write_fifo                  <= '0';
        
        when TX_RP_HEAD3_3 =>
-           reply_byte <=  reply_header3_3;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header3_3;
+           write_fifo                  <= '1';
        
        when LD_RP_HEAD4_0 =>
-           reply_byte <=  reply_header4_0;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header4_0;
+           write_fifo                  <= '0';
        
        when TX_RP_HEAD4_0 =>
-           reply_byte <=  reply_header4_0;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header4_0;
+           write_fifo                  <= '1';
        
        when LD_RP_HEAD4_1 =>
-           reply_byte <=  reply_header4_1;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header4_1;
+           write_fifo                  <= '0';
            
        when TX_RP_HEAD4_1 =>
-           reply_byte <=  reply_header4_1;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header4_1;
+           write_fifo                  <= '1';
        
        when LD_RP_HEAD4_2 =>
-           reply_byte <=  reply_header4_2;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header4_2;
+           write_fifo                  <= '0';
    
        when TX_RP_HEAD4_2 =>
-           reply_byte <=  reply_header4_2;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header4_2;
+           write_fifo                  <= '1';
   
        when LD_RP_HEAD4_3 =>
-           reply_byte <=  reply_header4_3;
-           write_fifo    <= '0';
+           fibre_byte                  <=  packet_header4_3;
+           write_fifo                  <= '0';
   
        when TX_RP_HEAD4_3 =>
-           reply_byte <=  reply_header4_3;
-           write_fifo    <= '1';
+           fibre_byte                  <=  packet_header4_3;
+           write_fifo                  <= '1';
            
        when LD_RP_WORD1_0 =>
-           reply_byte <=  reply_word1_0;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word1_0;
+           write_fifo                  <= '0';
  
-           rpy_checksum_load        <= reply_word1_3 & reply_word1_2 & reply_word1_1 & reply_word1_0;
-           rpy_checksum_in_mux_sel  <= '1';
+           checksum_load               <= reply_word1_3 & reply_word1_2 & reply_word1_1 & reply_word1_0;
+           checksum_in_mux_sel         <= '1';
 
              
        when TX_RP_WORD1_0 =>
-           reply_byte <=  reply_word1_0;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word1_0;
+           write_fifo                  <= '1';
          
            
        when LD_RP_WORD1_1 =>
-           reply_byte <=  reply_word1_1;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word1_1;
+           write_fifo                  <= '0';
            
        
        when TX_RP_WORD1_1 =>
-           reply_byte <=  reply_word1_1;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word1_1;
+           write_fifo                  <= '1';
            
            -- this assignment MUST be in a state that only holds for one clock cycle           
-           ena_rpy_cksum  <= '1';
+           ena_checksum                <= '1';
           
        when LD_RP_WORD1_2 =>
-           reply_byte <=  reply_word1_2;
-           write_fifo    <= '0'; 
+           fibre_byte                  <=  reply_word1_2;
+           write_fifo                  <= '0'; 
            
        when TX_RP_WORD1_2 =>
-           reply_byte <=  reply_word1_2;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word1_2;
+           write_fifo                  <= '1';
            
        when LD_RP_WORD1_3 =>
-           reply_byte <=  reply_word1_3;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word1_3;
+           write_fifo                  <= '0';
            
        when TX_RP_WORD1_3 =>
-           reply_byte <=  reply_word1_3;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word1_3;
+           write_fifo                  <= '1';
            
        when LD_RP_WORD2_0 =>
-           reply_byte <=  reply_word2_0;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word2_0;
+           write_fifo                  <= '0';
            
-           rpy_checksum_load        <= reply_word2_3 & reply_word2_2 & reply_word2_1 & reply_word2_0;
-           rpy_checksum_in_mux_sel  <= '1';
+           checksum_load               <= reply_word2_3 & reply_word2_2 & reply_word2_1 & reply_word2_0;
+           checksum_in_mux_sel         <= '1';
            
        when TX_RP_WORD2_0 =>
-           reply_byte <=  reply_word2_0;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word2_0;
+           write_fifo                  <= '1';
            
        when LD_RP_WORD2_1 =>
-           reply_byte <=  reply_word2_1;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word2_1;
+           write_fifo                  <= '0';
            
        
        when TX_RP_WORD2_1 =>
-           reply_byte <=  reply_word2_1;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word2_1;
+           write_fifo                  <= '1';
        
            -- this assignment MUST be in a state that only holds for one clock cycle
-           ena_rpy_cksum  <= '1';
+           ena_checksum                <= '1';
            
        when LD_RP_WORD2_2 =>
-           reply_byte <=  reply_word2_2;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word2_2;
+           write_fifo                  <= '0';
        
        when TX_RP_WORD2_2 =>
-           reply_byte <=  reply_word2_2;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word2_2;
+           write_fifo                  <= '1';
        
        when LD_RP_WORD2_3 =>
-           reply_byte <=  reply_word2_3;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word2_3;
+           write_fifo                  <= '0';
        
        when TX_RP_WORD2_3 =>
-           reply_byte <=  reply_word2_3;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word2_3;
+           write_fifo                  <= '1';
            
        when LD_RP_WORD3_0 =>
-             reply_byte <=  reply_word3_0;
-             write_fifo    <= '0';
+             fibre_byte                <=  reply_word3_0;
+             write_fifo                <= '0';
            
-            rpy_checksum_load        <= reply_word3_3 & reply_word3_2 & reply_word3_1 & reply_word3_0;
-            rpy_checksum_in_mux_sel  <= '1';
+            checksum_load              <= reply_word3_3 & reply_word3_2 & reply_word3_1 & reply_word3_0;
+            checksum_in_mux_sel        <= '1';
  
        when TX_RP_WORD3_0 =>
-           reply_byte <=  reply_word3_0;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word3_0;
+           write_fifo                  <= '1';
            
            -- this assignemnt MUST be in a state that is only held for one clock cycle 
-           ena_fibre_count      <= '1'; 
+           ena_fibre_count             <= '1'; 
            
        when LD_RP_WORD3_1 =>
-           reply_byte <=  reply_word3_1;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word3_1;
+           write_fifo                  <= '0';
            
        
        when TX_RP_WORD3_1 =>
-           reply_byte <=  reply_word3_1;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word3_1;
+           write_fifo                  <= '1';
     
          -- this assignemnt MUST be in a state that is only held for one clock cycle   
-           ena_rpy_cksum  <= '1';       
+           ena_checksum                <= '1';       
        
        when LD_RP_WORD3_2 =>
-           reply_byte <=  reply_word3_2;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word3_2;
+           write_fifo                  <= '0';
        
        when TX_RP_WORD3_2 =>
-           reply_byte <=  reply_word3_2;
-           write_fifo    <= '1';
+           fibre_byte                  <=  reply_word3_2;
+           write_fifo                  <= '1';
        
        when LD_RP_WORD3_3 =>
-           reply_byte <=  reply_word3_3;
-           write_fifo    <= '0';
+           fibre_byte                  <=  reply_word3_3;
+           write_fifo                  <= '0';
        
        when TX_RP_WORD3_3 =>
-           reply_byte <=  reply_word3_3;
-           write_fifo    <= '1';    
+           fibre_byte                  <=  reply_word3_3;
+           write_fifo                  <= '1';    
      
        when LD_RP_CKSUM0 =>
-           reply_byte <=  rpy_checksum( 7 downto 0);
-           write_fifo    <= '0';
+           fibre_byte                  <=  checksum( 7 downto 0);
+           write_fifo                  <= '0';
        
        when TX_RP_CKSUM0 =>
-           reply_byte <=  rpy_checksum( 7 downto 0);
-           write_fifo    <= '1';
+           fibre_byte                  <=  checksum( 7 downto 0);
+           write_fifo                  <= '1';
            
        when LD_RP_CKSUM1 =>
-           reply_byte <=  rpy_checksum(15 downto 8);
-           write_fifo    <= '0';
+           fibre_byte                  <=  checksum(15 downto 8);
+           write_fifo                  <= '0';
           
        
        when TX_RP_CKSUM1 =>
-           reply_byte <=  rpy_checksum(15 downto 8);
-           write_fifo    <= '1';
+           fibre_byte                  <=  checksum(15 downto 8);
+           write_fifo                  <= '1';
           
                                  
        when LD_RP_CKSUM2 =>
-           reply_byte <=  rpy_checksum(23 downto 16);
-           write_fifo    <= '0';
+           fibre_byte                  <=  checksum(23 downto 16);
+           write_fifo                  <= '0';
          
        
        when TX_RP_CKSUM2 =>  
-           reply_byte <=  rpy_checksum(23 downto 16);
-           write_fifo    <= '1';
+           fibre_byte                  <=  checksum(23 downto 16);
+           write_fifo                  <= '1';
           
                       
        when LD_RP_CKSUM3 =>
-           reply_byte <=  rpy_checksum(31 downto 24);
-           write_fifo    <= '0';
+           fibre_byte                  <=  checksum(31 downto 24);
+           write_fifo                  <= '0';
                 
                    
        when TX_RP_CKSUM3 =>  
-           reply_byte <=  rpy_checksum(31 downto 24);
-           write_fifo    <= '1';
+           fibre_byte                  <=  checksum(31 downto 24);
+           write_fifo                  <= '1';
            
-           if m_op_done_reply = '1' then   -- if this was a reply instigated by reply_queue then
-              m_op_ack_o <= '1' ;           -- acknowledge that reply it is finished... Q should now deassert m_op_done
+           if m_op_done_reply = '1' or             -- if this was a reply/data packet 
+              m_op_done_data  = '1' then           -- instigated by reply_queue then
+           
+              m_op_ack_o               <= '1' ;    -- acknowledge that packet has finished
+                                                   -- Q should now de-assert m_op_done
             else        
-              m_op_ack_o <= '0';
+              m_op_ack_o               <= '0';
            end if;         
                    
                    
        when REQ_Q_WORD  =>
-           fibre_word_req_o           <= '1';
-           reply_data                 <= fibre_word_i;             
-           reply_word3_0mux_sel       <= '1';
-           reply_word3_1mux_sel       <= '1';
-           reply_word3_2mux_sel       <= '1';
-           reply_word3_3mux_sel       <= '1';          
+           fibre_word_req_o            <= '1';
+           reply_data                  <= fibre_word_i;             
+           reply_word3_0mux_sel        <= '1';
+           reply_word3_1mux_sel        <= '1';
+           reply_word3_2mux_sel        <= '1';
+           reply_word3_3mux_sel        <= '1';          
       
        when READ_Q_WORD =>
-          reply_data                 <= fibre_word_i;             
-          reply_word3_0mux_sel       <= '1';
-          reply_word3_1mux_sel       <= '1';
-          reply_word3_2mux_sel       <= '1';
-          reply_word3_3mux_sel       <= '1';   
+          reply_data                  <= fibre_word_i;             
+          reply_word3_0mux_sel        <= '1';
+          reply_word3_1mux_sel        <= '1';
+          reply_word3_2mux_sel        <= '1';
+          reply_word3_3mux_sel        <= '1';   
            
                    
       when OTHERS => 
@@ -1415,59 +1450,32 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
       end case;
       
    end process local_fsm_nextstate;            
-
-     
+   
 
   ------------------------------------------------------------------------------
-  rpy_checksum_calculator: process(rst_i, clk_i)
+  checksum_calculator: process(rst_i, clk_i)
   ----------------------------------------------------------------------------
-  -- process to update calculated reply packet checksum
+  -- process to update calculated packet checksum
   ----------------------------------------------------------------------------
  
    begin
      
    if (rst_i = '1') then
       
-      rpy_checksum <= (others => '0');
+      checksum <= (others => '0');
     
    elsif (clk_i'EVENT AND clk_i = '1') then
        
-      if    rst_rpy_cksum = '1' then
-         rpy_checksum <= (others => '0');
-      elsif ena_rpy_cksum = '1' then
-         rpy_checksum <= rpy_checksum XOR rpy_checksum_in;
+      if    rst_checksum = '1' then
+         checksum <= (others => '0');
+      elsif ena_checksum = '1' then
+         checksum <= checksum XOR checksum_in;
       end if;
    
    end if;
     
-  end process rpy_checksum_calculator;   
+  end process checksum_calculator;   
     
-              
-  ------------------------------------------------------------------------------
-  dat_checksum_calculator: process(rst_i, clk_i)
-  ----------------------------------------------------------------------------
-  -- process to update calculated reply packet checksum
-  ----------------------------------------------------------------------------
- 
-   begin
-     
-   if (rst_i = '1') then
-      
-      dat_checksum <= (others => '0');
-    
-   elsif (clk_i'EVENT AND clk_i = '1') then
-       
-      if    rst_dat_cksum = '1' then
-         dat_checksum <= (others => '0');
-      elsif ena_dat_cksum = '1' then
-         dat_checksum <= dat_checksum XOR dat_checksum_in;
-      end if;
-   
-   end if;
-    
-  end process dat_checksum_calculator;      
-           
-           
   ------------------------------------------------------------------------------
   fibre_word_counter: process(rst_i, clk_i)
   ----------------------------------------------------------------------------
@@ -1487,6 +1495,5 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
          end if;
       end if;
    end process fibre_word_counter;
-   
-          
+           
 end rtl;
