@@ -45,7 +45,6 @@ USE ieee.numeric_std.all;
 
 USE work.fo_transceiver_pack.all;
 
-
 ENTITY tx_fifo IS
    GENERIC( 
       fifo_size : Positive
@@ -54,11 +53,13 @@ ENTITY tx_fifo IS
       Brst      : IN     std_logic;
       tx_fr_i   : IN     std_logic;
       tx_fw_i   : IN     std_logic;
-      tx_data_i : IN     std_logic_vector (7 DOWNTO 0);
+      txd_i     : IN     std_logic_vector (7 DOWNTO 0);
       tx_fe_o   : OUT    std_logic;
       tx_ff_o   : OUT    std_logic;
-      txd_o     : OUT    std_logic_vector (7 DOWNTO 0)
+      tx_data_o : OUT    std_logic_vector (7 DOWNTO 0)
    );
+
+-- Declarations
 
 END tx_fifo ;
 
@@ -73,10 +74,10 @@ BEGIN
          rst_i    => Brst,
          read_i   => tx_fr_i,
          write_i  => tx_fw_i,
-         d_i      => tx_data_i,
+         d_i      => txd_i,
          empty_o  => tx_fe_o,
          full_o   => tx_ff_o,
-         q_o      => txd_o
+         q_o      => tx_data_o
       );
   
 END behav;

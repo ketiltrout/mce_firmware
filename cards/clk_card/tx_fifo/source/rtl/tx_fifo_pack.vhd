@@ -19,7 +19,7 @@
 --
 -- tx_fifo_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tx_fifo_pack.vhd,v 1.1 2004/04/20 09:37:15 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tx_fifo_pack.vhd,v 1.2 2004/04/23 12:55:50 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson	
@@ -29,7 +29,7 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/04/20 09:37:15 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/04/23 12:55:50 $> - <text> - <initials $Author: dca $>
 -- $LOG$
 
 
@@ -44,10 +44,10 @@ package tx_fifo_pack is
          Brst      : in     std_logic;
          tx_fr_i   : in     std_logic;
          tx_fw_i   : in     std_logic;
-         tx_data_i : in     std_logic_vector (7 DOWNTO 0);
+         txd_i     : in     std_logic_vector (7 DOWNTO 0);
          tx_fe_o   : out    std_logic;
          tx_ff_o   : out    std_logic;
-         txd_o     : out    std_logic_vector (7 DOWNTO 0)
+         tx_data_o : out    std_logic_vector (7 DOWNTO 0)
       );
 
    end component;
