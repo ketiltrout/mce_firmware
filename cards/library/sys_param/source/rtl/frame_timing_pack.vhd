@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.6 2004/05/14 22:55:59 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.7 2004/06/19 01:17:26 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/05/14 22:55:59 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2004/06/19 01:17:26 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.7  2004/06/19 01:17:26  bburger
+-- changed the BLACKOUT_PERIOD parameter
+--
 -- Revision 1.6  2004/05/14 22:55:59  mandana
 -- UPDATE_BIAS was declared twice
 --
@@ -77,7 +80,8 @@ use sys_param.data_types_pack.all;
 package frame_timing_pack is
 
    constant MUX_LINE_PERIOD   : integer := 64; -- 64 50MHz cycles
-   constant END_OF_FRAME      : integer := 41*MUX_LINE_PERIOD; --(41*MUX_LINE_PERIOD);
+   constant NUM_OF_ROWS       : integer := 41;
+   constant END_OF_FRAME      : integer := NUM_OF_ROWS*MUX_LINE_PERIOD; --(41*MUX_LINE_PERIOD);
 
    ------------------------------------------------------------------------------------
    -- Clock Card frame structure
@@ -108,12 +112,12 @@ package frame_timing_pack is
 
    ------------------------------------------------------------------------------------
    -- Bias Card frame structure
-   constant UPDATE_BIAS : integer := 3;
+   constant UPDATE_BIAS : integer := 2;
    ------------------------------------------------------------------------------------
    -- Address Card frame structure
-   constant SEL_ROW : w_array41:= (
-    0*MUX_LINE_PERIOD,1*MUX_LINE_PERIOD, 2*MUX_LINE_PERIOD, 3*MUX_LINE_PERIOD, 4*MUX_LINE_PERIOD,
-    5*MUX_LINE_PERIOD, 6*MUX_LINE_PERIOD, 7*MUX_LINE_PERIOD, 8*MUX_LINE_PERIOD, 9*MUX_LINE_PERIOD,
+   constant SEL_ROW : int_array41:= (
+     0*MUX_LINE_PERIOD, 1*MUX_LINE_PERIOD, 2*MUX_LINE_PERIOD, 3*MUX_LINE_PERIOD, 4*MUX_LINE_PERIOD,
+     5*MUX_LINE_PERIOD, 6*MUX_LINE_PERIOD, 7*MUX_LINE_PERIOD, 8*MUX_LINE_PERIOD, 9*MUX_LINE_PERIOD,
     10*MUX_LINE_PERIOD,11*MUX_LINE_PERIOD,12*MUX_LINE_PERIOD,13*MUX_LINE_PERIOD,14*MUX_LINE_PERIOD,
     15*MUX_LINE_PERIOD,16*MUX_LINE_PERIOD,17*MUX_LINE_PERIOD,18*MUX_LINE_PERIOD,19*MUX_LINE_PERIOD,
     20*MUX_LINE_PERIOD,21*MUX_LINE_PERIOD,22*MUX_LINE_PERIOD,23*MUX_LINE_PERIOD,24*MUX_LINE_PERIOD,
