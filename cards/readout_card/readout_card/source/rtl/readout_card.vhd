@@ -184,8 +184,8 @@ architecture top of readout_card is
     port (
       data      : IN  STD_LOGIC_VECTOR (31 DOWNTO 0);
       wren      : IN  STD_LOGIC := '1';
-      wraddress : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
-      rdaddress : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
+      wraddress : IN  STD_LOGIC_VECTOR (8 DOWNTO 0);
+      rdaddress : IN  STD_LOGIC_VECTOR (8 DOWNTO 0);
       clock     : IN  STD_LOGIC;
       q         : OUT STD_LOGIC_VECTOR (31 DOWNTO 0));
   end component;
@@ -289,7 +289,7 @@ signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   -- Signals for HW test
   -----------------------------------------------------------------------------
 
-  signal rdaddress_packet_ram : STD_LOGIC_VECTOR (7 DOWNTO 0);
+  signal rdaddress_packet_ram : STD_LOGIC_VECTOR (8 DOWNTO 0);
   signal q_packet_ram         : STD_LOGIC_VECTOR (31 DOWNTO 0);
   signal rdy_lvds_tx          : std_logic;
   signal busy_lvds_tx         : std_logic;
@@ -302,7 +302,9 @@ signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal rst_dly              : std_logic;
   signal state_shift          : std_logic;
   signal need_long_wait       : boolean;
-
+  signal adc1_dat_hw_test     : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
+  signal raw_read_count       : integer;
+  
   signal sync_gen_sync_o     : std_logic;
   signal sync_gen_sync_num_o : std_logic_vector(15 downto 0);
   
@@ -378,19 +380,39 @@ begin
     if rst = '1' then                   -- asynchronous reset
       rdaddress_packet_ram <= (others => '0');
       need_long_wait <= false;
+      raw_read_count <= 0;
       
     elsif clk'event and clk = '1' then  -- rising clock edge
       if state_shift='1' then
         need_long_wait <= false;
         
-        if rdaddress_packet_ram <x"7A" then
-          rdaddress_packet_ram <= rdaddress_packet_ram +1;
-          if rdaddress_packet_ram = x"76" then
+        if rdaddress_packet_ram <('1' & x"5A") then
+          rdaddress_packet_ram <= rdaddress_packet_ram+1;
+
+          -- long wait on preamble of a "long" instruction and the preamble of
+          -- the next instruction.  The first condition is used when need to
+          -- loop many times through the "long" instruction.
+          if (rdaddress_packet_ram = ('1' & x"53") or rdaddress_packet_ram = ('1' & x"56")) then
             need_long_wait <= true;
           end if;
+
+          -- loop at the crc of "long" instruction
+          if (rdaddress_packet_ram = ('1' & x"56")) then
+            raw_read_count <= raw_read_count +1;
+            if raw_read_count <127 then
+              rdaddress_packet_ram <= ('1' & x"54");  -- back to preamble of "
+                                                      -- long" instruction 
+            else
+              raw_read_count <= 0;
+            end if;
+          end if;
+
+
+          
         else
-          rdaddress_packet_ram <= x"74";
+          rdaddress_packet_ram <= ('1' & x"50");
         end if;
+        
       end if;
     end if;
   end process i_count_up;
@@ -410,7 +432,21 @@ begin
         clk_i      => clk,
         mem_clk_i  => mem_clk,
         rst_i      => rst);
+
+  -----------------------------------------------------------------------------
+  -- Ramp counter for ADC
+  -----------------------------------------------------------------------------
+
+  adc1_dat_hw_test <= "00000000000001";
   
+--   i_ramp_adc: process (clk, rst)
+--   begin  -- process i_ramp_adc
+--     if rst = '1' then                   -- asynchronous reset (active high)
+--       adc1_dat_hw_test <= (others => '0');
+--     elsif clk'event and clk = '1' then  -- rising clock edge
+--       adc1_dat_hw_test <= adc1_dat_hw_test + 1;
+--     end if;
+--   end process i_ramp_adc;
   
 -------------------------------------------------------------------------------
 -- End of added blocks for HW test
@@ -594,7 +630,7 @@ begin
            ack_frame_o               => ack_frame,
            dat_fb_o                  => dat_fb,
            ack_fb_o                  => ack_fb,
-           adc_dat_ch0_i             => adc1_dat,
+           adc_dat_ch0_i             => adc1_dat_hw_test,
            adc_dat_ch1_i             => adc2_dat,
            adc_dat_ch2_i             => adc3_dat,
            adc_dat_ch3_i             => adc4_dat,
