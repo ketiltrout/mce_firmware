@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.10  2004/06/12 00:49:20  bench2
+-- Mandana: xtalk test works now, but only a small sawtooth, has to be slowed down.
+--
 -- Revision 1.9  2004/06/08 19:04:23  mandana
 -- added the cross-talk test
 --
@@ -281,7 +284,7 @@ begin
    -- RS232 interface end
    
    -- reset_state gives us our welcome string on startup
-   reset_state : all_test_reset
+   reset_state : bc_test_reset
       port map(rst_i     => rst,
                clk_i     => clk,
                en_i      => sel(INDEX_RESET),
@@ -294,7 +297,7 @@ begin
                tx_stb_o  => reset_stb);
    
    -- idle_state is special - it aquires commands for us to process
-   idle_state : all_test_idle
+   idle_state : bc_test_idle
       port map(rst_i     => rst,
                clk_i     => clk,
                en_i      => sel(INDEX_IDLE),

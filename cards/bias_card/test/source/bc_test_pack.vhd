@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.6  2004/06/08 19:04:23  mandana
+-- added the cross-talk test
+--
 -- Revision 1.5  2004/06/04 21:00:26  bench2
 -- Mandana: ramp test works now
 --
@@ -88,7 +91,7 @@ package bc_test_pack is
    ------------------------------------------------------------------
                                                                      
    -- reset state
-   component all_test_reset
+   component bc_test_reset
       port (
          -- basic signals
          rst_i : in std_logic;   -- reset input
@@ -107,7 +110,7 @@ package bc_test_pack is
    
    ------------------------------------------------------------------   
    -- idle state
-   component all_test_idle
+   component bc_test_idle
       port (
          -- basic signals
          rst_i : in std_logic;   -- reset input
