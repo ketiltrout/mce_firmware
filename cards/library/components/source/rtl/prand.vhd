@@ -21,6 +21,8 @@
 -- 
 -- Revision History:
 -- Mar 07, 2004: Initial version - NRG
+-- $Log$
+--
 ---------------------------------------------------------------------
 
 library ieee;
@@ -47,6 +49,7 @@ architecture behaviour of prand is
    
 begin
 
+   -- VHDL 1993 Syntax:
    -- our feedback signal depends on how many bits we need
    lfsr8 : if (size = 8) generate
       feedback <= (out_reg(7) xnor out_reg(5)) xnor (out_reg(4) xnor out_reg(3));
@@ -61,6 +64,21 @@ begin
       feedback <= (out_reg(31) xnor out_reg(21)) xnor (out_reg(1) xnor out_reg(0));
    end generate lfsr32;
    
+--   -- VHDL 1987 Syntax:   
+--   -- our feedback signal depends on how many bits we need
+--   lfsr8 : if (size = 8) generate
+--      feedback <= not((not(out_reg(7) xor out_reg(5))) xor (not(out_reg(4) xor out_reg(3))));
+--   end generate lfsr8;
+--   lfsr16 : if (size = 16) generate
+--      feedback <= not((not(out_reg(15) xor out_reg(14))) xor (not(out_reg(12) xor out_reg(3))));
+--   end generate lfsr16;   
+--   lfsr24 : if (size = 24) generate
+--      feedback <= not((not(out_reg(23) xor out_reg(22))) xor (not(out_reg(21) xor out_reg(16))));
+--   end generate lfsr24;
+--   lfsr32 : if (size = 32) generate
+--      feedback <= not((not(out_reg(31) xor out_reg(21))) xor (not(out_reg(1) xor out_reg(0))));
+--   end generate lfsr32;
+
    -- this process does all the calculations
    process (clr_i, clk_i)
    begin
