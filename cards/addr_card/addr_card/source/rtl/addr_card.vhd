@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.13  2005/03/24 21:42:31  mandana
+-- build revision 0002
+--
 -- Revision 1.12  2005/02/21 22:27:08  mandana
 -- added firmware revision AC_REVISION (fw_rev)
 --
@@ -160,7 +163,7 @@ architecture top of addr_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010002";
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010004";
 
 -- clocks
 signal clk      : std_logic;
