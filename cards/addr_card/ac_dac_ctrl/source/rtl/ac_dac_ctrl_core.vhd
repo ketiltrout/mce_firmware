@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_core.vhd,v 1.3 2005/01/18 22:23:14 bburger Exp $
+-- $Id: ac_dac_ctrl_core.vhd,v 1.4 2005/01/20 19:48:54 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_core.vhd,v $
+-- Revision 1.4  2005/01/20 19:48:54  bburger
+-- Bryce:  Changes associated with timing errors (slack) on the address card
+--
 -- Revision 1.3  2005/01/18 22:23:14  bburger
 -- Bryce:  Modified the ac_dac_ctrl_core FSM to correct a timing error
 --
@@ -97,7 +100,6 @@ entity ac_dac_ctrl_core is
       
       -- Global Signals      
       clk_i                   : in std_logic;
-      mem_clk_i               : in std_logic;
       rst_i                   : in std_logic     
    );     
 end ac_dac_ctrl_core;
@@ -105,21 +107,17 @@ end ac_dac_ctrl_core;
 architecture rtl of ac_dac_ctrl_core is
 
 -- Row Addressing FSM signals:
-type row_states is (IDLE, UPDATE_VALS, LOAD_ON_VAL, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL);                
+type row_states is (IDLE, UPDATE_VALS, LOAD_ON_VAL, PAUSE1, PAUSE2, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL);                
 signal row_current_state   : row_states;
 signal row_next_state      : row_states;
-signal frame_restart       : std_logic;
 signal frame_aligned_reg   : std_logic;
 signal mux_en              : std_logic;
-signal reset_count         : std_logic_vector(0 downto 0);
 signal row_count           : integer;
 signal row_count_new       : integer;
 
 -- DAC signals 
 signal k                   : integer;
 signal dac_data            : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
-signal dac_on_data         : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
-signal dac_off_data        : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
 signal dac_id_int          : integer;
 
 begin
@@ -139,23 +137,11 @@ begin
 
    on_off_addr_o <= std_logic_vector(conv_unsigned(row_count, ROW_ADDR_WIDTH));
    
-   -- Generate the registers for all the DAC data outputs
-   gen_dac_data_reg: for k in 0 to AC_NUM_BUSES-1 generate
-      dac_data_reg: reg
-         generic map
-         (
-            WIDTH => AC_BUS_WIDTH
-         )
-         port map
-         (
-            clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => '1',
-            reg_i  => dac_data,
-            reg_o  => dac_data_o(k)
-         );
-   end generate gen_dac_data_reg;   
-
+   gen_outputs:
+   for k in 0 to (AC_NUM_BUSES-1) generate
+      dac_data_o(k) <= dac_data;
+   end generate gen_outputs;
+  
    registered_inputs : process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -182,16 +168,10 @@ begin
    state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         dac_id_int <= 0;
-         dac_on_data <= (others => '0');
-         dac_off_data <= (others => '0');
-         
+         dac_id_int <= 0;         
          row_current_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
-         dac_id_int <= conv_integer(dac_id_i);
-         dac_on_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
-         dac_off_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
-         
+         dac_id_int <= conv_integer(dac_id_i);         
          row_current_state <= row_next_state;
       end if;
    end process state_FF;
@@ -204,11 +184,12 @@ begin
       case row_current_state is 
          when IDLE =>
             if(restart_frame_aligned_i = '1' and mux_en = '1') then
-               row_next_state <= LOAD_ON_VAL;
+               row_next_state <= PAUSE1;
             end if;
---         -- This state is here so that the on_ram address and off_ram address have time to be updated before we latch those values out to the DACs
---         when UPDATE_VALS =>
---            row_next_state <= LOAD_ON_VAL;
+         when PAUSE1 =>
+            row_next_state <= PAUSE2;
+         when PAUSE2 =>
+            row_next_state <= LOAD_ON_VAL;
          when LOAD_ON_VAL =>
             if(row_en_i = '1') then
                row_next_state <= LATCH_ON_VAL;
@@ -223,7 +204,7 @@ begin
             if(mux_en = '0' and frame_aligned_reg = '1') then
                row_next_state <= IDLE;
             else
-               row_next_state <= LOAD_ON_VAL;
+               row_next_state <= PAUSE1;
             end if;
          when others =>
             row_next_state <= IDLE;
@@ -233,7 +214,7 @@ begin
    -- output states for row selection FSM
    -- In every scan instance, the current row has to be turned on and the previous row has to be turned off
    -- Therefore only 2 DACs are clocked. 
-   row_state_out: process(row_current_state, dac_on_data, dac_off_data, dac_id_int)--, frame_aligned_reg)
+   row_state_out: process(row_current_state, on_data_i, off_data_i, dac_id_int)--, frame_aligned_reg)
    begin
       -- Default assignments
       dac_data      <= (others => '0');
@@ -243,17 +224,23 @@ begin
          when IDLE =>
             dac_data      <= (others => '0');
             dac_clks_o    <= (others => '0');
+         when PAUSE1 =>
+            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_clks_o <= (others => '0');
+         when PAUSE2 =>
+            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_clks_o <= (others => '0');
          when LOAD_ON_VAL =>
-            dac_data <= dac_on_data;
+            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o <= (others => '0');
          when LATCH_ON_VAL =>
-            dac_data <= dac_on_data;
+            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
          when LOAD_OFF_VAL =>
-            dac_data <= dac_off_data;
+            dac_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o <= (others => '0');
          when LATCH_OFF_VAL =>
-            dac_data <= dac_off_data;
+            dac_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
          when others =>
       end case;
