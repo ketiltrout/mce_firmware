@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.3 2005/01/04 19:19:47 bburger Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.4 2005/01/07 01:31:27 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,12 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.4  2005/01/07 01:31:27  bench2
+-- Mandana: create type dac_states
+-- changed SPI modules to run at 12.5MHz
+-- Now that state machine runs at 50MHz and SPI at 12.5MHz, start_spi is modified to stay high till SPI_done goes high.
+-- Add an extra state NEXT_DAC2, so the dac_counter is clocked in a different state.
+--
 -- Revision 1.3  2005/01/04 19:19:47  bburger
 -- Mandana: changed mictor assignment to 0 to 31 and swapped odd and even pods
 --
@@ -100,7 +106,7 @@ end bc_dac_ctrl_core;
 
 architecture rtl of bc_dac_ctrl_core is
 
-   type dac_states is (IDLE, PENDING, LOAD, CLOCK_OUT, LAST_BIT, NEXT_DAC, NEXT_DAC2);
+   type dac_states is (IDLE, PENDING, LOAD1, LOAD2, CLOCK_OUT, LAST_BIT, NEXT_DAC, NEXT_DAC2);
    signal flux_fb_current_state  : dac_states;
    signal flux_fb_next_state     : dac_states;
    
@@ -213,14 +219,17 @@ begin
 
          when PENDING =>
             if(update_bias_i = '1') then         
-               flux_fb_next_state <= LOAD;                
+               flux_fb_next_state <= LOAD1;                
             else 
                flux_fb_next_state <= PENDING;
                            
             end if;           
             debug (1) <= '1';                       
 
-         when LOAD =>
+         when LOAD1 =>
+           flux_fb_next_state <= LOAD2;
+
+         when LOAD2 =>
             flux_fb_next_state <= CLOCK_OUT;
             debug (2) <= '1';                       
 
@@ -245,7 +254,7 @@ begin
             debug (5) <= '1';                                   
 
 	 when NEXT_DAC2 =>
-	    flux_fb_next_state <= LOAD;
+	    flux_fb_next_state <= LOAD1;
 	    debug (6) <= '1';
 
          when others =>
@@ -273,9 +282,14 @@ begin
          
          when PENDING =>          
             dac_count_rst             <= '1';
+
+         when LOAD1 =>
+            flux_fb_data_o(dac_count) <= flux_fb_data;
+            flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
+            flux_fb_clk_o(dac_count)  <= flux_fb_clk;
          
-         when LOAD =>
-            flux_fb_start             <= '1';
+         when LOAD2 =>
+--            flux_fb_start             <= '1';
             flux_fb_data_o(dac_count) <= flux_fb_data;
             flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
             flux_fb_clk_o(dac_count)  <= flux_fb_clk;
@@ -318,12 +332,12 @@ begin
                      
          when PENDING =>
             if(update_bias_i = '1') then         
-               bias_next_state <= LOAD;     
+               bias_next_state <= LOAD1;     
             else
                bias_next_state <= PENDING;
             end if;           
           
-         when LOAD =>
+         when LOAD1 =>
             bias_next_state <= CLOCK_OUT;
             
          when CLOCK_OUT =>
@@ -355,7 +369,7 @@ begin
 --         when IDLE =>
 --         when PENDING =>          
          
-         when LOAD =>
+         when LOAD1 =>
             bias_start    <= '1';
             bias_data_o   <= bias_data;
             bias_ncs_o    <= bias_ncs;
@@ -371,7 +385,8 @@ begin
             bias_ncs_o    <= bias_ncs;
             bias_clk_o    <= bias_clk;
          
-         when others => null;
+         when others   => 
+            null;
          
       end case;      
    end process bias_state_out;
