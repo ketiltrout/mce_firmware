@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.20 2004/08/05 20:52:13 jjacob Exp $
+-- $Id: issue_reply_pack.vhd,v 1.21 2004/08/11 00:09:00 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,16 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.21  2004/08/11 00:09:00  jjacob
+-- added the following signals to cmd_translator for the reply_translator interface:
+--       reply_cmd_rcvd_er_o         : out std_logic;
+--       reply_cmd_rcvd_ok_o         : out std_logic;
+--       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
+--       reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
+--       reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)
+--
+-- and also added an input for the checksum error to route to the reply_cmd_rcvd_er_
+--
 -- Revision 1.20  2004/08/05 20:52:13  jjacob
 -- added sync_number input to arbiter
 --
@@ -101,6 +111,9 @@ use ieee.std_logic_1164.all;
 library sys_param;
 use sys_param.command_pack.all;
 
+library sys_param;
+use sys_param.wishbone_pack.all;
+
 package issue_reply_pack is
 
 ------------------------------------------------------------------------
@@ -137,7 +150,7 @@ port(
       sync_pulse_i      : in    std_logic;
       sync_number_i     : in    std_logic_vector (7 downto 0);
 
-      -- signals from the arbiter to micro-op sequence generator
+      -- signals from the arbiter to cmd_queue (micro-op sequence generator)
       --ack_o             :  out std_logic;     -- DEAD unused signal --RENAME to cmd_rdy_o        -- ready signal
       card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
@@ -145,24 +158,21 @@ port(
       data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
       data_clk_o        :  out std_logic;
       macro_instr_rdy_o :  out std_logic;
-
+      cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
+      last_frame_o      :  out std_logic;  
+       
       -- input from the micro-op sequence generator
       ack_i                 : in std_logic;                    -- acknowledge signal from the micro-instruction sequence generator
 
 
-      -- outputs to the micro instruction sequence generator
+      -- outputs to the cmd_queue (micro instruction sequence generator)
       m_op_seq_num_o        : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
       frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
 
 
-      -- outputs to reply_translator for commands that require quick acknowldgements
---      reply_cmd_ack_o       : out std_logic;                                          -- for commands that require an acknowledge before the command executes
---      reply_card_addr_o     : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
---      reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
---      reply_data_size_o     : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
---      reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)     -- data will be passed straight thru
-      
+      -- outputs to reply_translator for commands that require quick acknowldgements  
       reply_cmd_rcvd_er_o         : out std_logic;
       reply_cmd_rcvd_ok_o         : out std_logic;
       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
@@ -186,12 +196,12 @@ port(
       clk_i             : in     std_logic;
 
       -- inputs from cmd_translator top level
-
       card_addr_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_i        : in std_logic;                                              -- for clocking out the data
+      cmd_code_i        : in std_logic_vector (15 downto 0);
 
       -- other inputs
       sync_pulse_i      : in std_logic;
@@ -203,8 +213,9 @@ port(
       parameter_id_o    : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o       : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_o            : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_o        : out std_logic;                                              -- for clocking out the data
+      data_clk_o        : out std_logic;                                          -- for clocking out the data
       macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
+      cmd_type_o        : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
 
       -- input from the macro-instruction arbiter
       ack_i             : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
@@ -230,8 +241,9 @@ port(
       parameter_id_i          : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i             : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i                  : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_i              : in std_logic;                                              -- for clocking out the data
-
+      data_clk_i              : in std_logic;                                          -- for clocking out the data
+      cmd_code_i              : in std_logic_vector (15 downto 0);
+  
       -- other inputs
       sync_pulse_i            : in std_logic;
       sync_number_i           : in std_logic_vector (7 downto 0);    -- a counter of synch pulses
@@ -248,9 +260,12 @@ port(
       parameter_id_o          : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o             : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o                  : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_o              : out std_logic;                                              -- for clocking out the data
-      macro_instr_rdy_o       : out std_logic;                                           -- ='1' when the data is valid, else it's '0'
-
+      data_clk_o              : out std_logic;                                          -- for clocking out the data
+      macro_instr_rdy_o       : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
+      cmd_type_o              : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_stop_o              : out std_logic;                                          -- indicates a STOP command was recieved
+      last_frame_o            : out std_logic;
+      
       ret_dat_fsm_working_o   : out std_logic;
 
       frame_seq_num_o         : out std_logic_vector (31 downto 0);
@@ -286,7 +301,10 @@ port(
       ret_dat_data_clk_i           : in std_logic;                                                      -- for clocking out the data
       ret_dat_macro_instr_rdy_i    : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_i        : in std_logic;
-
+      ret_dat_cmd_type_i           : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      ret_dat_cmd_stop_i           : in std_logic;                                          -- indicates a STOP command was recieved
+      ret_dat_last_frame_i         : in std_logic;   
+ 
       -- output to the 'return data' state machine
       ret_dat_ack_o                : out std_logic;                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
 
@@ -295,20 +313,20 @@ port(
       simple_cmd_parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       simple_cmd_data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       simple_cmd_data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      simple_cmd_data_clk_i        : in std_logic;                                                      -- for clocking out the data
+      simple_cmd_data_clk_i        : in std_logic;                                          -- for clocking out the data
       simple_cmd_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
-
+      simple_cmd_type_i            : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       -- input from the macro-instruction arbiter
       simple_cmd_ack_o             : out std_logic ;
       
       -- input for sync_number for simple commands
-      sync_number_i                : in    std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
+      sync_number_i                : in  std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
 
-      -- outputs to the micro instruction sequence generator
-      m_op_seq_num_o               : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);--( 7 downto 0);
+      -- outputs to the cmd_queue (micro instruction sequence generator)
+      m_op_seq_num_o               : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);        --( 7 downto 0);
       frame_seq_num_o              : out std_logic_vector (31 downto 0);
-      frame_sync_num_o             : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
-
+      frame_sync_num_o             : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);   --(7 downto 0);
+      
       -- outputs to the micro-instruction generator
       card_addr_o                  : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_o               : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
@@ -316,7 +334,10 @@ port(
       data_o                       : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o                   : out std_logic;                                               -- for clocking out the data
       macro_instr_rdy_o            : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-
+      cmd_type_o                   : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_stop_o                   : out std_logic;                                          -- indicates a STOP command was recieved
+      last_frame_o                 : out std_logic;
+      
       -- input from the micro-instruction arbiter
       ack_i             : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
 
