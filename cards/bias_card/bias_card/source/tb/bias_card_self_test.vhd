@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_self_test.vhd,v 1.3 2005/01/31 19:21:52 mandana Exp $
+-- $Id: bias_card_self_test.vhd,v 1.4 2005/01/31 20:31:10 bench2 Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Mandana Amiri
@@ -29,8 +29,12 @@
 -- self-test blocks to create the packets and feed them in to bias card
 --
 -- Revision history:
--- <date $Date: 2005/01/31 19:21:52 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/01/31 20:31:10 $>    - <initials $Author: bench2 $>
 -- $Log: bias_card_self_test.vhd,v $
+-- Revision 1.4  2005/01/31 20:31:10  bench2
+-- tie slot_id and ttl_nrx
+-- increase the timer, so we can see LEDs flashing
+--
 -- Revision 1.3  2005/01/31 19:21:52  mandana
 -- changed bias_card_self_test hierarchy
 --
@@ -372,7 +376,9 @@ begin
     elsif clk'event and clk = '1' then  -- rising clock edge
       state_shift <= '0';
       i <= i + 1;
-      if i = 1000000 then
+      -- set the i value to 1000000 for synthesis, so led flashing is visible on hardware
+      -- set the i value to 400 for simulation      
+      if i = 400 then
         state_shift <= '1';
         i <= 0;
       end if;
