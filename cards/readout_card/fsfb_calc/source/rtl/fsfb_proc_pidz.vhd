@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.4  2004/12/17 00:36:49  anthonyk
+-- Reduced the multiplier number to 1 due to insufficient FPGA resources.  Multiplier is now shared.
+--
 -- Revision 1.3  2004/11/26 18:26:45  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -173,9 +176,9 @@ begin
    
    -- Mux the correct data operand input to the single shared multiplier 
    
-   multiply_mux_in : process (current_coadd_dat_reg, 
-                              current_diff_dat_reg, 
-                              current_integral_dat_reg, 
+   multiply_mux_in : process (current_coadd_dat_reg, p_dat_i, 
+                              current_diff_dat_reg, d_dat_i,
+                              current_integral_dat_reg, i_dat_i,
                               calc_shift_state(2 downto 0))
    begin
       operand_select : case calc_shift_state(2 downto 0) is
