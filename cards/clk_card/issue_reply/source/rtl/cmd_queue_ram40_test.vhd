@@ -5,42 +5,33 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.cmd_queue_pack.all;
+use work.cmd_queue_ram40_pack.all;
+
 
 ENTITY cmd_queue_ram40_test IS
    PORT
    (
-      data     : IN STD_LOGIC_VECTOR (39 DOWNTO 0);
+      data     : IN STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
       wraddress      : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
       rdaddress_a    : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
       rdaddress_b    : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
       wren     : IN STD_LOGIC  := '1';
       clock    : IN STD_LOGIC ;
-      qa    : OUT STD_LOGIC_VECTOR (39 DOWNTO 0);
-      qb    : OUT STD_LOGIC_VECTOR (39 DOWNTO 0)
+      qa    : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
+      qb    : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0)
    );
 END cmd_queue_ram40_test;
 
 
 ARCHITECTURE SYN OF cmd_queue_ram40_test IS
-
-   --signal data_sig  : std_logic_vector(39 downto 0);
    signal wraddress_int : integer := 0;
    signal rdaddress_a_int : integer := 0;
    signal rdaddress_b_int : integer := 0;
-   --signal wren_sig : std_logic;
-   --signal clock_sig : std_logic;
-   signal qa_sig  : std_logic_vector(39 downto 0);
-   signal qb_sig  : std_logic_vector(39 downto 0);
+   signal qa_sig  : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+   signal qb_sig  : std_logic_vector(QUEUE_WIDTH-1 downto 0);
    signal ram_dat : ram40;
 
-
-
-   --subtype word14    is std_logic_vector(13 downto 0); -- for address card dacs
-   --type    w_array11 is array (10 downto 0) of word14; -- for address card bus
-
-
 BEGIN
-
    wraddress_int   <= conv_integer(wraddress);
    rdaddress_a_int <= conv_integer(rdaddress_a);
    rdaddress_b_int <= conv_integer(rdaddress_b);
@@ -48,7 +39,6 @@ BEGIN
    qb_sig          <= ram_dat(rdaddress_b_int);
    qa              <= qa_sig;
    qb              <= qb_sig;
-
 
    data_in: process(clock)
    begin

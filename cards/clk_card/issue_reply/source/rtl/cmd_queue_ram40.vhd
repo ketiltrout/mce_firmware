@@ -43,22 +43,22 @@ USE altera_mf.altera_mf_components.all;
 ENTITY cmd_queue_ram40 IS
 	PORT
 	(
-		data		: IN STD_LOGIC_VECTOR (39 DOWNTO 0);
+		data		: IN STD_LOGIC_VECTOR (63 DOWNTO 0);
 		wraddress		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 		rdaddress_a		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 		rdaddress_b		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 		wren		: IN STD_LOGIC  := '1';
 		clock		: IN STD_LOGIC ;
-		qa		: OUT STD_LOGIC_VECTOR (39 DOWNTO 0);
-		qb		: OUT STD_LOGIC_VECTOR (39 DOWNTO 0)
+		qa		: OUT STD_LOGIC_VECTOR (63 DOWNTO 0);
+		qb		: OUT STD_LOGIC_VECTOR (63 DOWNTO 0)
 	);
 END cmd_queue_ram40;
 
 
 ARCHITECTURE SYN OF cmd_queue_ram40 IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (39 DOWNTO 0);
-	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (39 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (63 DOWNTO 0);
+	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (63 DOWNTO 0);
 
 
 
@@ -88,11 +88,11 @@ ARCHITECTURE SYN OF cmd_queue_ram40 IS
 		lpm_hint		: STRING
 	);
 	PORT (
-			qa	: OUT STD_LOGIC_VECTOR (39 DOWNTO 0);
-			qb	: OUT STD_LOGIC_VECTOR (39 DOWNTO 0);
+			qa	: OUT STD_LOGIC_VECTOR (63 DOWNTO 0);
+			qb	: OUT STD_LOGIC_VECTOR (63 DOWNTO 0);
 			wren	: IN STD_LOGIC ;
 			inclock	: IN STD_LOGIC ;
-			data	: IN STD_LOGIC_VECTOR (39 DOWNTO 0);
+			data	: IN STD_LOGIC_VECTOR (63 DOWNTO 0);
 			rdaddress_a	: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 			wraddress	: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 			rdaddress_b	: IN STD_LOGIC_VECTOR (7 DOWNTO 0)
@@ -100,13 +100,13 @@ ARCHITECTURE SYN OF cmd_queue_ram40 IS
 	END COMPONENT;
 
 BEGIN
-	qa    <= sub_wire0(39 DOWNTO 0);
-	qb    <= sub_wire1(39 DOWNTO 0);
+	qa    <= sub_wire0(63 DOWNTO 0);
+	qb    <= sub_wire1(63 DOWNTO 0);
 
 	alt3pram_component : alt3pram
 	GENERIC MAP (
 		intended_device_family => "Stratix",
-		width => 40,
+		width => 64,
 		widthad => 8,
 		indata_reg => "INCLOCK",
 		write_reg => "INCLOCK",
@@ -146,7 +146,7 @@ END SYN;
 -- ============================================================
 -- CNX file retrieval info
 -- ============================================================
--- Retrieval info: PRIVATE: WidthData NUMERIC "40"
+-- Retrieval info: PRIVATE: WidthData NUMERIC "64"
 -- Retrieval info: PRIVATE: WidthAddr NUMERIC "8"
 -- Retrieval info: PRIVATE: Clock NUMERIC "0"
 -- Retrieval info: PRIVATE: rden_a NUMERIC "0"
@@ -176,7 +176,7 @@ END SYN;
 -- Retrieval info: PRIVATE: INIT_FILE_LAYOUT STRING "PORT_A"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix"
--- Retrieval info: CONSTANT: WIDTH NUMERIC "40"
+-- Retrieval info: CONSTANT: WIDTH NUMERIC "64"
 -- Retrieval info: CONSTANT: WIDTHAD NUMERIC "8"
 -- Retrieval info: CONSTANT: INDATA_REG STRING "INCLOCK"
 -- Retrieval info: CONSTANT: WRITE_REG STRING "INCLOCK"
@@ -197,17 +197,17 @@ END SYN;
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "alt3pram"
 -- Retrieval info: CONSTANT: RAM_BLOCK_TYPE STRING "AUTO"
 -- Retrieval info: CONSTANT: LPM_HINT STRING "USE_EAB=ON"
--- Retrieval info: USED_PORT: data 0 0 40 0 INPUT NODEFVAL data[39..0]
--- Retrieval info: USED_PORT: qa 0 0 40 0 OUTPUT NODEFVAL qa[39..0]
--- Retrieval info: USED_PORT: qb 0 0 40 0 OUTPUT NODEFVAL qb[39..0]
+-- Retrieval info: USED_PORT: data 0 0 64 0 INPUT NODEFVAL data[63..0]
+-- Retrieval info: USED_PORT: qa 0 0 64 0 OUTPUT NODEFVAL qa[63..0]
+-- Retrieval info: USED_PORT: qb 0 0 64 0 OUTPUT NODEFVAL qb[63..0]
 -- Retrieval info: USED_PORT: wraddress 0 0 8 0 INPUT NODEFVAL wraddress[7..0]
 -- Retrieval info: USED_PORT: rdaddress_a 0 0 8 0 INPUT NODEFVAL rdaddress_a[7..0]
 -- Retrieval info: USED_PORT: rdaddress_b 0 0 8 0 INPUT NODEFVAL rdaddress_b[7..0]
 -- Retrieval info: USED_PORT: wren 0 0 0 0 INPUT VCC wren
 -- Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
--- Retrieval info: CONNECT: @data 0 0 40 0 data 0 0 40 0
--- Retrieval info: CONNECT: qa 0 0 40 0 @qa 0 0 40 0
--- Retrieval info: CONNECT: qb 0 0 40 0 @qb 0 0 40 0
+-- Retrieval info: CONNECT: @data 0 0 64 0 data 0 0 64 0
+-- Retrieval info: CONNECT: qa 0 0 64 0 @qa 0 0 64 0
+-- Retrieval info: CONNECT: qb 0 0 64 0 @qb 0 0 64 0
 -- Retrieval info: CONNECT: @wraddress 0 0 8 0 wraddress 0 0 8 0
 -- Retrieval info: CONNECT: @rdaddress_a 0 0 8 0 rdaddress_a 0 0 8 0
 -- Retrieval info: CONNECT: @rdaddress_b 0 0 8 0 rdaddress_b 0 0 8 0

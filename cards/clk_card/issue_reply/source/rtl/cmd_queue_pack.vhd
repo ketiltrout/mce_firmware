@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.3 2004/05/31 21:55:49 mandana Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.4 2004/06/16 17:02:36 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.4  2004/06/16 17:02:36  bburger
+-- in progress
+--
 -- Revision 1.3  2004/05/31 21:55:49  mandana
 -- syntax fix
 --
@@ -50,46 +53,36 @@ use work.cmd_queue_ram40_pack.all;
 
 package cmd_queue_pack is
 
-   subtype ram_line is std_logic_vector(39 downto 0);
-   type ram40 is array (0 to 255) of ram_line;
-
-
    component cmd_queue
-      port (
-      -- reply_queue interface
-      uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
-      uop_rdy_o     : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
-      uop_ack_i     : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
-      uop_discard_o : out std_logic; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
-      uop_timedout_o: out std_logic; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
-      uop_o         : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
+      port(
+         -- reply_queue interface
+         uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
+         uop_rdy_o     : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
+         uop_ack_i     : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
+         uop_discard_o : out std_logic; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
+         uop_timedout_o: out std_logic; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
+         uop_o         : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
-      -- cmd_translator interface
-      card_addr_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
-      par_id_i      : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
-      cmd_size_i    : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-      data_i        : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
-      data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
-      mop_i         : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
-      issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
-      mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
-      mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
+         -- cmd_translator interface
+         card_addr_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
+         par_id_i      : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
+         data_size_i    : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
+         data_i        : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
+         data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
+         mop_i         : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
+         issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
+         mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
+         mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
 
-      -- bb_tx interface
-      clk_o         : out std_logic;
---      rst_o         : out std_logic;
-      dat_o         : out std_logic_vector (7 downto 0);
-      we_o          : out std_logic;
-      stb_o         : out std_logic;
-      cyc_o         : out std_logic;
-      ack_i         : in std_logic;
+         -- lvds_tx interface
+         tx_o          : out std_logic;  -- transmitter output pin
+         clk_25mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
 
-      -- Clock lines
-      sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
-      clk_i         : in std_logic; -- Advances the state machines
-      fast_clk_i    : in std_logic;  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
-      rst_i         : in std_logic  -- Resets all FSMs
+         -- Clock lines
+         sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
+         clk_i         : in std_logic; -- Advances the state machines
+         clk_400mhz_i    : in std_logic;  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
+         rst_i         : in std_logic  -- Resets all FSMs
       );
    end component;
-
 end cmd_queue_pack;
