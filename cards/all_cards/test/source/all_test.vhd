@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: all_test.vhd,v $
+-- Revision 1.2  2004/05/03 02:38:05  erniel
+-- implemented reset command
+--
 -- Revision 1.1  2004/04/28 20:16:13  erniel
 -- initial version
 --
@@ -47,37 +50,38 @@ use work.all_test_pack.all;
 
 entity all_test is
    port(
-      reset_n : in std_logic;
+      n_rst : in std_logic;
+      
+      -- clock signals
       inclk : in std_logic;
       outclk : out std_logic;
-      txd : out std_logic;
-      rxd : in std_logic;
       
-      -- dip interface
-      dip : in std_logic_vector(7 downto 0);
+      -- RS232 interface
+      rs232_tx : out std_logic;
+      rs232_rx : in std_logic;
       
       -- led interface
-      led : out std_logic_vector(2 downto 0);
+      grn_led : out std_logic;
+      ylw_led : out std_logic;
+      red_led : out std_logic;
+            
+      -- dip switch interface
+      dip_sw3 : in std_logic;
+      dip_sw4 : in std_logic;
       
       -- watchdog timer interface                      
-      wdt : out std_logic;
+      wdog : out std_logic;
+            
+      -- LVDS interfaces
+      lvds_tx    : out std_logic;
+      lvds_clk   : in std_logic;
+      lvds_cmd   : in std_logic;
+      lvds_sync  : in std_logic;
+      lvds_spare : in std_logic;
       
-      -- LVDS transmit interface
-      sync : out std_logic;
-      cmd : out std_logic;
-      spare : out std_logic;
-      
-      -- slot id interface
+      -- id interfaces
       slot_id : in std_logic_vector (3 downto 0);
-      
-      -- array id interface
-      array_id : in std_logic_vector (2 downto 0);
-      
-      -- card id interface
       card_id : inout std_logic);
-      
-      -- box id interface
---      box_id : inout std_logic);
 end all_test;
 
 architecture behaviour of all_test is
@@ -88,12 +92,15 @@ architecture behaviour of all_test is
         e0 : out std_logic);
    end component;
 
-   constant MAX_STATES : integer := 12;
+   
    signal zero : std_logic;
    signal one : std_logic;
-   signal reset : std_logic;
-   signal int_reset : std_logic;
-   signal clk : std_logic;
+   
+   signal clk : std_logic;   
+   signal rst : std_logic;
+   signal int_rst : std_logic;
+   
+   signal dip : std_logic_vector(1 downto 0);
 
    -- transmitter signals
    signal tx_clock : std_logic;
@@ -112,89 +119,118 @@ architecture behaviour of all_test is
    signal rx_stb   : std_logic;
    signal rx_ack   : std_logic;
    
-   -- state signals
-   type cmd_states is (CMD_RESET, CMD_WAIT, CMD_DECODE, CMD_EXECUTE);
-   signal cmd_state : cmd_states;
+   -- state constants
+   constant MAX_STATES : integer := 15;
+
+   constant INDEX_RESET      : integer := 0;
+   constant INDEX_IDLE       : integer := 1;
+   constant INDEX_LED_POWER  : integer := 2;
+   constant INDEX_LED_STATUS : integer := 3;
+   constant INDEX_LED_FAULT  : integer := 4;
+   constant INDEX_DIP        : integer := 5;      
+   constant INDEX_WATCHDOG   : integer := 6;
+   constant INDEX_TX         : integer := 7;
+   constant INDEX_RX_CLK     : integer := 8;
+   constant INDEX_RX_CMD     : integer := 9;
+   constant INDEX_RX_SYNC    : integer := 10;
+   constant INDEX_RX_SPARE   : integer := 11;   
+   constant INDEX_SLOT_ID    : integer := 12; 
+   constant INDEX_CARD_ID    : integer := 13;   
+   constant INDEX_DEBUG      : integer := 14;
+      
+   constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
+   constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
+   constant SEL_LED_POWER  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_POWER => '1', others => '0');
+   constant SEL_LED_STATUS : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
+   constant SEL_LED_FAULT  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
+   constant SEL_DIP        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DIP => '1', others => '0');
+   constant SEL_WATCHDOG   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
+   constant SEL_TX         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX => '1', others => '0');
+   constant SEL_RX_CLK     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CLK => '1', others => '0');
+   constant SEL_RX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CMD => '1', others => '0');
+   constant SEL_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
+   constant SEL_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0');         
+   constant SEL_SLOT_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
+   constant SEL_CARD_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
+   constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    
-   signal sel_vec : std_logic_vector(MAX_STATES - 1 downto 0);
-   signal done_vec : std_logic_vector(MAX_STATES - 1 downto 0);
+   constant DONE_NULL       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
+   constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
+   constant DONE_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
+   constant DONE_LED_POWER  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_POWER => '1', others => '0');
+   constant DONE_LED_STATUS : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
+   constant DONE_LED_FAULT  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
+   constant DONE_DIP        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DIP => '1', others => '0');
+   constant DONE_WATCHDOG   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
+   constant DONE_TX         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX => '1', others => '0');
+   constant DONE_RX_CLK     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CLK => '1', others => '0');
+   constant DONE_RX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CMD => '1', others => '0');
+   constant DONE_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
+   constant DONE_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0'); 
+   constant DONE_SLOT_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
+   constant DONE_CARD_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
+   constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
+
+   -- state signals
+   type states is (RESET, FETCH, DECODE, EXECUTE);
+   signal cmd_state : states;
+   
+   signal sel  : std_logic_vector(MAX_STATES - 1 downto 0);
+   signal done : std_logic_vector(MAX_STATES - 1 downto 0);
    
    signal cmd1 : std_logic_vector(7 downto 0);
    signal cmd2 : std_logic_vector(7 downto 0);
    
-   -- state constants
-   constant INDEX_RESET         : integer := 0;
-   constant INDEX_IDLE          : integer := 1;
-   constant INDEX_LED_POWER     : integer := 2;
-   constant INDEX_LED_STATUS    : integer := 3;
-   constant INDEX_LED_FAULT     : integer := 4;
-   constant INDEX_WATCHDOG      : integer := 5;
-   constant INDEX_LVDS_TX_CMD   : integer := 6;
-   constant INDEX_LVDS_TX_SYNC  : integer := 7;
-   constant INDEX_LVDS_TX_SPARE : integer := 8;
-   constant INDEX_SLOT_ID       : integer := 9;
-   constant INDEX_CARD_ID       : integer := 10;
-   constant INDEX_ARRAY_ID      : integer := 11;
-   
-   constant SEL_RESET          : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
-   constant SEL_IDLE           : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
-   constant SEL_LED_POWER      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_POWER => '1', others => '0');
-   constant SEL_LED_STATUS     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
-   constant SEL_LED_FAULT      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
-   constant SEL_WATCHDOG       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
-   constant SEL_LVDS_TX_CMD    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_CMD => '1', others => '0');
-   constant SEL_LVDS_TX_SYNC   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SYNC => '1', others => '0');
-   constant SEL_LVDS_TX_SPARE  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SPARE => '1', others => '0');
-   constant SEL_SLOT_ID        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
-   constant SEL_CARD_ID        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
-   constant SEL_ARRAY_ID       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_ARRAY_ID => '1', others => '0');
-   
-   constant DONE_NULL          : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
-   constant DONE_RESET         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
-   constant DONE_IDLE          : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
-   constant DONE_LED_POWER     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_POWER => '1', others => '0');
-   constant DONE_LED_STATUS    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
-   constant DONE_LED_FAULT     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
-   constant DONE_WATCHDOG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
-   constant DONE_LVDS_TX_CMD   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_CMD => '1', others => '0');
-   constant DONE_LVDS_TX_SYNC  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SYNC => '1', others => '0');
-   constant DONE_LVDS_TX_SPARE : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SPARE => '1', others => '0');
-   constant DONE_SLOT_ID       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
-   constant DONE_CARD_ID       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
-   constant DONE_ARRAY_ID      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_ARRAY_ID => '1', others => '0');
-
    -- device return signals:
    signal reset_data    : std_logic_vector(7 downto 0);
    signal idle_data     : std_logic_vector(7 downto 0);
+   signal dip_data      : std_logic_vector(7 downto 0);
+   signal rx_clk_data   : std_logic_vector(7 downto 0);
+   signal rx_cmd_data   : std_logic_vector(7 downto 0);
+   signal rx_sync_data  : std_logic_vector(7 downto 0);
+   signal rx_spare_data : std_logic_vector(7 downto 0);      
    signal slot_id_data  : std_logic_vector(7 downto 0);
    signal card_id_data  : std_logic_vector(7 downto 0);
-   signal array_id_data : std_logic_vector(7 downto 0);
+   signal debug_data    : std_logic_vector(7 downto 0);
    
    signal reset_we      : std_logic;
    signal idle_we       : std_logic;
+   signal dip_we        : std_logic;
+   signal rx_clk_we     : std_logic;
+   signal rx_cmd_we     : std_logic;
+   signal rx_sync_we    : std_logic;
+   signal rx_spare_we   : std_logic;      
    signal slot_id_we    : std_logic;
    signal card_id_we    : std_logic;
-   signal array_id_we   : std_logic;
+   signal debug_we      : std_logic;
    
    signal reset_stb     : std_logic;
    signal idle_stb      : std_logic;
+   signal dip_stb       : std_logic;
+   signal rx_clk_stb    : std_logic;
+   signal rx_cmd_stb    : std_logic;
+   signal rx_sync_stb   : std_logic;
+   signal rx_spare_stb  : std_logic;   
    signal slot_id_stb   : std_logic;
    signal card_id_stb   : std_logic;
-   signal array_id_stb  : std_logic;
+   signal debug_stb     : std_logic;
+   
+   signal test_data : std_logic_vector(31 downto 0);
    
 begin
-   clk_gen : pll
-      port map(inclk0 => inclk,
-               c0 => clk,
-               e0 => outclk);
+--   clk_gen : pll
+--      port map(inclk0 => pll_i,
+--               c0 => clk,
+--               e0 => lvds_clk,
+--               e1 => pll_o);
 
    -- RS232 interface start
    receiver : async_rx
-      port map(rx_i => rxd,
+      port map(rx_i => rs232_rx,
                flag_o => rx_valid,
                error_o => rx_error,
                clk_i => rx_clock,
-               rst_i => reset,
+               rst_i => rst,
                dat_o => rx_data,
                we_i => zero,
                stb_i => rx_stb,
@@ -202,10 +238,10 @@ begin
                cyc_i => one);
 
    transmitter : async_tx
-      port map(tx_o => txd,
+      port map(tx_o => rs232_tx,
                busy_o => tx_busy,
                clk_i => tx_clock,
-               rst_i => reset,
+               rst_i => rst,
                dat_i => tx_data,
                we_i => tx_we,
                stb_i => tx_stb,
@@ -214,7 +250,7 @@ begin
    
    aclock : async_clk
       port map(clk_i => clk,
-               rst_i => reset,
+               rst_i => rst,
                txclk_o => tx_clock,
                rxclk_o => rx_clock);
       
@@ -222,10 +258,10 @@ begin
    
    -- reset_state gives us our welcome string on startup
    reset_state : all_test_reset
-      port map(rst_i     => reset,
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_RESET),
-               done_o    => done_vec(INDEX_RESET),
+               en_i      => sel(INDEX_RESET),
+               done_o    => done(INDEX_RESET),
                
                tx_busy_i => tx_busy,
                tx_ack_i  => tx_ack,
@@ -235,10 +271,10 @@ begin
    
    -- idle_state is special - it aquires commands for us to process
    idle_state : all_test_idle
-      port map(rst_i     => reset,
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_IDLE),
-               done_o    => done_vec(INDEX_IDLE),
+               en_i      => sel(INDEX_IDLE),
+               done_o    => done(INDEX_IDLE),
                
                tx_busy_i => tx_busy,
                tx_ack_i  => tx_ack,
@@ -256,65 +292,117 @@ begin
       
    -- power led
    led_power : led_test_wrapper
-      port map(rst_i     => reset,
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_LED_POWER),
-               done_o    => done_vec(INDEX_LED_POWER),
-               led_o     => led(0));
+               en_i      => sel(INDEX_LED_POWER),
+               done_o    => done(INDEX_LED_POWER),
+               led_o     => grn_led);
    
    -- status led
    led_status : led_test_wrapper
-      port map(rst_i     => reset,
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_LED_STATUS),
-               done_o    => done_vec(INDEX_LED_STATUS),
-               led_o     => led(1));
+               en_i      => sel(INDEX_LED_STATUS),
+               done_o    => done(INDEX_LED_STATUS),
+               led_o     => ylw_led);
    
    -- fault led
    led_fault : led_test_wrapper
-      port map(rst_i     => reset,
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_LED_FAULT),
-               done_o    => done_vec(INDEX_LED_FAULT),
-               led_o     => led(2));
+               en_i      => sel(INDEX_LED_FAULT),
+               done_o    => done(INDEX_LED_FAULT),
+               led_o     => red_led);
       
    -- watchdog timer
    watchdog_timer : watchdog_test_wrapper
-      port map(rst_i     => reset,
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_WATCHDOG),
-               done_o    => done_vec(INDEX_WATCHDOG),
-               wdt_o     => wdt);
+               en_i      => sel(INDEX_WATCHDOG),
+               done_o    => done(INDEX_WATCHDOG),
+               wdt_o     => wdog);
          
-   -- LVDS CMD transmitter
-   lvds_cmd : lvds_tx_test_wrapper
-      port map(rst_i     => reset,
+   -- LVDS transmitter
+   tx : lvds_tx_test_wrapper
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_LVDS_TX_CMD),
-               done_o    => done_vec(INDEX_LVDS_TX_CMD),
-               lvds_o    => cmd);
+               en_i      => sel(INDEX_TX),
+               done_o    => done(INDEX_TX),
+               lvds_o    => lvds_tx);
+
+   -- LVDS receivers
+   rx_clk : lvds_rx_test_wrapper
+      port map(rst_i     => rst,
+               clk_i     => clk,
+               en_i      => sel(INDEX_RX_CLK),
+               done_o    => done(INDEX_RX_CLK),
+               lvds_i    => lvds_clk,
+            
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => rx_clk_data,
+               tx_we_o   => rx_clk_we,
+               tx_stb_o  => rx_clk_stb);
    
-   -- LVDS SYNC transmitter
-   lvds_sync : lvds_tx_test_wrapper
-      port map(rst_i     => reset,
+   rx_cmd : lvds_rx_test_wrapper
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_LVDS_TX_SYNC),
-               done_o    => done_vec(INDEX_LVDS_TX_SYNC),
-               lvds_o    => sync);
-
-   -- LVDS SPARE transmitter
-   lvds_spare : lvds_tx_test_wrapper
-      port map(rst_i     => reset,
+               en_i      => sel(INDEX_RX_CMD),
+               done_o    => done(INDEX_RX_CMD),
+               lvds_i    => lvds_cmd,
+            
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => rx_cmd_data,
+               tx_we_o   => rx_cmd_we,
+               tx_stb_o  => rx_cmd_stb);
+    
+   rx_sync : lvds_rx_test_wrapper
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_LVDS_TX_SPARE),
-               done_o    => done_vec(INDEX_LVDS_TX_SPARE), 
-               lvds_o    => spare);
+               en_i      => sel(INDEX_RX_SYNC),
+               done_o    => done(INDEX_RX_SYNC),
+               lvds_i    => lvds_sync,
+            
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => rx_sync_data,
+               tx_we_o   => rx_sync_we,
+               tx_stb_o  => rx_sync_stb);
+   
+   rx_spare : lvds_rx_test_wrapper
+      port map(rst_i     => rst,
+               clk_i     => clk,
+               en_i      => sel(INDEX_RX_SPARE),
+               done_o    => done(INDEX_RX_SPARE),
+               lvds_i    => lvds_spare,
+            
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => rx_spare_data,
+               tx_we_o   => rx_spare_we,
+               tx_stb_o  => rx_spare_stb);
+      
+   -- DIP switches
+   dip <= dip_sw3 & dip_sw4;
+   dip_sw : dip_switch_test_wrapper
+      port map(rst_i     => rst,
+               clk_i     => clk,
+               en_i      => sel(INDEX_DIP),
+               done_o    => done(INDEX_DIP),
+               dip_switch_i => dip,
 
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => dip_data,
+               tx_we_o   => dip_we,
+               tx_stb_o  => dip_stb);
+     
    slotid : slot_id_test_wrapper
-      port map(rst_i     => reset,
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_SLOT_ID),
-               done_o    => done_vec(INDEX_SLOT_ID),
+               en_i      => sel(INDEX_SLOT_ID),
+               done_o    => done(INDEX_SLOT_ID),
                slot_id_i => slot_id,
                
                tx_busy_i => tx_busy,
@@ -324,145 +412,170 @@ begin
                tx_stb_o  => slot_id_stb);
                
    cardid : card_id_test_wrapper
-      port map(rst_i     => reset,
+      port map(rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel_vec(INDEX_CARD_ID),
-               done_o    => done_vec(INDEX_CARD_ID),
+               en_i      => sel(INDEX_CARD_ID),
+               done_o    => done(INDEX_CARD_ID),
                data_bi   => card_id,
                
                tx_busy_i => tx_busy,
                tx_ack_i  => tx_ack,
                tx_data_o => card_id_data,
                tx_we_o   => card_id_we,
-               tx_stb_o  => card_id_stb);
+               tx_stb_o  => card_id_stb);    
                
-   arrayid : array_id_test_wrapper
-      port map(rst_i     => reset,
-               clk_i     => clk,
-               en_i      => sel_vec(INDEX_ARRAY_ID),
-               done_o    => done_vec(INDEX_ARRAY_ID),
-               array_id_i => array_id,
-               
+   debug_tx : rs232_data_tx
+      generic map(WIDTH => 32)
+      port map(clk_i   => clk,
+               rst_i   => rst,
+               data_i  => test_data,
+               start_i => sel(INDEX_DEBUG),
+               done_o  => done(INDEX_DEBUG),
+
                tx_busy_i => tx_busy,
                tx_ack_i  => tx_ack,
-               tx_data_o => array_id_data,
-               tx_we_o   => array_id_we,
-               tx_stb_o  => array_id_stb);
-      
+               tx_data_o => debug_data,
+               tx_we_o   => debug_we,
+               tx_stb_o  => debug_stb); 
       
    zero <= '0';
    one <= '1';                         
-   reset <= not reset_n or int_reset;
+   rst <= not n_rst or int_rst;
+   test_data <= "11011110101011011011111011101111";  -- 0xDEADBEEF
    
    -- functionality of async_mux:
    
-   with sel_vec select
+   with sel select
       tx_data <= reset_data    when SEL_RESET,
                  idle_data     when SEL_IDLE,
+                 dip_data      when SEL_DIP,
+                 rx_clk_data   when SEL_RX_CLK,
+                 rx_cmd_data   when SEL_RX_CMD,
+                 rx_sync_data  when SEL_RX_SYNC,
+                 rx_spare_data when SEL_RX_SPARE,
                  slot_id_data  when SEL_SLOT_ID,
                  card_id_data  when SEL_CARD_ID,
-                 array_id_data when SEL_ARRAY_ID,
+                 debug_data    when SEL_DEBUG,
                  "00000000"    when others;
    
-   with sel_vec select
+   with sel select
       tx_we   <= reset_we      when SEL_RESET,
                  idle_we       when SEL_IDLE,
+                 dip_we        when SEL_DIP,
+                 rx_clk_we     when SEL_RX_CLK,
+                 rx_cmd_we     when SEL_RX_CMD,
+                 rx_sync_we    when SEL_RX_SYNC,
+                 rx_spare_we   when SEL_RX_SPARE,
                  slot_id_we    when SEL_SLOT_ID,
                  card_id_we    when SEL_CARD_ID,
-                 array_id_we   when SEL_ARRAY_ID,
+                 debug_we      when SEL_DEBUG,
                  '0'           when others; 
    
-   with sel_vec select
+   with sel select
       tx_stb  <= reset_stb     when SEL_RESET,
                  idle_stb      when SEL_IDLE,
+                 dip_stb       when SEL_DIP,
+                 rx_clk_stb    when SEL_RX_CLK,
+                 rx_cmd_stb    when SEL_RX_CMD,
+                 rx_sync_stb   when SEL_RX_SYNC,
+                 rx_spare_stb  when SEL_RX_SPARE,
                  slot_id_stb   when SEL_SLOT_ID,
                  card_id_stb   when SEL_CARD_ID,
-                 array_id_stb  when SEL_ARRAY_ID,
+                 debug_stb     when SEL_DEBUG,
                  '0'           when others;
    
    -- cmd_proc is our main processing state machine
-   cmd_proc : process (reset, clk)
+   cmd_proc : process (rst, clk)
    begin
-      if (reset = '1') then
-         int_reset <= '0';
-         sel_vec <= SEL_RESET;
-         cmd_state <= CMD_RESET;
+      if (rst = '1') then
+         int_rst <= '0';
+         sel <= SEL_RESET;
+         cmd_state <= RESET;
       elsif Rising_Edge(clk) then
          case cmd_state is
-            when CMD_RESET => 
+            when RESET => 
                -- wait for the reset state to complete
-               if (done_vec = DONE_RESET) then
-                  cmd_state <= CMD_WAIT;
+               if (done = DONE_RESET) then
+                  cmd_state <= FETCH;
                else
                   cmd_state <= cmd_state;
                end if;
-               sel_vec <= SEL_RESET;
+               sel <= SEL_RESET;
                
-            when CMD_WAIT =>
+            when FETCH =>
                -- wait for a command to be decoded
-               if (done_vec = DONE_IDLE) then
-                  cmd_state <= CMD_DECODE;
+               if (done = DONE_IDLE) then
+                  cmd_state <= DECODE;
                else
                   cmd_state <= cmd_state;
                end if;
-               sel_vec <= SEL_IDLE;
+               sel <= SEL_IDLE;
                
-            when CMD_DECODE =>
+            when DECODE =>
                -- activate the appropiate test module
-               cmd_state <= CMD_EXECUTE;
+               cmd_state <= EXECUTE;
                if(cmd1 = CMD_LED) then
-                     -- toggle a LED
-                     if (cmd2 = CMD_LED_1) then
-                        sel_vec <= SEL_LED_POWER;
-                     elsif (cmd2 = CMD_LED_2) then
-                        sel_vec <= SEL_LED_STATUS;
-                     else
-                        sel_vec <= SEL_LED_FAULT;
-                     end if;
+                  -- toggle a LED
+                  if (cmd2 = CMD_LED_1) then
+                     sel <= SEL_LED_POWER;
+                  elsif (cmd2 = CMD_LED_2) then
+                     sel <= SEL_LED_STATUS;
+                  else
+                     sel <= SEL_LED_FAULT;
+                  end if;
                      
                elsif(cmd1 = CMD_WATCHDOG) then
-                     -- kick watchdog
-                     sel_vec <= SEL_WATCHDOG;
+                  -- kick watchdog
+                  sel <= SEL_WATCHDOG;
+                  
+               elsif(cmd1 = CMD_DIP) then
+                  -- read DIP switch
+                  sel <= SEL_DIP;
 
                elsif(cmd1 = CMD_TX) then
-                     -- random number tx test
-                     if (cmd2 = CMD_TX_0) then
-                        sel_vec <= SEL_LVDS_TX_CMD;
-                     elsif (cmd2 = CMD_TX_1) then
-                        sel_vec <= SEL_LVDS_TX_SYNC;
-                     else
-                        sel_vec <= SEL_LVDS_TX_SPARE;
-                     end if;
+                  -- random number tx test
+                  sel <= SEL_TX;
+               
+               elsif(cmd1 = CMD_RX) then
+                  if(cmd2 = CMD_RX_CLK) then
+                     sel <= SEL_RX_CLK;
+                  elsif(cmd2 = CMD_RX_CMD) then
+                     sel <= SEL_RX_CMD;
+                  elsif(cmd2 = CMD_RX_SYNC) then
+                     sel <= SEL_RX_SYNC;
+                  elsif(cmd2 = CMD_RX_SPARE) then
+                     sel <= SEL_RX_SPARE;
+                  end if;
                   
-               elsif(cmd1 = CMD_ID) then
-                     if(cmd2 = CMD_ID_SLOT) then
-                        sel_vec <= SEL_SLOT_ID;
-                     elsif(cmd2 = CMD_ID_ARRAY) then
-                        sel_vec <= SEL_ARRAY_ID;
-                     elsif(cmd2 = CMD_ID_SERIAL) then
-                        sel_vec <= SEL_CARD_ID;
-                     end if;
+               elsif(cmd1 = CMD_SLOT_ID) then
+                  sel <= SEL_SLOT_ID;
+               
+               elsif(cmd1 = CMD_CARD_ID) then
+                  sel <= SEL_CARD_ID;
 
+               elsif(cmd1 = CMD_DEBUG) then
+                  sel <= SEL_DEBUG;
+                  
                elsif(cmd1 = CMD_RESET) then
-                  int_reset <= '1';
-
+                  int_rst <= '1';
+                  
                else
                   -- must not be implemented yet!
-                  sel_vec <= (others => '0');
-                  cmd_state <= CMD_WAIT;
+                  sel <= (others => '0');
+                  cmd_state <= FETCH;                  
                end if;
                
-            when CMD_EXECUTE =>
+            when EXECUTE =>
                -- wait for thet test to complete
-               if (done_vec /= DONE_NULL) then
-                  int_reset <= '0';
-                  sel_vec <= (others => '0');
-                  cmd_state <= CMD_WAIT;
+               if (done /= DONE_NULL) then
+                  int_rst <= '0';
+                  sel <= (others => '0');
+                  cmd_state <= FETCH;
                end if;
                
             when others =>
-               sel_vec <= (others => '0');
-               cmd_state <= CMD_RESET;
+               sel <= (others => '0');
+               cmd_state <= RESET;
          end case;
       end if;
    end process cmd_proc;
