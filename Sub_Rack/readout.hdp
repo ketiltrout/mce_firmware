@@ -1,15 +1,15 @@
 [hdl]
-readout = C:\scuba2_repository\Sub_Rack\readout\hdl
+readout_card = C:/scuba2_repository/Sub_Rack/readout/hdl
 [hdl_vm]
-readout = $HDS_HOME/examples/hds_scratch/hds_repository/readout/hdl_vm
+readout_card = $HDS_HOME/examples/hds_scratch/hds_repository/readout/hdl_vm
 [hds]
-readout = C:\scuba2_repository\Sub_Rack\readout\hds
+readout_card = C:/scuba2_repository/Sub_Rack/readout/hds
 [hds_settings]
-default_library = readout
+default_library = readout_card
 version = 1
 [hds_vm]
-readout = $HDS_HOME/examples/hds_scratch/hds_repository/readout/hds_vm
+readout_card = $HDS_HOME/examples/hds_scratch/hds_repository/readout/hds_vm
 [library_type]
-readout = regular
+readout_card = regular
 [shared]
 others = $HDS_TEAM_HOME/shared.hdp
