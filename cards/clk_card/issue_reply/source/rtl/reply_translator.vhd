@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.19 2004/11/18 16:17:59 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.20 2004/11/19 16:21:02 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/18 16:17:59 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/19 16:21:02 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.20  2004/11/19 16:21:02  dca
+-- reply_translator: fibre_word_req_o changed to fibre_word_ack_o
+--
 -- Revision 1.19  2004/11/18 16:17:59  dca
 -- Change to FSM.  Reading of fibre_word_i from reply_queue altered.
 --
@@ -143,8 +146,8 @@ port(
      param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
          
      -- signals to/from reply queue 
-     m_op_done_i             : in  std_logic;                                               -- macro op done
-     m_op_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
+     m_op_rdy_i             : in  std_logic;                                               -- macro op done
+     m_op_error_code_i       : in  std_logic_vector (BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
      m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);  -- command code vector - indicates if data or reply (and which command)
      m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
      m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
@@ -402,8 +405,8 @@ signal reply_status          : std_logic_vector (15 downto 0);                --
 signal reply_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- this word is the reply or data word read from cmd_queue
 signal packet_type           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- indicates reply or data packet - written to header word 3
 
-signal m_op_done_reply       : std_logic;                                     -- asserted high when a m_op is done and processing a reply packet
-signal m_op_done_data        : std_logic;                                     -- asserted high when a m_op is done and processing a data packet
+signal m_op_rdy_reply       : std_logic;                                     -- asserted high when a m_op is done and processing a reply packet
+signal m_op_rdy_data        : std_logic;                                     -- asserted high when a m_op is done and processing a data packet
 signal m_op_no_reply         : std_logic;                                     -- asserted high when a m_op is done but no packet to be generated
 
 signal rst_checksum          : std_logic;                                     -- signal asserted to reset packet checksum
@@ -440,20 +443,20 @@ frame_status(1)              <= cmd_stop_i;
 frame_status(0)              <= last_frame_i;
 
 
--- a reply packet should be generated if m_op_done_reply is asserted.
+-- a reply packet should be generated if m_op_rdy_reply is asserted.
 
-m_op_done_reply  <= m_op_done_i when (m_op_cmd_code_i = WRITE_BLOCK or 
+m_op_rdy_reply  <= m_op_rdy_i when (m_op_cmd_code_i = WRITE_BLOCK or 
                                       m_op_cmd_code_i = READ_BLOCK  or 
                                       m_op_cmd_code_i = STOP)       
                                       else '0';
 
 -- no reply should be generated if m_op_no_reply is asserted
-m_op_no_reply    <= m_op_done_i when (m_op_cmd_code_i = RESET or 
+m_op_no_reply    <= m_op_rdy_i when (m_op_cmd_code_i = RESET or 
                                       m_op_cmd_code_i = START)       
                                       else '0';
 
--- a data packet should be generated if m_op_done_data is asserted
-m_op_done_data   <= m_op_done_i when m_op_cmd_code_i = DATA else '0';
+-- a data packet should be generated if m_op_rdy_data is asserted
+m_op_rdy_data   <= m_op_rdy_i when m_op_cmd_code_i = DATA else '0';
 
 -- map write_fifo signal to output tx_fw_o
 tx_fw_o                     <= write_fifo;                                 
@@ -674,8 +677,8 @@ txd_o              <= fibre_byte;
 
    -------------------------------------------------------------------------
    fibre_fsm_nextstate : process ( 
-      fibre_current_state, cmd_rcvd_ok_i, cmd_rcvd_er_i, m_op_done_reply,
-      m_op_no_reply, m_op_done_data, cmd_code_i, m_op_error_code_i, tx_ff_i, 
+      fibre_current_state, cmd_rcvd_ok_i, cmd_rcvd_er_i, m_op_rdy_reply,
+      m_op_no_reply, m_op_rdy_data, cmd_code_i, m_op_error_code_i, tx_ff_i, 
       num_fibre_words_i, fibre_word_count, m_op_cmd_code_i, stop_err_rdy,
       fibre_word_rdy_i
    )
@@ -700,13 +703,13 @@ txd_o              <= fibre_byte;
             
          elsif (stop_err_rdy = '1') then                 -- if we missed a stop command with checksum error during data readout
             fibre_next_state <= ST_ER_REPLY;     
-         elsif (m_op_done_reply = '1' and m_op_error_code_i = COMMAND_SUCCESS) then 
+         elsif (m_op_rdy_reply = '1' and m_op_error_code_i = COMMAND_SUCCESS) then 
             fibre_next_state <= REPLY_OK;
-         elsif (m_op_done_reply = '1' and m_op_error_code_i /= COMMAND_SUCCESS) then 
+         elsif (m_op_rdy_reply = '1' and m_op_error_code_i /= COMMAND_SUCCESS) then 
             fibre_next_state <= REPLY_ER; 
          elsif (m_op_no_reply = '1') then 
             fibre_next_state <= NO_REPLY;
-         elsif (m_op_done_data = '1') then
+         elsif (m_op_rdy_data = '1') then
             fibre_next_state <= DATA_FRAME;
          else
             fibre_next_state <= FIBRE_IDLE;   
@@ -718,7 +721,7 @@ txd_o              <= fibre_byte;
             fibre_next_state <= LD_HEAD1_0;
           
       when NO_REPLY =>                                 -- generate an acknowledgement to a m_op done that doesn't require a packet to be generated
-         if (m_op_no_reply = '1') then               -- wait in this state until m_op_done deasserted... 
+         if (m_op_no_reply = '1') then               -- wait in this state until m_op_rdy deasserted... 
             fibre_next_state <= NO_REPLY;
          else
             fibre_next_state <= FIBRE_IDLE;           -- once deasserted return to IDLE
@@ -897,7 +900,7 @@ txd_o              <= fibre_byte;
   
        when TX_HEAD4_3 =>
        
-      --    if  m_op_done_data = '1' then 
+      --    if  m_op_rdy_data = '1' then 
       --       fibre_next_state <= WAIT_Q_WORD;      -- data packet - go get data words from reply queue....
       --    else                                     
              fibre_next_state <= LD_WORD1_0;       --  packet word 1...
@@ -991,10 +994,10 @@ txd_o              <= fibre_byte;
 
        when TX_WORD2_3 =>
        
-          if  (m_op_done_data = '1') then           -- if data frame
+          if  (m_op_rdy_data = '1') then           -- if data frame
              fibre_next_state <= WAIT_Q_WORD;        -- request data words
           
-          elsif (m_op_done_reply = '1' and m_op_cmd_code_i = READ_BLOCK and m_op_error_code_i = COMMAND_SUCCESS) then    -- if successful read_block reply then 
+          elsif (m_op_rdy_reply = '1' and m_op_cmd_code_i = READ_BLOCK and m_op_error_code_i = COMMAND_SUCCESS) then    -- if successful read_block reply then 
              fibre_next_state <= WAIT_Q_WORD;                                    -- need to request data block words
           
           else
@@ -1172,7 +1175,7 @@ txd_o              <= fibre_byte;
    -------------------------------------------------------------------------
    reply_fsm_output : process (
       fibre_current_state, checksum, m_op_error_code_i, data_packet_size,
-      m_op_done_reply, m_op_done_data, m_op_cmd_code_i,  rb_packet_size, 
+      m_op_rdy_reply, m_op_rdy_data, m_op_cmd_code_i,  rb_packet_size, 
       packet_header3_0, packet_header3_1, packet_header3_2, packet_header3_3,
       packet_header4_0, packet_header4_1, packet_header4_2, packet_header4_3,
       packet_word1_0,    packet_word1_1,    packet_word1_2,    packet_word1_3,
@@ -1772,11 +1775,11 @@ txd_o              <= fibre_byte;
            write_fifo                  <= '1';
            
            
-           if m_op_done_reply = '1' or             -- if this was a reply/data packet 
-              m_op_done_data  = '1' then           -- instigated by reply_queue then
+           if m_op_rdy_reply = '1' or             -- if this was a reply/data packet 
+              m_op_rdy_data  = '1' then           -- instigated by reply_queue then
            
               m_op_ack_o               <= '1' ;    -- acknowledge that packet has finished - i.e. started txing checksum
-                                                   -- Q should now de-assert m_op_done
+                                                   -- Q should now de-assert m_op_rdy
             else        
               m_op_ack_o               <= '0';
            end if;         
