@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.6  2004/09/27 23:02:03  erniel
+-- using updated constants from command_pack
+--
 -- Revision 1.5  2004/09/11 00:58:08  erniel
 -- added watchdog timer functionality
 --
@@ -153,8 +156,8 @@ begin
              timer_reset_i => timer_rst,
              timer_count_o => timer);
    
-   timer_rst <= '1' when timer = 180000 or pres_state = WB_CYCLE or pres_state = DONE else '0';   -- 180,000 us = 180 ms
-   wdt_rst_o <= '1' when timer = 180000 else '0';
+   timer_rst <= '1' when timer = WATCHDOG_LIMIT or pres_state = WB_CYCLE or pres_state = DONE else '0';   
+   wdt_rst_o <= '1' when timer = 0 else '0';
          
    
    ---------------------------------------------------------
