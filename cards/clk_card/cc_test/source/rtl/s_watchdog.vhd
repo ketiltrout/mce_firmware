@@ -21,6 +21,8 @@
 -- 
 -- Revision History:
 -- Feb 29, 2004: Initial version - NRG
+-- $Log$
+--
 ---------------------------------------------------------------------
 
 library ieee;
@@ -58,109 +60,115 @@ end;
 
 architecture behaviour of s_watchdog is
 
-   -- state definitions
-   type wdt_states is (WDT_READ, WDT_READ_WAIT, WDT_WRITE, WDT_WRITE_WAIT, WDT_IDLE);
-   signal wdt_state : wdt_states;
-
-   -- WDT wishbone signals
-   signal dat_i   : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-   signal dat_o   : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-   signal addr_i  : std_logic_vector (WB_ADDR_WIDTH-1 downto 0) := WATCHDOG_ADDR;
-   signal we      : std_logic;
-   signal stb     : std_logic;
-   signal ack     : std_logic;
-   signal cyc     : std_logic;
-   signal tga_o   : std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-   signal rty_i   : std_logic;
+type states is (IDLE, WD_RESET, DONE);
+signal present_state : states;
+signal next_state    : states;
+   
+-- watchdog wishbone signals
+signal dat_i   : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+signal dat_o   : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+signal addr_o  : std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+signal we_o    : std_logic;
+signal stb_o   : std_logic;
+signal ack_i   : std_logic;
+signal cyc_o   : std_logic;
+signal tga_o   : std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+signal rty_i   : std_logic;
    
 begin
 
    wdt : watchdog
-      generic map(
-         SLAVE_SEL  => WATCHDOG_ADDR,
-         ADDR_WIDTH => WB_ADDR_WIDTH,
-         DATA_WIDTH => WB_DATA_WIDTH,
-         TAG_ADDR_WIDTH => WB_TAG_ADDR_WIDTH
-      )
-      port map(
-         you_kick_my_dog => wdt_o,
-         CLK_I => CLK_I,
-         RST_I => RST_I,
-         DAT_I => DAT_O,
-         DAT_O => DAT_I,
-         WE_I => WE,
-         STB_I => STB,
-         ACK_O => ACK,
-         CYC_I => CYC,
-      
-         ADDR_I => ADDR_I,         
-         tga_i => tga_o,
-         rty_o => rty_i         
-      );      
-      
-   -- we don't need cyc_i
-   cyc <= '1';
-   rty_i <= '0';
+      generic map(ADDR_WIDTH     => WB_ADDR_WIDTH,
+                  DATA_WIDTH     => WB_DATA_WIDTH,
+                  TAG_ADDR_WIDTH => WB_TAG_ADDR_WIDTH)
+      port map(clk_i  => clk_i,
+               rst_i  => rst_i,
+               dat_i  => dat_o,
+               addr_i => addr_o,
+               tga_i  => tga_o,
+               we_i   => we_o,
+               stb_i  => stb_o,
+               cyc_i  => cyc_o,
+               dat_o  => dat_i,
+               rty_o  => rty_i, 
+               ack_o  => ack_i,
+          
+               you_kick_my_dog => wdt_o);      
+               
    
-   -- we don't use the transmitter
+   -- unused transmitter signals:
    tx_data_o <= (others => '0');
-   tx_we_o <= '0';
-   tx_stb_o <= '0';
+   tx_we_o   <= '0';
+   tx_stb_o  <= '0';
    
-   -- wdt_test is our test state machine
-   wdt_test : process (rst_i, en_i, clk_i)
+   -- unused wishbone signals:
+   dat_o <= (others => '0');
+   tga_o <= (others => '0');
+   we_o <= '0';
+   
+   
+   state_FF: process(clk_i, rst_i)
    begin
-      if ((rst_i = '1') or (en_i = '0')) then
-         -- asynchronous reset
-         wdt_state <= WDT_READ;
-         done_o <= '0';
-         stb <= '0';
-         we <= '0';
-         dat_o <= WATCHDOG_KICK;
-      elsif Rising_Edge(clk_i) then
-         -- process our state machine, en_i is '1'
-         case wdt_state is
-            when WDT_READ =>
-               -- read the current wdt state
-               stb <= '1';
-               we <= '0';
-               wdt_state <= WDT_READ_WAIT;
-            
-            when WDT_READ_WAIT =>
-               -- wait for an ack, 
-               if (ack = '1') then
-                  stb <= '0';
-                  we <= '0';
-                  
-                  dat_o <= WATCHDOG_KICK;
-                  
-                  wdt_state <= WDT_WRITE;
-               end if;
-            
-            when WDT_WRITE =>
-               -- write the new data
-               stb <= '1';
-               we <= '1';
-               wdt_state <= WDT_WRITE_WAIT;
-               
-            when WDT_WRITE_WAIT =>
-               -- wait for an ack
-               if (ack = '1') then
-                  stb <= '0';
-                  we <= '0';
-                  wdt_state <= WDT_IDLE;
-               end if;
-            
-            when WDT_IDLE =>
-               -- all done
-               done_o <= '1';
-               
-            when others =>
-               wdt_state <= WDT_IDLE;
-               
-         end case;
+      if(rst_i = '1') then
+         present_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         present_state <= next_state;
       end if;
-   end process wdt_test;
-
+   end process state_FF;
+   
+   NS_logic: process(present_state, en_i, ack_i)
+   begin
+      case present_state is
+         when IDLE =>     
+            if(en_i = '1') then
+               next_state <= WD_RESET;
+            else
+               next_state <= IDLE;
+            end if;
+                          
+         when WD_RESET => 
+            if(ack_i = '1') then
+               next_state <= DONE;
+            else
+               next_state <= WD_RESET;
+            end if;
+                          
+         when DONE =>     
+            next_state <= IDLE;
+            
+         when others =>   
+            next_state <= IDLE;
+            
+      end case;
+   end process NS_logic;
+   
+   out_logic: process(present_state)
+   begin
+      case present_state is
+         when IDLE =>     
+            addr_o <= (others => '0');
+            stb_o  <= '0';
+            cyc_o  <= '0';
+            done_o <= '0';
+            
+         when WD_RESET => 
+            addr_o <= WATCHDOG_ADDR;
+            stb_o  <= '1';
+            cyc_o  <= '1';
+            done_o <= '0';
+            
+         when DONE =>     
+            addr_o <= (others => '0');
+            stb_o  <= '0';
+            cyc_o  <= '0';
+            done_o <= '1';
+            
+         when others =>   
+            addr_o <= (others => '0');
+            stb_o  <= '0';
+            cyc_o  <= '0';
+            done_o <= '0';
+      end case;
+   end process out_logic;
 
 end;
