@@ -27,6 +27,7 @@ FILES
 	VHDL_FILE = ..\..\..\library\components\source\rtl\write_spi.vhd;
 	VHDL_FILE = ..\..\..\library\components\source\rtl\write_spi_with_cs.vhd;
 	VHDL_FILE = ..\source\ac_dac_xtalk.vhd;
+	VHDL_FILE = ..\source\ac_io_toggle.vhd;
 }
 COMPILER_SETTINGS_LIST
 {
