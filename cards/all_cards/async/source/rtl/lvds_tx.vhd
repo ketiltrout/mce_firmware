@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.14  2005/01/20 22:19:09  erniel
+-- minor fix: port map error in fifo block
+--
 -- Revision 1.13  2005/01/11 02:39:03  erniel
 -- removed async_tx instantiation
 -- removed comm_clk and mem_clk
@@ -175,21 +178,23 @@ begin
    stateNS: process(pres_state, buf_empty, bit_count)
    begin
       case pres_state is
-         when IDLE =>  if(buf_empty = '0') then
-                          next_state <= SETUP;
-                       else
-                          next_state <= IDLE;
-                       end if;
+         when IDLE =>   if(buf_empty = '0') then
+                           next_state <= SETUP;
+                        else
+                           next_state <= IDLE;
+                        end if;
          
-         when SETUP => next_state <= SEND;
+         when SETUP =>  next_state <= SEND;
          
-         when SEND =>  if(bit_count = 67) then
-                          next_state <= DONE;
-                       else
-                          next_state <= SEND;
-                       end if;
+         when SEND =>   if(bit_count = 67) then
+                           next_state <= DONE;
+                        else
+                           next_state <= SEND;
+                        end if;
          
-         when DONE =>  next_state <= IDLE;
+         when DONE =>   next_state <= IDLE;
+         
+         when others => next_state <= IDLE;
       end case;
    end process stateNS;
                          
@@ -203,24 +208,26 @@ begin
       lvds_o        <= '1';
             
       case pres_state is
-         when IDLE =>  bit_count_ena <= '1';
-                       bit_count_clr <= '1';
+         when IDLE =>   bit_count_ena <= '1';
+                        bit_count_clr <= '1';
                        
-         when SETUP => tx_ena        <= '1';
-                       tx_ld         <= '1';
+         when SETUP =>  tx_ena        <= '1';
+                        tx_ld         <= '1';
          
-         when SEND =>  bit_count_ena <= '1';
-                       if(bit_count = 1  or bit_count = 3  or bit_count = 5  or bit_count = 7  or bit_count = 9  or
-                          bit_count = 11 or bit_count = 13 or bit_count = 15 or bit_count = 17 or bit_count = 19 or
-                          bit_count = 21 or bit_count = 23 or bit_count = 25 or bit_count = 27 or bit_count = 29 or
-                          bit_count = 31 or bit_count = 33 or bit_count = 35 or bit_count = 37 or bit_count = 39 or
-                          bit_count = 41 or bit_count = 43 or bit_count = 45 or bit_count = 47 or bit_count = 49 or
-                          bit_count = 51 or bit_count = 53 or bit_count = 55 or bit_count = 57 or bit_count = 59 or
-                          bit_count = 61 or bit_count = 63 or bit_count = 65 or bit_count = 67) then tx_ena <= '1';
-                       end if;
-                       lvds_o <= tx_bit;                      
+         when SEND =>   bit_count_ena <= '1';
+                        if(bit_count = 1  or bit_count = 3  or bit_count = 5  or bit_count = 7  or bit_count = 9  or
+                           bit_count = 11 or bit_count = 13 or bit_count = 15 or bit_count = 17 or bit_count = 19 or
+                           bit_count = 21 or bit_count = 23 or bit_count = 25 or bit_count = 27 or bit_count = 29 or
+                           bit_count = 31 or bit_count = 33 or bit_count = 35 or bit_count = 37 or bit_count = 39 or
+                           bit_count = 41 or bit_count = 43 or bit_count = 45 or bit_count = 47 or bit_count = 49 or
+                           bit_count = 51 or bit_count = 53 or bit_count = 55 or bit_count = 57 or bit_count = 59 or
+                           bit_count = 61 or bit_count = 63 or bit_count = 65 or bit_count = 67) then tx_ena <= '1';
+                        end if;
+                        lvds_o <= tx_bit;                      
          
-         when DONE =>  buf_read      <= '1';
+         when DONE =>   buf_read      <= '1';
+         
+         when others => null;
       end case;
    end process stateOut;
    

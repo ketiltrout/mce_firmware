@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.8  2005/01/12 22:40:30  erniel
+-- removed clk_i from ports
+-- modified rdy_o / ack_i logic
+--
 -- Revision 1.7  2005/01/11 02:35:44  erniel
 -- removed async_rx instantiation
 -- modified receiver datapath (based on async_rx datapath)
@@ -171,19 +175,21 @@ begin
    stateNS: process(pres_state, lvds_i, sample_count)
    begin
       case pres_state is
-         when IDLE => if(lvds_i = '0') then
-                         next_state <= RECV;
-                      else
-                         next_state <= IDLE;
-                      end if;
+         when IDLE =>   if(lvds_i = '0') then
+                           next_state <= RECV;
+                        else
+                           next_state <= IDLE;
+                        end if;
                       
-         when RECV => if(sample_count = 271) then
-                         next_state <= READY;
-                      else
-                         next_state <= RECV;
-                      end if;
+         when RECV =>   if(sample_count = 271) then
+                           next_state <= READY;
+                        else
+                           next_state <= RECV;
+                        end if;
                       
-         when READY => next_state <= IDLE;
+         when READY =>  next_state <= IDLE;
+         
+         when others => next_state <= IDLE;
       end case;
    end process stateNS;
    
@@ -199,28 +205,30 @@ begin
       rdy              <= '0';
       
       case pres_state is
-         when IDLE =>  sample_count_ena <= '1';
-                       sample_count_clr <= '1';
-                       sample_buf_ena   <= '1';
-                       sample_buf_clr   <= '1';
-                       rx_buf_ena       <= '1';
-                       rx_buf_clr       <= '1';
+         when IDLE =>   sample_count_ena <= '1';
+                        sample_count_clr <= '1';
+                        sample_buf_ena   <= '1';
+                        sample_buf_clr   <= '1';
+                        rx_buf_ena       <= '1';
+                        rx_buf_clr       <= '1';
                        
-         when RECV =>  sample_count_ena <= '1';
-                       sample_buf_ena   <= '1';
-                       if(sample_count = 5   or sample_count = 13  or sample_count = 21  or sample_count = 29  or sample_count = 37  or
-                          sample_count = 45  or sample_count = 53  or sample_count = 61  or sample_count = 69  or sample_count = 77  or
-                          sample_count = 85  or sample_count = 93  or sample_count = 101 or sample_count = 109 or sample_count = 117 or
-                          sample_count = 125 or sample_count = 133 or sample_count = 141 or sample_count = 149 or sample_count = 157 or
-                          sample_count = 165 or sample_count = 173 or sample_count = 181 or sample_count = 189 or sample_count = 197 or
-                          sample_count = 205 or sample_count = 213 or sample_count = 221 or sample_count = 229 or sample_count = 237 or
-                          sample_count = 245 or sample_count = 253 or sample_count = 261 or sample_count = 269) then rx_buf_ena <= '1';
-                       end if;
-                       if(sample_count = 271) then 
-                          data_ld       <= '1';
-                       end if;
+         when RECV =>   sample_count_ena <= '1';
+                        sample_buf_ena   <= '1';
+                        if(sample_count = 5   or sample_count = 13  or sample_count = 21  or sample_count = 29  or sample_count = 37  or
+                           sample_count = 45  or sample_count = 53  or sample_count = 61  or sample_count = 69  or sample_count = 77  or
+                           sample_count = 85  or sample_count = 93  or sample_count = 101 or sample_count = 109 or sample_count = 117 or
+                           sample_count = 125 or sample_count = 133 or sample_count = 141 or sample_count = 149 or sample_count = 157 or
+                           sample_count = 165 or sample_count = 173 or sample_count = 181 or sample_count = 189 or sample_count = 197 or
+                           sample_count = 205 or sample_count = 213 or sample_count = 221 or sample_count = 229 or sample_count = 237 or
+                           sample_count = 245 or sample_count = 253 or sample_count = 261 or sample_count = 269) then rx_buf_ena <= '1';
+                        end if;
+                        if(sample_count = 271) then 
+                           data_ld       <= '1';
+                        end if;
                        
-         when READY => rdy              <= '1';
+         when READY =>  rdy              <= '1';
+         
+         when others => null;
       end case;
    end process stateOut;
 
