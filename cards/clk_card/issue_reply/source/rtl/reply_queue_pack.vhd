@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.13 2005/02/09 20:45:02 erniel Exp $
+-- $Id: reply_queue_pack.vhd,v 1.14 2005/02/20 00:38:39 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.14  2005/02/20 00:38:39  erniel
+-- changed timeout limit to 500 us
+--
 -- Revision 1.13  2005/02/09 20:45:02  erniel
 -- added condensed header format declarations
 -- added misc. reply_queue constants
@@ -128,7 +131,8 @@ component reply_queue
       -- cmd_queue interface
       cmd_to_retire_i   : in std_logic;                                           
       cmd_sent_o        : out std_logic;                                          
-      cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
+      cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);   
+      cmd_timeout_o     : out std_logic;         
       
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
