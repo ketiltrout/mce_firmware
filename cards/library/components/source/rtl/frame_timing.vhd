@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.1 2004/04/02 01:13:13 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.2 2004/04/03 01:05:37 bburger Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/02 01:13:13 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/04/03 01:05:37 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.2  2004/04/03 01:05:37  bburger
+-- Added a rst_on_next_sync_pulse register so that the master block doesn't have to assert that signal during the receipt of a sync, but anytime before
+--
 -- Revision 1.1  2004/04/02 01:13:13  bburger
 -- New
 --
@@ -60,18 +63,10 @@ end frame_timing;
 
 architecture beh of frame_timing is
 
-  signal clk : std_logic;
-  signal sync : std_logic;
-  signal rst_on_next_sync : std_logic;
   signal rst_on_next_sync_reg : std_logic;
-  signal cycle_count : std_logic_vector(31 downto 0);
   signal cycle_error : std_logic_vector(31 downto 0);
   
   signal counter_rst : std_logic;
-  signal counter_ena : std_logic;
-  signal counter_load : std_logic;
-  signal counter_down : std_logic;
-  signal counter_i : integer;
   signal counter_o : std_logic_vector(31 downto 0);
   signal counter_o_int : integer;
   signal reg_rst : std_logic;
@@ -81,48 +76,38 @@ begin
    cntr : counter 
       generic map(MAX => END_OF_FRAME)
       port map(
-         clk_i => clk,
+         clk_i => clk_i,
          rst_i => counter_rst,   
-         ena_i => counter_ena,   
-         load_i => counter_load,  
-         down_i => counter_down,  
-         count_i => counter_i, 
+         ena_i => '1',
+         load_i => '0',
+         down_i => '0',
+         count_i => 0,
          count_o => counter_o_int
       );
       
    rgstr : reg
       generic map(WIDTH => 32)
       port map(
-         clk_i => clk,
+         clk_i => clk_i,
          rst_i => reg_rst,
-         ena_i => sync,
+         ena_i => sync_i,
          reg_i  => counter_o,
          reg_o => cycle_error
       );
    
    counter_o <= conv_std_logic_vector(counter_o_int, 32);
-     
-   -- Initialize port-mapped control signals  
-   counter_ena <= '1';
-   counter_load <= '0';
-   counter_down <= '0';
-   counter_i <= 0;   
-   reg_rst <= '0';
-      
-   -- Inputs/Outputs   
-   clk <= clk_i;
-   sync <= sync_i;
-   rst_on_next_sync <= rst_on_next_sync_i;
+         
+   -- Inputs/Outputs 
    cycle_count_o <= counter_o;
    cycle_error_o <= cycle_error;   
 
-   rons : process
+   rons : process (rst_on_next_sync_i, sync_i)
    begin
-      if (rst_on_next_sync'event and rst_on_next_sync = '1') then
+      if (rst_on_next_sync_i 'event and rst_on_next_sync_i = '1') then
          rst_on_next_sync_reg <= '1';
       end if;
 
-      if (sync'event and sync = '1' and rst_on_next_sync_reg = '1') then
+      if (sync_i'event and sync_i = '1' and rst_on_next_sync_reg = '1') then
          counter_rst <= '1';
          rst_on_next_sync_reg <= '0';
       elsif (counter_o_int = END_OF_FRAME) then
@@ -133,7 +118,6 @@ begin
    end process;
 
    -- Counter Wrap-around
-   counter_rst <= '1' when (counter_o_int = END_OF_FRAME) 
-      else '0';
+   counter_rst <= '1' when (counter_o_int = END_OF_FRAME) else '0';
 
 end beh;
