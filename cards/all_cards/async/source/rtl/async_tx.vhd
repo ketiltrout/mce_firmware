@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_tx.vhd,v $
+-- Revision 1.7  2004/12/17 20:51:07  erniel
+-- revert to 200 MHz clock divider
+-- WARNING: temporary solution!  Work still in progress!
+--
 -- Revision 1.6  2004/12/14 23:05:01  erniel
 -- changed CLK_DIV_FACTOR default value to LVDS
 --
@@ -65,7 +69,6 @@ end async_tx ;
 
 architecture behaviour of async_tx is
 
-signal clk_div_count : integer range 0 to CLK_DIV_FACTOR-1;
 signal tx_clk        : std_logic;
 
 signal count     : integer range 0 to 10;
@@ -82,27 +85,23 @@ signal next_state : states;
 
 begin
 
-   clk_divide: counter
-   generic map(MAX => CLK_DIV_FACTOR-1)
-   port map(clk_i => comm_clk_i,
-            rst_i => rst_i,
-            ena_i => '1',
-            load_i => '0',
-            count_i => 0,
-            count_o => clk_div_count);
-
-   -- register clock divider output (to eliminate glitches from combinational compare)
-   process(comm_clk_i)
+   -- clock divider process
+   process(comm_clk_i, rst_i)
+   variable clk_div_count : integer range 0 to CLK_DIV_FACTOR-1;
    begin
-      if(comm_clk_i'event and comm_clk_i = '1') then
+      if(rst_i = '1') then
+         clk_div_count := 0;
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
          if(clk_div_count = CLK_DIV_FACTOR-1) then
             tx_clk <= '1';
+            clk_div_count := 0;
          else
             tx_clk <= '0';
+            clk_div_count := clk_div_count + 1;
          end if;
       end if;
    end process;
-
+   
    tx_counter : counter
    generic map(MAX         => 10,
                WRAP_AROUND => '0')
