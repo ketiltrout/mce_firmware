@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.6  2004/12/16 22:05:40  bburger
+-- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
+--
 -- Revision 1.5  2004/12/16 01:57:33  erniel
 -- modified transmit FSM to account for new "queued" LVDS_tx
 -- modified crc FSM to process words as quickly as possible
@@ -67,8 +70,6 @@ use work.dispatch_pack.all;
 
 entity dispatch_reply_transmit is
 port(clk_i      : in std_logic;
-     mem_clk_i  : in std_logic;
-     comm_clk_i : in std_logic;
      rst_i      : in std_logic;     
      
      lvds_tx_o : out std_logic;
@@ -162,8 +163,6 @@ begin
 
    reply_tx: lvds_tx
    port map(clk_i      => clk_i,
-            mem_clk_i  => mem_clk_i,
-            comm_clk_i => comm_clk_i,
             rst_i      => rst_i,
             dat_i      => lvds_tx_data,
             rdy_i      => lvds_tx_rdy,
