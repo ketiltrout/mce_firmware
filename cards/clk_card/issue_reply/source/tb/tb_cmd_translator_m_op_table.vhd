@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 
 -- 
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.2 2004/07/06 11:02:43 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.3 2004/07/09 10:17:50 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,13 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/06 11:02:43 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/09 10:17:50 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: tb_cmd_translator_m_op_table.vhd,v $
+-- Revision 1.3  2004/07/09 10:17:50  dca
+--
+-- Simultaneous store/retire no longer permitted, so removed from TB.
+--
 -- Revision 1.2  2004/07/06 11:02:43  dca
 -- "cmd_translator_m_op_table" component declaration removed.
 -- Now referenced from issue_reply_pack.
@@ -88,7 +92,7 @@ signal   table_empty          : std_logic;
 signal   retiring_busy        : std_logic;  
   
 -- tb clock signals
-signal   tb_clk       : std_logic := '0';  
+signal   tb_clk       : std_logic := '1';  
 constant clk_prd      : TIME := 40 ns;    -- 25Mhz clock
   
   
