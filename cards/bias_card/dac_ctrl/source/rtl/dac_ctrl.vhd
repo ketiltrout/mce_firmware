@@ -33,8 +33,11 @@
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/22 23:49:28 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/29 20:50:56 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.11  2004/04/29 20:50:56  mandana
+-- added dac_nclr signal
+--
 -- Revision 1.10  2004/04/22 23:49:28  mandana
 -- changed idac to count by instantiating a counter
 --
@@ -163,7 +166,7 @@ signal write_buf       : word32;
 signal read_buf        : word32;
 signal update_bias_count: word32;
 signal error_count     : word32;
-signal read_count      : word32;
+signal read_count      : integer;
 signal rst_nxt_sync    : std_logic;
 
 signal read_lsb_en     : std_logic;
@@ -401,7 +404,7 @@ dac_ncs_o <= dac_ncs;
             end if;   
                      
          when LVDS_PENDING  =>
-            if (read_count = update_bias_count) then		    
+            if (read_count = UPDATE_BIAS) then		    
                snd_lvds_next_state <= SND_LVDS;		            
             else
                snd_lvds_next_state <= LVDS_PENDING;
@@ -454,7 +457,7 @@ dac_ncs_o <= dac_ncs;
             end if;   
          
          when DAC32_PENDING =>
-            if read_count = update_bias_count then   -- ok ok we can store it once during init.
+            if read_count = UPDATE_BIAS then   -- ok ok we can store it once during init.
                snd_dac32_next_state <= SND_DAC32;
             else
                snd_dac32_next_state <= DAC32_PENDING;
