@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.4 2004/08/05 18:16:55 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.5 2004/08/05 20:52:53 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/05 18:16:55 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/05 20:52:53 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.5  2004/08/05 20:52:53  jjacob
+-- changed sync pulse period to 53us
+--
 -- Revision 1.4  2004/08/05 18:16:55  jjacob
 -- added cmd_queue instantiation
 --
@@ -129,6 +132,7 @@ architecture rtl of issue_reply is
       -- inputs from fibre_rx 
       signal card_id         :  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
       signal cmd_code        :  std_logic_vector (15 downto 0);                       -- the least significant 16-bits from the fibre packet
+      signal cksum_err       :  std_logic;
       signal cmd_data        :  std_logic_vector (DATA_BUS_WIDTH-1 downto 0);         -- the data 
       signal cmd_rdy         :  std_logic;                                            -- indicates the fibre_rx outputs are valid
       signal data_clk        :  std_logic;                                            -- used to clock the data out
@@ -138,11 +142,17 @@ architecture rtl of issue_reply is
       signal cmd_ack         :  std_logic;   -- acknowledge signal from cmd_translator to fibre_rx
  
       -- signals for the return path for quick responses, currently not implemented
-      signal reply_cmd_ack_o      :  std_logic; 
-      signal reply_card_addr_o    :  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
-      signal reply_parameter_id_o :  std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
-      signal reply_data_size_o    :  std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); 
-      signal reply_data_o         :  std_logic_vector (DATA_BUS_WIDTH-1 downto 0); 
+--      signal reply_cmd_ack_o      :  std_logic; 
+--      signal reply_card_addr_o    :  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
+--      signal reply_parameter_id_o :  std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
+--      signal reply_data_size_o    :  std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); 
+--      signal reply_data_o         :  std_logic_vector (DATA_BUS_WIDTH-1 downto 0); 
+      
+      signal reply_cmd_rcvd_er    :  std_logic;
+      signal reply_cmd_rcvd_ok  :  std_logic;
+      signal reply_cmd_code     :  std_logic_vector (15 downto 0);
+      signal reply_param_id     :  std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); 
+      signal reply_card_id      :  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
 
       signal sync_pulse           : std_logic;
       signal sync_number          : std_logic_vector (7 downto 0);
@@ -232,11 +242,11 @@ begin
       cmd_rdy_o       => cmd_rdy,                    -- checksum error flag
       data_clk_o      => data_clk,                   -- data clock
       
-      cksum_err_o     => cksum_err_o
+      cksum_err_o     => cksum_err
     );
 
 
-
+   cksum_err_o <= cksum_err;
 
 
 ------------------------------------------------------------------------
@@ -254,6 +264,7 @@ begin
                card_id_i            => card_id,
                cmd_code_i           => cmd_code,
                cmd_data_i           => cmd_data,
+               cksum_err_i          => cksum_err,
                cmd_rdy_i            => cmd_rdy,
                data_clk_i           => data_clk,
                num_data_i           => num_data,
@@ -278,11 +289,18 @@ begin
                ack_i                => mop_ack,
                
                -- outputs on return path for quick responses, currently not implemented
-               reply_cmd_ack_o      => reply_cmd_ack_o,    
-               reply_card_addr_o    => reply_card_addr_o,     
-               reply_parameter_id_o => reply_parameter_id_o,
-               reply_data_size_o    => reply_data_size_o,
-               reply_data_o         => reply_data_o,
+--               reply_cmd_ack_o      => reply_cmd_ack_o,    
+--               reply_card_addr_o    => reply_card_addr_o,     
+--               reply_parameter_id_o => reply_parameter_id_o,
+--               reply_data_size_o    => reply_data_size_o,
+--               reply_data_o         => reply_data_o,
+               
+               reply_cmd_rcvd_er_o  => reply_cmd_rcvd_er,
+               reply_cmd_rcvd_ok_o  => reply_cmd_rcvd_ok,
+               reply_cmd_code_o     => reply_cmd_code,
+               reply_param_id_o     => reply_param_id,
+               reply_card_id_o      => reply_card_id,
+
                
                
                sync_pulse_i         => sync_pulse,

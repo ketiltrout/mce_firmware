@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.19 2004/08/05 18:16:30 jjacob Exp $
+-- $Id: issue_reply_pack.vhd,v 1.20 2004/08/05 20:52:13 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.20  2004/08/05 20:52:13  jjacob
+-- added sync_number input to arbiter
+--
 -- Revision 1.19  2004/08/05 18:16:30  jjacob
 -- changed frame_sync_num_o to use the parameter
 -- SYNC_NUM_BUS_WIDTH
@@ -117,10 +120,10 @@ port(
 
       -- inputs from fibre_rx
 
-      card_id_i        : in    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
+      card_id_i         : in    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
       cmd_code_i        : in    std_logic_vector (15 downto 0);   -- the least significant 16-bits from the fibre packet
       cmd_data_i        : in    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);   -- the data
-      --cksum_err_i    : in    std_logic;
+      cksum_err_i       : in    std_logic;
       cmd_rdy_i         : in    std_logic;                        -- indicates the fibre_rx outputs are valid
       data_clk_i        : in    std_logic;                        -- used to clock the data out
       num_data_i        : in    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
@@ -154,11 +157,18 @@ port(
 
 
       -- outputs to reply_translator for commands that require quick acknowldgements
-      reply_cmd_ack_o       : out std_logic;                                          -- for commands that require an acknowledge before the command executes
-      reply_card_addr_o     : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      reply_data_size_o     : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)     -- data will be passed straight thru
+--      reply_cmd_ack_o       : out std_logic;                                          -- for commands that require an acknowledge before the command executes
+--      reply_card_addr_o     : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+--      reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+--      reply_data_size_o     : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+--      reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)     -- data will be passed straight thru
+      
+      reply_cmd_rcvd_er_o         : out std_logic;
+      reply_cmd_rcvd_ok_o         : out std_logic;
+      reply_cmd_code_o            : out std_logic_vector (15 downto 0);
+      reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
+      reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)    -- specifies which card the command is targetting
+
 
 
    );
