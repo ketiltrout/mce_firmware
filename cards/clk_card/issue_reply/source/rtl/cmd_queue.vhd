@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.26 2004/07/27 01:36:04 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.27 2004/07/27 22:42:02 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.27  2004/07/27 22:42:02  bench2
+-- Bryce: in progress
+--
 -- Revision 1.26  2004/07/27 01:36:04  bench2
 -- Bryce: in progress
 --
@@ -157,7 +160,9 @@ signal retired              : std_logic; --Out, to the u-op counter fsm
 signal uop_timed_out        : std_logic;
 
 -- Generate FSM:  translates M-ops into u-ops
-type gen_uop_states is (IDLE, INSERT, PS_CARD, CLOCK_CARD, ADDR_CARD, READOUT_CARD1, READOUT_CARD2, READOUT_CARD3, READOUT_CARD4, BIAS_CARD1, BIAS_CARD2, BIAS_CARD3, CLEANUP, RESET, DONE);
+type gen_uop_states is (IDLE, INSERT, 
+                        --PS_CARD, CLOCK_CARD, ADDR_CARD, READOUT_CARD1, READOUT_CARD2, READOUT_CARD3, READOUT_CARD4, BIAS_CARD1, BIAS_CARD2, BIAS_CARD3, 
+                        CLEANUP, RESET, DONE);
 signal present_gen_state    : gen_uop_states;
 signal next_gen_state       : gen_uop_states;
 --signal new_insert_state     : gen_uop_states;
@@ -640,181 +645,20 @@ begin
                if(queue_space < size_uops) then
                   next_gen_state <= IDLE;
                elsif(queue_space >= size_uops) then
-                  next_gen_state <= INSERT;
+                  next_gen_state <= CLEANUP;
                end if;
             end if;
          when INSERT =>
-            if(card_addr_i = BCS) then
-               next_gen_state <= BIAS_CARD1;
-            elsif(card_addr_i = RCS) then
-               next_gen_state <= READOUT_CARD1;
-            elsif(card_addr_i = ALL_FPGA_CARDS) then
-               next_gen_state <= ADDR_CARD;
-            elsif(card_addr_i = ALL_CARDS) then
-               next_gen_state <= PS_CARD;
-            elsif(card_addr_i = PSC) then
-               next_gen_state <= PS_CARD;
-            elsif(card_addr_i = CC) then
-               next_gen_state <= CLOCK_CARD;
-            elsif(card_addr_i = AC) then
-               next_gen_state <= ADDR_CARD;
-            elsif(card_addr_i = RC1) then
-               next_gen_state <= READOUT_CARD1;
-            elsif(card_addr_i = RC2) then
-               next_gen_state <= READOUT_CARD2;
-            elsif(card_addr_i = RC3) then
-               next_gen_state <= READOUT_CARD3;
-            elsif(card_addr_i = RC4) then
-               next_gen_state <= READOUT_CARD4;
-            elsif(card_addr_i = BC1) then
-               next_gen_state <= BIAS_CARD1;
-            elsif(card_addr_i = BC2) then
-               next_gen_state <= BIAS_CARD2;
-            elsif(card_addr_i = BC3) then
-               next_gen_state <= BIAS_CARD3;
-            else
+            if(insert_uop_ack = '1') then
                next_gen_state <= CLEANUP;  -- Catch all invalid card_id's with this statement
-            end if;
-         when PS_CARD =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS) then
-                  next_gen_state <= CLOCK_CARD;
-               elsif(card_addr_i = PSC) then
-                  next_gen_state <= CLEANUP;
-               end if;
             else
-               next_gen_state <= PS_CARD;
-            end if;
-         when CLOCK_CARD =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
-                  next_gen_state <= ADDR_CARD;
-               elsif(card_addr_i = CC) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= CLOCK_CARD;
-            end if;
-         when ADDR_CARD =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
-                  next_gen_state <= READOUT_CARD1;
-               elsif(card_addr_i = AC) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= ADDR_CARD;
-            end if;
-         when READOUT_CARD1 =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
-                  next_gen_state <= READOUT_CARD2;
-               elsif(card_addr_i = RC1) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= READOUT_CARD1;
-            end if;
-         when READOUT_CARD2 =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
-                  next_gen_state <= READOUT_CARD3;
-               elsif(card_addr_i = RC2) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= READOUT_CARD2;
-            end if;
-         when READOUT_CARD3 =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
-                  next_gen_state <= READOUT_CARD4;
-               elsif(card_addr_i = RC3) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= READOUT_CARD3;
-            end if;
-         when READOUT_CARD4 =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
-                  next_gen_state <= BIAS_CARD1;
-               elsif(card_addr_i = RC4 or card_addr_i = RCS) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= READOUT_CARD4;
-            end if;
-         when BIAS_CARD1 =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = BCS) then
-                  next_gen_state <= BIAS_CARD2;
-               elsif(card_addr_i = BC1) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= BIAS_CARD1;
-            end if;
-         when BIAS_CARD2 =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = BCS) then
-                  next_gen_state <= BIAS_CARD3;
-               elsif(card_addr_i = BC2) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= BIAS_CARD2;
-            end if;
-         when BIAS_CARD3 =>
-            if(insert_uop_ack = '1') then
-               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
-                  next_gen_state <= CLEANUP;
-               elsif(card_addr_i = BC3 or card_addr_i = BCS) then
-                  next_gen_state <= CLEANUP;
-               end if;
-            else
-               next_gen_state <= BIAS_CARD3;
+               next_gen_state <= INSERT;
             end if;
          when CLEANUP =>
-            -- Monitor all the exit points from this sequence of states.
-            if(par_id_i(7 downto 0) = RET_DAT_ADDR or par_id_i(7 downto 0) = STATUS_ADDR) then
-               -- CYC_OO_SYNC is the last u-op instruction in a RET_DAT or STATUS m-op.
-               -- RET_DAT and STATUS are the only m-op that generate u-ops with different command codes
-               if(num_uops_inserted /= num_uops) then
-                  if(card_addr_i = BCS) then
-                     next_gen_state <= BIAS_CARD1;
-                  elsif(card_addr_i = RCS) then
-                     next_gen_state <= READOUT_CARD1;
-                  elsif(card_addr_i = ALL_FPGA_CARDS) then
-                     next_gen_state <= ADDR_CARD;
-                  elsif(card_addr_i = ALL_CARDS) then
-                     next_gen_state <= PS_CARD;
-                  elsif(card_addr_i = PSC) then
-                     next_gen_state <= PS_CARD;
-                  elsif(card_addr_i = CC) then
-                     next_gen_state <= CLOCK_CARD;
-                  elsif(card_addr_i = AC) then
-                     next_gen_state <= ADDR_CARD;
-                  elsif(card_addr_i = RC1) then
-                     next_gen_state <= READOUT_CARD1;
-                  elsif(card_addr_i = RC2) then
-                     next_gen_state <= READOUT_CARD2;
-                  elsif(card_addr_i = RC3) then
-                     next_gen_state <= READOUT_CARD3;
-                  elsif(card_addr_i = RC4) then
-                     next_gen_state <= READOUT_CARD4;
-                  elsif(card_addr_i = BC1) then
-                     next_gen_state <= BIAS_CARD1;
-                  elsif(card_addr_i = BC2) then
-                     next_gen_state <= BIAS_CARD2;
-                  elsif(card_addr_i = BC3) then
-                     next_gen_state <= BIAS_CARD3;
-                  else
-                     next_gen_state <= IDLE;  -- Catch all invalid card_id's with this statement
-                  end if;
-               else
-                  next_gen_state <= DONE;
-               end if;
+            -- CYC_OO_SYNC is the last u-op instruction in a RET_DAT or STATUS m-op.
+            -- RET_DAT and STATUS are the only m-ops that generate u-ops with different command codes
+            if(num_uops_inserted /= num_uops) then
+               next_gen_state <= INSERT;
             else
                next_gen_state <= DONE;
             end if;
@@ -845,7 +689,7 @@ begin
          5 when STATUS_ADDR,
          1 when others; -- all other m-ops generate one u-op
 
-   num_uops      <= uops_generated * cards_addressed;
+   num_uops      <= uops_generated; --* cards_addressed;
    data_size_int <= conv_integer(data_size_i);
    size_uops     <= num_uops * (BB_PACKET_HEADER_SIZE + data_size_int);
 
@@ -862,82 +706,61 @@ begin
          when IDLE =>
             insert_uop_rdy    <= '0';
             new_card_addr     <= card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0);
+
+            new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= NULL_ADDR;
          when INSERT =>
             -- Add new u-ops to the queue
-            insert_uop_rdy    <= '0';
-            new_card_addr     <= card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0);
-            uop_counter       <= (others => '0');
-            if(par_id_i(7 downto 0) = RET_DAT_ADDR) then
-               new_par_id(7 downto 0) <= RET_DAT_ADDR;
-            elsif(par_id_i(7 downto 0) = STATUS_ADDR) then
-               new_par_id(7 downto 0) <= PSC_STATUS_ADDR;
-            else
-               new_par_id(7 downto 0) <= par_id_i(7 downto 0);
-            end if;
-         when PS_CARD | CLOCK_CARD | ADDR_CARD | READOUT_CARD1 | READOUT_CARD2 | READOUT_CARD3 | READOUT_CARD4 | BIAS_CARD1 | BIAS_CARD2 | BIAS_CARD3 =>
             insert_uop_rdy    <= '1';
-            num_uops_inserted <= num_uops_inserted + 1;
+            new_card_addr     <= card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0);
             uop_counter       <= uop_counter + 1;
-            if(present_gen_state = PS_CARD) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= PSC;
-            elsif(present_gen_state = CLOCK_CARD) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= CC;
-            elsif(present_gen_state = ADDR_CARD) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= AC;
-            elsif(present_gen_state = READOUT_CARD1) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= RC1;
-            elsif(present_gen_state = READOUT_CARD2) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= RC2;
-            elsif(present_gen_state = READOUT_CARD3) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= RC3;
-            elsif(present_gen_state = READOUT_CARD4) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= RC4;
-            elsif(present_gen_state = BIAS_CARD1) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= BC1;
-            elsif(present_gen_state = BIAS_CARD2) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= BC2;
-            elsif(present_gen_state = BIAS_CARD3) then
-               new_card_addr(CARD_ADDR_WIDTH-1 downto 0) <= BC3;
-            end if;
+            num_uops_inserted <= num_uops_inserted + 1;
          when CLEANUP =>
             insert_uop_rdy <= '0';
             new_card_addr  <= card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0);
-            if(par_id_i(7 downto 0) = RET_DAT_ADDR) then
-               if(new_par_id(7 downto 0) = RET_DAT_ADDR) then
-                  new_par_id(7 downto 0) <= PSC_STATUS_ADDR;
-               elsif(new_par_id(7 downto 0) = PSC_STATUS_ADDR) then
-                  new_par_id(7 downto 0) <= BIT_STATUS_ADDR;
-               elsif(new_par_id(7 downto 0) = BIT_STATUS_ADDR) then
-                  new_par_id(7 downto 0) <= FPGA_TEMP_ADDR;
-               elsif(new_par_id(7 downto 0) = FPGA_TEMP_ADDR) then
-                  new_par_id(7 downto 0) <= CARD_TEMP_ADDR;
-               elsif(new_par_id(7 downto 0) = CARD_TEMP_ADDR) then
-                  new_par_id(7 downto 0) <= CYC_OO_SYC_ADDR;
-               elsif(new_par_id(7 downto 0) = CYC_OO_SYC_ADDR) then
-                  new_par_id(7 downto 0) <= par_id_i(7 downto 0);
+
+            if(par_id_i(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = RET_DAT_ADDR) then
+               if(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = NULL_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= RET_DAT_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = RET_DAT_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= PSC_STATUS_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = PSC_STATUS_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= BIT_STATUS_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = BIT_STATUS_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= FPGA_TEMP_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = FPGA_TEMP_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= CARD_TEMP_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = CARD_TEMP_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= CYC_OO_SYC_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = CYC_OO_SYC_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= par_id_i(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
                end if;
-            elsif(par_id_i(7 downto 0) = STATUS_ADDR) then
-               if(new_par_id(7 downto 0) = PSC_STATUS_ADDR) then
-                  new_par_id(7 downto 0) <= BIT_STATUS_ADDR;
-               elsif(new_par_id(7 downto 0) = BIT_STATUS_ADDR) then
-                  new_par_id(7 downto 0) <= FPGA_TEMP_ADDR;
-               elsif(new_par_id(7 downto 0) = FPGA_TEMP_ADDR) then
-                  new_par_id(7 downto 0) <= CARD_TEMP_ADDR;
-               elsif(new_par_id(7 downto 0) = CARD_TEMP_ADDR) then
-                  new_par_id(7 downto 0) <= CYC_OO_SYC_ADDR;
-               elsif(new_par_id(7 downto 0) = CYC_OO_SYC_ADDR) then
-                  new_par_id(7 downto 0) <= par_id_i(7 downto 0);
+            elsif(par_id_i(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = STATUS_ADDR) then
+               if(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = PSC_STATUS_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= BIT_STATUS_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = BIT_STATUS_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= FPGA_TEMP_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = FPGA_TEMP_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= CARD_TEMP_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = CARD_TEMP_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= CYC_OO_SYC_ADDR;
+               elsif(new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = CYC_OO_SYC_ADDR) then
+                  new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= par_id_i(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
                end if;
             else
-               new_par_id(7 downto 0) <= par_id_i(7 downto 0);
+               new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= par_id_i(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
             end if;
          when DONE =>
             insert_uop_rdy    <= '0';
             new_card_addr     <= card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0);
+            -- uop_counter indicates the number of uops contained in the queue at any given time
+            -- thus, it should not be zero'ed unless the system is reset
             num_uops_inserted <= 0;
          when others => -- Normal insertion
             insert_uop_rdy    <= '0';
             new_card_addr     <= card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0);
+            -- uop_counter indicates the number of uops contained in the queue at any given time
+            -- thus, it should not be zero'ed unless the system is reset
+            num_uops_inserted <= 0;
       end case;
    end process;
 
@@ -951,8 +774,8 @@ begin
       end if;
    end process send_state_FF;
 
-   issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
-   timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
+--   issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
+--   timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
    -- There should be enough time in the sync period following the timeout_sync of a m-op to get rid of all it's u-ops and still have time to issue the u-ops that need to be issued during that period
    -- That is why we don't check for a range here - just for the sync period that is the timeout
    -- This second conditions checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
@@ -1055,6 +878,9 @@ begin
             crc_num_bits             <= 0;
             uop_data_count           <= (others => '0');
             uop_data_size            <= (others => '0');
+
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
+            cmd_tx_dat(31 downto  0) <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= RESET;
@@ -1068,9 +894,15 @@ begin
             crc_num_bits             <= 0;
             uop_data_count           <= (others => '0');
             uop_data_size            <= (others => '0');
+
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
+            cmd_tx_dat(31 downto  0) <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= LOAD;
+            
+            issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
+            timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
          
          when HEADER_A =>
             cmd_tx_start             <= '1';
@@ -1086,8 +918,11 @@ begin
             sh_reg_parallel_i        <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
 
             previous_send_state      <= HEADER_A;
-            send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
+--            send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
          
+            issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
+            timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
+
          when HEADER_B =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
@@ -1137,11 +972,13 @@ begin
             crc_start                <= '0';
             crc_num_bits             <= 0;
             uop_data_size            <= (others => '0');
+            
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat(31 downto  0) <= crc_reg;
             sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= CHECKSUM;
-            --send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
+            send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
          
          when PREGNANT_PAUSE =>
             cmd_tx_start             <= '1';
@@ -1149,6 +986,8 @@ begin
             bit_ctr_ena              <= '1';
             crc_start                <= '0';
             --uop_data_size            <= '0';  Not to be zero'ed here.  This is an intermediate state between the HEADER, DATA and CHECKSUM states
+
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             sh_reg_parallel_i        <= (others => '0');
 
             --previous_send_state      <= PREGNANT_PAUSE;  Not to be changed here.  This variable needs to be maintained as it is through the PREGNANT_PAUSE state so that it can branch correctly in the send_state_NS FSM.
@@ -1160,7 +999,11 @@ begin
             crc_start                <= '0';
             crc_num_bits             <= 0;
             uop_data_size            <= (others => '0');
+
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
+            cmd_tx_dat(31 downto  0) <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
+
             previous_send_state      <= NEXT_UOP;
             
             -- The send_ptr should be incremented to the next u-op if this one has expired
@@ -1172,8 +1015,13 @@ begin
             bit_ctr_ena              <= '0';
             crc_start                <= '0';
             crc_num_bits             <= 0;
+            uop_data_count           <= (others => '0');
             uop_data_size            <= (others => '0');
+
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
+            cmd_tx_dat(31 downto  0) <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
+
             previous_send_state      <= LOAD;
       end case;
    end process;
@@ -1292,3 +1140,8 @@ end behav;
 -- The bad thing about this is that if the counter wraps after exceeding the time limit, then there could be problems.
 
 -- Check out the ***'ed lines
+
+-- Find some way to initialize the RAM to 0xFFFFFFFF
+
+-- Check out clk_error, and figure out why it is so out of whack.  
+-- It might be something to do with having a faulty period for the sync pulse in the TB.
