@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.2 2004/08/23 14:23:21 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.3 2004/08/24 13:20:06 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/23 14:23:21 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/24 13:20:06 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.3  2004/08/24 13:20:06  dca
+-- general progress of test bed...
+--
 -- Revision 1.2  2004/08/23 14:23:21  dca
 -- Code to test first pass at reply FSM.
 -- (Data FSM not done yet)
@@ -159,7 +162,7 @@ signal   tx_fw          : std_logic;
 signal   txd            : byte;
 
 signal   fibre_byte     : byte                                                  := (others => '0');
-
+signal   frame_data     : integer                                               := 0 ;
 
 begin
 
@@ -614,15 +617,15 @@ begin
               
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
-      assert false report "reply 7: preamble txmitted" severity NOTE;
+      assert false report "test 7: preamble txmitted" severity NOTE;
       
       wait until txd = ASCII_P;
       wait until txd = ASCII_R;
-      assert false report "reply 7: word 'RP' txmitted" severity NOTE;
+      assert false report "test 7: word 'RP' txmitted" severity NOTE;
       
       wait until txd = ASCII_R;
       wait until txd = ASCII_E;
-      assert false report "reply 7: success word 'ER' txmitted" severity NOTE;
+      assert false report "test 7: success word 'ER' txmitted" severity NOTE;
       
       
          fibre_byte <= X"FF";     -- error word
@@ -631,7 +634,7 @@ begin
          fibre_word (15 downto  8) <= fibre_byte;
          fibre_word (23 downto 16) <= fibre_byte;
          fibre_word (31 downto 24) <= fibre_byte;
-         assert false report "reply 7: next fibre word txmitted" severity NOTE;
+         assert false report "test 7: next fibre word txmitted" severity NOTE;
         
          
     
@@ -643,10 +646,65 @@ begin
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
       
-      assert false report "reply 7: RB reply finised (ER)..." severity NOTE;    
+      assert false report "test 7: RB reply finised (ER)..." severity NOTE;    
       
       wait for clk_prd;
 
+      ------------------------------
+      -- test 8: DATA FRAME:
+      --------------------------------
+     
+      
+      assert false report "TEST DATA FRAME" severity NOTE; 
+      do_cmd_success;
+      
+      wait for clk_prd*30;     -- wait for some time as command would prop throgh system
+      
+      -- reply queue now lets translator know that command has finished sucessfully...
+      
+      assert false report "reply_queue informs that there a frame of data to process...." severity NOTE;  
+      reply_nData             <= '0';
+      m_op_done               <= '1';       
+      m_op_ok_nEr             <= '0';   
+      num_fibre_words         <= X"00000064";
+      
+      
+              
+      wait until txd = FIBRE_PREAMBLE1;
+      wait until txd = FIBRE_PREAMBLE2;
+      assert false report "test 8: preamble txmitted" severity NOTE;
+      
+      wait until txd = ASCII_A;
+      wait until txd = ASCII_D;
+      assert false report "test 8: header word 'DA' txmitted" severity NOTE;
+      
+                   
+           
+      for i in 1 to (to_integer(unsigned(num_fibre_words))) loop 
+      
+         frame_data <= (i * 32) + 1; 
+         
+         
+         wait until fibre_word_req = '1';
+         fibre_word <= std_logic_vector(to_unsigned(frame_data,32));
+
+ 
+         assert false report "test 8: next fibre word txmitted" severity NOTE;
+         
+      end loop; 
+                 
+    
+      wait until m_op_ack      = '1'; 
+      wait for clk_prd;
+       
+      reply_nData             <= '0';
+      m_op_done               <= '0';       
+      m_op_ok_nEr             <= '0';   
+      num_fibre_words         <= X"00000000";
+      
+      assert false report "test 8: Frame readout finised....." severity NOTE;    
+      
+      wait for clk_prd;
 
       wait for clk_prd*20; 
       assert false report "end of simulation......" severity FAILURE;    
