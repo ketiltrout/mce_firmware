@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: cc_test.vhd,v $
+-- Revision 1.3  2004/06/09 22:13:38  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -106,7 +109,8 @@ entity cc_test is
       eeprom_si : in std_logic;
       eeprom_so : out std_logic;
       eeprom_sck : out std_logic;
-      eeprom_cs : out std_logic);
+      eeprom_cs : out std_logic;
+      test      : out std_logic_vector(38 downto 11));
       
       -- Fibre interface
       
@@ -122,22 +126,30 @@ architecture behaviour of cc_test is
    --    e2 = fibre receiver
    --    e3 = PLL observation
    
-   component pll
-   port(inclk0 : in std_logic;
-        c0 : out std_logic;
-        c1 : out std_logic;
-        e0 : out std_logic;
-        e1 : out std_logic;
-        e2 : out std_logic;
-        e3 : out std_logic);
-   end component;
+--   component pll
+--   port(inclk0 : in std_logic;
+--        c0 : out std_logic;
+ --       c1 : out std_logic;
+ --       e0 : out std_logic;
+  --      e1 : out std_logic;
+  --      e2 : out std_logic;
+   --     e3 : out std_logic);
+ --  end component;
+component pll IS
+	PORT
+	(
+		inclk0		: IN STD_LOGIC ;
+		c1              : OUT STD_LOGIC;
+		e0		: OUT STD_LOGIC 
+	);
+END component;
 
    -- clock signals
    signal clk : std_logic;         -- general system clock (50 MHz)
    signal clk2 : std_logic;   -- special clock to async xfer modules (200 MHz)
    
---   signal zero : std_logic;
---   signal one : std_logic;
+   signal zero : std_logic;
+   signal one : std_logic;
    
 --   signal clk : std_logic;   
    signal rst : std_logic;
@@ -297,11 +309,16 @@ architecture behaviour of cc_test is
    
    signal test_data : std_logic_vector(39 downto 0);
    
+   signal dummy0,dummy1 : std_logic;
+   signal pass0,pass1,pass   : std_logic;
+   signal fail0,fail1,fail   : std_logic;
+   
+   
 begin
---   clk_gen : pll
---      port map(inclk0 => inclk,
---               c0 => clk,
---               e0 => outclk);
+   clk_gen : pll
+      port map(inclk0 => inclk,
+               c1 => clk,
+               e0 => outclk);
 
    -- RS232 interface start
    receiver : async_rx
@@ -311,10 +328,10 @@ begin
                clk_i => rx_clock,
                rst_i => rst,
                dat_o => rx_data,
-               we_i => LOGIC_0,
+               we_i => zero,
                stb_i => rx_stb,
                ack_o => rx_ack,
-               cyc_i => LOGIC_1);
+               cyc_i => one);
 
    transmitter : async_tx
       port map(tx_o => rs232_tx,
@@ -325,7 +342,7 @@ begin
                we_i => tx_we,
                stb_i => tx_stb,
                ack_o => tx_ack,
-               cyc_i => LOGIC_1);
+               cyc_i => one);
    
    aclock : async_clk
       port map(clk_i => clk,
@@ -412,9 +429,52 @@ begin
                tx_data_o => debug_data,
                tx_we_o   => debug_we,
                tx_stb_o  => debug_stb); 
-      
---   zero <= '0';
---   one <= '1';                         
+   
+   sram1 : sram_test_wrapper 
+      port map(-- test control signals
+               rst_i    => rst,
+               clk_i    => clk,
+               en_i     => sel(INDEX_SRAM_1),
+               done_o   => done(INDEX_SRAM_1),
+                
+               -- RS232 signals
+                
+               -- physical pins
+               addr_o   => sram0_addr,
+               data_bi  => sram0_data,
+               n_ble_o  => sram0_nbhe,
+               n_bhe_o  => sram0_nble,
+               n_oe_o   => sram0_noe, 
+               n_ce1_o  => sram0_ncs, 
+               ce2_o    => dummy0, 
+               n_we_o   => sram0_nwe,
+               pass     => pass0,
+               fail     => fail0);
+
+   sram2 : sram_test_wrapper 
+      port map(-- test control signals
+               rst_i    => rst,
+               clk_i    => clk,
+               en_i     => sel(INDEX_SRAM_2),
+               done_o   => done(INDEX_SRAM_2),
+                
+               -- RS232 signals
+                
+               -- physical pins
+               addr_o   => sram1_addr,
+               data_bi  => sram1_data,
+               n_ble_o  => sram1_nbhe,
+               n_bhe_o  => sram1_nble,
+               n_oe_o   => sram1_noe, 
+               n_ce1_o  => sram1_ncs, 
+               ce2_o    => dummy1, 
+               n_we_o   => sram1_nwe,
+               pass     => pass1,
+               fail     => fail1);
+   fail <= fail1 or fail0;
+   pass <= pass1 or pass0;
+   zero <= '0';
+   one <= '1';                         
    rst <= not n_rst or cmd_rst;
    test_data <= "1011101011011010010101011011101010111110";  -- 0xBADA55BABE
    
@@ -468,7 +528,11 @@ begin
             when DECODE =>
                -- activate the appropiate test module
                cmd_state <= EXECUTE;
-               if(cmd1 = CMD_TX and cmd2 = CMD_TX_CMD) then
+               if(cmd1 = CMD_SRAM and cmd2 = CMD_SRAM_1) then
+                  sel <= SEL_SRAM_1;
+               elsif(cmd1 = CMD_SRAM and cmd2 = CMD_SRAM_2) then
+                  sel <= SEL_SRAM_2;
+               elsif(cmd1 = CMD_TX and cmd2 = CMD_TX_CMD) then
                   sel <= SEL_TX_CMD;
                elsif(cmd1 = CMD_TX and cmd2 = CMD_TX_SYNC) then
                   sel <= SEL_TX_SYNC;
@@ -508,10 +572,6 @@ begin
                elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_7 and cmd3 = CMD_RX_B) then
                   sel <= SEL_RX_7B;
                      
-               elsif(cmd1 = CMD_SRAM and cmd2 = CMD_SRAM_1) then
-                  sel <= SEL_SRAM_1;
-               elsif(cmd1 = CMD_SRAM and cmd2 = CMD_SRAM_2) then
-                  sel <= SEL_SRAM_2;
                   
                elsif(cmd1 = CMD_FIBRE and cmd2 = CMD_FIBRE_BIST) then
                   sel <= SEL_FIBRE_BIST;
@@ -555,4 +615,10 @@ begin
          end case;
       end if;
    end process cmd_proc;
+   test(26) <= pass0 or pass1;
+   test(28) <= fail0 or fail1;
+   test(30) <= sel(INDEX_SRAM_1) or sel(INDEX_SRAM_2);
+   test(32) <= sram0_data(1);
+--   test(34) <= dummy;
+
 end behaviour;
