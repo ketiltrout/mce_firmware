@@ -1,8 +1,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library work;
-use work.component_pack.all;
+library components;
+use components.component_pack.all;
 use work.async_pack.all;
 use work.ascii_pack.all;
 
