@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/07/16 00:16:37 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/16 18:56:32 $>	- <initials $Author: mandana $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.10  2004/07/16 18:56:32  mandana
+-- adding SRAM test, v02 now
+--
 -- Revision 1.9  2004/07/16 00:16:37  bench1
 -- Mandana: set the dac_test_mode for parallel dacs
 --
@@ -523,7 +526,9 @@ begin
                   
                elsif(cmd1 = CMD_DEBUG) then
                   sel <= SEL_DEBUG;
-                  
+               
+               elsif(cmd1 = CMD_SRAM) then
+                  sel <= SEL_SRAM;
                elsif(cmd1 = CMD_RESET) then
                   int_rst <= '1';
                   
@@ -569,7 +574,7 @@ begin
    end process cmd_proc;
 
    smb_clk <= pass;
-   mictor(4) <= done(INDEX_SDAC);
+   mictor(4) <= sel(INDEX_SRAM);
    mictor(6) <= dac_test_ncs(0);
    mictor(8) <= dac_test_sclk(0);
    mictor(10) <= dac_test_data(0);
