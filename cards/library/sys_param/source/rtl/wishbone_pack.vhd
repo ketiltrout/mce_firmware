@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/09/24 02:00:26 $> - <initials $Author: erniel $>
+-- <date $Date: 2004/10/12 22:45:23 $> - <initials $Author: erniel $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.15  2004/10/12 22:45:23  erniel
+-- added LED_ADDR
+--
 -- Revision 1.14  2004/09/24 02:00:26  erniel
 -- removed redundancy with command_pack
 --
@@ -127,6 +130,8 @@ package wishbone_pack is
    constant RAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1B";
    constant RAMP_AMP_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1C";
    constant FB_CONST_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1D";
+   
+   constant CAPTR_RAW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1F";
 
    constant GAINP0_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"70";
    constant GAINP1_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"71";
