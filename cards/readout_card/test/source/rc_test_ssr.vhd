@@ -31,14 +31,20 @@
 -- connect ADCs to parallel DACs and run a square wave on serial DACs
 --
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$   
+-- <date $Date: 2004/12/07 22:12:34 $>    - <initials $Author: bench2 $>
+-- $Log: rc_test_ssr.vhd,v $
+-- Revision 1.1  2004/12/07 22:12:34  bench2
+-- mandana: Subrack test, initial release
+--   
 
 -----------------------------------------------------------------------------
 
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library components;
+use components.component_pack.all;
 
 library work;
 use work.rc_test_pack.all;
@@ -113,6 +119,7 @@ entity rc_test is
                   
       --test pins
       smb_clk: out std_logic; 
+      smb_data: out std_logic;
       mictor : out std_logic_vector(31 downto 0));
 end rc_test;
 
@@ -145,26 +152,41 @@ architecture behaviour of rc_test is
    signal rx_clk : std_logic;
    signal dac_test_mode : std_logic_vector(1 downto 0);
    
-   signal en_toggle: std_logic;
+   signal en_toggle, en_toggle_slow, en_dac, en_sdac: std_logic;
+   signal clk_count: integer;
    signal nclk     : std_logic;
+   signal done    : std_logic;
    
 begin
    clk_gen : pll
       port map(inclk0 => inclk,
                c0 => clk,
                c1 => rx_clk,
-               c2 => en_toggle, -- 1MHz clock
+               c2 => en_dac, -- 1MHz clock
                e0 => outclk);
 
-               
+   en_toggle_div_10: counter
+   generic map(MAX => 16,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
+   port map(clk_i   => en_toggle,
+            rst_i   => '0',
+            ena_i   => '1',
+            load_i  => '0',
+            count_i => 0 ,
+            count_o => clk_count);
+   en_dac   <= '1' when clk_count = 14 else '0';
+   
+     
    rc_serial_dac : rc_serial_dac_test_wrapper
       port map(
                -- basic signals
                rst_i     => rst,
                clk_i     => clk,
-               en_i      => en_toggle, -- 1MHz on enable causes a square wave on DACs outputs
+               en_i      => en_dac, -- 1MHz on enable causes a square wave on DACs outputs
                mode      => dac_test_mode,
-               done_o    => open,
+               done_o    => done,
                
                -- transmitter signals removed!
                          
@@ -196,6 +218,38 @@ begin
    offset_dac_ncs <= test_dac_ncs;
    
    dac_test_mode  <= "00"; -- means rc_serial_dacs would be running the square wave
+
+--   process (en_toggle_slow)
+--   begin 
+--      if (en_toggle_slow = '1') then
+--        en_dac <= '1';
+--      end if;
+--   end process;   
+--      
+--   process (done)
+--   begin 
+--     if (done ='1') then
+--       en_dac <= '0';
+--     end if;
+--   end process;  
+
+   
+   
+--   process(clk)
+--   begin
+--      if(clk = '1') then
+--         if(en_toggle = '1') then
+--            en_dac <= '1';
+--         end if;   
+--      end if;
+--      if (clk = '0') then
+--         if(done = '0') then
+--            en_dac <= '0';
+--         end if;
+--      end if;
+      
+--   end process;
+
    
    rst <= not n_rst or int_rst;
       adc1_clk <= clk;
@@ -227,6 +281,6 @@ begin
       
       nclk <= not(clk);
       dac_FB_clk <= (others => nclk);
-      smb_clk <= en_toggle;
-      
+      smb_clk <= en_dac;
+      smb_data <= done;
 end behaviour;
