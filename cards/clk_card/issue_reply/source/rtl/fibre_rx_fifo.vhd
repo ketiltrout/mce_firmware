@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.1 2004/10/05 12:22:59 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.2 2004/10/06 21:50:52 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -36,9 +36,9 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/10/05 12:22:59 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/10/06 21:50:52 $>	-		<text>		- <initials $Author: erniel $>
 --
---
+-- $Log: fibre_rx_fifo.vhd,v $
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -54,36 +54,55 @@ use components.component_pack.all;
 --use sys_param.command_pack.all;
 
 entity fibre_rx_fifo is
-   generic( 
-      addr_size : Positive                                                   -- read/write address size
-   );                                                                        -- note that fifo size = 2**address size
+--   generic(addr_size : Positive);                                          -- use this if instantiating async fifo
    port( 
-      rst_i     : in     std_logic;                                          -- global reset
-      rx_fr_i   : in     std_logic;                                          -- fifo read request
-      rx_fw_i   : in     std_logic;                                          -- fifo write request
-      rx_data_i : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);   -- fifo data input
-      rx_fe_o   : out    std_logic;                                          -- fifo empty flag
-      rx_ff_o   : out    std_logic;                                          -- fifo full flagg
-      rxd_o     : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)    -- fifo data output
+      clk_i        : in     std_logic;                                          -- global clock
+      rst_i        : in     std_logic;                                          -- global reset
+           
+      fibre_clkr_i : in     std_logic;                                          -- CKR from hotlink receiver 
+      rx_fr_i      : in     std_logic;                                          -- fifo read request
+      rx_fw_i      : in     std_logic;                                          -- fifo write request
+      rx_data_i    : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);   -- fifo data input
+      rx_fe_o      : out    std_logic;                                          -- fifo empty flag
+      rx_ff_o      : out    std_logic;                                          -- fifo full flagg
+      rxd_o        : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)    -- fifo data output
    );
 
 end fibre_rx_fifo ;
 
 
-architecture behav of fibre_rx_fifo is
+architecture rtl of fibre_rx_fifo is
    
 begin
+ 
+   -- instantiate asynchronous FIFO
    -- Instance port mappings.
-   I0 : async_fifo
-      generic map(addr_size => addr_size)
-      port map(
-         rst_i    => rst_i,
-         read_i   => rx_fr_i,
-         write_i  => rx_fw_i,
-         d_i      => rx_data_i,
-         empty_o  => rx_fe_o,
-         full_o   => rx_ff_o,
-         q_o      => rxd_o
-      );
+--   AFIFO : async_fifo
+--      generic map(addr_size => addr_size)
+--     port map(
+--         rst_i    => rst_i,
+--         read_i   => rx_fr_i,
+--         write_i  => rx_fw_i,
+--         d_i      => rx_data_i,
+--         empty_o  => rx_fe_o,
+--         full_o   => rx_ff_o,
+--        q_o      => rxd_o
+--      );
   
-end behav;
+  
+   -- instantiate synchronous fifo
+    
+   SFIFO : sync_fifo_rx
+   port map(
+      data		=> rx_data_i,
+      wrreq		=> rx_fw_i,
+      rdreq		=> rx_fr_i,
+      rdclk		=> clk_i, 
+      wrclk		=> fibre_clkr_i,
+      aclr		=> rst_i,    
+      q		=> rxd_o, 
+      rdempty		=> rx_fe_o, 
+      wrfull		=> rx_ff_o
+      );  
+  
+end rtl;
