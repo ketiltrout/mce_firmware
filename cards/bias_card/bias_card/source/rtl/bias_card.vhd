@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.7 2005/01/17 23:03:11 mandana Exp $
+-- $Id: bias_card.vhd,v 1.8 2005/01/18 22:20:47 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.8  2005/01/18 22:20:47  bburger
+-- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
+--
 -- Revision 1.7  2005/01/17 23:03:11  mandana
 -- removed mem_clk_i from bc_dac_ctrl
 --
@@ -86,17 +89,17 @@ entity bias_card is
       lvds_txb   : out std_logic;
       
       -- TTL interface:
-      ttl_nrx1   : in std_logic_vector;
-      ttl_tx1    : out std_logic_vector;
-      ttl_txena1 : out std_logic_vector;
+      ttl_nrx1   : in std_logic;
+      ttl_tx1    : out std_logic;
+      ttl_txena1 : out std_logic;
       
-      ttl_nrx2   : in std_logic_vector;
-      ttl_tx2    : out std_logic_vector;
-      ttl_txena2 : out std_logic_vector;
+      ttl_nrx2   : in std_logic;
+      ttl_tx2    : out std_logic;
+      ttl_txena2 : out std_logic;
       
-      ttl_nrx3   : in std_logic_vector;
-      ttl_tx3    : out std_logic_vector;
-      ttl_txena3 : out std_logic_vector;
+      ttl_nrx3   : in std_logic;
+      ttl_tx3    : out std_logic;
+      ttl_txena3 : out std_logic;
 
       -- eeprom interface:
       eeprom_si  : in std_logic;
