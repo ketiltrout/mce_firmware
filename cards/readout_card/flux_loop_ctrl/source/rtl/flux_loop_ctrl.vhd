@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.6  2004/12/07 19:43:33  mohsen
+-- Anthony & Mohsen: Accomodate the sa_bias & offset DAC shared bus structure in the readout card hardware.
+--
 -- Revision 1.5  2004/11/26 18:26:21  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -296,7 +299,7 @@ begin  -- struct
         rst_i                   => rst_i,
         clk_25_i                => clk_25_i,
         clk_50_i                => clk_50_i,
-        restart_frame_aligned_i => restart_frame_aligned_i,
+        restart_frame_aligned_i => restart_frame_1row_prev_i,
         offset_dat_i            => offset_dat_i,
         offset_dac_spi_o        => offset_dac_spi_o
         );
