@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.10 2004/10/08 13:58:22 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.11 2004/10/21 16:07:07 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,13 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/10/08 13:58:22 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/21 16:07:07 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.11  2004/10/21 16:07:07  dca
+-- 'm_op_error_code_i' added to testbed.
+-- 'fibre_word_rdy_i' signal added to testbed.
+--
 -- Revision 1.10  2004/10/08 13:58:22  dca
 -- updated due to parameter name changes in command_pack
 --
@@ -120,8 +124,8 @@ port(
      m_op_done_i             : in  std_logic;                                               -- macro op done
      m_op_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
      m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);  -- command code vector - indicates if data or reply (and which command)
- --    m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
- --    m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
+     m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
+     m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    -- indicate number of packet words to be read from reply queue
      fibre_word_req_o        : out std_logic;                                               -- asserted to requeset next fibre word
@@ -159,23 +163,27 @@ signal   cmd_ack	       : std_logic;
 signal   m_op_done      : std_logic                                              := '0'; 
 signal   m_op_cmd_code  : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1  downto 0)   := (others => '0'); 
 signal   m_op_error_code: std_logic_vector (BB_STATUS_WIDTH-1         downto 0)  := (others => '0');
+signal   m_op_param_id  : std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0)   := (others => '0');  
+signal   m_op_card_id   : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0)   := (others => '0');  
+ 
+
 signal   fibre_word     : std_logic_vector (PACKET_WORD_WIDTH-1      downto 0)   := (others => '0');
 signal   fibre_word_req : std_logic;
 signal   fibre_word_rdy : std_logic   := '0';
 signal   num_fibre_words: std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0) := (others => '0');
 signal   m_op_ack       : std_logic;
      
-signal   tx_ff          : std_logic                                             := '0';
+signal   tx_ff          : std_logic                                              := '0';
 signal   tx_fw          : std_logic;
 signal   txd            : byte;
 
-signal   fibre_byte     : byte                                                  := (others => '0');
-signal   frame_data     : integer                                               := 0 ;
+signal   fibre_byte     : byte                                                   := (others => '0');
+signal   frame_data     : integer                                                := 0 ;
 
 
-signal cmd_stop         : std_logic;
-signal last_frame       : std_logic;
-signal frame_seq_num    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal   cmd_stop         : std_logic                                            := '0';
+signal   last_frame       : std_logic                                            := '0'; 
+signal   frame_seq_num    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0)       := (others => '0');
 
 
 
@@ -202,6 +210,8 @@ begin
       m_op_done_i        => m_op_done,     
       m_op_error_code_i  => m_op_error_code,   
       m_op_cmd_code_i    => m_op_cmd_code,
+      m_op_param_id_i    => m_op_param_id,
+      m_op_card_id_i     => m_op_card_id,
       fibre_word_i       => fibre_word, 
       num_fibre_words_i  => num_fibre_words,
       fibre_word_req_o   => fibre_word_req,   
@@ -310,8 +320,8 @@ begin
          
       cmd_code ( 7 downto 0)  <= ASCII_O;
       cmd_code (15 downto 8)  <= ASCII_G;
-      card_id                 <= X"1234" ;   
-      param_id                <= X"5678" ;
+      card_id                 <= X"0101" ;   
+      param_id                <= X"1010" ;
       
       wait for clk_prd;
       assert false report "TEST CHECKSUM ERROR" severity NOTE;
@@ -343,8 +353,8 @@ begin
       cmd_code ( 7 downto 0)  <= ASCII_O;
       cmd_code (15 downto 8)  <= ASCII_G;
               
-      card_id                 <= X"aabb" ;   
-      param_id                <= X"ccdd" ;
+      card_id                 <= X"0202" ;   
+      param_id                <= X"2020" ;
       
       assert false report "TEST GO COMMAND" severity NOTE;   
       do_cmd_success;
@@ -375,8 +385,8 @@ begin
       cmd_code ( 7 downto 0)  <= ASCII_S;
       cmd_code (15 downto 8)  <= ASCII_R;
               
-      card_id                 <= X"1122" ;   
-      param_id                <= X"3344" ;
+      card_id                 <= X"0303" ;   
+      param_id                <= X"3030" ;
          
       assert false report "TEST RESET COMMAND" severity NOTE;   
       do_cmd_success;
@@ -441,8 +451,11 @@ begin
       cmd_code ( 7 downto 0)  <= ASCII_B;
       cmd_code (15 downto 8)  <= ASCII_W;
               
-      card_id                 <= X"5566" ;   
-      param_id                <= X"7788" ;
+      -- wil et card id and parameter id from reply queue        
+      card_id                 <= X"0404" ; 
+      m_op_card_id            <= X"04";
+      param_id                <= X"4040" ;
+      m_op_param_id           <= X"40";
        
       assert false report "TEST WRITE BLOCK COMMAND(OK)" severity NOTE;       
       do_cmd_success;
@@ -496,8 +509,11 @@ begin
       cmd_code ( 7 downto 0)  <= ASCII_B;
       cmd_code (15 downto 8)  <= ASCII_W;
               
-      card_id                 <= X"aaaa" ;   
-      param_id                <= X"bbbb" ;
+
+      card_id                 <= X"0505" ; 
+      m_op_card_id            <= X"05";
+      param_id                <= X"5050" ;
+      m_op_param_id           <= X"50";
        
       assert false report "TEST WRITE BLOCK COMMAND (ER)" severity NOTE;       
       do_cmd_success;
@@ -550,8 +566,10 @@ begin
       cmd_code ( 7 downto 0)  <= ASCII_B;
       cmd_code (15 downto 8)  <= ASCII_R;
               
-      card_id                 <= X"1111" ;   
-      param_id                <= X"2222" ;
+      card_id                 <= X"0606" ; 
+      m_op_card_id            <= X"06";
+      param_id                <= X"6060" ;
+      m_op_param_id           <= X"60";
       
       assert false report "TEST READ BLOCK COMMAND (OK)" severity NOTE; 
       do_cmd_success;
@@ -618,8 +636,10 @@ begin
       cmd_code ( 7 downto 0)  <= ASCII_B;
       cmd_code (15 downto 8)  <= ASCII_R;
               
-      card_id                 <= X"1111" ;   
-      param_id                <= X"2222" ;
+      card_id                 <= X"0707" ; 
+      m_op_card_id            <= X"07";
+      param_id                <= X"7070" ;
+      m_op_param_id           <= X"70";
       
       assert false report "TEST READ BLOCK COMMAND (ER)" severity NOTE; 
       do_cmd_success;
@@ -668,20 +688,31 @@ begin
       -- test 8: DATA FRAME:
       --------------------------------
      
-      
-      assert false report "TEST DATA FRAME" severity NOTE; 
+      cmd_code ( 7 downto 0)  <= ASCII_O;
+      cmd_code (15 downto 8)  <= ASCII_G;
+              
+      card_id                 <= X"0808" ; 
+      m_op_card_id            <= X"08";
+      param_id                <= X"8080" ;
+      m_op_param_id           <= X"80";
+       
       do_cmd_success;
+      assert false report "test 8: GO COMMAND ARRIVES" severity NOTE;
       
-      wait for clk_prd*30;     -- wait for some time as command would prop throgh system
+      
+      wait for clk_prd*100;     -- wait for some time as command would prop throgh system
       
       -- reply queue now lets translator know that command has finished sucessfully...
       
-      assert false report "reply_queue informs that there a frame of data to process...." severity NOTE;  
+      assert false report "TEST 8: reply_queue informs that there a frame of data to process...." severity NOTE;  
       m_op_cmd_code           <= DATA;
       m_op_done               <= '1';       
       m_op_error_code         <= (others => '0' );
       num_fibre_words         <= conv_std_logic_vector(100,BB_DATA_SIZE_WIDTH); 
       
+      cmd_stop                <= '0'; 
+      last_frame              <= '1';   -- lets make it the last frame
+      frame_seq_num           <= (others => '1');
       
               
       wait until txd = FIBRE_PREAMBLE1;
@@ -714,8 +745,8 @@ begin
          if i = 3 then
             cmd_code ( 7 downto 0)  <= ASCII_T;
             cmd_code (15 downto 8)  <= ASCII_S;
-            card_id                 <= X"1234" ;   
-            param_id                <= X"5678" ;
+            card_id                 <= X"0808" ;   
+            param_id                <= X"8080" ;
            
             wait for clk_prd;
             assert false report "ST with CHECKSUM ERROR arrives mid readout..." severity NOTE;
@@ -733,6 +764,8 @@ begin
       m_op_done               <= '0';       
       m_op_error_code         <= (others => '0');
       num_fibre_words         <= (others => '0');
+      cmd_stop                <= '0'; 
+      last_frame              <= '0';   
       
       assert false report "test 8: Frame readout finised....." severity NOTE;    
       
