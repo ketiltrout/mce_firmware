@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.7  2005/01/11 20:52:44  erniel
+-- updated lvds_tx component
+-- removed mem_clk_i port
+-- removed comm_clk_i port
+--
 -- Revision 1.6  2004/12/16 22:05:40  bburger
 -- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
 --
@@ -83,8 +88,8 @@ port(clk_i      : in std_logic;
      header2_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- pass/fail word
      
      -- Buffer interface:
-     buf_data_i : in std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-     buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0));
+     buf_data_i : in std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
+     buf_addr_o : out std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0));
 end dispatch_reply_transmit;
 
 architecture rtl of dispatch_reply_transmit is
@@ -306,7 +311,7 @@ begin
             count_o => word_count);
             
    -- when word count = x, buffer addr x-3 is being accessed by CRC
-   buf_addr_o <= conv_std_logic_vector(word_count - 3, BUF_ADDR_WIDTH);  
+   buf_addr_o <= conv_std_logic_vector(word_count - 3, REPLY_BUF_ADDR_WIDTH);  
    
    ---------------------------------------------------------               
    -- Multiplexors for inputs to CRC and LVDS blocks

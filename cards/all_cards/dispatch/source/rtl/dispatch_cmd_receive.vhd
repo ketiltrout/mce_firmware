@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.14  2005/02/24 20:47:04  erniel
+-- removed unused state LATCH_HDR
+--
 -- Revision 1.13  2005/01/31 19:19:22  mandana
 -- Ernie: fixed packet resync logic
 --
@@ -106,8 +109,8 @@ port(clk_i      : in std_logic;
      header1_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      
      -- Buffer interface (stores data from command packet):
-     buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-     buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+     buf_data_o : out std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
+     buf_addr_o : out std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
      buf_wren_o : out std_logic);
 end dispatch_cmd_receive;
 
@@ -501,7 +504,7 @@ begin
          when INCR_DATA | INCR_SKIP => data_word_count_ena <= '1';     
                                  
          when WRITE_BUF =>             buf_data_o          <= crc_word_out;
-                                       buf_addr_o          <= conv_std_logic_vector(data_word_count, BUF_ADDR_WIDTH);
+                                       buf_addr_o          <= conv_std_logic_vector(data_word_count, CMD_BUF_ADDR_WIDTH);
                                        buf_wren_o          <= '1';
                   
          when DONE =>                  header0_o           <= temp0;
