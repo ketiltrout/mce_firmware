@@ -45,16 +45,14 @@ ENTITY fsfb_calc_adder65 IS
 	(
 		dataa		: IN STD_LOGIC_VECTOR (64 DOWNTO 0);
 		datab		: IN STD_LOGIC_VECTOR (64 DOWNTO 0);
-		result		: OUT STD_LOGIC_VECTOR (64 DOWNTO 0);
-		cout		: OUT STD_LOGIC 
+		result		: OUT STD_LOGIC_VECTOR (64 DOWNTO 0)
 	);
 END fsfb_calc_adder65;
 
 
 ARCHITECTURE SYN OF fsfb_calc_adder65 IS
 
-	SIGNAL sub_wire0	: STD_LOGIC ;
-	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (64 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (64 DOWNTO 0);
 
 
 
@@ -68,14 +66,12 @@ ARCHITECTURE SYN OF fsfb_calc_adder65 IS
 	PORT (
 			dataa	: IN STD_LOGIC_VECTOR (64 DOWNTO 0);
 			datab	: IN STD_LOGIC_VECTOR (64 DOWNTO 0);
-			cout	: OUT STD_LOGIC ;
 			result	: OUT STD_LOGIC_VECTOR (64 DOWNTO 0)
 	);
 	END COMPONENT;
 
 BEGIN
-	cout    <= sub_wire0;
-	result    <= sub_wire1(64 DOWNTO 0);
+	result    <= sub_wire0(64 DOWNTO 0);
 
 	lpm_add_sub_component : lpm_add_sub
 	GENERIC MAP (
@@ -87,8 +83,7 @@ BEGIN
 	PORT MAP (
 		dataa => dataa,
 		datab => datab,
-		cout => sub_wire0,
-		result => sub_wire1
+		result => sub_wire0
 	);
 
 
@@ -106,7 +101,7 @@ END SYN;
 -- Retrieval info: PRIVATE: ValidCtA NUMERIC "0"
 -- Retrieval info: PRIVATE: ValidCtB NUMERIC "0"
 -- Retrieval info: PRIVATE: CarryIn NUMERIC "0"
--- Retrieval info: PRIVATE: CarryOut NUMERIC "1"
+-- Retrieval info: PRIVATE: CarryOut NUMERIC "0"
 -- Retrieval info: PRIVATE: Overflow NUMERIC "0"
 -- Retrieval info: PRIVATE: Latency NUMERIC "0"
 -- Retrieval info: PRIVATE: aclr NUMERIC "0"
@@ -120,9 +115,7 @@ END SYN;
 -- Retrieval info: USED_PORT: result 0 0 65 0 OUTPUT NODEFVAL result[64..0]
 -- Retrieval info: USED_PORT: dataa 0 0 65 0 INPUT NODEFVAL dataa[64..0]
 -- Retrieval info: USED_PORT: datab 0 0 65 0 INPUT NODEFVAL datab[64..0]
--- Retrieval info: USED_PORT: cout 0 0 0 0 OUTPUT NODEFVAL cout
 -- Retrieval info: CONNECT: result 0 0 65 0 @result 0 0 65 0
 -- Retrieval info: CONNECT: @dataa 0 0 65 0 dataa 0 0 65 0
 -- Retrieval info: CONNECT: @datab 0 0 65 0 datab 0 0 65 0
--- Retrieval info: CONNECT: cout 0 0 0 0 @cout 0 0 0 0
 -- Retrieval info: LIBRARY: lpm lpm.lpm_components.all
