@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.5  2005/01/11 20:40:12  erniel
+-- replaced CARD generic with slot_id & decoder
+-- updated dispatch cmd_receive component
+-- updated dispatch_reply_transmit component
+--
 -- Revision 1.4  2004/12/16 01:46:47  erniel
 -- added mem_clk port to disaptch_reply_transmit
 --
@@ -60,7 +65,6 @@ use work.slot_id_pack.all;
 
 entity dispatch is
 port(clk_i      : in std_logic;
-     mem_clk_i  : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;		
      
@@ -182,7 +186,7 @@ begin
             wren      => cmd_buf_wren,
             wraddress => cmd_buf_wraddr,
             rdaddress => cmd_buf_rdaddr,
-            clock     => mem_clk_i,
+            clock     => clk_i,
             q         => cmd_buf_rddata);
    
    wishbone : dispatch_wishbone
@@ -259,7 +263,7 @@ begin
             wren      => reply_buf_wren,
             wraddress => reply_buf_wraddr,
             rdaddress => reply_buf_rdaddr,
-            clock     => mem_clk_i,
+            clock     => clk_i,
             q         => reply_buf_rddata);            
             
    
