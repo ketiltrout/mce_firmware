@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.3  2004/12/07 19:41:42  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/26 18:26:45  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -357,7 +360,8 @@ begin
       
    
    -- Tap off the ready signals to control and system from the shifter
-   ctrl_dat_rdy <= read_shifter(2);
+--   ctrl_dat_rdy <= read_shifter(2);
+   ctrl_dat_rdy <= read_shifter(2) when (ctrl_rd_addr="000000") else '0';
    sys_dat_rdy  <= read_shifter(3);
     
    
