@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.12 2005/01/11 22:48:00 erniel Exp $
+-- $Id: reply_queue_pack.vhd,v 1.13 2005/02/09 20:45:02 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.13  2005/02/09 20:45:02  erniel
+-- added condensed header format declarations
+-- added misc. reply_queue constants
+-- updated reply_queue_sequencer component
+-- updated reply_queue_receive component
+--
 -- Revision 1.12  2005/01/11 22:48:00  erniel
 -- removed mem_clk_i from reply_queue_receive
 -- removed mem_clk_i from reply_queue top-level
@@ -94,7 +100,7 @@ constant PACKET_BUFFER_DEPTH  : integer := 9;
 constant PACKET_STORAGE_DEPTH : integer := 11;
 
 -- reply_queue timeout limit (in microseconds):
-constant TIMEOUT_LIMIT : integer := 1000;
+constant TIMEOUT_LIMIT : integer := 500;
 
 -- condensed header field range declarations:
 constant RQ_STATUS    : std_logic_vector(31 downto 26) := "000000";
