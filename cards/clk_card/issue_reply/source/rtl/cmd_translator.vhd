@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.23 2004/12/02 05:42:07 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.24 2004/12/03 07:45:17 jjacob Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/12/02 05:42:07 $> -     <text>      - <initials $Author: jjacob $>
+-- <date $Date: 2004/12/03 07:45:17 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.24  2004/12/03 07:45:17  jjacob
+-- debugging internal commands
+--
 -- Revision 1.23  2004/12/02 05:42:07  jjacob
 -- added internal commands
 --
@@ -501,7 +504,8 @@ begin
    if rst_i = '1' then--or cmd_rdy_i = '1' or macro_instr_rdy = '1' then
       timer_rst               <= '1';
       internal_cmd_start      <= '0';  
-   elsif clk_i'event and clk_i = '1' then
+   elsif clk_i'event and clk_i = '1' then   
+   -- in order to disable internal commands, start commenting from here
       if time >= 300 then --1000000 then  -- 1x10^6 us = 1s
          timer_rst            <= '1';
          internal_cmd_start   <= '1';      
@@ -509,6 +513,7 @@ begin
          timer_rst            <= '0';
          internal_cmd_start   <= '0';      
       end if;
+   -- end of comments for disabling internal commands.
    end if;
    end process;
    
