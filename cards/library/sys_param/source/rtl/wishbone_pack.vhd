@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/05/31 21:24:04 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/07/20 21:45:44 $> - <initials $Author: erniel $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.6  2004/07/20 21:45:44  erniel
+-- changed ALL_FBGA_CARDS to ALL_FPGA_CARDS
+--
 -- Revision 1.5  2004/05/31 21:24:04  bburger
 -- in progress
 --
@@ -190,5 +193,12 @@ package wishbone_pack is
    constant BRST_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
    constant PSC_RST_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
    constant PSC_OFF_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
+   
+   
+   
+   ---------------------------------------------------------------------------------
+   -- Instruction Parameters Default values
+   constant MUX_ON           : std_logic_vector(7 downto 0) := x"FF";
+   constant MUX_OFF          : std_logic_vector(7 downto 0) := x"00";
 
 end wishbone_pack;
