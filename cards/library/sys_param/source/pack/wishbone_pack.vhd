@@ -54,16 +54,19 @@ package wishbone_pack is
    constant BIAS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"21"; -- 0x21 
    constant SLOT_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"40"; -- 0x40 
    constant TEMPERATURE_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"42"; -- 0x42
-   constant CARD_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"43"; -- 0x43
+   
+   constant EEPROM_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"43"; -- 0x43
    constant LEDS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"45"; -- 0x45
    constant CYC_OUT_SYNC_ADDR: std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"47"; -- 0x47
    constant RESYNC_NXT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"48"; -- 0x48
    constant ARRAY_ID_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"49"; -- 0x49
-   constant EEPROM_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"4B"; -- 0x4B
+   
    constant DIP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"4C"; -- 0x4C
    constant WATCHDOG_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"4D"; -- 0x4D
    constant SRAM_VERIFY_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50"; -- 0x50
    constant SRAM_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56"; -- 0x56
+   
+   constant CARD_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"FF"; -- 0xFF  --NEEDS TO BE RESOLVED
    
 
     
