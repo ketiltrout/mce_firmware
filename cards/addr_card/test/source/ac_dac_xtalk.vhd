@@ -52,6 +52,8 @@ entity ac_dac_xtalk is
       --done_o    : out std_logic;   -- done ouput signal
       dip_sw3 : in std_logic;
       dip_sw4 : in std_logic;
+      lvds_txa : out std_logic;
+      lvds_txb : out std_logic;
 
       -- extended signals
       dac_data0  : out std_logic_vector(13 downto 0);
@@ -148,4 +150,7 @@ begin
    dac_data5 <= data2 when dip_sw3 = '1' else data;
    dac_data7 <= data2 when dip_sw3 = '1' else data;
    dac_data9 <= data2 when dip_sw3 = '1' else data;
+
+   lvds_txa <= inclk;
+   lvds_txb <= inclk;
 end;
