@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.8  2004/11/26 01:38:47  erniel
+-- fixed handling of READ commands by CRC subblock
+--
 -- Revision 1.7  2004/10/18 20:48:16  erniel
 -- corrected sensitivity list in processes rx_stateNS and rx_stateOut
 --
@@ -340,7 +343,7 @@ begin
                reg_i  => crc_word_out,
                reg_o  => temp1);
   
-   cmd_data_size <= conv_integer(temp0(BB_DATA_SIZE'range));
+   cmd_data_size <= 0 when temp0(BB_COMMAND_TYPE'range) = READ_CMD else conv_integer(temp0(BB_DATA_SIZE'range));
    
    cmd_type  <= temp0(BB_COMMAND_TYPE'range);
       
