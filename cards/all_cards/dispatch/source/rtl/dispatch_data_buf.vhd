@@ -84,12 +84,15 @@ ARCHITECTURE SYN OF dispatch_data_buf IS
 	PORT (
 			wren_a	: IN STD_LOGIC ;
 			clock0	: IN STD_LOGIC ;
+			clock1	: IN STD_LOGIC ;
 			address_a	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
 			address_b	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
 			q_b	: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 			data_a	: IN STD_LOGIC_VECTOR (31 DOWNTO 0)
 	);
 	END COMPONENT;
+
+signal n_clock : std_logic;
 
 BEGIN
 	q    <= sub_wire0(31 DOWNTO 0);
@@ -109,7 +112,7 @@ BEGIN
 		indata_aclr_a => "NONE",
 		wrcontrol_aclr_a => "NONE",
 		address_aclr_a => "NONE",
-		address_reg_b => "CLOCK0",
+		address_reg_b => "CLOCK1",
 		address_aclr_b => "NONE",
 		outdata_aclr_b => "NONE",
 		read_during_write_mode_mixed_ports => "OLD_DATA",
@@ -119,14 +122,15 @@ BEGIN
 	PORT MAP (
 		wren_a => wren,
 		clock0 => clock,
+		clock1 => n_clock,
 		address_a => wraddress,
 		address_b => rdaddress,
 		data_a => data,
 		q_b => sub_wire0
 	);
 
-
-
+   n_clock <= not clock;
+   
 END SYN;
 
 -- ============================================================
