@@ -31,8 +31,11 @@
 -- connect ADCs to parallel DACs and run a square wave on serial DACs
 --
 -- Revision history:
--- <date $Date: 2004/12/07 22:12:34 $>    - <initials $Author: bench2 $>
+-- <date $Date: 2004/12/08 20:56:59 $>    - <initials $Author: bench1 $>
 -- $Log: rc_test_ssr.vhd,v $
+-- Revision 1.2  2004/12/08 20:56:59  bench1
+-- Mandana: slowing down the enable
+--
 -- Revision 1.1  2004/12/07 22:12:34  bench2
 -- mandana: Subrack test, initial release
 --   
@@ -133,6 +136,12 @@ architecture behaviour of rc_test is
         e0 : out std_logic);
    end component;
   
+   -- controller states:
+   type states is (IDLE, WAIT_FOR_DONE, DONE); 
+
+   signal present_state         : states;
+   signal next_state            : states;
+
    signal clk : std_logic;   
    signal rst : std_logic;
    signal int_rst : std_logic;
@@ -152,20 +161,20 @@ architecture behaviour of rc_test is
    signal rx_clk : std_logic;
    signal dac_test_mode : std_logic_vector(1 downto 0);
    
-   signal en_toggle, en_toggle_slow, en_dac, en_sdac: std_logic;
+   signal en_toggle, en_toggle_slow, en_dac: std_logic;
    signal clk_count: integer;
    signal nclk     : std_logic;
-   signal done    : std_logic;
+   signal dac_done    : std_logic;
    
 begin
    clk_gen : pll
       port map(inclk0 => inclk,
                c0 => clk,
                c1 => rx_clk,
-               c2 => en_dac, -- 1MHz clock
+               c2 => en_toggle, -- 1MHz clock
                e0 => outclk);
 
-   en_toggle_div_10: counter
+   en_toggle_div_16: counter
    generic map(MAX => 16,
                STEP_SIZE => 1,
                WRAP_AROUND => '1',
@@ -176,8 +185,8 @@ begin
             load_i  => '0',
             count_i => 0 ,
             count_o => clk_count);
-   en_dac   <= '1' when clk_count = 14 else '0';
-   
+   en_toggle_slow   <= '1' when clk_count = 1 else '0';
+     
      
    rc_serial_dac : rc_serial_dac_test_wrapper
       port map(
@@ -186,7 +195,7 @@ begin
                clk_i     => clk,
                en_i      => en_dac, -- 1MHz on enable causes a square wave on DACs outputs
                mode      => dac_test_mode,
-               done_o    => done,
+               done_o    => dac_done,
                
                -- transmitter signals removed!
                          
@@ -211,6 +220,43 @@ begin
 --               dac6_dat_o  => dac_FB7_dat,
 --               dac7_dat_o  => dac_FB8_dat,
 --               dac_clk_o   => dac_FB_clk);
+
+   
+     -- state register:
+   state_FF: process(clk, n_rst)
+   begin
+      if(n_rst = '0') then 
+         present_state <= IDLE;
+      elsif(clk'event and clk = '1') then
+         present_state <= next_state;
+      end if;
+   end process state_FF;
+   ---------------------------------------------------------------   
+   state_NS: process(present_state, en_toggle_slow, dac_done)
+   begin
+      case present_state is
+         when IDLE =>     
+            if(en_toggle_slow = '1') then
+               next_state <= WAIT_FOR_DONE;
+            else
+               next_state <= IDLE;
+            end if;
+            
+         when WAIT_FOR_DONE =>
+            if (dac_done  <= '1') then
+               next_state <= DONE;
+            else
+               next_state <= WAIT_FOR_DONE;
+            end if;
+            
+         when DONE =>
+            next_state <= IDLE;
+         when others =>
+            next_state <= IDLE;
+      end case;   
+   end process state_NS;        
+  ---------------------------------------------------------------      
+   en_dac <= '1' when present_state = WAIT_FOR_DONE else '0';
                
    dac_dat        <= test_dac_data;
    dac_clk       <= test_dac_clk;
@@ -218,38 +264,6 @@ begin
    offset_dac_ncs <= test_dac_ncs;
    
    dac_test_mode  <= "00"; -- means rc_serial_dacs would be running the square wave
-
---   process (en_toggle_slow)
---   begin 
---      if (en_toggle_slow = '1') then
---        en_dac <= '1';
---      end if;
---   end process;   
---      
---   process (done)
---   begin 
---     if (done ='1') then
---       en_dac <= '0';
---     end if;
---   end process;  
-
-   
-   
---   process(clk)
---   begin
---      if(clk = '1') then
---         if(en_toggle = '1') then
---            en_dac <= '1';
---         end if;   
---      end if;
---      if (clk = '0') then
---         if(done = '0') then
---            en_dac <= '0';
---         end if;
---      end if;
-      
---   end process;
-
    
    rst <= not n_rst or int_rst;
       adc1_clk <= clk;
@@ -282,5 +296,6 @@ begin
       nclk <= not(clk);
       dac_FB_clk <= (others => nclk);
       smb_clk <= en_dac;
-      smb_data <= done;
+      smb_data <= dac_done;
+      
 end behaviour;
