@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.6  2004/05/17 00:54:26  erniel
+-- changed input clock pin name to inclk
+--
 -- Revision 1.5  2004/05/16 23:42:34  erniel
 -- minor change to rs232_data_tx test string
 --
@@ -133,7 +136,7 @@ architecture behaviour of all_test is
    constant INDEX_RX_SYNC    : integer := 5;
    constant INDEX_RX_SPARE   : integer := 6;     
    constant INDEX_DEBUG      : integer := 7;
-   constant INDEX_BC_DAC_CTRL: integer := 8;
+   constant INDEX_DAC_CTRL   : integer := 8;
       
    constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -143,7 +146,7 @@ architecture behaviour of all_test is
    constant SEL_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
    constant SEL_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0');         
    constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-   constant SEL_BC_DAC_CTRL: std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
+   constant SEL_DAC_CTRL   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    
    constant DONE_NULL       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
@@ -154,7 +157,7 @@ architecture behaviour of all_test is
    constant DONE_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
    constant DONE_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0'); 
    constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-   constant DONE_BC_DAC_CTRL: std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
+   constant DONE_DAC_CTRL   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
 
    -- state signals
    type states is (RESET, FETCH, DECODE, EXECUTE);
@@ -338,8 +341,8 @@ begin
                -- basic signals
                rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel(INDEX_BC_DAC_CTRL),
-               done_o    => done(INDEX_BC_DAC_CTRL),
+               en_i      => sel(INDEX_DAC_CTRL),
+               done_o    => done(INDEX_DAC_CTRL),
                
                -- transmitter signals removed!
                          
@@ -443,8 +446,8 @@ begin
                elsif(cmd1 = CMD_RESET) then
                   int_rst <= '1';
                   
-               elsif(cmd1 = CMD_BC_DAC) then
-	          sel <= SEL_BC_DAC_CTRL;               
+               elsif(cmd1 = CMD_DAC) then
+	          sel <= SEL_DAC_CTRL;               
                   
                else
                   -- must not be implemented yet!
