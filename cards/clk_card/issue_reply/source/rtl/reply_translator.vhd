@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.1 2004/08/17 16:36:54 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.2 2004/08/19 15:31:57 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/17 16:36:54 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/19 15:31:57 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.2  2004/08/19 15:31:57  dca
+-- various changes to reply_fsm
+--
 -- Revision 1.1  2004/08/17 16:36:54  dca
 -- Initial Version
 --
@@ -93,6 +96,11 @@ use ieee.numeric_std.all;
 library work;
 use work.issue_reply_pack.all;
 
+library sys_param;
+use sys_param.command_pack.all;
+
+
+
 architecture rtl of reply_translator is
 
 -- define sub-type 'byte'
@@ -118,10 +126,9 @@ constant ERROR_WORD_WIDTH    : integer := 32;
 constant CHECKSUM_ER_NUM     : std_logic_vector (ERROR_WORD_WIDTH-1 downto 0) := X"00000001" ;
 constant NUM_HEAD_WORDS      : integer := 4;
 constant NUM_REPLY_WORDS     : integer := 4;
-constant NUM_RB_REPLY_WORDS  : integer := 64;
 
 constant NUM_REPLY_BYTES     : integer := (NUM_HEAD_WORDS * 4) + (NUM_REPLY_WORDS *4);
-constant NUM_RB_REPLY_BYTES  : integer := (NUM_HEAD_WORDS * 4) + (NUM_RB_REPLY_WORDS *4);
+
 
 
 
@@ -283,7 +290,6 @@ type reply_state is           (REPLY_IDLE, TX_REPLY, CK_ER_REPLY, CK_OK_REPLY,
                                LD_RP_CKSUM0,  TX_RP_CKSUM0,  LD_RP_CKSUM1,  TX_RP_CKSUM1,   
                                LD_RP_CKSUM2,  TX_RP_CKSUM2,  LD_RP_CKSUM3,  TX_RP_CKSUM3,
                                REQ_Q_WORD , READ_Q_WORD    
-                      --         LD_Q_0, TX_Q_0, LD_Q_1, TX_Q_1, LD_Q_2, TX_Q_2, LD_Q_3, TX_Q_3              
                                );
       
 
@@ -292,7 +298,19 @@ signal   reply_next_state          : reply_state;
       
 
 -- DATA FSM                              
-type data_state is            (DATA_IDLE, TEST);
+type data_state is            (DATA_IDLE, TX_DATA, REQ_DA_WORD, READ_DA_WORD,
+                               LD_DA_HEAD1_0, TX_DA_HEAD1_0, LD_DA_HEAD1_1, TX_DA_HEAD1_1,
+                               LD_DA_HEAD1_2, TX_DA_HEAD1_2, LD_DA_HEAD1_3, TX_DA_HEAD1_3,
+                               LD_DA_HEAD2_0, TX_DA_HEAD2_0, LD_DA_HEAD2_1, TX_DA_HEAD2_1,
+                               LD_DA_HEAD2_2, TX_DA_HEAD2_2, LD_DA_HEAD2_3, TX_DA_HEAD2_3,
+                               LD_DA_HEAD3_0, TX_DA_HEAD3_0, LD_DA_HEAD3_1, TX_DA_HEAD3_1,
+                               LD_DA_HEAD3_2, TX_DA_HEAD3_2, LD_DA_HEAD3_3, TX_DA_HEAD3_3,
+                               LD_DA_HEAD4_0, TX_DA_HEAD4_0, LD_DA_HEAD4_1, TX_DA_HEAD4_1,
+                               LD_DA_HEAD4_2, TX_DA_HEAD4_2, LD_DA_HEAD4_3, TX_DA_HEAD4_3,
+                               LD_DA_WORD0,   TX_DA_WORD0,   LD_DA_WORD1,   TX_DA_WORD1,
+                               LD_DA_WORD2,   TX_DA_WORD2,   LD_DA_WORD3,   TX_DA_WORD3,   
+                               LD_DA_CKSUM0,  TX_DA_CKSUM0,  LD_DA_CKSUM1,  TX_DA_CKSUM1,   
+                               LD_DA_CKSUM2,  TX_DA_CKSUM2,  LD_DA_CKSUM3,  TX_DA_CKSUM3);
 
 
 
@@ -333,6 +351,10 @@ signal rst_fibre_count       : std_logic;
 
 signal data_byte            : byte;
 signal reply_byte           : byte;
+
+signal rb_size              : integer;
+
+
 
 
 
@@ -451,7 +473,7 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
             
         
    ---------------------------------------------------------------------------
-   -- Finite State Machine 
+   -- REPLY Finite State Machine 
    ----------------------------------------------------------------------------
    reply_fsm_clocked : process(
       clk_i,
@@ -916,7 +938,8 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
          
    -------------------------------------------------------------------------
    reply_fsm_output : process (
-      reply_current_state, rpy_checksum, fibre_word_i, --fibre_word_count,
+      reply_current_state, rpy_checksum, fibre_word_i, num_fibre_words_i,
+      rb_size, m_op_done_reply, 
       reply_header4_0, reply_header4_1, reply_header4_2, reply_header4_3,
       reply_word1_0,   reply_word1_1,   reply_word1_2,   reply_word1_3,
       reply_word2_0,   reply_word2_1,   reply_word2_2,   reply_word2_3,
@@ -946,15 +969,14 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
       ena_dat_cksum           <= '0' ;
       rst_rpy_cksum           <= '0' ;
       ena_rpy_cksum           <= '0' ;
-      
-   --   check_update            <= '0';
-  --    check_reset             <= '0';
-      
+            
       rpy_checksum_in_mux_sel     <= '0';
       
       cmd_ack_o               <= '0';
       rst_fibre_count         <= '0';
       ena_fibre_count         <= '0';
+      
+      m_op_ack_o              <= '0';
       
       case reply_current_state is
 
@@ -966,6 +988,7 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
             rst_fibre_count            <= '1';
             rpy_checksum_load          <= (others => '0');
             rpy_checksum_in_mux_sel    <= '1';
+            rb_size                    <=  0 ;
            
       when CK_ER_REPLY =>
       
@@ -1040,7 +1063,8 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
            
       when REPLY_RB_OK    =>   
     
-            reply_size <= std_logic_vector(to_unsigned(NUM_RB_REPLY_WORDS,32));
+            rb_size                    <= to_integer(unsigned(num_fibre_words_i)) + 3 ; 
+            reply_size                 <= std_logic_vector(to_unsigned(rb_size,DATA_BUS_WIDTH));
             reply_status( 7 downto 0)  <= ASCII_K ;
             reply_status(15 downto 8)  <= ASCII_O ;
 
@@ -1053,7 +1077,7 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
             
       when REPLY_RB_ER    =>   
     
-            reply_size <= std_logic_vector(to_unsigned(NUM_RB_REPLY_WORDS,32));
+            reply_size <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
               
@@ -1209,11 +1233,13 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
            reply_byte <=  reply_word1_1;
            tx_fw_o    <= '0';
            
-           ena_rpy_cksum  <= '1';
        
        when TX_RP_WORD1_1 =>
            reply_byte <=  reply_word1_1;
            tx_fw_o    <= '1';
+           
+           -- this assignment MUST be in a state that only holds for one clock cycle           
+           ena_rpy_cksum  <= '1';
           
        when LD_RP_WORD1_2 =>
            reply_byte <=  reply_word1_2;
@@ -1246,12 +1272,14 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
            reply_byte <=  reply_word2_1;
            tx_fw_o    <= '0';
            
-           ena_rpy_cksum  <= '1';
        
        when TX_RP_WORD2_1 =>
            reply_byte <=  reply_word2_1;
            tx_fw_o    <= '1';
        
+           -- this assignment MUST be in a state that only holds for one clock cycle
+           ena_rpy_cksum  <= '1';
+           
        when LD_RP_WORD2_2 =>
            reply_byte <=  reply_word2_2;
            tx_fw_o    <= '0';
@@ -1275,22 +1303,24 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
             rpy_checksum_load        <= reply_word3_3 & reply_word3_2 & reply_word3_1 & reply_word3_0;
             rpy_checksum_in_mux_sel  <= '1';
  
-            ena_fibre_count      <= '1'; 
-            
-            
        when TX_RP_WORD3_0 =>
            reply_byte <=  reply_word3_0;
            tx_fw_o    <= '1';
+           
+           -- this assignemnt MUST be in a state that is only held for one clock cycle 
+           ena_fibre_count      <= '1'; 
            
        when LD_RP_WORD3_1 =>
            reply_byte <=  reply_word3_1;
            tx_fw_o    <= '0';
            
-           ena_rpy_cksum  <= '1';
        
        when TX_RP_WORD3_1 =>
            reply_byte <=  reply_word3_1;
            tx_fw_o    <= '1';
+    
+         -- this assignemnt MUST be in a state that is only held for one clock cycle   
+           ena_rpy_cksum  <= '1';       
        
        when LD_RP_WORD3_2 =>
            reply_byte <=  reply_word3_2;
@@ -1344,6 +1374,12 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
        when TX_RP_CKSUM3 =>  
            reply_byte <=  rpy_checksum(31 downto 24);
            tx_fw_o    <= '1';
+           
+           if m_op_done_reply = '1' then   -- if this was a reply instigated by reply_queue then
+              m_op_ack_o <= '1' ;           -- acknowledge that reply it is finished... Q should now deassert m_op_done
+            else        
+              m_op_ack_o <= '0';
+           end if;         
                    
                    
        when REQ_Q_WORD  =>
@@ -1370,7 +1406,26 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
       
    end process reply_fsm_output;
  
-   
+  
+  
+  ---------------------------------------------------------------------------
+   -- DATA Finite State Machine 
+   ----------------------------------------------------------------------------
+   data_fsm_clocked : process(
+      clk_i,
+      rst_i
+   )
+   ----------------------------------------------------------------------------
+   begin
+         
+      if (rst_i = '1') then
+         data_current_state <= DATA_IDLE;
+      elsif (clk_i'EVENT AND clk_i = '1') then
+         data_current_state <= data_next_state;
+      end if;
+
+   end process data_fsm_clocked; 
+             
               
   ------------------------------------------------------------------------------
   rpy_checksum_calculator: process(rst_i, clk_i)
@@ -1442,15 +1497,5 @@ txd_o              <= data_byte when txd_mux_sel = '1' else reply_byte;
       end if;
    end process fibre_word_counter;
    
-      
-          
-     
- --   if (q_count_reset = '1') then
- --      fibre_word_count <= 0;
- --   elsif (q_count_inc'EVENT AND q_count_inc = '1') then
- --       fibre_word_count <= fibre_word_count + 1;
- --   end if;
-     
-
           
 end rtl;
