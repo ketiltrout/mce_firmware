@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.6 2004/05/19 18:35:08 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.7 2004/05/20 20:08:07 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/05/19 18:35:08 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/20 20:08:07 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.7  2004/05/20 20:08:07  mandana
+-- fixed others for FSMs
+--
 -- Revision 1.6  2004/05/19 18:35:08  mandana
 -- deleted nclr pin on DACs, it is tied to FPGA status
 -- added ramp test
@@ -112,6 +115,8 @@ architecture rtl of dac_ctrl_test_wrapper is
    signal ack_i    : std_logic;
    signal rty_i    : std_logic;
    signal cyc_o    : std_logic;  
+   signal clk_8    : std_logic;
+   signal clk_count: integer;
    
    signal sync_i   : std_logic;
    signal idac     : integer;
@@ -127,6 +132,19 @@ architecture rtl of dac_ctrl_test_wrapper is
    signal ramp_rst  : std_logic;
    
 begin
+
+-- instantiate a counter for idac to go through all 32 DACs
+   clk_div_8: counter
+   generic map(MAX => 16 , STEPSIZE => 1)
+   port map(clk_i   => clk_i,
+            rst_i   => '0',
+            ena_i   => '1',
+            load_i  => '0',
+            down_i  => '0',
+            count_i => 0 ,
+            count_o => clk_count);
+
+   clk_8   <= '1' when clk_count > 8 else '0'; -- slow down the 50MHz clock to 50/8MHz
 
 -- instantiate a counter for idac to go through all 32 DACs
    dac_count: counter
@@ -182,7 +200,7 @@ begin
                dac_clk_o (31 downto 0)  => dac_clk_o (31 downto 0),
                dac_clk_o (32)           => lvds_dac_clk_o,
                
-               clk_i        => clk_i,
+               clk_i        => clk_8,
                rst_i        => rst_i,
                dat_i        => dat_o,
                addr_i       => addr_o,
@@ -203,11 +221,11 @@ begin
    data (4) <= "11111111111111111111111111111111";--xffffffff -- this entry wouldn't be tried
 
    -- state register:
-   state_FF: process(clk_i, rst_i)
+   state_FF: process(clk_8, rst_i)
    begin
       if(rst_i = '1') then 
          present_state <= IDLE;
-      elsif(clk_i'event and clk_i = '1') then
+      elsif(clk_8'event and clk_8 = '1') then
          present_state <= next_state;
       end if;
    end process state_FF;
