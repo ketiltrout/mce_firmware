@@ -1,0 +1,19 @@
+FILES
+{
+	VHDL_FILE = ..\..\..\library\sys_param\source\rtl\data_types_pack.vhd;
+	VHDL_FILE = pll.vhd;
+	VHDL_FILE = ..\source\ac_io_toggle.vhd;
+}
+COMPILER_SETTINGS_LIST
+{
+	COMPILER_SETTINGS = ac_io_toggle;
+}
+SIMULATOR_SETTINGS_LIST
+{
+	SIMULATOR_SETTINGS = ac_io_toggle;
+}
+SOFTWARE_SETTINGS_LIST
+{
+	SOFTWARE_SETTINGS = Debug;
+	SOFTWARE_SETTINGS = Release;
+}
