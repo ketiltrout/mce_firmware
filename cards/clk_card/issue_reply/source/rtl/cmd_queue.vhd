@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.24 2004/07/22 23:43:31 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.25 2004/07/26 19:31:13 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.25  2004/07/26 19:31:13  bench2
+-- Bryce: in progress
+--
 -- Revision 1.24  2004/07/22 23:43:31  bench2
 -- Bryce: in progress
 --
@@ -196,6 +199,7 @@ signal sh_reg_parallel_o    : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); --Dum
 
 -- Bit Counter signals
 signal bit_ctr_count        : integer;
+signal bit_ctr_ena          : std_logic; -- enables the counter which controls the enable line to the CRC block.  The counter should only be functional when there is a to calculate.
 
 -- Constants that can be removed when the sync_counter and frame_timer are moved out of this block
 constant HIGH               : std_logic := '1';
@@ -265,7 +269,7 @@ begin
          ena_i      => crc_ena,
          data_i     => crc_data,
          num_bits_i => crc_num_bits,
-         poly_i     => "00000100110000010001110110110111",  --CRC-32        
+         poly_i     => "00000100110000010001110110110111", --CRC-32        
          done_o     => crc_done,
          valid_o    => crc_valid, --Dummy signal
          checksum_o => crc_checksum 
@@ -298,7 +302,7 @@ begin
       port map(
          clk_i       => clk_i,
          rst_i       => rst_i,
-         ena_i       => HIGH,
+         ena_i       => bit_ctr_ena,
          load_i      => crc_start,
          count_i     => INT_ZERO,
          count_o     => bit_ctr_count
@@ -573,7 +577,9 @@ begin
             if(retire_ptr = send_ptr) then
                -- We've finished flushing out the system of invalid u-ops
                retire_ptr <= flush_ptr;
-               send_ptr <= flush_ptr;
+               -- ***I can't modify the send_ptr here because it is modified in the Send FSM
+               -- We need to find a way to reset the send_ptr if a flush occurs
+               --send_ptr <= flush_ptr;
             end if;
          when EJECT =>
             uop_rdy_o      <= '0';
@@ -847,6 +853,7 @@ begin
          when RESET =>
             insert_uop_rdy    <= '0';
             new_card_addr     <= card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0);
+            uop_counter       <= (others => '0');
             num_uops_inserted <= 0;
          when IDLE =>
             insert_uop_rdy    <= '0';
@@ -1038,105 +1045,130 @@ begin
          when RESET =>
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
-            sh_reg_parallel_i        <= (others => '0');
+            bit_ctr_ena              <= '0';
             crc_start                <= '0';
             crc_num_bits             <= 0;
             uop_data_count           <= (others => '0');
             uop_data_size            <= (others => '0');
+            sh_reg_parallel_i        <= (others => '0');
             previous_send_state      <= RESET;
+            
             send_ptr                 <= ADDR_ZERO;
+         
          when LOAD =>
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
-            sh_reg_parallel_i        <= (others => '0');
+            bit_ctr_ena              <= '0';
             crc_start                <= '0';
             crc_num_bits             <= 0;
             uop_data_count           <= (others => '0');
             uop_data_size            <= (others => '0');
+            sh_reg_parallel_i        <= (others => '0');
             previous_send_state      <= LOAD;
+         
          when HEADER_A =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
-            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            bit_ctr_ena              <= '1';
             crc_start                <= '1';
             crc_num_bits             <= (BB_PACKET_HEADER_SIZE + uop_data_size_int)*QUEUE_WIDTH;
             uop_data_count           <= (others => '0');
             uop_data_size            <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto 0) <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
+            cmd_tx_dat(31 downto 0)  <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
+            sh_reg_parallel_i        <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
 
             previous_send_state      <= HEADER_A;
+         
          when HEADER_B =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
-            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            bit_ctr_ena              <= '1';
             crc_start                <= '1';
             uop_data_count           <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto 0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            cmd_tx_dat(31 downto 0)  <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
             previous_send_state      <= HEADER_B;
+            
             send_ptr                 <= send_ptr + 1;
+         
          when DATA =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
-            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            bit_ctr_ena              <= '1';
             crc_start                <= '1';
             uop_data_count           <= uop_data_count + 1;
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             
             previous_send_state      <= DATA;
+            
             send_ptr                 <= send_ptr + 1;
+         
          when MORE_DATA =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
-            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            bit_ctr_ena              <= '1';
             crc_start                <= '1';
             uop_data_count           <= uop_data_count + 1;
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
             previous_send_state      <= MORE_DATA;
+            
             send_ptr                 <= send_ptr + 1;
+         
          when CHECKSUM =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
-            sh_reg_parallel_i        <= (others => '0');
+            bit_ctr_ena              <= '0';
             crc_start                <= '0';
             crc_num_bits             <= 0;
             uop_data_size            <= (others => '0');
             cmd_tx_dat(31 downto  0) <= crc_checksum;
+            sh_reg_parallel_i        <= (others => '0');
             previous_send_state      <= CHECKSUM;
+            
             send_ptr                 <= send_ptr + 1; -- Move the pointer to the next u-op
+         
          when PREGNANT_PAUSE =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
-            sh_reg_parallel_i        <= (others => '0');
+            bit_ctr_ena              <= '1';
             crc_start                <= '0';
             -- uop_data_size            <= not to be zero'ed here.  This is an intermediate state between the HEADER, DATA and CHECKSUM states
+            sh_reg_parallel_i        <= (others => '0');
             previous_send_state      <= PREGNANT_PAUSE;
+         
          when NEXT_UOP =>
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
-            sh_reg_parallel_i        <= (others => '0');
+            bit_ctr_ena              <= '0';
             crc_start                <= '0';
             crc_num_bits             <= 0;
             uop_data_size            <= (others => '0');
+            sh_reg_parallel_i        <= (others => '0');
             previous_send_state      <= NEXT_UOP;
+            
             -- The send_ptr should be incremented to the next u-op if this one has expired
             send_ptr                 <= send_ptr + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+         
          when others =>
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
-            sh_reg_parallel_i        <= (others => '0');
+            bit_ctr_ena              <= '0';
             crc_start                <= '0';
             crc_num_bits             <= 0;
             uop_data_size            <= (others => '0');
+            sh_reg_parallel_i        <= (others => '0');
             previous_send_state      <= LOAD;
       end case;
    end process;
@@ -1147,7 +1179,8 @@ begin
    -- CRC logic
    crc_ena           <= '1' when bit_ctr_count < 32 else '0';   
    crc_data          <= sh_reg_serial_o;
-   sh_reg_parallel_i <= qa_sig(QUEUE_WIDTH-1 downto 0);
+-- This signal is assigned in the send FSM
+--   sh_reg_parallel_i <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
 end behav;
 
@@ -1238,6 +1271,12 @@ end behav;
 -- Ernie will have to take two pieces of data first, before he discards the rest.
 -- However, Ernie doesn't need to worry about managing several u-ops at once in a single queue - only one at a time.
 
+--x issue_sync and timeout_sync signals seem to be used both for the insert and send FSM.  
+-- However, both should actually be two different signals - one to each FSM.
+-- The insert FSM should get it's issue and timeout information from the cmd_translator block.
+-- The send FSM should get it's issue and timeout information from the cmd_queue RAM.
+-- Actually, after closer inspection, this is how it works.
+
 -- The send FSM needs a way of notifying the retire fsm wheter a u-op has been skipped or not
 -- NEXT_UOP in send_states should tag the uop with a special code so that the retire fsm can recognize that it was skipped.
 -- I need to insert a code either in the start sync, end sync or data size field.  
@@ -1249,8 +1288,3 @@ end behav;
 -- The bad thing about this is that if the counter wraps after exceeding the time limit, then there could be problems.
 
 -- Check out the ***'ed lines
-
--- issue_sync and timeout_sync signals seem to be used both for the insert and send FSM.  
--- However, both should actually be two different signals - one to each FSM.
--- The insert FSM should get it's issue and timeout information from the cmd_translator block.
--- The send FSM should get it's issue and timeout information from the cmd_queue RAM.
