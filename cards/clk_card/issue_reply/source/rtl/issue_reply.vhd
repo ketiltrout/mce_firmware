@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.18 2004/11/10 12:32:08 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.19 2004/11/11 17:03:39 dca Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/10 12:32:08 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/11 17:03:39 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.19  2004/11/11 17:03:39  dca
+-- *** empty log message ***
+--
 -- Revision 1.18  2004/11/10 12:32:08  dca
 -- corrected error in pathing of card_id and paramater_id to reply_translator (swapped)
 --
@@ -248,6 +251,10 @@ architecture rtl of issue_reply is
       signal uop_rdy : std_logic;
       signal uop_rdy_stg1 :std_logic;
       signal uop_rdy_stg2 :std_logic;
+      signal uop_rdy_stg3 :std_logic;
+      signal uop_rdy_stg4 :std_logic;
+      signal uop_rdy_stg5 :std_logic;
+      
       signal uop_ack : std_logic;
       signal uop_discard : std_logic;
       signal uop_timedout : std_logic;
@@ -548,7 +555,7 @@ begin
 
          -- reply_queue interface
          uop_rdy_o       => uop_rdy,
-         uop_ack_i       => uop_ack,--uop_rdy_stg2,--
+         uop_ack_i       => uop_rdy_stg5,--uop_ack,--
          uop_o           => uop,
          
          -- cmd_translator interface
@@ -582,10 +589,16 @@ begin
       if rst_i = '1' then
          uop_rdy_stg1 <= '0';
          uop_rdy_stg2 <= '0';
+         uop_rdy_stg3 <= '0';
+         uop_rdy_stg4 <= '0';
+         uop_rdy_stg5 <= '0';
          cur_state <= IDLE;
       elsif clk_i'event and clk_i='1' then
          uop_rdy_stg1 <= uop_rdy;
          uop_rdy_stg2 <= uop_rdy_stg1;
+         uop_rdy_stg3 <= uop_rdy_stg2;
+         uop_rdy_stg4 <= uop_rdy_stg3;
+         uop_rdy_stg5 <= uop_rdy_stg4;         
          cur_state <= next_state;
       end if;
    end process; 
