@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_bc_dac_ctrl.vhd,v 1.1 2004/11/11 01:46:56 bburger Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.1 2004/11/25 03:05:08 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with bc_dac_ctrl
 --
 -- Revision history:
--- $Log: wbs_bc_dac_ctrl.vhd,v $
+-- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.1  2004/11/25 03:05:08  bburger
+-- Bryce:  Modified the Bias Card DAC control slaves.
+--
 -- Revision 1.1  2004/11/11 01:46:56  bburger
 -- Bryce:  new
 --
@@ -74,7 +77,8 @@ entity bc_dac_ctrl_wbs is
       -- global interface
       clk_i             : in std_logic;
       mem_clk_i         : in std_logic;
-      rst_i             : in std_logic 
+      rst_i             : in std_logic;
+      debug             : inout std_logic_vector(31 downto 0)
    );     
 end bc_dac_ctrl_wbs;
 
@@ -113,6 +117,12 @@ begin
    
    -- To the bc_dac_ctrl block
    bias_data_o <= bias_data;
+   debug(19 downto 16) <= dat_i(3 downto 0);
+   debug(23 downto 20) <= addr_i(3 downto 0);
+   debug(24)    <= we_i;
+   debug(25)    <= stb_i;
+   debug(26)    <= cyc_i;
+--   debug(27)    <= ack_o;
    
    bias_data_reg : reg
       generic map(
@@ -211,6 +221,7 @@ begin
             end if;
          
          when others =>
+            null;
          
       end case;
    end process state_out;

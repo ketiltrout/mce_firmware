@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.2 2004/12/16 18:09:35 bench2 Exp $
+-- $Id: bias_card.vhd,v 1.3 2004/12/21 22:06:51 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.3  2004/12/21 22:06:51  bburger
+-- Bryce:  update
+--
 -- Revision 1.2  2004/12/16 18:09:35  bench2
 -- Mandana: fixed the clocking, added bc_pll
 --
@@ -76,13 +79,13 @@ entity bias_card is
       ttl_nrx    : in std_logic_vector(3 downto 1);
       ttl_tx     : out std_logic_vector(3 downto 1);
       ttl_txena  : out std_logic_vector(3 downto 1);
-      
+
       -- eeprom interface:
       eeprom_si  : in std_logic;
       eeprom_so  : out std_logic;
       eeprom_sck : out std_logic;
       eeprom_cs  : out std_logic;
-      
+                  
       -- dac interface:
       dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -103,7 +106,7 @@ entity bias_card is
       
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
-      mictor     : out std_logic_vector(32 downto 1);
+      mictor     : out std_logic_vector(31 downto 0);
       mictorclk  : out std_logic_vector(2 downto 1);
       rs232_rx   : in std_logic;
       rs232_tx   : out std_logic
@@ -146,6 +149,8 @@ signal slave_err         : std_logic;
 -- frame_timing interface
 signal update_bias : std_logic; 
 
+signal debug       : std_logic_vector (31 downto 0);
+
 component bc_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
@@ -157,10 +162,12 @@ end component;
 begin
    
    rst <= not rst_n;
+   mictor <= debug;
    test (4) <= dac_ncs_temp(0);
    test (6) <= dac_data_temp(0);
    test (8) <= dac_sclk_temp(0);
    test (10)<= spi_clk;
+   
    dac_ncs <= dac_ncs_temp;
    dac_data <= dac_data_temp;
    dac_sclk <= dac_sclk_temp;
@@ -247,8 +254,8 @@ begin
          -- Global Signals      
          clk_i                      => clk,
          mem_clk_i                  => mem_clk,
-         spi_clk_i                  => spi_clk,
-         rst_i                      => rst
+         rst_i                      => rst,
+         debug                      => debug
       );                         
                                  
    frame_timing_slave: frame_timing
