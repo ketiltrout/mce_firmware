@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_rx.vhd,v $
+-- Revision 1.9  2004/12/17 20:51:07  erniel
+-- revert to 200 MHz clock divider
+-- WARNING: temporary solution!  Work still in progress!
+--
 -- Revision 1.8  2004/12/14 23:04:27  erniel
 -- changed CLK_DIV_FACTOR default value to LVDS
 -- removed err_o signal
@@ -76,7 +80,6 @@ end async_rx ;
 
 architecture behaviour of async_rx is
 
-signal clk_div_count : integer range 0 to CLK_DIV_FACTOR-1;
 signal rx_clk        : std_logic;
 
 signal sample_buf_ena : std_logic;
@@ -84,7 +87,7 @@ signal sample_buf_clr : std_logic;
 signal sample_buf     : std_logic_vector(2 downto 0);
 signal rx_data        : std_logic; 
    
-signal count     : integer range 0 to 80;   
+signal count     : integer range 0 to 40;   
 signal count_clr : std_logic;
 
 signal data_buf_ena : std_logic;
@@ -97,28 +100,22 @@ signal next_state : states;
    
 begin
 
---   clk_divide: counter
---   generic map(MAX => CLK_DIV_FACTOR-1)
---   port map(clk_i => comm_clk_i,
---            rst_i => rst_i,
---            ena_i => '1',
---            load_i => '0',
---            count_i => 0,
---            count_o => clk_div_count);
---
---   -- register clock divider output (to eliminate glitches from combinational compare)
---   process(comm_clk_i)
---   begin
---      if(comm_clk_i'event and comm_clk_i = '1') then
---         if(clk_div_count = CLK_DIV_FACTOR-1) then
---            rx_clk <= '1';
---         else
---            rx_clk <= '0';
---         end if;
---      end if;
---   end process;
-
-   rx_clk <= comm_clk_i;
+   -- clock divider process
+   process(comm_clk_i, rst_i)
+   variable clk_div_count : integer range 0 to CLK_DIV_FACTOR-1;
+   begin
+      if(rst_i = '1') then
+         clk_div_count := 0;
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
+         if(clk_div_count = CLK_DIV_FACTOR-1) then
+            rx_clk <= '1';
+            clk_div_count := 0;
+         else
+            rx_clk <= '0';
+            clk_div_count := clk_div_count + 1;
+         end if;
+      end if;
+   end process;
    
    rx_sample: shift_reg
    generic map(WIDTH => 3)
@@ -136,7 +133,7 @@ begin
    rx_data <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
    
    rx_counter: counter
-   generic map(MAX         => 80,
+   generic map(MAX         => 40,
                WRAP_AROUND => '0')
    port map(clk_i   => rx_clk,
             rst_i   => rst_i,
@@ -157,11 +154,11 @@ begin
             serial_o   => open,
             parallel_i => (others => '0'),
             parallel_o => data_buf);
-            
-   data_buf_ena <= '1' when ((count =  5) or (count = 13) or (count = 21) or (count = 29) or (count = 37) or
-                             (count = 45) or (count = 53) or (count = 61) or (count = 69) or (count = 77))
+
+   data_buf_ena <= '1' when ((count =  3) or (count = 7) or (count = 11) or (count = 15) or (count = 19) or
+                             (count = 23) or (count = 27) or (count = 31) or (count = 35) or (count = 39))
                        else '0';
-                              
+                                                     
    stateFF: process(rst_i, rx_clk)
    begin
       if(rst_i = '1') then
@@ -180,7 +177,7 @@ begin
                             next_state <= IDLE;
                          end if;
                          
-         when RECEIVE => if(count = 80) then
+         when RECEIVE => if(count = 40) then
                             next_state <= DONE;
                          else 
                             next_state <= RECEIVE;
