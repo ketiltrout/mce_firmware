@@ -1,0 +1,7 @@
+vsim -coverage tb_dac_ctrl(beh)
+add wave -hex /*
+add wave -hex tb_dac_ctrl/dut/*
+add wave -hex tb_dac_ctrl/dut/dac_write_lvds_spi/*
+add list -hex /*
+run -all
+view signals list wave
