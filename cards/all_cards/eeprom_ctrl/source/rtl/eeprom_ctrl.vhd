@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: eeprom_ctrl.vhd,v 1.4 2004/03/31 19:36:03 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: eeprom_ctrl.vhd,v 1.5 2004/04/06 19:51:12 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -38,7 +38,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/03/31 19:36:03 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/06 19:51:12 $>	-		<text>		- <initials $Author: jjacob $>
 
 -- 
 -----------------------------------------------------------------------------
@@ -274,25 +274,41 @@ begin
 --
 ------------------------------------------------------------------------
    
-   process(rst_i, clk_i)
+--   process(rst_i, clk_i)
+--   begin
+--   
+--      --timer_100ns_rst <= '0';
+--   
+--      if rst_i = '1' then
+--         eeprom_clk <= '0';
+--         --timer_100ns_rst <= '1';
+--      elsif clk_i'event and clk_i = '1' then
+--         if timer_100ns >= TIME_100NS then  -- this is actually 120ns period!!!!
+--            eeprom_clk <= not(eeprom_clk);
+--            --timer_100ns_rst <= '1';
+--         end if;
+--      end if;
+--   end process;
+
+   process(rst_i, timer_100ns)
    begin
    
-      timer_100ns_rst <= '0';
+      --timer_100ns_rst <= '0';
    
       if rst_i = '1' then
          eeprom_clk <= '0';
-         timer_100ns_rst <= '1';
-      elsif clk_i'event and clk_i = '1' then
-         if timer_100ns >= TIME_100NS then  -- this is actually 120ns period!!!!
+         --timer_100ns_rst <= '1';
+      elsif timer_100ns = TIME_100NS then  -- this is actually 120ns period!!!!
             eeprom_clk <= not(eeprom_clk);
-            timer_100ns_rst <= '1';
-         end if;
+            --timer_100ns_rst <= '1';
       end if;
    end process;
+
 
    -- phase shifted clock for the eeprom state machine logic
    n_eeprom_clk <= not(eeprom_clk);
  
+   timer_100ns_rst <= '1' when timer_100ns = TIME_100NS or rst_i = '1' else '0';
 ------------------------------------------------------------------------
 --
 -- State sequencer, based on a 200ns phase shifted clock that is
