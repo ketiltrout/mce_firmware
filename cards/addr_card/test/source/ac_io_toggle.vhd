@@ -71,7 +71,7 @@ end;
 
 architecture rtl of ac_io_toggle is
 
-component pll 
+component pll_in25m_out50m1m 
 port(inclk0 : in std_logic;
      c0 : out std_logic;   -- 50 MHz
      c1 : out std_logic);  -- 1 MHz
@@ -82,7 +82,7 @@ signal clk1 : std_logic;
 
 begin
 
-   clk_pll : pll
+   pll : pll_in25m_out50m1m
    port map(inclk0 => inclk,
             c0 => clk1,
             c1 => clk0);

@@ -92,7 +92,7 @@ type states is (EVEN, ODD);
 signal ps : states;
 signal ns : states;
 
-component pll 
+component pll_in25m_out50m1m 
 port(inclk0 : in std_logic;
      c0 : out std_logic;   -- 25 MHz
      c1 : out std_logic);  -- 0.5 MHz
@@ -105,7 +105,7 @@ signal clk_div : std_logic_vector(20 downto 0);
 
 begin
 
-   clk_pll : pll
+   clk_pll : pll_in25m_out50m1m
    port map(inclk0 => inclk,
             c0 => clk0,
             c1 => clk1);

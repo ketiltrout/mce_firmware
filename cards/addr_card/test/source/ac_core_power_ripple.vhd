@@ -37,7 +37,7 @@ signal clk_25 : std_logic;
 signal outclk : std_logic;
 signal clk_400 : std_logic;
 
-component pll
+component pll_in25m_out400m200m25m
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
@@ -52,7 +52,7 @@ port(clock : in std_logic;
 end component;
 
 begin
-   clk0 : pll
+   clk0 : pll_in25m_out400m200m25m
    port map(inclk0 => inclk,
             c0 => clk_400,
             c1 => test(16),
