@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.8 2004/07/29 00:23:44 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.9 2004/08/04 17:12:14 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/07/29 00:23:44 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2004/08/04 17:12:14 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.9  2004/08/04 17:12:14  bburger
+-- Bryce:  END_OF_FRAME finishes at 41*61-1 instead of 41*61.
+--
 -- Revision 1.8  2004/07/29 00:23:44  mandana
 -- Add num. of rows as a constant
 --
@@ -84,7 +87,7 @@ package frame_timing_pack is
 
    constant MUX_LINE_PERIOD   : integer := 64; -- 64 50MHz cycles
    constant NUM_OF_ROWS       : integer := 41;
-   constant END_OF_FRAME      : integer := NUM_OF_ROWS*MUX_LINE_PERIOD-1; --(41*MUX_LINE_PERIOD);
+   constant END_OF_FRAME      : integer := 15;--NUM_OF_ROWS*MUX_LINE_PERIOD-1; --(41*MUX_LINE_PERIOD);
 
    ------------------------------------------------------------------------------------
    -- Clock Card frame structure

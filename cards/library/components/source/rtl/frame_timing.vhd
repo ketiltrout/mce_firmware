@@ -20,18 +20,21 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.8 2004/05/18 17:06:42 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.9 2004/07/21 22:30:15 erniel Exp $>
 --
--- Project:		 SCUBA-2
--- Author:		 Bryce Burger
--- Organisation:	UBC
+-- Project:     SCUBA-2
+-- Author:      Bryce Burger
+-- Organisation:  UBC
 --
 -- Description:
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/05/18 17:06:42 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2004/07/21 22:30:15 $> - <text> - <initials $Author: erniel $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.9  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.8  2004/05/18 17:06:42  mandana
 -- fixed synthesis errors
 --
@@ -81,13 +84,15 @@ end frame_timing;
 
 architecture beh of frame_timing is
 
-   signal frame_rst : std_logic;
-   signal clk_error : std_logic_vector(31 downto 0);
-   signal counter_rst : std_logic;
-   signal count : std_logic_vector(31 downto 0);
-   signal count_int : integer;
-   signal reg_rst : std_logic;
-   type states is (WAIT_FRM_RST, WAIT_FOR_SYNC);
+   --signal frame_rst     : std_logic;
+   signal clk_error     : std_logic_vector(31 downto 0);
+   signal counter_rst   : std_logic;
+   signal count         : std_logic_vector(31 downto 0);
+   signal count_int     : integer;
+   --signal reg_rst       : std_logic;
+   signal wait_for_sync : std_logic;
+   signal latch_error   : std_logic;
+   type states is (WAIT_FRM_RST, COUNT_UP, GOT_SYNC, WAIT_TO_LATCH_ERR);
    
    signal current_state, next_state : states;
    
@@ -109,8 +114,8 @@ architecture beh of frame_timing is
    rstr : reg
       generic map(WIDTH => 32)
       port map(
-         clk_i => sync_i,
-         rst_i => reg_rst,
+         clk_i => latch_error,
+         rst_i => frame_rst_i,
          ena_i => '1',
          reg_i  => count,
          reg_o => clk_error
@@ -122,29 +127,76 @@ architecture beh of frame_timing is
    clk_count_o <= count_int;
    clk_error_o <= clk_error;
    
--- CLOCKED FSMs
+   -- CLOCKED FSMs
    state_FF: process(clk_i)
    begin
-      if(clk_i'event and clk_i = '1') then
-         current_state     <= next_state;
+      if(frame_rst_i = '1') then
+         current_state <= WAIT_FRM_RST;
+      elsif(clk_i'event and clk_i = '1') then
+         current_state <= next_state;
       end if;
    end process state_FF;
 
-  state_NS: process(current_state, sync_i, frame_rst_i)
+   -- If a frame_reset occurs, then during the next sync pulse, count_int resets to zero and increments to 1 two cycles after the rising edge of the sync pulse
+   -- Otherwise, count_int should reset to zero at the time when it reaches END_OF_FRAME - and disregard sync altogether.
+   
+   -- During normal operation, this block will have synchronized itself so that clk_count_o wraps to 0 on the clock cycle following the sync pulse
+   -- Also, during normal operation, clk_error_o should indicate '0' if it is perfectly synchronized.
+   -- Because the sync pulse comes in on the last clock cycle of the frame, I have had to delay the update of clk_error_o by two clock cycles to make sure that it latches '0'.
+   -- One clock cycle is because the sync pulse happens on the last clock of the frame, when clk_count_o is at its maximum.
+   -- The second clock cycle is to let the output of the counter stabilize before clocking in the value.
+   -- According to simulations, when I register clk_error_o, it takes the value of clk_count_o from the previous clock cycle.
+   -- That seems wonky to me, and in practice, we will probably have to test this.
+   -- If the second clock cycle delay is not needed in hardware, then just remove the WAIT_TO_LATCH_ERR state from the FSM.
+   state_NS: process(current_state, sync_i)
    begin
       case current_state is
          when WAIT_FRM_RST =>
-            if frame_rst_i = '1' then
-               next_state <= WAIT_FOR_SYNC;            
-            end if;                  
-         when WAIT_FOR_SYNC =>
             if (sync_i = '1') then
+               next_state <= COUNT_UP;
+            else
                next_state <= WAIT_FRM_RST;
+            end if;                  
+         when COUNT_UP =>
+            if (sync_i = '1') then
+               next_state <= GOT_SYNC;
+            else
+               next_state <= COUNT_UP;
             end if;
+         when GOT_SYNC =>
+            next_state <= WAIT_TO_LATCH_ERR;
+         when WAIT_TO_LATCH_ERR =>
+            next_state <= COUNT_UP;
+         when others =>
+            next_state <= WAIT_FRM_RST;
       end case;
    end process state_NS;
    
-   counter_rst <= '1' when current_state = WAIT_FOR_SYNC and sync_i = '1' else '0';
-   reg_rst     <= '1' when current_state = WAIT_FOR_SYNC and sync_i = '1' else '0';
+   state_out: process(current_state, sync_i)
+   begin
+      case current_state is
+         when WAIT_FRM_RST =>
+            latch_error <= '0';
+            if (sync_i = '1') then
+               wait_for_sync <= '1';
+            else
+               wait_for_sync <= '0';
+            end if;
+         when COUNT_UP =>
+            latch_error <= '0';
+            wait_for_sync <= '0';
+         when GOT_SYNC =>
+            latch_error <= '0';
+            wait_for_sync <= '0';
+         when WAIT_TO_LATCH_ERR =>
+            latch_error <= '1';
+            wait_for_sync <= '0';
+         when others =>
+            latch_error <= '0';
+            wait_for_sync <= '0';
+      end case;
+   end process state_out;
+   
+   counter_rst <= '1' when wait_for_sync = '1' else '0';
    
 end beh;
