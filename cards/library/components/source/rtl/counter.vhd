@@ -29,8 +29,11 @@
 -- Generic parameterized counter
 --
 -- Revision history:
--- <date $Date: 2004/07/21 19:45:10 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/07/22 00:01:44 $>	- <initials $Author: erniel $>
 -- $Log: counter.vhd,v $
+-- Revision 1.4  2004/07/22 00:01:44  erniel
+-- wraparound is default
+--
 -- Revision 1.3  2004/07/21 19:45:10  erniel
 -- added generics to parameterize counter behaviour:
 --    WRAP_AROUND
@@ -60,15 +63,15 @@ port(clk_i   : in std_logic;
      rst_i   : in std_logic;
      ena_i   : in std_logic;
      load_i  : in std_logic;
-     count_i : in integer;
-     count_o : out integer);
+     count_i : in integer range 0 to MAX;
+     count_o : out integer range 0 to MAX);
 end counter;
 
 architecture behav of counter is
 
-signal count_reset : integer;
-signal count_new   : integer;
-signal count       : integer;
+signal count_reset : integer range 0 to MAX;
+signal count_new   : integer range 0 to MAX;
+signal count       : integer range 0 to MAX;
 
 begin
 
