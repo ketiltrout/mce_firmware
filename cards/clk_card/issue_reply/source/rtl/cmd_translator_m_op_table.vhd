@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.1 2004/07/06 10:53:40 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -27,14 +27,27 @@
 --
 -- Description:  
 -- This module is the macro_op table.  It keeps track of the issued marco_op commands,
--- and retires them once completed. 
--- 
+-- and retires them once completed.  The vector 'table_status' has a bit set for 
+-- each macro command issued.   The bit corresponds to the element in the table where 
+-- the command is stored. 
+--
+-- SIMULTANEOUS M_OP STORES AND M_OP RETIRES ARE NOT PERMITTED.
+--
+-- When a m_op is being retired the output 'retiring_busy' will be asserterd high.
+-- Not other m_ops should be stored or retired during this time.
+--
+-- Furthermore, when retiring a command the input "macro_instr_done_i" should be held high   
+-- until the output signal "retiring_busy_o" goes high.
+--
 -- 
 -- Revision history:
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/07/06 10:53:40 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: cmd_translator_m_op_table.vhd,v $
+-- Revision 1.1  2004/07/06 10:53:40  dca
+-- Initial Version
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -52,8 +65,9 @@ use work.issue_reply_pack.all;
 entity cmd_translator_m_op_table is
 
 port(
-     -- global inputs
-     rst_i             : in     std_logic;
+     -- global inputs 
+     rst_i                   : in     std_logic;
+     clk_i                   : in     std_logic;
 
      -- inputs from cmd_translator (top level)     
      card_addr_store_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
@@ -64,10 +78,11 @@ port(
  
      -- inputs from reply translator
      m_op_seq_num_retire_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
-     macro_instr_done_i       : in std_logic;                                           -- ='1' when the data is valid, else it's '0'
+     macro_instr_done_i       : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
  
-     table_empty_o            : out std_logic;                                         -- asserted if table full.  no more macro instructions should be retired.
-     table_full_o             : out std_logic                                          -- asserted if table full.  No more macro instructions should be issued.
+     retiring_busy_o          : out std_logic;                                         -- asserted high while retiring a m_op, during which time no other m-ops should be issues.
+     table_empty_o            : out std_logic;                                         -- asserted high if table full.  no more macro instructions should be retired.
+     table_full_o             : out std_logic                                          -- asserted high if table full.  No more macro instructions should be issued.
    ); 
      
 end cmd_translator_m_op_table;
@@ -108,20 +123,37 @@ signal frame_seq_num_buffer   : frame_seq_num_mem;
 signal store_pointer          : integer;                                   -- points to next available (loweset) free slot in table 
 signal retire_pointer         : integer;                                   -- points to slot to be retired
 signal table_status		         : std_logic_vector(0 to BUFFER_SIZE-1);      -- bit vector which reveals if slot in table is free or occupied
-signal set_mop_flag           : std_logic_vector(0 to BUFFER_SIZE-1);      -- bit vector to show which slot has just been occupied  
-signal clr_mop_flag           : std_logic_vector(0 to BUFFER_SIZE-1);      -- bit vector to show which slot is to be retired
+
+signal retire_mop             : std_logic;                                 -- FSM output which initiates the retirement of a m_op
+signal find_mop               : std_logic;                                 -- FSM output which initiates a search for the m_op to be retired
+signal update_table           : std_logic;                                 -- when asserted the table is updated with either a store or a retire.
+
+-- retire fsm states
+constant IDLE                 : std_logic_vector(1 downto 0)  := "00";     -- FSM idle state
+constant FIND_MOP_SEQ         : std_logic_vector(1 downto 0)  := "01";     -- FSM state in which the m_op to be retired is foundstate
+constant RETIRE_MOP_SEQ       : std_logic_vector(1 downto 0)  := "10";     -- FSM state in whcih the m_op is retired
+
+-- state variables:
+signal current_state  : std_logic_vector(1 downto 0);
+signal next_state     : std_logic_vector(1 downto 0);
+
+
 
 begin
 
-
-   --------------------------------------------
-   m_op_store: process(rst_i, macro_instr_rdy_i)
-   ---------------------------------------------
-   -- process to store macro_op instructions
-   ---------------------------------------------
+ 
+   update_table  <= macro_instr_rdy_i OR retire_mop;
+   
+   -----------------------------------------------------------
+   store_retire_table: process(rst_i, update_table )
+   -----------------------------------------------------------
+   -- process to store/retire macro commands
+   -- note store/retire cannot be done simultaneously
+   -----------------------------------------------------------
    begin
-      if (rst_i = '1') then 
-         set_mop_flag                           <= (others => '0');
+      
+      if rst_i = '1' then
+         table_status <= (others => '0');
          
          for clear_index in 0 to (BUFFER_SIZE-1) loop
             card_addr_buffer(clear_index)       <= (others => '0');
@@ -130,97 +162,156 @@ begin
             frame_seq_num_buffer(clear_index)   <= (others => '0');
          end loop;
          
-      
-      elsif (macro_instr_rdy_i'event and macro_instr_rdy_i = '1') then        -- store values in table
+      elsif (update_table'event and update_table = '1') then
+         if macro_instr_rdy_i = '1' then
             card_addr_buffer(store_pointer)     <= card_addr_store_i;
             parameter_id_buffer(store_pointer)  <= parameter_id_store_i;
             m_op_seq_num_buffer(store_pointer)  <= m_op_seq_num_store_i;
             frame_seq_num_buffer(store_pointer) <= frame_seq_num_store_i;
-            
-            set_mop_flag                        <= (others => '0');
-            set_mop_flag(store_pointer)         <= '1';
-      end if;  
-   end process m_op_store; 
- 
+            table_status(store_pointer) <= '1';
+         else
+            card_addr_buffer(retire_pointer)       <= (others => '0');
+            parameter_id_buffer(retire_pointer)    <= (others => '0');
+            m_op_seq_num_buffer(retire_pointer)    <= (others => '0');
+            frame_seq_num_buffer(retire_pointer)   <= (others => '0');
+            table_status(retire_pointer) <= '0';
+         end if;
+      end if;
+      
+   end process store_retire_table;       
   
-   --------------------------------------------------------
-   m_op_retire_pointer: process(rst_i, macro_instr_done_i)
-   --------------------------------------------------------
-   -- process to estable macro op to retire 
-   --------------------------------------------------------
-   begin
-      if (rst_i = '1') then 
-         retire_pointer                         <=  0 ;      
-         clr_mop_flag                           <= (others => '0');
-      elsif (macro_instr_done_i'event and macro_instr_done_i = '1') then     
+     
    
-      -- find instruction to be retired in look-up table using sequence number
-      -- and table_status, then set element in clr_mop_flag
-         clr_mop_flag                           <= (others => '0'); 
-         for retire_index in 0 to BUFFER_SIZE-1 loop
-            if (m_op_seq_num_retire_i = m_op_seq_num_buffer(retire_index) ) and (table_status(retire_index) = '1') then
-               retire_pointer <= retire_index;  
-               clr_mop_flag(retire_index)       <= '1';             
+   --------------------------------------------------------------------
+   find_store_pointer: process(rst_i, macro_instr_rdy_i, table_status)
+   ---------------------------------------------------------------------
+   -- process establish the next value for store_pointer
+   ---------------------------------------------------------------------
+   begin
+      
+      if rst_i = '1' then
+         store_pointer <= 0;
+      elsif macro_instr_rdy_i = '0' then                         -- find next free slot 
+      
+         for store_index in BUFFER_SIZE-1 downto 0 loop          -- assign store_pointer lowest availble location in table
+            if table_status(store_index) = '0' then
+               store_pointer <= store_index;
             end if;
          end loop;
-            
-
-          
-      end if;    
-   end process m_op_retire_pointer;
-   
-           
-                 
-   ----------------------------------------------------------
-   flag_status: process(rst_i, set_mop_flag, clr_mop_flag)
-   ----------------------------------------------------------
-   -- process to get set/clear macro op flags in table_status
-   -- to refect which are issued/retired
-   ----------------------------------------------------------
-   
-   begin
-      if rst_i  = '1' then
-         table_status <= (others => '0');
-      
-      else
-       
-         if set_mop_flag'event then
-            for set_index in 0 to BUFFER_SIZE-1 loop
-              if set_mop_flag(set_index) = '1' then
-                 table_status(set_index)<= '1';                       -- indicate table slot occupied
-              end if;
-            end loop;
-         end if;
-      
-         if clr_mop_flag'event then
-            for clr_index in 0 to BUFFER_SIZE-1 loop
-              if clr_mop_flag(clr_index) = '1' then
-                table_status(clr_index) <= '0';                       -- indicate table slot occupied
-              end if;
-            end loop;
-         end if;
       
       end if;
       
-    end process flag_status;
-    
-    
-   -----------------------------------------------------
-   m_op_store_pointer: process(table_status)
-   -----------------------------------------------------
-   -- process to get next value for store_pointer
-   ------------------------------------------------------
-   begin
-      for store_index in BUFFER_SIZE-1 downto 0 loop          -- assign store_pointer lowest availble location in table
-         if table_status(store_index) = '0' then
-            store_pointer <= store_index;
-         else
-            null;
-         end if;
-      end loop;
-      
-   end process m_op_store_pointer;       
+   end process find_store_pointer;       
   
+  
+   ---------------------------------------------------------------------------
+   -- FSM used to retire macro operations
+   ----------------------------------------------------------------------------
+   fsm_clocked : process(
+      clk_i,
+      rst_i
+   )
+   ----------------------------------------------------------------------------
+   begin
+         
+      if (rst_i = '1') then
+         current_state <= IDLE;
+      elsif (clk_i'EVENT AND clk_i = '1') then
+         current_state <= next_state;
+      end if;
+
+   end process fsm_clocked;
+
+   -------------------------------------------------------------------------
+   fsm_nextstate : process (
+      current_state,
+      macro_instr_done_i
+   )
+   ----------------------------------------------------------------------------
+   begin
+     
+      case current_state is
+
+
+      when IDLE =>
+         if (macro_instr_done_i = '1') then
+            next_state <= FIND_MOP_SEQ;
+         else
+            next_state <= IDLE;
+         end if;  
+         
+      when FIND_MOP_SEQ =>
+         next_state <= RETIRE_MOP_SEQ;
+
+      when RETIRE_MOP_SEQ =>
+         next_state <= IDLE;   
+
+      when OTHERS =>
+         next_state <= IDLE;   
+         
+      end case;
+      
+   end process fsm_nextstate;
+    
+         
+   -------------------------------------------------------------------------
+   fsm_output : process (
+      current_state
+   )
+   ----------------------------------------------------------------------------
+   begin
+     
+      case current_state is
+
+      when IDLE =>
+         
+         retiring_busy_o <= '0';
+         find_mop        <= '0';
+         retire_mop      <= '0';
+      
+      when  FIND_MOP_SEQ =>
+         retiring_busy_o <= '1';
+         find_mop        <= '1';
+         retire_mop      <= '0';
+           
+      when RETIRE_MOP_SEQ =>
+         retiring_busy_o <= '1';
+         find_mop        <= '0';
+         retire_mop      <= '1';   
+      
+      when OTHERS => 
+         retiring_busy_o <= '0';
+         find_mop        <= '0';
+         retire_mop      <= '0';
+      
+      end case;
+      
+      
+   end process fsm_output;
+ 
+   -------------------------------------------------------------------------
+   find_retire_pointer: process(rst_i, find_mop)
+   -------------------------------------------------------------------------
+   -- process to estable macro op to retire 
+   -- finds instruction to be retired in look-up table using sequence number
+   -------------------------------------------------------------------------
+   begin
+      if (rst_i = '1') then 
+         retire_pointer                         <=  0 ;      
+
+      elsif (find_mop'event and find_mop = '1') then     
+   
+         for retire_index in 0 to BUFFER_SIZE-1 loop
+            if (m_op_seq_num_retire_i = m_op_seq_num_buffer(retire_index) ) and (table_status(retire_index) = '1') then
+               retire_pointer <= retire_index; 
+            end if;
+         end loop;
+        
+      end if;    
+   end process find_retire_pointer;
+   
+   
+        
    -----------------------------------------------
    table_full_empty: process(table_status)
    -----------------------------------------------
