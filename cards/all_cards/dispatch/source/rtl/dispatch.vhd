@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.7  2005/03/18 23:14:19  erniel
+-- replaced obsolete dispatch_data_buf with direct altsyncram instantiation
+-- changed buffer addr & data bus size constant names
+--
 -- Revision 1.6  2005/01/11 20:49:29  erniel
 -- removed unnecessary mem_clk_i port
 --
@@ -145,6 +149,10 @@ signal card : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 signal n_clk : std_logic;
 
 begin
+   
+   -- inverted clock for buffers:
+   n_clk <= not clk_i;
+   
    
    receiver : dispatch_cmd_receive
    port map(clk_i      => clk_i,
