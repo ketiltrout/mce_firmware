@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.6 2004/08/11 00:09:11 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.7 2004/08/18 06:48:43 bench2 Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/11 00:09:11 $> -     <text>      - <initials $Author: jjacob $>
+-- <date $Date: 2004/08/18 06:48:43 $> -     <text>      - <initials $Author: bench2 $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.7  2004/08/18 06:48:43  bench2
+-- Bryce: removed unnecessary interface signals between the cmd_queue and the reply_queue.
+--
 -- Revision 1.6  2004/08/11 00:09:11  jjacob
 -- added the following signals to cmd_translator for the reply_translator interface:
 --       reply_cmd_rcvd_er_o         : out std_logic;
@@ -108,28 +111,33 @@ port(
 
       cksum_err_o : out    std_logic;
       
-      -- outputs to the micro-instruction sequence generator
-      -- these signals will be absorbed when the issue_reply block's boundary extends
-      -- to include u-op sequence generator.
---      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
+--      -- this signals are temporarily here for testing, in order to route these signals to top level
+--      -- to be viewed on the logic analyzer
+--      
+----      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
 --      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
---      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
+----      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
 --      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
 --      data_clk_o        :  out std_logic;
 --      macro_instr_rdy_o :  out std_logic;
---      
---      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
---      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
---      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
---      
---      -- input from the micro-op sequence generator
---      ack_i             : in std_logic     
+----      
+----      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
+----      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
+----      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
+----      
+----      -- input from the micro-op sequence generator
+----      ack_i             : in std_logic     
       
-      
+      macro_op_ack_o  : out std_logic;
       -- lvds_tx interface
       tx_o          : out std_logic;  -- transmitter output pin
-      clk_200mhz_i   : in std_logic  -- PLL locked 25MHz input clock for the
+      clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
 
+      --[JJ] for testing
+      sync_pulse_i: in    std_logic;
+      sync_number_i  : in std_logic_vector (7 downto 0)
+      
+      --cmd_tx_dat_o    : out std_logic_vector (31 downto 0)
 
 
    ); 
@@ -168,10 +176,7 @@ architecture rtl of issue_reply is
       signal sync_number          : std_logic_vector (7 downto 0);
 
 
-      -- temporary signals to simulate the sync pulse counter
-      signal count                : integer;
-      signal count_rst            : std_logic;
-      
+
       -- reply_queue interface
       signal uop_status : std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0);
       signal uop_rdy : std_logic;
@@ -192,6 +197,18 @@ architecture rtl of issue_reply is
       signal frame_seq_num   : std_logic_vector(31 downto 0);-- currently doesn't go anywhere.  Doesn't need to be an output from the cmd_translator
       signal macro_instr_rdy:  std_logic; 
       signal mop_ack :  std_logic; 
+
+      -- temporary signals to simulate the sync pulse counter
+
+      signal count                : integer;
+      signal count_rst            : std_logic;
+      signal sync_number_mux_sel  : std_logic;
+      signal sync_number_mux      : std_logic_vector(7 downto 0);
+      
+      type state is               (IDLE, COUNTING, INCREMENT);
+      signal current_state, next_state : state;
+      constant SYNC_PERIOD        : integer := 53; -- time in micro-seconds
+
 
 
 --   component fibre_rx is
@@ -220,7 +237,12 @@ architecture rtl of issue_reply is
 
 begin
 
-
+    -- temporarily routing these signals to top level to view them on the logic analyzer
+--    parameter_id_o <= parameter_id;
+--    data_o         <= data;
+--    data_clk_o     <= data_clk2;
+--    macro_instr_rdy_o <= macro_instr_rdy;
+--    macro_op_ack_o    <= mop_ack;
 
 
 --------------------------------------------------
@@ -313,8 +335,8 @@ begin
 
                
                
-               sync_pulse_i         => sync_pulse,
-               sync_number_i        => sync_number
+               sync_pulse_i         => sync_pulse_i,
+               sync_number_i        => sync_number_i
 
                );
                
@@ -323,16 +345,21 @@ begin
 -- instantiate command queue (u-op sequence generator)
 --
 ------------------------------------------------------------------------               
-
+    uop_status <= (others=>'0');
+    uop_ack    <= '0';
       
     i_cmd_queue : cmd_queue
       port map(
          -- reply_queue interface
---         uop_status_i   => uop_status,  -- tie these signals
+
+        -- uop_status_i   => uop_status,  -- tie these signals
+
          uop_rdy_o      => uop_rdy,
          uop_ack_i      => uop_ack,
---         uop_discard_o  => uop_discard,
---         uop_timedout_o => uop_timedout,
+
+        -- uop_discard_o  => uop_discard,
+        -- uop_timedout_o => uop_timedout,
+
          uop_o          => uop,
          
          -- cmd_translator interface
@@ -351,10 +378,13 @@ begin
          clk_200mhz_i   => clk_200mhz_i,
 
          -- Clock lines
-         sync_i         => sync_pulse,
-         sync_num_i     => sync_number,
+         sync_i         => sync_pulse_i,
+         sync_num_i     => sync_number_i,
          clk_i          => clk_i,
          rst_i          => rst_i
+         
+         -- for testing
+         --cmd_tx_dat_o  => cmd_tx_dat_o
       );
 
       
@@ -372,29 +402,57 @@ begin
            );
            
 
+   process(current_state, count)
+   begin
+   
+      -- default
+      count_rst           <= '0';
+      sync_number_mux_sel <= '0';
+   
+      case current_state is
+         when IDLE =>
+            next_state <= COUNTING;
+            count_rst  <= '1';
+            
+         when COUNTING =>
+            if count = SYNC_PERIOD then
+               --count_rst           <= '1';
+               --sync_number_mux_sel <= '1';
+               next_state <= INCREMENT;
+            else
+               next_state <= COUNTING;
+            end if;
+            
+         when INCREMENT =>
+            count_rst           <= '1';
+            sync_number_mux_sel <= '1';
+            next_state <= COUNTING;
+            
+         when others =>
+            next_state <= IDLE;
+                     
+      end case;
+   end process;
+
+
+   process(clk_i, rst_i)
+   begin
+      if rst_i = '1' then
+         sync_number    <= (others=>'0');
+         current_state <= IDLE;
+      elsif clk_i'event and clk_i = '1' then
+         current_state <= next_state;
+         sync_number    <= sync_number_mux;
+      end if;
+   end process;
+
+   sync_number_mux <= sync_number + 1 when sync_number_mux_sel = '1' else sync_number;
+
 
    
-   process(count, rst_i)
-   begin
-         if rst_i = '1' then
-            count_rst <= '1';
-         elsif count = 53 then
-            count_rst   <= '1';
-         else
-            count_rst   <= '0';
-         end if;
+   sync_pulse <= sync_number_mux_sel;
 
-   end process;
- 
-   process(rst_i, count_rst)
-   begin
-         if rst_i = '1' then
-            sync_number <= (others=>'0');
-         elsif count_rst'event and count_rst = '1' then
-            sync_number <= sync_number + 1;
-         end if;
-   end process;
-   
-   sync_pulse <= count_rst;
+   --[JJ] for testing
+   --sync_pulse_o <= sync_pulse;
 
 end rtl; 
