@@ -1,0 +1,18 @@
+FILES
+{
+	TCL_SCRIPT_FILE = ..\..\addr_card_pin_assign.tcl;
+	VHDL_FILE = ..\source\rtl\lvds_test.vhd;
+}
+COMPILER_SETTINGS_LIST
+{
+	COMPILER_SETTINGS = lvds_test;
+}
+SIMULATOR_SETTINGS_LIST
+{
+	SIMULATOR_SETTINGS = lvds_test;
+}
+SOFTWARE_SETTINGS_LIST
+{
+	SOFTWARE_SETTINGS = Debug;
+	SOFTWARE_SETTINGS = Release;
+}
