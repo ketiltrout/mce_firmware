@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.6  2004/12/01 18:42:10  erniel
+-- renamed READ_DONE state to DISCARD_HEADER
+--
 -- Revision 1.5  2004/12/01 04:28:55  erniel
 -- reworked read FSM state transitions to handle reply packets with size=0
 --
@@ -119,7 +122,7 @@ signal crc_rdy   : std_logic;
 --------------------------------------------------
 -- FIFO write control:
 
-type write_ctrl_states is (WRITE_INIT, GET_HEADERS, WRITE_DATA, WRITE_HEADER, WRITE_DONE);
+type write_ctrl_states is (WRITE_INIT, GET_HEADERS, WRITE_DATA, WRITE_HEADER, GET_CRC, WRITE_DONE);
 signal wr_pres_state : write_ctrl_states;
 signal wr_next_state : write_ctrl_states;
 
@@ -438,7 +441,7 @@ begin
       end if;
    end process write_stateFF;
    
-   write_stateNS: process(wr_pres_state, wr_count, num_data_words)
+   write_stateNS: process(wr_pres_state, wr_count, num_data_words, crc_rdy)
    begin
       case wr_pres_state is
          when WRITE_INIT =>   wr_next_state <= GET_HEADERS;
@@ -455,7 +458,13 @@ begin
                                  wr_next_state <= WRITE_DATA;
                               end if;
          
-         when WRITE_HEADER => wr_next_state <= WRITE_DONE;
+         when WRITE_HEADER => wr_next_state <= GET_CRC;
+         
+         when GET_CRC =>      if(crc_rdy = '1') then
+                                 wr_next_state <= WRITE_DONE;
+                              else
+                                 wr_next_state <= GET_CRC;
+                              end if;
                                        
          when WRITE_DONE =>   wr_next_state <= WRITE_INIT;
                                   
@@ -579,7 +588,8 @@ begin
                                     rd_count_ena <= '1';
                                  end if;
          
-         when DATA_EMPTY =>      done_o <= '1';
+         when DATA_EMPTY =>      rdy_o  <= '1';
+                                 done_o <= '1';
          
          when DISCARD_DATA =>    data_rd         <= '1';
                                  rd_count_ena    <= '1';
