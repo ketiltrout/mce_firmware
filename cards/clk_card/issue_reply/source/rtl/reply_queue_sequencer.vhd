@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.6  2004/12/01 04:26:54  erniel
+-- added UPDATE HEADERS state
+--
 -- Revision 1.5  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -139,8 +142,8 @@ port(clk_i : in std_logic;
      macro_op_i  : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
      micro_op_i  : in std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
      card_addr_i : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-     match_o     : out std_logic;
-     start_i     : in std_logic);
+     cmd_valid_i : in std_logic;
+     match_o     : out std_logic);
 end reply_queue_sequencer;
 
 architecture rtl of reply_queue_sequencer is
@@ -207,7 +210,7 @@ begin
       end if;
    end process state_FF;
    
-   state_NS: process(pres_state, seq_num, start_i, card_addr_i, 
+   state_NS: process(pres_state, seq_num, cmd_valid_i, card_addr_i, 
                      ac_rdy_i, ac_done_i, ac_header_i,
                      bc1_rdy_i, bc1_done_i, bc1_header_i,
                      bc2_rdy_i, bc2_done_i, bc2_header_i,
@@ -219,7 +222,7 @@ begin
                      cc_rdy_i, cc_done_i, cc_header_i)
    begin
       case pres_state is
-         when IDLE =>            if(start_i = '1') then
+         when IDLE =>            if(cmd_valid_i = '1') then
                                     next_state <= INSPECT_HEADERS;
                                  else
                                     next_state <= IDLE;
@@ -377,14 +380,18 @@ begin
                                     next_state <= READ_CC_DATA;
                                  end if;
          
-         when UPDATE_HEADERS =>  next_state <= IDLE;
+         when UPDATE_HEADERS =>  if(cmd_valid_i = '0') then
+                                    next_state <= IDLE;
+                                 else
+                                    next_state <= UPDATE_HEADERS;
+                                 end if;
          
          when others =>          next_state <= IDLE;
       end case;
    end process state_NS;
    
-   state_Out: process(pres_state, seq_num, card_addr_i, ack_i,
-                      ac_rdy_i, ac_data_i, ac_header_i, 
+   state_Out: process(pres_state, seq_num, card_addr_i, cmd_valid_i, ack_i,
+                      ac_rdy_i,  ac_data_i,  ac_header_i, 
                       bc1_rdy_i, bc1_data_i, bc1_header_i,
                       bc2_rdy_i, bc2_data_i, bc2_header_i,
                       bc3_rdy_i, bc3_data_i, bc3_header_i,
@@ -392,7 +399,7 @@ begin
                       rc2_rdy_i, rc2_data_i, rc2_header_i,
                       rc3_rdy_i, rc3_data_i, rc3_header_i,
                       rc4_rdy_i, rc4_data_i, rc4_header_i,
-                      cc_rdy_i, cc_data_i, cc_header_i)
+                      cc_rdy_i,  cc_data_i,  cc_header_i)
    begin
       ac_ack_o  <= '0';
       bc1_ack_o <= '0';
@@ -587,46 +594,48 @@ begin
                                  rdy_o     <= '1';
                                  cc_ack_o  <= ack_i;
                                  
-         when UPDATE_HEADERS =>  case card_addr_i is
-                                    when ADDRESS_CARD =>      ac_ack_o  <= '1';
+         when UPDATE_HEADERS =>  if(cmd_valid_i = '0') then
+                                    case card_addr_i is
+                                       when ADDRESS_CARD =>      ac_ack_o  <= '1';
                                     
-                                    when BIAS_CARD_1 =>       bc1_ack_o <= '1';
+                                       when BIAS_CARD_1 =>       bc1_ack_o <= '1';
                                     
-                                    when BIAS_CARD_2 =>       bc2_ack_o <= '1';
+                                       when BIAS_CARD_2 =>       bc2_ack_o <= '1';
                                     
-                                    when BIAS_CARD_3 =>       bc3_ack_o <= '1';
+                                       when BIAS_CARD_3 =>       bc3_ack_o <= '1';
                                     
-                                    when READOUT_CARD_1 =>    rc1_ack_o <= '1';
+                                       when READOUT_CARD_1 =>    rc1_ack_o <= '1';
                                     
-                                    when READOUT_CARD_2 =>    rc2_ack_o <= '1';
+                                       when READOUT_CARD_2 =>    rc2_ack_o <= '1';
                                     
-                                    when READOUT_CARD_3 =>    rc3_ack_o <= '1';
+                                       when READOUT_CARD_3 =>    rc3_ack_o <= '1';
                                     
-                                    when READOUT_CARD_4 =>    rc4_ack_o <= '1';
+                                       when READOUT_CARD_4 =>    rc4_ack_o <= '1';
                                     
-                                    when CLOCK_CARD =>        cc_ack_o  <= '1';
+                                       when CLOCK_CARD =>        cc_ack_o  <= '1';
                                     
-                                    when ALL_BIAS_CARDS =>    bc1_ack_o <= '1';
-                                                              bc2_ack_o <= '1';
-                                                              bc3_ack_o <= '1';
+                                       when ALL_BIAS_CARDS =>    bc1_ack_o <= '1';
+                                                                 bc2_ack_o <= '1';
+                                                                 bc3_ack_o <= '1';
                                                               
-                                    when ALL_READOUT_CARDS => rc1_ack_o <= '1';
-                                                              rc2_ack_o <= '1';
-                                                              rc3_ack_o <= '1';
-                                                              rc4_ack_o <= '1';
+                                       when ALL_READOUT_CARDS => rc1_ack_o <= '1';
+                                                                 rc2_ack_o <= '1';
+                                                                 rc3_ack_o <= '1';
+                                                                 rc4_ack_o <= '1';
                                                               
-                                    when ALL_FPGA_CARDS =>    ac_ack_o  <= '1';
-                                                              bc1_ack_o <= '1';
-                                                              bc2_ack_o <= '1';
-                                                              bc3_ack_o <= '1';
-                                                              rc1_ack_o <= '1';
-                                                              rc2_ack_o <= '1';
-                                                              rc3_ack_o <= '1';
-                                                              rc4_ack_o <= '1';
-                                                              cc_ack_o  <= '1';
+                                       when ALL_FPGA_CARDS =>    ac_ack_o  <= '1';
+                                                                 bc1_ack_o <= '1';
+                                                                 bc2_ack_o <= '1';
+                                                                 bc3_ack_o <= '1';
+                                                                 rc1_ack_o <= '1';
+                                                                 rc2_ack_o <= '1';
+                                                                 rc3_ack_o <= '1';
+                                                                 rc4_ack_o <= '1';
+                                                                 cc_ack_o  <= '1';
                                                               
-                                    when others => null;
-                                 end case;
+                                       when others => null;
+                                    end case;
+                                 end if;
                                  
          when others =>          null;
       end case;
