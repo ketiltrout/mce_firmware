@@ -1,6 +1,6 @@
 -- slave_ctrl_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: slot_id_pack.vhd,v 1.2 2004/03/16 18:57:26 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: slot_id_pack.vhd,v 1.1 2004/04/14 21:45:16 jjacob Exp $>
 --
 -- Project:		SCUBA 2
 -- Author:		Jonathan Jacob
@@ -11,7 +11,7 @@
 -- the Wishbone Slave controller
 --
 -- Revision history:
--- <date $Date: 2004/03/16 18:57:26 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/14 21:45:16 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -44,7 +44,6 @@ package slot_id_pack is
       stb_i   : in std_logic;
       cyc_i   : in std_logic;
       dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-      rty_o   : out std_logic;
       ack_o   : out std_logic
    );
    end component;

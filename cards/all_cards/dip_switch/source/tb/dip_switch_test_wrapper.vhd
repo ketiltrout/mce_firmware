@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: dip_switch_test_wrapper.vhd,v $
+-- Revision 1.1  2004/05/06 18:02:34  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -59,11 +62,7 @@ entity dip_switch_test_wrapper is
       done_o    : out std_logic;   -- done ouput signal
       
       -- transmitter signals
-      tx_busy_i : in std_logic;    -- transmit busy flag
-      tx_ack_i  : in std_logic;    -- transmit ack
-      tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-      tx_we_o   : out std_logic;   -- transmit write flag
-      tx_stb_o  : out std_logic;   -- transmit strobe flag
+      data_o    : out std_logic_vector(1 downto 0);
       
       -- extended signals
       dip_switch_i : in std_logic_vector (1 downto 0) -- physical dip switch pin
@@ -75,13 +74,12 @@ end dip_switch_test_wrapper;
 architecture rtl of dip_switch_test_wrapper is
 
    -- state definitions
-   type state is (IDLE, READ, TX, DONE);
+   type state is (IDLE, READ, DONE);
    signal current_state, next_state : state;
 
    -- wishbone "emulated master" signals
    signal addr_o  : std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
    signal tga_o   : std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-   signal dat_o 	 : std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
    signal dat_i   : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
    signal we_o    : std_logic;
    signal stb_o   : std_logic;
@@ -91,12 +89,8 @@ architecture rtl of dip_switch_test_wrapper is
    
    -- RS232 data transmit controller signals
    signal data_reg : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal tx_start : std_logic;
-   signal tx_done  : std_logic;
    
 begin
-
-   dat_o 	<= (others => '0');
    
 ------------------------------------------------------------------------
 --
@@ -111,35 +105,15 @@ begin
             -- wishbone signals
             clk_i  => clk_i,
             rst_i  => rst_i,
-            dat_i  => dat_o, -- not used since not writing to dip switches
+            dat_i  => (others => '0'), -- not used since not writing to dip switches
             dat_o  => dat_i,  
             addr_i => addr_o,
-            tga_i  => tga_o,
-            we_i   => we_o,
+            tga_i  => (others => '0'),
+            we_i   => '0',
             stb_i  => stb_o,
             ack_o  => ack_i,
             rty_o  => rty_i,
             cyc_i  => cyc_o);
-
-------------------------------------------------------------------------
---
--- instantiate the data transmitter
---
-------------------------------------------------------------------------
-
-   rs232_tx : rs232_data_tx
-   generic map(WIDTH => WB_DATA_WIDTH)
-   port map(clk_i   => clk_i,
-            rst_i   => rst_i,
-            data_i  => data_reg,
-            start_i => tx_start,
-            done_o  => tx_done,
-
-            tx_busy_i => tx_busy_i,
-            tx_ack_i  => tx_ack_i,
-            tx_data_o => tx_data_o,
-            tx_we_o   => tx_we_o,
-            tx_stb_o  => tx_stb_o);
    
    
 ------------------------------------------------------------------------
@@ -154,7 +128,7 @@ begin
 --
 ------------------------------------------------------------------------  
 
-   process (current_state, en_i, ack_i, tx_done)
+   process (current_state, en_i, ack_i)
    begin
       case current_state is
          when IDLE =>
@@ -166,16 +140,9 @@ begin
             
          when READ =>
             if ack_i = '1' then
-               next_state <= TX;
-            else
-               next_state <= READ;
-            end if;
-            
-         when TX =>
-            if(tx_done = '1') then
                next_state <= DONE;
             else
-               next_state <= TX;
+               next_state <= READ;
             end if;
  
          when DONE =>
@@ -197,18 +164,13 @@ begin
    process (current_state)
    begin
       -- wishbone signals to slave
-      dat_o   <= (others => '0');
       addr_o  <= (others => '0');
-      tga_o   <= (others => '0');
-      we_o    <= '0';
       stb_o   <= '0';
       cyc_o   <= '0';
       
       -- output back to test module
       done_o  <= '0';
-      
-      -- start signal to data transmitter
-      tx_start <= '0';
+      data_o  <= (others => '0');
 
       case current_state is
          when IDLE => null;
@@ -216,10 +178,9 @@ begin
          when READ => addr_o   <= DIP_ADDR;
                       stb_o    <= '1';
                       cyc_o    <= '1';
-         
-         when TX =>   tx_start <= '1';
-	 
-	 when DONE => done_o  <= '1';
+	   
+         when DONE => done_o  <= '1';
+                      data_o  <= data_reg(1 downto 0);
 	 
          when others => null;
 	 
