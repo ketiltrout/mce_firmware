@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.3  2004/09/27 23:02:13  erniel
+-- using updated constants from command_pack
+--
 -- Revision 1.2  2004/09/11 00:56:52  erniel
 -- added comments
 --
@@ -326,7 +329,7 @@ begin
       end if;
    end process tx_stateFF;
    
-   tx_stateNS: process(tx_pres_state, reply_rdy_i, crc_word_rdy, lvds_tx_busy, word_count)
+   tx_stateNS: process(tx_pres_state, reply_rdy_i, crc_word_rdy, lvds_tx_busy, word_count, reply_num_words)
    begin
       case tx_pres_state is
          when IDLE_TX =>        if(reply_rdy_i = '1') then
