@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_io_controller.vhd,v $
+-- Revision 1.3  2004/12/07 19:41:42  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/26 18:26:45  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -263,8 +266,17 @@ begin
       end if;
    end process fsfb_proc_dat_gen;
    
-   num_ramp_frame_cycles_i <= conv_std_logic_vector(num_ramp_frame_cycles, RAMP_CYC_WIDTH);
-
+   -- Change the num_ramp cycles to observe the impact on changing the 
+   -- num_ramp_frame_cycles input on the fly without asserting
+   -- initalize_window
+   num_ramp_cycles : process
+   begin
+      num_ramp_frame_cycles_i <= conv_std_logic_vector(10, RAMP_CYC_WIDTH);
+      wait for 8200* 49 ns;
+      num_ramp_frame_cycles_i <= conv_std_logic_vector(2, RAMP_CYC_WIDTH);
+      wait;
+   end process num_ramp_cycles;
+   
    
    -- unit under test:  first stage feedback io controller
    UUT : fsfb_io_controller
@@ -343,7 +355,7 @@ begin
    begin
       
       initialize_window_i <= '0';
-      wait for 2000*clk_period;
+      wait for 200000*clk_period;
       init_window(restart_frame_aligned_i, initialize_window_i);
       wait;
 
