@@ -1,28 +1,33 @@
-C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd
+C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package async_pack
+-- Loading package general_pack
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
 -- Loading package command_pack
 -- Loading package wishbone_pack
--- Loading package slot_id_pack
--- Loading package all_test_pack
+-- Loading package component_pack
+-- Loading package async_pack
+-- Loading package ascii_pack
 -- Compiling entity all_test
--- Compiling architecture behaviour of all_test
+-- Compiling architecture rtl of all_test
 -- Loading package altera_mf_components
 -- Loading entity all_test_pll
--- Loading package general_pack
--- Loading package component_pack
 -- Loading entity rs232_rx
-** Error: C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd(248): Unknown identifier: start_i.
-** Error: C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd(249): Unknown identifier: done_o.
 -- Loading entity rs232_tx
--- Loading entity all_test_reset
-** Error: C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd(534): VHDL Compiler exiting
+-- Loading entity reg
+-- Loading entity counter
+WARNING: C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd(287): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd(288): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd(289): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd(290): Case choice must be a locally static expression.
+WARNING[1]: C:/scuba2_repository/cards/all_cards/test/source/all_test.vhd(497): No default binding for component: "dip_switch_test_wrapper". (No entity named "dip_switch_test_wrapper" was found)
+-- Loading entity shift_reg
+-- Loading package slot_id_pack
+-- Loading entity slot_id_test_wrapper
 
-} {19.0 21.0 23.0 24.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd
+} {21.0 26.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx_fifo.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -57,17 +62,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Compiling package card_id_pack
 
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package sync_gen_pack
--- Compiling package cmd_queue_ram40_pack
-
 } {} {}} C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
@@ -81,20 +75,45 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package frame_timing_pack
 -- Compiling package ac_dac_ctrl_pack
 
-} {} {}} C:/scuba2_repository/cards/all_cards/async/source/rtl/async_rx.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/async/source/rtl/async_rx.vhd
+} {} {}} C:/scuba2_repository/cards/bias_card/bias_card/source/rtl/bias_card.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bias_card/source/rtl/bias_card.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package general_pack
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
 -- Loading package command_pack
 -- Loading package wishbone_pack
+-- Loading package data_types_pack
+-- Loading package slot_id_pack
+-- Loading package dispatch_pack
+-- Loading package leds_pack
+-- Loading package frame_timing_pack
+-- Loading package bc_dac_ctrl_pack
+-- Compiling entity bias_card
+-- Compiling architecture top of bias_card
+-- Loading package altera_mf_components
+-- Loading entity bc_pll
+-- Loading package general_pack
 -- Loading package component_pack
--- Compiling entity async_rx
--- Compiling architecture behaviour of async_rx
--- Loading entity shift_reg
--- Loading entity counter
+-- Loading entity dispatch
+-- Loading entity leds
+-- Loading package bc_dac_ctrl_core_pack
+-- Loading package bc_dac_ctrl_wbs_pack
+-- Loading entity bc_dac_ctrl
+-- Loading package frame_timing_wbs_pack
+-- Loading package frame_timing_core_pack
+-- Loading entity frame_timing
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package sync_gen_pack
+-- Compiling package cmd_queue_ram40_pack
 
 } {} {}} C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_top.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_top.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -110,6 +129,24 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture beh of tb_card_id_top
 -- Loading package card_id_pack
 -- Loading entity card_id
+
+} {} {}} C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package general_pack
+-- Loading package data_types_pack
+-- Loading package component_pack
+-- Loading package bc_dac_ctrl_pack
+-- Loading package frame_timing_pack
+-- Compiling entity bc_dac_ctrl_core
+-- Compiling architecture rtl of bc_dac_ctrl_core
+-- Loading entity counter
+-- Loading entity write_spi_with_cs
 
 } {} {}} C:/scuba2_repository/cards/clk_card/pll/source/rtl/cc_pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/pll/source/rtl/cc_pll.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -154,42 +191,12 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package data_types_pack
 -- Loading package general_pack
 -- Loading package component_pack
-** Error: (vcom-11) Could not find C:/scuba2_repository/objects/modelsim/work.dac_ctrl_pack.
+** Error: (vcom-11) Could not find c:/scuba2_repository/objects/modelsim/work.dac_ctrl_pack.
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_ramp_test.vhd(49): cannot find expanded name: work.dac_ctrl_pack
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_ramp_test.vhd(49): Unknown field: dac_ctrl_pack.
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_ramp_test.vhd(54): VHDL Compiler exiting
 
-} {12.0 16.0} {}} C:/scuba2_repository/cards/clk_card/clk_card/source/tb/tb_clk_card.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/clk_card/source/tb/tb_clk_card.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package numeric_std
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package sync_gen_pack
--- Loading package issue_reply_pack
--- Loading package async_pack
--- Loading package sync_gen_core_pack
--- Loading package dispatch_pack
--- Loading package ac_dac_ctrl_wbs_pack
--- Loading package data_types_pack
--- Loading package frame_timing_pack
--- Loading package ac_dac_ctrl_pack
--- Loading package bc_dac_ctrl_pack
--- Loading package frame_timing_core_pack
--- Loading package clk_card_pack
--- Loading package addr_card_pack
--- Loading package general_pack
--- Loading package component_pack
--- Compiling entity tb_clk_card
--- Compiling architecture tb of tb_clk_card
--- Loading package leds_pack
--- Loading entity clk_card
--- Loading entity addr_card
-
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd
+} {12.0 16.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -216,7 +223,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
--- Loading package std_logic_unsigned
+-- Loading package std_logic_signed
 -- Compiling entity rc_noise1000_test
 -- Compiling architecture behaviour of rc_noise1000_test
 -- Loading package altera_mf_components
@@ -232,21 +239,28 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Compiling package sram_ctrl_pack
 
-} {} {}} C:/scuba2_repository/cards/all_cards/watchdog/source/tb/tb_watchdog.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/watchdog/source/tb/tb_watchdog.vhd
+} {} {}} C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
-** Error: (vcom-11) Could not find C:/scuba2_repository/objects/modelsim/work.watchdog_pack.
-** Error: C:/scuba2_repository/cards/all_cards/watchdog/source/tb/tb_watchdog.vhd(32): cannot find expanded name: work.watchdog_pack
-** Error: C:/scuba2_repository/cards/all_cards/watchdog/source/tb/tb_watchdog.vhd(32): Unknown field: watchdog_pack.
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Loading package general_pack
-** Error: C:/scuba2_repository/cards/all_cards/watchdog/source/tb/tb_watchdog.vhd(38): VHDL Compiler exiting
+-- Loading package data_types_pack
+-- Loading package component_pack
+-- Loading package bc_dac_ctrl_pack
+-- Loading package bc_dac_ctrl_core_pack
+-- Loading package bc_dac_ctrl_wbs_pack
+-- Loading package frame_timing_pack
+-- Compiling entity bc_dac_ctrl
+-- Compiling architecture rtl of bc_dac_ctrl
+-- Loading entity bc_dac_ctrl_core
+-- Loading package ac_dac_ctrl_wbs_pack
+-- Loading entity bc_dac_ctrl_wbs
 
-} {7.0 10.0 13.0 14.0} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/general_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/sys_param/source/rtl/general_pack.vhd
+} {} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/general_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/sys_param/source/rtl/general_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -259,8 +273,18 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
 -- Loading package command_pack
+-- Loading package general_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Loading package sync_gen_pack
+-- Loading package cmd_queue_ram40_pack
+-- Loading package reply_queue_pack
 -- Compiling entity reply_queue_sequencer
 -- Compiling architecture rtl of reply_queue_sequencer
+-- Loading entity us_timer
+-- Loading package altera_mf_components
+-- Loading entity reply_queue_accumulator
+-- Loading entity counter
 
 } {} {}} C:/scuba2_repository/cards/clk_card/test/source/cc_test_reset.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/cc_test_reset.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -284,14 +308,15 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity cmd_translator_ret_dat_fsm
 -- Compiling architecture rtl of cmd_translator_ret_dat_fsm
 
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/ns_timer.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/ns_timer.vhd
+} {} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_counter.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_counter.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
+-- Compiling entity tb_counter
+-- Compiling architecture beh of tb_counter
 -- Loading package std_logic_arith
--- Loading package general_pack
--- Compiling entity ns_timer
--- Compiling architecture rtl of ns_timer
+-- Loading package std_logic_unsigned
+-- Loading entity counter
 
 } {} {}} C:/scuba2_repository/cards/library/components/source/rtl/async_fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/async_fifo.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -307,26 +332,16 @@ but IS in the sensitivity list
 WARNING: C:/scuba2_repository/cards/library/components/source/rtl/async_fifo.vhd(138): Synthesis Warning: Signal write_addr is NOT read by the process 
 but IS in the sensitivity list
 
-} {8.0 9.0 10.0 11.0 12.0 13.0} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_counter.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_counter.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling entity tb_counter
--- Compiling architecture beh of tb_counter
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading entity counter
-
-} {} {}} C:/scuba2_repository/cards/bias_card/test/source/bc_test_reset.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/test/source/bc_test_reset.vhd
+} {8.0 9.0 10.0 11.0 12.0 13.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/ns_timer.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/ns_timer.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
--- Compiling entity bc_test_reset
--- Compiling architecture behaviour of bc_test_reset
-WARNING: C:/scuba2_repository/cards/bias_card/test/source/bc_test_reset.vhd(95): Synthesis Warning: Reset signal "message( )" is not in process "tx_word"'s senstivity list.
+-- Loading package general_pack
+-- Compiling entity ns_timer
+-- Compiling architecture rtl of ns_timer
 
-} {8.0 9.0} {}} C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl.vhd
+} {} {}} C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -341,25 +356,20 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture rtl of eeprom_ctrl
 WARNING: C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl.vhd(304): Synthesis Warning: Signal eeprom_clk is read by the process 
 but is NOT in the sensitivity list
--- Loading entity write_spi
--- Loading entity read_spi
+WARNING[1]: C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl.vhd(1351): No default binding for component: "write_spi". (No entity named "write_spi" was found)
+WARNING[1]: C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl.vhd(1368): No default binding for component: "read_spi". (No entity named "read_spi" was found)
 -- Loading entity ns_timer
 
-} {14.0 15.0} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_write_data_1_wire.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_write_data_1_wire.vhd
+} {14.0 15.0 16.0 18.0} {}} C:/scuba2_repository/cards/bias_card/test/source/bc_test_reset.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/test/source/bc_test_reset.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package general_pack
 -- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity tb_write_data_1_wire
--- Compiling architecture beh of tb_write_data_1_wire
--- Loading entity write_data_1_wire
+-- Compiling entity bc_test_reset
+-- Compiling architecture behaviour of bc_test_reset
+WARNING: C:/scuba2_repository/cards/bias_card/test/source/bc_test_reset.vhd(95): Synthesis Warning: Reset signal "message( )" is not in process "tx_word"'s senstivity list.
 
-} {} {}} C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id_pack.vhd
+} {8.0 9.0} {}} C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -384,7 +394,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Loading entity eeprom_ctrl
 
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue_receive.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue_receive.vhd
+} {} {}} C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -394,17 +404,13 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Loading package component_pack
--- Loading package async_pack
--- Compiling entity reply_queue_receive
--- Compiling architecture rtl of reply_queue_receive
--- Loading entity lvds_rx
--- Loading entity reg
--- Loading entity shift_reg
--- Loading entity counter
--- Loading entity crc
+-- Loading package ac_dac_ctrl_wbs_pack
+-- Loading package bc_dac_ctrl_pack
+-- Compiling entity bc_dac_ctrl_wbs
+-- Compiling architecture rtl of bc_dac_ctrl_wbs
 -- Loading package altera_mf_components
--- Loading package lpm_components
--- Loading entity fifo
+-- Loading entity tpram_32bit_x_64
+-- Loading entity reg
 
 } {} {}} C:/scuba2_repository/cards/bias_card/pll/source/rtl/bc_pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/pll/source/rtl/bc_pll.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -449,6 +455,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package issue_reply_pack
 -- Loading package async_pack
 -- Loading package sync_gen_core_pack
+-- Loading package slot_id_pack
 -- Loading package dispatch_pack
 -- Loading package ac_dac_ctrl_wbs_pack
 -- Loading package data_types_pack
@@ -470,16 +477,21 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package cmd_translator_pack
 -- Loading package reply_queue_pack
 -- Loading entity issue_reply
+** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_issue_reply.vhd(303): No actual specified for row_len_i.
+** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_issue_reply.vhd(303): No actual specified for num_rows_i.
 -- Loading entity sync_gen_core
-** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_issue_reply.vhd(328): No actual specified for err_i.
+** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_issue_reply.vhd(308): Unknown identifier: card.
+** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_issue_reply.vhd(314): Unknown identifier: mem_clk_i.
 -- Loading entity dispatch
+** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_issue_reply.vhd(333): Unknown identifier: clk_i.
 -- Loading entity lvds_rx
 -- Loading entity frame_timing_core
+** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_issue_reply.vhd(448): Unknown identifier: mem_clk_i.
 -- Loading package ac_dac_ctrl_core_pack
 -- Loading entity ac_dac_ctrl
 ** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_issue_reply.vhd(1110): VHDL Compiler exiting
 
-} {25.0 27.0 36.0 37.0 42.0 43.0} {}} C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_core_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_core_pack.vhd
+} {26.0 28.0 36.0 38.0 39.0 41.0 42.0 43.0 45.0 46.0 48.0 49.0} {}} C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_core_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_core_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -489,33 +501,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Loading package sync_gen_pack
 -- Compiling package sync_gen_core_pack
-
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package general_pack
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity cmd_translator_simple_cmd_fsm
--- Compiling architecture rtl of cmd_translator_simple_cmd_fsm
-
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/init_1_wire.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/init_1_wire.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package general_pack
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity init_1_wire
--- Compiling architecture behav of init_1_wire
--- Loading entity us_timer
 
 } {} {}} C:/scuba2_repository/cards/addr_card/test/source/ac_dac_ramp.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/addr_card/test/source/ac_dac_ramp.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -531,6 +516,29 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity ac_dac_ramp
 -- Compiling architecture rtl of ac_dac_ramp
 -- Loading entity counter
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package general_pack
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Compiling entity cmd_translator_simple_cmd_fsm
+-- Compiling architecture rtl of cmd_translator_simple_cmd_fsm
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue_accumulator.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue_accumulator.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package altera_mf_components
+-- Compiling entity reply_queue_accumulator
+-- Compiling architecture syn of reply_queue_accumulator
+-- Loading package std_logic_arith
+-- Loading entity altaccumulate
 
 } {} {}} C:/scuba2_repository/cards/addr_card/pll/source/rtl/ac_pll.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/addr_card/pll/source/rtl/ac_pll.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -583,33 +591,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Compiling entity ac_dac_ctrl_core
 -- Compiling architecture rtl of ac_dac_ctrl_core
--- Loading entity counter
--- Loading entity reg
-
-} {} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_slave_ctrl.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_slave_ctrl.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package general_pack
--- Loading package component_pack
--- Compiling entity tb_slave_ctrl
--- Compiling architecture beh of tb_slave_ctrl
--- Loading entity slave_ctrl
-
-} {} {}} C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl_pack.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package general_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Compiling package eeprom_ctrl_pack
 
 } {} {}} C:/scuba2_repository/cards/all_cards/test/source/all_test_pll.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/test/source/all_test_pll.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -629,6 +610,31 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity arm_scale_cntr
 -- Loading entity mf_stratixii_pll
 -- Loading entity altpll
+
+} {} {}} C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package general_pack
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Compiling package eeprom_ctrl_pack
+
+} {} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_slave_ctrl.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_slave_ctrl.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package general_pack
+-- Loading package component_pack
+-- Compiling entity tb_slave_ctrl
+-- Compiling architecture beh of tb_slave_ctrl
+-- Loading entity slave_ctrl
 
 } {} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_crc.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_crc.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -665,25 +671,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity sync_gen_wbs
 -- Loading entity sync_gen_core
 
-} {} {}} C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_tx_test_wrapper.vhd {0 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_tx_test_wrapper.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package async_pack
--- Loading package general_pack
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity lvds_tx_test_wrapper
--- Compiling architecture behaviour of lvds_tx_test_wrapper
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_tx_test_wrapper.vhd(120): Unknown identifier: async_tx
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_tx_test_wrapper.vhd(131): Unknown component name
--- Loading entity prand
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_tx_test_wrapper.vhd(192): VHDL Compiler exiting
-
-} {14.0 16.0 17.0 18.0} {}} C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/raw_data_queue_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/raw_data_queue_pack.vhd
+} {} {}} C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/raw_data_queue_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/readout_card/flux_loop/source/rtl/raw_data_queue_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -699,6 +687,8 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Loading package component_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
 -- Compiling entity frame_timing_wbs
 -- Compiling architecture rtl of frame_timing_wbs
 -- Loading entity reg
@@ -760,10 +750,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package slot_id_pack
 -- Compiling entity slot_id_test_wrapper
 -- Compiling architecture rtl of slot_id_test_wrapper
--- Loading package general_pack
--- Loading package component_pack
 -- Loading entity slot_id
--- Loading entity hex2ascii
 
 } {} {}} C:/scuba2_repository/cards/all_cards/card_id/source/tb/card_id_test_wrapper.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/card_id/source/tb/card_id_test_wrapper.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -824,13 +811,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 ** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_translator_m_op_table.vhd(169): Unknown component name
 ** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_translator_m_op_table.vhd(329): VHDL Compiler exiting
 
-} {14.0 17.0} {}} C:/scuba2_repository/cards/all_cards/async/source/rtl/async_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/rtl/async_pack.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling package async_pack
-
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/fifo.vhd
+} {14.0 17.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/fifo.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -846,6 +827,12 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity altsyncram
 -- Loading package lpm_common_conversion
 -- Loading entity lpm_counter
+
+} {} {}} C:/scuba2_repository/cards/all_cards/async/source/rtl/async_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/async/source/rtl/async_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling package async_pack
 
 } {} {}} C:/scuba2_repository/cards/addr_card/test/source/ac_io_toggle.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/addr_card/test/source/ac_io_toggle.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -885,6 +872,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Loading entity fibre_rx_fifo
 -- Loading entity fibre_rx_control
+-- Loading package altera_mf_components
 -- Loading entity fibre_rx_protocol
 
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/issue_reply_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/issue_reply_pack.vhd
@@ -898,22 +886,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package sync_gen_pack
 -- Compiling package issue_reply_pack
 
-} {} {}} C:/scuba2_repository/cards/all_cards/async/source/tb/tb_async.vhd {0 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/tb/tb_async.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package async_pack
--- Compiling entity tb_async
--- Compiling architecture behaviour of tb_async
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_async.vhd(78): Unknown identifier: async_rx
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_async.vhd(90): Unknown component name
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_async.vhd(92): Statement cannot be labeled.
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_async.vhd(92): Unknown identifier: async_tx
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_async.vhd(103): Unknown component name
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_async.vhd(185): VHDL Compiler exiting
-
-} {9.0 15.0} {}} C:/scuba2_repository/cards/all_cards/test/source/tb_all_test_reset.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/test/source/tb_all_test_reset.vhd
+} {} {}} C:/scuba2_repository/cards/all_cards/test/source/tb_all_test_reset.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/test/source/tb_all_test_reset.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -927,7 +900,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Loading package component_pack
 -- Loading entity rs232_tx
-WARNING[1]: C:/scuba2_repository/cards/all_cards/test/source/tb_all_test_reset.vhd(104): No default binding for component: "rs232_tx". (Port "start_i" is not on the entity)
+WARNING[1]: C:/scuba2_repository/cards/all_cards/test/source/tb_all_test_reset.vhd(104): No default binding for component: "rs232_tx". (Port "comm_clk_i" is not on the entity)
 
 } {15.0 16.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/crc.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/crc.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -936,7 +909,45 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity crc
 -- Compiling architecture behav of crc
 
-} {} {}} C:/scuba2_repository/cards/clk_card/test/source/sram_test.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/sram_test.vhd
+} {} {}} C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_self_test.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_self_test.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package data_types_pack
+-- Loading package slot_id_pack
+-- Loading package dispatch_pack
+-- Loading package leds_pack
+-- Loading package frame_timing_pack
+-- Loading package ac_dac_ctrl_wbs_pack
+-- Loading package ac_dac_ctrl_pack
+-- Loading package async_pack
+-- Compiling entity addr_card_self_test
+-- Compiling architecture top of addr_card_self_test
+-- Loading package altera_mf_components
+-- Loading entity ac_pll
+-- Loading package general_pack
+-- Loading package component_pack
+-- Loading entity dispatch
+-- Loading entity leds
+-- Loading package ac_dac_ctrl_core_pack
+-- Loading entity ac_dac_ctrl
+-- Loading package frame_timing_wbs_pack
+-- Loading package frame_timing_core_pack
+-- Loading entity frame_timing
+-- Loading entity packet_ram
+-- Loading entity lvds_tx
+WARNING: C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_self_test.vhd(397): Synthesis Warning: Signal state_shift is read by the process 
+but is NOT in the sensitivity list
+WARNING: C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_self_test.vhd(398): Synthesis Warning: Signal rdaddress_packet_ram is read by the process 
+but is NOT in the sensitivity list
+WARNING: C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_self_test.vhd(399): Synthesis Warning: Signal rdaddress_packet_ram is read by the process 
+but is NOT in the sensitivity list
+
+} {32.0 33.0 34.0 35.0 36.0 37.0} {}} C:/scuba2_repository/cards/clk_card/test/source/sram_test.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/sram_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1052,7 +1063,8 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Compiling entity rs232_rx
 -- Compiling architecture rtl of rs232_rx
--- Loading entity async_rx
+-- Loading entity counter
+-- Loading entity shift_reg
 -- Loading entity reg
 
 } {} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/data_types_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/sys_param/source/rtl/data_types_pack.vhd
@@ -1060,43 +1072,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package data_types_pack
-
-} {} {}} C:/scuba2_repository/cards/clk_card/clk_card/source/rtl/clk_card.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/clk_card/source/rtl/clk_card.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package dispatch_pack
--- Loading package leds_pack
--- Loading package sync_gen_pack
--- Loading package data_types_pack
--- Loading package frame_timing_pack
--- Loading package issue_reply_pack
--- Compiling entity clk_card
--- Compiling architecture top of clk_card
--- Loading package altera_mf_components
--- Loading entity cc_pll
--- Loading package general_pack
--- Loading package component_pack
--- Loading entity dispatch
--- Loading entity leds
--- Loading package sync_gen_wbs_pack
--- Loading package sync_gen_core_pack
--- Loading entity sync_gen
--- Loading package frame_timing_wbs_pack
--- Loading package frame_timing_core_pack
--- Loading entity frame_timing
--- Loading package cmd_queue_ram40_pack
--- Loading package cmd_queue_pack
--- Loading package fibre_rx_pack
--- Loading package fibre_tx_pack
--- Loading package reply_translator_pack
--- Loading package cmd_translator_pack
--- Loading package reply_queue_pack
--- Loading entity issue_reply
 
 } {} {}} C:/scuba2_repository/cards/readout_card/test/source/rc_io_toggle.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/readout_card/test/source/rc_io_toggle.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -1119,20 +1094,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Loading package bc_dac_ctrl_pack
 -- Compiling package bias_card_pack
-
-} {} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_init_1_wire.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_init_1_wire.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package general_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity tb_init_1_wire
--- Compiling architecture beh of tb_init_1_wire
--- Loading entity init_1_wire
 
 } {} {}} C:/scuba2_repository/cards/all_cards/array_id/source/tb/array_id_test_wrapper.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/array_id/source/tb/array_id_test_wrapper.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -1241,21 +1202,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture rtl of array_id
 -- Loading entity slave_ctrl
 
-} {} {}} C:/scuba2_repository/cards/all_cards/async/source/rtl/async_tx.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/async/source/rtl/async_tx.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package general_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity async_tx
--- Compiling architecture behaviour of async_tx
--- Loading entity counter
--- Loading entity shift_reg
-
 } {} {}} C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test_pll.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test_pll.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
@@ -1285,26 +1231,30 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Compiling package sync_gen_pack
 
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue.vhd
+} {} {}} C:/scuba2_repository/cards/bias_card/bias_card/source/tb/tb_bias_card_self_test.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bias_card/source/tb/tb_bias_card_self_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
+-- Loading package numeric_std
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
 -- Loading package command_pack
 -- Loading package wishbone_pack
--- Loading package sync_gen_pack
--- Loading package cmd_queue_ram40_pack
--- Loading package reply_queue_pack
--- Compiling entity reply_queue
--- Compiling architecture behav of reply_queue
+-- Loading package bc_dac_ctrl_pack
+-- Loading package clk_card_pack
+-- Loading package bias_card_pack
+-- Loading package addr_card_pack
 -- Loading package general_pack
 -- Loading package component_pack
--- Loading package cmd_queue_pack
--- Loading entity reply_queue_retire
--- Loading entity reply_queue_sequencer
+-- Loading package data_types_pack
+-- Compiling entity tb_bias_card_self_test
+-- Compiling architecture tb of tb_bias_card_self_test
+-- Loading package slot_id_pack
+-- Loading package dispatch_pack
+-- Loading package leds_pack
+-- Loading package frame_timing_pack
 -- Loading package async_pack
--- Loading entity reply_queue_receive
+-- Loading entity bias_card_self_test
 
 } {} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -1317,6 +1267,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Loading package component_pack
 -- Loading package async_pack
+-- Loading package slot_id_pack
 -- Loading package dispatch_pack
 -- Compiling entity dispatch_reply_transmit
 -- Compiling architecture rtl of dispatch_reply_transmit
@@ -1339,19 +1290,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity sram_ctrl
 -- Compiling architecture behav of sram_ctrl
 -- Loading entity reg
-
-} {} {}} C:/scuba2_repository/cards/all_cards/test/source/all_test_idle.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/test/source/all_test_idle.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package slot_id_pack
--- Loading package all_test_pack
--- Compiling entity all_test_idle
--- Compiling architecture behaviour of all_test_idle
 
 } {} {}} C:/scuba2_repository/cards/library/components/source/rtl/tri_state_buf_vec.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/tri_state_buf_vec.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -1397,7 +1335,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
-** Error: (vcom-11) Could not find C:/scuba2_repository/objects/modelsim/work.rc_test_pack.
+** Error: (vcom-11) Could not find c:/scuba2_repository/objects/modelsim/work.rc_test_pack.
 ** Error: C:/scuba2_repository/cards/readout_card/test/source/rc_test_idle.vhd(57): cannot find expanded name: work.rc_test_pack
 ** Error: C:/scuba2_repository/cards/readout_card/test/source/rc_test_idle.vhd(57): Unknown field: rc_test_pack.
 ** Error: C:/scuba2_repository/cards/readout_card/test/source/rc_test_idle.vhd(59): VHDL Compiler exiting
@@ -1426,7 +1364,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package async_pack
-** Error: (vcom-11) Could not find C:/scuba2_repository/objects/modelsim/work.rc_test_pack.
+** Error: (vcom-11) Could not find c:/scuba2_repository/objects/modelsim/work.rc_test_pack.
 ** Error: C:/scuba2_repository/cards/readout_card/test/source/rc_test.vhd(73): cannot find expanded name: work.rc_test_pack
 ** Error: C:/scuba2_repository/cards/readout_card/test/source/rc_test.vhd(73): Unknown field: rc_test_pack.
 ** Error: C:/scuba2_repository/cards/readout_card/test/source/rc_test.vhd(75): VHDL Compiler exiting
@@ -1480,10 +1418,8 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package std_logic_arith
 -- Compiling entity rs232_data_tx
 -- Compiling architecture rtl of rs232_data_tx
-WARNING: C:/scuba2_repository/cards/library/components/source/rtl/rs232_data_tx.vhd(223): Synthesis Warning: Signal tx_data is read by the process 
-but is NOT in the sensitivity list
 
-} {8.0 9.0} {}} C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd
+} {} {}} C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1532,12 +1468,23 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package data_types_pack
 -- Loading package general_pack
 -- Loading package component_pack
-** Error: (vcom-11) Could not find C:/scuba2_repository/objects/modelsim/work.dac_ctrl_pack.
+** Error: (vcom-11) Could not find c:/scuba2_repository/objects/modelsim/work.dac_ctrl_pack.
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_ctrl_test.vhd(83): cannot find expanded name: work.dac_ctrl_pack
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_ctrl_test.vhd(83): Unknown field: dac_ctrl_pack.
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_ctrl_test.vhd(88): VHDL Compiler exiting
 
-} {12.0 16.0} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/wishbone_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/sys_param/source/rtl/wishbone_pack.vhd
+} {12.0 16.0} {}} C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package bc_dac_ctrl_pack
+-- Compiling package bc_dac_ctrl_wbs_pack
+
+} {} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/wishbone_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/sys_param/source/rtl/wishbone_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1592,28 +1539,7 @@ WARNING[1]: C:/scuba2_repository/cards/bias_card/test/source/bc_test.vhd(473): N
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_test.vhd(511): Case statement covers only 4 out of 81 cases.
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_test.vhd(659): VHDL Compiler exiting
 
-} {12.0 22.0 30.0 32.0 33.0 34.0 35.0 46.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package general_pack
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Loading package sync_gen_pack
--- Loading package issue_reply_pack
--- Loading package cmd_translator_pack
--- Compiling entity cmd_translator
--- Compiling architecture rtl of cmd_translator
--- Loading entity us_timer
--- Loading entity cmd_translator_ret_dat_fsm
--- Loading entity cmd_translator_simple_cmd_fsm
--- Loading entity cmd_translator_internal_cmd_fsm
--- Loading entity cmd_translator_arbiter
-
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/write_spi_with_cs.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/write_spi_with_cs.vhd
+} {12.0 22.0 30.0 32.0 33.0 34.0 35.0 46.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/write_spi_with_cs.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/write_spi_with_cs.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1650,17 +1576,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity shift_reg
 -- Compiling architecture behav of shift_reg
 
-} {} {}} C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package data_types_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Compiling package frame_timing_pack
-
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_arbiter.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_arbiter.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
@@ -1687,30 +1602,9 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Compiling entity lvds_rx
 -- Compiling architecture rtl of lvds_rx
--- Loading entity async_rx
 -- Loading entity counter
+-- Loading entity shift_reg
 -- Loading entity reg
-
-} {} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package general_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Loading package dispatch_pack
--- Compiling entity dispatch
--- Compiling architecture rtl of dispatch
--- Loading package async_pack
--- Loading entity dispatch_cmd_receive
--- Loading entity reg
--- Loading package altera_mf_components
--- Loading entity dispatch_data_buf
--- Loading entity dispatch_wishbone
--- Loading entity dispatch_reply_transmit
 
 } {} {}} C:/scuba2_repository/cards/bias_card/test/source/bc_dac_xtalk_test.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/bias_card/test/source/bc_dac_xtalk_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -1723,57 +1617,33 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package data_types_pack
 -- Loading package general_pack
 -- Loading package component_pack
-** Error: (vcom-11) Could not find C:/scuba2_repository/objects/modelsim/work.dac_ctrl_pack.
+** Error: (vcom-11) Could not find c:/scuba2_repository/objects/modelsim/work.dac_ctrl_pack.
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_xtalk_test.vhd(47): cannot find expanded name: work.dac_ctrl_pack
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_xtalk_test.vhd(47): Unknown field: dac_ctrl_pack.
 -- Loading package frame_timing_pack
 ** Error: C:/scuba2_repository/cards/bias_card/test/source/bc_dac_xtalk_test.vhd(52): VHDL Compiler exiting
 
-} {12.0 15.0 16.0 17.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd
+} {12.0 15.0 16.0 17.0} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
 -- Loading package general_pack
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity write_data_1_wire
--- Compiling architecture behav of write_data_1_wire
--- Loading entity us_timer
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd(117): Unknown identifier: clk.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd(117): Unknown identifier: rst.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd(108): Unknown identifier: ena.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd(109): Unknown identifier: load.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd(117): Unknown identifier: shr.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd(115): Unknown identifier: clr.
--- Loading entity shift_reg
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd(250): VHDL Compiler exiting
-
-} {14.0 20.0 21.0 22.0} {}} C:/scuba2_repository/cards/clk_card/clk_card/source/rtl/clk_card_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/clk_card/source/rtl/clk_card_pack.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling package clk_card_pack
-
-} {} {}} C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_core.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_core.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
 -- Loading package command_pack
 -- Loading package wishbone_pack
--- Loading package general_pack
 -- Loading package component_pack
--- Loading package sync_gen_pack
--- Loading package data_types_pack
--- Loading package frame_timing_pack
--- Loading package sync_gen_core_pack
--- Compiling entity sync_gen_core
--- Compiling architecture beh of sync_gen_core
--- Loading entity counter
+-- Loading package slot_id_pack
+-- Loading package dispatch_pack
+-- Compiling entity dispatch
+-- Compiling architecture rtl of dispatch
+-- Loading package async_pack
+-- Loading entity dispatch_cmd_receive
+-- Loading entity reg
+-- Loading package altera_mf_components
+-- Loading entity dispatch_data_buf
+-- Loading entity dispatch_wishbone
+-- Loading entity dispatch_reply_transmit
 
 } {} {}} C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -1794,6 +1664,19 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity frame_timing_wbs
 -- Loading entity frame_timing_core
 
+} {} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_data_buf.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_data_buf.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package altera_mf_components
+-- Compiling entity dispatch_data_buf
+-- Compiling architecture syn of dispatch_data_buf
+-- Loading package std_logic_arith
+-- Loading package textio
+-- Loading package altera_common_conversion
+-- Loading package altera_device_families
+-- Loading entity altsyncram
+
 } {} {}} C:/scuba2_repository/cards/addr_card/test/source/tb_ac_dac_ramp.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/test/source/tb_ac_dac_ramp.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
@@ -1813,20 +1696,7 @@ WARNING[1]: C:/scuba2_repository/cards/addr_card/test/source/tb_ac_dac_ramp.vhd(
 -- Loading entity tb_ac_dac_ramp
 -- Loading architecture beh of tb_ac_dac_ramp
 
-} {15.0 16.0} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_data_buf.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_data_buf.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package altera_mf_components
--- Compiling entity dispatch_data_buf
--- Compiling architecture syn of dispatch_data_buf
--- Loading package std_logic_arith
--- Loading package textio
--- Loading package altera_common_conversion
--- Loading package altera_device_families
--- Loading entity altsyncram
-
-} {} {}} C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd
+} {15.0 16.0} {}} C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1852,14 +1722,18 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package reply_queue_pack
 -- Loading entity issue_reply
 WARNING[1]: C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd(390): No default binding for component: "issue_reply". (Port "parameter_id_o" is not on the entity)
+** Error: C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd(399): Unknown identifier: clk_i.
 -- Loading entity lvds_rx
 -- Loading package altera_mf_components
 -- Loading entity issue_reply_test_pll
+** Error: C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd(454): No actual specified for row_len_i.
+** Error: C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd(454): No actual specified for num_rows_i.
 -- Loading package data_types_pack
 -- Loading package frame_timing_pack
 -- Loading entity sync_gen_core
+** Error: C:/scuba2_repository/cards/clk_card/test/source/issue_reply_test.vhd(456): VHDL Compiler exiting
 
-} {26.0 27.0} {}} C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_ramdq.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_ramdq.vhd
+} {26.0 28.0 31.0 33.0 36.0 37.0} {}} C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_ramdq.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_ramdq.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1885,10 +1759,10 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Loading package component_pack
 -- Loading entity lvds_rx
+WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_lvds_rx.vhd(103): No default binding for component: "lvds_rx". (Port "clk_i" is not on the entity)
 -- Loading entity lvds_tx
-WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_lvds_rx.vhd(107): No default binding for component: "lvds_tx". (Port "start_i" is not on the entity)
 
-} {15.0 16.0} {}} C:/scuba2_repository/cards/all_cards/io_led/source/rtl/io_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/io_led/source/rtl/io_pack.vhd
+} {14.0 15.0} {}} C:/scuba2_repository/cards/all_cards/io_led/source/rtl/io_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/io_led/source/rtl/io_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1901,11 +1775,42 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity tb_rc_noise1000_test
 -- Compiling architecture beh of tb_rc_noise1000_test
 -- Loading package std_logic_arith
--- Loading package std_logic_unsigned
+-- Loading package std_logic_signed
 -- Loading entity rc_noise1000_test
 -- Compiling configuration cfg_tb_rc_noise1000_test
 -- Loading entity tb_rc_noise1000_test
 -- Loading architecture beh of tb_rc_noise1000_test
+
+} {} {}} C:/scuba2_repository/cards/bias_card/bias_card/source/tb/tb_clk_bias_card.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bias_card/source/tb/tb_clk_bias_card.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package numeric_std
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package sync_gen_pack
+-- Loading package issue_reply_pack
+-- Loading package sync_gen_core_pack
+-- Loading package slot_id_pack
+-- Loading package dispatch_pack
+-- Loading package ac_dac_ctrl_wbs_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Loading package ac_dac_ctrl_pack
+-- Loading package bc_dac_ctrl_pack
+-- Loading package frame_timing_core_pack
+-- Loading package clk_card_pack
+-- Loading package bias_card_pack
+-- Loading package addr_card_pack
+-- Loading package general_pack
+-- Loading package component_pack
+-- Compiling entity tb_clk_bias_card
+-- Compiling architecture tb of tb_clk_bias_card
+-- Loading package leds_pack
+-- Loading entity clk_card
+-- Loading entity bias_card
 
 } {} {}} C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -1927,7 +1832,23 @@ WARNING[5]: C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd
     C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd(98):Conditional signal assignment line__98
     C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd(102):Conditional signal assignment line__102
 
-} {9.0 11.0 14.0 15.0} {}} C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_test_wrapper.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_test_wrapper.vhd
+} {9.0 11.0 14.0 15.0} {}} C:/scuba2_repository/cards/readout_card/test/source/rc_noise_test.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/readout_card/test/source/rc_noise_test.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package general_pack
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Compiling entity rc_noise_test
+-- Compiling architecture behaviour of rc_noise_test
+-- Loading package altera_mf_components
+-- Loading entity pll
+-- Loading entity counter
+
+} {} {}} C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_test_wrapper.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_test_wrapper.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1944,16 +1865,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 WARNING[1]: C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_test_wrapper.vhd(125): No default binding for component: "sram_test_wrapper". (Port "tx_busy_i" is not on the entity)
 -- Loading entity sram_pass
 
-} {15.0 16.0} {}} C:/scuba2_repository/cards/readout_card/test/source/rc_noise_test.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/readout_card/test/source/rc_noise_test.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling entity rc_noise_test
--- Compiling architecture behaviour of rc_noise_test
--- Loading package altera_mf_components
--- Loading entity pll
-
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_translator_frame_head_ram.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_translator_frame_head_ram.vhd
+} {15.0 16.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_translator_frame_head_ram.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_translator_frame_head_ram.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -1985,25 +1897,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity tri_state_buf
 -- Compiling architecture rtl of tri_state_buf
 
-} {} {}} C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_rx_test_wrapper.vhd {0 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_rx_test_wrapper.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package async_pack
--- Loading package general_pack
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity lvds_rx_test_wrapper
--- Compiling architecture behaviour of lvds_rx_test_wrapper
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_rx_test_wrapper.vhd(102): Unknown identifier: async_rx
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_rx_test_wrapper.vhd(114): Unknown component name
--- Loading entity rs232_data_tx
-** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_rx_test_wrapper.vhd(353): VHDL Compiler exiting
-
-} {14.0 16.0 17.0 18.0} {}} C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd
+} {} {}} C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2027,41 +1921,23 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity fibre_tx_fifo
 -- Loading entity fibre_tx_control
 
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package general_pack
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity read_spi
--- Compiling architecture rtl of read_spi
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd(231): Unknown identifier: clk.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd(232): Unknown identifier: rst.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd(233): Unknown identifier: ena.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd(234): Unknown identifier: load.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd(235): Unknown identifier: clr.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd(240): Unknown identifier: shr.
--- Loading entity shift_reg
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_spi.vhd(261): VHDL Compiler exiting
-
-} {13.0 19.0 20.0 21.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/hex2ascii.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/hex2ascii.vhd
+} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/hex2ascii.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/hex2ascii.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling entity hex2ascii
 -- Compiling architecture behav of hex2ascii
 
-} {} {}} C:/scuba2_repository/cards/all_cards/test/source/all_test_reset.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/test/source/all_test_reset.vhd
+} {} {}} C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_core_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
--- Compiling entity all_test_reset
--- Compiling architecture behaviour of all_test_reset
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package bc_dac_ctrl_pack
+-- Compiling package bc_dac_ctrl_core_pack
 
 } {} {}} C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2098,31 +1974,11 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Loading package component_pack
 -- Loading entity rs232_rx
+WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_rx.vhd(98): No default binding for component: "rs232_rx". (Port "comm_clk_i" is not on the entity)
 -- Loading entity rs232_tx
-WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_rx.vhd(107): No default binding for component: "rs232_tx". (Port "start_i" is not on the entity)
+WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_rx.vhd(107): No default binding for component: "rs232_tx". (Port "comm_clk_i" is not on the entity)
 
-} {15.0 16.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package general_pack
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity write_spi
--- Compiling architecture rtl of write_spi
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd(227): Unknown identifier: clk.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd(228): Unknown identifier: rst.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd(229): Unknown identifier: ena.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd(230): Unknown identifier: load.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd(231): Unknown identifier: clr.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd(236): Unknown identifier: shr.
--- Loading entity shift_reg
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd(253): VHDL Compiler exiting
-
-} {13.0 19.0 20.0 21.0} {}} C:/scuba2_repository/cards/all_cards/async/source/rtl/rs232_tx.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/rtl/rs232_tx.vhd
+} {14.0 15.0 16.0 17.0} {}} C:/scuba2_repository/cards/all_cards/async/source/rtl/rs232_tx.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/rtl/rs232_tx.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2134,10 +1990,11 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Compiling entity rs232_tx
 -- Compiling architecture rtl of rs232_tx
--- Loading entity async_tx
+-- Loading entity counter
 -- Loading package altera_mf_components
 -- Loading package lpm_components
 -- Loading entity fifo
+-- Loading entity shift_reg
 
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2165,33 +2022,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture beh of tb_sram
 WARNING[1]: C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram.vhd(83): No default binding for component: "sram". (No entity named "sram" was found)
 
-} {7.0 8.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package general_pack
--- Loading package component_pack
--- Loading package sync_gen_pack
--- Loading package cmd_queue_ram40_pack
--- Loading package async_pack
--- Loading package cmd_queue_pack
--- Loading package data_types_pack
--- Loading package frame_timing_pack
--- Compiling entity cmd_queue
--- Compiling architecture behav of cmd_queue
--- Loading package altera_mf_components
--- Loading entity cmd_queue_tpram
--- Loading entity lvds_tx
--- Loading entity crc
--- Loading entity shift_reg
--- Loading entity counter
--- Loading entity reg
-
-} {} {}} C:/scuba2_repository/cards/clk_card/fo_transceiver/rtl/simple_reply_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/fo_transceiver/rtl/simple_reply_fsm.vhd
+} {7.0 8.0} {}} C:/scuba2_repository/cards/clk_card/fo_transceiver/rtl/simple_reply_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/fo_transceiver/rtl/simple_reply_fsm.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2215,33 +2046,7 @@ WARNING: C:/scuba2_repository/cards/bias_card/test/source/bc_test_idle.vhd(174):
 WARNING: C:/scuba2_repository/cards/bias_card/test/source/bc_test_idle.vhd(174): Synthesis Warning: Signal "rx_ack_i" appears in process "rx_strobe"'s senstivity list, but it is not used in the clock expression or reset expression.
 WARNING: C:/scuba2_repository/cards/bias_card/test/source/bc_test_idle.vhd(174): Synthesis Warning: Signal "done" appears in process "rx_strobe"'s senstivity list, but it is not used in the clock expression or reset expression.
 
-} {9.0 14.0} {}} C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_core.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_core.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package data_types_pack
--- Loading package frame_timing_core_pack
--- Loading package frame_timing_pack
--- Loading package general_pack
--- Loading package component_pack
--- Compiling entity frame_timing_core
--- Compiling architecture beh of frame_timing_core
--- Loading entity counter
--- Loading entity reg
-
-} {} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/command_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/sys_param/source/rtl/command_pack.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Compiling package command_pack
-
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd
+} {9.0 14.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2252,9 +2057,24 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package sync_gen_pack
 -- Loading package issue_reply_pack
 -- Loading package fibre_rx_pack
+-- Loading package general_pack
+-- Loading package component_pack
+-- Loading package altera_mf_components
 -- Compiling entity fibre_rx_protocol
--- Loading package numeric_std
 -- Compiling architecture rtl of fibre_rx_protocol
+-- Loading entity counter
+-- Loading package textio
+-- Loading package altera_common_conversion
+-- Loading package altera_device_families
+-- Loading entity altsyncram
+
+} {} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/command_pack.vhd {1 {vcom -work sys_param -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/sys_param/source/rtl/command_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Compiling package command_pack
 
 } {} {}} C:/scuba2_repository/cards/addr_card/test/source/addr_card_io_connectivity_chk.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/test/source/addr_card_io_connectivity_chk.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2262,20 +2082,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package std_logic_1164
 -- Compiling entity addr_card_io_connectivity_chk
 -- Compiling architecture rtl of addr_card_io_connectivity_chk
-
-} {} {}} C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/sync_gen/source/rtl/sync_gen_wbs.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package general_pack
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity sync_gen_wbs
--- Compiling architecture rtl of sync_gen_wbs
--- Loading entity reg
 
 } {} {}} C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2296,6 +2102,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Loading package data_types_pack
+-- Loading package slot_id_pack
 -- Loading package dispatch_pack
 -- Loading package leds_pack
 -- Loading package frame_timing_pack
@@ -2349,24 +2156,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity cmd_translator_m_op_table
 -- Compiling architecture rtl of cmd_translator_m_op_table
 
-} {} {}} C:/scuba2_repository/cards/bias_card/bias_card/source/rtl/bias_card_one.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bias_card/source/rtl/bias_card_one.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package data_types_pack
--- Loading package dispatch_pack
--- Loading package leds_pack
--- Loading package frame_timing_pack
--- Loading package bc_dac_ctrl_pack
--- Loading package bias_card_pack
--- Compiling entity bias_card_one
--- Compiling architecture top of bias_card_one
--- Loading entity bias_card
-
 } {} {}} C:/scuba2_repository/cards/all_cards/test/source/all_test_pack.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/test/source/all_test_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
@@ -2405,27 +2194,7 @@ but is NOT in the sensitivity list
 WARNING: C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_pass.vhd(125): Synthesis Warning: Signal sram_mem is read by the process 
 but is NOT in the sensitivity list
 
-} {9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0} {}} C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package leds_pack
--- Compiling entity tb_leds
--- Compiling architecture beh of tb_leds
-** Error: C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd(78): Unknown identifier: slave_sel.
-** Error: C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd(79): Unknown identifier: addr_width.
-** Error: C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd(80): Unknown identifier: data_width.
-** Error: C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd(81): Unknown identifier: tag_addr_width.
-** Error: C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd(94): Unknown identifier: power_ok.
-** Error: C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd(97): Unknown identifier: spare.
--- Loading entity leds
-** Error: C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd(256): VHDL Compiler exiting
-
-} {12.0 18.0 19.0 20.0} {}} C:/scuba2_repository/cards/readout_card/test/source/rc_test_pack.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/readout_card/test/source/rc_test_pack.vhd
+} {9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0} {}} C:/scuba2_repository/cards/readout_card/test/source/rc_test_pack.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/readout_card/test/source/rc_test_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2527,7 +2296,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture rtl of ac_dac_ctrl_wbs
 -- Loading package altera_mf_components
 -- Loading entity tpram_32bit_x_64
--- Loading entity ac_dac_ctrl_ramdq
 -- Loading entity reg
 
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_reply_translator.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_reply_translator.vhd
@@ -2545,29 +2313,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture bench of tb_reply_translator
 -- Loading entity reply_translator
 
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package general_pack
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity read_data_1_wire
--- Compiling architecture behav of read_data_1_wire
--- Loading entity us_timer
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd(116): Unknown identifier: clk.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd(116): Unknown identifier: rst.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd(107): Unknown identifier: ena.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd(108): Unknown identifier: clr.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd(116): Unknown identifier: shr.
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd(114): Unknown identifier: load.
--- Loading entity shift_reg
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd(262): VHDL Compiler exiting
-
-} {14.0 20.0 21.0 22.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd {0 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd {0 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2613,6 +2359,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 ** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd(216): Unknown identifier: lvds_rx6a.
 ** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd(216): Unknown identifier: lvds_rx7a.
 -- Loading entity reply_queue
+** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd(229): Unknown identifier: clk_i.
 -- Loading entity lvds_rx
 ** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd(239): Unknown identifier: dv_en_i.
 -- Loading package sync_gen_wbs_pack
@@ -2620,7 +2367,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity sync_gen
 ** Error: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_queue.vhd(446): VHDL Compiler exiting
 
-} {20.0 21.0 23.0 46.0 48.0 49.0 52.0 53.0} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
+} {20.0 21.0 23.0 46.0 47.0 48.0 49.0 50.0 53.0 54.0} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2631,6 +2378,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Loading package component_pack
 -- Loading package async_pack
+-- Loading package slot_id_pack
 -- Loading package dispatch_pack
 -- Compiling entity dispatch_cmd_receive
 -- Compiling architecture rtl of dispatch_cmd_receive
@@ -2688,6 +2436,32 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package sync_gen_pack
 -- Loading package cmd_queue_ram40_pack
 -- Compiling package reply_queue_pack
+
+} {} {}} C:/scuba2_repository/cards/addr_card/addr_card/source/tb/tb_addr_card_self_test.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/addr_card/addr_card/source/tb/tb_addr_card_self_test.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package numeric_std
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package bc_dac_ctrl_pack
+-- Loading package clk_card_pack
+-- Loading package addr_card_pack
+-- Loading package general_pack
+-- Loading package component_pack
+-- Loading package data_types_pack
+-- Compiling entity tb_addr_card_self_test
+-- Compiling architecture tb of tb_addr_card_self_test
+-- Loading package slot_id_pack
+-- Loading package dispatch_pack
+-- Loading package leds_pack
+-- Loading package frame_timing_pack
+-- Loading package ac_dac_ctrl_wbs_pack
+-- Loading package ac_dac_ctrl_pack
+-- Loading package async_pack
+-- Loading entity addr_card_self_test
 
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_tpram.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_tpram.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2756,20 +2530,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity counter_xstep
 -- Compiling architecture behav of counter_xstep
 
-} {} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_read_data_1_wire.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_read_data_1_wire.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package general_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity tb_read_data_1_wire
--- Compiling architecture beh of tb_read_data_1_wire
--- Loading entity read_data_1_wire
-
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_control.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_control.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
@@ -2787,51 +2547,8 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Loading package slot_id_pack
--- Loading package general_pack
--- Loading package component_pack
 -- Compiling entity slot_id
 -- Compiling architecture rtl of slot_id
--- Loading entity slave_ctrl
-
-} {} {}} C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package general_pack
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Loading package card_id_pack
--- Compiling entity card_id
--- Compiling architecture rtl of card_id
-WARNING: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(251): Synthesis Warning: Signal serial_num_hold is read by the process 
-but is NOT in the sensitivity list
-WARNING: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(260): Synthesis Warning: Signal serial_num_hold is read by the process 
-but is NOT in the sensitivity list
--- Loading entity init_1_wire
--- Loading entity write_data_1_wire
--- Loading entity read_data_1_wire
-** Error: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(331): Unknown identifier: data_length.
-** Error: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(332): Unknown identifier: clk.
-** Error: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(333): Unknown identifier: rst.
-** Error: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(334): Unknown identifier: crc_start_i.
-** Error: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(335): Unknown identifier: crc_done_o.
-** Error: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(336): Unknown identifier: crc_data_i.
--- Loading entity crc
--- Loading entity slave_ctrl
-** Error: C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd(401): VHDL Compiler exiting
-
-} {14.0 15.0 16.0 17.0 21.0 27.0 29.0 30.0} {}} C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Compiling package ac_dac_ctrl_wbs_pack
 
 } {} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_wishbone.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2843,11 +2560,22 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Loading package component_pack
+-- Loading package slot_id_pack
 -- Loading package dispatch_pack
 -- Compiling entity dispatch_wishbone
 -- Compiling architecture rtl of dispatch_wishbone
 -- Loading entity counter
 -- Loading entity us_timer
+
+} {} {}} C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Compiling package ac_dac_ctrl_wbs_pack
 
 } {} {}} C:/scuba2_repository/cards/clk_card/test/source/dip_leds_test.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/dip_leds_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2870,11 +2598,11 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Compiling entity lvds_tx
 -- Compiling architecture rtl of lvds_tx
--- Loading entity async_tx
 -- Loading entity counter
 -- Loading package altera_mf_components
 -- Loading package lpm_components
 -- Loading entity fifo
+-- Loading entity shift_reg
 
 } {} {}} C:/scuba2_repository/cards/clk_card/fo_transceiver/tb/tb_simple_reply_fsm.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/fo_transceiver/tb/tb_simple_reply_fsm.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2897,7 +2625,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package sync_gen_pack
 -- Compiling package reply_translator_pack
 
-} {} {}} C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id.vhd
+} {} {}} C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2908,11 +2636,11 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package slot_id_pack
 -- Compiling entity tb_slot_id
 -- Compiling architecture beh of tb_slot_id
--- Loading package general_pack
--- Loading package component_pack
+** Error: C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id.vhd(84): Unknown identifier: rty_o.
 -- Loading entity slot_id
+** Error: C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id.vhd(328): VHDL Compiler exiting
 
-} {} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_pack.vhd
+} {12.0 13.0 14.0 15.0} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2920,30 +2648,10 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package std_logic_unsigned
 -- Loading package command_pack
 -- Loading package wishbone_pack
+-- Loading package slot_id_pack
 -- Compiling package dispatch_pack
 
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package general_pack
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity cmd_translator_internal_cmd_fsm
--- Compiling architecture rtl of cmd_translator_internal_cmd_fsm
-
-} {} {}} C:/scuba2_repository/cards/clk_card/test/source/cc_lvds.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/cc_lvds.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling entity cc_lvds
--- Compiling architecture behav of cc_lvds
-WARNING[1]: C:/scuba2_repository/cards/clk_card/test/source/cc_lvds.vhd(52): No default binding for component: "cc_lvds_pll". (No entity named "cc_lvds_pll" was found)
-
-} {7.0 8.0} {}} C:/scuba2_repository/cards/all_cards/async/source/tb/tb_lvds_tx.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/tb/tb_lvds_tx.vhd
+} {} {}} C:/scuba2_repository/cards/all_cards/async/source/tb/tb_lvds_tx.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/tb/tb_lvds_tx.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2956,10 +2664,29 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Loading package component_pack
 -- Loading entity lvds_tx
-WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_lvds_tx.vhd(83): Port "mem_clk_i" is on entity "lvds_tx" used for default binding, but is not on the component declaration.
-WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_lvds_tx.vhd(83): A use of this default binding for this component instantiation will result in an elaboration error.
 
-} {14.0 16.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd
+} {} {}} C:/scuba2_repository/cards/clk_card/test/source/cc_lvds.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/cc_lvds.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity cc_lvds
+-- Compiling architecture behav of cc_lvds
+WARNING[1]: C:/scuba2_repository/cards/clk_card/test/source/cc_lvds.vhd(52): No default binding for component: "cc_lvds_pll". (No entity named "cc_lvds_pll" was found)
+
+} {7.0 8.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package general_pack
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Compiling entity cmd_translator_internal_cmd_fsm
+-- Compiling architecture rtl of cmd_translator_internal_cmd_fsm
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_fifo.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2977,28 +2704,60 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package altera_mf_components
 -- Loading entity sync_fifo_rx
 
-} {} {}} C:/scuba2_repository/cards/clk_card/sync_gen/source/tb/tb_sync_gen.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/sync_gen/source/tb/tb_sync_gen.vhd
+} {} {}} C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bc_dac_ctrl/source/rtl/bc_dac_ctrl_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
--- Loading package general_pack
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Compiling package bc_dac_ctrl_pack
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_test.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_test.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
 -- Loading package command_pack
 -- Loading package wishbone_pack
 -- Loading package sync_gen_pack
--- Loading package sync_gen_core_pack
--- Loading package data_types_pack
--- Loading package frame_timing_core_pack
--- Loading package frame_timing_pack
--- Compiling entity tb_sync_gen
--- Compiling architecture beh of tb_sync_gen
+-- Loading package cmd_queue_ram40_pack
+-- Loading package cmd_queue_pack
+-- Compiling entity cmd_queue_ram40_test
+-- Compiling architecture syn of cmd_queue_ram40_test
+
+} {} {}} C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id_test_wrapper.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id_test_wrapper.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package general_pack
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
 -- Loading package component_pack
--- Loading entity sync_gen_core
--- Loading entity frame_timing_core
--- Compiling configuration tb_sync_gen_conf
--- Loading entity tb_sync_gen
--- Loading architecture beh of tb_sync_gen
+-- Compiling entity tb_slot_id_test_wrapper
+-- Compiling architecture beh of tb_slot_id_test_wrapper
+-- Loading package slot_id_pack
+-- Loading entity slot_id_test_wrapper
+WARNING[1]: C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id_test_wrapper.vhd(113): No default binding for component: "slot_id_test_wrapper". (Port "tx_busy_i" is not on the entity)
+
+} {15.0 16.0} {}} C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_test_wrapper.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_test_wrapper.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package general_pack
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Compiling entity tb_card_id_test_wrapper
+-- Compiling architecture beh of tb_card_id_test_wrapper
+-- Loading package card_id_pack
+-- Loading entity card_id_test_wrapper
 
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue_retire.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/reply_queue_retire.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -3016,50 +2775,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity reply_queue_retire
 -- Compiling architecture behav of reply_queue_retire
 -- Loading entity reg
-
-} {} {}} C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_test_wrapper.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_test_wrapper.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package general_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity tb_card_id_test_wrapper
--- Compiling architecture beh of tb_card_id_test_wrapper
--- Loading package card_id_pack
--- Loading entity card_id_test_wrapper
-
-} {} {}} C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id_test_wrapper.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id_test_wrapper.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package general_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity tb_slot_id_test_wrapper
--- Compiling architecture beh of tb_slot_id_test_wrapper
--- Loading package slot_id_pack
--- Loading entity slot_id_test_wrapper
-
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_test.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_test.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package sync_gen_pack
--- Loading package cmd_queue_ram40_pack
--- Loading package cmd_queue_pack
--- Compiling entity cmd_queue_ram40_test
--- Compiling architecture syn of cmd_queue_ram40_test
 
 } {} {}} C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_ctrl.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_ctrl.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -3104,22 +2819,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity lvds_test
 -- Compiling architecture beh of lvds_test
 
-} {} {}} C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_tx.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_tx.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling entity tb_rs232_tx
--- Compiling architecture beh of tb_rs232_tx
--- Loading package general_pack
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Loading entity rs232_tx
-WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_tx.vhd(80): No default binding for component: "rs232_tx". (Port "start_i" is not on the entity)
-
-} {14.0 15.0} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_crc_test.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_crc_test.vhd
+} {} {}} C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_crc_test.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/dispatch/source/rtl/dispatch_crc_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -3136,7 +2836,22 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity counter
 -- Loading entity crc
 
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_translator.vhd {0 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_translator.vhd
+} {} {}} C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_tx.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_tx.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling entity tb_rs232_tx
+-- Compiling architecture beh of tb_rs232_tx
+-- Loading package general_pack
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Loading entity rs232_tx
+WARNING[1]: C:/scuba2_repository/cards/all_cards/async/source/tb/tb_rs232_tx.vhd(80): No default binding for component: "rs232_tx". (Port "comm_clk_i" is not on the entity)
+
+} {14.0 15.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_translator.vhd {0 {vcom -work work -93 -explicit C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_cmd_translator.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -3270,5 +2985,15 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity ac_dac_ctrl_test
 -- Compiling architecture rtl of ac_dac_ctrl_test
 -- Loading entity counter
+
+} {} {}} C:/scuba2_repository/cards/all_cards/async/source/rtl/ascii_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/async/source/rtl/ascii_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Compiling package ascii_pack
+-- Compiling package body ascii_pack
+-- Loading package ascii_pack
 
 } {} {}}
