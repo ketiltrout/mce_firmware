@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.2 2004/06/29 15:02:26 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.3 2004/06/30 10:58:14 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,30 +67,34 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/29 15:02:26 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/30 10:58:14 $>	-		<text>		- <initials $Author: dca $>
 -- <$log$>
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.issue_reply_pack.all;
+use work.fibre_rx_pack.all;
+
 entity fibre_rx_protocol is
    port( 
-      rst_i       : in     std_logic;                          -- reset
-      clk_i       : in     std_logic;                          -- clock 
-      rx_fe_i     : in     std_logic;                          -- receive fifo empty flag
-      rxd_i       : in     std_logic_vector (7 downto 0);      -- receive data byte 
-      cmd_ack_i   : in     std_logic;                          -- command acknowledge
+      rst_i       : in     std_logic;                                          -- global reset
+      clk_i       : in     std_logic;                                          -- global clock 
+      rx_fe_i     : in     std_logic;                                          -- receive fifo empty flag
+      rxd_i       : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);   -- receive data byte 
+      cmd_ack_i   : in     std_logic;                                          -- command acknowledge
 
-      cmd_code_o  : out    std_logic_vector (15 downto 0);     -- command code  
-      card_id_o   : out    std_logic_vector (15 downto 0);     -- card id
-      param_id_o  : out    std_logic_vector (15 downto 0);     -- parameter id
-      num_data_o  : out    std_logic_vector (7 downto 0);      -- number of valid 32 bit data words
-      cmd_data_o  : out    std_logic_vector (31 downto 0);     -- 32bit valid data word
-      cksum_err_o : out    std_logic;                          -- checksum error flag
-      cmd_rdy_o   : out    std_logic;                          -- command ready flag (checksum passed)
-      data_clk_o  : out    std_logic;                          -- data clock
-      rx_fr_o     : out    std_logic                           -- receive fifo read request
+      cmd_code_o  : out    std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);   -- command code  
+      card_id_o   : out    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- card id
+      param_id_o  : out    std_logic_vector (PAR_ID_BUS_WIDTH-1  downto 0);    -- parameter id
+      num_data_o  : out    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- number of valid 32-bit data words
+      cmd_data_o  : out    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- 32-bit valid data word
+      cksum_err_o : out    std_logic;                                          -- checksum error flag
+      cmd_rdy_o   : out    std_logic;                                          -- command ready flag (checksum passed)
+      data_clk_o  : out    std_logic;                                          -- data clock
+      rx_fr_o     : out    std_logic                                           -- receive fifo read request
    );
 
 end fibre_rx_protocol;
@@ -99,6 +103,7 @@ end fibre_rx_protocol;
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
 
 architecture rtl of fibre_rx_protocol is
 
@@ -854,7 +859,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cmd_code_o(7 downto 0) <= x"00";
+        cmd_code_o(7 downto 0) <= (others => '0');
      elsif (cmd_clk0'EVENT and cmd_clk0 = '1') then
         cmd_code_o(7 downto 0) <= rxd_i(7 downto 0);
      end if;
@@ -868,7 +873,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cmd_code_o(15 downto 8) <= x"00";
+        cmd_code_o(15 downto 8) <= (others => '0');
      elsif (cmd_clk1'EVENT and cmd_clk1 = '1') then
         cmd_code_o(15 downto 8) <= rxd_i(7 downto 0);
      end if;
@@ -884,7 +889,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        param_id_o(7 downto 0) <= x"00";
+        param_id_o(7 downto 0) <= (others => '0');
      elsif (id_clk0'EVENT and id_clk0 = '1') then
         param_id_o(7 downto 0) <= rxd_i(7 downto 0);
      end if;
@@ -898,7 +903,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        param_id_o(15 downto 8) <= x"00";
+        param_id_o(15 downto 8) <= (others => '0');
      elsif (id_clk1'EVENT and id_clk1 = '1') then
         param_id_o(15 downto 8) <= rxd_i(7 downto 0);
      end if;
@@ -912,7 +917,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        card_id_o(7 downto 0) <= x"00";
+        card_id_o(7 downto 0) <= (others => '0');
      elsif (id_clk2'EVENT and id_clk2 = '1') then
         card_id_o(7 downto 0) <= rxd_i(7 downto 0);
      end if;
@@ -926,13 +931,12 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        card_id_o(15 downto 8) <= x"00";
+        card_id_o(15 downto 8) <= (others => '0');
      elsif (id_clk3'EVENT and id_clk3 = '1') then
         card_id_o(15 downto 8) <= rxd_i(7 downto 0);
      end if;
   end process latch_id3;
-  
-  
+   
   
   ------------------------------------------------------------------------------
   latch_nda0: process(nda_clk0, rst_i)
@@ -941,10 +945,11 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        num_data_o(7 downto 0) <= x"00";
+        num_data_o <= (others => '0');
         number_data <= 1;
      elsif (nda_clk0'EVENT and nda_clk0 = '1') then
         num_data_o(7 downto 0) <= rxd_i(7 downto 0);
+        num_data_o(DATA_SIZE_BUS_WIDTH-1 downto 8) <= (others => '0');
         number_data <= To_integer(Unsigned(rxd_i(7 downto 0)));
      end if;
   end process latch_nda0;
@@ -958,7 +963,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cksum_in(7 downto 0) <= x"00";
+        cksum_in(7 downto 0) <= (others => '0');
      elsif (ckin_clk0'EVENT and ckin_clk0 = '1') then
         cksum_in(7 downto 0) <= rxd_i(7 downto 0);
      end if;
@@ -971,7 +976,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cksum_in(15 downto 8) <= x"00";
+        cksum_in(15 downto 8) <= (others => '0');
      elsif (ckin_clk1'EVENT and ckin_clk1 = '1') then
         cksum_in(15 downto 8) <= rxd_i(7 downto 0);
      end if;
@@ -985,7 +990,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cksum_in(23 downto 16) <= x"00";
+        cksum_in(23 downto 16) <= (others => '0');
      elsif (ckin_clk2'EVENT and ckin_clk2 = '1') then
         cksum_in(23 downto 16) <= rxd_i(7 downto 0);
      end if;
@@ -999,7 +1004,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cksum_in(31 downto 24) <= x"00";
+        cksum_in(31 downto 24) <= (others => '0');
      elsif (ckin_clk3'EVENT and ckin_clk3 = '1') then
         cksum_in(31 downto 24) <= rxd_i(7 downto 0);
      end if;
@@ -1013,7 +1018,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cksum_rcvd(7 downto 0) <= x"00";
+        cksum_rcvd(7 downto 0) <= (others => '0');
      elsif (ckrx_clk0'EVENT and ckrx_clk0 = '1') then
         cksum_rcvd(7 downto 0) <= rxd_i(7 downto 0);
      end if;
@@ -1026,7 +1031,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cksum_rcvd(15 downto 8) <= x"00";
+        cksum_rcvd(15 downto 8) <= (others => '0');
      elsif (ckrx_clk1'EVENT and ckrx_clk1 = '1') then
         cksum_rcvd(15 downto 8) <= rxd_i(7 downto 0);
      end if;
@@ -1040,7 +1045,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cksum_rcvd(23 downto 16) <= x"00";
+        cksum_rcvd(23 downto 16) <= (others => '0');
      elsif (ckrx_clk2'EVENT and ckrx_clk2 = '1') then
         cksum_rcvd(23 downto 16) <= rxd_i(7 downto 0);
      end if;
@@ -1054,7 +1059,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cksum_rcvd(31 downto 24) <= x"00";
+        cksum_rcvd(31 downto 24) <= (others => '0');
      elsif (ckrx_clk3'EVENT and ckrx_clk3 = '1') then
         cksum_rcvd(31 downto 24) <= rxd_i(7 downto 0);
      end if;
@@ -1068,7 +1073,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        data_in (7 downto 0) <= x"00";
+        data_in (7 downto 0) <= (others => '0');
      elsif (data_clk0'EVENT and data_clk0 = '1') then
         data_in (7 downto 0) <= rxd_i(7 downto 0);
      end if;
@@ -1082,7 +1087,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        data_in (15 downto 8) <= x"00";
+        data_in (15 downto 8) <= (others => '0');
      elsif (data_clk1'EVENT and data_clk1 = '1') then
         data_in (15 downto 8) <= rxd_i(7 downto 0);
      end if;
@@ -1095,7 +1100,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        data_in (23 downto 16) <= x"00";
+        data_in (23 downto 16) <= (others => '0');
      elsif (data_clk2'EVENT and data_clk2 = '1') then
         data_in (23 downto 16) <= rxd_i(7 downto 0);
      end if;
@@ -1109,7 +1114,7 @@ begin
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        data_in (31 downto 24) <= x"00";
+        data_in (31 downto 24) <= (others => '0');
      elsif (data_clk3'EVENT and data_clk3 = '1') then
         data_in (31 downto 24) <= rxd_i(7 downto 0);
      end if;
@@ -1127,7 +1132,7 @@ begin
   begin
      
     if (check_reset = '1') then
-       cksum_calc <= X"00000000";
+       cksum_calc <= (others => '0');
     elsif (check_update'EVENT AND check_update = '1') then
        cksum_calc <= cksum_calc XOR cksum_in;
     end if;
