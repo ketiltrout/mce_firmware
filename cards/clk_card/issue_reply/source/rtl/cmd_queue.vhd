@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.49 2004/09/03 00:39:25 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.50 2004/09/03 23:17:24 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.50  2004/09/03 23:17:24  bburger
+-- Bryce:  fixed a bug with the control signal bit_ctr_ena to the bit counter for the CRC block.  The counter should count up to 32 and stop before the first m-op ever arrives
+--
 -- Revision 1.49  2004/09/03 00:39:25  bburger
 -- Bryce:  modified the interface to include debug_o, and updated the lvds_tx interface to use bsy and rdy signals implemented in lvds_tx.vhd v1.6
 --
@@ -120,7 +123,7 @@ use work.async_pack.all;
 entity cmd_queue is
    port(
       -- for testing
-      debug_o  : out std_logic_vector(31 downto 0);
+      --debug_o  : out std_logic_vector(31 downto 0);
 
       -- reply_queue interface
 --      uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
@@ -232,6 +235,7 @@ type send_states is (LOAD, ISSUE, HEADER_A, HEADER_B, DATA, MORE_DATA, CHECKSUM,
 signal present_send_state   : send_states;
 signal next_send_state      : send_states;
 signal previous_send_state  : send_states;
+signal update_prev_state    : std_logic;
 signal freeze_send          : std_logic;  --In, freezes the send pointer when flushing out invalidated u-ops
 signal uop_send_expired     : std_logic;
 signal issue_sync           : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
@@ -240,6 +244,7 @@ signal uop_data_size        : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0
 signal uop_data_size_int    : integer;
 signal uop_data_count       : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
 signal send_state           : std_logic_vector(3 downto 0);
+signal prev_send_state      : std_logic_vector(3 downto 0); 
 
 -- Wishbone signals to/from lvds_tx
 signal cmd_tx_dat           : std_logic_vector(31 downto 0);
@@ -368,7 +373,7 @@ begin
 ------------------------------------------------------------------------ 
 
    -- [JJ] For testing
-   debug_o(31 downto 0)  <=  clk_i & "0000000" & uop_data_size(3 downto 0) & send_state & cmd_tx_dat(31 downto 16);
+   --debug_o(31 downto 0)  <=  clk_i & "000000000" & lvds_tx_rdy & lvds_tx_busy & uop_data_size(3 downto 0) & prev_send_state & send_state & cmd_tx_dat(31 downto 24);
       
    -- Command queue (FIFO)
    cmd_queue_ram40_inst: cmd_queue_ram40--_test
@@ -1235,6 +1240,9 @@ begin
          present_send_state <= LOAD;--RESET;
       elsif(clk_i'event and clk_i = '1') then
          present_send_state <= next_send_state;
+         if(update_prev_state = '1') then
+            previous_send_state <= present_send_state;
+         end if;
       end if;
    end process send_state_FF;
 
@@ -1347,19 +1355,21 @@ begin
 
 
 
-   send_state_out: process(present_send_state)
+   send_state_out: process(present_send_state, bit_ctr_count)
    begin
       -- Debug
       send_state <= "0000";
+      prev_send_state <= "0000";
    
       -- defaults
       crc_num_bits_mux_sel     <= "00";  -- hold value
       cmd_tx_dat_mux_sel       <= "000"; -- hold value
       send_ptr_mux_sel         <= "00";  -- hold value
       uop_data_count_mux_sel   <= "00";  -- hold value
-      uop_data_size_mux_sel    <= "00";  -- hold value
-      
+      uop_data_size_mux_sel    <= "00";  -- hold value      
       sh_reg_parallel_mux_sel  <= "00";  -- (others => '0');
+      
+      update_prev_state <= '0';
    
       case present_send_state is
 --         when RESET =>
@@ -1393,6 +1403,7 @@ begin
          when LOAD =>            
             -- Debug
             send_state <= "0001";
+            prev_send_state <= "0001";
 
             lvds_tx_rdy              <= '0';
 
@@ -1422,7 +1433,8 @@ begin
             
             --sh_reg_parallel_i        <= (others => '0');
             
-            previous_send_state      <= LOAD;
+            update_prev_state <= '1';
+            --previous_send_state      <= LOAD;
             
             -- I thought that I could update issue_sync and timeout_sync only when they're inputs would be valid
             -- However, I discovered that for some reason, this doesn't work.
@@ -1433,6 +1445,7 @@ begin
          when HEADER_A =>
             -- Debug
             send_state <= "0010";
+            prev_send_state <= "0010";
 
             lvds_tx_rdy              <= '1';
 
@@ -1462,7 +1475,8 @@ begin
             sh_reg_parallel_mux_sel  <= "01";  -- BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
             --sh_reg_parallel_i        <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
 
-            previous_send_state      <= HEADER_A;
+            update_prev_state <= '1';
+            --previous_send_state      <= HEADER_A;
             --send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
          
             -- I thought that I could update issue_sync and timeout_sync only when they're inputs would be valid
@@ -1474,6 +1488,7 @@ begin
          when HEADER_B =>
             -- Debug
             send_state <= "0011";
+            prev_send_state <= "0011";
 
             lvds_tx_rdy              <= '1';
 
@@ -1492,13 +1507,16 @@ begin
             sh_reg_parallel_mux_sel  <= "10";  -- qa_sig(QUEUE_WIDTH-1 downto 0)
             --sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
-            previous_send_state      <= HEADER_B;
+            update_prev_state <= '1';
+            --previous_send_state      <= HEADER_B;
+
             send_ptr_mux_sel         <= "01"; --send_ptr + 1
             --send_ptr                 <= send_ptr + 1;
          
          when DATA =>
             -- Debug
             send_state <= "0100";
+            prev_send_state <= "0100";
 
             lvds_tx_rdy              <= '1';
 
@@ -1517,7 +1535,8 @@ begin
             sh_reg_parallel_mux_sel  <= "10";  -- qa_sig(QUEUE_WIDTH-1 downto 0)
             --sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             
-            previous_send_state      <= DATA; 
+            update_prev_state <= '1';
+            --previous_send_state      <= DATA; 
             
             send_ptr_mux_sel         <= "01"; --send_ptr + 1           
             --send_ptr                 <= send_ptr + 1;
@@ -1525,6 +1544,7 @@ begin
          when MORE_DATA =>
             -- Debug
             send_state <= "0101";
+            prev_send_state <= "0101";
 
             lvds_tx_rdy              <= '1';
 
@@ -1543,7 +1563,8 @@ begin
             sh_reg_parallel_mux_sel  <= "10";  -- qa_sig(QUEUE_WIDTH-1 downto 0)
             --sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
-            previous_send_state      <= MORE_DATA;
+            update_prev_state <= '1';
+            --previous_send_state      <= MORE_DATA;
             
             send_ptr_mux_sel         <= "01"; --send_ptr + 1
             --send_ptr                 <= send_ptr + 1;
@@ -1551,6 +1572,7 @@ begin
          when CHECKSUM =>
             -- Debug
             send_state <= "0110";
+            prev_send_state <= "0110";
 
             lvds_tx_rdy              <= '1';
 
@@ -1572,7 +1594,8 @@ begin
             
             --sh_reg_parallel_i        <= (others => '0');
             
-            previous_send_state      <= CHECKSUM;
+            update_prev_state <= '1';
+            --previous_send_state      <= CHECKSUM;
             
             send_ptr_mux_sel         <= "01"; --send_ptr + 1
             --send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
@@ -1580,6 +1603,7 @@ begin
          when PAUSE =>
             -- Debug
             send_state <= "0111";
+            --prev_send_state <= "0111";
 
             lvds_tx_rdy              <= '0';
 
@@ -1592,11 +1616,13 @@ begin
             
             --sh_reg_parallel_i        <= (others => '0');
 
-            --previous_send_state      <= PAUSE;  Not to be changed here.  This variable needs to be maintained as it is through the PAUSE state so that it can branch correctly in the send_state_NS FSM.
+            update_prev_state <= '0';
+            --previous_send_state      <= previous_send_state;  --Not to be changed here.  This variable needs to be maintained as it is through the PAUSE state so that it can branch correctly in the send_state_NS FSM.
          
          when NEXT_UOP =>
             -- Debug
             send_state <= "1000";
+            prev_send_state <= "1000";
 
             lvds_tx_rdy              <= '0';
 
@@ -1617,7 +1643,8 @@ begin
             
             --sh_reg_parallel_i        <= (others => '0');
 
-            previous_send_state      <= NEXT_UOP;
+            update_prev_state <= '1';
+            --previous_send_state      <= NEXT_UOP;
             
             -- The send_ptr should be incremented to the next u-op if this one has expired
             send_ptr_mux_sel         <= "10"; --send_ptr + other signals
@@ -1626,6 +1653,7 @@ begin
          when others =>
             -- Debug
             send_state <= "1111";
+            prev_send_state <= "0001";
 
             lvds_tx_rdy              <= '0';
 
@@ -1649,7 +1677,8 @@ begin
             
             --sh_reg_parallel_i        <= (others => '0');
 
-            previous_send_state      <= LOAD;
+            update_prev_state <= '0';
+            --previous_send_state      <= LOAD;
       end case;
    end process;
 
