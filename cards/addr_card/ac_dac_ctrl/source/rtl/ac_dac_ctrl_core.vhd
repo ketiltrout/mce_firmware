@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.9 2004/11/18 05:21:56 bburger Exp $
+-- $Id: ac_dac_ctrl_core.vhd,v 1.1 2004/11/20 01:20:44 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block must be coupled with frame_timing and wbs_ac_dac_ctrl blocks to work properly
 --
 -- Revision history:
--- $Log: ac_dac_ctrl.vhd,v $
+-- $Log: ac_dac_ctrl_core.vhd,v $
+-- Revision 1.1  2004/11/20 01:20:44  bburger
+-- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
+--
 -- Revision 1.9  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -157,7 +160,7 @@ begin
          )
          port map
          (
-            clk_i  => mem_clk_i,
+            clk_i  => clk_i,
             rst_i  => rst_i,
             ena_i  => '1',
             reg_i  => dac_data,
@@ -165,12 +168,12 @@ begin
          );
    end generate gen_dac_data_reg;   
 
-   registered_inputs : process(mem_clk_i, rst_i)
+   registered_inputs : process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          frame_aligned_reg <= '0';
          mux_en            <= '0';
-      elsif(mem_clk_i'event and mem_clk_i = '1') then
+      elsif(clk_i'event and clk_i = '1') then
          
          if(row_switch_i = '1') then
             frame_aligned_reg <= restart_frame_aligned_i;
