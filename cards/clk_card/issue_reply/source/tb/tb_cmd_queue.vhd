@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.5 2004/07/22 20:39:20 bench2 Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.6 2004/07/22 23:43:42 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.6  2004/07/22 23:43:42  bench2
+-- Bryce: in progress
+--
 -- Revision 1.5  2004/07/22 20:39:20  bench2
 -- Bryce: in progress
 --
@@ -62,6 +65,7 @@ library work;
 use work.cmd_queue_pack.all;
 use work.issue_reply_pack.all;
 use work.cmd_queue_ram40_pack.all;
+use work.async_pack.all;
 
 entity TB_CMD_QUEUE is
 end TB_CMD_QUEUE;
@@ -98,8 +102,9 @@ architecture BEH of TB_CMD_QUEUE is
    signal rst_i         : std_logic := '0';  -- Resets all FSMs
 
    signal count_value   : integer := 0;
-
-
+   signal rx_dat        : std_logic_vector(31 downto 0);
+   signal rx_rdy        : std_logic;
+   signal rx_ack        : std_logic;
 
 ------------------------------------------------------------------------
 --
@@ -138,11 +143,25 @@ begin
          clk_i         => clk_i,
          rst_i         => rst_i
       );
+      
+   rx : lvds_rx
+      port map(
+        clk_i          => clk_i,
+        comm_clk_i     => clk_200mhz_i,
+        rst_i          => rst_i,
+     
+        dat_o          => rx_dat,
+        rdy_o          => rx_rdy,
+        ack_i          => rx_ack,
+     
+        lvds_i         => tx_o
+      );
 
    -- Create a test clock
-   sync_i <= not sync_i after CLOCK_PERIOD*40; -- The sync period is much shorter than customary.
+   sync_i <= not sync_i after CLOCK_PERIOD*41*64/2; -- The sync frequency is actually 200Hz.
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
    clk_200mhz_i <= not clk_200mhz_i after CLOCK_PERIOD/8;
+   rx_ack <= rx_rdy;
 
    -- Create stimulus
    STIMULI : process
@@ -173,7 +192,7 @@ begin
       data_i        <= (others => '0');
       data_clk_i    <= '0';
       mop_i         <= "00000001"; -- m-op #1
-      issue_sync_i  <= "00000011"; -- Sync pulse 3
+      issue_sync_i  <= "00000001"; -- Sync pulse 1
 
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
@@ -199,7 +218,7 @@ begin
          do_nop;
 --      end loop L1;
       do_data_cmd;
-      L2: for count_value in 0 to 255 loop
+      L2: for count_value in 0 to 4000 loop
          do_nop;
       end loop L2;
       assert false report " Simulation done." severity FAILURE;
