@@ -246,23 +246,7 @@ but is NOT in the sensitivity list
 -- Loading entity crc
 -- Loading entity slave_ctrl
 
-} {12.0 13.0 14.0 15.0} {}} C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id_test_wrapper.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id_test_wrapper.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package wishbone_pack
--- Loading package array_id_pack
--- Compiling entity array_id_test_wrapper
--- Compiling architecture rtl of array_id_test_wrapper
--- Loading package general_pack
--- Loading package component_pack
--- Loading entity array_id
--- Loading entity hex2ascii
-WARNING: C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id_test_wrapper.vhd(274): Synthesis Warning: Signal array_id_ascii is read by the process 
-but is NOT in the sensitivity list
-
-} {14.0 15.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd {1 {vcom -work components -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd
+} {12.0 13.0 14.0 15.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd {1 {vcom -work components -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -308,6 +292,12 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity counter
 -- Compiling architecture behav of counter
 
+} {} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/frame_timing_pack.vhd {1 {vcom -work sys_param -93 -explicit C:/scuba2_repository/cards/library/sys_param/source/rtl/frame_timing_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling package frame_timing_pack
+
 } {} {}} C:/scuba2_repository/cards/clk_card/test/source/s_array_id_tb.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/s_array_id_tb.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
@@ -320,19 +310,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling entity tb_s_array_id
 -- Compiling architecture beh of tb_s_array_id
 -- Loading entity s_array_id
-
-} {} {}} C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_test_wrapper.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_test_wrapper.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Compiling entity tb_sram_test_wrapper
--- Compiling architecture beh of tb_sram_test_wrapper
--- Loading package std_logic_arith
--- Loading package wishbone_pack
--- Loading package sram_ctrl_pack
--- Loading entity sram_test_wrapper
--- Loading package std_logic_unsigned
--- Loading entity sram_pass
 
 } {} {}} C:/scuba2_repository/cards/clk_card/test/source/s_led_tb.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/s_led_tb.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -461,7 +438,32 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 ** Error: C:/scuba2_repository/cards/library/components/source/tb/async_tb.vhd(31): Unknown field: async_pack.
 ** Error: C:/scuba2_repository/cards/library/components/source/tb/async_tb.vhd(33): VHDL Compiler exiting
 
-} {6.0 10.0} {}} C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id.vhd
+} {6.0 10.0} {}} C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package wishbone_pack
+-- Loading package slot_id_pack
+-- Loading package array_id_pack
+-- Loading package s_pack
+-- Compiling entity s_idle
+-- Compiling architecture behaviour of s_idle
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(194): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(194): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(194): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(195): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(195): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(195): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(198): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(201): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(204): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(207): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(210): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(213): Case choice must be a locally static expression.
+WARNING: C:/scuba2_repository/cards/addr_card/test/source/ac_test_idle.vhd(216): Case choice must be a locally static expression.
+
+} {12.0 25.0} {}} C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -673,7 +675,31 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Loading entity eeprom_ctrl
 
-} {} {}} C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_test_wrapper.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_test_wrapper.vhd
+} {} {}} C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Compiling entity ac_test_reset
+-- Compiling architecture behaviour of ac_test_reset
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(76): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(77): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(78): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(79): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(80): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(81): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(82): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(83): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(84): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(85): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(86): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(87): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(88): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(89): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(90): Incompatible types for assignment.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test_reset.vhd(125): VHDL Compiler exiting
+
+} {8.0 24.0} {}} C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_test_wrapper.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_test_wrapper.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -726,7 +752,17 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity sram_ctrl
 WARNING[1]: C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_ctrl.vhd(167): No default binding for component: "sram". (No entity named "sram" was found)
 
-} {13.0 14.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/component_pack.vhd {1 {vcom -work components -93 -explicit C:/scuba2_repository/cards/library/components/source/rtl/component_pack.vhd
+} {13.0 14.0} {}} C:/scuba2_repository/cards/addr_card/test/source/ac_test_pack.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/addr_card/test/source/ac_test_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package wishbone_pack
+-- Loading package slot_id_pack
+-- Loading package array_id_pack
+-- Compiling package s_pack
+
+} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/component_pack.vhd {1 {vcom -work components -93 -explicit C:/scuba2_repository/cards/library/components/source/rtl/component_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -776,7 +812,17 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture behav of init_1_wire
 -- Loading entity us_timer
 
-} {} {}} C:/scuba2_repository/cards/clk_card/test/source/cc_test.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/cc_test.vhd
+} {} {}} C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd {0 {vcom -work work -87 -explicit C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package async_pack
+** Error: (vcom-11) Could not find ../../objects/modelsim/work.test_pack.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd(50): cannot find expanded name: work.test_pack
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd(50): Unknown field: test_pack.
+** Error: C:/scuba2_repository/cards/addr_card/test/source/ac_test.vhd(52): VHDL Compiler exiting
+
+} {6.0 10.0} {}} C:/scuba2_repository/cards/clk_card/test/source/cc_test.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/test/source/cc_test.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -826,11 +872,11 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package component_pack
 -- Compiling entity dac_ctrl
 -- Compiling architecture rtl of dac_ctrl
-WARNING[1]: C:/scuba2_repository/cards/bias_card/dac_ctrl/source/rtl/dac_ctrl.vhd(377): No default binding for component: "write_spi_with_cs". (No entity named "write_spi_with_cs" was found)
+-- Loading entity write_spi_with_cs
 -- Loading entity frame_timing
 -- Loading entity reg
 
-} {14.0 15.0} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/wishbone_pack.vhd {1 {vcom -work sys_param -93 -explicit C:/scuba2_repository/cards/library/sys_param/source/rtl/wishbone_pack.vhd
+} {} {}} C:/scuba2_repository/cards/library/sys_param/source/rtl/wishbone_pack.vhd {1 {vcom -work sys_param -93 -explicit C:/scuba2_repository/cards/library/sys_param/source/rtl/wishbone_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -977,7 +1023,19 @@ but is NOT in the sensitivity list
 WARNING: C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_fail.vhd(125): Synthesis Warning: Signal sram_mem is read by the process 
 but is NOT in the sensitivity list
 
-} {9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0} {}} C:/scuba2_repository/cards/all_cards/leds/source/rtl/leds_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/leds/source/rtl/leds_pack.vhd
+} {9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/write_spi_with_cs.vhd {1 {vcom -work components -93 -explicit C:/scuba2_repository/cards/library/components/source/rtl/write_spi_with_cs.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package general_pack
+-- Loading package wishbone_pack
+-- Loading package component_pack
+-- Compiling entity write_spi_with_cs
+-- Compiling architecture rtl of write_spi_with_cs
+-- Loading entity shift_reg
+
+} {} {}} C:/scuba2_repository/cards/all_cards/leds/source/rtl/leds_pack.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/all_cards/leds/source/rtl/leds_pack.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
