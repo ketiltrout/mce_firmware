@@ -1,3 +1,6 @@
+<date $Date$>	- <initials $Author$>
+$Log$
+
 Assumptions for Address card DAC controller:
 --------------------------------------------
 1. Any given row selection order issued by the clock card is valid. We decided 
