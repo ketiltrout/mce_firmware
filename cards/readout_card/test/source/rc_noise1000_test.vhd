@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date: 2004/07/23 23:18:00 $>    - <initials $Author: bench1 $>
+-- <date $Date: 2004/07/26 23:47:58 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.5  2004/07/26 23:47:58  bench1
+-- Mandana: swapped adc1_rdy on mictor
+--
 -- Revision 1.4  2004/07/23 23:18:00  bench1
 -- Mandana: corrected the mictor bits
 --
@@ -134,6 +137,8 @@ architecture behaviour of rc_noise1000_test is
         e0 : out std_logic);
    end component;
 
+   constant N_SAMPLES : integer := 200;    -- Esc
+
    signal zero : std_logic;
    signal one : std_logic;
    
@@ -142,6 +147,7 @@ architecture behaviour of rc_noise1000_test is
    signal nsample: integer := 0;
    signal sum    : std_logic_vector(23 downto 0);
    signal sum14  : std_logic_vector(13 downto 0);
+   signal en     : std_logic := '0';
 begin
    
    clk_gen : pll
@@ -164,27 +170,30 @@ begin
       if(n_rst = '1') then
          sum <= (others => '0');
          nsample <= 0;
-      elsif(adc1_rdy'event and adc1_rdy = '0') then  
-         if nsample = 3 then
-            nsample <= 0;
-            sum     <= (others => '0');
-        else  
-            nsample <= nsample + 1;
-            sum <= sum + ("0000000000"&adc1_dat);
-         end if;        
-      end if;
+      elsif(adc1_rdy'event and adc1_rdy = '1') then  
+         case nsample  is
+            when N_SAMPLES - 1 =>
+               en <= '1';
+               nsample <= nsample + 1;
+               sum <= sum + ("0000000000"&adc1_dat);
+
+            when N_SAMPLES =>   
+               nsample <= 0;
+               sum     <= (others => '0');
+               en <= '0';
+
+            when others  =>
+               nsample <= nsample + 1;
+               sum <= sum + ("0000000000"&adc1_dat);
+               en <= '0';
+               
+         end case;  
+       end if;
    end process co_add;
-   latch: process (adc1_rdy)
-   begin
-      if(adc1_rdy'event and adc1_rdy = '1') then
-         if(nsample = 3) then
-            mictor (13 downto 0) <= sum(13 downto 0);
-            mictor (14)          <= clk;
-            mictor (15)          <= adc1_rdy;
-            mictor (25 downto 16)<= sum(23 downto 14);      
-			mictor (31)          <= adc1_rdy;
-         end if;
-      end if;
-   end process latch;
+   
+   mictor (13 downto 0) <= sum(23 downto 10);
+   mictor (14)          <= clk;
+   mictor (15)          <= adc1_rdy;
+   mictor (31)          <= adc1_rdy and en;
 
 end behaviour;
