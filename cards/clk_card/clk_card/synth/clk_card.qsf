@@ -57,7 +57,11 @@ set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_transla
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
 set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset_pack.vhd
+set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs_pack.vhd
+set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/cc_pll.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_receive.vhd
@@ -365,17 +369,19 @@ set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME ON
 set_global_assignment -name ALLOW_ANY_RAM_SIZE_FOR_RECOGNITION OFF
 set_global_assignment -name TOP_LEVEL_ENTITY clk_card
-set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
+set_global_assignment -name AUTO_ENABLE_SMART_COMPILE on
 
 # Fitter Assignments
 # ==================
 set_global_assignment -name DEVICE EP1S30F780C5
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC OFF
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 8ns
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
 
 # Timing Analysis Assignments
 # ===========================
@@ -392,8 +398,8 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP on
-set_global_assignment -name USE_SIGNALTAP_FILE clk_card_min.stp
+set_global_assignment -name ENABLE_SIGNALTAP off
+set_global_assignment -name USE_SIGNALTAP_FILE clk_card.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -404,125 +410,11 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
+	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
-
-# ---------------------------------------------------
-# start AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
-
-	# SignalTap II Assignments
-	# ========================
-	set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=M4K" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "cc_pll:pll0\|c0" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[0\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[1\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[10\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[2\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[11\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[3\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[12\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[4\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[13\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[5\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[14\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[6\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[15\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[7\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[16\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[8\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[17\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[9\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[18\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[10\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[19\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[11\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[12\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[20\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[13\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[21\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[14\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[22\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[15\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[23\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[16\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[24\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[17\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[25\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[18\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[26\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[19\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[27\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[20\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[28\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[21\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[29\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[22\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[23\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[30\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[24\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[31\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[25\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[26\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[27\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[28\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[29\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[30\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[8\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[31\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[9\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[32\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|ack_i" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[33\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|ack_o" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[34\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_data_i\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[35\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_data_i\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[36\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_data_i\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[37\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_data_i\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[38\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|card_id_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[39\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|card_id_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[40\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|card_id_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[41\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|card_id_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[42\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|cmd_rdy_o" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[43\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|fibre_rx_protocol:I2\|cksum_err_o" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[0\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[1\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[10\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[2\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[11\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[3\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[12\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[4\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[13\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[5\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[14\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[6\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[15\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[7\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[16\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[8\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[17\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[9\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[18\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[10\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[19\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[11\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[12\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[20\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[13\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[21\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[14\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[22\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[15\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[23\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[16\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[24\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[17\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[25\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[18\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[26\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[19\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[27\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[20\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[28\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[21\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[29\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[22\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[23\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[30\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[24\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[31\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[25\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[26\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[27\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[28\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[29\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[30\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[8\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[31\] -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg\[9\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[32\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|ack_i" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[33\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|ack_o" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[34\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_data_i\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[35\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_data_i\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[36\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_data_i\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[37\] -to "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_data_i\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[38\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|card_id_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[39\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|card_id_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[40\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|card_id_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[41\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|card_id_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[42\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|cmd_rdy_o" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[43\] -to "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|fibre_rx_protocol:I2\|cksum_err_o" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=44" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=44" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=402681344" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=27207" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=35956" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BIT_CNTR_BITS=6" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=128" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_MEM_ADDRESS_BITS=7" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
-
-# end AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
-# -------------------------------------------------
 
 # ----------------------
 # start ENTITY(clk_card)
@@ -535,25 +427,14 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|reply_queue:i_reply_queue\|reply_queue_retire:rqr\|reg:header_*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|shift_reg:sh_reg*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_arbiter:arbiter\|ack_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|present_insert_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_arbiter:arbiter\|current_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_arbiter:arbiter\|ret_dat_pending*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|current_seq_num_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|current_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|current_sync_num_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|sync_current_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "sync_gen:sync_gen0\|sync_gen_core:sgc\|sync_num*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|present_gen_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|first_time_cur_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|ret_dat_s_seq_start_num*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|num_uops_inserted_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|ret_dat_s_seq_stop_num*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|parameter_id_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|ret_dat_stop_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_arbiter:arbiter\|lpm_counter:m_op_seq_num_rtl_73\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|data_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|fibre_rx_protocol:I2\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|reg:send_data_size_reg\|reg_o*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|reg:send_cmd_code_reg\|reg_o*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|reg:retire_data_size_reg\|reg_o*"
 
 	# Analysis & Synthesis Assignments
 	# ================================
