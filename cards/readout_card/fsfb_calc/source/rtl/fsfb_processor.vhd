@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.3  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/09 01:07:25  anthonyk
 -- Added lock mode enable output.
 -- Carried sign information for lock mode data output.
@@ -153,8 +156,8 @@ begin
    fsfb_proc_lock_en_o <= lock_mode_en;
    
    -- Logic connections for update control output to the current queue
-   fsfb_proc_update_o <= (coadd_done_i and const_mode_en) or ramp_update_1d or pidz_update;
-   
+   --fsfb_proc_update_o <= (coadd_done_i and const_mode_en) or ramp_update_1d or pidz_update;
+   fsfb_proc_update_o <= (previous_fsfb_dat_rdy_i and const_mode_en) or ramp_update_1d or pidz_update;
    
    -- Latch ramp mode data input with new fsfb_proc_ramp result only when 
    -- ramp_update_new_i = '1'
