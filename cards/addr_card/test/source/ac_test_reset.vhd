@@ -29,8 +29,11 @@
 -- Reset state for Address Card Test
 -- 
 -- Revision History:
--- <date $Date: 2004/04/14 21:26:32 $>	- <initials $Author: jjacob $>
+-- <date $Date: 2004/05/13 17:44:06 $>	- <initials $Author: mandana $>
 -- $Log: ac_test_reset.vhd,v $
+-- Revision 1.3  2004/05/13 17:44:06  mandana
+-- modified all_test for ac_test
+--
 -- Revision 1.1  2004/04/14 21:26:32  jjacob
 -- new directory structure
 --
@@ -74,7 +77,7 @@ begin
    message(0) <= conv_std_logic_vector(10,8);  -- \r
    message(1) <= conv_std_logic_vector(13,8);  -- \n
    message(2) <= conv_std_logic_vector(65,8);   -- A
-   message(3) <= conv_std_logic_vector(67,8);  -- C
+   message(3) <= conv_std_logic_vector(67,8);   -- C
    message(4) <= conv_std_logic_vector(95,8);   -- _
    message(5) <= conv_std_logic_vector(84,8);   -- T
    message(6) <= conv_std_logic_vector(101,8);  -- e
