@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.15 2004/06/11 00:42:12 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.16 2004/06/16 17:02:36 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.16  2004/06/16 17:02:36  bburger
+-- in progress
+--
 -- Revision 1.15  2004/06/11 00:42:12  bburger
 -- in progress
 --
@@ -217,6 +220,8 @@ signal tx_uop_rdy : std_logic;  --Out, to bus backplane packetization fsm
 --signal uop_expired : std_logic;  --In ???
 signal freeze_send : std_logic;  --In, freezes the send pointer when flushing out invalidated u-ops
 signal uop_send_expired : std_logic;
+signal issue_sync  : std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
+signal timeout_sync  : std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
 
 -- Bus Backplane Packetization FSM:  packetizes u-ops contained in the command queue into Bus Backplane instruction format
 type packet_states is (IDLE, STRT_CMD1, STRT_CMD2, SZ_CMD1, SZ_CMD2, CARD_ADDR, PAR_ID, DATA, CHECKSUM1, CHECKSUM2, DONE);
@@ -824,11 +829,16 @@ begin
       end if;
    end process send_state_FF;
 
-   uop_send_expired <= '1' when (sync_count_slv > qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) or
-                                (sync_count_slv < qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) and
-                                 MAX_SYNC_COUNT - qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) + sync_count_slv > TIMEOUT_LEN)) else '0';
+   issue_sync       <= qa_sig(UOP_END-1 downto ISSUE_SYNC_END);
+   timeout_sync     <= qa_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END);
 
-   send_state_NS: process(present_send_state, send_ptr, free_ptr, qa_sig, clk_count, uop_send_expired, issue_sync_i, tx_uop_ack)
+   -- There should be enough time in the sync period following the timeout_sync of a m-op to get rid of all it's u-ops and still have time to issue the u-ops that need to be issued during that period
+   -- That is why we don't check for a range here - just for the sync period that is the timeout
+   -- This second conditions checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
+   uop_send_expired <= '1' when (sync_count_slv = timeout_sync or
+                                (sync_count_slv = timeout_sync - 1 and clk_count > START_OF_BLACKOUT));
+
+   send_state_NS: process(present_send_state, send_ptr, free_ptr, uop_send_expired, issue_sync, timeout_sync, sync_count_slv, tx_uop_ack)
    begin
       case present_send_state is
          when RESET =>
@@ -847,13 +857,20 @@ begin
             if(uop_send_expired = '1') then
                -- If the u-op has expired, it should be skipped
                next_send_state <= SKIP;
-            -- The next two if statements will throw simulation warnings if the outputs of the RAM block are undefined.
-            elsif(qa_sig(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count > START_OF_BLACKOUT) then
-               -- The black out period has started - even though the command was for this sync period, it has expired.
-               next_send_state <= SKIP;
-            elsif(qa_sig(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count < START_OF_BLACKOUT) then
-               -- If the u-op can be issued during this sync period, and if the remaining cycle time is sufficient to send the instruction, issue.
-               next_send_state <= ISSUE;
+            elsif(issue_sync < timeout_sync) then
+               -- Determine whether the current sync period is between the issue sync and the timeout sync.  If so, the u-op should be issued.
+               if(sync_count_slv >= issue_sync and sync_count_slv < timeout_sync) then
+                  next_send_state <= ISSUE;
+               else
+                  next_send_state <= VERIFY;
+               end if;
+            -- The timeout_sync can have wrapped with respect to the issue_sync
+            elsif(issue_sync > timeout_sync) then
+               if(sync_count_slv >= issue_sync or sync_count_slv < timeout_sync) then
+                  next_send_state <= ISSUE;
+               else
+                  next_send_state <= VERIFY;
+               end if;
             else
                -- If the u-op is still good, but isn't supposed to be issued yet, stay in VERIFY
                next_send_state <= VERIFY;
