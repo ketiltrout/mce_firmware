@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_clk_card.vhd,v 1.8 2005/01/19 23:39:06 bburger Exp $
+-- $Id: tb_clk_card.vhd,v 1.9 2005/01/20 19:48:54 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_clk_card.vhd,v $
+-- Revision 1.9  2005/01/20 19:48:54  bburger
+-- Bryce:  Changes associated with timing errors (slack) on the address card
+--
 -- Revision 1.8  2005/01/19 23:39:06  bburger
 -- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
 --
@@ -98,9 +101,9 @@ architecture tb of tb_clk_card is
    signal fibre_clk    : std_logic := '0';
    signal lvds_clk_i   : std_logic := '0'; 
 
-   constant clk_period          : TIME := 20 ns;    -- 50Mhz clock
-   constant comm_clk_period     : TIME := 5 ns;
-   constant mem_clk_period      : TIME := 5 ns;
+   constant clk_period          : TIME := 40 ns;    -- 50Mhz clock
+--   constant comm_clk_period     : TIME := 5 ns;
+--   constant mem_clk_period      : TIME := 5 ns;
    constant fibre_clk_period    : TIME := 40 ns;
      
    constant pci_dsp_dly         : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI 
@@ -118,9 +121,9 @@ architecture tb of tb_clk_card is
    
    signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000011";   
    
---   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_READOUT_CARDS  & x"00" & RET_DAT_ADDR;
+--   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & RET_DAT_ADDR;
 --   constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & RET_DAT_S_ADDR;
-   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000B0030";  -- card id=4, ret_dat command
+   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"00020030";  -- card id=4, ret_dat command
    constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00020034";  -- card id=0, ret_dat_s command
 
    constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & FLUX_FB_ADDR;
@@ -132,6 +135,8 @@ architecture tb of tb_clk_card is
    constant row_order_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ROW_ORDER_ADDR;
    constant enbl_mux_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ENBL_MUX_ADDR;
    constant use_dv_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & USE_DV_ADDR;
+   constant row_len_cmd2        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD       & x"00" & ROW_LEN_ADDR;    
+   constant num_rows_cmd2       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD       & x"00" & NUM_ROWS_ADDR;
    constant row_len_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ROW_LEN_ADDR;    
    constant num_rows_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & NUM_ROWS_ADDR;
    constant sample_delay_cmd   : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & SAMPLE_DLY_ADDR; 
@@ -716,11 +721,43 @@ begin
    begin
       
       do_reset;    
+
+      wait for 5 us;
       
+
+------------------------------------------------------
+-- ret_dat commands
+------------------------------------------------------      
+--
+--      command <= command_wb;
+--      address_id <= ret_dat_s_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000004"; -- start is 0x2, end is 0x8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      -- wait for setup to finish
+--      wait for 50 us;
+--
+--      -- issue the "GO" command to start taking data frames
+--      command <= command_go;
+--      address_id <= ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;    
+--      
+--      wait for 300 us;  
+--
+------------------------------------------------------
+-- clock card led commands
+------------------------------------------------------      
 --      command <= command_wb;
 --      address_id <= cc_led_cmd;
 --      data_valid <= X"00000001";
---      data       <= X"00000007"; -- 64 clock cycles
+--      data       <= X"00000007";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
@@ -730,21 +767,43 @@ begin
 --      command <= command_wb;
 --      address_id <= cc_led_cmd;
 --      data_valid <= X"00000001";
---      data       <= X"00000007"; -- 41 rows
+--      data       <= X"00000007";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      
 --      wait for 50 us;
-----------------------------------------------------------
+------------------------------------------------------
 -- setup commands for the frame_timing block
 ------------------------------------------------------      
-----      wait for 150 us;
+--      wait for 150 us;
 --      
+--      command <= command_wb;
+--      address_id <= row_len_cmd2;
+--      data_valid <= X"00000001";
+----      data       <= X"00000010"; -- 16 clock cycles
+--      data       <= X"00000040"; -- 64 clock cycles
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= num_rows_cmd2;
+--      data_valid <= X"00000001";
+----      data       <= X"00000004"; -- 4 rows
+--      data       <= X"00000029"; -- 41 rows
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
 --      command <= command_wb;
 --      address_id <= row_len_cmd;
 --      data_valid <= X"00000001";
-----      data       <= X"00000000";
+----      data       <= X"00000010"; -- 16 clock cycles
 --      data       <= X"00000040"; -- 64 clock cycles
 --      load_preamble;
 --      load_command;
@@ -755,24 +814,34 @@ begin
 --      command <= command_wb;
 --      address_id <= num_rows_cmd;
 --      data_valid <= X"00000001";
-----      data       <= X"00000000";
+----      data       <= X"00000004"; -- 4 rows
 --      data       <= X"00000029"; -- 41 rows
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= row_dly_cmd;
-      data_valid <= X"00000001";
---      data       <= X"00000000";
-      data       <= X"00000004"; -- four clock cycles
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
+--      wait for 50 us;
+--
+--      command <= command_rb;
+--      address_id <= num_rows_cmd;
+--      data_valid <= X"00000001";
+----      data       <= X"00000004"; -- 4 rows
+--      data       <= X"00000029"; -- 41 rows
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 150 us;
+--      command <= command_wb;
+--      address_id <= row_dly_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000004"; -- four clock cycles
+----      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
 --
 --      command <= command_wb;
 --      address_id <= sample_delay_cmd;
@@ -788,6 +857,7 @@ begin
 --      address_id <= sample_num_cmd;
 --      data_valid <= X"00000001";
 --      data       <= X"00000032";
+----      data       <= X"00000006";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
@@ -812,8 +882,8 @@ begin
 --      load_command;
 --      load_checksum;
 --      
---      wait for 150 us;
-
+--      wait for 50 us;
+--
 ----------------------------------------------------------
 -- wb, rb, go, st, rs commands
 ------------------------------------------------------      
@@ -880,6 +950,16 @@ begin
 --      wait for 160 us;
 --
 --      command <= command_wb;
+--      address_id <= fb_dly_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 80 us;
+--
+--      command <= command_wb;
 --      address_id <= bias_cmd;
 --      data_valid <= X"00000001"; --1 value
 --      data       <= X"00000021";
@@ -902,31 +982,31 @@ begin
      load_checksum;
      
      wait for 150 us;
-
-      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
-      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
-      command <= command_wb;
-      address_id <= off_bias_cmd;
-      data_valid <= X"00000029"; --41 values
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 150 us;
-
-      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
-      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
-      command <= command_wb;
-      address_id <= row_order_cmd;
-      data_valid <= X"00000029"; --41 values
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 150 us;
-
+--
+--      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
+--      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+--      command <= command_wb;
+--      address_id <= off_bias_cmd;
+--      data_valid <= X"00000029"; --41 values
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 150 us;
+--
+--      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
+--      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+--      command <= command_wb;
+--      address_id <= row_order_cmd;
+--      data_valid <= X"00000029"; --41 values
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 150 us;
+--
       command <= command_wb;
       address_id <= enbl_mux_cmd;
       data_valid <= X"00000001"; --1 value
@@ -954,8 +1034,8 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
-      
-      wait for 150 us;
+--      
+--      wait for 150 us;
 
       assert false report "Simulation done." severity FAILURE;
    end process stimuli;   
