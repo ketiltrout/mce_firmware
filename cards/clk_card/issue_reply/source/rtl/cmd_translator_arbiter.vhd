@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.10 2004/08/05 20:51:33 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.11 2004/08/06 00:14:14 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/05 20:51:33 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/06 00:14:14 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.11  2004/08/06 00:14:14  jjacob
+-- hard coded data size to (others=>'0') for ret_dat commands.  This needs
+-- to be changed at the source.
+--
 -- Revision 1.10  2004/08/05 20:51:33  jjacob
 -- added sync_number input
 --
@@ -145,7 +149,7 @@ port(
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
       frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
       
-      -- outputs to the macro-instruction arbiter
+      -- outputs to the micro-instruction generator (cmd_queue)
       card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_o    : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_o       : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
@@ -154,8 +158,8 @@ port(
       macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
       
  
-      -- input from the micro-instruction arbiter
-      ack_i             : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
+      -- input from the micro-instruction generator (cmd_queue)
+      ack_i             : in std_logic                   -- acknowledgment from the micro-instr generator (cmd_queue) that it is ready and has grabbed the data
 
    ); 
      
@@ -167,6 +171,7 @@ architecture rtl of cmd_translator_arbiter is
 
 
    signal macro_instr_rdy           : std_logic;
+   signal macro_instr_rdy_reg       : std_logic;
    signal macro_instr_rdy_1st_stg   : std_logic;
    signal macro_instr_rdy_mux_sel   : std_logic;
    
@@ -199,6 +204,8 @@ architecture rtl of cmd_translator_arbiter is
  
    signal ret_dat_pending           : std_logic;
    signal sync_number_plus_1        : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+   
+   signal ack_reg                   : std_logic;
    
    constant SIMPLE_CMD : std_logic := '0';
    constant RET_DAT    : std_logic := '1';
@@ -405,24 +412,29 @@ begin
 --   frame_seq_num_1st_stg        <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
 --   frame_sync_num_1st_stg       <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;   
 
-   simple_cmd_ack_o     <= ack_i                        when simple_cmd_ack_mux_sel = '1' else '0';
-   ret_dat_ack_o        <= ack_i                        when ret_dat_ack_mux_sel = '1'    else '0'; 
+--   simple_cmd_ack_o     <= ack_i                        when simple_cmd_ack_mux_sel = '1' else '0';
+--   ret_dat_ack_o        <= ack_i                        when ret_dat_ack_mux_sel = '1'    else '0'; 
+
+   simple_cmd_ack_o     <= ack_reg                        when simple_cmd_ack_mux_sel = '1' else '0';
+   ret_dat_ack_o        <= ack_reg                        when ret_dat_ack_mux_sel = '1'    else '0'; 
    
    macro_instr_rdy_1st_stg      <= simple_cmd_macro_instr_rdy_i when data_mux_sel = '0'            else ret_dat_macro_instr_rdy_i;
    macro_instr_rdy              <= macro_instr_rdy_1st_stg      when macro_instr_rdy_mux_sel = '0' else '0';
 
---   process(clk_i, rst_i)
---   begin
---      if rst_i = '1' then
---         macro_instr_rdy      <= '0';
-----         frame_seq_num        <= (others=>'0');
-----         frame_sync_num       <= (others=>'0');
---      elsif clk_i'event and clk_i = '1' then
---         macro_instr_rdy      <= macro_instr_rdy_1st_stg;
-----         frame_seq_num        <= frame_seq_num_1st_stg;
-----         frame_sync_num       <= frame_sync_num_1st_stg;
---      end if;
---   end process;
+   process(clk_i, rst_i)
+   begin
+      if rst_i = '1' then
+         macro_instr_rdy_reg      <= '0';
+         ack_reg                <= '0';
+--         frame_seq_num        <= (others=>'0');
+--         frame_sync_num       <= (others=>'0');
+      elsif clk_i'event and clk_i = '1' then
+         macro_instr_rdy_reg      <= macro_instr_rdy;
+         ack_reg                <= ack_i;
+--         frame_seq_num        <= frame_seq_num_1st_stg;
+--         frame_sync_num       <= frame_sync_num_1st_stg;
+      end if;
+   end process;
 
 --   frame_seq_num_o  <= frame_seq_num;
 --   frame_sync_num_o <= frame_sync_num;
@@ -528,7 +540,8 @@ begin
    m_op_seq_num_o <= m_op_seq_num;
 
    
-   macro_instr_rdy_o <= macro_instr_rdy;
+   --macro_instr_rdy_o <= macro_instr_rdy;
+   macro_instr_rdy_o <= macro_instr_rdy_reg;
    --macro_instr_rdy_o <= macro_instr_rdy_1st_stg;
 
         
