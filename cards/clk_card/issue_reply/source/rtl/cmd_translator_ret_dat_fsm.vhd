@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.15 2004/09/30 22:34:44 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.16 2004/10/08 19:45:26 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/30 22:34:44 $> -     <text>      - <initials $Author: erniel $>
+-- <date $Date: 2004/10/08 19:45:26 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.16  2004/10/08 19:45:26  bburger
+-- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
+--
 -- Revision 1.15  2004/09/30 22:34:44  erniel
 -- using new command_pack constants
 --
@@ -189,6 +192,8 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal parameter_id                    : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
    signal data_size                       : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
    signal data_mux                        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal cmd_type                        : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+   signal cmd_stop                        : std_logic;      
    
    signal card_addr_reg                   : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); 
    signal parameter_id_reg                : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
@@ -619,8 +624,8 @@ begin
 ------------------------------------------------------------------------
 
    ret_dat_stop_ack        <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i = '1'          else '0';
-   cmd_stop_o              <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg   = '1'          else '0';
-   --cmd_stop_o              <= ret_dat_stop_ack;
+   cmd_stop                <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg   = '1'      else '0';
+   
    
 --   last_frame_o            <= '1' when current_state = RETURN_DATA_LAST and 
 --                              (ret_dat_stop_i = '1' or current_seq_num >= ret_dat_s_seq_stop_num) else '0';
@@ -672,15 +677,25 @@ begin
                        current_seq_num_reg;
 
    current_seq_num_reg_plus_1 <= current_seq_num_reg + 1;
+
+
+
+
+   -- [JJ] added Nov 14, 2004: If a STOP command is issued during data frame taking, the last frame of data will be tagged
+   -- with a STOP cmd_code, rather than a DATA cmd_code for the cmd_queue
+   cmd_type <= STOP when cmd_stop = '1' else DATA;
+
    
 ------------------------------------------------------------------------
 --
--- mux for outputs
+-- mux for outputs, and other output assignments
 --
 ------------------------------------------------------------------------  
    
+   cmd_stop_o              <= cmd_stop;
+   
    process(ret_dat_s_start_i, ret_dat_fsm_working, card_addr_i, parameter_id_i, data_size_i, data_i,
-           current_seq_num, current_sync_num, card_addr, parameter_id, data_size, data_mux) --, data_clk_i
+           current_seq_num, current_sync_num, card_addr, parameter_id, data_size, data_mux, cmd_type) --, data_clk_i
    begin
       if ret_dat_s_start_i = '1' then
       
@@ -704,7 +719,7 @@ begin
          parameter_id_o   <= parameter_id;
          data_size_o      <= data_size;
          data_o           <= data_mux;
-         cmd_type_o       <= DATA;
+         cmd_type_o       <= cmd_type;
          
          data_clk_o       <= '0';  -- not passing any data, so keep the data clock inactive
          
