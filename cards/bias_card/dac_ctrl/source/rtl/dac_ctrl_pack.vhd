@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/14 21:50:27 $>	- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/15 18:23:55 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_pack.vhd,v $
+-- Revision 1.2  2004/04/15 18:23:55  mandana
+-- fixed typo
+--
 -- Revision 1.1  2004/04/14 21:50:27  jjacob
 -- new directory structure
 --
@@ -52,7 +55,7 @@ use sys_param.wishbone_pack.all;
 package dac_ctrl_pack is
 
 component dac_ctrl
-   generic(DAC_CTRL_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := FLUX_FB_ADDR;
+   generic(DAC32_CTRL_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := FLUX_FB_ADDR;
            DAC_LVDS_CTRL_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := BIAS_ADDR);
         
    port(-- DAC signals:
