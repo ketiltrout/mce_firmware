@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: all_test_pack.vhd,v $
+-- Revision 1.2  2004/05/03 02:59:56  erniel
+-- added DIP commands
+--
 -- Revision 1.1  2004/04/28 20:16:13  erniel
 -- initial version
 --
@@ -47,188 +50,36 @@ use work.array_id_pack.all;
 
 package all_test_pack is
 
-   -- define serial port command characters
-   
-   -- single character commands -------------------------------------
-   
-   constant CMD_RESET : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(114,8);   -- r
-   constant CMD_HEADER : std_logic_vector(7 downto 0) :=
-                              conv_std_logic_vector(72, 8);   -- H                               
-   constant CMD_WATCHDOG : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(87,8);    -- W
-                              
---   constant CMD_STATUS : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(83,8);    -- S                              
---   constant CMD_JTAG : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(74,8);    -- J
---   constant CMD_EEPROM : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(69,8);    -- E
---   constant CMD_TEMP : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(116,8);   -- t
---   constant CMD_DAC : std_logic_vector(7 downto 0) :=
---                              conv_std_logic_vector(100, 8);  -- d 
-
-
-
-   -- 2 character commands ------------------------------------------
-
    ------------------------------------------------------------------
    --
-   -- Serial Number commands
+   -- Command Declarations
    --
    ------------------------------------------------------------------
+
+   -- One character commands ------------------------------------------
       
-   -- ID commands - first byte
-   constant CMD_ID : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(73,8);  -- I
-   -- ID commands - second byte
-   constant CMD_ID_SLOT : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(83,8);  -- S
-   constant CMD_ID_SERIAL : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(78,8);  -- N
---   constant CMD_ID_ARRAY : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(65,8);  -- A
---   constant CMD_ID_BOX : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(66,8);  -- B
-                           
+   constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc
+   constant CMD_DIP      : std_logic_vector(7 downto 0) := conv_std_logic_vector(100,8);   -- d                                 
+   constant CMD_WATCHDOG : std_logic_vector(7 downto 0) := conv_std_logic_vector(119,8);   -- w  
+   constant CMD_TX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t                                                     
+   constant CMD_SLOT_ID  : std_logic_vector(7 downto 0) := conv_std_logic_vector(115,8);   -- s        
+   constant CMD_CARD_ID  : std_logic_vector(7 downto 0) := conv_std_logic_vector(99,8);    -- c
    
-   ------------------------------------------------------------------
-   --
-   -- LVDS transmitter / Receiver commands
-   --
-   ------------------------------------------------------------------
+   constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
    
---   -- receiver commands - first byte
---   constant CMD_RX : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(82,8);  -- R
---   -- RX commands - second byte
---   constant CMD_RX_0 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(48,8);  -- 0
---   constant CMD_RX_1 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(49,8);  -- 1
---   constant CMD_RX_2 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(50,8);  -- 2
---   constant CMD_RX_3 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(51,8);  -- 3
---   constant CMD_RX_4 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(52,8);  -- 4
---   constant CMD_RX_5 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(53,8);  -- 5
---   constant CMD_RX_6 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(54,8);  -- 6
---   constant CMD_RX_7 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(55,8);  -- 7
---   constant CMD_RX_8 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(56,8);  -- 8
---   constant CMD_RX_9 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(57,8);  -- 9
---   constant CMD_RX_10 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(65,8);  -- A
---   constant CMD_RX_11 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(66,8);  -- B
---   constant CMD_RX_12 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(67,8);  -- C
---   constant CMD_RX_13 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(68,8);  -- D
---   constant CMD_RX_14 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(69,8);  -- E
---   constant CMD_RX_15 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(70,8);  -- F   
---                                                           
---   -- transmitter commands - first byte
---   constant CMD_TX : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(84,8);  -- T
---   -- TX commands - second byte
---   constant CMD_TX_0 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(48,8);  -- 0
---   constant CMD_TX_1 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(49,8);  -- 1
---   constant CMD_TX_2 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(50,8);  -- 2
---   constant CMD_TX_3 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(51,8);  -- 3                              
-
-
-   ------------------------------------------------------------------
-   --
-   -- Fibre transmitter / Receiver commands
-   --
-   ------------------------------------------------------------------
-   
---   -- fibre optic commands - first byte
---   constant CMD_FIBRE : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(70,8);  -- F
---   -- fibre optic commands - second byte
---   constant CMD_FIBRE_READ : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(82,8);  -- R
---   constant CMD_FIBRE_WRITE : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(87,8);  -- W
---   constant CMD_FIBRE_FLAG : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(70,8);  -- F
-
-   ------------------------------------------------------------------
-   --
-   -- LED commands
-   --
-   ------------------------------------------------------------------
+                                                                                                              
+   -- Two character commands ------------------------------------------
                                  
-   -- LED commands - first byte
-   constant CMD_LED : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(76,8);  -- L
-   -- LED commands - second byte
-   constant CMD_LED_1 : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(49,8);  -- 1
-   constant CMD_LED_2 : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(50,8);  -- 2
-   constant CMD_LED_3 : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(51,8);  -- 3
-
-   ------------------------------------------------------------------
-   --
-   -- Dip Switch commands
-   --
-   ------------------------------------------------------------------
+   constant CMD_LED      : std_logic_vector(7 downto 0) := conv_std_logic_vector(108,8);   -- l
+   constant CMD_LED_1    : std_logic_vector(7 downto 0) := conv_std_logic_vector(49,8);    -- 1
+   constant CMD_LED_2    : std_logic_vector(7 downto 0) := conv_std_logic_vector(50,8);    -- 2
+   constant CMD_LED_3    : std_logic_vector(7 downto 0) := conv_std_logic_vector(51,8);    -- 3
    
-   -- Dip Switch commands - first byte
-   constant CMD_DIP : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(68, 8);  -- D
-   -- Dip Switch commands - second byte
-   constant CMD_DIP_1 : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(49, 8);  -- 1
-   constant CMD_DIP_2 : std_logic_vector(7 downto 0) := 
-                              conv_std_logic_vector(50, 8);  -- 2                                                         
-   ------------------------------------------------------------------
-   --
-   -- SRAM Verify commands
-   --
-   ------------------------------------------------------------------
-                                 
---   -- SRAM commands - first byte
---   constant CMD_SRAM : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(77,8);  -- M
---   -- SRAM commands - second byte
---   constant CMD_SRAM_0 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(48,8);  -- 0
---   constant CMD_SRAM_1 : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(49,8);  -- 1
-
-   ------------------------------------------------------------------
-   --
-   -- Power Supply commands
-   --
-   ------------------------------------------------------------------
-      
---   -- power supply commands - first byte
---   constant CMD_POWER : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(80,8);  -- P
---   -- power supply commands - second byte
---   constant CMD_POWER_READ : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(82,8);  -- R
---   constant CMD_POWER_WRITE : std_logic_vector(7 downto 0) := 
---                              conv_std_logic_vector(87,8);  -- W
-  
-  
+   constant CMD_RX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r
+   constant CMD_RX_CLK   : std_logic_vector(7 downto 0) := conv_std_logic_vector(49,8);    -- 1    
+   constant CMD_RX_CMD   : std_logic_vector(7 downto 0) := conv_std_logic_vector(50,8);    -- 2
+   constant CMD_RX_SYNC  : std_logic_vector(7 downto 0) := conv_std_logic_vector(51,8);    -- 3
+   constant CMD_RX_SPARE : std_logic_vector(7 downto 0) := conv_std_logic_vector(52,8);    -- 4
 
    ------------------------------------------------------------------
    --
@@ -314,7 +165,7 @@ package all_test_pack is
            tx_stb_o  : out std_logic;   -- transmit strobe flag
       
            -- extended signals
-           dip_switch_i : in std_logic_vector (DIP_SWITCH_BITS-1 downto 0));
+           dip_switch_i : in std_logic_vector (1 downto 0));
    end component;
    
    ------------------------------------------------------------------
@@ -389,5 +240,52 @@ package all_test_pack is
            array_id_i : in std_logic_vector (ARRAY_ID_BITS-1 downto 0));
    end component;
    
+   ------------------------------------------------------------------
+   -- LVDS transmit
+   
+   component lvds_tx_test_wrapper
+      port(rst_i : in std_logic;   -- reset input
+           clk_i : in std_logic;   -- clock input
+           en_i : in std_logic;    -- enable signal
+           done_o : out std_logic; -- done ouput signal
       
+           -- extended signals
+           lvds_o : out std_logic);
+   end component;
+   
+   ------------------------------------------------------------------
+   -- LVDS receive
+   
+   component lvds_rx_test_wrapper
+      port(rst_i : in std_logic;   -- reset input
+           clk_i : in std_logic;   -- clock input
+           en_i : in std_logic;    -- enable signal
+           done_o : out std_logic; -- done ouput signal
+      
+           -- transmitter signals
+           tx_busy_i : in std_logic;  -- transmit busy flag
+           tx_ack_i : in std_logic;   -- transmit ack
+           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
+           tx_we_o : out std_logic;   -- transmit write flag
+           tx_stb_o : out std_logic;  -- transmit strobe flag
+      
+           -- extended signals
+           lvds_i : in std_logic);
+   end component;
+   
+   component rs232_data_tx
+      generic(WIDTH : in integer range 4 to 1024 := 8);
+      port(clk_i   : in std_logic;
+           rst_i   : in std_logic;
+           data_i  : in std_logic_vector(WIDTH-1 downto 0);
+           start_i : in std_logic;
+           done_o  : out std_logic;
+
+           tx_busy_i : in std_logic;
+           tx_ack_i  : in std_logic;
+           tx_data_o : out std_logic_vector(7 downto 0);
+           tx_we_o   : out std_logic;
+           tx_stb_o  : out std_logic);
+  end component;
+  
 end all_test_pack;
