@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.3 2004/04/23 00:53:59 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.4 2004/05/05 03:58:16 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.4  2004/05/05 03:58:16  erniel
+-- added rs232 data transmit controller
+--
 -- Revision 1.3  2004/04/23 00:53:59  mandana
 -- added counter_xstep
 --
@@ -384,6 +387,17 @@ port(clk_i   : in std_logic;
      tx_data_o : out std_logic_vector(7 downto 0);
      tx_we_o   : out std_logic;
      tx_stb_o  : out std_logic);
+end component;
+
+------------------------------------------------------------
+--
+-- Hex to ASCII decoder
+--
+------------------------------------------------------------
+
+component hex2ascii
+port(hex_i   : in std_logic_vector(3 downto 0);
+     ascii_o : out std_logic_vector(7 downto 0));
 end component;
 
 end component_pack;
