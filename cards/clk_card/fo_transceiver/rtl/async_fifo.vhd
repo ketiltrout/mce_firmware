@@ -43,6 +43,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 entity async_fifo is
    generic( 
@@ -66,12 +68,18 @@ architecture rtl of async_fifo is
    -- Architecture Declarations
    
    subtype fifo_deep is integer range 0 to fifo_size-1;
+   subtype fifo_fill is integer range 0 to fifo_size;
+
+   subtype word is std_logic_vector(7 downto 0);
+   type mem is array (0 to fifo_size-1) of word;
+   signal memory: mem;
 
    signal write_pointer : fifo_deep;
    signal read_pointer  : fifo_deep;
-   signal fifo_fill     : integer;
+   signal fifo_count    : fifo_fill;
    signal empty         : std_logic;
    signal full          : std_logic;
+
 
 begin
 
@@ -79,40 +87,44 @@ begin
    full_o <= full;
    
    ----------------------------------------------------------------------------
-   fifo_ram : process(rst_i, write_i, read_i)
+   fifo_write_ram : process(rst_i, write_i)
    ----------------------------------------------------------------------------
-   -- process to read, write and clear fifo as appropriate
+   -- process to write to fifo ram 
    ----------------------------------------------------------------------------
-
-      subtype word is std_logic_vector(7 downto 0);
-      type mem is array (0 to fifo_size-1) of word;
-      variable memory: mem;
-   
+  
    begin
       if (rst_i = '1') then
          write_pointer <= 0;
-         read_pointer <= 0;
       else 
-         if (write_i'EVENT and write_i = '1' and full = '0') then
-            memory(write_pointer) := d_i; 
+         if (write_i'EVENT and write_i = '1') then
+            memory(write_pointer) <= d_i; 
                if (write_pointer = fifo_size-1) then
                   write_pointer <= 0;
                else
                   write_pointer <= write_pointer + 1;
                end if; 
          end if;
-   
-         if (read_i'EVENT and read_i = '1' and empty = '0') then
-            q_o <=  memory(read_pointer);
-               if (read_pointer = fifo_size-1) then
-                  read_pointer <= 0;
-               else
-                  read_pointer <= read_pointer + 1;
-               end if;
+      end if; 
+    end process fifo_write_ram;
+
+  ----------------------------------------------------------------------------
+   fifo_read_ram : process(rst_i, read_i)
+   ----------------------------------------------------------------------------
+   -- process to read from fifo ram
+   ----------------------------------------------------------------------------
+  
+   begin
+      if (rst_i = '1') then
+         read_pointer <= 0;
+      elsif (read_i'EVENT and read_i = '1') then
+         q_o <=  memory(read_pointer);
+         if (read_pointer = fifo_size-1) then
+            read_pointer <= 0;
+         else
+            read_pointer <= read_pointer + 1;
          end if;
       end if; 
-    end process fifo_ram;
-
+    end process fifo_read_ram;
 
    ----------------------------------------------------------------------------
    fifo_state : process(read_pointer, write_pointer)
@@ -121,31 +133,31 @@ begin
    ----------------------------------------------------------------------------
    
    begin
-      
-      if write_pointer < read_pointer then             -- when write pointer has wrapped round 
-                                                       -- but read pointer hasn't yet.
-         fifo_fill <= fifo_size - read_pointer + write_pointer;
-      else
-         fifo_fill <= write_pointer - read_pointer; 
+   
+      if write_pointer < read_pointer then 
+         fifo_count <= fifo_size + write_pointer - read_pointer;
+      else 
+         fifo_count <= write_pointer - read_pointer; 
       end if;   
    end process fifo_state;
-      
+        
    ----------------------------------------------------------------------------
-   flag_fifo : process(fifo_fill)
+   flag_fifo : process(fifo_count)
    ----------------------------------------------------------------------------
    -- process which sets the full and empty flags depending on # words in fifo
    ----------------------------------------------------------------------------
       begin
-         if fifo_fill = 0 then
+         if fifo_count = 0 then
             empty <= '1';
             full <= '0';
-         elsif fifo_fill = fifo_size then
-            full <= '1';
+         elsif fifo_count = fifo_size-1 then      -- this actually full - 1
+            full <= '1';                          -- will update later 
             empty <= '0';
          else
             empty <= '0';
             full <= '0';
          end if;
       end process flag_fifo;
+
 
 end rtl;
