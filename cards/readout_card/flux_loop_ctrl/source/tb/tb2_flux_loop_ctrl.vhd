@@ -50,6 +50,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.7  2004/11/26 18:26:21  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.6  2004/11/25 00:32:58  mohsen
 -- Modified frame_timing and sync_gen  to frame_timing_core and sync_gen_core and updated the interface.  Note that frame_timing has gone through major revision, where it now consists of "core" and "wbs" blocks.  The frame_timing_core is used for simple test benches, whereas the frame_timing is used in test benches that use issu/reply chain.
 --
@@ -679,7 +682,7 @@ begin  -- beh
   i_sync_gen_core : sync_gen_core
 
     port map (
-    dv_en_i    => 0,
+    dv_en_i    => '0',
     dv_i       => '0',
     sync_o     => sync,
     sync_num_o => open,

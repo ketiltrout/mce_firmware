@@ -26,8 +26,8 @@
 -- Organisation:  UBC
 --
 -- Description:
--- This testbench tests the integration of three blocks within flux_loop_ctrl.
--- These blocks are: adc_sample_coadd, fsfb_calc, and fsfb_ctrl.
+-- This testbench tests the integration of five blocks within flux_loop_ctrl.
+-- These blocks are: adc_sample_coadd, fsfb_calc,  fsfb_ctrl, sa_bias_ctrl, offset_ctrl.
 -- 
 -- This testbench test performs in three different modes:
 -- 
@@ -77,6 +77,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop_ctrl.vhd,v $
+-- Revision 1.5  2004/11/26 18:26:21  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.4  2004/11/24 23:33:45  mohsen
 -- Change in wbs_fb_data Interface
 --
