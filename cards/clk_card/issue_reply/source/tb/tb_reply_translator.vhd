@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.7 2004/09/02 12:38:36 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.8 2004/09/02 14:33:23 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/02 12:38:36 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/02 14:33:23 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.8  2004/09/02 14:33:23  dca
+-- some timing changes
+--
 -- Revision 1.7  2004/09/02 12:38:36  dca
 -- 'reply_nData_i' signal replaced with 'm_op_cmd_code_i' vector
 --
@@ -724,6 +727,43 @@ begin
       
       wait for clk_prd*30;
       assert false report "test 9: checksum ST error reply finised...?" severity NOTE;    
+
+  
+     ----------------------------------------------
+      -- test 10: START m_op done 
+      --
+      -- if reply_queue tells reply_translator
+      -- that a START or RESET command has finished
+      -- then no reply should be generated (since these commands have
+      -- an immediate reply generated when cmd_translator 
+      -- informs reply_translator that they have arrived.
+      ----------------------------------------------
+
+ -- reply queue now lets translator know that command has finished sucessfully...
+      
+      wait for clk_prd*20;
+      
+      assert false report "reply_queue informs START command m_op finished...." severity NOTE;  
+      m_op_cmd_code           <= START;
+      m_op_done               <= '1';       
+      m_op_ok_nEr             <= '0';   
+      num_fibre_words         <= X"00000001";
+      
+      
+              
+      wait until m_op_ack = '1';
+      assert false report "test 10: m_op_acknowledged" severity NOTE;
+      
+      wait for clk_prd * 4 ; 
+             
+      m_op_cmd_code           <= (others => '0');
+      m_op_done               <= '0';       
+      m_op_ok_nEr             <= '0';   
+      num_fibre_words         <= X"00000000";
+      
+      assert false report "test 10: finised ........." severity NOTE;    
+      
+      wait for clk_prd*10;
 
 
       wait for clk_prd*20; 
