@@ -32,6 +32,13 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.9  2005/02/09 20:50:40  erniel
+-- added support for data size calculation using an accumulator
+-- added support for command timeouts
+-- added support for new reply_queue_receiver interface
+--
+-- WARNING: Interim version. May contain bugs.
+--
 -- Revision 1.8  2005/01/11 20:42:28  bburger
 -- Bryce:  size_o is now registered to maintain a valid value while data words are being clocked out
 --
@@ -79,7 +86,7 @@ entity reply_queue_sequencer is
 port(clk_i : in std_logic;
      rst_i : in std_logic;
      
-     -- receiver FIFO interfaces:
+     -- reply_queue_receive FIFO interfaces:
      ac_data_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      ac_rdy_i     : in std_logic;
      ac_ack_o     : out std_logic;
@@ -125,30 +132,29 @@ port(clk_i : in std_logic;
      cc_ack_o     : out std_logic;
      cc_discard_o : out std_logic;
      
-     -- fibre interface:
-     size_o  : out integer;
-     error_o : out std_logic_vector(29 downto 0);
-     data_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     rdy_o   : out std_logic;
-     ack_i   : in std_logic;
-     
-     -- cmd_queue interface:
+     -- reply_queue_retire interface:
      macro_op_i  : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
      micro_op_i  : in std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
      card_addr_i : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
      cmd_valid_i : in std_logic;
      matched_o   : out std_logic;
-     timeout_o   : out std_logic);
+     timeout_o   : out std_logic;
+     
+     -- reply_translator interface:
+     size_o  : out integer;
+     error_o : out std_logic_vector(29 downto 0);
+     data_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+     rdy_o   : out std_logic;
+     ack_i   : in std_logic);
 end reply_queue_sequencer;
 
 architecture rtl of reply_queue_sequencer is
 
-type seq_states is (IDLE, WAIT_FOR_REPLY, CALC_DATA_SIZE, READ_AC, READ_BC1, READ_BC2, READ_BC3, 
+type seq_states is (IDLE, WAIT_FOR_REPLY, MATCHED, CALC_DATA_SIZE, READ_AC, READ_BC1, READ_BC2, READ_BC3, 
                     READ_RC1, READ_RC2, READ_RC3, READ_RC4, READ_CC, TIMED_OUT, DONE);
 signal pres_state : seq_states;
 signal next_state : seq_states;
 
-signal matched : std_logic;
 signal seq_num : std_logic_vector(15 downto 0);
 
 signal data_size : std_logic_vector(RQ_DATA_SIZE_WIDTH-1 downto 0);
@@ -171,44 +177,6 @@ begin
    
    seq_num <= macro_op_i & micro_op_i;
    
-   -- Note condensed header format from reply_queue_pack
-   matched_o <= '1' when (((card_addr_i = ADDRESS_CARD)   and    (ac_data_i(RQ_SEQ_NUM'range)  = seq_num)) or
-   
-                          ((card_addr_i = BIAS_CARD_1)    and    (bc1_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                      
-                          ((card_addr_i = BIAS_CARD_2)    and    (bc2_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                        
-                          ((card_addr_i = BIAS_CARD_3)    and    (bc3_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                      
-                          ((card_addr_i = READOUT_CARD_1) and    (rc1_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                      
-                          ((card_addr_i = READOUT_CARD_2) and    (rc2_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                      
-                          ((card_addr_i = READOUT_CARD_3) and    (rc3_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                      
-                          ((card_addr_i = READOUT_CARD_4) and    (rc4_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                      
-                          ((card_addr_i = CLOCK_CARD)     and    (cc_data_i(RQ_SEQ_NUM'range)  = seq_num)) or                      
-                      
-                          ((card_addr_i = ALL_BIAS_CARDS) and    (bc1_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (bc2_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (bc3_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                                                             
-                          ((card_addr_i = ALL_READOUT_CARDS) and (rc1_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (rc2_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (rc3_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (rc4_data_i(RQ_SEQ_NUM'range) = seq_num)) or
-                                                             
-                          ((card_addr_i = ALL_FPGA_CARDS) and    (ac_data_i(RQ_SEQ_NUM'range)  = seq_num) and
-                                                                 (bc1_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (bc2_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (bc3_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (rc1_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (rc2_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (rc3_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (rc4_data_i(RQ_SEQ_NUM'range) = seq_num) and
-                                                                 (cc_data_i(RQ_SEQ_NUM'range)  = seq_num))) else '0';   
-
    error_o <= ac_data_i(31 downto 29)  & bc1_data_i(31 downto 29) & bc2_data_i(31 downto 29) & bc3_data_i(31 downto 29) &
               rc1_data_i(31 downto 29) & rc2_data_i(31 downto 29) & rc3_data_i(31 downto 29) & rc4_data_i(31 downto 29) &
               cc_data_i(31 downto 29) & "000";
@@ -223,7 +191,7 @@ begin
             timer_reset_i => timeout_clr,
             timer_count_o => timeout_count);
    
-   timeout <= '1' when timeout_count > TIMEOUT_LIMIT else '0';  -- TIMEOUT_LIMIT is defined in reply_queue_pack
+   timeout <= '1' when timeout_count >= TIMEOUT_LIMIT else '0';  -- TIMEOUT_LIMIT is defined in reply_queue_pack
    
       
    ---------------------------------------------------------
@@ -254,7 +222,7 @@ begin
             rst_i   => rst_i,
             ena_i   => calc_count_ena,
             load_i  => calc_count_clr,
-            count_i => 1,
+            count_i => 0,
             count_o => calc_count);
             
             
@@ -319,21 +287,23 @@ begin
                                                                      rc2_data_i(RQ_SEQ_NUM'range) = seq_num and rc2_rdy_i = '1' and
                                                                      rc3_data_i(RQ_SEQ_NUM'range) = seq_num and rc3_rdy_i = '1' and
                                                                      rc4_data_i(RQ_SEQ_NUM'range) = seq_num and rc4_rdy_i = '1')) then
-                                   next_state <= CALC_DATA_SIZE;
+                                   next_state <= MATCHED;
                                 elsif(timeout = '1') then
                                    next_state <= TIMED_OUT;
                                 else
                                    next_state <= WAIT_FOR_REPLY;
                                 end if;
+         
+         when MATCHED =>        next_state <= CALC_DATA_SIZE;
                                     
          when CALC_DATA_SIZE => case card_addr_i is
                                    when CLOCK_CARD =>        next_state <= READ_CC;
                                    
                                    when BIAS_CARD_1 =>       next_state <= READ_BC1;
                                    
-                                   when BIAS_CARD_2 =>       next_state <= READ_BC1;
+                                   when BIAS_CARD_2 =>       next_state <= READ_BC2;
                                    
-                                   when BIAS_CARD_3 =>       next_state <= READ_BC1;
+                                   when BIAS_CARD_3 =>       next_state <= READ_BC3;
                                    
                                    when ADDRESS_CARD =>      next_state <= READ_AC;
                                    
@@ -456,8 +426,6 @@ begin
                                 else
                                    next_state <= DONE;
                                 end if;
-         
-         when others =>         next_state <= IDLE;
       end case;
    end process state_NS;
    
@@ -500,7 +468,10 @@ begin
       
       data_o    <= (others => '0');
       rdy_o     <= '0';
+      matched_o <= '0';
       timeout_o <= '0';
+      
+      data_size <= (others => '0');
            
       case pres_state is
          when IDLE =>           accum_ena      <= '1';
@@ -510,95 +481,97 @@ begin
       
          when WAIT_FOR_REPLY => timeout_clr    <= '0';
                                 case card_addr_i is
-                                   when ADDRESS_CARD =>      if(ac_data_i(RQ_SEQ_NUM'range) /= seq_num and ac_rdy_i = '1') then
+                                   when ADDRESS_CARD =>      if(ac_data_i(RQ_SEQ_NUM'range) < seq_num and ac_rdy_i = '1') then
                                                                 ac_discard_o <= '1';
                                                              end if;
                                                                 
-                                   when BIAS_CARD_1 =>       if(bc1_data_i(RQ_SEQ_NUM'range) /= seq_num and bc1_rdy_i = '1') then
+                                   when BIAS_CARD_1 =>       if(bc1_data_i(RQ_SEQ_NUM'range) < seq_num and bc1_rdy_i = '1') then
                                                                 bc1_discard_o <= '1';
                                                              end if;
                                                               
-                                   when BIAS_CARD_2 =>       if(bc2_data_i(RQ_SEQ_NUM'range) /= seq_num and bc2_rdy_i = '1') then
+                                   when BIAS_CARD_2 =>       if(bc2_data_i(RQ_SEQ_NUM'range) < seq_num and bc2_rdy_i = '1') then
                                                                 bc2_discard_o <= '1';
                                                              end if;
                                                               
-                                   when BIAS_CARD_3 =>       if(bc3_data_i(RQ_SEQ_NUM'range) /= seq_num and bc3_rdy_i = '1') then
+                                   when BIAS_CARD_3 =>       if(bc3_data_i(RQ_SEQ_NUM'range) < seq_num and bc3_rdy_i = '1') then
                                                                 bc3_discard_o <= '1';
                                                              end if;
                                                               
-                                   when READOUT_CARD_1 =>    if(rc1_data_i(RQ_SEQ_NUM'range) /= seq_num and rc1_rdy_i = '1') then
+                                   when READOUT_CARD_1 =>    if(rc1_data_i(RQ_SEQ_NUM'range) < seq_num and rc1_rdy_i = '1') then
                                                                 rc1_discard_o <= '1';
                                                              end if;
                                                               
-                                   when READOUT_CARD_2 =>    if(rc2_data_i(RQ_SEQ_NUM'range) /= seq_num and rc2_rdy_i = '1') then
+                                   when READOUT_CARD_2 =>    if(rc2_data_i(RQ_SEQ_NUM'range) < seq_num and rc2_rdy_i = '1') then
                                                                 rc2_discard_o <= '1';
                                                              end if;
                                                               
-                                   when READOUT_CARD_3 =>    if(rc3_data_i(RQ_SEQ_NUM'range) /= seq_num and rc3_rdy_i = '1') then
+                                   when READOUT_CARD_3 =>    if(rc3_data_i(RQ_SEQ_NUM'range) < seq_num and rc3_rdy_i = '1') then
                                                                 rc3_discard_o <= '1';
                                                              end if;
                                                               
-                                   when READOUT_CARD_4 =>    if(rc4_data_i(RQ_SEQ_NUM'range) /= seq_num and rc4_rdy_i = '1') then
+                                   when READOUT_CARD_4 =>    if(rc4_data_i(RQ_SEQ_NUM'range) < seq_num and rc4_rdy_i = '1') then
                                                                 rc4_discard_o <= '1';
                                                              end if;
                                                               
-                                   when CLOCK_CARD =>        if(cc_data_i(RQ_SEQ_NUM'range) /= seq_num and cc_rdy_i = '1') then
+                                   when CLOCK_CARD =>        if(cc_data_i(RQ_SEQ_NUM'range) < seq_num and cc_rdy_i = '1') then
                                                                 ac_discard_o <= '1';
                                                              end if;
                                                               
-                                   when ALL_BIAS_CARDS =>    if(bc1_data_i(RQ_SEQ_NUM'range) /= seq_num and bc1_rdy_i = '1') then
+                                   when ALL_BIAS_CARDS =>    if(bc1_data_i(RQ_SEQ_NUM'range) < seq_num and bc1_rdy_i = '1') then
                                                                 bc1_discard_o <= '1';
                                                              end if;
-                                                             if(bc2_data_i(RQ_SEQ_NUM'range) /= seq_num and bc2_rdy_i = '1') then
+                                                             if(bc2_data_i(RQ_SEQ_NUM'range) < seq_num and bc2_rdy_i = '1') then
                                                                 bc2_discard_o <= '1';
                                                              end if;
-                                                             if(bc3_data_i(RQ_SEQ_NUM'range) /= seq_num and bc3_rdy_i = '1') then
+                                                             if(bc3_data_i(RQ_SEQ_NUM'range) < seq_num and bc3_rdy_i = '1') then
                                                                 bc3_discard_o <= '1';
                                                              end if;
                                                               
-                                   when ALL_READOUT_CARDS => if(rc1_data_i(RQ_SEQ_NUM'range) /= seq_num and rc1_rdy_i = '1') then
+                                   when ALL_READOUT_CARDS => if(rc1_data_i(RQ_SEQ_NUM'range) < seq_num and rc1_rdy_i = '1') then
                                                                 rc1_discard_o <= '1';
                                                              end if;
-                                                             if(rc2_data_i(RQ_SEQ_NUM'range) /= seq_num and rc2_rdy_i = '1') then
+                                                             if(rc2_data_i(RQ_SEQ_NUM'range) < seq_num and rc2_rdy_i = '1') then
                                                                 rc2_discard_o <= '1';
                                                              end if;
-                                                             if(rc3_data_i(RQ_SEQ_NUM'range) /= seq_num and rc3_rdy_i = '1') then
+                                                             if(rc3_data_i(RQ_SEQ_NUM'range) < seq_num and rc3_rdy_i = '1') then
                                                                 rc3_discard_o <= '1';
                                                              end if;
-                                                             if(rc4_data_i(RQ_SEQ_NUM'range) /= seq_num and rc4_rdy_i = '1') then
+                                                             if(rc4_data_i(RQ_SEQ_NUM'range) < seq_num and rc4_rdy_i = '1') then
                                                                 rc4_discard_o <= '1';
                                                              end if;
                                                               
-                                   when ALL_FPGA_CARDS =>    if(ac_data_i(RQ_SEQ_NUM'range) /= seq_num and ac_rdy_i = '1') then
+                                   when ALL_FPGA_CARDS =>    if(ac_data_i(RQ_SEQ_NUM'range) < seq_num and ac_rdy_i = '1') then
                                                                 ac_discard_o <= '1';
                                                              end if;
-                                                             if(bc1_data_i(RQ_SEQ_NUM'range) /= seq_num and bc1_rdy_i = '1') then
+                                                             if(bc1_data_i(RQ_SEQ_NUM'range) < seq_num and bc1_rdy_i = '1') then
                                                                 bc1_discard_o <= '1';
                                                              end if;
-                                                             if(bc2_data_i(RQ_SEQ_NUM'range) /= seq_num and bc2_rdy_i = '1') then
+                                                             if(bc2_data_i(RQ_SEQ_NUM'range) < seq_num and bc2_rdy_i = '1') then
                                                                 bc2_discard_o <= '1';
                                                              end if;
-                                                             if(bc3_data_i(RQ_SEQ_NUM'range) /= seq_num and bc3_rdy_i = '1') then
+                                                             if(bc3_data_i(RQ_SEQ_NUM'range) < seq_num and bc3_rdy_i = '1') then
                                                                 bc3_discard_o <= '1';
                                                              end if;
-                                                             if(rc1_data_i(RQ_SEQ_NUM'range) /= seq_num and rc1_rdy_i = '1') then
+                                                             if(rc1_data_i(RQ_SEQ_NUM'range) < seq_num and rc1_rdy_i = '1') then
                                                                 rc1_discard_o <= '1';
                                                              end if;
-                                                             if(rc2_data_i(RQ_SEQ_NUM'range) /= seq_num and rc2_rdy_i = '1') then
+                                                             if(rc2_data_i(RQ_SEQ_NUM'range) < seq_num and rc2_rdy_i = '1') then
                                                                 rc2_discard_o <= '1';
                                                              end if;
-                                                             if(rc3_data_i(RQ_SEQ_NUM'range) /= seq_num and rc3_rdy_i = '1') then
+                                                             if(rc3_data_i(RQ_SEQ_NUM'range) < seq_num and rc3_rdy_i = '1') then
                                                                 rc3_discard_o <= '1';
                                                              end if;
-                                                             if(rc4_data_i(RQ_SEQ_NUM'range) /= seq_num and rc4_rdy_i = '1') then
+                                                             if(rc4_data_i(RQ_SEQ_NUM'range) < seq_num and rc4_rdy_i = '1') then
                                                                 rc4_discard_o <= '1';
                                                              end if;
-                                                             if(cc_data_i(RQ_SEQ_NUM'range) /= seq_num and cc_rdy_i = '1') then
+                                                             if(cc_data_i(RQ_SEQ_NUM'range) < seq_num and cc_rdy_i = '1') then
                                                                 cc_discard_o <= '1';
                                                              end if;
                                                                
                                    when others =>            null;
                                 end case;
+         
+         when MATCHED =>        matched_o <= '1';
          
          when CALC_DATA_SIZE => accum_ena      <= '1';
                                 calc_count_ena <= '1';
@@ -647,13 +620,13 @@ begin
                                                                 when 0 =>      rc1_ack_o <= '1';
                                                                                data_size <= rc1_data_i(RQ_DATA_SIZE'range);
                                                                 
-                                                                when 1 =>      rc1_ack_o <= '1';
+                                                                when 1 =>      rc2_ack_o <= '1';
                                                                                data_size <= rc2_data_i(RQ_DATA_SIZE'range);
 
-                                                                when 2 =>      rc1_ack_o <= '1';
+                                                                when 2 =>      rc3_ack_o <= '1';
                                                                                data_size <= rc3_data_i(RQ_DATA_SIZE'range);
 
-                                                                when 3 =>      rc1_ack_o <= '1';
+                                                                when 3 =>      rc4_ack_o <= '1';
                                                                                data_size <= rc4_data_i(RQ_DATA_SIZE'range);
                                                                 when others => null;
                                                              end case;
@@ -693,44 +666,44 @@ begin
                                 end case;
          
          when READ_AC =>        data_o <= ac_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= ac_rdy_i;
                                 ac_ack_o <= ack_i;
 
          when READ_BC1 =>       data_o <= bc1_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= bc1_rdy_i;
                                 bc1_ack_o <= ack_i;
 
          when READ_BC2 =>       data_o <= bc2_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= bc2_rdy_i;
                                 bc2_ack_o <= ack_i;
 
          when READ_BC3 =>       data_o <= bc3_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= bc3_rdy_i;
                                 bc3_ack_o <= ack_i;
 
          when READ_RC1 =>       data_o <= rc1_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= rc1_rdy_i;
                                 rc1_ack_o <= ack_i;
 
          when READ_RC2 =>       data_o <= rc2_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= rc2_rdy_i;
                                 rc2_ack_o <= ack_i;
 
          when READ_RC3 =>       data_o <= rc3_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= rc3_rdy_i;
                                 rc3_ack_o <= ack_i;
 
          when READ_RC4 =>       data_o <= rc4_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= rc4_rdy_i;
                                 rc4_ack_o <= ack_i;
 
          when READ_CC =>        data_o <= cc_data_i;
-                                rdy_o <= '1';
+                                rdy_o <= cc_rdy_i;
                                 cc_ack_o <= ack_i;
          
          when TIMED_OUT =>      timeout_o <= '1';
          
-         when others =>         null;
+         when DONE =>           null;
       end case;
    end process state_Out;
    
