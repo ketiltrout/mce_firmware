@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.2 2004/06/15 10:27:16 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.3 2004/06/24 08:39:26 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,12 +28,12 @@
 -- Fibre Optic front end receive firmware:
 -- Instantiates:
 -- 
--- 1. rx_control
--- 2. rx_fifo
--- 3. rx_protocol_fsm
+-- 1. fibre_rx_control
+-- 2. fibre_rx_fifo
+-- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2004/06/15 10:27:16 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/06/24 08:39:26 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 
 
@@ -75,9 +75,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library work;
-use work.rx_fifo_pack.all;
-use work.rx_control_pack.all;
-use work.rx_protocol_fsm_pack.all;
+use work.fibre_rx_pack.all;
 
 architecture behav of fibre_rx is 
 
@@ -91,7 +89,7 @@ architecture behav of fibre_rx is
   begin
 
    -- Instance port mappings.
-   I0 : rx_fifo
+   I0 : fibre_rx_fifo
       generic map (
          fifo_size => 512
       )
@@ -105,7 +103,7 @@ architecture behav of fibre_rx is
          rxd_o       => rxd
    );
 
-   I1: rx_control 
+   I1: fibre_rx_control 
       port map ( 
          nrx_rdy_i  =>   nrx_rdy_i,
          rsc_nrd_i  =>   rsc_nrd_i,
@@ -116,7 +114,7 @@ architecture behav of fibre_rx is
    );
  
  
-   I2: rx_protocol_fsm
+   I2: fibre_rx_protocol
       port map ( 
          rst_i       =>   rst_i,
          clk_i       =>   clk_i,
