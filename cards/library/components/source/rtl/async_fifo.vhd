@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: async_fifo.vhd,v 1.1 2004/06/28 12:28:17 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: async_fifo.vhd,v 1.4 2004/06/30 10:52:58 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -36,7 +36,7 @@
 -- Revision history:
 -- 29th March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/28 12:28:17 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/30 10:52:58 $>	-		<text>		- <initials $Author: dca $>
 --
 -- <$log$>
 -----------------------------------------------------------------------------
@@ -133,18 +133,25 @@ begin
       end if; 
     end process fifo_read_ram;
 
+
+   -----------------------------------------------------
+   save_last_count: process(read_addr(0), write_addr(0))
+   -----------------------------------------------------
+   -- process to save last value of fifo_count if 
+   -- read_addr or write_addr are incremented.
+   -- used to establish if fifo is full or empty
+   ------------------------------------------------------
+   begin
+      last_count <= fifo_count;      -- save last fifo_count                 
+   end process;
+
    ----------------------------------------------------------------------------
-   fifo_state : process(read_addr, write_addr, fifo_count)
+   fifo_state : process(read_addr, write_addr)
    ----------------------------------------------------------------------------
    -- process to establish how many words are currently in the fifo
    ----------------------------------------------------------------------------
    
    begin  
-      
-      -- save last fifo count if read or write address incremented
-      if (read_addr(0)'event) or (write_addr(0)'event) then
-         last_count <= fifo_count;                    
-      end if;
       
       -- calculate current fifo count
       if (to_integer(unsigned(write_addr))) < (to_integer(unsigned(read_addr))) then 
