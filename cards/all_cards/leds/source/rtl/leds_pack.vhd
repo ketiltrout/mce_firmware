@@ -20,17 +20,20 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds_pack.vhd,v 1.5 2004/03/06 01:14:37 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds_pack.vhd,v 1.1 2004/04/14 21:44:01 jjacob Exp $>
 --
--- Project:		SCUBA2
--- Author:		Bryce Burger
+-- Project:      SCUBA2
+-- Author:       Bryce Burger
 -- Organisation:	UBC
 --
 -- Description:
--- <description text>
+-- Package for LED module
 --
 -- Revision history:
--- <date $Date: 2004/03/06 01:14:37 $>	-		<text>		- <initials $Author: bburger $>
+--
+-- $Log$
+--
+-- <date $Date: 2004/04/14 21:44:01 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -43,37 +46,33 @@ use sys_param.wishbone_pack.all;
 
 package leds_pack is
 
-   constant LEDS_BITS : integer := 4;
+   -- number of LEDS:
+   constant NUM_LEDS : integer := 3;
   
+   -- LED positions:
+   constant POWER_LED  : integer := 2;
+   constant STATUS_LED : integer := 1;
+   constant FAULT_LED  : integer := 0;
+   
+   -- component declaration:
    component leds
-      generic (
-         SLAVE_SEL : std_logic_vector(WB_ADDR_WIDTH - 1 downto 0) := (others => '0');
-         ADDR_WIDTH : integer := WB_ADDR_WIDTH;
-         DATA_WIDTH : integer := WB_DATA_WIDTH;
-         TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH
-      );
-      port (      
-         -- wishbone signals
-         clk_i   : in std_logic;
-         rst_i   : in std_logic;		
-         dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
-         addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-         tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
-         we_i    : in std_logic;
-         stb_i   : in std_logic;
-         cyc_i   : in std_logic;
-         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-         rty_o   : out std_logic;
-         ack_o   : out std_logic;         
-
-         -- LED outputs
-         power_ok : out std_logic;
-         status : out std_logic;
-         fault : out std_logic;
-         -- There aren't four LEDs on any of the cards, but there is room on the faceplate for a fourth
-         -- The spare in included so that a fourth may be added if necessary
-         spare : out std_logic
-      );
+   port(clk_i   : in std_logic;
+        rst_i   : in std_logic;		
+        
+        -- Wishbone signals
+        dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_i    : in std_logic;
+        stb_i   : in std_logic;
+        cyc_i   : in std_logic;
+        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        ack_o   : out std_logic;
+      
+        -- LED outputs
+        power   : out std_logic;
+        status  : out std_logic;
+        fault   : out std_logic);
    end component;      
    
 end leds_pack;
