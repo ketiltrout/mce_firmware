@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.9 2004/09/03 13:13:26 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.10 2004/10/08 13:58:22 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/03 13:13:26 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/08 13:58:22 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.10  2004/10/08 13:58:22  dca
+-- updated due to parameter name changes in command_pack
+--
 -- Revision 1.9  2004/09/03 13:13:26  dca
 -- test added for 'NO_REPLY' state (fibre FSM).
 --
@@ -83,7 +86,10 @@ end tb_reply_translator;
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+--use ieee.numeric_std.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
 
 library work;
 use work.issue_reply_pack.all;
@@ -100,31 +106,37 @@ component reply_translator
 
 port(
      -- global inputs 
-     rst_i                   : in  std_logic;
-     clk_i                   : in  std_logic;
+     rst_i                   : in  std_logic;                                               -- global reset
+     clk_i                   : in  std_logic;                                               -- global clock
 
-     -- signals to/from cmd_translator
-     
-     cmd_rcvd_er_i           : in  std_logic;                   
-     cmd_rcvd_ok_i           : in  std_logic;         
-     cmd_code_i              : in  std_logic_vector (FIBRE_CMD_CODE_WIDTH-1     downto 0);
-     card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-     param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  
-       
+     -- signals to/from cmd_translator    
+     cmd_rcvd_er_i           : in  std_logic;                                               -- command received on fibre with checksum error
+     cmd_rcvd_ok_i           : in  std_logic;                                               -- command received on fibre - no checksum error
+     cmd_code_i              : in  std_logic_vector (FIBRE_CMD_CODE_WIDTH-1     downto 0);  -- fibre command code
+     card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- fibre command card id
+     param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
+         
      -- signals to/from reply queue 
-     m_op_done_i             : in  std_logic; 
-     m_op_ok_nEr_i           : in  std_logic;
-     m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);   
-     fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);
-     num_fibre_words_i       : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);
-     fibre_word_req_o        : out std_logic;
-     m_op_ack_o              : out std_logic;
-     
+     m_op_done_i             : in  std_logic;                                               -- macro op done
+     m_op_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
+     m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);  -- command code vector - indicates if data or reply (and which command)
+ --    m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
+ --    m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
+     fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
+     num_fibre_words_i       : in  std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    -- indicate number of packet words to be read from reply queue
+     fibre_word_req_o        : out std_logic;                                               -- asserted to requeset next fibre word
+     fibre_word_rdy_i        : in std_logic;
+     m_op_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
+
+     cmd_stop_i              : in std_logic;
+     last_frame_i            : in std_logic;
+     frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
      -- signals to / from fibre_tx
-     tx_ff_i                 : in std_logic;
-     tx_fw_o                 : out std_logic; 
-     txd_o                   : out std_logic_vector (7 downto 0)
-     );      
+     tx_ff_i                 : in std_logic;                                             -- transmit fifo full
+     tx_fw_o                 : out std_logic;                                            -- transmit fifo write request
+     txd_o                   : out std_logic_vector (7 downto 0)                         -- transmit fifo data input
+     );   
 end component;
 
 
@@ -144,12 +156,13 @@ signal   card_id        : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)
 signal   param_id       : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0) := (others => '0');  
 signal   cmd_ack	       : std_logic; 
        
-signal   m_op_done      : std_logic                                             := '0'; 
-signal   m_op_ok_nEr    : std_logic                                             := '0';
-signal   m_op_cmd_code  : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1      downto 0)     := (others => '0');
-signal   fibre_word     : std_logic_vector (PACKET_WORD_WIDTH-1      downto 0)     := (others => '0');
+signal   m_op_done      : std_logic                                              := '0'; 
+signal   m_op_cmd_code  : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1  downto 0)   := (others => '0'); 
+signal   m_op_error_code: std_logic_vector (BB_STATUS_WIDTH-1         downto 0)  := (others => '0');
+signal   fibre_word     : std_logic_vector (PACKET_WORD_WIDTH-1      downto 0)   := (others => '0');
 signal   fibre_word_req : std_logic;
-signal   num_fibre_words: std_logic_vector (PACKET_WORD_WIDTH-1      downto 0)     := (others => '0');
+signal   fibre_word_rdy : std_logic   := '0';
+signal   num_fibre_words: std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0) := (others => '0');
 signal   m_op_ack       : std_logic;
      
 signal   tx_ff          : std_logic                                             := '0';
@@ -158,6 +171,14 @@ signal   txd            : byte;
 
 signal   fibre_byte     : byte                                                  := (others => '0');
 signal   frame_data     : integer                                               := 0 ;
+
+
+signal cmd_stop         : std_logic;
+signal last_frame       : std_logic;
+signal frame_seq_num    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
+
+
 
 begin
 
@@ -179,12 +200,18 @@ begin
        
       -- signals to/from reply queue 
       m_op_done_i        => m_op_done,     
-      m_op_ok_nEr_i      => m_op_ok_nEr,   
+      m_op_error_code_i  => m_op_error_code,   
       m_op_cmd_code_i    => m_op_cmd_code,
       fibre_word_i       => fibre_word, 
       num_fibre_words_i  => num_fibre_words,
       fibre_word_req_o   => fibre_word_req,   
+      fibre_word_rdy_i   => fibre_word_rdy,
       m_op_ack_o         => m_op_ack,   
+      
+      cmd_stop_i         => cmd_stop,
+      last_frame_i       => last_frame,
+      frame_seq_num_i    => frame_seq_num,
+
      
       -- signals to / from fibre_tx
       tx_ff_i            => tx_ff, 
@@ -193,6 +220,10 @@ begin
    
    );
   
+ 
+  
+
+ 
    
 ------------------------------------------------
 -- Create test bench clock
@@ -422,9 +453,10 @@ begin
       
       m_op_cmd_code           <= WRITE_BLOCK;
       m_op_done               <= '1';       
-      m_op_ok_nEr             <= '1';   
-      num_fibre_words         <= X"00000001";
+      m_op_error_code         <= (others => '0' );   
+      num_fibre_words         <= conv_std_logic_vector(0,BB_DATA_SIZE_WIDTH); 
       
+          
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
       assert false report "test 4: preamble txmitted" severity NOTE;
@@ -438,23 +470,19 @@ begin
       wait until txd = ASCII_O;
       assert false report "test 4: success word 'OK' txmitted" severity NOTE;
       
-      
-      
-      wait until fibre_word_req = '1';
-      -- would really be x"00000000" but want to see change in data
-      fibre_word               <= X"69696969";         
-          
-      wait until txd = X"69";
+             
+      wait until txd = X"00";
       assert false report "test 4: transmitting fibre word...... " severity NOTE;
   
       
       wait until m_op_ack      = '1'; 
+          
       wait for clk_prd;
     
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000000";
+      m_op_error_code         <= (others => '0' );
+      num_fibre_words         <= (others => '0' );
       
       assert false report "test 4: WB (OK) reply finised..." severity NOTE;    
       
@@ -480,8 +508,8 @@ begin
       
       m_op_cmd_code           <= WRITE_BLOCK;
       m_op_done               <= '1';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000001";
+      m_op_error_code         <= (others => '1');
+      num_fibre_words         <= conv_std_logic_vector(0,BB_DATA_SIZE_WIDTH); 
       
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
@@ -497,13 +525,9 @@ begin
       assert false report "test 5: error word 'ER' txmitted" severity NOTE;
       
       
-      
-      wait until fibre_word_req = '1';
-      -- would really be x"00000000" but want to see change in data
-      fibre_word               <= X"66666699";         
-          
-      wait until txd = X"99";
-      assert false report "test 5: txmitting fibre word...... " severity NOTE;
+             
+      wait until txd = X"FF";
+      assert false report "test 5: txmitting error code word...... " severity NOTE;
   
       
       wait until m_op_ack      = '1'; 
@@ -511,8 +535,8 @@ begin
     
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000000";
+      m_op_error_code         <= (others => '0' );
+      num_fibre_words         <= (others => '0' );
       
       assert false report "test 5: WB (ER) reply finised..." severity NOTE;    
       
@@ -539,8 +563,8 @@ begin
       assert false report "reply_queue informs RB reply ready...." severity NOTE;  
       m_op_cmd_code           <= READ_BLOCK;
       m_op_done               <= '1';       
-      m_op_ok_nEr             <= '1';   
-      num_fibre_words         <= X"00000010";
+      m_op_error_code         <= (others => '0' );
+      num_fibre_words         <= conv_std_logic_vector(16,BB_DATA_SIZE_WIDTH); 
       
       
               
@@ -557,14 +581,18 @@ begin
       assert false report "test 6: success word 'OK' txmitted" severity NOTE;
       
       
-      for i in 1 to (to_integer(unsigned(num_fibre_words))) loop 
+      for i in 1 to (conv_integer(num_fibre_words)) loop 
       
-         fibre_byte <= std_logic_vector(to_unsigned(i,8));
+         fibre_byte <= conv_std_logic_vector(i,8);
          wait until fibre_word_req = '1';
+         wait for clk_prd*2;
+         fibre_word_rdy <= '1';
          fibre_word ( 7 downto  0) <= fibre_byte;
          fibre_word (15 downto  8) <= fibre_byte;
          fibre_word (23 downto 16) <= fibre_byte;
          fibre_word (31 downto 24) <= fibre_byte;
+         wait for clk_prd;
+         fibre_word_rdy <= '0';
          assert false report "test 6: next fibre word txmitted" severity NOTE;
          
       end loop;
@@ -575,8 +603,8 @@ begin
        
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000000";
+      m_op_error_code         <= (others => '0' );
+      num_fibre_words         <= (others => '0' );
       
       assert false report "test 6: RB reply finised..." severity NOTE;    
       
@@ -603,8 +631,8 @@ begin
       assert false report "reply_queue informs RB reply ready...." severity NOTE;  
       m_op_cmd_code           <= READ_BLOCK;
       m_op_done               <= '1';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000001";
+      m_op_error_code         <= (others => '1' );
+      num_fibre_words         <= conv_std_logic_vector(0,BB_DATA_SIZE_WIDTH); 
       
       
               
@@ -621,23 +649,16 @@ begin
       assert false report "test 7: success word 'ER' txmitted" severity NOTE;
       
       
-         fibre_byte <= X"FF";     -- error word
-         wait until fibre_word_req = '1';
-         fibre_word ( 7 downto  0) <= fibre_byte;
-         fibre_word (15 downto  8) <= fibre_byte;
-         fibre_word (23 downto 16) <= fibre_byte;
-         fibre_word (31 downto 24) <= fibre_byte;
-         assert false report "test 7: next fibre word txmitted" severity NOTE;
-        
-         
+      wait until txd = X"FF";
+      assert false report "test 7: error code  txmitted" severity NOTE;         
     
       wait until m_op_ack      = '1'; 
       wait for clk_prd;
        
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000000";
+      m_op_error_code         <= (others => '0');
+      num_fibre_words         <= (others => '0');
       
       assert false report "test 7: RB reply finised (ER)..." severity NOTE;    
       
@@ -658,8 +679,8 @@ begin
       assert false report "reply_queue informs that there a frame of data to process...." severity NOTE;  
       m_op_cmd_code           <= DATA;
       m_op_done               <= '1';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000064";
+      m_op_error_code         <= (others => '0' );
+      num_fibre_words         <= conv_std_logic_vector(100,BB_DATA_SIZE_WIDTH); 
       
       
               
@@ -672,16 +693,21 @@ begin
       assert false report "test 8: header word 'DA' txmitted" severity NOTE;
       
                    
-           
-      for i in 1 to (to_integer(unsigned(num_fibre_words))) loop 
-      
+
+    --  for i in 1 to (to_integer(unsigned(num_fibre_words))) loop 
+      for i in 1 to (conv_integer(num_fibre_words)) loop 
          frame_data <= (i * 32) + 1; 
          
          
          wait until fibre_word_req = '1';
-         fibre_word <= std_logic_vector(to_unsigned(frame_data,32));
-
- 
+         wait for clk_prd * 2;
+         
+         fibre_word_rdy <= '1';
+         fibre_word <= conv_std_logic_vector(frame_data,32);
+         wait for clk_prd;
+         fibre_word_rdy <= '0';
+         
+          
          assert false report "test 8: next fibre word txmitted" severity NOTE;
          
          -- a ST command with checksum error arrives during readout....
@@ -705,8 +731,8 @@ begin
        
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000000";
+      m_op_error_code         <= (others => '0');
+      num_fibre_words         <= (others => '0');
       
       assert false report "test 8: Frame readout finised....." severity NOTE;    
       
@@ -748,8 +774,8 @@ begin
       assert false report "reply_queue informs START command m_op finished...." severity NOTE;  
       m_op_cmd_code           <= START;
       m_op_done               <= '1';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000001";
+      m_op_error_code         <= (others => '0' );
+      num_fibre_words         <= conv_std_logic_vector(1,BB_DATA_SIZE_WIDTH); 
       
       
               
@@ -760,8 +786,8 @@ begin
              
       m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
-      m_op_ok_nEr             <= '0';   
-      num_fibre_words         <= X"00000000";
+      m_op_error_code         <= (others => '0');
+      num_fibre_words         <= (others => '0');
       
       assert false report "test 10: finised ........." severity NOTE;    
       
