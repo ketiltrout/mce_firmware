@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: rx_fifo.vhd,v 1.3 2004/06/15 11:13:16 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: rx_fifo.vhd,v 1.4 2004/06/24 08:49:31 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -36,7 +36,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/15 11:13:16 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/24 08:49:31 $>	-		<text>		- <initials $Author: dca $>
 --
 --
 -----------------------------------------------------------------------------
