@@ -20,7 +20,7 @@
 
 # Quartus II: Generate Tcl File for Project
 # File: readout_card.tcl
-# Generated on: Mon Feb 07 16:32:00 2005
+# Generated on: Mon Feb 21 10:49:31 2005
 
 # Load Quartus II Tcl Project package
 package require ::quartus::project
@@ -129,10 +129,10 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 	set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
 	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
+	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 	set_global_assignment -name INVERT_BASE_CLOCK OFF -section_id inclk
 	set_global_assignment -name MULTIPLY_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
 	set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
-	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 	set_global_assignment -name MUX_RESTRUCTURE OFF
 	set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF SMART
 	set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
@@ -607,15 +607,6 @@ if {$make_assignments} {
 	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs\[5\] -section_id "serial DAC data&cs"
 	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs\[6\] -section_id "serial DAC data&cs"
 	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs\[7\] -section_id "serial DAC data&cs"
-	set_location_assignment PIN_G7 -to ttl_dir1
-	set_location_assignment PIN_F7 -to ttl_in1
-	set_location_assignment PIN_F11 -to ttl_out1
-	set_location_assignment PIN_G9 -to ttl_dir2
-	set_location_assignment PIN_F8 -to ttl_in2
-	set_location_assignment PIN_G8 -to ttl_out2
-	set_location_assignment PIN_H9 -to ttl_dir3
-	set_location_assignment PIN_F9 -to ttl_in3
-	set_location_assignment PIN_G12 -to ttl_out3
 	set_location_assignment PIN_H20 -to red_led
 	set_location_assignment PIN_H19 -to ylw_led
 	set_location_assignment PIN_J20 -to grn_led
@@ -1023,6 +1014,15 @@ if {$make_assignments} {
 	set_location_assignment PIN_K23 -to adc8_dat\[13\]
 	set_location_assignment PIN_AC9 -to rst_n
 	set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
+	set_location_assignment PIN_G7 -to ttl_dir1
+	set_location_assignment PIN_F7 -to ttl_in1
+	set_location_assignment PIN_F11 -to ttl_out1
+	set_location_assignment PIN_G9 -to ttl_dir2
+	set_location_assignment PIN_F8 -to ttl_in2
+	set_location_assignment PIN_G8 -to ttl_out2
+	set_location_assignment PIN_H9 -to ttl_dir3
+	set_location_assignment PIN_F9 -to ttl_in3
+	set_location_assignment PIN_G12 -to ttl_out3
 	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
 	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o*"
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
