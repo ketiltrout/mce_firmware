@@ -20,9 +20,12 @@
 -- Wishbone asynchronous receiver implementation.
 -- 
 -- Revision History:
--- Dec 22, 2003: Initial version - NRG
 --
--- $Log$
+-- $Log: async_rx.vhd,v $
+-- Revision 1.2  2004/04/17 21:42:14  erniel
+-- removed synthesis warnings
+--
+-- Dec 22, 2003: Initial version - NRG
 --
 ---------------------------------------------------------------------
 
@@ -32,115 +35,105 @@ use ieee.std_logic_1164.all;
 ---------------------------------------------------------------------
 
 entity async_rx is
-   port( 
-      rx_i    : in std_logic;   -- receiver input pin
-      flag_o  : out std_logic;  -- receiver data ready flag
-      error_o : out std_logic;  -- receiver error flag
-
-      -- Wishbone signals
-      clk_i   : in std_logic;   -- 8x receive bit rate
-      rst_i   : in std_logic;
-      dat_o   : out std_logic_vector (7 downto 0);
-      we_i    : in std_logic;
-      stb_i   : in std_logic;
-      ack_o   : out std_logic;
-      cyc_i   : in std_logic
-   );
+port(clk_i : in std_logic;   -- 200 MHz for LVDS, 921.6 kHz for RS232
+     rst_i    : in std_logic;
+     
+     dat_o    : out std_logic_vector (7 downto 0);
+     stb_i    : in std_logic;
+     rx_i     : in std_logic;
+     valid_o  : out std_logic;
+     error_o  : out std_logic);
 end async_rx ;
 
 ---------------------------------------------------------------------
 
 architecture behaviour of async_rx is
 
-   signal rxdata, rxcount : std_logic_vector(9 downto 0);
-   signal rxclock, data : std_logic_vector(7 downto 0);
-   signal sreg : std_logic_vector(2 downto 0);
-   signal rxbit : std_logic;
-   signal dummy : std_logic;
-   signal stb_sync : std_logic;
-
+   type states is (IDLE, RECEIVE, DONE);
+   signal pres_state : states;
+   signal next_state : states;
+     
+   signal sample : std_logic_vector(2 downto 0);
+   signal rxbit  : std_logic; 
+   signal data   : std_logic_vector(9 downto 0);
+   signal count  : integer;   
+   
 begin
 
-   -- synchronize the strobe to our receive clock
-   strobe_sync : process (rst_i, clk_i)
+   rx_samplebuf: process(rst_i, clk_i)
    begin
-      if (rst_i = '1') then
-         stb_sync <= '1';
-      elsif (Rising_Edge(clk_i)) then
-         stb_sync <= stb_i;
+      if(rst_i = '1') then
+         sample <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         sample <= rx_i & sample(2 downto 1);
       end if;
-   end process strobe_sync;
-                                  
-   -- receive_flag controls flag_o
-   receive_flag : process(stb_sync, rxcount(9))
+   end process rx_samplebuf;
+   
+   rxbit <= (sample(2) and sample(1)) or (sample(2) and sample(0)) or (sample(1) and sample(0));
+   
+   rx_databuf: process(rst_i, clk_i)
    begin
-      if (stb_sync = '1') then
-         -- asynchronous reset
-         flag_o <= '0';
-      elsif (Falling_Edge(rxcount(9))) then
-         flag_o <= '1';
+      if(rst_i = '1') then
+         data <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if((count =  3) or (count = 11) or (count = 19) or (count = 27) or (count = 35) or
+            (count = 43) or (count = 51) or (count = 59) or (count = 67) or (count = 75)) then
+            data <= rxbit & data(9 downto 1);
+         end if;
       end if;
-   end process receive_flag;
-
-   -- receive deserializes rx_i into data
-   receive : process(rst_i, clk_i)
+   end process rx_databuf;
+   
+   rx_counter: process(rst_i, clk_i)
    begin
-       if (rst_i = '1') then
-          -- reset everything to default values
-          data <= "00000000";
-          error_o <= '0';
-          rxcount <= "0000000000";
-          rxdata <= "0000000000";
-          rxclock <= "00000000";
-          sreg <= "111";
-          rxbit <= '1';
-       elsif Rising_Edge(clk_i) then
-          -- we process everything on the rising clock edge
-
-          -- noise filter - the majority of bits in the 3 bit
-          -- sample register is what we use.
-          sreg <= sreg(1 downto 0) & rx_i;
-          rxbit <= (sreg(2) and (sreg(1) or sreg(0))) or 
-                   (sreg(1) and sreg(0));
-
-          -- look for start bit
-          if (rxcount(9) = '0') then
-              -- look for start bit
-              if (rxbit = '0') then
-                 -- found start bit
-                 rxcount <= "1111111111";
-                 rxclock <= "00100000";
-              end if;
-          elsif (rxclock(7) = '1') then
-              -- sample the incoming data
-              rxdata <= rxbit & rxdata(9 downto 1);
-              rxclock <= "00000001";
-
-              -- save the data if this is the stop bit
-              if (rxcount(8) = '0') then
-                 data <= rxdata(9 downto 2);
-                 error_o <= rxdata(1) or (not rxbit);
-              end if;
-
-              rxcount <= rxcount(8 downto 0) & '0';
-          else
-              -- shift the sample clock
-              rxclock <= rxclock(6 downto 0) & '0';
-          end if;
-       end if;
-   end process receive;
-
-   -- the wishbone interface
-   -- synchronize the ack to our receive clock
-   ack_sync : process (rst_i, clk_i)
-   begin
-      if (rst_i = '1') then
-         ack_o <= '0';
-      elsif (Rising_Edge(clk_i)) then
-         ack_o <= stb_i and cyc_i;
+      if(rst_i = '1') then
+         count <= 0;
+      elsif(clk_i'event and clk_i = '1') then
+         if(pres_state = IDLE) then
+            count <= 0;
+         else
+            count <= count + 1;
+         end if;
       end if;
-   end process ack_sync;
-   dat_o <= data;
-   dummy <= we_i;   -- we don't need the write signal
-
+   end process rx_counter;
+   
+   stateFF: process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         pres_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         pres_state <= next_state;
+      end if;
+   end process stateFF;
+   
+   state_logic: process(pres_state, rx_i, stb_i, count, data)
+   begin
+      case pres_state is
+         when IDLE =>    if(rx_i = '0') then
+                            next_state <= RECEIVE;
+                         else
+                            next_state <= IDLE;
+                         end if;
+                         valid_o <= '0';
+                         error_o <= '0';
+                         
+         when RECEIVE => if(count = 80) then
+                            next_state <= DONE;
+                         else 
+                            next_state <= RECEIVE;
+                         end if;
+                         valid_o <= '0';
+                         error_o <= '0';
+                                                  
+         when DONE =>    if(stb_i = '1') then
+                            next_state <= IDLE;
+                         else
+                            next_state <= DONE;
+                         end if;
+                         valid_o <= '1';
+                         error_o <= not data(9);      -- error_o indicates framing error                         
+      end case;
+   end process state_logic;
+   
+   dat_o <= data(8 downto 1);
+   
 end behaviour;
