@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.18 2004/12/02 05:41:58 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.19 2004/12/03 07:45:25 jjacob Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/12/02 05:41:58 $> -     <text>      - <initials $Author: jjacob $>
+-- <date $Date: 2004/12/03 07:45:25 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.19  2004/12/03 07:45:25  jjacob
+-- debugging internal commands
+--
 -- Revision 1.18  2004/12/02 05:41:58  jjacob
 -- added internal commands
 --
@@ -478,7 +481,7 @@ begin
                            '1' when ret_dat_pending_mux_sel = "01" else
                            ret_dat_pending;
 
-   internal_cmd_o <= macro_instr_rdy_reg when data_mux_sel = "10" else '0';
+   internal_cmd_o <= macro_instr_rdy when data_mux_sel = "10" else '0';
 
    process(clk_i, rst_i)
    begin
