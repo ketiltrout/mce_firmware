@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.1  2004/11/08 19:56:47  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -62,6 +65,7 @@ port(clk_i      : in std_logic;
      
      rdy_o  : out std_logic;
      ack_i  : in std_logic;
+     nack_i : in std_logic;
      done_o : out std_logic);
 end reply_queue_receive;
 
@@ -124,7 +128,7 @@ signal status_clr : std_logic;
 --------------------------------------------------
 -- FIFO read control:
 
-type read_ctrl_states is (READ_IDLE, READY_NO_DATA, READY_WITH_DATA, READ_DONE);
+type read_ctrl_states is (READ_IDLE, READY_NO_DATA, READY_WITH_DATA, DISCARD_DATA, DISCARD_HEADER, READ_DONE);
 signal rd_pres_state : read_ctrl_states;
 signal rd_next_state : read_ctrl_states;
 
@@ -483,23 +487,23 @@ begin
    
    write_stateOut: process(wr_pres_state, crc_rdy, wr_count)
    begin
-      data_wr   <= '0';
-      header_wr <= '0';
-      status_wr <= '0';
+      data_wr      <= '0';
+      header_wr    <= '0';
+      status_wr    <= '0';
       header_clr   <= '0';
       header0_ld   <= '0';
       header1_ld   <= '0';
       header2_ld   <= '0';
       status_clr   <= '0';
-      wr_done   <= '0';
+      wr_done      <= '0';
       wr_count_ena <= '0';
       wr_count_clr <= '0';
       
       case wr_pres_state is
-         when WRITE_INIT =>   header_clr <= '1';
-                              status_clr <= '1';
-                              wr_count_ena <= '1';
-                              wr_count_clr <= '1';
+         when WRITE_INIT =>   header_clr       <= '1';
+                              status_clr       <= '1';
+                              wr_count_ena     <= '1';
+                              wr_count_clr     <= '1';
                
          when GET_HEADER =>   if(crc_rdy = '1') then
                                  if(wr_count = 0) then    
@@ -509,23 +513,23 @@ begin
                                  elsif(wr_count = 2) then 
                                     header2_ld <= '1';
                                  end if;
-                                 wr_count_ena <= '1';
+                                 wr_count_ena  <= '1';
                               end if;
          
-         when WRITE_HEADER => header_wr <= '1';
-                              wr_count_ena <= '1';
-                              wr_count_clr <= '1';
+         when WRITE_HEADER => header_wr        <= '1';
+                              wr_count_ena     <= '1';
+                              wr_count_clr     <= '1';
                                      
          when WRITE_DATA =>   if(crc_rdy = '1') then
-                                 data_wr <= '1';
-                                 wr_count_ena <= '1';
+                                 data_wr       <= '1';
+                                 wr_count_ena  <= '1';
                               end if;
                             
          when WRITE_STATUS => if(crc_rdy = '1') then
-                                 status_wr <= '1';
+                                 status_wr     <= '1';
                               end if;
 
-         when WRITE_DONE =>   wr_done <= '1';
+         when WRITE_DONE =>   wr_done          <= '1';
          
          when others =>       null;
       end case;
@@ -545,7 +549,7 @@ begin
       end if;
    end process read_stateFF;
    
-   read_stateNS: process(rd_pres_state, packets, rd_count, cur_header, ack_i)
+   read_stateNS: process(rd_pres_state, packets, rd_count, cur_header, ack_i, nack_i)
    begin
       case rd_pres_state is
          when READ_IDLE =>       if(packets > 0) then
@@ -560,18 +564,30 @@ begin
          
          when READY_NO_DATA =>   if(ack_i = '1') then
                                     rd_next_state <= READ_DONE;
+                                 elsif(nack_i = '1') then
+                                    rd_next_state <= DISCARD_HEADER;
                                  else
                                     rd_next_state <= READY_NO_DATA;
-                                 end if;
-                                                       
+                                 end if;                                              
+                  
          when READY_WITH_DATA => if(rd_count = cur_header(12 downto 0)-1 and ack_i = '1') then
                                     rd_next_state <= READ_DONE;
+                                 elsif(nack_i = '1') then
+                                    rd_next_state <= DISCARD_DATA;
                                  else
                                     rd_next_state <= READY_WITH_DATA;
                                  end if;
-                               
+                  
+         when DISCARD_DATA =>    if(rd_count = cur_header(12 downto 0)-1) then
+                                    rd_next_state <= DISCARD_HEADER;
+                                 else
+                                    rd_next_state <= DISCARD_DATA;
+                                 end if;
+                  
+         when DISCARD_HEADER =>  rd_next_state <= READ_IDLE;
+                                   
          when READ_DONE =>       rd_next_state <= READ_IDLE;
-         
+          
          when others =>          rd_next_state <= READ_IDLE;
       end case;
    end process read_stateNS;
@@ -585,28 +601,37 @@ begin
       rd_count_ena <= '0';
       rd_count_clr <= '0';
       rd_done      <= '0';
+      done_o       <= '0';
       
       case rd_pres_state is
          when READ_IDLE =>       null;
          
-         when READY_NO_DATA =>   rdy_o <= '1';
+         when READY_NO_DATA =>   rdy_o           <= '1';
                                                     
-         when READY_WITH_DATA => rdy_o <= '1';
+         when READY_WITH_DATA => rdy_o           <= '1';
                                  if(ack_i = '1') then
-                                    data_rd <= '1';
+                                    data_rd      <= '1';
                                     rd_count_ena <= '1';
                                  end if;
+         
+         when DISCARD_DATA =>    data_rd         <= '1';
+                                 rd_count_ena    <= '1';         
+
+         when DISCARD_HEADER =>  header_rd       <= '1';
+                                 status_rd       <= '1';
+                                 rd_count_ena    <= '1';
+                                 rd_count_clr    <= '1';
+                                 rd_done         <= '1';
                                
-         when READ_DONE =>       header_rd <= '1';
-                                 status_rd <= '1';
-                                 rd_count_ena <= '1';
-                                 rd_count_clr <= '1';
-                                 rd_done <= '1';
+         when READ_DONE =>       header_rd       <= '1';
+                                 status_rd       <= '1';
+                                 rd_count_ena    <= '1';
+                                 rd_count_clr    <= '1';
+                                 rd_done         <= '1';
+                                 done_o          <= '1';
          
          when others =>          null;
       end case;
    end process read_stateOut;
-   
-   done_o <= rd_done;
-   
+      
 end rtl; 
