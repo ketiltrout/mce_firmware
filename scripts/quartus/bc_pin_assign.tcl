@@ -32,6 +32,10 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.4  2004/05/15 00:17:40  erniel
+# renamed signals to match similar signals in other scripts
+# modified script general structure
+#
 # Revision 1.2  2004/05/12 01:57:10  erniel
 # updated header information
 # removed project open TCL commands
@@ -223,39 +227,114 @@ puts "   Assigned: Mictor header pins."
 # assign DAC clocks
 cmp add_assignment $top_name "" lvds_dac_sclk LOCATION "Pin_T5"
 cmp add_assignment $top_name "" lvds_dac_sclk IO_STANDARD LVDS
-set sclk {L23 L24 H27 H28 L22 L21 H26 H25 A9 A8 B8 B9 D9 E8 C8 D8 B23 E23 C23 A23 D22 C22 A22 B22 L18 F17 C24 D23 D20 B18 G19 F19}
-set i 0
-foreach {a} $sclk 
-{
-   cmp add_assignment $top_name "" "dac_sclk\[$i\]" LOCATION "Pin_$a"
-   set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_sclk\[0\]" LOCATION "Pin_L23"
+cmp add_assignment $top_name "" "dac_sclk\[1\]" LOCATION "Pin_L24"
+cmp add_assignment $top_name "" "dac_sclk\[2\]" LOCATION "Pin_H27"
+cmp add_assignment $top_name "" "dac_sclk\[3\]" LOCATION "Pin_H28"
+cmp add_assignment $top_name "" "dac_sclk\[4\]" LOCATION "Pin_L22"
+cmp add_assignment $top_name "" "dac_sclk\[5\]" LOCATION "Pin_L21"
+cmp add_assignment $top_name "" "dac_sclk\[6\]" LOCATION "Pin_H26"
+cmp add_assignment $top_name "" "dac_sclk\[7\]" LOCATION "Pin_H25"
+cmp add_assignment $top_name "" "dac_sclk\[8\]" LOCATION "Pin_A9"
+cmp add_assignment $top_name "" "dac_sclk\[9\]" LOCATION "Pin_A8"
+cmp add_assignment $top_name "" "dac_sclk\[10\]" LOCATION "Pin_B8"
+cmp add_assignment $top_name "" "dac_sclk\[11\]" LOCATION "Pin_B9"
+cmp add_assignment $top_name "" "dac_sclk\[12\]" LOCATION "Pin_D9"
+cmp add_assignment $top_name "" "dac_sclk\[13\]" LOCATION "Pin_E8"
+cmp add_assignment $top_name "" "dac_sclk\[14\]" LOCATION "Pin_C8"
+cmp add_assignment $top_name "" "dac_sclk\[15\]" LOCATION "Pin_D8"
+cmp add_assignment $top_name "" "dac_sclk\[16\]" LOCATION "Pin_B23"
+cmp add_assignment $top_name "" "dac_sclk\[17\]" LOCATION "Pin_E23"
+cmp add_assignment $top_name "" "dac_sclk\[18\]" LOCATION "Pin_C23"
+cmp add_assignment $top_name "" "dac_sclk\[19\]" LOCATION "Pin_A23"
+cmp add_assignment $top_name "" "dac_sclk\[20\]" LOCATION "Pin_D22"
+cmp add_assignment $top_name "" "dac_sclk\[21\]" LOCATION "Pin_C22"
+cmp add_assignment $top_name "" "dac_sclk\[22\]" LOCATION "Pin_A22"
+cmp add_assignment $top_name "" "dac_sclk\[23\]" LOCATION "Pin_B22"
+cmp add_assignment $top_name "" "dac_sclk\[24\]" LOCATION "Pin_L18"
+cmp add_assignment $top_name "" "dac_sclk\[25\]" LOCATION "Pin_F17"
+cmp add_assignment $top_name "" "dac_sclk\[26\]" LOCATION "Pin_C24"
+cmp add_assignment $top_name "" "dac_sclk\[27\]" LOCATION "Pin_D23"
+cmp add_assignment $top_name "" "dac_sclk\[28\]" LOCATION "Pin_D20"
+cmp add_assignment $top_name "" "dac_sclk\[29\]" LOCATION "Pin_B18"
+cmp add_assignment $top_name "" "dac_sclk\[30\]" LOCATION "Pin_G19"
+cmp add_assignment $top_name "" "dac_sclk\[31\]" LOCATION "Pin_F19"
 puts "   Assigned: DAC clock pins."
 
 
 # assign DAC chip selects
 cmp add_assignment $top_name "" lvds_dac_ncs LOCATION "Pin_U10"
 cmp add_assignment $top_name "" lvds_dac_ncs IO_STANDARD LVDS
-set ncs  {N20 M27 N22 N24 L27 N26 L25 M20 K27 M24 M22 J27 L20 J25 L11 J13 A4 B3 B4 A5 E6 B7 A7 C6 B11 C11 B10 A10 B20 C20 B21 D21}
-set i 0
-foreach {a} $ncs 
-{
-   cmp add_assignment $top_name "" "dac_ncs\[$i\]" LOCATION "Pin_$a"
-   set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_ncs\[0\]" LOCATION "Pin_N20"
+cmp add_assignment $top_name "" "dac_ncs\[1\]" LOCATION "Pin_M27"
+cmp add_assignment $top_name "" "dac_ncs\[2\]" LOCATION "Pin_N22"
+cmp add_assignment $top_name "" "dac_ncs\[3\]" LOCATION "Pin_N24"
+cmp add_assignment $top_name "" "dac_ncs\[4\]" LOCATION "Pin_L27"
+cmp add_assignment $top_name "" "dac_ncs\[5\]" LOCATION "Pin_N26"
+cmp add_assignment $top_name "" "dac_ncs\[6\]" LOCATION "Pin_L25"
+cmp add_assignment $top_name "" "dac_ncs\[7\]" LOCATION "Pin_M20"
+cmp add_assignment $top_name "" "dac_ncs\[8\]" LOCATION "Pin_K27"
+cmp add_assignment $top_name "" "dac_ncs\[9\]" LOCATION "Pin_M24"
+cmp add_assignment $top_name "" "dac_ncs\[10\]" LOCATION "Pin_M22"
+cmp add_assignment $top_name "" "dac_ncs\[11\]" LOCATION "Pin_J27"
+cmp add_assignment $top_name "" "dac_ncs\[12\]" LOCATION "Pin_L20"
+cmp add_assignment $top_name "" "dac_ncs\[13\]" LOCATION "Pin_J25"
+cmp add_assignment $top_name "" "dac_ncs\[14\]" LOCATION "Pin_L11"
+cmp add_assignment $top_name "" "dac_ncs\[15\]" LOCATION "Pin_J13"
+cmp add_assignment $top_name "" "dac_ncs\[16\]" LOCATION "Pin_A4"
+cmp add_assignment $top_name "" "dac_ncs\[17\]" LOCATION "Pin_B3"
+cmp add_assignment $top_name "" "dac_ncs\[18\]" LOCATION "Pin_B4"
+cmp add_assignment $top_name "" "dac_ncs\[19\]" LOCATION "Pin_A5"
+cmp add_assignment $top_name "" "dac_ncs\[20\]" LOCATION "Pin_E6"
+cmp add_assignment $top_name "" "dac_ncs\[21\]" LOCATION "Pin_B7"
+cmp add_assignment $top_name "" "dac_ncs\[22\]" LOCATION "Pin_A7"
+cmp add_assignment $top_name "" "dac_ncs\[23\]" LOCATION "Pin_C6"
+cmp add_assignment $top_name "" "dac_ncs\[24\]" LOCATION "Pin_B11"
+cmp add_assignment $top_name "" "dac_ncs\[25\]" LOCATION "Pin_C11"
+cmp add_assignment $top_name "" "dac_ncs\[26\]" LOCATION "Pin_B10"
+cmp add_assignment $top_name "" "dac_ncs\[27\]" LOCATION "Pin_A10"
+cmp add_assignment $top_name "" "dac_ncs\[28\]" LOCATION "Pin_B20"
+cmp add_assignment $top_name "" "dac_ncs\[29\]" LOCATION "Pin_C20"
+cmp add_assignment $top_name "" "dac_ncs\[30\]" LOCATION "Pin_B21"
+cmp add_assignment $top_name "" "dac_ncs\[31\]" LOCATION "Pin_D21"
 puts "   Assigned: DAC select pins."
 
 
 # assign DAC data
 cmp add_assignment $top_name "" lvds_dac_data LOCATION "Pin_U5"
 cmp add_assignment $top_name "" lvds_dac_data IO_STANDARD LVDS
-set data {N19 N28 N21 N23 L28 N25 L26 M19 K28 M23 M21 J28 L19 J26 M11 L13 A3 B5 C4 C5 A6 D6 D7 C7 D11 A11 C10 E10 A20 A21 C21 E21} 
-set i 0
-foreach {a} $data 
-{
-   cmp add_assignment $top_name "" "dac_data\[$i\]" LOCATION "Pin_$a"
-   set i [expr $i+1]
-}
+cmp add_assignment $top_name "" "dac_data\[0\]" LOCATION "Pin_N19"
+cmp add_assignment $top_name "" "dac_data\[1\]" LOCATION "Pin_N28"
+cmp add_assignment $top_name "" "dac_data\[2\]" LOCATION "Pin_N21"
+cmp add_assignment $top_name "" "dac_data\[3\]" LOCATION "Pin_N23"
+cmp add_assignment $top_name "" "dac_data\[4\]" LOCATION "Pin_L28"
+cmp add_assignment $top_name "" "dac_data\[5\]" LOCATION "Pin_N25"
+cmp add_assignment $top_name "" "dac_data\[6\]" LOCATION "Pin_L26"
+cmp add_assignment $top_name "" "dac_data\[7\]" LOCATION "Pin_M19"
+cmp add_assignment $top_name "" "dac_data\[8\]" LOCATION "Pin_K28"
+cmp add_assignment $top_name "" "dac_data\[9\]" LOCATION "Pin_M23"
+cmp add_assignment $top_name "" "dac_data\[10\]" LOCATION "Pin_M21"
+cmp add_assignment $top_name "" "dac_data\[11\]" LOCATION "Pin_J28"
+cmp add_assignment $top_name "" "dac_data\[12\]" LOCATION "Pin_L19"
+cmp add_assignment $top_name "" "dac_data\[13\]" LOCATION "Pin_J26"
+cmp add_assignment $top_name "" "dac_data\[14\]" LOCATION "Pin_M11"
+cmp add_assignment $top_name "" "dac_data\[15\]" LOCATION "Pin_L13"
+cmp add_assignment $top_name "" "dac_data\[16\]" LOCATION "Pin_A3"
+cmp add_assignment $top_name "" "dac_data\[17\]" LOCATION "Pin_B5"
+cmp add_assignment $top_name "" "dac_data\[18\]" LOCATION "Pin_C4"
+cmp add_assignment $top_name "" "dac_data\[19\]" LOCATION "Pin_C5"
+cmp add_assignment $top_name "" "dac_data\[20\]" LOCATION "Pin_A6"
+cmp add_assignment $top_name "" "dac_data\[21\]" LOCATION "Pin_D6"
+cmp add_assignment $top_name "" "dac_data\[22\]" LOCATION "Pin_D7"
+cmp add_assignment $top_name "" "dac_data\[23\]" LOCATION "Pin_C7"
+cmp add_assignment $top_name "" "dac_data\[24\]" LOCATION "Pin_D11"
+cmp add_assignment $top_name "" "dac_data\[25\]" LOCATION "Pin_A11"
+cmp add_assignment $top_name "" "dac_data\[26\]" LOCATION "Pin_C10"
+cmp add_assignment $top_name "" "dac_data\[27\]" LOCATION "Pin_E10"
+cmp add_assignment $top_name "" "dac_data\[28\]" LOCATION "Pin_A20"
+cmp add_assignment $top_name "" "dac_data\[29\]" LOCATION "Pin_A21"
+cmp add_assignment $top_name "" "dac_data\[30\]" LOCATION "Pin_C21"
+cmp add_assignment $top_name "" "dac_data\[31\]" LOCATION "Pin_E21"
 puts "   Assigned: DAC data pins."
 
 
