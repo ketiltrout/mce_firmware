@@ -128,7 +128,10 @@
 -- 
 -- Revision history:
 -- 
--- $Log$
+-- $Log: coadd_dynamic_manager_ctrl.vhd,v $
+-- Revision 1.1  2004/10/22 00:14:37  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -137,14 +140,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
+library work;
+use work.adc_sample_coadd_pack.all;
+
 
 entity coadd_dynamic_manager_ctrl is
 
   generic (
     COADD_DONE_MAX_COUNT : integer := 7;  -- = max delay+1 for coadd_done 
-    MAX_SHIFT            : integer := 5); -- = Delay stages for the coadd
-                                          -- enable signal. This is latency in
-                                          -- A/D +1.
+    MAX_SHIFT            : integer := ADC_LATENCY+1); -- = Delay stages for the
+                                                      -- coadd enable signal 
  
   port (
     rst_i                     : in  std_logic;

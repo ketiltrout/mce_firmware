@@ -112,7 +112,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: coadd_manager_data_path.vhd,v $
+-- Revision 1.1  2004/10/22 00:14:37  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -122,29 +125,32 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_signed.all;
 
+library work;
+use work.adc_sample_coadd_pack.all;
+
 
 entity coadd_manager_data_path is
 
   generic (
-    MAX_COUNT                 : integer := 64;  -- = Total number of rows
-    MAX_SHIFT                 : integer := 5);  -- = Delay stages for the coadd
-                                                -- enable signal.  This is
-                                                -- latency in A/D +1.
-  
+    MAX_COUNT                 : integer := TOTAL_ROW_NO;
+    MAX_SHIFT                 : integer := ADC_LATENCY+1); -- = Delay stages
+                                                           -- for coadd enable
+                                                           -- signals
+                                                            
   port (
     rst_i                     : in  std_logic;
     clk_i                     : in  std_logic;
-    adc_dat_i                 : in  std_logic_vector(13 downto 0);
-    adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-    adc_offset_adr_o          : out std_logic_vector(5 downto 0);
+    adc_dat_i                 : in  std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
+    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+    adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
     adc_coadd_en_i            : in  std_logic;
     adc_coadd_en_5delay_o     : out std_logic;
     adc_coadd_en_4delay_o     : out std_logic;
     clr_samples_coadd_reg_i   : in  std_logic;
-    samples_coadd_reg_o       : out std_logic_vector(31 downto 0);
+    samples_coadd_reg_o       : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
     address_count_en_i        : in  std_logic;
     clr_address_count_i       : in  std_logic;
-    coadd_write_addr_o        : out std_logic_vector(5 downto 0));
+    coadd_write_addr_o        : out std_logic_vector(COADD_ADDR_WIDTH-1 downto 0));
     
 
 end coadd_manager_data_path;
@@ -155,7 +161,7 @@ architecture beh of coadd_manager_data_path is
 
 
   -- Signal needed in the correction block
-  signal adc_dat : std_logic_vector(13 downto 0);
+  signal adc_dat : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
   
 
   -- Signals needed for the shift register
@@ -165,7 +171,7 @@ architecture beh of coadd_manager_data_path is
   
   
   -- Signals needed in the Registered Adder
-  signal samples_coadd_reg    : std_logic_vector (31 downto 0);  
+  signal samples_coadd_reg    : std_logic_vector (COADD_DAT_WIDTH-1 downto 0); 
 
   
   -- Signals needed in Address Index Counter
@@ -185,10 +191,8 @@ begin  -- beh
   -- working at.
   -----------------------------------------------------------------------------
 
-  adc_dat <= conv_std_logic_vector(conv_integer(signed(adc_dat_i))-
-                                   conv_integer(signed(adc_offset_dat_i)),
-                                   adc_dat'length);
-  
+  adc_dat <= adc_dat_i - adc_offset_dat_i(ADC_DAT_WIDTH-1 downto 0);  
+                                                                        
   
   -----------------------------------------------------------------------------
   -- Shift Register:
@@ -240,10 +244,7 @@ begin  -- beh
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
      
       if adc_coadd_en_4delay = '1' then
-        samples_coadd_reg <=
-          conv_std_logic_vector((conv_integer(signed(samples_coadd_reg)) +
-                                 (conv_integer(signed(adc_dat)))
-                                 ), samples_coadd_reg'length);
+        samples_coadd_reg <= samples_coadd_reg + adc_dat;
       elsif clr_samples_coadd_reg_i = '1' then
         samples_coadd_reg <= (others => '0');
       else

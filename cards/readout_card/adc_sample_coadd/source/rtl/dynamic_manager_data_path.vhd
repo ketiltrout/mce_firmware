@@ -99,7 +99,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.1  2004/10/22 00:14:37  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -109,15 +112,16 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_signed.all;
 
+library work;
+use work.adc_sample_coadd_pack.all;
 
 
 entity dynamic_manager_data_path is
 
   generic (
-    MAX_SHIFT : integer := 5);          -- delay stages for initialize_window_i
-                                        -- equal to ADC latency+1
-
-  
+    MAX_SHIFT : integer := ADC_LATENCY+1);  -- delay stages for
+                                            -- initialize_window_i
+                                          
   port (
 
     -- From System
@@ -126,27 +130,27 @@ entity dynamic_manager_data_path is
     initialize_window_i    : in  std_logic;
     
     -- From coadd_manager_data_path
-    current_coadd_dat_i    : in  std_logic_vector(31 downto 0);
+    current_coadd_dat_i    : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
     -- From coadd_dynamic_controller
     current_bank_i         : in  std_logic;
     wren_for_fsfb_i        : in  std_logic;
     
     -- From coadd memory banks
-    coadd_dat_frm_bank0_i  : in  std_logic_vector(31 downto 0);
-    coadd_dat_frm_bank1_i  : in  std_logic_vector(31 downto 0);
+    coadd_dat_frm_bank0_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    coadd_dat_frm_bank1_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
     -- From integral memory banks
-    intgrl_dat_frm_bank0_i : in  std_logic_vector(31 downto 0);
-    intgrl_dat_frm_bank1_i : in  std_logic_vector(31 downto 0);
+    intgrl_dat_frm_bank0_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    intgrl_dat_frm_bank1_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
     -- Outputs to fsfb_calc
-    current_coadd_dat_o    : out std_logic_vector(31 downto 0);
-    current_diff_dat_o     : out std_logic_vector(31 downto 0);
-    current_integral_dat_o : out std_logic_vector(31 downto 0);
+    current_coadd_dat_o    : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    current_diff_dat_o     : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    current_integral_dat_o : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
-    -- Outputs to integra memory banks
-    integral_result_o      : out std_logic_vector(31 downto 0));
+    -- Outputs to integral memory banks
+    integral_result_o      : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0));
   
 
 end dynamic_manager_data_path;
@@ -161,12 +165,12 @@ architecture rtl of dynamic_manager_data_path is
 
 
   -- Signals needed for Integral Finder
-  signal integral_result : std_logic_vector(31 downto 0);
-  signal previous_intgral : std_logic_vector(31 downto 0);
+  signal integral_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal previous_intgral : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
   -- Signals needed for Difference Finder
-  signal diff_result : std_logic_vector(31 downto 0);
-  signal previous_coadd : std_logic_vector(31 downto 0);
+  signal diff_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal previous_coadd : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   
   
   
@@ -203,10 +207,7 @@ begin  -- rtl
   -- current_bank_i=1, inputs from bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
 
-  integral_result <= conv_std_logic_vector
-                     ((conv_integer(signed(current_coadd_dat_i))) +
-                      (conv_integer(signed(previous_intgral))),
-                      integral_result'length);
+  integral_result <= current_coadd_dat_i + previous_intgral;
 
   previous_intgral <=
     (others => '0')        when initialize_window_max_dly = '1' else
@@ -225,10 +226,7 @@ begin  -- rtl
   -- bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
 
-  diff_result <= conv_std_logic_vector
-                 ((conv_integer(signed(current_coadd_dat_i))) -
-                  (conv_integer(signed(previous_coadd))),
-                  diff_result'length);
+  diff_result <= current_coadd_dat_i - previous_coadd;
 
   previous_coadd <=
     (others => '0')       when initialize_window_max_dly = '1' else

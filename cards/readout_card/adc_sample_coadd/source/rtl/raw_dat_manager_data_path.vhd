@@ -48,21 +48,23 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: raw_dat_manager_data_path.vhd,v $
+-- Revision 1.1  2004/10/22 00:14:37  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 
 entity raw_dat_manager_data_path is
 
   generic (
-    ADDR_WIDTH   : integer  := 13;               
-    MAX_COUNT    : integer  := (2**13)-1); -- Normally = (2^ADDR_WIDTH)-1
+    ADDR_WIDTH   : integer  := 13);               
   
   port (
     rst_i        : in  std_logic;
@@ -75,7 +77,8 @@ end raw_dat_manager_data_path;
 
 architecture beh of raw_dat_manager_data_path is
 
-  signal count : integer range 0 to MAX_COUNT;
+  signal count : std_logic_vector(ADDR_WIDTH-1 downto 0);
+
 
 begin  -- beh
 
@@ -91,10 +94,10 @@ begin  -- beh
         
   begin  -- process i_count_up
     if rst_i = '1' then                 -- asynchronous reset (active high)
-      count <= 0;
+      count <= (others => '0');
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
-      if (clr_index_i = '1') or (count= MAX_COUNT) then
-        count <= 0;
+      if (clr_index_i = '1') then 
+        count <= (others => '0');
       else
         count <= count +1;
       end if;
@@ -102,7 +105,7 @@ begin  -- beh
     end if;
   end process i_count_up;
 
-  addr_index_o <= conv_std_logic_vector (count, addr_index_o'length);
+  addr_index_o <= count;
   
   
 

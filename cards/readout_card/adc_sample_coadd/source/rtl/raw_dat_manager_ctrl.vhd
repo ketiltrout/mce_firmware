@@ -70,7 +70,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: raw_dat_manager_ctrl.vhd,v $
+-- Revision 1.1  2004/10/22 00:14:37  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -81,6 +84,9 @@ use ieee.std_logic_arith.all;
 
 
 entity raw_dat_manager_ctrl is
+
+  generic (
+    NUM_RAW_FRM_TO_GRAB : integer := 2);    -- number of raw frames to grab
   
   port (
     rst_i                   : in  std_logic;
@@ -113,8 +119,7 @@ architecture timing_beh of raw_dat_manager_ctrl is
   -----------------------------------------------------------------------------
   -- Internal qualifiers
   -----------------------------------------------------------------------------
-  signal frame_count       : integer range 0 to 2;  -- 2= # raw frames needed 
-
+  signal frame_count       : integer range 0 to NUM_RAW_FRM_TO_GRAB;  
 
   
 begin  -- timing_beh
@@ -140,7 +145,7 @@ begin  -- timing_beh
       
       if (raw_req_i = '1' and restart_frame_aligned_i = '1') then
         int_clr_raw_addr_index <= '0';  -- enabling edge
-        if frame_count = 1 then     
+        if frame_count = NUM_RAW_FRM_TO_GRAB-1 then     
           int_clr_raw_addr_index <='1';  -- disabling edge
         end if;
       else
@@ -175,7 +180,7 @@ begin  -- timing_beh
       if raw_req_i = '0' then
         int_raw_ack <= '0';             -- disabling edge and idle condition
       elsif (raw_req_i='1' and restart_frame_aligned_i='1' and
-             frame_count=1) then
+             frame_count=NUM_RAW_FRM_TO_GRAB-1) then
         int_raw_ack <= '1';             -- enabling edge
       else
         int_raw_ack <= int_raw_ack;     -- maintain level
@@ -195,7 +200,8 @@ begin  -- timing_beh
       frame_count            <= 0;
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
-      if (int_clr_raw_addr_index = '1' or frame_count = 2) then
+      if (int_clr_raw_addr_index = '1' or
+          frame_count = NUM_RAW_FRM_TO_GRAB) then
         frame_count <= 0;
       elsif (restart_frame_aligned_i = '1') then
         frame_count <= frame_count +1;
