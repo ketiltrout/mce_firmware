@@ -50,6 +50,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.3  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.2  2004/11/08 23:57:11  mohsen
 -- Sorted out parameters.  Also, incorporated fsfb_ctrl in the testbench and done self check.
 --
@@ -76,6 +79,8 @@ library work;
 use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
 use work.fsfb_ctrl_pack.all;
+use work.offset_ctrl_pack.all;
+use work.sa_bias_ctrl_pack.all;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
 
@@ -103,6 +108,7 @@ architecture beh of tb2_flux_loop_ctrl is
 
     -- Global signals 
     clk_50_i                  : in  std_logic;
+    clk_25_i                  : in  std_logic;
     rst_i                     : in  std_logic;
 
     -- Frame timing signals
@@ -155,8 +161,8 @@ architecture beh of tb2_flux_loop_ctrl is
     dac_clk_o                 : out std_logic;
 
     -- spi DAC Interface
-    sa_bias_dac_spi_o         : out std_logic_vector(2 downto 0);
-    offset_dac_spi_o          : out std_logic_vector(2 downto 0);
+    sa_bias_dac_spi_o         : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+    offset_dac_spi_o          : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
 
     -- INTERNAL
 
@@ -175,6 +181,7 @@ architecture beh of tb2_flux_loop_ctrl is
     signal adc_rdy_i                 : std_logic;
     signal adc_clk_o                 : std_logic;
     signal clk_50_i                  : std_logic;
+    signal clk_25_i                  : std_logic;
     signal rst_i                     : std_logic :='1';
     signal adc_coadd_en_i            : std_logic :='0';
     signal restart_frame_1row_prev_i : std_logic;
@@ -231,6 +238,7 @@ architecture beh of tb2_flux_loop_ctrl is
   constant RESET_WINDOW            : time := 8*PERIOD;
   constant FREE_RUN                : time := 19*PERIOD;
   constant CLOCKS_PER_ROW          : integer := 64;
+  constant ROWS_PER_FRAME          : integer := 41;
 
   signal reset_window_done          : boolean := false;
   signal finish_tb2                 : boolean := false;  -- asserted to end tb
@@ -328,6 +336,14 @@ architecture beh of tb2_flux_loop_ctrl is
   signal sample_delay_i       : integer := 10;
   signal feedback_delay_i     : integer := 6;
   signal sync                 : std_logic;
+  
+  -- offset/sa_bias ctrl test signals
+  signal pdata1          : std_logic_vector(15 downto 0)   := (others => '0');     -- parallel data (SA_Bias)
+  signal pdata2          : std_logic_vector(15 downto 0)   := (others => '0');     -- parallel data (Offset)  
+  signal sc_data1        : std_logic_vector(15 downto 0);                          -- serial captured data (SA_Bias)
+  signal sc_data2        : std_logic_vector(15 downto 0);                          -- serial captured data (Offset)
+  signal pc_data1        : std_logic_vector(15 downto 0);                          -- parallel captured data (SA_Bias)
+  signal pc_data2        : std_logic_vector(15 downto 0);                          -- parallel captured data (Offset)
 
 
   -----------------------------------------------------------------------------
@@ -444,6 +460,7 @@ begin  -- beh
     adc_rdy_i                 => adc_rdy_i,
     adc_clk_o                 => adc_clk_o,
     clk_50_i                  => clk_50_i,
+    clk_25_i                  => clk_25_i,
     rst_i                     => rst_i,
     adc_coadd_en_i            => adc_coadd_en_i,
     restart_frame_1row_prev_i => restart_frame_1row_prev_i,
@@ -630,7 +647,7 @@ begin  -- beh
   -- Clocking
   -----------------------------------------------------------------------------
 
-  clocking: process
+  clocking_50: process
   begin  -- process clocking
 
     clk_50_i <= '1';
@@ -643,8 +660,22 @@ begin  -- beh
 
     wait;
     
-  end process clocking;
+  end process clocking_50;
 
+  clocking_25: process
+  begin  -- process clocking
+
+    clk_25_i <= '1';
+    wait for PERIOD;
+    
+    while (not finish_tb2) loop
+      clk_25_i <= not clk_25_i;
+      wait for PERIOD;
+    end loop;
+
+    wait;
+    
+  end process clocking_25;
   
   -----------------------------------------------------------------------------
   -- Request for initialize window
@@ -1036,6 +1067,98 @@ begin  -- beh
         report "FAILED at DAC" severity FAILURE;
     end if;
   end process i_check_fsfb_ctrl;
+  
+  
+  -------------------------------------------------------------------------------
+  -- Offset/SA Bias control blocks testing
+  -------------------------------------------------------------------------------
+  
+  -- Zero-padded parallel_data to 32 bits
+     
+  sa_bias_dat_i <= x"0000" & pdata1;
+  offset_dat_i  <= x"0000" & pdata2;
+     
+     
+  -- Generate the stimulus
+     
+  stimulus : process
+  begin
+     wait until restart_frame_aligned_i ='1';
+     -- Increment the parallel data at about midway of each frame
+     -- This allows the sampling of parallel data for comparison with serial
+     -- data by not allowing any changes close to the restart_frame_aligned_i
+     wait for 0.5*PERIOD*CLOCKS_PER_ROW*ROWS_PER_FRAME;
+     pdata1 <= pdata1 + 1;
+     pdata2 <= pdata2 + 256;
+  end process stimulus;
+     
+     
+  -- Capture the serial data for comparison
+        
+  scapture1 : process (sa_bias_dac_spi_o, rst_i)
+  begin
+     if (rst_i = '1') then
+        sc_data1 <= (others => '0');
+     elsif (sa_bias_dac_spi_o(1)'event and sa_bias_dac_spi_o(1) = '1') then
+        if (sa_bias_dac_spi_o(2) = '0') then
+           sc_data1(0) <= sa_bias_dac_spi_o(0);
+           sc_data1(15 downto 1) <= sc_data1(14 downto 0);
+        end if;
+     end if;
+  end process scapture1;
+  
+  scapture2 : process (offset_dac_spi_o, rst_i)
+  begin
+     if (rst_i = '1') then
+        sc_data2 <= (others => '0');
+     elsif (offset_dac_spi_o(1)'event and offset_dac_spi_o(1) = '1') then
+        if (offset_dac_spi_o(2) = '0') then
+           sc_data2(0) <= offset_dac_spi_o(0);
+           sc_data2(15 downto 1) <= sc_data2(14 downto 0);
+        end if;
+     end if;
+  end process scapture2;
+  
+        
+  -- Capture the parallel data input for comparison
+     
+  pcapture : process (clk_50_i, rst_i)
+  begin
+     if (rst_i = '1') then
+        pc_data1 <= (others => '0');
+        pc_data2 <= (others => '0');
+     elsif (clk_50_i'event and clk_50_i = '1') then
+        if (restart_frame_aligned_i = '1') then
+           pc_data1 <= pdata1;
+           pc_data2 <= pdata2;
+        end if;
+     end if;
+  end process pcapture;
+        
+        
+  -- Comparison (Automated check)
+        
+  compare1 : process(sa_bias_dac_spi_o)
+  begin
+     if finish_test_flux_loop_ctrl=false then
+        if (sa_bias_dac_spi_o(2)'event and sa_bias_dac_spi_o(2) = '1') then
+           assert (sc_data1 = pc_data1) 
+           report "SA_Bias_Ctrl:  Serial Data Output /= Parallel Data Input"
+           severity FAILURE;
+        end if;
+     end if;
+  end process compare1;
+  
+  compare2 : process(offset_dac_spi_o)
+  begin
+     if finish_test_flux_loop_ctrl=false then
+        if (offset_dac_spi_o(2)'event and offset_dac_spi_o(2) = '1') then
+           assert (sc_data2 = pc_data2) 
+           report "Offset_Ctrl:  Serial Data Output /= Parallel Data Input"
+           severity FAILURE;
+        end if;
+     end if;
+  end process compare2;
   
 
 end beh;
