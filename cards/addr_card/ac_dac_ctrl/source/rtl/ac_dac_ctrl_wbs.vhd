@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_wbs.vhd,v 1.3 2005/01/08 00:58:20 bburger Exp $
+-- $Id: ac_dac_ctrl_wbs.vhd,v 1.4 2005/01/26 01:27:01 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_wbs.vhd,v $
+-- Revision 1.4  2005/01/26 01:27:01  mandana
+-- removed mem_clk_i
+-- memories are clocked by clk_i now
+-- added an extra RD2 state for read from RAMs
+--
 -- Revision 1.3  2005/01/08 00:58:20  bburger
 -- Bryce:  mem_clk_i is no longer used to clock internal registers
 --
@@ -207,12 +212,14 @@ begin
             end if;
             
          when RD1 =>
-	    next_state <= RD2;
+            next_state <= RD2;
 
          when RD2 =>
             if(cyc_i = '0') then
                next_state <= IDLE;
-            end if;
+            else
+               next_state <= RD1;
+            end if;           
          
          when others =>
             next_state <= IDLE;
