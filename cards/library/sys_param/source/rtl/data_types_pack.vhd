@@ -29,8 +29,11 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2004/04/28 17:41:36 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/14 20:52:21 $>	- <initials $Author: mandana $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.3  2004/05/14 20:52:21  mandana
+-- changed frame_timing values to integer(Bias_count)
+--
 -- Revision 1.2  2004/04/28 17:41:36  mandana
 -- added data types for address card
 --
@@ -53,6 +56,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 package data_types_pack is
+
+   constant LOGIC_0 : std_logic := '0';
+   constant LOGIC_1 : std_logic := '1';
+   
    ---------------------.
    -- Generic data types
    ---------------------
