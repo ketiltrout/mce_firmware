@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.7 2004/08/18 06:48:43 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.8 2004/09/01 17:05:39 jjacob Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/18 06:48:43 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2004/09/01 17:05:39 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.8  2004/09/01 17:05:39  jjacob
+-- updated version
+--
 -- Revision 1.7  2004/08/18 06:48:43  bench2
 -- Bryce: removed unnecessary interface signals between the cmd_queue and the reply_queue.
 --
@@ -95,6 +98,8 @@ use sys_param.command_pack.all;
 entity issue_reply is
 
 port(
+      --[JJ] for testing
+      debug_o    : out std_logic_vector (31 downto 0);
 
       -- global signals
       rst_i        : in     std_logic;
@@ -110,34 +115,50 @@ port(
       rsc_nRd_i   : in     std_logic;        
 
       cksum_err_o : out    std_logic;
+    
+
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+
+      -- this signals are temporarily here for testing, in order to route these signals to top level
+      -- to be viewed on the logic analyzer
       
---      -- this signals are temporarily here for testing, in order to route these signals to top level
---      -- to be viewed on the logic analyzer
+--      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
+      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
+--      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
+      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
+      data_clk_o        :  out std_logic;
+      macro_instr_rdy_o :  out std_logic;
 --      
-----      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
---      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
-----      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
---      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
---      data_clk_o        :  out std_logic;
---      macro_instr_rdy_o :  out std_logic;
-----      
-----      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
-----      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
-----      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
-----      
-----      -- input from the micro-op sequence generator
-----      ack_i             : in std_logic     
+--      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
+--      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
+--      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
+--      
+--      -- input from the micro-op sequence generator
+--      ack_i             : in std_logic     
       
       macro_op_ack_o  : out std_logic;
       -- lvds_tx interface
       tx_o          : out std_logic;  -- transmitter output pin
       clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
 
-      --[JJ] for testing
       sync_pulse_i: in    std_logic;
       sync_number_i  : in std_logic_vector (7 downto 0)
       
-      --cmd_tx_dat_o    : out std_logic_vector (31 downto 0)
 
 
    ); 
@@ -237,12 +258,19 @@ architecture rtl of issue_reply is
 
 begin
 
+
+--
+--
+--
+--
+--
+
     -- temporarily routing these signals to top level to view them on the logic analyzer
---    parameter_id_o <= parameter_id;
---    data_o         <= data;
---    data_clk_o     <= data_clk2;
---    macro_instr_rdy_o <= macro_instr_rdy;
---    macro_op_ack_o    <= mop_ack;
+    parameter_id_o <= parameter_id;
+    data_o         <= data;
+    data_clk_o     <= data_clk2;
+    macro_instr_rdy_o <= macro_instr_rdy;
+    macro_op_ack_o    <= mop_ack;
 
 
 --------------------------------------------------
@@ -350,6 +378,9 @@ begin
       
     i_cmd_queue : cmd_queue
       port map(
+         -- for testing
+         debug_o  => debug_o,
+
          -- reply_queue interface
 
         -- uop_status_i   => uop_status,  -- tie these signals
@@ -382,9 +413,6 @@ begin
          sync_num_i     => sync_number_i,
          clk_i          => clk_i,
          rst_i          => rst_i
-         
-         -- for testing
-         --cmd_tx_dat_o  => cmd_tx_dat_o
       );
 
       

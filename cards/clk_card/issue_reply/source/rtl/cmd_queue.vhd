@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.46 2004/08/31 21:43:13 jjacob Exp $
+-- $Id: cmd_queue.vhd,v 1.47 2004/09/01 17:09:33 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.47  2004/09/01 17:09:33  bburger
+-- Bryce:  compilation error - there was an extra ';'
+--
 -- Revision 1.46  2004/08/31 21:43:13  jjacob
 -- updating
 --
@@ -110,6 +113,9 @@ use work.async_pack.all;
 
 entity cmd_queue is
    port(
+      -- for testing
+      debug_o  : out std_logic_vector(31 downto 0);
+
       -- reply_queue interface
 --      uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
       uop_rdy_o     : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
@@ -139,8 +145,6 @@ entity cmd_queue is
       clk_i         : in std_logic; -- Advances the state machines
       rst_i         : in std_logic  -- Resets all FSMs
       
-      -- for testing
-      --cmd_tx_dat_o  : out std_logic_vector(31 downto 0)
    );
 end cmd_queue;
 
@@ -229,6 +233,7 @@ signal timeout_sync         : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
 signal uop_data_size        : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
 signal uop_data_size_int    : integer;
 signal uop_data_count       : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal send_state           : std_logic_vector(3 downto 0);
 
 -- Wishbone signals to/from lvds_tx
 signal cmd_tx_dat           : std_logic_vector(31 downto 0);
@@ -380,7 +385,7 @@ begin
       );
   
    -- [JJ] for testing
-   --cmd_tx_dat_o  <= cmd_tx_dat;
+   debug_o(31 downto 0)  <=  clk_i & "0000000" & uop_data_size(3 downto 0) & send_state & cmd_tx_dat(31 downto 16);
       
    cmd_crc: crc
       generic map(
@@ -1336,6 +1341,8 @@ begin
 
    send_state_out: process(present_send_state)
    begin
+      -- Debug
+      send_state <= "0000";
    
       -- defaults
       crc_num_bits_mux_sel     <= "00";  -- hold value
@@ -1376,6 +1383,9 @@ begin
 --            --send_ptr                 <= ADDR_ZERO;
          
          when LOAD =>
+            -- Debug
+            send_state <= "0001";
+
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
             bit_ctr_ena              <= '0';
@@ -1406,6 +1416,9 @@ begin
             --timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
          
          when HEADER_A =>
+            -- Debug
+            send_state <= "0010";
+
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
@@ -1443,6 +1456,9 @@ begin
             --timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
 
          when HEADER_B =>
+            -- Debug
+            send_state <= "0011";
+
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
@@ -1464,6 +1480,9 @@ begin
             --send_ptr                 <= send_ptr + 1;
          
          when DATA =>
+            -- Debug
+            send_state <= "0100";
+
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
@@ -1486,6 +1505,9 @@ begin
             --send_ptr                 <= send_ptr + 1;
          
          when MORE_DATA =>
+            -- Debug
+            send_state <= "0101";
+
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
@@ -1508,6 +1530,9 @@ begin
             --send_ptr                 <= send_ptr + 1;
          
          when CHECKSUM =>
+            -- Debug
+            send_state <= "0110";
+
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '0';
@@ -1533,6 +1558,9 @@ begin
             --send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
          
          when PAUSE =>
+            -- Debug
+            send_state <= "0111";
+
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
@@ -1546,6 +1574,9 @@ begin
             --previous_send_state      <= PAUSE;  Not to be changed here.  This variable needs to be maintained as it is through the PAUSE state so that it can branch correctly in the send_state_NS FSM.
          
          when NEXT_UOP =>
+            -- Debug
+            send_state <= "1000";
+
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
             bit_ctr_ena              <= '0';
@@ -1571,6 +1602,9 @@ begin
             --send_ptr                 <= send_ptr + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          
          when others =>
+            -- Debug
+            send_state <= "1111";
+
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
             bit_ctr_ena              <= '0';
@@ -1684,7 +1718,7 @@ begin
    --sync_count_slv    <= std_logic_vector(conv_unsigned(sync_count_int, 8));
    
    -- CRC logic
-   crc_ena           <= '1' when bit_ctr_count < 32 else '0';   
+   crc_ena           <= '1' when bit_ctr_count < 32 or crc_clr = '1' else '0';   
    crc_data          <= sh_reg_serial_o;
    crc_reg           <= crc_checksum when crc_done = '1' else crc_reg;
 
@@ -1819,3 +1853,18 @@ end behav;
 -- I can't add a new state in the send state machine that would alter the data field, because you can only read from the qa_sig data port.
 
 -- The calculated CRC is always the same..
+
+----------------------------------------------
+-- Debugging with logic analyser:
+
+-- I found a problem in the send fsm.  when sending a packet it seems to freeze in PAUSE after HEADER_A
+-- Instead of going IDLE, HEADER_A, PAUSE, HEADER_B, PAUSE, ..
+-- It goes IDLE, HEADER_A, PAUSE (forever)
+-- There might be a problem with the length of time between a switch from PAUSE to HEADER_B
+-- Investigate adjusting the trigger tomorrow.
+-- Its not a problem with the logic analyser.  I tried triggering on information in HEADER_B, but it never appeared
+-- The info was for WB cc sram1_start 10; which has card_addr '02' and param_id '5C'
+-- Those values never appeared.  I now suspect that the FSM is freezing in PAUSE and refusing to go into HEADER_B
+-- I suppose that cmd_tx_done is not working as expected.
+-- In fact, ernie updated the lvds_tx block to get rid of that signal.  The problem was that it was asserted to soon, and not remaining so long enough
+-- I should update my block to used the latest lvds_tx block.

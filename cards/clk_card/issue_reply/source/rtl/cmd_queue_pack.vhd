@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.8 2004/08/04 17:26:43 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.9 2004/08/18 06:48:43 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.9  2004/08/18 06:48:43  bench2
+-- Bryce: removed unnecessary interface signals between the cmd_queue and the reply_queue.
+--
 -- Revision 1.8  2004/08/04 17:26:43  bburger
 -- Bryce:  In progress
 --
@@ -70,6 +73,9 @@ package cmd_queue_pack is
 
    component cmd_queue
       port(
+         -- for testing
+         debug_o  : out std_logic_vector(31 downto 0);
+
          -- reply_queue interface
 --         uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
          uop_rdy_o     : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface

@@ -19,10 +19,10 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.6 2004/08/03 20:11:43 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.7 2004/09/01 16:39:02 jjacob Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	      Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:        Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/03 20:11:43 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/01 16:39:02 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.7  2004/09/01 16:39:02  jjacob
+-- updated version
+--
 -- Revision 1.6  2004/08/03 20:11:43  jjacob
 -- cleaned up
 --
@@ -177,7 +180,7 @@ architecture rtl of issue_reply_test is
       
       
       
-      signal cmd_tx_dat : std_logic_vector(31 downto 0);
+      signal debug : std_logic_vector(31 downto 0);
 
 
 ------------------------------------------------------------------------
@@ -188,6 +191,8 @@ architecture rtl of issue_reply_test is
 component issue_reply
 
 port(
+      --[JJ] for testing
+      debug_o    : out std_logic_vector (31 downto 0);
 
       -- global signals
       rst_i        : in     std_logic;
@@ -223,22 +228,18 @@ port(
       -- lvds_tx interface
       tx_o           : out std_logic;  -- transmitter output pin
       clk_200mhz_i   : in std_logic    -- PLL locked 25MHz input clock for the 
-      
-      
-      --cmd_tx_dat_o    : out std_logic_vector (31 downto 0)
-
    ); 
 end component;
 
 component issue_reply_test_pll
-	PORT
-	(
-		inclk0		: IN STD_LOGIC  := '0';
-		c0		    : OUT STD_LOGIC ;
-		c1		    : OUT STD_LOGIC ;
-		e0		    : OUT STD_LOGIC ;
-		e1		    : OUT STD_LOGIC 
-	);		
+   PORT
+   (
+      inclk0      : IN STD_LOGIC  := '0';
+      c0        : OUT STD_LOGIC ;
+      c1        : OUT STD_LOGIC ;
+      e0        : OUT STD_LOGIC ;
+      e1        : OUT STD_LOGIC 
+   );    
 END component;
 
 begin
@@ -248,7 +249,6 @@ begin
 -- route issue_reply outputs to test outputs on the board
 --
 ------------------------------------------------------------------------
-
 
 --   test(11)           <= sync_pulse;
 --
@@ -265,12 +265,13 @@ begin
 --   test(13)           <= tx;
 --   test(12)           <= cksum_err;
 
+
+
    test (38) <= macro_instr_rdy;
    test (37) <= macro_op_ack;
    
-   
-   --test (36)             <= cmd_tx_dat(24); 
-   --test (34 downto 11)   <= cmd_tx_dat(23 downto 0);
+   test (36)             <= debug(31); 
+   test (34 downto 11)   <= debug(23 downto 0);
 
    zero               <= '0';
    rst                <= '0';
@@ -283,6 +284,8 @@ begin
 
    i_issue_reply : issue_reply
    port map( 
+            --[JJ] For testing
+            debug_o    => debug,
 
             -- global signals
             rst_i             => zero,
@@ -317,11 +320,6 @@ begin
                   -- lvds_tx interface
              tx_o             => tx,  -- transmitter output pin
              clk_200mhz_i     => clk_200mhz -- this will come from pll c1
-             
-             
-             
-             --cmd_tx_dat_o    => cmd_tx_dat
-            
            ); 
 
 ------------------------------------------------------------------------
@@ -353,15 +351,15 @@ begin
 ------------------------------------------------------------------------
 
 pll : issue_reply_test_pll
-	port map
-	(
-		inclk0	        => inclk,
-		c0		=> pll_clk,
-		c1		=> clk_200mhz,
-		e0		=> fibre_rx_clk,
-		e1		=> fibre_tx_clk  -- this one is here for CC001 because fibre_rx_clk is not connected to the pll,
-		                         -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
-	);
+   port map
+   (
+      inclk0           => inclk,
+      c0    => pll_clk,
+      c1    => clk_200mhz,
+      e0    => fibre_rx_clk,
+      e1    => fibre_tx_clk  -- this one is here for CC001 because fibre_rx_clk is not connected to the pll,
+                               -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
+   );
 
 
 ------------------------------------------------------------------------
@@ -379,138 +377,5 @@ pll : issue_reply_test_pll
          sync_o      => sync_pulse,
          sync_num_o  => sync_number
       );
-
-
-
-
---    i_timer : us_timer
---    port map(clk           => pll_clk,
---           timer_reset_i   => count_rst,
---           timer_count_o   => count
---           );
---           
---
---   process(current_state, count)
---   begin
---   
---      -- default
---      count_rst           <= '0';
---      sync_number_mux_sel <= '0'; -- hold value
---   
---      case current_state is
---         when IDLE =>
---            next_state <= COUNTING;
---            count_rst  <= '1';
---            
---         when COUNTING =>
---            if count >= SYNC_PERIOD then
---               --count_rst           <= '1';
---               --sync_number_mux_sel <= '1';
---               next_state <= INCREMENT;
---            else
---               next_state <= COUNTING;
---            end if;
---            
---         when INCREMENT =>
---            count_rst           <= '1';
---            sync_number_mux_sel <= '1';
---            next_state <= COUNTING;
---            
---         when others =>
---            next_state <= IDLE;
---                     
---      end case;
---   end process;
---
---
---   process(pll_clk, rst)
---   begin
---      if rst = '1' then
---         sync_number    <= (others=>'0');
---         current_state <= IDLE;
---      elsif pll_clk'event and pll_clk = '1' then
---         current_state <= next_state;
---         sync_number    <= sync_number_mux;
---      end if;
---   end process;
---
---   sync_number_mux <= sync_number + 1 when sync_number_mux_sel = '1' else sync_number;
---
---
---   
---   sync_pulse <= sync_number_mux_sel;
-
-
-------------------------------------------------------------------------
---
--- create simulated cmd_ack_i signal here
---
-------------------------------------------------------------------------
-
-   --simulated_ack <= '1';
-
---   process(current_state, macro_instr_rdy) --, parameter_id, card_addr)
---   begin
---      case current_state is
---         when IDLE =>
---            if macro_instr_rdy = '1' then
---            --if ((macro_instr_rdy = '1') and (parameter_id = x"005C") and (card_addr = x"0002")) then
---            --if ((macro_instr_rdy = '1') and (parameter_id /= 0) and (card_addr /= 0)) then
---               --next_state <= IDLE2;  -- this is to ensure macro_instr_rdy is not just glitching high
---               next_state <= WAIT1;
---            else
---               next_state <= IDLE;
---            end if;
---
---            simulated_ack <= '0';
---
---         when IDLE2  =>
---            if macro_instr_rdy = '1' then
---               next_state <= IDLE3; -- this is to double-check macro_instr_rdy is not just glitching high
---            else
---               next_state <= IDLE;
---            end if;
---
---            simulated_ack <= '0';
---
---         when IDLE3  =>
---            if macro_instr_rdy = '1' then
---               next_state <= WAIT1;
---            else
---               next_state <= IDLE;
---            end if;
---
---            simulated_ack <= '0';
---
---         when WAIT1  => next_state    <= WAIT2;
---                        simulated_ack <= '0';
---
---         when WAIT2  => next_state    <= ACK;
---                        simulated_ack <= '0';
---
---         when ACK    => next_state    <= IDLE;
---                        simulated_ack <= '1';
---
-----            if macro_instr_rdy = '0' and data_size = 0 and 
-----               data_clk = '0' and data = 0 and parameter_id = 0 then
-----               next_state    <= IDLE;
-----               simulated_ack <= '1';
-----            else
-----               next_state    <= ACK;
-----               simulated_ack <= '1';
-----            end if;
---
---         when others => next_state    <= IDLE;
---                        simulated_ack <= '0';
---      end case;
---   end process;
---
---   process(pll_clk)
---   begin
---      if pll_clk'event and pll_clk = '1' then
---         current_state <= next_state;
---      end if;
---   end process;
-
 
 end rtl; 
