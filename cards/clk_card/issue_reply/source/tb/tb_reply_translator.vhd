@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.8 2004/09/02 14:33:23 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.9 2004/09/03 13:13:26 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/02 14:33:23 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/03 13:13:26 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.9  2004/09/03 13:13:26  dca
+-- test added for 'NO_REPLY' state (fibre FSM).
+--
 -- Revision 1.8  2004/09/02 14:33:23  dca
 -- some timing changes
 --
@@ -78,7 +81,6 @@ end tb_reply_translator;
 
 
 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -105,16 +107,16 @@ port(
      
      cmd_rcvd_er_i           : in  std_logic;                   
      cmd_rcvd_ok_i           : in  std_logic;         
-     cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);
-     card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
-     param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  
+     cmd_code_i              : in  std_logic_vector (FIBRE_CMD_CODE_WIDTH-1     downto 0);
+     card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+     param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  
        
      -- signals to/from reply queue 
      m_op_done_i             : in  std_logic; 
      m_op_ok_nEr_i           : in  std_logic;
-     m_op_cmd_code_i         : in  std_logic_vector (CMD_TYPE_WIDTH-1      downto 0);   
-     fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);
-     num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);
+     m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);   
+     fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);
+     num_fibre_words_i       : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);
      fibre_word_req_o        : out std_logic;
      m_op_ack_o              : out std_logic;
      
@@ -132,22 +134,22 @@ end component;
 constant clk_prd        : time := 20 ns;  -- 50 MHz clock
 
 
-signal   dut_rst        : std_logic                                             := '0';
-signal   tb_clk         : std_logic                                             := '0';
+signal   dut_rst        : std_logic                                              := '0';
+signal   tb_clk         : std_logic                                              := '0';
 
-signal   cmd_rcvd_er    : std_logic                                             := '0';   
-signal   cmd_rcvd_ok    : std_logic                                             := '0';         
-signal   cmd_code       : std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0)     := (others => '0');
-signal   card_id        : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)     := (others => '0');
-signal   param_id       : std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0)     := (others => '0');  
+signal   cmd_rcvd_er    : std_logic                                              := '0';   
+signal   cmd_rcvd_ok    : std_logic                                              := '0';         
+signal   cmd_code       : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1     downto 0) := (others => '0');
+signal   card_id        : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0) := (others => '0');
+signal   param_id       : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0) := (others => '0');  
 signal   cmd_ack	       : std_logic; 
        
 signal   m_op_done      : std_logic                                             := '0'; 
 signal   m_op_ok_nEr    : std_logic                                             := '0';
-signal   m_op_cmd_code  : std_logic_vector (CMD_TYPE_WIDTH-1      downto 0)     := (others => '0');
-signal   fibre_word     : std_logic_vector (DATA_BUS_WIDTH-1      downto 0)     := (others => '0');
+signal   m_op_cmd_code  : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1      downto 0)     := (others => '0');
+signal   fibre_word     : std_logic_vector (PACKET_WORD_WIDTH-1      downto 0)     := (others => '0');
 signal   fibre_word_req : std_logic;
-signal   num_fibre_words: std_logic_vector (DATA_BUS_WIDTH-1      downto 0)     := (others => '0');
+signal   num_fibre_words: std_logic_vector (PACKET_WORD_WIDTH-1      downto 0)     := (others => '0');
 signal   m_op_ack       : std_logic;
      
 signal   tx_ff          : std_logic                                             := '0';
