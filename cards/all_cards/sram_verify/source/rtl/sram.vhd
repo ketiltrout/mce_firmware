@@ -20,7 +20,7 @@
 
 -- sram.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram.vhd,v 1.1 2004/03/08 21:52:26 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram.vhd,v 1.2 2004/03/09 00:22:00 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- VHDL model of asynch. SRAM chip
 --
 -- Revision history:
--- <date $Date: 2004/03/08 21:52:26 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/03/09 00:22:00 $>	-		<text>		- <initials $Author: erniel $>
 
 --
 -----------------------------------------------------------------------------
@@ -55,15 +55,40 @@ end sram;
 architecture behav of sram is
 type mem is array(7 downto 0) of std_logic_vector(15 downto 0);
 signal sram_mem : mem;
-signal location : integer;
+
+signal data_in  : std_logic_vector(15 downto 0);
+signal data_out : std_logic_vector(15 downto 0);
+
+signal write : std_logic;
+
 begin
 
-   location <= conv_integer(address(2 downto 0));
-   
-   process(reset, location, data)
---   process(reset, location, data, n_bhe, n_ble, n_oe, n_we, n_ce1, ce2)
+   -- read process:
+   process(n_ce1, ce2, n_oe, n_we, n_bhe, n_ble, data_out)
    begin
-      if(reset = '1') then
+      if(n_ce1 = '0' and ce2 = '1' and n_oe = '0' and n_we = '1' and n_bhe = '0' and n_ble = '0') then
+         data <= data_out;
+      else
+         data <= (others => 'Z');
+      end if;
+   end process;
+   
+   -- write process:
+   process(n_ce1, ce2, n_we, n_bhe, n_ble, data)
+   begin
+      if(n_ce1 = '0' and ce2 = '1' and n_we = '0' and n_bhe = '0' and n_ble = '0') then
+         data_in <= data;
+         write <= '1';
+      else
+         data_in <= (others => 'Z');
+         write <= '0';
+      end if;
+   end process;
+   
+   -- memory array:
+   process(reset, address, data_in)
+   begin
+      if(reset = '1') then 
          sram_mem(0) <= (others => '0');
          sram_mem(1) <= (others => '0');
          sram_mem(2) <= (others => '0');
@@ -72,13 +97,30 @@ begin
          sram_mem(5) <= (others => '0');
          sram_mem(6) <= (others => '0');
          sram_mem(7) <= (others => '0');
-      elsif(ce2 = '1' and n_ce1 = '0' and n_we = '1' and n_oe = '0' and n_bhe = '0' and n_ble = '0') then
-         data <= sram_mem(location);
-      elsif(ce2 = '1' and n_ce1 = '0' and n_we = '0' and n_oe = '0' and n_bhe = '0' and n_ble = '0') then
-         sram_mem(location) <= data;
       else
-         data <= (others => 'Z');
+         if(write = '1') then
+            case address(2 downto 0) is
+               when "000"  => sram_mem(0) <= data_in;
+               when "001"  => sram_mem(1) <= data_in;
+               when "010"  => sram_mem(2) <= data_in;
+               when "011"  => sram_mem(3) <= data_in;
+               when "100"  => sram_mem(4) <= data_in;
+               when "101"  => sram_mem(5) <= data_in;
+               when "110"  => sram_mem(6) <= data_in;
+               when others => sram_mem(7) <= data_in;
+            end case;
+         else
+            case address(2 downto 0) is
+               when "000"  => data_out <= sram_mem(0);
+               when "001"  => data_out <= sram_mem(1);    
+               when "010"  => data_out <= sram_mem(2);
+               when "011"  => data_out <= sram_mem(3);
+               when "100"  => data_out <= sram_mem(4);
+               when "101"  => data_out <= sram_mem(5);
+               when "110"  => data_out <= sram_mem(6);
+               when others => data_out <= sram_mem(7);
+            end case;
+         end if;
       end if;
-   end process;
-   
+   end process;  
 end behav;
