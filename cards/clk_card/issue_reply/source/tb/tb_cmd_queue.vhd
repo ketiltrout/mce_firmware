@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.3 2004/06/07 23:45:53 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.4 2004/07/09 00:03:47 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.4  2004/07/09 00:03:47  bburger
+-- in progress
+--
 -- Revision 1.3  2004/06/07 23:45:53  bburger
 -- in progress
 --
@@ -82,7 +85,7 @@ architecture BEH of TB_CMD_QUEUE is
 
    -- lvds_tx interface
    signal tx_o          : std_logic := '0';  -- transmitter output pin
-   signal clk_25mhz_i   : std_logic := '0';  -- PLL locked 25MHz input clock for the
+   signal clk_200mhz_i   : std_logic := '0';  -- PLL locked 25MHz input clock for the
 
    -- Clock lines
    signal sync_i        : std_logic := '0'; -- The sync pulse determines when and when not to issue u-ops
@@ -124,19 +127,18 @@ begin
 
          -- lvds_tx interface
          tx_o          => tx_o,
-         clk_25mhz_i   => clk_25mhz_i,
+         clk_200mhz_i  => clk_200mhz_i,
 
          -- Clock lines
          sync_i        => sync_i,
          clk_i         => clk_i,
-         clk_400mhz_i  => clk_400mhz_i,
          rst_i         => rst_i
       );
 
    -- Create a test clock
    sync_i <= not sync_i after CLOCK_PERIOD*40; -- The sync period is much shorter than customary.
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
-   clk_400mhz_i <= not clk_400mhz_i after CLOCK_PERIOD/16;
+   clk_200mhz_i <= not clk_200mhz_i after CLOCK_PERIOD/8;
 
    -- Create stimulus
    STIMULI : process

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.4 2004/06/16 17:02:36 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.5 2004/06/30 23:10:53 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.5  2004/06/30 23:10:53  bburger
+-- in progress
+--
 -- Revision 1.4  2004/06/16 17:02:36  bburger
 -- in progress
 --
@@ -76,12 +79,11 @@ package cmd_queue_pack is
 
          -- lvds_tx interface
          tx_o          : out std_logic;  -- transmitter output pin
-         clk_25mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
+         clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
 
          -- Clock lines
          sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
          clk_i         : in std_logic; -- Advances the state machines
-         clk_400mhz_i    : in std_logic;  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
          rst_i         : in std_logic  -- Resets all FSMs
       );
    end component;

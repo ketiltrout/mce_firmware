@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.21 2004/07/20 00:33:53 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.22 2004/07/22 01:15:26 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.22  2004/07/22 01:15:26  bench2
+-- Bryce:  in progress
+--
 -- Revision 1.21  2004/07/20 00:33:53  bench2
 -- Bryce:  in progress
 --
@@ -99,7 +102,6 @@ entity cmd_queue is
       -- Clock lines
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       clk_i         : in std_logic; -- Advances the state machines
---      clk_400mhz_i  : in std_logic; -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  clk_400mhz_i must be at least 2x as fast as clk_i
       rst_i         : in std_logic  -- Resets all FSMs
    );
 end cmd_queue;
@@ -173,7 +175,7 @@ signal new_card_addr        : std_logic_vector(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0
 signal new_par_id           : std_logic_vector(CQ_PAR_ID_BUS_WIDTH-1 downto 0) := x"00"; --out, to insertion fsm.  This is a hack.
 
 -- Send FSM:  sends u-ops over the bus backplane
-type send_states is (LOAD, ISSUE, HEADER_A, HEADER_B, DATA, MORE_DATA, CHECKSUM, DONE, NEXT_UOP, RESET, PREGNANT_PAUSE);
+type send_states is (LOAD, ISSUE, HEADER_A, HEADER_B, DATA, MORE_DATA, CHECKSUM, NEXT_UOP, RESET, PREGNANT_PAUSE);
 signal present_send_state   : send_states;
 signal next_send_state      : send_states;
 signal previous_send_state  : send_states;
@@ -203,10 +205,10 @@ signal crc_start            : std_logic; --Not part of the interface to the crc 
 -- Shift Register signals:
 signal sh_reg_serial_o      : std_logic;
 signal sh_reg_parallel_i    : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-signal sh_reg_aprallel_o    : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); --Dummy signal
+signal sh_reg_parallel_o    : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); --Dummy signal
 
 -- Bit Counter signals
-signal bit_ctr_count        : std_logic;
+signal bit_ctr_count        : integer;
 
 -- Constants that can be removed when the sync_counter and frame_timer are moved out of this block
 constant HIGH               : std_logic := '1';
@@ -270,16 +272,16 @@ begin
          POLY_WIDTH  => CHECKSUM_BUS_WIDTH
       )
       port map(
---         clk        => clk_i,
---         rst        => rst_i,
---         clr_i      => crc_clr,
---         ena_i      => crc_ena,
---         data_i     => crc_data,
---         num_bits_i => MAX_BIT_COUNT,
---         poly_i     => "00000100110000010001110110110111",  --CRC-32        
+         clk        => clk_i,
+         rst        => rst_i,
+         clr_i      => crc_clr,
+         ena_i      => crc_ena,
+         data_i     => crc_data,
+         num_bits_i => MAX_BIT_COUNT,
+         poly_i     => "00000100110000010001110110110111",  --CRC-32        
          done_o     => crc_done,
---         valid_o    => crc_valid, --Dummy signal
---         checksum_o => crc_checksum 
+         valid_o    => crc_valid, --Dummy signal
+         checksum_o => crc_checksum 
       );
       
    sh_reg: shift_reg
@@ -287,32 +289,32 @@ begin
          WIDTH      => DATA_BUS_WIDTH
       )   
       port map(
---         clk        => clk_i,
---         rst        => rst_i,
---         ena        => HIGH, --Always enabled      
---         load       => crc_start,      
---         clr        => LOW, --Never clear      
---         shr        => LOW, --Shift left       
---         serial_i   => LOW, --Shift in low bits
---         serial_o   => sh_reg_serial_o,  
---         parallel_i => sh_reg_parallel_i,
---         parallel_o => sh_reg_parallel_o --Dummy signal
+         clk        => clk_i,
+         rst        => rst_i,
+         ena        => HIGH, --Always enabled      
+         load       => crc_start,      
+         clr        => LOW, --Never clear      
+         shr        => LOW, --Shift left       
+         serial_i   => LOW, --Shift in low bits
+         serial_o   => sh_reg_serial_o,  
+         parallel_i => sh_reg_parallel_i,
+         parallel_o => sh_reg_parallel_o --Dummy signal
       );
 
    bit_ctr: counter
       generic map(
-         MAX => MAX_BIT_COUNT
+         MAX => MAX_BIT_COUNT,
          STEP_SIZE   => 1, 
          WRAP_AROUND => LOW, 
          UP_COUNTER  => HIGH        
       )
       port map(
---         clk_i       => clk_i,
---         rst_i       => rst_i,
---         ena_i       => HIGH,
---         load_i      => crc_start,
---         count_i     => INT_ZERO,
---         count_o     => bit_ctr_count
+         clk_i       => clk_i,
+         rst_i       => rst_i,
+         ena_i       => HIGH,
+         load_i      => crc_start,
+         count_i     => INT_ZERO,
+         count_o     => bit_ctr_count
       );
 
    -- Counter for tracking free space in the queue:
@@ -340,7 +342,7 @@ begin
       end if;
    end process;
 
-   insert_state_NS: process(present_insert_state, insert_uop_rdy, present_gen_state)
+   insert_state_NS: process(present_insert_state, insert_uop_rdy, data_size_i, data_count, new_insert_state, present_gen_state)
    begin
       case present_insert_state is
          when RESET =>
@@ -393,38 +395,41 @@ begin
       end case;
    end process;
 
-   insert_state_out: process(present_insert_state, mop_i, uop_counter, issue_sync_i, new_card_addr, new_par_id, present_gen_state)
+
+   insert_state_out: process(present_insert_state, issue_sync_i, data_size_i, new_card_addr, new_par_id, mop_i, uop_counter, next_insert_state, present_gen_state)
    -- There is something sketchy about the sensitivity list.  free_ptr does not appear anywhere on the list.  It can't because of my free_ptr <= free_ptr + 1 statement below.  However, it should because it appears on the lhs in the INSERT state
    begin
+      wraddress_sig <= free_ptr;
       case present_insert_state is
          when RESET =>
             wren_sig       <= '0';
-            data_count     <= x"0000";
+            data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
-            free_ptr       <= ADDR_ZERO;
             inserting      <= '0';
+            data_sig       <= (others => '0');
+            free_ptr       <= ADDR_ZERO;
          when IDLE =>
             -- The RAM block and the functions that write to it will be operating at higher speed than the rest of the logic.
             -- INSERT and DONE should complete in less than one clk_i cycle for this to work
             wren_sig       <= '0';
-            data_count     <= x"0000";
+            data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
             inserting      <= '0';
+            data_sig       <= (others => '0');
          when INSERT_HDR1 =>
             wren_sig       <= '1';
-            data_count     <= x"0000";
+            data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
             inserting      <= '1';
             data_sig(QUEUE_WIDTH-1      downto ISSUE_SYNC_END)   <= issue_sync_i;
             data_sig(ISSUE_SYNC_END-1   downto TIMEOUT_SYNC_END) <= issue_sync_i + TIMEOUT_LEN;
             data_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)    <= data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
-            wraddress_sig <= free_ptr;
          when INSERT_HDR2 =>
             wren_sig       <= '1';
-            data_count     <= x"0000";
+            data_count     <= (others => '0');
             mop_ack_o      <= '1';
             insert_uop_ack <= '0';
             inserting      <= '1';
@@ -434,7 +439,6 @@ begin
             data_sig(PARAM_ID_END-1     downto MOP_END)          <= mop_i;
             -- new u-op sequence number.  This FSM automatically increments uop_counter after a u-op is added.
             data_sig(MOP_END-1          downto UOP_END)          <= uop_counter;
-            wraddress_sig <= free_ptr;
             -- After adding new u-op header1 info:
             if(free_ptr = ADDR_FULL_SCALE) then
                free_ptr <= ADDR_ZERO;
@@ -447,13 +451,13 @@ begin
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
             inserting      <= '1';
-            wraddress_sig <= free_ptr;
+            data_sig       <= data_i;
             if(next_insert_state = DONE) then
                -- This is here so that the STALL state can detect when the Generate FSM tries to issue a new u-op
                -- The Insert FSM will remain stalled until it detetects a new u-op from the Generate FSM
                new_insert_state <= present_gen_state;
             end if;
-            -- After adding new u-op header2 info, or data:
+            -- After adding new u-op header2 info, or data:  (will this work?)
             if(free_ptr = ADDR_FULL_SCALE) then
                free_ptr <= ADDR_ZERO;
             else
@@ -461,10 +465,11 @@ begin
             end if;
          when DONE =>
             wren_sig       <= '0';
-            data_count     <= x"0000";
+            data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '1';
             inserting      <= '0';
+            data_sig       <= (others => '0');
             -- After adding a new u-op:
             if(free_ptr = ADDR_FULL_SCALE) then
                free_ptr <= ADDR_ZERO;
@@ -473,16 +478,18 @@ begin
             end if;
          when STALL =>
             wren_sig       <= '0';
-            data_count     <= x"0000";
+            data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
             inserting      <= '0';
+            data_sig       <= (others => '0');
          when others =>
             wren_sig       <= '0';
-            data_count     <= x"0000";
+            data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
             inserting      <= '0';
+            data_sig       <= (others => '0');
       end case;
    end process;
 
@@ -551,7 +558,7 @@ begin
    rdaddress_b_sig <= retire_ptr;
    uop_o <= qb_sig;
 
-   retire_state_out: process(present_retire_state)
+   retire_state_out: process(present_retire_state, send_ptr)
    begin
       case present_retire_state is
          when RESET =>
@@ -594,6 +601,11 @@ begin
             uop_timedout_o <= '0';
             uop_discard_o  <= '1';
             retired        <= '1';
+            if(retire_ptr = send_ptr) then
+               -- We've finished flushing out the system of invalid u-ops
+               retire_ptr <= flush_ptr;
+               send_ptr <= flush_ptr;
+            end if;
          when EJECT =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
@@ -608,7 +620,8 @@ begin
             uop_timedout_o <= '0';
             uop_discard_o  <= '1';
             retired        <= '0';
-            flush_ptr      <= flush_ptr + 2 + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            -- flush_ptr acts as a place holder at this time
+            retire_ptr      <= retire_ptr + 2 + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when FLUSH_STATUS =>
             uop_rdy_o      <= '1';
             freeze_send    <= '1';
@@ -634,7 +647,8 @@ begin
       end if;
    end process;
 
-   gen_state_NS: process(present_gen_state, mop_rdy, queue_space, num_uops, par_id_i, card_addr_i, new_par_id, size_uops)
+   gen_state_NS: process(present_gen_state, mop_rdy, queue_space, size_uops, card_addr_i, 
+                         insert_uop_ack, par_id_i, num_uops_inserted, num_uops)
    begin
       case present_gen_state is
          when RESET =>
@@ -821,7 +835,7 @@ begin
 
    mop_rdy <= mop_rdy_i;
 
-   gen_state_out: process(present_gen_state, par_id_i, card_addr_i) -- had new_card_addr_i
+   gen_state_out: process(present_gen_state, card_addr_i, par_id_i) -- had new_card_addr_i
       begin
       case present_gen_state is
          when RESET =>
@@ -928,14 +942,16 @@ begin
    uop_send_expired <= '1' when (sync_count_slv = timeout_sync or
                                 (sync_count_slv = timeout_sync - 1 and clk_count > START_OF_BLACKOUT)) else '0';
 
-   send_state_NS: process(present_send_state, send_ptr, free_ptr, uop_send_expired, issue_sync, timeout_sync, sync_count_slv)
+   send_state_NS: process(present_send_state, send_ptr, free_ptr, freeze_send, uop_send_expired, 
+                          issue_sync, timeout_sync, sync_count_slv, cmd_tx_done, previous_send_state, 
+                          uop_data_size, uop_data_count)
    begin
       case present_send_state is
          when RESET =>
             next_send_state <= LOAD;
          when LOAD =>
-            -- If there is a u-op waiting to be issued, load it.  If not, idle
-            if(send_ptr /= free_ptr) then
+            -- If there is a u-op waiting to be issued and if this FSM has not been frozen by the retire FSM, then send it or skip it.
+            if(send_ptr /= free_ptr and freeze_send = '0') then
                if(uop_send_expired = '1') then
                   -- If the u-op has expired, it should be skipped
                   next_send_state <= NEXT_UOP;
@@ -957,7 +973,7 @@ begin
                   -- If the u-op is still good, but isn't supposed to be issued yet, stay in LOAD
                   next_send_state <= LOAD;
                end if;
-            elsif(send_ptr = free_ptr) then
+            else
                next_send_state <= LOAD;
             end if;
          when HEADER_A =>
@@ -971,7 +987,8 @@ begin
          when CHECKSUM =>
             next_send_state <= PREGNANT_PAUSE;
          when PREGNANT_PAUSE =>
-            if(cmd_tx_done was '1' and crc_done was '1') then
+            -- No need to check the crc_done line because it will always be done before cmd_tx_done
+            if(cmd_tx_done = '1') then -- and crc_done was '1') then            
                if(previous_send_state = HEADER_A) then
                   next_send_state <= HEADER_B;
                elsif(previous_send_state = HEADER_B) then
@@ -980,7 +997,7 @@ begin
                   else
                      next_send_state <= CHECKSUM;
                   end if;
-               elsif(previous_send_state = DATA)
+               elsif(previous_send_state = DATA) then
                   if(uop_data_count < uop_data_size) then
                      next_send_state <= MORE_DATA;
                   else
@@ -993,13 +1010,11 @@ begin
                      next_send_state <= CHECKSUM;
                   end if;
                elsif(previous_send_state = CHECKSUM) then
-                  next_send_state <= DONE;
+                  next_send_state <= LOAD;
                end if;
             else
                next_send_state <= PREGNANT_PAUSE;
             end if;
-         when DONE =>
-            next_send_state <= LOAD;
          when NEXT_UOP =>
             -- Skip to the next u-op
             next_send_state <= LOAD;
@@ -1014,21 +1029,28 @@ begin
    begin
       case present_send_state is
          when RESET =>
-            send_ptr                 <= ADDR_ZERO;
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
             sh_reg_parallel_i        <= (others => '0');
             crc_start                <= '0';
+            uop_data_count           <= (others => '0');
+            uop_data_size            <= (others => '0');
+            previous_send_state      <= RESET;
+            send_ptr                 <= ADDR_ZERO;
          when LOAD =>
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
             sh_reg_parallel_i        <= (others => '0');
             crc_start                <= '0';
+            uop_data_count           <= (others => '0');
+            uop_data_size            <= (others => '0');
+            previous_send_state      <= LOAD;
          when HEADER_A =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             crc_start                <= '1';
+            uop_data_count           <= (others => '0');
             uop_data_size            <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
             cmd_tx_dat(31 downto 16) <= PREAMBLE;
             cmd_tx_dat(15 downto  0) <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
@@ -1038,70 +1060,73 @@ begin
             crc_clr                  <= '0';
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             crc_start                <= '1';
-            send_ptr                 <= send_ptr + 1;
             uop_data_count           <= (others => '0');
             cmd_tx_dat(31 downto 24) <= qa_sig(QUEUE_WIDTH-1 downto CARD_ADDR_END);
             cmd_tx_dat(23 downto 16) <= qa_sig(CARD_ADDR_END-1 downto PARAM_ID_END);
             cmd_tx_dat(15 downto  8) <= qa_sig(PARAM_ID_END-1 downto MOP_END);
             cmd_tx_dat( 7 downto  0) <= qa_sig(MOP_END-1 downto UOP_END);
             previous_send_state      <= HEADER_B;
+            send_ptr                 <= send_ptr + 1;
          when DATA =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             crc_start                <= '1';
-            send_ptr                 <= send_ptr + 1;
             uop_data_count           <= uop_data_count + 1;
             cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
             previous_send_state      <= DATA;
+            send_ptr                 <= send_ptr + 1;
          when MORE_DATA =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             crc_start                <= '1';
-            send_ptr                 <= send_ptr + 1;
             uop_data_count           <= uop_data_count + 1;
             cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
             previous_send_state      <= MORE_DATA;
+            send_ptr                 <= send_ptr + 1;
          when CHECKSUM =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             sh_reg_parallel_i        <= (others => '0');
             crc_start                <= '0';
-            send_ptr                 <= send_ptr + 1;
+            uop_data_size            <= (others => '0');
             cmd_tx_dat(31 downto  0) <= crc_checksum;
             previous_send_state      <= CHECKSUM;
+            send_ptr                 <= send_ptr + 1; -- Move the pointer to the next u-op
          when PREGNANT_PAUSE =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             sh_reg_parallel_i        <= (others => '0');
             crc_start                <= '0';
-         when DONE =>
-            cmd_tx_start             <= '0';
-            crc_clr                  <= '1';
-            sh_reg_parallel_i        <= (others => '0');
-            crc_start                <= '0';
+            -- uop_data_size            <= not to be zero'ed here.  This is an intermediate state between the HEADER, DATA and CHECKSUM states
+            previous_send_state      <= PREGNANT_PAUSE;
          when NEXT_UOP =>
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
             sh_reg_parallel_i        <= (others => '0');
             crc_start                <= '0';
-            -- The send_ptr should be incremented in all situations, whether the u-op has expired or has been sent.
+            uop_data_size            <= (others => '0');
+            previous_send_state      <= NEXT_UOP;
+            -- The send_ptr should be incremented to the next u-op if this one has expired
             send_ptr                 <= send_ptr + 2 + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when others =>
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
+            sh_reg_parallel_i        <= (others => '0');
             crc_start                <= '0';
+            uop_data_size            <= (others => '0');
+            previous_send_state      <= LOAD;
       end case;
    end process;
 
-   n_clk          <= not clk_i;
-   sync_count_slv <= std_logic_vector(conv_unsigned(sync_count_int, 8));
+   n_clk             <= not clk_i;
+   sync_count_slv    <= std_logic_vector(conv_unsigned(sync_count_int, 8));
    
    -- CRC logic
-   crc_ena <= '1' when bit_ctr_count < 32 else '0';
-   crc_data <= sh_reg_serial_o;
-   crc_data <= qa_sig(QUEUE_WIDTH-1 downto QUEUE_WIDTH-DATA_BUS_WIDTH);
+   crc_ena           <= '1' when bit_ctr_count < 32 else '0';   
+   crc_data          <= sh_reg_serial_o;
+   sh_reg_parallel_i <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
 end behav;
 
@@ -1172,10 +1197,15 @@ end behav;
 
 --x add the crc_ena block signal to the crc calculation block in a manner that the crc is not calculated on garbage bits.
 
+--x Write the supporting code in the send FSM for freeze_send.
+
+--x Check the sensitivity lists on the FSMs that I've been testing this morning.
+
+--x The insert fsm needs to put data into the queue in a single cycle.
+
+-- The send FSM needs a way of notifying the retire fsm wheter a u-op has been skipped or not
+
 -- there's a problem with the use of the counters i've used in frame_timing and cmd_queue.  
 -- They all continue on counting after they've gone past the limit that they count to.
 -- The bad thing about this is that if the counter wraps after exceeding the time limit, then there could be problems.
 
--- Write the supporting code in the send FSM for freeze_send.
-
--- Check the sensitivity lists on the FSMs that I've been testing this morning.
