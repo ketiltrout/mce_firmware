@@ -28,8 +28,15 @@
 -- pack file for general_pack
 --
 -- Revision history:
--- <date $Date: 2004/07/29 23:45:20 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/11/17 21:41:28 $>	- <initials $Author: erniel $>
 -- $Log: general_pack.vhd,v $
+-- Revision 1.5  2004/11/17 21:41:28  erniel
+-- moved constants to dac_ctrl_pack:
+-- MAX_FLUB_FB
+-- MIN_FLUX_FB
+-- MAX_BIAS
+-- MIN_BIAS
+--
 -- Revision 1.4  2004/07/29 23:45:20  mandana
 -- moved address card constants to ac_dac_ctrl_pack.vhd
 --
@@ -47,15 +54,16 @@ package general_pack is
    -- NOTE: please modify both parameters if you change a clock frequency
    
    -- clock card global fpga clock:  50 MHz  
-   constant CLOCK_PERIOD_PS    : integer := 20000;
-   constant CLOCK_PERIOD       : time    := 20000 ps;
+   constant CLOCK_PERIOD_NS      : integer := 20;   
+   constant CLOCK_PERIOD_PS      : integer := 20000;
+   constant CLOCK_PERIOD         : time    := 20000 ps;
    
    -- clock card global fpga clock:  200 MHz     
-   constant MEM_CLK_PERIOD_PS  : integer := 5000;
-   constant MEM_CLK_PERIOD     : time    := 5000 ps;
+   constant MEM_CLOCK_PERIOD_PS  : integer := 5000;
+   constant MEM_CLOCK_PERIOD     : time    := 5000 ps;
    
    -- clock card global fpga clock:  400 MHz     
-   constant COMM_CLK_PERIOD_PS : integer := 2500;
-   constant COMM_CLK_PERIOD    : time    := 2500 ps;
+   constant COMM_CLOCK_PERIOD_PS : integer := 2500;
+   constant COMM_CLOCK_PERIOD    : time    := 2500 ps;
          
 end general_pack;
