@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.26 2004/11/25 01:09:12 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.27 2004/11/25 01:32:37 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/25 01:09:12 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2004/11/25 01:32:37 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.27  2004/11/25 01:32:37  bburger
+-- Bryce:
+-- - Changed to cmd_code over the bus backplane to read/write only
+-- - Added interface signals for internal commands
+-- - RB command data-sizes are correctly handled
+--
 -- Revision 1.26  2004/11/25 01:09:12  bench2
 -- Greg: Changed issue_reply block instantiation and corresponding signals in the tcl file
 --
@@ -438,6 +444,7 @@ begin
    m_op_cmd_code_i         => m_op_cmd_code,
    m_op_param_id_i         => m_op_param_id,
    m_op_card_id_i          => m_op_card_id, 
+   internal_cmd_i          => internal_cmd,
    fibre_word_i            => fibre_word,
    num_fibre_words_i       => num_fibre_words,
    fibre_word_ack_o        => fibre_word_ack,
