@@ -16,7 +16,11 @@ add wave -noupdate -divider {wishbone actions}
 add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/write_data_mode
 add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/read_ret_data
 add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/write_captr_raw
+add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/read_data_mode
+add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/write_ret_data
+add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/read_captr_raw
 add wave -noupdate -divider {Internal Signals}
+add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/instr_done
 add wave -noupdate -format Literal -radix hexadecimal /tb_wbs_frame_data/i_wbs_frame_data/data_mode_reg
 add wave -noupdate -format Literal -radix hexadecimal /tb_wbs_frame_data/i_wbs_frame_data/data_mode
 add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/data_mode_mux_sel
@@ -35,7 +39,6 @@ add wave -noupdate -format Literal /tb_wbs_frame_data/i_wbs_frame_data/raw_ch_mu
 add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/raw_req
 add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/raw_ack
 add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/dat_rdy
-add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/write_done
 add wave -noupdate -format Literal /tb_wbs_frame_data/i_wbs_frame_data/current_state
 add wave -noupdate -format Literal /tb_wbs_frame_data/i_wbs_frame_data/next_state
 add wave -noupdate -format Logic /tb_wbs_frame_data/i_wbs_frame_data/inc_addr_ena
@@ -146,8 +149,8 @@ add wave -noupdate -format Literal /tb_wbs_frame_data/i_tb_wbs_frame_data_flc_si
 add wave -noupdate -format Literal /tb_wbs_frame_data/i_tb_wbs_frame_data_flc_sim/next_state
 add wave -noupdate -format Literal /tb_wbs_frame_data/i_tb_wbs_frame_data_flc_sim/wait_count
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {873903 ns} 0}
-WaveRestoreZoom {873895 ns} {874111 ns}
+WaveRestoreCursors {{Cursor 1} {1149 ns} 0}
+WaveRestoreZoom {874135 ns} {874436 ns}
 configure wave -namecolwidth 375
 configure wave -valuecolwidth 84
 configure wave -justifyvalue left
