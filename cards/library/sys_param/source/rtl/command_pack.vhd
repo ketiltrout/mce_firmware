@@ -1,3 +1,40 @@
+-- Copyright (c) 2003 SCUBA-2 Project
+--                  All Rights Reserved
+--
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+--  The copyright notice above does not evidence any
+--  actual or intended publication of such source code.
+--
+--  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+--  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+--  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+--  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+--  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+--
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+--
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+--
+--
+-- command_pack.vhd
+--
+-- Project:	      SCUBA-2
+-- Author:	       Ernie Lin
+-- Organisation:  UBC
+--
+-- Description:
+-- Package file for command processing blocks
+--
+-- Revision history:
+-- 
+-- $Log$
+--
+-----------------------------------------------------------------------------
+
+
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -31,7 +68,7 @@ package command_pack is
    constant TIMEOUT_SYNC_BUS_WIDTH : integer := SYNC_NUM_BUS_WIDTH;  -- The width of the data field for the absolute sync count at which an instruction expires
    constant CQ_CARD_ADDR_BUS_WIDTH : integer := CARD_ADDR_WIDTH;
    constant CQ_PAR_ID_BUS_WIDTH    : integer := WB_ADDR_WIDTH;
-   constant CQ_DATA_SIZE_BUS_WIDTH : integer := 16;
+   constant CQ_DATA_SIZE_BUS_WIDTH : integer := 13;
 
 -- when it's time to cleanup code:
 -- 1. rename CQ_ constants to BB_ constants
