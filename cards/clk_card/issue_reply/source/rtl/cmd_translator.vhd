@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.11 2004/08/05 20:52:01 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.12 2004/08/11 00:08:25 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,19 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/05 20:52:01 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/11 00:08:25 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.12  2004/08/11 00:08:25  jjacob
+-- added the following signals for the reply_translator interface:
+--       reply_cmd_rcvd_er_o         : out std_logic;
+--       reply_cmd_rcvd_ok_o         : out std_logic;
+--       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
+--       reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
+--       reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)
+--
+-- and also added an input for the checksum error to route to the reply_cmd_rcvd_er_
+--
 -- Revision 1.11  2004/08/05 20:52:01  jjacob
 -- added sync_number input to arbiter instatiation
 --
@@ -360,7 +370,7 @@ begin
                  STRT_MUX_ADDR      |
                  ROW_ORDER_ADDR     |
                  
-                 DBL_BUFF_ADDR      |
+--                 DBL_BUFF_ADDR      |
                  ACTV_ROW_ADDR      |
                  USE_DV_ADDR        |
 
