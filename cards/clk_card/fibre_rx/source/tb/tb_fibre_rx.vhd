@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.3 2004/07/07 10:50:41 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.4 2004/07/08 10:48:55 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/07/07 10:50:41 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/07/08 10:48:55 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 
 
@@ -38,6 +38,9 @@ use ieee.numeric_std.all;
 
 library work;
 use work.fibre_rx_pack.all;
+
+library sys_param;
+use sys_param.command_pack.all;
 
 entity tb_fibre_rx is
 end tb_fibre_rx;
