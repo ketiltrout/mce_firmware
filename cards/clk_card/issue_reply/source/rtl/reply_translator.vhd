@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.12 2004/09/03 13:12:48 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.13 2004/09/03 13:55:46 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,13 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/03 13:12:48 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/03 13:55:46 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.13  2004/09/03 13:55:46  dca
+-- local command FSM removed
+-- will be added once its functionality is established
+--
 -- Revision 1.12  2004/09/03 13:12:48  dca
 -- 'NO_REPLY' state added to fibre FSM.
 -- This state is entered if a completed m_op
@@ -85,14 +89,16 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+--use ieee.numeric_std.all;
 
 library work;
 use work.issue_reply_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
-use sys_param.wishbone_pack.all;
+--use sys_param.wishbone_pack.all;
 
 entity reply_translator is
 
@@ -104,18 +110,18 @@ port(
      -- signals to/from cmd_translator    
      cmd_rcvd_er_i           : in  std_logic;                                            -- command received on fibre with checksum error
      cmd_rcvd_ok_i           : in  std_logic;                                            -- command received on fibre - no checksum error
-     cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);    -- fibre command code
-     card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- fibre command card id
-     param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- fibre command parameter id
+     cmd_code_i              : in  std_logic_vector (FIBRE_CMD_CODE_WIDTH-1  downto 0);    -- fibre command code
+     card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- fibre command card id
+     param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);    -- fibre command parameter id
          
      -- signals to/from reply queue 
      m_op_done_i             : in  std_logic;                                            -- macro op done
      m_op_ok_nEr_i           : in  std_logic;                                            -- macro op success ('1') or error ('0') 
-     m_op_cmd_code_i         : in  std_logic_vector (CMD_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
- --    m_op_param_id_i         : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- m_op parameter id passed from reply_queue
- --    m_op_card_id_i          : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- m_op card id passed from reply_queue
-     fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- packet word read from reply queue
-     num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
+     m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
+ --    m_op_param_id_i         : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);    -- m_op parameter id passed from reply_queue
+ --    m_op_card_id_i          : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- m_op card id passed from reply_queue
+     fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- packet word read from reply queue
+     num_fibre_words_i       : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
      fibre_word_req_o        : out std_logic;                                            -- asserted to requeset next fibre word
      m_op_ack_o              : out std_logic;                                            -- asserted to indicate to reply queue the the packet has been processed
 
@@ -186,19 +192,19 @@ signal   packet_header4_3     : byte ;                     -- packet header word
 
 -- checksum signals
 
-signal checksum              : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); 	-- checksum word (output from checksum calculator)
-signal checksum_in           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  -- input to checksum calculator  
+signal checksum              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 	-- checksum word (output from checksum calculator)
+signal checksum_in           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- input to checksum calculator  
 
 -- recirculation MUX structure used to hold checksum_in value  
-signal checksum_in_mux       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  -- MUX output
-signal checksum_load         : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  -- new checksum_in value loaded here  
+signal checksum_in_mux       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- MUX output
+signal checksum_load         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- new checksum_in value loaded here  
 signal checksum_in_mux_sel   : std_logic;                                    -- asserted to register the checksum_load value
 
 
 -- packet header word 3 options  - reply or data packet...
 
-constant DATA_PACKET          : std_logic_vector(DATA_BUS_WIDTH-1 downto 0) := ASCII_SP & ASCII_SP & ASCII_D & ASCII_A;
-constant REPLY_PACKET         : std_logic_vector(DATA_BUS_WIDTH-1 downto 0) := ASCII_SP & ASCII_SP & ASCII_R & ASCII_P; 
+constant DATA_PACKET          : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := ASCII_SP & ASCII_SP & ASCII_D & ASCII_A;
+constant REPLY_PACKET         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := ASCII_SP & ASCII_SP & ASCII_R & ASCII_P; 
 
 
 
@@ -339,14 +345,14 @@ signal   arb_next_state           : arb_state;
 
 -- some local signals
 
-signal packet_size           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);   -- this value is written to the packet header word 4
+signal packet_size           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);   -- this value is written to the packet header word 4
 signal fibre_word_count      : integer;                                       -- used to count how many words have been read from the reply_queue  
 
 signal fibre_fsm_busy        : std_logic;                                     -- asserted when txing a packet 
 
 signal reply_status          : std_logic_vector (15 downto 0);                -- this word is writen to reply word 1 to indicate if 'OK' or 'ER' 
-signal reply_data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- this word is the reply or data word read from cmd_queue
-signal packet_type           : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- indicates reply or data packet - written to header word 3
+signal reply_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- this word is the reply or data word read from cmd_queue
+signal packet_type           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- indicates reply or data packet - written to header word 3
 
 signal m_op_done_reply       : std_logic;                                     -- asserted high when a m_op is done and processing a reply packet
 signal m_op_done_data        : std_logic;                                     -- asserted high when a m_op is done and processing a data packet
@@ -896,7 +902,8 @@ txd_o              <= fibre_byte;
        when TX_WORDN_3 =>
        
           if (m_op_done_reply = '1' or m_op_done_data = '1') and 
-             (fibre_word_count < (to_integer(unsigned(num_fibre_words_i)))  ) then
+             (fibre_word_count < (conv_integer(num_fibre_words_i))  ) then          
+--             (fibre_word_count < (to_integer(unsigned(num_fibre_words_i)))  ) then
              
              fibre_next_state <= REQ_Q_WORD;                 -- another fibre word to read fromn Q
           else
@@ -1038,7 +1045,8 @@ txd_o              <= fibre_byte;
   
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
-            packet_size                <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
+            packet_size                <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
+--            packet_size                <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
             reply_data                 <= CHECKSUM_ER_NUM;
             packet_type                <= ASCII_SP & ASCII_SP & ASCII_R & ASCII_P ;
             
@@ -1065,7 +1073,8 @@ txd_o              <= fibre_byte;
       
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
-            packet_size                <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
+            packet_size                <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
+--            packet_size                <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
             reply_data                 <= CHECKSUM_ER_NUM;
             packet_type                <= ASCII_SP & ASCII_SP & ASCII_R & ASCII_P ;
             
@@ -1094,7 +1103,8 @@ txd_o              <= fibre_byte;
       
             reply_status( 7 downto 0)  <= ASCII_K ;             
             reply_status(15 downto 8)  <= ASCII_O ;
-            packet_size                <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
+            packet_size                <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
+--            packet_size                <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
             reply_data                 <= (others => '0');   -- reply word 3 is 0
             packet_type                <= REPLY_PACKET;
                         
@@ -1117,9 +1127,11 @@ txd_o              <= fibre_byte;
             wordN_3mux_sel             <= '1';              -- register reply word 3 byte 3
            
       when REPLY_OK    =>   
-    
-            reply_size                 <= to_integer(unsigned(num_fibre_words_i)) + 3 ; 
-            packet_size                <= std_logic_vector(to_unsigned(reply_size,DATA_BUS_WIDTH));
+
+            reply_size                 <= conv_integer(num_fibre_words_i) + 3 ; 
+            packet_size                <= conv_std_logic_vector(reply_size,PACKET_WORD_WIDTH);    
+--            reply_size                 <= to_integer(unsigned(num_fibre_words_i)) + 3 ; 
+--            packet_size                <= std_logic_vector(to_unsigned(reply_size,PACKET_WORD_WIDTH));
             reply_status( 7 downto 0)  <= ASCII_K ;
             reply_status(15 downto 8)  <= ASCII_O ;
             packet_type                <= REPLY_PACKET; 
@@ -1138,8 +1150,9 @@ txd_o              <= fibre_byte;
             packet_header4_3mux_sel    <= '1';               -- register reply word 3 byte 3
             
       when REPLY_ER    =>   
-    
-            packet_size <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
+
+            packet_size <= conv_std_logic_vector(NUM_REPLY_WORDS,32);    
+--            packet_size <= std_logic_vector(to_unsigned(NUM_REPLY_WORDS,32));
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
             packet_type                <= REPLY_PACKET;
