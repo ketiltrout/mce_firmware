@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date: 2004/07/22 18:58:22 $>    - <initials $Author: mandana $>
+-- <date $Date: 2004/07/22 23:50:41 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.2  2004/07/22 23:50:41  bench1
+-- Mandana: sum is now calculated in the same process as nsample, but not working
+--
 -- Revision 1.1  2004/07/22 18:58:22  mandana
 -- Initial release, sums up 1000 samples before dumping the result on mictor
 --
@@ -137,9 +140,9 @@ begin
    
    clk_gen : pll
       port map(inclk0 => inclk,
-               c0 => clk,
-               c1 => clk2,
-               e0 => outclk);
+              c0 => clk,
+              c1 => clk2,
+              e0 => outclk);
    
    adc1_clk <= clk;
    adc2_clk <= clk;
@@ -154,6 +157,7 @@ begin
    begin
       if(n_rst = '1') then
          sum <= (others => '0');
+         nsample <= 0;
       elsif(adc1_rdy'event and adc1_rdy = '0') then  
          if nsample = 3 then
             nsample <= 0;
@@ -171,7 +175,7 @@ begin
             mictor (13 downto 0) <= sum(13 downto 0);
             mictor (14)          <= adc1_rdy;
             mictor (15)          <= clk;
-            mictor (29 downto 16)<= sum(13 downto 0);      
+            mictor (29 downto 16)<= sum(23 downto 14);      
          end if;
       end if;
    end process latch;
