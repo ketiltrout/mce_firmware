@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.14 2004/07/16 22:56:16 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.15 2004/07/17 00:57:15 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.15  2004/07/17 00:57:15  erniel
+-- updated crc component
+--
 -- Revision 1.14  2004/07/16 22:56:16  erniel
 -- updated crc component
 --
@@ -257,13 +260,15 @@ package component_pack is
 ------------------------------------------------------------ 
 
    component crc
-      generic(POLY_WIDTH : integer := 8;
-              DATA_LENGTH : integer := 64);
+      generic(POLY_WIDTH : integer := 8);
       port(clk    : in std_logic;
            rst    : in std_logic;
            clr_i  : in std_logic;
            ena_i  : in std_logic;
-           data_i : in std_logic;
+           
+           data_i     : in std_logic;
+           num_bits_i : in integer;
+           
            poly_i : in std_logic_vector(POLY_WIDTH downto 1);
      
            done_o     : out std_logic;
