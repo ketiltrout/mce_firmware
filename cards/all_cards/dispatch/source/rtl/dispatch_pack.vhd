@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.5  2004/10/13 03:57:50  erniel
+-- added WATCHDOG_LIMIT constant
+-- added component declaration for top-level
+--
 -- Revision 1.4  2004/09/27 23:00:24  erniel
 -- added component declarations
 -- moved constants to command_pack
@@ -133,6 +137,7 @@ package dispatch_pack is
    end component;
    
    component dispatch 
+   generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := CLOCK_CARD);
    port(clk_i        : in std_logic;
         mem_clk_i    : in std_logic;
         comm_clk_i   : in std_logic;
