@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.4  2004/08/24 23:53:23  bburger
+-- Bryce:  bug fix - added a signal call int_zero for portmaps to counters
+--
 -- Revision 1.3  2004/08/09 22:17:54  erniel
 -- fixed inverted clock bug
 --
@@ -93,7 +96,7 @@ signal byte_count_ena : std_logic;
 signal byte_count_clr : std_logic;
 signal bytes_sent     : integer range 0 to 4;
 
-signal int_zero : integer := 0;
+constant int_zero : integer := 0;
 
 begin
 

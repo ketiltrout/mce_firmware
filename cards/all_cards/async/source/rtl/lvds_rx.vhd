@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.3  2004/08/24 23:53:23  bburger
+-- Bryce:  bug fix - added a signal call int_zero for portmaps to counters
+--
 -- Revision 1.2  2004/08/06 20:39:30  erniel
 -- replaced some processes with rtl-blocks
 -- added data buffer registers
@@ -87,7 +90,7 @@ signal byte1_ld : std_logic;
 signal byte2_ld : std_logic;
 signal byte3_ld : std_logic;
 
-signal int_zero : integer := 0;
+constant int_zero : integer := 0;
 
 type states is (IDLE, LATCH, RXDONE, RXWAIT, DONE);
 signal pres_state : states;
