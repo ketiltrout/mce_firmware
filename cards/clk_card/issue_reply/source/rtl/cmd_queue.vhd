@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.8 2004/05/21 01:21:56 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.9 2004/05/25 21:25:08 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.9  2004/05/25 21:25:08  bburger
+-- in progress
+--
 -- Revision 1.8  2004/05/21 01:21:56  bburger
 -- in progress
 --
@@ -118,11 +121,8 @@ end cmd_queue;
 
 architecture behav of cmd_queue is
 
-constant HIGH : std_logic := '1';
-constant LOW : std_logic := '0';
 constant H0X00 : std_logic_vector(7 downto 0) := "00000000";
 constant H0XFF : std_logic_vector(7 downto 0) := "11111111";
-constant INT_ZERO : integer := 0;
 
 constant ISSUE_SYNC_BUS_WIDTH : integer := 8;  -- The width of the data field for the absolute sync count at which an instruction was issued
 constant TIMEOUT_SYNC_BUS_WIDTH : integer := 8;  -- The width of the data field for the absolute sync count at which an instruction expires
