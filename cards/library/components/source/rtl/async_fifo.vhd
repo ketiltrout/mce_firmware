@@ -43,8 +43,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
 
 entity async_fifo is
    generic( 
@@ -62,13 +60,16 @@ entity async_fifo is
 
 end async_fifo ;
 
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 architecture rtl of async_fifo is
 
    -- Architecture Declarations
    
    subtype fifo_deep is integer range 0 to fifo_size-1;
-   subtype fifo_fill is integer range 0 to fifo_size;
+  
 
    subtype word is std_logic_vector(7 downto 0);
    type mem is array (0 to fifo_size-1) of word;
@@ -76,24 +77,14 @@ architecture rtl of async_fifo is
 
    signal write_pointer : fifo_deep;
    signal read_pointer  : fifo_deep;
-   signal fifo_count    : fifo_fill;
+   
+   signal fifo_count    : fifo_deep;   -- 
+   signal last_count    : fifo_deep;   -- used to determine if FIFO full or empty.
+   
    signal empty         : std_logic;
    signal full          : std_logic;
    
-   signal last_count    : fifo_deep;   -- used to determine if FIFO full or empty.
-
-
----------------------------------------------------------
--- [procedure to initialise FIFO memory 
-
-   procedure init_mem(signal memory_cell : inout mem ) is
-   begin
-     for i in 0 to fifo_size-1 loop
-        memory_cell(i) <= (others => '0');
-     end loop;
-   end init_mem;
----------------------------------------------------------
-
+   
 begin
 
    empty_o <= empty;
@@ -108,8 +99,12 @@ begin
    begin
       if (rst_i = '1') then
          write_pointer <= 0;
-         init_mem(memory);
-      elsif (write_i'EVENT and write_i = '1') then
+        
+         for i in 0 to fifo_size-1 loop
+            memory(i) <= (others => '0');
+         end loop;   
+           
+       elsif (write_i'EVENT and write_i = '1') then
          memory(write_pointer) <= d_i; 
             if (write_pointer = fifo_size-1) then
                write_pointer <= 0;
@@ -163,7 +158,7 @@ begin
    ----------------------------------------------------------------------------
       begin
          if (fifo_count = 0) then
-            if (last_count = fifo_size - 1) then 
+            if (last_count = fifo_size - 1) then   -- i.e. if last operation was a write
                empty <= '0';
                full <= '1';
             else 
