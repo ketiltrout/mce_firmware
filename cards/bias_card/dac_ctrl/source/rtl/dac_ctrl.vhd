@@ -33,8 +33,11 @@
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/29 20:50:56 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/14 20:27:13 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.12  2004/05/14 20:27:13  mandana
+-- changed frame_timing values to integer(Bias_count)
+--
 -- Revision 1.11  2004/04/29 20:50:56  mandana
 -- added dac_nclr signal
 --
@@ -95,7 +98,6 @@ port(--  dac_ctrl:
      dac_data_o  : out std_logic_vector(32 downto 0);   
      dac_ncs_o   : out std_logic_vector(32 downto 0);
      dac_clk_o   : out std_logic_vector(32 downto 0);
-     dac_nclr_o  : out std_logic;
      -- wishbone signals:
      clk_i       : in std_logic;
      rst_i       : in std_logic;		
@@ -194,10 +196,8 @@ dac_ncs_o <= dac_ncs;
    begin
       if(rst_i = '1') then
          current_state <= IDLE;
-         dac_nclr_o <= '0';
       elsif(clk_i'event and clk_i = '1') then
          current_state <= next_state;
-         dac_nclr_o <= '1';
       end if;
    end process state_FF;
 
@@ -457,7 +457,7 @@ dac_ncs_o <= dac_ncs;
             end if;   
          
          when DAC32_PENDING =>
-            if read_count = UPDATE_BIAS then   -- ok ok we can store it once during init.
+            if (read_count = UPDATE_BIAS) then   -- ok ok we can store it once during init.
                snd_dac32_next_state <= SND_DAC32;
             else
                snd_dac32_next_state <= DAC32_PENDING;
