@@ -55,12 +55,15 @@ set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_p
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply_pack.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
+set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset_pack.vhd
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/cc_pll.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_receive.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_retire.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_sequencer.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_accumulator.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
@@ -96,6 +99,7 @@ set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_fifo
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator_frame_head_ram.vhd
+set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/async_fifo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
@@ -331,10 +335,19 @@ set_location_assignment PIN_AD10 -to fibre_rx_rvs
 set_location_assignment PIN_AE10 -to fibre_rx_ckr
 set_location_assignment PIN_AG12 -to dv_pulse_fibre
 set_location_assignment PIN_AF12 -to dv_pulse_bnc
+set_location_assignment PIN_L24 -to ttl_nrx1
+set_location_assignment PIN_H26 -to ttl_nrx2
+set_location_assignment PIN_H25 -to ttl_nrx3
+set_location_assignment PIN_L21 -to ttl_tx1
+set_location_assignment PIN_G27 -to ttl_tx2
+set_location_assignment PIN_G28 -to ttl_tx3
+set_location_assignment PIN_K22 -to ttl_txena1
+set_location_assignment PIN_G26 -to ttl_txena2
+set_location_assignment PIN_G25 -to ttl_txena3
 
 # Timing Assignments
 # ==================
-set_global_assignment -name IGNORE_CLOCK_SETTINGS ON
+set_global_assignment -name IGNORE_CLOCK_SETTINGS OFF
 set_global_assignment -name FMAX_REQUIREMENT "20.0 ns"
 
 # Analysis & Synthesis Assignments
@@ -345,6 +358,7 @@ set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 5
 set_global_assignment -name FAMILY Stratix
+set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name TOP_LEVEL_ENTITY clk_card
 set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
 
@@ -353,6 +367,21 @@ set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
 set_global_assignment -name DEVICE EP1S30F780C5
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 5ns
+
+# Timing Analysis Assignments
+# ===========================
+set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 1000
+
+# Design Assistant Assignments
+# ============================
+set_global_assignment -name ASSG_RULE_MISSING_TIMING OFF
+set_global_assignment -name ENABLE_DRC_SETTINGS ON
+set_global_assignment -name RESET_RULE_UNSYNCH_EXRESET OFF
+set_global_assignment -name RESET_RULE_IMSYNCH_EXRESET OFF
+set_global_assignment -name RESET_RULE_UNSYNCH_ASYNCH_DOMAIN OFF
+set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
@@ -362,3 +391,31 @@ set_global_assignment -name USE_SIGNALTAP_FILE clk_card.stp
 # LogicLock Region Assignments
 # ============================
 set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
+
+# ------------------
+# start CLOCK(inclk)
+
+	# Timing Assignments
+	# ==================
+	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
+	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
+
+# end CLOCK(inclk)
+# ----------------
+
+# ----------------------
+# start ENTITY(clk_card)
+
+	# Timing Assignments
+	# ==================
+	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|present_send_state*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|lvds_tx:cmd_tx2\|fifo:data_buffer\|altsyncram:fifo_storage\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|reply_queue:i_reply_queue\|reply_queue_retire:rqr\|reg:header_d_reg\|*"
+
+	# Analysis & Synthesis Assignments
+	# ================================
+	set_instance_assignment -name MAX_FANOUT 100 -to *
+
+# end ENTITY(clk_card)
+# --------------------
