@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.18 2004/09/30 22:34:44 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.19 2004/10/08 19:45:26 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/30 22:34:44 $> -     <text>      - <initials $Author: erniel $>
+-- <date $Date: 2004/10/08 19:45:26 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.19  2004/10/08 19:45:26  bburger
+-- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
+--
 -- Revision 1.18  2004/09/30 22:34:44  erniel
 -- using new command_pack constants
 --
@@ -297,126 +300,126 @@ begin
                cmd_start               <= '0';
                cmd_stop                <= '0';
 
-            ---------------------------------------------------------------------------------
-            -- Address Card Specific
-                  
-            when FST_ST_FB_ADDR     |
-                 ON_BIAS_ADDR       |
-                 OFF_BIAS_ADDR      |
-                 ROW_MAP_ADDR       |
-
-            ---------------------------------------------------------------------------------
-            -- Readout Card Specific
-   
-                 SA_BIAS_ADDR       |
-                 OFFSET_ADDR        |
-                 FILT_COEF_ADDR     |
-                 COL_MAP_ADDR       |
-                 ENBL_SERVO_ADDR    |
-                 COL_ENBL_ADDR      |
-
-                 GAINP0_ADDR        |
-                 GAINP1_ADDR        |
-                 GAINP2_ADDR        |
-                 GAINP3_ADDR        |
-                 GAINP4_ADDR        |
-                 GAINP5_ADDR        |
-                 GAINP6_ADDR        |
-                 GAINP7_ADDR        |
-                 GAINI0_ADDR        |
-                 GAINI1_ADDR        |
-                 GAINI2_ADDR        |
-                 GAINI3_ADDR        |
-                 GAINI4_ADDR        |
-                 GAINI5_ADDR        |
-                 GAINI6_ADDR        |
-                 GAINI7_ADDR        |
-                 ZERO0_ADDR         |
-                 ZERO1_ADDR         |
-                 ZERO2_ADDR         |
-                 ZERO3_ADDR         |
-                 ZERO4_ADDR         |
-                 ZERO5_ADDR         |
-                 ZERO6_ADDR         |
-                 ZERO7_ADDR         |
-
-                 ---------------------------------------------------------------------------------
-                 -- Bias Card Specific
-                 FLUX_FB_ADDR       |
-                 BIAS_ADDR          |
-
-
-                 DATA_MODE_ADDR     |
-                 STRT_MUX_ADDR      |
-                 ROW_ORDER_ADDR     |
-                 
---                 DBL_BUFF_ADDR      |
-                 ACTV_ROW_ADDR      |
-                 USE_DV_ADDR        |
-
-                 ---------------------------------------------------------------------------------
-                 -- Any Card
-                 STATUS_ADDR        |
-                 RST_WTCHDG_ADDR    |
-                 RST_REG_ADDR       |
-                 EEPROM_ADDR        |
-                 VFY_EEPROM_ADDR    |
-                 CLR_ERROR_ADDR     |
-                 EEPROM_SRT_ADDR    |
-                 RESYNC_ADDR        |
-
-                 BIT_STATUS_ADDR    |
-                 FPGA_TEMP_ADDR     |
-                 CARD_TEMP_ADDR     |
-                 CARD_ID_ADDR       |
-                 CARD_TYPE_ADDR     |
-                 SLOT_ID_ADDR       |
-                 FMWR_VRSN_ADDR     |
-                 DIP_ADDR           |
-                 CYC_OO_SYC_ADDR    |
-
-                 ---------------------------------------------------------------------------------
-                 -- Clock Card Specific
-                 CONFIG_S_ADDR      |
-                 CONFIG_ADDR        |
-                 ARRAY_ID_ADDR      |
-                 BOX_ID_ADDR        |
-                 APP_CONFIG_ADDR    |
-                 SRAM1_ADDR         |
-                 VRFY_SRAM1_ADDR    |
-                 SRAM2_ADDR         |
-                 VRFY_SRAM2_ADDR    |
-                 FAC_CONFIG_ADDR    |
-                 SRAM1_CONT_ADDR    |
-                 SRAM2_CONT_ADDR    |
-                 SRAM1_STRT_ADDR    |
-                 SRAM2_STRT_ADDR    |
-
-                 ---------------------------------------------------------------------------------
-                 -- Power Card Specific
-                 PSC_STATUS_ADDR    |
-                 BRST_ADDR          |
-                 PSC_RST_ADDR       |
-                 PSC_OFF_ADDR       =>
-                                  
-          ret_dat_start         <= '0';
-               ret_dat_stop          <= '0';
-                    
-               ret_dat_s_start       <= '0';
-               ret_dat_s_ack         <= '0';
-          
-          cmd_start             <= '1';
-               cmd_stop              <= '0';
-                    
+--            ---------------------------------------------------------------------------------
+--            -- Address Card Specific
+--                  
+--            when FST_ST_FB_ADDR     |
+--                 ON_BIAS_ADDR       |
+--                 OFF_BIAS_ADDR      |
+--                 ROW_MAP_ADDR       |
+--
+--            ---------------------------------------------------------------------------------
+--            -- Readout Card Specific
+--   
+--                 SA_BIAS_ADDR       |
+--                 OFFSET_ADDR        |
+--                 FILT_COEF_ADDR     |
+--                 COL_MAP_ADDR       |
+--                 ENBL_SERVO_ADDR    |
+--                 COL_ENBL_ADDR      |
+--
+--                 GAINP0_ADDR        |
+--                 GAINP1_ADDR        |
+--                 GAINP2_ADDR        |
+--                 GAINP3_ADDR        |
+--                 GAINP4_ADDR        |
+--                 GAINP5_ADDR        |
+--                 GAINP6_ADDR        |
+--                 GAINP7_ADDR        |
+--                 GAINI0_ADDR        |
+--                 GAINI1_ADDR        |
+--                 GAINI2_ADDR        |
+--                 GAINI3_ADDR        |
+--                 GAINI4_ADDR        |
+--                 GAINI5_ADDR        |
+--                 GAINI6_ADDR        |
+--                 GAINI7_ADDR        |
+--                 ZERO0_ADDR         |
+--                 ZERO1_ADDR         |
+--                 ZERO2_ADDR         |
+--                 ZERO3_ADDR         |
+--                 ZERO4_ADDR         |
+--                 ZERO5_ADDR         |
+--                 ZERO6_ADDR         |
+--                 ZERO7_ADDR         |
+--
+--                 ---------------------------------------------------------------------------------
+--                 -- Bias Card Specific
+--                 FLUX_FB_ADDR       |
+--                 BIAS_ADDR          |
+--
+--
+--                 DATA_MODE_ADDR     |
+--                 STRT_MUX_ADDR      |
+--                 ROW_ORDER_ADDR     |
+--                 
+----                 DBL_BUFF_ADDR      |
+--                 ACTV_ROW_ADDR      |
+--                 USE_DV_ADDR        |
+--
+--                 ---------------------------------------------------------------------------------
+--                 -- Any Card
+--                 STATUS_ADDR        |
+--                 RST_WTCHDG_ADDR    |
+--                 RST_REG_ADDR       |
+--                 EEPROM_ADDR        |
+--                 VFY_EEPROM_ADDR    |
+--                 CLR_ERROR_ADDR     |
+--                 EEPROM_SRT_ADDR    |
+--                 RESYNC_ADDR        |
+--
+--                 BIT_STATUS_ADDR    |
+--                 FPGA_TEMP_ADDR     |
+--                 CARD_TEMP_ADDR     |
+--                 CARD_ID_ADDR       |
+--                 CARD_TYPE_ADDR     |
+--                 SLOT_ID_ADDR       |
+--                 FMWR_VRSN_ADDR     |
+--                 DIP_ADDR           |
+--                 CYC_OO_SYC_ADDR    |
+--
+--                 ---------------------------------------------------------------------------------
+--                 -- Clock Card Specific
+--                 CONFIG_S_ADDR      |
+--                 CONFIG_ADDR        |
+--                 ARRAY_ID_ADDR      |
+--                 BOX_ID_ADDR        |
+--                 APP_CONFIG_ADDR    |
+--                 SRAM1_ADDR         |
+--                 VRFY_SRAM1_ADDR    |
+--                 SRAM2_ADDR         |
+--                 VRFY_SRAM2_ADDR    |
+--                 FAC_CONFIG_ADDR    |
+--                 SRAM1_CONT_ADDR    |
+--                 SRAM2_CONT_ADDR    |
+--                 SRAM1_STRT_ADDR    |
+--                 SRAM2_STRT_ADDR    |
+--
+--                 ---------------------------------------------------------------------------------
+--                 -- Power Card Specific
+--                 PSC_STATUS_ADDR    |
+--                 BRST_ADDR          |
+--                 PSC_RST_ADDR       |
+--                 PSC_OFF_ADDR       =>
+--                                  
+--               ret_dat_start         <= '0';
+--               ret_dat_stop          <= '0';
+--                    
+--               ret_dat_s_start       <= '0';
+--               ret_dat_s_ack         <= '0';
+--          
+--               cmd_start             <= '1';
+--               cmd_stop              <= '0';
+--                    
             when others =>
 
-          ret_dat_start         <= '0';
+               ret_dat_start         <= '0';
                ret_dat_stop          <= '0';
                
                ret_dat_s_start       <= '0';
                ret_dat_s_ack         <= '0';
           
-               cmd_start             <= '0';
+               cmd_start             <= '1';
                cmd_stop              <= '0';
                
                --error_handler_start <= '1'; -- example what to do if an error occurs
