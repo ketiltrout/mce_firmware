@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.5  2004/12/01 04:28:55  erniel
+-- reworked read FSM state transitions to handle reply packets with size=0
+--
 -- Revision 1.4  2004/11/30 03:08:24  erniel
 -- deleted remaining status fifo-related signals
 --
@@ -138,7 +141,7 @@ signal status_clr : std_logic;
 --------------------------------------------------
 -- FIFO read control:
 
-type read_ctrl_states is (READ_IDLE, DATA_READY, DATA_EMPTY, DISCARD_DATA, READ_DONE);
+type read_ctrl_states is (READ_IDLE, DATA_READY, DATA_EMPTY, DISCARD_DATA, DISCARD_HEADER);
 signal rd_pres_state : read_ctrl_states;
 signal rd_next_state : read_ctrl_states;
 
@@ -542,18 +545,18 @@ begin
                                  end if;
          
          when DATA_EMPTY =>      if(ack_i = '1' or nack_i = '1') then
-                                    rd_next_state <= READ_DONE;
+                                    rd_next_state <= DISCARD_HEADER;
                                  else
                                     rd_next_state <= DATA_EMPTY;
                                  end if;
                                  
          when DISCARD_DATA =>    if(rd_count = cur_header(12 downto 0)-1) then
-                                    rd_next_state <= READ_DONE;
+                                    rd_next_state <= DISCARD_HEADER;
                                  else
                                     rd_next_state <= DISCARD_DATA;
                                  end if;
                                                      
-         when READ_DONE =>       rd_next_state <= READ_IDLE;
+         when DISCARD_HEADER =>  rd_next_state <= READ_IDLE;
           
          when others =>          rd_next_state <= READ_IDLE;
       end case;
@@ -581,7 +584,7 @@ begin
          when DISCARD_DATA =>    data_rd         <= '1';
                                  rd_count_ena    <= '1';
                                
-         when READ_DONE =>       header_rd       <= '1';
+         when DISCARD_HEADER =>  header_rd       <= '1';
                                  rd_count_ena    <= '1';
                                  rd_count_clr    <= '1';
                                  rd_done         <= '1';
