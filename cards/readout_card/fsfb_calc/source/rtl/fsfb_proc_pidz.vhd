@@ -37,7 +37,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.1  2004/10/22 22:18:36  anthonyk
+-- Initial release
+--
 --
 
 
@@ -71,7 +74,7 @@ entity fsfb_proc_pidz is
 
       -- outputs from first stage feedback processor block
       fsfb_proc_pidz_update_o  : out    std_logic;                                            -- update pulse to indicate P*Xn+I*In+D*Dn+Z result is ready
-      fsfb_proc_pidz_sum_o     : out    std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0) -- P*Xn+I*In+D*Dn+Z result
+      fsfb_proc_pidz_sum_o     : out    std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0) -- P*Xn+I*In+D*Dn+Z result (66 bits)
   
       );
 
@@ -87,8 +90,8 @@ use work.fsfb_calc_pack.all;
 architecture rtl of fsfb_proc_pidz is
 
    -- constant declarations
-   constant ZEROES             : std_logic_vector(15 downto 0) := "0000000000000000";
-   constant ONES               : std_logic_vector(15 downto 0) := "1111111111111111";
+   constant ZEROES             : std_logic_vector(31 downto 0) := x"00000000";
+   constant ONES               : std_logic_vector(31 downto 0) := x"11111111";
 
    -- internal signal declarations
    signal coadd_done_1d        : std_logic;                                                   -- coadd_done_i delayed by 1 clock cycle
@@ -98,22 +101,24 @@ architecture rtl of fsfb_proc_pidz is
    signal store_1st_add        : std_logic;                                                   -- clock enable to register 1st stage adder outputs
    signal store_2nd_add        : std_logic;                                                   -- clock enable to register 2nd stage adder outputs
    
-   signal p_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- P*Xn multiplier output
-   signal i_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- I*In multiplier output
-   signal d_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- D*Dn multiplier output
+   signal p_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- P*Xn multiplier output (64 bits)
+   signal i_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- I*In multiplier output (64 bits)
+   signal d_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- D*Dn multiplier output (64 bits)
    
-   signal p_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- registered P*Xn
-   signal i_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- registered I*In
-   signal d_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- registered D*Dn
-   signal z_dat_64             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- Z input extended to 64 bits
+   signal p_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered P*Xn (64 + 1 bits)
+   signal i_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered I*In (64 + 1 bits)
+   signal d_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered D*Dn (64 + 1 bits)
+   signal z_dat_65             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- Z input extended to 65 bits
    
-   signal pi_sum               : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- P*Xn+I*In adder output
-   signal dz_sum               : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- D*Dn+Z adder output
-   signal pidz_sum             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output
+   signal pi_sum               : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- P*Xn+I*In adder output (65 bits)
+   signal dz_sum               : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- D*Dn+Z adder output    (65 bits)
+
+   signal pi_sum_reg           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- registered P*Xn+I*In adder output (65 + 1 bits)
+   signal dz_sum_reg           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- registered D*Dn+Z adder output    (65 + 1 bits)
+
    
-   signal pi_sum_reg           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered P*Xn+I*In adder output
-   signal dz_sum_reg           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered D*Dn+Z adder output
-   signal pidz_sum_reg         : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output
+   signal pidz_sum             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output (65 + 1 bits)
+   signal pidz_sum_reg         : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output (65 + 1 bits)
    
 begin
 
@@ -170,6 +175,11 @@ begin
          result                             => d_product
       );
       
+   -- Note : extend all product_regs by 1 bit (taken from the product sign bit) 
+   -- to make 65 bit adder inputs; then PI/DZ_ADD gives 65 bit adder result, 
+   -- no carry or overflow will occur as the extension from extra bit covers 
+   -- sufficiently the worst case (adding two most negative or postive numbers 
+   -- together.
          
    -- Register all products
    -- Use as inputs to 1st stage adders
@@ -181,37 +191,38 @@ begin
          d_product_reg <= (others => '0');
       elsif (clk_50_i'event and clk_50_i = '1') then
          if (store_mult = '1') then
-            p_product_reg <= p_product;
-            i_product_reg <= i_product;
-            d_product_reg <= d_product;
+            p_product_reg <= p_product(p_product'left) & p_product;
+            i_product_reg <= i_product(i_product'left) & i_product;
+            d_product_reg <= d_product(d_product'left) & d_product;
          end if;
       end if;
    end process product_regs;
 
+
+   -- Note : Then further extend pi_sum and dz_sum by 1 bit to make 66 bit adder inputs
+   -- pidz sum result should now be 66 bits, where bit 66 carry sign information
 
    -- 1st stage addition
    -- Consists of two additions done in parallel: p_product + i_product
    --                                             d_product + z                                          
    -- Inputs are all registered
    --   
-   i_pi_add : fsfb_calc_adder64
+   i_pi_add : fsfb_calc_adder65
       port map (
          dataa                              => p_product_reg,
          datab                              => i_product_reg,
-         result                             => pi_sum(pi_sum'left-1 downto 0), 
-         cout                               => pi_sum(pi_sum'left)
+         result                             => pi_sum 
       );
    
    -- Sign extended z_dat_i to 64 bits 
-   z_dat_64 <= ZEROES & ZEROES & z_dat_i when z_dat_i(z_dat_i'left)='0' else
-               ONES & ONES & z_dat_i;
+   z_dat_65 <= '0' & ZEROES & z_dat_i when z_dat_i(z_dat_i'left)='0' else
+               '1' & ONES & z_dat_i;
    
-   i_dz_add : fsfb_calc_adder64
+   i_dz_add : fsfb_calc_adder65
       port map (
          dataa                              => d_product_reg,
-         datab                              => z_dat_64,
-         result                             => dz_sum(dz_sum'left-1 downto 0),
-         cout                               => dz_sum(dz_sum'left)
+         datab                              => z_dat_65,
+         result                             => dz_sum
       );
       
       
@@ -220,15 +231,13 @@ begin
    --
    -- Inputs are all registered
    --  
-   i_pidz_add : fsfb_calc_adder65
+   i_pidz_add : fsfb_calc_adder66
       port map (
          dataa                              => pi_sum_reg,
          datab                              => dz_sum_reg,
-         result                             => pidz_sum(pidz_sum'left-1 downto 0),
-         cout                               => pidz_sum(pidz_sum'left)
+         result                             => pidz_sum
       );
-      
-  
+     
    -- Register all sums
    sum_regs : process (clk_50_i, rst_i)
    begin
@@ -240,8 +249,8 @@ begin
       
          -- 1st stage sum
          if (store_1st_add = '1') then
-            pi_sum_reg <= pi_sum;
-            dz_sum_reg <= dz_sum;
+            pi_sum_reg <= pi_sum(pi_sum'left) & pi_sum;
+            dz_sum_reg <= dz_sum(dz_sum'left) & dz_sum;
          end if;
          
          -- 2nd stage sum
