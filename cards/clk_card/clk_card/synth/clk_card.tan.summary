@@ -5,9 +5,9 @@ Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 12.214 ns
-From           : rst_n
-To             : issue_reply:issue_reply0|cmd_translator:i_cmd_translator|data_reg[15]
+Actual Time    : 12.746 ns
+From           : slot_id[3]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|rx_pres_state~28
 From Clock     : 
 To Clock       : inclk
 Failed Paths   : 0
@@ -15,8 +15,8 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 9.718 ns
-From           : dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|lpm_counter:us_count_rtl_0|alt_counter_stratix:wysi_counter|safe_q[7]
+Actual Time    : 10.375 ns
+From           : dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|lpm_counter:us_count_rtl_0|alt_counter_stratix:wysi_counter|safe_q[20]
 To             : wdog
 From Clock     : inclk
 To Clock       : 
@@ -25,9 +25,9 @@ Failed Paths   : 0
 Type           : Worst-case tpd
 Slack          : N/A
 Required Time  : None
-Actual Time    : 10.574 ns
-From           : fibre_rx_data[6]
-To             : mictor_o[7]
+Actual Time    : 10.541 ns
+From           : fibre_rx_data[7]
+To             : mictor_o[8]
 From Clock     : 
 To Clock       : 
 Failed Paths   : 0
@@ -35,11 +35,11 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : 2.605 ns
-From           : altera_internal_jtag
-To             : sld_hub:sld_hub_inst|sld_dffex:IRF_ENA_0|Q[0]
+Actual Time    : 2.478 ns
+From           : fibre_rx_data[2]
+To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_t8v:auto_generated|dpram_apm:dpram4|altsyncram_cha1:altsyncram21|ram_block22a2~porta_datain_reg0
 From Clock     : 
-To Clock       : altera_internal_jtag~TCKUTAP
+To Clock       : fibre_rx_ckr
 Failed Paths   : 0
 
 Type           : Worst-case Minimum tco
@@ -55,59 +55,49 @@ Failed Paths   : 0
 Type           : Worst-case Minimum tpd
 Slack          : N/A
 Required Time  : None
-Actual Time    : 2.404 ns
-From           : altera_internal_jtag~TDO
-To             : altera_reserved_tdo
+Actual Time    : 9.181 ns
+From           : lvds_reply_rc4_a
+To             : mictor_e[13]
 From Clock     : 
 To Clock       : 
 Failed Paths   : 0
 
 Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk2'
-Slack          : 0.801 ns
+Slack          : 1.027 ns
 Required Time  : 200.00 MHz ( period = 5.000 ns )
-Actual Time    : 238.15 MHz ( period = 4.199 ns )
-From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver|counter:sample_counter|count[4]
-To             : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver|reg:data_buffer|reg_o[26]
+Actual Time    : 251.70 MHz ( period = 3.973 ns )
+From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver|counter:sample_counter|count[4]
+To             : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver|reg:data_buffer|reg_o[11]
 From Clock     : cc_pll:pll0|altpll:altpll_component|_clk2
 To Clock       : cc_pll:pll0|altpll:altpll_component|_clk2
 Failed Paths   : 0
 
 Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : 1.094 ns
+Slack          : 1.375 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
-From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_rc1|lvds_rx:lvds_receiver|reg:data_buffer|reg_o[30]
-To             : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_rc1|crc_ps~22
+From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_rc2|lvds_rx:lvds_receiver|reg:data_buffer|reg_o[23]
+To             : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_rc2|crc_ps~22
 From Clock     : cc_pll:pll0|altpll:altpll_component|_clk2
 To Clock       : cc_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
-Type           : Clock Setup: 'altera_internal_jtag~TCKUTAP'
-Slack          : 7.413 ns
-Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 193.27 MHz ( period = 5.174 ns )
-From           : sld_hub:sld_hub_inst|sld_jtag_state_machine:jtag_state_machine|state[4]
-To             : sld_hub:sld_hub_inst|HUB_TDO~376
-From Clock     : altera_internal_jtag~TCKUTAP
-To Clock       : altera_internal_jtag~TCKUTAP
-Failed Paths   : 0
-
 Type           : Clock Setup: 'fibre_rx_ckr'
-Slack          : 16.313 ns
+Slack          : 15.863 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 271.22 MHz ( period = 3.687 ns )
-From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_t8v:auto_generated|cntr_b08:cntr1|safe_q[1]
-To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_t8v:auto_generated|dffpipe_0a3:dffpipe20|dffe27a[7]
+Actual Time    : 241.72 MHz ( period = 4.137 ns )
+From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_t8v:auto_generated|a_fefifo_h3d:a_fefifo6|b_full
+To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_t8v:auto_generated|a_graycounter_v16:a_graycounter3|power_modified_counter_values[4]
 From Clock     : fibre_rx_ckr
 To Clock       : fibre_rx_ckr
 Failed Paths   : 0
 
 Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk3'
-Slack          : 18.774 ns
+Slack          : 19.076 ns
 Required Time  : 25.00 MHz ( period = 40.000 ns )
 Actual Time    : N/A
-From           : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|fibre_tx_fifo:fibre_tx_fifo_inst|sync_fifo_tx:sync_fifo_tx_inst|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dffe8a[7]
-To             : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|fibre_tx_fifo:fibre_tx_fifo_inst|sync_fifo_tx:sync_fifo_tx_inst|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dffe9a[7]
+From           : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|fibre_tx_fifo:fibre_tx_fifo_inst|sync_fifo_tx:sync_fifo_tx_inst|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dffe8a[2]
+To             : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|fibre_tx_fifo:fibre_tx_fifo_inst|sync_fifo_tx:sync_fifo_tx_inst|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dffe9a[2]
 From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
 To Clock       : cc_pll:pll0|altpll:altpll_component|_clk3
 Failed Paths   : 0
