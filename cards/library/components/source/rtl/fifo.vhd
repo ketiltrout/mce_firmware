@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: fifo.vhd,v $
+-- Revision 1.3  2004/12/24 20:12:47  erniel
+-- changed memory core to operate in flow-through mode
+-- added read enable to memory core
+-- removed mem_clk_i port (not necessary in flow-through mode)
+--
 -- Revision 1.2  2004/10/25 23:39:17  erniel
 -- really minor cosmetic changes (spacing, word alignment, etc)
 --
@@ -85,8 +90,6 @@ component altsyncram
            wrcontrol_aclr_a       : string;
            address_aclr_a         : string;
            address_reg_b          : string;
-           rdcontrol_reg_b        : string;
-           rdcontrol_aclr_b       : string;
            address_aclr_b         : string;
            outdata_aclr_b         : string;
            intended_device_family : string);
@@ -95,7 +98,6 @@ component altsyncram
         wren_a    : in std_logic;
         address_a : in std_logic_vector(ADDR_WIDTH-1 downto 0);
         data_a    : in std_logic_vector(DATA_WIDTH-1 downto 0);
-        rden_b    : in std_logic;
         address_b : in std_logic_vector(ADDR_WIDTH-1 downto 0);
         q_b       : out std_logic_vector(DATA_WIDTH-1 downto 0));
 end component;
@@ -155,9 +157,7 @@ begin
                indata_aclr_a          => "NONE",
                wrcontrol_aclr_a       => "NONE",
                address_aclr_a         => "NONE",
-               address_reg_b          => "CLOCK1",
-               rdcontrol_reg_b        => "CLOCK1",
-               rdcontrol_aclr_b       => "NONE",               
+               address_reg_b          => "CLOCK1",               
                address_aclr_b         => "NONE",
                outdata_aclr_b         => "NONE",
                intended_device_family => "Stratix")
@@ -166,7 +166,6 @@ begin
             wren_a    => write_ena,
             address_a => write_addr,
             data_a    => data_i,
-            rden_b    => read_ena,
             address_b => read_addr,
             q_b       => data_out);
 
