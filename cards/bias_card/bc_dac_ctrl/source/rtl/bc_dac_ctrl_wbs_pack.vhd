@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs_pack.vhd,v 1.1 2004/11/25 03:05:08 bburger Exp $
+-- $Id: bc_dac_ctrl_wbs_pack.vhd,v 1.2 2005/01/04 19:19:47 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs_pack.vhd,v $
+-- Revision 1.2  2005/01/04 19:19:47  bburger
+-- Mandana: changed mictor assignment to 0 to 31 and swapped odd and even pods
+--
 -- Revision 1.1  2004/11/25 03:05:08  bburger
 -- Bryce:  Modified the Bias Card DAC control slaves.
 --
@@ -73,7 +76,6 @@ component bc_dac_ctrl_wbs is
 
       -- global interface
       clk_i             : in std_logic;
-      mem_clk_i         : in std_logic;
       rst_i             : in std_logic;
       debug             : inout std_logic_vector(31 downto 0)
    );     

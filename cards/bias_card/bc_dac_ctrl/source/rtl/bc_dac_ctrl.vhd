@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.4 2004/12/21 22:06:51 bburger Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.5 2005/01/04 19:19:47 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.5  2005/01/04 19:19:47  bburger
+-- Mandana: changed mictor assignment to 0 to 31 and swapped odd and even pods
+--
 -- Revision 1.4  2004/12/21 22:06:51  bburger
 -- Bryce:  update
 --
@@ -93,7 +96,6 @@ entity bc_dac_ctrl is
       
       -- Global Signals      
       clk_i             : in std_logic;
-      mem_clk_i         : in std_logic;
       rst_i             : in std_logic;
       debug             : inout std_logic_vector(31 downto 0)
    );     
@@ -160,7 +162,6 @@ bcdc_wbs: bc_dac_ctrl_wbs
 
       -- global interface
       clk_i             => clk_i,
-      mem_clk_i         => mem_clk_i,
       rst_i             => rst_i,
       debug             => debug
    );

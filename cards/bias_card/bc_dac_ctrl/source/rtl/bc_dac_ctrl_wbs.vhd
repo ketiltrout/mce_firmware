@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.2 2005/01/04 19:19:47 bburger Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.3 2005/01/07 01:32:03 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.3  2005/01/07 01:32:03  bench2
+-- Mandana: watch for debug ports
+--
 -- Revision 1.2  2005/01/04 19:19:47  bburger
 -- Mandana: changed mictor assignment to 0 to 31 and swapped odd and even pods
 --
@@ -79,7 +82,6 @@ entity bc_dac_ctrl_wbs is
 
       -- global interface
       clk_i             : in std_logic;
-      mem_clk_i         : in std_logic;
       rst_i             : in std_logic;
       debug             : inout std_logic_vector(31 downto 0)
    );     
@@ -99,12 +101,13 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal bias_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    -- WBS states:
-   type states is (IDLE, WR, RD); 
+   type states is (IDLE, WR, RD1, RD2); 
    signal current_state    : states;
    signal next_state       : states;
    
+   
 begin
-
+   
    flux_fb_ram : tpram_32bit_x_64
       port map
       (
@@ -113,7 +116,7 @@ begin
          wraddress         => tga_i(COL_ADDR_WIDTH-1 downto 0),
          rdaddress_a       => flux_fb_addr_i,
          rdaddress_b       => tga_i(COL_ADDR_WIDTH-1 downto 0),
-         clock             => mem_clk_i,
+         clock             => clk_i,
          qa                => flux_fb_data_o,
          qb                => flux_fb_data
       );   
@@ -132,7 +135,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => rst_i,
          ena_i             => bias_wren,
          reg_i             => dat_i,
@@ -165,7 +168,7 @@ begin
             if(wr_cmd = '1') then
                next_state <= WR;            
             elsif(rd_cmd = '1') then
-               next_state <= RD;
+               next_state <= RD1;
             end if;                  
             
          when WR =>     
@@ -173,10 +176,13 @@ begin
                next_state <= IDLE;
             end if;
          
-         when RD =>
+         when RD1 =>
+            next_state <= RD2;
+            
+         when RD2 =>
             if(cyc_i = '0') then
                next_state <= IDLE;
-            end if;
+            end if;           
          
          when others =>
             next_state <= IDLE;
@@ -214,8 +220,11 @@ begin
                flux_fb_changed_o <= '1';
                bias_changed_o    <= '1';
             end if;
+            
+         when RD1 =>
+            ack_o <= '0';
          
-         when RD =>
+         when RD2 =>
             ack_o <= '1';
             
             if(cyc_i = '0') then
