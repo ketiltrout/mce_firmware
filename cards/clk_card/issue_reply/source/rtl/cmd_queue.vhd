@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: cmd_queue.vhd,v 1.1 2004/05/11 02:17:31 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,7 +29,10 @@
 -- on the clock card.
 --
 -- Revision history:
--- $Log$
+-- $Log: cmd_queue.vhd,v $
+-- Revision 1.1  2004/05/11 02:17:31  bburger
+-- new
+--
 --
 ------------------------------------------------------------------------
 
@@ -54,13 +57,14 @@ entity cmd_queue is
 --   );
 port (
    -- reply_queue interface
-   rq_card_id_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
-   rq_par_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
-   rq_mop_i       : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0);
-   rq_uop_i       : in std_logic_vector (UOP_BUS_WIDTH-1 downto 0);
-   rq_uop_status_i: in std_logic_vector (UOP_STATUS_BUS_WIDTH-1 downto 0); -- tells the cmd_queue the error status of a reply received
-   rq_rdy_i       : in std_logic; -- tells the cmd_queue when a reply to a u-op reply is ready
-   rq_ack_o       : out std_logic; -- tells the reply_queue when the cmd_queue has taken the u-op
+   --rq_card_id_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
+   --rq_par_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
+   rq_next_mop_o  : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- tells the reply_queue the next m-op that the cmd_queue wants to retire
+   rq_next_uop_o  : out std_logic_vector (UOP_BUS_WIDTH-1 downto 0); -- tells the reply_queue the next u-op that the cmd_queue wants to retire
+   rq_uop_status_i: in std_logic_vector (UOP_STATUS_BUS_WIDTH-1 downto 0); -- tells the cmd_queue whether a reply was successful or erroneous
+   rq_rdy_o       : in std_logic; -- tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
+   rq_ack_i       : out std_logic; -- tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on rq_uop_status_i
+   rq_discard_o   : out std_logic; -- tells the reply_queue whether or not to discard the reply to the current u-op reply when rq_rdy_i goes low.  rq_rdy_o can only go low after rq_ack_o has been received.
 
    -- cmd_translator interface
    ct_card_id_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- the card address of the m-op
@@ -85,7 +89,66 @@ port (
    --dat_o   : out std_logic_vector (DATA_WIDTH-1 downto 0);
    --rty_o   : out std_logic;
 
-   -- sync pulse
-   sync_i         : std_logic -- the sync pulse determines when and when not to issue u-ops
+   -- clock lines
+   sync_i         : in std_logic -- the sync pulse determines when and when not to issue u-ops
+   clk_i          : in std_logic -- advances the state machines
    );
 end cmd_queue
+
+architecture behav of cmd_queue is
+
+-- Retire/Resend state machine:
+-- State encoding and state variables:
+type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, NEXT_FLUSH, FLUSH_STATUS, FLUSH_DONE);
+signal present_retire_state : states;
+signal next_retire_state    : states;
+
+-- Generate u-Op state machine:
+-- State encoding and state variables:
+type gen_uop_states is (IDLE, PARSE, INSERT);
+signal present_gen_state : states;
+signal next_gen_state    : states;
+
+-- Send state machine:
+-- State encoding and state variables:
+type send_states is (IDLE, VERIFY, ISSUE);
+signal present_send_state : states;
+signal next_send_state    : states;
+
+-- Shared registers
+
+-- retire queue pointer:
+   retire_ptr: reg
+      generic map(WIDTH => 16)
+      port map(clk_i  => clk_i,
+               rst_i  => ,
+               ena_i  => ,
+               reg_i  => ,
+               reg_o  => );
+
+-- flush queue pointer:
+   retire_ptr: reg
+      generic map(WIDTH => 16)
+      port map(clk_i  => clk_i,
+               rst_i  => ,
+               ena_i  => ,
+               reg_i  => ,
+               reg_o  => );
+
+-- send queue pointer:
+   retire_ptr: reg
+      generic map(WIDTH => 16)
+      port map(clk_i  => clk_i,
+               rst_i  => ,
+               ena_i  => ,
+               reg_i  => ,
+               reg_o  => );
+
+-- free queue pointer:
+   retire_ptr: reg
+      generic map(WIDTH => 16)
+      port map(clk_i  => clk_i,
+               rst_i  => ,
+               ena_i  => ,
+               reg_i  => ,
+               reg_o  => );
