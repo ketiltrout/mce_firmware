@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.6 2004/07/07 10:50:19 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.7 2004/07/28 23:34:27 jjacob Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -33,7 +33,7 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2004/07/07 10:50:19 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/07/28 23:34:27 $> - <text> - <initials $Author: jjacob $>
 -- <log $log$>
 
 
@@ -42,7 +42,6 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.issue_reply_pack.all;
-use work.fibre_rx_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -81,7 +80,6 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.issue_reply_pack.all;
-use work.fibre_rx_pack.all;
 
 
 architecture behav of fibre_rx is 

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.3 2004/07/07 10:50:35 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.4 2004/08/17 10:50:44 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,7 +32,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/07 10:50:35 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/08/17 10:50:44 $>	-		<text>		- <initials $Author: dca $>
 -- $log$
 -----------------------------------------------------------------------------
 library ieee;
@@ -45,8 +45,8 @@ end tb_fibre_rx_protocol ;
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.NUMERIC_STD.all;
+
 library work;
-use work.fibre_rx_pack.all;
 use work.issue_reply_pack.all;
 
 library sys_param;
@@ -80,6 +80,7 @@ architecture behav of tb_fibre_rx_protocol is
    constant command_wb   : std_logic_vector (31 downto 0) := X"20205742";
    constant command_go   : std_logic_vector (31 downto 0) := X"2020474F";
    constant command_rb   : std_logic_vector (31 downto 0) := X"20205242";
+   constant command_rs   : std_logic_vector (31 downto 0) := X"20205253"; 
    constant address_id   : std_logic_vector (31 downto 0) := X"0002015C";
    
    constant no_std_data  : std_logic_vector (31 downto 0) := X"00000001";
@@ -615,7 +616,11 @@ assert false report "tested preamble1 waits" severity NOTE;
       
       ----------------------------------------
       -- reset and preamble tests
-           
+         
+      assert false report "--------------------------------" severity NOTE;   
+      assert false report "TEST 1: preamble condition tests" severity NOTE;
+      assert false report "--------------------------------" severity NOTE;
+          
       cmd_ack <= '0';
       rx_fe   <= '1';
       rxd     <= (others => '1');
@@ -628,6 +633,10 @@ assert false report "tested preamble1 waits" severity NOTE;
       
       -----------------------------------------------------
       -- WB command test
+      
+      assert false report "-----------------------------" severity NOTE;
+      assert false report "TEST 2: WB command - no error" severity NOTE;
+      assert false report "-----------------------------" severity NOTE;
       
       inc_data <= '1';      -- data set incremented per word
          
@@ -644,15 +653,19 @@ assert false report "tested preamble1 waits" severity NOTE;
                       -- that another command is ready. 
        
       wait until cmd_rdy <= '1';
-      assert false report "command 1 ready" severity NOTE;
+      assert false report "test 2: WB command ready" severity NOTE;
       wait for clk_prd ;
       cmd_ack <= '1' ; -- acknowledgement of command 
       wait until cmd_rdy <= '0';
-      assert false report "command 1 finished" severity NOTE;
+      assert false report "test 2: WB command finished" severity NOTE;
       cmd_ack <= '0';
       
       ---------------------------------------------
       -- WB command checksum error test
+      
+      assert false report "-----------------------------------" severity NOTE;
+      assert false report "TEST 3: WB command - checksum error" severity NOTE;
+      assert false report "-----------------------------------" severity NOTE;
       
       data_valid <= X"00000028"; 
       command <= command_wb;
@@ -662,15 +675,18 @@ assert false report "tested preamble1 waits" severity NOTE;
       load_checksum;
       wait until cksum_err <= '1';
       wait until cksum_err <= '0';
-      assert false report "command 2 finished with check err detected" severity NOTE;
+      assert false report "test 3: WB finished with check err detected" severity NOTE;
       
       wait for clk_prd*10;
       
       ----------------------------------------------
       -- read block command test
       
-      data_valid <= X"0000003A";   -- 58 maximum value.       
-            
+      assert false report "-----------------------------" severity NOTE;
+      assert false report "TEST 4: RB command - no error" severity NOTE;
+      assert false report "-----------------------------" severity NOTE;
+      
+      data_valid <= X"0000003A";   -- 58 maximum value.           
       cmd_ack <= '0';
       data <= 0;    
       inc_data <= '0';  -- switch incrementing data off.  all words = 0
@@ -682,14 +698,46 @@ assert false report "tested preamble1 waits" severity NOTE;
       load_checksum;
       
       wait until cmd_rdy <= '1';
-      assert false report "RB command ready" severity NOTE;
+      assert false report "test 4: RB command ready" severity NOTE;
       wait for clk_prd ;
       cmd_ack <= '1' ; -- acknowledgement of command 
       wait until cmd_rdy <= '0';
-      assert false report "RB command  finished" severity NOTE;
+      assert false report "test 4: RB command  finished" severity NOTE;
       cmd_ack <= '0';
       
       wait for clk_prd * 30 ;
+      
+      
+       ----------------------------------------------
+      -- reset command test
+      
+      assert false report "-----------------------------" severity NOTE;
+      assert false report "TEST 5: RS command - no error" severity NOTE;
+      assert false report "-----------------------------" severity NOTE;
+      
+      
+      data_valid <= X"00000000";   -- test 0 value condition - shuold really be 1
+                       
+      cmd_ack <= '0';
+      data <= 0;    
+      inc_data <= '0';  -- switch incrementing data off.  all words = 0
+      
+      command <= command_rs;
+     
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait until cmd_rdy <= '1';
+      assert false report "test 5: RS command ready" severity NOTE;
+      wait for clk_prd ;
+      cmd_ack <= '1' ; -- acknowledgement of command 
+      wait until cmd_rdy <= '0';
+      assert false report "test 5: RS command  finished" severity NOTE;
+      cmd_ack <= '0';
+      
+      wait for clk_prd * 30 ;
+      
   
   
       assert false report "Simulation done." severity FAILURE;

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.9 2004/09/28 15:21:55 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.10 2004/09/29 09:00:51 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/09/28 15:21:55 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/09/29 09:00:51 $>	-		<text>		- <initials $Author: dca $>
 --
 -- Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------
@@ -77,7 +77,6 @@ use ieee.numeric_std.all;
 
 library work;
 use work.issue_reply_pack.all;
-use work.fibre_rx_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
