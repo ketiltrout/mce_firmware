@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.10 2004/12/01 18:41:32 erniel Exp $
+-- $Id: reply_queue_pack.vhd,v 1.11 2004/12/04 02:03:06 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.11  2004/12/04 02:03:06  bburger
+-- Bryce:  fixing some problems associated with integrating the reply_queue
+--
 -- Revision 1.10  2004/12/01 18:41:32  erniel
 -- fixed error code width...again
 -- updated reply_queue_sequencer component
@@ -118,7 +121,6 @@ component reply_queue
       
       -- Global signals
       clk_i             : in std_logic;
-      mem_clk_i         : in std_logic;
       comm_clk_i        : in std_logic;
       rst_i             : in std_logic
    );
@@ -172,7 +174,6 @@ end component;
    
    component reply_queue_receive
       port(clk_i      : in std_logic;
-           mem_clk_i  : in std_logic;
            comm_clk_i : in std_logic;
            rst_i      : in std_logic;
      
