@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.67 2004/11/30 22:58:47 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.68 2004/12/04 02:03:05 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.68  2004/12/04 02:03:05  bburger
+-- Bryce:  fixing some problems associated with integrating the reply_queue
+--
 -- Revision 1.67  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -1132,7 +1135,7 @@ begin
             next_send_state <= BRANCH;
             
          when BRANCH =>
-            if(send_cmd_code = STOP) then
+            if(send_cmd_code = STOP or send_cmd_code = START) then
                next_send_state <= NEXT_UOP;
             else
                next_send_state <= HEADER_A;
@@ -1360,7 +1363,7 @@ begin
       (send_cmd_code = WRITE_BLOCK) or 
       (send_cmd_code = RESET) or 
       (send_cmd_code = START) or 
-      (send_cmd_code = STOP) else READ_CMD;
+      (send_cmd_code = STOP) else READ_CMD;  -- READ_CMD = READ_BLOCK or DATA
    
    with sh_reg_parallel_mux_sel select sh_reg_parallel_i <= 
       (others=>'0')                                                   when "00",

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.9 2004/11/30 22:58:47 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.10 2004/12/04 02:03:06 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.10  2004/12/04 02:03:06  bburger
+-- Bryce:  fixing some problems associated with integrating the reply_queue
+--
 -- Revision 1.9  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -211,13 +214,13 @@ begin
    
    cmd_code_o    <= cmd_code;
    card_addr_o   <= card_addr;
-   size_o        <= cq_size when cmd_code =  STOP else rq_size;
-   data_o        <= cq_data when cmd_code =  STOP else rq_data;
-   rdy_o         <= cq_rdy  when cmd_code =  STOP else rq_rdy;   
-   error_code_o  <= cq_err  when cmd_code =  STOP else rq_err;
+   size_o        <= cq_size when (cmd_code =  STOP or  cmd_code =  START) else rq_size;
+   data_o        <= cq_data when (cmd_code =  STOP or  cmd_code =  START) else rq_data;
+   rdy_o         <= cq_rdy  when (cmd_code =  STOP or  cmd_code =  START) else rq_rdy;   
+   error_code_o  <= cq_err  when (cmd_code =  STOP or  cmd_code =  START) else rq_err;
    
-   cq_ack        <= ack_i   when cmd_code =  STOP else '0';
-   rq_ack        <= ack_i   when cmd_code /= STOP else '0';   
+   cq_ack        <= ack_i   when (cmd_code =  STOP or  cmd_code =  START) else '0';
+   rq_ack        <= ack_i   when (cmd_code /= STOP and cmd_code /= START) else '0';   
    
    rqr : reply_queue_retire
       port map(
