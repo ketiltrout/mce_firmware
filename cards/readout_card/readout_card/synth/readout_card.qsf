@@ -528,10 +528,13 @@ set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
 
 # Analysis & Synthesis Assignments
 # ================================
+set_global_assignment -name MUX_RESTRUCTURE OFF
 set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF SMART
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
 set_global_assignment -name FAMILY Stratix
 set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME ON
 set_global_assignment -name TOP_LEVEL_ENTITY readout_card
 set_global_assignment -name AUTO_ENABLE_SMART_COMPILE on
 
@@ -565,6 +568,16 @@ set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 4000
 # Assembler Assignments
 # =====================
 set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
+
+# Design Assistant Assignments
+# ============================
+set_global_assignment -name ASSG_RULE_MISSING_TIMING OFF
+set_global_assignment -name ENABLE_DRC_SETTINGS ON
+set_global_assignment -name RESET_RULE_UNSYNCH_EXRESET OFF
+set_global_assignment -name RESET_RULE_IMSYNCH_EXRESET OFF
+set_global_assignment -name RESET_RULE_COMB_ASYNCH_RESET OFF
+set_global_assignment -name RESET_RULE_UNSYNCH_ASYNCH_DOMAIN OFF
+set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
@@ -948,16 +961,6 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	# Timing Assignments
 	# ==================
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
-	set_instance_assignment -name SETUP_RELATIONSHIP 15ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "flux_loop:i_flux_loop\|wbs_fb_data:i_wbs_fb_data\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 15ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "flux_loop:i_flux_loop\|wbs_frame_data:i_wbs_frame_data\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "flux_loop:i_flux_loop\|wbs_frame_data:i_wbs_frame_data\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "flux_loop:i_flux_loop\|wbs_fb_data:i_wbs_fb_data\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 15ns -from "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|shift_reg*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "dispatch:i_dispatch\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "dispatch:i_dispatch\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "dispatch:i_dispatch\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|fifo:tx_buffer\|*"
-	set_instance_assignment -name HOLD_RELATIONSHIP "-45ns" -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|async_tx:transmit\|*"
 	set_instance_assignment -name INPUT_MAX_DELAY 15ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
 	set_instance_assignment -name OUTPUT_MAX_DELAY 25ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk3" -to "serial DAC data&cs"
 	set_instance_assignment -name OUTPUT_MIN_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk3" -to "serial DAC data&cs"
@@ -970,7 +973,11 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	set_instance_assignment -name OUTPUT_MIN_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "DAC Data Output"
 	set_instance_assignment -name OUTPUT_MAX_DELAY 16.5ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "DAC clk Output"
 	set_instance_assignment -name OUTPUT_MIN_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "DAC clk Output"
-	set_instance_assignment -name SETUP_RELATIONSHIP 20ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "leds:i_LED\|led_data*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*" -to "flux_loop:i_flux_loop\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*" -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|altsyncram:altsyncram_component\|*" -to "flux_loop:i_flux_loop\|wbs_fb_data:i_wbs_fb_data\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|altsyncram:altsyncram_component\|*" -to "flux_loop:i_flux_loop\|wbs_frame_data:i_wbs_frame_data\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|altsyncram:altsyncram_component\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|shift_reg:crc_data_reg\|*"
 
 	# Analysis & Synthesis Assignments
 	# ================================
