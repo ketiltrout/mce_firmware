@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.10 2004/05/26 18:04:47 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.11 2004/05/27 00:09:45 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.11  2004/05/27 00:09:45  bburger
+-- in progress
+--
 -- Revision 1.10  2004/05/26 18:04:47  bburger
 -- in progress
 --
@@ -111,10 +114,6 @@ port (
    stb_o         : out std_logic;
    cyc_o         : out std_logic;
    ack_i         : in std_logic;
-   --addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
-   --tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
-   --dat_o   : out std_logic_vector (DATA_WIDTH-1 downto 0);
-   --rty_o   : out std_logic;
 
    -- Clock lines
    sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
@@ -147,7 +146,7 @@ signal wraddress_sig   : std_logic_vector(7 downto 0);
 signal rdaddress_a_sig : std_logic_vector(7 downto 0);
 signal rdaddress_b_sig : std_logic_vector(7 downto 0);
 signal wren_sig        : std_logic;
-signal clock_sig       : std_logic;
+--signal fast_clk        : std_logic;
 signal qa_sig          : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal qb_sig          : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 
@@ -157,7 +156,7 @@ signal uop_counter : std_logic_vector(UOP_BUS_WIDTH - 1 downto 0);
 -- Signals from/to the Sync-pulse counter.  This is used to determine when u-ops have expired.
 signal sync_count_slv : std_logic_vector(7 downto 0);
 signal sync_count_int : integer;
-signal frame_rst : std_logic;
+signal frame_rst : std_logic := '0'; -- This zero is a hack.  This should be removed when the FSM is written, and sets frame_rst appropriately
 signal clk_count : integer;
 signal clk_error : std_logic_vector(31 downto 0);
 
@@ -174,7 +173,7 @@ signal send_ptr : std_logic_vector(7 downto 0) := "00000000";
 signal free_ptr : std_logic_vector(7 downto 0) := "00000000";
 
 -- Insertion FSM:  inserts u-ops into the command queue
-type insert_states is (IDLE, INSERT, DONE, RESET);
+type insert_states is (IDLE, INSERT, DONE, RESET, STALL);
 signal present_insert_state : insert_states;
 signal next_insert_state : insert_states;
 signal inserted: std_logic; --Out, to the u-op counter fsm
@@ -193,15 +192,15 @@ signal next_gen_state    : gen_uop_states;
 signal mop_rdy : std_logic; --In from the previous block in the chain
 signal insert_uop_rdy : std_logic; --Out, to insertion fsm
 signal new_card_addr : std_logic_vector(CARD_ADDR_BUS_WIDTH-1 downto 0); --out, to insertion fsm
-signal new_par_id : std_logic_vector(PAR_ID_BUS_WIDTH-1 downto 0); --out, to insertion fsm
+signal new_par_id : std_logic_vector(PAR_ID_BUS_WIDTH-1 downto 0) := x"000000"; --out, to insertion fsm.  This is a hack.
 
 -- Send FSM:  sends u-ops over the bus backplane
 type send_states is (IDLE, LOAD, VERIFY, ISSUE, WAIT_FOR_ACK, SKIP, RESET);
 signal present_send_state : send_states;
 signal next_send_state    : send_states;
 signal tx_uop_rdy : std_logic;  --Out, to bus backplane packetization fsm
-signal uop_pending : std_logic;  --In
-signal uop_expired : std_logic;  --In
+--signal uop_pending : std_logic;  --In ???
+--signal uop_expired : std_logic;  --In ???
 signal freeze_send : std_logic;  --In, freezes the send pointer when flushing out invalidated u-ops
 signal uop_send_expired : std_logic;
 
@@ -209,7 +208,7 @@ signal uop_send_expired : std_logic;
 type packet_states is (IDLE, STRT_CMD1, STRT_CMD2, SZ_CMD1, SZ_CMD2, CARD_ADDR, PAR_ID, DATA, CHECKSUM1, CHECKSUM2, DONE);
 signal present_packet_state : packet_states;
 signal next_packet_state : packet_states;
-signal tx_uop_ack : std_logic;  --Out, to send fsm
+signal tx_uop_ack : std_logic := '1';  --in, from send fsm.
 
 -- Constants that can be removed when the sync_counter and frame_timer are moved out of this block
 constant HIGH : std_logic := '1';
@@ -225,7 +224,7 @@ begin
          rdaddress_a => rdaddress_a_sig,
          rdaddress_b => rdaddress_b_sig,
          wren        => wren_sig,
-         clock       => clock_sig,
+         clock       => fast_clk_i,
          qa          => qa_sig,
          qb          => qb_sig
       );
@@ -235,7 +234,7 @@ begin
       generic map(MAX => MAX_SYNC_COUNT)
       port map(
          clk_i   => sync_i,
-         rst_i   => LOW,
+         rst_i   => rst_i,
          ena_i   => HIGH,
          load_i  => LOW,
          down_i  => LOW,
@@ -286,7 +285,7 @@ begin
          when IDLE =>
             -- The gen_state FSM will only try to add a u-op to the queue if there is space available, so no checking is necessary here.  i.e. no ack signal is required
             -- ***This needs to react as soon as there is a u-op ready to insert..
-            if(clk_i'event and clk_i = '1' and insert_uop_rdy = '1') then
+            if(insert_uop_rdy = '1') then
                next_insert_state <= INSERT;
             else
                next_insert_state <= IDLE;
@@ -294,19 +293,28 @@ begin
          when INSERT =>
             next_insert_state <= DONE;
          when DONE =>
-            next_insert_state <= IDLE;
+            next_insert_state <= STALL;
+         when STALL =>
+            if(clk_i'event and clk_i = '1') then
+               next_insert_state <= IDLE;
+            else
+               next_insert_state <= STALL;
+            end if;
          when others =>
             next_insert_state <= IDLE;
       end case;
    end process;
 
-   insert_state_out: process(present_insert_state, mop_i, uop_counter, issue_sync_i, new_card_addr, new_par_id, free_ptr)
+   insert_state_out: process(present_insert_state, mop_i, uop_counter, issue_sync_i, new_card_addr, new_par_id)
+   -- There is something sketchy about the sensitivity list.  free_ptr does not appear anywhere on the list.  It can't because of my free_ptr <= free_ptr + 1 statement below.  However, it should because it appears on the lhs in the INSERT state
    begin
       case present_insert_state is
          when RESET =>
             free_ptr <= H0X00;
+            wren_sig <= '0';
          when IDLE =>
-            -- The RAM block and the functions that write to it will be operating at higher speed than the rest of the logic.  INSERT and DONE should complete in lest than one clk_i cycle
+            wren_sig <= '0';
+            -- The RAM block and the functions that write to it will be operating at higher speed than the rest of the logic.  INSERT and DONE should complete in less than one clk_i cycle
          when INSERT =>
             data_sig(QUEUE_WIDTH - 1 downto MOP_END)             <= mop_i;
             data_sig(MOP_END - 1 downto UOP_END)                 <= uop_counter; -- new u-op sequence number.  This FSM automatically increments uop_counter after a u-op is added.
@@ -323,6 +331,8 @@ begin
             else
                free_ptr <= free_ptr + 1;
             end if;
+            wren_sig <= '0';
+         when STALL =>
             wren_sig <= '0';
          when others =>
             wren_sig <= '0';
@@ -396,7 +406,7 @@ begin
    rdaddress_b_sig <= retire_ptr;
    uop_o <= qb_sig;
 
-   retire_state_out: process(present_retire_state, retire_ptr, flush_ptr)
+   retire_state_out: process(present_retire_state)
    begin
       case present_retire_state is
          when RESET =>
@@ -528,6 +538,7 @@ begin
             case card_addr_i is
                when NO_CARDS =>
                   next_gen_state <= CLEANUP;
+               -- Single card, multiple u-ops
                when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC =>
                   if(present_gen_state = RET_DAT) then
                      next_gen_state <= PSC_STATUS;
@@ -543,30 +554,37 @@ begin
                      next_gen_state <= CLEANUP;
                   end if;
                when BCS | RCS | ALL_FBGA_CARDS | ALL_CARDS =>
-                  -- Only switch to the next command state when finished issuing u-ops to all the cards that must receive this command.
-                  -- This statement the body of this condition will only execute when instructions for all cards in the card address group have been issued.
-                  if((card_addr_i = BCS and new_card_addr = BC3) or
-                     (card_addr_i = RCS and new_card_addr = RC4) or
-                     (card_addr_i = ALL_FBGA_CARDS and new_card_addr = AC) or
-                     (card_addr_i = ALL_CARDS and new_card_addr = AC)) then
-                     if(present_gen_state = RET_DAT) then
+                  -- Determine the next in the sequence of u-ops to be issued to a specific card
+                  if(present_gen_state = RET_DAT) then
+                     next_gen_state <= PSC_STATUS;
+                  elsif(present_gen_state = PSC_STATUS) then
+                     next_gen_state <= BIT_STATUS;
+                  elsif(present_gen_state = BIT_STATUS) then
+                     next_gen_state <= FPGA_TEMP;
+                  elsif(present_gen_state = FPGA_TEMP) then
+                     next_gen_state <= CARD_TEMP;
+                  elsif(present_gen_state = CARD_TEMP) then
+                     next_gen_state <= CYC_OO_SYC;
+                  elsif(present_gen_state = CYC_OO_SYC) then
+                     -- CYC_OO_SYNC is the last u-op to be issued for m-op that are broken down into several u-ops
+                     if((card_addr_i = BCS and new_card_addr = BC3) or
+                        (card_addr_i = RCS and new_card_addr = RC4) or
+                        (card_addr_i = ALL_FBGA_CARDS and new_card_addr = AC) or
+                        (card_addr_i = ALL_CARDS and new_card_addr = AC)) then
+                        next_gen_state <= CLEANUP;
+                     -- Here, we either start issuing the same sequence of u-ops to the next card in the list, or we've finished the list.
+                     elsif(par_id_i(7 downto 0) = RET_DAT_ADDR) then
+                        next_gen_state <= RET_DAT;
+                     elsif(par_id_i(7 downto 0) = STATUS_ADDR) then
                         next_gen_state <= PSC_STATUS;
-                     elsif(present_gen_state = PSC_STATUS) then
-                        next_gen_state <= BIT_STATUS;
-                     elsif(present_gen_state = BIT_STATUS) then
-                        next_gen_state <= FPGA_TEMP;
-                     elsif(present_gen_state = FPGA_TEMP) then
-                        next_gen_state <= CARD_TEMP;
-                     elsif(present_gen_state = CARD_TEMP) then
-                        next_gen_state <= CYC_OO_SYC;
-                     elsif(present_gen_state = CYC_OO_SYC) then
+                     else
                         next_gen_state <= CLEANUP;
                      end if;
                   end if;
                when others => next_gen_state <= CLEANUP;
             end case;
          when SINGLE =>
-            -- Single card, single instruction
+            -- Single card, single u-op
             next_gen_state <= CLEANUP;
          when CLEANUP => next_gen_state <= IDLE;
          when others =>
@@ -597,9 +615,8 @@ begin
    num_uops <= uops_generated * cards_addressed;
    mop_rdy <= mop_rdy_i;
 
-   gen_state_out: process(present_gen_state, card_addr_i, new_card_addr, uop_counter)
+   gen_state_out: process(present_gen_state, card_addr_i) -- had new_card_addr_i
       begin
-
       -- Note that inserted and insert_uop_rdy follow each other exactly
       case present_gen_state is
          when RESET =>
@@ -623,7 +640,17 @@ begin
             insert_uop_rdy <= '0';
             inserted       <= '0';
             uop_counter    <= (others => '0');
+--            if (card_addr_i = BCS) then
+--               new_card_addr  <= BC1;
+--            elsif (card_addr_i = RCS) then
+--               new_card_addr  <= RC1;
+--            elsif (card_addr_i = ALL_FBGA_CARDS) then
+--               new_card_addr  <= CC;
+--            elsif (card_addr_i = ALL_CARDS) then
+--               new_card_addr  <= PSC;
+--            else
             new_card_addr  <= card_addr_i;
+--            end if;
          when RET_DAT | PSC_STATUS | BIT_STATUS | FPGA_TEMP | CARD_TEMP | CYC_OO_SYC =>
             if   (present_gen_state = RET_DAT)    then new_par_id(7 downto 0) <= RET_DAT_ADDR;
             elsif(present_gen_state = PSC_STATUS) then new_par_id(7 downto 0) <= PSC_STATUS_ADDR;
@@ -633,11 +660,12 @@ begin
             elsif(present_gen_state = CYC_OO_SYC) then new_par_id(7 downto 0) <= CYC_OO_SYC_ADDR;
             end if;
             case card_addr_i is
+               -- For any card address that may appear, we set the new_card_addr appropriately
                when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC | BCS | RCS | ALL_FBGA_CARDS | ALL_CARDS =>
                   uop_counter <= uop_counter + 1;
                   insert_uop_rdy <= '1';
                   inserted       <= '1';
-                  if(card_addr_i = BCS) then
+                  if(card_addr_i = BCS and present_gen_state = RET_DAT) then
                      if(new_card_addr = BCS) then
                         new_card_addr <= BC1;
                      elsif(new_card_addr = BC1) then
@@ -645,7 +673,7 @@ begin
                      elsif(new_card_addr = BC2) then
                         new_card_addr <= BC3;
                      end if;
-                  elsif(card_addr_i = RCS) then
+                  elsif(card_addr_i = RCS and present_gen_state = RET_DAT) then
                      if(new_card_addr = RCS) then
                         new_card_addr <= RC1;
                      elsif(new_card_addr = RC1) then
@@ -653,9 +681,9 @@ begin
                      elsif(new_card_addr = RC2) then
                         new_card_addr <= RC3;
                      elsif(new_card_addr = RC3) then
-                        new_card_addr <= RC3;
+                        new_card_addr <= RC4;
                      end if;
-                  elsif(card_addr_i = ALL_FBGA_CARDS) then
+                  elsif(card_addr_i = ALL_FBGA_CARDS and present_gen_state = RET_DAT) then
                      if(new_card_addr = ALL_CARDS) then
                         new_card_addr <= CC;
                      elsif(new_card_addr = CC) then
@@ -675,7 +703,7 @@ begin
                      elsif(new_card_addr = BC3) then
                         new_card_addr <= AC;
                      end if;
-                  elsif(card_addr_i = ALL_CARDS) then
+                  elsif(card_addr_i = ALL_CARDS and present_gen_state = RET_DAT) then
                      if(new_card_addr = ALL_CARDS) then
                         new_card_addr <= PSC;
                      elsif(new_card_addr = PSC) then
@@ -856,6 +884,13 @@ begin
 --      end case;
 --   end process;
 
+   -- Bugs:
+   --x The insert FSM doesn't insert the first u-op in a sequence
+   --x The address card should be the last card that u-ops are issued to
+   -- The generate FSM keeps on repeating the issue of u-ops to the AC
+
+
    sync_count_slv <= conv_std_logic_vector(sync_count_int, 8);
+   clk_o <= clk_i;
 
 end behav;
