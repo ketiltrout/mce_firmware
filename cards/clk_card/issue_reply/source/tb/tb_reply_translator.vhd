@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.1 2004/08/20 08:52:13 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.2 2004/08/23 14:23:21 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,13 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/20 08:52:13 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/23 14:23:21 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.2  2004/08/23 14:23:21  dca
+-- Code to test first pass at reply FSM.
+-- (Data FSM not done yet)
+--
 -- Revision 1.1  2004/08/20 08:52:13  dca
 -- no message
 --
@@ -270,7 +274,7 @@ begin
       
       
       -----------------------------------
-      -- test checksum error 
+      -- test 1: checksum error 
       ----------------------------------
 
       
@@ -305,7 +309,7 @@ begin
       
      
       -----------------------------------
-      -- test GO command
+      -- test 2: GO command
       --------------------------------
      
       
@@ -335,7 +339,7 @@ begin
       assert false report "reply 2: GO reply finised...?" severity NOTE;    
       
       --------------------------------------------------------
-      -- test RS command -  and FIFO FULL states conditions
+      -- test 3: RS command -  and FIFO FULL states conditions
       -------------------------------------------------------
      
       
@@ -403,7 +407,7 @@ begin
       assert false report "reply 3: RS reply finised...?" severity NOTE;    
       
       ------------------------------
-      -- test WB command - OK
+      -- test 4: WB command - OK
       --------------------------------
      
       
@@ -460,8 +464,8 @@ begin
       
       wait for clk_prd*10;
 
-       ------------------------------
-      -- test WB command - ER
+      ------------------------------
+      -- test 5: WB command - ER
       --------------------------------
      
       
@@ -519,7 +523,7 @@ begin
       wait for clk_prd*10;
 
       ------------------------------
-      -- test RB command - OK
+      -- test 6: RB command - OK
       --------------------------------
      
       
@@ -583,7 +587,7 @@ begin
       wait for clk_prd;
 
       ------------------------------
-      -- test RB command - ER
+      -- test 7: RB command - ER
       --------------------------------
      
       
