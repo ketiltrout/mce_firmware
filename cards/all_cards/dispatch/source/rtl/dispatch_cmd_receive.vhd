@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.12  2005/01/12 23:23:41  erniel
+-- updated lvds_rx component
+--
 -- Revision 1.11  2005/01/11 20:41:41  erniel
 -- replaced CARD generic with card_i port
 --
@@ -291,7 +294,7 @@ begin
       end case;
    end process crc_stateNS;
    
-   crc_stateOut: process(crc_pres_state)
+   crc_stateOut: process(crc_pres_state, lvds_rx_data)
    begin
       lvds_rx_ack       <= '0';   
       data_size_ld      <= '0';
@@ -311,7 +314,9 @@ begin
                                 crc_ena           <= '1';
                                 crc_clr           <= '1';
          
-         when SYNC_PREAMBLE =>  lvds_rx_ack       <= '1';
+         when SYNC_PREAMBLE =>  if(lvds_rx_data(BB_PREAMBLE'range) /= BB_PREAMBLE) then 
+                                   lvds_rx_ack    <= '1'; 
+                                end if;
                            
          when CALCULATE_CRC =>  data_shreg_ena    <= '1';
                                 crc_ena           <= '1';
