@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.32 2004/11/16 09:55:41 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.33 2004/11/19 16:21:02 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.33  2004/11/19 16:21:02  dca
+-- reply_translator: fibre_word_req_o changed to fibre_word_ack_o
+--
 -- Revision 1.32  2004/11/16 09:55:41  dca
 -- reply_translator: 'num_fibre_words_i' changed to integer
 --
@@ -448,7 +451,7 @@ port(
      param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
          
      -- signals to/from reply queue 
-     m_op_done_i             : in  std_logic;                                                 -- macro op done
+     m_op_rdy_i              : in  std_logic;                                                 -- macro op done
      m_op_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);    -- macro op success (others => '0') else error code
      m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);    -- command code vector - indicates if data or reply (and which command)
      m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);      -- m_op parameter id passed from reply_queue

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.22 2004/11/18 17:07:37 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.23 2004/11/19 16:21:02 dca Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/18 17:07:37 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/19 16:21:02 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.23  2004/11/19 16:21:02  dca
+-- reply_translator: fibre_word_req_o changed to fibre_word_ack_o
+--
 -- Revision 1.22  2004/11/18 17:07:37  dca
 -- num_fibre_word changed to integer
 --
@@ -287,7 +290,7 @@ architecture rtl of issue_reply is
       
      -- reply_translator reply_queue interface 
       
-      signal   m_op_done           : std_logic;     
+      signal   m_op_rdy            : std_logic;     
       signal   m_op_error_code     : std_logic_vector(BB_STATUS_WIDTH-1           downto 0); 
       signal   m_op_cmd_code       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
       signal   m_op_param_id       : std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  
@@ -457,7 +460,7 @@ begin
                    
    -- signals to/from reply queue 
 
-   m_op_done_i             => m_op_done,  
+   m_op_rdy_i              => m_op_rdy,  
    m_op_error_code_i       => m_op_error_code, 
    m_op_cmd_code_i         => m_op_cmd_code,
    m_op_param_id_i         => m_op_param_id,
