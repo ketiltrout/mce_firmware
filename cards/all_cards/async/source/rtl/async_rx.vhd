@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_rx.vhd,v $
+-- Revision 1.6  2004/09/01 17:54:19  erniel
+-- fixed multiple sources error in shift_reg port map (open instead of '0')
+--
 -- Revision 1.5  2004/08/06 20:35:52  erniel
 -- replaced some processes with rtl-blocks
 --
@@ -48,42 +51,66 @@ use components.component_pack.all;
 ---------------------------------------------------------------------
 
 entity async_rx is
-port(rx_clk_i : in std_logic;   -- 200 MHz for LVDS, 921.6 kHz for RS232
-     rst_i    : in std_logic;
+generic(CLK_DIV_FACTOR : integer := 217);
+port(comm_clk_i : in std_logic;
+     rst_i      : in std_logic;
      
-     dat_o    : out std_logic_vector (7 downto 0);
-     stb_i    : in std_logic;
-     rx_i     : in std_logic;
-     valid_o  : out std_logic;
-     error_o  : out std_logic);
+     dat_o : out std_logic_vector (7 downto 0);
+     rdy_o : out std_logic;
+     err_o : out std_logic;
+
+     rx_i : in std_logic);     
 end async_rx ;
 
 ---------------------------------------------------------------------
 
 architecture behaviour of async_rx is
 
-   type states is (IDLE, RECEIVE, DONE);
-   signal pres_state : states;
-   signal next_state : states;
+signal clk_div_count : integer range 0 to CLK_DIV_FACTOR-1;
+signal rx_clk        : std_logic;
+
+signal sample_buf_ena : std_logic;
+signal sample_buf_clr : std_logic;  
+signal sample_buf     : std_logic_vector(2 downto 0);
+signal rx_data        : std_logic; 
    
-   signal sample_buf_ena : std_logic;
-   signal sample_buf_clr : std_logic;  
-   signal sample_buf     : std_logic_vector(2 downto 0);
-   
-   signal rxbit  : std_logic; 
-   
-   signal data_buf_ena : std_logic;
-   signal data_buf_clr : std_logic;
-   signal data_buf     : std_logic_vector(9 downto 0);
-   
-   signal count_clr : std_logic;
-   signal count     : integer;   
+signal count     : integer range 0 to 80;   
+signal count_clr : std_logic;
+
+signal data_buf_ena : std_logic;
+signal data_buf_clr : std_logic;
+signal data_buf     : std_logic_vector(9 downto 0);
+      
+type states is (IDLE, RECEIVE, DONE);
+signal pres_state : states;
+signal next_state : states;
    
 begin
 
-   rx_sample_buf: shift_reg
+   clk_divide: counter
+   generic map(MAX => CLK_DIV_FACTOR-1)
+   port map(clk_i => comm_clk_i,
+            rst_i => rst_i,
+            ena_i => '1',
+            load_i => '0',
+            count_i => 0,
+            count_o => clk_div_count);
+
+   -- register clock divider output (to eliminate glitches from combinational compare)
+   process(comm_clk_i)
+   begin
+      if(comm_clk_i'event and comm_clk_i = '1') then
+         if(clk_div_count = CLK_DIV_FACTOR-1) then
+            rx_clk <= '1';
+         else
+            rx_clk <= '0';
+         end if;
+      end if;
+   end process;
+
+   rx_sample: shift_reg
    generic map(WIDTH => 3)
-   port map(clk_i      => rx_clk_i,
+   port map(clk_i      => rx_clk,
             rst_i      => rst_i,
             ena_i      => sample_buf_ena,
             load_i     => '0',
@@ -94,45 +121,45 @@ begin
             parallel_i => (others => '0'),
             parallel_o => sample_buf);
 
-   rxbit <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
-   
-   rx_data_buf: shift_reg
-   generic map(WIDTH => 10)
-   port map(clk_i      => rx_clk_i,
-            rst_i      => rst_i,
-            ena_i      => data_buf_ena,
-            load_i     => '0',
-            clr_i      => data_buf_clr,
-            shr_i      => '1',
-            serial_i   => rxbit,
-            serial_o   => open,
-            parallel_i => (others => '0'),
-            parallel_o => data_buf);
-            
-   data_buf_ena <= '1' when ((count =  3) or (count = 11) or (count = 19) or (count = 27) or (count = 35) or
-                             (count = 43) or (count = 51) or (count = 59) or (count = 67) or (count = 75))
-                       else '0';
+   rx_data <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
    
    rx_counter: counter
-   generic map(MAX => 80,
+   generic map(MAX         => 80,
                WRAP_AROUND => '0')
-   port map(clk_i   => rx_clk_i,
+   port map(clk_i   => rx_clk,
             rst_i   => rst_i,
             ena_i   => '1',
             load_i  => count_clr,
             count_i => 0,
             count_o => count);
    
-   stateFF: process(rst_i, rx_clk_i)
+   rx_buffer: shift_reg
+   generic map(WIDTH => 10)
+   port map(clk_i      => rx_clk,
+            rst_i      => rst_i,
+            ena_i      => data_buf_ena,
+            load_i     => '0',
+            clr_i      => data_buf_clr,
+            shr_i      => '1',
+            serial_i   => rx_data,
+            serial_o   => open,
+            parallel_i => (others => '0'),
+            parallel_o => data_buf);
+            
+   data_buf_ena <= '1' when ((count =  5) or (count = 13) or (count = 21) or (count = 29) or (count = 37) or
+                             (count = 45) or (count = 53) or (count = 61) or (count = 69) or (count = 77))
+                       else '0';
+   
+   stateFF: process(rst_i, rx_clk)
    begin
       if(rst_i = '1') then
          pres_state <= IDLE;
-      elsif(rx_clk_i'event and rx_clk_i = '1') then
+      elsif(rx_clk'event and rx_clk = '1') then
          pres_state <= next_state;
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, rx_i, stb_i, count)
+   stateNS: process(pres_state, rx_i, count)
    begin
       case pres_state is
          when IDLE =>    if(rx_i = '0') then
@@ -147,11 +174,7 @@ begin
                             next_state <= RECEIVE;
                          end if;
                                                   
-         when DONE =>    if(stb_i = '1') then
-                            next_state <= IDLE;
-                         else
-                            next_state <= DONE;
-                         end if;
+         when DONE =>    next_state <= IDLE;
       end case;
    end process stateNS;
    
@@ -161,8 +184,8 @@ begin
       sample_buf_clr <= '0';
       data_buf_clr   <= '0';
       count_clr      <= '0';
-      valid_o        <= '0';
-      error_o        <= '0';               -- error_o indicates framing error 
+      rdy_o          <= '0';
+      err_o          <= '0';               -- err_o indicates framing error 
       dat_o          <= (others => '0');
       
       case pres_state is
@@ -173,8 +196,8 @@ begin
                          
          when RECEIVE => sample_buf_ena <= '1';
                                                   
-         when DONE =>    valid_o <= '1';
-                         error_o <= not data_buf(9);                        
+         when DONE =>    rdy_o <= '1';
+                         err_o <= not data_buf(9);                        
                          dat_o <= data_buf(8 downto 1);
       end case;
    end process stateOut;
