@@ -27,8 +27,11 @@
 --
 -- Description:
 -- Revision history:
--- <date $Date: 2005/01/20 22:49:14 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/01/27 00:13:38 $>    - <initials $Author: mandana $>
 -- $Log: tb_bias_card_self_test.vhd,v $
+-- Revision 1.2  2005/01/27 00:13:38  mandana
+-- ttl_nrx, ttl_tx, ttl_txena changed from vector to std_logic!
+--
 -- Revision 1.1  2005/01/20 22:49:14  mandana
 -- Inital Release: bias_card self-test with incoming packets pushed in from the RAM
 --   
@@ -360,7 +363,7 @@ begin
          lvds_txb   => lvds_reply_bc1_b, 
          
          -- TTL interface:
-        ttl_nrx1    => ttl_nrx1,  
+--        ttl_nrx1    => ttl_nrx1,  
         ttl_tx1     => ttl_tx1,   
         ttl_txena1  => ttl_txena1,
 
@@ -394,7 +397,7 @@ begin
          dip_sw3    => bc_dip_sw3, 
          dip_sw4    => bc_dip_sw4, 
          wdog       => bc_wdog,    
-         slot_id    => bc_slot_id, 
+--         slot_id    => bc_slot_id, 
          
          -- debug ports:
          test       => test,       
@@ -464,11 +467,12 @@ begin
 --         rs232_tx         => ac_rs232_tx
 --   );
    
-   bc_slot_id      <= "1110";
+--   bc_slot_id      <= "1110";
 --   cc_slot_id      <= "1000";
    ------------------------------------------------
    -- Create test bench clock
    -------------------------------------------------
+--   ttl_nrx1     <= '0';
    inclk        <= not inclk        after clk_period/2;   
    lvds_sync    <= not lvds_sync    after clk_period*2600/2;
    ------------------------------------------------

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.4 2005/01/19 23:39:06 bburger Exp $
+-- $Id: bias_card_pack.vhd,v 1.5 2005/01/27 00:12:09 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.5  2005/01/27 00:12:09  mandana
+-- added bias_card_self_test component
+--
 -- Revision 1.4  2005/01/19 23:39:06  bburger
 -- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
 --
@@ -133,7 +136,7 @@ component bias_card_self_test
       lvds_txb   : out std_logic;
       
       -- TTL interface:
-      ttl_nrx1   : in std_logic;
+ --     ttl_nrx1   : in std_logic;
       ttl_tx1    : out std_logic;
       ttl_txena1 : out std_logic;
       
@@ -167,7 +170,7 @@ component bias_card_self_test
       dip_sw3    : in std_logic;
       dip_sw4    : in std_logic;
       wdog       : out std_logic;
-      slot_id    : in std_logic_vector(3 downto 0);
+ --     slot_id    : in std_logic_vector(3 downto 0);
       
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
