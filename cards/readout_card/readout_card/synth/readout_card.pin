@@ -431,11 +431,11 @@ dac_FB2_dat[12]              : F3        : output : LVTTL             :         
 dac_FB2_dat[11]              : F4        : output : LVTTL             :         : 5         : Y              
 RESERVED_INPUT               : F5        :        :                   :         : 5         :                
 RESERVED_INPUT               : F6        :        :                   :         : 5         :                
-RESERVED_INPUT               : F7        :        :                   :         : 4         :                
-RESERVED_INPUT               : F8        :        :                   :         : 4         :                
-RESERVED_INPUT               : F9        :        :                   :         : 4         :                
+ttl_in1                      : F7        : input  : LVTTL             :         : 4         : Y              
+ttl_in2                      : F8        : input  : LVTTL             :         : 4         : Y              
+ttl_in3                      : F9        : input  : LVTTL             :         : 4         : Y              
 RESERVED_INPUT               : F10       :        :                   :         : 4         :                
-RESERVED_INPUT               : F11       :        :                   :         : 4         :                
+ttl_out1                     : F11       : output : LVTTL             :         : 4         : Y              
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
 TMS                          : F13       : input  :                   :         : 4         :                
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    : 1         :                
@@ -459,12 +459,12 @@ dac_FB3_dat[3]               : G3        : output : LVTTL             :         
 dac_FB3_dat[4]               : G4        : output : LVTTL             :         : 5         : Y              
 RESERVED_INPUT               : G5        :        :                   :         : 5         :                
 RESERVED_INPUT               : G6        :        :                   :         : 5         :                
-RESERVED_INPUT               : G7        :        :                   :         : 4         :                
-RESERVED_INPUT               : G8        :        :                   :         : 4         :                
-RESERVED_INPUT               : G9        :        :                   :         : 4         :                
+ttl_dir1                     : G7        : output : LVTTL             :         : 4         : Y              
+ttl_out2                     : G8        : output : LVTTL             :         : 4         : Y              
+ttl_dir2                     : G9        : output : LVTTL             :         : 4         : Y              
 RESERVED_INPUT               : G10       :        :                   :         : 4         :                
 RESERVED_INPUT               : G11       :        :                   :         : 4         :                
-RESERVED_INPUT               : G12       :        :                   :         : 4         :                
+ttl_out3                     : G12       : output : LVTTL             :         : 4         : Y              
 TDI                          : G13       : input  :                   :         : 4         :                
 GNDA_PLL5                    : G14       : gnd    :                   :         : 1         :                
 GND                          : G15       : gnd    :                   :         : 1         :                
@@ -489,7 +489,7 @@ dac_FB2_dat[1]               : H5        : output : LVTTL             :         
 dac_FB2_dat[2]               : H6        : output : LVTTL             :         : 5         : Y              
 dac_FB2_dat[5]               : H7        : output : LVTTL             :         : 5         : Y              
 dac_FB2_dat[6]               : H8        : output : LVTTL             :         : 5         : Y              
-RESERVED_INPUT               : H9        :        :                   :         : 4         :                
+ttl_dir3                     : H9        : output : LVTTL             :         : 4         : Y              
 RESERVED_INPUT               : H10       :        :                   :         : 4         :                
 RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : LVTTL             :         : 4         : N              

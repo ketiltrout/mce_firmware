@@ -38,6 +38,7 @@ set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/gene
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
@@ -57,6 +58,7 @@ set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data_p
 set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
@@ -113,7 +115,6 @@ set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/misc_banks_ad
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.vhd
 set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
-set_global_assignment -name HEX_FILE ../source/rtl/packet.hex
 
 # Pin & Location Assignments
 # ==========================
@@ -524,6 +525,15 @@ set_location_assignment PIN_K24 -to adc8_dat\[12\]
 set_location_assignment PIN_K23 -to adc8_dat\[13\]
 set_location_assignment PIN_AC9 -to rst_n
 set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
+set_location_assignment PIN_G7 -to ttl_dir1
+set_location_assignment PIN_F7 -to ttl_in1
+set_location_assignment PIN_F11 -to ttl_out1
+set_location_assignment PIN_G9 -to ttl_dir2
+set_location_assignment PIN_F8 -to ttl_in2
+set_location_assignment PIN_G8 -to ttl_out2
+set_location_assignment PIN_H9 -to ttl_dir3
+set_location_assignment PIN_F9 -to ttl_in3
+set_location_assignment PIN_G12 -to ttl_out3
 
 # Analysis & Synthesis Assignments
 # ================================
