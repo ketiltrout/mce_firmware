@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.1  2004/08/23 20:35:56  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -88,7 +91,7 @@ end dispatch_wishbone;
 
 architecture rtl of dispatch_wishbone is
 
-type master_states is (IDLE, WB_CYCLE, WB_WAIT, DONE);
+type master_states is (IDLE, WB_CYCLE, DONE);
 signal pres_state : master_states;
 signal next_state : master_states;
 
@@ -140,18 +143,10 @@ begin
                              next_state <= IDLE;
                           end if;
                               
-         when WB_CYCLE => if(wait_i = '1') then                               -- insert master wait state
-                             next_state <= WB_WAIT;
-                          elsif(addr = data_size_i-1 and ack_i = '1') then    -- slave has accepted last piece of data
+         when WB_CYCLE => if(addr = data_size_i-1 and ack_i = '1') then    -- slave has accepted last piece of data
                              next_state <= DONE;
                           else
                              next_state <= WB_CYCLE;
-                          end if;
-         
-         when WB_WAIT =>  if(wait_i = '0') then
-                             next_state <= WB_CYCLE;
-                          else
-                             next_state <= WB_WAIT;
                           end if;
                                                       
          when DONE =>     next_state <= IDLE;
@@ -197,22 +192,6 @@ begin
                              addr_ena         <= '1';
                           else                               -- insert slave wait state
                              addr_ena         <= '0';
-                          end if;
-         
-         when WB_WAIT =>  addr_o              <= (others => '0');
-                          dat_o               <= (others => '0');
-                          stb_o               <= '0';
-                          cyc_o               <= '1';
-                          tga_o               <= (others => '0');
-                          addr_ena            <= '0';
-                          addr_clr            <= '0';
-                          reply_buf_wren_o    <= '0';
-                          reply_rdy_o         <= '0';
-                          
-                          if(cmd_type_i = READ_BLOCK) then 
-                             we_o             <= '0';
-                          else
-                             we_o             <= '1';
                           end if;
                           
          when DONE =>     addr_o              <= (others => '0');
