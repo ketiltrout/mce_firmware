@@ -111,7 +111,7 @@ END SYN;
 -- Retrieval info: PRIVATE: Latency NUMERIC "0"
 -- Retrieval info: PRIVATE: aclr NUMERIC "0"
 -- Retrieval info: PRIVATE: clken NUMERIC "0"
--- Retrieval info: PRIVATE: LPM_PIPELINE NUMERIC "1"
+-- Retrieval info: PRIVATE: LPM_PIPELINE NUMERIC "0"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "64"
 -- Retrieval info: CONSTANT: LPM_DIRECTION STRING "ADD"
