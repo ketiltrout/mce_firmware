@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/11/26 18:29:08 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2004/12/07 19:37:46 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.14  2004/12/07 19:37:46  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.13  2004/11/26 18:29:08  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -245,6 +248,12 @@ signal write_data_mode     : std_logic;
 signal read_ret_data       : std_logic;
 signal write_captr_raw     : std_logic;
 
+-- three further wishbone read/write request enables
+-- in general these won't be called but need to be handled
+signal read_data_mode     : std_logic;    -- to verify written mode value                     
+signal write_ret_data     : std_logic;   -- only would occur as an error
+signal read_captr_raw     : std_logic;   -- only would occur as an error.  read is meaningless.
+
 
 -- signals for registering data mode word
 
@@ -298,11 +307,11 @@ signal raw_req             : std_logic;      -- signal fed to all 8 flux loop cn
 signal raw_ack             : std_logic;      -- ANDedacknowledgements from all 8 flux loop cntr channels
 
 signal dat_rdy             : std_logic;   -- asserted by FSM whne data word ready for read
-signal write_done          : std_logic;  -- asserted by FSM when write cycle done         
+signal instr_done          : std_logic;  -- asserted by FSM when write cycle done         
 
 -- slave controller FSM
 
-type state is (IDLE, WSS1, WSS2, READ_DATA, WSM1, WSM2, START_RAW, RAW_FINISH, SET_MODE, DONE);                           
+type state is (IDLE, WSS1, WSS2, READ_DATA, WSM1, WSM2, START_RAW, FINISH, SET_MODE, READ_MODE, DONE);                           
 
 signal current_state: state;
 signal next_state:    state;
@@ -322,9 +331,26 @@ begin
 
    write_captr_raw <= '1' when (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
                    else '0';
+                   
+
+-------------------------------------------------------------------------------------------------
+--                       Wishbone interface  -  3 further commads for slave to handle 
+------------------------------------------------------------------------------------------------
+   
+   -- a read back of the data mode may be required for debug....
+   read_data_mode <= '1' when (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
+                   else '0';
+    
+   -- this would only ocurr as a error but slave needs to acknowledge or system will hang
+   write_ret_data   <= '1' when (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
+                   else '0';
+
+   -- again this should never be requested as data is meaningless.  However, slave must ack to prevent system hang
+   read_captr_raw <= '1' when (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
+                   else '0';
    
    
-   ack_o           <= write_done or (dat_rdy and read_ret_data);
+   ack_o           <= instr_done or (dat_rdy and read_ret_data);     -- acknowledge when an instrunction is done or when data is ready (and master not inserted wait state)
  
 -------------------------------------------------------------------------------------------------
 --                       Flux Loop Cntr  -  request/acknowledge signals 
@@ -362,7 +388,8 @@ begin
    
    -----------------------------------------------------------------------------------------
    nextstate_fsm: process (current_state, raw_ack, data_mode_reg, pix_addr_cnt, raw_addr_cnt, 
-                           write_data_mode, read_ret_data, write_captr_raw)
+                           write_data_mode, read_ret_data,  write_captr_raw,
+                           read_data_mode,  write_ret_data, read_captr_raw)
    ------------------------------------------------------------------------------------------
    begin
       case current_state is
@@ -377,6 +404,15 @@ begin
          elsif write_captr_raw = '1' then
             next_state <= START_RAW;
              
+         elsif read_data_mode = '1' then 
+            next_state <= READ_MODE;
+         
+         elsif write_ret_data = '1' then
+            next_state <=  FINISH;
+                              
+         elsif read_captr_raw = '1' then
+            next_state <=  FINISH;
+                
          else
             next_state <= IDLE;
         
@@ -428,16 +464,19 @@ begin
             next_state <= WSM2;             -- else wait here
          end if;
                  
-                            
+      
+      when READ_MODE => 
+           next_state <= DONE;                      
+     
       when START_RAW  => 
         if raw_ack = '1' then 
-           next_state <= RAW_FINISH;
+           next_state <= FINISH;
         else
            next_state <= START_RAW ;
         end if; 
       
                     
-      when SET_MODE | RAW_FINISH=>
+      when SET_MODE | FINISH=>
          next_state <= DONE;
       
       when DONE =>
@@ -445,16 +484,16 @@ begin
       end case;
     end process nextstate_fsm;
     
-   --------------------------------------------- 
-   output_fsm: process (current_state, wbs_data)
-   ---------------------------------------------
+   -------------------------------------------------------------- 
+   output_fsm: process (current_state, wbs_data, data_mode_reg)
+   ---------------------------------------------------------------
    begin
       case current_state is
       
       when IDLE =>
       
          dat_rdy           <= '0';
-         write_done        <= '0';
+         instr_done        <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0'; 
@@ -464,7 +503,7 @@ begin
                       
       when SET_MODE =>
          dat_rdy           <= '0';
-         write_done        <= '1';
+         instr_done        <= '1';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '1';
          inc_addr_ena      <= '0';
@@ -475,7 +514,7 @@ begin
                 
       when WSS1 =>
          dat_rdy           <= '0';
-         write_done        <= '0';
+         instr_done        <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '1';
@@ -490,7 +529,7 @@ begin
                            
       when WSS2 =>
          dat_rdy           <= '0';
-         write_done        <= '0';
+         instr_done        <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '1';
@@ -500,7 +539,7 @@ begin
 
       when WSM1 =>
          dat_rdy           <= '0';
-         write_done        <= '0';
+         instr_done        <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
@@ -512,7 +551,7 @@ begin
          
       when WSM2 =>
          dat_rdy           <= '0';
-         write_done        <= '0';
+         instr_done        <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
@@ -522,7 +561,7 @@ begin
 
       when READ_DATA =>
          dat_rdy           <= '1';
-         write_done        <= '0';
+         instr_done        <= '0';
          dat_o             <= wbs_data;
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '1';    
@@ -532,16 +571,25 @@ begin
              
       when START_RAW =>
          dat_rdy           <= '0';
-         write_done        <= '0';
+         instr_done        <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          rst_addr_ena		    <= '0';
          raw_req           <= '1';
          
-      when RAW_FINISH =>   
+      when READ_MODE =>
          dat_rdy           <= '0';
-         write_done        <= '1';
+         instr_done        <= '1';
+         dat_o             <= data_mode_reg;
+         data_mode_mux_sel <= '0';
+         inc_addr_ena      <= '0';
+         rst_addr_ena		    <= '0';
+         raw_req           <= '0';   
+         
+      when FINISH =>   
+         dat_rdy           <= '0';
+         instr_done        <= '1';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
@@ -551,7 +599,7 @@ begin
                     
       when DONE =>
          dat_rdy           <= '0';
-         write_done        <= '0';
+         instr_done        <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
