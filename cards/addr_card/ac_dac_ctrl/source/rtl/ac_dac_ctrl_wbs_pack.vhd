@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_ac_dac_ctrl_pack.vhd,v 1.4 2004/11/06 03:12:01 bburger Exp $
+-- $Id: ac_dac_ctrl_wbs_pack.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with wbs_ac_dac_ctrl
 --
 -- Revision history:
--- $Log: wbs_ac_dac_ctrl_pack.vhd,v $
+-- $Log: ac_dac_ctrl_wbs_pack.vhd,v $
+-- Revision 1.1  2004/11/18 05:21:56  bburger
+-- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
+--
 -- Revision 1.4  2004/11/06 03:12:01  bburger
 -- Bryce:  debugging
 --
@@ -101,5 +104,16 @@ component tpram_32bit_x_64 is
       qb    : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
    );
 end component;
+
+component ac_dac_ctrl_ramdq IS
+   PORT
+   (
+      address     : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      clock    : IN STD_LOGIC ;
+      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+      wren     : IN STD_LOGIC ;
+      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+   );
+END component;
 
 end package;

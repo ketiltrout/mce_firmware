@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_pack.vhd,v 1.1 2004/11/11 01:47:10 bburger Exp $
+-- $Id: bc_dac_ctrl_core_pack.vhd,v 1.1 2004/11/25 03:05:08 bburger Exp $
 --
 
 -- Project:       SCUBA2
@@ -30,7 +30,10 @@
 --
 -- 
 -- Revision history:
--- $Log: bc_dac_ctrl_pack.vhd,v $
+-- $Log: bc_dac_ctrl_core_pack.vhd,v $
+-- Revision 1.1  2004/11/25 03:05:08  bburger
+-- Bryce:  Modified the Bias Card DAC control slaves.
+--
 -- Revision 1.1  2004/11/11 01:47:10  bburger
 -- Bryce:  new
 --
@@ -78,6 +81,7 @@ component bc_dac_ctrl_core
       
       -- Global Signals      
       clk_i             : in std_logic;
+      spi_clk_i         : in std_logic;
       rst_i             : in std_logic      
    );     
 end component;

@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.4  2004/12/10 20:23:40  mohsen
+-- Mohsen & Anthony: Added mem and comm clock
+-- Updated dispatch new interface, i.e., err_i
+--
 -- Revision 1.3  2004/12/07 20:22:21  mohsen
 -- Anthony & Mohsen: Initial release
 --
@@ -166,10 +170,10 @@ architecture top of readout_card is
 
   
 -- Global signals
-signal clk_50                  : std_logic;  -- system clk
-signal clk_200_mem             : std_logic;  -- memory clk
-signal clk_200_comm            : std_logic;  -- communication clk
-signal clk_25                  : std_logic;  -- spi clk
+signal clk                     : std_logic;  -- system clk
+signal mem_clk                 : std_logic;  -- memory clk
+signal comm_clk                : std_logic;  -- communication clk
+signal spi_clk                 : std_logic;  -- spi clk
 signal rst                     : std_logic;
 
 
@@ -243,10 +247,10 @@ begin
    i_rc_pll: rc_pll
      port map (
          inclk0 => inclk,
-         c0     => clk_50,
-         c1     => clk_200_mem,
-         c2     => clk_200_comm,
-         c3     => clk_25);
+         c0     => clk,
+         c1     => mem_clk,
+         c2     => comm_clk,
+         c3     => spi_clk);
 
    
    ----------------------------------------------------------------------------
@@ -257,9 +261,9 @@ begin
      generic map (
          CARD => CARD)
      port map (
-         clk_i        => clk_50,
-         mem_clk_i    => clk_200_mem,
-         comm_clk_i   => clk_200_comm,
+         clk_i        => clk,
+         mem_clk_i    => mem_clk,
+         comm_clk_i   => comm_clk,
          rst_i        => rst,
          lvds_cmd_i   => lvds_cmd,
          lvds_reply_o => lvds_txa,
@@ -377,8 +381,8 @@ begin
          cyc_i                     => dispatch_cyc_out,
          dat_o                     => dat_ft,
          ack_o                     => ack_ft,
-         clk_i                     => clk_50,
-         mem_clk_i                 => clk_200_mem,
+         clk_i                     => clk,
+         mem_clk_i                 => mem_clk,
          rst_i                     => rst,
          sync_i                    => lvds_sync);
    
@@ -389,8 +393,8 @@ begin
 
    i_flux_loop: flux_loop
      port map (
-         clk_50_i                  => clk_50,
-         clk_25_i                  => clk_25,
+         clk_50_i                  => clk,
+         clk_25_i                  => spi_clk,
          rst_i                     => rst,
          adc_coadd_en_i            => adc_coadd_en,
          restart_frame_1row_prev_i => restart_frame_1row_prev,
@@ -597,7 +601,7 @@ begin
 
    i_LED: leds
      port map (
-         clk_i  => clk_50,
+         clk_i  => clk,
          rst_i  => rst,
          dat_i  => dispatch_dat_out,
          addr_i => dispatch_addr_out,

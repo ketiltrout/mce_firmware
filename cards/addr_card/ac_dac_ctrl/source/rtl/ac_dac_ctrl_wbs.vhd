@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_ac_dac_ctrl.vhd,v 1.6 2004/11/08 23:40:29 bburger Exp $
+-- $Id: ac_dac_ctrl_wbs.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with wbs_ac_dac_ctrl
 --
 -- Revision history:
--- $Log: wbs_ac_dac_ctrl.vhd,v $
+-- $Log: ac_dac_ctrl_wbs.vhd,v $
+-- Revision 1.1  2004/11/18 05:21:56  bburger
+-- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
+--
 -- Revision 1.6  2004/11/08 23:40:29  bburger
 -- Bryce:  small modifications
 --
@@ -137,18 +140,33 @@ begin
       );
       
    dac_id_o <= logical_addr;
-   row_order_ram : tpram_32bit_x_64
+---------------------------------------------------------------------------------
+--   row_order_ram : tpram_32bit_x_64
+--      port map
+--      (
+--         data              => dat_i,
+--         wren              => row_order_wren,
+--         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
+--         rdaddress_a       => on_off_addr_i,
+--         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+--         clock             => mem_clk_i,
+--         qa                => logical_addr,
+--         qb                => row_order_data
+--      );
+---------------------------------------------------------------------------------
+-- This replacement ram is used by the in-system memory content wizard in Quartus
+---------------------------------------------------------------------------------
+   row_order_data <= (others => '0');
+   row_order_ram : ac_dac_ctrl_ramdq
       port map
       (
          data              => dat_i,
          wren              => row_order_wren,
-         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
-         rdaddress_a       => on_off_addr_i,
-         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
+         address           => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
          clock             => mem_clk_i,
-         qa                => logical_addr,
-         qb                => row_order_data
+         q                 => logical_addr
       );
+---------------------------------------------------------------------------------
 
    mux_en_o <= mux_en_data(0);
    mux_en_reg : reg

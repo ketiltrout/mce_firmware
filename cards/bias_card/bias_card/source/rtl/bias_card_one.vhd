@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: bias_card_one.vhd,v 1.2 2004/12/06 07:22:34 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,7 +29,12 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: bias_card_one.vhd,v $
+-- Revision 1.2  2004/12/06 07:22:34  bburger
+-- Bryce:
+-- Created pack files for the card top-levels.
+-- Added some simulation signals to the top-levels (i.e. clocks)
+--
 --
 -----------------------------------------------------------------------------
 
@@ -53,11 +58,6 @@ entity bias_card_one is
       CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := BIAS_CARD_1
    );
    port(
-      -- simulation signals
-      clk        : in std_logic;
-      mem_clk    : in std_logic;
-      comm_clk   : in std_logic;
-
       -- PLL input:
       inclk      : in std_logic;
       rst_n      : in std_logic;
@@ -116,12 +116,6 @@ begin
          CARD          => CARD
       )
       port map(
-                          
-         clk           => clk,        
-         mem_clk       => mem_clk,   
-         comm_clk      => comm_clk,   
-                      
-                          
          inclk         => inclk,      
          rst_n         => rst_n,      
          

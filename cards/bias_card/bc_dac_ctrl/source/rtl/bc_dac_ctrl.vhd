@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.2 2004/11/15 20:03:41 bburger Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.3 2004/11/25 03:05:08 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.3  2004/11/25 03:05:08  bburger
+-- Bryce:  Modified the Bias Card DAC control slaves.
+--
 -- Revision 1.2  2004/11/15 20:03:41  bburger
 -- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
 --
@@ -88,6 +91,7 @@ entity bc_dac_ctrl is
       -- Global Signals      
       clk_i             : in std_logic;
       mem_clk_i         : in std_logic;
+      spi_clk_i         : in std_logic;
       rst_i             : in std_logic      
    );     
 end bc_dac_ctrl;
@@ -127,7 +131,8 @@ begin
       update_bias_i     => update_bias_i,
       
       -- Global Signals      
-      clk_i             => clk_i,
+      clk_i             => spi_clk_i,
+      spi_clk_i         => spi_clk_i,
       rst_i             => rst_i
    );     
 

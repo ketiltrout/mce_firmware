@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.1 2004/12/06 07:22:34 bburger Exp $
+-- $Id: bias_card.vhd,v 1.2 2004/12/16 18:09:35 bench2 Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.2  2004/12/16 18:09:35  bench2
+-- Mandana: fixed the clocking, added bc_pll
+--
 -- Revision 1.1  2004/12/06 07:22:34  bburger
 -- Bryce:
 -- Created pack files for the card top-levels.
@@ -109,10 +112,15 @@ end bias_card;
 
 architecture top of bias_card is
 
+signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
+
 -- clocks
 signal clk      : std_logic;
 signal mem_clk  : std_logic;
 signal comm_clk : std_logic;
+signal spi_clk  : std_logic;
 
 signal rst      : std_logic;
 
@@ -142,18 +150,27 @@ component bc_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
-     c2 : out std_logic);
+     c2 : out std_logic;
+     c3 : out std_logic);
 end component;
 
 begin
    
    rst <= not rst_n;
+   test (4) <= dac_ncs_temp(0);
+   test (6) <= dac_data_temp(0);
+   test (8) <= dac_sclk_temp(0);
+   test (10)<= spi_clk;
+   dac_ncs <= dac_ncs_temp;
+   dac_data <= dac_data_temp;
+   dac_sclk <= dac_sclk_temp;
    
    pll0: bc_pll
    port map(inclk0 => inclk,
             c0 => clk,
             c1 => mem_clk,
-            c2 => comm_clk);
+            c2 => comm_clk,
+            c3 => spi_clk);
             
    cmd0: dispatch
       generic map(
@@ -204,9 +221,9 @@ begin
       port map(
          -- DAC hardware interface:
          -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
-         flux_fb_data_o             => dac_ncs,      
-         flux_fb_ncs_o              => dac_sclk,     
-         flux_fb_clk_o              => dac_data,     
+         flux_fb_data_o             => dac_data_temp,      
+         flux_fb_ncs_o              => dac_ncs_temp,     
+         flux_fb_clk_o              => dac_sclk_temp,     
                                        
          bias_data_o                => lvds_dac_data,
          bias_ncs_o                 => lvds_dac_ncs,
@@ -230,6 +247,7 @@ begin
          -- Global Signals      
          clk_i                      => clk,
          mem_clk_i                  => mem_clk,
+         spi_clk_i                  => spi_clk,
          rst_i                      => rst
       );                         
                                  

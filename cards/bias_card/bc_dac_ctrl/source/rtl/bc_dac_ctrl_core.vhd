@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.2 2004/11/15 20:03:41 bburger Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.1 2004/11/25 03:05:08 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -27,7 +27,10 @@
 -- Description:
 -- 
 -- Revision history:
--- $Log: bc_dac_ctrl.vhd,v $
+-- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.1  2004/11/25 03:05:08  bburger
+-- Bryce:  Modified the Bias Card DAC control slaves.
+--
 -- Revision 1.2  2004/11/15 20:03:41  bburger
 -- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
 --
@@ -84,6 +87,7 @@ entity bc_dac_ctrl_core is
       
       -- Global Signals      
       clk_i             : in std_logic;
+      spi_clk_i         : in std_logic;
       rst_i             : in std_logic      
    );     
 end bc_dac_ctrl_core;
@@ -116,10 +120,28 @@ architecture rtl of bc_dac_ctrl_core is
    signal dac_count_clk          : std_logic;
    signal dac_count_rst          : std_logic;
    signal dac_count              : integer;
+   
+   -- SPI counter signals for clock division
+   signal clk_2                  : std_logic;
+   signal clk_count              : integer;
 
 begin
 
    dac_nclr_o <= not rst_i;
+
+-- instantiate a counter to divide the clock by 2
+--   clk_div_2: counter
+--   generic map(MAX => 4,
+--               STEP_SIZE => 1,
+--               WRAP_AROUND => '1',
+--               UP_COUNTER => '1')
+--   port map(clk_i   => clk_i,
+--            rst_i   => rst_i,
+--            ena_i   => '1',
+--            load_i  => '0',
+--            count_i => 0,
+--            count_o => clk_count);
+--   clk_2   <= '1' when clk_count > 2 else '0';
 
    dac_counter: counter_xstep 
    generic map
