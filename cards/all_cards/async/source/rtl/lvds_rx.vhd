@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.5  2004/12/15 01:55:48  erniel
+-- removed clock divider logic (moved to async_rx)
+-- modified buffering to allow word to persist until next word ready
+-- reworked FSM to handle new async_rx interface
+--
 -- Revision 1.4  2004/08/25 22:16:40  bburger
 -- Bryce:  changed int_zero from signal to constant
 --
@@ -83,7 +88,7 @@ signal rx_data : std_logic_vector(7 downto 0);
 signal rx_rdy  : std_logic;
 signal rx_ack  : std_logic;
 
-signal byte_count     : integer range 0 to 4;
+signal byte_count     : integer range 0 to 3;
 signal byte_count_ena : std_logic;
 signal byte_count_clr : std_logic;
 
@@ -111,7 +116,7 @@ begin
             rx_i       => lvds_i);
     
    byte_counter: counter
-   generic map(MAX => 4,
+   generic map(MAX => 3,
                WRAP_AROUND => '0')
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
@@ -180,7 +185,7 @@ begin
          
          when LATCH =>  next_state <= ACK;
                              
-         when ACK =>    if(byte_count = 4) then
+         when ACK =>    if(byte_count = 3) then
                            next_state <= READY;       
                         else
                            next_state <= RECV;
@@ -221,9 +226,9 @@ begin
                            when 2 => temp_byte2_ld <= '1';
                            when others => data_out_ld <= '1';
                         end case;
-                        byte_count_ena <= '1';
          
          when ACK =>    rx_ack <= '1';
+                        byte_count_ena <= '1';
          
          when READY =>  rdy_o <= '1';
                         

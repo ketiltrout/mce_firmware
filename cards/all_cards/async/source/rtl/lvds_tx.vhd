@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.9  2004/12/16 18:09:32  erniel
+-- fixed small bug in counter
+--
 -- Revision 1.8  2004/12/15 01:48:04  erniel
 -- removed clock divider logic (moved to async_tx)
 -- added FIFO buffer
@@ -100,7 +103,7 @@ signal tx_data : std_logic_vector(7 downto 0);
 signal tx_rdy  : std_logic;
 signal tx_busy : std_logic;
 
-signal byte_count     : integer range 0 to 4;
+signal byte_count     : integer range 0 to 3;
 signal byte_count_ena : std_logic;
 signal byte_count_clr : std_logic;
 
@@ -125,7 +128,7 @@ begin
             tx_o       => lvds_o);
    
    byte_counter: counter
-   generic map(MAX => 4,
+   generic map(MAX => 3,
                WRAP_AROUND => '0')
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
