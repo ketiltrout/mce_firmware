@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/07/15 00:38:26 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/15 17:57:40 $>	- <initials $Author: bench1 $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.8  2004/07/15 17:57:40  bench1
+-- Mandana: corrected fix vs. ramp switch on dac tests
+--
 -- Revision 1.7  2004/07/15 00:38:26  bench1
 -- Mandana: changed dac_sclk to dac_clk to match tcl file
 --
@@ -498,14 +501,14 @@ begin
                    end if;   
                elsif(cmd1 = CMD_PARALLELDAC) then
                    if (cmd2 = CMD_DAC_FIXED) then
-                      if (dac_test_mode = "00") then
+--                      if (dac_test_mode = "00") then
+                         dac_test_mode <= "00";
 	                 sel <= SEL_PDAC;
-                      end if;                      
+--                      end if;                      
                    elsif (cmd2 = CMD_DAC_RAMP) then
                       dac_test_mode <= "01";
                       sel <= SEL_PDAC;               
-                   end if;   
-                  
+                   end if;                     
                else
                   -- must not be implemented yet!
                   sel <= (others => '0');
