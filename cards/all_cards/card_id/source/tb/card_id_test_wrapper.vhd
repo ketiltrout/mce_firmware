@@ -20,7 +20,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: card_id_test_wrapper.vhd,v 1.1 2004/04/13 23:02:05 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: card_id_test_wrapper.vhd,v 1.1 2004/04/14 22:05:14 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -32,8 +32,11 @@
 -- and emulates the master (command FSM, for example) on the wishbone bus.
 --
 -- Revision history:
--- <date $Date: 2004/04/13 23:02:05 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/14 22:05:14 $>	-		<text>		- <initials $Author: jjacob $>
 -- $Log: card_id_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/14 22:05:14  jjacob
+-- new directory structure
+--
 -- Revision 1.1  2004/04/13 23:02:05  erniel
 -- no message
 --
@@ -183,12 +186,14 @@ begin
 ------------------------------------------------------------------------  
 
    bytecount: counter
-   generic map(MAX => 16)
+   generic map(MAX => 16,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '0')
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
             ena_i   => count_ena,
             load_i  => count_ld,
-            down_i  => count_down,
             count_i => load_val,
             count_o => byte);
             

@@ -98,12 +98,14 @@ begin
 
 -- instantiate a counter to divide the clock by 8
    clk_div_2: counter
-   generic map(MAX => 4)
+   generic map(MAX => 4,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clk_i,
             rst_i   => '0',
             ena_i   => '1',
             load_i  => '0',
-            down_i  => '0',
             count_i => 0 ,
             count_o => clk_div);
 
@@ -111,12 +113,14 @@ begin
 
 -- instantiate a counter for idac to go through all 32 DACs
    data_count: counter
-   generic map(MAX => 16#3fff#)
+   generic map(MAX => 16#3fff#,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clkcount,
             rst_i   => rst_i,
             ena_i   => ramp,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero,
             count_o => idata);
   

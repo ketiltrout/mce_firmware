@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.13  2004/06/25 17:20:50  bench2
+-- Mandana: Data and ncs lines for DAC15 had to be driven from test pins (originally wired to PLL clkin pins on FPGA)
+--
 -- Revision 1.12  2004/06/23 19:39:34  bench2
 -- Mandana: add mux for lvds signals
 --
@@ -116,7 +119,7 @@ architecture behaviour of bc_test is
    port(inclk0 : in std_logic;
         c0 : out std_logic;
         c1 : out std_logic;
-        e0 : out std_logic);
+        e3 : out std_logic);
    end component;
 
    
@@ -256,7 +259,7 @@ begin
       port map(inclk0 => inclk,
                c0 => clk,
                c1 => rx_clk,
-               e0 => outclk);
+               e3 => outclk);
 
    -- RS232 interface start
    receiver : async_rx

@@ -142,12 +142,14 @@ begin
    data(2) <= "1000000000000000";--x8000     half range
 
    idx_counter: counter
-   generic map(MAX => 1)
+   generic map(MAX => 1,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => dac_done(0),
             rst_i   => logic0, 
             ena_i   => logic1,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero,
             count_o => idx);
    

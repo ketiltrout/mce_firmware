@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/16 00:15:38 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/16 18:06:12 $>	- <initials $Author: bench1 $>
 -- $Log: rc_serial_dac_test.vhd,v $
+-- Revision 1.5  2004/07/16 18:06:12  bench1
+-- Mandana: less fixed values
+--
 -- Revision 1.4  2004/07/16 00:15:38  bench1
 -- Mandana: changed en_ramp to ramp in IDLE state to run continous ramp
 --
@@ -126,24 +129,28 @@ begin
 
 -- instantiate a counter to divide the clock by 2
    clk_div_2: counter
-   generic map(MAX => 4)
+   generic map(MAX => 4,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clk_i,
             rst_i   => logic0,
             ena_i   => logic1,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero ,
             count_o => clk_count);
    clk_2   <= '1' when clk_count > 2 else '0';
 
 -- instantiate a counter for generating ramp
    data_count: counter
-   generic map(MAX => 16#ffff#)
+   generic map(MAX => 16#ffff#,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clkcount,
             rst_i   => rst_i,
             ena_i   => ramp,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero,
             count_o => idata);
   
@@ -152,12 +159,14 @@ begin
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 3)
+   generic map(MAX => 3,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => val_clk,
             rst_i   => logic0, -- '0' or rst_i? think!!!!!
             ena_i   => logic1,
             load_i  => logic0,
-            down_i  => logic0,
             count_i =>  zero,
             count_o => idx);
 

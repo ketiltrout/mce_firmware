@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.7 2004/06/22 18:39:02 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.8 2004/06/23 19:41:57 bench2 Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/06/22 18:39:02 $>	- <initials $Author: bench2 $>
+-- <date $Date: 2004/06/23 19:41:57 $>	- <initials $Author: bench2 $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.8  2004/06/23 19:41:57  bench2
+-- Mandana: added lvds_spi_start signal to be routed to test header
+--
 -- Revision 1.7  2004/06/22 18:39:02  bench2
 -- added more fixed values up to 0x0040
 --
@@ -136,24 +139,28 @@ begin
    
 -- instantiate a counter to divide the clock by 2
    clk_div_2: counter
-   generic map(MAX => 4)
+   generic map(MAX => 4,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clk_i,
             rst_i   => '0',
             ena_i   => '1',
             load_i  => '0',
-            down_i  => '0',
-            count_i => 0 ,
+            count_i => 0,
             count_o => clk_count);
    clk_2   <= '1' when clk_count > 2 else '0';
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 9)
+   generic map(MAX => 9,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => val_clk,
             rst_i   => logic0, -- '0' or rst_i? think!!!!!
             ena_i   => logic1,
             load_i  => logic0,
-            down_i  => logic0,
             count_i =>  zero,
             count_o => idx);
 

@@ -111,12 +111,14 @@ begin
    
 -- instantiate a counter for idat to go through all data values
    data_count: counter
-   generic map(MAX => 14)
+   generic map(MAX => 14,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => en_i,
             rst_i   => rst_i,
             ena_i   => logic1,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero ,
             count_o => idat);
             

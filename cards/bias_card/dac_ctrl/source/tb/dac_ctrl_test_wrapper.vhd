@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.7 2004/05/20 20:08:07 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.8 2004/05/20 21:54:06 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/05/20 20:08:07 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/20 21:54:06 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.8  2004/05/20 21:54:06  mandana
+-- slowed down the clk to clk_i/8
+--
 -- Revision 1.7  2004/05/20 20:08:07  mandana
 -- fixed others for FSMs
 --
@@ -135,12 +138,14 @@ begin
 
 -- instantiate a counter for idac to go through all 32 DACs
    clk_div_8: counter
-   generic map(MAX => 16 , STEPSIZE => 1)
+   generic map(MAX => 16 ,    
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clk_i,
             rst_i   => '0',
             ena_i   => '1',
             load_i  => '0',
-            down_i  => '0',
             count_i => 0 ,
             count_o => clk_count);
 
@@ -148,34 +153,40 @@ begin
 
 -- instantiate a counter for idac to go through all 32 DACs
    dac_count: counter
-   generic map(MAX => 16 , STEPSIZE => 1)
+   generic map(MAX => 16 , 
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => dac_count_clk,
             rst_i   => idac_rst,
             ena_i   => '1',
             load_i  => '0',
-            down_i  => '0',
             count_i => 0 ,
             count_o => idac);
    
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 5)
+   generic map(MAX => 5,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => val_clk,
             rst_i   => rst_i,
             ena_i   => '1',
             load_i  => '0',
-            down_i  => '0',
             count_i =>  0,
             count_o => idx);
             
 -- instantiate a counter for idac to go through all 32 DACs
    data_count: counter
-   generic map(MAX => 16#3fff#)
+   generic map(MAX => 16#3fff#,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => ramp_clk,
             rst_i   => ramp_rst,
             ena_i   => '1',
             load_i  => '0',
-            down_i  => '0',
             count_i => 0 ,
             count_o => idata);
   

@@ -37,8 +37,11 @@
 --              CYC_OO_SYC_ADDR  : to send the number of cycles out of sync to the master (cmd_fsm) 
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$   
+-- <date $Date: 2004/07/14 00:04:10 $>	- <initials $Author: mandana $>
+-- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.2  2004/07/14 00:04:10  mandana
+-- added cvs log header
+--   
 --
 -----------------------------------------------------------------------------
 
@@ -197,22 +200,26 @@ begin
 	);
 
    idx_counter: counter 
-   generic map(MAX => NUM_OF_ROWS)
+   generic map(MAX => NUM_OF_ROWS,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => idx_clk,
             rst_i   => idx_rst,
             ena_i   => '1',
             load_i  => '0',
-            down_i  => '0',
             count_i => 0,
             count_o => idx);
             
    row_counter: counter 
-   generic map(MAX => NUM_OF_ROWS)
+   generic map(MAX => NUM_OF_ROWS,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => row_clk,
             rst_i   => start_mux,
             ena_i   => '1',
             load_i  => '0',
-            down_i  => '0',
             count_i => 0,
             count_o => row);
    

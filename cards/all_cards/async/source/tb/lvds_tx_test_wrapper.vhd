@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.7  2004/05/31 21:41:54  erniel
+-- attempt at making the enable signal control the state transitions
+--
 -- Revision 1.6  2004/05/30 01:57:15  erniel
 -- tweaked state transitions
 --
@@ -59,8 +62,10 @@ use components.component_pack.all;
 entity lvds_tx_test_wrapper is
    port (
       -- basic signals
-      rst_i : in std_logic;   -- reset input
-      clk_i : in std_logic;   -- clock input
+      rst_i      : in std_logic;   -- reset input
+      clk_i      : in std_logic;   -- clock input
+      comm_clk_i : in std_logic;   -- fast communications clock input
+      
       en_i : in std_logic;    -- enable signal
       done_o : out std_logic; -- done ouput signal
       
@@ -79,6 +84,10 @@ architecture behaviour of lvds_tx_test_wrapper is
    signal busy : std_logic;
    signal stb : std_logic;
    
+   -- clock divider signals
+   signal clk_divide : std_logic_vector(2 downto 0);
+   signal tx_clk : std_logic;
+   
    -- internal signals      
    signal random_ena : std_logic;
    signal random_dat : std_logic_vector(7 downto 0);
@@ -93,12 +102,23 @@ architecture behaviour of lvds_tx_test_wrapper is
 
 begin
 
+   -- divide comm_clk down to 25 MHz for LVDS transmit
+   process(comm_clk_i)
+   begin
+      if(comm_clk_i'event and comm_clk_i = '1') then
+         clk_divide <= clk_divide + 1;
+      end if;
+   end process;
+   
+   tx_clk <= clk_divide(2);  -- divide clock by 8 
+   
+   
    -- our LVDS transmitter
    lvds_tx : async_tx
       port map(
          tx_o =>   lvds_o,
          busy_o => busy,
-         clk_i =>  clk_i,
+         clk_i =>  tx_clk,
          rst_i =>  rst_i,
          dat_i =>  dat,
          we_i =>   we,
@@ -115,17 +135,17 @@ begin
       generic map (size => 8)
       port map (
          clr_i => rst_i,
-         clk_i => clk_i,
+         clk_i => tx_clk,
          en_i =>  random_ena,
          out_o => random_dat
       );
    
    -- counter
-   counter: process(rst_i, clk_i)
+   counter: process(rst_i, tx_clk)
    begin
       if(rst_i = '1') then
          count_dat <= "00000000";
-      elsif(clk_i'event and clk_i = '1') then
+      elsif(tx_clk'event and tx_clk = '1') then
          if(count_ena = '1') then
             count_dat <= count_dat + 1;
          end if;

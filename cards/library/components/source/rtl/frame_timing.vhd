@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.7 2004/05/17 22:33:06 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.8 2004/05/18 17:06:42 mandana Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/05/17 22:33:06 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2004/05/18 17:06:42 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.8  2004/05/18 17:06:42  mandana
+-- fixed synthesis errors
+--
 -- Revision 1.7  2004/05/17 22:33:06  mandana
 -- changed counter output to integer
 --
@@ -90,13 +93,15 @@ architecture beh of frame_timing is
    
    begin
    cntr : counter
-      generic map(MAX => END_OF_FRAME)
+      generic map(MAX => END_OF_FRAME, 
+                  STEP_SIZE => 1,
+                  WRAP_AROUND => '1',
+                  UP_COUNTER => '1')
       port map(
          clk_i => clk_i,
          rst_i => counter_rst,
          ena_i => '1',
          load_i => '0',
-         down_i => '0',
          count_i => 0,
          count_o => count_int
       );

@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.3 2004/06/07 23:19:00 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.4 2004/06/12 00:49:20 bench2 Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -110,12 +110,14 @@ begin
 
 -- instantiate a counter to divide the clock by 2
    clk_div_2: counter
-   generic map(MAX => 4)
+   generic map(MAX => 4,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clk_i,
             rst_i   => logic0, 
             ena_i   => logic1,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero,
             count_o => clk_count);
 
@@ -123,12 +125,14 @@ begin
      
 -- instantiate a counter for generating ramp
    data_count: counter
-   generic map(MAX => 16#ffff#)
+   generic map(MAX => 16#ffff#,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clkcount,
             rst_i   => rst_i,
             ena_i   => ramp,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero,
             count_o => idata);
   

@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/19 20:20:34 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/19 23:17:25 $>	- <initials $Author: bench1 $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.5  2004/07/19 23:17:25  bench1
+-- Mandana: deleted the left-over dac_clk_o and done_o assignments
+--
 -- Revision 1.4  2004/07/19 20:20:34  mandana
 -- added square wave test for parallel DACs
 --
@@ -171,12 +174,14 @@ begin
                     done_fix    when others;
     
    ramp_data_count: counter
-   generic map(MAX => 16#3fff#)
+   generic map(MAX => 16#3fff#,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => clkcount,
             rst_i   => rst_i,
             ena_i   => ramp,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero,
             count_o => idata);
   
@@ -215,12 +220,14 @@ begin
    dac_clk_square <= (others => nclk);
 -----------------------------------------------------------
    fix_data_count: counter
-   generic map(MAX => 7)
+   generic map(MAX => 7,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
    port map(clk_i   => en_i,
             rst_i   => rst_i,
             ena_i   => logic1,
             load_i  => logic0,
-            down_i  => logic0,
             count_i => zero ,
             count_o => idat);
             
