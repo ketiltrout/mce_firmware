@@ -28,17 +28,23 @@
 -- This implements the sync pulse generation on the Clock Card.
 --
 -- Revision history:
--- $Log$
+-- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.1  2004/08/05 00:19:33  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-library sys_param;
-use sys_param.command_pack.all;
-
 package sync_gen_pack is
+
+   constant SYNC_NUM_WIDTH     : integer := 8;
+   
+   constant ISSUE_SYNC_WIDTH   : integer := SYNC_NUM_WIDTH;
+   constant TIMEOUT_SYNC_WIDTH : integer := SYNC_NUM_WIDTH;
+   
    component sync_gen
       port(
          clk_i       : in std_logic;
@@ -46,7 +52,7 @@ package sync_gen_pack is
          dv_i        : in std_logic;
          dv_en_i     : in std_logic;
          sync_o      : out std_logic;
-         sync_num_o  : out std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0)
+         sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
       );
    end component;
 end sync_gen_pack;

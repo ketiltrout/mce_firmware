@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.3  2004/09/15 18:42:02  bburger
+-- Bryce:  Added a recirculation MUX
+--
 -- Revision 1.2  2004/08/21 00:00:31  bburger
 -- Bryce:  now issues a sync pulse on the last cycle of a frame.
 --
@@ -58,6 +61,9 @@ use sys_param.command_pack.all;
 library components;
 use components.component_pack.all;
 
+library work;
+use work.sync_gen_pack.all;
+
 entity sync_gen is
    port(
       clk_i       : in std_logic;
@@ -65,7 +71,7 @@ entity sync_gen is
       dv_i        : in std_logic;
       dv_en_i     : in std_logic;
       sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0)
+      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
    );
 end sync_gen;
 
@@ -77,9 +83,9 @@ architecture beh of sync_gen is
    signal new_frame_period : std_logic;   
    signal clk_count        : integer;
    signal sync_count       : integer;
-   signal sync_num         : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+   signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    
-   signal sync_num_mux     : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+   signal sync_num_mux     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal sync_num_mux_sel : std_logic;
 
    begin      
@@ -118,7 +124,7 @@ architecture beh of sync_gen is
       new_frame_period  <= '1' when clk_count = END_OF_FRAME else '0';
       sync_o            <= new_frame_period;
       sync_num_o        <= sync_num;
---      sync_num_o        <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
+--      sync_num_o        <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_WIDTH));
 
       sync_state_FF: process(clk_i, rst_i)
       begin
@@ -169,7 +175,7 @@ architecture beh of sync_gen is
             when RESET =>
                --sync_o <= '0';
                sync_num_mux_sel <= '1';
-               --sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
+               --sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_WIDTH));
             when SYNC_LOW =>
                --sync_o <= '0';
                sync_num_mux_sel <= '0';
@@ -177,7 +183,7 @@ architecture beh of sync_gen is
             when SYNC_HIGH =>
                --sync_o     <= '1';
                sync_num_mux_sel <= '1';
-               --sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
+               --sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_WIDTH));
             when DV_RECEIVED =>
                --sync_o <= '0';
                sync_num_mux_sel <= '0';
@@ -189,6 +195,6 @@ architecture beh of sync_gen is
          end case;
       end process;
       
-      sync_num_mux <= sync_num when sync_num_mux_sel = '0' else std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
+      sync_num_mux <= sync_num when sync_num_mux_sel = '0' else std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_WIDTH));
 
 end beh;
