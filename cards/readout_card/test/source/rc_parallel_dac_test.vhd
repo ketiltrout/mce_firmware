@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/16 18:05:54 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/19 20:20:34 $>	- <initials $Author: mandana $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.4  2004/07/19 20:20:34  mandana
+-- added square wave test for parallel DACs
+--
 -- Revision 1.3  2004/07/16 18:05:54  bench1
 -- Mandana: more fixed values
 --
@@ -166,11 +169,7 @@ begin
       done_o   <=   done_ramp   when "01", 
                     done_square when "10",
                     done_fix    when others;
-
-   dac_clk_o <= dac_clk_fix when mode = "00" else dac_clk_ramp;
-   
-   done_o <= done_fix when mode = "00" else done_ramp;
-   
+    
    ramp_data_count: counter
    generic map(MAX => 16#3fff#)
    port map(clk_i   => clkcount,
@@ -204,7 +203,7 @@ begin
       end if;
    end process;
 
-   clk_2 <= clk_count(9);
+   clk_2 <= clk_count(6);
    
    process(en_square)
    begin
