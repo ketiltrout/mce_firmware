@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.11  2005/03/03 19:37:45  mandana
+-- Ernie: Error encoding removed.
+--
 -- Revision 1.10  2005/02/20 00:42:25  erniel
 -- added MATCHED state
 -- fixed bugs in state transitions
@@ -186,8 +189,8 @@ begin
    error_o <= (others => '0');
 
    -- error_o <= ac_data_i(31 downto 29)  & bc1_data_i(31 downto 29) & bc2_data_i(31 downto 29) & bc3_data_i(31 downto 29) &
-              rc1_data_i(31 downto 29) & rc2_data_i(31 downto 29) & rc3_data_i(31 downto 29) & rc4_data_i(31 downto 29) &
-              cc_data_i(31 downto 29) & "000";
+   --           rc1_data_i(31 downto 29) & rc2_data_i(31 downto 29) & rc3_data_i(31 downto 29) & rc4_data_i(31 downto 29) &
+   --           cc_data_i(31 downto 29) & "000";
    
    
    ---------------------------------------------------------
