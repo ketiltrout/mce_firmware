@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.9 2005/01/12 22:09:24 mandana Exp $
+-- $Id: clk_card.vhd,v 1.10 2005/01/13 03:14:51 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.10  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.9  2005/01/12 22:09:24  mandana
 -- removed mem_clk_i from dispatch interface
 --
@@ -60,17 +65,18 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.dispatch_pack.all;
-use work.leds_pack.all;
-use work.sync_gen_pack.all;
-use work.frame_timing_pack.all;
-use work.issue_reply_pack.all;
+--use work.dispatch_pack.all;
+--use work.leds_pack.all;
+--use work.sync_gen_pack.all;
+--use work.frame_timing_pack.all;
+--use work.issue_reply_pack.all;
 
 
 entity clk_card is
@@ -169,7 +175,7 @@ signal comm_clk      : std_logic;
 signal fibre_clk     : std_logic;
 
 -- sync_gen interface
-signal sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+--signal sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
 -- wishbone bus (from master)
 signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -200,6 +206,29 @@ signal lvds_reply_cc_a     : std_logic;
 -- For testing
 signal debug             : std_logic_vector(31 downto 0);
 
+
+  -----------------------------------------------------------------------------
+  -- Signals for HW test
+  -----------------------------------------------------------------------------
+
+  signal rdaddress_packet_ram : STD_LOGIC_VECTOR (8 DOWNTO 0);
+--  signal rdaddress_packet_ram : STD_LOGIC_VECTOR (7 DOWNTO 0);
+  signal q_packet_ram         : STD_LOGIC_VECTOR (31 DOWNTO 0);
+  signal rdy_lvds_tx          : std_logic;
+  signal busy_lvds_tx         : std_logic;
+  signal lvds_lvds_tx         : std_logic;
+  signal busy_sampled         : std_logic;
+  signal dly_busy_sampled     : std_logic;
+  signal early1_rdy_lvds_tx   : std_logic;
+  signal early2_rdy_lvds_tx   : std_logic;
+  signal pre_rdy_lvds_tx      : std_logic;
+  signal rst_dly              : std_logic;
+  signal state_shift          : std_logic;
+  signal need_long_wait       : boolean;
+  signal adc1_dat_hw_test     : std_logic_vector(13 downto 0);
+  signal raw_read_count       : integer;
+
+
 component cc_pll
    port(
       inclk0 : in std_logic;
@@ -213,28 +242,57 @@ component cc_pll
    );
 end component;
 
+
+  -----------------------------------------------------------------------------
+  -- components for HW test
+  -----------------------------------------------------------------------------
+  
+  component packet_ram
+    port (
+      data      : IN  STD_LOGIC_VECTOR (31 DOWNTO 0);
+      wren      : IN  STD_LOGIC := '1';
+      wraddress : IN  STD_LOGIC_VECTOR (8 DOWNTO 0);
+--      wraddress : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
+      rdaddress : IN  STD_LOGIC_VECTOR (8 DOWNTO 0);
+--      rdaddress : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
+      clock     : IN  STD_LOGIC;
+      q         : OUT STD_LOGIC_VECTOR (31 DOWNTO 0));
+  end component;
+
+
+  component lvds_tx
+    port (
+      clk_i  : in  std_logic;
+      rst_i  : in  std_logic;
+      dat_i  : in  std_logic_vector(31 downto 0);
+      rdy_i  : in  std_logic;
+      busy_o : out std_logic;
+      lvds_o : out std_logic);
+  end component;
+
+
 begin
 
    rst <= NOT rst_n;
 
-   with addr select
-      slave_data <= 
-         led_data          when LED_ADDR,
-         sync_gen_data     when USE_DV_ADDR,
---         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
-         (others => '0')   when others;
+--    with addr select
+--       slave_data <= 
+--          led_data          when LED_ADDR,
+--          sync_gen_data     when USE_DV_ADDR,
+-- --         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+--          (others => '0')   when others;
          
-   with addr select
-      slave_ack <= 
-         led_ack          when LED_ADDR,
-         sync_gen_ack     when USE_DV_ADDR,
---         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
-         '0'              when others;
+--    with addr select
+--       slave_ack <= 
+--          led_ack          when LED_ADDR,
+--          sync_gen_ack     when USE_DV_ADDR,
+-- --         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+--          '0'              when others;
          
-   with addr select
-      slave_err <= 
-         '0'              when LED_ADDR | USE_DV_ADDR, --| ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
-         '1'              when others;
+--    with addr select
+--       slave_err <= 
+--          '0'              when LED_ADDR | USE_DV_ADDR, --| ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+--          '1'              when others;
 
 
 --   lvds_clk <= lvds_clk_i;
@@ -249,77 +307,236 @@ begin
          e1     => fibre_rx_clk,   
          e2     => lvds_clk 
       );
-            
-   lvds_cmd <= cmd;
-   cmd0: dispatch
-      port map(
-         lvds_cmd_i   => cmd,
-         lvds_reply_o => lvds_reply_cc_a,
-         
-         --  Global signals
-         clk_i      => clk,
-         comm_clk_i => comm_clk,
-         rst_i      => rst,
-            
-         -- Wishbone interface
-         dat_o  => data,
-         addr_o => addr,
-         tga_o  => tga,
-         we_o   => we,
-         stb_o  => stb,
-         cyc_o  => cyc,
-         dat_i  => slave_data,   
-         ack_i  => slave_ack,
-         err_i  => slave_err, 
-     
-         wdt_rst_o => wdog,
-         slot_i    => slot_id
-      );
-            
-   led0: leds
-      port map(   
-         --  Global signals
-         clk_i => clk,
-         rst_i => rst,
-            
-         -- Wishbone interface
-         dat_i  => data,
-         addr_i => addr,
-         tga_i  => tga,
-         we_i   => we,
-         stb_i  => stb,
-         cyc_i  => cyc,
-         dat_o  => led_data,
-         ack_o  => led_ack,
       
-         power  => grn_led,
-         status => ylw_led,
-         fault  => red_led
-      );
+-------------------------------------------------------------------------------
+-- packet ram
+-------------------------------------------------------------------------------
+  i_packet_ram: packet_ram
+    port map (
+        data      => (others => '0'),
+        wren      => '0',
+        wraddress => (others => '0'),
+        rdaddress => rdaddress_packet_ram,
+        clock     => clk,
+        q         => q_packet_ram);
+
+  
+
+-------------------------------------------------------------------------------
+-- lvds_tx
+-------------------------------------------------------------------------------
+  i_lvds_tx: lvds_tx
+    port map (
+        clk_i  => clk,
+        rst_i  => rst,
+        dat_i  => q_packet_ram,
+        rdy_i  => rdy_lvds_tx,
+        busy_o => busy_lvds_tx,
+        lvds_o => cmd);      
+        
+        
+-------------------------------------------------------------------------------
+-- our fsm 
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-- for ramp
+-------------------------------------------------------------------------------
    
-   lvds_sync <= sync;
-   sync_gen0: sync_gen
-      port map( 
-         -- Inputs/Outputs
-         dv_i       => dv_pulse_fibre,
-         sync_o     => sync,
-         sync_num_o => sync_num,
+--   i_fsm: process (clk, rst)
+
+--     variable i : integer range 0 to 9000009;
+--   begin  -- process i_fsm
+--     if rst = '1' then                   -- asynchronous reset
+--       state_shift <= '0';
+--       i:=0;
+--     elsif clk'event and clk = '1' then  -- rising clock edge
+--       state_shift <= '0';
+--       i:=i+1;
+--       if i = 9000000 then
+--         state_shift <= '1';
+--         i:=0;
+--       end if;
+--     end if;
+--   end process i_fsm;
+
+--   rdy_lvds_tx <= state_shift;
+
+--   i_count_up: process (clk, rst)
+--   begin  -- process i_count_up
+--     if rst = '1' then                   -- asynchronous reset
+--       rdaddress_packet_ram <= (others => '0');
       
-         -- Wishbone interface
-         dat_i       => data,         
-         addr_i      => addr,           
-         tga_i       => tga,
-         we_i        => we,          
-         stb_i       => stb,            
-         cyc_i       => cyc,       
-         dat_o       => sync_gen_data,          
-         ack_o       => sync_gen_ack,
+--     elsif clk'event and clk = '1' then  -- rising clock edge
+--       if state_shift='1' then
+--         if rdaddress_packet_ram <x"8b" then
+--           rdaddress_packet_ram <= rdaddress_packet_ram +1;
+--         else
+--           rdaddress_packet_ram <= x"76";
+--         end if;
+--       end if;
+--     end if;
+--   end process i_count_up;
+
+
+
+
+-------------------------------------------------------------------------------
+-- for lock with pid
+-------------------------------------------------------------------------------
+   
+   i_fsm: process (clk, rst)
+
+     variable i : integer range 0 to 9000009;
+   begin  -- process i_fsm
+     if rst = '1' then                   -- asynchronous reset
+       state_shift <= '0';
+       i:=0;
+     elsif clk'event and clk = '1' then  -- rising clock edge
+       state_shift <= '0';
+       i:=i+1;
       
-         --  Global signals
-         clk_i       => clk,
-         mem_clk_i   => mem_clk,
-         rst_i       => rst
-      );
+       if i = 900000 and need_long_wait = false then  -- wait for short time for
+                                                  -- ordinary packet to avoid
+                                                  -- buffer overflow in lvd_tx
+         state_shift <= '1';
+         i:=0;
+       end if;
+
+       if i = 30000 and need_long_wait = true then  -- wait for long time for
+                                                    -- long packets
+         state_shift <= '1';
+         i:=0;
+       end if;
+      
+     end if;
+   end process i_fsm;
+
+   rdy_lvds_tx <= state_shift;
+
+   i_count_up: process (clk, rst)
+   begin  -- process i_count_up
+     if rst = '1' then                   -- asynchronous reset
+       rdaddress_packet_ram <= (others => '0');
+       need_long_wait <= false;
+       raw_read_count <= 0;
+      
+     elsif clk'event and clk = '1' then  -- rising clock edge
+       if state_shift='1' then
+         need_long_wait <= false;
+        
+         if rdaddress_packet_ram <('1' & x"70") then
+           rdaddress_packet_ram <= rdaddress_packet_ram+1;
+
+           -- long wait on preamble of a "long" instruction and the preamble of
+           -- the next instruction.  The first condition is used when need to
+           -- loop many times through the "long" instruction.
+           if (rdaddress_packet_ram = ('1' & x"5E") or rdaddress_packet_ram = ('1' & x"61")) then
+             need_long_wait <= true;
+           end if;
+
+           -- loop at the crc of "long" instruction
+           if (rdaddress_packet_ram = ('1' & x"61")) then
+             raw_read_count <= raw_read_count +1;
+             if raw_read_count <127 then
+               rdaddress_packet_ram <= ('1' & x"5F");  -- back to preamble of "
+                                                       -- long" instruction 
+             else
+               raw_read_count <= 0;
+             end if;
+           end if;
+
+
+          
+         else
+           rdaddress_packet_ram <= ('1' & x"50");
+         end if;
+        
+       end if;
+     end if;
+   end process i_count_up;        
+        
+
+
+-------------------------------------------------------------------------------
+-- End of FSM
+-------------------------------------------------------------------------------
+   
+            
+   lvds_cmd <= cmd;	 
+
+
+--    cmd0: dispatch
+--       port map(
+--          lvds_cmd_i   => cmd,
+--          lvds_reply_o => lvds_reply_cc_a,
+         
+--          --  Global signals
+--          clk_i      => clk,
+--          comm_clk_i => comm_clk,
+--          rst_i      => rst,
+            
+--          -- Wishbone interface
+--          dat_o  => data,
+--          addr_o => addr,
+--          tga_o  => tga,
+--          we_o   => we,
+--          stb_o  => stb,
+--          cyc_o  => cyc,
+--          dat_i  => slave_data,   
+--          ack_i  => slave_ack,
+--          err_i  => slave_err, 
+     
+--          wdt_rst_o => wdog,
+--          slot_i    => slot_id
+--       );
+            
+--    led0: leds
+--       port map(   
+--          --  Global signals
+--          clk_i => clk,
+--          rst_i => rst,
+            
+--          -- Wishbone interface
+--          dat_i  => data,
+--          addr_i => addr,
+--          tga_i  => tga,
+--          we_i   => we,
+--          stb_i  => stb,
+--          cyc_i  => cyc,
+--          dat_o  => led_data,
+--          ack_o  => led_ack,
+      
+--          power  => grn_led,
+--          status => ylw_led,
+--          fault  => red_led
+--       );
+   
+--    lvds_sync <= sync;
+
+   
+--    sync_gen0: sync_gen
+--       port map( 
+--          -- Inputs/Outputs
+--          dv_i       => dv_pulse_fibre,
+--          sync_o     => sync,
+--          sync_num_o => sync_num,
+      
+--          -- Wishbone interface
+--          dat_i       => data,         
+--          addr_i      => addr,           
+--          tga_i       => tga,
+--          we_i        => we,          
+--          stb_i       => stb,            
+--          cyc_i       => cyc,       
+--          dat_o       => sync_gen_data,          
+--          ack_o       => sync_gen_ack,
+      
+--          --  Global signals
+--          clk_i       => clk,
+--          mem_clk_i   => mem_clk,
+--          rst_i       => rst
+--       );
 
 --   frame_timing0: frame_timing   
 --      port map(   
@@ -355,50 +572,50 @@ begin
 --         sync_i      => sync
 --      );
 
-   issue_reply0: issue_reply
-      port map(   
-         -- For testing
-         debug_o    => debug,
-   
-         -- global signals
-         rst_i             => rst,
-         clk_i             => clk,
-         comm_clk_i        => comm_clk,
-         mem_clk_i         => mem_clk,
-         
-         -- bus backplane interface
-         lvds_reply_ac_a   => lvds_reply_ac_a,   
-         lvds_reply_bc1_a  => lvds_reply_bc1_a,
-         lvds_reply_bc2_a  => lvds_reply_bc2_a,
-         lvds_reply_bc3_a  => lvds_reply_bc3_a,
-         lvds_reply_rc1_a  => lvds_reply_rc1_a,
-         lvds_reply_rc2_a  => lvds_reply_rc2_a,
-         lvds_reply_rc3_a  => lvds_reply_rc3_a, 
-         lvds_reply_rc4_a  => lvds_reply_rc4_a,
-         lvds_reply_cc_a   => lvds_reply_cc_a,
-
-         -- fibre receiver interface 
-         fibre_clkr_i      => fibre_rx_ckr,  
-         rx_data_i         => fibre_rx_data,
-         nRx_rdy_i         => fibre_rx_rdy,
-         rvs_i             => fibre_rx_rvs,
-         rso_i             => fibre_rx_status,
-         rsc_nRd_i         => fibre_rx_sc_nd,
-         cksum_err_o       => open,
-    
-         -- fibre transmitter interface
-         tx_data_o         => fibre_tx_data,     -- byte of data to be transmitted
-         tsc_nTd_o         => fibre_tx_sc_nd,    -- hotlink tx special char/ data sel
-         nFena_o           => fibre_tx_ena,      -- hotlink tx enable
-   
-         -- 25MHz clock for fibre_tx_control
-         fibre_clkw_i      => fibre_clk,
-        
-         -- lvds_tx interface
-         lvds_cmd_o        => cmd,
-
-         sync_pulse_i      => sync,
-         sync_number_i     => sync_num
-      );
+--   issue_reply0: issue_reply
+--      port map(   
+--         -- For testing
+--         debug_o    => debug,
+--   
+--         -- global signals
+--         rst_i             => rst,
+--         clk_i             => clk,
+--         comm_clk_i        => comm_clk,
+--         mem_clk_i         => mem_clk,
+--         
+--         -- bus backplane interface
+--         lvds_reply_ac_a   => lvds_reply_ac_a,   
+--         lvds_reply_bc1_a  => lvds_reply_bc1_a,
+--         lvds_reply_bc2_a  => lvds_reply_bc2_a,
+--         lvds_reply_bc3_a  => lvds_reply_bc3_a,
+--         lvds_reply_rc1_a  => lvds_reply_rc1_a,
+--         lvds_reply_rc2_a  => lvds_reply_rc2_a,
+--         lvds_reply_rc3_a  => lvds_reply_rc3_a, 
+--         lvds_reply_rc4_a  => lvds_reply_rc4_a,
+--         lvds_reply_cc_a   => lvds_reply_cc_a,
+--
+--         -- fibre receiver interface 
+--         fibre_clkr_i      => fibre_rx_ckr,  
+--         rx_data_i         => fibre_rx_data,
+--         nRx_rdy_i         => fibre_rx_rdy,
+--         rvs_i             => fibre_rx_rvs,
+--         rso_i             => fibre_rx_status,
+--         rsc_nRd_i         => fibre_rx_sc_nd,
+--         cksum_err_o       => open,
+--    
+--         -- fibre transmitter interface
+--         tx_data_o         => fibre_tx_data,     -- byte of data to be transmitted
+--         tsc_nTd_o         => fibre_tx_sc_nd,    -- hotlink tx special char/ data sel
+--         nFena_o           => fibre_tx_ena,      -- hotlink tx enable
+--   
+--         -- 25MHz clock for fibre_tx_control
+--         fibre_clkw_i      => fibre_clk,
+--        
+--         -- lvds_tx interface
+--         lvds_cmd_o        => cmd,
+--
+--         sync_pulse_i      => sync,
+--         sync_number_i     => sync_num
+--      );
   
 end top;
