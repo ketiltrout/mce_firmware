@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.1 2004/05/11 02:17:31 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.2 2004/05/12 18:17:53 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.2  2004/05/12 18:17:53  bburger
+-- in progress
+--
 -- Revision 1.1  2004/05/11 02:17:31  bburger
 -- new
 --
@@ -42,6 +45,7 @@ use ieee.std_logic_arith.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
+use sys_param.frame_timing_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -57,8 +61,6 @@ entity cmd_queue is
 --   );
 port (
    -- reply_queue interface
-   --rq_card_id_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
-   --rq_par_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
    rq_next_mop_o  : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- tells the reply_queue the next m-op that the cmd_queue wants to retire
    rq_next_uop_o  : out std_logic_vector (UOP_BUS_WIDTH-1 downto 0); -- tells the reply_queue the next u-op that the cmd_queue wants to retire
    rq_uop_status_i: in std_logic_vector (UOP_STATUS_BUS_WIDTH-1 downto 0); -- tells the cmd_queue whether a reply was successful or erroneous
@@ -97,27 +99,34 @@ end cmd_queue
 
 architecture behav of cmd_queue is
 
--- Retire/Resend state machine:
+-- Retire state machine:
 -- State encoding and state variables:
 type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, NEXT_FLUSH, FLUSH_STATUS, FLUSH_DONE);
-signal present_retire_state : states;
-signal next_retire_state    : states;
+signal present_retire_state : retire_states;
+signal next_retire_state    : retire_states;
 
 -- Generate u-Op state machine:
 -- State encoding and state variables:
 type gen_uop_states is (IDLE, PARSE, INSERT);
-signal present_gen_state : states;
-signal next_gen_state    : states;
+signal present_gen_state : gen_uop_states;
+signal next_gen_state    : gen_uop_states;
 
 -- Send state machine:
 -- State encoding and state variables:
 type send_states is (IDLE, VERIFY, ISSUE);
-signal present_send_state : states;
-signal next_send_state    : states;
+signal present_send_state : send_states;
+signal next_send_state    : send_states;
 
--- Shared registers
+-- Synch detection state machine
+-- State encoding and state variables
+type synch_states is (IDLE, DETECT);
+signal present_sync_state : synch_states;
+signal next_sych_state    : synch_states;
 
--- retire queue pointer:
+begin
+
+   -- Shared registers
+   -- retire queue pointer:
    retire_ptr: reg
       generic map(WIDTH => 16)
       port map(clk_i  => clk_i,
@@ -126,8 +135,8 @@ signal next_send_state    : states;
                reg_i  => ,
                reg_o  => );
 
--- flush queue pointer:
-   retire_ptr: reg
+   -- flush queue pointer:
+   flush_ptr: reg
       generic map(WIDTH => 16)
       port map(clk_i  => clk_i,
                rst_i  => ,
@@ -135,8 +144,8 @@ signal next_send_state    : states;
                reg_i  => ,
                reg_o  => );
 
--- send queue pointer:
-   retire_ptr: reg
+   -- send queue pointer:
+   send_ptr: reg
       generic map(WIDTH => 16)
       port map(clk_i  => clk_i,
                rst_i  => ,
@@ -144,11 +153,65 @@ signal next_send_state    : states;
                reg_i  => ,
                reg_o  => );
 
--- free queue pointer:
-   retire_ptr: reg
+   -- free queue pointer:
+   free_ptr: reg
       generic map(WIDTH => 16)
       port map(clk_i  => clk_i,
                rst_i  => ,
                ena_i  => ,
                reg_i  => ,
                reg_o  => );
+
+   -- frame timeing block
+   frame_timer: frame_timing
+      port map(clk_i       => clk_i,
+               sync_i      => sync_i,
+               frame_rst_i => ,
+               clk_count_o => ,
+               clk_error_o => );
+
+   ------------------------------------
+   -- state machine for retiring u-ops:
+   retire_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         present_retire_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         present_retire_state <= next_retire_state;
+      end if;
+   end process retire_state_FF;
+
+   ------------------------------------
+   -- state machine for generating u-ops:
+   gen_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         present_gen_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         present_gen_state <= next_gen_state;
+      end if;
+   end process gen_state_FF;
+
+   ------------------------------------
+   -- state machine for sending u-ops:
+   send_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         present_send_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         present_send_state <= next_send_state;
+      end if;
+   end process send_state_FF;
+
+   ------------------------------------
+   -- state machine for controlling SRAM:
+   sync_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         present_sync_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         present_sync_state <= next_sync_state;
+      end if;
+   end process sync_state_FF;
+
+end behav;
