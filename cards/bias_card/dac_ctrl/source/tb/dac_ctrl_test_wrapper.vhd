@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.3 2004/04/29 20:53:59 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.4 2004/05/12 18:02:46 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/04/29 20:53:59 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/12 18:02:46 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.4  2004/05/12 18:02:46  mandana
+-- seperated the lvds_dac signals on the wrapper
+--
 -- Revision 1.3  2004/04/29 20:53:59  mandana
 -- added dac_nclr signal and removed tx signals from wrapper
 --
@@ -301,6 +304,6 @@ begin
                           
       end case;
    end process state_out;
-   val_clk <= '1' when idac = 16 and addr_o = x"20" else '0';
+   val_clk <= '1' when idac = 16 and addr_o = FLUX_FB_ADDR else '0';
    dac_count_clk <= '1' when ack_i = '1' else '0';
  end;
