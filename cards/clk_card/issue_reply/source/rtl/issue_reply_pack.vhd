@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.9 2004/06/30 23:14:40 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.10 2004/07/05 23:51:08 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.10  2004/07/05 23:51:08  jjacob
+-- added ack_o output to cmd_translator_ret_dat_fsm
+--
 -- Revision 1.9  2004/06/30 23:14:40  bburger
 -- bug fix: DATA_SIZE_BUS_WIDTH is =32, was =8
 --

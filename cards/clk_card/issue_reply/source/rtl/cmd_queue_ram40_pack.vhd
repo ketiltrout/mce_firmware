@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_ram40_pack.vhd,v 1.4 2004/06/16 17:02:36 bburger Exp $
+-- $Id: cmd_queue_ram40_pack.vhd,v 1.5 2004/06/30 23:10:53 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_ram40_pack.vhd,v $
+-- Revision 1.5  2004/06/30 23:10:53  bburger
+-- in progress
+--
 -- Revision 1.4  2004/06/16 17:02:36  bburger
 -- in progress
 --
@@ -75,7 +78,6 @@ package cmd_queue_ram40_pack is
          rdaddress_b : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
          wren        : IN STD_LOGIC;
          clock       : IN STD_LOGIC;
---         aclr        : IN STD_LOGIC;
          qa          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
          qb          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0)
       );
