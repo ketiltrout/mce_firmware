@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/08/19 20:06:10 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/08/19 20:37:04 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.11  2004/08/19 20:37:04  bburger
+-- Bryce:  moded data_mode
+--
 -- Revision 1.10  2004/08/19 20:06:10  bburger
 -- Bryce:  changed a parameter name
 --
@@ -77,12 +80,24 @@ use ieee.std_logic_1164.all;
 
 package wishbone_pack is
 
+   ---------------------------------------------------------------------------------
    -- Wishbone bus widths
+   ---------------------------------------------------------------------------------
    constant WB_DATA_WIDTH     : integer := 32;
    constant WB_ADDR_WIDTH     : integer := 8;
    constant WB_TAG_ADDR_WIDTH : integer := 32;
    constant CARD_ADDR_WIDTH   : integer := 8;
-
+   constant CMD_TYPE_WIDTH    : integer := 3;
+   
+   ---------------------------------------------------------------------------------
+   -- Command Types
+   ---------------------------------------------------------------------------------
+   constant WRITE_BLOCK : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "000";
+   constant READ_BLOCK  : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "001";
+   constant START       : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "010";
+   constant STOP        : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "011";
+   constant RESET       : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "100";
+   
    ---------------------------------------------------------------------------------
    -- Status Fields
    ---------------------------------------------------------------------------------
