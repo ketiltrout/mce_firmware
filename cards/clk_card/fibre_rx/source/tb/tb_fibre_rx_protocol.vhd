@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.2 2004/06/29 15:03:24 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.3 2004/07/07 10:50:35 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,7 +32,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/29 15:03:24 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/07 10:50:35 $>	-		<text>		- <initials $Author: dca $>
 -- $log$
 -----------------------------------------------------------------------------
 library ieee;
@@ -48,6 +48,9 @@ use ieee.NUMERIC_STD.all;
 library work;
 use work.fibre_rx_pack.all;
 use work.issue_reply_pack.all;
+
+library sys_param;
+use sys_param.command_pack.all;
 
 
 
@@ -76,15 +79,20 @@ architecture behav of tb_fibre_rx_protocol is
    constant pre_fail     : std_logic_vector (7 downto 0)  := X"55";
    constant command_wb   : std_logic_vector (31 downto 0) := X"20205742";
    constant command_go   : std_logic_vector (31 downto 0) := X"2020474F";
+   constant command_rb   : std_logic_vector (31 downto 0) := X"20205242";
    constant address_id   : std_logic_vector (31 downto 0) := X"0002015C";
-   constant data_valid   : std_logic_vector (31 downto 0) := X"00000028";
+   
    constant no_std_data  : std_logic_vector (31 downto 0) := X"00000001";
    constant data_block   : positive := 58;
    constant data_word1   : std_logic_vector (31 downto 0) := X"00001234";
    constant data_word2   : std_logic_vector (31 downto 0) := X"00005678";
    constant check_err    : std_logic_vector (31 downto 0) := X"fafafafa";
  
+   
+   signal   data_valid   : std_logic_vector (31 downto 0) := X"0000003A";
+   
    signal   data         : integer := 1;
+   signal   inc_data     : std_logic := '1';
    signal   checksum     : std_logic_vector(31 downto 0):= X"00000000";
    signal   command      : std_logic_vector (31 downto 0);
    
@@ -403,7 +411,7 @@ assert false report "tested preamble1 waits" severity NOTE;
       wait UNTIL rx_fr <= '0';
      
       rx_fe <= '1';
-      assert false report "WB command loaded" severity NOTE;
+      assert false report "command loaded" severity NOTE;
      
   -- load up address_id
 
@@ -442,7 +450,7 @@ assert false report "tested preamble1 waits" severity NOTE;
       wait UNTIL rx_fr <= '0';
       
       rx_fe <= '1';
-      assert false report "WB address_id loaded" severity NOTE;
+      assert false report " address_id loaded" severity NOTE;
  
    -- load up data valid 
    
@@ -522,7 +530,11 @@ assert false report "tested preamble1 waits" severity NOTE;
          rx_fe <= '1';
          checksum (31 downto 24) <= checksum (31 downto 24) XOR std_logic_vector(To_unsigned(data,8));
          wait UNTIL rx_fr <= '0';
+         
+         if inc_data = '1' then 
             data <= data + 1;
+         end if;
+         
          wait for clk_prd;
          rx_fe <= '0';
          
@@ -550,7 +562,7 @@ assert false report "tested preamble1 waits" severity NOTE;
     end loop;
 
     rx_fe <= '1';
-    assert false report "WB data loaded" severity NOTE;
+    assert false report "data loaded" severity NOTE;
 
     end load_command;
     
@@ -601,6 +613,8 @@ assert false report "tested preamble1 waits" severity NOTE;
        
    begin
       
+      ----------------------------------------
+      -- reset and preamble tests
            
       cmd_ack <= '0';
       rx_fe   <= '1';
@@ -612,7 +626,12 @@ assert false report "tested preamble1 waits" severity NOTE;
       load_preamble_test2;
       do_reset;
       
-             
+      -----------------------------------------------------
+      -- WB command test
+      
+      inc_data <= '1';      -- data set incremented per word
+         
+      data_valid <= X"00000028";     
       command <= command_wb;
       load_preamble;
       load_command;
@@ -632,8 +651,10 @@ assert false report "tested preamble1 waits" severity NOTE;
       assert false report "command 1 finished" severity NOTE;
       cmd_ack <= '0';
       
-      -- load a wb command with checksum error
+      ---------------------------------------------
+      -- WB command checksum error test
       
+      data_valid <= X"00000028"; 
       command <= command_wb;
       load_preamble;
       load_command;
@@ -644,7 +665,32 @@ assert false report "tested preamble1 waits" severity NOTE;
       assert false report "command 2 finished with check err detected" severity NOTE;
       
       wait for clk_prd*10;
+      
+      ----------------------------------------------
+      -- read block command test
+      
+      data_valid <= X"0000003A";   -- 58 maximum value.       
             
+      cmd_ack <= '0';
+      data <= 0;    
+      inc_data <= '0';  -- switch incrementing data off.  all words = 0
+      
+      command <= command_rb;
+     
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait until cmd_rdy <= '1';
+      assert false report "RB command ready" severity NOTE;
+      wait for clk_prd ;
+      cmd_ack <= '1' ; -- acknowledgement of command 
+      wait until cmd_rdy <= '0';
+      assert false report "RB command  finished" severity NOTE;
+      cmd_ack <= '0';
+      
+      wait for clk_prd * 30 ;
+  
   
       assert false report "Simulation done." severity FAILURE;
       wait ;
