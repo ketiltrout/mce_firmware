@@ -31,7 +31,14 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.2  2004/11/12 19:42:03  erniel
+-- added INSPECT_HEADER state
+-- modified receiver FIFO interface
+-- modified cmd_queue interface
+--
+-- NOTE:: has not been simulated, pending integration with reply_queue top level.
+--
 --
 -----------------------------------------------------------------------------
 
@@ -50,7 +57,6 @@ port(clk_i : in std_logic;
      -- receiver FIFO interfaces:
      ac_data_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      ac_header_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     ac_status_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      ac_rdy_i     : in std_logic;
      ac_ack_o     : out std_logic;
      ac_nack_o    : out std_logic;
@@ -58,7 +64,6 @@ port(clk_i : in std_logic;
           
      bc1_data_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      bc1_header_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     bc1_status_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      bc1_rdy_i    : in std_logic;
      bc1_ack_o    : out std_logic;
      bc1_nack_o   : out std_logic;
@@ -66,7 +71,6 @@ port(clk_i : in std_logic;
           
      bc2_data_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      bc2_header_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     bc2_status_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      bc2_rdy_i    : in std_logic;
      bc2_ack_o    : out std_logic;
      bc2_nack_o   : out std_logic;
@@ -74,7 +78,6 @@ port(clk_i : in std_logic;
           
      bc3_data_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      bc3_header_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     bc3_status_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      bc3_rdy_i    : in std_logic;
      bc3_ack_o    : out std_logic;
      bc3_nack_o   : out std_logic;
@@ -82,7 +85,6 @@ port(clk_i : in std_logic;
           
      rc1_data_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rc1_header_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     rc1_status_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rc1_rdy_i    : in std_logic;
      rc1_ack_o    : out std_logic;
      rc1_nack_o   : out std_logic;
@@ -90,7 +92,6 @@ port(clk_i : in std_logic;
           
      rc2_data_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rc2_header_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     rc2_status_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rc2_rdy_i    : in std_logic;
      rc2_ack_o    : out std_logic;
      rc2_nack_o   : out std_logic;
@@ -98,7 +99,6 @@ port(clk_i : in std_logic;
           
      rc3_data_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rc3_header_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     rc3_status_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rc3_rdy_i    : in std_logic;
      rc3_ack_o    : out std_logic;
      rc3_nack_o   : out std_logic;
@@ -106,7 +106,6 @@ port(clk_i : in std_logic;
           
      rc4_data_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rc4_header_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     rc4_status_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rc4_rdy_i    : in std_logic;
      rc4_ack_o    : out std_logic;
      rc4_nack_o   : out std_logic;
@@ -114,7 +113,6 @@ port(clk_i : in std_logic;
           
      cc_data_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      cc_header_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     cc_status_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      cc_rdy_i     : in std_logic;
      cc_ack_o     : out std_logic;
      cc_nack_o    : out std_logic;
@@ -131,8 +129,7 @@ port(clk_i : in std_logic;
      micro_op_i  : in std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
      card_addr_i : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
      match_o     : out std_logic;
-     start_i     : in std_logic;
-     done_o      : out std_logic);
+     start_i     : in std_logic);
 end reply_queue_sequencer;
 
 architecture rtl of reply_queue_sequencer is
@@ -276,7 +273,7 @@ begin
                                                                  next_state <= READ_AC_DATA;
                                                               end if;
                                                               
-                                    when others =>            next_state <= IDLE;
+                                    when others =>            null;
                                  end case;                                                              
                            
          when READ_AC_DATA =>    if(ac_done_i = '1') then
@@ -406,8 +403,6 @@ begin
       data_o <= (others => '0');
       rdy_o  <= '0';
      
-      done_o <= '0';
-     
       case pres_state is
          when INSPECT_HEADERS => case card_addr_i is
                                     when ADDRESS_CARD =>      size_o <= conv_integer(ac_header_i(12 downto 0));
@@ -446,6 +441,7 @@ begin
                                                                                      rc3_header_i(12 downto 0) + 
                                                                                      rc4_header_i(12 downto 0) +
                                                                                      cc_header_i(12 downto 0));
+                                                                                     
                                     when others =>            size_o <= 0;
                                  end case;
                                  
@@ -575,8 +571,6 @@ begin
          when READ_CC_DATA =>    data_o    <= cc_data_i;
                                  rdy_o     <= '1';
                                  cc_ack_o  <= ack_i;
-                                 
-         when DONE =>            done_o    <= '1';
          
          when others =>          null;
       end case;
