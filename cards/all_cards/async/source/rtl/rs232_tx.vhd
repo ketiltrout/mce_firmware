@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: rs232_tx.vhd,v $
+-- Revision 1.2  2004/12/17 00:21:50  erniel
+-- removed clock divider logic (moved to async_tx)
+-- added FIFO buffer
+-- reworked FSM to handle FIFO buffer
+--
 -- Revision 1.1  2004/06/18 22:14:24  erniel
 -- initial version
 --
@@ -85,7 +90,7 @@ signal next_state : states;
 begin
 
    transmit: async_tx
-   generic map(CLK_DIV_FACTOR => 3472)
+   generic map(CLK_DIV_FACTOR => 868)
    port map(comm_clk_i => comm_clk_i,
             rst_i      => rst_i,
             dat_i      => tx_data,
