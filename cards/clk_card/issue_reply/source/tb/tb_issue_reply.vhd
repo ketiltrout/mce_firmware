@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.5 2004/08/03 20:01:20 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.6 2004/08/05 18:40:05 jjacob Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/08/03 20:01:20 $> - <text> - <initials $Author: jjacob $>
+-- <date $Date: 2004/08/05 18:40:05 $> - <text> - <initials $Author: jjacob $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -40,6 +40,7 @@ use ieee.std_logic_unsigned.all;
 library work;
 use work.fibre_rx_pack.all;
 use work.issue_reply_pack.all;
+use work.async_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -60,7 +61,12 @@ architecture tb of tb_issue_reply is
     signal  t_nRx_rdy_i   : std_logic;
     signal  t_rvs_i       : std_logic;
     signal  t_rso_i       : std_logic;
-    signal  t_rsc_nRd_i   : std_logic;        
+    signal  t_rsc_nRd_i   : std_logic;    
+    
+    --rx signals
+    signal t_rx_dat        : std_logic_vector(31 downto 0);
+    signal t_rx_rdy        : std_logic;
+    signal t_rx_ack        : std_logic;    
 
 --    signal  t_cksum_err_o : std_logic;
 --      
@@ -216,8 +222,20 @@ port map(
 
    ); 
      
-
-
+   rx : lvds_rx
+      port map(
+        clk_i          => t_clk_i,
+        comm_clk_i     => t_clk_200mhz_i,
+        rst_i          => t_rst_i,
+     
+        dat_o          => t_rx_dat,
+        rdy_o          => t_rx_rdy,
+        ack_i          => t_rx_ack,
+     
+        lvds_i         => t_tx
+      );
+   
+   t_rx_ack <= t_rx_rdy;
  
  -- set up hotlink receiver signals 
       t_rvs_i         <= '0';  -- no violation
@@ -666,8 +684,9 @@ stimuli : process
 --
 --      end loop;      
       
-      wait for 100*clk_prd;
-      wait for 3000 ns;  
+      --wait for 100*clk_prd;
+      --wait for 3000 ns;  
+      wait for 120 us;
       
       assert false report "Simulation done." severity FAILURE;
  
