@@ -108,7 +108,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.1  2004/10/22 00:14:37  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -126,7 +129,7 @@ entity adc_sample_coadd is
 
   port (
     -- ADC interface signals
-    adc_dat_i                 : in std_logic_vector (13 downto 0);
+    adc_dat_i                 : in std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
     adc_ovr_i                 : in std_logic;
     adc_rdy_i                 : in std_logic;
     adc_clk_o                 : out std_logic;
@@ -143,22 +146,22 @@ entity adc_sample_coadd is
     initialize_window_i       : in  std_logic;
 
     -- Wishbone Slave (wbs) Frame Data signals
-    coadded_addr_i            : in  std_logic_vector (5 downto 0);
-    coadded_dat_o             : out std_logic_vector (31 downto 0);
-    raw_addr_i                : in  std_logic_vector (12 downto 0);
-    raw_dat_o                 : out std_logic_vector (15 downto 0);
+    coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
+    coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
     raw_req_i                 : in  std_logic;
     raw_ack_o                 : out std_logic;
 
     -- First Stage Feedback Calculation (fsfb_calc) block signals
     coadd_done_o              : out std_logic;
-    current_coadd_dat_o       : out std_logic_vector (31 downto 0);
-    current_diff_dat_o        : out std_logic_vector (31 downto 0);
-    current_integral_dat_o    : out std_logic_vector (31 downto 0);
+    current_coadd_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+    current_diff_dat_o        : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+    current_integral_dat_o    : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
 
     -- Wishbove Slave (wbs) Feedback (fb) Data Signals
-    adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-    adc_offset_adr_o          : out std_logic_vector(5 downto 0));
+    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+    adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0));
   
 
 end adc_sample_coadd;
@@ -169,14 +172,15 @@ architecture struct of adc_sample_coadd is
 
 
   
-  constant GROUNDED_ADDR : std_logic_vector(5 downto 0) := (others => '0');
+  constant GROUNDED_ADDR : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
+  constant ZERO_PAD      : std_logic_vector((RAW_DAT_WIDTH - ADC_DAT_WIDTH -1) downto 0) := (others => '0');
 
   
   
   -----------------------------------------------------------------------------
   -- Signals name change from outside the block
   -----------------------------------------------------------------------------
-  signal raw_dat               : std_logic_vector (15 downto 0);
+  signal raw_dat               : std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
 
   -----------------------------------------------------------------------------
   -- Signals name change to ouside of the block
@@ -190,7 +194,7 @@ architecture struct of adc_sample_coadd is
   -----------------------------------------------------------------------------
   -- signals from raw_dat_manager_data_path 
   -----------------------------------------------------------------------------
-  signal raw_write_addr        : std_logic_vector (12 downto 0);
+  signal raw_write_addr        : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
 
   -----------------------------------------------------------------------------
   -- signals from raw_dat_manager_ctrl
@@ -201,16 +205,16 @@ architecture struct of adc_sample_coadd is
   -----------------------------------------------------------------------------
   -- signals from coadd storage bank 0 and 1
   -----------------------------------------------------------------------------
-  signal coadd_dat_porta_bank0  : std_logic_vector(31 downto 0);
-  signal coadd_dat_portb_bank0  : std_logic_vector(31 downto 0);
-  signal coadd_dat_porta_bank1  : std_logic_vector(31 downto 0);
-  signal coadd_dat_portb_bank1  : std_logic_vector(31 downto 0);
+  signal coadd_dat_porta_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal coadd_dat_portb_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal coadd_dat_porta_bank1  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal coadd_dat_portb_bank1  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
   -----------------------------------------------------------------------------
   -- signlas from dynamic data storage bank 0 and 1
   -----------------------------------------------------------------------------
-  signal intgrl_dat_portb_bank0 : std_logic_vector(31 downto 0);
-  signal intgrl_dat_portb_bank1 : std_logic_vector(31 downto 0);
+  signal intgrl_dat_portb_bank0 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal intgrl_dat_portb_bank1 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
   
   -----------------------------------------------------------------------------
@@ -218,8 +222,8 @@ architecture struct of adc_sample_coadd is
   -----------------------------------------------------------------------------
   signal adc_coadd_en_5delay    : std_logic;
   signal adc_coadd_en_4delay    : std_logic;
-  signal samples_coadd_reg      : std_logic_vector(31 downto 0);
-  signal coadd_write_addr       : std_logic_vector(5 downto 0);
+  signal samples_coadd_reg      : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal coadd_write_addr       : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0);
 
 
   -----------------------------------------------------------------------------
@@ -237,7 +241,7 @@ architecture struct of adc_sample_coadd is
   -----------------------------------------------------------------------------
   -- signals from dynamic_dat_manager_data_path
   -----------------------------------------------------------------------------
-  signal integral_result : std_logic_vector(31 downto 0);
+  signal integral_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
   
 
@@ -247,7 +251,7 @@ begin  -- struc
   
   adc_clk_o <= clk_50_i;                -- get data on each clk edge (4 cycles)
                                         -- latency according to ADC data sheet
-  raw_dat   <= ("00" & adc_dat_i);      -- pad adc_dat_i with zero to match the
+  raw_dat   <= (ZERO_PAD & adc_dat_i);  -- pad adc_dat_i with zero to match the
                                         -- data width of the raw_dat_bank
 
   
@@ -284,8 +288,7 @@ begin  -- struc
   i_raw_dat_manager_data_path : raw_dat_manager_data_path
 
     generic map (
-    ADDR_WIDTH => RAW_ADDR_WIDTH,
-    MAX_COUNT  => MAX_RAW_ADDR_COUNT)
+    ADDR_WIDTH => RAW_ADDR_WIDTH)
 
     port map (
     rst_i        => rst_i,               -- system input

@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.1  2004/10/22 00:14:37  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -50,12 +53,19 @@ package adc_sample_coadd_pack is
   -- Constants used in A/D sampler and coadder
   -----------------------------------------------------------------------------
 
-
-  constant RAW_ADDR_WIDTH     : integer := 13;
-  constant MAX_RAW_ADDR_COUNT : integer := (2**RAW_ADDR_WIDTH)-1; 
-  constant ADC_LATENCY        : integer := 4;
-  constant TOTAL_ROW_NO       : integer := 64;
-  constant FSFB_DONE_DLY      : integer := 6;
+  
+  constant RAW_DAT_WIDTH         : integer := 16;  -- two bytes
+  constant RAW_ADDR_WIDTH        : integer := 13;  -- enough for two frame
+  constant ADC_LATENCY           : integer := 4;  
+  constant ADC_DAT_WIDTH         : integer := 14;
+  constant ADC_OFFSET_DAT_WIDTH  : integer := 16;  -- 2 MSB not used
+  constant ADC_OFFSET_ADDR_WIDTH : integer := 6;   
+  constant TOTAL_ROW_NO          : integer := 64;
+  constant FSFB_DONE_DLY         : integer := 6;
+  constant NUMB_RAW_FRM_TO_GRAB  : integer := 2;   -- =#of raw frames to grab
+  constant COADD_DAT_WIDTH       : integer := 32;  -- four bytes
+  constant COADD_ADDR_WIDTH      : integer := 6;
+  
 
   -----------------------------------------------------------------------------
   -- Raw data storage component
@@ -78,8 +88,7 @@ package adc_sample_coadd_pack is
 
   component raw_dat_manager_data_path
     generic (
-      ADDR_WIDTH : integer := RAW_ADDR_WIDTH ;
-      MAX_COUNT  : integer := MAX_RAW_ADDR_COUNT); --Normally=(2^ADDR_WIDTH)-1
+      ADDR_WIDTH : integer := RAW_ADDR_WIDTH);
     port (
       rst_i        : in  std_logic;
       clk_i        : in  std_logic;
@@ -128,23 +137,23 @@ package adc_sample_coadd_pack is
   component coadd_manager_data_path
 
     generic (
-      MAX_COUNT                 : integer := TOTAL_ROW_NO;  
-      MAX_SHIFT                 : integer := ADC_LATENCY+1);  
-  
+      MAX_COUNT                 : integer := TOTAL_ROW_NO; 
+      MAX_SHIFT                 : integer := ADC_LATENCY+1);
+    
     port (
       rst_i                     : in  std_logic;
       clk_i                     : in  std_logic;
-      adc_dat_i                 : in  std_logic_vector(13 downto 0);
-      adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-      adc_offset_adr_o          : out std_logic_vector(5 downto 0);
+      adc_dat_i                 : in  std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
+      adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+      adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
       adc_coadd_en_i            : in  std_logic;
       adc_coadd_en_5delay_o     : out std_logic;
       adc_coadd_en_4delay_o     : out std_logic;
       clr_samples_coadd_reg_i   : in  std_logic;
-      samples_coadd_reg_o       : out std_logic_vector(31 downto 0);
+      samples_coadd_reg_o       : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       address_count_en_i        : in  std_logic;
       clr_address_count_i       : in  std_logic;
-      coadd_write_addr_o        : out std_logic_vector(5 downto 0));
+      coadd_write_addr_o        : out std_logic_vector(COADD_ADDR_WIDTH-1 downto 0));
 
   end component;
 
