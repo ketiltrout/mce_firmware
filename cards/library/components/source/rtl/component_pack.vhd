@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.8 2004/06/28 12:52:12 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.9 2004/06/28 13:24:04 dca Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.9  2004/06/28 13:24:04  dca
+-- "is" removed from counter_xstep component declaration
+--
 -- Revision 1.8  2004/06/28 12:52:12  dca
 -- added async_fifo
 --
@@ -100,7 +103,7 @@ package component_pack is
 ------------------------------------------------------------  
    
    component async_fifo
-      generic(fifo_size : Positive);
+      generic(addr_size : Positive);
       port( 
          rst_i     : in     std_logic;
          read_i    : in     std_logic;
@@ -111,7 +114,6 @@ package component_pack is
          q_o       : out    std_logic_vector (7 DOWNTO 0)
       );
    end component;
-
 
 ------------------------------------------------------------
 --
