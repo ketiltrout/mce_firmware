@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/08/26 18:10:03 $> - <initials $Author: erniel $>
+-- <date $Date: 2004/08/31 21:53:03 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.13  2004/08/31 21:53:03  bburger
+-- Bryce:  added the 'DATA' command type
+--
 -- Revision 1.12  2004/08/26 18:10:03  erniel
 -- added command_type field declarations
 --
@@ -81,52 +84,18 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+library sys_param;
+use sys_param.command_pack.all;
+
 package wishbone_pack is
 
    ---------------------------------------------------------------------------------
    -- Wishbone bus widths
    ---------------------------------------------------------------------------------
+   constant WB_ADDR_WIDTH     : integer := BB_PARAMETER_ID_WIDTH;
    constant WB_DATA_WIDTH     : integer := 32;
-   constant WB_ADDR_WIDTH     : integer := 8;
    constant WB_TAG_ADDR_WIDTH : integer := 32;
-   constant CARD_ADDR_WIDTH   : integer := 8;
-   constant CMD_TYPE_WIDTH    : integer := 3;
    
-   ---------------------------------------------------------------------------------
-   -- Command Types
-   ---------------------------------------------------------------------------------
-   constant WRITE_BLOCK : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "000";
-   constant READ_BLOCK  : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "001";
-   constant START       : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "010";
-   constant STOP        : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "011";
-   constant RESET       : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "100";
-   constant DATA        : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "101";
-   
-   ---------------------------------------------------------------------------------
-   -- Status Fields
-   ---------------------------------------------------------------------------------
-   constant SUCCESS        : std_logic_vector(7 downto 0) := "11111111";
-   constant FAIL           : std_logic_vector(7 downto 0) := "00000000";
-
-   ---------------------------------------------------------------------------------
-   -- Card Addresses
-   ---------------------------------------------------------------------------------
-   constant NO_CARDS       : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"00";
-   constant PSC            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"01";
-   constant CC             : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"02";
-   constant RC1            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"03";
-   constant RC2            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"04";
-   constant RC3            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"05";
-   constant RC4            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"06";
-   constant BC1            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"07";
-   constant BC2            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"08";
-   constant BC3            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"09";
-   constant AC             : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0A";
-   constant RCS            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0B";
-   constant BCS            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0C";
-   constant ALL_FPGA_CARDS : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0D";
-   constant ALL_CARDS      : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0E";
-
    ---------------------------------------------------------------------------------
    -- Wishbone Parameter IDs
    ---------------------------------------------------------------------------------
@@ -241,7 +210,6 @@ package wishbone_pack is
    constant BRST_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
    constant PSC_RST_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
    constant PSC_OFF_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
-   
    
    
    ---------------------------------------------------------------------------------
