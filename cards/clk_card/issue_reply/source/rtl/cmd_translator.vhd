@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.5 2004/06/09 23:32:47 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.6 2004/06/21 16:57:24 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,16 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/09 23:32:47 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/21 16:57:24 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.6  2004/06/21 16:57:24  jjacob
+-- first stable version, doesn't yet have macro-instruction buffer, doesn't have
+-- "quick" acknolwedgements for instructions that require them, no error
+-- handling, basically no return path logic yet.  Have implemented ret_dat
+-- instructions, and "simple" instructions.  Not all instructions are fully
+-- implemented yet.
+--
 -- Revision 1.5  2004/06/09 23:32:47  jjacob
 -- cleaned formatting
 --
@@ -81,15 +88,16 @@ port(
 
       -- inputs from fibre_rx      
 
-      card_addr_i       : in    std_logic_vector (7 downto 0);    -- specifies which card the command is targetting
+      card_id_i        : in    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
       cmd_code_i        : in    std_logic_vector (15 downto 0);   -- the least significant 16-bits from the fibre packet
-      cmd_data_i        : in    std_logic_vector (31 downto 0);   -- the data
+      cmd_data_i        : in    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);   -- the data
       --cksum_err_i    : in    std_logic;
       cmd_rdy_i         : in    std_logic;                        -- indicates the fibre_rx outputs are valid
       data_clk_i        : in    std_logic;                        -- used to clock the data out
-      num_data_i        : in    std_logic_vector (7 downto 0);    -- number of 16-bit data words to be clocked out
-      reg_addr_i        : in    std_logic_vector (23 downto 0);   -- the parameter ID
-      
+      num_data_i        : in    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
+      --reg_addr_i        : in    std_logic_vector (23 downto 0);   -- the parameter ID
+      param_id_i        : in    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);   -- the parameter ID
+ 
       -- output to fibre_rx
       ack_o             : out std_logic;
       
@@ -100,7 +108,7 @@ port(
       -- signals from the arbiter to micro-op sequence generator
       --ack_o             :  out std_logic;     -- DEAD unused signal --RENAME to cmd_rdy_o        -- ready signal
       card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
       data_clk_o        :  out std_logic;
@@ -111,7 +119,7 @@ port(
 
 
       -- outputs to the micro instruction sequence generator
-      m_op_seq_num_o        : out std_logic_vector ( 7 downto 0);
+      m_op_seq_num_o        : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
       frame_sync_num_o      : out std_logic_vector (7 downto 0);
 
@@ -119,7 +127,7 @@ port(
       -- outputs to reply_translator for commands that require quick acknowldgements
       reply_cmd_ack_o       : out std_logic;                                          -- for commands that require an acknowledge before the command executes
       reply_card_addr_o     : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       reply_data_size_o     : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)     -- data will be passed straight thru
       
@@ -156,7 +164,7 @@ architecture rtl of cmd_translator is
    -- 'return data' signals to the arbiter, (then to micro-op  sequence generator )
    signal ret_dat_cmd_ack            : std_logic;                                         -- ready signal
    signal ret_dat_cmd_card_addr      : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-   signal ret_dat_cmd_parameter_id   : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+   signal ret_dat_cmd_parameter_id   : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
    signal ret_dat_cmd_data_size      : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
    signal ret_dat_cmd_data           : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru
    signal ret_dat_cmd_data_clk       : std_logic;
@@ -170,7 +178,7 @@ architecture rtl of cmd_translator is
    -- 'simple command' signals to the arbiter, (then to micro-op  sequence generator )
    signal simple_cmd_ack             : std_logic;                                          -- ready signal
    signal simple_cmd_card_addr       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-   signal simple_cmd_parameter_id    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+   signal simple_cmd_parameter_id    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
    signal simple_cmd_data_size       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
    signal simple_cmd_data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
    signal simple_cmd_data_clk        : std_logic;
@@ -207,7 +215,7 @@ port(
       -- inputs from cmd_translator top level      
 
       card_addr_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_i        : in std_logic;							                         -- for clocking out the data
@@ -219,7 +227,7 @@ port(
   
       -- outputs to the macro-instruction arbiter
       card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_o    : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o       : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_o            : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o        : out std_logic;							                          -- for clocking out the data
@@ -246,7 +254,7 @@ port(
       -- inputs from fibre_rx      
 
       card_addr_i             : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_i          : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_i          : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i             : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i                  : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_i              : in std_logic;							                         -- for clocking out the data
@@ -264,7 +272,7 @@ port(
       
       -- outputs to the macro-instruction arbiter
       card_addr_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o          : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_o          : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o             : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o                  : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o              : out std_logic;							                          -- for clocking out the data
@@ -299,7 +307,7 @@ port(
       ret_dat_frame_sync_num_i     : in std_logic_vector (7 downto 0);
       
       ret_dat_card_addr_i          : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      ret_dat_parameter_id_i       : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targett_ig
+      ret_dat_parameter_id_i       : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targett_ig
       ret_dat_data_size_i          : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       ret_dat_data_i               : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       ret_dat_data_clk_i           : in std_logic;							                                   -- for clocking out the data
@@ -311,7 +319,7 @@ port(
 
       -- inputs from the 'simple commands' state machine
       simple_cmd_card_addr_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      simple_cmd_parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      simple_cmd_parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       simple_cmd_data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       simple_cmd_data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       simple_cmd_data_clk_i        : in std_logic;							                                   -- for clocking out the data
@@ -327,7 +335,7 @@ port(
       
       -- outputs to the micro-instruction generator
       card_addr_o                  : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o               : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_o               : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o                  : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o                       : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o                   : out std_logic;							                          -- for clocking out the data
@@ -351,13 +359,13 @@ begin
 --
 ------------------------------------------------------------------------     
 
-   process (cmd_rdy_i, reg_addr_i, cmd_code_i)
+   process (cmd_rdy_i, param_id_i, cmd_code_i)
             
    begin
 
       if cmd_rdy_i = '1' then
  
-         case reg_addr_i(7 downto 0) is  -- this is the parameter ID
+         case param_id_i(7 downto 0) is  -- this is the parameter ID
             
          ---------------------------------------------------------------------------------
          -- System
@@ -593,8 +601,8 @@ port map(
 
       -- inputs from fibre_rx      
 
-      card_addr_i            => card_addr_i,    -- specifies which card the command is targetting
-      parameter_id_i         => reg_addr_i,     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      card_addr_i            => card_id_i,    -- specifies which card the command is targetting
+      parameter_id_i         => param_id_i,     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i            => num_data_i,     -- data_size_i, indicates number of 16-bit words of data
       data_i                 => cmd_data_i,     -- data will be passed straight thru in 16-bit words
       data_clk_i        	   	=> data_clk_i,	                         -- for clocking out the data
@@ -612,7 +620,7 @@ port map(
 
       -- outputs to the macro-instruction arbiter
       card_addr_o            => ret_dat_cmd_card_addr,    -- specifies which card the command is targetting
-      parameter_id_o         => ret_dat_cmd_parameter_id, -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_o         => ret_dat_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o            => ret_dat_cmd_data_size,    -- num_data_i, indicates number of 16-bit words of data
       data_o                 => ret_dat_cmd_data,         -- data will be passed straight thru in 16-bit words
       data_clk_o        			  => ret_dat_cmd_data_clk,	    -- for clocking out the data
@@ -646,8 +654,8 @@ port map(
 
       -- inputs from cmd_translator top level      
 
-      card_addr_i         => card_addr_i,     -- specifies which card the command is targetting
-      parameter_id_i      => reg_addr_i,      -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      card_addr_i         => card_id_i,     -- specifies which card the command is targetting
+      parameter_id_i      => param_id_i,      -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i         => num_data_i,      -- data_size_i, indicates number of 16-bit words of data
       data_i              => cmd_data_i,      -- data will be passed straight thru in 16-bit words
       data_clk_i          => data_clk_i,      -- for clocking out the data
@@ -659,7 +667,7 @@ port map(
   
       -- outputs to the macro-instruction arbiter
       card_addr_o         => simple_cmd_card_addr,       -- specifies which card the command is targetting
-      parameter_id_o      => simple_cmd_parameter_id,    -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_o      => simple_cmd_parameter_id,    -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o         => simple_cmd_data_size,       -- data_size_i, indicates number of 16-bit words of data
       data_o              => simple_cmd_data,            -- data will be passed straight thru in 16-bit words
       data_clk_o          => simple_cmd_data_clk,        -- for clocking out the data
@@ -687,7 +695,7 @@ port map(
       ret_dat_frame_sync_num_i      => frame_sync_num,
       
       ret_dat_card_addr_i           => ret_dat_cmd_card_addr,    -- specifies which card the command is targetting
-      ret_dat_parameter_id_i        => ret_dat_cmd_parameter_id, -- comes from reg_addr_i, indicates which device(s) the command is targett_ig
+      ret_dat_parameter_id_i        => ret_dat_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targett_ig
       ret_dat_data_size_i           => ret_dat_cmd_data_size,    -- num_data_i, indicates number of 16-bit words of data
       ret_dat_data_i                => ret_dat_cmd_data ,        -- data will be passed straight thru in 16-bit words
       ret_dat_data_clk_i        			 =>	ret_dat_cmd_data_clk ,                    -- for clocking out the data
@@ -699,7 +707,7 @@ port map(
 
       -- inputs from the 'simple commands' state machine
       simple_cmd_card_addr_i        => simple_cmd_card_addr,-- specifies which card the command is targetting
-      simple_cmd_parameter_id_i     => simple_cmd_parameter_id, -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      simple_cmd_parameter_id_i     => simple_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targetting
       simple_cmd_data_size_i        => simple_cmd_data_size,-- data_size_i, indicates number of 16-bit words of data
       simple_cmd_data_i             => simple_cmd_data, -- data will be passed straight thru in 16-bit words
       simple_cmd_data_clk_i        	=>	simple_cmd_data_clk,                                   -- for clocking out the data
@@ -715,7 +723,7 @@ port map(
       
       -- outputs to the micro-instruction generator
       card_addr_o                   => card_addr_o,    -- specifies which card the command is targetting
-      parameter_id_o                => parameter_id_o, -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      parameter_id_o                => parameter_id_o, -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o                   => data_size_o,    -- num_data_i, indicates number of 16-bit words of data
       data_o                        => data_o,         -- data will be passed straight thru in 16-bit words
       data_clk_o       				    => data_clk_o	,                          -- for clocking out the data
