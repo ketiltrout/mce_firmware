@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.17 2004/11/09 15:12:47 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.18 2004/11/10 12:32:08 dca Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/09 15:12:47 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/10 12:32:08 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.18  2004/11/10 12:32:08  dca
+-- corrected error in pathing of card_id and paramater_id to reply_translator (swapped)
+--
 -- Revision 1.17  2004/11/09 15:12:47  dca
 -- reply_translator and fibre_tx integrated into issue_reply
 --
@@ -270,14 +273,16 @@ architecture rtl of issue_reply is
       
      -- reply_translator reply_queue interface 
       
-      signal   m_op_done          : std_logic;     
-      signal   m_op_error_code    : std_logic_vector(BB_STATUS_WIDTH-1           downto 0); 
-      signal   m_op_cmd_code      : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
-      signal   fibre_word         : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0); 
-      signal   num_fibre_words    : std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    
-      signal   fibre_word_req     : std_logic;
-      signal   fibre_word_rdy     : std_logic;
-      signal   m_op_ack           : std_logic;   
+      signal   m_op_done           : std_logic;     
+      signal   m_op_error_code     : std_logic_vector(BB_STATUS_WIDTH-1           downto 0); 
+      signal   m_op_cmd_code       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
+      signal   m_op_param_id       : std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  
+      signal   m_op_card_id        : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  
+      signal   fibre_word          : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0); 
+      signal   num_fibre_words     : std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    
+      signal   fibre_word_req      : std_logic;
+      signal   fibre_word_rdy      : std_logic;
+      signal   m_op_ack            : std_logic;   
       signal   reply_cmd_stop      : std_logic;
       signal   reply_last_frame    : std_logic;
       signal   reply_frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -416,7 +421,7 @@ begin
 
 ------------------------------------------------------------------------
 --
--- instantiate reply translator
+-- instantiate reply_translator
 --
 ------------------------------------------------------------------------
 
@@ -441,6 +446,8 @@ begin
    m_op_done_i             => m_op_done,  
    m_op_error_code_i       => m_op_error_code, 
    m_op_cmd_code_i         => m_op_cmd_code,
+   m_op_param_id_i         => m_op_param_id,
+   m_op_card_id_i          => m_op_card_id, 
    fibre_word_i            => fibre_word,
    num_fibre_words_i       => num_fibre_words,
    fibre_word_req_o        => fibre_word_req,
