@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/06/21 22:34:37 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/06/21 22:42:25 $>	- <initials $Author: mandana $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.4  2004/06/21 22:42:25  mandana
+-- Merging 1.2 and 1.3
+--
 -- Revision 1.3  2004/06/21 22:34:37  mandana
 -- try merge
 -- 
@@ -77,6 +80,7 @@ entity rc_test is
       dac_FB5_data : out std_logic_vector (13 downto 0);
       dac_FB6_data : out std_logic_vector (13 downto 0);
       dac_FB7_data : out std_logic_vector (13 downto 0);
+      dac_FB8_data : out std_logic_vector (13 downto 0);
 
       dac_FB_clk   : out std_logic_vector (7 downto 0);      
       
@@ -241,7 +245,7 @@ begin
    -- RS232 interface end
    
    -- reset_state gives us our welcome string on startup
-   reset_state : all_test_reset
+   reset_state : rc_test_reset
       port map(rst_i     => rst,
                clk_i     => clk,
                en_i      => sel(INDEX_RESET),
@@ -254,7 +258,7 @@ begin
                tx_stb_o  => reset_stb);
    
    -- idle_state is special - it aquires commands for us to process
-   idle_state : all_test_idle
+   idle_state : rc_test_idle
       port map(rst_i     => rst,
                clk_i     => clk,
                en_i      => sel(INDEX_IDLE),
@@ -294,7 +298,7 @@ begin
    rx_cmd : lvds_rx_test_wrapper
       port map(rst_i     => rst,
                clk_i     => clk,
-               rx_clk_i  => rx_clk,
+--               rx_clk_i  => rx_clk,
                en_i      => sel(INDEX_RX_CMD),
                done_o    => done(INDEX_RX_CMD),
                lvds_i    => lvds_cmd,
@@ -351,21 +355,22 @@ begin
                -- basic signals
                rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel(INDEX_SDAC,
+               en_i      => sel(INDEX_SDAC),
                mode      => dac_test_mode,
                done_o    => done(INDEX_SDAC),
                
                -- transmitter signals removed!
                          
                -- extended signals
+               dac_clk_o => test_dac_sclk,
                dac_dat_o => test_dac_data,
-               dac_ncs_o => test_dac_ncs,
-               dac_clk_o => test_dac_sclk);
+               dac_ncs_o => test_dac_ncs);
 
    rc_parallel_dac : rc_parallel_dac_test_wrapper
       port map(rst_i       => rst,
                clk_i       => clk,
                en_i        => sel(INDEX_PDAC),
+               mode        => dac_test_mode,               
                done_o      => done(INDEX_PDAC),
                
                dac0_dat_o  => dac_FB1_data,
@@ -377,10 +382,10 @@ begin
                dac6_dat_o  => dac_FB7_data,
                dac7_dat_o  => dac_FB8_data,
                dac_clk_o   => dac_FB_clk);
-
+               
    dac_data <= test_dac_data;
    dac_ncs  <= test_dac_ncs;
-   dac_clk  <= test_dac_sclk;
+   dac_sclk  <= test_dac_sclk;
    
    zero <= '0';
    one <= '1';                         
@@ -469,8 +474,8 @@ begin
                elsif(cmd1 = CMD_RESET) then
                   int_rst <= '1';
                   
-               elsif(cmd1 = CMD_SDAC) then
-                   if (cmd2 = CMD_DAC_FIX) then
+               elsif(cmd1 = CMD_SERIALDAC) then
+                   if (cmd2 = CMD_DAC_FIXED) then
                       if (dac_test_mode = "00") then
 	                 sel <= SEL_SDAC;
                       end if;                      
@@ -478,8 +483,8 @@ begin
                       dac_test_mode <= "01";
                       sel <= SEL_SDAC;               
                    end if;   
-               elsif(cmd1 = CMD_PDAC) then
-                   if (cmd2 = CMD_DAC_FIX) then
+               elsif(cmd1 = CMD_PARALLELDAC) then
+                   if (cmd2 = CMD_DAC_FIXED) then
                       if (dac_test_mode = "00") then
 	                 sel <= SEL_SDAC;
                       end if;                      
@@ -509,11 +514,9 @@ begin
       end if;
    end process cmd_proc;
 
-   test(3) <= sel(INDEX_DAC_FIX);
-   test(4) <= done(INDEX_DAC_FIX);
+   test(3) <= sel(INDEX_SDAC);
+   test(4) <= done(INDEX_SDAC);
    test(6) <= dac_test_ncs(0);
    test(8) <= dac_test_sclk(0);
    test(10) <= dac_test_data(0);
-   test(11) <= lvds_cmd;
-   test(14) <= spi_start;
 end behaviour;
