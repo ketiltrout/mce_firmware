@@ -20,7 +20,7 @@
 
 -- dip.vhd
 --
--- <revision control keyword substitutions e.g. $Id: dip_switch.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: dip_switch.vhd,v 1.2 2004/03/29 21:39:48 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,9 +30,14 @@
 -- implements the interface for reading the DIP switch state
 --
 -- Revision history:
+--
+-- $Log: dip_switch.vhd,v $
+-- Revision 1.2  2004/03/29 21:39:48  erniel
+-- removed obsolete slave_ctrl instantiation
+-- added rty_o signal
+-- added tga_i signal
+--
 -- Feb. 15 2004  - initial version      - EL
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
--- $Log$
 --
 -----------------------------------------------------------------------------
 
@@ -43,16 +48,9 @@ use ieee.std_logic_arith.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 
--- Obsolete:
---
---library components;
---use components.component_pack.all;
-
-library work;
-use work.dip_switch_pack.all;
-
 entity dip_switch is
-port(dip_switch_i  : in std_logic_vector(DIP_SWITCH_BITS-1 downto 0);
+generic(WIDTH : in integer range 1 to 16 := 4);
+port(dip_switch_i  : in std_logic_vector(WIDTH-1 downto 0);
      
      -- wishbone signals:
      clk_i  : in std_logic;
@@ -69,6 +67,7 @@ port(dip_switch_i  : in std_logic_vector(DIP_SWITCH_BITS-1 downto 0);
 end dip_switch;
 
 architecture behav of dip_switch is
+
 type states is (IDLE, SEND_PACKET, DONE);
 signal present_state : states;
 signal next_state    : states;
@@ -76,14 +75,6 @@ signal next_state    : states;
 signal read_cmd : std_logic;
 
 signal padded_dip_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
--- Obsolete:
---
---signal dip_reg      : std_logic_vector(DIP_SWITCH_BITS-1 downto 0);
---signal dip_rd_valid : std_logic;
---signal dip_wr_ready : std_logic;
---signal dummy_wr_data_valid : std_logic;
---signal dummy_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 begin
 
@@ -137,22 +128,9 @@ begin
 --
 ------------------------------------------------------------------------ 
 
-   padded_dip_data(WB_DATA_WIDTH-1 downto DIP_SWITCH_BITS) <= (others => '0');
-   padded_dip_data(DIP_SWITCH_BITS-1 downto 0) <= dip_switch_i;
+   padded_dip_data(WB_DATA_WIDTH-1 downto WIDTH) <= (others => '0');
+   padded_dip_data(WIDTH-1 downto 0) <= dip_switch_i;
 
-
--- Obsolete:
---
---   read_dip : process(clk_i, rst_i)
---   begin
---      if(rst_i = '1') then
---         dip_reg <= (others => '0');
---         dip_rd_valid <= '0';
---      elsif(clk_i'event and clk_i = '1') then
---         dip_reg <= dip_switch_i;
---         dip_rd_valid <= '1';
---      end if;
---   end process read_dip;
 
 ------------------------------------------------------------------------
 --
@@ -164,30 +142,4 @@ begin
 
    rty_o <= '0';
    
--- Obsolete:
---
---   dip_wr_ready <= '0';
---
---   slave_interface : slave_ctrl
---   generic map(SLAVE_SEL  => DIP_ADDR, 
---               ADDR_WIDTH => WB_ADDR_WIDTH,
---               DATA_WIDTH => WB_DATA_WIDTH)
---      
---   port map(slave_rd_data_valid => dip_rd_valid, 
---            slave_wr_ready      => dip_wr_ready,
---            slave_ctrl_dat_i         => padded_dip_reg,
---            
---            master_wr_data_valid => dummy_wr_data_valid, 
---            slave_ctrl_dat_o         => dummy_data, 
---      
---            -- wishbone signals
---            clk_i  => clk_i,
---            rst_i  => rst_i, 
---            dat_i 	=> dat_i,
---            addr_i => addr_i,
---            we_i   => we_i,
---            stb_i  => stb_i,
---            cyc_i  => cyc_i, 
---            dat_o  => dat_o, 
---            ack_o  => ack_o);
 end behav;
