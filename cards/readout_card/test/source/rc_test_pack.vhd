@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: rc_test_pack.vhd,v $
+-- Revision 1.5  2004/06/22 17:39:00  mandana
+-- added dac_test components and removed async components
+--
 -- Revision 1.4  2004/06/19 03:35:08  erniel
 -- added new dac commands
 --
@@ -59,6 +62,8 @@ package rc_test_pack is
       
    constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc
    constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
+   constant CMD_SRAM     : std_logic_vector(7 downto 0) := conv_std_logic_vector(109,8);   -- m
+
                                                                                                               
    -- Two character commands ------------------------------------------
 

@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: rc_test_idle.vhd,v $
+-- Revision 1.3  2004/07/14 21:26:43  bench1
+-- Mandana: added else rx_newdata_clr <= 0 for 2nd and 3rd character
+--
 -- Revision 1.2  2004/06/19 03:35:08  erniel
 -- added new dac commands
 --
@@ -202,7 +205,8 @@ begin
             when RX_WAIT1 =>
                if (rx_newdata = '1') then
                   if(rx_data_i = CMD_RESET or  
-                     rx_data_i = CMD_DEBUG) then
+                     rx_data_i = CMD_DEBUG or 
+                     rx_data_i = CMD_SRAM) then
                      -- got a single character command - we're done
                      rx_state <= RX_DONE;
 
