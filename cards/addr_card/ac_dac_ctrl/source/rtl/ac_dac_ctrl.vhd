@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.7 2004/11/06 03:12:01 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.8 2004/11/15 20:03:41 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.8  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.7  2004/11/06 03:12:01  bburger
 -- Bryce:  debugging
 --
@@ -55,7 +58,7 @@ use sys_param.data_types_pack.all;
 
 library work;
 use work.ac_dac_ctrl_pack.all;
-use work.wbs_ac_dac_ctrl_pack.all;
+use work.ac_dac_ctrl_wbs_pack.all;
 use work.frame_timing_pack.all;
 
 library components;
@@ -65,15 +68,18 @@ entity ac_dac_ctrl is
    port(
       -- DAC hardware interface:
       dac_data_o              : out w14_array11;   
-      dac_clks_o               : out std_logic_vector(NUM_OF_ROWS downto 0);
+      dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
    
-      -- wbs_ac_dac_ctrl interface:
-      on_off_addr_o           : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-      dac_id_i                : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      on_data_i               : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      off_data_i              : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
-      mux_en_i                : in std_logic;
-      
+      -- wishbone interface:
+      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                    : in std_logic;
+      stb_i                   : in std_logic;
+      cyc_i                   : in std_logic;
+      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                   : out std_logic;
+
       -- frame_timing interface:
       row_switch_i            : in std_logic;
       restart_frame_aligned_i : in std_logic;
@@ -97,6 +103,12 @@ signal load_new_vals       : std_logic;
 signal frame_aligned_reg   : std_logic;
 signal mux_en              : std_logic;
 
+signal on_off_addr         : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+signal dac_id              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal on_data             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal off_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal mux_en_wbs          : std_logic;
+
 -- DAC signals 
 signal k                   : integer;
 signal dac_data            : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
@@ -104,6 +116,28 @@ signal dac_id_int          : integer;
 
 begin
 
+   wbi: ac_dac_ctrl_wbs       
+      port map(
+         on_off_addr_i => on_off_addr,
+         dac_id_o      => dac_id,     
+         on_data_o     => on_data,    
+         off_data_o    => off_data,  
+         mux_en_o      => mux_en,     
+                      
+         clk_i         => clk_i,    
+         mem_clk_i     => mem_clk_i,
+         rst_i         => rst_i,    
+                       
+         dat_i         => dat_i, 
+         addr_i        => addr_i,
+         tga_i         => tga_i, 
+         we_i          => we_i,  
+         stb_i         => stb_i, 
+         cyc_i         => cyc_i, 
+         dat_o         => dat_o, 
+         ack_o         => ack_o 
+      );               
+                       
    row_counter: counter 
    generic map(
       MAX => ROW_COUNTER_MAX,
@@ -120,8 +154,8 @@ begin
       count_o => row_num_int
    );
             
-   on_off_addr_o <= std_logic_vector(conv_unsigned(row_num_int, ROW_ADDR_WIDTH));
-   dac_id_int <= conv_integer(dac_id_i);
+   on_off_addr <= std_logic_vector(conv_unsigned(row_num_int, ROW_ADDR_WIDTH));
+   dac_id_int <= conv_integer(dac_id);
    
    -- Generate the registers for all the DAC data outputs
    gen_dac_data_reg: for k in 0 to AC_NUM_BUSES-1 generate
@@ -152,7 +186,7 @@ begin
          end if;
          
          if(restart_frame_aligned_i = '1') then
-            if(mux_en_i = '1') then
+            if(mux_en_wbs = '1') then
                mux_en <= '1';
             else
                mux_en <= '0';
@@ -206,7 +240,7 @@ begin
    -- output states for row selection FSM
    -- In every scan instance, the current row has to be turned on and the previous row has to be turned off
    -- Therefore only 2 DACs are clocked. 
-   row_state_out: process(row_current_state, on_data_i, off_data_i, dac_id_int, frame_aligned_reg)
+   row_state_out: process(row_current_state, on_data, off_data, dac_id_int, frame_aligned_reg)
    begin
       -- Default assignments
       dac_data      <= (others => '0');
@@ -219,21 +253,21 @@ begin
             dac_clks_o    <= (others => '0');
             load_new_vals <= '0';
          when LOAD_ON_VAL =>
-            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_data <= on_data(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o <= (others => '0');
             if(frame_aligned_reg = '0') then   
                load_new_vals <= '1';
             end if;
          when LATCH_ON_VAL =>
-            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_data <= on_data(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
             load_new_vals <= '0';
          when LOAD_OFF_VAL =>
-            dac_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_data <= off_data(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o <= (others => '0');
             load_new_vals <= '0';
          when LATCH_OFF_VAL =>
-            dac_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_data <= off_data(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
             load_new_vals <= '0';
          when others =>

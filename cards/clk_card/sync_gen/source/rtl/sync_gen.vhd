@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.7  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.6  2004/10/23 02:28:48  bburger
 -- Bryce:  Work out a couple of bugs to do with the initialization window
 --
@@ -66,6 +69,7 @@ use ieee.std_logic_arith.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -73,16 +77,29 @@ use components.component_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
+use work.sync_gen_wbs_pack.all;
 
 entity sync_gen is
    port(
-      clk_i       : in std_logic;
-      rst_i       : in std_logic;
       dv_i        : in std_logic;
-      dv_en_i     : in std_logic;
+--      dv_en_i     : in std_logic;
       sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
---      dv_o        : out std_logic
+      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+      -- Wishbone interface
+      dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i               : in std_logic;
+      stb_i              : in std_logic;
+      cyc_i              : in std_logic;
+      dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o              : out std_logic;
+
+      -- Global Signals
+      clk_i       : in std_logic;
+      mem_clk_i   : in std_logic;
+      rst_i       : in std_logic
    );
 end sync_gen;
 
@@ -95,11 +112,30 @@ architecture beh of sync_gen is
    signal clk_count        : integer;
    signal sync_count       : integer;
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal dv_en            : integer;
    
    signal sync_num_mux     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal sync_num_mux_sel : std_logic;
 
    begin      
+      wbi: sync_gen_wbs        
+         port map(
+            dv_en_o     => dv_en,
+
+            dat_i       => dat_i, 
+            addr_i      => addr_i,
+            tga_i       => tga_i, 
+            we_i        => we_i,  
+            stb_i       => stb_i, 
+            cyc_i       => cyc_i, 
+            dat_o       => dat_o, 
+            ack_o       => ack_o, 
+
+            clk_i       => clk_i,           
+            mem_clk_i   => mem_clk_i,       
+            rst_i       => rst_i           
+         );     
+      
       clk_ctr: counter
          generic map(
             MAX         => END_OF_FRAME,
@@ -147,13 +183,13 @@ architecture beh of sync_gen is
          end if;
       end process;
 
-      sync_state_NS: process(current_state, dv_en_i, dv_i, new_frame_period)
+      sync_state_NS: process(current_state, dv_en, dv_i, new_frame_period)
       begin
          case current_state is
 --            when RESET =>
 --               next_state <= SYNC_LOW;
             when SYNC_LOW =>
-               if(dv_en_i = '1') then
+               if(dv_en >= 1) then
                   if(dv_i = '1') then
                      next_state <= DV_RECEIVED;
                   else

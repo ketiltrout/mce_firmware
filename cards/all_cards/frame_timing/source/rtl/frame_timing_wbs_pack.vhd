@@ -1,72 +1,68 @@
--- Copyright (c) 2003 SCUBA-2 Project
+-- 2003 SCUBA-2 Project
 --                  All Rights Reserved
-
+--
 --  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
 --  The copyright notice above does not evidence any
 --  actual or intended publication of such source code.
-
+--
 --  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
 --  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
 --  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
 --  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
 --  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
-
+--
 -- For the purposes of this code the SCUBA-2 Project consists of the
 -- following organisations.
-
+--
 -- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
-
--- sync_gen_pack.vhd
 --
--- Project:     SCUBA-2
--- Author:      Bryce Burger
--- Organisation:   UBC
+-- $Id: wbs_ac_dac_ctrl_pack.vhd,v 1.4 2004/11/06 03:12:01 bburger Exp $
+--
+-- Project:       SCUBA2
+-- Author:        Bryce Burger
+-- Organisation:  UBC
 --
 -- Description:
--- This implements the sync pulse generation on the Clock Card.
+-- Wishbone interface for a 14-bit 165MS/s DAC (AD9744) controller
+-- This block was written to be coupled with wbs_ac_dac_ctrl
 --
 -- Revision history:
--- $Log: sync_gen_pack.vhd,v $
--- Revision 1.5  2004/10/23 02:28:48  bburger
--- Bryce:  Work out a couple of bugs to do with the initialization window
+-- $Log: wbs_ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.4  2004/11/06 03:12:01  bburger
+-- Bryce:  debugging
 --
--- Revision 1.4  2004/10/22 01:55:31  bburger
--- Bryce:  adding timing signals for RC flux_loop
---
--- Revision 1.3  2004/10/08 19:45:26  bburger
--- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
---
--- Revision 1.2  2004/10/06 19:48:35  erniel
--- moved constants from commnad_pack to sync_gen_pack
--- updated references to sync_gen_pack
---
--- Revision 1.1  2004/08/05 00:19:33  bburger
--- Bryce:  new
+-- Revision 1.3  2004/11/02 07:38:09  bburger
+-- Bryce:  ac_dac_ctrl in progress
 --
 --
-------------------------------------------------------------------------
-
+-----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 
 library sys_param;
+use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
-package sync_gen_pack is
+package frame_timing_wbs_pack is
 
-constant SYNC_NUM_WIDTH     : integer := 16;
-constant ISSUE_SYNC_WIDTH   : integer := SYNC_NUM_WIDTH;
+component frame_timing_wbs is        
+   port
+   (
+      -- frame_timing interface:
+      row_len_o          : out integer;
+      num_rows_o         : out integer;
+      sample_delay_o     : out integer;
+      sample_num_o       : out integer;
+      feedback_delay_o   : out integer;
+      address_on_delay_o : out integer;
+      resync_ack_i       : in std_logic;      
+      resync_req_o       : out std_logic;
+      init_window_ack_i  : in std_logic;
+      init_window_req_o  : out std_logic;
 
-component sync_gen
-   port(
-      dv_i        : in std_logic;
---      dv_en_i     : in std_logic;
-      sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- Wishbone interface
+      -- wishbone interface:
       dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
       tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
@@ -76,11 +72,11 @@ component sync_gen
       dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o              : out std_logic;
 
-      -- Global Signals
-      clk_i       : in std_logic;
-      mem_clk_i   : in std_logic;
-      rst_i       : in std_logic
-   );
+      -- global interface
+      clk_i              : in std_logic;
+      mem_clk_i          : in std_logic;
+      rst_i              : in std_logic 
+   );     
 end component;
 
-end sync_gen_pack;
+end package;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_ac_dac_ctrl.vhd,v 1.5 2004/11/06 03:12:01 bburger Exp $
+-- $Id: wbs_ac_dac_ctrl.vhd,v 1.6 2004/11/08 23:40:29 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: wbs_ac_dac_ctrl.vhd,v $
+-- Revision 1.6  2004/11/08 23:40:29  bburger
+-- Bryce:  small modifications
+--
 -- Revision 1.5  2004/11/06 03:12:01  bburger
 -- Bryce:  debugging
 --
@@ -53,9 +56,9 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.wbs_ac_dac_ctrl_pack.all;
+use work.ac_dac_ctrl_wbs_pack.all;
 
-entity wbs_ac_dac_ctrl is        
+entity ac_dac_ctrl_wbs is        
    port
    (
       -- ac_dac_ctrl interface:
@@ -80,9 +83,9 @@ entity wbs_ac_dac_ctrl is
       dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o          : out std_logic
    );     
-end wbs_ac_dac_ctrl;
+end ac_dac_ctrl_wbs;
 
-architecture rtl of wbs_ac_dac_ctrl is
+architecture rtl of ac_dac_ctrl_wbs is
 
    -- FSM inputs
    signal wr_cmd           : std_logic;

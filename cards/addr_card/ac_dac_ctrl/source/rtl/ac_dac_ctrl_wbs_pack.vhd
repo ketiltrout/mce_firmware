@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_ac_dac_ctrl_pack.vhd,v 1.3 2004/11/02 07:38:09 bburger Exp $
+-- $Id: wbs_ac_dac_ctrl_pack.vhd,v 1.4 2004/11/06 03:12:01 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: wbs_ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.4  2004/11/06 03:12:01  bburger
+-- Bryce:  debugging
+--
 -- Revision 1.3  2004/11/02 07:38:09  bburger
 -- Bryce:  ac_dac_ctrl in progress
 --
@@ -42,11 +45,11 @@ library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
-package wbs_ac_dac_ctrl_pack is
+package ac_dac_ctrl_wbs_pack is
 
 constant ROW_ADDR_WIDTH : integer := 6; 
 
-component wbs_ac_dac_ctrl is        
+component ac_dac_ctrl_wbs is        
    port
    (
       -- ac_dac_ctrl interface:

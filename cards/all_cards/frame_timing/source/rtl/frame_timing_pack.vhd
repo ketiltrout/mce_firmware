@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.1 2004/11/15 20:03:41 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.2 2004/11/17 01:57:32 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/11/15 20:03:41 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/17 01:57:32 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.2  2004/11/17 01:57:32  bburger
+-- Bryce :  updating the interface signal order
+--
 -- Revision 1.1  2004/11/15 20:03:41  bburger
 -- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
 --
@@ -106,6 +109,7 @@ use ieee.std_logic_1164.all;
 -- cycles.
 library sys_param;
 use sys_param.data_types_pack.all;
+use sys_param.wishbone_pack.all;
 
 package frame_timing_pack is
 
@@ -167,13 +171,7 @@ package frame_timing_pack is
 
    component frame_timing is
    port(
-      -- Global signals
-      clk_i                      : in std_logic;
-      rst_i                      : in std_logic;
-      sync_i                     : in std_logic;
-      frame_rst_i                : in std_logic;
-      
-      -- Readout Card
+      -- Readout Card interface
       dac_dat_en_o               : out std_logic;
       adc_coadd_en_o             : out std_logic;
       restart_frame_1row_prev_o  : out std_logic;
@@ -181,20 +179,28 @@ package frame_timing_pack is
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
       
-      -- Address Card
+      -- Address Card interface
       row_switch_o               : out std_logic;
       row_en_o                   : out std_logic;
          
-      -- Bias Card
+      -- Bias Card interface
       update_bias_o              : out std_logic;
       
-      -- frame_timing_wbs
-      sample_num_i               : in integer;
-      sample_delay_i             : in integer;
-      feedback_delay_i           : in integer;
-      address_on_delay_i         : in integer;
-      init_window_req_i          : in std_logic;
-      init_window_ack_o          : out std_logic
+      -- Wishbone interface
+      dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                       : in std_logic;
+      stb_i                      : in std_logic;
+      cyc_i                      : in std_logic;
+      dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                      : out std_logic;      
+      
+      -- Global signals
+      clk_i                      : in std_logic;
+      mem_clk_i                  : in std_logic;
+      rst_i                      : in std_logic;
+      sync_i                     : in std_logic
    );
    end component;
 
