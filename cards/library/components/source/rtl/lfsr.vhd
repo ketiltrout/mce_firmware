@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: lfsr.vhd,v $
+-- Revision 1.1  2004/07/07 19:29:28  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -39,13 +42,13 @@ use ieee.std_logic_1164.all;
 
 entity lfsr is
    generic(WIDTH : in integer range 3 to 64 := 8);
-   port(clk        : in std_logic;
-        rst        : in std_logic;
-        ena        : in std_logic;
-        load       : in std_logic;
-        clr        : in std_logic;
-        parallel_i : in std_logic_vector(WIDTH-1 downto 0);
-        parallel_o : out std_logic_vector(WIDTH-1 downto 0));
+   port(clk    : in std_logic;
+        rst    : in std_logic;
+        ena    : in std_logic;
+        load   : in std_logic;
+        clr    : in std_logic;
+        data_i : in std_logic_vector(WIDTH-1 downto 0);
+        data_o : out std_logic_vector(WIDTH-1 downto 0));
 end lfsr;
 
 architecture behav of lfsr is
@@ -144,7 +147,7 @@ begin
             if(clr = '1') then
                data <= (others => '0');
             elsif(load = '1') then
-               data <= parallel_i;
+               data <= data_i;
             else
                data <= fb & data(1 to WIDTH-1);
             end if;
@@ -152,6 +155,6 @@ begin
       end if;
    end process;
    
-   parallel_o <= data;
+   data_o <= data;
 
 end behav;
