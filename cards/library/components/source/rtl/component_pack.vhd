@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.17 2004/07/21 19:46:01 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.18 2004/07/22 00:01:56 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.18  2004/07/22 00:01:56  erniel
+-- updated counter component
+--
 -- Revision 1.17  2004/07/21 19:46:01  erniel
 -- updated counter component
 --
@@ -195,12 +198,12 @@ package component_pack is
    component shift_reg
       generic(WIDTH : in integer range 2 to 512 := 8);
 
-      port(clk        : in std_logic;
-           rst        : in std_logic;
-           ena        : in std_logic;
-           load       : in std_logic;
-           clr        : in std_logic;
-           shr        : in std_logic;
+      port(clk_i      : in std_logic;
+           rst_i      : in std_logic;
+           ena_i      : in std_logic;
+           load_i     : in std_logic;
+           clr_i      : in std_logic;
+           shr_i      : in std_logic;
            serial_i   : in std_logic;
            serial_o   : out std_logic;
            parallel_i : in std_logic_vector(WIDTH-1 downto 0);
@@ -481,11 +484,11 @@ end component;
 
 component lfsr
 generic(WIDTH : in integer range 3 to 64 := 8);
-port(clk    : in std_logic;
-     rst    : in std_logic;
-     ena    : in std_logic;
-     load   : in std_logic;
-     clr    : in std_logic;
+port(clk_i  : in std_logic;
+     rst_i  : in std_logic;
+     ena_i  : in std_logic;
+     load_i : in std_logic;
+     clr_i  : in std_logic;
      lfsr_i : in std_logic_vector(WIDTH-1 downto 0);
      lfsr_o : out std_logic_vector(WIDTH-1 downto 0));
 end component;
