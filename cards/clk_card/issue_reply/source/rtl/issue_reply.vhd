@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.32 2004/12/16 22:05:40 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.33 2005/01/12 21:52:17 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/12/16 22:05:40 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/01/12 21:52:17 $> -     <text>      - <initials $Author: mandana $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.33  2005/01/12 21:52:17  mandana
+-- update cmd_queue interface by deleting comm_clk_i
+--
 -- Revision 1.32  2004/12/16 22:05:40  bburger
 -- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
 --
@@ -437,7 +440,6 @@ begin
          
          -- Global signals
          clk_i            => clk_i,
-         mem_clk_i        => mem_clk_i,
          comm_clk_i       => comm_clk_i,
          rst_i            => rst_i
       );
