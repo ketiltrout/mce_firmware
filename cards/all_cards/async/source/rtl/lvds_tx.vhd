@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.13  2005/01/11 02:39:03  erniel
+-- removed async_tx instantiation
+-- removed comm_clk and mem_clk
+-- modified transmitter datapath (based on async_tx datapath)
+-- modified transmitter control
+--
 -- Revision 1.12  2005/01/05 23:33:50  erniel
 -- updated async_tx component
 --
@@ -137,6 +143,7 @@ begin
             clear_i   => '0',
             empty_o   => buf_empty,
             full_o    => buf_full,
+            error_o   => open,
             used_o    => open);
    
    busy_o <= buf_full;
