@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: lvds_tx.vhd,v $
+-- Revision 1.1  2004/06/17 01:25:41  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -38,6 +41,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
+library components;
+use components.component_pack.all;
 
 entity lvds_tx is
 port(clk_i      : in std_logic;
@@ -62,19 +68,23 @@ port(tx_clk_i : in std_logic;
      busy_o   : out std_logic);
 end component;
 
+type states is (IDLE, TX, TXBUSY, SETUP, DONE);
+signal pres_state : states;
+signal next_state : states;
+
 signal tx_clk_divide : std_logic_vector(2 downto 0);
 signal tx_clk : std_logic;
+
 signal tx_data : std_logic_vector(7 downto 0);
 signal tx_rdy : std_logic;
 signal tx_busy : std_logic;
 
-signal data_reg : std_logic_vector(31 downto 0);
+signal buffer_ena : std_logic;
+signal buffer_out : std_logic_vector(31 downto 0);
 
-signal byte_count : integer range 0 to 4;
-
-type states is (IDLE, TX, TXBUSY, DONE);
-signal pres_state : states;
-signal next_state : states;
+signal byte_count_ena : std_logic;
+signal byte_count_clr : std_logic;
+signal bytes_sent     : integer range 0 to 4;
 
 begin
 
@@ -97,15 +107,25 @@ begin
    
    tx_clk <= tx_clk_divide(2);   -- 200 MHz input clock divided by 8 = 25 MHz
    
-   data_buffer: process(rst_i, clk_i)
-   begin
-      if(rst_i = '1') then
-         data_reg <= (others => '0');
-      elsif(clk_i'event and clk_i = '1') then
-         data_reg <= dat_i;
-      end if;
-   end process data_buffer;
+   data_buffer: reg
+   generic map(WIDTH => 32)
+   port map(clk_i  => clk_i,
+            rst_i  => rst_i,
+            ena_i  => buffer_ena,
+
+            reg_i  => dat_i,
+            reg_o  => buffer_out);
    
+   byte_counter: counter
+   generic map(MAX => 4,
+               WRAP_AROUND => '0')
+   port map(clk_i   => clk_i,
+            rst_i   => rst_i,
+            ena_i   => byte_count_ena,
+            load_i  => byte_count_clr,
+            count_i => 0,
+            count_o => bytes_sent);
+            
    stateFF: process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
@@ -114,8 +134,8 @@ begin
          pres_state <= next_state;
       end if;
    end process stateFF;
-   
-   stateNS: process(pres_state, start_i, tx_busy)
+
+   stateNS: process(pres_state, start_i, tx_busy, bytes_sent)
    begin
       case pres_state is
          when IDLE =>   if(start_i = '1') then
@@ -130,49 +150,49 @@ begin
                            next_state <= TX;
                         end if;
                          
-         when TXBUSY => if(tx_busy = '0') then       -- when transmitter signals byte complete, prepare to send next byte.
-                           if(byte_count = 4) then
-                              next_state <= DONE;
-                           else
-                              next_state <= TX;
-                           end if;  
+         when TXBUSY => if(tx_busy = '0') then  
+                           next_state <= SETUP;
                         else
-                           next_state <= TXBUSY;   
-                        end if; 
+                           next_state <= TXBUSY;
+                        end if;
+         
+         when SETUP =>  if(bytes_sent = 3) then
+                           next_state <= DONE;
+                        else
+                           next_state <= TX;
+                        end if;  
                         
          when DONE =>   next_state <= IDLE;          -- signal done, then return to idle
       end case;
    end process stateNS;
-   
-   stateOut: process(pres_state, tx_busy)
+
+   stateOut: process(pres_state, bytes_sent)
    begin
+      tx_rdy         <= '0';
+      buffer_ena     <= '0';
+      byte_count_ena <= '0';
+      byte_count_clr <= '0';
+      done_o         <= '0';
+      tx_data        <= (others => '0');
       case pres_state is
-         when IDLE =>   tx_data <= (others => '0');
-                        tx_rdy <= '0';
-                        done_o <= '0';
-                        byte_count <= 0;
+         when IDLE =>   buffer_ena     <= '1';
+                        byte_count_ena <= '1';
+                        byte_count_clr <= '1';
                          
-         when TX =>     case byte_count is
-                           when 0 => tx_data <= data_reg(7 downto 0);
-                           when 1 => tx_data <= data_reg(15 downto 8);
-                           when 2 => tx_data <= data_reg(23 downto 16);
-                           when others => tx_data <= data_reg(31 downto 24);
+         when TX =>     case bytes_sent is
+                           when 0 =>      tx_data <= buffer_out(7 downto 0);
+                           when 1 =>      tx_data <= buffer_out(15 downto 8);
+                           when 2 =>      tx_data <= buffer_out(23 downto 16);
+                           when others => tx_data <= buffer_out(31 downto 24);
                         end case;
                         tx_rdy <= '1';
-                        done_o <= '0';
-                        if(tx_busy = '1') then
-                           byte_count <= byte_count + 1;
-                        end if;
-                                                 
-         when TXBUSY => tx_data <= (others => '0');
-                        tx_rdy <= '0';
-                        done_o <= '0';
                         
-         when DONE =>   tx_data <= (others => '0');
-                        tx_rdy <= '0';
-                        done_o <= '1';
-                        
+         when SETUP =>  byte_count_ena <= '1';
+         
+         when DONE =>   done_o <= '1';
+         
+         when others => null;                        
       end case;
    end process stateOut;
-                 
+         
 end rtl;

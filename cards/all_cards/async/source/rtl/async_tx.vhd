@@ -21,13 +21,20 @@
 -- 
 -- Revision History:
 --
--- $Log$
+-- $Log: async_tx.vhd,v $
+-- Revision 1.3  2004/06/10 19:36:05  erniel
+-- changed interface to non-wishbone
+-- reworked code body (made it RTL description)
+--
 --
 -- Dec 22, 2003: Initial version - NRG
 ---------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library components;
+use components.component_pack.all;
 
 ---------------------------------------------------------------------
 
@@ -45,40 +52,46 @@ end async_tx ;
 
 architecture behaviour of async_tx is
 
-   type states is (IDLE, TRANSMIT);
+   type states is (IDLE, SETUP, TRANSMIT);
    signal pres_state : states;
    signal next_state : states;
 
-   signal data  : std_logic_vector(9 downto 0);
    signal count : integer;
 
+   signal count_clr : std_logic;
+   signal shreg_ena : std_logic;
+   signal shreg_ld  : std_logic;
+   
+   signal shreg_data : std_logic_vector(9 downto 0);
+   signal debug_data : std_logic_vector(9 downto 0);
+   signal tx_data    : std_logic;
+   
 begin
 
-   tx_counter: process(rst_i, tx_clk_i)
-   begin
-      if(rst_i = '1') then
-         count <= 0;
-      elsif(tx_clk_i'event and tx_clk_i = '1') then
-         if(pres_state = IDLE) then
-            count <= 0;                       -- don't start transmitting until transmit phase
-         else
-            count <= count + 1;
-         end if;
-      end if;
-   end process tx_counter;
+   tx_counter : counter
+      generic map(MAX         => 10,
+                  WRAP_AROUND => '0')
+      port map(clk_i   => tx_clk_i,
+               rst_i   => rst_i,
+               ena_i   => '1',
+               load_i  => count_clr,
+               count_i => 0,
+               count_o => count);
+               
+   tx_databuf : shift_reg
+      generic map(WIDTH => 10)
+      port map(clk_i      => tx_clk_i,
+               rst_i      => rst_i,
+               ena_i      => shreg_ena,
+               load_i     => shreg_ld,
+               clr_i      => '0',
+               shr_i      => '1',
+               serial_i   => '0',
+               serial_o   => tx_data,
+               parallel_i => shreg_data,
+               parallel_o => debug_data);
 
-   tx_databuf: process(rst_i, tx_clk_i)
-   begin
-      if(rst_i = '1') then
-         data <= (others => '0');
-      elsif(tx_clk_i'event and tx_clk_i = '1') then 
-         if(pres_state = IDLE) then
-            data <= '1' & dat_i & '0';        -- frame data with start ('0') & stop ('1') bits
-         else
-            data <= '0' & data(9 downto 1);   -- shift data out LSB first
-         end if;
-      end if;
-   end process tx_databuf;
+   shreg_data <= '1' & dat_i & '0';
      
    stateFF: process(rst_i, tx_clk_i)
    begin
@@ -89,25 +102,44 @@ begin
       end if;
    end process stateFF;
    
-   state_logic: process(pres_state, stb_i, count, data)
+   stateNS: process(pres_state, stb_i, count)
    begin
       case pres_state is
          when IDLE =>     if(stb_i = '1') then
-                             next_state <= TRANSMIT;
+                             next_state <= SETUP;
                           else
                              next_state <= IDLE;
                           end if;
-                          busy_o <= '0';
-                          tx_o <= '1';
                           
+         when SETUP =>    next_state <= TRANSMIT;
+                                   
          when TRANSMIT => if(count = 9) then 
                              next_state <= IDLE;
                           else
                              next_state <= TRANSMIT;
                           end if;
-                          busy_o <= '1';
-                          tx_o <= data(0);
       end case;
-   end process state_logic;
+   end process stateNS;
    
-END behaviour;
+   stateOut: process(pres_state, tx_data)
+   begin
+      count_clr <= '1';
+      shreg_ena <= '0';
+      shreg_ld  <= '0';
+      busy_o    <= '0';
+      tx_o      <= '1';
+      
+      case pres_state is 
+         when SETUP =>    shreg_ena <= '1';
+                          shreg_ld  <= '1';
+                          
+         when TRANSMIT => count_clr <= '0';
+                          shreg_ena <= '1';
+                          busy_o    <= '1';
+                          tx_o      <= tx_data;
+                          
+         when others =>   null;
+      end case;
+   end process stateOut;
+   
+end behaviour;
