@@ -8,22 +8,21 @@ use work.cmd_queue_pack.all;
 use work.cmd_queue_ram40_pack.all;
 
 
-ENTITY cmd_queue_ram40_test IS
-   PORT
+entity cmd_queue_ram40_test is
+   port
    (
-      data     : IN STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
-      wraddress      : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-      rdaddress_a    : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-      rdaddress_b    : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-      wren     : IN STD_LOGIC  := '1';
-      clock    : IN STD_LOGIC ;
-      qa    : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
-      qb    : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0)
+      data     : in STD_LOGIC_VECTOR (QUEUE_WIDTH-1 downto 0);
+      wraddress      : in STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 downto 0);
+      rdaddress_a    : in STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 downto 0);
+      rdaddress_b    : in STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 downto 0);
+      wren     : in STD_LOGIC  := '1';
+      clock    : in STD_LOGIC ;
+      qa    : out STD_LOGIC_VECTOR (QUEUE_WIDTH-1 downto 0);
+      qb    : out STD_LOGIC_VECTOR (QUEUE_WIDTH-1 downto 0)
    );
-END cmd_queue_ram40_test;
+end cmd_queue_ram40_test;
 
-
-ARCHITECTURE SYN OF cmd_queue_ram40_test IS
+architecture SYN of cmd_queue_ram40_test is
    signal wraddress_int : integer := 0;
    signal rdaddress_a_int : integer := 0;
    signal rdaddress_b_int : integer := 0;
@@ -31,7 +30,7 @@ ARCHITECTURE SYN OF cmd_queue_ram40_test IS
    signal qb_sig  : std_logic_vector(QUEUE_WIDTH-1 downto 0);
    signal ram_dat : ram40;
 
-BEGIN
+begin
    wraddress_int   <= conv_integer(wraddress);
    rdaddress_a_int <= conv_integer(rdaddress_a);
    rdaddress_b_int <= conv_integer(rdaddress_b);
@@ -48,15 +47,5 @@ BEGIN
          end if;
       end if;
    end process data_in;
-END SYN;
 
---   registr: process(clk_i, rst_i)
---   begin
---      if(rst_i = '1') then
---         reg_o <= (others => '0');
---      elsif(clk_i'event and clk_i = '1') then
---         if(ena_i = '1') then
---            reg_o <= reg_i;
---         end if;
---      end if;
---   end process registr;
+end SYN;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_ram40_pack.vhd,v 1.5 2004/06/30 23:10:53 bburger Exp $
+-- $Id: cmd_queue_ram40_pack.vhd,v 1.6 2004/07/06 00:27:22 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_ram40_pack.vhd,v $
+-- Revision 1.6  2004/07/06 00:27:22  bburger
+-- in progress
+--
 -- Revision 1.5  2004/06/30 23:10:53  bburger
 -- in progress
 --
@@ -55,27 +58,41 @@ use work.issue_reply_pack.all;
 
 package cmd_queue_ram40_pack is
 
-   constant QUEUE_LEN   : integer  := 256; -- The u-op queue is 256 entries long
-   constant QUEUE_WIDTH : integer  := MOP_BUS_WIDTH + UOP_BUS_WIDTH + ISSUE_SYNC_BUS_WIDTH + TIMEOUT_SYNC_BUS_WIDTH + CQ_CARD_ADDR_BUS_WIDTH + CQ_PAR_ID_BUS_WIDTH; -- The u-op queue is 64 bits wide
+   constant QUEUE_LEN        : integer := 256; -- The u-op queue is 256 entries long
+   constant QUEUE_WIDTH      : integer :=  32;
+   constant QUEUE_ADDR_WIDTH : integer :=   8;
 
    subtype ram_line is std_logic_vector(QUEUE_WIDTH-1 downto 0);
    type ram40 is array (0 to 255) of ram_line;
 
    -- Calculated constants for inputing data on the correct lines into/out-of the queue
-   constant MOP_END          : integer := QUEUE_WIDTH - MOP_BUS_WIDTH;
-   constant UOP_END          : integer := QUEUE_WIDTH - MOP_BUS_WIDTH - UOP_BUS_WIDTH;
-   constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - MOP_BUS_WIDTH - UOP_BUS_WIDTH - ISSUE_SYNC_BUS_WIDTH;
-   constant TIMEOUT_SYNC_END : integer := QUEUE_WIDTH - MOP_BUS_WIDTH - UOP_BUS_WIDTH - ISSUE_SYNC_BUS_WIDTH - TIMEOUT_SYNC_BUS_WIDTH;
-   constant CARD_ADDR_END    : integer := QUEUE_WIDTH - MOP_BUS_WIDTH - UOP_BUS_WIDTH - ISSUE_SYNC_BUS_WIDTH - TIMEOUT_SYNC_BUS_WIDTH - CQ_CARD_ADDR_BUS_WIDTH;
+   -- The following fields make up the first two lines of each u-op entry in the queue:
 
+   -- Line 1:
+   -- ISSUE_SYNC_BUS_WIDTH (8 bits),
+   -- TIMEOUT_SYNC_BUS_WIDTH (8 bits),
+   -- CQ_DATA_SIZE_BUS_WIDTH (16 bits)
+   constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - ISSUE_SYNC_BUS_WIDTH;
+   constant TIMEOUT_SYNC_END : integer := QUEUE_WIDTH - ISSUE_SYNC_BUS_WIDTH - TIMEOUT_SYNC_BUS_WIDTH;
+   constant DATA_SIZE_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_BUS_WIDTH - TIMEOUT_SYNC_BUS_WIDTH - CQ_DATA_SIZE_BUS_WIDTH;
+
+   -- Line 2:
+   -- CQ_CARD_ADDR_BUS_WIDTH (8 bits),
+   -- CQ_PAR_ID_BUS_WIDTH (8 bits),
+   -- MOP_BUS_WIDTH (8 bits),
+   -- UOP_BUS_WIDTH (8 bits)
+   constant CARD_ADDR_END    : integer := QUEUE_WIDTH - CQ_CARD_ADDR_BUS_WIDTH;
+   constant PARAM_ID_END     : integer := QUEUE_WIDTH - CQ_CARD_ADDR_BUS_WIDTH - CQ_PAR_ID_BUS_WIDTH;
+   constant MOP_END          : integer := QUEUE_WIDTH - CQ_CARD_ADDR_BUS_WIDTH - CQ_PAR_ID_BUS_WIDTH - MOP_BUS_WIDTH;
+   constant UOP_END          : integer := QUEUE_WIDTH - CQ_CARD_ADDR_BUS_WIDTH - CQ_PAR_ID_BUS_WIDTH - MOP_BUS_WIDTH - UOP_BUS_WIDTH;
 
    component cmd_queue_ram40 is
       PORT
       (
          data        : IN STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
-         wraddress   : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-         rdaddress_a : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-         rdaddress_b : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+         wraddress   : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_a : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_b : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
          wren        : IN STD_LOGIC;
          clock       : IN STD_LOGIC;
          qa          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
@@ -87,9 +104,9 @@ package cmd_queue_ram40_pack is
       PORT
       (
          data        : IN STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
-         wraddress   : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-         rdaddress_a : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-         rdaddress_b : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+         wraddress   : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_a : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_b : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
          wren        : IN STD_LOGIC;
          clock       : IN STD_LOGIC;
          qa          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
