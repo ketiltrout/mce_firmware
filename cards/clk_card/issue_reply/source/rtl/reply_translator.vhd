@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.17 2004/11/11 17:05:10 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.18 2004/11/16 09:56:05 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/11 17:05:10 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/16 09:56:05 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.18  2004/11/16 09:56:05  dca
+-- 'num_fibre_words_i' changed from std_logic_vector to integer
+--
 -- Revision 1.17  2004/11/11 17:05:10  dca
 -- status word and sequence word now included in data packet.
 --
@@ -315,7 +318,7 @@ signal wordN_3mux              : byte;
 -- fibre transmit FIFO (fibre_tx_fifo) 
 
 type fibre_state is           (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, REPLY_ER, 
-                               DATA_FRAME, REQ_Q_WORD , READ_Q_WORD, ST_ER_REPLY, NO_REPLY,    
+                               DATA_FRAME, WAIT_Q_WORD , ACK_Q_WORD, ST_ER_REPLY, NO_REPLY,    
                                                                       
                                LD_HEAD1_0, TX_HEAD1_0, LD_HEAD1_1, TX_HEAD1_1,
                                LD_HEAD1_2, TX_HEAD1_2, LD_HEAD1_3, TX_HEAD1_3,
@@ -892,7 +895,7 @@ txd_o              <= fibre_byte;
        when TX_HEAD4_3 =>
        
       --    if  m_op_done_data = '1' then 
-      --       fibre_next_state <= REQ_Q_WORD;      -- data packet - go get data words from reply queue....
+      --       fibre_next_state <= WAIT_Q_WORD;      -- data packet - go get data words from reply queue....
       --    else                                     
              fibre_next_state <= LD_WORD1_0;       --  packet word 1...
       --    end if;
@@ -986,10 +989,10 @@ txd_o              <= fibre_byte;
        when TX_WORD2_3 =>
        
           if  (m_op_done_data = '1') then           -- if data frame
-             fibre_next_state <= REQ_Q_WORD;        -- request data words
+             fibre_next_state <= WAIT_Q_WORD;        -- request data words
           
           elsif (m_op_done_reply = '1' and m_op_cmd_code_i = READ_BLOCK and m_op_error_code_i = COMMAND_SUCCESS) then    -- if successful read_block reply then 
-             fibre_next_state <= REQ_Q_WORD;                                    -- need to request data block words
+             fibre_next_state <= WAIT_Q_WORD;                                    -- need to request data block words
           
           else
              fibre_next_state <= LD_RP_WORD3_0;                                 -- otherwise process standard word 3.
@@ -1039,11 +1042,7 @@ txd_o              <= fibre_byte;
           fibre_next_state <= LD_CKSUM0;
           
                     
-          
-          
--- these reply word 3 states are for checksum error replies 
--- and GO / RS replies
-          
+         
        when LD_WORDN_0 =>
            
           if tx_ff_i = '1' then 
@@ -1086,10 +1085,14 @@ txd_o              <= fibre_byte;
           
        when TX_WORDN_3 =>
        
-          if --(m_op_done_reply = '1' or m_op_done_data = '1') and 
-             (fibre_word_count < num_fibre_words_i ) then          
+          fibre_next_state <= ACK_Q_WORD;
+       
+       
+       when ACK_Q_WORD =>
+              
+          if (fibre_word_count < num_fibre_words_i ) then          
             
-             fibre_next_state <= REQ_Q_WORD;                 -- another fibre word to read fromn Q
+             fibre_next_state <= WAIT_Q_WORD;              -- another fibre word to read fromn Q
           else
              fibre_next_state <= LD_CKSUM0;               -- no word words in Q.  tx checksum.
           end if;
@@ -1100,18 +1103,13 @@ txd_o              <= fibre_byte;
      -- get and transmit reply q words
      
         
-       when REQ_Q_WORD =>
-          fibre_next_state <= READ_Q_WORD;
-          
-       when READ_Q_WORD =>
-          
+       when WAIT_Q_WORD =>
           if (fibre_word_rdy_i  = '1') then 
              fibre_next_state <= LD_WORDN_0;
           else
-             fibre_next_state <= READ_Q_WORD;
+             fibre_next_state <= WAIT_Q_WORD;
           end if;  
-       
-                
+          
        
      -- transmit checksum  states 
         
@@ -1784,11 +1782,11 @@ txd_o              <= fibre_byte;
             m_op_ack_o                 <= '0';
                        
                        
-       when REQ_Q_WORD  =>
-           fibre_word_req_o            <= '1';
+       when WAIT_Q_WORD  =>
+           fibre_word_req_o            <= '0';
 
-       when READ_Q_WORD =>
-          fibre_word_req_o             <= '0';
+       when ACK_Q_WORD =>
+          fibre_word_req_o             <= '1';    
     
       end case;
       
