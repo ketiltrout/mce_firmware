@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.15 2004/07/16 18:23:31 erniel Exp $
+-- $Id: issue_reply_pack.vhd,v 1.16 2004/07/20 00:33:53 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.16  2004/07/20 00:33:53  bench2
+-- Bryce:  in progress
+--
 -- Revision 1.15  2004/07/16 18:23:31  erniel
 -- in progress
 --
@@ -96,6 +99,8 @@ package issue_reply_pack is
    constant CMD_CODE_BUS_WIDTH   : integer := 16;
    constant CHECKSUM_BUS_WIDTH   : integer := 32;
    constant PREAMBLE_BUS_WIDTH   : integer := 16;
+   
+   constant PREAMBLE : std_logic_vector := x"AAAA";
 
    -- used in cmd_queue
    constant ISSUE_SYNC_BUS_WIDTH   : integer := SYNC_NUM_BUS_WIDTH;  -- The width of the data field for the absolute sync count at which an instruction was issued
