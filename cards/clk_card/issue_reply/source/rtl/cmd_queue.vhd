@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.40 2004/08/19 18:22:42 jjacob Exp $
+-- $Id: cmd_queue.vhd,v 1.41 2004/08/20 21:08:29 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,10 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.41  2004/08/20 21:08:29  jjacob
+-- still adding re-circulation muxes, in progress.  Packets seem fine except
+-- for the checksum
+--
 -- Revision 1.40  2004/08/19 18:22:42  jjacob
 -- merged 1.38 with 1.39.  Added re-circulation muxes to most state machines.
 -- Still have to do last couple state machines
@@ -287,20 +291,20 @@ signal cmd_tx_dat2          : std_logic_vector(31 downto 0);
 signal header_a_state       : std_logic;
 signal first_time_header_a  : std_logic;
 
-component first_time_tracker
-
-   port(
-   
-      clk_i                 : in std_logic;    -- Advances the state machines
-      rst_i                 : in std_logic;     -- Resets all FSMs
-
-      next_tracking_state_i : in std_logic;    -- '1' when you are in the state to track, '0' otherwise
-      
-      -- lvds_tx interface
-      first_time_o          : out std_logic  -- high by default, goes low after you have been in a state for more
-                                              -- than one clock cycle.  Once you leave that state, goes high again.
-   );
-end component;
+--component first_time_tracker
+--
+--   port(
+--   
+--      clk_i                 : in std_logic;    -- Advances the state machines
+--      rst_i                 : in std_logic;     -- Resets all FSMs
+--
+--      next_tracking_state_i : in std_logic;    -- '1' when you are in the state to track, '0' otherwise
+--      
+--      -- lvds_tx interface
+--      first_time_o          : out std_logic  -- high by default, goes low after you have been in a state for more
+--                                              -- than one clock cycle.  Once you leave that state, goes high again.
+--   );
+--end component;
 
 
 begin
@@ -1297,11 +1301,11 @@ begin
             uop_data_size            <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            if first_time_header_a = '1' then
+            --if first_time_header_a = '1' then
                cmd_tx_dat_mux_sel    <= "001";  -- BB_PREAMBLE & qa_sig
-            else
-               cmd_tx_dat_mux_sel    <= "000";  -- recirculate [JJ] implement another 'first time' state machine
-            end if;  
+            --else
+            --   cmd_tx_dat_mux_sel    <= "000";  -- recirculate [JJ] implement another 'first time' state machine
+            --end if;  
             
             
             --cmd_tx_dat(31 downto 0)  <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
@@ -1438,19 +1442,19 @@ begin
    end process;
 
 
-   header_a_state <= '1' when next_send_state = HEADER_A else '0';
-   
-   i_first_time_tracker : first_time_tracker
-   port map(
-   
-      clk_i                 => clk_i,
-      rst_i                 => rst_i,
-
-      next_tracking_state_i => header_a_state,
-      
-      first_time_o          => first_time_header_a 
-                                             
-   );
+--   header_a_state <= '1' when next_send_state = HEADER_A else '0';
+--   
+--   i_first_time_tracker : first_time_tracker
+--   port map(
+--   
+--      clk_i                 => clk_i,
+--      rst_i                 => rst_i,
+--
+--      next_tracking_state_i => header_a_state,
+--      
+--      first_time_o          => first_time_header_a 
+--                                             
+--   );
    
 
 
