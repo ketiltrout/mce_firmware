@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.7  2004/12/24 01:07:54  mohsen
+-- need to slow down dac clock, so require 2 row times between sa_bias and offset write trigger.
+--
 -- Revision 1.6  2004/12/07 19:43:33  mohsen
 -- Anthony & Mohsen: Accomodate the sa_bias & offset DAC shared bus structure in the readout card hardware.
 --
@@ -193,102 +196,102 @@ architecture struct of flux_loop_ctrl is
 
 begin  -- struct
 
-  -----------------------------------------------------------------------------
-  -- Instantiate ADC Sample Coadd
-  -----------------------------------------------------------------------------
-  i_adc_sample_coadd : adc_sample_coadd
+--   -----------------------------------------------------------------------------
+--   -- Instantiate ADC Sample Coadd
+--   -----------------------------------------------------------------------------
+--   i_adc_sample_coadd : adc_sample_coadd
 
-    port map (
-    adc_dat_i                 => adc_dat_i,
-    adc_ovr_i                 => adc_ovr_i,
-    adc_rdy_i                 => adc_rdy_i,
-    adc_clk_o                 => adc_clk_o,
-    clk_50_i                  => clk_50_i,
-    rst_i                     => rst_i,
-    adc_coadd_en_i            => adc_coadd_en_i,
-    restart_frame_1row_prev_i => restart_frame_1row_prev_i,
-    restart_frame_aligned_i   => restart_frame_aligned_i,
-    row_switch_i              => row_switch_i,
-    initialize_window_i       => initialize_window_i,
-    coadded_addr_i            => coadded_addr_i,
-    coadded_dat_o             => coadded_dat_o,
-    raw_addr_i                => raw_addr_i,
-    raw_dat_o                 => raw_dat_o,
-    raw_req_i                 => raw_req_i,
-    raw_ack_o                 => raw_ack_o,
-    coadd_done_o              => coadd_done,
-    current_coadd_dat_o       => current_coadd_dat,
-    current_diff_dat_o        => current_diff_dat,
-    current_integral_dat_o    => current_integral_dat,
-    adc_offset_dat_i          => adc_offset_dat_i,
-    adc_offset_adr_o          => adc_offset_adr_o);
-
-
-
-  -----------------------------------------------------------------------------
-  -- Instantiate FSFB Calculation Block
-  -----------------------------------------------------------------------------
-  i_fsfb_calc : fsfb_calc
-
-    generic map (
-    start_val => 0)
-
-    port map (
-      rst_i                     => rst_i,
-      clk_50_i                  => clk_50_i,
-      coadd_done_i              => coadd_done,
-      current_coadd_dat_i       => current_coadd_dat,
-      current_diff_dat_i        => current_diff_dat,
-      current_integral_dat_i    => current_integral_dat,
-      restart_frame_aligned_i   => restart_frame_aligned_i,
-      restart_frame_1row_post_i => restart_frame_1row_post_i,
-      row_switch_i              => row_switch_i,
-      initialize_window_i       => initialize_window_i,
-      num_rows_sub1_i           => num_rows_sub1_i,
-      servo_mode_i              => servo_mode_i,
-      ramp_step_size_i          => ramp_step_size_i,
-      ramp_amp_i                => ramp_amp_i,
-      const_val_i               => const_val_i,
-      num_ramp_frame_cycles_i   => num_ramp_frame_cycles_i,
-      p_addr_o                  => p_addr_o,
-      p_dat_i                   => p_dat_i,
-      i_addr_o                  => i_addr_o,
-      i_dat_i                   => i_dat_i,
-      d_addr_o                  => d_addr_o,
-      d_dat_i                   => d_dat_i,
-      z_addr_o                  => z_addr_o,
-      z_dat_i                   => z_dat_i,
-      fsfb_ws_addr_i            => fsfb_addr_i,
-      fsfb_ws_dat_o             => fsfb_dat_o,
-      fsfb_fltr_dat_rdy_o       => fsfb_fltr_dat_rdy_o,
-      fsfb_fltr_dat_o           => fsfb_fltr_dat_o,
-      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat_rdy,
-      fsfb_ctrl_dat_o           => fsfb_ctrl_dat,
-      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en);
-
-  -- bring out the internal outputs
-  fsfb_ctrl_dat_rdy_o <= fsfb_ctrl_dat_rdy;
-  fsfb_ctrl_dat_o     <= fsfb_ctrl_dat;
+--     port map (
+--     adc_dat_i                 => adc_dat_i,
+--     adc_ovr_i                 => adc_ovr_i,
+--     adc_rdy_i                 => adc_rdy_i,
+--     adc_clk_o                 => adc_clk_o,
+--     clk_50_i                  => clk_50_i,
+--     rst_i                     => rst_i,
+--     adc_coadd_en_i            => adc_coadd_en_i,
+--     restart_frame_1row_prev_i => restart_frame_1row_prev_i,
+--     restart_frame_aligned_i   => restart_frame_aligned_i,
+--     row_switch_i              => row_switch_i,
+--     initialize_window_i       => initialize_window_i,
+--     coadded_addr_i            => coadded_addr_i,
+--     coadded_dat_o             => coadded_dat_o,
+--     raw_addr_i                => raw_addr_i,
+--     raw_dat_o                 => raw_dat_o,
+--     raw_req_i                 => raw_req_i,
+--     raw_ack_o                 => raw_ack_o,
+--     coadd_done_o              => coadd_done,
+--     current_coadd_dat_o       => current_coadd_dat,
+--     current_diff_dat_o        => current_diff_dat,
+--     current_integral_dat_o    => current_integral_dat,
+--     adc_offset_dat_i          => adc_offset_dat_i,
+--     adc_offset_adr_o          => adc_offset_adr_o);
 
 
-  -----------------------------------------------------------------------------
-  -- Instantiation of fsfb_ctrl
-  -----------------------------------------------------------------------------
-  i_fsfb_ctrl: fsfb_ctrl
+
+--   -----------------------------------------------------------------------------
+--   -- Instantiate FSFB Calculation Block
+--   -----------------------------------------------------------------------------
+--   i_fsfb_calc : fsfb_calc
+
+--     generic map (
+--     start_val => 0)
+
+--     port map (
+--       rst_i                     => rst_i,
+--       clk_50_i                  => clk_50_i,
+--       coadd_done_i              => coadd_done,
+--       current_coadd_dat_i       => current_coadd_dat,
+--       current_diff_dat_i        => current_diff_dat,
+--       current_integral_dat_i    => current_integral_dat,
+--       restart_frame_aligned_i   => restart_frame_aligned_i,
+--       restart_frame_1row_post_i => restart_frame_1row_post_i,
+--       row_switch_i              => row_switch_i,
+--       initialize_window_i       => initialize_window_i,
+--       num_rows_sub1_i           => num_rows_sub1_i,
+--       servo_mode_i              => servo_mode_i,
+--       ramp_step_size_i          => ramp_step_size_i,
+--       ramp_amp_i                => ramp_amp_i,
+--       const_val_i               => const_val_i,
+--       num_ramp_frame_cycles_i   => num_ramp_frame_cycles_i,
+--       p_addr_o                  => p_addr_o,
+--       p_dat_i                   => p_dat_i,
+--       i_addr_o                  => i_addr_o,
+--       i_dat_i                   => i_dat_i,
+--       d_addr_o                  => d_addr_o,
+--       d_dat_i                   => d_dat_i,
+--       z_addr_o                  => z_addr_o,
+--       z_dat_i                   => z_dat_i,
+--       fsfb_ws_addr_i            => fsfb_addr_i,
+--       fsfb_ws_dat_o             => fsfb_dat_o,
+--       fsfb_fltr_dat_rdy_o       => fsfb_fltr_dat_rdy_o,
+--       fsfb_fltr_dat_o           => fsfb_fltr_dat_o,
+--       fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat_rdy,
+--       fsfb_ctrl_dat_o           => fsfb_ctrl_dat,
+--       fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en);
+
+--   -- bring out the internal outputs
+--   fsfb_ctrl_dat_rdy_o <= fsfb_ctrl_dat_rdy;
+--   fsfb_ctrl_dat_o     <= fsfb_ctrl_dat;
+
+
+--   -----------------------------------------------------------------------------
+--   -- Instantiation of fsfb_ctrl
+--   -----------------------------------------------------------------------------
+--   i_fsfb_ctrl: fsfb_ctrl
     
-    generic map (
-        CONVERSION_POLARITY_MODE => 0,
-        FSFB_ACCURACY_POSITION   => 13)
+--     generic map (
+--         CONVERSION_POLARITY_MODE => 0,
+--         FSFB_ACCURACY_POSITION   => 13)
     
-    port map (
-        clk_50_i            => clk_50_i,
-        rst_i               => rst_i,
-        dac_dat_en_i        => dac_dat_en_i,
-        fsfb_ctrl_dat_i     => fsfb_ctrl_dat,
-        fsfb_ctrl_dat_rdy_i => fsfb_ctrl_dat_rdy,
-        fsfb_ctrl_lock_en_i => fsfb_ctrl_lock_en,
-        dac_dat_o           => dac_dat_o,
-        dac_clk_o           => dac_clk_o);
+--     port map (
+--         clk_50_i            => clk_50_i,
+--         rst_i               => rst_i,
+--         dac_dat_en_i        => dac_dat_en_i,
+--         fsfb_ctrl_dat_i     => fsfb_ctrl_dat,
+--         fsfb_ctrl_dat_rdy_i => fsfb_ctrl_dat_rdy,
+--         fsfb_ctrl_lock_en_i => fsfb_ctrl_lock_en,
+--         dac_dat_o           => dac_dat_o,
+--         dac_clk_o           => dac_clk_o);
 
 
   -----------------------------------------------------------------------------
