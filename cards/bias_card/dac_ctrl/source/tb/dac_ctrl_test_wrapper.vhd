@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.1 2004/04/21 16:52:51 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/04/21 16:52:51 $>	- <initials $Author: mandana $>
+-- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/21 16:52:51  mandana
+-- Initial release
+--
 --
 -----------------------------------------------------------------------------
 
@@ -99,14 +102,17 @@ architecture rtl of dac_ctrl_test_wrapper is
    signal idx      : integer;
    type   w_array4 is array (4 downto 0) of word32; 
    signal data     : w_array4;
+   signal val_clk  : std_logic;
+   signal dac_count_clk: std_logic;
+   signal idac_rst : std_logic;
    
 begin
 
 -- instantiate a counter for idac to go through all 32 DACs
    dac_count: counter
-   generic map(MAX => 15)
-   port map(clk_i   => clk_i,
-            rst_i   => rst_i,
+   generic map(MAX => 16)
+   port map(clk_i   => dac_count_clk,
+            rst_i   => idac_rst,
             ena_i   => '1',
             load_i  => '0',
             down_i  => '0',
@@ -116,7 +122,7 @@ begin
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
    generic map(MAX => 4)
-   port map(clk_i   => clk_i,
+   port map(clk_i   => val_clk,
             rst_i   => rst_i,
             ena_i   => '1',
             load_i  => '0',
@@ -151,7 +157,7 @@ begin
                sync_i       => sync_i);
                                
    data (0) <= "00000000000000000000000000000000";--00000000
-   data (1) <= "01010101010101010101010100000101";--55555555
+   data (1) <= "01010101010101010101010100000101";--55555055
    data (2) <= "11110000001100110100000000000101";--f0334005
    data (3) <= "11101110111011101110111011101110";--eeeeeeee
    data (4) <= "11111111111111111111111111111111";--ffffffff
@@ -184,10 +190,10 @@ begin
             end if;
                        
          when DAC32_NXT =>  
-            if (idac = 15) then
-	       next_state <= DAC32;
-            else
-               next_state <= LVDS_DAC;
+            if (idac = 16) then 
+              next_state <= LVDS_DAC;
+            else  
+               next_state <= DAC32;
             end if;
             
          when LVDS_DAC =>     
@@ -210,6 +216,7 @@ begin
    begin
       case present_state is
          when IDLE =>     
+            idac_rst  <= '1';
             addr_o    <= (others => '0');
 	    tga_o     <= (others => '0');
 	    dat_o     <= (others => '0');
@@ -222,36 +229,40 @@ begin
 	    done_o    <= '0';
          
          when DAC32 =>    
+            idac_rst  <= '0';
             addr_o    <= FLUX_FB_ADDR;
 	    tga_o     <= (others => '0');
 	    dat_o     <= data(idx);
-	    we_o      <= '1';
-	    stb_o     <= '1';
-	    cyc_o     <= '1';                          
+            we_o      <= '1';
+  	    stb_o     <= '1';
+	    cyc_o     <= '1';                           
 	    tx_data_o <= (others => '0');
 	    tx_we_o   <= '0';
 	    tx_stb_o  <= '0';
 	    done_o    <= '0';
                           
          when DAC32_NXT =>    
-            addr_o    <= (others => '0');
+            idac_rst  <= '0';
 	    tga_o     <= (others => '0');
 	    dat_o     <= (others => '0');
-	    if (idac = 15) then
-	       we_o      <= '1';
-	       stb_o     <= '0';
-	       cyc_o     <= '1';       
-	    else
+	    if (idac = 16) then
+               addr_o    <= (others => '0');
 	       we_o      <= '0';
 	       stb_o     <= '0';
-	       cyc_o     <= '0';      	       
-	    end if;
+	       cyc_o     <= '0';       
+	    else	    
+               addr_o    <= FLUX_FB_ADDR;
+	       we_o      <= '1';
+	       stb_o     <= '0';
+	       cyc_o     <= '1';      	       
+	    end if;   
 	    tx_data_o <= (others => '0');
 	    tx_we_o   <= '0';
 	    tx_stb_o  <= '0';
 	    done_o    <= '0';
                                                     
          when LVDS_DAC =>
+            idac_rst  <= '1';
             addr_o    <= BIAS_ADDR;
 	    tga_o     <= (others => '0');
 	    dat_o     <= data(idx);
@@ -264,6 +275,7 @@ begin
 	    done_o    <= '0';
          
          when LVDS_DONE =>
+            idac_rst  <= '1';
             addr_o    <= BIAS_ADDR;
 	    tga_o     <= (others => '0');
 	    dat_o     <= data(idx);
@@ -276,6 +288,7 @@ begin
 	    done_o    <= '0';
                   
          when DONE =>     
+            idac_rst  <= '1';
             addr_o    <= (others => '0');
 	    tga_o     <= (others => '0');
 	    dat_o     <= (others => '0');
@@ -289,4 +302,6 @@ begin
                           
       end case;
    end process state_out;
+   val_clk <= '1' when idac = 16 and addr_o = x"20" else '0';
+   dac_count_clk <= '1' when ack_i = '1' else '0';
  end;
