@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.7 2004/04/02 19:41:27 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.1 2004/04/14 21:54:38 jjacob Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -42,8 +42,11 @@
 -- Feb. 3  2004  - Added 1-wire modules - EL
 
 -- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date: 2004/04/02 19:41:27 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/14 21:54:38 $>	-		<text>		- <initials $Author: jjacob $>
 -- $Log: component_pack.vhd,v $
+-- Revision 1.1  2004/04/14 21:54:38  jjacob
+-- new directory structure
+--
 -- Revision 1.7  2004/04/02 19:41:27  erniel
 -- modified component reg declaration to match entity
 --
@@ -301,6 +304,23 @@ package component_pack is
       --outputs
       spi_clk_o        : out std_logic;
       done_o           : out std_logic;
+      serial_wr_data_o : out std_logic);
+     
+   end component;
+
+   component write_spi_with_cs
+   generic(DATA_LENGTH : integer := 8);
+
+   port(--inputs
+      spi_clk_i        : in std_logic;
+      rst_i            : in std_logic;
+      start_i          : in std_logic;
+      parallel_data_i  : in std_logic_vector(DATA_LENGTH-1 downto 0);
+     
+      --outputs
+      spi_clk_o        : out std_logic;
+      done_o           : out std_logic;
+      spi_ncs_o            : out std_logic;
       serial_wr_data_o : out std_logic);
      
    end component;
