@@ -17,12 +17,12 @@
  -- partner, remains with Altera, the megafunction partner, or their respective
  -- licensors. No other licenses, including any licenses needed under any third
  -- party's intellectual property, are provided herein.
- --------------------------------------------------------------------------------
+ ---------------------------------------------------------------------------------
 
 
 
- --------------------------------------------------------------------------------
- -- N.C.          : No Connect. This pin has no internal connection to the device.
+ ---------------------------------------------------------------------------------
+ -- NC            : No Connect. This pin has no internal connection to the device.
  -- VCCINT        : Dedicated power pin, which MUST be connected to VCC  (1.5V).
  -- VCCIO         : Dedicated power pin, which MUST be connected to VCC
  --                 of its bank.
@@ -44,9 +44,9 @@
  --           	    toggling)  if that signal is required for a different revision
  --           	    of the design.
  -- RESERVED_INPUT    : Pin is tri-stated and should be connected to the board.
-----------------------------------------------------------------------------------
+ ---------------------------------------------------------------------------------
 
-Quartus II Version 2.2 Build 176 02/04/2003 Service Pack 1 SJ Full Version
+Quartus II Version 3.0 Build 199 06/26/2003 SJ Full Version
 CHIP  "cc_test"  ASSIGNED TO AN: EP1S30F780C6
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -56,20 +56,20 @@ RESERVED_INPUT               : A3        :        :                   :         
 RESERVED_INPUT               : A4        :        :                   :         : 4         :                
 RESERVED_INPUT               : A5        :        :                   :         : 4         :                
 RESERVED_INPUT               : A6        :        :                   :         : 4         :                
-RESERVED_INPUT               : A7        :        :                   :         : 4         :                
-RESERVED_INPUT               : A8        :        :                   :         : 4         :                
-RESERVED_INPUT               : A9        :        :                   :         : 4         :                
-RESERVED_INPUT               : A10       :        :                   :         : 4         :                
-RESERVED_INPUT               : A11       :        :                   :         : 4         :                
+sram1_data[7]                : A7        : bidir  : LVTTL             :         : 4         : N              
+sram1_addr[2]                : A8        : output : LVTTL             :         : 4         : N              
+sram1_nce1                   : A9        : output : LVTTL             :         : 4         : N              
+sram1_addr[8]                : A10       : output : LVTTL             :         : 4         : N              
+sram1_addr[13]               : A11       : output : LVTTL             :         : 4         : N              
 VCCIO4                       : A12       : power  :                   : 3.3V    : 4         :                
 RESERVED_INPUT               : A13       :        :                   :         : 4         :                
 GND                          : A14       : gnd    :                   :         : 1         :                
 GND                          : A15       : gnd    :                   :         : 1         :                
-RESERVED_INPUT               : A16       :        :                   :         : 3         :                
+sram0_addr[13]               : A16       : output : LVTTL             :         : 3         : N              
 VCCIO3                       : A17       : power  :                   : 3.3V    : 3         :                
-RESERVED_INPUT               : A18       :        :                   :         : 3         :                
-RESERVED_INPUT               : A19       :        :                   :         : 3         :                
-RESERVED_INPUT               : A20       :        :                   :         : 3         :                
+sram0_data[8]                : A18       : bidir  : LVTTL             :         : 3         : N              
+sram0_data[11]               : A19       : bidir  : LVTTL             :         : 3         : N              
+sram0_data[15]               : A20       : bidir  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : A21       :        :                   :         : 3         :                
 RESERVED_INPUT               : A22       :        :                   :         : 3         :                
 RESERVED_INPUT               : A23       :        :                   :         : 3         :                
@@ -108,7 +108,7 @@ RESERVED_INPUT               : AA28      :        :                   :         
 RESERVED_INPUT               : AB1       :        :                   :         : 6         :                
 RESERVED_INPUT               : AB2       :        :                   :         : 6         :                
 RESERVED_INPUT               : AB3       :        :                   :         : 6         :                
-RESERVED_INPUT               : AB4       :        :                   :         : 6         :                
+slot_id[2]                   : AB4       : input  : LVTTL             :         : 6         : N              
 RESERVED_INPUT               : AB5       :        :                   :         : 6         :                
 RESERVED_INPUT               : AB6       :        :                   :         : 6         :                
 RESERVED_INPUT               : AB7       :        :                   :         : 7         :                
@@ -143,7 +143,7 @@ RESERVED_INPUT               : AC7       :        :                   :         
 RESERVED_INPUT               : AC8       :        :                   :         : 7         :                
 reset_n                      : AC9       : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AC10      :        :                   :         : 7         :                
-RESERVED_INPUT               : AC11      :        :                   :         : 7         :                
+wdt                          : AC11      : output : LVTTL             :         : 7         : N              
 PORSEL                       : AC12      :        :                   :         : 7         :                
 nCEO                         : AC13      :        :                   :         : 7         :                
 VCC_PLL6_OUTA                : AC14      : power  :                   : 3.3V    : 11        :                
@@ -173,12 +173,12 @@ GND                          : AD9       :        :                   :         
 RESERVED_INPUT               : AD10      :        :                   :         : 7         :                
 GND                          : AD11      :        :                   :         : 7         :                
 RESERVED_INPUT               : AD12      :        :                   :         : 7         :                
-RESERVED_INPUT               : AD13      :        :                   :         : 7         :                
+slot_id[1]                   : AD13      : input  : LVTTL             :         : 7         : N              
 GND+                         : AD14      :        :                   :         : 7         :                
 RESERVED_INPUT               : AD15      :        :                   :         : 11        :                
 RESERVED_INPUT               : AD16      :        :                   :         : 8         :                
 RESERVED_INPUT               : AD17      :        :                   :         : 8         :                
-RESERVED_INPUT               : AD18      :        :                   :         : 8         :                
+sram0_noe                    : AD18      : output : LVTTL             :         : 8         : N              
 RESERVED_INPUT               : AD19      :        :                   :         : 8         :                
 GND                          : AD20      :        :                   :         : 8         :                
 RESERVED_INPUT               : AD21      :        :                   :         : 8         :                
@@ -250,7 +250,7 @@ GND                          : AG2       : gnd    :                   :         
 RESERVED_INPUT               : AG3       :        :                   :         : 7         :                
 RESERVED_INPUT               : AG4       :        :                   :         : 7         :                
 RESERVED_INPUT               : AG5       :        :                   :         : 7         :                
-RESERVED_INPUT               : AG6       :        :                   :         : 7         :                
+sram1_noe                    : AG6       : output : LVTTL             :         : 7         : N              
 RESERVED_INPUT               : AG7       :        :                   :         : 7         :                
 RESERVED_INPUT               : AG8       :        :                   :         : 7         :                
 RESERVED_INPUT               : AG9       :        :                   :         : 7         :                
@@ -304,21 +304,21 @@ GND                          : B2        : gnd    :                   :         
 RESERVED_INPUT               : B3        :        :                   :         : 4         :                
 RESERVED_INPUT               : B4        :        :                   :         : 4         :                
 RESERVED_INPUT               : B5        :        :                   :         : 4         :                
-RESERVED_INPUT               : B6        :        :                   :         : 4         :                
-RESERVED_INPUT               : B7        :        :                   :         : 4         :                
+sram1_data[1]                : B6        : bidir  : LVTTL             :         : 4         : N              
+sram1_data[10]               : B7        : bidir  : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : B8        :        :                   :         : 4         :                
-RESERVED_INPUT               : B9        :        :                   :         : 4         :                
-RESERVED_INPUT               : B10       :        :                   :         : 4         :                
-RESERVED_INPUT               : B11       :        :                   :         : 4         :                
-RESERVED_INPUT               : B12       :        :                   :         : 4         :                
+sram1_data[4]                : B9        : bidir  : LVTTL             :         : 4         : N              
+sram1_addr[9]                : B10       : output : LVTTL             :         : 4         : N              
+sram1_addr[12]               : B11       : output : LVTTL             :         : 4         : N              
+sram1_addr[17]               : B12       : output : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : B13       :        :                   :         : 4         :                
 DIODEH                       : B14       :        :                   :         : 1         :                
-RESERVED_INPUT               : B15       :        :                   :         : 10        :                
-RESERVED_INPUT               : B16       :        :                   :         : 3         :                
-RESERVED_INPUT               : B17       :        :                   :         : 3         :                
-RESERVED_INPUT               : B18       :        :                   :         : 3         :                
-RESERVED_INPUT               : B19       :        :                   :         : 3         :                
-RESERVED_INPUT               : B20       :        :                   :         : 3         :                
+sram1_nble                   : B15       : output : LVTTL             :         : 10        : N              
+sram0_addr[4]                : B16       : output : LVTTL             :         : 3         : N              
+sram0_addr[9]                : B17       : output : LVTTL             :         : 3         : N              
+sram0_ce2                    : B18       : output : LVTTL             :         : 3         : N              
+sram0_data[5]                : B19       : bidir  : LVTTL             :         : 3         : N              
+sram0_data[0]                : B20       : bidir  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : B21       :        :                   :         : 3         :                
 RESERVED_INPUT               : B22       :        :                   :         : 3         :                
 RESERVED_INPUT               : B23       :        :                   :         : 3         :                
@@ -328,25 +328,25 @@ RESERVED_INPUT               : B26       :        :                   :         
 GND                          : B27       : gnd    :                   :         : 1         :                
 VCCIO2                       : B28       : power  :                   : 3.3V    : 2         :                
 RESERVED_INPUT               : C1        :        :                   :         : 5         :                
-RESERVED_INPUT               : C2        :        :                   :         : 5         :                
+sram1_nbhe                   : C2        : output : LVTTL             :         : 5         : N              
 GND                          : C3        : gnd    :                   :         : 1         :                
 RESERVED_INPUT               : C4        :        :                   :         : 4         :                
 RESERVED_INPUT               : C5        :        :                   :         : 4         :                
-RESERVED_INPUT               : C6        :        :                   :         : 4         :                
-RESERVED_INPUT               : C7        :        :                   :         : 4         :                
+sram1_data[15]               : C6        : bidir  : LVTTL             :         : 4         : N              
+sram1_data[11]               : C7        : bidir  : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : C8        :        :                   :         : 4         :                
 RESERVED_INPUT               : C9        :        :                   :         : 4         :                
-RESERVED_INPUT               : C10       :        :                   :         : 4         :                
-RESERVED_INPUT               : C11       :        :                   :         : 4         :                
-RESERVED_INPUT               : C12       :        :                   :         : 4         :                
+sram1_addr[10]               : C10       : output : LVTTL             :         : 4         : N              
+sram1_addr[16]               : C11       : output : LVTTL             :         : 4         : N              
+sram1_addr[18]               : C12       : output : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : C13       :        :                   :         : 4         :                
 DIODEL                       : C14       :        :                   :         : 1         :                
-RESERVED_INPUT               : C15       :        :                   :         : 10        :                
-RESERVED_INPUT               : C16       :        :                   :         : 3         :                
-RESERVED_INPUT               : C17       :        :                   :         : 3         :                
-RESERVED_INPUT               : C18       :        :                   :         : 3         :                
-RESERVED_INPUT               : C19       :        :                   :         : 3         :                
-RESERVED_INPUT               : C20       :        :                   :         : 3         :                
+sram0_addr[16]               : C15       : output : LVTTL             :         : 10        : N              
+sram0_addr[12]               : C16       : output : LVTTL             :         : 3         : N              
+sram0_addr[7]                : C17       : output : LVTTL             :         : 3         : N              
+sram0_data[10]               : C18       : bidir  : LVTTL             :         : 3         : N              
+sram0_data[2]                : C19       : bidir  : LVTTL             :         : 3         : N              
+sram0_data[14]               : C20       : bidir  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : C21       :        :                   :         : 3         :                
 RESERVED_INPUT               : C22       :        :                   :         : 3         :                
 RESERVED_INPUT               : C23       :        :                   :         : 3         :                
@@ -361,20 +361,20 @@ NC                           : D3        :        :                   :         
 NC                           : D4        :        :                   :         : 1         :                
 RESERVED_INPUT               : D5        :        :                   :         : 4         :                
 RESERVED_INPUT               : D6        :        :                   :         : 4         :                
-RESERVED_INPUT               : D7        :        :                   :         : 4         :                
-RESERVED_INPUT               : D8        :        :                   :         : 4         :                
-RESERVED_INPUT               : D9        :        :                   :         : 4         :                
-RESERVED_INPUT               : D10       :        :                   :         : 4         :                
-RESERVED_INPUT               : D11       :        :                   :         : 4         :                
-RESERVED_INPUT               : D12       :        :                   :         : 4         :                
+sram1_data[14]               : D7        : bidir  : LVTTL             :         : 4         : N              
+sram1_data[9]                : D8        : bidir  : LVTTL             :         : 4         : N              
+sram1_data[13]               : D9        : bidir  : LVTTL             :         : 4         : N              
+sram1_addr[7]                : D10       : output : LVTTL             :         : 4         : N              
+sram1_addr[1]                : D11       : output : LVTTL             :         : 4         : N              
+sram1_addr[14]               : D12       : output : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : D13       :        :                   :         : 4         :                
 VCCG_PLL5                    : D14       : power  :                   : 1.5V    : 1         :                
 RESERVED_INPUT               : D15       :        :                   :         : 9         :                
-RESERVED_INPUT               : D16       :        :                   :         : 3         :                
-RESERVED_INPUT               : D17       :        :                   :         : 3         :                
-RESERVED_INPUT               : D18       :        :                   :         : 3         :                
+sram0_addr[3]                : D16       : output : LVTTL             :         : 3         : N              
+sram0_addr[2]                : D17       : output : LVTTL             :         : 3         : N              
+sram0_nce1                   : D18       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : D19       :        :                   :         : 3         :                
-RESERVED_INPUT               : D20       :        :                   :         : 3         :                
+sram0_data[4]                : D20       : bidir  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : D21       :        :                   :         : 3         :                
 RESERVED_INPUT               : D22       :        :                   :         : 3         :                
 RESERVED_INPUT               : D23       :        :                   :         : 3         :                
@@ -390,18 +390,18 @@ NC                           : E4        :        :                   :         
 GND                          : E5        :        :                   :         : 5         :                
 RESERVED_INPUT               : E6        :        :                   :         : 4         :                
 GND                          : E7        :        :                   :         : 4         :                
-RESERVED_INPUT               : E8        :        :                   :         : 4         :                
+sram1_data[6]                : E8        : bidir  : LVTTL             :         : 4         : N              
 GND                          : E9        :        :                   :         : 4         :                
-RESERVED_INPUT               : E10       :        :                   :         : 4         :                
+sram1_addr[6]                : E10       : output : LVTTL             :         : 4         : N              
 GND                          : E11       :        :                   :         : 4         :                
 RESERVED_INPUT               : E12       :        :                   :         : 4         :                
 RESERVED_INPUT               : E13       :        :                   :         : 4         :                
 GNDG_PLL5                    : E14       : gnd    :                   :         : 1         :                
 RESERVED_INPUT               : E15       :        :                   :         : 9         :                
-RESERVED_INPUT               : E16       :        :                   :         : 3         :                
-RESERVED_INPUT               : E17       :        :                   :         : 3         :                
+sram0_addr[0]                : E16       : output : LVTTL             :         : 3         : N              
+sram0_addr[8]                : E17       : output : LVTTL             :         : 3         : N              
 GND                          : E18       :        :                   :         : 3         :                
-RESERVED_INPUT               : E19       :        :                   :         : 3         :                
+sram0_data[9]                : E19       : bidir  : LVTTL             :         : 3         : N              
 GND                          : E20       :        :                   :         : 3         :                
 RESERVED_INPUT               : E21       :        :                   :         : 3         :                
 GND                          : E22       :        :                   :         : 3         :                
@@ -418,18 +418,18 @@ RESERVED_INPUT               : F4        :        :                   :         
 RESERVED_INPUT               : F5        :        :                   :         : 5         :                
 RESERVED_INPUT               : F6        :        :                   :         : 5         :                
 RESERVED_INPUT               : F7        :        :                   :         : 4         :                
-RESERVED_INPUT               : F8        :        :                   :         : 4         :                
-RESERVED_INPUT               : F9        :        :                   :         : 4         :                
-RESERVED_INPUT               : F10       :        :                   :         : 4         :                
-RESERVED_INPUT               : F11       :        :                   :         : 4         :                
+sram1_data[2]                : F8        : bidir  : LVTTL             :         : 4         : N              
+sram1_data[3]                : F9        : bidir  : LVTTL             :         : 4         : N              
+sram1_addr[0]                : F10       : output : LVTTL             :         : 4         : N              
+sram1_addr[4]                : F11       : output : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
 TMS                          : F13       : input  :                   :         : 4         :                
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    : 1         :                
 VCC_PLL5_OUTA                : F15       : power  :                   : 3.3V    : 9         :                
 DCLK                         : F16       :        :                   :         : 3         :                
-RESERVED_INPUT               : F17       :        :                   :         : 3         :                
-RESERVED_INPUT               : F18       :        :                   :         : 3         :                
-RESERVED_INPUT               : F19       :        :                   :         : 3         :                
+sram0_nwe                    : F17       : output : LVTTL             :         : 3         : N              
+sram0_addr[6]                : F18       : output : LVTTL             :         : 3         : N              
+sram0_data[12]               : F19       : bidir  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : F20       :        :                   :         : 3         :                
 RESERVED_INPUT               : F21       :        :                   :         : 3         :                
 RESERVED_INPUT               : F22       :        :                   :         : 3         :                
@@ -447,17 +447,17 @@ RESERVED_INPUT               : G5        :        :                   :         
 RESERVED_INPUT               : G6        :        :                   :         : 5         :                
 RESERVED_INPUT               : G7        :        :                   :         : 4         :                
 RESERVED_INPUT               : G8        :        :                   :         : 4         :                
-RESERVED_INPUT               : G9        :        :                   :         : 4         :                
-RESERVED_INPUT               : G10       :        :                   :         : 4         :                
-RESERVED_INPUT               : G11       :        :                   :         : 4         :                
+sram1_data[8]                : G9        : bidir  : LVTTL             :         : 4         : N              
+sram1_addr[3]                : G10       : output : LVTTL             :         : 4         : N              
+sram1_nwe                    : G11       : output : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : G12       :        :                   :         : 4         :                
 TDI                          : G13       : input  :                   :         : 4         :                
 GNDA_PLL5                    : G14       : gnd    :                   :         : 1         :                
 GND                          : G15       : gnd    :                   :         : 1         :                
 VCC_PLL5_OUTB                : G16       : power  :                   : 3.3V    : 10        :                
 CONF_DONE                    : G17       :        :                   :         : 3         :                
-RESERVED_INPUT               : G18       :        :                   :         : 3         :                
-RESERVED_INPUT               : G19       :        :                   :         : 3         :                
+sram0_data[3]                : G18       : bidir  : LVTTL             :         : 3         : N              
+sram0_data[6]                : G19       : bidir  : LVTTL             :         : 3         : N              
 GND                          : G20       :        :                   :         : 1         :                
 RESERVED_INPUT               : G21       :        :                   :         : 3         :                
 RESERVED_INPUT               : G22       :        :                   :         : 3         :                
@@ -475,17 +475,17 @@ RESERVED_INPUT               : H5        :        :                   :         
 RESERVED_INPUT               : H6        :        :                   :         : 5         :                
 RESERVED_INPUT               : H7        :        :                   :         : 5         :                
 RESERVED_INPUT               : H8        :        :                   :         : 5         :                
-RESERVED_INPUT               : H9        :        :                   :         : 4         :                
-RESERVED_INPUT               : H10       :        :                   :         : 4         :                
-RESERVED_INPUT               : H11       :        :                   :         : 4         :                
-~DATA0~                      : H12       : input  : LVTTL             :         : 4         :                
+sram1_data[0]                : H9        : bidir  : LVTTL             :         : 4         : N              
+sram1_data[12]               : H10       : bidir  : LVTTL             :         : 4         : N              
+sram1_addr[15]               : H11       : output : LVTTL             :         : 4         : N              
+~DATA0~                      : H12       : input  : LVTTL             :         : 4         : N              
 TDO                          : H13       : output :                   :         : 4         :                
 RESERVED_INPUT               : H14       :        :                   :         : 9         :                
 RESERVED_INPUT               : H15       :        :                   :         : 9         :                
 GND                          : H16       : gnd    :                   :         : 1         :                
-RESERVED_INPUT               : H17       :        :                   :         : 3         :                
-RESERVED_INPUT               : H18       :        :                   :         : 3         :                
-RESERVED_INPUT               : H19       :        :                   :         : 3         :                
+sram0_addr[14]               : H17       : output : LVTTL             :         : 3         : N              
+sram0_addr[5]                : H18       : output : LVTTL             :         : 3         : N              
+sram0_data[13]               : H19       : bidir  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : H20       :        :                   :         : 3         :                
 RESERVED_INPUT               : H21       :        :                   :         : 2         :                
 RESERVED_INPUT               : H22       :        :                   :         : 2         :                
@@ -503,18 +503,18 @@ RESERVED_INPUT               : J5        :        :                   :         
 RESERVED_INPUT               : J6        :        :                   :         : 5         :                
 RESERVED_INPUT               : J7        :        :                   :         : 5         :                
 RESERVED_INPUT               : J8        :        :                   :         : 5         :                
-RESERVED_INPUT               : J9        :        :                   :         : 4         :                
-RESERVED_INPUT               : J10       :        :                   :         : 4         :                
-RESERVED_INPUT               : J11       :        :                   :         : 4         :                
+sram1_data[5]                : J9        : bidir  : LVTTL             :         : 4         : N              
+sram1_ce2                    : J10       : output : LVTTL             :         : 4         : N              
+sram1_addr[11]               : J11       : output : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : J12       :        :                   :         : 4         :                
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
 VCCIO4                       : J14       : power  :                   : 3.3V    : 4         :                
 VCCIO3                       : J15       : power  :                   : 3.3V    : 3         :                
-RESERVED_INPUT               : J16       :        :                   :         : 10        :                
+sram0_addr[18]               : J16       : output : LVTTL             :         : 10        : N              
 clk                          : J17       : input  : LVTTL             :         : 3         : Y              
-RESERVED_INPUT               : J18       :        :                   :         : 3         :                
-RESERVED_INPUT               : J19       :        :                   :         : 3         :                
-RESERVED_INPUT               : J20       :        :                   :         : 3         :                
+sram0_addr[10]               : J18       : output : LVTTL             :         : 3         : N              
+sram0_data[1]                : J19       : bidir  : LVTTL             :         : 3         : N              
+sram0_data[7]                : J20       : bidir  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : J21       :        :                   :         : 2         :                
 RESERVED_INPUT               : J22       :        :                   :         : 2         :                
 RESERVED_INPUT               : J23       :        :                   :         : 2         :                
@@ -532,16 +532,16 @@ RESERVED_INPUT               : K6        :        :                   :         
 RESERVED_INPUT               : K7        :        :                   :         : 5         :                
 RESERVED_INPUT               : K8        :        :                   :         : 5         :                
 GND                          : K9        :        :                   :         : 5         :                
-RESERVED_INPUT               : K10       :        :                   :         : 4         :                
-RESERVED_INPUT               : K11       :        :                   :         : 4         :                
+sram1_addr[5]                : K10       : output : LVTTL             :         : 4         : N              
+sram1_addr[19]               : K11       : output : LVTTL             :         : 4         : N              
 TCK                          : K12       : input  :                   :         : 4         :                
 GND+                         : K13       :        :                   :         : 4         :                
 RESERVED_INPUT               : K14       :        :                   :         : 9         :                
 RESERVED_INPUT               : K15       :        :                   :         : 9         :                
 RESERVED_INPUT               : K16       :        :                   :         : 10        :                
 GND+                         : K17       :        :                   :         : 3         :                
-RESERVED_INPUT               : K18       :        :                   :         : 3         :                
-RESERVED_INPUT               : K19       :        :                   :         : 3         :                
+sram0_addr[1]                : K18       : output : LVTTL             :         : 3         : N              
+sram0_addr[11]               : K19       : output : LVTTL             :         : 3         : N              
 GND                          : K20       :        :                   :         : 2         :                
 RESERVED_INPUT               : K21       :        :                   :         : 2         :                
 RESERVED_INPUT               : K22       :        :                   :         : 2         :                
@@ -567,8 +567,8 @@ RESERVED_INPUT               : L13       :        :                   :         
 GND                          : L14       : gnd    :                   :         : 1         :                
 GND                          : L15       : gnd    :                   :         : 1         :                
 nCONFIG                      : L16       :        :                   :         : 3         :                
-RESERVED_INPUT               : L17       :        :                   :         : 3         :                
-RESERVED_INPUT               : L18       :        :                   :         : 3         :                
+sram0_addr[15]               : L17       : output : LVTTL             :         : 3         : N              
+sram0_addr[19]               : L18       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : L19       :        :                   :         : 2         :                
 RESERVED_INPUT               : L20       :        :                   :         : 2         :                
 RESERVED_INPUT               : L21       :        :                   :         : 2         :                
@@ -592,11 +592,11 @@ RESERVED_INPUT               : M10       :        :                   :         
 RESERVED_INPUT               : M11       :        :                   :         : 4         :                
 RESERVED_INPUT               : M12       :        :                   :         : 4         :                
 GND+                         : M13       :        :                   :         : 4         :                
-VCCINT                       : M14       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : M14       : power  :                   : 1.5V    :           :                
 GND                          : M15       : gnd    :                   :         : 1         :                
 nSTATUS                      : M16       :        :                   :         : 3         :                
 GND+                         : M17       :        :                   :         : 3         :                
-RESERVED_INPUT               : M18       :        :                   :         : 3         :                
+sram0_addr[17]               : M18       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : M19       :        :                   :         : 2         :                
 RESERVED_INPUT               : M20       :        :                   :         : 2         :                
 RESERVED_INPUT               : M21       :        :                   :         : 2         :                
@@ -607,7 +607,7 @@ RESERVED_INPUT               : M25       :        :                   :         
 RESERVED_INPUT               : M26       :        :                   :         : 2         :                
 RESERVED_INPUT               : M27       :        :                   :         : 2         :                
 VCCIO2                       : M28       : power  :                   : 3.3V    : 2         :                
-RESERVED_INPUT               : N1        :        :                   :         : 5         :                
+sram0_nble                   : N1        : output : LVTTL             :         : 5         : N              
 GND+                         : N2        :        :                   :         : 5         :                
 RESERVED_INPUT               : N3        :        :                   :         : 5         :                
 RESERVED_INPUT               : N4        :        :                   :         : 5         :                
@@ -617,13 +617,13 @@ RESERVED_INPUT               : N7        :        :                   :         
 RESERVED_INPUT               : N8        :        :                   :         : 5         :                
 RESERVED_INPUT               : N9        :        :                   :         : 5         :                
 RESERVED_INPUT               : N10       :        :                   :         : 5         :                
-VCCINT                       : N11       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : N11       : power  :                   : 1.5V    :           :                
 GND                          : N12       : gnd    :                   :         : 1         :                
-VCCINT                       : N13       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : N13       : power  :                   : 1.5V    :           :                
 GND                          : N14       : gnd    :                   :         : 1         :                
-VCCINT                       : N15       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : N15       : power  :                   : 1.5V    :           :                
 GND                          : N16       : gnd    :                   :         : 1         :                
-VCCINT                       : N17       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : N17       : power  :                   : 1.5V    :           :                
 GND                          : N18       : gnd    :                   :         : 1         :                
 RESERVED_INPUT               : N19       :        :                   :         : 2         :                
 RESERVED_INPUT               : N20       :        :                   :         : 2         :                
@@ -646,11 +646,11 @@ VCCG_PLL4                    : P8        : power  :                   : 1.5V    
 VCCIO5                       : P9        : power  :                   : 3.3V    : 5         :                
 GND                          : P10       :        :                   :         : 5         :                
 GND                          : P11       : gnd    :                   :         : 1         :                
-VCCINT                       : P12       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : P12       : power  :                   : 1.5V    :           :                
 GND                          : P13       : gnd    :                   :         : 1         :                
-VCCINT                       : P14       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : P14       : power  :                   : 1.5V    :           :                
 GND                          : P15       : gnd    :                   :         : 1         :                
-VCCINT                       : P16       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : P16       : power  :                   : 1.5V    :           :                
 GND                          : P17       : gnd    :                   :         : 1         :                
 GND                          : P18       : gnd    :                   :         : 1         :                
 GND                          : P19       :        :                   :         : 2         :                
@@ -675,11 +675,11 @@ VCCIO6                       : R9        : power  :                   : 3.3V    
 GND                          : R10       :        :                   :         : 6         :                
 GND                          : R11       : gnd    :                   :         : 1         :                
 GND                          : R12       : gnd    :                   :         : 1         :                
-VCCINT                       : R13       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : R13       : power  :                   : 1.5V    :           :                
 GND                          : R14       : gnd    :                   :         : 1         :                
-VCCINT                       : R15       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : R15       : power  :                   : 1.5V    :           :                
 GND                          : R16       : gnd    :                   :         : 1         :                
-VCCINT                       : R17       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : R17       : power  :                   : 1.5V    :           :                
 GND                          : R18       : gnd    :                   :         : 1         :                
 GND                          : R19       :        :                   :         : 1         :                
 VCCIO1                       : R20       : power  :                   : 3.3V    : 1         :                
@@ -695,20 +695,20 @@ RESERVED_INPUT               : T1        :        :                   :         
 GND+                         : T2        :        :                   :         : 6         :                
 RESERVED_INPUT               : T3        :        :                   :         : 6         :                
 RESERVED_INPUT               : T4        :        :                   :         : 6         :                
-RESERVED_INPUT               : T5        :        :                   :         : 6         :                
+sram0_nbhe                   : T5        : output : LVTTL             :         : 6         : N              
 RESERVED_INPUT               : T6        :        :                   :         : 6         :                
 RESERVED_INPUT               : T7        :        :                   :         : 6         :                
 RESERVED_INPUT               : T8        :        :                   :         : 6         :                
 RESERVED_INPUT               : T9        :        :                   :         : 6         :                
 RESERVED_INPUT               : T10       :        :                   :         : 6         :                
 GND                          : T11       : gnd    :                   :         : 1         :                
-VCCINT                       : T12       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : T12       : power  :                   : 1.5V    :           :                
 GND                          : T13       : gnd    :                   :         : 1         :                
-VCCINT                       : T14       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : T14       : power  :                   : 1.5V    :           :                
 GND                          : T15       : gnd    :                   :         : 1         :                
-VCCINT                       : T16       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : T16       : power  :                   : 1.5V    :           :                
 GND                          : T17       : gnd    :                   :         : 1         :                
-VCCINT                       : T18       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : T18       : power  :                   : 1.5V    :           :                
 RESERVED_INPUT               : T19       :        :                   :         : 1         :                
 RESERVED_INPUT               : T20       :        :                   :         : 1         :                
 RESERVED_INPUT               : T21       :        :                   :         : 1         :                
@@ -729,13 +729,13 @@ RESERVED_INPUT               : U7        :        :                   :         
 RESERVED_INPUT               : U8        :        :                   :         : 6         :                
 RESERVED_INPUT               : U9        :        :                   :         : 6         :                
 RESERVED_INPUT               : U10       :        :                   :         : 6         :                
-VCCINT                       : U11       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : U11       : power  :                   : 1.5V    :           :                
 GND                          : U12       : gnd    :                   :         : 1         :                
-VCCINT                       : U13       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : U13       : power  :                   : 1.5V    :           :                
 GND                          : U14       : gnd    :                   :         : 1         :                
-VCCINT                       : U15       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : U15       : power  :                   : 1.5V    :           :                
 GND                          : U16       : gnd    :                   :         : 1         :                
-VCCINT                       : U17       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : U17       : power  :                   : 1.5V    :           :                
 GND                          : U18       : gnd    :                   :         : 1         :                
 RESERVED_INPUT               : U19       :        :                   :         : 1         :                
 RESERVED_INPUT               : U20       :        :                   :         : 1         :                
@@ -743,7 +743,7 @@ RESERVED_INPUT               : U21       :        :                   :         
 RESERVED_INPUT               : U22       :        :                   :         : 1         :                
 RESERVED_INPUT               : U23       :        :                   :         : 1         :                
 RESERVED_INPUT               : U24       :        :                   :         : 1         :                
-RESERVED_INPUT               : U25       :        :                   :         : 1         :                
+card_id                      : U25       : bidir  : LVTTL             :         : 1         : N              
 RESERVED_INPUT               : U26       :        :                   :         : 1         :                
 RESERVED_INPUT               : U27       :        :                   :         : 1         :                
 VCCIO1                       : U28       : power  :                   : 3.3V    : 1         :                
@@ -757,12 +757,12 @@ RESERVED_INPUT               : V7        :        :                   :         
 RESERVED_INPUT               : V8        :        :                   :         : 6         :                
 RESERVED_INPUT               : V9        :        :                   :         : 6         :                
 RESERVED_INPUT               : V10       :        :                   :         : 6         :                
-RESERVED_INPUT               : V11       :        :                   :         : 7         :                
-VCCINT                       : V12       : power  :                   : 1.5V    : 1         :                
+array_id[0]                  : V11       : input  : LVTTL             :         : 7         : N              
+VCCINT                       : V12       : power  :                   : 1.5V    :           :                
 GND                          : V13       : gnd    :                   :         : 1         :                
 GND                          : V14       : gnd    :                   :         : 1         :                
 GND                          : V15       : gnd    :                   :         : 1         :                
-VCCINT                       : V16       : power  :                   : 1.5V    : 1         :                
+VCCINT                       : V16       : power  :                   : 1.5V    :           :                
 GND                          : V17       : gnd    :                   :         : 1         :                
 RESERVED_INPUT               : V18       :        :                   :         : 8         :                
 RESERVED_INPUT               : V19       :        :                   :         : 1         :                
@@ -782,11 +782,11 @@ RESERVED_INPUT               : W4        :        :                   :         
 RESERVED_INPUT               : W5        :        :                   :         : 6         :                
 RESERVED_INPUT               : W6        :        :                   :         : 6         :                
 RESERVED_INPUT               : W7        :        :                   :         : 6         :                
-RESERVED_INPUT               : W8        :        :                   :         : 6         :                
+slot_id[0]                   : W8        : input  : LVTTL             :         : 6         : N              
 GND                          : W9        :        :                   :         : 6         :                
 RESERVED_INPUT               : W10       :        :                   :         : 7         :                
-RESERVED_INPUT               : W11       :        :                   :         : 7         :                
-wdt                          : W12       : output : LVTTL             :         : 7         :                
+slot_id[3]                   : W11       : input  : LVTTL             :         : 7         : N              
+array_id[1]                  : W12       : input  : LVTTL             :         : 7         : N              
 GND+                         : W13       :        :                   :         : 7         :                
 RESERVED_INPUT               : W14       :        :                   :         : 11        :                
 RESERVED_INPUT               : W15       :        :                   :         : 11        :                
@@ -815,7 +815,7 @@ RESERVED_INPUT               : Y9        :        :                   :         
 RESERVED_INPUT               : Y10       :        :                   :         : 7         :                
 RESERVED_INPUT               : Y11       :        :                   :         : 7         :                
 nIO_PULLUP                   : Y12       :        :                   :         : 7         :                
-RESERVED_INPUT               : Y13       :        :                   :         : 7         :                
+array_id[2]                  : Y13       : input  : LVTTL             :         : 7         : N              
 VCCIO7                       : Y14       : power  :                   : 3.3V    : 7         :                
 VCCIO8                       : Y15       : power  :                   : 3.3V    : 8         :                
 RESERVED_INPUT               : Y16       :        :                   :         : 12        :                
