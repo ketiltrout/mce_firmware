@@ -107,8 +107,8 @@ begin
 
    pll : pll_in25m_out50m1m
    port map(inclk0 => inclk,
-            c0 => clk1,
-            c1 => clk0);
+            c0 => clk0,
+            c1 => clk1);
             
    lvds_txa   <= clk0;
    lvds_txb   <= clk0;
