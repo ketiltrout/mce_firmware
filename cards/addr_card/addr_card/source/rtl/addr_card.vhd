@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.10  2005/01/19 23:39:06  bburger
+-- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
+--
 -- Revision 1.9  2005/01/19 02:42:19  bburger
 -- Bryce:  Fixed a couple of errors.  Always compile, simulate before comitting.
 --
@@ -262,7 +265,6 @@ begin
          row_en_i                   => row_en,
                                     
          clk_i                      => clk,
-         mem_clk_i                  => mem_clk,
          rst_i                      => rst
       );                         
                                  
