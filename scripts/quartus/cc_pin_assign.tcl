@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.6  2004/05/29 20:14:28  mandana
+# added fibre tx/rx pins
+#
 # Revision 1.5  2004/05/17 00:12:57  erniel
 # renamed PLL 5 input pin to inclk
 #
@@ -331,54 +334,51 @@ puts "   Assigned: SRAM bank 1 pins."
 
 
 # assign fibre interface
+#fibre_tx_clk and fibre_rx_clk are assigned in clock section!
 #fibre_tx_data
-cmp add_assignment $top_name "" "fo_tx_data\[0\]" LOCATION "Pin_AF5"
-cmp add_assignment $top_name "" "fo_tx_data\[1\]" LOCATION "Pin_AH5"
-cmp add_assignment $top_name "" "fo_tx_data\[2\]" LOCATION "Pin_AF4"
-cmp add_assignment $top_name "" "fo_tx_data\[3\]" LOCATION "Pin_AG4"
-cmp add_assignment $top_name "" "fo_tx_data\[4\]" LOCATION "Pin_AG5"
-cmp add_assignment $top_name "" "fo_tx_data\[5\]" LOCATION "Pin_AG3"
-cmp add_assignment $top_name "" "fo_tx_data\[6\]" LOCATION "Pin_AE5"
-cmp add_assignment $top_name "" "fo_tx_data\[7\]" LOCATION "Pin_AH4"
+cmp add_assignment $top_name "" "fibre_tx_data\[0\]" LOCATION "Pin_AF5"
+cmp add_assignment $top_name "" "fibre_tx_data\[1\]" LOCATION "Pin_AH5"
+cmp add_assignment $top_name "" "fibre_tx_data\[2\]" LOCATION "Pin_AF4"
+cmp add_assignment $top_name "" "fibre_tx_data\[3\]" LOCATION "Pin_AG4"
+cmp add_assignment $top_name "" "fibre_tx_data\[4\]" LOCATION "Pin_AG5"
+cmp add_assignment $top_name "" "fibre_tx_data\[5\]" LOCATION "Pin_AG3"
+cmp add_assignment $top_name "" "fibre_tx_data\[6\]" LOCATION "Pin_AE5"
+cmp add_assignment $top_name "" "fibre_tx_data\[7\]" LOCATION "Pin_AH4"
 
-#fibre_tx_clk
-cmp add_assignment $top_name "" "fo_tx_clk" LOCATION "Pin_K14"
 
 #fibre_tx_ena
-cmp add_assignment $top_name "" "fo_tx_ena" LOCATION "Pin_AG6"
+cmp add_assignment $top_name "" "fibre_tx_ena" LOCATION "Pin_AG6"
 
 #fibre_tx_rp
-cmp add_assignment $top_name "" "fo_tx_rp" LOCATION "Pin_AH6"
+cmp add_assignment $top_name "" "fibre_tx_rp" LOCATION "Pin_AH6"
 
 #fibre_tx_sc_nd
-cmp add_assignment $top_name "" "fo_tx_sc_nd" LOCATION "Pin_AE6"
+cmp add_assignment $top_name "" "fibre_tx_sc_nd" LOCATION "Pin_AE6"
 
 #fibre_rx_data
-cmp add_assignment $top_name "" "fo_rx_data\[0\]" LOCATION "Pin_AG9"
-cmp add_assignment $top_name "" "fo_rx_data\[1\]" LOCATION "Pin_AF9"
-cmp add_assignment $top_name "" "fo_rx_data\[2\]" LOCATION "Pin_AE9"
-cmp add_assignment $top_name "" "fo_rx_data\[3\]" LOCATION "Pin_AH8"
-cmp add_assignment $top_name "" "fo_rx_data\[4\]" LOCATION "Pin_AH9"
-cmp add_assignment $top_name "" "fo_rx_data\[5\]" LOCATION "Pin_AD8"
-cmp add_assignment $top_name "" "fo_rx_data\[6\]" LOCATION "Pin_AF8"
-cmp add_assignment $top_name "" "fo_rx_data\[7\]" LOCATION "Pin_AG8"
-
-#fibre_rx_clk
+cmp add_assignment $top_name "" "fibre_rx_data\[0\]" LOCATION "Pin_AG9"
+cmp add_assignment $top_name "" "fibre_rx_data\[1\]" LOCATION "Pin_AF9"
+cmp add_assignment $top_name "" "fibre_rx_data\[2\]" LOCATION "Pin_AE9"
+cmp add_assignment $top_name "" "fibre_rx_data\[3\]" LOCATION "Pin_AH8"
+cmp add_assignment $top_name "" "fibre_rx_data\[4\]" LOCATION "Pin_AH9"
+cmp add_assignment $top_name "" "fibre_rx_data\[5\]" LOCATION "Pin_AD8"
+cmp add_assignment $top_name "" "fibre_rx_data\[6\]" LOCATION "Pin_AF8"
+cmp add_assignment $top_name "" "fibre_rx_data\[7\]" LOCATION "Pin_AG8"
 
 #fibre_rx_error
-cmp add_assignment $top_name "" "fo_tx_data\[7\]" LOCATION "Pin_AH4"
+cmp add_assignment $top_name "" "fibre_tx_data\[7\]" LOCATION "Pin_AH4"
 
 #fibre_rx_rdy
-cmp add_assignment $top_name "" "fo_rx_rdy" LOCATION "Pin_AE14"
+cmp add_assignment $top_name "" "fibre_rx_rdy" LOCATION "Pin_AE14"
 
 #fibre_rx_status
-cmp add_assignment $top_name "" "fo_rx_status" LOCATION "Pin_AH10"
+cmp add_assignment $top_name "" "fibre_rx_status" LOCATION "Pin_AH10"
 
 #fibre_rx_sc_nd
-cmp add_assignment $top_name "" "fo_rx_sc_nd" LOCATION "Pin_AF10"
+cmp add_assignment $top_name "" "fibre_rx_sc_nd" LOCATION "Pin_AF10"
 
 #fibre_rx_rvs
-cmp add_assignment $top_name "" "fo_rx_rvs" LOCATION "Pin_AD10"
+cmp add_assignment $top_name "" "fibre_rx_rvs" LOCATION "Pin_AD10"
 
 
 # assign flash interface
