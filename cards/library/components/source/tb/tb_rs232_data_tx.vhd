@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_rs232_data_tx.vhd,v $
+-- Revision 1.1  2004/05/05 03:51:14  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -44,7 +47,7 @@ architecture BEH of TB_RS232_DATA_TX is
 
    component RS232_DATA_TX
 
-      generic(WIDTH   : in integer range 1 to 256  := 8 );
+      generic(WIDTH   : in integer range 4 to 1024  := 8 );
 
       port(CLK_I       : in std_logic ;
            RST_I       : in std_logic ;
@@ -120,13 +123,13 @@ begin
       W_TX_BUSY_I   <= '0';
       W_TX_ACK_I    <= '0';
       
-      wait for PERIOD;
-      
-      W_RST_I       <= '0';
-      W_DATA_I      <= (others => '0');
-      W_START_I     <= '0';
-      W_TX_BUSY_I   <= '0';
-      W_TX_ACK_I    <= '0';
+--      wait for PERIOD;
+--      
+--      W_RST_I       <= '0';
+--      W_DATA_I      <= (others => '0');
+--      W_START_I     <= '0';
+--      W_TX_BUSY_I   <= '0';
+--      W_TX_ACK_I    <= '0';
       
    end do_start;
    
@@ -138,7 +141,7 @@ begin
       
       W_RST_I       <= '0';
       W_DATA_I      <= (others => '0');
-      W_START_I     <= '0';
+      W_START_I     <= '1';
       W_TX_BUSY_I   <= '1';
       W_TX_ACK_I    <= '1';
       
@@ -146,7 +149,7 @@ begin
       
       W_RST_I       <= '0';
       W_DATA_I      <= (others => '0');
-      W_START_I     <= '0';
+      W_START_I     <= '1';
       W_TX_BUSY_I   <= '1';
       W_TX_ACK_I    <= '0';
       
@@ -154,7 +157,7 @@ begin
       
       W_RST_I       <= '0';
       W_DATA_I      <= (others => '0');
-      W_START_I     <= '0';
+      W_START_I     <= '1';
       W_TX_BUSY_I   <= '0';
       W_TX_ACK_I    <= '0';
    end do_transmit;
@@ -173,6 +176,12 @@ begin
       do_transmit;
       do_transmit;
 
+      wait until W_DONE_O = '1';
+      
+      wait for PERIOD;
+      
+      W_START_I <= '0';
+      
       wait for PERIOD * 10;
       
       assert false report "End of simulation" severity failure;
