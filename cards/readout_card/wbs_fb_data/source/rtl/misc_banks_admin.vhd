@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.2  2004/11/26 18:28:35  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.1  2004/11/20 01:22:02  mohsen
 -- Initial release
 --
@@ -228,6 +231,7 @@ architecture rtl of misc_banks_admin is
   constant NUM_RAM_INDEX_OFFSET    : integer := 11;   -- Index of num_ramp_frame_cycles in array register
   constant SA_BIAS_INDEX_OFFSET    : integer := 12;   -- Index of sa_bias in array register
   constant OFFSET_DAT_INDEX_OFFSET : integer := 20;   -- Index of offset_dat in array register
+  constant MAX_BIT_TAG             : integer := 3;    -- The number of bits used in tga_i to count up to the maximum number of values for each parameters
   
 
   -----------------------------------------------------------------------------
@@ -306,7 +310,7 @@ begin  -- rtl
      
     case addr_i is
       when FILT_COEF_ADDR =>
-        wren(FILTER_INDEX_OFFSET+conv_integer(unsigned(tga_i))) <= we_i;
+        wren(FILTER_INDEX_OFFSET+conv_integer(unsigned(tga_i(MAX_BIT_TAG-1 downto 0)))) <= we_i;
       when SERVO_MODE_ADDR =>
         wren(SERVO_INDEX_OFFSET) <= we_i;
       when RAMP_STEP_ADDR =>
@@ -318,9 +322,9 @@ begin  -- rtl
       when RAMP_DLY_ADDR =>
         wren(NUM_RAM_INDEX_OFFSET) <= we_i;
       when SA_BIAS_ADDR =>
-        wren(SA_BIAS_INDEX_OFFSET+conv_integer(unsigned(tga_i))) <= we_i;
+        wren(SA_BIAS_INDEX_OFFSET+conv_integer(unsigned(tga_i(MAX_BIT_TAG-1 downto 0)))) <= we_i;
       when OFFSET_ADDR =>
-        wren(OFFSET_DAT_INDEX_OFFSET+conv_integer(unsigned(tga_i))) <= we_i;
+        wren(OFFSET_DAT_INDEX_OFFSET+conv_integer(unsigned(tga_i(MAX_BIT_TAG-1 downto 0)))) <= we_i;
       when others => null;
     end case;
   end process i_gen_wren_signals;
