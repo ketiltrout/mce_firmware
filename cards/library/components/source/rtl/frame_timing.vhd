@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.12 2004/10/23 02:28:48 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.13 2004/10/26 18:59:39 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/10/23 02:28:48 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/26 18:59:39 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.13  2004/10/26 18:59:39  bburger
+-- Bryce:  More signals
+--
 -- Revision 1.12  2004/10/23 02:28:48  bburger
 -- Bryce:  Work out a couple of bugs to do with the initialization window
 --
@@ -96,12 +99,12 @@ entity frame_timing is
       feedback_delay_i           : in integer;
          
       update_bias_o              : out std_logic;
-      dac_dat_en_o               : out std_logic;--
-      adc_coadd_en_o             : out std_logic;--
-      restart_frame_1row_prev_o  : out std_logic;--
-      restart_frame_aligned_o    : out std_logic;-- 
-      restart_frame_1row_post_o  : out std_logic;--
-      row_switch_o               : out std_logic;--
+      dac_dat_en_o               : out std_logic;
+      adc_coadd_en_o             : out std_logic;
+      restart_frame_1row_prev_o  : out std_logic;
+      restart_frame_aligned_o    : out std_logic; 
+      restart_frame_1row_post_o  : out std_logic;
+      row_switch_o               : out std_logic;
       initialize_window_o        : out std_logic
    );
 end frame_timing;
@@ -182,13 +185,13 @@ architecture beh of frame_timing is
    -- 2- After changing flux_loop parameters   
    
    update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS else '0';
+   restart_frame_aligned      <= '1' when frame_count_int = END_OF_FRAME else '0';
    restart_frame_1row_prev_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_PREV else '0';
    restart_frame_aligned_o    <= restart_frame_aligned;
    restart_frame_1row_post_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_POST else '0';
-   row_switch_o               <= '1' when row_count_int = MUX_LINE_PERIOD-1 else '0';
-   dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i else '0';
-   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - TWO_CYCLE_LATENCY else '0';
-   restart_frame_aligned      <= '1' when frame_count_int = END_OF_FRAME else '0';
+   row_switch_o               <= '1' when row_count_int = MUX_LINE_PERIOD-1 and current_state /= WAIT_FRM_RST else '0';
+   dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i and current_state /= WAIT_FRM_RST else '0';
+   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - TWO_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
    
    init_win_state_FF: process(clk_i, rst_i)
    begin
