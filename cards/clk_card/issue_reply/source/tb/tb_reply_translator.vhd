@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.4 2004/08/25 14:21:29 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.5 2004/08/26 15:08:36 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,13 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/25 14:21:29 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/26 15:08:36 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.5  2004/08/26 15:08:36  dca
+-- cmd_ack_o signal removed.
+-- Some constants moved to command_pack
+--
 -- Revision 1.4  2004/08/25 14:21:29  dca
 -- Data frame test added ...
 --
@@ -121,21 +125,6 @@ end component;
 
 
 --subtype byte is std_logic_vector( 7 downto 0);
-
-
--- some ascii definitions for reply packets
-constant ASCII_A        : byte := X"41";  -- ascii value for 'A'
-constant ASCII_B        : byte := X"42";  -- ascii value for 'B'
-constant ASCII_D        : byte := X"44";  -- ascii value for 'D'
-constant ASCII_E        : byte := X"45";  -- ascii value for 'E'
-constant ASCII_G        : byte := X"47";  -- ascii value for 'G'
-constant ASCII_K        : byte := X"4B";  -- ascii value for 'K'
-constant ASCII_O        : byte := X"4F";  -- ascii value for 'O'
-constant ASCII_P        : byte := X"50";  -- ascii value for 'P'
-constant ASCII_R        : byte := X"52";  -- ascii value for 'R'
-constant ASCII_S        : byte := X"53";  -- ascii value for 'S'
-constant ASCII_W        : byte := X"57";  -- ascii value for 'W'
-constant ASCII_SP       : byte := X"20";  -- ascii value for space
 
 
 constant clk_prd        : time := 20 ns;  -- 50 MHz clock
@@ -692,6 +681,19 @@ begin
  
          assert false report "test 8: next fibre word txmitted" severity NOTE;
          
+         -- a ST command with checksum error arrives during readout....
+         if i = 3 then
+            cmd_code ( 7 downto 0)  <= ASCII_T;
+            cmd_code (15 downto 8)  <= ASCII_S;
+            card_id                 <= X"1234" ;   
+            param_id                <= X"5678" ;
+           
+            wait for clk_prd;
+            assert false report "ST with CHECKSUM ERROR arrives mid readout..." severity NOTE;
+            do_checksum_error;
+      
+         end if; 
+         
       end loop; 
                  
     
@@ -706,6 +708,32 @@ begin
       assert false report "test 8: Frame readout finised....." severity NOTE;    
       
       wait for clk_prd;
+
+     -----------------------------------
+      -- test 9: ST checksum error 
+      ----------------------------------
+
+      
+      wait for clk_prd;
+         
+         
+   
+      
+      wait until txd = FIBRE_PREAMBLE1;
+      wait until txd = FIBRE_PREAMBLE2;
+      assert false report "test 9 ST preamble txmitted" severity NOTE;
+      
+      wait until txd = ASCII_P;
+      wait until txd = ASCII_R;
+      assert false report "test 9: word 'RP' txmitted" severity NOTE;
+      
+      wait until txd = ASCII_R;
+      wait until txd = ASCII_E;
+      assert false report "test 9: error word 'ER' txmitted" severity NOTE;
+      
+      wait for clk_prd*30;
+      assert false report "test 9: checksum ST error reply finised...?" severity NOTE;    
+
 
       wait for clk_prd*20; 
       assert false report "end of simulation......" severity FAILURE;    
