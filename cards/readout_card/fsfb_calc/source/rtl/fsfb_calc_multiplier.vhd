@@ -83,7 +83,7 @@ BEGIN
 		lpm_widthp => 64,
 		lpm_widths => 1,
 		lpm_type => "LPM_MULT",
-		lpm_representation => "UNSIGNED",
+		lpm_representation => "SIGNED",
 		lpm_hint => "DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=6"
 	)
 	PORT MAP (
@@ -106,7 +106,7 @@ END SYN;
 -- Retrieval info: PRIVATE: OptionalSum NUMERIC "0"
 -- Retrieval info: PRIVATE: AutoSizeResult NUMERIC "1"
 -- Retrieval info: PRIVATE: B_isConstant NUMERIC "0"
--- Retrieval info: PRIVATE: SignedMult NUMERIC "0"
+-- Retrieval info: PRIVATE: SignedMult NUMERIC "1"
 -- Retrieval info: PRIVATE: ConstantB NUMERIC "0"
 -- Retrieval info: PRIVATE: ValidConstant NUMERIC "0"
 -- Retrieval info: PRIVATE: Latency NUMERIC "0"
@@ -119,7 +119,7 @@ END SYN;
 -- Retrieval info: CONSTANT: LPM_WIDTHP NUMERIC "64"
 -- Retrieval info: CONSTANT: LPM_WIDTHS NUMERIC "1"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_MULT"
--- Retrieval info: CONSTANT: LPM_REPRESENTATION STRING "UNSIGNED"
+-- Retrieval info: CONSTANT: LPM_REPRESENTATION STRING "SIGNED"
 -- Retrieval info: CONSTANT: LPM_HINT STRING "DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=6"
 -- Retrieval info: USED_PORT: dataa 0 0 32 0 INPUT NODEFVAL dataa[31..0]
 -- Retrieval info: USED_PORT: result 0 0 64 0 OUTPUT NODEFVAL result[63..0]
