@@ -61,19 +61,19 @@ value "C:\\scuba2_repository\\architecture\\readout_card\\hds\\wbs_fb_data"
 )
 (vvPair
 variable "date"
-value "09/28/2004"
+value "10/14/2004"
 )
 (vvPair
 variable "day"
-value "Tue"
+value "Thu"
 )
 (vvPair
 variable "day_long"
-value "Tuesday"
+value "Thursday"
 )
 (vvPair
 variable "dd"
-value "28"
+value "14"
 )
 (vvPair
 variable "entity_name"
@@ -109,7 +109,7 @@ value "readout_card"
 )
 (vvPair
 variable "mm"
-value "09"
+value "10"
 )
 (vvPair
 variable "module_name"
@@ -117,11 +117,11 @@ value "wbs_fb_data"
 )
 (vvPair
 variable "month"
-value "Sep"
+value "Oct"
 )
 (vvPair
 variable "month_long"
-value "September"
+value "October"
 )
 (vvPair
 variable "p"
@@ -133,7 +133,7 @@ value "C:\\scuba2_repository\\architecture\\readout_card\\hds\\wbs_fb_data\\symb
 )
 (vvPair
 variable "project_name"
-value "readout_card"
+value "mce"
 )
 (vvPair
 variable "series"
@@ -165,7 +165,7 @@ value "<TBD>"
 )
 (vvPair
 variable "time"
-value "15:40:46"
+value "12:02:38"
 )
 (vvPair
 variable "unit"
@@ -235,8 +235,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,2000,82000,2800"
-st "d_addr_ch1_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,2000,84500,2800"
+st "d_addr_ch1_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -277,8 +277,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,2800,82000,3600"
-st "d_addr_ch2_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,2800,84500,3600"
+st "d_addr_ch2_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -319,8 +319,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,3600,82000,4400"
-st "d_addr_ch3_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,3600,84500,4400"
+st "d_addr_ch3_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -361,8 +361,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,4400,82000,5200"
-st "d_addr_ch4_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,4400,84500,5200"
+st "d_addr_ch4_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -403,8 +403,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,5200,82000,6000"
-st "d_addr_ch5_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,5200,84500,6000"
+st "d_addr_ch5_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -445,8 +445,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,6000,82000,6800"
-st "d_addr_ch6_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,6000,84500,6800"
+st "d_addr_ch6_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -487,8 +487,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,6800,82000,7600"
-st "d_addr_ch7_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,6800,84500,7600"
+st "d_addr_ch7_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -529,8 +529,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,7600,82000,8400"
-st "d_addr_ch8_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,7600,84500,8400"
+st "d_addr_ch8_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -573,8 +573,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,29200,82500,30000"
-st "d_dat_ch1_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,29200,85000,30000"
+st "d_dat_ch1_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -617,8 +617,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,30000,82500,30800"
-st "d_dat_ch2_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,30000,85000,30800"
+st "d_dat_ch2_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -661,8 +661,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,30800,82500,31600"
-st "d_dat_ch3_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,30800,85000,31600"
+st "d_dat_ch3_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -705,8 +705,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,31600,82500,32400"
-st "d_dat_ch4_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,31600,85000,32400"
+st "d_dat_ch4_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -749,8 +749,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,32400,82500,33200"
-st "d_dat_ch5_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,32400,85000,33200"
+st "d_dat_ch5_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -793,8 +793,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,33200,82500,34000"
-st "d_dat_ch6_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,33200,85000,34000"
+st "d_dat_ch6_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -837,8 +837,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,34000,82500,34800"
-st "d_dat_ch7_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,34000,85000,34800"
+st "d_dat_ch7_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -881,8 +881,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,34800,82500,35600"
-st "d_dat_ch8_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,34800,85000,35600"
+st "d_dat_ch8_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -923,8 +923,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,9200,82000,10000"
-st "i_addr_ch1_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,9200,84500,10000"
+st "i_addr_ch1_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -965,8 +965,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,10000,82000,10800"
-st "i_addr_ch2_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,10000,84500,10800"
+st "i_addr_ch2_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -1007,8 +1007,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,10800,82000,11600"
-st "i_addr_ch3_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,10800,84500,11600"
+st "i_addr_ch3_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -1049,8 +1049,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,11600,82000,12400"
-st "i_addr_ch4_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,11600,84500,12400"
+st "i_addr_ch4_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -1091,8 +1091,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,12400,82000,13200"
-st "i_addr_ch5_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,12400,84500,13200"
+st "i_addr_ch5_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -1133,8 +1133,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,13200,82000,14000"
-st "i_addr_ch6_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,13200,84500,14000"
+st "i_addr_ch6_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -1175,8 +1175,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,14000,82000,14800"
-st "i_addr_ch7_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,14000,84500,14800"
+st "i_addr_ch7_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -1217,8 +1217,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,14800,82000,15600"
-st "i_addr_ch8_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,14800,84500,15600"
+st "i_addr_ch8_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -1261,8 +1261,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,36400,82500,37200"
-st "i_dat_ch1_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,36400,85000,37200"
+st "i_dat_ch1_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1305,8 +1305,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,37200,82500,38000"
-st "i_dat_ch2_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,37200,85000,38000"
+st "i_dat_ch2_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1349,8 +1349,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,38000,82500,38800"
-st "i_dat_ch3_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,38000,85000,38800"
+st "i_dat_ch3_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1393,8 +1393,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,38800,82500,39600"
-st "i_dat_ch4_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,38800,85000,39600"
+st "i_dat_ch4_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1437,8 +1437,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,39600,82500,40400"
-st "i_dat_ch5_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,39600,85000,40400"
+st "i_dat_ch5_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1481,8 +1481,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,40400,82500,41200"
-st "i_dat_ch6_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,40400,85000,41200"
+st "i_dat_ch6_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1525,8 +1525,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,41200,82500,42000"
-st "i_dat_ch7_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,41200,85000,42000"
+st "i_dat_ch7_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1569,8 +1569,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,42000,82500,42800"
-st "i_dat_ch8_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,42000,85000,42800"
+st "i_dat_ch8_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1613,8 +1613,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,42800,82500,43600"
-st "offset_dat_ch1_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,42800,85000,43600"
+st "offset_dat_ch1_o     : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1657,8 +1657,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,43600,82500,44400"
-st "offset_dat_ch2_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,43600,85000,44400"
+st "offset_dat_ch2_o     : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1701,8 +1701,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,44400,82500,45200"
-st "offset_dat_ch3_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,44400,85000,45200"
+st "offset_dat_ch3_o     : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1745,8 +1745,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,45200,82500,46000"
-st "offset_dat_ch4_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,45200,85000,46000"
+st "offset_dat_ch4_o     : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1789,8 +1789,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,46000,82500,46800"
-st "offset_dat_ch5_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,46000,85000,46800"
+st "offset_dat_ch5_o     : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1833,8 +1833,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,46800,82500,47600"
-st "offset_dat_ch6_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,46800,85000,47600"
+st "offset_dat_ch6_o     : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1877,8 +1877,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,47600,82500,48400"
-st "offset_dat_ch7_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,47600,85000,48400"
+st "offset_dat_ch7_o     : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1921,8 +1921,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,48400,82500,49200"
-st "offset_dat_ch8_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,48400,85000,49200"
+st "offset_dat_ch8_o     : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -1963,8 +1963,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,15600,82000,16400"
-st "p_addr_ch1_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,15600,84500,16400"
+st "p_addr_ch1_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -2005,8 +2005,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,16400,82000,17200"
-st "p_addr_ch2_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,16400,84500,17200"
+st "p_addr_ch2_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -2047,8 +2047,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,17200,82000,18000"
-st "p_addr_ch3_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,17200,84500,18000"
+st "p_addr_ch3_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -2089,8 +2089,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,18000,82000,18800"
-st "p_addr_ch4_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,18000,84500,18800"
+st "p_addr_ch4_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -2131,8 +2131,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,18800,82000,19600"
-st "p_addr_ch5_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,18800,84500,19600"
+st "p_addr_ch5_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -2173,8 +2173,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,19600,82000,20400"
-st "p_addr_ch6_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,19600,84500,20400"
+st "p_addr_ch6_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -2215,8 +2215,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,20400,82000,21200"
-st "p_addr_ch7_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,20400,84500,21200"
+st "p_addr_ch7_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -2257,8 +2257,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,21200,82000,22000"
-st "p_addr_ch8_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,21200,84500,22000"
+st "p_addr_ch8_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -2301,8 +2301,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,49200,82500,50000"
-st "p_dat_ch1_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,49200,85000,50000"
+st "p_dat_ch1_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2345,8 +2345,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,50000,82500,50800"
-st "p_dat_ch2_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,50000,85000,50800"
+st "p_dat_ch2_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2389,8 +2389,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,50800,82500,51600"
-st "p_dat_ch3_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,50800,85000,51600"
+st "p_dat_ch3_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2433,8 +2433,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,51600,82500,52400"
-st "p_dat_ch4_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,51600,85000,52400"
+st "p_dat_ch4_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2477,8 +2477,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,52400,82500,53200"
-st "p_dat_ch5_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,52400,85000,53200"
+st "p_dat_ch5_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2521,8 +2521,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,53200,82500,54000"
-st "p_dat_ch6_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,53200,85000,54000"
+st "p_dat_ch6_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2565,8 +2565,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,54000,82500,54800"
-st "p_dat_ch7_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,54000,85000,54800"
+st "p_dat_ch7_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2609,8 +2609,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,54800,82500,55600"
-st "p_dat_ch8_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,54800,85000,55600"
+st "p_dat_ch8_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2653,8 +2653,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,57200,82500,58000"
-st "sa_bias_dat_ch1_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,57200,85000,58000"
+st "sa_bias_dat_ch1_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2697,8 +2697,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,58000,82500,58800"
-st "sa_bias_dat_ch2_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,58000,85000,58800"
+st "sa_bias_dat_ch2_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2741,8 +2741,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,58800,82500,59600"
-st "sa_bias_dat_ch3_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,58800,85000,59600"
+st "sa_bias_dat_ch3_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2785,8 +2785,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,59600,82500,60400"
-st "sa_bias_dat_ch4_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,59600,85000,60400"
+st "sa_bias_dat_ch4_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2829,8 +2829,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,60400,82500,61200"
-st "sa_bias_dat_ch5_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,60400,85000,61200"
+st "sa_bias_dat_ch5_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2873,8 +2873,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,61200,82500,62000"
-st "sa_bias_dat_ch6_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,61200,85000,62000"
+st "sa_bias_dat_ch6_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2917,8 +2917,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,62000,82500,62800"
-st "sa_bias_dat_ch7_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,62000,85000,62800"
+st "sa_bias_dat_ch7_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -2961,8 +2961,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,62800,82500,63600"
-st "sa_bias_dat_ch8_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,62800,85000,63600"
+st "sa_bias_dat_ch8_o    : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3003,8 +3003,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,22000,82000,22800"
-st "z_addr_ch1_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,22000,84500,22800"
+st "z_addr_ch1_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -3045,8 +3045,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,22800,82000,23600"
-st "z_addr_ch2_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,22800,84500,23600"
+st "z_addr_ch2_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -3087,8 +3087,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,23600,82000,24400"
-st "z_addr_ch3_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,23600,84500,24400"
+st "z_addr_ch3_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -3129,8 +3129,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,24400,82000,25200"
-st "z_addr_ch4_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,24400,84500,25200"
+st "z_addr_ch4_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -3171,8 +3171,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,25200,82000,26000"
-st "z_addr_ch5_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,25200,84500,26000"
+st "z_addr_ch5_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -3213,8 +3213,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,26000,82000,26800"
-st "z_addr_ch6_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,26000,84500,26800"
+st "z_addr_ch6_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -3255,8 +3255,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,26800,82000,27600"
-st "z_addr_ch7_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,26800,84500,27600"
+st "z_addr_ch7_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -3297,8 +3297,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,27600,82000,28400"
-st "z_addr_ch8_i        : IN     std_logic_vector (5 DOWNTO 0) ;
+xt "52000,27600,84500,28400"
+st "z_addr_ch8_i         : IN     std_logic_vector (5 DOWNTO 0) ;
 "
 )
 )
@@ -3341,8 +3341,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,64400,82500,65200"
-st "z_dat_ch1_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,64400,85000,65200"
+st "z_dat_ch1_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3385,8 +3385,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,65200,82500,66000"
-st "z_dat_ch2_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,65200,85000,66000"
+st "z_dat_ch2_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3429,8 +3429,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,66000,82500,66800"
-st "z_dat_ch3_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,66000,85000,66800"
+st "z_dat_ch3_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3473,8 +3473,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,66800,82500,67600"
-st "z_dat_ch4_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,66800,85000,67600"
+st "z_dat_ch4_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3517,8 +3517,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,67600,82500,68400"
-st "z_dat_ch5_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,67600,85000,68400"
+st "z_dat_ch5_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3561,8 +3561,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,68400,82500,69200"
-st "z_dat_ch6_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,68400,85000,69200"
+st "z_dat_ch6_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3605,8 +3605,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,69200,82500,70000"
-st "z_dat_ch7_o         : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,69200,85000,70000"
+st "z_dat_ch7_o          : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3649,8 +3649,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,70000,81500,70800"
-st "z_dat_ch8_o         : OUT    std_logic_vector (31 DOWNTO 0)
+xt "52000,70000,84000,70800"
+st "z_dat_ch8_o          : OUT    std_logic_vector (31 DOWNTO 0)
 "
 )
 )
@@ -3693,8 +3693,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,28400,82500,29200"
-st "const_val_o         : OUT    std_logic_vector (13 DOWNTO 0) ;
+xt "52000,28400,85000,29200"
+st "const_val_o          : OUT    std_logic_vector (13 DOWNTO 0) ;
 "
 )
 )
@@ -3735,8 +3735,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,8400,82000,9200"
-st "filter_coeff_addr_i : IN     std_logic_vector (2 DOWNTO 0) ;
+xt "52000,8400,84500,9200"
+st "filter_coeff_addr_i  : IN     std_logic_vector (2 DOWNTO 0) ;
 "
 )
 )
@@ -3779,8 +3779,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,35600,82500,36400"
-st "filter_coeff_dat_o  : OUT    std_logic_vector (31 DOWNTO 0) ;
+xt "52000,35600,85000,36400"
+st "filter_coeff_dat_o   : OUT    std_logic_vector (31 DOWNTO 0) ;
 "
 )
 )
@@ -3823,8 +3823,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,55600,82500,56400"
-st "ramp_amp_o          : OUT    std_logic_vector (13 DOWNTO 0) ;
+xt "52000,55600,85000,56400"
+st "ramp_amp_o           : OUT    std_logic_vector (13 DOWNTO 0) ;
 "
 )
 )
@@ -3867,8 +3867,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,63600,82000,64400"
-st "servo_mode_o        : OUT    std_logic_vector (1 DOWNTO 0) ;
+xt "52000,63600,84500,64400"
+st "servo_mode_o         : OUT    std_logic_vector (1 DOWNTO 0) ;
 "
 )
 )
@@ -3911,8 +3911,8 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "50000,56400,82500,57200"
-st "ramp_step_size_o    : OUT    std_logic_vector (13 DOWNTO 0) ;
+xt "52000,56400,85000,57200"
+st "ramp_step_size_o     : OUT    std_logic_vector (13 DOWNTO 0) ;
 "
 )
 )
@@ -3954,8 +3954,696 @@ va (VaSet
 isHidden 1
 font "Courier New,8,0"
 )
-xt "2000,0,24500,800"
-st "mode_flag_clr_o     : OUT    std_logic  ;
+xt "4000,0,27000,800"
+st "mode_flag_clr_o      : OUT    std_logic  ;
+"
+)
+)
+*89 (CptPort
+uid 651,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 652,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,69625,15000,70375"
+)
+n "adc_offset_adr_ch1_i"
+t "std_logic_vector"
+b "(5 DOWNTO 0)"
+o 88
+r 88
+tg (CPTG
+uid 653,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 654,0
+va (VaSet
+)
+xt "16000,69500,26500,70500"
+st "adc_offset_adr_ch1_i : (5:0)"
+blo "16000,70300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 655,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,34500,800"
+st "adc_offset_adr_ch1_i : IN     std_logic_vector (5 DOWNTO 0) ;
+"
+)
+)
+*90 (CptPort
+uid 656,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 657,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,70625,15000,71375"
+)
+n "adc_offset_adr_ch2_i"
+t "std_logic_vector"
+b "(5 DOWNTO 0)"
+o 88
+r 89
+tg (CPTG
+uid 658,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 659,0
+va (VaSet
+)
+xt "16000,70500,26500,71500"
+st "adc_offset_adr_ch2_i : (5:0)"
+blo "16000,71300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 660,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,34500,800"
+st "adc_offset_adr_ch2_i : IN     std_logic_vector (5 DOWNTO 0) ;
+"
+)
+)
+*91 (CptPort
+uid 661,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 662,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,71625,15000,72375"
+)
+n "adc_offset_adr_ch3_i"
+t "std_logic_vector"
+b "(5 DOWNTO 0)"
+o 88
+r 90
+tg (CPTG
+uid 663,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 664,0
+va (VaSet
+)
+xt "16000,71500,26500,72500"
+st "adc_offset_adr_ch3_i : (5:0)"
+blo "16000,72300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 665,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,34500,800"
+st "adc_offset_adr_ch3_i : IN     std_logic_vector (5 DOWNTO 0) ;
+"
+)
+)
+*92 (CptPort
+uid 666,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 667,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,72625,15000,73375"
+)
+n "adc_offset_adr_ch4_i"
+t "std_logic_vector"
+b "(5 DOWNTO 0)"
+o 88
+r 91
+tg (CPTG
+uid 668,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 669,0
+va (VaSet
+)
+xt "16000,72500,26500,73500"
+st "adc_offset_adr_ch4_i : (5:0)"
+blo "16000,73300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 670,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,34500,800"
+st "adc_offset_adr_ch4_i : IN     std_logic_vector (5 DOWNTO 0) ;
+"
+)
+)
+*93 (CptPort
+uid 671,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 672,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,73625,15000,74375"
+)
+n "adc_offset_adr_ch5_i"
+t "std_logic_vector"
+b "(5 DOWNTO 0)"
+o 88
+r 92
+tg (CPTG
+uid 673,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 674,0
+va (VaSet
+)
+xt "16000,73500,26500,74500"
+st "adc_offset_adr_ch5_i : (5:0)"
+blo "16000,74300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 675,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,34500,800"
+st "adc_offset_adr_ch5_i : IN     std_logic_vector (5 DOWNTO 0) ;
+"
+)
+)
+*94 (CptPort
+uid 676,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 677,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,74625,15000,75375"
+)
+n "adc_offset_adr_ch6_i"
+t "std_logic_vector"
+b "(5 DOWNTO 0)"
+o 88
+r 93
+tg (CPTG
+uid 678,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 679,0
+va (VaSet
+)
+xt "16000,74500,26500,75500"
+st "adc_offset_adr_ch6_i : (5:0)"
+blo "16000,75300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 680,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,34500,800"
+st "adc_offset_adr_ch6_i : IN     std_logic_vector (5 DOWNTO 0) ;
+"
+)
+)
+*95 (CptPort
+uid 681,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 682,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,75625,15000,76375"
+)
+n "adc_offset_adr_ch7_i"
+t "std_logic_vector"
+b "(5 DOWNTO 0)"
+o 88
+r 94
+tg (CPTG
+uid 683,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 684,0
+va (VaSet
+)
+xt "16000,75500,26500,76500"
+st "adc_offset_adr_ch7_i : (5:0)"
+blo "16000,76300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 685,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,34500,800"
+st "adc_offset_adr_ch7_i : IN     std_logic_vector (5 DOWNTO 0) ;
+"
+)
+)
+*96 (CptPort
+uid 686,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 687,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,76625,15000,77375"
+)
+n "adc_offset_adr_ch8_i"
+t "std_logic_vector"
+b "(5 DOWNTO 0)"
+o 88
+r 95
+tg (CPTG
+uid 688,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 689,0
+va (VaSet
+)
+xt "16000,76500,26500,77500"
+st "adc_offset_adr_ch8_i : (5:0)"
+blo "16000,77300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 690,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,34500,800"
+st "adc_offset_adr_ch8_i : IN     std_logic_vector (5 DOWNTO 0) ;
+"
+)
+)
+*97 (CptPort
+uid 691,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 692,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "48000,70625,48750,71375"
+)
+n "adc_offset_dat_ch1_o"
+t "std_logic_vector"
+b "(15 DOWNTO 0)"
+m 1
+o 88
+r 96
+tg (CPTG
+uid 693,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 694,0
+va (VaSet
+)
+xt "36000,70500,47000,71500"
+st "adc_offset_dat_ch1_o : (15:0)"
+ju 2
+blo "47000,71300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 695,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,35000,800"
+st "adc_offset_dat_ch1_o : OUT    std_logic_vector (15 DOWNTO 0) ;
+"
+)
+)
+*98 (CptPort
+uid 696,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 697,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "48000,71625,48750,72375"
+)
+n "adc_offset_dat_ch2_o"
+t "std_logic_vector"
+b "(15 DOWNTO 0)"
+m 1
+o 88
+r 97
+tg (CPTG
+uid 698,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 699,0
+va (VaSet
+)
+xt "36000,71500,47000,72500"
+st "adc_offset_dat_ch2_o : (15:0)"
+ju 2
+blo "47000,72300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 700,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,35000,800"
+st "adc_offset_dat_ch2_o : OUT    std_logic_vector (15 DOWNTO 0) ;
+"
+)
+)
+*99 (CptPort
+uid 701,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 702,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "48000,72625,48750,73375"
+)
+n "adc_offset_dat_ch3_o"
+t "std_logic_vector"
+b "(15 DOWNTO 0)"
+m 1
+o 88
+r 98
+tg (CPTG
+uid 703,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 704,0
+va (VaSet
+)
+xt "36000,72500,47000,73500"
+st "adc_offset_dat_ch3_o : (15:0)"
+ju 2
+blo "47000,73300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 705,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,35000,800"
+st "adc_offset_dat_ch3_o : OUT    std_logic_vector (15 DOWNTO 0) ;
+"
+)
+)
+*100 (CptPort
+uid 706,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 707,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "48000,73625,48750,74375"
+)
+n "adc_offset_dat_ch4_o"
+t "std_logic_vector"
+b "(15 DOWNTO 0)"
+m 1
+o 88
+r 99
+tg (CPTG
+uid 708,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 709,0
+va (VaSet
+)
+xt "36000,73500,47000,74500"
+st "adc_offset_dat_ch4_o : (15:0)"
+ju 2
+blo "47000,74300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 710,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,35000,800"
+st "adc_offset_dat_ch4_o : OUT    std_logic_vector (15 DOWNTO 0) ;
+"
+)
+)
+*101 (CptPort
+uid 711,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 712,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "48000,74625,48750,75375"
+)
+n "adc_offset_dat_ch5_o"
+t "std_logic_vector"
+b "(15 DOWNTO 0)"
+m 1
+o 88
+r 100
+tg (CPTG
+uid 713,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 714,0
+va (VaSet
+)
+xt "36000,74500,47000,75500"
+st "adc_offset_dat_ch5_o : (15:0)"
+ju 2
+blo "47000,75300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 715,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,35000,800"
+st "adc_offset_dat_ch5_o : OUT    std_logic_vector (15 DOWNTO 0) ;
+"
+)
+)
+*102 (CptPort
+uid 716,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 717,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "48000,75625,48750,76375"
+)
+n "adc_offset_dat_ch6_o"
+t "std_logic_vector"
+b "(15 DOWNTO 0)"
+m 1
+o 88
+r 101
+tg (CPTG
+uid 718,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 719,0
+va (VaSet
+)
+xt "36000,75500,47000,76500"
+st "adc_offset_dat_ch6_o : (15:0)"
+ju 2
+blo "47000,76300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 720,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,35000,800"
+st "adc_offset_dat_ch6_o : OUT    std_logic_vector (15 DOWNTO 0) ;
+"
+)
+)
+*103 (CptPort
+uid 721,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 722,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "48000,76625,48750,77375"
+)
+n "adc_offset_dat_ch7_o"
+t "std_logic_vector"
+b "(15 DOWNTO 0)"
+m 1
+o 88
+r 102
+tg (CPTG
+uid 723,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 724,0
+va (VaSet
+)
+xt "36000,76500,47000,77500"
+st "adc_offset_dat_ch7_o : (15:0)"
+ju 2
+blo "47000,77300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 725,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,35000,800"
+st "adc_offset_dat_ch7_o : OUT    std_logic_vector (15 DOWNTO 0) ;
+"
+)
+)
+*104 (CptPort
+uid 726,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 727,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "48000,77625,48750,78375"
+)
+n "adc_offset_dat_ch8_o"
+t "std_logic_vector"
+b "(15 DOWNTO 0)"
+m 1
+o 88
+r 103
+tg (CPTG
+uid 728,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 729,0
+va (VaSet
+)
+xt "36000,77500,47000,78500"
+st "adc_offset_dat_ch8_o : (15:0)"
+ju 2
+blo "47000,78300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 730,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,35000,800"
+st "adc_offset_dat_ch8_o : OUT    std_logic_vector (15 DOWNTO 0) ;
 "
 )
 )
@@ -3968,7 +4656,7 @@ fg "0,65535,0"
 lineColor "0,32896,0"
 lineWidth 2
 )
-xt "15000,-13000,48000,71000"
+xt "15000,-13000,48000,79000"
 )
 oxt "15000,-12500,48000,70000"
 biTextGroup (BiTextGroup
@@ -3994,7 +4682,7 @@ st "wbs_fb_data"
 blo "29400,37800"
 )
 )
-gi *89 (GenericInterface
+gi *105 (GenericInterface
 uid 13,0
 ps "CenterOffsetStrategy"
 matrix (Matrix
@@ -4021,10 +4709,10 @@ sIVOD 1
 )
 columnWidths "All,20,60,53,109,105,103,60,77;"
 )
-*90 (Grouping
+*106 (Grouping
 uid 592,0
 optionalChildren [
-*91 (CommentGraphic
+*107 (CommentGraphic
 uid 594,0
 shape (ZoomableIcon
 uid 595,0
@@ -4039,7 +4727,7 @@ iconName "C:\\scuba2_repository\\architecture\\logos\\ubc.jpg"
 )
 oxt "269480,230900,273000,236000"
 )
-*92 (CommentGraphic
+*108 (CommentGraphic
 uid 596,0
 shape (PolyLine2D
 pts [
@@ -4058,7 +4746,7 @@ xt "27000,74000,27000,81000"
 )
 oxt "255000,230000,255000,237000"
 )
-*93 (CommentGraphic
+*109 (CommentGraphic
 uid 598,0
 shape (PolyLine2D
 pts [
@@ -4077,7 +4765,7 @@ xt "67000,74000,67000,81000"
 )
 oxt "295000,230000,295000,237000"
 )
-*94 (CommentGraphic
+*110 (CommentGraphic
 uid 600,0
 shape (PolyLine2D
 pts [
@@ -4096,7 +4784,7 @@ xt "27000,74000,67000,74000"
 )
 oxt "255000,230000,295000,230000"
 )
-*95 (CommentText
+*111 (CommentText
 uid 602,0
 shape (Rectangle
 uid 603,0
@@ -4126,7 +4814,7 @@ visibleWidth 20000
 )
 position 4
 )
-*96 (CommentText
+*112 (CommentText
 uid 605,0
 shape (Rectangle
 uid 606,0
@@ -4155,7 +4843,7 @@ visibleWidth 15000
 )
 position 1
 )
-*97 (CommentText
+*113 (CommentText
 uid 608,0
 shape (Rectangle
 uid 609,0
@@ -4190,7 +4878,7 @@ visibleWidth 20000
 )
 position 1
 )
-*98 (CommentText
+*114 (CommentText
 uid 611,0
 shape (Rectangle
 uid 612,0
@@ -4219,7 +4907,7 @@ visibleWidth 5000
 )
 position 1
 )
-*99 (CommentText
+*115 (CommentText
 uid 614,0
 shape (Rectangle
 uid 615,0
@@ -4248,7 +4936,7 @@ visibleWidth 8000
 )
 position 1
 )
-*100 (CommentText
+*116 (CommentText
 uid 617,0
 shape (Rectangle
 uid 618,0
@@ -4278,7 +4966,7 @@ visibleWidth 8000
 )
 position 1
 )
-*101 (CommentText
+*117 (CommentText
 uid 620,0
 shape (Rectangle
 uid 621,0
@@ -4307,7 +4995,7 @@ visibleWidth 5000
 )
 position 1
 )
-*102 (CommentText
+*118 (CommentText
 uid 623,0
 shape (Rectangle
 uid 624,0
@@ -4337,7 +5025,7 @@ visibleWidth 15000
 )
 position 1
 )
-*103 (CommentText
+*119 (CommentText
 uid 626,0
 shape (Rectangle
 uid 627,0
@@ -4367,7 +5055,7 @@ visibleWidth 8000
 )
 position 1
 )
-*104 (CommentGraphic
+*120 (CommentGraphic
 uid 629,0
 shape (ZoomableIcon
 uid 630,0
@@ -4382,7 +5070,7 @@ iconName "C:\\scuba2_repository\\architecture\\logos\\ATC.jpg"
 )
 oxt "257000,231112,267000,236000"
 )
-*105 (CommentText
+*121 (CommentText
 uid 631,0
 shape (Rectangle
 uid 632,0
@@ -4411,7 +5099,7 @@ visibleWidth 5000
 )
 position 1
 )
-*106 (CommentText
+*122 (CommentText
 uid 634,0
 shape (Rectangle
 uid 635,0
@@ -4441,7 +5129,7 @@ visibleWidth 15000
 )
 position 1
 )
-*107 (CommentText
+*123 (CommentText
 uid 637,0
 shape (Rectangle
 uid 638,0
@@ -4471,7 +5159,7 @@ visibleWidth 12000
 )
 position 1
 )
-*108 (CommentText
+*124 (CommentText
 uid 640,0
 shape (Rectangle
 uid 641,0
@@ -4501,7 +5189,7 @@ visibleWidth 12000
 )
 position 1
 )
-*109 (CommentText
+*125 (CommentText
 uid 643,0
 shape (Rectangle
 uid 644,0
@@ -4557,11 +5245,11 @@ xShown 1
 yShown 1
 color "26368,26368,26368"
 )
-packageList *110 (PackageList
+packageList *126 (PackageList
 uid 70,0
 stg "VerticalLayoutStrategy"
 textVec [
-*111 (Text
+*127 (Text
 uid 71,0
 va (VaSet
 isHidden 1
@@ -4571,7 +5259,7 @@ xt "0,0,5400,1000"
 st "Package List"
 blo "0,800"
 )
-*112 (MLText
+*128 (MLText
 uid 72,0
 va (VaSet
 isHidden 1
@@ -4671,7 +5359,7 @@ st "<cell>"
 blo "22400,16800"
 )
 )
-gi *113 (GenericInterface
+gi *129 (GenericInterface
 ps "CenterOffsetStrategy"
 matrix (Matrix
 text (MLText
@@ -4760,7 +5448,7 @@ font "Courier New,8,0"
 )
 )
 )
-DeclarativeBlock *114 (SymDeclBlock
+DeclarativeBlock *130 (SymDeclBlock
 uid 1,0
 stg "SymDeclLayoutStrategy"
 declLabel (Text
@@ -4820,5 +5508,5 @@ xt "42000,0,42000,0"
 tm "SyDeclarativeTextMgr"
 )
 )
-lastUid 650,0
+lastUid 730,0
 )
