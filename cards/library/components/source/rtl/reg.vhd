@@ -20,7 +20,7 @@
 
 -- reg.vhd
 --
--- <revision control keyword substitutions e.g. $Id: reg.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: reg.vhd,v 1.2 2004/04/02 01:14:10 bburger Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,8 +31,8 @@
 --
 -- Revision history:
 -- Mar. 3 2004   - Initial version      - EL
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
-
+-- <date $Date: 2004/04/02 01:14:10 $>	-		<text>		- <initials $Author: bburger $>
+-- $Log$
 --
 ------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ begin
          reg_o <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(ena_i = '1') then
-               reg_o <= reg_i;
+            reg_o <= reg_i;
          end if;
       end if;
    end process registr;
