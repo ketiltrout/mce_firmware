@@ -23,6 +23,8 @@ component fibre_rx_pll
 	PORT
 	(
 		inclk0		: IN STD_LOGIC  := '0';
-		c0		: OUT STD_LOGIC 
+		c0		: OUT STD_LOGIC ;
+		e0		: OUT STD_LOGIC ;
+		e1		: OUT STD_LOGIC 
 	);
 end component;

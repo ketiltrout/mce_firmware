@@ -25,5 +25,7 @@ FUNCTION fibre_rx_pll
 )
 
 RETURNS (
-	c0
+	c0,
+	e0,
+	e1
 );

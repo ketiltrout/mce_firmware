@@ -17,6 +17,7 @@ FILES
 	SIGNALTAP_FILE = fibre_rx_wrapper.stp;
 	SIGNALTAP_FILE = fibre_rx_wrapper.stp;
 	TCL_SCRIPT_FILE = cc_fibre_rx_wrapper.tcl;
+	CDF_FILE = fibre_rx_wrapper.cdf;
 }
 COMPILER_SETTINGS_LIST
 {

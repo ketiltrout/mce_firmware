@@ -233,10 +233,20 @@ AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
 	"fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|cmd_data_o[8]" : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_data_in[84];
 	"fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|cmd_data_o[9]" : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_data_in[85];
 	"fibre_rx:i_fibre_rx|nRx_rdy_i" : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_data_in[110];
-	SLD_NODE_PARAMETER_ASSIGNMENT = "SLD_DATA_BITS=111";
-	SLD_NODE_PARAMETER_ASSIGNMENT = "SLD_TRIGGER_BITS=111";
-	SLD_NODE_PARAMETER_ASSIGNMENT = "SLD_NODE_CRC_LOWORD=16871";
-	SLD_NODE_PARAMETER_ASSIGNMENT = "SLD_NODE_CRC_HIWORD=44148";
+	fibre_rx_ckr : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_trigger_in[111];
+	fibre_rx_rdy : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_trigger_in[112];
+	fibre_rx_rvs : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_trigger_in[113];
+	fibre_rx_sc_nd : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_trigger_in[114];
+	fibre_rx_status : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_trigger_in[115];
+	fibre_rx_ckr : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_data_in[111];
+	fibre_rx_rdy : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_data_in[112];
+	fibre_rx_rvs : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_data_in[113];
+	fibre_rx_sc_nd : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_data_in[114];
+	fibre_rx_status : CONNECT_TO_SLD_NODE_ENTITY_PORT = acq_data_in[115];
+	SLD_NODE_PARAMETER_ASSIGNMENT = "SLD_DATA_BITS=116";
+	SLD_NODE_PARAMETER_ASSIGNMENT = "SLD_TRIGGER_BITS=116";
+	SLD_NODE_PARAMETER_ASSIGNMENT = "SLD_NODE_CRC_LOWORD=47512";
+	SLD_NODE_PARAMETER_ASSIGNMENT = "SLD_NODE_CRC_HIWORD=55849";
 }
 COMPILER_SETTINGS
 {
@@ -532,9 +542,6 @@ CHIP(fibre_rx_wrapper)
 	fibre_rx_status : LOCATION = Pin_AH10;
 	fibre_rx_sc_nd : LOCATION = Pin_AF10;
 	fibre_rx_rvs : LOCATION = Pin_AD10;
-	grn_led : LOCATION = Pin_AC23;
-	ylw_led : LOCATION = Pin_AC24;
-	red_led : LOCATION = Pin_AB22;
 	dip_sw2 : LOCATION = Pin_B8;
 	dip_sw3 : LOCATION = Pin_A8;
 	dip_sw4 : LOCATION = Pin_A9;

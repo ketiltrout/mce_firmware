@@ -73,7 +73,7 @@ RESERVED_INPUT               : A20       :        :                   :         
 RESERVED_INPUT               : A21       :        :                   :         : 3         :                
 RESERVED_INPUT               : A22       :        :                   :         : 3         :                
 RESERVED_INPUT               : A23       :        :                   :         : 3         :                
-test1_o                      : A24       : output : LVTTL             :         : 3         : N              
+RESERVED_INPUT               : A24       :        :                   :         : 3         :                
 RESERVED_INPUT               : A25       :        :                   :         : 3         :                
 RESERVED_INPUT               : A26       :        :                   :         : 3         :                
 VCCIO3                       : A27       : power  :                   : 3.3V    : 3         :                
@@ -168,9 +168,9 @@ NC                           : AD4       :        :                   :         
 RESERVED_INPUT               : AD5       :        :                   :         : 7         :                
 RESERVED_INPUT               : AD6       :        :                   :         : 7         :                
 GND                          : AD7       :        :                   :         : 7         :                
-RESERVED_INPUT               : AD8       :        :                   :         : 7         :                
+fibre_rx_data[5]             : AD8       : input  : LVTTL             :         : 7         : Y              
 GND                          : AD9       :        :                   :         : 7         :                
-RESERVED_INPUT               : AD10      :        :                   :         : 7         :                
+fibre_rx_rvs                 : AD10      : input  : LVTTL             :         : 7         : Y              
 GND                          : AD11      :        :                   :         : 7         :                
 RESERVED_INPUT               : AD12      :        :                   :         : 7         :                
 RESERVED_INPUT               : AD13      :        :                   :         : 7         :                
@@ -197,12 +197,12 @@ RESERVED_INPUT               : AE5       :        :                   :         
 RESERVED_INPUT               : AE6       :        :                   :         : 7         :                
 RESERVED_INPUT               : AE7       :        :                   :         : 7         :                
 RESERVED_INPUT               : AE8       :        :                   :         : 7         :                
-RESERVED_INPUT               : AE9       :        :                   :         : 7         :                
-RESERVED_INPUT               : AE10      :        :                   :         : 7         :                
+fibre_rx_data[2]             : AE9       : input  : LVTTL             :         : 7         : Y              
+fibre_rx_ckr                 : AE10      : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AE11      :        :                   :         : 7         :                
 RESERVED_INPUT               : AE12      :        :                   :         : 7         :                
 RESERVED_INPUT               : AE13      :        :                   :         : 7         :                
-RESERVED_INPUT               : AE14      :        :                   :         : 7         :                
+fibre_rx_rdy                 : AE14      : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AE15      :        :                   :         : 11        :                
 RESERVED_INPUT               : AE16      :        :                   :         : 8         :                
 RESERVED_INPUT               : AE17      :        :                   :         : 8         :                
@@ -224,9 +224,9 @@ RESERVED_INPUT               : AF4       :        :                   :         
 RESERVED_INPUT               : AF5       :        :                   :         : 7         :                
 RESERVED_INPUT               : AF6       :        :                   :         : 7         :                
 RESERVED_INPUT               : AF7       :        :                   :         : 7         :                
-RESERVED_INPUT               : AF8       :        :                   :         : 7         :                
-RESERVED_INPUT               : AF9       :        :                   :         : 7         :                
-RESERVED_INPUT               : AF10      :        :                   :         : 7         :                
+fibre_rx_data[6]             : AF8       : input  : LVTTL             :         : 7         : Y              
+fibre_rx_data[1]             : AF9       : input  : LVTTL             :         : 7         : Y              
+fibre_rx_sc_nd               : AF10      : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AF11      :        :                   :         : 7         :                
 RESERVED_INPUT               : AF12      :        :                   :         : 7         :                
 RESERVED_INPUT               : AF13      :        :                   :         : 7         :                
@@ -252,8 +252,8 @@ RESERVED_INPUT               : AG4       :        :                   :         
 RESERVED_INPUT               : AG5       :        :                   :         : 7         :                
 RESERVED_INPUT               : AG6       :        :                   :         : 7         :                
 RESERVED_INPUT               : AG7       :        :                   :         : 7         :                
-RESERVED_INPUT               : AG8       :        :                   :         : 7         :                
-RESERVED_INPUT               : AG9       :        :                   :         : 7         :                
+fibre_rx_data[7]             : AG8       : input  : LVTTL             :         : 7         : Y              
+fibre_rx_data[0]             : AG9       : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AG10      :        :                   :         : 7         :                
 RESERVED_INPUT               : AG11      :        :                   :         : 7         :                
 RESERVED_INPUT               : AG12      :        :                   :         : 7         :                
@@ -279,9 +279,9 @@ RESERVED_INPUT               : AH4       :        :                   :         
 RESERVED_INPUT               : AH5       :        :                   :         : 7         :                
 RESERVED_INPUT               : AH6       :        :                   :         : 7         :                
 RESERVED_INPUT               : AH7       :        :                   :         : 7         :                
-RESERVED_INPUT               : AH8       :        :                   :         : 7         :                
-RESERVED_INPUT               : AH9       :        :                   :         : 7         :                
-RESERVED_INPUT               : AH10      :        :                   :         : 7         :                
+fibre_rx_data[3]             : AH8       : input  : LVTTL             :         : 7         : Y              
+fibre_rx_data[4]             : AH9       : input  : LVTTL             :         : 7         : Y              
+fibre_rx_status              : AH10      : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AH11      :        :                   :         : 7         :                
 VCCIO7                       : AH12      : power  :                   : 3.3V    : 7         :                
 RESERVED_INPUT               : AH13      :        :                   :         : 7         :                
@@ -302,7 +302,7 @@ VCCIO8                       : AH27      : power  :                   : 3.3V    
 VCCIO5                       : B1        : power  :                   : 3.3V    : 5         :                
 GND                          : B2        : gnd    :                   :         : 1         :                
 RESERVED_INPUT               : B3        :        :                   :         : 4         :                
-stim2_i                      : B4        : input  : LVTTL             :         : 4         : N              
+RESERVED_INPUT               : B4        :        :                   :         : 4         :                
 RESERVED_INPUT               : B5        :        :                   :         : 4         :                
 RESERVED_INPUT               : B6        :        :                   :         : 4         :                
 RESERVED_INPUT               : B7        :        :                   :         : 4         :                
@@ -313,7 +313,7 @@ RESERVED_INPUT               : B11       :        :                   :         
 RESERVED_INPUT               : B12       :        :                   :         : 4         :                
 RESERVED_INPUT               : B13       :        :                   :         : 4         :                
 DIODEH                       : B14       :        :                   :         : 1         :                
-RESERVED_INPUT               : B15       :        :                   :         : 10        :                
+test1_o                      : B15       : output : LVTTL             :         : 10        : N              
 RESERVED_INPUT               : B16       :        :                   :         : 3         :                
 RESERVED_INPUT               : B17       :        :                   :         : 3         :                
 RESERVED_INPUT               : B18       :        :                   :         : 3         :                
@@ -341,7 +341,7 @@ RESERVED_INPUT               : C11       :        :                   :         
 RESERVED_INPUT               : C12       :        :                   :         : 4         :                
 RESERVED_INPUT               : C13       :        :                   :         : 4         :                
 DIODEL                       : C14       :        :                   :         : 1         :                
-RESERVED_INPUT               : C15       :        :                   :         : 10        :                
+fibre_rx_clk                 : C15       : output : LVTTL             :         : 10        : Y              
 RESERVED_INPUT               : C16       :        :                   :         : 3         :                
 RESERVED_INPUT               : C17       :        :                   :         : 3         :                
 RESERVED_INPUT               : C18       :        :                   :         : 3         :                
@@ -419,7 +419,7 @@ RESERVED_INPUT               : F5        :        :                   :         
 RESERVED_INPUT               : F6        :        :                   :         : 5         :                
 RESERVED_INPUT               : F7        :        :                   :         : 4         :                
 RESERVED_INPUT               : F8        :        :                   :         : 4         :                
-stim1_i                      : F9        : input  : LVTTL             :         : 4         : N              
+RESERVED_INPUT               : F9        :        :                   :         : 4         :                
 RESERVED_INPUT               : F10       :        :                   :         : 4         :                
 RESERVED_INPUT               : F11       :        :                   :         : 4         :                
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
@@ -536,7 +536,7 @@ RESERVED_INPUT               : K10       :        :                   :         
 RESERVED_INPUT               : K11       :        :                   :         : 4         :                
 altera_reserved_tck          : K12       : input  : LVTTL             :         : 4         : N              
 GND+                         : K13       :        :                   :         : 4         :                
-RESERVED_INPUT               : K14       :        :                   :         : 9         :                
+fibre_tx_clk                 : K14       : output : LVTTL             :         : 9         : Y              
 RESERVED_INPUT               : K15       :        :                   :         : 9         :                
 RESERVED_INPUT               : K16       :        :                   :         : 10        :                
 clk_i                        : K17       : input  : LVTTL             :         : 3         : Y              
