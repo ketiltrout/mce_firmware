@@ -3,3 +3,6 @@ branch 1
 new file
 
 what main branch becomes
+branch 1
+
+let's see what b1 becomes
