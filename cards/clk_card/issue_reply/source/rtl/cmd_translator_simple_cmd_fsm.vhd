@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.4 2004/06/21 17:02:29 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.5 2004/07/28 23:39:26 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/21 17:02:29 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/28 23:39:26 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.5  2004/07/28 23:39:26  jjacob
+-- added:
+-- library sys_param;
+-- use sys_param.command_pack.all;
+--
 -- Revision 1.4  2004/06/21 17:02:29  jjacob
 -- first stable version, doesn't yet have macro-instruction buffer, doesn't have
 -- "quick" acknolwedgements for instructions that require them, no error
@@ -113,56 +118,15 @@ port(
      
 end cmd_translator_simple_cmd_fsm;
 
-
 architecture rtl of cmd_translator_simple_cmd_fsm is
 
-
-   --type state is (IDLE, ISSUE_CMD);
-   
-   --signal current_state, next_state : state;
-   --signal word_count     : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
-
-
 begin
-------------------------------------------------------------------------
---
--- 
---
-------------------------------------------------------------------------
-
---   process(current_state, cmd_start_i, ack_i)
---   begin
---      case current_state is
---         when IDLE =>
---            if cmd_start_i = '1' and ack_i = '1' then
---               next_state <= SIMPLE_CMD_ISSUE;
---            elsif cmd_start_i = '1' and ack_i = '0' then
---               next_state <= SIMPLE_CMD_STALL;
---            else
---               next_state <= IDLE;
---            end if;
---            
---         when SIMPLE_CMD_ISSUE =>
---            if cmd_start_i = '1' then
---               next_state <= SIMPLE_CMD_ISSUE;
---            else 
---               next_state <= IDLE;
---            end if;
---         
---         when SIMPLE_CMD_STALL =>
---            if ack_i
---         
---   
---   end process;
-
-
 
 ------------------------------------------------------------------------
 --
 -- 
 --
 ------------------------------------------------------------------------
-
 
 
    process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.11 2004/08/06 00:14:14 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.12 2004/08/24 00:00:44 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/06 00:14:14 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/24 00:00:44 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.12  2004/08/24 00:00:44  jjacob
+-- registered the macro_instr_rdy_o signal, and the ack_i signal to/from the
+-- cmd_queue to break a combinational loop
+--
 -- Revision 1.11  2004/08/06 00:14:14  jjacob
 -- hard coded data size to (others=>'0') for ret_dat commands.  This needs
 -- to be changed at the source.
@@ -98,35 +102,29 @@ use components.component_pack.all;
 library work;
 use work.issue_reply_pack.all;
 
-
-
 entity cmd_translator_arbiter is
 
 port(
 
      -- global inputs
 
-      rst_i        : in     std_logic;
-      clk_i        : in     std_logic;
-      
+      rst_i                        : in std_logic;
+      clk_i                        : in std_logic;
 
       -- inputs from the 'return data' state machine
-      ret_dat_frame_seq_num_i       : in std_logic_vector (31 downto 0);
-      ret_dat_frame_sync_num_i        : in std_logic_vector (7 downto 0);
+      ret_dat_frame_seq_num_i      : in std_logic_vector (31 downto 0);
+      ret_dat_frame_sync_num_i     : in std_logic_vector (7 downto 0);
       
-      ret_dat_card_addr_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      ret_dat_parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targett_ig
-      ret_dat_data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      ret_dat_data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      ret_dat_data_clk_i        : in std_logic;							                          -- for clocking out the data
-      ret_dat_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      ret_dat_fsm_working_i     : in std_logic;
-      
- 
+      ret_dat_card_addr_i          : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      ret_dat_parameter_id_i       : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targett_ig
+      ret_dat_data_size_i          : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      ret_dat_data_i               : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      ret_dat_data_clk_i           : in std_logic;							                                   -- for clocking out the data
+      ret_dat_macro_instr_rdy_i    : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
+      ret_dat_fsm_working_i        : in std_logic;
+
       -- output to the 'return data' state machine
-      ret_dat_ack_o             : out std_logic;                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
-
-
+      ret_dat_ack_o                : out std_logic;                                         -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
 
       -- inputs from the 'simple commands' state machine
       simple_cmd_card_addr_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
@@ -135,31 +133,28 @@ port(
       simple_cmd_data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       simple_cmd_data_clk_i        : in std_logic;							                                   -- for clocking out the data
       simple_cmd_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      
  
       -- output to the ret_dat state machine
       simple_cmd_ack_o             : out std_logic ;  
       
       -- input for sync_number for simple commands
-      sync_number_i                : in    std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
-
+      sync_number_i                : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
 
       -- outputs to the micro instruction sequence generator
-      m_op_seq_num_o        : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);--( 7 downto 0);
-      frame_seq_num_o       : out std_logic_vector (31 downto 0);
-      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
+      m_op_seq_num_o               : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);        -- (7 downto 0);
+      frame_seq_num_o              : out std_logic_vector (31 downto 0);
+      frame_sync_num_o             : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);   -- (7 downto 0);
       
       -- outputs to the micro-instruction generator (cmd_queue)
-      card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_o       : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      data_o            : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_o        : out std_logic;							                          -- for clocking out the data
-      macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      
- 
+      card_addr_o                  : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o               : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_o                  : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      data_o                       : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      data_clk_o                   : out std_logic;							                                   -- for clocking out the data
+      macro_instr_rdy_o            : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
+
       -- input from the micro-instruction generator (cmd_queue)
-      ack_i             : in std_logic                   -- acknowledgment from the micro-instr generator (cmd_queue) that it is ready and has grabbed the data
+      ack_i                        : in std_logic                   -- acknowledgment from the micro-instr generator (cmd_queue) that it is ready and has grabbed the data
 
    ); 
      
@@ -167,8 +162,6 @@ end cmd_translator_arbiter;
 
 
 architecture rtl of cmd_translator_arbiter is
-
-
 
    signal macro_instr_rdy           : std_logic;
    signal macro_instr_rdy_reg       : std_logic;
@@ -185,17 +178,15 @@ architecture rtl of cmd_translator_arbiter is
    signal frame_sync_num            : std_logic_vector (7 downto 0);
    signal frame_sync_num_1st_stg    : std_logic_vector (7 downto 0);
 
-
    signal data_mux_sel              : std_logic; --'0' routes simple cmds thru, '1' is for ret_dat cmds
    signal simple_cmd_ack_mux_sel    : std_logic;
    signal ret_dat_ack_mux_sel       : std_logic;
    
    signal ret_dat_pending_mux       : std_logic;
    signal ret_dat_pending_mux_sel   : std_logic_vector(1 downto 0);
-   --type a_state is (SIMPLE_CMD, RET_DAT);
    
-   type state is (IDLE, SIMPLE_CMD_RDY, SIMPLE_CMD_PAUSE, RET_DAT_RDY, RET_DAT_PAUSE, RET_DAT_RDY_SIMPLE_CMD_PENDING,
-                  RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT, RDY_HIGH, RDY_LOW1, RDY_LOW2, RDY_LOW_WAIT);
+   type   state is (IDLE, SIMPLE_CMD_RDY, SIMPLE_CMD_PAUSE, RET_DAT_RDY, RET_DAT_PAUSE, RET_DAT_RDY_SIMPLE_CMD_PENDING,
+                    RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT, RDY_HIGH, RDY_LOW1, RDY_LOW2, RDY_LOW_WAIT);
                    
    signal current_state, next_state : state;
    signal m_op_seq_num_next_state, m_op_seq_num_cur_state : state;
@@ -207,8 +198,8 @@ architecture rtl of cmd_translator_arbiter is
    
    signal ack_reg                   : std_logic;
    
-   constant SIMPLE_CMD : std_logic := '0';
-   constant RET_DAT    : std_logic := '1';
+   constant SIMPLE_CMD              : std_logic := '0';
+   constant RET_DAT                 : std_logic := '1';
 
 begin
 
@@ -252,9 +243,9 @@ begin
             if simple_cmd_macro_instr_rdy_i = '1' then
                next_state <= SIMPLE_CMD_RDY;
             elsif ret_dat_macro_instr_rdy_i = '1' then
-               next_state <= SIMPLE_CMD_PAUSE;--RET_DAT_RDY;
+               next_state <= SIMPLE_CMD_PAUSE;
             else
-               next_state <= IDLE;--SIMPLE_CMD_RDY;
+               next_state <= IDLE;
             end if;
             
          when SIMPLE_CMD_PAUSE =>
@@ -266,7 +257,7 @@ begin
             elsif ret_dat_macro_instr_rdy_i = '1' then
                next_state <= RET_DAT_RDY;
             else
-               next_state <= IDLE;--SIMPLE_CMD_RDY;
+               next_state <= IDLE;
             end if; 
             
          when RET_DAT_RDY_SIMPLE_CMD_PENDING =>
@@ -280,8 +271,7 @@ begin
             
          when RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT =>
             next_state <= SIMPLE_CMD_RDY;
-         
-            
+                    
          when others => next_state <= IDLE;
          
       end case;
@@ -295,33 +285,30 @@ begin
 -- assign outputs
 --
 ------------------------------------------------------------------------
-
-   
+  
    process(current_state, simple_cmd_macro_instr_rdy_i, ret_dat_macro_instr_rdy_i, ret_dat_pending)           
    begin
 
+         -- defaults
          data_mux_sel               <= '0';  --'0' routes simple cmds thru, '1' is for ret_dat cmds
-
          simple_cmd_ack_mux_sel     <= '0';
          ret_dat_ack_mux_sel        <= '0';
          macro_instr_rdy_mux_sel    <= '0'; 
          ret_dat_pending_mux_sel    <= "00";
-         --m_op_seq_num_mux_sel       <= "00"; 
    
       case current_state is
        
          when IDLE =>
             ret_dat_pending_mux_sel           <= "10"; 
-            --null;
       
          when SIMPLE_CMD_RDY =>
             if simple_cmd_macro_instr_rdy_i = '1' then
                simple_cmd_ack_mux_sel         <= '1';
             elsif ret_dat_macro_instr_rdy_i = '1' then
-               if ret_dat_pending = '1' then  -- JJ might not need this signal if else is never executed
+               if ret_dat_pending = '1' then 
                   data_mux_sel                <= '1';
                   macro_instr_rdy_mux_sel     <= '1';
-               else  -- JJ is this 'else' ever executed? (don't think so)
+               else
                   data_mux_sel                <= '1';
                   ret_dat_ack_mux_sel         <= '1';
                end if;
@@ -329,60 +316,33 @@ begin
                simple_cmd_ack_mux_sel         <= '1';
             end if;
             ret_dat_pending_mux_sel           <= "10"; 
-            --m_op_seq_num_mux_sel              <= "10";
             
          when SIMPLE_CMD_PAUSE =>
             macro_instr_rdy_mux_sel           <= '1';
             ret_dat_pending_mux_sel           <= "10";
-            --m_op_seq_num_mux_sel              <= "01";
 
          when RET_DAT_PAUSE =>
             data_mux_sel                      <= '1';
             ret_dat_pending_mux_sel           <= "10";
-            --m_op_seq_num_mux_sel              <= "01";
  
-         when RET_DAT_RDY =>
-         
-
+         when RET_DAT_RDY =>        
             if ret_dat_macro_instr_rdy_i = '1' then
-               data_mux_sel                      <= '1';
-               --ret_dat_ack_mux_sel               <= '1';
+               data_mux_sel                   <= '1';
             end if; 
-            
-            
-                      
---            data_mux_sel                      <= '1';
             ret_dat_ack_mux_sel               <= '1';
-            
-            --m_op_seq_num_mux_sel              <= "10";
           
          when RET_DAT_RDY_SIMPLE_CMD_PENDING =>
-         
---            if ret_dat_macro_instr_rdy_i = '0' and simple_cmd_macro_instr_rdy_i = '1' then
--- 
---              data_mux_sel                      <= '0';
---              ret_dat_ack_mux_sel               <= '1';
---              ret_dat_pending_mux_sel           <= "10";       
---         
---            else  
---                  
+
             data_mux_sel                      <= '1';
             ret_dat_ack_mux_sel               <= '1';
-            ret_dat_pending_mux_sel           <= "10"; 
-            --m_op_seq_num_mux_sel              <= "10";
-            
- 
---            end if; 
+            ret_dat_pending_mux_sel           <= "10";
              
          when RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT =>
             ret_dat_pending_mux_sel           <= "01";
-            --m_op_seq_num_mux_sel              <= "01";
-            --null;
                   
          when others =>              
             simple_cmd_ack_mux_sel            <= '1';
             ret_dat_pending_mux_sel           <= "10";
-            --m_op_seq_num_mux_sel              <= "10"; 
             
       end case;
    end process;
@@ -402,60 +362,36 @@ begin
    
    frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
    frame_sync_num_o     <= sync_number_plus_1           when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
-   --frame_sync_num_o     <= x"01"                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
    
    sync_number_plus_1   <= sync_number_i + 1;
 
---   frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else frame_seq_num;
---   frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else frame_sync_num;
---   
---   frame_seq_num_1st_stg        <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
---   frame_sync_num_1st_stg       <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;   
-
---   simple_cmd_ack_o     <= ack_i                        when simple_cmd_ack_mux_sel = '1' else '0';
---   ret_dat_ack_o        <= ack_i                        when ret_dat_ack_mux_sel = '1'    else '0'; 
-
-   simple_cmd_ack_o     <= ack_reg                        when simple_cmd_ack_mux_sel = '1' else '0';
-   ret_dat_ack_o        <= ack_reg                        when ret_dat_ack_mux_sel = '1'    else '0'; 
+   simple_cmd_ack_o     <= ack_reg                      when simple_cmd_ack_mux_sel = '1' else '0';
+   ret_dat_ack_o        <= ack_reg                      when ret_dat_ack_mux_sel = '1'    else '0'; 
    
-   macro_instr_rdy_1st_stg      <= simple_cmd_macro_instr_rdy_i when data_mux_sel = '0'            else ret_dat_macro_instr_rdy_i;
-   macro_instr_rdy              <= macro_instr_rdy_1st_stg      when macro_instr_rdy_mux_sel = '0' else '0';
+   macro_instr_rdy_1st_stg <= simple_cmd_macro_instr_rdy_i   when data_mux_sel = '0'            else ret_dat_macro_instr_rdy_i;
+   macro_instr_rdy         <= macro_instr_rdy_1st_stg        when macro_instr_rdy_mux_sel = '0' else '0';
 
-   process(clk_i, rst_i)
-   begin
-      if rst_i = '1' then
-         macro_instr_rdy_reg      <= '0';
-         ack_reg                <= '0';
---         frame_seq_num        <= (others=>'0');
---         frame_sync_num       <= (others=>'0');
-      elsif clk_i'event and clk_i = '1' then
-         macro_instr_rdy_reg      <= macro_instr_rdy;
-         ack_reg                <= ack_i;
---         frame_seq_num        <= frame_seq_num_1st_stg;
---         frame_sync_num       <= frame_sync_num_1st_stg;
-      end if;
-   end process;
-
---   frame_seq_num_o  <= frame_seq_num;
---   frame_sync_num_o <= frame_sync_num;
-
- 
    -- re-circulation mux for ret_dat_pending signal
-   ret_dat_pending_mux <= '0' when ret_dat_pending_mux_sel = "00" else
-                          '1' when ret_dat_pending_mux_sel = "01" else
-                          ret_dat_pending;
-                          
+   ret_dat_pending_mux  <= '0' when ret_dat_pending_mux_sel = "00" else
+                           '1' when ret_dat_pending_mux_sel = "01" else
+                           ret_dat_pending;
+
+
    process(clk_i, rst_i)
    begin
       if rst_i = '1' then
-         ret_dat_pending <= '0';
+         macro_instr_rdy_reg    <= '0';
+         ack_reg                <= '0';
+         ret_dat_pending        <= '0';
       elsif clk_i'event and clk_i = '1' then
-         ret_dat_pending <= ret_dat_pending_mux;
+         macro_instr_rdy_reg    <= macro_instr_rdy;
+         ack_reg                <= ack_i;
+         ret_dat_pending        <= ret_dat_pending_mux;
       end if;
    end process;
 
-
-
+   macro_instr_rdy_o <= macro_instr_rdy_reg;
+   
 ------------------------------------------------------------------------
 --
 -- processes to increment macro-op sequence number
@@ -508,8 +444,7 @@ begin
             else
                m_op_seq_num_next_state <= RDY_LOW_WAIT;
             end if;
-            
-            
+                     
          when RDY_LOW_WAIT =>
             if macro_instr_rdy = '1' then
                m_op_seq_num_next_state <= RDY_HIGH;
@@ -518,7 +453,7 @@ begin
             end if;
             
          when others =>
-            m_op_seq_num_next_state <= IDLE;
+            m_op_seq_num_next_state    <= IDLE;
            
       end case;   
    end process;
@@ -537,12 +472,6 @@ begin
       end if;
    end process;
    
-   m_op_seq_num_o <= m_op_seq_num;
-
-   
-   --macro_instr_rdy_o <= macro_instr_rdy;
-   macro_instr_rdy_o <= macro_instr_rdy_reg;
-   --macro_instr_rdy_o <= macro_instr_rdy_1st_stg;
-
-        
+   m_op_seq_num_o    <= m_op_seq_num;
+     
 end rtl;

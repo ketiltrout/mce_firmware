@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.12 2004/08/11 00:08:25 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.13 2004/08/25 22:15:33 bburger Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/11 00:08:25 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/25 22:15:33 $>	-		<text>		- <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.13  2004/08/25 22:15:33  bburger
+-- Bryce:  removed the dbl_buffer command
+--
 -- Revision 1.12  2004/08/11 00:08:25  jjacob
 -- added the following signals for the reply_translator interface:
 --       reply_cmd_rcvd_er_o         : out std_logic;
@@ -115,57 +118,44 @@ port(
       -- inputs from fibre_rx      
 
       card_id_i         : in    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
-      cmd_code_i        : in    std_logic_vector (15 downto 0);   -- the least significant 16-bits from the fibre packet
-      cmd_data_i        : in    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);   -- the data
+      cmd_code_i        : in    std_logic_vector (15 downto 0);                       -- the least significant 16-bits from the fibre packet
+      cmd_data_i        : in    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);         -- the data
       cksum_err_i       : in    std_logic;
-      cmd_rdy_i         : in    std_logic;                        -- indicates the fibre_rx outputs are valid
-      data_clk_i        : in    std_logic;                        -- used to clock the data out
+      cmd_rdy_i         : in    std_logic;                                            -- indicates the fibre_rx outputs are valid
+      data_clk_i        : in    std_logic;                                            -- used to clock the data out
       num_data_i        : in    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
-      --reg_addr_i        : in    std_logic_vector (23 downto 0);   -- the parameter ID
-      param_id_i        : in    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);   -- the parameter ID
+      param_id_i        : in    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
  
       -- output to fibre_rx
       ack_o             : out std_logic;
       
       -- other inputs 
       sync_pulse_i      : in    std_logic;
-      sync_number_i     : in    std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
+      sync_number_i     : in    std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);     --(7 downto 0);
      
       -- signals from the arbiter to micro-op sequence generator
-      --ack_o             :  out std_logic;     -- DEAD unused signal --RENAME to cmd_rdy_o        -- ready signal
       card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
+      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru
       data_clk_o        :  out std_logic;
       macro_instr_rdy_o :  out std_logic;
       
       -- input from the micro-op sequence generator
       ack_i                 : in std_logic;                    -- acknowledge signal from the micro-instruction sequence generator
 
-
       -- outputs to the micro instruction sequence generator
       m_op_seq_num_o        : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
-      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
-
+      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);   --(7 downto 0);
 
       -- outputs to reply_translator for commands that require quick acknowldgements
---      reply_cmd_ack_o       : out std_logic;                                          -- for commands that require an acknowledge before the command executes
---      reply_card_addr_o     : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
---      reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
---      reply_data_size_o     : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
---      reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)        -- data will be passed straight thru
-      
       reply_cmd_rcvd_er_o         : out std_logic;
       reply_cmd_rcvd_ok_o         : out std_logic;
       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
       reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
-      reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)    -- specifies which card the command is targetting
+      reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)     -- specifies which card the command is targetting
 
- 
- 
- 
    ); 
      
 end cmd_translator;
@@ -181,25 +171,16 @@ architecture rtl of cmd_translator is
    
    signal ret_dat_ack       : std_logic;
 
-
-  
    signal ret_dat_s_start   : std_logic;
    signal ret_dat_s_done    : std_logic;
    signal ret_dat_s_ack     : std_logic;
       
-
    -- signals to state machine controlling simple commands
    signal cmd_start         : std_logic;
    signal cmd_stop          : std_logic;
-   --signal cmd_ack           : std_logic;
-   
-   -- signals to state machine controlling non-existent parameter ID (error)
---   signal error_handler_start   : std_logic;
---   signal error_handler_stop    : std_logic;
---   signal error_handler_ack     : std_logic;
-   
-   -- 'return data' signals to the arbiter, (then to micro-op  sequence generator )
-   signal ret_dat_cmd_ack            : std_logic;                                         -- ready signal
+
+   -- 'return data' signals to the arbiter, (then to micro-op sequence generator)
+   signal ret_dat_cmd_ack            : std_logic;                                          -- ready signal
    signal ret_dat_cmd_card_addr      : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
    signal ret_dat_cmd_parameter_id   : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
    signal ret_dat_cmd_data_size      : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
@@ -209,8 +190,7 @@ architecture rtl of cmd_translator is
    signal ret_dat_fsm_working        : std_logic;
    
    signal frame_seq_num              : std_logic_vector(31 downto 0);
-   signal frame_sync_num             : std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
-   --signal m_op_seq_num               : std_logic_vector( 7 downto 0);
+   signal frame_sync_num             : std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);   --(7 downto 0);
 
    -- 'simple command' signals to the arbiter, (then to micro-op  sequence generator )
    signal simple_cmd_ack             : std_logic;                                          -- ready signal
@@ -224,24 +204,11 @@ architecture rtl of cmd_translator is
    signal arbiter_ack                : std_logic_vector (2 downto 0);
    signal macro_instr_rdy            : std_logic;
 
-   constant START_CMD : std_logic_vector (15 downto 0) := x"474F";
-   constant STOP_CMD  : std_logic_vector (15 downto 0) := x"5354";
+   constant START_CMD                : std_logic_vector (15 downto 0) := x"474F";
+   constant STOP_CMD                 : std_logic_vector (15 downto 0) := x"5354";
    
-   
---  memory arrays for macro-op storage/retire buffer
---   constant BUFFER_SIZE              : integer := 8;
---   type byte is                       std_logic_vector(7 downto 0);
---   type word is                       std_logic_vector(31 downto 0);
---   
---   signal frame_seq_num_array        : word(BUFFER_SIZE-1 downto 0);
---   signal frame_sync_num_array       : byre(BUFFER_SIZE-1 downto 0);
---   signal m_op_seq_num_array         : byte(BUFFER_SIZE-1 downto 0);
---   
---   signal in_use                     : std_logic_vector(BUFFER_SIZE-1 downto 0);
-   
-   
-   signal parameter_id : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
-   signal card_addr    : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
+   signal parameter_id               : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
+   signal card_addr                  : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
 
 
 begin
@@ -253,12 +220,10 @@ begin
 --
 ------------------------------------------------------------------------     
 
-   process (cmd_rdy_i, param_id_i, cmd_code_i)
-            
+   process (cmd_rdy_i, param_id_i, cmd_code_i)            
    begin
 
-      if cmd_rdy_i = '1' then
- 
+      if cmd_rdy_i = '1' then 
          case param_id_i (7 downto 0) is  -- this is the parameter ID
             
          ---------------------------------------------------------------------------------
@@ -276,9 +241,6 @@ begin
                   cmd_start            <= '0';
                   cmd_stop             <= '0';
                   
-                  -- error_handler_start  <= '0';
-                  -- error_handler_stop   <= '0';
-                  
                else -- assume it's a stop command (STOP_CMD)
 
                   ret_dat_start        <= '0';
@@ -290,33 +252,19 @@ begin
                   cmd_start            <= '0';
                   cmd_stop             <= '0';
                   
-                  -- error_handler_start  <= '0';
-                  -- error_handler_stop   <= '0';
-                     
                end if;   
                
             when RET_DAT_S_ADDR     =>
             
                ret_dat_start           <= '0';
                ret_dat_stop            <= '0';
-               
-               
-               ret_dat_s_start          <= '1';
-               ret_dat_s_ack            <= '1';
-                              
---               reply_cmd_ack_o          <= '0';
---               reply_card_addr_o        <= (others => '0');
---               reply_parameter_id_o     <= (others => '0');
---               reply_data_size_o        <= (others => '0');
---               reply_data_o             <= (others => '0');
+              
+               ret_dat_s_start         <= '1';
+               ret_dat_s_ack           <= '1';
+       
+               cmd_start               <= '0';
+               cmd_stop                <= '0';
 
-                     
-               cmd_start                <= '0';
-               cmd_stop                 <= '0';
-                  
-               -- error_handler_start      <= '0';
-               -- error_handler_stop       <= '0';
-  
             ---------------------------------------------------------------------------------
             -- Address Card Specific
                   
@@ -428,9 +376,6 @@ begin
  	       cmd_start             <= '1';
                cmd_stop              <= '0';
                     
-               -- error_handler_start   <= '0';
-               -- error_handler_stop    <= '0';
-         
             when others =>
 
  	       ret_dat_start         <= '0';
@@ -441,10 +386,7 @@ begin
  		    
                cmd_start             <= '0';
                cmd_stop              <= '0';
-               
-               -- error_handler_start   <= '1'; 
-               -- error_handler_stop    <= '0';
-                       
+          
          end case;
                  
       else
@@ -457,10 +399,7 @@ begin
             
          cmd_start             <= '0';
          cmd_stop              <= '0';
-         
-         -- error_handler_start   <= '0';
-         -- error_handler_stop    <= '0';
-         
+ 
       end if;
       
    end process;
@@ -483,7 +422,6 @@ begin
    
    arbiter_ack <= ret_dat_s_ack & ret_dat_ack & simple_cmd_ack;
 
-
 ------------------------------------------------------------------------
 --
 -- instantiate logic to handle ret_dat command
@@ -495,13 +433,11 @@ return_data_cmd : cmd_translator_ret_dat_fsm
 port map(
 
      -- global inputs
-
       rst_i                  => rst_i,
       clk_i                  => clk_i,
 
       -- inputs from fibre_rx      
-
-      card_addr_i            => card_id_i,    -- specifies which card the command is targetting
+      card_addr_i            => card_id_i,      -- specifies which card the command is targetting
       parameter_id_i         => param_id_i,     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i            => num_data_i,     -- data_size_i, indicates number of 16-bit words of data
       data_i                 => cmd_data_i,     -- data will be passed straight thru in 16-bit words
@@ -516,8 +452,7 @@ port map(
     
       ret_dat_s_start_i      => ret_dat_s_start,
       ret_dat_s_done_o       => ret_dat_s_done,
-      
-
+ 
       -- outputs to the macro-instruction arbiter
       card_addr_o            => ret_dat_cmd_card_addr,    -- specifies which card the command is targetting
       parameter_id_o         => ret_dat_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targetting
@@ -530,7 +465,6 @@ port map(
       frame_seq_num_o        => frame_seq_num,
       frame_sync_num_o       => frame_sync_num,    
       
- 
       -- input from the macro-instruction arbiter
       ack_i                  => arbiter_ret_dat_ack,               -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
       ack_o                  => ret_dat_ack
@@ -548,13 +482,11 @@ simple_cmds : cmd_translator_simple_cmd_fsm
 port map(
 
      -- global inputs
-
       rst_i               => rst_i,
       clk_i               => clk_i,
 
       -- inputs from cmd_translator top level      
-
-      card_addr_i         => card_id_i,     -- specifies which card the command is targetting
+      card_addr_i         => card_id_i,       -- specifies which card the command is targetting
       parameter_id_i      => param_id_i,      -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i         => num_data_i,      -- data_size_i, indicates number of 16-bit words of data
       data_i              => cmd_data_i,      -- data will be passed straight thru in 16-bit words
@@ -575,18 +507,14 @@ port map(
      
       -- input from the macro-instruction arbiter
       ack_i              => simple_cmd_ack          -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
-
-
    );  
  
-
 
 arbiter : cmd_translator_arbiter
 
 port map(
 
      -- global inputs
-
       rst_i                         =>  rst_i,
       clk_i                         => clk_i,
 
@@ -598,24 +526,23 @@ port map(
       ret_dat_parameter_id_i        => ret_dat_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targett_ig
       ret_dat_data_size_i           => ret_dat_cmd_data_size,    -- num_data_i, indicates number of 16-bit words of data
       ret_dat_data_i                => ret_dat_cmd_data ,        -- data will be passed straight thru in 16-bit words
-      ret_dat_data_clk_i        			 =>	ret_dat_cmd_data_clk ,                    -- for clocking out the data
-      ret_dat_macro_instr_rdy_i     => ret_dat_cmd_ack,                          -- ='1' when the data is valid, else it's '0'
+      ret_dat_data_clk_i        			 =>	ret_dat_cmd_data_clk ,    -- for clocking out the data
+      ret_dat_macro_instr_rdy_i     => ret_dat_cmd_ack,          -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_i         => ret_dat_fsm_working, 
  
       -- output to the 'return data' state machine
-      ret_dat_ack_o                 => arbiter_ret_dat_ack ,       -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
+      ret_dat_ack_o                 => arbiter_ret_dat_ack ,     -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
 
       -- inputs from the 'simple commands' state machine
-      simple_cmd_card_addr_i        => simple_cmd_card_addr,-- specifies which card the command is targetting
-      simple_cmd_parameter_id_i     => simple_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targetting
-      simple_cmd_data_size_i        => simple_cmd_data_size,-- data_size_i, indicates number of 16-bit words of data
-      simple_cmd_data_i             => simple_cmd_data, -- data will be passed straight thru in 16-bit words
-      simple_cmd_data_clk_i        	=>	simple_cmd_data_clk,                                   -- for clocking out the data
-      simple_cmd_macro_instr_rdy_i  => simple_cmd_macro_instr_rdy,                              -- ='1' when the data is valid, else it's '0'
+      simple_cmd_card_addr_i        => simple_cmd_card_addr,     -- specifies which card the command is targetting
+      simple_cmd_parameter_id_i     => simple_cmd_parameter_id,  -- comes from param_id_i, indicates which device(s) the command is targetting
+      simple_cmd_data_size_i        => simple_cmd_data_size,     -- data_size_i, indicates number of 16-bit words of data
+      simple_cmd_data_i             => simple_cmd_data,          -- data will be passed straight thru in 16-bit words
+      simple_cmd_data_clk_i        	=>	simple_cmd_data_clk,      -- for clocking out the data
+      simple_cmd_macro_instr_rdy_i  => simple_cmd_macro_instr_rdy, -- ='1' when the data is valid, else it's '0'
        
       -- output to simple cmd fsm
-      simple_cmd_ack_o              => simple_cmd_ack,
-      
+      simple_cmd_ack_o              => simple_cmd_ack, 
       sync_number_i                 => sync_number_i,
 
       -- outputs to the micro instruction sequence generator
@@ -624,20 +551,18 @@ port map(
       frame_sync_num_o              => frame_sync_num_o,
       
       -- outputs to the micro-instruction generator
-      card_addr_o                   => card_addr,--_o,    -- specifies which card the command is targetting
-      parameter_id_o                => parameter_id,--_o, -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o                   => data_size_o,    -- num_data_i, indicates number of 16-bit words of data
-      data_o                        => data_o,         -- data will be passed straight thru in 16-bit words
-      data_clk_o       				    => data_clk_o	,    -- for clocking out the data
-      macro_instr_rdy_o             => macro_instr_rdy,-- ='1' when the data is valid, else it's '0'
+      card_addr_o                   => card_addr,               -- specifies which card the command is targetting
+      parameter_id_o                => parameter_id,            -- comes from param_id_i, indicates which device(s) the command is targetting
+      data_size_o                   => data_size_o,             -- num_data_i, indicates number of 16-bit words of data
+      data_o                        => data_o,                  -- data will be passed straight thru in 16-bit words
+      data_clk_o       				    => data_clk_o	,             -- for clocking out the data
+      macro_instr_rdy_o             => macro_instr_rdy,         -- ='1' when the data is valid, else it's '0'
       
       -- input from the micro-instruction generator
-      ack_i                         => ack_i            -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
+      ack_i                         => ack_i                    -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
 
    ); 
-     
-
-    
+  
    macro_instr_rdy_o   <= macro_instr_rdy;
    reply_cmd_rcvd_er_o <= cksum_err_i;
    reply_cmd_rcvd_ok_o <= macro_instr_rdy;
@@ -652,10 +577,7 @@ port map(
 -- macro-op storage/retire buffer
 --
 ------------------------------------------------------------------------ 
-
-
-   
-
+-- not implementing this for first delivery
 
 
 end rtl; 
