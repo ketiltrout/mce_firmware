@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.5  2004/05/16 23:42:34  erniel
+-- minor change to rs232_data_tx test string
+--
 -- Revision 1.4  2004/05/16 23:40:19  erniel
 -- added LVDS tx a & b modules
 -- removed LVDS rx clock module
@@ -59,6 +62,7 @@ entity all_test is
       n_rst : in std_logic;
       
       -- clock signals
+      inclk  : in std_logic;
       outclk : out std_logic;
       
       -- RS232 interface
@@ -68,7 +72,6 @@ entity all_test is
       -- LVDS interfaces
       lvds_txa  : out std_logic;
       lvds_txb  : out std_logic;
-      lvds_clk   : in std_logic;
       lvds_cmd   : in std_logic;
       lvds_sync  : in std_logic;
       lvds_spare : in std_logic;
@@ -189,10 +192,9 @@ architecture behaviour of all_test is
    
 begin
 --   clk_gen : pll
---      port map(inclk0 => pll_i,
+--      port map(inclk0 => inclk,
 --               c0 => clk,
---               e0 => lvds_clk,
---               e1 => pll_o);
+--               e0 => outclk);
 
    -- RS232 interface start
    receiver : async_rx
