@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.5 2004/06/08 19:04:02 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.6 2004/06/22 17:21:53 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/06/08 19:04:02 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/06/22 17:21:53 $>	- <initials $Author: mandana $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.6  2004/06/22 17:21:53  mandana
+-- added more fixed values
+--
 -- Revision 1.5  2004/06/08 19:04:02  mandana
 -- clean up (from test signals)
 --
@@ -97,8 +100,8 @@ architecture rtl of bc_dac_ctrl_test_wrapper is
 type states is (IDLE, PUSH_DATA, SPI_START, DONE); 
 signal present_state         : states;
 signal next_state            : states;
-type   w_array10 is array (9 downto 0) of word16; 
-signal data     : w_array10;
+type   w_array11 is array (10 downto 0) of word16; 
+signal data     : w_array11;
 signal idac     : integer;
 signal ibus     : integer;
 
@@ -140,7 +143,7 @@ begin
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 8)
+   generic map(MAX => 9)
    port map(clk_i   => val_clk,
             rst_i   => logic0, -- '0' or rst_i? think!!!!!
             ena_i   => logic1,
@@ -199,7 +202,7 @@ begin
   -- values tried on DAC Tests with fixed values                               
    data (0) <= "1111111111111111";--xffff     full scale
    data (1) <= "1000000000000000";--x8000     half range
-   data (2) <= "0000000000000000";--x0000     0
+   data (2) <= "0000000000000000";--x0000     
    data (3) <= "0000000000000001";--x0001 
    data (4) <= "0000000000000010";--x0002 
    data (5) <= "0000000000000100";--x0004 
@@ -207,6 +210,7 @@ begin
    data (7) <= "0000000000010000";--x0010 
    data (8) <= "0000000000100000";--x0020
    data (9) <= "0000000001000000";--x0040
+  data (10) <= "0000000010000000";--x0080
 
   -- state register:
    state_FF: process(clk_2, rst_i)
@@ -262,12 +266,18 @@ begin
 	    done_o    <= '0';
                           
          when SPI_START =>     
+            for idac in 0 to 32 loop
+               dac_data_p(idac) <= data(idx);
+            end loop;
             send_dac32_start    <= '1';
             send_dac_lvds_start <= '1';
             val_clk   <= '0';
 	    done_o    <= '0';
 
           when DONE =>    
+            for idac in 0 to 32 loop
+               dac_data_p(idac) <= data(idx);
+            end loop;
             send_dac32_start    <= '0';
             send_dac_lvds_start <= '0';
             val_clk   <= '0';
