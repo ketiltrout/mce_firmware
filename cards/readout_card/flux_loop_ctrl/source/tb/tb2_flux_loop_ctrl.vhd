@@ -50,6 +50,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.8  2004/12/07 19:44:57  mohsen
+-- Anthony & Mohsen: Miscellanous updates
+--
 -- Revision 1.7  2004/11/26 18:26:21  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -844,16 +847,16 @@ begin  -- beh
         wait for 8*PERIOD;
         wait for 25*PERIOD;
         wait for (CLOCKS_PER_ROW-25-8)*PERIOD;      
-        coadded_addr_i          <= coadded_addr_i  +1 after 10*PERIOD;
+        coadded_addr_i          <= coadded_addr_i  +1 after 13*PERIOD;
         if (conv_integer(unsigned(coadded_addr_i)) = 41-2) then
           current_bank_ctrl <= not current_bank_ctrl after 11*PERIOD;
-          addr_plus1_inc_ok <= false after 10*PERIOD,
-                               true  after (CLOCKS_PER_ROW+10)*PERIOD;
+          addr_plus1_inc_ok <= false after 13*PERIOD,
+                               true  after (CLOCKS_PER_ROW+13)*PERIOD;
         end if;
         if (conv_integer(unsigned(coadded_addr_i))=41-1) then
-          current_bank       <= not current_bank      after 11*PERIOD;
-          current_bank_fltr  <= not current_bank_fltr after 11*PERIOD;
-          coadded_addr_i <=(others => '0' ) after 10*PERIOD;
+          current_bank       <= not current_bank      after 14*PERIOD;
+          current_bank_fltr  <= not current_bank_fltr after 14*PERIOD;
+          coadded_addr_i <=(others => '0' ) after 13*PERIOD;
         end if;
  
       end loop;  -- i
@@ -1111,7 +1114,7 @@ begin  -- beh
         -- if straigh polarity is used in instantiating the fsfb_ctrl and bit
         -- 13 down to 0 of input data is used
         -- comment out if not in lock mode
-          if ((not fsfb_ctrl_dat_o(13))&fsfb_ctrl_dat_o(12 downto 0)) /= dac_dat_o then
+          if ((not fsfb_ctrl_dat_o(31))&fsfb_ctrl_dat_o(12 downto 0)) /= dac_dat_o then
             found_dac_error <= true;
           end if;
 

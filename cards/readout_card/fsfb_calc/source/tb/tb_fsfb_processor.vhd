@@ -36,6 +36,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_processor.vhd,v $
+-- Revision 1.3  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/09 17:54:12  anthonyk
 -- Various updates to reflect modified fsfb_processor definitions.
 --
@@ -70,7 +73,7 @@ architecture test of tb_fsfb_processor is
    -- constant/signal declarations
 
    constant clk_period               :     time      := 20 ns;   -- 50 MHz clock period
-   constant num_clk_row              :     integer   := 10;      -- number of clock cycles per row
+   constant num_clk_row              :     integer   := 12;      -- number of clock cycles per row
    constant num_row_frame            :     integer   := 3;       -- number of rows per frame
    constant coadd_done_cyc           :     integer   := 5;       -- cycle number at which coadd_done occurs
    constant num_ramp_frame_cycles    :     integer   := 2;       -- num of frame_cycles for fixed ramp output
