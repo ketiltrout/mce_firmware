@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.8 2004/08/27 15:41:48 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.9 2004/08/30 11:04:41 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/27 15:41:48 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/30 11:04:41 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.9  2004/08/30 11:04:41  dca
+-- typo corrected 'ASCII_T' replaces 'ASCII_P'
+--
 -- Revision 1.8  2004/08/27 15:41:48  dca
 -- Code added to handel the case of a ST
 -- command arriving with a checksum error
@@ -77,8 +80,7 @@ use work.issue_reply_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
-
-
+use sys_param.wishbone_pack.all;
 
 entity reply_translator is
 
@@ -98,7 +100,7 @@ port(
      -- signals to/from reply queue 
      m_op_done_i             : in  std_logic;                                            -- macro op done
      m_op_ok_nEr_i           : in  std_logic;                                            -- macro op success ('1') or error ('0') 
-     reply_nData_i           : in  std_logic;                                            -- macro op completion should generate a reply packet ('1') or a data packet ('0')
+     m_op_cmd_code_i         : in  std_logic_vector (CMD_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
      fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
      fibre_word_req_o        : out std_logic;                                            -- asserted to requeset next fibre word
@@ -121,6 +123,7 @@ use work.issue_reply_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 
 
@@ -355,8 +358,11 @@ signal arb_fsm_ack           : std_logic    ;
 begin
 
 
-m_op_done_reply             <= m_op_done_i and reply_nData_i;                 -- these inputs (from reply_queue) should hold true until m_op_ack_o asserted
-m_op_done_data              <= m_op_done_i and not(reply_nData_i);            -- these inputs (from reply_queue) should hold true until m_op_ack_o asserted
+-- m_op_done and m_op_cmd_code should hold true until m_op_ack_o asserted
+
+m_op_done_reply  <= m_op_done_i when m_op_cmd_code_i  /= DATA else '0';
+m_op_done_data   <= m_op_done_i when m_op_cmd_code_i   = DATA else '0';
+
 
 tx_fw_o                     <= write_fifo;                                    -- map write_fifo signal to output tx_fw_o
 
@@ -804,7 +810,7 @@ txd_o              <= fibre_byte;
 
        when TX_RP_WORD2_3 =>
        
-          if m_op_done_reply = '0' then         -- if immediate reply i.e. GO, RS or checksum error
+          if m_op_done_reply = '0' then         -- if immediate reply (GO, RS or checksum error) i.e. not instigated by reply_queue 
              fibre_next_state <= LD_WORDN_0;
           else
              fibre_next_state <= REQ_Q_WORD;   -- else if WB, ST or RB need to request reply packet word(s)

@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.5 2004/08/26 15:08:36 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.6 2004/08/30 11:05:26 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/26 15:08:36 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/30 11:05:26 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.6  2004/08/30 11:05:26  dca
+-- code to test ST command with checksum error during data readout added.
+--
 -- Revision 1.5  2004/08/26 15:08:36  dca
 -- cmd_ack_o signal removed.
 -- Some constants moved to command_pack
@@ -63,18 +66,10 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-
-library work;
-use work.issue_reply_pack.all;
-
-library sys_param;
-use sys_param.command_pack.all;
-
-
 
 entity tb_reply_translator is
 end tb_reply_translator;
+
 
 
 
@@ -87,6 +82,7 @@ use work.issue_reply_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 
 architecture bench of tb_reply_translator is
@@ -110,7 +106,7 @@ port(
      -- signals to/from reply queue 
      m_op_done_i             : in  std_logic; 
      m_op_ok_nEr_i           : in  std_logic;
-     reply_nData_i           : in  std_logic; 
+     m_op_cmd_code_i         : in  std_logic_vector (CMD_TYPE_WIDTH-1      downto 0);   
      fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);
      num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);
      fibre_word_req_o        : out std_logic;
@@ -142,7 +138,7 @@ signal   cmd_ack	       : std_logic;
        
 signal   m_op_done      : std_logic                                             := '0'; 
 signal   m_op_ok_nEr    : std_logic                                             := '0';
-signal   reply_nData    : std_logic                                             := '0';
+signal   m_op_cmd_code  : std_logic_vector (CMD_TYPE_WIDTH-1      downto 0)     := (others => '0');
 signal   fibre_word     : std_logic_vector (DATA_BUS_WIDTH-1      downto 0)     := (others => '0');
 signal   fibre_word_req : std_logic;
 signal   num_fibre_words: std_logic_vector (DATA_BUS_WIDTH-1      downto 0)     := (others => '0');
@@ -167,26 +163,25 @@ begin
       rst_i             => dut_rst,
       clk_i             => tb_clk,
     
-     
-     cmd_rcvd_er_i      => cmd_rcvd_er,                     
-     cmd_rcvd_ok_i      => cmd_rcvd_ok,               
-     cmd_code_i         => cmd_code,    
-     card_id_i          => card_id,     
-     param_id_i         => param_id, 
+      cmd_rcvd_er_i      => cmd_rcvd_er,                     
+      cmd_rcvd_ok_i      => cmd_rcvd_ok,               
+      cmd_code_i         => cmd_code,    
+      card_id_i          => card_id,     
+      param_id_i         => param_id, 
        
-     -- signals to/from reply queue 
-     m_op_done_i        => m_op_done,     
-     m_op_ok_nEr_i      => m_op_ok_nEr,   
-     reply_nData_i      => reply_nData,
-     fibre_word_i       => fibre_word, 
-     num_fibre_words_i  => num_fibre_words,
-     fibre_word_req_o   => fibre_word_req,   
-     m_op_ack_o         => m_op_ack,   
+      -- signals to/from reply queue 
+      m_op_done_i        => m_op_done,     
+      m_op_ok_nEr_i      => m_op_ok_nEr,   
+      m_op_cmd_code_i    => m_op_cmd_code,
+      fibre_word_i       => fibre_word, 
+      num_fibre_words_i  => num_fibre_words,
+      fibre_word_req_o   => fibre_word_req,   
+      m_op_ack_o         => m_op_ack,   
      
-     -- signals to / from fibre_tx
-     tx_ff_i            => tx_ff, 
-     tx_fw_o            => tx_fw,  
-     txd_o              => txd   
+      -- signals to / from fibre_tx
+      tx_ff_i            => tx_ff, 
+      tx_fw_o            => tx_fw,  
+      txd_o              => txd   
    
    );
   
@@ -417,7 +412,7 @@ begin
       
       -- reply queue now lets translator know that command has finished sucessfully...
       
-      reply_nData             <= '1';
+      m_op_cmd_code           <= WRITE_BLOCK;
       m_op_done               <= '1';       
       m_op_ok_nEr             <= '1';   
       num_fibre_words         <= X"00000001";
@@ -448,7 +443,7 @@ begin
       wait until m_op_ack      = '1'; 
       wait for clk_prd;
     
-      reply_nData             <= '0';
+      m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
@@ -475,7 +470,7 @@ begin
       
       -- reply queue now lets translator know that command has finished sucessfully...
       
-      reply_nData             <= '1';
+      m_op_cmd_code           <= WRITE_BLOCK;
       m_op_done               <= '1';       
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000001";
@@ -506,7 +501,7 @@ begin
       wait until m_op_ack      = '1'; 
       wait for clk_prd;
     
-      reply_nData             <= '0';
+      m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
@@ -534,7 +529,7 @@ begin
       -- reply queue now lets translator know that command has finished sucessfully...
       
       assert false report "reply_queue informs RB reply ready...." severity NOTE;  
-      reply_nData             <= '1';
+      m_op_cmd_code           <= READ_BLOCK;
       m_op_done               <= '1';       
       m_op_ok_nEr             <= '1';   
       num_fibre_words         <= X"00000010";
@@ -570,7 +565,7 @@ begin
       wait until m_op_ack      = '1'; 
       wait for clk_prd;
        
-      reply_nData             <= '0';
+      m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
@@ -598,7 +593,7 @@ begin
       -- reply queue now lets translator know that command has finished sucessfully...
       
       assert false report "reply_queue informs RB reply ready...." severity NOTE;  
-      reply_nData             <= '1';
+      m_op_cmd_code           <= READ_BLOCK;
       m_op_done               <= '1';       
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000001";
@@ -631,7 +626,7 @@ begin
       wait until m_op_ack      = '1'; 
       wait for clk_prd;
        
-      reply_nData             <= '0';
+      m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
@@ -653,7 +648,7 @@ begin
       -- reply queue now lets translator know that command has finished sucessfully...
       
       assert false report "reply_queue informs that there a frame of data to process...." severity NOTE;  
-      reply_nData             <= '0';
+      m_op_cmd_code           <= DATA;
       m_op_done               <= '1';       
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000064";
@@ -700,7 +695,7 @@ begin
       wait until m_op_ack      = '1'; 
       wait for clk_prd;
        
-      reply_nData             <= '0';
+      m_op_cmd_code           <= (others => '0');
       m_op_done               <= '0';       
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
@@ -709,9 +704,9 @@ begin
       
       wait for clk_prd;
 
-     -----------------------------------
-      -- test 9: ST checksum error 
-      ----------------------------------
+     ----------------------------------------------
+      -- test 9: ST checksum error - check reply
+      ----------------------------------------------
 
       
       wait for clk_prd;
