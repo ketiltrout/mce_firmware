@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id$
+-- $Id: pidz_coeff_queue_pack.vhd,v 1.1 2004/08/25 23:07:10 bburger Exp $
 -- Description:
 -- Pack file for the pidz_coeff_queue generated with the Quartus Megawizard
 --
 -- Revision history:
--- $Log$
+-- $Log: pidz_coeff_queue_pack.vhd,v $
+-- Revision 1.1  2004/08/25 23:07:10  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
@@ -36,9 +39,9 @@ USE ieee.std_logic_1164.all;
 
 package pidz_coeff_queue_pack is
 
-   constant PC_Q_LEN        : integer :=                  41;
-   constant PC_Q_WIDTH      : integer :=                 128;
-   constant PC_Q_ADDR_WIDTH : integer :=                   6;
+   constant PIDZ_Q_LEN        : integer :=                41;
+   constant PIDZ_Q_WIDTH      : integer :=               128;
+   constant PIDZ_Q_ADDR_WIDTH : integer :=                 6;
    constant P_END           : integer := PC_Q_WIDTH     - 32;
    constant I_END           : integer := P_END          - 32;
    constant D_END           : integer := I_END          - 32;
