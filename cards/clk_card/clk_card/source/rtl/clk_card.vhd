@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.4 2004/11/25 15:18:18 dca Exp $
+-- $Id: clk_card.vhd,v 1.5 2004/11/29 10:37:07 dca Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.5  2004/11/29 10:37:07  dca
+-- Changed PLL instantiation.
+--
 -- Revision 1.4  2004/11/25 15:18:18  dca
 -- moved a signal
 --
@@ -174,6 +177,7 @@ signal sync_gen_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal sync_gen_ack        : std_logic;
 signal frame_timing_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack    : std_logic;
+signal slave_err           : std_logic;
       
    
 -- lvds_tx interface
@@ -220,9 +224,14 @@ begin
    with addr select
       slave_ack <= 
          led_ack          when LED_ADDR,
-         sync_gen_ack    when USE_DV_ADDR,
+         sync_gen_ack     when USE_DV_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '0'              when others;
+         
+   with addr select
+      slave_err <= 
+         '0'              when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '1'              when others;
 
    pll0: pll
    port map(
@@ -254,8 +263,9 @@ begin
             we_o   => we,
             stb_o  => stb,
             cyc_o  => cyc,
-            dat_i  => slave_data,
+            dat_i  => slave_data,   
             ack_i  => slave_ack,
+            err_i  => slave_err, 
      
             wdt_rst_o => wdog);
             

@@ -21,8 +21,8 @@
 --
 -- dispatch_pack.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.7  2004/11/26 01:35:13  erniel
+-- updated dispatch_wishbone component
+--
 -- Revision 1.6  2004/10/13 04:37:38  erniel
 -- corrected missing generic in dispatch component declaration
 --
@@ -80,7 +83,7 @@ package dispatch_pack is
    generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := CLOCK_CARD);
    port(clk_i      : in std_logic;
         comm_clk_i : in std_logic;
-        rst_i      : in std_logic;		
+        rst_i      : in std_logic;     
         lvds_cmd_i : in std_logic;
         cmd_rdy_o  : out std_logic; 
         cmd_err_o  : out std_logic; 
@@ -112,7 +115,7 @@ package dispatch_pack is
         we_o             : out std_logic;
         stb_o            : out std_logic;
         cyc_o            : out std_logic;
-        dat_i           	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
         ack_i            : in std_logic;
         err_i            : in std_logic;
         wdt_rst_o        : out std_logic);
@@ -121,7 +124,7 @@ package dispatch_pack is
    component dispatch_reply_transmit
    port(clk_i       : in std_logic;
         comm_clk_i  : in std_logic;
-        rst_i       : in std_logic;		
+        rst_i       : in std_logic;    
         lvds_tx_o   : out std_logic;
         reply_rdy_i : in std_logic;
         reply_ack_o : out std_logic; 
@@ -146,7 +149,7 @@ package dispatch_pack is
    port(clk_i        : in std_logic;
         mem_clk_i    : in std_logic;
         comm_clk_i   : in std_logic;
-        rst_i        : in std_logic;		
+        rst_i        : in std_logic;      
         lvds_cmd_i   : in std_logic;
         lvds_reply_o : out std_logic;
         dat_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -155,8 +158,9 @@ package dispatch_pack is
         we_o         : out std_logic;
         stb_o        : out std_logic;
         cyc_o        : out std_logic;
-        dat_i       	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        dat_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
         ack_i        : in std_logic;
+        err_i        : in std_logic;
         wdt_rst_o    : out std_logic);
    end component;
      

@@ -20,19 +20,23 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.21 2004/11/22 11:23:33 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.22 2004/11/25 14:54:34 dca Exp $>
 --
--- Project: 			Scuba 2
--- Author:  			David Atkinson
--- Organisation: 			UKATC
+-- Project:          Scuba 2
+-- Author:           David Atkinson
+-- Organisation:        UKATC
 --
 -- Description:
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/22 11:23:33 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/25 14:54:34 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.22  2004/11/25 14:54:34  dca
+-- internal command added.
+-- frame header buffer added
+--
 -- Revision 1.21  2004/11/22 11:23:33  dca
 -- m_op_done_i changed to m_op_rdy_i
 --
@@ -247,7 +251,7 @@ signal   packet_header4_3     : byte ;                     -- packet header word
 
 -- checksum signals
 
-signal checksum              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 	-- checksum word (output from checksum calculator)
+signal checksum              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);   -- checksum word (output from checksum calculator)
 signal checksum_in           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- input to checksum calculator  
 
 -- recirculation MUX structure used to hold checksum_in value  
@@ -454,12 +458,12 @@ signal pres_head_count       : integer;           -- present header count ( used
 
 component reply_translator_frame_head_ram 
    port(
-	address		: in  std_logic_vector (5 downto 0);
-	clock		: in  std_logic ;
-	data		: in  std_logic_vector (31 downto 0);
-	wren		: in  std_logic ;
-	q		: out std_logic_vector (31 downto 0)
-	);
+   address     : in  std_logic_vector (5 downto 0);
+   clock    : in  std_logic ;
+   data     : in  std_logic_vector (31 downto 0);
+   wren     : in  std_logic ;
+   q     : out std_logic_vector (31 downto 0)
+   );
 end component;
 
 
@@ -472,12 +476,12 @@ i_reply_translator_frame_head_ram : reply_translator_frame_head_ram
 -- RAM to save frame header info
 ------------------------------------------------------------------- 
    port map(
-	address		=> head_address,
-	clock		=> clk_i,
-	data		=> head_data,
-	wren		=> head_wren,
-	q		=> head_q
-	);
+   address     => head_address,
+   clock    => clk_i,
+   data     => head_data,
+   wren     => head_wren,
+   q     => head_q
+   );
 
 
 head_data     <= fibre_word_i;
@@ -1416,7 +1420,7 @@ txd_o              <= fibre_byte;
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
             packet_size                <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
-            reply_argument             <= FIBRE_CHECKSUM_ERR;
+            reply_argument             <= "00000" & FIBRE_CHECKSUM_ERR;
             packet_type                <= ASCII_SP & ASCII_SP & ASCII_R & ASCII_P ;
             
       
@@ -1448,7 +1452,7 @@ txd_o              <= fibre_byte;
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
             packet_size                <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
-            reply_argument             <= FIBRE_CHECKSUM_ERR;
+            reply_argument             <= "00000" & FIBRE_CHECKSUM_ERR;
             packet_type                <= ASCII_SP & ASCII_SP & ASCII_R & ASCII_P ;
             
       
@@ -1522,7 +1526,7 @@ txd_o              <= fibre_byte;
             reply_status( 7 downto 0)  <= ASCII_K ;
             reply_status(15 downto 8)  <= ASCII_O ;
             packet_type                <= REPLY_PACKET; 
-            reply_argument             <= m_op_error_code_i ;        -- this will be error code x"00" - i.e. success.
+            reply_argument             <= "00000" & m_op_error_code_i ;        -- this will be error code x"00" - i.e. success.
 
               
             packet_word1_0mux_sel      <= "10";
@@ -1554,7 +1558,7 @@ txd_o              <= fibre_byte;
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
             packet_type                <= REPLY_PACKET;
-            reply_argument             <= m_op_error_code_i ;     
+            reply_argument             <= "00000" & m_op_error_code_i ;     
             
               
             packet_word1_0mux_sel      <= "10";
