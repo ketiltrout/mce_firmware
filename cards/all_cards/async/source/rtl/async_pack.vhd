@@ -21,7 +21,12 @@
 -- 
 -- Revision History:
 --
--- $Log$
+-- $Log: async_pack.vhd,v $
+-- Revision 1.2  2004/06/29 21:24:28  erniel
+-- removed obsolete modules
+-- added LVDS transmit/receive
+-- added RS232 transmit/receive
+--
 --
 -- Dec 22, 2003: Initial version - NRG
 -- Feb 28, 2004: Updated to reflect modified async_mux. - NRG
@@ -32,74 +37,9 @@ use ieee.std_logic_1164.all;
 
 package async_pack is
 
---   -- How many states do we have?
---   
---   -- tx_t is used by async_mux to multiplex multiple modules
---   -- to async_tx
---   type tx_t is record
---      dat : std_logic_vector(7 downto 0);
---      we : std_logic;
---      stb : std_logic;
---   end record;
---   
---   -- tx_array is used by async_mux as inputs to the multiplexer
---   type tx_array is array (natural range <>) of tx_t;
---
---   component async_rx
---      port(
---         rx_i    : in std_logic;   -- receiver input pin
---         flag_o  : out std_logic;  -- receiver data ready flag
---         error_o : out std_logic;  -- receiver error flag
---   
---         -- Wishbone signals
---         clk_i   : in std_logic;   -- 8x receive bit rate
---         rst_i   : in std_logic;
---         dat_o   : out std_logic_vector (7 downto 0);
---         we_i    : in std_logic;
---         stb_i   : in std_logic;
---         ack_o   : out std_logic;
---         cyc_i   : in std_logic
---      );
---   end component;
---
---   component async_tx
---      port(
---         tx_o    : out std_logic;  -- transmitter output pin
---         busy_o  : out std_logic;  -- transmitter busy flag
---   
---         -- Wishbone signals
---         clk_i   : in std_logic;   -- 8x transmit bit rate
---         rst_i   : in std_logic;
---         dat_i   : in std_logic_vector (7 downto 0);
---         we_i    : in std_logic;
---         stb_i   : in std_logic;
---         ack_o   : out std_logic;
---         cyc_i   : in std_logic
---      );
---   end component;
---   
---   component async_clk
---      port(
---         clk_i : in std_logic;   -- 25MHz input clock
---         rst_i : in std_logic;   -- reset input
---         txclk_o : out std_logic;   -- 57.6 kHz output
---         rxclk_o : out std_logic   -- 462 kHz output
---      );
---   end component;
---   
---   component async_mux
---      generic (
---         size : integer := 1 -- how many items we have in the mux input
---      );
---      port(
---         rst_i : in std_logic;
---         clk_i : in std_logic;
---         sel_i : in std_logic_vector(size - 1 downto 0);  -- mux xelect
---         in_i : in tx_array(size - 1 downto 0);  -- mux inputs
---         out_o : out tx_t      -- mux outputs
---      );
---   end component;
-
+   ---------------------------------------------------------
+   -- Core asynchronous modules
+   
    component async_tx
    port(tx_clk_i : in std_logic;   -- 25 MHz for LVDS, 115.2 kHz for RS232
         rst_i    : in std_logic;
@@ -121,6 +61,10 @@ package async_pack is
         error_o  : out std_logic);
    end component;
 
+
+   ---------------------------------------------------------
+   -- LVDS wrapper modules
+   
    component lvds_tx
    port(clk_i      : in std_logic;
         comm_clk_i : in std_logic;
@@ -145,6 +89,10 @@ package async_pack is
         lvds_i     : in std_logic);
    end component;
 
+
+   ---------------------------------------------------------
+   -- RS232 wrapper modules
+   
    component rs232_tx
    port(clk_i      : in std_logic;
         comm_clk_i : in std_logic;
