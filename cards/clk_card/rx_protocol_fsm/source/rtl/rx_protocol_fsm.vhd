@@ -102,90 +102,79 @@ ARCHITECTURE fsm OF rx_protocol_fsm IS
 
 -- FSM's states defined
 
-constant IDLE        : std_logic_vector(6 downto 0) := "0000000";
+constant IDLE        : std_logic_vector(5 downto 0) := "000000";
 
-constant RQ_PRE0     : std_logic_vector(6 downto 0) := "0000001";
-constant PRE0_CK     : std_logic_vector(6 downto 0) := "0000010";
-constant PRE0_OK     : std_logic_vector(6 downto 0) := "0000011";
-constant RQ_PRE1     : std_logic_vector(6 downto 0) := "0000100";
-constant PRE1_CK     : std_logic_vector(6 downto 0) := "0000101";
-constant PRE1_OK     : std_logic_vector(6 downto 0) := "0000110";
-constant RQ_PRE2     : std_logic_vector(6 downto 0) := "0000111";
-constant PRE2_CK     : std_logic_vector(6 downto 0) := "0001000";
+constant RQ_PRE0     : std_logic_vector(5 downto 0) := "000001";
+constant CK_PRE0     : std_logic_vector(5 downto 0) := "000010";
+constant RQ_PRE1     : std_logic_vector(5 downto 0) := "000011";
+constant CK_PRE1     : std_logic_vector(5 downto 0) := "000100";
+constant RQ_PRE2     : std_logic_vector(5 downto 0) := "000101";
+constant CK_PRE2     : std_logic_vector(5 downto 0) := "000110";
+constant RQ_PRE3     : std_logic_vector(5 downto 0) := "000111";
+constant CK_PRE3     : std_logic_vector(5 downto 0) := "001000";
 
-constant PRE2_OK     : std_logic_vector(6 downto 0) := "0001001";
-constant RQ_PRE3     : std_logic_vector(6 downto 0) := "0001010";
-constant PRE3_CK     : std_logic_vector(6 downto 0) := "0001011";
-constant PRE3_OK     : std_logic_vector(6 downto 0) := "0001100";
-constant RQ_PRE4     : std_logic_vector(6 downto 0) := "0001101";
-constant PRE4_CK     : std_logic_vector(6 downto 0) := "0001110";
-constant PRE4_OK     : std_logic_vector(6 downto 0) := "0001111";
-constant RQ_PRE5     : std_logic_vector(6 downto 0) := "0010000";
+constant RQ_PRE4     : std_logic_vector(5 downto 0) := "001001";
+constant CK_PRE4     : std_logic_vector(5 downto 0) := "001010";
+constant RQ_PRE5     : std_logic_vector(5 downto 0) := "001011";
+constant CK_PRE5     : std_logic_vector(5 downto 0) := "001100";
+constant RQ_PRE6     : std_logic_vector(5 downto 0) := "001101";
+constant CK_PRE6     : std_logic_vector(5 downto 0) := "001110";
+constant RQ_PRE7     : std_logic_vector(5 downto 0) := "001111";
+constant CK_PRE7     : std_logic_vector(5 downto 0) := "010000";
 
-constant PRE5_CK     : std_logic_vector(6 downto 0) := "0010001";
-constant PRE5_OK     : std_logic_vector(6 downto 0) := "0010010";
-constant RQ_PRE6     : std_logic_vector(6 downto 0) := "0010011";
-constant PRE6_CK     : std_logic_vector(6 downto 0) := "0010100";
-constant PRE6_OK     : std_logic_vector(6 downto 0) := "0010101";
-constant RQ_PRE7     : std_logic_vector(6 downto 0) := "0010110";
-constant PRE7_CK     : std_logic_vector(6 downto 0) := "0010111";
-constant PRE7_OK     : std_logic_vector(6 downto 0) := "0011000";
+constant RQ_CMD0     : std_logic_vector(5 downto 0) := "010001";
+constant LD_CMD0     : std_logic_vector(5 downto 0) := "010010";
+constant RQ_CMD1     : std_logic_vector(5 downto 0) := "010011";
+constant LD_CMD1     : std_logic_vector(5 downto 0) := "010100";
+constant RQ_CMD2     : std_logic_vector(5 downto 0) := "010101";
+constant LD_CMD2     : std_logic_vector(5 downto 0) := "010110";
+constant RQ_CMD3     : std_logic_vector(5 downto 0) := "010111";
+constant LD_CMD3     : std_logic_vector(5 downto 0) := "011000";
 
-constant RQ_CMD0     : std_logic_vector(6 downto 0) := "0011001";
-constant LD_CMD0     : std_logic_vector(6 downto 0) := "0011010";
-constant RQ_CMD1     : std_logic_vector(6 downto 0) := "0011011";
-constant LD_CMD1     : std_logic_vector(6 downto 0) := "0011100";
-constant RQ_CMD2     : std_logic_vector(6 downto 0) := "0011101";
-constant LD_CMD2     : std_logic_vector(6 downto 0) := "0011110";
-constant RQ_CMD3     : std_logic_vector(6 downto 0) := "0011111";
-constant LD_CMD3     : std_logic_vector(6 downto 0) := "0100000";
+constant RQ_ADDR0    : std_logic_vector(5 downto 0) := "011001";
+constant LD_ADDR0    : std_logic_vector(5 downto 0) := "011010";
+constant RQ_ADDR1    : std_logic_vector(5 downto 0) := "011011";
+constant LD_ADDR1    : std_logic_vector(5 downto 0) := "011100";
+constant RQ_ADDR2    : std_logic_vector(5 downto 0) := "011101";
+constant LD_ADDR2    : std_logic_vector(5 downto 0) := "011110";
+constant RQ_ADDR3    : std_logic_vector(5 downto 0) := "011111";
+constant LD_ADDR3    : std_logic_vector(5 downto 0) := "100000";
 
-constant RQ_ADDR0    : std_logic_vector(6 downto 0) := "0100001";
-constant LD_ADDR0    : std_logic_vector(6 downto 0) := "0100010";
-constant RQ_ADDR1    : std_logic_vector(6 downto 0) := "0100011";
-constant LD_ADDR1    : std_logic_vector(6 downto 0) := "0100100";
-constant RQ_ADDR2    : std_logic_vector(6 downto 0) := "0100101";
-constant LD_ADDR2    : std_logic_vector(6 downto 0) := "0100110";
-constant RQ_ADDR3    : std_logic_vector(6 downto 0) := "0100111";
-constant LD_ADDR3    : std_logic_vector(6 downto 0) := "0101000";
+constant RQ_CKSM0    : std_logic_vector(5 downto 0) := "100001";
+constant LD_CKSM0    : std_logic_vector(5 downto 0) := "100010";
+constant RQ_CKSM1    : std_logic_vector(5 downto 0) := "100011";
+constant LD_CKSM1    : std_logic_vector(5 downto 0) := "100100";
+constant RQ_CKSM2    : std_logic_vector(5 downto 0) := "100101";
+constant LD_CKSM2    : std_logic_vector(5 downto 0) := "100110";
+constant RQ_CKSM3    : std_logic_vector(5 downto 0) := "100111";
+constant LD_CKSM3    : std_logic_vector(5 downto 0) := "101000";
 
-constant RQ_CKSM0    : std_logic_vector(6 downto 0) := "0101001";
-constant LD_CKSM0    : std_logic_vector(6 downto 0) := "0101010";
-constant RQ_CKSM1    : std_logic_vector(6 downto 0) := "0101011";
-constant LD_CKSM1    : std_logic_vector(6 downto 0) := "0101100";
-constant RQ_CKSM2    : std_logic_vector(6 downto 0) := "0101101";
-constant LD_CKSM2    : std_logic_vector(6 downto 0) := "0101110";
-constant RQ_CKSM3    : std_logic_vector(6 downto 0) := "0101111";
-constant LD_CKSM3    : std_logic_vector(6 downto 0) := "0110000";
+constant RQ_NDA0     : std_logic_vector(5 downto 0) := "101001";
+constant LD_NDA0     : std_logic_vector(5 downto 0) := "101010";
+constant RQ_NDA1     : std_logic_vector(5 downto 0) := "101011";
+constant LD_NDA1     : std_logic_vector(5 downto 0) := "101100";
+constant RQ_NDA2     : std_logic_vector(5 downto 0) := "101101";
+constant LD_NDA2     : std_logic_vector(5 downto 0) := "101110";
+constant RQ_NDA3     : std_logic_vector(5 downto 0) := "101111";
+constant LD_NDA3     : std_logic_vector(5 downto 0) := "110000";
 
-constant RQ_NDA0     : std_logic_vector(6 downto 0) := "0110001";
-constant LD_NDA0     : std_logic_vector(6 downto 0) := "0110010";
-constant RQ_NDA1     : std_logic_vector(6 downto 0) := "0110011";
-constant LD_NDA1     : std_logic_vector(6 downto 0) := "0110100";
-constant RQ_NDA2     : std_logic_vector(6 downto 0) := "0110101";
-constant LD_NDA2     : std_logic_vector(6 downto 0) := "0110110";
-constant RQ_NDA3     : std_logic_vector(6 downto 0) := "0110111";
-constant LD_NDA3     : std_logic_vector(6 downto 0) := "0111000";
+constant RQ_BLK0     : std_logic_vector(5 downto 0) := "110001";
+constant LD_BLK0     : std_logic_vector(5 downto 0) := "110010";
+constant RQ_BLK1     : std_logic_vector(5 downto 0) := "110011";
+constant LD_BLK1     : std_logic_vector(5 downto 0) := "110100";
+constant RQ_BLK2     : std_logic_vector(5 downto 0) := "110101";
+constant LD_BLK2     : std_logic_vector(5 downto 0) := "110110";
+constant RQ_BLK3     : std_logic_vector(5 downto 0) := "110111";
+constant LD_BLK3     : std_logic_vector(5 downto 0) := "111000";
 
-constant RQ_BLK0     : std_logic_vector(6 downto 0) := "0111001";
-constant LD_BLK0     : std_logic_vector(6 downto 0) := "0111010";
-constant RQ_BLK1     : std_logic_vector(6 downto 0) := "0111011";
-constant LD_BLK1     : std_logic_vector(6 downto 0) := "0111100";
-constant RQ_BLK2     : std_logic_vector(6 downto 0) := "0111101";
-constant LD_BLK2     : std_logic_vector(6 downto 0) := "0111110";
-constant RQ_BLK3     : std_logic_vector(6 downto 0) := "0111111";
-constant LD_BLK3     : std_logic_vector(6 downto 0) := "1000000";
-
-constant CKSM_PASS   : std_logic_vector(6 downto 0) := "1000001";
-constant CKSM_FAIL   : std_logic_vector(6 downto 0) := "1000010";
-
-constant READ_DATA   : std_logic_vector(6 downto 0) := "1000011";
-constant TX_DATA     : std_logic_vector(6 downto 0) := "1000100";
+constant CKSM_FAIL   : std_logic_vector(5 downto 0) := "111001";
+constant READ_DATA   : std_logic_vector(5 downto 0) := "111010";
+constant TX_DATA     : std_logic_vector(5 downto 0) := "111011";
 
 
 -- controller state variables:
-signal current_state  : std_logic_vector(6 downto 0) := "0000000";
-signal next_state     : std_logic_vector(6 downto 0) := "0000000";
+signal current_state  : std_logic_vector(5 downto 0) := "000000";
+signal next_state     : std_logic_vector(5 downto 0) := "000000";
 
 
 -- Architecture Declarations
@@ -261,126 +250,112 @@ BEGIN
    --preamble states
 
       WHEN RQ_PRE0 =>
-         next_state <= PRE0_CK;
+         next_state <= CK_PRE0;
       WHEN RQ_PRE1 =>
-         next_state <= PRE1_CK;
+         next_state <= CK_PRE1;
       WHEN RQ_PRE2 =>
-         next_state <= PRE2_CK;
+         next_state <= CK_PRE2;
       WHEN RQ_PRE3 =>
-         next_state <= PRE3_CK;
+         next_state <= CK_PRE3;
       WHEN RQ_PRE4 =>
-         next_state <= PRE4_CK;
+         next_state <= CK_PRE4;
       WHEN RQ_PRE5 =>
-         next_state <= PRE5_CK;
+         next_state <= CK_PRE5;
       WHEN RQ_PRE6 =>
-         next_state <= PRE6_CK;
+         next_state <= CK_PRE6;
       WHEN RQ_PRE7 =>
-         next_state <= PRE7_CK;
+         next_state <= CK_PRE7;
 
 
-      WHEN PRE0_CK =>
-         IF (rxd_i(7 downto 0) = preamble1) THEN
-            next_state <= PRE0_OK;
-         ELSE
+      WHEN CK_PRE0 =>
+         IF (rxd_i(7 downto 0) /= preamble1) THEN
             next_state <= IDLE;
-         END IF;
-      WHEN PRE0_OK =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_PRE1;
          ELSE
-            next_state <= PRE0_OK;
+            IF (rx_fe_i = '0') THEN
+               next_state <= RQ_PRE1;
+            ELSE
+               next_state <= CK_PRE0;
+            END IF; 
+         END IF;
+         
+      WHEN CK_PRE1 =>
+         IF (rxd_i(7 downto 0) /= preamble1) THEN
+            next_state <= IDLE;
+         ELSE
+            IF (rx_fe_i = '0') THEN
+               next_state <= RQ_PRE2;
+            ELSE
+               next_state <= CK_PRE1;
+            END IF; 
+         END IF;
+         
+      WHEN CK_PRE2 =>
+         IF (rxd_i(7 downto 0) /= preamble1) THEN
+            next_state <= IDLE;
+         ELSE
+            IF (rx_fe_i = '0') THEN
+               next_state <= RQ_PRE3;
+            ELSE
+               next_state <= CK_PRE2;
+            END IF; 
+         END IF;
+         
+      WHEN CK_PRE3 =>
+         IF (rxd_i(7 downto 0) /= preamble1) THEN
+            next_state <= IDLE;
+         ELSE
+            IF (rx_fe_i = '0') THEN
+               next_state <= RQ_PRE4;
+            ELSE
+               next_state <= CK_PRE3;
+            END IF; 
+         END IF;
+         
+      WHEN CK_PRE4 =>
+         IF (rxd_i(7 downto 0) /= preamble2) THEN
+            next_state <= IDLE;
+         ELSE
+            IF (rx_fe_i = '0') THEN
+               next_state <= RQ_PRE5;
+            ELSE
+               next_state <= CK_PRE4;
+            END IF; 
          END IF;
 
-      WHEN PRE1_CK =>
-         IF (rxd_i(7 downto 0) = preamble1) THEN
-            next_state <= PRE1_OK;
-         ELSE
+      WHEN CK_PRE5 =>
+         IF (rxd_i(7 downto 0) /= preamble2) THEN
             next_state <= IDLE;
-         END IF;
-      WHEN PRE1_OK =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_PRE2;
          ELSE
-            next_state <= PRE1_OK;
+            IF (rx_fe_i = '0') THEN
+               next_state <= RQ_PRE6;
+            ELSE
+               next_state <= CK_PRE5;
+            END IF; 
          END IF;
 
-      WHEN PRE2_CK =>
-         IF (rxd_i(7 downto 0) = preamble1) THEN
-            next_state <= PRE2_OK;
-         ELSE
+      WHEN CK_PRE6 =>
+         IF (rxd_i(7 downto 0) /= preamble2) THEN
             next_state <= IDLE;
-         END IF;
-      WHEN PRE2_OK =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_PRE3;
          ELSE
-            next_state <= PRE2_OK;
+            IF (rx_fe_i = '0') THEN
+               next_state <= RQ_PRE7;
+            ELSE
+               next_state <= CK_PRE6;
+            END IF; 
          END IF;
+         
+      WHEN CK_PRE7 =>
+         IF (rxd_i(7 downto 0) /= preamble2) THEN
+            next_state <= IDLE;
+         ELSE
+            IF (rx_fe_i = '0') THEN
+               next_state <= RQ_CMD0;
+            ELSE
+               next_state <= CK_PRE7;
+            END IF; 
+         END IF;                           
+                                             
  
-      WHEN PRE3_CK =>
-         IF (rxd_i(7 downto 0) = preamble1) THEN
-            next_state <= PRE3_OK;
-         ELSE
-            next_state <= IDLE;
-         END IF;
-      WHEN PRE3_OK =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_PRE4;
-         ELSE
-            next_state <= PRE3_OK;
-         END IF;
- 
-      WHEN PRE4_CK =>
-         IF (rxd_i(7 downto 0) = preamble2) THEN
-            next_state <= PRE4_OK;
-         ELSE
-            next_state <= IDLE;
-         END IF;
-      WHEN PRE4_OK =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_PRE5;
-         ELSE
-            next_state <= PRE4_OK;
-         END IF;
-
-      WHEN PRE5_CK =>
-         IF (rxd_i(7 downto 0) = preamble2) THEN
-            next_state <= PRE5_OK;
-         ELSE
-            next_state <= IDLE;
-         END IF;
-      WHEN PRE5_OK =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_PRE6;
-         ELSE
-            next_state <= PRE5_OK;
-         END IF;
-
-      WHEN PRE6_CK =>
-         IF (rxd_i(7 downto 0) = preamble2) THEN
-            next_state <= PRE6_OK;
-         ELSE
-            next_state <= IDLE;
-         END IF;
-      WHEN PRE6_OK =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_PRE7;
-         ELSE
-            next_state <= PRE6_OK;
-         END IF;
-
-     WHEN PRE7_CK =>
-         IF (rxd_i(7 downto 0) = preamble2) THEN
-            next_state <= PRE7_OK;
-         ELSE
-            next_state <= IDLE;
-         END IF;
-     WHEN PRE7_OK =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_CMD0;
-         ELSE
-            next_state <= PRE7_OK;
-         END IF;
                   
    --------------------------------------------
    -- command word states
@@ -573,15 +548,11 @@ BEGIN
          END IF;
       WHEN LD_CKSM3 =>
          IF (cksum_calc = cksum_rcvd) THEN
-            next_state <= CKSM_PASS;
+            next_state <= READ_DATA;
          ELSE
             next_state <= CKSM_FAIL;
          END IF;
             
-
-      WHEN CKSM_PASS =>
-         next_state <= READ_DATA;
-    
       WHEN CKSM_FAIL =>
             next_state <= IDLE;
 
@@ -760,8 +731,6 @@ BEGIN
          WHEN RQ_CKSM0 =>
             rx_fr_o <= '1' ;
          
-         WHEN CKSM_PASS =>
-            cksum_err_o <= '0' ;
          WHEN CKSM_FAIL =>
             cksum_err_o <= '1' ;
 
