@@ -51,7 +51,7 @@ entity bc_dac_xtalk_test_wrapper is
       rst_i     : in std_logic;    -- reset input
       clk_i     : in std_logic;    -- clock input
       en_i      : in std_logic;    -- enable signal
-      cmd2      : in std_logic_vector(7 downto 0);
+      mode      : in std_logic;    -- mode signal (0 indicates square wave on odd channels, 1 indicates square wave on even channels)
       done_o    : out std_logic;   -- done ouput signal
       
       -- transmitter signals removed!
@@ -94,7 +94,7 @@ signal logic1   : std_logic;
 signal zero     : integer;
 signal clk_2    : std_logic;
 signal clk_count: integer;
-signal send_dac32_start: std_logic;
+signal send_dac32_start   : std_logic;
 signal send_dac_lvds_start: std_logic;
 signal dac_done           : std_logic_vector (32 downto 0);
 signal xtalk     : std_logic;
@@ -126,14 +126,12 @@ begin
    clk_2   <= '1' when clk_count > 2 else '0';
      
   -- values tried on DAC Tests with fixed values                               
-   data(0) <= "0000000000000000";--x0000     half range
-   data(1) <= "1111111111111111";--x0000     half range
-   data(2) <= "1000000000000000";--x0000     half range
-
-   cmd2_cond <= '1' when cmd2 = "00110000" else '0';
-   
-   data1 <= data(idx) when cmd2_cond = '1' else data(2);
-   data2 <= data(2)   when cmd2_cond = '1' else data(idx);
+   data(0) <= "0000000000000000";--x0000     zero range
+   data(1) <= "1111111111111111";--xffff     full range
+   data(2) <= "1000000000000000";--x8000     half range
+  
+   data1 <= data(idx) when mode = '1' else data(2);
+   data2 <= data(2)   when mode = '1' else data(idx);
       
 ------------------------------------------------------------------------
 --

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.8  2004/06/04 21:00:26  bench2
+-- Mandana: ramp test works now
+--
 -- Revision 1.7  2004/05/17 01:01:03  erniel
 -- renamed constants associated with CMD_BC_DAC
 --
@@ -136,7 +139,7 @@ architecture behaviour of bc_test is
    signal rx_ack   : std_logic;
    
    -- state constants
-   constant MAX_STATES : integer := 10;
+   constant MAX_STATES : integer := 11;
 
    constant INDEX_RESET      : integer := 0;
    constant INDEX_IDLE       : integer := 1;
@@ -148,8 +151,8 @@ architecture behaviour of bc_test is
    constant INDEX_DEBUG      : integer := 7;
    constant INDEX_DAC_FIX    : integer := 8;
    constant INDEX_DAC_RAMP   : integer := 9;
-   
-      
+   constant INDEX_DAC_XTALK  : integer := 10;
+         
    constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
    constant SEL_TX_A       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_A => '1', others => '0');
@@ -160,6 +163,7 @@ architecture behaviour of bc_test is
    constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    constant SEL_DAC_FIX    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_FIX => '1', others => '0');
    constant SEL_DAC_RAMP   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_RAMP => '1', others => '0');
+   constant SEL_DAC_XTALK  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_XTALK => '1', others => '0');
    
    constant DONE_NULL       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
@@ -172,6 +176,7 @@ architecture behaviour of bc_test is
    constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    constant DONE_DAC_FIX    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_FIX => '1', others => '0');
    constant DONE_DAC_RAMP   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_RAMP => '1', others => '0');
+   constant DONE_DAC_XTALK  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_XTALK => '1', others => '0');
 
    -- state signals
    type states is (RESET, FETCH, DECODE, EXECUTE);
@@ -207,27 +212,31 @@ architecture behaviour of bc_test is
    signal fix_dac_ncs   : std_logic_vector (31 downto 0);
    signal fix_dac_sclk  : std_logic_vector (31 downto 0);
    signal fix_dac_data  : std_logic_vector (31 downto 0);
-   signal ramp_dac_ncs  : std_logic_vector (31 downto 0);
-   signal ramp_dac_sclk : std_logic_vector (31 downto 0);
-   signal ramp_dac_data : std_logic_vector (31 downto 0);
    signal fix_lvds_dac_ncs   : std_logic;
    signal fix_lvds_dac_sclk  : std_logic;
    signal fix_lvds_dac_data  : std_logic;
+   signal ramp_dac_ncs       : std_logic_vector (31 downto 0);
+   signal ramp_dac_sclk      : std_logic_vector (31 downto 0);
+   signal ramp_dac_data      : std_logic_vector (31 downto 0);
    signal ramp_lvds_dac_ncs  : std_logic;
    signal ramp_lvds_dac_sclk : std_logic;
    signal ramp_lvds_dac_data : std_logic;
+   signal xtalk_dac_ncs      : std_logic_vector (31 downto 0);
+   signal xtalk_dac_sclk     : std_logic_vector (31 downto 0);
+   signal xtalk_dac_data     : std_logic_vector (31 downto 0);
+   signal xtalk_lvds_dac_ncs : std_logic;
+   signal xtalk_lvds_dac_sclk: std_logic;
+   signal xtalk_lvds_dac_data: std_logic;
    
    
    signal test_data : std_logic_vector(31 downto 0);
-   signal ack_test  : std_logic;
-   signal cyc_test  : std_logic;
-   signal sync_test : std_logic;
    signal spi_start : std_logic;
    signal fix_spi_start  : std_logic;   
    signal ramp_spi_start : std_logic;
+   signal xtalk_spi_start: std_logic;
 
    signal rx_clk : std_logic;
-   signal ramp_ena : std_logic;
+   signal dac_test_mode : std_logic_vector(1 downto 0);
    
 begin
    clk_gen : pll
@@ -396,9 +405,7 @@ begin
                lvds_dac_dat_o => fix_lvds_dac_data,
                lvds_dac_ncs_o => fix_lvds_dac_ncs,
                lvds_dac_clk_o => fix_lvds_dac_sclk,
-               ack_test_o     => ack_test,
-               cyc_test_o     => cyc_test,
-               sync_test_o    => sync_test,
+
                spi_start_o    => fix_spi_start
                );   
 
@@ -421,20 +428,60 @@ begin
                lvds_dac_ncs_o=> ramp_lvds_dac_ncs,
                lvds_dac_clk_o=> ramp_lvds_dac_sclk,
                
---               ack_test_o=> out std_logic;
---               cyc_test_o=> out std_logic;
---               sync_test_o=> out std_logic;
                spi_start_o  => ramp_spi_start
             );     
-     
-   dac_test_data       <= ramp_dac_data  when ramp_ena = '1' else fix_dac_data;
-   dac_test_sclk       <= ramp_dac_sclk  when ramp_ena = '1' else fix_dac_sclk;
-   dac_test_ncs        <= ramp_dac_ncs   when ramp_ena = '1' else fix_dac_ncs;
-   lvds_dac_data  <= ramp_lvds_dac_data  when ramp_ena = '1' else fix_lvds_dac_data;
-   lvds_dac_sclk  <= ramp_lvds_dac_sclk  when ramp_ena = '1' else fix_lvds_dac_sclk;
-   lvds_dac_ncs   <= ramp_lvds_dac_ncs   when ramp_ena = '1' else fix_lvds_dac_ncs;
-   spi_start      <= ramp_spi_start  when ramp_ena = '1' else fix_spi_start;
 
+    dac_xtalk :  bc_dac_xtalk_test_wrapper
+      port map(
+               -- basic signals
+               rst_i     => rst,
+               clk_i     => clk,
+               en_i      => sel(INDEX_DAC_XTALK),
+               mode      => dac_test_mode(0),    -- dac_test_mode ="02" passes 0 to the block indicating odd channels square wave
+               done_o    => done(INDEX_DAC_XTALK),
+               
+               -- transmitter signals removed!
+                         
+               -- extended signals
+               dac_dat_o  => xtalk_dac_data,
+               dac_ncs_o  => xtalk_dac_ncs,
+               dac_clk_o  => xtalk_dac_sclk,
+              
+               lvds_dac_dat_o=> xtalk_lvds_dac_data,
+               lvds_dac_ncs_o=> xtalk_lvds_dac_ncs,
+               lvds_dac_clk_o=> xtalk_lvds_dac_sclk,
+               
+               spi_start_o  => xtalk_spi_start
+            );     
+            
+   with dac_test_mode select
+      dac_test_data <= fix_dac_data       when "00",
+                       ramp_dac_data      when "01",
+                       xtalk_dac_data     when "10",
+                       xtalk_dac_data     when "11",                       
+                       "0000000000000000" when others;
+
+   with dac_test_mode select
+      dac_test_sclk <= fix_dac_sclk       when "00",
+                       ramp_dac_sclk      when "01",
+                       xtalk_dac_sclk     when "10",
+                       xtalk_dac_sclk     when "11",
+                       "0000000000000000" when others;
+
+   with dac_test_mode select
+      dac_test_ncs  <= fix_dac_ncs        when "00",
+                       ramp_dac_ncs       when "01",
+                       xtalk_dac_ncs      when "10",
+                       xtalk_dac_ncs      when "11",                       
+                       "0000000000000000" when others;
+
+   with dac_test_mode select
+      spi_start     <= fix_spi_start      when "00",
+                       ramp_spi_start     when "01",
+                       xtalk_spi_start    when "10",
+                       xtalk_dac_ncs      when "11",
+                       "0000000000000000" when others;
+   
    dac_ncs <= dac_test_ncs;
    dac_sclk <= dac_test_sclk;
    dac_data <= dac_test_data;
@@ -480,7 +527,7 @@ begin
          int_rst <= '0';
          sel <= SEL_RESET;
          cmd_state <= RESET;
-         ramp_ena  <= '0';
+         dac_test_mode  <= "00";
       elsif Rising_Edge(clk) then
          case cmd_state is
             when RESET => 
@@ -527,13 +574,29 @@ begin
                   int_rst <= '1';
                   
                elsif(cmd1 = CMD_DAC_FIX) then
-                   if(ramp_ena = '0') then
+                   if(dac_test_mode = "00") then
 	              sel <= SEL_DAC_FIX;               
                    end if;
                    
                elsif(cmd1 = CMD_DAC_RAMP) then
-                  ramp_ena <= not (ramp_ena);
-	          sel <= SEL_DAC_RAMP;               
+                  if dac_test_mode = "01" then
+                     dac_test_mode <= "00";
+                  else if dac_test_mode = "00" then
+                     dac_test_mode = "01";
+                  end if;
+                  sel <= SEL_DAC_RAMP;               
+
+               elsif(cmd1 = CMD_DAC_XTALK) then
+                  if dac_test_mode = "00" then
+                    if cmd2 = CMD_XTALK_ODD then
+                      dac_test_mode <= "02";
+                    else if cmd2 = CMD_XTALK_EVEN then
+                      dac_test_mode <= 03;
+                    end if;  
+                  else if dac_test_mode = "02" or dac_test_mode = "03" then
+                    dac_test_mode <= "00";
+                  end if;
+                  sel <= SEL_DAC_XTALK;               
                   
                else
                   -- must not be implemented yet!
@@ -558,9 +621,6 @@ begin
 
    test(3) <= sel(INDEX_DAC_FIX);
    test(4) <= done(INDEX_DAC_FIX);
-   test(5) <= ack_test;
-   test(7) <= cyc_test;
-   test(9) <= sync_test;
    test(6) <= dac_test_ncs(0);
    test(8) <= dac_test_sclk(0);
    test(10) <= dac_test_data(0);

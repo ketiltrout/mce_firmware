@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: bc_test_idle.vhd,v $
+-- Revision 1.4  2004/06/04 21:00:26  bench2
+-- Mandana: ramp test works now
+--
 -- Revision 1.3  2004/05/16 23:38:38  erniel
 -- changed LVDS tx test to two character command
 -- modified command encoding
@@ -211,7 +214,8 @@ begin
                      rx_state <= RX_DONE;
 
                   elsif(rx_data_i = CMD_TX or
-                        rx_data_i = CMD_RX) then
+                        rx_data_i = CMD_RX or
+                        rx_data_i = CMD_DAC_XTALK) then
                      rx_state <= RX_WAIT2;
 
                   else
@@ -228,7 +232,9 @@ begin
                      rx_data_i = CMD_TX_B or
                      rx_data_i = CMD_RX_CMD or
                      rx_data_i = CMD_RX_SYNC or
-                     rx_data_i = CMD_RX_SPARE) then
+                     rx_data_i = CMD_RX_SPARE or
+                     rx_data_i = CMD_XTALK_ODD or
+                     rx_data_i = CMD_XTALK_EVEN) then
                      rx_state <= RX_DONE;
                   else
                      rx_state <= RX_ERROR;

@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.5  2004/06/04 21:00:26  bench2
+-- Mandana: ramp test works now
+--
 -- Revision 1.4  2004/05/16 23:38:12  erniel
 -- changed LVDS tx test to two character command
 -- modified command encoding
@@ -63,6 +66,7 @@ package bc_test_pack is
    constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc
    constant CMD_DAC_FIX  : std_logic_vector(7 downto 0) := conv_std_logic_vector(102,8);   -- f
    constant CMD_DAC_RAMP : std_logic_vector(7 downto 0) := conv_std_logic_vector(100,8);   -- d   
+   constant CMD_DAC_XTALK : std_logic_vector(7 downto 0) := conv_std_logic_vector(120,8);   -- x   
    constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
                                                                                                               
    -- Two character commands ------------------------------------------
@@ -74,7 +78,9 @@ package bc_test_pack is
    constant CMD_RX_CMD   : std_logic_vector(7 downto 0) := conv_std_logic_vector(99,8);    -- c
    constant CMD_RX_SYNC  : std_logic_vector(7 downto 0) := conv_std_logic_vector(121,8);   -- y
    constant CMD_RX_SPARE : std_logic_vector(7 downto 0) := conv_std_logic_vector(112,8);   -- p
-   
+   constant CMD_XTALK_ODD : std_logic_vector(7 downto 0) := conv_std_logic_vector(48,8);  -- 0
+   constant CMD_XTALK_EVEN: std_logic_vector(7 downto 0) := conv_std_logic_vector(49,8);  -- 1
+      
    ------------------------------------------------------------------
    --
    -- Component Declarations
@@ -203,9 +209,6 @@ package bc_test_pack is
           lvds_dac_dat_o : out std_logic;
           lvds_dac_ncs_o : out std_logic;
           lvds_dac_clk_o : out std_logic;
-          ack_test_o     : out std_logic;
-          cyc_test_o     : out std_logic;
-          sync_test_o    : out std_logic;
           spi_start_o    : out std_logic
           );   
   end component;  
@@ -237,4 +240,33 @@ component bc_dac_ramp_test_wrapper is
       
    );   
 end component;  
+
+  ------------------------------------------------------------------
+  -- BC DAC XTALK
+
+component bc_dac_xtalk_test_wrapper is
+   port (
+      -- basic signals
+      rst_i     : in std_logic;    -- reset input
+      clk_i     : in std_logic;    -- clock input
+      en_i      : in std_logic;    -- enable signal
+      mode      : in std_logic;    -- square wave on odd or even channels 
+      done_o    : out std_logic;   -- done ouput signal
+      
+      -- transmitter signals removed!
+                
+      -- extended signals
+      dac_dat_o : out std_logic_vector (31 downto 0); 
+      dac_ncs_o : out std_logic_vector (31 downto 0); 
+      dac_clk_o : out std_logic_vector (31 downto 0);
+     
+      lvds_dac_dat_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_clk_o: out std_logic;
+      
+      spi_start_o: out std_logic
+      
+   );   
+end component;  
+
 end bc_test_pack;
