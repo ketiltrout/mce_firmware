@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.9  2004/06/08 19:04:23  mandana
+-- added the cross-talk test
+--
 -- Revision 1.8  2004/06/04 21:00:26  bench2
 -- Mandana: ramp test works now
 --
@@ -399,9 +402,7 @@ begin
                dac_dat_o => fix_dac_data,
                dac_ncs_o => fix_dac_ncs,
                dac_clk_o => fix_dac_sclk,
-               
---               dac_nclr_o=> dac_nclr,
-               
+                           
                lvds_dac_dat_o => fix_lvds_dac_data,
                lvds_dac_ncs_o => fix_lvds_dac_ncs,
                lvds_dac_clk_o => fix_lvds_dac_sclk,
@@ -458,30 +459,29 @@ begin
       dac_test_data <= fix_dac_data       when "00",
                        ramp_dac_data      when "01",
                        xtalk_dac_data     when "10",
-                       xtalk_dac_data     when "11",                       
-                       "0000000000000000" when others;
-
+                       xtalk_dac_data     when "11";
+                       
    with dac_test_mode select
       dac_test_sclk <= fix_dac_sclk       when "00",
                        ramp_dac_sclk      when "01",
                        xtalk_dac_sclk     when "10",
-                       xtalk_dac_sclk     when "11",
-                       "0000000000000000" when others;
-
+                       xtalk_dac_sclk     when "11";
    with dac_test_mode select
       dac_test_ncs  <= fix_dac_ncs        when "00",
                        ramp_dac_ncs       when "01",
                        xtalk_dac_ncs      when "10",
-                       xtalk_dac_ncs      when "11",                       
-                       "0000000000000000" when others;
+                       xtalk_dac_ncs      when "11";
 
    with dac_test_mode select
       spi_start     <= fix_spi_start      when "00",
                        ramp_spi_start     when "01",
                        xtalk_spi_start    when "10",
-                       xtalk_dac_ncs      when "11",
-                       "0000000000000000" when others;
+                       xtalk_spi_start    when "11";
    
+--   dac_test_ncs <= fix_dac_ncs;
+--   dac_test_data <= fix_dac_data;
+--   dac_test_sclk <= fix_dac_sclk;
+
    dac_ncs <= dac_test_ncs;
    dac_sclk <= dac_test_sclk;
    dac_data <= dac_test_data;
@@ -574,29 +574,21 @@ begin
                   int_rst <= '1';
                   
                elsif(cmd1 = CMD_DAC_FIX) then
-                   if(dac_test_mode = "00") then
+                  dac_test_mode <= "00";
 	              sel <= SEL_DAC_FIX;               
-                   end if;
                    
                elsif(cmd1 = CMD_DAC_RAMP) then
-                  if dac_test_mode = "01" then
-                     dac_test_mode <= "00";
-                  else if dac_test_mode = "00" then
-                     dac_test_mode = "01";
-                  end if;
+                  dac_test_mode <= "01";
                   sel <= SEL_DAC_RAMP;               
 
                elsif(cmd1 = CMD_DAC_XTALK) then
-                  if dac_test_mode = "00" then
-                    if cmd2 = CMD_XTALK_ODD then
-                      dac_test_mode <= "02";
-                    else if cmd2 = CMD_XTALK_EVEN then
-                      dac_test_mode <= 03;
-                    end if;  
-                  else if dac_test_mode = "02" or dac_test_mode = "03" then
-                    dac_test_mode <= "00";
-                  end if;
-                  sel <= SEL_DAC_XTALK;               
+                  if cmd2 = CMD_XTALK_ODD then
+                      dac_test_mode <= "10";
+                      sel <= SEL_DAC_XTALK;               
+                  elsif cmd2 = CMD_XTALK_EVEN then
+                      dac_test_mode <= "11";
+                      sel <= SEL_DAC_XTALK;               
+                  end if;  
                   
                else
                   -- must not be implemented yet!
@@ -619,11 +611,13 @@ begin
       end if;
    end process cmd_proc;
 
-   test(3) <= sel(INDEX_DAC_FIX);
-   test(4) <= done(INDEX_DAC_FIX);
-   test(6) <= dac_test_ncs(0);
-   test(8) <= dac_test_sclk(0);
-   test(10) <= dac_test_data(0);
-   test(11) <= lvds_cmd;
+   test(3) <= sel(INDEX_DAC_XTALK);
+   test(4) <= done(INDEX_DAC_XTALK);
+   test(5) <= dac_test_ncs(0);
+   test(6) <= dac_test_ncs(1);
+   test(7) <= dac_test_sclk(0);
+   test(8) <= dac_test_sclk(1);
+   test(9) <= dac_test_data(0);
+   test(10) <= dac_test_data(1);
    test(14) <= spi_start;
 end behaviour;

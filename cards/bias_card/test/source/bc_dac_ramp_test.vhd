@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.2 2004/06/04 21:00:26 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.3 2004/06/07 23:19:00 bench2 Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -110,7 +110,7 @@ begin
 
 -- instantiate a counter to divide the clock by 2
    clk_div_2: counter
-   generic map(MAX => 16)
+   generic map(MAX => 4)
    port map(clk_i   => clk_i,
             rst_i   => logic0, 
             ena_i   => logic1,

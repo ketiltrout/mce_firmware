@@ -114,7 +114,7 @@ begin
 
 -- instantiate a counter to divide the clock by 2
    clk_div_2: counter
-   generic map(MAX => 4)
+   generic map(MAX => 8)
    port map(clk_i   => clk_i,
             rst_i   => logic0, 
             ena_i   => logic1,
@@ -123,13 +123,23 @@ begin
             count_i => zero,
             count_o => clk_count);
 
-   clk_2   <= '1' when clk_count > 2 else '0';
-     
+   clk_2   <= '1' when clk_count > 4 else '0';
+   
   -- values tried on DAC Tests with fixed values                               
    data(0) <= "0000000000000000";--x0000     zero range
    data(1) <= "1111111111111111";--xffff     full range
    data(2) <= "1000000000000000";--x8000     half range
-  
+
+   idx_counter: counter
+   generic map(MAX => 1)
+   port map(clk_i   => dac_done(0),
+            rst_i   => logic0, 
+            ena_i   => logic1,
+            load_i  => logic0,
+            down_i  => logic0,
+            count_i => zero,
+            count_o => idx);
+   
    data1 <= data(idx) when mode = '1' else data(2);
    data2 <= data(2)   when mode = '1' else data(idx);
       
@@ -216,7 +226,7 @@ begin
    begin
       case present_state is
          when IDLE =>     
-           for idac in 0 to 32 loop
+            for idac in 0 to 32 loop
                dac_data_p(idac) <= "0000000000000000";
             end loop;            
             send_dac32_start    <= '0';
@@ -251,7 +261,7 @@ begin
 	                              
       end case;
    end process state_out;
-   
+  
    process(en_i)
    begin
       if(en_i = '1') then
@@ -263,11 +273,6 @@ begin
    begin
       if(clk_2'event and clk_2 = '1') then
          done_o <= en_i;
-         if idx = 1 then 
-            idx <= 0;
-         else
-            idx <= 1;
-         end if;   
       end if;
    end process;
 
