@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.3  2004/05/12 18:03:15  mandana
+-- seperated the lvds_dac signals on the wrapper
+--
 -- Revision 1.2  2004/05/12 16:49:07  erniel
 -- removed components already in all_test
 --
@@ -54,19 +57,19 @@ package bc_test_pack is
    -- One character commands ------------------------------------------
       
    constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc
-   constant CMD_TX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t  
-   constant CMD_BC_DAC   : std_logic_vector(7 downto 0) := conv_std_logic_vector(98,8);    -- b
+   constant CMD_DAC      : std_logic_vector(7 downto 0) := conv_std_logic_vector(98,8);    -- d
    constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
-   
                                                                                                               
    -- Two character commands ------------------------------------------
 
-   constant CMD_RX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r
-   constant CMD_RX_CLK   : std_logic_vector(7 downto 0) := conv_std_logic_vector(49,8);    -- 1    
-   constant CMD_RX_CMD   : std_logic_vector(7 downto 0) := conv_std_logic_vector(50,8);    -- 2
-   constant CMD_RX_SYNC  : std_logic_vector(7 downto 0) := conv_std_logic_vector(51,8);    -- 3
-   constant CMD_RX_SPARE : std_logic_vector(7 downto 0) := conv_std_logic_vector(52,8);    -- 4
-
+   constant CMD_TX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t                                  
+   constant CMD_TX_A     : std_logic_vector(7 downto 0) := conv_std_logic_vector(97,8);    -- a
+   constant CMD_TX_B     : std_logic_vector(7 downto 0) := conv_std_logic_vector(98,8);    -- b
+   constant CMD_RX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r 
+   constant CMD_RX_CMD   : std_logic_vector(7 downto 0) := conv_std_logic_vector(99,8);    -- c
+   constant CMD_RX_SYNC  : std_logic_vector(7 downto 0) := conv_std_logic_vector(121,8);   -- y
+   constant CMD_RX_SPARE : std_logic_vector(7 downto 0) := conv_std_logic_vector(112,8);   -- p
+   
    ------------------------------------------------------------------
    --
    -- Component Declarations
@@ -152,7 +155,10 @@ package bc_test_pack is
            -- extended signals
            lvds_i : in std_logic);
    end component;
-   
+
+   ------------------------------------------------------------------
+   -- RS232 transmit
+      
    component rs232_data_tx
       generic(WIDTH : in integer range 4 to 1024 := 8);
       port(clk_i   : in std_logic;

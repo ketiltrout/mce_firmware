@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: bc_test_idle.vhd,v $
+-- Revision 1.2  2004/05/12 16:49:07  erniel
+-- removed components already in all_test
+--
 -- Revision 1.1  2004/05/11 23:04:40  mandana
 -- initial release - copied from all_test
 --
@@ -197,13 +200,13 @@ begin
             when RX_WAIT1 =>
                if (rx_newdata = '1') then
                   if(rx_data_i = CMD_RESET or  
-                     rx_data_i = CMD_TX or
                      rx_data_i = CMD_DEBUG or
-                     rx_data_i = CMD_BC_DAC) then
+                     rx_data_i = CMD_DAC) then
                      -- got a single character command - we're done
                      rx_state <= RX_DONE;
 
-                  elsif(rx_data_i = CMD_RX) then
+                  elsif(rx_data_i = CMD_TX or
+                        rx_data_i = CMD_RX) then
                      rx_state <= RX_WAIT2;
 
                   else
@@ -216,7 +219,8 @@ begin
             
             when RX_WAIT2 =>
                if(rx_newdata = '1') then   
-                  if(rx_data_i = CMD_RX_CLK or
+                  if(rx_data_i = CMD_TX_A or
+                     rx_data_i = CMD_TX_B or
                      rx_data_i = CMD_RX_CMD or
                      rx_data_i = CMD_RX_SYNC or
                      rx_data_i = CMD_RX_SPARE) then
