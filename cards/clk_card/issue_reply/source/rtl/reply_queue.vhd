@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.11 2004/12/06 07:23:04 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.12 2005/01/11 22:50:29 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.12  2005/01/11 22:50:29  erniel
+-- removed mem_clk_i from ports
+--
 -- Revision 1.11  2004/12/06 07:23:04  bburger
 -- Bryce:  Modified cmd_queue and reply_queue stop them from allowing start commands over the backplane
 --
@@ -150,67 +153,49 @@ architecture behav of reply_queue is
    
    -- reply queue receiver interfaces
    signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal ac_header          : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal ac_rdy             : std_logic;
    signal ac_ack             : std_logic;
-   signal ac_nack            : std_logic;
-   signal ac_done            : std_logic;
+   signal ac_discard         : std_logic;
    
    signal bc1_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal bc1_header         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc1_rdy            : std_logic;
    signal bc1_ack            : std_logic;
-   signal bc1_nack           : std_logic;
-   signal bc1_done           : std_logic;
+   signal bc1_discard        : std_logic;
    
    signal bc2_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal bc2_header         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc2_rdy            : std_logic;
    signal bc2_ack            : std_logic;
-   signal bc2_nack           : std_logic;
-   signal bc2_done           : std_logic;
+   signal bc2_discard        : std_logic;
    
    signal bc3_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal bc3_header         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal bc3_rdy            : std_logic;
    signal bc3_ack            : std_logic;
-   signal bc3_nack           : std_logic;
-   signal bc3_done           : std_logic;
+   signal bc3_discard        : std_logic;
    
    signal rc1_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal rc1_header         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc1_rdy            : std_logic;
    signal rc1_ack            : std_logic;
-   signal rc1_nack           : std_logic;
-   signal rc1_done           : std_logic;
+   signal rc1_discard        : std_logic;
    
    signal rc2_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal rc2_header         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc2_rdy            : std_logic;
    signal rc2_ack            : std_logic;
-   signal rc2_nack           : std_logic;
-   signal rc2_done           : std_logic;
+   signal rc2_discard        : std_logic;
    
    signal rc3_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal rc3_header         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc3_rdy            : std_logic;
    signal rc3_ack            : std_logic;
-   signal rc3_nack           : std_logic;
-   signal rc3_done           : std_logic;
+   signal rc3_discard        : std_logic;
    
    signal rc4_data           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal rc4_header         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rc4_rdy            : std_logic;
    signal rc4_ack            : std_logic;
-   signal rc4_nack           : std_logic;
-   signal rc4_done           : std_logic;
+   signal rc4_discard        : std_logic;
    
    signal cc_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal cc_header          : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal cc_rdy             : std_logic;
    signal cc_ack             : std_logic;
-   signal cc_nack            : std_logic;
-   signal cc_done            : std_logic;
+   signal cc_discard         : std_logic;
    
 begin   
    
@@ -268,68 +253,50 @@ begin
          clk_i        => clk_i,
          rst_i        => rst_i,
  
-         ac_data_i    => ac_data,
-         ac_header_i  => ac_header,
-         ac_rdy_i     => ac_rdy,
-         ac_ack_o     => ac_ack,
-         ac_nack_o    => ac_nack,
-         ac_done_i    => ac_done,
+         ac_data_i     => ac_data,
+         ac_rdy_i      => ac_rdy,
+         ac_ack_o      => ac_ack,
+         ac_discard_o  => ac_discard,
          
-         bc1_data_i   => bc1_data,
-         bc1_header_i => bc1_header,
-         bc1_rdy_i    => bc1_rdy,
-         bc1_ack_o    => bc1_ack,
-         bc1_nack_o   => bc1_nack,
-         bc1_done_i   => bc1_done,
+         bc1_data_i    => bc1_data,
+         bc1_rdy_i     => bc1_rdy,
+         bc1_ack_o     => bc1_ack,
+         bc1_discard_o => bc1_discard,
          
-         bc2_data_i   => bc2_data,
-         bc2_header_i => bc2_header,
-         bc2_rdy_i    => bc2_rdy,
-         bc2_ack_o    => bc2_ack,
-         bc2_nack_o   => bc2_nack,
-         bc2_done_i   => bc2_done,
+         bc2_data_i    => bc2_data,
+         bc2_rdy_i     => bc2_rdy,
+         bc2_ack_o     => bc2_ack,
+         bc2_discard_o => bc2_discard,
          
-         bc3_data_i   => bc3_data,
-         bc3_header_i => bc3_header,
-         bc3_rdy_i    => bc3_rdy,
-         bc3_ack_o    => bc3_ack,
-         bc3_nack_o   => bc3_nack,
-         bc3_done_i   => bc3_done,
+         bc3_data_i    => bc3_data,
+         bc3_rdy_i     => bc3_rdy,
+         bc3_ack_o     => bc3_ack,
+         bc3_discard_o => bc3_discard,
          
-         rc1_data_i   => rc1_data,
-         rc1_header_i => rc1_header,
-         rc1_rdy_i    => rc1_rdy,
-         rc1_ack_o    => rc1_ack,
-         rc1_nack_o   => rc1_nack,
-         rc1_done_i   => rc1_done,
+         rc1_data_i    => rc1_data,
+         rc1_rdy_i     => rc1_rdy,
+         rc1_ack_o     => rc1_ack,
+         rc1_discard_o => rc1_discard,
          
-         rc2_data_i   => rc2_data,
-         rc2_header_i => rc2_header,
-         rc2_rdy_i    => rc2_rdy,
-         rc2_ack_o    => rc2_ack,
-         rc2_nack_o   => rc2_nack,
-         rc2_done_i   => rc2_done,
+         rc2_data_i    => rc2_data,
+         rc2_rdy_i     => rc2_rdy,
+         rc2_ack_o     => rc2_ack,
+         rc2_discard_o => rc2_discard,
          
-         rc3_data_i   => rc3_data,
-         rc3_header_i => rc3_header,
-         rc3_rdy_i    => rc3_rdy,
-         rc3_ack_o    => rc3_ack,
-         rc3_nack_o   => rc3_nack,
-         rc3_done_i   => rc3_done,
+         rc3_data_i    => rc3_data,
+         rc3_rdy_i     => rc3_rdy,
+         rc3_ack_o     => rc3_ack,
+         rc3_discard_o => rc3_discard,
          
-         rc4_data_i   => rc4_data,
-         rc4_header_i => rc4_header,
-         rc4_rdy_i    => rc4_rdy,
-         rc4_ack_o    => rc4_ack,
-         rc4_nack_o   => rc4_nack,
-         rc4_done_i   => rc4_done,
+         rc4_data_i    => rc4_data,
+         rc4_rdy_i     => rc4_rdy,
+         rc4_ack_o     => rc4_ack,
+         rc4_discard_o => rc4_discard,
          
-         cc_data_i    => cc_data,
-         cc_header_i  => cc_header,
-         cc_rdy_i     => cc_rdy,
-         cc_ack_o     => cc_ack,
-         cc_nack_o    => cc_nack,
-         cc_done_i    => cc_done,
+         cc_data_i     => cc_data,
+         cc_rdy_i      => cc_rdy,
+         cc_ack_o      => cc_ack,
+         cc_discard_o  => cc_discard,
          
          -- fibre interface:
          size_o       => rq_size,
@@ -342,8 +309,9 @@ begin
          macro_op_i   => mop_num,
          micro_op_i   => uop_num,
          card_addr_i  => card_addr,
-         match_o      => rq_match,
-         cmd_valid_i  => rq_start
+         cmd_valid_i  => rq_start,
+         matched_o    => rq_match,
+         timeout_o    => open
      );
 
    rx_ac : reply_queue_receive
@@ -355,12 +323,9 @@ begin
          lvds_reply_i => lvds_reply_ac_a,
              
          data_o       => ac_data,
-         header_o     => ac_header,
-               
          rdy_o        => ac_rdy,
          ack_i        => ac_ack,
-         nack_i       => ac_nack,
-         done_o       => ac_done
+         discard_i    => ac_discard
       );
    
    rx_bc1 : reply_queue_receive
@@ -371,13 +336,10 @@ begin
                
          lvds_reply_i => lvds_reply_bc1_a,
              
-         data_o       => bc1_data,
-         header_o     => bc1_header,
-               
+         data_o       => bc1_data,               
          rdy_o        => bc1_rdy,
          ack_i        => bc1_ack,
-         nack_i       => bc1_nack,
-         done_o       => bc1_done
+         discard_i    => bc1_discard
       );
    
    rx_bc2 : reply_queue_receive
@@ -389,12 +351,9 @@ begin
          lvds_reply_i => lvds_reply_bc2_a,
              
          data_o       => bc2_data,
-         header_o     => bc2_header,
-               
          rdy_o        => bc2_rdy,
          ack_i        => bc2_ack,
-         nack_i       => bc2_nack,
-         done_o       => bc2_done
+         discard_i    => bc2_discard
       );
    
    rx_bc3 : reply_queue_receive
@@ -406,12 +365,9 @@ begin
          lvds_reply_i => lvds_reply_bc3_a,
              
          data_o       => bc3_data,
-         header_o     => bc3_header,
-               
          rdy_o        => bc3_rdy,
          ack_i        => bc3_ack,
-         nack_i       => bc3_nack,
-         done_o       => bc3_done
+         discard_i    => bc3_discard
       );
       
    rx_rc1 : reply_queue_receive
@@ -423,12 +379,9 @@ begin
          lvds_reply_i => lvds_reply_rc1_a,
              
          data_o       => rc1_data,
-         header_o     => rc1_header,
-               
          rdy_o        => rc1_rdy,
          ack_i        => rc1_ack,
-         nack_i       => rc1_nack,
-         done_o       => rc1_done
+         discard_i    => rc1_discard
       );
       
    rx_rc2 : reply_queue_receive
@@ -440,12 +393,9 @@ begin
          lvds_reply_i => lvds_reply_rc2_a,
              
          data_o       => rc2_data,
-         header_o     => rc2_header,
-               
          rdy_o        => rc2_rdy,
          ack_i        => rc2_ack,
-         nack_i       => rc2_nack,
-         done_o       => rc2_done
+         discard_i    => rc2_discard
       );
       
    rx_rc3 : reply_queue_receive
@@ -457,12 +407,9 @@ begin
          lvds_reply_i => lvds_reply_rc3_a,
              
          data_o       => rc3_data,
-         header_o     => rc3_header,
-               
          rdy_o        => rc3_rdy,
          ack_i        => rc3_ack,
-         nack_i       => rc3_nack,
-         done_o       => rc3_done
+         discard_i    => rc3_discard
       );
       
    rx_rc4 : reply_queue_receive
@@ -474,12 +421,9 @@ begin
          lvds_reply_i => lvds_reply_rc4_a,
              
          data_o       => rc4_data,
-         header_o     => rc4_header,
-               
          rdy_o        => rc4_rdy,
          ack_i        => rc4_ack,
-         nack_i       => rc4_nack,
-         done_o       => rc4_done
+         discard_i    => rc4_discard
       );
    
    rx_cc : reply_queue_receive
@@ -490,13 +434,10 @@ begin
                
          lvds_reply_i => lvds_reply_cc_a,
              
-         data_o       => cc_data,
-         header_o     => cc_header,
-                        
+         data_o       => cc_data,                        
          rdy_o        => cc_rdy,
          ack_i        => cc_ack,
-         nack_i       => cc_nack,
-         done_o       => cc_done
+         discard_i    => cc_discard
       );
    
 end behav;
