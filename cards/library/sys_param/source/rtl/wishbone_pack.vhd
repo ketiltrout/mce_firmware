@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/08/31 21:53:03 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/09/24 02:00:26 $> - <initials $Author: erniel $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.14  2004/09/24 02:00:26  erniel
+-- removed redundancy with command_pack
+--
 -- Revision 1.13  2004/08/31 21:53:03  bburger
 -- Bryce:  added the 'DATA' command type
 --
@@ -187,7 +190,9 @@ package wishbone_pack is
    constant SLOT_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"95";
    constant FMWR_VRSN_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"96";
    constant DIP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"97";
-   constant CYC_OO_SYC_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";
+   constant CYC_OO_SYC_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";   
+   constant LED_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
+
 
    -- Clock Card Specific
    constant CONFIG_S_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
