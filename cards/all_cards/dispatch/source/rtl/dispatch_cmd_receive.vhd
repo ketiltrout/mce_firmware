@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.11  2005/01/11 20:41:41  erniel
+-- replaced CARD generic with card_i port
+--
 -- Revision 1.10  2004/12/11 00:32:01  erniel
 -- put a range on integers: hdr_word_count, data_word_count & crc_bit_count
 --
@@ -165,8 +168,7 @@ begin
    ---------------------------------------------------------
    
    cmd_rx: lvds_rx
-      port map(clk_i      => clk_i,
-               comm_clk_i => comm_clk_i,
+      port map(comm_clk_i => comm_clk_i,
                rst_i      => rst_i,
                dat_o      => lvds_rx_data,
                rdy_o      => lvds_rx_rdy,

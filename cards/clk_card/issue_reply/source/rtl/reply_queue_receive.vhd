@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.8  2005/01/11 22:44:58  erniel
+-- removed mem_clk_i from ports
+-- updated fifo component
+--
 -- Revision 1.7  2004/12/03 20:37:22  erniel
 -- added extra state in write FSM to deal with CRC word
 --
@@ -172,8 +176,7 @@ begin
    --------------------------------------------------
    
    lvds_receiver : lvds_rx
-      port map(clk_i      => clk_i,
-               comm_clk_i => comm_clk_i,
+      port map(comm_clk_i => comm_clk_i,
                rst_i      => rst_i,
                dat_o      => lvds_data,
                rdy_o      => lvds_rdy,
