@@ -51,7 +51,7 @@ entity fibre_rx_wrapper is
 port(
      -- global inputs 
      rst_i                   : in  std_logic;                                            -- global reset
-     clk_i                   : in  std_logic;                                            -- global clock
+     inclk                   : in  std_logic;                                            -- global clock
 
 
      -- interface to hotlink receiver
@@ -62,6 +62,16 @@ port(
      fibre_rx_rvs            : in  std_logic;
      fibre_rx_ckr            : in  std_logic;
 
+
+    -- interface to hotlink transmitter
+
+     fibre_tx_data           : out std_logic_vector (7 downto 0);
+     fibre_tx_ena            : out std_logic;  
+     fibre_tx_rp             : in  std_logic; 
+     fibre_tx_sc_nd          : out std_logic;
+
+    
+    -- hotlink clocks
      fibre_tx_clk            : out std_logic;
      fibre_rx_clk            : out std_logic;
      test1_o                 : out std_logic
@@ -91,6 +101,7 @@ component fibre_rx_pll
   port (
   inclk0  : in  std_logic;
   c0      : out std_logic;
+  c1      : out std_logic;
   e0      : out std_logic;
   e1      : out std_logic
 );
@@ -121,6 +132,7 @@ signal data_clk     : std_logic;
 signal ext_clkr      : std_logic;
 signal cmd_trig     : std_logic;
 
+signal test_clk     : std_logic;
 
 -- cmd acknowledge FSM to reply to command ready                             
 type     ack_state is       (IDLE, ACK);
@@ -134,76 +146,43 @@ signal   cmd_index_mux : integer ;
 
 signal   inc_buff_sel  : std_logic_vector(1 downto 0);
 
-
--- command memory buffer declaration
-
-constant command_size  : positive := 256;
-
-type memory is array (0 to command_size-1) of byte;
-
-signal command_buff: memory := (others => Byte'(others => '0'));
+signal   clk_i  : std_logic;
 
 
-signal count   : integer ;
-constant delay : integer := 50000000 ;
-signal rst_count : std_logic;
-signal ena_count : std_logic;
+-- tx fifo reply translator interface signals
+
+signal tx_ff : std_logic;
+signal tx_fw : std_logic; 
+signal txd   : std_logic_vector(7 downto 0);
+
+signal cmd_rcvd_ok : std_logic;
+signal cmd_rcvd_er : std_logic;
+
+signal  cmd_stop      : std_logic;
+signal  last_frame    : std_logic;
+signal  frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
+signal   m_op_done          : std_logic;  
+signal   m_op_error_code    : std_logic_vector(BB_STATUS_WIDTH-1           downto 0); 
+signal   m_op_cmd_code      : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
+signal   fibre_word         : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0); 
+signal   num_fibre_words    : std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    
+signal   fibre_word_req     : std_logic;
+signal   fibre_word_rdy     : std_logic;
+signal   m_op_ack           : std_logic;   
 
 begin
-
-   test1_o           <= '0' ;
-
-   rvs               <= '0' ; 
-   rso               <= '1' ; 
-   rsc_nrd           <= '0' ;  
-
-   command_buff(  0) <= X"A5";
-   command_buff(  1) <= X"A5";
-   command_buff(  2) <= X"A5";
-   command_buff(  3) <= X"A5";
-   
-   command_buff(  4) <= X"5A";
-   command_buff(  5) <= X"5A";
-   command_buff(  6) <= X"5A";
-   command_buff(  7) <= X"5A";
-   
-   command_buff(  8) <= X"42";
-   command_buff(  9) <= X"57";
-   command_buff( 10) <= X"20";
-   command_buff( 11) <= X"20";
-   
-   command_buff( 12) <= X"5C";
-   command_buff( 13) <= X"00";
-   command_buff( 14) <= X"02";
-   command_buff( 15) <= X"00";
-
-   command_buff( 16) <= X"01";
-   command_buff( 17) <= X"00";
-   command_buff( 18) <= X"00";
-   command_buff( 19) <= X"00";
-
-   command_buff( 20) <= X"0A";
-   command_buff( 21) <= X"00";
-   command_buff( 22) <= X"00";
-   command_buff( 23) <= X"00";
-   
-   command_buff(252) <= X"15";
-   command_buff(253) <= X"57";
-   command_buff(254) <= X"22";
-   command_buff(255) <= X"20";
- 
-
--- Instance port mappings
 
  -- Instance port mappings
 
    
   i_pll : fibre_rx_pll 
   port map (
-  inclk0	 =>   clk_i,
-  c0	     =>   int_clkr,
-  e0         =>   fibre_tx_clk, 
-  e1         =>   fibre_rx_clk
+  inclk0	 =>   inclk,          -- 25Mhz in
+  c0	     =>   test_clk,       -- internal 25Mhz
+  c1         =>   clk_i,          -- internal 50Mhz
+  e0         =>   fibre_tx_clk,   -- external 25Mhz
+  e1         =>   fibre_rx_clk    -- external 25Mhz
   );
     
 ---------------------------
@@ -232,6 +211,70 @@ begin
       cmd_rdy_o    => cmd_rdy,
       data_clk_o   => data_clk
    );
+
+
+
+ 
+   -------------------------------------
+   i_reply_translator : reply_translator
+   --------------------------------------
+   port map(
+
+   -- global inputs 
+   rst_i                   => rst_i,
+   clk_i                   => clk_i,
+
+   -- signals to/from cmd_translator    
+   cmd_rcvd_er_i           => cksum_err,
+   cmd_rcvd_ok_i           => cmd_rdy,
+   cmd_code_i              => cmd_code,
+   card_id_i               => card_id,
+   param_id_i              => param_id,
+         
+   -- signals to/from reply queue 
+
+   m_op_done_i             => m_op_done,  
+   m_op_error_code_i       => m_op_error_code, 
+   m_op_cmd_code_i         => m_op_cmd_code,
+   fibre_word_i            => fibre_word,
+   num_fibre_words_i       => num_fibre_words,
+   fibre_word_req_o        => fibre_word_req,
+   fibre_word_rdy_i        => fibre_word_rdy,
+   m_op_ack_o              => m_op_ack,    
+
+   cmd_stop_i              => cmd_stop,
+   last_frame_i            => last_frame,
+   frame_seq_num_i         => frame_seq_num,
+
+   -- signals to / from fibre_tx
+
+   tx_ff_i                 => tx_ff, 
+   tx_fw_o                 => tx_fw,
+   txd_o                   => txd
+   );      
+
+ 
+   -------------------------------------
+   i_fibre_tx : fibre_tx
+   --------------------------------------
+   port map(        
+   -- global inputs
+      clk_i        => clk_i, 
+      rst_i        => rst_i, 
+         
+   -- interface to reply_translator
+
+     txd_i        => txd, 
+     tx_fw_i      => tx_fw, 
+     tx_ff_o      => tx_ff, 
+      
+   -- interface to HOTLINK transmitter
+     fibre_clkw_i  => test_clk,
+     tx_data_o     => fibre_tx_data,
+     tsc_nTd_o     => fibre_tx_sc_nd,
+     nFena_o       => fibre_tx_ena 
+
+      );
 
 
    ---------------------------------------------------------------------------
