@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_async_fifo.vhd,v 1.2 2004/06/29 15:25:02 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_async_fifo.vhd,v 1.3 2004/06/30 10:53:48 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -33,7 +33,7 @@
 --
 -- Revision history:
 
--- <date $Date: 2004/06/29 15:25:02 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/30 10:53:48 $>	-		<text>		- <initials $Author: dca $>
 --
 -- <$log$>
 -----------------------------------------------------------------------------
@@ -52,8 +52,8 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
  
-library work;
-use work.component_pack.all;
+library components;
+use components.component_pack.all;
 
 
 
