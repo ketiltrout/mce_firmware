@@ -26,10 +26,10 @@
 -- Organisation:  UBC
 --
 -- Description:
--- This testbench tests the integration of two blocks within flux_loop_ctrl.
--- These blocks are: adc_sample_coadd and fsfb_calc.  The frame_timing signals
--- are provided to the testbench by instantiating the frame_timing library
--- component.
+-- This testbench tests the integration of three blocks within flux_loop_ctrl.
+-- These blocks are: adc_sample_coadd, fsfb_calc, and fsfb_ctrl.  The 
+-- frame_timing signals are provided to the testbench by instantiating the 
+-- frame_timing library	component. 
 -- 
 -- This testbench is for: 
 -- 
@@ -49,7 +49,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.1  2004/10/28 19:50:04  mohsen
+-- created
+--
 --
 --
 ------------------------------------------------------------------------
@@ -69,10 +72,10 @@ use sys_param.frame_timing_pack.all;
 
 
 library work;
+use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
+use work.fsfb_ctrl_pack.all;
 use work.sync_gen_pack.all;
-
-
 
 
 
@@ -91,9 +94,9 @@ architecture beh of tb2_flux_loop_ctrl is
 
 
     -- ADC interface signals
-    adc_dat_i                 : in std_logic_vector (13 downto 0);
-    adc_ovr_i                 : in std_logic;
-    adc_rdy_i                 : in std_logic;
+    adc_dat_i                 : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+    adc_ovr_i                 : in  std_logic;
+    adc_rdy_i                 : in  std_logic;
     adc_clk_o                 : out std_logic;
 
     -- Global signals 
@@ -107,13 +110,13 @@ architecture beh of tb2_flux_loop_ctrl is
     restart_frame_1row_post_i : in  std_logic;
     row_switch_i              : in  std_logic;
     initialize_window_i       : in  std_logic;
-    num_rows_sub1_i           : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
+    num_rows_sub1_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
     dac_dat_en_i              : in  std_logic;
     -- Wishbone Slave (wbs) Frame Data signals
-    coadded_addr_i            : in  std_logic_vector (5 downto 0);
+    coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
     coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-    raw_addr_i                : in  std_logic_vector (12 downto 0);
-    raw_dat_o                 : out std_logic_vector (15 downto 0);
+    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
     raw_req_i                 : in  std_logic;
     raw_ack_o                 : out std_logic;
 
@@ -124,29 +127,29 @@ architecture beh of tb2_flux_loop_ctrl is
 
     
     -- Wishbove Slave (wbs) Feedback (fb) Data Signals
-    adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-    adc_offset_adr_o          : out std_logic_vector(5 downto 0);
+    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+    adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
 
-    servo_mode_i              : in     std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
-    ramp_step_size_i          : in     std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
-    ramp_amp_i                : in     std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           -- ramp peak amplitude
-    const_val_i               : in     std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          -- fs feedback constant value
-    num_ramp_frame_cycles_i   : in     std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);           -- number of frame cycle ramp remained level 
-    p_addr_o                  : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);   -- coefficient queue address/data inputs/outputs 
-    p_dat_i                   : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- read-only operations
-    i_addr_o                  : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    i_dat_i                   : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    d_addr_o                  : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    d_dat_i                   : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    z_addr_o                  : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    z_dat_i                   : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+    servo_mode_i              : in  std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
+    ramp_step_size_i          : in  std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
+    ramp_amp_i                : in  std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           -- ramp peak amplitude
+    const_val_i               : in  std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          -- fs feedback constant value
+    num_ramp_frame_cycles_i   : in  std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);           -- number of frame cycle ramp remained level 
+    p_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);   -- coefficient queue address/data inputs/outputs 
+    p_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- read-only operations
+    i_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+    i_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+    d_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+    d_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+    z_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+    z_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     sa_bias_dat_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_i              : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     filter_coeff_addr_o       : out std_logic_vector(2 downto 0);
     filter_coeff_dat_i        : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
     -- DAC Interface
-    dac_dat_o                 : out std_logic_vector(13 downto 0);
+    dac_dat_o                 : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
     dac_clk_o                 : out std_logic;
 
     -- spi DAC Interface
@@ -155,17 +158,17 @@ architecture beh of tb2_flux_loop_ctrl is
 
     -- INTERNAL
 
-    fsfb_fltr_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue current data ready 
-    fsfb_fltr_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
-    fsfb_ctrl_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue previous data ready
-    fsfb_ctrl_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)     -- fs feedback queue previous data
+    fsfb_fltr_dat_rdy_o       : out std_logic;                                             -- fs feedback queue current data ready 
+    fsfb_fltr_dat_o           : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+    fsfb_ctrl_dat_rdy_o       : out std_logic;                                             -- fs feedback queue previous data ready
+    fsfb_ctrl_dat_o           : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)     -- fs feedback queue previous data
       );
 
   end component;
 
  
 
-    signal adc_dat_i                 : std_logic_vector (13 downto 0);
+    signal adc_dat_i                 : std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
     signal adc_ovr_i                 : std_logic;
     signal adc_rdy_i                 : std_logic;
     signal adc_clk_o                 : std_logic;
@@ -178,11 +181,11 @@ architecture beh of tb2_flux_loop_ctrl is
     signal row_switch_i              : std_logic;
     signal initialize_window_i       : std_logic;
     signal num_rows_sub1_i           : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
-    signal dac_dat_en_i              : std_logic;
-    signal coadded_addr_i            : std_logic_vector (5 downto 0) := (others => '0');
-    signal coadded_dat_o             : std_logic_vector (31 downto 0);
-    signal raw_addr_i                : std_logic_vector (12 downto 0) := "1010001111111";
-    signal raw_dat_o                 : std_logic_vector (15 downto 0);
+    signal dac_dat_en_i              : std_logic :='0';
+    signal coadded_addr_i            : std_logic_vector (COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
+    signal coadded_dat_o             : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+    signal raw_addr_i                : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0) := "1010001111111";
+    signal raw_dat_o                 : std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
     signal raw_req_i                 : std_logic :='0';
     signal raw_ack_o                 : std_logic;
 
@@ -190,8 +193,8 @@ architecture beh of tb2_flux_loop_ctrl is
     signal fsfb_ws_dat_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
     signal filtered_addr_i           : std_logic_vector(5 downto 0);
     signal filtered_dat_o            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);   
-    signal adc_offset_dat_i          : std_logic_vector(15 downto 0);
-    signal adc_offset_adr_o          : std_logic_vector(5 downto 0);
+    signal adc_offset_dat_i          : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+    signal adc_offset_adr_o          : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
 
     signal servo_mode_i              : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
     signal ramp_step_size_i          : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
@@ -210,7 +213,7 @@ architecture beh of tb2_flux_loop_ctrl is
     signal offset_dat_i              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     signal filter_coeff_addr_o       : std_logic_vector(2 downto 0);
     signal filter_coeff_dat_i        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal dac_dat_o                 : std_logic_vector(13 downto 0);
+    signal dac_dat_o                 : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
     signal dac_clk_o                 : std_logic;
     signal sa_bias_dac_spi_o         : std_logic_vector(2 downto 0);
     signal offset_dac_spi_o          : std_logic_vector(2 downto 0);
@@ -306,6 +309,7 @@ architecture beh of tb2_flux_loop_ctrl is
   signal diff_value           : integer;  -- difference value
   signal found_filter_error   : boolean := false;
   signal found_ctrl_error     : boolean := false;
+  signal found_dac_error      : boolean := false;
   
   signal p_value              : std_logic_vector(32 downto 0);
   signal i_value              : std_logic_vector(32 downto 0);
@@ -320,7 +324,7 @@ architecture beh of tb2_flux_loop_ctrl is
   signal init_window_req_i    : std_logic :='0';
   signal sample_num_i         : integer := 40;
   signal sample_delay_i       : integer := 10;
-  signal feedback_delay_i     : integer := 0;
+  signal feedback_delay_i     : integer := 6;
   signal sync                 : std_logic;
 
 
@@ -596,8 +600,9 @@ begin  -- beh
     sample_num_i              => sample_num_i,
     sample_delay_i            => sample_delay_i,
     feedback_delay_i          => feedback_delay_i,
+    address_on_delay_i        => 2,
     update_bias_o             => open,
-    dac_dat_en_o              => open,
+    dac_dat_en_o              => dac_dat_en_i,
     adc_coadd_en_o            => adc_coadd_en_i,
     restart_frame_1row_prev_o => restart_frame_1row_prev_i,
     restart_frame_aligned_o   => restart_frame_aligned_i,
@@ -987,6 +992,48 @@ begin  -- beh
     end if;
   end process i_check;
 
+
+  -----------------------------------------------------------------------------
+  -- Self Check for fsfb_ctrl block
+  -- WARNING: Based on the values used for the generic values in the fsfb_ctrl,
+  -- you need to adjust the check. 
+  -----------------------------------------------------------------------------
+  i_check_fsfb_ctrl: process (clk_50_i)
+  begin  -- process i_check_fsfb_ctrl
+    if dac_clk_o='1' then
+      if finish_test_flux_loop_ctrl=false then
+        
+        -----------------------------------------------------------------------
+        -- Modifiy acccording to polarity of the ADC and bit accuracy as shown
+        -- in the generic value in the fsfb_ctrl.  These values default to 0
+        -- and 13 respective, showing a straight polarity.
+        -- So, choose one of the next three group statements
+        -----------------------------------------------------------------------
+
+        
+        -- if straigh polarity is used in instantiating the fsfb_ctrl and bit
+        -- 13 down to 0 of input data is used
+        -- comment out if not in lock mode
+          if ((not fsfb_ctrl_dat_o(13))&fsfb_ctrl_dat_o(12 downto 0)) /= dac_dat_o then
+            found_dac_error <= true;
+          end if;
+
+        -- if reverse polarity is used in instantiating the fsfb_ctrl
+        -- comment out if not in lock mode
+--           if (fsfb_ctrl_dat_o(13) &(not fsfb_ctrl_dat_o(12 downto 0))) /= dac_dat_o then
+--             found_dac_error <= true;
+--           end if;
+
+        -- comment out if in lock mode
+--         if fsfb_ctrl_dat_o(13 downto 0) /= dac_dat_o then
+--           found_dac_error <= true;
+--         end if;
+        
+      end if;
+      assert found_dac_error=false
+        report "FAILED at DAC" severity FAILURE;
+    end if;
+  end process i_check_fsfb_ctrl;
   
 
 end beh;

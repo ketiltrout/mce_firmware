@@ -26,8 +26,8 @@
 -- Organisation:  UBC
 --
 -- Description:
--- This testbench tests the integration of two blocks within flux_loop_ctrl.
--- These blocks are: adc_sample_coadd and fsfb_calc.
+-- This testbench tests the integration of three blocks within flux_loop_ctrl.
+-- These blocks are: adc_sample_coadd, fsfb_calc, and fsfb_ctrl.
 -- 
 -- This testbench test performs in three different modes:
 -- 
@@ -38,11 +38,16 @@
 -- C) Ramp Mode: where fsfb_calc gets ramp parameters from wbs_fb_data and
 -- outputs the ramp result to fsfb_ctrl.
 -- 
--- For the Lock Mode, we perform a selfcheck.  However, this selfcheck process
--- needs to be commented out for other modes.  The selfcheck relies on a random
--- value generated block(LFSR) to assign values  to adc_dat_i.
+-- For the Lock Mode, we perform a selfcheck for the fsfb_calc outputs.
+-- However, this selfcheck process needs to be commented out for other modes.
+-- The selfcheck relies on a random value generated block(LFSR) to assign
+-- values to adc_dat_i.
+-- In the case of the fsfb_ctrl, we selfcheck its output with the expected
+-- results.  Note that certain lines need to be commented out based on the mode
+-- and based on the instantiation values used for the generic parameters in the
+-- fsfb_ctrl block.
 --
--- The following is operations are performed:
+-- The following operations are performed:
 -- 1. Initialize and free run row_switch_i, restart_frame_1row_prev_i,
 -- restart_frame_1row_prev_i, and restart_frame_1row_post_i at the nominal
 -- frequency of (64*41*period). 
@@ -71,7 +76,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb1_flux_loop_ctrl.vhd,v $
+-- Revision 1.1  2004/10/28 19:50:04  mohsen
+-- created
+--
 --
 --
 ------------------------------------------------------------------------
@@ -89,8 +97,9 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 library work;
+use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
-
+use work.fsfb_ctrl_pack.all;
 
 
 
@@ -110,7 +119,7 @@ architecture beh of tb1_flux_loop_ctrl is
 
 
     -- ADC interface signals
-    adc_dat_i                 : in  std_logic_vector (13 downto 0);
+    adc_dat_i                 : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
     adc_ovr_i                 : in  std_logic;
     adc_rdy_i                 : in  std_logic;
     adc_clk_o                 : out std_logic;
@@ -129,10 +138,10 @@ architecture beh of tb1_flux_loop_ctrl is
     num_rows_sub1_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
     dac_dat_en_i              : in  std_logic;
     -- Wishbone Slave (wbs) Frame Data signals
-    coadded_addr_i            : in  std_logic_vector (5 downto 0);
+    coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
     coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-    raw_addr_i                : in  std_logic_vector (12 downto 0);
-    raw_dat_o                 : out std_logic_vector (15 downto 0);
+    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
     raw_req_i                 : in  std_logic;
     raw_ack_o                 : out std_logic;
 
@@ -143,8 +152,8 @@ architecture beh of tb1_flux_loop_ctrl is
 
     
     -- Wishbove Slave (wbs) Feedback (fb) Data Signals
-    adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-    adc_offset_adr_o          : out std_logic_vector(5 downto 0);
+    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+    adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
 
     servo_mode_i              : in  std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
     ramp_step_size_i          : in  std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
@@ -165,7 +174,7 @@ architecture beh of tb1_flux_loop_ctrl is
     filter_coeff_dat_i        : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
     -- DAC Interface
-    dac_dat_o                 : out std_logic_vector(13 downto 0);
+    dac_dat_o                 : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
     dac_clk_o                 : out std_logic;
 
     -- spi DAC Interface
@@ -183,7 +192,7 @@ architecture beh of tb1_flux_loop_ctrl is
 
  
 
-    signal adc_dat_i                 : std_logic_vector (13 downto 0);
+    signal adc_dat_i                 : std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
     signal adc_ovr_i                 : std_logic;
     signal adc_rdy_i                 : std_logic;
     signal adc_clk_o                 : std_logic;
@@ -196,11 +205,11 @@ architecture beh of tb1_flux_loop_ctrl is
     signal row_switch_i              : std_logic;
     signal initialize_window_i       : std_logic;
     signal num_rows_sub1_i           : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
-    signal dac_dat_en_i              : std_logic;
-    signal coadded_addr_i            : std_logic_vector (5 downto 0) := (others => '0');
-    signal coadded_dat_o             : std_logic_vector (31 downto 0);
-    signal raw_addr_i                : std_logic_vector (12 downto 0) := "1010001111111";
-    signal raw_dat_o                 : std_logic_vector (15 downto 0);
+    signal dac_dat_en_i              : std_logic :='0';
+    signal coadded_addr_i            : std_logic_vector (COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
+    signal coadded_dat_o             : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+    signal raw_addr_i                : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0) := "1010001111111";
+    signal raw_dat_o                 : std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
     signal raw_req_i                 : std_logic :='0';
     signal raw_ack_o                 : std_logic;
 
@@ -208,8 +217,8 @@ architecture beh of tb1_flux_loop_ctrl is
     signal fsfb_ws_dat_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
     signal filtered_addr_i           : std_logic_vector(5 downto 0);
     signal filtered_dat_o            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);   
-    signal adc_offset_dat_i          : std_logic_vector(15 downto 0);
-    signal adc_offset_adr_o          : std_logic_vector(5 downto 0);
+    signal adc_offset_dat_i          : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+    signal adc_offset_adr_o          : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
 
     signal servo_mode_i              : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
     signal ramp_step_size_i          : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
@@ -228,7 +237,7 @@ architecture beh of tb1_flux_loop_ctrl is
     signal offset_dat_i              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     signal filter_coeff_addr_o       : std_logic_vector(2 downto 0);
     signal filter_coeff_dat_i        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal dac_dat_o                 : std_logic_vector(13 downto 0);
+    signal dac_dat_o                 : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
     signal dac_clk_o                 : std_logic;
     signal sa_bias_dac_spi_o         : std_logic_vector(2 downto 0);
     signal offset_dac_spi_o          : std_logic_vector(2 downto 0);
@@ -327,6 +336,7 @@ architecture beh of tb1_flux_loop_ctrl is
   signal diff_value           : integer;  -- difference value
   signal found_filter_error   : boolean := false;
   signal found_ctrl_error     : boolean := false;
+  signal found_dac_error      : boolean := false;
   
   signal p_value              : std_logic_vector(32 downto 0);
   signal i_value              : std_logic_vector(32 downto 0);
@@ -635,6 +645,7 @@ begin  -- beh
     restart_frame_1row_post_i <= '0';
     row_switch_i              <= '0';
     initialize_window_i       <= '0';
+    dac_dat_en_i              <= '0';
     new_frame                 <= true;
     wait for RESET_WINDOW + EDGE_DEPENDENCY;
     wait for FREE_RUN;
@@ -656,6 +667,8 @@ begin  -- beh
                                      '0' after PERIOD;
         row_switch_i              <= '1',
                                      '0' after PERIOD;
+        dac_dat_en_i              <= '0' after PERIOD,
+                                     '1' after 7*PERIOD;
         if new_frame = true  then
           initialize_window_i <= '1' after PERIOD;
           new_frame <= false;
@@ -667,10 +680,14 @@ begin  -- beh
                                      '0' after PERIOD;
         row_switch_i              <= '1',
                                      '0' after PERIOD;
+        dac_dat_en_i              <= '0' after PERIOD,
+                                     '1' after 7*PERIOD;
         for i in 1 to (41-2) loop       -- assert row switch for 41-2 rows
           wait for CLOCKS_PER_ROW*PERIOD;
           row_switch_i <= '1',
                           '0' after PERIOD;
+          dac_dat_en_i <= '0' after PERIOD,
+                          '1' after 7*PERIOD;
         end loop;  -- i
           
       end loop;
@@ -683,11 +700,15 @@ begin  -- beh
                                    '0' after PERIOD;
       row_switch_i              <= '1',
                                    '0' after PERIOD;
+      dac_dat_en_i              <= '0' after PERIOD,
+                                   '1' after 7*PERIOD;
       wait for CLOCKS_PER_ROW*PERIOD;   -- wait one row
       restart_frame_aligned_i   <= '1',
                                    '0' after PERIOD;
       row_switch_i              <= '1',
                                    '0' after PERIOD; 
+      dac_dat_en_i              <= '0' after PERIOD,
+                                   '1' after 7*PERIOD;
       if new_frame = true then
         initialize_window_i <= '1' after PERIOD;
         new_frame <= false;
@@ -699,21 +720,29 @@ begin  -- beh
                                    '0' after PERIOD;
       row_switch_i              <= '1',
                                    '0' after PERIOD;
+      dac_dat_en_i              <= '0' after PERIOD,
+                                   '1' after 7*PERIOD;
       for i in 1 to (23-2) loop         -- assert row switch for 23-2 rows
         wait for CLOCKS_PER_ROW*PERIOD;
         row_switch_i <= '1',
                         '0' after PERIOD;
+        dac_dat_en_i <= '0' after PERIOD,
+                        '1' after 7*PERIOD;
       end loop;  -- i
 
       restart_frame_1row_prev_i <= '1',
                                    '0' after PERIOD;
       row_switch_i              <= '1',
                                    '0' after PERIOD;
+      dac_dat_en_i              <= '0' after PERIOD,
+                                   '1' after 7*PERIOD;
       wait for CLOCKS_PER_ROW*PERIOD;   -- wait one row
       restart_frame_aligned_i   <= '1',
                                    '0' after PERIOD;
       row_switch_i              <= '1',
                                    '0' after PERIOD;
+      dac_dat_en_i              <= '0' after PERIOD,
+                                   '1' after 7*PERIOD;
       if new_frame = true then
         initialize_window_i <= '1' after PERIOD;
         new_frame <= false;
@@ -725,10 +754,14 @@ begin  -- beh
                                    '0' after PERIOD;
       row_switch_i              <= '1',
                                    '0' after PERIOD;
+      dac_dat_en_i              <= '0' after PERIOD,
+                                   '1' after 7*PERIOD;
       for i  in 1 to (35-2) loop        -- assert row switch for 35-2 rows
         wait for CLOCKS_PER_ROW*PERIOD;
         row_switch_i <= '1',
                         '0' after PERIOD;
+        dac_dat_en_i <= '0' after PERIOD,
+                        '1' after 7*PERIOD;
       end loop;  -- i 
       
       while (not finish_phase2_testing) loop
@@ -736,11 +769,15 @@ begin  -- beh
                                      '0' after PERIOD;
         row_switch_i              <= '1',
                                      '0' after PERIOD;
+        dac_dat_en_i              <= '0' after PERIOD,
+                                     '1' after 7*PERIOD;
         wait for CLOCKS_PER_ROW*PERIOD;   -- wait one row
         restart_frame_aligned_i   <= '1',
                                      '0' after PERIOD;
         row_switch_i              <= '1',
                                      '0' after PERIOD;
+        dac_dat_en_i              <= '0' after PERIOD,
+                                     '1' after 7*PERIOD;
         if new_frame = true then
           initialize_window_i <= '1' after PERIOD;
           new_frame <= false;
@@ -752,10 +789,14 @@ begin  -- beh
                                      '0' after PERIOD;
         row_switch_i              <= '1',
                                      '0' after PERIOD;
+        dac_dat_en_i              <= '0' after PERIOD,
+                                     '1' after 7*PERIOD;
         for i in 1 to (41-2) loop       -- assert row switch for 41-2 rows
           wait for CLOCKS_PER_ROW*PERIOD;
           row_switch_i <= '1',
                           '0' after PERIOD;
+          dac_dat_en_i <= '0' after PERIOD,
+                          '1' after 7*PERIOD;
         end loop;  -- i
 
       end loop;
@@ -1047,15 +1088,15 @@ begin  -- beh
     ---------------------------------------------------------------------------
 
  --lock mode
-      cfg_test_mode(3, 0, 0, 0, 0,
-                    servo_mode_i, ramp_step_size_i, ramp_amp_i,
-                    num_ramp_frame_cycles_i, const_val_i);
+       cfg_test_mode(3, 0, 0, 0, 0,
+                     servo_mode_i, ramp_step_size_i, ramp_amp_i,
+                     num_ramp_frame_cycles_i, const_val_i);
 
     
  --ramp mode testing   
---          cfg_test_mode(2, 2, 5, 1, 2**CONST_VAL_WIDTH-1,
---                        servo_mode_i, ramp_step_size_i, ramp_amp_i,
---                        num_ramp_frame_cycles_i, const_val_i);
+--           cfg_test_mode(2, 2, 5, 1, 2**CONST_VAL_WIDTH-1,
+--                         servo_mode_i, ramp_step_size_i, ramp_amp_i,
+--                         num_ramp_frame_cycles_i, const_val_i);
 
          -- const mode testing
 --           cfg_test_mode(1, 0, 0, 0, 2**CONST_VAL_WIDTH-1,
@@ -1102,159 +1143,202 @@ begin  -- beh
   -----------------------------------------------------------------------------
 
 
-  i_check: process (clk_50_i, rst_i)
+   i_check: process (clk_50_i, rst_i)
     
-  begin  -- process i_check
-    if rst_i = '1' then                 -- asynchronous reset (active high)
+   begin  -- process i_check
+     if rst_i = '1' then                 -- asynchronous reset (active high)
       
-      adc_coadd_en_dly   <= (others => '0');
-      found_filter_error <= false;
-      found_ctrl_error   <= false;
-      address_index      <= 0;
-      coadded_value      <= 0;
-      diff_value         <= 0;
+       adc_coadd_en_dly   <= (others => '0');
+       found_filter_error <= false;
+       found_ctrl_error   <= false;
+       address_index      <= 0;
+       coadded_value      <= 0;
+       diff_value         <= 0;
 
-      -- initialize memory banks
-      for i in 0 to 63 loop
-        integral_bank0(i) <= 0;
-        integral_bank1(i) <= 0;
-        coadd_bank0(i)    <= 0;
-        coadd_bank1(i)    <= 0;
-        filter_bank0(i)   <= 0;
-        filter_bank1(i)   <= 0;
-      end loop;  -- i
+       -- initialize memory banks
+       for i in 0 to 63 loop
+         integral_bank0(i) <= 0;
+         integral_bank1(i) <= 0;
+         coadd_bank0(i)    <= 0;
+         coadd_bank1(i)    <= 0;
+         filter_bank0(i)   <= 0;
+         filter_bank1(i)   <= 0;
+       end loop;  -- i
       
-    elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
+     elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
 
-      address_index       <=  conv_integer(unsigned(coadded_addr_i));
+       address_index       <=  conv_integer(unsigned(coadded_addr_i));
 
-      -- delay adc_coadd_en_i with 5 clocks. 5th element is used for
-      -- calculation of PIDZ error value
-      adc_coadd_en_dly(0)   <= adc_coadd_en_i;  
-      for i in 1 to 5 loop
-        adc_coadd_en_dly(i) <= adc_coadd_en_dly(i-1);
-      end loop;  -- i
-
-
-      -- coadd
-      if adc_coadd_en_dly(3) = '1' then
-        coadded_value <=  coadded_value +(conv_integer(signed(adc_dat_i)))-
-                          (conv_integer(signed(adc_offset_dat_i)));
-      end if;
+       -- delay adc_coadd_en_i with 5 clocks. 5th element is used for
+       -- calculation of PIDZ error value
+       adc_coadd_en_dly(0)   <= adc_coadd_en_i;  
+       for i in 1 to 5 loop
+         adc_coadd_en_dly(i) <= adc_coadd_en_dly(i-1);
+       end loop;  -- i
 
 
-      -- find integral and difference
-      if adc_coadd_en_dly(4) = '1' and adc_coadd_en_dly(3) = '0' then
+       -- coadd
+       if adc_coadd_en_dly(3) = '1' then
+         coadded_value <=  coadded_value +(conv_integer(signed(adc_dat_i)))-
+                           (conv_integer(signed(adc_offset_dat_i)));
+       end if;
+
+
+       -- find integral and difference
+       if adc_coadd_en_dly(4) = '1' and adc_coadd_en_dly(3) = '0' then
         
-        if current_bank = '0' then
-          coadd_bank0(address_index) <= coadded_value;
-          integral_bank0(address_index) <=  coadded_value +
-                                           integral_bank1(address_index);
-          diff_value <=  coadded_value - coadd_bank1(address_index);
-        end if;
+         if current_bank = '0' then
+           coadd_bank0(address_index) <= coadded_value;
+           integral_bank0(address_index) <=  coadded_value +
+                                            integral_bank1(address_index);
+           diff_value <=  coadded_value - coadd_bank1(address_index);
+         end if;
         
-        if current_bank = '1' then
-          coadd_bank1(address_index) <= coadded_value;
-          integral_bank1(address_index) <=  coadded_value +
-                                           integral_bank0(address_index);
-          diff_value <=  coadded_value - coadd_bank0(address_index);
-        end if;
+         if current_bank = '1' then
+           coadd_bank1(address_index) <= coadded_value;
+           integral_bank1(address_index) <=  coadded_value +
+                                            integral_bank0(address_index);
+           diff_value <=  coadded_value - coadd_bank0(address_index);
+         end if;
 
-        coadded_value <= 0;
+         coadded_value <= 0;
          
-      end if;
+       end if;
 
 
-      -- calculate pidz error value
-      if adc_coadd_en_dly(5) = '1' then
-       case current_bank_fltr is
-          when '0' =>
-            if current_bank = '0' then
-              filter_bank0(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank0(address_index))
-                                             +(conv_integer(signed(i_value(31 downto 0)))*integral_bank0(address_index))
-                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
-                                             +(conv_integer(signed(z_value(31 downto 0))));
+       -- calculate pidz error value
+       if adc_coadd_en_dly(5) = '1' then
+        case current_bank_fltr is
+           when '0' =>
+             if current_bank = '0' then
+               filter_bank0(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank0(address_index))
+                                              +(conv_integer(signed(i_value(31 downto 0)))*integral_bank0(address_index))
+                                              +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
+                                              +(conv_integer(signed(z_value(31 downto 0))));
               
-            end if;
-            if current_bank ='1' then
-              filter_bank0(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank1(address_index))
-                                             +(conv_integer(signed(i_value(31 downto 0)))*integral_bank1(address_index))
-                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
-                                             +(conv_integer(signed(z_value(31 downto 0))));
+             end if;
+             if current_bank ='1' then
+               filter_bank0(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank1(address_index))
+                                              +(conv_integer(signed(i_value(31 downto 0)))*integral_bank1(address_index))
+                                              +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
+                                              +(conv_integer(signed(z_value(31 downto 0))));
               
-            end if;
+             end if;
 
-          when '1' =>
-            if current_bank ='0' then
-              filter_bank1(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank0(address_index))
-                                             +(conv_integer(signed(i_value(31 downto 0)))*integral_bank0(address_index))
-                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
-                                             +(conv_integer(signed(z_value(31 downto 0))));
+           when '1' =>
+             if current_bank ='0' then
+               filter_bank1(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank0(address_index))
+                                              +(conv_integer(signed(i_value(31 downto 0)))*integral_bank0(address_index))
+                                              +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
+                                              +(conv_integer(signed(z_value(31 downto 0))));
               
-            end if;
-            if current_bank = '1' then
-              filter_bank1(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank1(address_index))
-                                             +(conv_integer(signed(i_value(31 downto 0)))*integral_bank1(address_index))
-                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
-                                             +(conv_integer(signed(z_value(31 downto 0))));
+             end if;
+             if current_bank = '1' then
+               filter_bank1(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank1(address_index))
+                                              +(conv_integer(signed(i_value(31 downto 0)))*integral_bank1(address_index))
+                                              +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
+                                              +(conv_integer(signed(z_value(31 downto 0))));
               
-            end if;
+             end if;
             
-          when others => null;
-        end case;
+           when others => null;
+         end case;
+        
+       end if;
+      
+
+
+       -- self check
+       if finish_test_flux_loop_ctrl = false then
+         -- selfcheck filter
+         if fsfb_fltr_dat_rdy_o = '1' then
+           case current_bank_fltr is
+             when '0' =>
+               if conv_integer(signed(fsfb_fltr_dat_o)) /= filter_bank0(address_index) then
+                 found_filter_error <= true;
+               end if;
+             when '1' =>
+               if conv_integer(signed(fsfb_fltr_dat_o)) /= filter_bank1(address_index) then
+                 found_filter_error <= true;
+               end if;
+             when others => null;
+           end case;
+         end if;
+
+         -- selfcheck controller
+         if fsfb_ctrl_dat_rdy_o = '1' then
+           case current_bank_ctrl is
+             when '0' =>
+               if initialize_window_i = '0' then
+                 if conv_integer(signed(fsfb_ctrl_dat_o)) /= filter_bank0(address_index_plus1) then             
+                   found_ctrl_error <= true;
+                 end if;            
+               end if;
+             when '1' =>
+               if initialize_window_i = '0' then
+                 if conv_integer(signed(fsfb_ctrl_dat_o)) /= filter_bank1(address_index_plus1) then
+                   found_ctrl_error <= true;
+                 end if;            
+               end if;            
+           when others => null;
+           end case;
+        
+         end if;
+         assert (found_filter_error = false and found_ctrl_error = false)
+           report "FAILED" severity FAILURE;
+        
+       end if;
+
+      
+
+      
+        
+     end if;
+   end process i_check;
+
+
+  -----------------------------------------------------------------------------
+  -- Self Check for fsfb_ctrl block
+  -- WARNING: Based on the values used for the generic values in the fsfb_ctrl,
+  -- you need to adjust the check. 
+  -----------------------------------------------------------------------------
+  i_check_fsfb_ctrl: process (clk_50_i)
+  begin  -- process i_check_fsfb_ctrl
+    if dac_clk_o='1' then
+      if finish_test_flux_loop_ctrl=false then
+
+        -----------------------------------------------------------------------
+        -- Modifiy acccording to polarity of the ADC and bit accuracy as shown
+        -- in the generic value in the fsfb_ctrl.  These values default to 0
+        -- and 13 respective, showing a straight polarity.
+        -- So, choose one of the next three group statements
+        -----------------------------------------------------------------------
+
+        
+         -- if straigh polarity is used in instantiating the fsfb_ctrl and bit
+         -- 13 down to 0 of input data is used
+         -- comment out if not in lock mode
+           if ((not fsfb_ctrl_dat_o(13))&fsfb_ctrl_dat_o(12 downto 0)) /= dac_dat_o then
+             found_dac_error <= true;
+           end if;
+
+        -- if reverse polarity is used in instantiating the fsfb_ctrl
+        -- comment out if not in lock mode
+--          if (fsfb_ctrl_dat_o(13) &(not fsfb_ctrl_dat_o(12 downto 0))) /= dac_dat_o then
+--            found_dac_error <= true;
+--          end if;
+
+        -- comment out if in lock mode
+--          if fsfb_ctrl_dat_o(13 downto 0) /= dac_dat_o then
+--            found_dac_error <= true;
+--          end if;
+         
         
       end if;
-      
-
-
-      -- self check
-      if finish_test_flux_loop_ctrl = false then
-        -- selfcheck filter
-        if fsfb_fltr_dat_rdy_o = '1' then
-          case current_bank_fltr is
-            when '0' =>
-              if conv_integer(signed(fsfb_fltr_dat_o)) /= filter_bank0(address_index) then
-                found_filter_error <= true;
-              end if;
-            when '1' =>
-              if conv_integer(signed(fsfb_fltr_dat_o)) /= filter_bank1(address_index) then
-                found_filter_error <= true;
-              end if;
-            when others => null;
-          end case;
-        end if;
-
-        -- selfcheck controller
-        if fsfb_ctrl_dat_rdy_o = '1' then
-          case current_bank_ctrl is
-            when '0' =>
-              if initialize_window_i = '0' then
-                if conv_integer(signed(fsfb_ctrl_dat_o)) /= filter_bank0(address_index_plus1) then             
-                  found_ctrl_error <= true;
-                end if;            
-              end if;
-            when '1' =>
-              if initialize_window_i = '0' then
-                if conv_integer(signed(fsfb_ctrl_dat_o)) /= filter_bank1(address_index_plus1) then
-                  found_ctrl_error <= true;
-                end if;            
-              end if;            
-          when others => null;
-          end case;
-        
-        end if;
-        assert (found_filter_error = false and found_ctrl_error = false)
-          report "FAILED" severity FAILURE;
-        
-      end if;
-
-      
-
-      
-        
+      assert found_dac_error=false
+        report "FAILED at DAC" severity FAILURE;
     end if;
-  end process i_check;
-
+  end process i_check_fsfb_ctrl;
   
 
 end beh;
