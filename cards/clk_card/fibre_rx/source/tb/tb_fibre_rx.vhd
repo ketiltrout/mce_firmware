@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.2 2004/06/15 10:27:28 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.3 2004/07/07 10:50:41 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/06/15 10:27:28 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/07/07 10:50:41 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 
 
@@ -81,7 +81,11 @@ architecture bench of tb_fibre_rx is
   
   
   
+   
+   --constant clk_prd      : TIME := 40 ns;    -- 25Mhz clock
    constant clk_prd      : TIME := 20 ns;    -- 50Mhz clock
+   constant DSP_DLY      : TIME := 160 ns;    -- the delay between each 4 bytes issues by the PCI card DSP
+   
    constant preamble1    : std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)  := X"A5";
    constant preamble2    : std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)  := X"5A";
    constant pre_fail     : std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)  := X"55";
@@ -169,6 +173,8 @@ stimuli : process
       wait for 30 NS;
    end loop;   
    
+   wait for DSP_DLY ;
+   
    for I in 0 to 3 loop
       nRx_rdy    <= '1';  -- data not ready (active low)
       rx_data  <= preamble2;
@@ -176,6 +182,8 @@ stimuli : process
       nRx_rdy    <= '0';
       wait for 30 NS;
    end loop;   
+   
+   wait for DSP_DLY;
     
    assert false report "preamble OK" severity NOTE;
    end load_preamble;
@@ -213,7 +221,7 @@ stimuli : process
       
     
       assert false report "command code loaded" severity NOTE;
-      wait for 160 ns;   
+      wait for DSP_DLY;           
      
   -- load up address_id
 
@@ -244,7 +252,7 @@ stimuli : process
       wait for 30 ns;
      
      assert false report "address id loaded" severity NOTE;
-     wait for 160 ns ;
+     wait for DSP_DLY ;
      
     -- load up data valid 
    
@@ -276,13 +284,11 @@ stimuli : process
       wait for 30 ns;
       
      assert false report "data valid loaded" severity NOTE;
-     wait for 160 ns ;
+     wait for DSP_DLY ;
       
       
   
   -- load up data block
-  
-      wait for 160 ns;
 
   
   -- first load valid data
@@ -319,6 +325,9 @@ stimuli : process
       data <= data + 1;
       wait for 30 ns;
       
+        
+      wait for DSP_DLY;
+      
     end loop;
     
     for J in (To_integer((Unsigned(data_valid)))) to data_block-1 loop
@@ -348,6 +357,8 @@ stimuli : process
       nRx_rdy   <= '0';
       wait for 30 ns;
          
+         
+      wait for DSP_DLY;  
   
     end loop;
 
@@ -389,7 +400,8 @@ stimuli : process
       
       
       assert false report "checksum loaded...." severity NOTE;  
-      
+        
+          
    end load_checksum;
        
   
