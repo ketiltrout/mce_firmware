@@ -1,8 +1,7 @@
----------------------------------------------------------------------
--- Copyright (c) 2003 UK Astronomy Technology Centre
---                All Rights Reserved
+-- Copyright (c) 2003 SCUBA-2 Project
+--                  All Rights Reserved
 --
---  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE UK ATC
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
 --  The copyright notice above does not evidence any
 --  actual or intended publication of such source code.
 --
@@ -12,18 +11,29 @@
 --  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
 --  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
 --
--- Project:             Scuba 2
--- Author:              Neil Gruending
--- Organisation:        UBC Physics and Astronomy
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+--
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+--
+--
+-- all_test_reset.vhd
+--
+-- Project:	      SCUBA-2
+-- Author:	       Ernie Lin
+-- Organisation:  UBC
 --
 -- Description:
--- Reset state function.
+-- Reset state for common test
 -- 
 -- Revision History:
 --
--- $Log$
+-- $Log: all_test_reset.vhd,v $
+-- Revision 1.1  2004/04/28 20:16:13  erniel
+-- initial version
 --
--- Jan 4, 2004: Initial version - NRG
 ---------------------------------------------------------------------
 
 library ieee;
@@ -71,7 +81,7 @@ begin
    message(10) <= conv_std_logic_vector(32,8);   -- 
    message(11) <= conv_std_logic_vector(118,8); -- v
    message(12) <= conv_std_logic_vector(48,8);  -- 0
-   message(13) <= conv_std_logic_vector(49,8);  -- 1
+   message(13) <= conv_std_logic_vector(50,8);  -- 2
    message(14) <= conv_std_logic_vector(46,8);  -- .
    message(15) <= conv_std_logic_vector(48,8);  -- 0
    message(16) <= conv_std_logic_vector(48,8);  -- 0
