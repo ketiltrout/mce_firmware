@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.3  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/09 01:03:07  anthonyk
 -- Various changes to increase the width of the adders from 64 to 65 (first stage) and 65 to 66 (second stage) to handle all sign, overflow and carry out situations.
 --
@@ -99,90 +102,119 @@ use work.flux_loop_pack.all;
 architecture rtl of fsfb_proc_pidz is
 
    -- constant declarations
-   constant ZEROES             : std_logic_vector(31 downto 0) := x"00000000";
-   constant ONES               : std_logic_vector(31 downto 0) := x"11111111";
+   constant ZEROES                 : std_logic_vector(31 downto 0) := x"00000000";
+   constant ONES                   : std_logic_vector(31 downto 0) := x"11111111";
 
-   -- internal signal declarations
-   signal coadd_done_1d        : std_logic;                                                   -- coadd_done_i delayed by 1 clock cycle
-   signal coadd_done_2d        : std_logic;                                                   -- coadd_done_i delayed by 2 clock cycles
-   signal coadd_done_3d        : std_logic;                                                   -- coadd_done_i delayed by 3 clock cycles
-   signal store_mult           : std_logic;                                                   -- clock enable to register multiplier outputs
-   signal store_1st_add        : std_logic;                                                   -- clock enable to register 1st stage adder outputs
-   signal store_2nd_add        : std_logic;                                                   -- clock enable to register 2nd stage adder outputs
-   
-   signal p_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- P*Xn multiplier output (64 bits)
-   signal i_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- I*In multiplier output (64 bits)
-   signal d_product            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- D*Dn multiplier output (64 bits)
-   
-   signal p_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered P*Xn (64 + 1 bits)
-   signal i_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered I*In (64 + 1 bits)
-   signal d_product_reg        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered D*Dn (64 + 1 bits)
-   signal z_dat_65             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- Z input extended to 65 bits
-   
-   signal pi_sum               : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- P*Xn+I*In adder output (65 bits)
-   signal dz_sum               : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- D*Dn+Z adder output    (65 bits)
+   -- internal signal declarations  
+   signal calc_shift_state         : std_logic_vector(5 downto 0);                                -- calculator shift state 
+   signal store_1st_add            : std_logic;                                                   -- clock enable to register 1st stage adder outputs
+   signal store_2nd_add            : std_logic;                                                   -- clock enable to register 2nd stage adder outputs
 
-   signal pi_sum_reg           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- registered P*Xn+I*In adder output (65 + 1 bits)
-   signal dz_sum_reg           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- registered D*Dn+Z adder output    (65 + 1 bits)
+   signal current_coadd_dat_reg    : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current coadded value register
+   signal current_diff_dat_reg     : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current difference register
+   signal current_integral_dat_reg : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- current integral register
+   
+   signal multiplicand_a           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);         -- selected coefficient multiplicand
+   signal multiplicand_b           : std_logic_vector(COADD_QUEUE_DATA_WIDTH-1 downto 0);         -- selected adc_sample_coadd multiplicand
+   signal multiplied_result        : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2-1 downto 0);       -- P*Xn/I*In/D*Dn selected multiplier output (64 bits)
+         
+   signal p_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered P*Xn (64 + 1 bits)
+   signal i_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered I*In (64 + 1 bits)
+   signal d_product_reg            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- registered D*Dn (64 + 1 bits)
+   signal z_dat_65                 : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- Z input extended to 65 bits
+   
+   signal pi_sum                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- P*Xn+I*In adder output (65 bits)
+   signal dz_sum                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2 downto 0);         -- D*Dn+Z adder output    (65 bits)
 
+   signal pi_sum_reg               : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- registered P*Xn+I*In adder output (65 + 1 bits)
+   signal dz_sum_reg               : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- registered D*Dn+Z adder output    (65 + 1 bits)
+  
+   signal pidz_sum                 : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output (65 + 1 bits)
+   signal pidz_sum_reg             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output (65 + 1 bits)
    
-   signal pidz_sum             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output (65 + 1 bits)
-   signal pidz_sum_reg         : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);       -- (P*Xn+I*In)+(D*Dn+Z) adder output (65 + 1 bits)
-   
+
 begin
+  
 
-   -- create delayed versions of the coadd_done_i
-   coadd_done_delays : process (rst_i, clk_50_i)
+   -- create calc_shift_state to time the different operations
+   calc_shift_state_proc : process (rst_i, clk_50_i)
    begin
       if (rst_i = '1') then
-         coadd_done_1d <= '0';
-         coadd_done_2d <= '0';
-         coadd_done_3d <= '0';
+         calc_shift_state <= (others => '0');
       elsif (clk_50_i'event and clk_50_i = '1') then
-         coadd_done_1d <= coadd_done_i;
-         coadd_done_2d <= coadd_done_1d;
-         coadd_done_3d <= coadd_done_2d;
+         calc_shift_state(0)          <= coadd_done_i;
+         calc_shift_state(5 downto 1) <= calc_shift_state(4 downto 0);
       end if;
-   end process coadd_done_delays;
-   
+   end process calc_shift_state_proc;   
+     
 
-   -- clock enables to the multiplication and adder output registers
-   store_mult    <= coadd_done_i;
-   store_1st_add <= coadd_done_1d;
-   store_2nd_add <= coadd_done_2d;
+   -- clock enables to the adder output registers
+   store_1st_add <= calc_shift_state(3);
+   store_2nd_add <= calc_shift_state(4);
+
+
+   -- Store the operand inputs 
+   -- Inputs from adc_sample_coadd blocks are only guaranteed valid when coadd_done_i is asserted.
+   operand_storages : process (rst_i, clk_50_i)
+   begin
+      if (rst_i = '1') then
+         current_coadd_dat_reg <= (others => '0');
+         current_diff_dat_reg  <= (others => '0');
+         current_integral_dat_reg <= (others => '0');
+      elsif (clk_50_i'event and clk_50_i = '1') then
+         if (coadd_done_i = '1') then
+            current_coadd_dat_reg    <= current_coadd_dat_i;
+            current_diff_dat_reg     <= current_diff_dat_i;
+            current_integral_dat_reg <= current_integral_dat_i;
+         end if;
+      end if;
+   end process operand_storages;
+    
    
+   -- Mux the correct data operand input to the single shared multiplier 
+   
+   multiply_mux_in : process (current_coadd_dat_reg, 
+                              current_diff_dat_reg, 
+                              current_integral_dat_reg, 
+                              calc_shift_state(2 downto 0))
+   begin
+      operand_select : case calc_shift_state(2 downto 0) is
+      
+         -- P*current_coadd_dat
+         when "001" => multiplicand_a <= p_dat_i;
+                       multiplicand_b <= current_coadd_dat_reg;
+                 
+         -- I*current_integral_dat
+         when "010" => multiplicand_a <= i_dat_i;
+                       multiplicand_b <= current_integral_dat_reg;
+                          
+         -- D*current_diff_dat
+         when "100" => multiplicand_a <= d_dat_i;
+                       multiplicand_b <= current_diff_dat_reg;
+                          
+         -- Invalid
+         when others => multiplicand_a <= (others => '0');
+                        multiplicand_b <= (others => '0');
+      
+      end case operand_select;
+   end process multiply_mux_in;
+            
 
    -- Multiplication stage
-   -- Consists of three multiplications done in parallel:  P*current_coadd_dat_i
+   -- Consists of three multiplications done in sequence:  P*current_coadd_dat_i
    --                                                      I*current_integral_dat_i
    --                                                      D*current_diff_dat_i
-   -- Inputs from adc_sample_coadd blocks are all registered
+
    -- P,I,D,Z coefficients are registered at the outputs of the RAM 
    -- in the 3rd clock cycle of each row (i.e. 2 clock cycles from asserted row_switch_i)
    
-   -- P coefficient * current value
-   i_p_coeff_mult : fsfb_calc_multiplier
+   i_coeff_mult : fsfb_calc_multiplier
       port map (
-         dataa                              => p_dat_i,
-         datab                              => current_coadd_dat_i,
-         result                             => p_product
+         dataa                              => multiplicand_a,
+         datab                              => multiplicand_b,
+         result                             => multiplied_result
       );
       
-   -- I coefficient * current integral
-   i_i_coeff_mult : fsfb_calc_multiplier
-      port map (
-         dataa                              => i_dat_i,
-         datab                              => current_integral_dat_i,
-         result                             => i_product
-      );
-      
-   -- D coefficient * current difference
-   i_d_coeff_mult : fsfb_calc_multiplier
-      port map (
-         dataa                              => d_dat_i,
-         datab                              => current_diff_dat_i,
-         result                             => d_product
-      );
       
    -- Note : extend all product_regs by 1 bit (taken from the product sign bit) 
    -- to make 65 bit adder inputs; then PI/DZ_ADD gives 65 bit adder result, 
@@ -199,11 +231,19 @@ begin
          i_product_reg <= (others => '0');
          d_product_reg <= (others => '0');
       elsif (clk_50_i'event and clk_50_i = '1') then
-         if (store_mult = '1') then
-            p_product_reg <= p_product(p_product'left) & p_product;
-            i_product_reg <= i_product(i_product'left) & i_product;
-            d_product_reg <= d_product(d_product'left) & d_product;
+         
+         if (calc_shift_state(0) = '1') then
+            p_product_reg <= multiplied_result(multiplied_result'left) & multiplied_result;
          end if;
+            
+         if (calc_shift_state(1) = '1') then                     
+            i_product_reg <= multiplied_result(multiplied_result'left) & multiplied_result;
+         end if;
+         
+         if (calc_shift_state(2) = '1') then
+            d_product_reg <= multiplied_result(multiplied_result'left) & multiplied_result;
+         end if;
+         
       end if;
    end process product_regs;
 
@@ -272,7 +312,7 @@ begin
    
    -- Output results 
    fsfb_proc_pidz_sum_o    <= pidz_sum_reg;
-   fsfb_proc_pidz_update_o <= coadd_done_3d when lock_mode_en_i = '1' else '0';
+   fsfb_proc_pidz_update_o <= calc_shift_state(5) when lock_mode_en_i = '1' else '0';
       
    
 end rtl;
