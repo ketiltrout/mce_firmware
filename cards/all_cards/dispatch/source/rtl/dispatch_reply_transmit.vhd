@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.1  2004/09/10 16:40:46  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -103,16 +106,15 @@ signal tx_input_sel  : std_logic;
 signal crc_bit_count_clr : std_logic;
 signal crc_bit_count     : integer;
 
-signal crc_ena   : std_logic;
-signal crc_clr   : std_logic;
-signal crc_done  : std_logic;
-signal crc_checksum  : std_logic_vector(31 downto 0);
+signal crc_ena      : std_logic;
+signal crc_clr      : std_logic;
+signal crc_done     : std_logic;
+signal crc_checksum : std_logic_vector(31 downto 0);
 
 signal crc_num_bits : integer;
 
-signal crc_word_rdy : std_logic;
-
-signal crc_start : std_logic;
+signal crc_start     : std_logic;
+signal crc_word_rdy  : std_logic;
 signal transmit_busy : std_logic;
 signal transmit_done : std_logic;
 
@@ -212,29 +214,29 @@ begin
                                    
          when INITIALIZE_CRC => crc_next_state <= CALCULATE_CRC;
                                 
-         when CALCULATE_CRC =>  if(crc_bit_count = PACKET_WORD_WIDTH-1) then
+         when CALCULATE_CRC =>  if(crc_bit_count = PACKET_WORD_WIDTH-1) then  -- when done processing all bits
                                    crc_next_state <= CRC_WORD_DONE;
                                 else
                                    crc_next_state <= CALCULATE_CRC;
                                 end if;
                           
-         when CRC_WORD_DONE =>  if(transmit_busy = '0') then              -- wait until previous word has been sent
-                                   if(crc_done = '1') then
+         when CRC_WORD_DONE =>  if(transmit_busy = '0') then                  -- when done sending previous word, 
+                                   if(crc_done = '1') then                    -- if this is the last data word, hold checksum for tx
                                       crc_next_state <= CRC_ALL_DONE;
-                                   else
+                                   else                                       -- else prepare next data word
                                       crc_next_state <= LOAD_NEXT_WORD;
                                    end if;
                                 else
                                    crc_next_state <= CRC_WORD_DONE;
                                 end if;
          
-         when LOAD_NEXT_WORD => if(transmit_busy = '1') then
+         when LOAD_NEXT_WORD => if(transmit_busy = '1') then                  -- when transmitter has started, safe to load next word.
                                    crc_next_state <= CALCULATE_CRC;
                                 else
                                    crc_next_state <= LOAD_NEXT_WORD;
                                 end if;
          
-         when CRC_ALL_DONE =>   if(transmit_done = '1') then
+         when CRC_ALL_DONE =>   if(transmit_done = '1') then                  -- when done sending crc word, return to idle
                                    crc_next_state <= IDLE_CRC;
                                 else
                                    crc_next_state <= CRC_ALL_DONE;
@@ -278,8 +280,9 @@ begin
    -- Counters for transmitted words
    ---------------------------------------------------------   
    
+   -- when word count = x, the x'th word is being transmitted (ie. header0 = word 1)
    word_counter : counter
-   generic map(MAX => MAX_DATA_WORDS + 3)   -- there are 3 header words in addition to the data words
+   generic map(MAX => MAX_DATA_WORDS + 3)  -- there are 3 header words in addition to the data words
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
             ena_i   => word_count_ena,
@@ -287,7 +290,8 @@ begin
             count_i => 0,
             count_o => word_count);
             
-   buf_addr_o <= conv_std_logic_vector(word_count - 3, BUF_ADDR_WIDTH);              -- data words start at word 3, header words are words 0-2.
+   -- when word count = x, buffer addr x-3 is being accessed by CRC
+   buf_addr_o <= conv_std_logic_vector(word_count - 3, BUF_ADDR_WIDTH);  
    
    ---------------------------------------------------------               
    -- Multiplexors for inputs to CRC and LVDS blocks
@@ -325,28 +329,28 @@ begin
                                    tx_next_state <= IDLE_TX;
                                 end if;
                           
-         when CALC_CRC_START => if(crc_word_rdy = '1') then
+         when CALC_CRC_START => if(crc_word_rdy = '1') then                -- when crc done processing first word, start transmit
                                    tx_next_state <= WORD_TX_SETUP;
                                 else
                                    tx_next_state <= CALC_CRC_START;
                                 end if;
          
-         when WORD_TX_SETUP =>  tx_next_state <= WORD_TX_BUSY;
+         when WORD_TX_SETUP =>  tx_next_state <= WORD_TX_BUSY;             -- assert data to transmit and rdy, increment word count
          
-         when WORD_TX_BUSY =>   if(lvds_tx_busy = '0') then
-                                   if(word_count = reply_num_words) then
+         when WORD_TX_BUSY =>   if(lvds_tx_busy = '0') then                -- when transmit done,
+                                   if(word_count = reply_num_words) then   -- if done transmitting last data word
                                       tx_next_state <= CRC_TX_SETUP;
-                                   else
+                                   else                                    -- else transmit next data word
                                       tx_next_state <= WORD_TX_SETUP;
                                    end if;
                                 else
                                    tx_next_state <= WORD_TX_BUSY;
                                 end if;
  
-         when CRC_TX_SETUP =>   tx_next_state <= CRC_TX_BUSY;
+         when CRC_TX_SETUP =>   tx_next_state <= CRC_TX_BUSY;              -- assert crc to transmit and rdy
          
-         when CRC_TX_BUSY =>    if(lvds_tx_busy = '0') then
-                                   tx_next_state <= TX_DONE;
+         when CRC_TX_BUSY =>    if(lvds_tx_busy = '0') then                -- when transmit done, assert transmit_done
+                                   tx_next_state <= TX_DONE;               -- (to allow crc to return to idle)
                                 else
                                    tx_next_state <= CRC_TX_BUSY;
                                 end if;
