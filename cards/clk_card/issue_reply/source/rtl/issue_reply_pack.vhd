@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: issue_reply_pack.vhd,v 1.1 2004/05/10 19:01:45 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -28,7 +28,10 @@
 -- Declares a few constants used as parameters in the issue_reply block
 --
 -- Revision history:
--- $Log$
+-- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.1  2004/05/10 19:01:45  bburger
+-- new
+--
 --
 ------------------------------------------------------------------------
 
@@ -37,10 +40,12 @@ use ieee.std_logic_1164.all;
 
 package issue_reply_pack is
 
+   -- used for interfaces between blocks incapsulated by issue_reply
    constant CARD_ADDR_BUS_WIDTH  : integer := 8;
    constant PAR_ID_BUS_WIDTH     : integer := 8;
    constant MOP_BUS_WIDTH        : integer := 8;
    constant UOP_BUS_WIDTH        : integer := 8;
+   constant UOP_STATUS_BUS_WIDTH : integer := 8;
    constant CMD_SIZE_BUS_WIDTH   : integer := 16;
    constant DATA_BUS_WIDTH       : integer := 16;
 
