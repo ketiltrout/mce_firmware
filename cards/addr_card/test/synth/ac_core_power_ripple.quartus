@@ -1,0 +1,19 @@
+FILES
+{
+	VHDL_FILE = ..\source\counter1.vhd;
+	VHDL_FILE = ..\source\pll.vhd;
+	VHDL_FILE = ..\source\ac_core_power_ripple.vhd;
+}
+COMPILER_SETTINGS_LIST
+{
+	COMPILER_SETTINGS = ac_core_power_ripple;
+}
+SIMULATOR_SETTINGS_LIST
+{
+	SIMULATOR_SETTINGS = ac_core_power_ripple;
+}
+SOFTWARE_SETTINGS_LIST
+{
+	SOFTWARE_SETTINGS = Debug;
+	SOFTWARE_SETTINGS = Release;
+}
