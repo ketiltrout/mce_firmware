@@ -3,8 +3,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library work;
-use work.fo_transceiver_pack.all;
-
+use work.rx_fifo_pack.all;
+use work.tx_fifo_pack.all;
+use work.rx_control_pack.all;
+use work.tx_control_pack.all;
+use work.rx_protocol_fsm_pack.all;
+use work.simple_reply_fsm_pack.all;
 
 
 entity fo_transceiver is
@@ -154,8 +158,8 @@ begin
       
      I4 : simple_reply_fsm
        port map (
-          Brst        => rst_i,
-          clk         => clk_i,
+          rst_i       => rst_i,
+          clk_i       => clk_i,
           cmd_code_i  => cmd_code,
           cksum_err_i => cksum_err,
           cmd_rdy_i   => cmd_rdy,

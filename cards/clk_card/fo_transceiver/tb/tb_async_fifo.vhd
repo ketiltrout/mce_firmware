@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: async_fifo.vhd,v 1.2 2004/04/28 15:57:51 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_async_fifo.vhd,v 1.2 2004/06/15 11:20:16 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -33,7 +33,7 @@
 --
 -- Revision history:
 
--- <date $Date: 2004/04/28 15:57:51 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/15 11:20:16 $>	-		<text>		- <initials $Author: dca $>
 --
 -- <$log$>
 -----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
  
 library work;
-use work.fo_transceiver_pack.all;
+use work.async_fifo_pack.all;
 
 
 architecture bench of tb_async_fifo is
