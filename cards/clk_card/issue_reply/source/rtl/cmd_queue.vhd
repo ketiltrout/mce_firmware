@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.42 2004/08/20 21:25:08 jjacob Exp $
+-- $Id: cmd_queue.vhd,v 1.43 2004/08/23 17:36:04 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,10 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.43  2004/08/23 17:36:04  jjacob
+-- safety checkin.  Also, I have removed all synthesis warnings, and completed
+-- adding all the recirculation muxes
+--
 -- Revision 1.42  2004/08/20 21:25:08  jjacob
 -- commented out first_time_checker
 --
@@ -553,6 +557,8 @@ begin
    -- free_ptr does not appear anywhere on the list.  
    -- It can't because of my free_ptr <= free_ptr + 1 statement below.  
    -- However, it should because it appears on the lhs in the INSERT state
+   
+   -- [JJ] free_ptr issue is fixed
    begin
    
       --defaults
@@ -764,8 +770,8 @@ begin
    retire_state_out: process(present_retire_state)--, send_ptr, retire_ptr)
    begin
       -- defaults
-      retire_ptr_mux_sel <= "000";
-      flush_ptr_mux_sel  <= "00";
+      retire_ptr_mux_sel <= "000"; -- hold value
+      flush_ptr_mux_sel  <= "00";  -- hold value
    
       case present_retire_state is
          when RESET =>
@@ -1029,7 +1035,7 @@ begin
       
       -- default
       new_par_id_mux_sel                 <= RECIRC;
-      num_uops_inserted_mux_sel          <= "00"; --recirculate
+      num_uops_inserted_mux_sel          <= "00"; --recirculate, hold value
       
       case present_gen_state is
          when RESET =>
