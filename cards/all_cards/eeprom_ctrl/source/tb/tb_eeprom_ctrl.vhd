@@ -342,7 +342,7 @@ port map(
          -- data from the EEPROM
          W_EEPROM_SO_I         <= 'Z';
       
-         wait for 300ns;
+         wait for 300 ns;
          
          assert false report " Finishing up." severity NOTE;
       end do_finish ;         
