@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.5 2004/03/24 00:16:24 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.6 2004/03/31 18:57:33 jjacob Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -42,8 +42,11 @@
 -- Feb. 3  2004  - Added 1-wire modules - EL
 
 -- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date: 2004/03/24 00:16:24 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/31 18:57:33 $>	-		<text>		- <initials $Author: jjacob $>
 -- $Log: component_pack.vhd,v $
+-- Revision 1.6  2004/03/31 18:57:33  jjacob
+-- added read_spi and write_spi components
+--
 -- Revision 1.5  2004/03/24 00:16:24  jjacob
 -- add the nanosecond timer
 --
@@ -137,7 +140,7 @@ package component_pack is
 ------------------------------------------------------------  
 
    component reg
-      generic(WIDTH : in integer range 2 to 512 := 8);
+      generic(WIDTH : in integer range 1 to 512 := 8);
       
       port(clk_i  : in std_logic;
            rst_i  : in std_logic;
