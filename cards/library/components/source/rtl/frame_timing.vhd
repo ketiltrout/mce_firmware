@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.1 2004/04/02 01:13:13 bburger Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date$> - <text> - <initials $Author$>
--- $Log$
+-- <date $Date: 2004/04/02 01:13:13 $> - <text> - <initials $Author: bburger $>
+-- $Log: frame_timing.vhd,v $
+-- Revision 1.1  2004/04/02 01:13:13  bburger
+-- New
+--
 --
 ------------------------------------------------------------------------
 
@@ -60,6 +63,7 @@ architecture beh of frame_timing is
   signal clk : std_logic;
   signal sync : std_logic;
   signal rst_on_next_sync : std_logic;
+  signal rst_on_next_sync_reg : std_logic;
   signal cycle_count : std_logic_vector(31 downto 0);
   signal cycle_error : std_logic_vector(31 downto 0);
   
@@ -67,9 +71,9 @@ architecture beh of frame_timing is
   signal counter_ena : std_logic;
   signal counter_load : std_logic;
   signal counter_down : std_logic;
-  signal counter_ci : integer;
-  signal counter_co : std_logic_vector(31 downto 0);
-  signal counter_co_int : integer;
+  signal counter_i : integer;
+  signal counter_o : std_logic_vector(31 downto 0);
+  signal counter_o_int : integer;
   signal reg_rst : std_logic;
   
 begin
@@ -82,8 +86,8 @@ begin
          ena_i => counter_ena,   
          load_i => counter_load,  
          down_i => counter_down,  
-         count_i => counter_ci, 
-         count_o => counter_co_int
+         count_i => counter_i, 
+         count_o => counter_o_int
       );
       
    rgstr : reg
@@ -92,28 +96,44 @@ begin
          clk_i => clk,
          rst_i => reg_rst,
          ena_i => sync,
-         reg_i  => counter_co,
+         reg_i  => counter_o,
          reg_o => cycle_error
       );
    
-   counter_co <= conv_std_logic_vector(counter_co_int, 32);
+   counter_o <= conv_std_logic_vector(counter_o_int, 32);
      
    -- Initialize port-mapped control signals  
    counter_ena <= '1';
    counter_load <= '0';
    counter_down <= '0';
-   counter_ci <= 0;   
+   counter_i <= 0;   
    reg_rst <= '0';
       
    -- Inputs/Outputs   
    clk <= clk_i;
    sync <= sync_i;
    rst_on_next_sync <= rst_on_next_sync_i;
-   cycle_count_o <= counter_co;
+   cycle_count_o <= counter_o;
    cycle_error_o <= cycle_error;   
 
-   -- Logic
-   counter_rst <= '1' when (sync = '1' and rst_on_next_sync = '1') or (counter_co_int = END_OF_FRAME) 
+   rons : process
+   begin
+      if (rst_on_next_sync'event and rst_on_next_sync = '1') then
+         rst_on_next_sync_reg <= '1';
+      end if;
+
+      if (sync'event and sync = '1' and rst_on_next_sync_reg = '1') then
+         counter_rst <= '1';
+         rst_on_next_sync_reg <= '0';
+      elsif (counter_o_int = END_OF_FRAME) then
+         counter_rst <= '1';
+      else
+         counter_rst <= '0';         
+      end if;
+   end process;
+
+   -- Counter Wrap-around
+   counter_rst <= '1' when (counter_o_int = END_OF_FRAME) 
       else '0';
 
 end beh;
