@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.2  2004/08/23 22:02:29  erniel
+-- removed WB_WAIT state (master wait state)
+--
 -- Revision 1.1  2004/08/23 20:35:56  erniel
 -- initial version
 --
@@ -116,6 +119,8 @@ begin
             load_i  => addr_clr,
             count_i => 0,
             count_o => addr);
+            
+   addr_ena <= addr_clr or ack_i;  -- allow clear when addr_clr = '1' OR increment when ack_i = '1'
    
    buf_addr <= conv_std_logic_vector(addr, BUF_ADDR_WIDTH);
    tga_addr <= conv_std_logic_vector(addr, WB_TAG_ADDR_WIDTH);
@@ -134,7 +139,7 @@ begin
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, cmd_rdy_i, wait_i, addr)
+   stateNS: process(pres_state, cmd_rdy_i, ack_i, addr)
    begin
       case pres_state is
          when IDLE =>     if(cmd_rdy_i = '1') then
@@ -153,7 +158,7 @@ begin
       end case;
    end process stateNS;
    
-   stateOut: process(pres_state, cmd_type_i, param_id_i, cmd_buf_data_i, wait_i, ack_i, tga_addr)
+   stateOut: process(pres_state, cmd_type_i, param_id_i, cmd_buf_data_i, wait_i, tga_addr)
    begin
       case pres_state is
          when IDLE =>     addr_o              <= (others => '0');
@@ -162,9 +167,7 @@ begin
                           stb_o               <= '0';
                           cyc_o               <= '0';
                           tga_o               <= (others => '0');
-                          addr_ena            <= '1';
                           addr_clr            <= '1';
-                          reply_buf_wren_o    <= '0';
                           reply_rdy_o         <= '0';
          
          when WB_CYCLE => addr_o              <= param_id_i;
@@ -176,22 +179,14 @@ begin
                                                                     
                           if(cmd_type_i = READ_BLOCK) then   -- all commands are "writes" except READ_BLOCK
                              we_o             <= '0';
-                             reply_buf_wren_o <= '1';
                           else
                              we_o             <= '1';
-                             reply_buf_wren_o <= '0';
                           end if;
                           
                           if(wait_i = '1') then              -- insert master wait state
                              stb_o            <= '0';
                           else
                              stb_o            <= '1';
-                          end if;
-                                                                              
-                          if(ack_i = '1') then               -- slave has accepted data, proceed to next address
-                             addr_ena         <= '1';
-                          else                               -- insert slave wait state
-                             addr_ena         <= '0';
                           end if;
                           
          when DONE =>     addr_o              <= (others => '0');
@@ -200,9 +195,7 @@ begin
                           stb_o               <= '0';
                           cyc_o               <= '0';
                           tga_o               <= (others => '0');
-                          addr_ena            <= '0';
                           addr_clr            <= '0';
-                          reply_buf_wren_o    <= '0';
                           reply_rdy_o         <= '1';
       end case;
    end process stateOut;
@@ -214,5 +207,6 @@ begin
    -- reply buffer used during READ_BLOCK commands:
    reply_buf_addr_o <= buf_addr when cmd_type_i = READ_BLOCK else (others => '0');
    reply_buf_data_o <= dat_i    when cmd_type_i = READ_BLOCK else (others => '0');
-     
+   reply_buf_wren_o <= '1'      when cmd_type_i = READ_BLOCK and pres_state = WB_CYCLE else '0';
+   
 end rtl;
