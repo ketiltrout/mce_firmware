@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.4  2004/08/28 03:12:45  erniel
+-- updated constant names from dispatch_pack
+-- renamed several signals to match those used in dispatch_reply_transmit
+--
 -- Revision 1.3  2004/08/23 20:39:10  erniel
 -- removed separate parameter outputs
 -- some internal signal name changes
@@ -93,12 +97,12 @@ signal lvds_rx_data : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal lvds_rx_rdy  : std_logic;
 signal lvds_rx_ack  : std_logic;
 
-signal temp0_ld  : std_logic;
-signal temp1_ld  : std_logic;
-signal header_ld : std_logic;
+signal temp0    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal temp0_ld : std_logic;
+signal temp1    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal temp1_ld : std_logic;
 
-signal temp0 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal temp1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal header_ld : std_logic;
 
 signal cmd_data_size : integer;
 signal cmd_type      : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0);
@@ -114,7 +118,7 @@ signal data_word_count     : integer;
 
 -- signals used in CRC datapath:
 
-type crc_states is (IDLE_CRC, INITIALIZE_CRC, CALCULATE_CRC, CALC_CRC_DONE, SYNC_PREAMBLE, RECEIVE_WORD, LOAD_NEXT_WORD);
+type crc_states is (IDLE_CRC, INITIALIZE_CRC, CALCULATE_CRC, CRC_WORD_DONE, SYNC_PREAMBLE, RECEIVE_WORD, LOAD_NEXT_WORD);
 signal crc_pres_state : crc_states;
 signal crc_next_state : crc_states;
 
@@ -123,8 +127,8 @@ signal data_size    : std_logic_vector(DATA_SIZE_WIDTH-1 downto 0);
 
 signal data_shreg_ena : std_logic;
 signal data_shreg_ld  : std_logic;
-signal cur_bit        : std_logic;
-signal cur_crc_word   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal crc_cur_bit    : std_logic;
+signal crc_word_out   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
 signal crc_bit_count_clr : std_logic;
 signal crc_bit_count     : integer;
@@ -136,7 +140,7 @@ signal crc_valid : std_logic;
 
 signal crc_num_bits : integer;
 
-signal crc_word_done : std_logic;
+signal crc_word_rdy : std_logic;
 
 begin
 
@@ -178,10 +182,10 @@ begin
                load_i     => data_shreg_ld,
                clr_i      => '0',
                shr_i      => '1',            -- CRC is calculated LSB first
-               serial_i   => cur_bit,  -- this makes the shift register a rotator! (eliminates need for separate buffer)
-               serial_o   => cur_bit,
+               serial_i   => crc_cur_bit,  -- this makes the shift register a rotator! (eliminates need for separate buffer)
+               serial_o   => crc_cur_bit,
                parallel_i => lvds_rx_data,
-               parallel_o => cur_crc_word);
+               parallel_o => crc_word_out);
    
    crc_bit_counter : counter
       generic map(MAX         => PACKET_WORD_WIDTH,
@@ -199,7 +203,7 @@ begin
                rst_i      => rst_i,
                clr_i      => crc_clr,
                ena_i      => crc_ena,
-               data_i     => cur_bit,
+               data_i     => crc_cur_bit,
                num_bits_i => crc_num_bits,
                poly_i     => CRC32,
                done_o     => crc_done,
@@ -244,12 +248,12 @@ begin
                                 end if;         
                   
          when CALCULATE_CRC =>  if(crc_bit_count = PACKET_WORD_WIDTH-1) then
-                                   crc_next_state <= CALC_CRC_DONE;
+                                   crc_next_state <= CRC_WORD_DONE;
                                 else
                                    crc_next_state <= CALCULATE_CRC;
                                 end if;
                           
-         when CALC_CRC_DONE =>  crc_next_state <= RECEIVE_WORD;
+         when CRC_WORD_DONE =>  crc_next_state <= RECEIVE_WORD;
                                          
          when RECEIVE_WORD =>   if(crc_done = '1') then
                                    crc_next_state <= IDLE_CRC;
@@ -274,7 +278,7 @@ begin
       crc_bit_count_clr <= '0';
       crc_ena           <= '0';
       crc_clr           <= '0';
-      crc_word_done     <= '0';
+      crc_word_rdy      <= '0';
       
       case crc_pres_state is
          when INITIALIZE_CRC => lvds_rx_ack       <= '1';  
@@ -290,7 +294,7 @@ begin
          when CALCULATE_CRC =>  data_shreg_ena    <= '1';
                                 crc_ena           <= '1';
          
-         when CALC_CRC_DONE =>  crc_word_done     <= '1';
+         when CRC_WORD_DONE =>  crc_word_rdy      <= '1';
          
          when LOAD_NEXT_WORD => lvds_rx_ack       <= '1';
                                 data_shreg_ena    <= '1';
@@ -314,7 +318,7 @@ begin
       port map(clk_i  => clk_i,
                rst_i  => rst_i,
                ena_i  => temp0_ld,
-               reg_i  => cur_crc_word,
+               reg_i  => crc_word_out,
                reg_o  => temp0);
    
    tmp_word1 : reg
@@ -322,7 +326,7 @@ begin
       port map(clk_i  => clk_i,
                rst_i  => rst_i,
                ena_i  => temp1_ld,
-               reg_i  => cur_crc_word,
+               reg_i  => crc_word_out,
                reg_o  => temp1);
   
    cmd_data_size <= conv_integer(temp0(DATA_SIZE'range));
@@ -393,10 +397,10 @@ begin
       end if;
    end process rx_stateFF;
    
-   rx_stateNS: process(rx_pres_state, crc_word_done, cmd_valid, cmd_data_size, hdr_word_count, data_word_count)
+   rx_stateNS: process(rx_pres_state, crc_word_rdy, cmd_valid, cmd_data_size, hdr_word_count, data_word_count)
    begin
       case rx_pres_state is
-         when RX_HDR =>    if(crc_word_done = '1') then                        -- when CRC datapath is done with this word
+         when RX_HDR =>    if(crc_word_rdy = '1') then                        -- when CRC datapath is done with this word
                               rx_next_state <= INCR_HDR;
                            else
                               rx_next_state <= RX_HDR;
@@ -418,7 +422,7 @@ begin
                               rx_next_state <= SKIP_CMD;             
                            end if;
  
-         when RX_DATA =>   if(crc_word_done = '1') then                        -- when CRC datapath is done with this word
+         when RX_DATA =>   if(crc_word_rdy = '1') then                        -- when CRC datapath is done with this word
                               rx_next_state <= WRITE_BUF;                                
                            else
                               rx_next_state <= RX_DATA;
@@ -432,7 +436,7 @@ begin
                               rx_next_state <= RX_DATA;
                            end if;
          
-         when RX_CRC =>    if(crc_word_done = '1') then                        -- when CRC datapath is done with this word
+         when RX_CRC =>    if(crc_word_rdy = '1') then                        -- when CRC datapath is done with this word
                               if(crc_valid = '1') then                           -- if checksum matches, pass command to next stage
                                  rx_next_state <= LATCH_HDR;
                               else                                               -- otherwise, signal receive error
@@ -442,7 +446,7 @@ begin
                               rx_next_state <= RX_CRC;
                            end if;
                            
-         when SKIP_CMD =>  if(crc_word_done = '1') then
+         when SKIP_CMD =>  if(crc_word_rdy = '1') then
                               rx_next_state <= INCR_SKIP;
                            else
                               rx_next_state <= SKIP_CMD;
@@ -488,7 +492,7 @@ begin
 
          when INCR_DATA | INCR_SKIP => data_word_count_ena <= '1';     
                                  
-         when WRITE_BUF =>             buf_data_o          <= cur_crc_word;
+         when WRITE_BUF =>             buf_data_o          <= crc_word_out;
                                        buf_addr_o          <= conv_std_logic_vector(data_word_count, BUF_ADDR_WIDTH);
                                        buf_wren_o          <= '1';
          
