@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_clk_card.vhd,v 1.1 2004/11/30 23:07:53 bburger Exp $
+-- $Id: tb_clk_card.vhd,v 1.2 2004/12/04 02:03:05 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_clk_card.vhd,v $
+-- Revision 1.2  2004/12/04 02:03:05  bburger
+-- Bryce:  fixing some problems associated with integrating the reply_queue
+--
 -- Revision 1.1  2004/11/30 23:07:53  bburger
 -- Bryce:  testing the Clock Card top-level
 --
@@ -52,6 +55,7 @@ use work.frame_timing_core_pack.all;
 use work.frame_timing_pack.all;
 use work.issue_reply_pack.all;
 use work.clk_card_pack.all;
+use work.addr_card_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -119,6 +123,9 @@ architecture tb of tb_clk_card is
    signal data_valid           : std_logic_vector(31 downto 0); -- used to be set to constant X"00000028"
    signal data                 : std_logic_vector(31 downto 0) := X"00000001";--integer := 1;
       
+   ------------------------------------------------
+   -- Clock Card Signals
+   -------------------------------------------------
    -- PLL input:
    signal inclk      : std_logic := '0';
    signal rst_n      : std_logic;
@@ -184,20 +191,66 @@ architecture tb of tb_clk_card is
    signal fibre_tx_data      : std_logic_vector (7 downto 0);
    signal fibre_tx_ena       : std_logic;  
    signal fibre_tx_sc_nd     : std_logic;
+
+
+   ------------------------------------------------
+   -- Address Card Signals
+   -------------------------------------------------
+   -- TTL interface:
+   signal ttl_nrx    : std_logic_vector(3 downto 1);
+   signal ttl_tx     : std_logic_vector(3 downto 1);
+   signal ttl_txena  : std_logic_vector(3 downto 1);
+    
+   -- eeprom interface:
+   signal ac_eeprom_si  : std_logic;
+   signal ac_eeprom_so  : std_logic;
+   signal ac_eeprom_sck : std_logic;
+   signal ac_eeprom_cs  : std_logic;
+    
+   -- dac interface:
+   signal dac_data0  : std_logic_vector(13 downto 0);
+   signal dac_data1  : std_logic_vector(13 downto 0);
+   signal dac_data2  : std_logic_vector(13 downto 0);
+   signal dac_data3  : std_logic_vector(13 downto 0);
+   signal dac_data4  : std_logic_vector(13 downto 0);
+   signal dac_data5  : std_logic_vector(13 downto 0);
+   signal dac_data6  : std_logic_vector(13 downto 0);
+   signal dac_data7  : std_logic_vector(13 downto 0);
+   signal dac_data8  : std_logic_vector(13 downto 0);
+   signal dac_data9  : std_logic_vector(13 downto 0);
+   signal dac_data10 : std_logic_vector(13 downto 0);
+   signal dac_clk    : std_logic_vector(40 downto 0);
+    
+   -- miscellaneous ports:
+   signal ac_red_led    : std_logic;
+   signal ac_ylw_led    : std_logic;
+   signal ac_grn_led    : std_logic;
+   signal ac_dip_sw3    : std_logic;
+   signal ac_dip_sw4    : std_logic;
+   signal ac_wdog       : std_logic;
+   signal ac_slot_id    : std_logic_vector(3 downto 0);
+    
+   -- debug ports:
+   signal test       : std_logic_vector(16 downto 3);
+   signal mictor     : std_logic_vector(32 downto 1);
+   signal mictorclk  : std_logic_vector(2 downto 1);
+   signal ac_rs232_rx: std_logic;
+   signal ac_rs232_tx: std_logic;   
    
 begin
    rst_n <= not rst_i;
+   
    i_clk_card : clk_card
       port map
       (
          -- simulation signals
-         clk          => clk,         
-         mem_clk      => mem_clk,     
-         comm_clk     => comm_clk,       
-         fibre_clk    => fibre_clk,   
-         fibre_tx_clk => fibre_tx_clk,
-         fibre_rx_clk => fibre_rx_clk,
-         lvds_clk_i   => lvds_clk_i,    
+         clk              => clk,         
+         mem_clk          => mem_clk,     
+         comm_clk         => comm_clk,       
+         fibre_clk        => fibre_clk,   
+         fibre_tx_clk     => fibre_tx_clk,
+         fibre_rx_clk     => fibre_rx_clk,
+         lvds_clk_i       => lvds_clk_i,    
          
          -- PLL input:
          inclk            => inclk,
@@ -265,6 +318,66 @@ begin
          fibre_tx_ena     => fibre_tx_ena,    
          fibre_tx_sc_nd   => fibre_tx_sc_nd  
       );
+   
+   i_addr_card : addr_card
+      port map(
+         -- simulation signals
+         clk              => clk,         
+         mem_clk          => mem_clk,     
+         comm_clk         => comm_clk,       
+   
+         -- PLL input:
+         inclk            => inclk,
+         rst_n            => rst_n,
+         
+         -- LVDS interface:
+         lvds_cmd         => lvds_cmd,  
+         lvds_sync        => lvds_sync, 
+         lvds_spare       => lvds_spare,
+         lvds_txa         => lvds_reply_ac_a, 
+         lvds_txb         => lvds_reply_ac_b, 
+         
+         -- TTL interface:
+         ttl_nrx          => ttl_nrx,  
+         ttl_tx           => ttl_tx,   
+         ttl_txena        => ttl_txena,
+         
+         -- eeprom interface:
+         eeprom_si        => ac_eeprom_si, 
+         eeprom_so        => ac_eeprom_so, 
+         eeprom_sck       => ac_eeprom_sck,
+         eeprom_cs        => ac_eeprom_cs, 
+         
+         -- dac interface:
+         dac_data0        => dac_data0,  
+         dac_data1        => dac_data1,  
+         dac_data2        => dac_data2,  
+         dac_data3        => dac_data3,  
+         dac_data4        => dac_data4,  
+         dac_data5        => dac_data5,  
+         dac_data6        => dac_data6,  
+         dac_data7        => dac_data7,  
+         dac_data8        => dac_data8,  
+         dac_data9        => dac_data9,  
+         dac_data10       => dac_data10, 
+         dac_clk          => dac_clk,    
+         
+         -- miscellaneous ports:
+         red_led          => ac_red_led, 
+         ylw_led          => ac_ylw_led, 
+         grn_led          => ac_grn_led, 
+         dip_sw3          => ac_dip_sw3, 
+         dip_sw4          => ac_dip_sw4, 
+         wdog             => ac_wdog,    
+         slot_id          => ac_slot_id, 
+         
+         -- debug ports:
+         test             => test,       
+         mictor           => mictor,     
+         mictorclk        => mictorclk,  
+         rs232_rx         => ac_rs232_rx,
+         rs232_tx         => ac_rs232_tx
+   );
    
    -- set up hotlink receiver signals 
    fibre_rx_rvs    <= '0';  -- no violation

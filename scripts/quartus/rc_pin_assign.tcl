@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: rc_pin_assign.tcl,v $
+# Revision 1.7  2004/07/26 20:06:46  mandana
+# renamed mictor pins
+#
 # Revision 1.6  2004/07/19 20:40:25  mandana
 # changed back the DAC numbering (that Ernie has changed) to 0-7 to stay consistant with the DAC tests
 #
@@ -76,8 +79,14 @@ puts "\nInfo: Assigning pins:"
 # assign device parameters
 cmp add_assignment $top_name "" "" DEVICE EP1S30F780C5
 cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET ON
+
+# dev_clr_n disabled
+cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET OFF
 puts "   Assigned: EP1S30 device parameters."
+
+# assign rst_n
+cmp add_assignment $top_name "" rst_n LOCATION "Pin_AC9"
+puts "   Assigned: RST_N pin."
 
 # assign leds
 cmp add_assignment $top_name "" red_led LOCATION "Pin_H20"

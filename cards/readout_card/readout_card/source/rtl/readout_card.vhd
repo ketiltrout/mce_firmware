@@ -21,7 +21,7 @@
 --
 -- readout_card.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        David Atkinson
 -- Organisation:  ATC
 --
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.1  2004/11/16 11:04:41  dca
+-- Initial Version
+--
 --
 -- 
 --
@@ -49,9 +52,12 @@ use work.wbs_frame_data_pack.all;
 
 
 entity readout_card is
+generic(
+     CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1
+     )
 port(
      inclk      : in std_logic;
-     rst        : in std_logic;
+     rst_n      : in std_logic;
      
      -- LVDS interface:
      lvds_cmd   : in std_logic;
@@ -74,6 +80,8 @@ architecture top of readout_card is
 signal clk      : std_logic;
 signal mem_clk  : std_logic;
 signal comm_clk : std_logic;
+
+signal rst      : std_logic;
 
 -- wishbone bus (from master)
 signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -188,6 +196,8 @@ port(inclk0 : in std_logic;
 end component;
 
 begin
+   rst <= not rst_n;
+   
    pll0: pll
    port map(inclk0 => inclk,
             c0 => clk,
@@ -195,7 +205,7 @@ begin
             c2 => comm_clk);
             
    cmd0: dispatch
-   generic map(CARD => ADDRESS_CARD)
+   generic map(CARD => CARD)
    port map(clk_i      => clk,
             mem_clk_i  => mem_clk,
             comm_clk_i => comm_clk,
@@ -323,7 +333,7 @@ port map (
      stb_i                     =>  stb,
      cyc_i                     =>  cyc,
                   
-     dat_o 	                   =>  wbs_frame_data_data,
+     dat_o                     =>  wbs_frame_data_data,
      ack_o                     =>  wbs_frame_data_ack
      );   
       

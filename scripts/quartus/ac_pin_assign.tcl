@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: ac_pin_assign.tcl,v $
+# Revision 1.12  2004/05/25 21:42:17  mandana
+# changed the LSB to MSB order on bus 0 to 9 to the correct order
+#
 # Revision 1.11  2004/05/17 00:12:57  erniel
 # renamed PLL 5 input pin to inclk
 #
@@ -68,9 +71,14 @@ puts "\nInfo: Assigning pins:"
 # assign device parameters
 cmp add_assignment $top_name "" "" DEVICE EP1S10F780C5
 cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET ON
+
+# dev_clr_n disabled
+cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET OFF
 puts "   Assigned: EP1S10 device parameters."
 
+# assign rst_n
+cmp add_assignment $top_name "" rst_n LOCATION "Pin_AC9"
+puts "   Assigned: RST_N pin."
 
 # assign LEDs
 cmp add_assignment $top_name "" red_led LOCATION "Pin_V27"

@@ -18,32 +18,18 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
---
--- addr_card.vhd
+-- $Id$
 --
 -- Project:       SCUBA-2
--- Author:        Ernie Lin
+-- Author:        Bryce Burger
 -- Organisation:  UBC
 --
 -- Description:
--- Address card top-level file
+-- Bias Card top-level file
 --
 -- Revision history:
 -- 
--- $Log: addr_card.vhd,v $
--- Revision 1.4  2004/11/30 22:58:47  bburger
--- Bryce:  reply_queue integration
---
--- Revision 1.3  2004/11/20 01:20:44  bburger
--- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
---
--- Revision 1.2  2004/11/18 05:21:56  bburger
--- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
---
--- Revision 1.1  2004/10/13 20:05:01  erniel
--- initial version
--- led module only
---
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
@@ -59,9 +45,12 @@ library work;
 use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.frame_timing_pack.all;
-use work.ac_dac_ctrl_pack.all;
+use work.bc_dac_ctrl_pack.all;
 
-entity addr_card is
+entity bias_card is
+   generic(
+      CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := BIAS_CARD_1
+   );
    port(
       -- simulation signals
       clk        : in std_logic;
@@ -91,18 +80,13 @@ entity addr_card is
       eeprom_cs  : out std_logic;
       
       -- dac interface:
-      dac_data0  : out std_logic_vector(13 downto 0);
-      dac_data1  : out std_logic_vector(13 downto 0);
-      dac_data2  : out std_logic_vector(13 downto 0);
-      dac_data3  : out std_logic_vector(13 downto 0);
-      dac_data4  : out std_logic_vector(13 downto 0);
-      dac_data5  : out std_logic_vector(13 downto 0);
-      dac_data6  : out std_logic_vector(13 downto 0);
-      dac_data7  : out std_logic_vector(13 downto 0);
-      dac_data8  : out std_logic_vector(13 downto 0);
-      dac_data9  : out std_logic_vector(13 downto 0);
-      dac_data10 : out std_logic_vector(13 downto 0);
-      dac_clk    : out std_logic_vector(40 downto 0);
+      dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+      dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+      dac_data      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
+      lvds_dac_ncs  : out std_logic;
+      lvds_dac_sclk : out std_logic;
+      lvds_dac_data : out std_logic;
+      dac_nclr      : out std_logic; -- add to tcl file
       
       -- miscellaneous ports:
       red_led    : out std_logic;
@@ -118,11 +102,11 @@ entity addr_card is
       mictor     : out std_logic_vector(32 downto 1);
       mictorclk  : out std_logic_vector(2 downto 1);
       rs232_rx   : in std_logic;
-      rs232_tx   : out std_logic    
+      rs232_tx   : out std_logic
    );
-end addr_card;
+end bias_card;
 
-architecture top of addr_card is
+architecture top of bias_card is
 
 -- clocks
 --signal clk      : std_logic;
@@ -144,21 +128,14 @@ signal slave_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal slave_ack         : std_logic;
 signal led_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal led_ack           : std_logic;
-signal ac_dac_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal ac_dac_ack        : std_logic;
+signal bc_dac_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal bc_dac_ack        : std_logic;
 signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack  : std_logic;
 signal slave_err         : std_logic;
 
 -- frame_timing interface
-signal restart_frame_aligned : std_logic; 
-signal row_switch            : std_logic;
-signal row_en                : std_logic;
-
--- DAC hardware interface:
-signal dac_data : w14_array11;   
---signal dac_clks : std_logic_vector(NUM_OF_ROWS downto 0);
-
+signal update_bias : std_logic; 
 
 component pll
 port(inclk0 : in std_logic;
@@ -168,6 +145,7 @@ port(inclk0 : in std_logic;
 end component;
 
 begin
+   
    rst <= not rst_n;
    
 --   pll0: pll
@@ -178,7 +156,7 @@ begin
             
    cmd0: dispatch
       generic map(
-         CARD => ADDRESS_CARD
+         CARD => CARD
          )
       port map(
          clk_i                      => clk,
@@ -221,24 +199,34 @@ begin
          fault                      => red_led
       );
             
-   ac_dac_ctrl_slave: ac_dac_ctrl
+   bc_dac_ctrl_slave: bc_dac_ctrl
       port map(
-         dac_data_o                 => dac_data,
-         dac_clks_o                 => dac_clk,
-      
+         -- DAC hardware interface:
+         -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
+         flux_fb_data_o             => dac_ncs,      
+         flux_fb_ncs_o              => dac_sclk,     
+         flux_fb_clk_o              => dac_data,     
+                                       
+         bias_data_o                => lvds_dac_sclk,
+         bias_ncs_o                 => lvds_dac_sclk,
+         bias_clk_o                 => lvds_dac_sclk,
+         
+         dac_nclr_o                 => dac_nclr,
+         
+         -- wishbone interface:
          dat_i                      => data,
          addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => ac_dac_data,
-         ack_o                      => ac_dac_ack,
-
-         row_switch_i               => row_switch,
-         restart_frame_aligned_i    => restart_frame_aligned,
-         row_en_i                   => row_en,
-                                    
+         tga_i                      => tga, 
+         we_i                       => we,  
+         stb_i                      => stb, 
+         cyc_i                      => cyc, 
+         dat_o                      => bc_dac_data,
+         ack_o                      => bc_dac_ack,
+         
+         -- frame_timing signals
+         update_bias_i              => update_bias,
+         
+         -- Global Signals      
          clk_i                      => clk,
          mem_clk_i                  => mem_clk,
          rst_i                      => rst
@@ -249,14 +237,14 @@ begin
          dac_dat_en_o               => open,
          adc_coadd_en_o             => open,
          restart_frame_1row_prev_o  => open,
-         restart_frame_aligned_o    => restart_frame_aligned,
+         restart_frame_aligned_o    => open,
          restart_frame_1row_post_o  => open,
          initialize_window_o        => open,
          
-         row_switch_o               => row_switch,
-         row_en_o                   => row_en,
+         row_switch_o               => open,
+         row_en_o                   => open,
             
-         update_bias_o              => open,
+         update_bias_o              => update_bias,
          
          dat_i                      => data,
          addr_i                     => addr,
@@ -273,36 +261,23 @@ begin
          sync_i                     => lvds_sync
       );
    
-   dac_data0  <= dac_data(0);
-   dac_data1  <= dac_data(1);
-   dac_data2  <= dac_data(2);
-   dac_data3  <= dac_data(3);
-   dac_data4  <= dac_data(4);
-   dac_data5  <= dac_data(5);
-   dac_data6  <= dac_data(6);
-   dac_data7  <= dac_data(7);
-   dac_data8  <= dac_data(8);
-   dac_data9  <= dac_data(9);
-   dac_data10 <= dac_data(10);
-   
    with addr select
       slave_data <= 
          led_data          when LED_ADDR,
-         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
+         bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          (others => '0')   when others;
 
    with addr select
       slave_ack <= 
          led_ack          when LED_ADDR,
-         ac_dac_ack       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
+         bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '0'              when others;
          
    with addr select
       slave_err <= 
-         '0'              when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
-         '1'              when others;
-         
+         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '1'              when others;        
    
 end top;

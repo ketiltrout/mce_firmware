@@ -22,13 +22,12 @@
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
--- Organisation:  UBC
+-- Organization:  UBC
 --
 -- Description:
--- Bias Card top-level file
+-- 
 --
 -- Revision history:
--- 
 -- $Log$
 --
 -----------------------------------------------------------------------------
@@ -38,17 +37,13 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.command_pack.all;
-use sys_param.wishbone_pack.all;
-use sys_param.data_types_pack.all;
 
 library work;
-use work.dispatch_pack.all;
-use work.leds_pack.all;
-use work.frame_timing_pack.all;
 use work.bc_dac_ctrl_pack.all;
-use work.bias_card_pack.all;
 
-entity bias_card_one is
+package bias_card_pack is
+
+component bias_card
    generic(
       CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := BIAS_CARD_1
    );
@@ -104,69 +99,7 @@ entity bias_card_one is
       mictorclk  : out std_logic_vector(2 downto 1);
       rs232_rx   : in std_logic;
       rs232_tx   : out std_logic
-   );
-end bias_card_one;
+   );     
+end component;
 
-architecture top of bias_card_one is
-
-begin
-   
-   i_bias_card_one : bias_card
-      generic map(
-         CARD          => CARD
-      )
-      port map(
-                          
-         clk           => clk,        
-         mem_clk       => mem_clk,   
-         comm_clk      => comm_clk,   
-                      
-                          
-         inclk         => inclk,      
-         rst_n         => rst_n,      
-         
-                          
-         lvds_cmd      => lvds_cmd,  
-         lvds_sync     => lvds_sync,  
-         lvds_spare    => lvds_spare, 
-         lvds_txa      => lvds_txa,   
-         lvds_txb      => lvds_txb,   
-                      
-                         
-         ttl_nrx       => ttl_nrx,    
-         ttl_tx        => ttl_tx,     
-         ttl_txena     => ttl_txena,  
-                       
-                          
-         eeprom_si     => eeprom_si,  
-         eeprom_so     => eeprom_so,  
-         eeprom_sck    => eeprom_sck, 
-         eeprom_cs     => eeprom_cs,  
-         
-                         
-         dac_ncs       => dac_ncs,      
-         dac_sclk      => dac_sclk,     
-         dac_data      => dac_data,     
-         lvds_dac_ncs  => lvds_dac_ncs, 
-         lvds_dac_sclk => lvds_dac_sclk,
-         lvds_dac_data => lvds_dac_data,
-         dac_nclr      => dac_nclr,     
-         
-                          
-         red_led       => red_led,    
-         ylw_led       => ylw_led,    
-         grn_led       => grn_led,    
-         dip_sw3       => dip_sw3,    
-         dip_sw4       => dip_sw4,    
-         wdog          => wdog,       
-         slot_id       => slot_id,    
-                       
-                          
-         test          => test,       
-         mictor        => mictor,     
-         mictorclk     => mictorclk,  
-         rs232_rx      => rs232_rx,   
-         rs232_tx      => rs232_tx  
-      );               
-   
-end top;
+end bias_card_pack;

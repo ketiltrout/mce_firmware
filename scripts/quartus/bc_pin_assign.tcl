@@ -32,6 +32,10 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.8  2004/09/15 20:25:18  erniel
+# changed pin assignment of dac_dat[15]
+# changed pin assignment of dac_ncs[15]
+#
 # Revision 1.7  2004/05/20 15:59:59  erniel
 # removed DAC_nclr pin, tied to status pin on board
 #
@@ -80,9 +84,14 @@ puts "\nInfo: Assigning pins:"
 # assign device parameters
 cmp add_assignment $top_name "" "" DEVICE EP1S10F780C5
 cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET ON
+
+# dev_clr_n disabled
+cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET OFF
 puts "   Assigned: EP1S10 device parameters."
 
+# assign rst_n
+cmp add_assignment $top_name "" rst_n LOCATION "Pin_AC9"
+puts "   Assigned: RST_N pin."
 
 # assign LEDs
 cmp add_assignment $top_name "" red_led LOCATION "Pin_V27"

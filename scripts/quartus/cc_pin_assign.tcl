@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.11  2004/11/25 01:09:12  bench2
+# Greg: Changed issue_reply block instantiation and corresponding signals in the tcl file
+#
 # Revision 1.10  2004/11/24 01:15:52  bench2
 # Greg: Broke apart issue reply and created pack files for all of its sub-components
 #
@@ -90,6 +93,8 @@ puts "\nInfo: Assigning pins:"
 # assign device parameters
 cmp add_assignment $top_name "" "" DEVICE EP1S30F780C5
 cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+
+#dev_clr_n disabled
 cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET OFF
 puts "   Assigned: EP1S30 device parameters."
 

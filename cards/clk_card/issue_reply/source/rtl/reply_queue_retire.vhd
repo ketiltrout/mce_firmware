@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.9 2004/11/30 22:58:47 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.10 2004/12/04 02:03:06 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.10  2004/12/04 02:03:06  bburger
+-- Bryce:  fixing some problems associated with integrating the reply_queue
+--
 -- Revision 1.9  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -200,8 +203,8 @@ begin
          reg_o      => header_d
       );
 
-   matched   <= cmd_rdy when cmd_code =  STOP else matched_i;
-   cmd_rdy_o <= cmd_rdy when cmd_code /= STOP else '0';
+   matched   <= cmd_rdy when (cmd_code =  STOP or  cmd_code =  START) else matched_i;
+   cmd_rdy_o <= cmd_rdy when (cmd_code /= STOP and cmd_code /= START) else '0';
 
    -- Some of the outputs to reply_translator and lvds_rx fifo's
    cmd_code_o        <= cmd_code;
