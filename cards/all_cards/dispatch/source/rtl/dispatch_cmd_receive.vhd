@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 --
 --
--- dispatch.vhd
+-- dispatch_cmd_receive.vhd
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.2  2004/08/10 00:35:35  erniel
+-- initial version
+--
 -- Revision 1.1  2004/08/04 19:42:55  erniel
 -- WARNING: not functional, work in progress
 --
@@ -56,73 +59,74 @@ use work.async_pack.all;
 use work.dispatch_pack.all;
 
 entity dispatch_cmd_receive is
-generic(CARD : std_logic_vector(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) := RC1);
+generic(CARD : std_logic_vector(CARD_ADDRESS_WIDTH-1 downto 0) := RC1);
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;		
      
-     lvds_cmd_i   : in std_logic;
+     lvds_cmd_i : in std_logic;
      
-     done_o : out std_logic;
+     cmd_rdy_o : out std_logic;  -- indicates received command is valid
+     cmd_err_o : out std_logic;  -- indicates received command had an error in it
      
-     -- command parameters
-     data_size_o : out std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
-     param_id_o  : out std_logic_vector(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
-     macro_seq_o : out std_logic_vector(7 downto 0);
-     micro_seq_o : out std_logic_vector(7 downto 0);
+     -- Command header words:
+     header0_o : out std_logic_vector(CMD_WORD_WIDTH-1 downto 0);
+     header1_o : out std_logic_vector(CMD_WORD_WIDTH-1 downto 0);
      
-     -- data buffer interface
-     buf_data_o : out std_logic_vector(31 downto 0);
-     buf_addr_o : out std_logic_vector(5 downto 0);
+--     data_size_o : out integer range 0 to MAX_DATA_WORDS-1;
+--     cmd_type_o  : out std_logic_vector(COMMAND_TYPE_WIDTH-1 downto 0);     
+--     param_id_o  : out std_logic_vector(PARAMETER_ID_WIDTH-1 downto 0);
+--     macro_seq_o : out std_logic_vector(MACRO_OP_SEQ_WIDTH-1 downto 0);
+--     micro_seq_o : out std_logic_vector(MICRO_OP_SEQ_WIDTH-1 downto 0);
+     
+     -- Buffer interface (stores data from command packet):
+     buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
+     buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
      buf_wren_o : out std_logic);
 end dispatch_cmd_receive;
 
-architecture behav of dispatch_cmd_receive is
+architecture rtl of dispatch_cmd_receive is
 
-type receiver_states is (RX_HDR, RX_DATA, RX_CRC, INCR_HDR, INCR_DATA, INCR_SKIP, PARSE_HDR, WRITE_BUF, SKIP_CMD, DONE);
+type receiver_states is (RX_HDR, RX_DATA, RX_CRC, INCR_HDR, INCR_DATA, INCR_SKIP, PARSE_HDR, WRITE_BUF, SKIP_CMD, LATCH_HDR, DONE, ERROR);
 signal rx_pres_state : receiver_states;
 signal rx_next_state : receiver_states;
 
-signal cmd_rx_data : std_logic_vector(31 downto 0);
-signal cmd_rx_rdy  : std_logic;
-signal cmd_rx_ack  : std_logic;
+signal lvds_rx_data : std_logic_vector(CMD_WORD_WIDTH-1 downto 0);
+signal lvds_rx_rdy  : std_logic;
+signal lvds_rx_ack  : std_logic;
 
-signal header0_ld : std_logic;
-signal header0    : std_logic_vector(31 downto 0);
-signal data_size  : integer;
+signal temp0_ld  : std_logic;
+signal temp1_ld  : std_logic;
+signal header_ld : std_logic;
 
-signal header1_ld         : std_logic;
-signal header1            : std_logic_vector(31 downto 0);
-signal card_address_valid : std_logic;
+signal temp0 : std_logic_vector(CMD_WORD_WIDTH-1 downto 0);
+signal temp1 : std_logic_vector(CMD_WORD_WIDTH-1 downto 0);
 
-signal data_size_ld : std_logic;
-signal parameter_ld : std_logic;
-signal macro_seq_ld : std_logic;
-signal micro_seq_ld : std_logic;
+signal data_size : integer;
+signal cmd_type  : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0);
+signal cmd_valid : std_logic;
 
-signal hdr_count_ena  : std_logic;
-signal hdr_count_clr  : std_logic;
-signal hdr_count      : integer;
+signal hdr_word_count_ena : std_logic;
+signal hdr_word_count     : integer;
 
-signal data_count_ena : std_logic;
-signal data_count_clr : std_logic;
-signal data_count     : integer;
+signal data_word_count_ena : std_logic;
+signal data_word_count_clr : std_logic;
+signal data_word_count     : integer;
 
 
 -- signals used in CRC datapath:
 
-type crc_states is (IDLE_CRC, INITIALIZE_CRC, CALCULATE_CRC, CALC_CRC_DONE, WAIT_NEXT_WORD, LOAD_NEXT_WORD);
+type crc_states is (IDLE_CRC, INITIALIZE_CRC, CALCULATE_CRC, CALC_CRC_DONE, SYNC_PREAMBLE, WAIT_NEXT_WORD, LOAD_NEXT_WORD);
 signal crc_pres_state : crc_states;
 signal crc_next_state : crc_states;
 
-signal cmd_size_reg_ena : std_logic;
-signal cmd_size         : std_logic_vector(15 downto 0);
+signal crc_data_size_ld : std_logic;
+signal crc_data_size    : std_logic_vector(CMD_DATA_SIZE_WIDTH-1 downto 0);
 
-signal cmd_data : std_logic_vector(31 downto 0);
-
-signal crc_data_shreg_ena : std_logic;
-signal crc_data_shreg_ld  : std_logic;
-signal crc_input_bit      : std_logic;
+signal crc_shreg_ena  : std_logic;
+signal crc_shreg_ld   : std_logic;
+signal crc_serial_in : std_logic;
+signal crc_word_out  : std_logic_vector(CMD_WORD_WIDTH-1 downto 0);
 
 signal crc_bit_count_clr : std_logic;
 signal crc_bit_count     : integer;
@@ -132,9 +136,9 @@ signal crc_clr   : std_logic;
 signal crc_done  : std_logic;
 signal crc_valid : std_logic;
 
-signal crc_word_done : std_logic;
-signal crc_num_bits  : integer;
+signal crc_num_bits : integer;
 
+signal crc_data_rdy : std_logic;
 
 begin
 
@@ -146,117 +150,43 @@ begin
       port map(clk_i      => clk_i,
                comm_clk_i => comm_clk_i,
                rst_i      => rst_i,
+               dat_o      => lvds_rx_data,
+               rdy_o      => lvds_rx_rdy,
+               ack_i      => lvds_rx_ack,
+               lvds_i     => lvds_cmd_i);
      
-               dat_o => cmd_rx_data,
-               rdy_o => cmd_rx_rdy,
-               ack_i => cmd_rx_ack,
-     
-               lvds_i => lvds_cmd_i);
-   
-   
-   ---------------------------------------------------------
-   -- Temp registers for storing received header words
-   ---------------------------------------------------------
-   
-   header_word0 : reg
-      generic map(WIDTH => 32)
-      port map(clk_i  => clk_i,
-               rst_i  => rst_i,
-               ena_i  => header0_ld,
-
-               reg_i  => cmd_data,
-               reg_o  => header0);
-   
-   data_size <= conv_integer(header0(15 downto 0));
-   
-   header_word1 : reg
-      generic map(WIDTH => 32)
-      port map(clk_i  => clk_i,
-               rst_i  => rst_i,
-               ena_i  => header1_ld,
-
-               reg_i  => cmd_data,
-               reg_o  => header1);
-   
-   card_address_valid <= '1' when (header1(31 downto 24) = CARD) or 
-                                  (header1(31 downto 24) = ALL_CARDS) or 
-                                  (header1(31 downto 24) = ALL_FPGA_CARDS) or
-                                  (header1(31 downto 24) = BCS and (CARD = BC1 or CARD = BC2 or CARD = BC3)) or
-                                  (header1(31 downto 24) = RCS and (CARD = RC1 or CARD = RC2 or CARD = RC3 or CARD = RC4))
-                             else '0';
-   
-   
-   ---------------------------------------------------------
-   -- Registers for storing valid received parameters
-   ---------------------------------------------------------
-   
-   size : reg
-      generic map(WIDTH => CQ_DATA_SIZE_BUS_WIDTH)
-      port map(clk_i  => clk_i,
-               rst_i  => rst_i,
-               ena_i  => data_size_ld,
-
-               reg_i  => header0(15 downto 0),
-               reg_o  => data_size_o);  
-               
-   par_id : reg
-      generic map(WIDTH => CQ_PAR_ID_BUS_WIDTH)
-      port map(clk_i  => clk_i,
-               rst_i  => rst_i,
-               ena_i  => parameter_ld,
-
-               reg_i  => header1(23 downto 16),
-               reg_o  => param_id_o);
-   
-   macro_num : reg
-      generic map(WIDTH => 8)
-      port map(clk_i  => clk_i,
-               rst_i  => rst_i,
-               ena_i  => macro_seq_ld,
-
-               reg_i  => header1(15 downto 8),
-               reg_o  => macro_seq_o);
-   
-   micro_num : reg
-      generic map(WIDTH => 8)
-      port map(clk_i  => clk_i,
-               rst_i  => rst_i,
-               ena_i  => micro_seq_ld,
-
-               reg_i  => header1(7 downto 0),
-               reg_o  => micro_seq_o);  
-   
                        
    ---------------------------------------------------------
-   -- Received packet CRC validation
+   -- CRC validation
    ---------------------------------------------------------
    
    -- CRC datapath
-   cmd_size_reg : reg
-      generic map(WIDTH => CQ_DATA_SIZE_BUS_WIDTH)
+   crc_data_size_reg : reg
+      generic map(WIDTH => CMD_DATA_SIZE_WIDTH)
       port map(clk_i => clk_i,
-           rst_i => rst_i,
-           ena_i => cmd_size_reg_ena,
-           reg_i => cmd_rx_data(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0),
-           reg_o => cmd_size);
+               rst_i => rst_i,
+               ena_i => crc_data_size_ld,
+               reg_i => lvds_rx_data(CMD_DATA_SIZE'range),
+               reg_o => crc_data_size);
 
-   crc_num_bits <= conv_integer((cmd_size + 3) & "00000");  -- cmd_size is # of data words + 2 command words + 1 CRC word
-   
+   -- number of bits to be processed by CRC is (# of data words + 2 header words + 1 CRC word) * 32
+   crc_num_bits <= conv_integer((crc_data_size + 3) & "00000");     
+
    crc_data_reg : shift_reg
-      generic map(WIDTH => 32)
+      generic map(WIDTH => CMD_WORD_WIDTH)
       port map(clk_i      => clk_i,
                rst_i      => rst_i,
-               ena_i      => crc_data_shreg_ena,
-               load_i     => crc_data_shreg_ld,
+               ena_i      => crc_shreg_ena,
+               load_i     => crc_shreg_ld,
                clr_i      => '0',
-               shr_i      => '1',
-               serial_i   => crc_input_bit,  -- this makes the shift register a rotator! (eliminates need for separate buffer)
-               serial_o   => crc_input_bit,
-               parallel_i => cmd_rx_data,
-               parallel_o => cmd_data);
+               shr_i      => '1',            -- CRC is calculated LSB first
+               serial_i   => crc_serial_in,  -- this makes the shift register a rotator! (eliminates need for separate buffer)
+               serial_o   => crc_serial_in,
+               parallel_i => lvds_rx_data,
+               parallel_o => crc_word_out);
    
    crc_bit_counter : counter
-      generic map(MAX         => 32,
+      generic map(MAX         => CMD_WORD_WIDTH,
                   WRAP_AROUND => '0')
       port map(clk_i   => clk_i,
                rst_i   => rst_i,
@@ -271,7 +201,7 @@ begin
                rst_i      => rst_i,
                clr_i      => crc_clr,
                ena_i      => crc_ena,
-               data_i     => crc_input_bit,
+               data_i     => crc_serial_in,
                num_bits_i => crc_num_bits,
                poly_i     => CRC32,
                done_o     => crc_done,
@@ -288,18 +218,34 @@ begin
       end if;
    end process crc_stateFF;
    
-   crc_stateNS: process(crc_pres_state, cmd_rx_rdy, crc_bit_count, crc_done)
+   
+   -- Notes: - CRC receiver starts on valid preamble boundaries.
+   --        - If receiver loses packet sync, words will be ignored:
+   --             1. wait until return to CRC idle state (could be up to 8191 words later), then
+   --             2. wait until valid preamble is detected.
+   
+   crc_stateNS: process(crc_pres_state, lvds_rx_rdy, lvds_rx_data, crc_bit_count, crc_done)
    begin
       case crc_pres_state is
-         when IDLE_CRC =>       if(cmd_rx_rdy = '1') then
-                                   crc_next_state <= INITIALIZE_CRC;
+         when IDLE_CRC =>       if(lvds_rx_rdy = '1') then
+                                   if(lvds_rx_data(PREAMBLE'range) = PREAMBLE) then    -- valid preamble detected
+                                      crc_next_state <= INITIALIZE_CRC;  
+                                   else
+                                      crc_next_state <= SYNC_PREAMBLE;
+                                   end if;
                                 else
                                    crc_next_state <= IDLE_CRC;
                                 end if;
-                          
+                                   
          when INITIALIZE_CRC => crc_next_state <= CALCULATE_CRC;
-         
-         when CALCULATE_CRC =>  if(crc_bit_count = 31) then
+                                
+         when SYNC_PREAMBLE =>  if(lvds_rx_rdy = '1' and lvds_rx_data(PREAMBLE'range) = PREAMBLE) then
+                                   crc_next_state <= INITIALIZE_CRC;  
+                                else
+                                   crc_next_state <= SYNC_PREAMBLE;
+                                end if;         
+                  
+         when CALCULATE_CRC =>  if(crc_bit_count = CMD_WORD_WIDTH-1) then
                                    crc_next_state <= CALC_CRC_DONE;
                                 else
                                    crc_next_state <= CALCULATE_CRC;
@@ -309,7 +255,7 @@ begin
                                          
          when WAIT_NEXT_WORD => if(crc_done = '1') then
                                    crc_next_state <= IDLE_CRC;
-                                elsif(cmd_rx_rdy = '1') then 
+                                elsif(lvds_rx_rdy = '1') then 
                                    crc_next_state <= LOAD_NEXT_WORD;
                                 else
                                    crc_next_state <= WAIT_NEXT_WORD;
@@ -323,32 +269,34 @@ begin
    
    crc_stateOut: process(crc_pres_state)
    begin
-      cmd_rx_ack         <= '0';   
-      cmd_size_reg_ena   <= '0';
-      crc_data_shreg_ld  <= '0';
-      crc_data_shreg_ena <= '0';      
+      lvds_rx_ack        <= '0';   
+      crc_data_size_ld   <= '0';
+      crc_shreg_ld        <= '0';
+      crc_shreg_ena       <= '0';      
       crc_bit_count_clr  <= '0';
       crc_clr            <= '0';
       crc_ena            <= '0';
-      crc_word_done      <= '0';
+      crc_data_rdy       <= '0';
       
       case crc_pres_state is
-         when INITIALIZE_CRC => cmd_rx_ack         <= '1';  
-                                cmd_size_reg_ena   <= '1';
-                                crc_data_shreg_ld  <= '1';
-                                crc_data_shreg_ena <= '1';
+         when INITIALIZE_CRC => lvds_rx_ack        <= '1';  
+                                crc_data_size_ld   <= '1';
+                                crc_shreg_ld        <= '1';
+                                crc_shreg_ena       <= '1';
                                 crc_bit_count_clr  <= '1';
                                 crc_clr            <= '1';
                                 crc_ena            <= '1';
+         
+         when SYNC_PREAMBLE =>  lvds_rx_ack        <= '1';
                            
          when CALCULATE_CRC =>  crc_ena            <= '1';
-                                crc_data_shreg_ena <= '1';
+                                crc_shreg_ena       <= '1';
          
-         when CALC_CRC_DONE =>  crc_word_done      <= '1';
+         when CALC_CRC_DONE =>  crc_data_rdy       <= '1';
          
-         when LOAD_NEXT_WORD => cmd_rx_ack         <= '1';
-                                crc_data_shreg_ld  <= '1';
-                                crc_data_shreg_ena <= '1';
+         when LOAD_NEXT_WORD => lvds_rx_ack        <= '1';
+                                crc_shreg_ld        <= '1';
+                                crc_shreg_ena       <= '1';
                                 crc_bit_count_clr  <= '1';
                                 
          when others =>         null;
@@ -356,27 +304,83 @@ begin
    end process crc_stateOut;
 
 
+   ---------------------------------------------------------
+   -- Temp registers for header words
+   ---------------------------------------------------------
+   
+   -- Notes: - Every time a new command arrives, its header words are stored regardless of whether the command is valid or not.
+   --        - When the second header word is received, cmd_valid tells the receiver FSM if the command is valid.
+
+   tmp_word0 : reg
+      generic map(WIDTH => CMD_WORD_WIDTH)
+      port map(clk_i  => clk_i,
+               rst_i  => rst_i,
+               ena_i  => temp0_ld,
+               reg_i  => crc_word_out,
+               reg_o  => temp0);
+   
+   tmp_word1 : reg
+      generic map(WIDTH => CMD_WORD_WIDTH)
+      port map(clk_i  => clk_i,
+               rst_i  => rst_i,
+               ena_i  => temp1_ld,
+               reg_i  => crc_word_out,
+               reg_o  => temp1);
+  
+   data_size <= conv_integer(temp0(CMD_DATA_SIZE'range));
+   
+   cmd_type  <= temp0(COMMAND_TYPE'range);
+      
+   cmd_valid <= '1' when (temp1(CARD_ADDRESS'range) = CARD) or 
+                         (temp1(CARD_ADDRESS'range) = ALL_CARDS) or 
+                         (temp1(CARD_ADDRESS'range) = ALL_FPGA_CARDS) or
+                         (temp1(CARD_ADDRESS'range) = BCS and (CARD = BC1 or CARD = BC2 or CARD = BC3)) or
+                         (temp1(CARD_ADDRESS'range) = RCS and (CARD = RC1 or CARD = RC2 or CARD = RC3 or CARD = RC4))
+                    else '0';
+                             
+            
+   ---------------------------------------------------------
+   -- Registers for valid header words
+   ---------------------------------------------------------
+   
+   hdr_word0 : reg
+      generic map(WIDTH => CMD_WORD_WIDTH)
+      port map(clk_i  => clk_i,
+               rst_i  => rst_i,
+               ena_i  => header_ld,
+               reg_i  => temp0,
+               reg_o  => header0_o);
+   
+   hdr_word1 : reg
+      generic map(WIDTH => CMD_WORD_WIDTH)
+      port map(clk_i  => clk_i,
+               rst_i  => rst_i,
+               ena_i  => header_ld,
+               reg_i  => temp1,
+               reg_o  => header1_o);
+   
+   
    ---------------------------------------------------------               
-   -- Packet counters for received words
+   -- Counters for received words
    ---------------------------------------------------------   
    
    header_counter : counter
-   generic map(MAX => BB_PACKET_HEADER_SIZE-1)
+   generic map(MAX => MAX_CMD_HEADER_WORDS-1)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
-            ena_i   => hdr_count_ena,
+            ena_i   => hdr_word_count_ena,
             load_i  => '0',   -- does not need to be cleared, since number of header words is fixed, counter just wraps
             count_i => 0,
-            count_o => hdr_count);
+            count_o => hdr_word_count);
    
    data_counter : counter
-   generic map(MAX => 65536)
+   generic map(MAX => MAX_DATA_WORDS-1)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
-            ena_i   => data_count_ena,
-            load_i  => data_count_clr,
+            ena_i   => data_word_count_ena,
+            load_i  => data_word_count_clr,
             count_i => 0,
-            count_o => data_count);
+            count_o => data_word_count);
             
    
    ---------------------------------------------------------
@@ -391,112 +395,113 @@ begin
       end if;
    end process rx_stateFF;
    
-   rx_stateNS: process(rx_pres_state, crc_word_done, card_address_valid, data_size, hdr_count, data_count)
+   rx_stateNS: process(rx_pres_state, crc_data_rdy, cmd_valid, data_size, hdr_word_count, data_word_count)
    begin
       case rx_pres_state is
-         when RX_HDR =>    if(crc_word_done = '1') then 
+         when RX_HDR =>    if(crc_data_rdy = '1') then                        -- when CRC datapath is done with this word
                               rx_next_state <= INCR_HDR;
                            else
                               rx_next_state <= RX_HDR;
                            end if;
                            
-         when INCR_HDR =>  if(hdr_count = BB_PACKET_HEADER_SIZE-1) then
+         when INCR_HDR =>  if(hdr_word_count = MAX_CMD_HEADER_WORDS-1) then   -- if we have received all header words
                               rx_next_state <= PARSE_HDR;
                            else
                               rx_next_state <= RX_HDR;
                            end if;
                            
-         when PARSE_HDR => if(card_address_valid = '1') then
-                              if(data_size /= 0) then             -- this packet contains some data words
+         when PARSE_HDR => if(cmd_valid = '1') then                           -- if this command is for this card
+                              if(cmd_type = WRITE_BLOCK) then                    -- if this command is a WRITE, next word is data
                                  rx_next_state <= RX_DATA;
-                              else
-                                 rx_next_state <= RX_CRC;         -- this packet contains no data words
+                              else                                               -- if this command is not a WRITE, next word is CRC
+                                 rx_next_state <= RX_CRC;            
                               end if;
-                           else
-                              rx_next_state <= SKIP_CMD;          -- this packet is not for this card, skip it
+                           else                                               -- otherwise, skip it
+                              rx_next_state <= SKIP_CMD;             
                            end if;
  
-         when RX_DATA =>   if(crc_word_done = '1') then
+         when RX_DATA =>   if(crc_data_rdy = '1') then                        -- when CRC datapath is done with this word
                               rx_next_state <= WRITE_BUF;                                
                            else
                               rx_next_state <= RX_DATA;
                            end if;
          
-         when WRITE_BUF => rx_next_state <= INCR_DATA;
+         when WRITE_BUF => rx_next_state <= INCR_DATA;                        -- write data word into data buffer
          
-         when INCR_DATA => if(data_count = data_size-1) then
+         when INCR_DATA => if(data_word_count = data_size-1) then             -- if we have received all data words
                               rx_next_state <= RX_CRC;
                            else
                               rx_next_state <= RX_DATA;
                            end if;
          
-         when RX_CRC =>    if(crc_word_done = '1') then
-                              rx_next_state <= DONE;
+         when RX_CRC =>    if(crc_data_rdy = '1') then                        -- when CRC datapath is done with this word
+                              if(crc_valid = '1') then                           -- if checksum matches, pass command to next stage
+                                 rx_next_state <= LATCH_HDR;
+                              else                                               -- otherwise, signal receive error
+                                 rx_next_state <= ERROR;
+                              end if;
                            else
                               rx_next_state <= RX_CRC;
                            end if;
                            
-         when SKIP_CMD =>  if(crc_word_done = '1') then
+         when SKIP_CMD =>  if(crc_data_rdy = '1') then
                               rx_next_state <= INCR_SKIP;
                            else
                               rx_next_state <= SKIP_CMD;
                            end if;
-                           
-         when INCR_SKIP => if(data_count = data_size) then        -- not "data_size-1" since CRC word is included in count
+                          
+         when INCR_SKIP => if(data_word_count = data_size) then               -- if we have skipped over all data words AND the CRC word
                               rx_next_state <= RX_HDR;
                            else
                               rx_next_state <= SKIP_CMD;
                            end if;
-                           
-         when DONE =>      rx_next_state <= RX_HDR;
+         
+         when LATCH_HDR => rx_next_state <= DONE;
          
          when others =>    rx_next_state <= RX_HDR;
       end case;
    end process rx_stateNS;
 
-   rx_stateOut: process(rx_pres_state, hdr_count)
+   rx_stateOut: process(rx_pres_state, hdr_word_count)
    begin
       -- default values:
-      header0_ld     <= '0';
-      header1_ld     <= '0';
-      hdr_count_ena  <= '0';
-      data_count_ena <= '0';
-      data_count_clr <= '0';
-      buf_data_o     <= (others => '0');
-      buf_addr_o     <= (others => '0');
-      buf_wren_o     <= '0';
-      data_size_ld   <= '0';
-      parameter_ld   <= '0';
-      macro_seq_ld   <= '0';
-      micro_seq_ld   <= '0';
-      done_o         <= '0';
+      temp0_ld            <= '0';
+      temp1_ld            <= '0';
+      header_ld           <= '0';
+      hdr_word_count_ena  <= '0';
+      data_word_count_ena <= '0';
+      data_word_count_clr <= '0';
+      buf_data_o          <= (others => '0');
+      buf_addr_o          <= (others => '0');
+      buf_wren_o          <= '0';
+      cmd_rdy_o           <= '0';
+      cmd_err_o           <= '0';
       
       case rx_pres_state is
-         when RX_HDR =>                if(hdr_count = 0) then
-                                          header0_ld  <= '1';
-                                       else
-                                          header1_ld  <= '1';
-                                       end if;
+         when RX_HDR =>                case hdr_word_count is
+                                          when 0 =>      temp0_ld  <= '1';
+                                          when others => temp1_ld  <= '1';
+                                       end case;
                                 
-         when INCR_HDR =>              hdr_count_ena  <= '1';
+         when INCR_HDR =>              hdr_word_count_ena  <= '1';
          
-         when PARSE_HDR =>             data_count_ena <= '1';
-                                       data_count_clr <= '1';
+         when PARSE_HDR =>             data_word_count_ena <= '1';
+                                       data_word_count_clr <= '1';
 
-         when INCR_DATA | INCR_SKIP => data_count_ena <= '1';     
+         when INCR_DATA | INCR_SKIP => data_word_count_ena <= '1';     
                                  
-         when WRITE_BUF =>             buf_data_o     <= cmd_data;
-                                       buf_addr_o     <= conv_std_logic_vector(data_count, 6);
-                                       buf_wren_o     <= '1';
+         when WRITE_BUF =>             buf_data_o          <= crc_word_out;
+                                       buf_addr_o          <= conv_std_logic_vector(data_word_count, BUF_ADDR_WIDTH);
+                                       buf_wren_o          <= '1';
          
-         when DONE =>                  data_size_ld   <= '1';
-                                       parameter_ld   <= '1';
-                                       macro_seq_ld   <= '1';
-                                       micro_seq_ld   <= '1';
-                                       done_o         <= '1';
+         when LATCH_HDR =>             header_ld           <= '1';
+         
+         when DONE =>                  cmd_rdy_o           <= '1';
+         
+         when ERROR =>                 cmd_err_o           <= '1';
                                                
          when others =>                null;
       end case;
    end process rx_stateOut;
-      
-end behav;
+         
+end rtl;
