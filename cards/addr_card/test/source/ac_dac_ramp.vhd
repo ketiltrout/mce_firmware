@@ -54,8 +54,21 @@ entity ac_dac_ramp is
       -- no transmitter signals
       
       -- extended signals
-      dac_dat_o : out w_array11; 
-      dac_clk_o : out std_logic_vector (40 downto 0)      
+--      dac_dat_o : out w_array11;
+      
+      dac_dat0_o  : out std_logic_vector(13 downto 0);
+      dac_dat1_o  : out std_logic_vector(13 downto 0);
+      dac_dat2_o  : out std_logic_vector(13 downto 0);
+      dac_dat3_o  : out std_logic_vector(13 downto 0);
+      dac_dat4_o  : out std_logic_vector(13 downto 0);
+      dac_dat5_o  : out std_logic_vector(13 downto 0);
+      dac_dat6_o  : out std_logic_vector(13 downto 0);
+      dac_dat7_o  : out std_logic_vector(13 downto 0);
+      dac_dat8_o  : out std_logic_vector(13 downto 0);
+      dac_dat9_o  : out std_logic_vector(13 downto 0);
+      dac_dat10_o : out std_logic_vector(13 downto 0);
+      
+      dac_clk_o   : out std_logic_vector(40 downto 0)      
    );   
 end;  
 
@@ -73,17 +86,23 @@ signal clkcount : std_logic;
 signal nclk     : std_logic;
 signal ramp     : std_logic := '0';
 
+signal logic0 : std_logic;
+signal zero : integer;
+
 begin
 
+   zero <= 0;
+   logic0 <= '0';
+      
 -- instantiate a counter for idac to go through all 32 DACs
    data_count: counter
    generic map(MAX => 16#3fff#)
    port map(clk_i   => clkcount,
             rst_i   => rst_i,
             ena_i   => ramp,
-            load_i  => '0',
-            down_i  => '0',
-            count_i => 0 ,
+            load_i  => logic0,
+            down_i  => logic0,
+            count_i => zero,
             count_o => idata);
   
    clkcount <= clk_i when ramp = '1' else '0';
@@ -94,10 +113,21 @@ begin
    end generate gen1;
    
    data <= conv_std_logic_vector(idata,14);
-   gen2: for ibus in 0 to 10 generate
-      dac_dat_o(ibus)  <= data;
-   end generate gen2;
-          
+--   gen2: for ibus in 0 to 10 generate
+--      dac_dat_o(ibus)  <= data;
+--   end generate gen2;
+   
+   dac_dat0_o <= data;
+   dac_dat1_o <= data;
+   dac_dat2_o <= data;
+   dac_dat3_o <= data;
+   dac_dat4_o <= data;
+   dac_dat5_o <= data;
+   dac_dat6_o <= data;
+   dac_dat7_o <= data;
+   dac_dat8_o <= data;
+   dac_dat9_o <= data;
+   dac_dat10_o <= data;
    
    state_FF: process(clk_i, en_i)
    begin

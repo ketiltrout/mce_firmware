@@ -67,7 +67,20 @@ entity ac_dac_ctrl_test is
       -- no transmitter signals
       
       -- extended signals
-      dac_dat_o : out w_array11; 
+--      dac_dat_o : out w_array11; 
+
+      dac_dat0_o  : out std_logic_vector(13 downto 0);
+      dac_dat1_o  : out std_logic_vector(13 downto 0);
+      dac_dat2_o  : out std_logic_vector(13 downto 0);
+      dac_dat3_o  : out std_logic_vector(13 downto 0);
+      dac_dat4_o  : out std_logic_vector(13 downto 0);
+      dac_dat5_o  : out std_logic_vector(13 downto 0);
+      dac_dat6_o  : out std_logic_vector(13 downto 0);
+      dac_dat7_o  : out std_logic_vector(13 downto 0);
+      dac_dat8_o  : out std_logic_vector(13 downto 0);
+      dac_dat9_o  : out std_logic_vector(13 downto 0);
+      dac_dat10_o : out std_logic_vector(13 downto 0);
+      
       dac_clk_o : out std_logic_vector (40 downto 0)      
    );   
 end;  
@@ -87,17 +100,24 @@ signal idat     : integer;
 signal idac     : integer;
 signal ibus     : integer;
 
-begin
+signal logic0 : std_logic;
+signal logic1 : std_logic;
+signal zero : integer;
 
+begin
+   logic0 <= '0';
+   logic1 <= '1';
+   zero <= 0;
+   
 -- instantiate a counter for idac to go through all 32 DACs
    data_count: counter
    generic map(MAX => 5)
    port map(clk_i   => en_i,
             rst_i   => rst_i,
-            ena_i   => '1',
-            load_i  => '0',
-            down_i  => '0',
-            count_i => 0 ,
+            ena_i   => logic1,
+            load_i  => logic0,
+            down_i  => logic0,
+            count_i => zero ,
             count_o => idat);
 
    data (0) <= "00000000000000";--0000
@@ -143,37 +163,88 @@ begin
    begin
       case present_state is
          when IDLE =>     
-            for ibus in 0 to 10 loop
-               dac_dat_o(ibus) <= "00000000000000";
-            end loop;   
-            
+--            for ibus in 0 to 10 loop
+--               dac_dat_o(ibus) <= "00000000000000";
+--            end loop;   
+         
+            dac_dat0_o <= "00000000000000";
+            dac_dat1_o <= "00000000000000";
+            dac_dat2_o <= "00000000000000";
+            dac_dat3_o <= "00000000000000";
+            dac_dat4_o <= "00000000000000";
+            dac_dat5_o <= "00000000000000";
+            dac_dat6_o <= "00000000000000";
+            dac_dat7_o <= "00000000000000";
+            dac_dat8_o <= "00000000000000";
+            dac_dat9_o <= "00000000000000";
+            dac_dat10_o <= "00000000000000";
+   
             for idac in 0 to 40 loop
                dac_clk_o(idac) <= '0';
             end loop;
 	    done_o    <= '0';
          
          when PUSH_DATA =>    
-            for ibus in 0 to 10 loop
-               dac_dat_o(ibus) <= data(idat);
-            end loop;   
+--            for ibus in 0 to 10 loop
+--               dac_dat_o(ibus) <= data(idat);
+--            end loop;   
+
+            dac_dat0_o <= data(idat);
+            dac_dat1_o <= data(idat);
+            dac_dat2_o <= data(idat);
+            dac_dat3_o <= data(idat);
+            dac_dat4_o <= data(idat);
+            dac_dat5_o <= data(idat);
+            dac_dat6_o <= data(idat);
+            dac_dat7_o <= data(idat);
+            dac_dat8_o <= data(idat);
+            dac_dat9_o <= data(idat);
+            dac_dat10_o <= data(idat);
+            
             for idac in 0 to 40 loop
                dac_clk_o(idac) <= '0';
             end loop;
 	    done_o    <= '0';
                           
          when CLKNOW =>    
-            for ibus in 0 to 10 loop
-               dac_dat_o(ibus) <= data(idat);
-            end loop;   
+--            for ibus in 0 to 10 loop
+--               dac_dat_o(ibus) <= data(idat);
+--            end loop;   
+
+            dac_dat0_o <= data(idat);
+            dac_dat1_o <= data(idat);
+            dac_dat2_o <= data(idat);
+            dac_dat3_o <= data(idat);
+            dac_dat4_o <= data(idat);
+            dac_dat5_o <= data(idat);
+            dac_dat6_o <= data(idat);
+            dac_dat7_o <= data(idat);
+            dac_dat8_o <= data(idat);
+            dac_dat9_o <= data(idat);
+            dac_dat10_o <= data(idat);
+            
             for idac in 0 to 40 loop
                dac_clk_o(idac) <= '1';
             end loop;
 	    done_o    <= '0';
 
           when DONE =>    
-            for ibus in 0 to 10 loop
-               dac_dat_o(ibus) <= "00000000000000";
-            end loop;   
+--            for ibus in 0 to 10 loop
+--               dac_dat_o(ibus) <= "00000000000000";
+--            end loop;   
+
+            dac_dat0_o <= "00000000000000";
+            dac_dat1_o <= "00000000000000";
+            dac_dat2_o <= "00000000000000";
+            dac_dat3_o <= "00000000000000";
+            dac_dat4_o <= "00000000000000";
+            dac_dat5_o <= "00000000000000";
+            dac_dat6_o <= "00000000000000";
+            dac_dat7_o <= "00000000000000";
+            dac_dat8_o <= "00000000000000";
+            dac_dat9_o <= "00000000000000";
+            dac_dat10_o <= "00000000000000";
+            
             for idac in 0 to 40 loop
                dac_clk_o(idac) <= '0';
             end loop;
