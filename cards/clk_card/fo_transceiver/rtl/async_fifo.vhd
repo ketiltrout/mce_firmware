@@ -119,7 +119,7 @@ BEGIN
       
       if write_pointer < read_pointer then             -- when write pointer has wrapped round 
                                                        -- but read pointer hasn't yet.
-         fifo_fill <= 8 - read_pointer + write_pointer;
+         fifo_fill <= fifo_size - read_pointer + write_pointer;
       else
          fifo_fill <= write_pointer - read_pointer; 
       end if;   
