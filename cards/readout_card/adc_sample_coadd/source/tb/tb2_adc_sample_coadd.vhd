@@ -60,7 +60,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb2_adc_sample_coadd.vhd,v $
+-- Revision 1.1  2004/10/23 01:27:58  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -824,7 +827,7 @@ begin  -- beh
       end if;
 
       
-      assert (found_error_coadd = false or found_error_intgrl = false or
+      assert (found_error_coadd = false and found_error_intgrl = false and
               found_error_diff = false) report "FAILED" severity FAILURE;
 
       
