@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- dac_if.vhd
+-- dac_ctrl_pack.vhd
 --
 
 -- Project:	      SCUBA-2
@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/15 18:23:55 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/21 16:52:16 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_pack.vhd,v $
+-- Revision 1.3  2004/04/21 16:52:16  mandana
+-- change DAC_CTRL_ADDR to DAC32_CTRL_ADDR
+--
 -- Revision 1.2  2004/04/15 18:23:55  mandana
 -- fixed typo
 --
