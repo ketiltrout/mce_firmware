@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_rx.vhd,v $
+-- Revision 1.5  2004/08/06 20:35:52  erniel
+-- replaced some processes with rtl-blocks
+--
 -- Revision 1.4  2004/06/11 21:21:23  erniel
 -- renamed clock signal to rx_clk_i
 --
@@ -87,7 +90,7 @@ begin
             clr_i      => sample_buf_clr,
             shr_i      => '1',
             serial_i   => rx_i,
-            serial_o   => '0',
+            serial_o   => open,
             parallel_i => (others => '0'),
             parallel_o => sample_buf);
 
@@ -102,7 +105,7 @@ begin
             clr_i      => data_buf_clr,
             shr_i      => '1',
             serial_i   => rxbit,
-            serial_o   => '0',
+            serial_o   => open,
             parallel_i => (others => '0'),
             parallel_o => data_buf);
             
