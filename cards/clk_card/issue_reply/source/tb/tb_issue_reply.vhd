@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.18 2004/11/02 07:38:09 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.19 2004/11/04 00:08:18 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for the issue_reply chain
 --
 -- Revision history:
--- <date $Date: 2004/11/02 07:38:09 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/04 00:08:18 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -604,15 +604,15 @@ begin
       
       -- This is a 'WB cc sram1_start A B C' command
       -- This command should not be parsed by the Address Card Wishbone Slave
-      command <= command_wb;
-      address_id <= sram1_strt_cmd;
-      data_valid <= X"00000001";--X"00000028";
-      data       <= X"0000000A";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 80 us;
+--      command <= command_wb;
+--      address_id <= sram1_strt_cmd;
+--      data_valid <= X"00000001";--X"00000028";
+--      data       <= X"0000000A";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 80 us;
 
       -- This is a 'WB ac on_bias 0 1 2 .. 40' command
       -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
@@ -659,6 +659,26 @@ begin
       load_checksum;
       
       wait for 240 us;
+
+      command <= command_wb;
+      address_id <= enbl_mux_cmd;
+      data_valid <= X"00000001"; --41 values
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 120 us;
+
+      command <= command_wb;
+      address_id <= enbl_mux_cmd;
+      data_valid <= X"00000001"; --41 values
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 120 us;
         
 --      -- This sequence of two commands will be used to test the ability to stop the return of data frames in mid-sequence
 --      ret_dat_s_start <= x"00000003";

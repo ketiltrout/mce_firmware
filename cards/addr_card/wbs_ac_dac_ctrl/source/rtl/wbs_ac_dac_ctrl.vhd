@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_ac_dac_ctrl.vhd,v 1.3 2004/11/02 07:38:09 bburger Exp $
+-- $Id: wbs_ac_dac_ctrl.vhd,v 1.4 2004/11/04 00:08:18 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: wbs_ac_dac_ctrl.vhd,v $
+-- Revision 1.4  2004/11/04 00:08:18  bburger
+-- Bryce:  small updates
+--
 -- Revision 1.3  2004/11/02 07:38:09  bburger
 -- Bryce:  ac_dac_ctrl in progress
 --
@@ -84,16 +87,12 @@ architecture rtl of wbs_ac_dac_ctrl is
    signal master_wait      : std_logic;
 
    -- RAM/Register signals
-   constant null_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
-   constant null_sig       : std_logic := '0';
-   
    signal on_val_wren      : std_logic;   
    signal off_val_wren     : std_logic;
    signal row_order_wren   : std_logic;
    signal logical_addr     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal mux_en_wren      : std_logic;
    signal mux_en_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---   signal raw_addr_counter : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
    signal on_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal off_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal row_order_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -173,21 +172,6 @@ begin
       end if;
    end process state_FF;
    
---   process(clk_i)
---   begin
---      if(clk_i'event and clk_i = '1') then      
---         case current_state is         
---            when IDLE  =>                   
---               raw_addr_counter <= (others => '0');
---            when WR =>     
---               raw_addr_counter <= raw_addr_counter + 1;
---            when RD =>
---               raw_addr_counter <= raw_addr_counter + 1;
---            when others =>
---         end case;
---      end if;
---   end process;   
-           
    -- Transition table for DAC controller
    state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
    begin

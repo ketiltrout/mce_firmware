@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: wbs_ac_dac_ctrl_pack.vhd,v 1.3 2004/11/02 07:38:09 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with wbs_ac_dac_ctrl
 --
 -- Revision history:
--- $Log$
+-- $Log: wbs_ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.3  2004/11/02 07:38:09  bburger
+-- Bryce:  ac_dac_ctrl in progress
+--
 --
 -----------------------------------------------------------------------------
 library ieee;
@@ -70,17 +73,17 @@ component wbs_ac_dac_ctrl is
    );     
 end component;
 
-component dpram_32bit_x_64 is
-   port
-   (
-      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-      wren     : IN STD_LOGIC  := '1';
-      wraddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      clock    : IN STD_LOGIC ;
-      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
-   );
-end component;
+--component dpram_32bit_x_64 is
+--   port
+--   (
+--      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+--      wren     : IN STD_LOGIC  := '1';
+--      wraddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+--      rdaddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+--      clock    : IN STD_LOGIC ;
+--      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+--   );
+--end component;
 
 component tpram_32bit_x_64 is
    PORT

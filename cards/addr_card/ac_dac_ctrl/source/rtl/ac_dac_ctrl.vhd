@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.5 2004/11/02 07:38:09 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.6 2004/11/04 00:08:18 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.6  2004/11/04 00:08:18  bburger
+-- Bryce:  small updates
+--
 -- Revision 1.5  2004/11/02 07:38:09  bburger
 -- Bryce:  ac_dac_ctrl in progress
 --
@@ -62,16 +65,16 @@ entity ac_dac_ctrl is
       dac_clks_o               : out std_logic_vector(NUM_OF_ROWS downto 0);
    
       -- wbs_ac_dac_ctrl interface:
-      on_off_addr_o           : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0); --
+      on_off_addr_o           : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
       dac_id_i                : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       on_data_i               : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       off_data_i              : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
-      mux_en_i                : in std_logic; --
+      mux_en_i                : in std_logic;
       
       -- frame_timing interface:
-      row_switch_i            : in std_logic; --
-      restart_frame_aligned_i : in std_logic; --
-      row_en_i                : in std_logic; --
+      row_switch_i            : in std_logic;
+      restart_frame_aligned_i : in std_logic;
+      row_en_i                : in std_logic;
       
       -- Global Signals      
       clk_i                   : in std_logic;
@@ -87,6 +90,9 @@ type row_states is (IDLE, LOAD_ON_VAL, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL
 signal row_current_state   : row_states;
 signal row_next_state      : row_states;
 signal row_num_int         : integer;
+signal load_new_vals       : std_logic;
+signal frame_aligned_reg   : std_logic;
+signal mux_en              : std_logic;
 
 -- DAC signals 
 signal k                   : integer;
@@ -103,9 +109,9 @@ begin
       UP_COUNTER => '1'
    )
    port map(
-      clk_i   => row_switch_i,
+      clk_i   => load_new_vals,
       rst_i   => restart_frame_aligned_i,
-      ena_i   => mux_en_i,
+      ena_i   => mux_en,
       load_i  => '0',
       count_i => 0,
       count_o => row_num_int
@@ -117,19 +123,41 @@ begin
    -- Generate the registers for all the DAC data outputs
    gen_dac_data_reg: for k in 0 to AC_NUM_BUSES-1 generate
       dac_data_reg: reg
-      generic map
-      (
-         WIDTH => AC_BUS_WIDTH
-      )
-      port map
-      (
-         clk_i  => mem_clk_i,
-         rst_i  => rst_i,
-         ena_i  => '1',
-         reg_i  => dac_data,
-         reg_o  => dac_data_o(k)
-      );
+         generic map
+         (
+            WIDTH => AC_BUS_WIDTH
+         )
+         port map
+         (
+            clk_i  => mem_clk_i,
+            rst_i  => rst_i,
+            ena_i  => '1',
+            reg_i  => dac_data,
+            reg_o  => dac_data_o(k)
+         );
    end generate gen_dac_data_reg;   
+
+   registered_inputs : process(mem_clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         frame_aligned_reg <= '0';
+         mux_en            <= '0';
+      elsif(mem_clk_i'event and mem_clk_i = '1') then
+         
+         if(row_switch_i = '1') then
+            frame_aligned_reg <= restart_frame_aligned_i;
+         end if;
+         
+         if(restart_frame_aligned_i = '1') then
+            if(mux_en_i = '1') then
+               mux_en <= '1';
+            else
+               mux_en <= '0';
+            end if;
+         end if;
+         
+      end if;
+   end process registered_inputs;
    
    -- clocked FSMs, advance the state for both FSMs
    state_FF: process(clk_i, rst_i)
@@ -141,14 +169,14 @@ begin
       end if;
    end process state_FF;
 
-   row_state_NS: process(row_current_state, restart_frame_aligned_i, mux_en_i, row_en_i, row_switch_i)
+   row_state_NS: process(row_current_state, restart_frame_aligned_i, mux_en, row_en_i, frame_aligned_reg)
    begin
-      -- Default assingments
+      -- Default assignments
       row_next_state <= row_current_state;
       
       case row_current_state is 
          when IDLE =>
-            if(restart_frame_aligned_i = '1' and mux_en_i = '1') then
+            if(restart_frame_aligned_i = '1' and mux_en = '1') then
                row_next_state <= LOAD_ON_VAL;
             end if;
          when LOAD_ON_VAL =>
@@ -162,7 +190,7 @@ begin
                row_next_state <= LATCH_OFF_VAL;
             end if;
          when LATCH_OFF_VAL =>
-            if(mux_en_i = '0') then
+            if(mux_en = '0' and frame_aligned_reg = '1') then
                row_next_state <= IDLE;
             else
                row_next_state <= LOAD_ON_VAL;
@@ -175,28 +203,36 @@ begin
    -- output states for row selection FSM
    -- In every scan instance, the current row has to be turned on and the previous row has to be turned off
    -- Therefore only 2 DACs are clocked. 
-   row_state_out: process(row_current_state, on_data_i, off_data_i, dac_id_int)
+   row_state_out: process(row_current_state, on_data_i, off_data_i, dac_id_int, frame_aligned_reg)
    begin
       -- Default assignments
-      dac_data <= (others => '0');
-      dac_clks_o <= (others => '0');
+      dac_data      <= (others => '0');
+      dac_clks_o    <= (others => '0');
+      load_new_vals <= '0';
       
       case row_current_state is
          when IDLE =>
-            dac_data <= (others => '0');
-            dac_clks_o <= (others => '0');
+            dac_data      <= (others => '0');
+            dac_clks_o    <= (others => '0');
+            load_new_vals <= '0';
          when LOAD_ON_VAL =>
             dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o <= (others => '0');
+            if(frame_aligned_reg = '0') then   
+               load_new_vals <= '1';
+            end if;
          when LATCH_ON_VAL =>
             dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
+            load_new_vals <= '0';
          when LOAD_OFF_VAL =>
             dac_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o <= (others => '0');
+            load_new_vals <= '0';
          when LATCH_OFF_VAL =>
             dac_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
+            load_new_vals <= '0';
          when others =>
       end case;
    end process row_state_out;   
