@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.9 2004/08/05 18:14:42 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.10 2004/08/05 20:51:33 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/05 18:14:42 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/05 20:51:33 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.10  2004/08/05 20:51:33  jjacob
+-- added sync_number input
+--
 -- Revision 1.9  2004/08/05 18:14:42  jjacob
 -- changed frame_sync_num_o to use the parameter
 -- SYNC_NUM_BUS_WIDTH
@@ -386,7 +389,7 @@ begin
 
    card_addr_o          <= simple_cmd_card_addr_i       when data_mux_sel = '0' else ret_dat_card_addr_i; 
    parameter_id_o       <= simple_cmd_parameter_id_i    when data_mux_sel = '0' else ret_dat_parameter_id_i; 
-   data_size_o          <= simple_cmd_data_size_i       when data_mux_sel = '0' else ret_dat_data_size_i;
+   data_size_o          <= simple_cmd_data_size_i       when data_mux_sel = '0' else (others=>'0');-- fix this! ret_dat_data_size_i;
    data_o               <= simple_cmd_data_i            when data_mux_sel = '0' else ret_dat_data_i; 
    data_clk_o           <= simple_cmd_data_clk_i        when data_mux_sel = '0' else ret_dat_data_clk_i;
    
