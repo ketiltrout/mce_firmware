@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_ram40_pack.vhd,v 1.6 2004/07/06 00:27:22 bburger Exp $
+-- $Id: cmd_queue_ram40_pack.vhd,v 1.7 2004/07/07 00:35:23 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_ram40_pack.vhd,v $
+-- Revision 1.7  2004/07/07 00:35:23  bburger
+-- in progress
+--
 -- Revision 1.6  2004/07/06 00:27:22  bburger
 -- in progress
 --
@@ -52,6 +55,9 @@
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
+
+library sys_param;
+use sys_param.command_pack.all;
 
 library work;
 use work.issue_reply_pack.all;

@@ -3,6 +3,9 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
+library sys_param;
+use sys_param.command_pack.all;
+
 library work;
 use work.cmd_queue_pack.all;
 use work.cmd_queue_ram40_pack.all;

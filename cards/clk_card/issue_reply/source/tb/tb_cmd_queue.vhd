@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.4 2004/07/09 00:03:47 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.5 2004/07/22 20:39:20 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.5  2004/07/22 20:39:20  bench2
+-- Bryce: in progress
+--
 -- Revision 1.4  2004/07/09 00:03:47  bburger
 -- in progress
 --
@@ -53,6 +56,7 @@ use IEEE.std_logic_unsigned.all;
 library sys_param;
 use sys_param.general_pack.all;
 use sys_param.wishbone_pack.all;
+use sys_param.command_pack.all;
 
 library work;
 use work.cmd_queue_pack.all;
