@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.8  2004/10/13 05:44:58  bench2
+# Bryce:  Added a new top-level signal to the clock card issue_reply_test block:  fibre_ckr aka fibre_clkr
+#
 # Revision 1.7  2004/05/30 23:11:51  erniel
 # changed fo to fibre!
 #
@@ -63,6 +66,7 @@
 # print welcome message
 puts "\n\nClock Card Pin Assignment Script v1.0"
 puts "-------------------------------------"
+puts "\n(for clock card rev. AA)"
 
 
 # include Quartus Tcl API
@@ -72,7 +76,7 @@ package require ::quartus::flow
 
 # get entity name
 set top_name [get_project_settings -cmp]
-puts "\nInfo: Top-level entity is $top_name."
+puts "\n\nInfo: Top-level entity is $top_name."
 
 puts "\nInfo: Assigning pins:"
 
@@ -158,21 +162,20 @@ puts "   Assigned: Spare TTL pins."
 
 
 # assign PLL pins
-# PLL5 in     = CLK       (from crystal via CPLD)
-# PLL5 out[0] = CLKOUT    (to lvds clock)
-# PLL5 out[1] = FT_CLKW   (to fibre tx clock)
-# PLL5 out[2] = FR_REFCLK (to fibre rx clock)
-# PLL5 out[3] = pllout    (for observing PLL)
+# PLL5 in     = CLK       (25 MHz from crystal via CPLD)
+# PLL5 out[0] = CLKOUT    (25 MHz to lvds clock)
+# PLL5 out[1] = FT_CLKW   (25 MHz to fibre tx clock)
+# PLL5 out[2] = FR_REFCLK (25 MHz to fibre rx clock)
 cmp add_assignment $top_name "" inclk LOCATION "Pin_K17"
 cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_E15"
 cmp add_assignment $top_name "" fibre_tx_clk LOCATION "Pin_K14"
 cmp add_assignment $top_name "" fibre_rx_clk LOCATION "Pin_C15"
-cmp add_assignment $top_name "" outclk LOCATION "Pin_K16"
-cmp add_assignment $top_name "" "pll6_in" LOCATION "Pin_AC17"
-cmp add_assignment $top_name "" "pll6_out\[0\]" LOCATION "Pin_AD15"
-cmp add_assignment $top_name "" "pll6_out\[1\]" LOCATION "Pin_W14"
-cmp add_assignment $top_name "" "pll6_out\[2\]" LOCATION "Pin_AF15"
-cmp add_assignment $top_name "" "pll6_out\[3\]" LOCATION "Pin_W16"
+
+#cmp add_assignment $top_name "" "pll6_in" LOCATION "Pin_AC17"
+#cmp add_assignment $top_name "" "pll6_out\[0\]" LOCATION "Pin_AD15"
+#cmp add_assignment $top_name "" "pll6_out\[1\]" LOCATION "Pin_W14"
+#cmp add_assignment $top_name "" "pll6_out\[2\]" LOCATION "Pin_AF15"
+#cmp add_assignment $top_name "" "pll6_out\[3\]" LOCATION "Pin_W16"
 puts "   Assigned: PLL pins."
 
 
@@ -194,48 +197,48 @@ cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_Y20"
 puts "   Assigned: SMB interface pins."
 
 
-# assign 2x20 test header pins
-# test[1]  = 3.3V
-# test[2]  = 3.3V
-# test[3]  = 3.3V
-# test[4]  = 3.3V
-# test[5]  = GND
-# test[6]  = GND
-cmp add_assignment $top_name "" "test\[7\]" LOCATION "Pin_AD21"
-cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_AG22" 
-cmp add_assignment $top_name "" "test\[9\]" LOCATION "Pin_AE21"
-cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_AH22"   
-cmp add_assignment $top_name "" "test\[11\]" LOCATION "Pin_AG21"
-cmp add_assignment $top_name "" "test\[12\]" LOCATION "Pin_AF22"
-cmp add_assignment $top_name "" "test\[13\]" LOCATION "Pin_AF21"
-cmp add_assignment $top_name "" "test\[14\]" LOCATION "Pin_AE22"
-cmp add_assignment $top_name "" "test\[15\]" LOCATION "Pin_AE20"
-cmp add_assignment $top_name "" "test\[16\]" LOCATION "Pin_AH23"
-cmp add_assignment $top_name "" "test\[17\]" LOCATION "Pin_AF20"
-cmp add_assignment $top_name "" "test\[18\]" LOCATION "Pin_AF23"
-cmp add_assignment $top_name "" "test\[19\]" LOCATION "Pin_AH21"
-cmp add_assignment $top_name "" "test\[20\]" LOCATION "Pin_AD23"
-cmp add_assignment $top_name "" "test\[21\]" LOCATION "Pin_AH20"
-cmp add_assignment $top_name "" "test\[22\]" LOCATION "Pin_AG23"
-cmp add_assignment $top_name "" "test\[23\]" LOCATION "Pin_AE19"
-cmp add_assignment $top_name "" "test\[24\]" LOCATION "Pin_AH24"
-cmp add_assignment $top_name "" "test\[25\]" LOCATION "Pin_AD19"
-cmp add_assignment $top_name "" "test\[26\]" LOCATION "Pin_AE24"
-cmp add_assignment $top_name "" "test\[27\]" LOCATION "Pin_AF19"
-cmp add_assignment $top_name "" "test\[28\]" LOCATION "Pin_AG24"
-cmp add_assignment $top_name "" "test\[29\]" LOCATION "Pin_AG19"
-cmp add_assignment $top_name "" "test\[30\]" LOCATION "Pin_AF25"
-cmp add_assignment $top_name "" "test\[31\]" LOCATION "Pin_AH19"
-cmp add_assignment $top_name "" "test\[32\]" LOCATION "Pin_AH25"
-cmp add_assignment $top_name "" "test\[33\]" LOCATION "Pin_AD18"
-cmp add_assignment $top_name "" "test\[34\]" LOCATION "Pin_AG25"
-cmp add_assignment $top_name "" "test\[35\]" LOCATION "Pin_AE18"
-cmp add_assignment $top_name "" "test\[36\]" LOCATION "Pin_AH26"
-cmp add_assignment $top_name "" "test\[37\]" LOCATION "Pin_AG18"
-cmp add_assignment $top_name "" "test\[38\]" LOCATION "Pin_AG26"
-# test[39] = GND
-# test[40] = GND
-puts "   Assigned: 2x20 test header pins."
+# assign mictor test header pins
+cmp add_assignment $top_name "" "mictor_o\[1\]" LOCATION "Pin_AD21"
+cmp add_assignment $top_name "" "mictor_o\[2\]" LOCATION "Pin_AE21"
+cmp add_assignment $top_name "" "mictor_o\[3\]" LOCATION "Pin_AG21"
+cmp add_assignment $top_name "" "mictor_o\[4\]" LOCATION "Pin_AF21"
+cmp add_assignment $top_name "" "mictor_o\[5\]" LOCATION "Pin_AE20"
+cmp add_assignment $top_name "" "mictor_o\[6\]" LOCATION "Pin_AF20"
+cmp add_assignment $top_name "" "mictor_o\[7\]" LOCATION "Pin_AH21"
+cmp add_assignment $top_name "" "mictor_o\[8\]" LOCATION "Pin_AH20"
+cmp add_assignment $top_name "" "mictor_o\[9\]" LOCATION "Pin_AE19"
+cmp add_assignment $top_name "" "mictor_o\[10\]" LOCATION "Pin_AD19"
+cmp add_assignment $top_name "" "mictor_o\[11\]" LOCATION "Pin_AF19"
+cmp add_assignment $top_name "" "mictor_o\[12\]" LOCATION "Pin_AG19"
+cmp add_assignment $top_name "" "mictor_o\[13\]" LOCATION "Pin_AH19"
+cmp add_assignment $top_name "" "mictor_o\[14\]" LOCATION "Pin_AD18"
+cmp add_assignment $top_name "" "mictor_o\[15\]" LOCATION "Pin_AE18"
+cmp add_assignment $top_name "" "mictorclk_o" LOCATION "Pin_AG18"
+puts "   Assigned: Mictor test header pins (ODD pod)."
+
+cmp add_assignment $top_name "" "mictor_e\[1\]" LOCATION "Pin_AG22"
+cmp add_assignment $top_name "" "mictor_e\[2\]" LOCATION "Pin_AH22"
+cmp add_assignment $top_name "" "mictor_e\[3\]" LOCATION "Pin_AF22"
+cmp add_assignment $top_name "" "mictor_e\[4\]" LOCATION "Pin_AE22"
+cmp add_assignment $top_name "" "mictor_e\[5\]" LOCATION "Pin_AH23"
+cmp add_assignment $top_name "" "mictor_e\[6\]" LOCATION "Pin_AF23"
+cmp add_assignment $top_name "" "mictor_e\[7\]" LOCATION "Pin_AD23"
+cmp add_assignment $top_name "" "mictor_e\[8\]" LOCATION "Pin_AG23"
+cmp add_assignment $top_name "" "mictor_e\[9\]" LOCATION "Pin_AH24"
+cmp add_assignment $top_name "" "mictor_e\[10\]" LOCATION "Pin_AE24"
+cmp add_assignment $top_name "" "mictor_e\[11\]" LOCATION "Pin_AG24"
+cmp add_assignment $top_name "" "mictor_e\[12\]" LOCATION "Pin_AF25"
+cmp add_assignment $top_name "" "mictor_e\[13\]" LOCATION "Pin_AH25"
+cmp add_assignment $top_name "" "mictor_e\[14\]" LOCATION "Pin_AG25"
+cmp add_assignment $top_name "" "mictor_e\[15\]" LOCATION "Pin_AH26"
+cmp add_assignment $top_name "" "mictorclk_e" LOCATION "Pin_AG26"
+puts "   Assigned: Mictor test header pins (EVEN pod)."
+
+
+# assign RS232 pins
+cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_AF17"
+cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_AG17"
+puts "   Assigned: RS-232 interface pins."
 
 
 # assign EEPROM pins
@@ -337,8 +340,7 @@ puts "   Assigned: SRAM bank 1 pins."
 
 
 # assign fibre interface
-#fibre_tx_clk and fibre_rx_clk are assigned in clock section!
-#fibre_tx_data
+# (fibre_tx_clk and fibre_rx_clk are assigned in PLL section)
 cmp add_assignment $top_name "" "fibre_tx_data\[0\]" LOCATION "Pin_AF5"
 cmp add_assignment $top_name "" "fibre_tx_data\[1\]" LOCATION "Pin_AH5"
 cmp add_assignment $top_name "" "fibre_tx_data\[2\]" LOCATION "Pin_AF4"
@@ -347,16 +349,10 @@ cmp add_assignment $top_name "" "fibre_tx_data\[4\]" LOCATION "Pin_AG5"
 cmp add_assignment $top_name "" "fibre_tx_data\[5\]" LOCATION "Pin_AG3"
 cmp add_assignment $top_name "" "fibre_tx_data\[6\]" LOCATION "Pin_AE5"
 cmp add_assignment $top_name "" "fibre_tx_data\[7\]" LOCATION "Pin_AH4"
-
-
-#fibre_tx_ena
-cmp add_assignment $top_name "" "fibre_tx_ena" LOCATION "Pin_AG6"
-
-#fibre_tx_rp
-cmp add_assignment $top_name "" "fibre_tx_rp" LOCATION "Pin_AH6"
-
-#fibre_tx_sc_nd
-cmp add_assignment $top_name "" "fibre_tx_sc_nd" LOCATION "Pin_AE6"
+cmp add_assignment $top_name "" fibre_tx_ena LOCATION "Pin_AG6"
+cmp add_assignment $top_name "" fibre_tx_rp LOCATION "Pin_AH6"
+cmp add_assignment $top_name "" fibre_tx_sc_nd LOCATION "Pin_AE6"
+puts "   Assigned: Fibre transmitter interface pins."
 
 #fibre_rx_data
 cmp add_assignment $top_name "" "fibre_rx_data\[0\]" LOCATION "Pin_AG9"
@@ -367,29 +363,12 @@ cmp add_assignment $top_name "" "fibre_rx_data\[4\]" LOCATION "Pin_AH9"
 cmp add_assignment $top_name "" "fibre_rx_data\[5\]" LOCATION "Pin_AD8"
 cmp add_assignment $top_name "" "fibre_rx_data\[6\]" LOCATION "Pin_AF8"
 cmp add_assignment $top_name "" "fibre_rx_data\[7\]" LOCATION "Pin_AG8"
-
-#fibre_rx_error
-cmp add_assignment $top_name "" "fibre_tx_data\[7\]" LOCATION "Pin_AH4"
-
-#fibre_rx_rdy
-cmp add_assignment $top_name "" "fibre_rx_rdy" LOCATION "Pin_AE14"
-
-#fibre_rx_status
-cmp add_assignment $top_name "" "fibre_rx_status" LOCATION "Pin_AH10"
-
-#fibre_rx_sc_nd
-cmp add_assignment $top_name "" "fibre_rx_sc_nd" LOCATION "Pin_AF10"
-
-#fibre_rx_rvs
-cmp add_assignment $top_name "" "fibre_rx_rvs" LOCATION "Pin_AD10"
-
-#fibre_rx_ckr
-cmp add_assignment $top_name "" "fibre_rx_ckr" LOCATION "Pin_AE10"
-
-
-# assign flash interface
-
-
+cmp add_assignment $top_name "" fibre_rx_rdy LOCATION "Pin_AE14"
+cmp add_assignment $top_name "" fibre_rx_status LOCATION "Pin_AH10"
+cmp add_assignment $top_name "" fibre_rx_sc_nd LOCATION "Pin_AF10"
+cmp add_assignment $top_name "" fibre_rx_rvs LOCATION "Pin_AD10"
+cmp add_assignment $top_name "" fibre_rx_ckr LOCATION "Pin_AE10"
+puts "   Assigned: Fibre receiver interface pins."
 
 
 # recompile to commit
