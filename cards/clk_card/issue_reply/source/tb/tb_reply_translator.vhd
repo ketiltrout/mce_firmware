@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.6 2004/08/30 11:05:26 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.7 2004/09/02 12:38:36 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/30 11:05:26 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/02 12:38:36 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.7  2004/09/02 12:38:36  dca
+-- 'reply_nData_i' signal replaced with 'm_op_cmd_code_i' vector
+--
 -- Revision 1.6  2004/08/30 11:05:26  dca
 -- code to test ST command with checksum error during data readout added.
 --
@@ -282,18 +285,18 @@ begin
       
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
-      assert false report "reply 1: preamble txmitted" severity NOTE;
+      assert false report "test 1: preamble txmitted" severity NOTE;
       
       wait until txd = ASCII_P;
       wait until txd = ASCII_R;
-      assert false report "reply 1: word 'RP' txmitted" severity NOTE;
+      assert false report "test 1: word 'RP' txmitted" severity NOTE;
       
       wait until txd = ASCII_R;
       wait until txd = ASCII_E;
-      assert false report "reply 1: error word 'ER' txmitted" severity NOTE;
+      assert false report "test 1: error word 'ER' txmitted" severity NOTE;
       
-      wait for clk_prd*30;
-      assert false report "REPLY 1: checksum error reply finised...?" severity NOTE;    
+      wait for clk_prd*40;
+      assert false report "test 1: checksum error reply finised...?" severity NOTE;    
       
      
       -----------------------------------
@@ -312,19 +315,19 @@ begin
       
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
-      assert false report "reply 2: preamble txmitted" severity NOTE;
+      assert false report "test 2: preamble txmitted" severity NOTE;
       
      
       wait until txd = ASCII_P;
       wait until txd = ASCII_R;
-      assert false report "reply 2: word 'RP' txmitted" severity NOTE;
+      assert false report "test 2: word 'RP' txmitted" severity NOTE;
       
       wait until txd = ASCII_K;
       wait until txd = ASCII_O;
-      assert false report "reply 2: success word 'OK' txmitted" severity NOTE;
+      assert false report "test 2: success word 'OK' txmitted" severity NOTE;
       
-      wait for clk_prd*30;
-      assert false report "reply 2: GO reply finised...?" severity NOTE;    
+      wait for clk_prd*40;
+      assert false report "test 2: GO reply finised...?" severity NOTE;    
       
       --------------------------------------------------------
       -- test 3: RS command -  and FIFO FULL states conditions
@@ -391,8 +394,8 @@ begin
       tx_ff            <= '0';
     
       
-      wait for clk_prd*30;
-      assert false report "reply 3: RS reply finised...?" severity NOTE;    
+      wait for clk_prd*40;
+      assert false report "test 3: RS reply finised...?" severity NOTE;    
       
       ------------------------------
       -- test 4: WB command - OK
@@ -419,16 +422,16 @@ begin
       
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
-      assert false report "reply 4: preamble txmitted" severity NOTE;
+      assert false report "test 4: preamble txmitted" severity NOTE;
       
       wait until txd = ASCII_P;
       wait until txd = ASCII_R;
-      assert false report "reply 4: word 'RP' txmitted" severity NOTE;
+      assert false report "test 4: word 'RP' txmitted" severity NOTE;
       
          
       wait until txd = ASCII_K;
       wait until txd = ASCII_O;
-      assert false report "reply 4: success word 'OK' txmitted" severity NOTE;
+      assert false report "test 4: success word 'OK' txmitted" severity NOTE;
       
       
       
@@ -437,7 +440,7 @@ begin
       fibre_word               <= X"69696969";         
           
       wait until txd = X"69";
-      assert false report "reply 4: transmitting fibre word...... " severity NOTE;
+      assert false report "test 4: transmitting fibre word...... " severity NOTE;
   
       
       wait until m_op_ack      = '1'; 
@@ -448,9 +451,9 @@ begin
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
       
-      assert false report "reply 4: WB (OK) reply finised..." severity NOTE;    
+      assert false report "test 4: WB (OK) reply finised..." severity NOTE;    
       
-      wait for clk_prd*10;
+      wait for clk_prd*20;
 
       ------------------------------
       -- test 5: WB command - ER
@@ -477,16 +480,16 @@ begin
       
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
-      assert false report "reply 5: preamble txmitted" severity NOTE;
+      assert false report "test 5: preamble txmitted" severity NOTE;
       
       wait until txd = ASCII_P;
       wait until txd = ASCII_R;
-      assert false report "reply 5: word 'RP' txmitted" severity NOTE;
+      assert false report "test 5: word 'RP' txmitted" severity NOTE;
       
          
       wait until txd = ASCII_R;
       wait until txd = ASCII_E;
-      assert false report "reply 5: error word 'ER' txmitted" severity NOTE;
+      assert false report "test 5: error word 'ER' txmitted" severity NOTE;
       
       
       
@@ -495,7 +498,7 @@ begin
       fibre_word               <= X"66666699";         
           
       wait until txd = X"99";
-      assert false report "reply 5: txmitting fibre word...... " severity NOTE;
+      assert false report "test 5: txmitting fibre word...... " severity NOTE;
   
       
       wait until m_op_ack      = '1'; 
@@ -506,9 +509,9 @@ begin
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
       
-      assert false report "reply 5: WB (ER) reply finised..." severity NOTE;    
+      assert false report "test 5: WB (ER) reply finised..." severity NOTE;    
       
-      wait for clk_prd*10;
+      wait for clk_prd*20;
 
       ------------------------------
       -- test 6: RB command - OK
@@ -538,15 +541,15 @@ begin
               
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
-      assert false report "reply 6: preamble txmitted" severity NOTE;
+      assert false report "test 6: preamble txmitted" severity NOTE;
       
       wait until txd = ASCII_P;
       wait until txd = ASCII_R;
-      assert false report "reply 6: word 'RP' txmitted" severity NOTE;
+      assert false report "test 6: word 'RP' txmitted" severity NOTE;
       
       wait until txd = ASCII_K;
       wait until txd = ASCII_O;
-      assert false report "reply 6: success word 'OK' txmitted" severity NOTE;
+      assert false report "test 6: success word 'OK' txmitted" severity NOTE;
       
       
       for i in 1 to (to_integer(unsigned(num_fibre_words))) loop 
@@ -557,7 +560,7 @@ begin
          fibre_word (15 downto  8) <= fibre_byte;
          fibre_word (23 downto 16) <= fibre_byte;
          fibre_word (31 downto 24) <= fibre_byte;
-         assert false report "reply 6: next fibre word txmitted" severity NOTE;
+         assert false report "test 6: next fibre word txmitted" severity NOTE;
          
       end loop;
          
@@ -570,9 +573,9 @@ begin
       m_op_ok_nEr             <= '0';   
       num_fibre_words         <= X"00000000";
       
-      assert false report "reply 6: RB reply finised..." severity NOTE;    
+      assert false report "test 6: RB reply finised..." severity NOTE;    
       
-      wait for clk_prd;
+      wait for clk_prd*10;
 
       ------------------------------
       -- test 7: RB command - ER
@@ -633,7 +636,7 @@ begin
       
       assert false report "test 7: RB reply finised (ER)..." severity NOTE;    
       
-      wait for clk_prd;
+      wait for clk_prd*10;
 
       ------------------------------
       -- test 8: DATA FRAME:
@@ -702,18 +705,11 @@ begin
       
       assert false report "test 8: Frame readout finised....." severity NOTE;    
       
-      wait for clk_prd;
-
+      
      ----------------------------------------------
       -- test 9: ST checksum error - check reply
       ----------------------------------------------
-
-      
-      wait for clk_prd;
-         
-         
    
-      
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
       assert false report "test 9 ST preamble txmitted" severity NOTE;
