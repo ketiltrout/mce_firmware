@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.7  2004/12/03 20:37:22  erniel
+-- added extra state in write FSM to deal with CRC word
+--
 -- Revision 1.6  2004/12/01 18:42:10  erniel
 -- renamed READ_DONE state to DISCARD_HEADER
 --
@@ -71,7 +74,6 @@ use work.async_pack.all;
 
 entity reply_queue_receive is
 port(clk_i      : in std_logic;
-     mem_clk_i  : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;
      
@@ -338,7 +340,6 @@ begin
       generic map(DATA_WIDTH => PACKET_WORD_WIDTH,
                   ADDR_WIDTH => 10)
       port map(clk_i     => clk_i,
-               mem_clk_i => mem_clk_i,
                rst_i     => rst_i,
                data_i    => crc_data_out,
                data_o    => data_o,
@@ -355,7 +356,6 @@ begin
       generic map(DATA_WIDTH => PACKET_WORD_WIDTH,
                   ADDR_WIDTH => 5)
       port map(clk_i     => clk_i,
-               mem_clk_i => mem_clk_i,
                rst_i     => rst_i,
                data_i    => temp_header,
                data_o    => cur_header,
