@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.2 2004/10/06 21:53:21 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.3 2004/11/18 09:47:50 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/10/06 21:53:21 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/11/18 09:47:50 $>	-		<text>		- <initials $Author: dca $>
 --
 -- Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------
@@ -396,8 +396,8 @@ begin
       cksum_rcvd,
       write_pointer,
       read_pointer,
-      number_data --,
-   --   cmd_code
+      number_data,
+      cmd_code
    )
    ----------------------------------------------------------------------------
    begin
