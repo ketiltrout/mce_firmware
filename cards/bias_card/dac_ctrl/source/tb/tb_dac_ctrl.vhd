@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.5 2004/03/31 19:18:48 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.1 2004/04/14 17:38:17 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Mandana Amiri
@@ -30,8 +30,11 @@
 -- Testbench to test dac_ctrl module for bias card
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$ 
+-- <date $Date: 2004/04/14 17:38:17 $>	- <initials $Author: mandana $>
+-- $Log: tb_dac_ctrl.vhd,v $
+-- Revision 1.1  2004/04/14 17:38:17  mandana
+-- initial release
+-- 
 --
 -----------------------------------------------------------------------------
 library ieee, sys_param, components;
@@ -92,7 +95,7 @@ architecture BEH of TB_DAC_CTRL is
    
    type   w_array16 is array (15 downto 0) of word32; 
    signal data           : w_array16;
-   signal k              : integer;
+   signal kk             : integer range 0 to 15;
 begin
   
    DUT : DAC_CTRL
@@ -171,9 +174,9 @@ begin
    procedure dac32_cmd (data: in w_array16) is
    begin
       
-      for k in 0 to 15 loop   
+      for kk in 0 to 15 loop   
          W_RST_I     <= '0';
-         W_DAT_I     <= data(k);
+         W_DAT_I     <= data(kk);
          W_ADDR_I    <= FLUX_FB_ADDR;
          W_TGA_I     <= (others => '0');
          W_WE_I      <= '1';
@@ -181,15 +184,19 @@ begin
          W_CYC_I     <= '1';
          
          wait until W_ACK_O = '1';      
-         W_STB_I        <= '0';
          wait for PERIOD;
+         W_STB_I     <= '0';        
          
+         wait for PERIOD;
       end loop;
       
       W_CYC_I        <= '0';
       W_WE_I         <= '0';
-      W_ADDR_I       <= (others => 'Z');
       W_DAT_I        <= (others => 'Z');      
+      W_ADDR_I       <= (others => 'Z');
+      
+      assert false report "Processing DAC32 cmd." severity NOTE;
+      wait for PERIOD*150;
 
    end dac32_cmd;
 ------------------------------------------------------------
@@ -208,9 +215,15 @@ begin
       W_CYC_I        <= '1';
       
       wait until W_ACK_O = '1';      
-      W_WE_I         <= '0';
+      wait for PERIOD;
+
       W_STB_I        <= '0';
       W_CYC_I        <= '0';
+      W_WE_I         <= '0';
+      W_DAT_I        <= (others => '0');
+      W_ADDR_I       <= (others => '0');
+      W_TGA_I        <= (others => '0');
+
       
       wait for PERIOD;
       assert false report " Processing LVDS cmd." severity NOTE;
@@ -231,7 +244,8 @@ begin
       W_STB_I        <= '1';
       W_CYC_I        <= '1';
       
-      wait until W_ACK_O = '1';      
+      wait until W_ACK_O = '1'; 
+      
       W_STB_I        <= '0';
       wait for PERIOD;
          
@@ -263,28 +277,32 @@ begin
 ------------------------------------------------------------   
 
   begin
-   data (0) <= "01010101010101010101010101010101";
-   data (1) <= "01010101010101010101010101010101";
-   data (2) <= "01010101010101010101010101010101";
-   data (3) <= "01010101010101010101010101010101";
-   data (4) <= "01010101010101010101010101010101";
-   data (5) <= "01010101010101010101010101010101";
-   data (6) <= "01010101010101010101010101010101";
-   data (7) <= "01010101010101010101010101010101";
-   data (8) <= "01010101010101010101010101010101";
-   data (9) <= "01010101010101010101010101010101";
-   data (10) <="01010101010101010101010101010101";
-   data (12) <="01010101010101010101010101010101";
-   data (13) <="01010101010101010101010101010101";
-   data (14) <="01010101010101010101010101010101";
-   data (15) <="01010101010101010101010101010101";
+   data (0) <= "01010101010101010101010101010101";--55555555
+   data (1) <= "10101010101010101010101010101010";--aaaaaaaa
+   data (2) <= "00000000000000000000000000000000";--00000000
+   data (3) <= "11101110111011101110111011101110";--eeeeeeee
+   data (4) <= "01010101010101010101010101010101";--55555555
+   data (5) <= "11111111111111111111111111111111";--ffffffff
+   data (6) <= "00000000000000000111111111111111";--00007fff
+   data (7) <= "01010101010101010101010101010101";--55555555
+   data (8) <= "10101010101010101010101010101010";--aaaaaaaa
+   data (9) <= "01010101010101010101010101010101";--55555555
+   data (10) <="10101010101010101010101010101010";--aaaaaaaa
+   data (11) <="11001100110011001100110011001100";--cccccccc
+   data (12) <="10011001100110011001100110011001";--99999999
+   data (13) <="00000000000000000000000000000000";--00000000
+   data (14) <="01000100010001000100010001000100";--44444444
+   data (15) <="01010101010101010101010101010101";--55555555
   
    do_nop;
    do_reset;
    
---dac32_cmd (data);   
    dac_lvds_cmd;
    do_nop;
+   
+   dac32_cmd (data);   
+   do_nop;
+   
    assert false report " Simulation done." severity FAILURE;
    
    end process STIMULI;
