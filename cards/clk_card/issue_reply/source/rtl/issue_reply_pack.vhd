@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.26 2004/10/06 19:58:02 erniel Exp $
+-- $Id: issue_reply_pack.vhd,v 1.27 2004/10/08 19:45:26 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.27  2004/10/08 19:45:26  bburger
+-- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
+--
 -- Revision 1.26  2004/10/06 19:58:02  erniel
 -- using new command_pack constants
 --
@@ -488,18 +491,31 @@ constant RX_FIFO_ADDR_SIZE    : integer := 8;                               -- s
 ---------------------------
 component fibre_rx_fifo 
 ---------------------------
-
-generic(addr_size : Positive);                                             -- read/write address size
-port(                                                                      -- note: fifo size is 2**addr_size
-   rst_i     : in     std_logic;                                           -- global reset
-   rx_fr_i   : in     std_logic;                                           -- fifo read request
-   rx_fw_i   : in     std_logic;                                           -- fifo write request
-   rx_data_i : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 DOWNTO 0);    -- data input
-   rx_fe_o   : out    std_logic;                                           -- fifo empty flag
-   rx_ff_o   : out    std_logic;                                           -- fifo full flag
-   rxd_o     : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 DOWNTO 0)     -- data output
-   );
+port(
+   clk_i        : in     std_logic;                                          -- global clock
+   rst_i        : in     std_logic;                                          -- global reset
+           
+   fibre_clkr_i : in     std_logic;                                          -- CKR from hotlink receiver 
+   rx_fr_i      : in     std_logic;                                          -- fifo read request
+   rx_fw_i      : in     std_logic;                                          -- fifo write request
+   rx_data_i    : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);   -- fifo data input
+   rx_fe_o      : out    std_logic;                                          -- fifo empty flag
+   rx_ff_o      : out    std_logic;                                          -- fifo full flagg
+   rxd_o        : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)    -- fifo data output
+);
+    
+---generic(addr_size : Positive);                                             -- read/write address size
+---port(                                                                      -- note: fifo size is 2**addr_size
+---   rst_i     : in     std_logic;                                           -- global reset
+---   rx_fr_i   : in     std_logic;                                           -- fifo read request
+---   rx_fw_i   : in     std_logic;                                           -- fifo write request
+--   rx_data_i : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 DOWNTO 0);    -- data input
+--   rx_fe_o   : out    std_logic;                                           -- fifo empty flag
+--   rx_ff_o   : out    std_logic;                                           -- fifo full flag
+--   rxd_o     : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 DOWNTO 0)     -- data output
+--   );
 end component;
+
 
 
 ---------------------------
@@ -542,24 +558,25 @@ end component;
 component fibre_rx 
 ---------------------------
 port( 
-   rst_i       : in     std_logic;
-   clk_i       : in     std_logic;
-      
-   nrx_rdy_i   : in     std_logic;
-   rvs_i       : in     std_logic;
-   rso_i       : in     std_logic;
-   rsc_nrd_i   : in     std_logic;  
-   rx_data_i   : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);
-   cmd_ack_i   : in     std_logic;                                           -- command acknowledge
+   rst_i        : in     std_logic;
+   clk_i        : in     std_logic;
    
-   cmd_code_o  : out    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);    -- command code  
-   card_id_o   : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);   -- card id
-   param_id_o  : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- parameter id
-   num_data_o  : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);   -- number of valid 32 bit data words
-   cmd_data_o  : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);        -- 32bit valid data word
-   cksum_err_o : out    std_logic;                                           -- checksum error flag
-   cmd_rdy_o   : out    std_logic;                                           -- command ready flag (checksum passed)
-   data_clk_o  : out    std_logic                                            -- data clock
+   fibre_clkr_i : in     std_logic;                                          -- CKR from hotlink receiver   
+   nRx_rdy_i    : in     std_logic;
+   rvs_i        : in     std_logic;
+   rso_i        : in     std_logic;
+   rsc_nrd_i    : in     std_logic;  
+   rx_data_i    : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);
+   cmd_ack_i    : in     std_logic;                                           -- command acknowledge
+   
+   cmd_code_o   : out    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);    -- command code  
+   card_id_o    : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);   -- card id
+   param_id_o   : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- parameter id
+   num_data_o   : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);   -- number of valid 32 bit data words
+   cmd_data_o   : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);        -- 32bit valid data word
+   cksum_err_o  : out    std_logic;                                           -- checksum error flag
+   cmd_rdy_o    : out    std_logic;                                           -- command ready flag (checksum passed)
+   data_clk_o   : out    std_logic                                            -- data clock
    );
 end component;
 
