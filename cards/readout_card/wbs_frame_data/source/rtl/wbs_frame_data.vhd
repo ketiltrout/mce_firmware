@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/01/11 02:37:59 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2005/01/12 23:28:31 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.20  2005/01/12 23:28:31  mohsen
+-- Anthony & Mohse: Fixed latch inference problem from next state due to imcomplete condition coverage.
+--
 -- Revision 1.19  2005/01/11 02:37:59  mohsen
 -- Anthony & Mohse: Got rid multi level "if" statements to help resolve timing violation
 --
@@ -798,15 +801,26 @@ begin
  
                        
    with ch_mux_sel select
-      filtered_dat  <= filtered_dat_ch0_i when "000",
-                       filtered_dat_ch1_i when "001",
-                       filtered_dat_ch2_i when "010",
-                       filtered_dat_ch3_i when "011",
-                       filtered_dat_ch4_i when "100",
-                       filtered_dat_ch5_i when "101",
-                       filtered_dat_ch6_i when "110",
-                       filtered_dat_ch7_i when others;
+--       filtered_dat  <= filtered_dat_ch0_i when "000",
+--                        filtered_dat_ch1_i when "001",
+--                        filtered_dat_ch2_i when "010",
+--                        filtered_dat_ch3_i when "011",
+--                        filtered_dat_ch4_i when "100",
+--                        filtered_dat_ch5_i when "101",
+--                        filtered_dat_ch6_i when "110",
+--                        filtered_dat_ch7_i when others;
 
+     -- For the benefit of firmware/hw characterization, read the coaddition data
+      filtered_dat   <= coadded_dat_ch0_i(31 downto 0) when "000",
+                        coadded_dat_ch1_i(31 downto 0) when "001",
+                        coadded_dat_ch2_i(31 downto 0) when "010",
+                        coadded_dat_ch3_i(31 downto 0) when "011",
+                        coadded_dat_ch4_i(31 downto 0) when "100",
+                        coadded_dat_ch5_i(31 downto 0) when "101",
+                        coadded_dat_ch6_i(31 downto 0) when "110",
+                        coadded_dat_ch7_i(31 downto 0) when others;
+
+     
    with ch_mux_sel select
       unfiltered_dat <= fsfb_dat_ch0_i when "000", 
                         fsfb_dat_ch1_i when "001",
