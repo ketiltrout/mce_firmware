@@ -27,8 +27,11 @@
 --
 -- Description:
 -- Revision history:
--- <date $Date: 2005/01/21 01:11:44 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/01/26 01:31:42 $>    - <initials $Author: mandana $>
 -- $Log: tb_addr_card_self_test.vhd,v $
+-- Revision 1.2  2005/01/26 01:31:42  mandana
+-- set ttl_nrx1 to 0 to avoid reset
+--
 -- Revision 1.1  2005/01/21 01:11:44  mandana
 -- added addr_card_self_test component
 --
@@ -402,7 +405,7 @@ begin
          lvds_txb         => lvds_reply_ac_b, 
          
          -- TTL interface:
-         ttl_nrx1          => ttl_nrx(1),
+--         ttl_nrx1          => ttl_nrx(1),
          ttl_tx1           => open,
          ttl_txena1        => open,
          
@@ -441,7 +444,7 @@ begin
          dip_sw3          => ac_dip_sw3, 
          dip_sw4          => ac_dip_sw4, 
          wdog             => ac_wdog,    
-         slot_id          => ac_slot_id, 
+--         slot_id          => ac_slot_id, 
          
          -- debug ports:
          test             => test,       
@@ -452,14 +455,14 @@ begin
    );
    
 --   bc_slot_id      <= "1110";
-   ac_slot_id      <= "1111";
+--   ac_slot_id      <= "1111";
 --   cc_slot_id      <= "1000";
    ------------------------------------------------
    -- Create test bench clock and emulate signals coming from clock card.
    -------------------------------------------------
    inclk        <= not inclk        after clk_period/2;   
    lvds_sync    <= not lvds_sync    after clk_period*2600/2;
-   ttl_nrx(1)   <= '0';
+--   ttl_nrx(1)   <= '0';
    ------------------------------------------------
    -- Create test bench stimuli
    -------------------------------------------------
