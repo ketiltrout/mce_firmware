@@ -29,8 +29,11 @@
 -- data types
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$   <--- this is new
+-- <date $Date: 2004/04/07 19:00:48 $>	- <initials $Author: mandana $>
+-- $Log: data_types_pack.vhd,v $
+-- Revision 1.1  2004/04/07 19:00:48  mandana
+-- Initial release
+--   <--- this is new
 
 --
 -----------------------------------------------------------------------------
@@ -41,13 +44,13 @@ package data_types_pack is
    -----------------------------------------------------------------------------
    -- Generic data types, leftmost bit, number 0, is the most significant
    -----------------------------------------------------------------------------
-   subtype word4          is Std_Logic_Vector(0 to  3);
-   subtype word8          is Std_Logic_Vector(0 to  7);
-   subtype word16         is Std_Logic_Vector(0 to 15);
-   subtype word24         is Std_Logic_Vector(0 to 23);
-   subtype word32         is Std_Logic_Vector(0 to 31);
-   subtype word40         is Std_Logic_Vector(0 to 39);
-   subtype word48         is Std_Logic_Vector(0 to 47);
-   subtype word64         is Std_Logic_Vector(0 to 63);
+   subtype word4          is std_logic_vector(0 downto  3);
+   subtype word8          is std_logic_vector(0 downto  7);
+   subtype word16         is std_logic_vector(0 downto 15);
+   subtype word24         is std_logic_vector(0 downto 23);
+   subtype word32         is std_logic_vector(0 downto 31);
+   subtype word40         is std_logic_vector(0 downto 39);
+   subtype word48         is std_logic_vector(0 downto 47);
+   subtype word64         is std_logic_vector(0 downto 63);
 
 end data_types_pack;
