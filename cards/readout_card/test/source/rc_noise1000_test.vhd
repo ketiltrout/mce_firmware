@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$
+-- <date $Date: 2004/07/22 18:58:22 $>    - <initials $Author: mandana $>
+-- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.1  2004/07/22 18:58:22  mandana
+-- Initial release, sums up 1000 samples before dumping the result on mictor
+--
 --
 --
 -----------------------------------------------------------------------------
@@ -127,7 +130,7 @@ architecture behaviour of rc_noise1000_test is
    
    signal clk : std_logic;  
    signal clk2: std_logic;
-   signal nsample: integer;
+   signal nsample: integer := 0;
    signal sum    : std_logic_vector(23 downto 0);
    signal sum14  : std_logic_vector(13 downto 0);
 begin
@@ -148,26 +151,29 @@ begin
    adc8_clk <= clk;
    
    co_add: process(adc1_rdy, n_rst)
-   variable temp, temp_sum: std_logic_vector(23 downto 0);
    begin
       if(n_rst = '1') then
          sum <= (others => '0');
       elsif(adc1_rdy'event and adc1_rdy = '0') then  
-         sum <= sum + ("0000000000"&adc1_dat);
-         nsample <= nsample + 1;
+         if nsample = 3 then
+            nsample <= 0;
+            sum     <= (others => '0');
+        else  
+            nsample <= nsample + 1;
+            sum <= sum + ("0000000000"&adc1_dat);
+         end if;        
       end if;
---      sum <= temp_sum;
    end process co_add;
-   
-   latch: process (adc1_rdy, nsample)
+   latch: process (adc1_rdy)
    begin
-      if(adc1_rdy'event and adc1_rdy = '0') then
-         if (nsample = 1000) then
+      if(adc1_rdy'event and adc1_rdy = '1') then
+         if(nsample = 3) then
             mictor (13 downto 0) <= sum(13 downto 0);
             mictor (14)          <= adc1_rdy;
             mictor (15)          <= clk;
-            mictor (25 downto 16)<= sum(23 downto 14);
-         end if;   
-      end if;   
-  end process latch; 
+            mictor (29 downto 16)<= sum(13 downto 0);      
+         end if;
+      end if;
+   end process latch;
+
 end behaviour;
