@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.41 2004/08/20 21:08:29 jjacob Exp $
+-- $Id: cmd_queue.vhd,v 1.42 2004/08/20 21:25:08 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.42  2004/08/20 21:25:08  jjacob
+-- commented out first_time_checker
+--
 -- Revision 1.41  2004/08/20 21:08:29  jjacob
 -- still adding re-circulation muxes, in progress.  Packets seem fine except
 -- for the checksum
@@ -290,6 +293,18 @@ signal cmd_tx_dat2          : std_logic_vector(31 downto 0);
 
 signal header_a_state       : std_logic;
 signal first_time_header_a  : std_logic;
+
+signal send_ptr_reg           : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
+signal send_ptr_mux_sel       : std_logic_vector(1 downto 0);
+
+signal uop_data_count_mux_sel : std_logic_vector(1 downto 0);
+signal uop_data_count_reg     : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+
+signal uop_data_size_mux_sel  : std_logic_vector(1 downto 0);
+signal uop_data_size_reg      : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal uop_data_size2         : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+
+signal sh_reg_parallel_mux_sel: std_logic_vector(1 downto 0);
 
 --component first_time_tracker
 --
@@ -688,7 +703,7 @@ begin
                               sync_count_slv > TIMEOUT_LEN))
                               else '0';
 
-   retire_state_NS: process(present_retire_state, retire_ptr, send_ptr, uop_ack_i, uop_timed_out)
+   retire_state_NS: process(present_retire_state, retire_ptr, send_ptr, uop_ack_i)--, uop_timed_out)
    begin
       case present_retire_state is
          when RESET =>
@@ -746,7 +761,7 @@ begin
 
 
 
-   retire_state_out: process(present_retire_state, send_ptr, retire_ptr)
+   retire_state_out: process(present_retire_state)--, send_ptr, retire_ptr)
    begin
       -- defaults
       retire_ptr_mux_sel <= "000";
@@ -1241,6 +1256,11 @@ begin
       -- defaults
       crc_num_bits_mux_sel     <= "00";  -- hold value
       cmd_tx_dat_mux_sel       <= "000"; -- hold value
+      send_ptr_mux_sel         <= "00";  -- hold value
+      uop_data_count_mux_sel   <= "00";  -- hold value
+      uop_data_size_mux_sel    <= "00";  -- hold value
+      
+      sh_reg_parallel_mux_sel  <= "00";  -- (others => '0');
    
       case present_send_state is
          when RESET =>
@@ -1252,17 +1272,24 @@ begin
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
             
-            uop_data_count           <= (others => '0');
-            uop_data_size            <= (others => '0');
+            uop_data_count_mux_sel   <= "11"; -- (others => '0')
+            --uop_data_count           <= (others => '0');
+            
+            uop_data_size_mux_sel    <= "11";  -- (others => '0')
+            --uop_data_size            <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             
             --cmd_tx_dat(31 downto  0) <= (others => '0');
-            sh_reg_parallel_i        <= (others => '0');
+            
+            
+            --sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= RESET;
-            send_ptr                 <= ADDR_ZERO;
+            
+            send_ptr_mux_sel         <= "11"; --ADDR_ZERO
+            --send_ptr                 <= ADDR_ZERO;
          
          when LOAD =>
             cmd_tx_start             <= '0';
@@ -1272,14 +1299,19 @@ begin
             
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
-            uop_data_count           <= (others => '0');
-            uop_data_size            <= (others => '0');
+            
+            uop_data_count_mux_sel   <= "11";  -- (others => '0')
+            --uop_data_count           <= (others => '0');
+            
+            uop_data_size_mux_sel    <= "11";  -- (others => '0')
+            --uop_data_size            <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             
             --cmd_tx_dat(31 downto  0) <= (others => '0');
-            sh_reg_parallel_i        <= (others => '0');
+            
+            --sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= LOAD;
             
@@ -1297,8 +1329,12 @@ begin
             
             crc_num_bits_mux_sel     <= "01";
             --crc_num_bits             <= (BB_PACKET_HEADER_SIZE + uop_data_size_int)*QUEUE_WIDTH;
-            uop_data_count           <= (others => '0');
-            uop_data_size            <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
+            
+            uop_data_count_mux_sel   <= "11";  -- (others => '0')
+            --uop_data_count           <= (others => '0');
+            
+            uop_data_size_mux_sel    <= "10";  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
+            --uop_data_size            <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             --if first_time_header_a = '1' then
@@ -1309,7 +1345,9 @@ begin
             
             
             --cmd_tx_dat(31 downto 0)  <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
-            sh_reg_parallel_i        <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
+            
+            sh_reg_parallel_mux_sel  <= "01";  -- BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
+            --sh_reg_parallel_i        <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
 
             previous_send_state      <= HEADER_A;
             --send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
@@ -1325,48 +1363,65 @@ begin
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             crc_start                <= '1';
-            uop_data_count           <= (others => '0');
+            
+            uop_data_count_mux_sel   <= "11";  -- (others => '0')
+            --uop_data_count           <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "010";  -- qa_sig
             
             --cmd_tx_dat(31 downto 0)  <= qa_sig(QUEUE_WIDTH-1 downto 0);
-            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            
+            sh_reg_parallel_mux_sel  <= "10";  -- qa_sig(QUEUE_WIDTH-1 downto 0)
+            --sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
             previous_send_state      <= HEADER_B;
-            send_ptr                 <= send_ptr + 1;
+            send_ptr_mux_sel         <= "01"; --send_ptr + 1
+            --send_ptr                 <= send_ptr + 1;
          
          when DATA =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             crc_start                <= '1';
-            uop_data_count           <= uop_data_count + 1;
+            
+            uop_data_count_mux_sel   <= "01";  -- uop_data_count + 1
+            --uop_data_count           <= uop_data_count + 1;
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "010";  -- qa_sig
             
             --cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
-            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             
-            previous_send_state      <= DATA;            
-            send_ptr                 <= send_ptr + 1;
+            sh_reg_parallel_mux_sel  <= "10";  -- qa_sig(QUEUE_WIDTH-1 downto 0)
+            --sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            
+            previous_send_state      <= DATA; 
+            
+            send_ptr_mux_sel         <= "01"; --send_ptr + 1           
+            --send_ptr                 <= send_ptr + 1;
          
          when MORE_DATA =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             crc_start                <= '1';
-            uop_data_count           <= uop_data_count + 1;
+            
+            uop_data_count_mux_sel   <= "01";  -- uop_data_count + 1
+            --uop_data_count           <= uop_data_count + 1;
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "010";  -- qa_sig
             
             --cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
-            sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            
+            sh_reg_parallel_mux_sel  <= "10";  -- qa_sig(QUEUE_WIDTH-1 downto 0)
+            --sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
             previous_send_state      <= MORE_DATA;
-            send_ptr                 <= send_ptr + 1;
+            
+            send_ptr_mux_sel         <= "01"; --send_ptr + 1
+            --send_ptr                 <= send_ptr + 1;
          
          when CHECKSUM =>
             cmd_tx_start             <= '1';
@@ -1376,26 +1431,33 @@ begin
             
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
-            uop_data_size            <= (others => '0');
+            
+            uop_data_size_mux_sel    <= "11";  -- (others => '0')
+            --uop_data_size            <= (others => '0');
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "011";  -- crc_reg
             
             --cmd_tx_dat(31 downto  0) <= crc_reg;
-            sh_reg_parallel_i        <= (others => '0');
+            
+            
+            --sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= CHECKSUM;
-            send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
+            
+            send_ptr_mux_sel         <= "01"; --send_ptr + 1
+            --send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
          
          when PAUSE =>
             cmd_tx_start             <= '1';
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             crc_start                <= '0';
-            --uop_data_size            <= '0';  Not to be zero'ed here.  This is an intermediate state between the HEADER, DATA and CHECKSUM states
+            ----uop_data_size            <= '0';  Not to be zero'ed here.  This is an intermediate state between the HEADER, DATA and CHECKSUM states
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            sh_reg_parallel_i        <= (others => '0');
+            
+            --sh_reg_parallel_i        <= (others => '0');
 
             --previous_send_state      <= PAUSE;  Not to be changed here.  This variable needs to be maintained as it is through the PAUSE state so that it can branch correctly in the send_state_NS FSM.
          
@@ -1407,18 +1469,22 @@ begin
             
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
-            uop_data_size            <= (others => '0');
+            
+            uop_data_size_mux_sel    <= "11";  -- (others => '0')
+            --uop_data_size            <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             
             --cmd_tx_dat(31 downto  0) <= (others => '0');
-            sh_reg_parallel_i        <= (others => '0');
+            
+            --sh_reg_parallel_i        <= (others => '0');
 
             previous_send_state      <= NEXT_UOP;
             
             -- The send_ptr should be incremented to the next u-op if this one has expired
-            send_ptr                 <= send_ptr + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            send_ptr_mux_sel         <= "10"; --send_ptr + other signals
+            --send_ptr                 <= send_ptr + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          
          when others =>
             cmd_tx_start             <= '0';
@@ -1428,14 +1494,19 @@ begin
             
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
-            uop_data_count           <= (others => '0');
-            uop_data_size            <= (others => '0');
+            
+            uop_data_count_mux_sel   <= "11";  -- (others => '0')
+            --uop_data_count           <= (others => '0');
+            
+            uop_data_size_mux_sel    <= "11";  -- (others => '0')
+            --uop_data_size            <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             
             --cmd_tx_dat(31 downto  0) <= (others => '0');
-            sh_reg_parallel_i        <= (others => '0');
+            
+            --sh_reg_parallel_i        <= (others => '0');
 
             previous_send_state      <= LOAD;
       end case;
@@ -1455,7 +1526,39 @@ begin
 --      first_time_o          => first_time_header_a 
 --                                             
 --   );
+
+------------------------------------------------------------------------
+--
+-- recirculation muxes/ routing muxes
+--
+------------------------------------------------------------------------ 
+
+    with sh_reg_parallel_mux_sel select
+       sh_reg_parallel_i <= 
+       (others=>'0')                                           when "00",
+       BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0)       when "01",
+       qa_sig(QUEUE_WIDTH-1 downto 0)                          when others; --"10",      
+
+    with uop_data_size_mux_sel select
+       uop_data_size <=
+       uop_data_size_reg                                       when "00",
+       qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)         when "10",  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
+       (others=>'0')                                           when others;
+
+
+    with uop_data_count_mux_sel select
+       uop_data_count <=
+       uop_data_count_reg                                      when "00",
+       uop_data_count_reg + 1                                  when "01",
+       (others=>'0')                                           when others;
+
    
+    with send_ptr_mux_sel select
+       send_ptr <=
+       send_ptr_reg		                                           when "00",
+       send_ptr_reg + 1                                         when "01",
+       send_ptr_reg + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "10",
+       ADDR_ZERO                                                when others; --"11",
 
 
 
@@ -1478,9 +1581,15 @@ begin
       if rst_i = '1' then
          crc_num_bits_reg  <= 0;
          cmd_tx_dat_reg    <= (others=>'0');
+         send_ptr_reg      <= (others=>'0');
+         uop_data_count_reg<= (others=>'0');
+         uop_data_size_reg <= (others=>'0');
       elsif clk_i'event and clk_i = '1' then
          crc_num_bits_reg  <= crc_num_bits;
          cmd_tx_dat_reg    <= cmd_tx_dat; 
+         send_ptr_reg      <= send_ptr;
+         uop_data_count_reg<= uop_data_count;
+         uop_data_size_reg <= uop_data_size;
       end if;
    end process;
 
