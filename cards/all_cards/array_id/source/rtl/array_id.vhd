@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: array_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		Scuba 2
 -- Author:		Jonathan Jacob
@@ -30,7 +30,7 @@
 -- This file implements the Array ID functionality
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ signal slave_wr_ready_sig : std_logic;
 signal padded_array_id_reg : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
 signal no_connect : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
 signal no_connect2 : std_logic;
-signal no_connect3 : std_logic;
+signal slave_retry : std_logic;
 
 begin
 
@@ -102,6 +102,7 @@ begin
    end process;
    
    slave_wr_ready_sig <= '0'; -- never ready since can't write to array ID
+   slave_retry <= '0';
    
 ------------------------------------------------------------------------
 --
@@ -121,7 +122,7 @@ begin
    port map (
       slave_wr_ready        => slave_wr_ready_sig, -- can't write to the array ID
       slave_rd_data_valid   => array_id_valid,
-      slave_retry           => no_connect3,
+      slave_retry           => slave_retry,
       master_wr_data_valid  => no_connect2,
       slave_ctrl_dat_i      => padded_array_id_reg,
       slave_ctrl_dat_o      => no_connect,

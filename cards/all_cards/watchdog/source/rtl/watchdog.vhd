@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.2 2004/03/09 22:55:57 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,7 +30,7 @@
 -- This file implements the Array ID functionality
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/09 22:55:57 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ signal slave_rd_data_valid_sig : std_logic;
 -- what is this signal for?
 signal slave_wr_data_valid_sig : std_logic;
 
-signal no_connect : std_logic;
+signal slave_retry : std_logic;
 
 -- states for the Wishbone FSM
 constant IDLE      : std_logic_vector(1 downto 0) := "00";
@@ -190,6 +190,8 @@ begin
    slave_wr_ready_sig <= '1';
    -- Watchdog doesn't have a data register which can be read 
    slave_rd_data_valid_sig <= '0'; 
+   -- Watchdog always ready to be kicked
+   slave_retry <= '0';
 
    wshbn_timer : us_timer
    port map (
@@ -221,7 +223,7 @@ begin
    port map (
       slave_wr_ready        => slave_wr_ready_sig,
       slave_rd_data_valid   => slave_rd_data_valid_sig,
-      slave_retry           => no_connect,
+      slave_retry           => slave_retry,
       master_wr_data_valid  => slave_wr_data_valid_sig,
       slave_ctrl_dat_i      => dat_o_watchdog,
       slave_ctrl_dat_o      => dat_i_watchdog,
