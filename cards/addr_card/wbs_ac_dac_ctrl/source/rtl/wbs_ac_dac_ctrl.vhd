@@ -1,0 +1,253 @@
+library ieee;
+use ieee.std_logic_1164.all;
+--use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+library components;
+use components.component_pack.all;
+
+library sys_param;
+use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
+
+library work;
+use work.wbs_ac_dac_ctrl_pack.all;
+
+entity wbs_ac_dac_ctrl is        
+   port
+   (
+      -- ac_dac_ctrl interface:
+      on_off_addr_i        : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+      on_data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      off_data_o           : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
+      mux_en_o             : out std_logic;
+
+      -- global interface
+      clk_i                : in std_logic;
+      mem_clk_i            : in std_logic;
+      rst_i                : in std_logic; 
+      
+      -- wishbone interface:
+      dat_i                : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i               : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                 : in std_logic;
+      stb_i                : in std_logic;
+      cyc_i                : in std_logic;
+      dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      rty_o                : out std_logic;
+      ack_o                : out std_logic
+   );     
+end wbs_ac_dac_ctrl;
+
+architecture rtl of wbs_ac_dac_ctrl is
+
+   -- FSM inputs
+   signal wr_cmd           : std_logic;
+   signal rd_cmd           : std_logic;
+   signal master_wait      : std_logic;
+
+   -- RAM/Register signals
+   constant null_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
+   constant null_sig       : std_logic := '0';
+   signal on_val_wren      : std_logic;   
+   signal off_val_wren     : std_logic;
+   signal row_order_wren   : std_logic;
+   signal logical_addr     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal mux_en_wren      : std_logic;
+   signal mux_en_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal raw_addr_counter : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+   signal on_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal off_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal row_order_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   
+   -- WBS states:
+   type states is (IDLE, WR, WR_ACK, WR_NXT, RD, RD_MEM1, RD_ACK, RD_NXT); 
+   signal current_state    : states;
+   signal next_state       : states;
+   
+begin
+
+   on_ram : tpram_32bit_x_64
+      port map
+      (
+         data              => dat_i,
+         wren              => on_val_wren,
+         wraddress         => raw_addr_counter,
+         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_b       => raw_addr_counter,
+         clock             => mem_clk_i,
+         qa                => on_data_o,
+         qb                => on_data
+      );   
+   
+   off_ram : tpram_32bit_x_64
+      port map
+      (
+         data              => dat_i,
+         wren              => off_val_wren,
+         wraddress         => raw_addr_counter,
+         rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
+         rdaddress_b       => raw_addr_counter,
+         clock             => mem_clk_i,
+         qa                => off_data_o,
+         qb                => off_data
+      );
+      
+   row_order_ram : tpram_32bit_x_64
+      port map
+      (
+         data              => dat_i,
+         wren              => row_order_wren,
+         wraddress         => raw_addr_counter,         
+         rdaddress_a       => on_off_addr_i,
+         rdaddress_b       => raw_addr_counter,
+         clock             => mem_clk_i,
+         qa                => logical_addr,
+         qb                => row_order_data
+      );
+
+   mux_en_o <= mux_en_data(0);
+   mux_en_reg : reg
+      generic map(
+         WIDTH             => PACKET_WORD_WIDTH
+      )
+      port map(
+         clk_i             => mem_clk_i,
+         rst_i             => rst_i,
+         ena_i             => mux_en_wren,
+         reg_i             => dat_i,
+         reg_o             => mux_en_data
+      );
+
+
+------------------------------------------------------------
+--  WB FSM
+------------------------------------------------------------   
+
+   -- clocked FSMs, advance the state for both FSMs
+   state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         current_state     <= IDLE;
+         raw_addr_counter  <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         current_state     <= next_state;
+         
+         if(current_state = IDLE) then
+            raw_addr_counter <= (others => '0');
+         elsif(stb_i = '1') then
+            raw_addr_counter <= raw_addr_counter + 1;
+         end if;
+      end if;
+   end process state_FF;
+
+   -- Transition table for DAC controller
+   state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
+   begin
+      -- Default assignments
+      next_state <= current_state;
+      
+      case current_state is
+         when IDLE =>
+            if(wr_cmd = '1') then
+               next_state <= WR;            
+            elsif(rd_cmd = '1') then
+              next_state <= RD;
+            end if;                  
+            
+         when WR =>     
+            if(cyc_i = '0') then
+               next_state <= IDLE;
+            end if;
+         
+         when RD =>
+            if(cyc_i = '0') then
+               next_state <= IDLE;
+            end if;
+         
+         when others =>
+            next_state <= IDLE;
+
+      end case;
+   end process state_NS;
+   
+   -- Output states for DAC controller   
+   state_out: process(current_state, next_state, stb_i, addr_i)
+   begin
+      -- Default assignments
+      on_val_wren    <= '0';
+      off_val_wren   <= '0';
+      mux_en_wren    <= '0';
+      row_order_wren <= '0';
+      ack_o          <= '0';
+      
+      case current_state is
+         
+         when IDLE  =>                   
+            if(next_state = WR) then
+               ack_o <= '1';
+               if(stb_i = '1') then
+                  if(addr_i = ON_BIAS_ADDR) then
+                     on_val_wren <= '1';
+                  elsif(addr_i = OFF_BIAS_ADDR) then
+                     off_val_wren <= '1';
+                  elsif(addr_i = STRT_MUX_ADDR) then
+                     mux_en_wren <= '1';
+                  elsif(addr_i = ROW_ORDER_ADDR) then
+                     row_order_wren <= '1';
+                  end if;
+               end if;
+            elsif(next_state = RD) then
+               ack_o <= '1';
+            end if;
+            
+         when WR =>
+            if(next_state = WR) then
+               ack_o <= '1';
+               if(stb_i = '1') then
+                  if(addr_i = ON_BIAS_ADDR) then
+                     on_val_wren <= '1';
+                  elsif(addr_i = OFF_BIAS_ADDR) then
+                     off_val_wren <= '1';
+                  elsif(addr_i = STRT_MUX_ADDR) then
+                     mux_en_wren <= '1';
+                  elsif(addr_i = ROW_ORDER_ADDR) then
+                     row_order_wren <= '1';
+                  end if;
+               end if;
+            end if;
+         
+         when RD =>
+            if(next_state = RD) then
+               ack_o <= '1';
+            end if;
+         
+         when others =>
+         
+      end case;
+   end process state_out;
+
+------------------------------------------------------------
+--  Wishbone interface 
+------------------------------------------------------------
+   
+   with addr_i select dat_o <=
+      on_data when ON_BIAS_ADDR,
+      off_data when OFF_BIAS_ADDR,
+      mux_en_data when STRT_MUX_ADDR,
+      row_order_data when ROW_ORDER_ADDR,
+      (others => '0') when others;
+   
+   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
+   rty_o <= '0'; -- for now
+           
+   rd_cmd  <= '1' when 
+      (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
+      (addr_i = ON_BIAS_ADDR or addr_i = OFF_BIAS_ADDR or addr_i = STRT_MUX_ADDR or addr_i = ROW_ORDER_ADDR) else '0'; 
+      
+   wr_cmd  <= '1' when 
+      (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
+      (addr_i = ON_BIAS_ADDR or addr_i = OFF_BIAS_ADDR or addr_i = STRT_MUX_ADDR or addr_i = ROW_ORDER_ADDR) else '0'; 
+      
+end rtl;
