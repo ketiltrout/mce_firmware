@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.7 2004/06/28 12:51:07 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.8 2004/06/28 12:52:12 dca Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.8  2004/06/28 12:52:12  dca
+-- added async_fifo
+--
 -- Revision 1.7  2004/06/28 12:51:07  dca
 -- added async_fifo
 --
@@ -221,7 +224,7 @@ package component_pack is
 --
 ------------------------------------------------------------ 
  
-   component counter_xstep is
+   component counter_xstep 
       generic(MAX : integer := 255);
       port(clk_i   : in std_logic;
            rst_i   : in std_logic;
