@@ -250,6 +250,32 @@ package s_pack is
       );
    end component;
    
+   ------------------------------------------------------------------
+   -- SRAM verification
+   component sram_test_wrapper
+      port(rst_i  : in std_logic;    
+           clk_i  : in std_logic;    
+           en_i   : in std_logic;    
+           done_o : out std_logic;   
+      
+           -- RS232 signals
+           tx_busy_i : in std_logic;
+           tx_ack_i  : in std_logic;
+           tx_data_o : out std_logic_vector(7 downto 0);
+           tx_we_o   : out std_logic; 
+           tx_stb_o  : out std_logic; 
+      
+           -- physical pins
+           addr_o  : out std_logic_vector(19 downto 0);
+           data_bi : inout std_logic_vector(15 downto 0); 
+           n_ble_o : out std_logic;
+           n_bhe_o : out std_logic;
+           n_oe_o  : out std_logic;
+           n_ce1_o : out std_logic;
+           ce2_o   : out std_logic;
+           n_we_o  : out std_logic);
+   end component;
+   
 end s_pack;
 
 

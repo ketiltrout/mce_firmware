@@ -23,6 +23,11 @@
 -- Jan 17, 2004: Initial version - NRG
 -- Feb 28, 2004: Updated so that MAX_STATES is fully parameterized. - NRG
 -- Mar 01, 2004: Added s_led states. - NRG
+--
+-- CVS Logs:
+--
+-- $Log$
+--
 ---------------------------------------------------------------------
 
 library ieee;
@@ -48,13 +53,33 @@ entity cc_test is
       -- LVDS transmit interface
       sync : out std_logic;
       cmd : out std_logic;
-      txspare : out std_logic
+      txspare : out std_logic;
+      
+      -- SRAM interface
+      sram0_addr : out std_logic_vector(19 downto 0);
+      sram0_data : inout std_logic_vector(15 downto 0);
+      sram0_nble : out std_logic;
+      sram0_nbhe : out std_logic;
+      sram0_noe  : out std_logic;
+      sram0_nce1 : out std_logic;
+      sram0_ce2  : out std_logic;
+      sram0_nwe  : out std_logic;
+            
+      sram1_addr : out std_logic_vector(19 downto 0);
+      sram1_data : inout std_logic_vector(15 downto 0);
+      sram1_nble : out std_logic;
+      sram1_nbhe : out std_logic;
+      sram1_noe  : out std_logic;
+      sram1_nce1 : out std_logic;
+      sram1_ce2  : out std_logic;
+      sram1_nwe  : out std_logic
+      
    );
 end cc_test;
 
 architecture behaviour of cc_test is
    
-   constant MAX_STATES : integer := 9;
+   constant MAX_STATES : integer := 11;
    signal zero : std_logic;
    signal one : std_logic;
    signal reset : std_logic;
@@ -85,54 +110,42 @@ architecture behaviour of cc_test is
    signal cmd2 : std_logic_vector(7 downto 0);
    
    -- state constants
-   constant INDEX_RESET : integer := 0;
-   constant INDEX_IDLE : integer := 1;
-   constant INDEX_LED_POWER : integer := 2;
-   constant INDEX_LED_STATUS : integer := 3;
-   constant INDEX_LED_FAULT : integer := 4;
-   constant INDEX_WATCHDOG : integer := 5;
-   constant INDEX_LVDS_TX_CMD : integer := 6;
-   constant INDEX_LVDS_TX_SYNC : integer := 7;
+   constant INDEX_RESET         : integer := 0;
+   constant INDEX_IDLE          : integer := 1;
+   constant INDEX_LED_POWER     : integer := 2;
+   constant INDEX_LED_STATUS    : integer := 3;
+   constant INDEX_LED_FAULT     : integer := 4;
+   constant INDEX_WATCHDOG      : integer := 5;
+   constant INDEX_LVDS_TX_CMD   : integer := 6;
+   constant INDEX_LVDS_TX_SYNC  : integer := 7;
    constant INDEX_LVDS_TX_SPARE : integer := 8;
+   constant INDEX_SRAM_0        : integer := 9;
+   constant INDEX_SRAM_1        : integer := 10;
    
-   constant SEL_RESET : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_RESET => '1', others => '0');
-   constant SEL_IDLE : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_IDLE => '1', others => '0');
-   constant SEL_LED_POWER : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LED_POWER => '1', others => '0');
-   constant SEL_LED_STATUS : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LED_STATUS => '1', others => '0');
-   constant SEL_LED_FAULT : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LED_FAULT => '1', others => '0');
-   constant SEL_WATCHDOG : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_WATCHDOG => '1', others => '0');
-   constant SEL_LVDS_TX_CMD : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LVDS_TX_CMD => '1', others => '0');
-   constant SEL_LVDS_TX_SYNC : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LVDS_TX_SYNC => '1', others => '0');
-   constant SEL_LVDS_TX_SPARE : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LVDS_TX_SPARE => '1', others => '0');
+   constant SEL_RESET          : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
+   constant SEL_IDLE           : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
+   constant SEL_LED_POWER      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_POWER => '1', others => '0');
+   constant SEL_LED_STATUS     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
+   constant SEL_LED_FAULT      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
+   constant SEL_WATCHDOG       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
+   constant SEL_LVDS_TX_CMD    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_CMD => '1', others => '0');
+   constant SEL_LVDS_TX_SYNC   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SYNC => '1', others => '0');
+   constant SEL_LVDS_TX_SPARE  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SPARE => '1', others => '0');
+   constant SEL_SRAM_0         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_0 => '1', others => '0');
+   constant SEL_SRAM_1         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_1 => '1', others => '0');
 
-   constant DONE_NULL : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
-   constant DONE_RESET : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_RESET => '1', others => '0');
-   constant DONE_IDLE : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_IDLE => '1', others => '0');
-   constant DONE_LED_POWER : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LED_POWER => '1', others => '0');
-   constant DONE_LED_STATUS : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LED_STATUS => '1', others => '0');
-   constant DONE_LED_FAULT : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LED_FAULT => '1', others => '0');
-   constant DONE_WATCHDOG : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_WATCHDOG => '1', others => '0');
-   constant DONE_LVDS_TX_CMD : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LVDS_TX_CMD => '1', others => '0');
-   constant DONE_LVDS_TX_SYNC : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LVDS_TX_SYNC => '1', others => '0');
-   constant DONE_LVDS_TX_SPARE : std_logic_vector(MAX_STATES - 1 downto 0) :=
-                        (INDEX_LVDS_TX_SPARE => '1', others => '0');
+   constant DONE_NULL          : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
+   constant DONE_RESET         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
+   constant DONE_IDLE          : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
+   constant DONE_LED_POWER     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_POWER => '1', others => '0');
+   constant DONE_LED_STATUS    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
+   constant DONE_LED_FAULT     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
+   constant DONE_WATCHDOG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
+   constant DONE_LVDS_TX_CMD   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_CMD => '1', others => '0');
+   constant DONE_LVDS_TX_SYNC  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SYNC => '1', others => '0');
+   constant DONE_LVDS_TX_SPARE : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SPARE => '1', others => '0');
+   constant DONE_SRAM_0        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_0 => '1', others => '0');
+   constant DONE_SRAM_1        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_1 => '1', others => '0');
 
 begin
    -- RS232 interface start
@@ -315,7 +328,7 @@ begin
          rst_i => reset,
          clk_i => clk,
          en_i => sel_vec(INDEX_LVDS_TX_SPARE),
-         done_o => done_vec(INDEX_LVDS_TX_SPARE),
+         done_o => done_vec(INDEX_LVDS_TX_SPARE), 
          tx_busy_i => tx_busy,
          tx_ack_i => tx_ack,
          tx_data_o => tx_rec_array(INDEX_LVDS_TX_SPARE).dat,
@@ -324,6 +337,52 @@ begin
          lvds_o => txspare
       );
       
+   sram0 : sram_test_wrapper
+      port map(rst_i  => reset,
+               clk_i  => clk,
+               en_i   => sel_vec(INDEX_SRAM_0),
+               done_o => done_vec(INDEX_SRAM_0),
+      
+               -- RS232 signals
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => tx_rec_array(INDEX_SRAM_0).dat,
+               tx_we_o   => tx_rec_array(INDEX_SRAM_0).we,
+               tx_stb_o  => tx_rec_array(INDEX_SRAM_0).stb,
+      
+               -- physical pins
+               addr_o  => sram0_addr,
+               data_bi => sram0_data,
+               n_ble_o => sram0_nble,
+               n_bhe_o => sram0_nbhe,
+               n_oe_o  => sram0_noe,
+               n_ce1_o => sram0_nce1,
+               ce2_o   => sram0_ce2,
+               n_we_o  => sram0_nwe);
+   
+   sram1 : sram_test_wrapper
+      port map(rst_i  => reset,
+               clk_i  => clk,
+               en_i   => sel_vec(INDEX_SRAM_1),
+               done_o => done_vec(INDEX_SRAM_1),
+      
+               -- RS232 signals
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => tx_rec_array(INDEX_SRAM_1).dat,
+               tx_we_o   => tx_rec_array(INDEX_SRAM_1).we,
+               tx_stb_o  => tx_rec_array(INDEX_SRAM_1).stb,
+      
+               -- physical pins
+               addr_o  => sram1_addr,
+               data_bi => sram1_data,
+               n_ble_o => sram1_nble,
+               n_bhe_o => sram1_nbhe,
+               n_oe_o  => sram1_noe,
+               n_ce1_o => sram1_nce1,
+               ce2_o   => sram1_ce2,
+               n_we_o  => sram1_nwe);
+                 
    zero <= '0';
    one <= '1';                         
    reset <= not reset_n;
@@ -382,6 +441,14 @@ begin
                         sel_vec <= SEL_LVDS_TX_SPARE;
                      end if;
                   
+                  when CMD_SRAM =>
+                     -- SRAM verification
+                     if(cmd2 = CMD_SRAM_0) then
+                        sel_vec <= SEL_SRAM_0;
+                     else
+                        sel_vec <= SEL_SRAM_1;
+                     end if;
+                     
                   when others =>
                      -- must not be implemented yet!
                      sel_vec <= (others => '0');
