@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_wbs.vhd,v 1.2 2004/12/21 22:06:51 bburger Exp $
+-- $Id: ac_dac_ctrl_wbs.vhd,v 1.3 2005/01/08 00:58:20 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_wbs.vhd,v $
+-- Revision 1.3  2005/01/08 00:58:20  bburger
+-- Bryce:  mem_clk_i is no longer used to clock internal registers
+--
 -- Revision 1.2  2004/12/21 22:06:51  bburger
 -- Bryce:  update
 --
@@ -76,7 +79,6 @@ entity ac_dac_ctrl_wbs is
 
       -- global interface
       clk_i          : in std_logic;
-      mem_clk_i      : in std_logic;
       rst_i          : in std_logic; 
       
       -- wishbone interface:
@@ -110,7 +112,7 @@ architecture rtl of ac_dac_ctrl_wbs is
    signal row_order_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    -- WBS states:
-   type states is (IDLE, WR, RD); 
+   type states is (IDLE, WR, RD1, RD2); 
    signal current_state    : states;
    signal next_state       : states;
    
@@ -124,7 +126,7 @@ begin
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         clock             => mem_clk_i,
+         clock             => clk_i,
          qa                => on_data_o,
          qb                => on_data
       );   
@@ -137,7 +139,7 @@ begin
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         clock             => mem_clk_i,
+         clock             => clk_i,
          qa                => off_data_o,
          qb                => off_data
       );
@@ -152,24 +154,10 @@ begin
          wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
          rdaddress_a       => on_off_addr_i,
          rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-         clock             => mem_clk_i,
+         clock             => clk_i,
          qa                => logical_addr,
          qb                => row_order_data
       );
----------------------------------------------------------------------------------
--- This replacement ram is used by the in-system memory content wizard in Quartus
----------------------------------------------------------------------------------
---   row_order_data <= (others => '0');
---   row_order_ram : ac_dac_ctrl_ramdq
---      port map
---      (
---         data              => dat_i,
---         wren              => row_order_wren,
---         address           => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
---         clock             => mem_clk_i,
---         q                 => logical_addr
---      );
----------------------------------------------------------------------------------
 
    mux_en_o <= mux_en_data(0);
    mux_en_reg : reg
@@ -210,15 +198,18 @@ begin
             if(wr_cmd = '1') then
                next_state <= WR;            
             elsif(rd_cmd = '1') then
-               next_state <= RD;
+               next_state <= RD1;
             end if;                  
             
          when WR =>     
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
-         
-         when RD =>
+            
+         when RD1 =>
+	    next_state <= RD2;
+
+         when RD2 =>
             if(cyc_i = '0') then
                next_state <= IDLE;
             end if;
@@ -257,7 +248,8 @@ begin
                end if;
             end if;
          
-         when RD =>
+         -- implied that in RD1 ack_o is 0
+         when RD2 =>
             ack_o <= '1';
          
          when others =>
