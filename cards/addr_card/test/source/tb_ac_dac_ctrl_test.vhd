@@ -29,8 +29,11 @@
 -- testbench for the ac_dac_ctrl, very simple: assert enable and wait for done!
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$  
+-- <date $Date: 2004/04/29 17:50:25 $>	- <initials $Author: mandana $>
+-- $Log: tb_ac_dac_ctrl_test.vhd,v $
+-- Revision 1.1  2004/04/29 17:50:25  mandana
+-- initial release
+--  
 
 --   
 --
@@ -51,7 +54,7 @@ architecture BEH of TB_AC_DAC_CTRL_TEST is
            CLK_I       : in std_logic ;
            EN_I        : in std_logic ;
            DONE_O      : out std_logic ;
-           DAC_DAT_O   : out w_array11; 
+           DAC_DAT_O   : out w14_array11; 
            DAC_CLK_O   : out std_logic_vector (40 downto 0) );
 
    end component;
@@ -63,7 +66,7 @@ architecture BEH of TB_AC_DAC_CTRL_TEST is
    signal W_CLK_I       : std_logic := '0';
    signal W_EN_I        : std_logic ;
    signal W_DONE_O      : std_logic ;
-   signal W_DAC_DAT_O   : w_array11;
+   signal W_DAC_DAT_O   : w14_array11;
    signal W_DAC_CLK_O   : std_logic_vector ( 40 downto 0 ) ;
 
 begin
