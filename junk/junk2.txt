@@ -1,8 +1,16 @@
 $Log: junk2.txt,v $
+<<<<<<< junk2.txt
+Revision 1.3  2005/02/24 18:28:05  mandana
+vhdl
+
+
+Revision 1.2.2.1  2005/02/24 18:30:22  mandana
+to b1
+
+
 Revision 1.2  2005/02/24 18:27:22  mandana
-log
 
-
+here is my change
 head
 
    bc_slot_id      <= "1110";
@@ -21,3 +29,6 @@ head
    dac_ncs <= dac_ncs_temp;
    dac_data <= dac_data_temp;
    dac_sclk <= dac_sclk_temp;
+
+
+
