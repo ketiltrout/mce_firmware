@@ -102,7 +102,7 @@ BEGIN
 		address_aclr_a => "NONE",
 		outdata_aclr_a => "NONE",
 		width_byteena_a => 1,
-		init_file => "C:/scuba2_repository/cards/bias_card/bias_card/source/tb/bias_card_wb.hex",
+		init_file => "C:/scuba2_repository/cards/bias_card/bias_card/source/rtl/bias_card_wb.hex",
 		lpm_hint => "ENABLE_RUNTIME_MOD=NO",
 		lpm_type => "altsyncram"
 	)
