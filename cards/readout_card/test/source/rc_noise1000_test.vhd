@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date: 2004/07/23 19:22:38 $>    - <initials $Author: mandana $>
+-- <date $Date: 2004/07/23 23:18:00 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.4  2004/07/23 23:18:00  bench1
+-- Mandana: corrected the mictor bits
+--
 -- Revision 1.3  2004/07/23 19:22:38  mandana
 -- reset nsample
 --
@@ -176,9 +179,10 @@ begin
       if(adc1_rdy'event and adc1_rdy = '1') then
          if(nsample = 3) then
             mictor (13 downto 0) <= sum(13 downto 0);
-            mictor (14)          <= adc1_rdy;
-            mictor (15)          <= clk;
+            mictor (14)          <= clk;
+            mictor (15)          <= adc1_rdy;
             mictor (25 downto 16)<= sum(23 downto 14);      
+			mictor (31)          <= adc1_rdy;
          end if;
       end if;
    end process latch;
