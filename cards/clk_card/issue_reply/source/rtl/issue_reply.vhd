@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.12 2004/10/06 19:51:15 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.13 2004/10/06 21:01:00 erniel Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/06 19:51:15 $> -     <text>      - <initials $Author: erniel $>
+-- <date $Date: 2004/10/06 21:01:00 $> -     <text>      - <initials $Author: erniel $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.13  2004/10/06 21:01:00  erniel
+-- removed reference to fibre_rx_pack
+--
 -- Revision 1.12  2004/10/06 19:51:15  erniel
 -- using new command_pack constants
 --
@@ -143,7 +146,8 @@ port(
 --
 --
 --
-
+--
+--
       -- this signals are temporarily here for testing, in order to route these signals to top level
       -- to be viewed on the logic analyzer
       
@@ -162,12 +166,13 @@ port(
 --      ack_i             : in std_logic     
       
       macro_op_ack_o  : out std_logic;
+
       -- lvds_tx interface
       tx_o          : out std_logic;  -- transmitter output pin
       clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
 
       sync_pulse_i: in    std_logic;
-      sync_number_i  : in std_logic_vector (7 downto 0)
+      sync_number_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
       
 
 
@@ -227,9 +232,9 @@ architecture rtl of issue_reply is
       signal data_size:  std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
       signal data :  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       signal data_clk2 :  std_logic; 
-      signal m_op_seq_num : std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);--(7 downto 0);
-      signal frame_sync_num  : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);--(7 downto 0);
-      signal frame_seq_num   : std_logic_vector(31 downto 0);-- currently doesn't go anywhere.  Doesn't need to be an output from the cmd_translator
+      signal m_op_seq_num : std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+      signal frame_sync_num  : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      signal frame_seq_num   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       signal macro_instr_rdy:  std_logic; 
       signal mop_ack :  std_logic; 
 
@@ -274,14 +279,12 @@ architecture rtl of issue_reply is
 --   end component;
 
 begin
-
-
 --
 --
 --
 --
 --
-
+--
     -- temporarily routing these signals to top level to view them on the logic analyzer
     parameter_id_o <= parameter_id;
     data_o         <= data;
@@ -402,40 +405,34 @@ begin
          debug_o  => debug_o,
 
          -- reply_queue interface
-
-        -- uop_status_i   => uop_status,  -- tie these signals
-
-         uop_rdy_o      => uop_rdy,
-         uop_ack_i      => uop_ack,--uop_rdy_stg2,--
-
-        -- uop_discard_o  => uop_discard,
-        -- uop_timedout_o => uop_timedout,
-
-         uop_o          => uop,
+         uop_rdy_o       => uop_rdy,
+         uop_ack_i       => uop_ack,--uop_rdy_stg2,--
+         uop_o           => uop,
          
          -- cmd_translator interface
-         card_addr_i    => card_addr,
-         par_id_i       => parameter_id,
-         data_size_i    => data_size,
-         data_i         => data,
-         data_clk_i     => data_clk2,
-         mop_i          => m_op_seq_num,
-         issue_sync_i   => frame_sync_num,
-         mop_rdy_i      => macro_instr_rdy,
-         mop_ack_o      => mop_ack,
-         cmd_type_i     => cmd_type,
-         cmd_stop_i     => cmd_stop,
-         last_frame_i   => last_frame,
+         card_addr_i     => card_addr,
+         par_id_i        => parameter_id,
+         data_size_i     => data_size,
+         data_i          => data,
+         data_clk_i      => data_clk2,
+         mop_i           => m_op_seq_num,
+         issue_sync_i    => frame_sync_num,
+         mop_rdy_i       => macro_instr_rdy,
+         mop_ack_o       => mop_ack,
+         cmd_type_i      => cmd_type,
+         cmd_stop_i      => cmd_stop,
+         last_frame_i    => last_frame,
+         frame_seq_num_i => frame_seq_num,--frame_seq_num_o,
 
          -- lvds_tx interface
-         tx_o           => tx_o,
-         clk_200mhz_i   => clk_200mhz_i,
+         tx_o            => tx_o,
+         clk_200mhz_i    => clk_200mhz_i,
 
          -- Clock lines
-         sync_i         => sync_pulse_i,
-         sync_num_i     => sync_number_i,
-         clk_i          => clk_i,
-         rst_i          => rst_i
+         sync_i          => sync_pulse_i,
+         sync_num_i      => sync_number_i,
+         clk_i           => clk_i,
+         rst_i           => rst_i
       );
 
    process(clk_i, rst_i)

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.25 2004/09/29 14:54:05 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.26 2004/10/06 19:58:02 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.26  2004/10/06 19:58:02  erniel
+-- using new command_pack constants
+--
 -- Revision 1.25  2004/09/29 14:54:05  dca
 -- components declarations for all components of fibre_rx and fibre_tx added.
 --
@@ -163,7 +166,7 @@ port(
 
       -- other inputs
       sync_pulse_i      : in    std_logic;
-      sync_number_i     : in    std_logic_vector (7 downto 0);
+      sync_number_i     : in    std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
 
       -- signals from the arbiter to cmd_queue (micro-op sequence generator)
       --ack_o             :  out std_logic;     -- DEAD unused signal --RENAME to cmd_rdy_o        -- ready signal
@@ -261,7 +264,7 @@ port(
   
       -- other inputs
       sync_pulse_i            : in std_logic;
-      sync_number_i           : in std_logic_vector (7 downto 0);    -- a counter of synch pulses
+      sync_number_i           : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);    -- a counter of synch pulses
       ret_dat_start_i         : in std_logic;
       ret_dat_stop_i          : in std_logic;
 
@@ -307,7 +310,7 @@ port(
 
       -- inputs from the 'return data' state machine
       ret_dat_frame_seq_num_i      : in std_logic_vector (31 downto 0);
-      ret_dat_frame_sync_num_i     : in std_logic_vector (7 downto 0);
+      ret_dat_frame_sync_num_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
 
       ret_dat_card_addr_i          : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       ret_dat_parameter_id_i       : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targett_ig
@@ -338,9 +341,9 @@ port(
       sync_number_i                : in  std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
 
       -- outputs to the cmd_queue (micro instruction sequence generator)
-      m_op_seq_num_o               : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);        --( 7 downto 0);
+      m_op_seq_num_o               : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
       frame_seq_num_o              : out std_logic_vector (31 downto 0);
-      frame_sync_num_o             : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);   --(7 downto 0);
+      frame_sync_num_o             : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
       
       -- outputs to the micro-instruction generator
       card_addr_o                  : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting

@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.8 2004/09/02 01:14:52 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.9 2004/09/10 01:21:01 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/02 01:14:52 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/09/10 01:21:01 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.9  2004/09/10 01:21:01  bburger
+-- Bryce:  Hardware testing, bug fixing
+--
 -- Revision 1.8  2004/09/02 01:14:52  bburger
 -- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
 --
@@ -81,7 +84,6 @@ use components.component_pack.all;
 
 library work;
 use work.issue_reply_pack.all;
-use work.fibre_rx_pack.all;
 use work.async_pack.all;
 use work.sync_gen_pack.all;
 
@@ -136,9 +138,9 @@ architecture rtl of issue_reply_test is
 
    signal cksum_err       : std_logic;                                         -- connected to test(11)
 --   signal card_addr       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- connected to test(15 downto 12)
-   signal parameter_id    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);    -- connected to test(15 downto 16)
+   signal parameter_id    : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);    -- connected to test(15 downto 16)
    
-   signal data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);      -- connected to test(31 downto 24)
+   signal data            : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);      -- connected to test(31 downto 24)
    signal data_clk        : std_logic;                                         -- connected to test(32)
    signal macro_instr_rdy : std_logic;                                         -- connected to test(33)
 --   signal data_size       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- connected to test(37 downto 34)
@@ -166,7 +168,7 @@ architecture rtl of issue_reply_test is
 
     
     signal sync_pulse    : std_logic;
-    signal sync_number   : std_logic_vector(7 downto 0);
+    signal sync_number   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
     
     signal rst           : std_logic;
 
@@ -175,7 +177,7 @@ architecture rtl of issue_reply_test is
       signal count                : integer;
       signal count_rst            : std_logic;
       signal sync_number_mux_sel  : std_logic;
-      signal sync_number_mux      : std_logic_vector(7 downto 0);
+      signal sync_number_mux      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       
       type state is               (IDLE, COUNTING, INCREMENT);
       signal current_state, next_state : state;
@@ -194,7 +196,7 @@ architecture rtl of issue_reply_test is
 component issue_reply
 
 port(
-      --[JJ] for testing
+      -- for testing
       debug_o    : out std_logic_vector (31 downto 0);
 
       -- global signals
@@ -210,13 +212,13 @@ port(
 
       cksum_err_o : out    std_logic;
       sync_pulse_i: in     std_logic;
-      sync_number_i  : in std_logic_vector (7 downto 0);
+      sync_number_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
       
 --      -- outputs to the micro-instruction sequence generator
 --      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
-      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
+      parameter_id_o    :  out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
 --      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
-      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
+      data_o            :  out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);        -- data will be passed straight thru
       data_clk_o        :  out std_logic;
       macro_instr_rdy_o :  out std_logic;
 --      

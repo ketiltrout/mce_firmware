@@ -20,15 +20,19 @@
 
 -- sync_gen_pack.vhd
 --
--- Project:		 SCUBA-2
--- Author:		 Bryce Burger
--- Organisation:	 UBC
+-- Project:     SCUBA-2
+-- Author:      Bryce Burger
+-- Organisation:   UBC
 --
 -- Description:
 -- This implements the sync pulse generation on the Clock Card.
 --
 -- Revision history:
 -- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.2  2004/10/06 19:48:35  erniel
+-- moved constants from commnad_pack to sync_gen_pack
+-- updated references to sync_gen_pack
+--
 -- Revision 1.1  2004/08/05 00:19:33  bburger
 -- Bryce:  new
 --
@@ -40,10 +44,10 @@ use ieee.std_logic_1164.all;
 
 package sync_gen_pack is
 
-   constant SYNC_NUM_WIDTH     : integer := 8;
+   constant SYNC_NUM_WIDTH     : integer := 16;
    
    constant ISSUE_SYNC_WIDTH   : integer := SYNC_NUM_WIDTH;
-   constant TIMEOUT_SYNC_WIDTH : integer := SYNC_NUM_WIDTH;
+--   constant TIMEOUT_SYNC_WIDTH : integer := SYNC_NUM_WIDTH;
    
    component sync_gen
       port(

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_ram40_pack.vhd,v 1.9 2004/07/26 19:31:13 bench2 Exp $
+-- $Id: cmd_queue_ram40_pack.vhd,v 1.10 2004/09/30 21:57:51 erniel Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_ram40_pack.vhd,v $
+-- Revision 1.10  2004/09/30 21:57:51  erniel
+-- using new command_pack constants
+--
 -- Revision 1.9  2004/07/26 19:31:13  bench2
 -- Bryce: in progress
 --
@@ -78,15 +81,17 @@ package cmd_queue_ram40_pack is
    type ram40 is array (0 to 255) of ram_line;
 
    -- Calculated constants for inputing data on the correct lines into/out-of the queue
-   -- The following fields make up the first two lines of each u-op entry in the queue:
+   -- The following fields make up the first four lines of each u-op entry in the queue:
+   constant NUM_NON_BB_CMD_HEADER_WORDS : integer := 2;
+   constant CQ_NUM_CMD_HEADER_WORDS : integer := BB_NUM_CMD_HEADER_WORDS + NUM_NON_BB_CMD_HEADER_WORDS;
 
    -- Line 1:
-   -- ISSUE_SYNC_WIDTH (8 bits),
-   -- TIMEOUT_SYNC_WIDTH (8 bits),
-   -- CQ_DATA_SIZE_BUS_WIDTH (16 bits)
+   -- ISSUE_SYNC_WIDTH (16 bits),
+   -- COMMAND_TYPE_END (3 bits),
+   -- CQ_DATA_SIZE_BUS_WIDTH (13 bits)
    constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH;
-   constant TIMEOUT_SYNC_END : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - TIMEOUT_SYNC_WIDTH;
-   constant DATA_SIZE_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - TIMEOUT_SYNC_WIDTH - BB_DATA_SIZE_WIDTH;
+   constant COMMAND_TYPE_END : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH;
+   constant DATA_SIZE_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH - BB_DATA_SIZE_WIDTH;
 
    -- Line 2:
    -- BB_CARD_ADDRESS_WIDTH (8 bits),
@@ -98,23 +103,12 @@ package cmd_queue_ram40_pack is
    constant MOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH;
    constant UOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH - BB_MICRO_OP_SEQ_WIDTH;
 
-   -- Line 1:
-   -- ISSUE_SYNC_WIDTH (8 bits),
-   -- TIMEOUT_SYNC_WIDTH (8 bits),
-   -- BB_CARD_ADDRESS_WIDTH (8 bits),
-   -- BB_PARAMETER_ID_WIDTH (8 bits),
---   constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH;
---   constant TIMEOUT_SYNC_END : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - TIMEOUT_SYNC_WIDTH;
---   constant CARD_ADDR_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - TIMEOUT_SYNC_WIDTH - BB_CARD_ADDRESS_WIDTH;
---   constant PARAM_ID_END     : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - TIMEOUT_SYNC_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH;
-
-   -- Line 2:
-   -- CQ_DATA_SIZE_BUS_WIDTH (16 bits)
-   -- BB_MACRO_OP_SEQ_WIDTH (8 bits),
-   -- BB_MICRO_OP_SEQ_WIDTH (8 bits)
---   constant DATA_SIZE_END    : integer := QUEUE_WIDTH - CQ_DATA_SIZE_BUS_WIDTH;
---   constant MOP_END          : integer := QUEUE_WIDTH - CQ_DATA_SIZE_BUS_WIDTH - BB_MACRO_OP_SEQ_WIDTH;
---   constant UOP_END          : integer := QUEUE_WIDTH - CQ_DATA_SIZE_BUS_WIDTH - BB_MACRO_OP_SEQ_WIDTH - BB_MICRO_OP_SEQ_WIDTH;
+   -- Line 3:
+   -- 'Data Frame Stop' bit (bit 1)
+   -- 'Last Data Frame' bit (bit 0)
+   
+   -- Line 4:
+   -- Data Frame Sequence Number (32 bits)
 
    component cmd_queue_ram40 is
       PORT

@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.14 2004/09/11 00:21:27 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.15 2004/09/30 22:34:44 erniel Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	       Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:         Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/11 00:21:27 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $> -     <text>      - <initials $Author: erniel $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.15  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.14  2004/09/11 00:21:27  jjacob
 -- fixed syn number and timing of last, stop signals to cmd_queue
 --
@@ -127,12 +130,12 @@ port(
       parameter_id_i          : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_i             : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i                  : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_i              : in std_logic;							                               -- for clocking out the data
+      data_clk_i              : in std_logic;                                                    -- for clocking out the data
       cmd_code_i              : in std_logic_vector (15 downto 0);
       
       -- other inputs
       sync_pulse_i            : in std_logic;
-      sync_number_i           : in std_logic_vector (7 downto 0);                      -- a counter of synch pulses 
+      sync_number_i           : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);                      -- a counter of synch pulses 
       ret_dat_start_i         : in std_logic;
       ret_dat_stop_i          : in std_logic;
       
@@ -149,14 +152,14 @@ port(
       parameter_id_o          : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_o             : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o                  : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_o              : out std_logic;							                                -- for clocking out the data
+      data_clk_o              : out std_logic;                                                    -- for clocking out the data
       macro_instr_rdy_o       : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
       cmd_type_o              : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o              : out std_logic;                      
       last_frame_o            : out std_logic;
       
       
-      ret_dat_fsm_working_o   : out std_logic;                										        -- indicates the state machine is busy
+      ret_dat_fsm_working_o   : out std_logic;                                                    -- indicates the state machine is busy
       
       -- input from the macro-instruction arbiter
       ack_i                   : in std_logic;                                           -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
@@ -218,9 +221,9 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    
    signal mux_sel                     : std_logic_vector(1 downto 0);
    
-   signal current_sync_num_reg_plus_1 : std_logic_vector(7 downto 0);
-   signal current_sync_num_reg        : std_logic_vector(7 downto 0);
-   signal current_sync_num            : std_logic_vector(7 downto 0);
+   signal current_sync_num_reg_plus_1 : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal current_sync_num_reg        : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal current_sync_num            : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
   
    signal current_seq_num_reg_plus_1  : std_logic_vector(31 downto 0);
    signal current_seq_num_reg         : std_logic_vector(31 downto 0);
@@ -565,7 +568,7 @@ begin
    ret_dat_fsm_working_o   <=    ret_dat_fsm_working;
 
    -- re-circulation muxes
-   card_addr		<= card_addr_i     when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
+   card_addr      <= card_addr_i     when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
                    (others => '0') when rst_i = '1' else
                    card_addr_reg;
   
@@ -573,11 +576,11 @@ begin
                    (others => '0') when rst_i = '1' else
                    parameter_id_reg;
                    
-   data_size		<= data_size_i     when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
+   data_size      <= data_size_i     when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
                    (others => '0') when rst_i = '1' else
                    data_size_reg;                 
   
-   data_mux		<= data_i          when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
+   data_mux    <= data_i          when current_state = RETURN_DATA_IDLE and ret_dat_start = '0' else
                    (others => '0') when rst_i = '1' else
                    data_reg;      
 
@@ -661,7 +664,7 @@ begin
                        current_sync_num_reg;
                        
    current_sync_num_reg_plus_1 <= current_sync_num_reg + 1; -- this is the sync pulse increment value for issuing ret_dat commands on consecutive
-                                    				                    -- frames of data.  Ex: if you want every 1000 frames, change to "+ 1000"
+                                                                    -- frames of data.  Ex: if you want every 1000 frames, change to "+ 1000"
 
    current_seq_num  <= ret_dat_s_seq_start_num     when mux_sel = INPUT_NUM_SEL          else
                        current_seq_num_reg_plus_1  when mux_sel = CURRENT_NUM_PLUS_1_SEL else

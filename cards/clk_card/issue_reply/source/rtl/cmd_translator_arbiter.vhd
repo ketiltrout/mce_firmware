@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.15 2004/09/13 16:44:42 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.16 2004/09/30 22:34:44 erniel Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	       Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:         Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/13 16:44:42 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $> -     <text>      - <initials $Author: erniel $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.16  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.15  2004/09/13 16:44:42  jjacob
 -- fixed timing on macro_instr_rdy_o and a few other signals starting on line 425:
 --    macro_instr_rdy_o <= macro_instr_rdy;  -- this outputs signal one clock cycle earlier
@@ -136,13 +139,13 @@ port(
 
       -- inputs from the 'return data' state machine
       ret_dat_frame_seq_num_i      : in std_logic_vector (31 downto 0);
-      ret_dat_frame_sync_num_i     : in std_logic_vector (7 downto 0);
+      ret_dat_frame_sync_num_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
       
       ret_dat_card_addr_i          : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       ret_dat_parameter_id_i       : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targett_ig
       ret_dat_data_size_i          : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       ret_dat_data_i               : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      ret_dat_data_clk_i           : in std_logic;							                                   -- for clocking out the data
+      ret_dat_data_clk_i           : in std_logic;                                                      -- for clocking out the data
       ret_dat_macro_instr_rdy_i    : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_i        : in std_logic;
       ret_dat_cmd_type_i           : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
@@ -157,7 +160,7 @@ port(
       simple_cmd_parameter_id_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       simple_cmd_data_size_i       : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       simple_cmd_data_i            : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      simple_cmd_data_clk_i        : in std_logic;							                                   -- for clocking out the data
+      simple_cmd_data_clk_i        : in std_logic;                                                      -- for clocking out the data
       simple_cmd_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
       simple_cmd_type_i            : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       
@@ -177,7 +180,7 @@ port(
       parameter_id_o               : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_o                  : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o                       : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_o                   : out std_logic;							                                   -- for clocking out the data
+      data_clk_o                   : out std_logic;                                                        -- for clocking out the data
       macro_instr_rdy_o            : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
       cmd_type_o                   : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o                   : out std_logic;                                          -- indicates a STOP command was recieved

@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.17 2004/09/10 19:14:36 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.18 2004/09/30 22:34:44 erniel Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	       Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:         Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/10 19:14:36 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $> -     <text>      - <initials $Author: erniel $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.18  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.17  2004/09/10 19:14:36  jjacob
 -- modifed outputs to reply_translator to feedthrough values from fibre_rx
 --
@@ -134,7 +137,7 @@ port(
       -- inputs from fibre_rx      
 
       card_id_i         : in    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
-      cmd_code_i        : in    std_logic_vector (15 downto 0);                       -- the least significant 16-bits from the fibre packet
+      cmd_code_i        : in    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
       cmd_data_i        : in    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- the data
       cksum_err_i       : in    std_logic;
       cmd_rdy_i         : in    std_logic;                                            -- indicates the fibre_rx outputs are valid
@@ -165,13 +168,13 @@ port(
 
       -- outputs to the cmd_queue (micro instruction sequence generator)
       m_op_seq_num_o        : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
-      frame_seq_num_o       : out std_logic_vector (31 downto 0);
+      frame_seq_num_o       : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       frame_sync_num_o      : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);   --(7 downto 0);
 
       -- outputs to reply_translator for commands that require quick acknowldgements
       reply_cmd_rcvd_er_o         : out std_logic;
       reply_cmd_rcvd_ok_o         : out std_logic;
-      reply_cmd_code_o            : out std_logic_vector (15 downto 0);
+      reply_cmd_code_o            : out std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);
       reply_param_id_o            : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
       reply_card_id_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)     -- specifies which card the command is targetting
 
@@ -210,7 +213,7 @@ architecture rtl of cmd_translator is
    
    signal ret_dat_fsm_working        : std_logic;
    
-   signal frame_seq_num              : std_logic_vector(31 downto 0);
+   signal frame_seq_num              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal frame_sync_num             : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);   --(7 downto 0);
 
    -- 'simple command' signals to the arbiter, (then to micro-op  sequence generator )
@@ -225,13 +228,13 @@ architecture rtl of cmd_translator is
    
    signal arbiter_ack                : std_logic_vector (2 downto 0);
    signal macro_instr_rdy            : std_logic;
-   signal cmd_code                   : std_logic_vector (15 downto 0);
+   signal cmd_code                   : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);
    signal ret_dat_cmd_stop           : std_logic;
    signal ret_dat_last_frame         : std_logic;
 
 
-   constant START_CMD                : std_logic_vector (15 downto 0) := x"474F";
-   constant STOP_CMD                 : std_logic_vector (15 downto 0) := x"5354";
+   constant START_CMD                : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0) := x"474F";
+   constant STOP_CMD                 : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0) := x"5354";
    
    signal parameter_id               : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
    signal card_addr                  : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -395,24 +398,24 @@ begin
                  BRST_ADDR          |
                  PSC_RST_ADDR       |
                  PSC_OFF_ADDR       =>
-                        		    
- 	       ret_dat_start         <= '0';
+                                  
+          ret_dat_start         <= '0';
                ret_dat_stop          <= '0';
                     
                ret_dat_s_start       <= '0';
                ret_dat_s_ack         <= '0';
- 		    
- 	       cmd_start             <= '1';
+          
+          cmd_start             <= '1';
                cmd_stop              <= '0';
                     
             when others =>
 
- 	       ret_dat_start         <= '0';
+          ret_dat_start         <= '0';
                ret_dat_stop          <= '0';
                
                ret_dat_s_start       <= '0';
                ret_dat_s_ack         <= '0';
- 		    
+          
                cmd_start             <= '0';
                cmd_stop              <= '0';
                
@@ -474,7 +477,7 @@ port map(
       parameter_id_i         => param_id_i,     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i            => num_data_i,     -- data_size_i, indicates number of 16-bit words of data
       data_i                 => cmd_data_i,     -- data will be passed straight thru in 16-bit words
-      data_clk_i        	   	=> data_clk_i,	                         -- for clocking out the data
+      data_clk_i                 => data_clk_i,                          -- for clocking out the data
       cmd_code_i             => cmd_code_i,
       
       -- other inputs
@@ -492,7 +495,7 @@ port map(
       parameter_id_o         => ret_dat_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o            => ret_dat_cmd_data_size,    -- num_data_i, indicates number of 16-bit words of data
       data_o                 => ret_dat_cmd_data,         -- data will be passed straight thru in 16-bit words
-      data_clk_o        			  => ret_dat_cmd_data_clk,	    -- for clocking out the data
+      data_clk_o                   => ret_dat_cmd_data_clk,     -- for clocking out the data
       macro_instr_rdy_o      => ret_dat_cmd_ack,          -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_o  => ret_dat_fsm_working,    
       cmd_type_o             => ret_dat_cmd_type,         -- this is a re-mapping of the cmd_code into a 3-bit number
@@ -565,7 +568,7 @@ port map(
       ret_dat_parameter_id_i        => ret_dat_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targett_ig
       ret_dat_data_size_i           => ret_dat_cmd_data_size,    -- num_data_i, indicates number of 16-bit words of data
       ret_dat_data_i                => ret_dat_cmd_data ,        -- data will be passed straight thru in 16-bit words
-      ret_dat_data_clk_i        			 =>	ret_dat_cmd_data_clk ,    -- for clocking out the data
+      ret_dat_data_clk_i                =>   ret_dat_cmd_data_clk ,    -- for clocking out the data
       ret_dat_macro_instr_rdy_i     => ret_dat_cmd_ack,          -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_i         => ret_dat_fsm_working, 
       ret_dat_cmd_type_i            => ret_dat_cmd_type,
@@ -580,7 +583,7 @@ port map(
       simple_cmd_parameter_id_i     => simple_cmd_parameter_id,  -- comes from param_id_i, indicates which device(s) the command is targetting
       simple_cmd_data_size_i        => simple_cmd_data_size,     -- data_size_i, indicates number of 16-bit words of data
       simple_cmd_data_i             => simple_cmd_data,          -- data will be passed straight thru in 16-bit words
-      simple_cmd_data_clk_i        	=>	simple_cmd_data_clk,      -- for clocking out the data
+      simple_cmd_data_clk_i         => simple_cmd_data_clk,      -- for clocking out the data
       simple_cmd_macro_instr_rdy_i  => simple_cmd_macro_instr_rdy, -- ='1' when the data is valid, else it's '0'
       simple_cmd_type_i             => simple_cmd_type, 
       
@@ -598,7 +601,7 @@ port map(
       parameter_id_o                => parameter_id,            -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o                   => data_size_o,             -- num_data_i, indicates number of 16-bit words of data
       data_o                        => data_o,                  -- data will be passed straight thru in 16-bit words
-      data_clk_o       				    => data_clk_o	,             -- for clocking out the data
+      data_clk_o                     => data_clk_o ,             -- for clocking out the data
       macro_instr_rdy_o             => macro_instr_rdy,         -- ='1' when the data is valid, else it's '0'
       cmd_type_o                    => cmd_type_o,
       cmd_stop_o                    => cmd_stop_o,                    
