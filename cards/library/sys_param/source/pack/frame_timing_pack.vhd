@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.3 2004/04/02 01:05:14 bburger Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -31,7 +31,7 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date$> - <text> - <initials $Author$>
+-- <date $Date: 2004/04/02 01:05:14 $> - <text> - <initials $Author: bburger $>
 
 --
 ------------------------------------------------------------------------
@@ -103,8 +103,8 @@ package frame_timing_pack is
          clk_i              : in std_logic;
          sync_i             : in std_logic;
          rst_on_next_sync_i : in std_logic;
-         cycle_count_o      : out integer;
-         cycle_error_o      : out integer
+         cycle_count_o      : out std_logic_vector(31 downto 0);
+         cycle_error_o      : out std_logic_vector(31 downto 0)
       );
    end component;
    
