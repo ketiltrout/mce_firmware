@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: fifo.vhd,v $
+-- Revision 1.2  2004/10/25 23:39:17  erniel
+-- really minor cosmetic changes (spacing, word alignment, etc)
+--
 -- Revision 1.1  2004/10/25 18:58:49  erniel
 -- initial version
 --
@@ -52,7 +55,6 @@ entity fifo is
 generic(DATA_WIDTH : integer := 32;
         ADDR_WIDTH : integer := 8);
 port(clk_i     : in std_logic;
-     mem_clk_i : in std_logic;
      rst_i     : in std_logic;
 
      data_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -83,13 +85,17 @@ component altsyncram
            wrcontrol_aclr_a       : string;
            address_aclr_a         : string;
            address_reg_b          : string;
+           rdcontrol_reg_b        : string;
+           rdcontrol_aclr_b       : string;
            address_aclr_b         : string;
            outdata_aclr_b         : string;
            intended_device_family : string);
    port(clock0    : in std_logic;
+        clock1    : in std_logic;
         wren_a    : in std_logic;
         address_a : in std_logic_vector(ADDR_WIDTH-1 downto 0);
         data_a    : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        rden_b    : in std_logic;
         address_b : in std_logic_vector(ADDR_WIDTH-1 downto 0);
         q_b       : out std_logic_vector(DATA_WIDTH-1 downto 0));
 end component;
@@ -104,6 +110,8 @@ component lpm_counter
         aclr   : in std_logic;
         q      : out std_logic_vector(ADDR_WIDTH-1 downto 0));
 end component;
+
+signal n_clk : std_logic;
 
 -- storage controls:
 signal write_addr : std_logic_vector(ADDR_WIDTH-1 downto 0);
@@ -126,10 +134,14 @@ begin
    -------------------------------------------------
 
 
-   -- NOTE: On FIFO clear, RAM storage is not reinitialized.  Pointers are reset and 
-   --       item counter is reset and state machine assumes EMPTY.  You cannot read 
-   --       from an empty FIFO, so there is no danger of reading invalid data.
-
+   -- NOTES: 1. On FIFO clear, RAM storage is not reinitialized.  Pointers are reset and 
+   --        item counter is reset and state machine assumes EMPTY.  You cannot read 
+   --        from an empty FIFO, so there is no danger of reading invalid data.
+   --
+   --        2. I am using the altsyncram in flow-through mode.  In this mode, the read
+   --        enable and read address registers are clocked using the negative clock edge.
+   --        The data is available at the end of the clock cycle when the read address 
+   --        is asserted.  See Altera Stratix device handbook vol. 2, page 2-23.
    
    fifo_storage : altsyncram
    generic map(operation_mode         => "DUAL_PORT",
@@ -143,16 +155,22 @@ begin
                indata_aclr_a          => "NONE",
                wrcontrol_aclr_a       => "NONE",
                address_aclr_a         => "NONE",
-               address_reg_b          => "CLOCK0",
+               address_reg_b          => "CLOCK1",
+               rdcontrol_reg_b        => "CLOCK1",
+               rdcontrol_aclr_b       => "NONE",               
                address_aclr_b         => "NONE",
                outdata_aclr_b         => "NONE",
                intended_device_family => "Stratix")
-   port map(clock0    => mem_clk_i,
+   port map(clock0    => clk_i,
+            clock1    => n_clk,
             wren_a    => write_ena,
             address_a => write_addr,
             data_a    => data_i,
+            rden_b    => read_ena,
             address_b => read_addr,
             q_b       => data_out);
+
+   n_clk <= not clk_i;
    
    write_pointer: lpm_counter
    generic map(lpm_width     => ADDR_WIDTH,
