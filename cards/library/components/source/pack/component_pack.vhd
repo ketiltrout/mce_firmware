@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.2 2004/03/10 07:00:49 ngruending Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.3 2004/03/17 07:19:30 ngruending Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -42,8 +42,8 @@
 -- Feb. 3  2004  - Added 1-wire modules - EL
 
 -- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date: 2004/03/10 07:00:49 $>	-		<text>		- <initials $Author: ngruending $>
---
+-- <date $Date: 2004/03/17 07:19:30 $>	-		<text>		- <initials $Author: ngruending $>
+-- $Log$
 ------------------------------------------------------------------------
 
 library ieee;
@@ -126,6 +126,24 @@ package component_pack is
 
            reg_i  : in std_logic_vector(WIDTH-1 downto 0);
            reg_o  : out std_logic_vector(WIDTH-1 downto 0));
+   end component;
+ 
+
+------------------------------------------------------------
+--
+-- generic counter
+--
+------------------------------------------------------------ 
+
+   component counter 
+      generic(MAX : integer := 255);
+      port(clk_i   : in std_logic;
+           rst_i   : in std_logic;
+           ena_i   : in std_logic;
+           load_i  : in std_logic;
+           down_i  : in std_logic;
+           count_i : in integer;
+           count_o : out integer);
    end component;
  
  
