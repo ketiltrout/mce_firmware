@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.22 2004/09/01 17:13:17 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.23 2004/10/12 14:17:10 dca Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.23  2004/10/12 14:17:10  dca
+-- sync_fifo_tx component declaration added
+--
 -- Revision 1.22  2004/09/01 17:13:17  erniel
 -- updated counter component
 --
@@ -156,6 +159,7 @@ package component_pack is
          q_o       : out    std_logic_vector (7 DOWNTO 0)
       );
    end component;
+
 
 ------------------------------------------------------------
 --
@@ -297,7 +301,35 @@ package component_pack is
            done_o     : out std_logic;
            valid_o    : out std_logic;
            checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
-      end component;
+   end component;
+
+
+------------------------------------------------------------
+--
+-- generic FIFO with showahead
+--
+------------------------------------------------------------  
+
+   component fifo
+   generic(DATA_WIDTH : integer := 32;
+           ADDR_WIDTH : integer := 8);
+   port(clk_i     : in std_logic;
+        mem_clk_i : in std_logic;
+        rst_i     : in std_logic;
+
+        data_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        data_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
+
+        read_i  : in std_logic;
+        write_i : in std_logic;
+        clear_i : in std_logic;
+        
+        empty_o : out std_logic;
+        full_o  : out std_logic;
+        error_o : out std_logic;
+        used_o  : out integer);
+   end component;
+
    
 ------------------------------------------------------------
 --
