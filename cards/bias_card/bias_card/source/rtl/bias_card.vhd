@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: bias_card.vhd,v 1.1 2004/12/06 07:22:34 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,7 +29,12 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: bias_card.vhd,v $
+-- Revision 1.1  2004/12/06 07:22:34  bburger
+-- Bryce:
+-- Created pack files for the card top-levels.
+-- Added some simulation signals to the top-levels (i.e. clocks)
+--
 --
 -----------------------------------------------------------------------------
 
@@ -52,11 +57,7 @@ entity bias_card is
       CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := BIAS_CARD_1
    );
    port(
-      -- simulation signals
-      clk        : in std_logic;
-      mem_clk    : in std_logic;
-      comm_clk   : in std_logic;
-
+ 
       -- PLL input:
       inclk      : in std_logic;
       rst_n      : in std_logic;
@@ -109,9 +110,9 @@ end bias_card;
 architecture top of bias_card is
 
 -- clocks
---signal clk      : std_logic;
---signal mem_clk  : std_logic;
---signal comm_clk : std_logic;
+signal clk      : std_logic;
+signal mem_clk  : std_logic;
+signal comm_clk : std_logic;
 
 signal rst      : std_logic;
 
@@ -137,7 +138,7 @@ signal slave_err         : std_logic;
 -- frame_timing interface
 signal update_bias : std_logic; 
 
-component pll
+component bc_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
@@ -148,11 +149,11 @@ begin
    
    rst <= not rst_n;
    
---   pll0: pll
---   port map(inclk0 => inclk,
---            c0 => clk,
---            c1 => mem_clk,
---            c2 => comm_clk);
+   pll0: bc_pll
+   port map(inclk0 => inclk,
+            c0 => clk,
+            c1 => mem_clk,
+            c2 => comm_clk);
             
    cmd0: dispatch
       generic map(
@@ -207,8 +208,8 @@ begin
          flux_fb_ncs_o              => dac_sclk,     
          flux_fb_clk_o              => dac_data,     
                                        
-         bias_data_o                => lvds_dac_sclk,
-         bias_ncs_o                 => lvds_dac_sclk,
+         bias_data_o                => lvds_dac_data,
+         bias_ncs_o                 => lvds_dac_ncs,
          bias_clk_o                 => lvds_dac_sclk,
          
          dac_nclr_o                 => dac_nclr,
