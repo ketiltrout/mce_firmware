@@ -38,6 +38,11 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.5  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.4  2004/12/08 22:13:06  bburger
 -- Bryce:  Added default values for some signals at the top of processes
 --
@@ -122,6 +127,7 @@ architecture beh of sync_gen_core is
    signal clk_count        : integer;
    signal clk_count_new    : integer;
    signal sync_count       : integer;
+   signal sync_count_new   : integer;
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    
    signal sync_num_mux     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -133,22 +139,6 @@ begin
 
    frame_end <= (num_rows_i*row_len_i)-1;
 
---   clk_ctr: counter
---      generic map(
---         MAX         => END_OF_FRAME,
---         STEP_SIZE   =>   1, 
---         WRAP_AROUND =>  '1', 
---         UP_COUNTER  =>  '1'        
---      )
---      port map(
---         clk_i       => clk_i,
---         rst_i       => rst_i,
---         ena_i       =>  '1',
---         load_i      =>  '0',
---         count_i     =>   0,
---         count_o     => clk_count
---      );
-
    clk_count_new <= (clk_count + 1) when clk_count < frame_end else 0;
    clk_cntr: process(clk_i, rst_i)
    begin
@@ -159,21 +149,17 @@ begin
       end if;
    end process clk_cntr;
 
-   sync_ctr: counter
-      generic map(
-         MAX         => 255,
-         STEP_SIZE   =>   1, 
-         WRAP_AROUND =>  '1', 
-         UP_COUNTER  =>  '1'        
-      )
-      port map(
-         clk_i       => new_frame_period,
-         rst_i       => rst_i,
-         ena_i       =>  '1',
-         load_i      =>  '0',
-         count_i     =>   0,
-         count_o     => sync_count
-      );
+   sync_count_new <= (sync_count + 1) when sync_count < 255 else 0;
+   sync_cntr: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         sync_count <= 0;
+      elsif(clk_i'event and clk_i = '1') then
+         if(new_frame_period = '1') then
+            sync_count <= sync_count_new;
+         end if;
+      end if;
+   end process sync_cntr;
 
    new_frame_period  <= '1' when clk_count = frame_end else '0';
    sync_o            <= new_frame_period;

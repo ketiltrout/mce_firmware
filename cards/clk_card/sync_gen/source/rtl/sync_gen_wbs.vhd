@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs.vhd,v 1.2 2004/11/25 01:34:32 bburger Exp $
+-- $Id: sync_gen_wbs.vhd,v 1.3 2005/01/13 03:14:51 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.3  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.2  2004/11/25 01:34:32  bburger
 -- Bryce:  changed signal dv_en interface from integer to std_logic
 --
@@ -111,18 +116,6 @@ begin
          reg_i             => dat_i,
          reg_o             => dv_en_data
       );
-
---   row_length_reg : reg
---      generic map(
---         WIDTH             => PACKET_WORD_WIDTH
---      )
---      port map(
---         clk_i             => clk_i,
---         rst_i             => rst_i,
---         ena_i             => row_length_wren,
---         reg_i             => dat_i,
---         reg_o             => row_length_data
---      );
 
    -- Custom register that gets set to MUX_LINE_PERIOD upon reset
    row_len_reg: process(clk_i, rst_i)
