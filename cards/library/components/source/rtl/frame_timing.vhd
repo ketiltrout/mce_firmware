@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.13 2004/10/26 18:59:39 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.14 2004/10/26 22:25:20 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/10/26 18:59:39 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/26 22:25:20 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.14  2004/10/26 22:25:20  bburger
+-- Bryce:  dac_dat_en, adc_coadd_en and row_switch are not asserted while the frame_timing block is waiting to resync itself after a hard reset
+--
 -- Revision 1.13  2004/10/26 18:59:39  bburger
 -- Bryce:  More signals
 --
@@ -184,11 +187,11 @@ architecture beh of frame_timing is
    -- 1- After a resync
    -- 2- After changing flux_loop parameters   
    
-   update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS else '0';
+   update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS and current_state /= WAIT_FRM_RST else '0';
    restart_frame_aligned      <= '1' when frame_count_int = END_OF_FRAME else '0';
-   restart_frame_1row_prev_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_PREV else '0';
-   restart_frame_aligned_o    <= restart_frame_aligned;
-   restart_frame_1row_post_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_POST else '0';
+   restart_frame_1row_prev_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_PREV and current_state /= WAIT_FRM_RST else '0';
+   restart_frame_aligned_o    <= '1' when (restart_frame_aligned = '1' and current_state /= WAIT_FRM_RST) or (sync_i = '1' and current_state = WAIT_FRM_RST) else '0';
+   restart_frame_1row_post_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_POST and current_state /= WAIT_FRM_RST else '0';
    row_switch_o               <= '1' when row_count_int = MUX_LINE_PERIOD-1 and current_state /= WAIT_FRM_RST else '0';
    dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i and current_state /= WAIT_FRM_RST else '0';
    adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - TWO_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
