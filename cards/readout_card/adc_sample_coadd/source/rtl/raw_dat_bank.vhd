@@ -43,19 +43,19 @@ USE altera_mf.altera_mf_components.all;
 ENTITY raw_dat_bank IS
 	PORT
 	(
-		data		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+		data		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 		wren		: IN STD_LOGIC  := '1';
 		wraddress		: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
 		rdaddress		: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
 		clock		: IN STD_LOGIC ;
-		q		: OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+		q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
 	);
 END raw_dat_bank;
 
 
 ARCHITECTURE SYN OF raw_dat_bank IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (15 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (7 DOWNTO 0);
 
 
 
@@ -86,22 +86,22 @@ ARCHITECTURE SYN OF raw_dat_bank IS
 			clock0	: IN STD_LOGIC ;
 			address_a	: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
 			address_b	: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
-			q_b	: OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
-			data_a	: IN STD_LOGIC_VECTOR (15 DOWNTO 0)
+			q_b	: OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+			data_a	: IN STD_LOGIC_VECTOR (7 DOWNTO 0)
 	);
 	END COMPONENT;
 
 BEGIN
-	q    <= sub_wire0(15 DOWNTO 0);
+	q    <= sub_wire0(7 DOWNTO 0);
 
 	altsyncram_component : altsyncram
 	GENERIC MAP (
 		intended_device_family => "Stratix",
 		operation_mode => "DUAL_PORT",
-		width_a => 16,
+		width_a => 8,
 		widthad_a => 13,
 		numwords_a => 8192,
-		width_b => 16,
+		width_b => 8,
 		widthad_b => 13,
 		numwords_b => 8192,
 		lpm_type => "altsyncram",
@@ -137,11 +137,11 @@ END SYN;
 -- Retrieval info: PRIVATE: UseDPRAM NUMERIC "1"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: PRIVATE: VarWidth NUMERIC "0"
--- Retrieval info: PRIVATE: WIDTH_WRITE_A NUMERIC "16"
--- Retrieval info: PRIVATE: WIDTH_WRITE_B NUMERIC "16"
--- Retrieval info: PRIVATE: WIDTH_READ_A NUMERIC "16"
--- Retrieval info: PRIVATE: WIDTH_READ_B NUMERIC "16"
--- Retrieval info: PRIVATE: MEMSIZE NUMERIC "131072"
+-- Retrieval info: PRIVATE: WIDTH_WRITE_A NUMERIC "8"
+-- Retrieval info: PRIVATE: WIDTH_WRITE_B NUMERIC "8"
+-- Retrieval info: PRIVATE: WIDTH_READ_A NUMERIC "8"
+-- Retrieval info: PRIVATE: WIDTH_READ_B NUMERIC "8"
+-- Retrieval info: PRIVATE: MEMSIZE NUMERIC "65536"
 -- Retrieval info: PRIVATE: Clock NUMERIC "0"
 -- Retrieval info: PRIVATE: rden NUMERIC "0"
 -- Retrieval info: PRIVATE: BYTE_ENABLE_A NUMERIC "0"
@@ -180,10 +180,10 @@ END SYN;
 -- Retrieval info: PRIVATE: INIT_FILE_LAYOUT STRING "PORT_B"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: CONSTANT: OPERATION_MODE STRING "DUAL_PORT"
--- Retrieval info: CONSTANT: WIDTH_A NUMERIC "16"
+-- Retrieval info: CONSTANT: WIDTH_A NUMERIC "8"
 -- Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "13"
 -- Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "8192"
--- Retrieval info: CONSTANT: WIDTH_B NUMERIC "16"
+-- Retrieval info: CONSTANT: WIDTH_B NUMERIC "8"
 -- Retrieval info: CONSTANT: WIDTHAD_B NUMERIC "13"
 -- Retrieval info: CONSTANT: NUMWORDS_B NUMERIC "8192"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
@@ -197,15 +197,15 @@ END SYN;
 -- Retrieval info: CONSTANT: OUTDATA_ACLR_B STRING "NONE"
 -- Retrieval info: CONSTANT: READ_DURING_WRITE_MODE_MIXED_PORTS STRING "OLD_DATA"
 -- Retrieval info: CONSTANT: RAM_BLOCK_TYPE STRING "AUTO"
--- Retrieval info: USED_PORT: data 0 0 16 0 INPUT NODEFVAL data[15..0]
+-- Retrieval info: USED_PORT: data 0 0 8 0 INPUT NODEFVAL data[7..0]
 -- Retrieval info: USED_PORT: wren 0 0 0 0 INPUT VCC wren
--- Retrieval info: USED_PORT: q 0 0 16 0 OUTPUT NODEFVAL q[15..0]
+-- Retrieval info: USED_PORT: q 0 0 8 0 OUTPUT NODEFVAL q[7..0]
 -- Retrieval info: USED_PORT: wraddress 0 0 13 0 INPUT NODEFVAL wraddress[12..0]
 -- Retrieval info: USED_PORT: rdaddress 0 0 13 0 INPUT NODEFVAL rdaddress[12..0]
 -- Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
--- Retrieval info: CONNECT: @data_a 0 0 16 0 data 0 0 16 0
+-- Retrieval info: CONNECT: @data_a 0 0 8 0 data 0 0 8 0
 -- Retrieval info: CONNECT: @wren_a 0 0 0 0 wren 0 0 0 0
--- Retrieval info: CONNECT: q 0 0 16 0 @q_b 0 0 16 0
+-- Retrieval info: CONNECT: q 0 0 8 0 @q_b 0 0 8 0
 -- Retrieval info: CONNECT: @address_a 0 0 13 0 wraddress 0 0 13 0
 -- Retrieval info: CONNECT: @address_b 0 0 13 0 rdaddress 0 0 13 0
 -- Retrieval info: CONNECT: @clock0 0 0 0 0 clock 0 0 0 0

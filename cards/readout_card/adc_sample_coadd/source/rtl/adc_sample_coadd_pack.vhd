@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.3  2004/11/26 18:25:54  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/10/29 01:51:42  mohsen
 -- Sorted out library use and use parameters
 --
@@ -62,25 +65,27 @@ package adc_sample_coadd_pack is
   -----------------------------------------------------------------------------
 
   
-  constant ADC_LATENCY           : integer := 4;  
-  constant TOTAL_ROW_NO          : integer := 64;
-  constant FSFB_DONE_DLY         : integer := 6;
-  constant NUMB_RAW_FRM_TO_GRAB  : integer := 2;   -- =#of raw frames to grab
-
+  constant ADC_LATENCY               : integer := 4;  
+  constant TOTAL_ROW_NO              : integer := 64;
+  constant FSFB_DONE_DLY             : integer := 6;
+  constant NUMB_RAW_FRM_TO_GRAB      : integer := 2;                    -- =#of raw frames to grab
+  constant USED_RAW_DAT_WIDTH        : integer := 8;                    -- Number of ADC output bits to be saved
+  constant RAW_DATA_POSITION_POINTER : integer := USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
   
 
+  
   -----------------------------------------------------------------------------
   -- Raw data storage component
   -----------------------------------------------------------------------------
 
   component raw_dat_bank
     port (
-      data      : in  std_logic_vector (15 downto 0);
+      data      : in  std_logic_vector (7 downto 0);
       wren      : in  std_logic;
       wraddress : in  std_logic_vector (12 downto 0);
       rdaddress : in  std_logic_vector (12 downto 0);
       clock     : in  std_logic;
-      q         : out std_logic_vector (15 downto 0));
+      q         : out std_logic_vector (7 downto 0));
   end component;
 
   

@@ -34,11 +34,11 @@
 -- 1. This block samples the data from A/D at each clock.
 -- 
 -- 2. Acting on an incoming signal (raw_req_i) from the wishbone slave
--- (wbs_frame_data), it saves all the sampled data for two frames, starting
--- from the next frame after the raw_req_i.  The data is saved in a memory
--- bank,(raw_dat_bank).  When finished with raw data collection, it asserts the
--- signal raw_ack_o.  Following the disassertion of raw_req_i, it disasserts
--- raw_ack_o.
+-- (wbs_frame_data), it saves USED_RAW_DAT_WIDTH bits from the ADC sampled
+-- data. The data is saved for two frames, starting from the next frame after
+-- the raw_req_i.  The data is saved in a memory bank,(raw_dat_bank).  When
+-- finished with raw data collection, it asserts the signal raw_ack_o.
+-- Following the disassertion of raw_req_i, it disasserts raw_ack_o.
 -- 
 -- 3. Acting on adc_coadd_en_i, the block coaddes the sampled signals from ADC,
 -- and saves them into a register. This addition is started after the nominal
@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.3  2004/11/26 18:25:54  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/10/29 01:50:58  mohsen
 -- Sorted out library use and use parameters
 --
@@ -179,63 +182,40 @@ architecture struct of adc_sample_coadd is
 
 
   
-  constant GROUNDED_ADDR : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
-  constant ZERO_PAD      : std_logic_vector((RAW_DAT_WIDTH - ADC_DAT_WIDTH -1) downto 0) := (others => '0');
+  constant GROUNDED_ADDR        : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
+  constant ZERO_PAD             : std_logic_vector((RAW_DAT_WIDTH - USED_RAW_DAT_WIDTH)-1 downto 0) := (others => '0');
 
   
-  
-  -----------------------------------------------------------------------------
   -- Signals name change from outside the block
-  -----------------------------------------------------------------------------
-  signal raw_dat               : std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+  signal raw_dat                : std_logic_vector (USED_RAW_DAT_WIDTH-1 downto 0);
 
-  -----------------------------------------------------------------------------
-  -- Signals name change to ouside of the block
-  -----------------------------------------------------------------------------
-  
-  -----------------------------------------------------------------------------
   -- signals from raw_dat_bank
-  -----------------------------------------------------------------------------
-
+  signal raw_dat_out            : std_logic_vector( USED_RAW_DAT_WIDTH-1 downto 0);
   
-  -----------------------------------------------------------------------------
   -- signals from raw_dat_manager_data_path 
-  -----------------------------------------------------------------------------
-  signal raw_write_addr        : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+  signal raw_write_addr         : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
 
-  -----------------------------------------------------------------------------
   -- signals from raw_dat_manager_ctrl
-  -----------------------------------------------------------------------------
-  signal clr_raw_addr_index    : std_logic;
-  signal raw_wren              : std_logic;
+  signal clr_raw_addr_index     : std_logic;
+  signal raw_wren               : std_logic;
   
-  -----------------------------------------------------------------------------
   -- signals from coadd storage bank 0 and 1
-  -----------------------------------------------------------------------------
   signal coadd_dat_porta_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal coadd_dat_portb_bank0  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal coadd_dat_porta_bank1  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal coadd_dat_portb_bank1  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
-  -----------------------------------------------------------------------------
   -- signlas from dynamic data storage bank 0 and 1
-  -----------------------------------------------------------------------------
   signal intgrl_dat_portb_bank0 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal intgrl_dat_portb_bank1 : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
-  
-  -----------------------------------------------------------------------------
   -- signals from coadd_manager_data_path
-  -----------------------------------------------------------------------------
   signal adc_coadd_en_5delay    : std_logic;
   signal adc_coadd_en_4delay    : std_logic;
   signal samples_coadd_reg      : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal coadd_write_addr       : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0);
 
-
-  -----------------------------------------------------------------------------
   -- signals from coadd_dynamic_manager_ctrl
-  -----------------------------------------------------------------------------
   signal clr_samples_coadd_reg  : std_logic;
   signal address_count_en       : std_logic;
   signal clr_address_count      : std_logic;
@@ -244,11 +224,8 @@ architecture struct of adc_sample_coadd is
   signal wren_for_fsfb          : std_logic;
   signal current_bank           : std_logic;
 
-  
-  -----------------------------------------------------------------------------
   -- signals from dynamic_dat_manager_data_path
-  -----------------------------------------------------------------------------
-  signal integral_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal integral_result        : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
   
 
@@ -258,8 +235,13 @@ begin  -- struc
   
   adc_clk_o <= clk_50_i;                -- get data on each clk edge (4 cycles)
                                         -- latency according to ADC data sheet
-  raw_dat   <= (ZERO_PAD & adc_dat_i);  -- pad adc_dat_i with zero to match the
-                                        -- data width of the raw_dat_bank
+  
+  -- The following statement is used to select part of the accuracy of the ADC.
+  -- Based on the value of RAW_DATA_POSITION_POINTER, we select part of the
+  -- ADC 14-bit output
+  raw_dat   <= adc_dat_i(RAW_DATA_POSITION_POINTER-1 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
+  
+  raw_dat_o <= (ZERO_PAD & raw_dat_out);  -- zero pad to match the width expected by wbs_frame_data
 
   
   -----------------------------------------------------------------------------
@@ -285,7 +267,7 @@ begin  -- struc
     wraddress => raw_write_addr,        -- from raw data path
     rdaddress => raw_addr_i,            -- system input
     clock     => clk_50_i,              -- system input
-    q         => raw_dat_o);
+    q         => raw_dat_out);
 
 
   -----------------------------------------------------------------------------
