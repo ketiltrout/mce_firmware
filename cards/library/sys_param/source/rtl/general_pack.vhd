@@ -28,8 +28,11 @@
 -- pack file for general_pack
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/07/29 00:24:41 $>	- <initials $Author: mandana $>
+-- $Log: general_pack.vhd,v $
+-- Revision 1.3  2004/07/29 00:24:41  mandana
+-- add AC parameters
+--
 --
 -----------------------------------------------------------------------------
 
@@ -48,11 +51,5 @@ package general_pack is
    constant MIN_FLUX_FB      : std_logic_vector (15 downto 0) := x"0000";
    constant MAX_BIAS         : std_logic_vector (15 downto 0) := x"FFFF";
    constant MIN_BIAS         : std_logic_vector (15 downto 0) := x"0000";
-   
-   -- Memory map for the dac_ctrl sram on Address card
-   constant ON_VAL_BASE : std_logic_vector (7 downto 0) := x"00";
-   constant OFF_VAL_BASE: std_logic_vector (7 downto 0) := x"29";
-   constant ROW_ORD_BASE: std_logic_vector (7 downto 0) := x"52";
-   constant MUX_ON_BASE : std_logic_vector (7 downto 0) := x"67";
-      
+         
 end general_pack;
