@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.3 2004/07/12 15:48:18 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.4 2004/07/14 23:30:48 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Jonathan Jacob
@@ -34,9 +34,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/12 15:48:18 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/14 23:30:48 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.4  2004/07/14 23:30:48  jjacob
+-- safety checkin
+--
 -- Revision 1.3  2004/07/12 15:48:18  jjacob
 -- Added an extra output e1 to the pll because fibre_rx_clk is not connected
 -- to the pll, but fibre_tx_clk is (connected to e1), and it's shorted to
@@ -72,7 +75,7 @@ use work.fibre_rx_pack.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
-
+use sys_param.command_pack.all;
 
 entity issue_reply_test is
 
@@ -80,7 +83,6 @@ port(
       inclk              : in std_logic;
       fibre_rx_clk       : out std_logic;
       
-      -- this is here because:
       -- this one is here for CC001 because fibre_rx_clk is not connected to the pll,
       -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
       fibre_tx_clk       : out std_logic;
@@ -92,7 +94,7 @@ port(
       fibre_rx_status    : in std_logic;                      -- rso_i
       fibre_rx_sc_nd     : in std_logic;                      -- rsc_nRd_i
 
-      -- output to simulated u-op sequence generator (logic analyzer)
+      -- output to simulated u-op sequence generator (to the test header)
       test               : out std_logic_vector(38 downto 11)  -- cksum_err
                                                                -- card_addr
                                                                -- parameter_id
@@ -100,10 +102,7 @@ port(
                                                                -- data_clk
                                                                -- macro_instr_rdy
                                                                -- data_size
-                                                               -- ack_i (routed from dip_sw2)
-
-      -- inputs from the simulated u-op sequence generator (dip switch)
-      --dip_sw2            : in std_logic                        -- ack_i
+                                                               -- ack_i
 
      ); 
      
@@ -123,24 +122,23 @@ architecture rtl of issue_reply_test is
 
    signal cksum_err       : std_logic;                                         -- connected to test(11)
    signal card_addr       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- connected to test(15 downto 12)
-   signal parameter_id    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);    -- connected to test(23 downto 16)
+   signal parameter_id    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);    -- connected to test(15 downto 16)
    
    signal data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);      -- connected to test(31 downto 24)
    signal data_clk        : std_logic;                                         -- connected to test(32)
    signal macro_instr_rdy : std_logic;                                         -- connected to test(33)
    signal data_size       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- connected to test(37 downto 34)
 
-   --signal dip_sw2_ack     : std_logic;                                         -- connected to test(38)
+   signal m_op_seq_num    : std_logic_vector(7 downto 0);
+   signal frame_seq_num   : std_logic_vector(31 downto 0);
+   signal frame_sync_num  : std_logic_vector(7 downto 0);
 
+   signal simulated_ack   : std_logic;     -- connected to test(38)
 
-   signal ground          : std_logic;
-   signal ground8         : std_logic_vector(7 downto 0);
-   signal ground32        : std_logic_vector(31 downto 0);
-
-   signal simulated_ack   : std_logic;
-
-   type state is (IDLE, WAIT1, WAIT2, ACK);
+   type state is (IDLE, IDLE2, IDLE3, WAIT1, WAIT2, ACK);
    signal next_state, current_state  : state;
+
+   signal zero            : std_logic;
 
 
 ------------------------------------------------------------------------
@@ -202,20 +200,30 @@ begin
 ------------------------------------------------------------------------
 
    test(11)           <= cksum_err;
-   test(15 downto 12) <= card_addr(3 downto 0);
-   test(23 downto 16) <= parameter_id(7 downto 0);
-   test(31 downto 24) <= data(7 downto 0);
-   test(32)           <= data_clk;
-   test(33)           <= macro_instr_rdy;
-   test(37 downto 34) <= data_size(3 downto 0);
-   
-   --dip_sw2_ack        <= dip_sw2;
-   test(38)           <= simulated_ack; --dip_sw2;
-   
+   --test(11)           <= pll_clk;
 
-   ground             <= '0';
-   ground8            <= (others=>'0');
-   ground32           <= (others=>'0');
+   test(15 downto 12) <= card_addr(3 downto 0);
+
+   --test(23 downto 16) <= parameter_id(7 downto 0);
+   --test(23 downto 16) <= m_op_seq_num(7 downto 0);
+   test(23 downto 16) <= frame_sync_num(7 downto 0);
+
+   --test(31 downto 24) <= data(7 downto 0);
+   --test(31 downto 24) <= frame_seq_num(7 downto 0);
+   test(31 downto 24) <= m_op_seq_num(7 downto 0);
+   --test(31 downto 24) <= frame_sync_num(7 downto 0);
+   --test(31 downto 24) <= parameter_id(7 downto 0);
+
+   test(32)           <= data_clk;
+
+   test(33)           <= macro_instr_rdy;
+
+   test(37 downto 34) <= data_size(3 downto 0);
+   --test(37 downto 34) <= frame_seq_num(3 downto 0);
+
+   test(38)           <= simulated_ack;
+
+   zero               <= '0';
 
 ------------------------------------------------------------------------
 --
@@ -227,7 +235,7 @@ begin
    port map( 
 
             -- global signals
-            rst_i             => ground,
+            rst_i             => zero,
             clk_i             => pll_clk,
       
             -- inputs from the fibre
@@ -246,12 +254,12 @@ begin
             data_clk_o        => data_clk,
             macro_instr_rdy_o => macro_instr_rdy,
       
-            m_op_seq_num_o    => ground8,
-            frame_seq_num_o   => ground32,
-            frame_sync_num_o  => ground8,
+            m_op_seq_num_o    => m_op_seq_num,
+            frame_seq_num_o   => frame_seq_num,
+            frame_sync_num_o  => frame_sync_num,
       
             -- input from the micro-op sequence generator
-            ack_i             => simulated_ack --dip_sw2
+            ack_i             => simulated_ack
            ); 
 
 ------------------------------------------------------------------------
@@ -266,8 +274,8 @@ pll : issue_reply_test_pll
 		inclk0	=> inclk,
 		c0		=> pll_clk,
 		e0		=> fibre_rx_clk,
-		e1		=> fibre_tx_clk  -- this one is here for CC001 because fibre_rx is not connected to the pll,
-		                                 -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
+		e1		=> fibre_tx_clk  -- this one is here for CC001 because fibre_rx_clk is not connected to the pll,
+		                         -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
 	);
 
 ------------------------------------------------------------------------
@@ -276,17 +284,40 @@ pll : issue_reply_test_pll
 --
 ------------------------------------------------------------------------
 
-   process(current_state, macro_instr_rdy)
+   --simulated_ack <= '1';
+
+   process(current_state, macro_instr_rdy) --, parameter_id, card_addr)
    begin
       case current_state is
          when IDLE =>
+            if macro_instr_rdy = '1' then
+            --if ((macro_instr_rdy = '1') and (parameter_id = x"005C") and (card_addr = x"0002")) then
+            --if ((macro_instr_rdy = '1') and (parameter_id /= 0) and (card_addr /= 0)) then
+               --next_state <= IDLE2;  -- this is to ensure macro_instr_rdy is not just glitching high
+               next_state <= WAIT1;
+            else
+               next_state <= IDLE;
+            end if;
+
+            simulated_ack <= '0';
+
+         when IDLE2  =>
+            if macro_instr_rdy = '1' then
+               next_state <= IDLE3; -- this is to double-check macro_instr_rdy is not just glitching high
+            else
+               next_state <= IDLE;
+            end if;
+
+            simulated_ack <= '0';
+
+         when IDLE3  =>
             if macro_instr_rdy = '1' then
                next_state <= WAIT1;
             else
                next_state <= IDLE;
             end if;
 
-         simulated_ack <= '0';
+            simulated_ack <= '0';
 
          when WAIT1  => next_state    <= WAIT2;
                         simulated_ack <= '0';
@@ -297,14 +328,23 @@ pll : issue_reply_test_pll
          when ACK    => next_state    <= IDLE;
                         simulated_ack <= '1';
 
+--            if macro_instr_rdy = '0' and data_size = 0 and 
+--               data_clk = '0' and data = 0 and parameter_id = 0 then
+--               next_state    <= IDLE;
+--               simulated_ack <= '1';
+--            else
+--               next_state    <= ACK;
+--               simulated_ack <= '1';
+--            end if;
+
          when others => next_state    <= IDLE;
                         simulated_ack <= '0';
       end case;
    end process;
 
-   process(inclk)
+   process(pll_clk)
    begin
-      if inclk'event and inclk = '1' then
+      if pll_clk'event and pll_clk = '1' then
          current_state <= next_state;
       end if;
    end process;

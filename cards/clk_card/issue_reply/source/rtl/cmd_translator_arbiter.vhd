@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.5 2004/07/05 23:51:47 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.6 2004/07/28 23:39:12 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/05 23:51:47 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/28 23:39:12 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.6  2004/07/28 23:39:12  jjacob
+-- added:
+-- library sys_param;
+-- use sys_param.command_pack.all;
+--
 -- Revision 1.5  2004/07/05 23:51:47  jjacob
 -- added ack_o output to cmd_translator_ret_dat_fsm
 --
@@ -122,7 +127,7 @@ port(
       -- outputs to the micro instruction sequence generator
       m_op_seq_num_o        : out std_logic_vector ( 7 downto 0);
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
-      frame_sync_num_o        : out std_logic_vector (7 downto 0);
+      frame_sync_num_o      : out std_logic_vector (7 downto 0);
       
       -- outputs to the macro-instruction arbiter
       card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
@@ -148,7 +153,17 @@ architecture rtl of cmd_translator_arbiter is
    signal macro_instr_rdy           : std_logic;
    signal macro_instr_rdy_1st_stg   : std_logic;
    signal macro_instr_rdy_mux_sel   : std_logic;
+   
    signal m_op_seq_num              : std_logic_vector (7 downto 0);
+   signal m_op_seq_num_mux          : std_logic_vector (7 downto 0);
+   signal m_op_seq_num_mux_sel      : std_logic;
+
+   signal frame_seq_num             : std_logic_vector (31 downto 0);
+   signal frame_seq_num_1st_stg     : std_logic_vector (31 downto 0);
+   
+   signal frame_sync_num            : std_logic_vector (7 downto 0);
+   signal frame_sync_num_1st_stg    : std_logic_vector (7 downto 0);
+
 
    signal data_mux_sel              : std_logic; --'0' routes simple cmds thru, '1' is for ret_dat cmds
    signal simple_cmd_ack_mux_sel    : std_logic;
@@ -159,11 +174,10 @@ architecture rtl of cmd_translator_arbiter is
    --type a_state is (SIMPLE_CMD, RET_DAT);
    
    type state is (IDLE, SIMPLE_CMD_RDY, SIMPLE_CMD_PAUSE, RET_DAT_RDY, RET_DAT_PAUSE, RET_DAT_RDY_SIMPLE_CMD_PENDING,
-                  RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT);
+                  RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT, RDY_HIGH, RDY_LOW1, RDY_LOW2, RDY_LOW_WAIT);
                    
-   --signal async_state : a_state;
-   
    signal current_state, next_state : state;
+   signal m_op_seq_num_next_state, m_op_seq_num_cur_state : state;
    
    signal arbiter_mux      : std_logic;
  
@@ -263,11 +277,33 @@ begin
    frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
    frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
 
+--   frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else frame_seq_num;
+--   frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else frame_sync_num;
+--   
+--   frame_seq_num_1st_stg        <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
+--   frame_sync_num_1st_stg       <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;   
+
    simple_cmd_ack_o     <= ack_i                        when simple_cmd_ack_mux_sel = '1' else '0';
    ret_dat_ack_o        <= ack_i                        when ret_dat_ack_mux_sel = '1'    else '0'; 
    
    macro_instr_rdy_1st_stg      <= simple_cmd_macro_instr_rdy_i when data_mux_sel = '0'            else ret_dat_macro_instr_rdy_i;
    macro_instr_rdy              <= macro_instr_rdy_1st_stg      when macro_instr_rdy_mux_sel = '0' else '0';
+
+--   process(clk_i, rst_i)
+--   begin
+--      if rst_i = '1' then
+--         macro_instr_rdy      <= '0';
+--         frame_seq_num        <= (others=>'0');
+--         frame_sync_num       <= (others=>'0');
+--      elsif clk_i'event and clk_i = '1' then
+--         macro_instr_rdy      <= macro_instr_rdy_1st_stg;
+--         frame_seq_num        <= frame_seq_num_1st_stg;
+--         frame_sync_num       <= frame_sync_num_1st_stg;
+--      end if;
+--   end process;
+
+--   frame_seq_num_o  <= frame_seq_num;
+--   frame_sync_num_o <= frame_sync_num;
 
 ------------------------------------------------------------------------
 --
@@ -285,7 +321,8 @@ begin
          simple_cmd_ack_mux_sel     <= '0';
          ret_dat_ack_mux_sel        <= '0';
          macro_instr_rdy_mux_sel    <= '0'; 
-         ret_dat_pending_mux_sel    <= "00";       
+         ret_dat_pending_mux_sel    <= "00";
+         --m_op_seq_num_mux_sel       <= "00"; 
    
       case current_state is
        
@@ -308,31 +345,58 @@ begin
                simple_cmd_ack_mux_sel         <= '1';
             end if;
             ret_dat_pending_mux_sel           <= "10"; 
+            --m_op_seq_num_mux_sel              <= "10";
             
          when SIMPLE_CMD_PAUSE =>
             macro_instr_rdy_mux_sel           <= '1';
-            ret_dat_pending_mux_sel           <= "10"; 
-            
+            ret_dat_pending_mux_sel           <= "10";
+            --m_op_seq_num_mux_sel              <= "01";
+
          when RET_DAT_PAUSE =>
             data_mux_sel                      <= '1';
-            ret_dat_pending_mux_sel           <= "10"; 
+            ret_dat_pending_mux_sel           <= "10";
+            --m_op_seq_num_mux_sel              <= "01";
  
          when RET_DAT_RDY =>
+         
+
+--            if ret_dat_macro_instr_rdy_i = '1' then
+--               data_mux_sel                      <= '1';
+--               --ret_dat_ack_mux_sel               <= '1';
+--            end if; 
+                       
             data_mux_sel                      <= '1';
             ret_dat_ack_mux_sel               <= '1';
+            
+            --m_op_seq_num_mux_sel              <= "10";
           
          when RET_DAT_RDY_SIMPLE_CMD_PENDING =>
+         
+--            if ret_dat_macro_instr_rdy_i = '0' and simple_cmd_macro_instr_rdy_i = '1' then
+-- 
+--              data_mux_sel                      <= '0';
+--              ret_dat_ack_mux_sel               <= '1';
+--              ret_dat_pending_mux_sel           <= "10";       
+--         
+--            else  
+--                  
             data_mux_sel                      <= '1';
             ret_dat_ack_mux_sel               <= '1';
             ret_dat_pending_mux_sel           <= "10"; 
+            --m_op_seq_num_mux_sel              <= "10";
+            
+ 
+--            end if; 
              
          when RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT =>
             ret_dat_pending_mux_sel           <= "01";
+            --m_op_seq_num_mux_sel              <= "01";
             --null;
                   
          when others =>              
             simple_cmd_ack_mux_sel            <= '1';
-            ret_dat_pending_mux_sel           <= "10"; 
+            ret_dat_pending_mux_sel           <= "10";
+            --m_op_seq_num_mux_sel              <= "10"; 
             
       end case;
    end process;
@@ -358,28 +422,118 @@ begin
 -- turn into re-circ mux structure
 ------------------------------------------------------------------------
 --
--- process to increment macro-op sequence number
+-- processes to increment macro-op sequence number
 --
 ------------------------------------------------------------------------   
    
---   m_op_seq_num_mux <= x"00"          when m_op_seq_num_mux_sel = "00" else
---                       m_op_seq_num+1 when m_op_seq_num_mux_sel = "01" else
---                       m_op_seq_num;
---   
-   
-   process(rst_i, macro_instr_rdy)
+   -- state sequencer
+   process(rst_i, clk_i)
    begin
       if rst_i = '1' then
-         m_op_seq_num <= x"00";
-      elsif macro_instr_rdy'event and macro_instr_rdy = '1' then
-         m_op_seq_num <= m_op_seq_num + 1;
-      end if;   
+         m_op_seq_num_cur_state <= IDLE;
+      elsif clk_i'event and clk_i = '1' then
+         m_op_seq_num_cur_state <= m_op_seq_num_next_state;
+      end if;
    end process;
+
+   -- assign next state and output
+   process(macro_instr_rdy, m_op_seq_num_cur_state)
+   begin
+
+      -- default
+      m_op_seq_num_mux_sel       <= '0';
+   
+      case m_op_seq_num_cur_state is
+         when IDLE =>
+            if macro_instr_rdy = '1' then
+               m_op_seq_num_next_state <= RDY_HIGH;
+            else
+               m_op_seq_num_next_state <= IDLE;
+            end if;   
+            
+         when RDY_HIGH =>
+            if macro_instr_rdy = '1' then
+               m_op_seq_num_next_state <= RDY_HIGH;
+            else
+               m_op_seq_num_next_state <= RDY_LOW1;
+            end if;
+            
+         when RDY_LOW1 =>
+            if macro_instr_rdy = '1' then
+               m_op_seq_num_next_state <= RDY_HIGH;
+            else
+               m_op_seq_num_next_state <= RDY_LOW2;
+               m_op_seq_num_mux_sel       <= '1';
+            end if;
+           
+         when RDY_LOW2 =>
+            if macro_instr_rdy = '1' then
+               m_op_seq_num_next_state <= RDY_HIGH;
+            else
+               m_op_seq_num_next_state <= RDY_LOW_WAIT;
+            end if;
+            
+            
+         when RDY_LOW_WAIT =>
+            if macro_instr_rdy = '1' then
+               m_op_seq_num_next_state <= RDY_HIGH;
+            else
+               m_op_seq_num_next_state <= RDY_LOW_WAIT;
+            end if;
+            
+         when others =>
+            m_op_seq_num_next_state <= IDLE;
+           
+      end case;   
+   end process;
+
+   -- recirculation mux
+   m_op_seq_num_mux <= m_op_seq_num when m_op_seq_num_mux_sel = '0' else
+                       m_op_seq_num + 1;
+
+   -- register for recirculation mux                       
+   process(rst_i, clk_i)
+   begin
+      if rst_i = '1' then
+         m_op_seq_num <= (others=>'0');
+      elsif clk_i'event and clk_i = '1' then
+         m_op_seq_num <= m_op_seq_num_mux;
+      end if;
+   end process;
+--   
+-- 
+--   process(rst_i, macro_instr_rdy)
+--   begin
+--      if rst_i = '1' then
+--         m_op_seq_num <= x"00";
+--      elsif macro_instr_rdy'event and macro_instr_rdy = '1' then
+--         m_op_seq_num <= m_op_seq_num_mux;
+--      end if;   
+--   end process;
+  
+--   process(rst_i, macro_instr_rdy)
+--   begin
+--      if rst_i = '1' then
+--         m_op_seq_num <= x"00";
+--      elsif macro_instr_rdy'event and macro_instr_rdy = '1' then
+--         m_op_seq_num <= m_op_seq_num + 1;
+--      end if;   
+--   end process;
+
+--   process(rst_i, macro_instr_rdy_1st_stg)
+--   begin
+--      if rst_i = '1' then
+--         m_op_seq_num <= x"00";
+--      elsif macro_instr_rdy_1st_stg'event and macro_instr_rdy_1st_stg = '1' then
+--         m_op_seq_num <= m_op_seq_num + 1;
+--      end if;   
+--   end process;
    
    m_op_seq_num_o <= m_op_seq_num;
 
    
    macro_instr_rdy_o <= macro_instr_rdy;
+   --macro_instr_rdy_o <= macro_instr_rdy_1st_stg;
 
         
 end rtl;
