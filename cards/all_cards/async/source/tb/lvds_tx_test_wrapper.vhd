@@ -21,7 +21,10 @@
 -- 
 -- Revision History:
 --
--- $Log$
+-- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/28 02:54:50  erniel
+-- removed unused RS232 interface signals
+--
 --
 -- Mar 07, 2004: Initial version - NRG
 ---------------------------------------------------------------------
@@ -29,6 +32,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library work;
 use work.async_pack.all;
@@ -52,58 +56,81 @@ end;
 architecture behaviour of lvds_tx_test_wrapper is
 
    -- lvds signals
-   signal lvds_dat : std_logic_vector(7 downto 0);
-   signal lvds_we : std_logic;
-   signal lvds_ack : std_logic;
-   signal lvds_cyc : std_logic;
-   signal lvds_busy : std_logic;
-   signal lvds_stb : std_logic;
+   signal dat : std_logic_vector(7 downto 0);
+   signal we : std_logic;
+   signal ack : std_logic;
+   signal cyc : std_logic;
+   signal busy : std_logic;
+   signal stb : std_logic;
    
    -- internal signals
    signal enabled : std_logic;
    signal rnd_clk : std_logic;
+   
+   signal random_ena : std_logic;
+   signal random_dat : std_logic_vector(7 downto 0);
+   
+   signal count_ena : std_logic;
+   signal count_dat : std_logic_vector(7 downto 0);
+   
+   -- state machine
+   type states is (IDLE, RANDOM, COUNT, SQUARE);
+   signal present_state : states;
+   signal next_state    : states;
    
 begin
 
    -- our LVDS transmitter
    lvds_tx : async_tx
       port map(
-         tx_o => lvds_o,
-         busy_o => lvds_busy,
-         clk_i => clk_i,
-         rst_i => rst_i,
-         dat_i => lvds_dat,
-         we_i => lvds_we,
-         stb_i => lvds_stb,
-         ack_o => lvds_ack,
-         cyc_i => lvds_cyc
+         tx_o =>   lvds_o,
+         busy_o => busy,
+         clk_i =>  clk_i,
+         rst_i =>  rst_i,
+         dat_i =>  dat,
+         we_i =>   we,
+         stb_i =>  stb,
+         ack_o =>  ack,
+         cyc_i =>  cyc
       );
       
    -- our random number generator
-   random : prand
+   lfsr : prand
       generic map (size => 8)
       port map (
          clr_i => rst_i,
          clk_i => clk_i,
-         en_i => rnd_clk,
-         out_o => lvds_dat
+         en_i =>  random_ena,
+         out_o => random_dat
       );
-
+      
    -- we don't use the cyc signal
-   lvds_cyc <= '1';
+   cyc <= '1';
    
-   -- the random counter should only tick if we are enabled
-   rnd_clk <= lvds_ack and lvds_stb and enabled;
-   
-   -- test controls the state of the test
-   test : process (rst_i, en_i)
+   -- counter
+   counter: process(rst_i, clk_i)
    begin
-      if (rst_i = '1') then
-         enabled <= '0';
-      elsif Rising_Edge(en_i) then
-         enabled <= enabled xor '1';
+      if(rst_i = '1') then
+         count_dat <= "00000000";
+      elsif(clk_i'event and clk_i = '1') then
+         if(count_ena = '1') then
+            count_dat <= count_dat + 1;
+         end if;
       end if;
-   end process test;
+   end process counter;
+   
+--   -- the random counter should only tick if we are enabled
+--   rnd_clk <= lvds_ack and lvds_stb and enabled;
+   
+--   -- test controls the state of the test
+--   test : process (rst_i, en_i)
+--   begin
+--      if (rst_i = '1') then
+--         enabled <= '0';
+--      elsif Rising_Edge(en_i) then
+--         enabled <= enabled xor '1';
+--      end if;
+--   end process test;
    
    -- done_flag controls the done output
    done_flag : process (rst_i, clk_i)
@@ -115,15 +142,81 @@ begin
       end if;
    end process done_flag;
    
-   -- lvds_strobe controls the lvds strobe lines
-   lvds_strobe : process (rst_i, clk_i)
+--   -- lvds_strobe controls the lvds strobe lines
+--   lvds_strobe : process (rst_i, clk_i)
+--   begin
+--      if (rst_i = '1') then
+--         lvds_we <= '0';
+--         lvds_stb <= '0';
+--      elsif Rising_Edge(clk_i) then
+--         lvds_we <= not(lvds_ack or lvds_busy) and enabled;
+--         lvds_stb <= not(lvds_ack or lvds_busy) and enabled;
+--      end if;
+--   end process lvds_strobe;
+   
+   
+   
+   state_FF: process(rst_i, clk_i)
    begin
-      if (rst_i = '1') then
-         lvds_we <= '0';
-         lvds_stb <= '0';
-      elsif Rising_Edge(clk_i) then
-         lvds_we <= not(lvds_ack or lvds_busy) and enabled;
-         lvds_stb <= not(lvds_ack or lvds_busy) and enabled;
+      if(rst_i = '1') then
+         present_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         if(en_i = '1') then
+            present_state <= next_state;
+         end if;
       end if;
-   end process lvds_strobe;
+   end process state_FF;
+   
+   state_NS: process(present_state)
+   begin
+      case present_state is
+         when IDLE =>   next_state <= RANDOM;
+         when RANDOM => next_state <= COUNT;
+         when COUNT =>  next_state <= SQUARE;
+         when SQUARE => next_state <= IDLE;
+         when others => next_state <= IDLE;
+      end case;
+   end process state_NS;
+   
+   -- state outputs:
+   -- counter enable
+   -- random enable
+   -- transmit data
+   -- transmit stb
+   -- transmit we
+   
+   state_out: process(present_state)
+   begin
+      case present_state is
+         when IDLE =>   count_ena  <= '0';
+                        random_ena <= '0';
+                        dat        <= (others => '0');
+                        stb        <= '0';
+                        we         <= '0';
+                        
+         when RANDOM => count_ena  <= '0';
+                        random_ena <= '1';
+                        dat        <= random_dat;
+                        stb        <= not ack and not busy;
+                        we         <= not ack and not busy;
+                        
+         when COUNT =>  count_ena  <= '1';
+                        random_ena <= '0';
+                        dat        <= count_dat;
+                        stb        <= not ack and not busy;
+                        we         <= not ack and not busy;
+                        
+         when SQUARE => count_ena  <= '0';
+                        random_ena <= '0';
+                        dat        <= "10101010";
+                        stb        <= not ack and not busy;
+                        we         <= not ack and not busy;
+                        
+         when others => count_ena  <= '0';
+                        random_ena <= '0';
+                        dat        <= (others => '0');
+                        stb        <= '0';
+                        we         <= '0';
+      end case;
+   end process state_out;      
 end;
