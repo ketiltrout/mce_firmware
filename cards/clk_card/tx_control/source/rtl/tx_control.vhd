@@ -73,4 +73,19 @@ begin
                              -- if FIFO is not empty tx_fe_i = '0'
                              -- a low on nfena enables data collection 
                              -- and transmission
+                             
+-- this assignement to nFena should possibly be 
+-- clocked by ft_clkw_i (as below).  Will test with hardware     
+-- Note that "ft_clkw_i" is the same 25MHz clock that 
+-- is routed to the CYPRESS HOTLINK transmitter chip                          
+----------------------------------------------------------
+--   clocked: PROCESS(ft_clkw_i)
+----------------------------------------------------------
+--begin
+--   if (ft_clkw_i'EVENT and ft_clkw_i = '1') then
+--      nFena_o <= tx_fe_i; 
+--   end if; 
+--end process clocked;
+
+
 end rtl;
