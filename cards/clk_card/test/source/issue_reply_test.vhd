@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.13 2004/10/21 17:42:09 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.14 2004/11/09 15:31:49 dca Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/21 17:42:09 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2004/11/09 15:31:49 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.14  2004/11/09 15:31:49  dca
+-- fibre transmitter signals added to issue_reply_test entitiy declaration
+--
 -- Revision 1.13  2004/10/21 17:42:09  bench2
 -- Greg: Check-in for a routine update.
 --
@@ -210,8 +213,10 @@ architecture rtl of issue_reply_test is
     
     
     
-    signal debug : std_logic_vector(31 downto 0);
+    signal debug     : std_logic_vector(31 downto 0);
 
+    signal clk_25mhz : std_logic;
+  
 
 ------------------------------------------------------------------------
 --
@@ -279,10 +284,12 @@ component issue_reply_test_pll
       e2     : out std_logic ;
       c0     : out std_logic ;
       c1     : out std_logic ;
+      c2     : out std_logic ;
       e0     : out std_logic ;
       e1     : out std_logic 
    );    
 end component;
+
 
 begin
 
@@ -349,7 +356,7 @@ begin
             nFena_o           => fibre_tx_ena, 
 
              -- 25MHz clock for fibre_tx_control
-            fibre_clkw_i      => inclk,
+            fibre_clkw_i      => clk_25mhz,
 
 
             sync_pulse_i      => sync_pulse,
@@ -410,6 +417,7 @@ pll : issue_reply_test_pll
       e2                => lvds_clk,
       c0                => pll_clk,
       c1                => clk_200mhz,
+      c2                => clk_25mhz,
       e0                => fibre_rx_clk,
       e1                => fibre_tx_clk  -- this one is here for CC001 because fibre_rx_clk is not connected to the pll,
                                -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
