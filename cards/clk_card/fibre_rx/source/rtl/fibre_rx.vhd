@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.2 2004/06/15 10:27:16 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -33,7 +33,7 @@
 -- 3. rx_protocol_fsm
 --
 -- Revision history:
--- <date $Date$> - <text> - <initials $Author$>
+-- <date $Date: 2004/06/15 10:27:16 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 
 
@@ -44,14 +44,14 @@ use ieee.std_logic_1164.all;
 
 entity fibre_rx is
    port( 
-      rst_i       : in     std_logic;
-      clk_i       : in     std_logic;
+      rst_i       : in     std_logic;                          -- global reset
+      clk_i       : in     std_logic;                          -- gobal clock
       
-      nrx_rdy_i   : in     std_logic;
-      rvs_i       : in     std_logic;
-      rso_i       : in     std_logic;
-      rsc_nrd_i   : in     std_logic;  
-      rx_data_i   : in     std_logic_vector (7 downto 0);
+      nrx_rdy_i   : in     std_logic;                          -- received fibre data ready (active low) 
+      rvs_i       : in     std_logic;                          -- receive fibre data violation symbol (high indicates error)
+      rso_i       : in     std_logic;                          -- receive fibre status out
+      rsc_nrd_i   : in     std_logic;                          -- received special character / (Not) Data select
+      rx_data_i   : in     std_logic_vector (7 downto 0);      -- received data byte from fibre  
       cmd_ack_i   : in     std_logic;                          -- command acknowledge
       
       cmd_code_o  : out    std_logic_vector (15 downto 0);     -- command code  
@@ -82,11 +82,11 @@ use work.rx_protocol_fsm_pack.all;
 architecture behav of fibre_rx is 
 
    -- Internal signal declarations
-   signal rx_fr       : std_logic;
-   signal rx_fw       : std_logic;
-   signal rx_fe       : std_logic;
-   signal rx_ff       : std_logic;
-   signal rxd         : std_logic_vector(7 DOWNTO 0);
+   signal rx_fr       : std_logic;                     -- receive fifo read request
+   signal rx_fw       : std_logic;                     -- receive fifo write request
+   signal rx_fe       : std_logic;                     -- receive fifo empty
+   signal rx_ff       : std_logic;                     -- receive fifo full
+   signal rxd         : std_logic_vector(7 DOWNTO 0);  -- data ouput of fifo
             
   begin
 
@@ -96,7 +96,7 @@ architecture behav of fibre_rx is
          fifo_size => 512
       )
       port map (
-         rst_i        => rst_i,
+         rst_i       => rst_i,
          rx_fr_i     => rx_fr,
          rx_fw_i     => rx_fw,
          rx_data_i   => rx_data_i,
