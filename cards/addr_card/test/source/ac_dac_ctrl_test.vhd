@@ -109,7 +109,7 @@ begin
    logic1 <= '1';
    zero <= 0;
    
--- instantiate a counter for idac to go through all 32 DACs
+-- instantiate a counter for idat to go through all data values
    data_count: counter
    generic map(MAX => 14)
    port map(clk_i   => en_i,
