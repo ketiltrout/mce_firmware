@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.8 2004/09/29 15:05:45 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.1 2004/10/05 12:23:11 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -33,7 +33,7 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2004/09/29 15:05:45 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/05 12:23:11 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 
 
@@ -58,11 +58,11 @@ entity fibre_rx is
       rx_data_i   : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);  -- received data byte from fibre  
       cmd_ack_i   : in     std_logic;                                         -- command acknowledge
       
-      cmd_code_o  : out    std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);   -- command code  
-      card_id_o   : out    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- card id
-      param_id_o  : out    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- parameter id
-      num_data_o  : out    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- number of valid 32 bit data words
-      cmd_data_o  : out    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- 32bit valid data word
+      cmd_code_o  : out    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);   -- command code  
+      card_id_o   : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
+      param_id_o  : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- parameter id
+      num_data_o  : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- number of valid 32 bit data words
+      cmd_data_o  : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- 32bit valid data word
       cksum_err_o : out    std_logic;                                          -- checksum error flag
       cmd_rdy_o   : out    std_logic;                                          -- command ready flag (checksum passed)
       data_clk_o  : out    std_logic                                           -- data clock
@@ -71,15 +71,6 @@ entity fibre_rx is
 
 
 end fibre_rx;
-
-
-
--------------------------------------------------------
-library ieee;
-use ieee.std_logic_1164.all;
-
-library work;
-use work.issue_reply_pack.all;
 
 
 architecture behav of fibre_rx is 
