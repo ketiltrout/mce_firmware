@@ -38,14 +38,23 @@ entity cc_test is
       clk : in std_logic;
       txd : out std_logic;
       rxd : in std_logic;
+      
+      -- led interface
       led : out std_logic_vector(2 downto 0);
-      wdt : out std_logic
+      
+      -- watchdog timer interface                      
+      wdt : out std_logic;
+      
+      -- LVDS transmit interface
+      sync : out std_logic;
+      cmd : out std_logic;
+      txspare : out std_logic
    );
 end cc_test;
 
 architecture behaviour of cc_test is
    
-   constant MAX_STATES : integer := 6;
+   constant MAX_STATES : integer := 9;
    signal zero : std_logic;
    signal one : std_logic;
    signal reset : std_logic;
@@ -82,6 +91,9 @@ architecture behaviour of cc_test is
    constant INDEX_LED_STATUS : integer := 3;
    constant INDEX_LED_FAULT : integer := 4;
    constant INDEX_WATCHDOG : integer := 5;
+   constant INDEX_LVDS_TX_CMD : integer := 6;
+   constant INDEX_LVDS_TX_SYNC : integer := 7;
+   constant INDEX_LVDS_TX_SPARE : integer := 8;
    
    constant SEL_RESET : std_logic_vector(MAX_STATES - 1 downto 0) :=
                         (INDEX_RESET => '1', others => '0');
@@ -95,6 +107,12 @@ architecture behaviour of cc_test is
                         (INDEX_LED_FAULT => '1', others => '0');
    constant SEL_WATCHDOG : std_logic_vector(MAX_STATES - 1 downto 0) :=
                         (INDEX_WATCHDOG => '1', others => '0');
+   constant SEL_LVDS_TX_CMD : std_logic_vector(MAX_STATES - 1 downto 0) :=
+                        (INDEX_LVDS_TX_CMD => '1', others => '0');
+   constant SEL_LVDS_TX_SYNC : std_logic_vector(MAX_STATES - 1 downto 0) :=
+                        (INDEX_LVDS_TX_SYNC => '1', others => '0');
+   constant SEL_LVDS_TX_SPARE : std_logic_vector(MAX_STATES - 1 downto 0) :=
+                        (INDEX_LVDS_TX_SPARE => '1', others => '0');
 
    constant DONE_NULL : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET : std_logic_vector(MAX_STATES - 1 downto 0) :=
@@ -109,6 +127,12 @@ architecture behaviour of cc_test is
                         (INDEX_LED_FAULT => '1', others => '0');
    constant DONE_WATCHDOG : std_logic_vector(MAX_STATES - 1 downto 0) :=
                         (INDEX_WATCHDOG => '1', others => '0');
+   constant DONE_LVDS_TX_CMD : std_logic_vector(MAX_STATES - 1 downto 0) :=
+                        (INDEX_LVDS_TX_CMD => '1', others => '0');
+   constant DONE_LVDS_TX_SYNC : std_logic_vector(MAX_STATES - 1 downto 0) :=
+                        (INDEX_LVDS_TX_SYNC => '1', others => '0');
+   constant DONE_LVDS_TX_SPARE : std_logic_vector(MAX_STATES - 1 downto 0) :=
+                        (INDEX_LVDS_TX_SPARE => '1', others => '0');
 
 begin
    -- RS232 interface start
@@ -255,11 +279,55 @@ begin
          wdt_o => wdt
       );
          
+   -- LVDS CMD transmitter
+   lvds_cmd : s_lvds_tx
+      port map (
+         rst_i => reset,
+         clk_i => clk,
+         en_i => sel_vec(INDEX_LVDS_TX_CMD),
+         done_o => done_vec(INDEX_LVDS_TX_CMD),
+         tx_busy_i => tx_busy,
+         tx_ack_i => tx_ack,
+         tx_data_o => tx_rec_array(INDEX_LVDS_TX_CMD).dat,
+         tx_we_o => tx_rec_array(INDEX_LVDS_TX_CMD).we,
+         tx_stb_o => tx_rec_array(INDEX_LVDS_TX_CMD).stb,
+         lvds_o => cmd
+      );
+   
+   -- LVDS SYNC transmitter
+   lvds_sync : s_lvds_tx
+      port map (
+         rst_i => reset,
+         clk_i => clk,
+         en_i => sel_vec(INDEX_LVDS_TX_SYNC),
+         done_o => done_vec(INDEX_LVDS_TX_SYNC),
+         tx_busy_i => tx_busy,
+         tx_ack_i => tx_ack,
+         tx_data_o => tx_rec_array(INDEX_LVDS_TX_SYNC).dat,
+         tx_we_o => tx_rec_array(INDEX_LVDS_TX_SYNC).we,
+         tx_stb_o => tx_rec_array(INDEX_LVDS_TX_SYNC).stb,
+         lvds_o => sync
+      );
+
+   -- LVDS SPARE transmitter
+   lvds_spare : s_lvds_tx
+      port map (
+         rst_i => reset,
+         clk_i => clk,
+         en_i => sel_vec(INDEX_LVDS_TX_SPARE),
+         done_o => done_vec(INDEX_LVDS_TX_SPARE),
+         tx_busy_i => tx_busy,
+         tx_ack_i => tx_ack,
+         tx_data_o => tx_rec_array(INDEX_LVDS_TX_SPARE).dat,
+         tx_we_o => tx_rec_array(INDEX_LVDS_TX_SPARE).we,
+         tx_stb_o => tx_rec_array(INDEX_LVDS_TX_SPARE).stb,
+         lvds_o => txspare
+      );
+      
    zero <= '0';
    one <= '1';                         
    reset <= not reset_n;
    
-   --done_vec(9 downto 2) <= "00000000";
    -- cmd_proc is our main processing state machine
    cmd_proc : process (reset, clk)
    begin
@@ -299,9 +367,20 @@ begin
                      else
                         sel_vec <= SEL_LED_FAULT;
                      end if;
+                     
                   when CMD_WATCHDOG =>
                      -- kick watchdog
                      sel_vec <= SEL_WATCHDOG;
+                     
+                  when CMD_TX =>
+                     -- random number tx test
+                     if (cmd2 = CMD_TX_0) then
+                        sel_vec <= SEL_LVDS_TX_CMD;
+                     elsif (cmd2 = CMD_TX_1) then
+                        sel_vec <= SEL_LVDS_TX_SYNC;
+                     else
+                        sel_vec <= SEL_LVDS_TX_SPARE;
+                     end if;
                   
                   when others =>
                      -- must not be implemented yet!
