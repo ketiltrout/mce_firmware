@@ -20,7 +20,7 @@
 
 -- sram_test_wrapper.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_test_wrapper.vhd,v 1.1 2004/03/25 20:23:14 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_test_wrapper.vhd,v 1.1 2004/04/14 21:53:28 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -31,6 +31,9 @@
 --
 -- Revision history:
 -- $Log: sram_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/14 21:53:28  jjacob
+-- new directory structure
+--
 -- Revision 1.1  2004/03/25 20:23:14  erniel
 -- initial version
 --
@@ -191,7 +194,7 @@ begin
                           tx_stb_o  <= '0';
                           done_o    <= '0';
          
-         when REQUEST =>  adr_o     <= SRAM_VERIFY_ADDR;
+         when REQUEST =>  adr_o     <= VRFY_SRAM1_ADDR;
                           tga_o     <= (others => '0');
                           dat_o     <= (others => '0');
                           we_o      <= '0';

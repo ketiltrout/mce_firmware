@@ -20,7 +20,7 @@
 
 -- sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.2 2004/03/19 22:40:18 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.4 2004/03/19 22:44:42 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,11 @@
 -- Wishbone to asynch. SRAM chip interface
 --
 -- Revision history:
--- <date $Date: 2004/03/19 22:40:18 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/03/19 22:44:42 $>	-		<text>		- <initials $Author: erniel $>
 -- $Log: sram_ctrl.vhd,v $
+-- Revision 1.4  2004/03/19 22:44:42  erniel
+-- Minor change: Tristated addr and data bus when not in use
+--
 -- Revision 1.2  2004/03/19 22:40:18  erniel
 -- Minor change: Tristated addr and data bus when not in use
 --
@@ -529,10 +532,10 @@ begin
             num_fault when (present_state = SEND_RESULT) else (others => '0');
    
    -- decoded signals:
-   master_wait <= '1' when (addr_i = SRAM_ADDR and stb_i = '0' and cyc_i = '1') else '0';   
-   read_cmd    <= '1' when (addr_i = SRAM_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
-   write_cmd   <= '1' when (addr_i = SRAM_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0'; 
+   master_wait <= '1' when (addr_i = SRAM1_ADDR and stb_i = '0' and cyc_i = '1') else '0';   
+   read_cmd    <= '1' when (addr_i = SRAM1_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   write_cmd   <= '1' when (addr_i = SRAM1_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0'; 
 
-   test_cmd    <= '1' when (addr_i = SRAM_VERIFY_ADDR and stb_i = '1' and cyc_i = '1') else '0';  
+   test_cmd    <= '1' when (addr_i = VRFY_SRAM1_ADDR and stb_i = '1' and cyc_i = '1') else '0';  
      
 end behav;

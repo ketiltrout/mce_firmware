@@ -22,6 +22,9 @@
 -- Revision History:
 -- Feb 29, 2004: Initial version - NRG
 -- $Log: watchdog_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/14 21:48:56  jjacob
+-- new directory structure
+--
 -- Revision 1.1  2004/04/13 23:02:37  erniel
 -- no message
 --
@@ -161,7 +164,7 @@ begin
             done_o <= '0';
             
          when WD_RESET => 
-            addr_o <= WATCHDOG_ADDR;
+            addr_o <= RST_WTCHDG_ADDR;
             stb_o  <= '1';
             cyc_o  <= '1';
             done_o <= '0';

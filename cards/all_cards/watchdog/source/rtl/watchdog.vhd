@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.3 2004/04/01 18:10:08 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.4 2004/04/08 18:41:37 erniel Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,8 +30,15 @@
 -- This file implements the watchbone reset functionality
 --
 -- Revision history:
--- <date $Date: 2004/04/01 18:10:08 $>	-		<text>		- <initials $Author: bburger $>
--- $Log$
+-- <date $Date: 2004/04/08 18:41:37 $>	-		<text>		- <initials $Author: erniel $>
+-- $Log: watchdog.vhd,v $
+-- Revision 1.4  2004/04/08 18:41:37  erniel
+-- removed watchdog controller block
+-- removed slave controller interface block
+-- simplified timer reset logic
+-- renamed signals
+-- removed obsolete signals
+--
 --
 ------------------------------------------------------------------------
 
@@ -110,7 +117,7 @@ begin
 --
 ------------------------------------------------------------
 
-   wb_timer_rst  <= '1' when (rst_i = '1' or (addr_i = WATCHDOG_ADDR and stb_i = '1' and cyc_i = '1')) else '0';
+   wb_timer_rst  <= '1' when (rst_i = '1' or (addr_i = RST_WTCHDG_ADDR and stb_i = '1' and cyc_i = '1')) else '0';
    wdt_timer_rst <= '1' when (rst_i = '1' or (wdt_timer = WDT_TIMER_LIMIT)) else '0';
    
    you_kick_my_dog <= '1' when (wdt_timer = WDT_TIMER_LIMIT and wb_timer < WB_TIMER_LIMIT) else '0';
@@ -123,6 +130,6 @@ begin
 ------------------------------------------------------------
   
    rty_o <= '0';
-   ack_o <= '1' when (addr_i = WATCHDOG_ADDR and stb_i = '1' and cyc_i = '1') else '0';
+   ack_o <= '1' when (addr_i = RST_WTCHDG_ADDR and stb_i = '1' and cyc_i = '1') else '0';
 
 end rtl;

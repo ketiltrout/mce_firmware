@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.3 2004/04/16 23:31:11 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.4 2004/04/19 23:43:37 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Mandana Amiri
@@ -30,8 +30,11 @@
 -- Testbench to test dac_ctrl module for bias card
 --
 -- Revision history:
--- <date $Date: 2004/04/16 23:31:11 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/19 23:43:37 $>	- <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl.vhd,v $
+-- Revision 1.4  2004/04/19 23:43:37  mandana
+-- added coverage for range checking
+--
 -- Revision 1.3  2004/04/16 23:31:11  mandana
 -- completed out_sync_cmd and resync_cmd
 --
@@ -236,14 +239,14 @@ begin
    end dac_lvds_cmd;
 ------------------------------------------------------------
 --
---  Issue RESYNC_NXT_ADDR
+--  Issue RESYNC_ADDR
 --
 ------------------------------------------------------------      
    procedure resync_cmd is
    begin
       W_RST_I        <= '0';
       W_DAT_I        <= (others => '0');
-      W_ADDR_I       <= RESYNC_NXT_ADDR;
+      W_ADDR_I       <= RESYNC_ADDR;
       W_TGA_I        <= (others => '0');
       W_WE_I         <= '1';
       W_STB_I        <= '1';
@@ -272,7 +275,7 @@ begin
    begin
       W_RST_I        <= '0';
       W_DAT_I        <= (others => '0');
-      W_ADDR_I       <= CYC_OUT_SYNC_ADDR;
+      W_ADDR_I       <= CYC_OO_SYC_ADDR;
       W_TGA_I        <= (others => '0');
       W_WE_I         <= '0';
       W_STB_I        <= '1';

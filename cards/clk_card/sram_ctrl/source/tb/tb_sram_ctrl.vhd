@@ -20,7 +20,7 @@
 
 -- tb_sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_sram_ctrl.vhd,v 1.1 2004/03/17 03:14:05 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_sram_ctrl.vhd,v 1.1 2004/03/23 20:08:00 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- Testbench for SRAM controller
 --
 -- Revision history:
--- <date $Date: 2004/03/17 03:14:05 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/03/23 20:08:00 $>	-		<text>		- <initials $Author: erniel $>
 
 --
 -----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ begin
    begin
       W_RST_I     <= '0';
       W_DAT_I     <= data;
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr;
       W_WE_I      <= '1';
       W_STB_I     <= '1';
@@ -233,7 +233,7 @@ begin
       -- cycle 1:
       W_RST_I     <= '0';
       W_DAT_I     <= data1;
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr1;
       W_WE_I      <= '1';
       W_STB_I     <= '1';
@@ -244,7 +244,7 @@ begin
       -- cycle 2:
       W_RST_I     <= '0';
       W_DAT_I     <= data2;
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr2;
       W_WE_I      <= '1';
       W_STB_I     <= '1';
@@ -255,7 +255,7 @@ begin
       -- cycle 3:
       W_RST_I     <= '0';
       W_DAT_I     <= data3;
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr3;
       W_WE_I      <= '1';
       W_STB_I     <= '1';
@@ -287,7 +287,7 @@ begin
       -- cycle 1:
       W_RST_I     <= '0';
       W_DAT_I     <= data1;
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr1;
       W_WE_I      <= '1';
       W_STB_I     <= '1';
@@ -303,7 +303,7 @@ begin
       -- cycle 2:
       W_RST_I     <= '0';
       W_DAT_I     <= data2;
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr2;
       W_WE_I      <= '1';
       W_STB_I     <= '1';
@@ -314,7 +314,7 @@ begin
       -- cycle 3:
       W_RST_I     <= '0';
       W_DAT_I     <= data3;
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr3;
       W_WE_I      <= '1';
       W_STB_I     <= '1';
@@ -340,7 +340,7 @@ begin
    begin
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr;
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -369,7 +369,7 @@ begin
       -- cycle 1:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr1;
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -380,7 +380,7 @@ begin
       -- cycle 2:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr2;
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -391,7 +391,7 @@ begin
       -- cycle 3:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr3;
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -420,7 +420,7 @@ begin
       -- cycle 1:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr1;
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -436,7 +436,7 @@ begin
       -- cycle 2:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr2;
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -447,7 +447,7 @@ begin
       -- cycle 3:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
+      W_ADDR_I    <= SRAM1_ADDR;
       W_TGA_I     <= addr3;
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -474,7 +474,7 @@ begin
       -- start verify:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_VERIFY_ADDR;
+      W_ADDR_I    <= VRFY_SRAM1_ADDR;
       W_TGA_I     <= (others => '0');
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -496,7 +496,7 @@ begin
       -- try again:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_VERIFY_ADDR;
+      W_ADDR_I    <= VRFY_SRAM1_ADDR;
       W_TGA_I     <= (others => '0');
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -521,7 +521,7 @@ begin
       -- try again:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_VERIFY_ADDR;
+      W_ADDR_I    <= VRFY_SRAM1_ADDR;
       W_TGA_I     <= (others => '0');
       W_WE_I      <= '0';
       W_STB_I     <= '1';
@@ -552,7 +552,7 @@ begin
       -- start verify:
       W_RST_I     <= '0';
       W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_VERIFY_ADDR;
+      W_ADDR_I    <= VRFY_SRAM1_ADDR;
       W_TGA_I     <= (others => '0');
       W_WE_I      <= '0';
       W_STB_I     <= '1';

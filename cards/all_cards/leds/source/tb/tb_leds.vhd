@@ -1,6 +1,6 @@
 -- tb_leds.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_leds.vhd,v 1.5 2004/03/06 01:14:19 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_leds.vhd,v 1.6 2004/03/29 19:35:47 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date: 2004/03/06 01:14:19 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2004/03/29 19:35:47 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ end TB_LEDS;
 architecture BEH of TB_LEDS is
 
    constant PERIOD : time := 10 ns;
-   constant W_SLAVE_SEL : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := LEDS_ADDR ;
+   constant W_SLAVE_SEL : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := BIT_STATUS_ADDR ;
       
    signal W_LEDS_A : std_logic_vector (WB_DATA_WIDTH-1 downto 0) := "000000000000000000000000" & "00001111";
    signal W_LEDS_B : std_logic_vector (WB_DATA_WIDTH-1 downto 0) := "000000000000000000000000" & "00110001";
@@ -75,7 +75,7 @@ begin
 
    DUT : LEDS
       generic map(
-         SLAVE_SEL  => LEDS_ADDR,
+         SLAVE_SEL  => BIT_STATUS_ADDR,
          ADDR_WIDTH => WB_ADDR_WIDTH,
          DATA_WIDTH => WB_DATA_WIDTH,
          TAG_ADDR_WIDTH => WB_TAG_ADDR_WIDTH         

@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.5 2004/03/06 01:14:27 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,7 +30,7 @@
 -- This file implements the Array ID functionality
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/06 01:14:27 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -139,7 +139,7 @@ begin
 
    leds_slave_ctrl : slave_ctrl
    generic map (
-      SLAVE_SEL  => LEDS_ADDR,
+      SLAVE_SEL  => BIT_STATUS_ADDR,
       ADDR_WIDTH => WB_ADDR_WIDTH,
       DATA_WIDTH => WB_DATA_WIDTH,
       TAG_ADDR_WIDTH => TAG_ADDR_WIDTH

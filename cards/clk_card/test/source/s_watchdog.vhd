@@ -22,6 +22,9 @@
 -- Revision History:
 -- Feb 29, 2004: Initial version - NRG
 -- $Log: s_watchdog.vhd,v $
+-- Revision 1.1  2004/04/14 22:16:23  jjacob
+-- new directory structure
+--
 -- Revision 1.5  2004/04/09 03:50:31  erniel
 -- removed unecessary states from state machine
 -- separated state machine into 3 processes
@@ -158,7 +161,7 @@ begin
             done_o <= '0';
             
          when WD_RESET => 
-            addr_o <= WATCHDOG_ADDR;
+            addr_o <= RST_WTCHDG_ADDR;
             stb_o  <= '1';
             cyc_o  <= '1';
             done_o <= '0';
