@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.36 2004/08/05 23:46:01 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.37 2004/08/05 23:55:45 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.37  2004/08/05 23:55:45  bburger
+-- Bryce:  Fixed a bug in the CLEANUP state of gen_state_NS.  "num_uops_inserted < num_uops", instead of "num_uops_inserted <= num_uops".  This allows the card_addr_i and par_id_i inputs to not be changed immedately when uop_rdy goes low
+--
 -- Revision 1.36  2004/08/05 23:46:01  bburger
 -- Bryce:  Fixed a bug in the CLEANUP state of gen_state_NS.  "num_uops_inserted <= num_uops", instead of "num_uops_inserted /= num_uops"
 --
@@ -1249,7 +1252,11 @@ end behav;
 
 --x Check out the ***'ed lines
 
--- uop_counter may not belong on the sensitivity list for insert FSM
+--x uop_counter may not belong on the sensitivity list for insert FSM
+-- Removed
+
+--x If the sync pulse changes while I'm transmitting a series of commands that were only good for the previous sync period, what should I do?
+-- Stop tranmission?
 
 -- Think about using the free_ptr index to tag the u-op sequence number in the queue.
 
