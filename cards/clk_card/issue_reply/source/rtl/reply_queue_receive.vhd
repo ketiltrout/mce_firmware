@@ -31,6 +31,15 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.10  2005/02/09 21:01:02  erniel
+-- removed separate header fifo (consolidated data and header fifos)
+-- added another fifo stage for temporary storage during CRC verify
+-- reworked fifo read and write FSMs to support new architecture
+-- removed header_o from interface
+-- removed done_o from interface (deassert rdy to indicate done)
+--
+-- WARNING: Interim version.  May contain bugs.
+--
 -- Revision 1.9  2005/01/12 23:24:02  erniel
 -- updated lvds_rx component
 --
@@ -181,6 +190,9 @@ signal rd_done : std_logic;
 signal header    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal header_ld : std_logic;
 
+signal data_ld : std_logic;
+
+
 --------------------------------------------------
 -- Packet store write control:
 
@@ -192,7 +204,7 @@ signal write_ns : write_ctrl_states;
 --------------------------------------------------
 -- Packet store read control:
 
-type read_ctrl_states is (READ_IDLE, COPY_HEADER, PACKET_READY, DISCARD_PACKET, READ_DONE);
+type read_ctrl_states is (READ_IDLE, PACKET_SETUP, PACKET_READY, DISCARD_PACKET, READ_DONE);
 signal read_ps : read_ctrl_states;
 signal read_ns : read_ctrl_states;
 
@@ -600,6 +612,14 @@ begin
                ena_i => header_ld,
                reg_i => packet_data_out,
                reg_o => header);
+   
+   data_reg : reg
+      generic map(WIDTH => PACKET_WORD_WIDTH)
+      port map(clk_i => clk_i,
+               rst_i => rst_i,
+               ena_i => data_ld,
+               reg_i => packet_data_out,
+               reg_o => data_o);
                
    read_counter : counter
       generic map(MAX => 2**PACKET_STORAGE_DEPTH-1)
@@ -623,12 +643,12 @@ begin
    begin
       case read_ps is
          when READ_IDLE =>      if(packets > 0) then
-                                   read_ns <= COPY_HEADER;
+                                   read_ns <= PACKET_SETUP;
                                 else
                                    read_ns <= READ_IDLE;
                                 end if;
                                 
-         when COPY_HEADER =>    read_ns <= PACKET_READY;
+         when PACKET_SETUP =>   read_ns <= PACKET_READY;
                       
          when PACKET_READY =>   if(discard_i = '1') then
                                    read_ns <= DISCARD_PACKET;
@@ -651,30 +671,32 @@ begin
       end case;
    end process read_FSM_NS;
    
-   read_FSM_Out : process(read_ps, packet_data_out, ack_i)
+   read_FSM_Out : process(read_ps, ack_i)
    begin      
       packet_read  <= '0';
       header_ld    <= '0';
+      data_ld      <= '0';
       rd_count_ena <= '0';
       rd_count_clr <= '0';
       rd_done      <= '0';
-      data_o       <= (others => '0');
       rdy_o        <= '0';
       
       case read_ps is
          when READ_IDLE =>      rd_count_ena <= '1';
                                 rd_count_clr <= '1';
          
-         when COPY_HEADER =>    header_ld <= '1';
+         when PACKET_SETUP =>   packet_read  <= '1';
+                                header_ld    <= '1';
+                                data_ld      <= '1';
          
-         when PACKET_READY =>   data_o <= packet_data_out;
-                                rdy_o <= '1';
+         when PACKET_READY =>   rdy_o <= '1';
                                 if(ack_i = '1') then
                                    packet_read  <= '1';
+                                   data_ld      <= '1';
                                    rd_count_ena <= '1';
                                 end if;
          
-         when DISCARD_PACKET => packet_read <= '1';
+         when DISCARD_PACKET => packet_read  <= '1';
                                 rd_count_ena <= '1';
          
          when READ_DONE =>      rd_done <= '1';
