@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.29 2004/11/30 22:58:47 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.30 2004/12/04 02:03:38 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/30 22:58:47 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/12/04 02:03:38 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.30  2004/12/04 02:03:38  bburger
+-- Bryce:  fixing some problems associated with integrating the reply_queue
+--
 -- Revision 1.29  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -269,17 +272,17 @@ begin
          param_id_i        => reply_param_id,            
                          
          -- signals to/from reply queue
-         m_op_rdy_i        => m_op_rdy,  
-         m_op_error_code_i => m_op_error_code(2 downto 0), 
-         m_op_cmd_code_i   => m_op_cmd_code,
-         m_op_param_id_i   => m_op_param_id,
-         m_op_card_id_i    => m_op_card_id, 
+         mop_rdy_i        => m_op_rdy,  
+         mop_error_code_i => m_op_error_code, 
+         mop_cmd_code_i   => m_op_cmd_code,
+         mop_param_id_i   => m_op_param_id,
+         mop_card_id_i    => m_op_card_id, 
          internal_cmd_i    => internal_cmd,
          fibre_word_i      => fibre_word,
          num_fibre_words_i => num_fibre_words,
          fibre_word_ack_o  => fibre_word_ack,
          fibre_word_rdy_i  => fibre_word_rdy,
-         m_op_ack_o        => m_op_ack,    
+         mop_ack_o        => m_op_ack,    
          
          cmd_stop_i        => reply_cmd_stop,
          last_frame_i      => reply_last_frame,
