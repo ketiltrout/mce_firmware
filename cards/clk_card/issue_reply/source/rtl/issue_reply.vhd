@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.16 2004/10/13 05:44:58 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.17 2004/11/09 15:12:47 dca Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/13 05:44:58 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2004/11/09 15:12:47 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.17  2004/11/09 15:12:47  dca
+-- reply_translator and fibre_tx integrated into issue_reply
+--
 -- Revision 1.16  2004/10/13 05:44:58  bench2
 -- Bryce:  Added a new top-level signal to the clock card issue_reply_test block:  fibre_ckr aka fibre_clkr
 --
@@ -429,8 +432,8 @@ begin
    cmd_rcvd_er_i           => reply_cmd_rcvd_er,
    cmd_rcvd_ok_i           => reply_cmd_rcvd_ok,
    cmd_code_i              => reply_cmd_code,
-   card_id_i               => reply_param_id,
-   param_id_i              => reply_card_id,
+   card_id_i               => reply_card_id,
+   param_id_i              => reply_param_id,
       
                    
    -- signals to/from reply queue 
