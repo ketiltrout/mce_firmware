@@ -20,7 +20,7 @@ architecture beh of tb_sync_gen is
    signal dv_i       : std_logic;
    signal dv_en_i    : std_logic;
    signal sync_o     : std_logic;
-   signal sync_num_o : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+   signal sync_num_o : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal clk_count_o     : integer;
    signal clk_error_o     : std_logic_vector(31 downto 0);
 

@@ -38,6 +38,10 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.4  2004/10/06 19:48:35  erniel
+-- moved constants from commnad_pack to sync_gen_pack
+-- updated references to sync_gen_pack
+--
 -- Revision 1.3  2004/09/15 18:42:02  bburger
 -- Bryce:  Added a recirculation MUX
 --
@@ -71,7 +75,8 @@ entity sync_gen is
       dv_i        : in std_logic;
       dv_en_i     : in std_logic;
       sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
+      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      dv_o        : out std_logic
    );
 end sync_gen;
 
@@ -173,25 +178,15 @@ architecture beh of sync_gen is
       begin
          case current_state is
             when RESET =>
-               --sync_o <= '0';
                sync_num_mux_sel <= '1';
-               --sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_WIDTH));
             when SYNC_LOW =>
-               --sync_o <= '0';
                sync_num_mux_sel <= '0';
-               --sync_num <= sync_num;
             when SYNC_HIGH =>
-               --sync_o     <= '1';
                sync_num_mux_sel <= '1';
-               --sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_WIDTH));
             when DV_RECEIVED =>
-               --sync_o <= '0';
                sync_num_mux_sel <= '0';
-               --sync_num <= sync_num;
             when others =>
-               --sync_o <= '0';
                sync_num_mux_sel <= '0';
-               --sync_num <= sync_num;
          end case;
       end process;
       

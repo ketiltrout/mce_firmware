@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.11 2004/08/25 01:31:45 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.12 2004/08/28 01:46:05 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/08/25 01:31:45 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/08/28 01:46:05 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.12  2004/08/28 01:46:05  bburger
+-- Bryce:  The end_of_frame parameter wasn't right
+--
 -- Revision 1.11  2004/08/25 01:31:45  bburger
 -- Bryce:  just spacing
 --
@@ -91,9 +94,11 @@ use sys_param.data_types_pack.all;
 
 package frame_timing_pack is
 
-   constant MUX_LINE_PERIOD   : integer := 64; -- 64 50MHz cycles
-   constant NUM_OF_ROWS       : integer := 41;
-   constant END_OF_FRAME      : integer := NUM_OF_ROWS*MUX_LINE_PERIOD-1; --(41*MUX_LINE_PERIOD);
+   constant MUX_LINE_PERIOD        : integer := 64; -- 64 50MHz cycles
+   constant NUM_OF_ROWS            : integer := 41;
+   constant END_OF_FRAME           : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-1; --(41*MUX_LINE_PERIOD);
+   constant END_OF_FRAME_1ROW_PREV : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-MUX_LINE_PERIOD-1;
+   constant END_OF_FRAME_1ROW_POST : integer := MUX_LINE_PERIOD-1;
 
    ------------------------------------------------------------------------------------
    -- Clock Card frame structure
@@ -148,11 +153,25 @@ package frame_timing_pack is
 
    component frame_timing is
    port(
-         clk_i       : in std_logic;
-         sync_i      : in std_logic;
-         frame_rst_i : in std_logic;
-         clk_count_o : out integer;
-         clk_error_o : out std_logic_vector(31 downto 0)
+         clk_i                      : in std_logic;
+         sync_i                     : in std_logic;
+         frame_rst_i                : in std_logic;
+         mode_flag_clr_i            : in std_logic;
+
+         sample_num_i               : in integer;
+         sample_delay_i             : in integer;
+         feedback_delay_i           : in integer;
+
+         dac_dat_en_o               : out std_logic;
+         adc_coadd_en_o             : out std_logic;
+         restart_frame_1row_prev_o  : out std_logic;
+         restart_frame_aligned_o    : out std_logic;
+         restart_frame_1row_post_o  : out std_logic;
+         row_switch_o               : out std_logic;
+         initialize_window_o        : out std_logic
+         
+--         clk_count_o                : out integer;
+--         clk_error_o                : out std_logic_vector(31 downto 0)
       );
    end component;
 

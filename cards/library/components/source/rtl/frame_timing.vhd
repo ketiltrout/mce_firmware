@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.9 2004/07/21 22:30:15 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.10 2004/08/20 23:59:00 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/07/21 22:30:15 $> - <text> - <initials $Author: erniel $>
+-- <date $Date: 2004/08/20 23:59:00 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.10  2004/08/20 23:59:00  bburger
+-- Bryce:  now expects sync pulses on the last clock cycle in a frame, and restarts clk_count on the next cycle in a frame
+--
 -- Revision 1.9  2004/07/21 22:30:15  erniel
 -- updated counter component
 --
@@ -74,45 +77,83 @@ use components.component_pack.all;
 
 entity frame_timing is
    port(
-      clk_i       : in std_logic;
-      sync_i      : in std_logic;
-      frame_rst_i : in std_logic;
-      clk_count_o : out integer;
-      clk_error_o : out std_logic_vector(31 downto 0)
+      clk_i                      : in std_logic;
+      sync_i                     : in std_logic;
+      frame_rst_i                : in std_logic;
+      
+      init_window_req_i          : in std_logic;
+--      init_window_clear          : in std_logic;
+      
+      sample_num_i               : in integer;
+      sample_delay_i             : in integer;
+      feedback_delay_i           : in integer;
+         
+      dac_dat_en_o               : out std_logic;--
+      adc_coadd_en_o             : out std_logic;--
+      restart_frame_1row_prev_o  : out std_logic;--
+      restart_frame_aligned_o    : out std_logic;-- 
+      restart_frame_1row_post_o  : out std_logic;--
+      row_switch_o               : out std_logic;--
+      initialize_window_o        : out std_logic
+         
+--      clk_count_o                : out integer;
+--      clk_error_o                : out std_logic_vector(31 downto 0)
    );
 end frame_timing;
 
 architecture beh of frame_timing is
-
-   --signal frame_rst     : std_logic;
-   signal clk_error     : std_logic_vector(31 downto 0);
-   signal counter_rst   : std_logic;
-   signal count         : std_logic_vector(31 downto 0);
-   signal count_int     : integer;
-   --signal reg_rst       : std_logic;
-   signal wait_for_sync : std_logic;
-   signal latch_error   : std_logic;
-   type states is (WAIT_FRM_RST, COUNT_UP, GOT_SYNC, WAIT_TO_LATCH_ERR);
    
+   signal clk_error           : std_logic_vector(31 downto 0);
+   signal counter_rst         : std_logic;
+   signal count               : std_logic_vector(31 downto 0);
+   signal frame_count_int     : integer;
+   signal row_count_int       : integer;
+   signal wait_for_sync       : std_logic;
+   signal latch_error         : std_logic;
+   signal init_window_clear   : std_logic;
+   signal init_window_req     : std_logic_vector(1 downto 0);
+   signal frame_start         : std_logic;
+
+   type states is (WAIT_FRM_RST, COUNT_UP, GOT_SYNC, WAIT_TO_LATCH_ERR);
    signal current_state, next_state : states;
    
    begin
-   cntr : counter
-      generic map(MAX => END_OF_FRAME, 
-                  STEP_SIZE => 1,
-                  WRAP_AROUND => '1',
-                  UP_COUNTER => '1')
+   frame_period_cntr : counter
+      generic map(
+         MAX => END_OF_FRAME, 
+         STEP_SIZE => 1,
+         WRAP_AROUND => '1',
+         UP_COUNTER => '1'
+      )
       port map(
          clk_i => clk_i,
          rst_i => counter_rst,
          ena_i => '1',
          load_i => '0',
          count_i => 0,
-         count_o => count_int
+         count_o => frame_count_int
       );
 
-   rstr : reg
-      generic map(WIDTH => 32)
+   row_dwell_cntr : counter
+      generic map(
+         MAX => MUX_LINE_PERIOD-1, 
+         STEP_SIZE => 1,
+         WRAP_AROUND => '1',
+         UP_COUNTER => '1'
+      )
+      port map(
+         clk_i => clk_i,
+         rst_i => counter_rst,
+         ena_i => '1',
+         load_i => '0',
+         count_i => 0,
+         count_o => row_count_int
+      );
+
+   clock_err_reg : reg
+      generic map(
+         WIDTH => 32
+      )
       port map(
          clk_i => latch_error,
          rst_i => frame_rst_i,
@@ -121,24 +162,35 @@ architecture beh of frame_timing is
          reg_o => clk_error
       );
 
-   count <= conv_std_logic_vector(count_int, 32);
+   init_win_reg : reg
+      generic map(
+         WIDTH => 2
+      )
+      port map(
+         clk_i => clk_i,
+         rst_i => init_window_clear,
+         ena_i => init_window_req_i,
+         reg_i => "11",
+         reg_o => init_window_req
+      );
 
-   -- Inputs/Outputs
-   clk_count_o <= count_int;
-   clk_error_o <= clk_error;
+   count                      <= conv_std_logic_vector(frame_count_int, 32);
+   counter_rst                <= '1' when wait_for_sync = '1' else '0';
+
+   -- Frame-timing signals
+   restart_frame_1row_prev_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_PREV else '0';
+   restart_frame_aligned_o    <= '1' when frame_count_int = END_OF_FRAME else '0';
+   restart_frame_1row_post_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_POST else '0';
+   row_switch_o               <= '1' when row_count_int = MUX_LINE_PERIOD-1 else '0';
+   dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i else '0';
+   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i else '0';
+   frame_start                <= '1' when frame_count_int = 0 else '0';
+
    
-   -- CLOCKED FSMs
-   state_FF: process(clk_i)
-   begin
-      if(frame_rst_i = '1') then
-         current_state <= WAIT_FRM_RST;
-      elsif(clk_i'event and clk_i = '1') then
-         current_state <= next_state;
-      end if;
-   end process state_FF;
-
-   -- If a frame_reset occurs, then during the next sync pulse, count_int resets to zero and increments to 1 two cycles after the rising edge of the sync pulse
-   -- Otherwise, count_int should reset to zero at the time when it reaches END_OF_FRAME - and disregard sync altogether.
+   
+   
+   -- If a frame_reset occurs, then during the next sync pulse, frame_count_int resets to zero and increments to 1 two cycles after the rising edge of the sync pulse
+   -- Otherwise, frame_count_int should reset to zero at the time when it reaches END_OF_FRAME - and disregard sync altogether.
    
    -- During normal operation, this block will have synchronized itself so that clk_count_o wraps to 0 on the clock cycle following the sync pulse
    -- Also, during normal operation, clk_error_o should indicate '0' if it is perfectly synchronized.
@@ -148,6 +200,15 @@ architecture beh of frame_timing is
    -- According to simulations, when I register clk_error_o, it takes the value of clk_count_o from the previous clock cycle.
    -- That seems wonky to me, and in practice, we will probably have to test this.
    -- If the second clock cycle delay is not needed in hardware, then just remove the WAIT_TO_LATCH_ERR state from the FSM.
+   state_FF: process(clk_i, frame_rst_i)
+   begin
+      if(frame_rst_i = '1') then
+         current_state <= WAIT_FRM_RST;
+      elsif(clk_i'event and clk_i = '1') then
+         current_state <= next_state;
+      end if;
+   end process state_FF;
+
    state_NS: process(current_state, sync_i)
    begin
       case current_state is
@@ -177,7 +238,7 @@ architecture beh of frame_timing is
       case current_state is
          when WAIT_FRM_RST =>
             latch_error <= '0';
-            if (sync_i = '1') then
+            if(sync_i = '1') then
                wait_for_sync <= '1';
             else
                wait_for_sync <= '0';
@@ -196,7 +257,5 @@ architecture beh of frame_timing is
             wait_for_sync <= '0';
       end case;
    end process state_out;
-   
-   counter_rst <= '1' when wait_for_sync = '1' else '0';
    
 end beh;
