@@ -31,7 +31,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.1  2004/12/04 03:08:24  mohsen
+-- Initial Release
+--
 --
 --
 --
@@ -76,7 +79,6 @@ package flux_loop_pack is
 
   
   -- Wishbone frame data specific
-  constant ROW_ADDR_WIDTH         :  integer := 6;
   constant RAW_DATA_WIDTH         : integer := 16;
   constant RAW_ADDR_WIDTH         : integer := 13;                   -- enough for two frame
 
@@ -89,7 +91,6 @@ package flux_loop_pack is
   -- The following is for debug and will be taken out in the final version 
   constant FSFB_QUEUE_DATA_WIDTH  : integer := WB_DATA_WIDTH;        -- data width of first stage feedback queue
 
-  constant FSFB_QUEUE_ADDR_WIDTH  : integer := ROW_ADDR_WIDTH;       -- address width of first stage feedback queue 
   constant COEFF_QUEUE_DATA_WIDTH : integer := WB_DATA_WIDTH;        -- data width of PIDZ coefficient queue
   constant COEFF_QUEUE_ADDR_WIDTH : integer := PIDZ_ADDR_WIDTH;      -- address width of PIDZ coefficient queue
 
