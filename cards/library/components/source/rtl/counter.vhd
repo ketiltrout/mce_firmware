@@ -20,7 +20,7 @@
 
 -- counter.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: counter.vhd,v 1.1 2004/03/23 02:00:42 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,11 @@
 -- generic integer up/down counter with asynch. reset, synch. load, and count enable
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/03/23 02:00:42 $>	- <initials $Author: erniel $>
+-- $Log: counter.vhd,v $
+-- Revision 1.1  2004/03/23 02:00:42  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -42,7 +45,8 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 entity counter is
-generic(MAX : integer := 255);
+generic(MAX      : integer :=255;
+        STEPSIZE : integer :=1);
 port(clk_i   : in std_logic;
      rst_i   : in std_logic;
      ena_i   : in std_logic;
@@ -73,10 +77,10 @@ begin
                count := count_i;
             elsif(down_i = '1') then
                -- do synchronous count down:
-               count := count - 1;
+               count := count - STEPSIZE;
             else
                -- do synchronous count up:
-               count := count + 1;
+               count := count + STEPSIZE;
             end if;
          end if;
       end if;
