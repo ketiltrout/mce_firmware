@@ -353,7 +353,7 @@ begin
     elsif clk'event and clk = '1' then  -- rising clock edge
       state_shift <= '0';
       i:=i+1;
-      if i = 90 then
+      if i = 9000000 then
         state_shift <= '1';
         i:=0;
       end if;
@@ -369,7 +369,7 @@ begin
       
     elsif clk'event and clk = '1' then  -- rising clock edge
       if state_shift='1' then
-        if rdaddress_packet_ram <x"7c" then
+        if rdaddress_packet_ram <x"8b" then
           rdaddress_packet_ram <= rdaddress_packet_ram +1;
         else
           rdaddress_packet_ram <= x"76";
@@ -482,8 +482,8 @@ begin
 
 
    
-   --dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft;
-   dispatch_ack_in <= ack_led or ack_ft or ack_fb;  -- for HW test with led &
+   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft;
+   --dispatch_ack_in <= ack_led or ack_ft or ack_fb;  -- for HW test with led &
                                                     -- frame timing & wbs_fb
 
  
