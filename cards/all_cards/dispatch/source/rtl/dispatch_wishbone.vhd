@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.3  2004/08/25 20:17:35  erniel
+-- modified addr_ena timing
+--
 -- Revision 1.2  2004/08/23 22:02:29  erniel
 -- removed WB_WAIT state (master wait state)
 --
@@ -73,6 +76,7 @@ port(clk_i : in std_logic;
      
      -- Reply interface:
      reply_rdy_o : out std_logic;
+     reply_ack_i : in std_logic;
                
      reply_buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
      reply_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
@@ -154,7 +158,11 @@ begin
                              next_state <= WB_CYCLE;
                           end if;
                                                       
-         when DONE =>     next_state <= IDLE;
+         when DONE =>     if(reply_ack_i = '1') then
+                             next_state <= IDLE;
+                          else
+                             next_state <= DONE;
+                          end if;
       end case;
    end process stateNS;
    
