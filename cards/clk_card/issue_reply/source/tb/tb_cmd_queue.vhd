@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.13 2004/08/05 18:41:12 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.14 2004/08/05 21:21:24 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.14  2004/08/05 21:21:24  bburger
+-- Bryce:  Now works with the data-clocking format of fibre_rx
+--
 -- Revision 1.13  2004/08/05 18:41:12  bburger
 -- Bryce:  In progress
 --
@@ -97,11 +100,11 @@ end TB_CMD_QUEUE;
 architecture BEH of TB_CMD_QUEUE is
 
    -- reply_queue interface
-   signal uop_status_i  : std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0) := (others => '0'); -- Tells the cmd_queue whether a reply was successful or erroneous
+--   signal uop_status_i  : std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0) := (others => '0'); -- Tells the cmd_queue whether a reply was successful or erroneous
    signal uop_rdy_o     : std_logic := '0'; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
    signal uop_ack_i     : std_logic := '0'; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
-   signal uop_discard_o : std_logic := '0'; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
-   signal uop_timedout_o: std_logic := '0'; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
+--   signal uop_discard_o : std_logic := '0'; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
+--   signal uop_timedout_o: std_logic := '0'; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
    signal uop_o         : std_logic_vector(QUEUE_WIDTH-1 downto 0) := (others => '0'); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
    -- cmd_translator interface

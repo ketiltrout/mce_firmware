@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.37 2004/08/05 23:55:45 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.38 2004/08/06 00:49:15 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.38  2004/08/06 00:49:15  bburger
+-- Bryce:  Added a comment
+--
 -- Revision 1.37  2004/08/05 23:55:45  bburger
 -- Bryce:  Fixed a bug in the CLEANUP state of gen_state_NS.  "num_uops_inserted < num_uops", instead of "num_uops_inserted <= num_uops".  This allows the card_addr_i and par_id_i inputs to not be changed immedately when uop_rdy goes low
 --
@@ -81,11 +84,11 @@ use work.async_pack.all;
 entity cmd_queue is
    port(
       -- reply_queue interface
-      uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
+--      uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
       uop_rdy_o     : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
       uop_ack_i     : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
-      uop_discard_o : out std_logic; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
-      uop_timedout_o: out std_logic; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
+--      uop_discard_o : out std_logic; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
+--      uop_timedout_o: out std_logic; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
       uop_o         : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
       -- cmd_translator interface
@@ -567,7 +570,7 @@ begin
    uop_timed_out <= '1' when (sync_count_slv > qb_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) or
                              (sync_count_slv < qb_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) and MAX_SYNC_COUNT - qb_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) + sync_count_slv > TIMEOUT_LEN)) else '0';
 
-   retire_state_NS: process(present_retire_state, retire_ptr, send_ptr, uop_ack_i, uop_status_i, uop_timed_out)
+   retire_state_NS: process(present_retire_state, retire_ptr, send_ptr, uop_ack_i, uop_timed_out)
    begin
       case present_retire_state is
          when RESET =>
@@ -582,35 +585,39 @@ begin
             next_retire_state <= STATUS;
          when STATUS =>
             if(uop_ack_i = '1') then
-               if(uop_status_i = SUCCESS) then
+--               if(uop_status_i = SUCCESS) then
                   next_retire_state <= RETIRE;
-               elsif(uop_status_i = FAIL) then
-                  next_retire_state <= FLUSH;
-               --Instruction timed out
-               elsif(uop_timed_out = '1') then
-                  next_retire_state <= EJECT;
-               end if;
+--               elsif(uop_status_i = FAIL) then
+--                  next_retire_state <= FLUSH;
+--               --Instruction timed out
+--               elsif(uop_timed_out = '1') then
+--                  next_retire_state <= EJECT;
+--               end if;
             elsif (uop_ack_i = '0') then
                next_retire_state <= STATUS;
             end if;
          when RETIRE =>
             next_retire_state <= IDLE;
-         when FLUSH =>
-            if(retire_ptr /= send_ptr) then
-               next_retire_state <= NEXT_FLUSH;
-            elsif(retire_ptr = send_ptr) then
-               next_retire_state <= IDLE;
-            end if;
-         when EJECT =>
-            next_retire_state <= IDLE;
-         when NEXT_FLUSH =>
-            next_retire_state <= FLUSH_STATUS;
-         when FLUSH_STATUS =>
-            if(uop_ack_i = '0') then
-               next_retire_state <= FLUSH_STATUS;
-            elsif(uop_ack_i = '1') then
-               next_retire_state <= FLUSH;
-            end if;
+-- I have commented out all these extra states because the cmd_queue should not control of retiring u-ops.
+-- Only the reply_queue should have this abilty.
+-- The reply_queue takes on the responsibility of detecting errors so that the cmd_queue does not.
+-- Thus the cmd_queue need only know when to retire a u-op regardless of whether its reply is ok or in error.
+--         when FLUSH =>
+--            if(retire_ptr /= send_ptr) then
+--               next_retire_state <= NEXT_FLUSH;
+--            elsif(retire_ptr = send_ptr) then
+--               next_retire_state <= IDLE;
+--            end if;
+--         when EJECT =>
+--            next_retire_state <= IDLE;
+--         when NEXT_FLUSH =>
+--            next_retire_state <= FLUSH_STATUS;
+--         when FLUSH_STATUS =>
+--            if(uop_ack_i = '0') then
+--               next_retire_state <= FLUSH_STATUS;
+--            elsif(uop_ack_i = '1') then
+--               next_retire_state <= FLUSH;
+--            end if;
          when others =>
             next_retire_state <= IDLE;
       end case;
@@ -625,77 +632,77 @@ begin
          when RESET =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '0';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '0';
             retired        <= '0';
             retire_ptr     <= ADDR_ZERO;
             flush_ptr      <= ADDR_ZERO;
          when IDLE =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '0';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '0';
             retired        <= '0';
          when NEXT_UOP =>
             uop_rdy_o      <= '1';
             freeze_send    <= '0';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '0';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '0';
             retired        <= '0';
          when STATUS =>
             uop_rdy_o      <= '1';
             freeze_send    <= '0';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '0';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '0';
             retired        <= '0';
          when RETIRE =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '0';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '0';
             retired        <= '1';
             retire_ptr     <= retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
             flush_ptr      <= flush_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
-         when FLUSH =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '1';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '1';
-            retired        <= '1';
-            if(retire_ptr = send_ptr) then
-               -- We've finished flushing out the system of invalid u-ops
-               retire_ptr <= flush_ptr;
-               -- ***I can't modify the send_ptr here because it is modified in the Send FSM
-               -- We need to find a way to reset the send_ptr if a flush occurs
-               --send_ptr <= flush_ptr;
-            end if;
-         when EJECT =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
-            uop_timedout_o <= '1';
-            uop_discard_o  <= '1';
-            retired        <= '1';
-            retire_ptr     <= retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
-            flush_ptr      <= flush_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
-         when NEXT_FLUSH =>
-            uop_rdy_o      <= '1';
-            freeze_send    <= '1';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '1';
-            retired        <= '0';
-            -- flush_ptr acts as a place holder at this time
-            retire_ptr      <= retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
-         when FLUSH_STATUS =>
-            uop_rdy_o      <= '1';
-            freeze_send    <= '1';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '1';
-            retired        <= '0';
+--         when FLUSH =>
+--            uop_rdy_o      <= '0';
+--            freeze_send    <= '1';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '1';
+--            retired        <= '1';
+--            if(retire_ptr = send_ptr) then
+--               -- We've finished flushing out the system of invalid u-ops
+--               retire_ptr <= flush_ptr;
+--               -- ***I can't modify the send_ptr here because it is modified in the Send FSM
+--               -- We need to find a way to reset the send_ptr if a flush occurs
+--               --send_ptr <= flush_ptr;
+--            end if;
+--         when EJECT =>
+--            uop_rdy_o      <= '0';
+--            freeze_send    <= '0';
+--            uop_timedout_o <= '1';
+--            uop_discard_o  <= '1';
+--            retired        <= '1';
+--            retire_ptr     <= retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+--            flush_ptr      <= flush_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+--         when NEXT_FLUSH =>
+--            uop_rdy_o      <= '1';
+--            freeze_send    <= '1';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '1';
+--            retired        <= '0';
+--            -- flush_ptr acts as a place holder at this time
+--            retire_ptr      <= retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+--         when FLUSH_STATUS =>
+--            uop_rdy_o      <= '1';
+--            freeze_send    <= '1';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '1';
+--            retired        <= '0';
          when others =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
-            uop_timedout_o <= '0';
-            uop_discard_o  <= '0';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '0';
             retired        <= '0';
       end case;
    end process;
@@ -1265,3 +1272,5 @@ end behav;
 -- I need to insert a code either in the start sync, end sync or data size field.  
 -- At this point, I think that I'll use the data size field, because there are definate limits to the size that a packet will be.
 -- I can't add a new state in the send state machine that would alter the data field, because you can only read from the qa_sig data port.
+
+-- The calculated CRC is always the same..

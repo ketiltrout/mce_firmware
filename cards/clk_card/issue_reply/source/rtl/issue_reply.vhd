@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.5 2004/08/05 20:52:53 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.6 2004/08/11 00:09:11 jjacob Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	       Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:         Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,19 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/05 20:52:53 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/11 00:09:11 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.6  2004/08/11 00:09:11  jjacob
+-- added the following signals to cmd_translator for the reply_translator interface:
+--       reply_cmd_rcvd_er_o         : out std_logic;
+--       reply_cmd_rcvd_ok_o         : out std_logic;
+--       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
+--       reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
+--       reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)
+--
+-- and also added an input for the checksum error to route to the reply_cmd_rcvd_er_
+--
 -- Revision 1.5  2004/08/05 20:52:53  jjacob
 -- changed sync pulse period to 53us
 --
@@ -318,11 +328,11 @@ begin
     i_cmd_queue : cmd_queue
       port map(
          -- reply_queue interface
-         uop_status_i   => uop_status,  -- tie these signals
+--         uop_status_i   => uop_status,  -- tie these signals
          uop_rdy_o      => uop_rdy,
          uop_ack_i      => uop_ack,
-         uop_discard_o  => uop_discard,
-         uop_timedout_o => uop_timedout,
+--         uop_discard_o  => uop_discard,
+--         uop_timedout_o => uop_timedout,
          uop_o          => uop,
          
          -- cmd_translator interface
