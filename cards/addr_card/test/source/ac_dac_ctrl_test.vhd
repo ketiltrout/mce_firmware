@@ -55,7 +55,7 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.frame_timing_pack.all;
+--use work.frame_timing_pack.all;
 
 entity ac_dac_ctrl_test is
    port (

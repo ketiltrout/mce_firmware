@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.9 2004/07/21 22:30:15 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.10 2004/11/15 20:03:41 bburger Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/07/21 22:30:15 $> - <initials $Author: erniel $>
+-- <date $Date: 2004/11/15 20:03:41 $> - <initials $Author: bburger $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.10  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.9  2004/07/21 22:30:15  erniel
 -- updated counter component
 --
@@ -75,7 +78,7 @@ use sys_param.data_types_pack.all;
 use components.component_pack.all;
 
 use work.dac_ctrl_pack.all;
-use work.frame_timing_pack.all;
+--use work.frame_timing_pack.all;
 
 -----------------------------------------------------------------------------
                      

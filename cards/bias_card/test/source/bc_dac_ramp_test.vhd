@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.5 2004/07/21 22:30:15 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.6 2004/11/15 20:03:41 bburger Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -47,7 +47,7 @@ use sys_param.data_types_pack.all;
 use components.component_pack.all;
 
 use work.dac_ctrl_pack.all;
-use work.frame_timing_pack.all;
+-- use work.frame_timing_pack.all;
 
 -----------------------------------------------------------------------------
                      
