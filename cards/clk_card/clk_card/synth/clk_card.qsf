@@ -368,7 +368,7 @@ set_global_assignment -name DEVICE EP1S30F780C5
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
-set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 5ns
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 8ns
 
 # Timing Analysis Assignments
 # ===========================
@@ -411,7 +411,28 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|present_send_state*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|lvds_tx:cmd_tx2\|fifo:data_buffer\|altsyncram:fifo_storage\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|reply_queue:i_reply_queue\|reply_queue_retire:rqr\|reg:header_d_reg\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|reply_queue:i_reply_queue\|reply_queue_retire:rqr\|reg:header_*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|shift_reg:sh_reg*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_tx_dat_reg*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_arbiter:arbiter\|ack_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|present_insert_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_arbiter:arbiter\|current_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_arbiter:arbiter\|ret_dat_pending*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|current_seq_num_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|current_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|current_sync_num_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|sync_current_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "sync_gen:sync_gen0\|sync_gen_core:sgc\|sync_num*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|present_gen_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|first_time_cur_state*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|ret_dat_s_seq_start_num*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|num_uops_inserted_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|ret_dat_s_seq_stop_num*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|parameter_id_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|ret_dat_stop_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_arbiter:arbiter\|lpm_counter:m_op_seq_num_rtl_73\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|cmd_translator:i_cmd_translator\|cmd_translator_ret_dat_fsm:return_data_cmd\|data_reg*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "issue_reply:issue_reply0\|fibre_rx:i_fibre_rx\|fibre_rx_protocol:I2\|*" -to "issue_reply:issue_reply0\|cmd_queue:i_cmd_queue\|cmd_queue_tpram:cmd_queue_ram40_inst\|*"
 
 	# Analysis & Synthesis Assignments
 	# ================================
