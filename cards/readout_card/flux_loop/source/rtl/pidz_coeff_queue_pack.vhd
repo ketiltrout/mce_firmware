@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id: pidz_coeff_queue_pack.vhd,v 1.1 2004/08/25 23:07:10 bburger Exp $
+-- $Id: pidz_coeff_queue_pack.vhd,v 1.2 2004/08/26 21:46:44 bburger Exp $
 -- Description:
 -- Pack file for the pidz_coeff_queue generated with the Quartus Megawizard
 --
 -- Revision history:
 -- $Log: pidz_coeff_queue_pack.vhd,v $
+-- Revision 1.2  2004/08/26 21:46:44  bburger
+-- Bryce:  adjusted the name of constants to be more intuitive
+--
 -- Revision 1.1  2004/08/25 23:07:10  bburger
 -- Bryce:  new
 --
@@ -42,7 +45,7 @@ package pidz_coeff_queue_pack is
    constant PIDZ_Q_LEN        : integer :=                41;
    constant PIDZ_Q_WIDTH      : integer :=               128;
    constant PIDZ_Q_ADDR_WIDTH : integer :=                 6;
-   constant P_END           : integer := PC_Q_WIDTH     - 32;
+   constant P_END           : integer := PIDZ_Q_WIDTH   - 32;
    constant I_END           : integer := P_END          - 32;
    constant D_END           : integer := I_END          - 32;
    constant Z_END           : integer := D_END          - 32;
@@ -50,14 +53,14 @@ package pidz_coeff_queue_pack is
    component pidz_coeff_queue IS
       PORT
       (
-         data        : IN STD_LOGIC_VECTOR (PC_Q_WIDTH-1 DOWNTO 0);
-         wraddress   : IN STD_LOGIC_VECTOR (PC_Q_ADDR_WIDTH-1 DOWNTO 0);
-         rdaddress_a : IN STD_LOGIC_VECTOR (PC_Q_ADDR_WIDTH-1 DOWNTO 0);
-         rdaddress_b : IN STD_LOGIC_VECTOR (PC_Q_ADDR_WIDTH-1 DOWNTO 0);
+         data        : IN STD_LOGIC_VECTOR (PIDZ_Q_WIDTH-1 DOWNTO 0);
+         wraddress   : IN STD_LOGIC_VECTOR (PIDZ_Q_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_a : IN STD_LOGIC_VECTOR (PIDZ_Q_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_b : IN STD_LOGIC_VECTOR (PIDZ_Q_ADDR_WIDTH-1 DOWNTO 0);
          wren        : IN STD_LOGIC  := '1';
          clock       : IN STD_LOGIC ;
-         qa          : OUT STD_LOGIC_VECTOR (PC_Q_WIDTH-1 DOWNTO 0);
-         qb          : OUT STD_LOGIC_VECTOR (PC_Q_WIDTH-1 DOWNTO 0)
+         qa          : OUT STD_LOGIC_VECTOR (PIDZ_Q_WIDTH-1 DOWNTO 0);
+         qb          : OUT STD_LOGIC_VECTOR (PIDZ_Q_WIDTH-1 DOWNTO 0)
       );
    END component;
 
