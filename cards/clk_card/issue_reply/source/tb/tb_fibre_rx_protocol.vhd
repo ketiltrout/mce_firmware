@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.1.1.1 2004/10/08 10:38:27 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.2 2004/10/13 08:38:58 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,8 +32,8 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/08 10:38:27 $>	-		<text>		- <initials $Author: dca $>
--- $log$
+-- <date $Date: 2004/10/13 08:38:58 $>	-		<text>		- <initials $Author: dca $>
+-- $Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
