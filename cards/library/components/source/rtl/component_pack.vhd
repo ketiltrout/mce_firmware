@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.21 2004/08/10 17:22:44 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.22 2004/09/01 17:13:17 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.22  2004/09/01 17:13:17  erniel
+-- updated counter component
+--
 -- Revision 1.21  2004/08/10 17:22:44  erniel
 -- updated lfsr component
 --
@@ -502,5 +505,47 @@ port(clk_i  : in std_logic;
      lfsr_i : in std_logic_vector(WIDTH-1 downto 0);
      lfsr_o : out std_logic_vector(WIDTH-1 downto 0));
 end component;
+
+
+------------------------------------------------------------
+--
+-- Synchronous FIFO for fibre_rx
+--
+------------------------------------------------------------
+component sync_fifo_rx
+port(data		: in std_logic_vector (7 downto 0);      -- input data
+     wrreq		: in std_logic ;                         -- write request
+     rdreq		: in std_logic ;                         -- read request
+     rdclk		: in std_logic ;                         -- read clock
+     wrclk		: in std_logic ;                         -- write clock
+     aclr		: in std_logic ;                         -- asynchrouous clear
+     q		: out std_logic_vector (7 downto 0);     -- output data 
+     rdempty		: out std_logic ;                        -- empty flag (read)
+     wrfull		: out std_logic                          -- write flad (full)
+);
+end component;
+
+
+
+------------------------------------------------------------
+--
+-- Synchronous FIFO for fibre_tx
+--
+-- rdreq acts are read acknowledge
+------------------------------------------------------------
+component sync_fifo_tx
+port(data		: in std_logic_vector (7 downto 0);      -- input data
+     wrreq		: in std_logic ;                         -- write request
+     rdreq		: in std_logic ;                         -- read request (acknowledge)
+     rdclk		: in std_logic ;                         -- read clock
+     wrclk		: in std_logic ;                         -- write clock
+     aclr		: in std_logic ;                         -- asynchrouous clear
+     q	        : out std_logic_vector (7 downto 0);     -- output data 
+     rdempty	: out std_logic ;                        -- empty flag (read)
+     wrfull		: out std_logic                          -- write flad (full)
+);
+end component;
+
+
 
 end component_pack;
