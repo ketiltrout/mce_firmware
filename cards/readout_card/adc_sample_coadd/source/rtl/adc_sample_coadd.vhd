@@ -109,6 +109,10 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.4  2004/12/13 21:03:01  mohsen
+-- Reduced the word size of RAW data storage from 16 to 8.  This is as the result of
+-- the memroy shortage in the Stratix EP1S30 with the current design of the readout card.
+--
 -- Revision 1.3  2004/11/26 18:25:54  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -239,7 +243,7 @@ begin  -- struc
   -- The following statement is used to select part of the accuracy of the ADC.
   -- Based on the value of RAW_DATA_POSITION_POINTER, we select part of the
   -- ADC 14-bit output
-  raw_dat   <= adc_dat_i(RAW_DATA_POSITION_POINTER-1 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
+  raw_dat   <= adc_dat_i(ADC_DAT_WIDTH-1) & adc_dat_i(RAW_DATA_POSITION_POINTER-2 downto RAW_DATA_POSITION_POINTER-USED_RAW_DAT_WIDTH);
   
   raw_dat_o <= (ZERO_PAD & raw_dat_out);  -- zero pad to match the width expected by wbs_frame_data
 
