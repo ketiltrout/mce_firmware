@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.25 2004/12/03 17:18:06 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.26 2004/12/08 22:11:41 bburger Exp $>
 --
 -- Project:          Scuba 2
 -- Author:           David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/12/03 17:18:06 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/12/08 22:11:41 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.26  2004/12/08 22:11:41  bburger
+-- Bryce:  Added default value for chksm_load at the top of a process
+--
 -- Revision 1.25  2004/12/03 17:18:06  dca
 -- mop_error_code_i width changed.
 -- Various changes made to accomodate this
@@ -462,8 +465,8 @@ signal head_q_mux_sel        : std_logic;
 
 signal ena_head_count        : std_logic;         -- enable header count
 signal load_head_count       : std_logic ;        -- load an initial header count
-signal init_head_count       : integer;           -- initial header count to be loaded (used for initial RAM address)
-signal pres_head_count       : integer;           -- present header count ( used for present RAM address )
+signal init_head_count       : integer range 0 to 63;           -- initial header count to be loaded (used for initial RAM address)
+signal pres_head_count       : integer range 0 to 63;           -- present header count ( used for present RAM address )
 
 
 
