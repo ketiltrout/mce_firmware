@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.7 2004/11/30 04:43:32 erniel Exp $
+-- $Id: reply_queue_pack.vhd,v 1.8 2004/11/30 04:57:48 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.8  2004/11/30 04:57:48  erniel
+-- fixed error code width
+--
 -- Revision 1.7  2004/11/30 04:43:32  erniel
 -- added components:
 --    reply_queue_receiver
@@ -80,7 +83,7 @@ component reply_queue
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      error_code_o      : out std_logic_vector(BB_STATUS_WIDTH-1 downto 0);
+      error_code_o      : out std_logic_vector(29 downto 0);
       matched_o         : out std_logic; -- reply ready for tx
       rdy_o             : out std_logic; -- word is valid
       ack_i             : in std_logic;
@@ -96,17 +99,19 @@ component reply_queue
       internal_cmd_o    : out std_logic;
 
       -- Bus Backplane interface
-      lvds_rx_ac_a      : in std_logic;
-      lvds_rx_bc1_a     : in std_logic;
-      lvds_rx_bc2_a     : in std_logic;
-      lvds_rx_bc3_a     : in std_logic;
-      lvds_rx_rc1_a     : in std_logic;
-      lvds_rx_rc2_a     : in std_logic;
-      lvds_rx_rc3_a     : in std_logic;
-      lvds_rx_rc4_a     : in std_logic;
+      lvds_reply_ac_a   : in std_logic;
+      lvds_reply_bc1_a  : in std_logic;
+      lvds_reply_bc2_a  : in std_logic;
+      lvds_reply_bc3_a  : in std_logic;
+      lvds_reply_rc1_a  : in std_logic;
+      lvds_reply_rc2_a  : in std_logic;
+      lvds_reply_rc3_a  : in std_logic;
+      lvds_reply_rc4_a  : in std_logic;
+      lvds_reply_cc_a   : in std_logic;
       
       -- Global signals
       clk_i             : in std_logic;
+      mem_clk_i         : in std_logic;
       comm_clk_i        : in std_logic;
       rst_i             : in std_logic
    );
@@ -134,7 +139,7 @@ component reply_queue_retire
       -- to MUX in reply_queue (for handling STOP commands)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      error_code_o      : out std_logic_vector(26 downto 0); 
+      error_code_o      : out std_logic_vector(29 downto 0); 
       rdy_o             : out std_logic;
       ack_i             : in std_logic;      
      
@@ -238,7 +243,7 @@ component reply_queue_sequencer
       
       -- fibre interface:
       size_o : out integer;
-           error_o : out std_logic_vector(26 downto 0);
+           error_o : out std_logic_vector(29 downto 0);
       data_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       rdy_o  : out std_logic;
       ack_i  : in std_logic;

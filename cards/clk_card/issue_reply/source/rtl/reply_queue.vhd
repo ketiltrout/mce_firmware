@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.7 2004/11/30 03:22:47 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.8 2004/11/30 05:12:30 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.8  2004/11/30 05:12:30  erniel
+-- fixed error code width in reply_queue_retire
+-- added reply_queue_sequencer subblock
+-- added reply_queue_receiver subblocks
+--
 -- Revision 1.7  2004/11/30 03:22:47  bburger
 -- Bryce:  building reply_queue top-level interface and functionality
 --
@@ -77,7 +82,7 @@ entity reply_queue is
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      error_code_o      : out std_logic_vector(26 downto 0);
+      error_code_o      : out std_logic_vector(29 downto 0);
       matched_o         : out std_logic; -- reply ready for tx
       rdy_o             : out std_logic; -- word is valid
       ack_i             : in std_logic;
@@ -125,7 +130,7 @@ architecture behav of reply_queue is
    signal cq_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal cq_rdy             : std_logic; -- word is valid
    signal cq_ack             : std_logic;
-   signal cq_err             : std_logic_vector(26 downto 0);
+   signal cq_err             : std_logic_vector(29 downto 0);
 
    -- reply_queue signals for all other commands
    signal rq_size            : integer;
@@ -134,7 +139,7 @@ architecture behav of reply_queue is
    signal rq_ack             : std_logic;
    signal rq_start           : std_logic;
    signal rq_match           : std_logic;
-   signal rq_err             : std_logic_vector(26 downto 0);
+   signal rq_err             : std_logic_vector(29 downto 0);
    
    -- reply queue receiver interfaces
    signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);

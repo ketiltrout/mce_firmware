@@ -21,7 +21,7 @@
 --
 -- reply_queue_sequencer.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.4  2004/11/30 03:20:23  erniel
+-- added error_o logic
+--
 -- Revision 1.3  2004/11/30 03:02:52  erniel
 -- deleted done_o port
 -- deleted status_i ports
@@ -124,7 +127,7 @@ port(clk_i : in std_logic;
      
      -- fibre interface:
      size_o  : out integer;
-     error_o : out std_logic_vector(26 downto 0);
+     error_o : out std_logic_vector(29 downto 0);
      data_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      rdy_o   : out std_logic;
      ack_i   : in std_logic;
@@ -190,7 +193,7 @@ begin
 
    error_o <= ac_header_i(15 downto 13)  & bc1_header_i(15 downto 13) & bc2_header_i(15 downto 13) & bc3_header_i(15 downto 13) &
               rc1_header_i(15 downto 13) & rc2_header_i(15 downto 13) & rc3_header_i(15 downto 13) & rc4_header_i(15 downto 13) &
-              cc_header_i(15 downto 13);
+              cc_header_i(15 downto 13) & "000";
               
    state_FF: process(clk_i, rst_i)
    begin

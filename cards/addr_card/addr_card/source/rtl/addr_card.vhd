@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.3  2004/11/20 01:20:44  bburger
+-- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
+--
 -- Revision 1.2  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -135,6 +138,7 @@ signal ac_dac_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal ac_dac_ack        : std_logic;
 signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack  : std_logic;
+signal slave_err         : std_logic;
 
 -- frame_timing interface
 signal restart_frame_aligned : std_logic; 
@@ -181,6 +185,7 @@ begin
          cyc_o                      => cyc,
          dat_i                      => slave_data,
          ack_i                      => slave_ack,
+         err_i                      => slave_err, 
      
          wdt_rst_o                  => wdog
       );
@@ -280,7 +285,12 @@ begin
          led_ack          when LED_ADDR,
          ac_dac_ack       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
-         '0'              when "00000000",
+         '0'              when others;
+         
+   with addr select
+      slave_err <= 
+         '0'              when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
+         
    
 end top;

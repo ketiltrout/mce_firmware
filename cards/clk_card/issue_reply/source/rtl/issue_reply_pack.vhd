@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: issue_reply_pack.vhd,v 1.35 2004/11/24 01:15:52 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -28,7 +28,10 @@
 -- Declares a few constants used as parameters in the fibre_rx block
 --
 -- Revision history:
--- $Log$
+-- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.35  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 --
 --
 ------------------------------------------------------------------------
@@ -41,89 +44,55 @@ use sys_param.command_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
---use work.fibre_rx_pack.all;
---use work.fibre_tx_pack.all;
---use work.reply_translator_pack.all;
---use work.cmd_translator_pack.all;
 
 package issue_reply_pack is
 
--------------------------------
 component issue_reply
--------------------------------
-
-port(
-      --[JJ] for testing
+   port(
+      -- for testing
       debug_o           : out std_logic_vector (31 downto 0);
 
-      -- global sig nals
-      rst_i             : in     std_logic;
-      clk_i             : in     std_logic;
-     
+      -- global signals
+      rst_i             : in std_logic;
+      clk_i             : in std_logic;
+      comm_clk_i        : in std_logic;
+      mem_clk_i         : in std_logic;
       
+      -- inputs from the bus backplane
+      lvds_reply_ac_a   : in std_logic;  
+      lvds_reply_bc1_a  : in std_logic;
+      lvds_reply_bc2_a  : in std_logic;
+      lvds_reply_bc3_a  : in std_logic;
+      lvds_reply_rc1_a  : in std_logic;
+      lvds_reply_rc2_a  : in std_logic;
+      lvds_reply_rc3_a  : in std_logic; 
+      lvds_reply_rc4_a  : in std_logic;
+      lvds_reply_cc_a   : in std_logic;
       
       -- inputs from the fibre receiver 
-      fibre_clkr_i      : in     std_logic;
-      rx_data_i         : in     std_logic_vector (7 DOWNTO 0);
-      nRx_rdy_i         : in     std_logic;
-      rvs_i             : in     std_logic;
-      rso_i             : in     std_logic;
-      rsc_nRd_i         : in     std_logic;        
-
-      cksum_err_o       : out    std_logic;
-    
+      fibre_clkr_i      : in std_logic;
+      rx_data_i         : in std_logic_vector (7 DOWNTO 0);
+      nRx_rdy_i         : in std_logic;
+      rvs_i             : in std_logic;
+      rso_i             : in std_logic;
+      rsc_nRd_i         : in std_logic;        
+      cksum_err_o       : out std_logic;
 
       -- interface to fibre transmitter
-      tx_data_o         : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
-      tsc_nTd_o         : out    std_logic;                          -- hotlink tx special char/ data sel
-      nFena_o           : out    std_logic;                          -- hotlink tx enable
+      tx_data_o         : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+      tsc_nTd_o         : out std_logic;                          -- hotlink tx special char/ data sel
+      nFena_o           : out std_logic;                           -- hotlink tx enable
 
       -- 25MHz clock for fibre_tx_control
-      fibre_clkw_i      : in     std_logic;                          -- in phase with 25MHz hotlink clock
---
---
---
---
---
---
---
---
---
---
---
---
---
---
---
---
---
---
-      -- this signals are temporarily here for testing, in order to route these signals to top level
-      -- to be viewed on the logic analyzer      
---      card_addr_o       :  out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
-      parameter_id_o    : out   std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
---      data_size_o       :  out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
-      data_o            : out   std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);        -- data will be passed straight thru
-      data_clk_o        : out   std_logic;
-      macro_instr_rdy_o : out   std_logic;
---      
---      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
---      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
---      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
---      
---      -- input from the micro-op sequence generator
---      ack_i             : in std_logic     
-      
-      macro_op_ack_o    : out    std_logic;
+      fibre_clkw_i      : in std_logic;                          -- in phase with 25MHz hotlink clock
 
       -- lvds_tx interface
-      tx_o              : out    std_logic;  -- transmitter output pin
-      clk_200mhz_i      : in     std_logic;  -- PLL locked 25MHz input clock for the
+      lvds_cmd_o              : out std_logic;  -- transmitter output pin
 
-      sync_pulse_i      : in     std_logic;
-      sync_number_i     : in     std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
-      ); 
-     
+      -- sync_gen interface
+      sync_pulse_i      : in std_logic;
+      sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
+   );    
 end component;
 
 end issue_reply_pack;

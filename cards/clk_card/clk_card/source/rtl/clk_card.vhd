@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.5 2004/11/29 10:37:07 dca Exp $
+-- $Id: clk_card.vhd,v 1.6 2004/11/29 23:35:32 bench2 Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.6  2004/11/29 23:35:32  bench2
+-- Greg: Added err_i and extended FIBRE_CHECKSUM_ERR to 8-bits for reply_argument in reply_translator.vhd
+--
 -- Revision 1.5  2004/11/29 10:37:07  dca
 -- Changed PLL instantiation.
 --
@@ -62,82 +65,88 @@ use work.issue_reply_pack.all;
 
 
 entity clk_card is
-port(
-     -- PLL input:
-     inclk      : in std_logic;
-     rst_n      : in std_logic;
-     
-     -- LVDS interface:
-     lvds_cmd   : in std_logic;
-     lvds_sync  : in std_logic;
-     lvds_spare : in std_logic;
-     lvds_reply_ac_a  : in std_logic;  
-     lvds_reply_ac_b  : in std_logic;
-     lvds_reply_bc1_a  : in std_logic;
-     lvds_reply_bc1_b  : in std_logic;
-     lvds_reply_bc2_a  : in std_logic;
-     lvds_reply_bc2_b  : in std_logic;
-     lvds_reply_bc3_a  : in std_logic;
-     lvds_reply_bc3_b  : in std_logic;
-     lvds_reply_rc1_a  : in std_logic;
-     lvds_reply_rc1_b  : in std_logic;
-     lvds_reply_rc2_a  : in std_logic;
-     lvds_reply_rc2_b  : in std_logic;
-     lvds_reply_rc3_a  : in std_logic; 
-     lvds_reply_rc3_b  : in std_logic;  
-     lvds_reply_rc4_a  : in std_logic; 
-     lvds_reply_rc4_b  : in std_logic;
-     
-     -- DV interface:
-     dv_pulse_fibre  : in std_logic;
-     dv_pulse_bnc    : in std_logic;
-     
-     -- TTL interface:
+   port(
+      -- simulation signals
+      clk          : in std_logic;
+      mem_clk      : in std_logic;
+      comm_clk     : in std_logic;      
+      fibre_clk    : in std_logic;
+      fibre_tx_clk : in std_logic;
+      fibre_rx_clk : in std_logic;
+      lvds_clk_i   : in std_logic; 
+      
+      -- PLL input:
+      inclk      : in std_logic;
+      rst_n      : in std_logic;
+      
+      -- LVDS interface:
+      lvds_cmd   : out std_logic;
+      lvds_sync  : out std_logic;
+      lvds_spare : out std_logic;
+      lvds_clk   : out std_logic;
+      lvds_reply_ac_a  : in std_logic;  
+      lvds_reply_ac_b  : in std_logic;
+      lvds_reply_bc1_a  : in std_logic;
+      lvds_reply_bc1_b  : in std_logic;
+      lvds_reply_bc2_a  : in std_logic;
+      lvds_reply_bc2_b  : in std_logic;
+      lvds_reply_bc3_a  : in std_logic;
+      lvds_reply_bc3_b  : in std_logic;
+      lvds_reply_rc1_a  : in std_logic;
+      lvds_reply_rc1_b  : in std_logic;
+      lvds_reply_rc2_a  : in std_logic;
+      lvds_reply_rc2_b  : in std_logic;
+      lvds_reply_rc3_a  : in std_logic; 
+      lvds_reply_rc3_b  : in std_logic;  
+      lvds_reply_rc4_a  : in std_logic; 
+      lvds_reply_rc4_b  : in std_logic;
+      
+      -- DV interface:
+      dv_pulse_fibre  : in std_logic;
+      dv_pulse_bnc    : in std_logic;
+      
+      -- TTL interface:
 --     ttl_nrx    : in std_logic_vector(3 downto 1);
 --     ttl_tx     : out std_logic_vector(3 downto 1);
 --     ttl_txena  : out std_logic_vector(3 downto 1);
      
-     -- eeprom interface:
-     eeprom_si  : in std_logic;
-     eeprom_so  : out std_logic;
-     eeprom_sck : out std_logic;
-     eeprom_cs  : out std_logic;
-     
-     -- miscellaneous ports:
-     red_led    : out std_logic;
-     ylw_led    : out std_logic;
-     grn_led    : out std_logic;
-     dip_sw3    : in std_logic;
-     dip_sw4    : in std_logic;
-     wdog       : out std_logic;
-     slot_id    : in std_logic_vector(3 downto 0);
-     
-     -- debug ports:
-     mictor_o    : out std_logic_vector(15 downto 1);
-     mictorclk_o : out std_logic;
-     mictor_e    : out std_logic_vector(15 downto 1);
-     mictorclk_e : out std_logic;
-     rs232_rx    : in std_logic;
-     rs232_tx    : out std_logic;
-     
-     -- interface to HOTLINK fibre receiver
-     
-     fibre_rx_data      : in std_logic_vector (7 downto 0);  
-     fibre_rx_rdy       : in std_logic;                      
-     fibre_rx_rvs       : in std_logic;                      
-     fibre_rx_status    : in std_logic;                      
-     fibre_rx_sc_nd     : in std_logic;                      
-     fibre_rx_ckr       : in std_logic;                      
-     
-     -- interface to hotlink fibre transmitter
-     
-     fibre_tx_data      : out std_logic_vector (7 downto 0);
-     fibre_tx_ena       : out std_logic;  
-     fibre_tx_sc_nd     : out std_logic
-     );
-     
+      -- eeprom interface:
+      eeprom_si  : in std_logic;
+      eeprom_so  : out std_logic;
+      eeprom_sck : out std_logic;
+      eeprom_cs  : out std_logic;
+      
+      -- miscellaneous ports:
+      red_led    : out std_logic;
+      ylw_led    : out std_logic;
+      grn_led    : out std_logic;
+      dip_sw3    : in std_logic;
+      dip_sw4    : in std_logic;
+      wdog       : out std_logic;
+      slot_id    : in std_logic_vector(3 downto 0);
+      
+      -- debug ports:
+      mictor_o    : out std_logic_vector(15 downto 1);
+      mictorclk_o : out std_logic;
+      mictor_e    : out std_logic_vector(15 downto 1);
+      mictorclk_e : out std_logic;
+      rs232_rx    : in std_logic;
+      rs232_tx    : out std_logic;
+      
+      -- interface to HOTLINK fibre receiver      
+      fibre_rx_data      : in std_logic_vector (7 downto 0);  
+      fibre_rx_rdy       : in std_logic;                      
+      fibre_rx_rvs       : in std_logic;                      
+      fibre_rx_status    : in std_logic;                      
+      fibre_rx_sc_nd     : in std_logic;                      
+      fibre_rx_ckr       : in std_logic;                      
+      
+      -- interface to hotlink fibre transmitter      
+      fibre_tx_data      : out std_logic_vector (7 downto 0);
+      fibre_tx_ena       : out std_logic;  
+      fibre_tx_sc_nd     : out std_logic
+   );     
 end clk_card;
-
 
 architecture top of clk_card is
 
@@ -145,19 +154,14 @@ architecture top of clk_card is
 signal rst           : std_logic;
 
 -- clocks
-signal clk           : std_logic;
-signal mem_clk       : std_logic;
-signal comm_clk      : std_logic;
-signal fibre_clk     : std_logic;  
+--signal clk           : std_logic;
+--signal mem_clk       : std_logic;
+--signal comm_clk      : std_logic;
+--signal fibre_clk     : std_logic;
+--signal fibre_tx_clk  : std_logic;
+--signal fibre_rx_clk  : std_logic;
 
-signal fibre_tx_clk  : std_logic;
-signal fibre_rx_clk  : std_logic;
-signal lvds_clk      : std_logic;
-
-
-
--- frame_timing - sync_gen interface
-signal sync       : std_logic;
+-- sync_gen interface
 signal sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
 -- wishbone bus (from master)
@@ -179,34 +183,27 @@ signal frame_timing_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack    : std_logic;
 signal slave_err           : std_logic;
       
-   
 -- lvds_tx interface
-signal sync_pulse        : std_logic;
-signal sync_number       : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
-signal lvds_reply_cc     : std_logic;
+signal sync       : std_logic;
+signal cmd        : std_logic;
 
--- this signals are temporarily here for testing, in order to route these signals to top level
--- to be viewed on the logic analyzer
-signal parameter_id_o    : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
-signal data_o            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);             -- data will be passed straight thru
-signal data_clk_o        : std_logic;
-signal macro_instr_rdy_o : std_logic;
-signal macro_op_ack_o    : std_logic;
+-- lvds_rx interface
+signal lvds_reply_cc_a     : std_logic;
 
---[JJ] For testing
+-- For testing
 signal debug             : std_logic_vector(31 downto 0);
 
 component pll
-port(
-     inclk0 : in std_logic;
-     e2     : out std_logic ;
-     c0     : out std_logic ;
-     c1     : out std_logic ;
-     c2     : out std_logic ;
-     c3     : out std_logic ;
-     e0     : out std_logic ;
-     e1     : out std_logic 
-     );
+   port(
+      inclk0 : in std_logic;
+      e2     : out std_logic ;
+      c0     : out std_logic ;
+      c1     : out std_logic ;
+      c2     : out std_logic ;
+      c3     : out std_logic ;
+      e0     : out std_logic ;
+      e1     : out std_logic 
+   );
 end component;
 
 
@@ -233,155 +230,171 @@ begin
          '0'              when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
-   pll0: pll
-   port map(
-            inclk0 => inclk,
-            c0     => clk ,
-            c1     => mem_clk ,
-            c2     => comm_clk ,
-            c3     => fibre_clk,
-            e0     => fibre_tx_clk , 
-            e1     => fibre_rx_clk ,   
-            e2     => lvds_clk );
+   lvds_clk <= lvds_clk_i;
+--   pll0: pll
+--      port map(
+--         inclk0 => inclk,
+--         c0     => clk,
+--         c1     => mem_clk,
+--         c2     => comm_clk,
+--         c3     => fibre_clk,
+--         e0     => fibre_tx_clk, 
+--         e1     => fibre_rx_clk,   
+--         e2     => lvds_clk 
+--      );
             
+   lvds_cmd <= cmd;
    cmd0: dispatch
-   generic map(CARD => CLOCK_CARD)
-   port map(
-            lvds_cmd_i   => lvds_cmd,
-            lvds_reply_o => lvds_reply_cc,
+      generic map(
+         CARD => CLOCK_CARD
+      )
+      port map(
+         lvds_cmd_i   => cmd,
+         lvds_reply_o => lvds_reply_cc_a,
+         
+         --  Global signals
+         clk_i      => clk,
+         mem_clk_i  => mem_clk,
+         comm_clk_i => comm_clk,
+         rst_i      => rst,
             
-    --  Global signals
-            clk_i      => clk,
-            mem_clk_i  => mem_clk,
-            comm_clk_i => comm_clk,
-            rst_i      => rst,
-            
-    -- Wishbone interface
-            dat_o  => data,
-            addr_o => addr,
-            tga_o  => tga,
-            we_o   => we,
-            stb_o  => stb,
-            cyc_o  => cyc,
-            dat_i  => slave_data,   
-            ack_i  => slave_ack,
-            err_i  => slave_err, 
+         -- Wishbone interface
+         dat_o  => data,
+         addr_o => addr,
+         tga_o  => tga,
+         we_o   => we,
+         stb_o  => stb,
+         cyc_o  => cyc,
+         dat_i  => slave_data,   
+         ack_i  => slave_ack,
+         err_i  => slave_err, 
      
-            wdt_rst_o => wdog);
+         wdt_rst_o => wdog
+      );
             
    led0: leds
-   port map(
-   
-    --  Global signals
-            clk_i => clk,
-            rst_i => rst,
+      port map(   
+         --  Global signals
+         clk_i => clk,
+         rst_i => rst,
             
-    -- Wishbone interface
-            dat_i  => data,
-            addr_i => addr,
-            tga_i  => tga,
-            we_i   => we,
-            stb_i  => stb,
-            cyc_i  => cyc,
-            dat_o  => led_data,
-            ack_o  => led_ack,
+         -- Wishbone interface
+         dat_i  => data,
+         addr_i => addr,
+         tga_i  => tga,
+         we_i   => we,
+         stb_i  => stb,
+         cyc_i  => cyc,
+         dat_o  => led_data,
+         ack_o  => led_ack,
       
-            power  => grn_led,
-            status => ylw_led,
-            fault  => red_led
-            );
+         power  => grn_led,
+         status => ylw_led,
+         fault  => red_led
+      );
    
+   lvds_sync <= sync;
    sync_gen0: sync_gen
-   port map(
- 
-    -- Inputs/Outputs
-            dv_i       => dv_pulse_fibre,
-            sync_o     => sync,
-            sync_num_o => sync_num,
+      port map( 
+         -- Inputs/Outputs
+         dv_i       => dv_pulse_fibre,
+         sync_o     => sync,
+         sync_num_o => sync_num,
       
-    -- Wishbone interface
-            dat_i       => data,         
-            addr_i      => addr,           
-            tga_i       => tga,
-            we_i        => we,          
-            stb_i       => stb,            
-            cyc_i       => cyc,       
-            dat_o       => sync_gen_data,          
-            ack_o       => sync_gen_ack,
+         -- Wishbone interface
+         dat_i       => data,         
+         addr_i      => addr,           
+         tga_i       => tga,
+         we_i        => we,          
+         stb_i       => stb,            
+         cyc_i       => cyc,       
+         dat_o       => sync_gen_data,          
+         ack_o       => sync_gen_ack,
       
-    --  Global signals
-            clk_i       => clk,
-            mem_clk_i   => mem_clk,
-            rst_i       => rst
-            );
+         --  Global signals
+         clk_i       => clk,
+         mem_clk_i   => mem_clk,
+         rst_i       => rst
+      );
 
    frame_timing0: frame_timing   
-   port map(
-   
-    -- Readout Card interface
-            dac_dat_en_o               => open,
-            adc_coadd_en_o             => open,
-            restart_frame_1row_prev_o  => open,
-            restart_frame_aligned_o    => open, 
-            restart_frame_1row_post_o  => open,
-            initialize_window_o        => open,
+      port map(   
+         -- Readout Card interface
+         dac_dat_en_o               => open,
+         adc_coadd_en_o             => open,
+         restart_frame_1row_prev_o  => open,
+         restart_frame_aligned_o    => open, 
+         restart_frame_1row_post_o  => open,
+         initialize_window_o        => open,
           
-    -- Address Card interface
-            row_switch_o               => open,
-            row_en_o                   => open,
+         -- Address Card interface
+         row_switch_o               => open,
+         row_en_o                   => open,
              
-    -- Bias Card interface       
-            update_bias_o              => open,
+         -- Bias Card interface       
+         update_bias_o              => open,
       
-    -- Wishbone interface
-            dat_i    => data,
-            addr_i   => addr,                   
-            tga_i    => tga,                    
-            we_i     => we,
-            stb_i    => stb,                      
-            cyc_i    => cyc,                   
-            dat_o    => frame_timing_data,                     
-            ack_o    => frame_timing_ack,
+         -- Wishbone interface
+         dat_i    => data,
+         addr_i   => addr,                   
+         tga_i    => tga,                    
+         we_i     => we,
+         stb_i    => stb,                      
+         cyc_i    => cyc,                   
+         dat_o    => frame_timing_data,                     
+         ack_o    => frame_timing_ack,
       
-    -- Global signals
-            clk_i       => clk,
-            mem_clk_i   => mem_clk,               
-            rst_i       => rst,
-            sync_i      => lvds_sync
-            );
+         -- Global signals
+         clk_i       => clk,
+         mem_clk_i   => mem_clk,               
+         rst_i       => rst,
+         sync_i      => sync
+      );
 
    issue_reply0: issue_reply
-   port map(
+      port map(   
+         -- For testing
+         debug_o    => debug,
    
-               --[JJ] For testing
-               debug_o    => debug,
-   
-               -- global signals
-               rst_i             => rst,
-               clk_i             => clk,
+         -- global signals
+         rst_i             => rst,
+         clk_i             => clk,
+         comm_clk_i        => comm_clk,
+         mem_clk_i         => mem_clk,
          
-               -- inputs from the fibre receiver 
-               fibre_clkr_i   => fibre_rx_ckr,  
-               rx_data_i      => fibre_rx_data,
-               nRx_rdy_i      => fibre_rx_rdy,
-               rvs_i          => fibre_rx_rvs,
-               rso_i          => fibre_rx_status,
-               rsc_nRd_i      => fibre_rx_sc_nd,
-    
-               -- interface to fibre transmitter
-               tx_data_o      => fibre_tx_data,     -- byte of data to be transmitted
-               tsc_nTd_o      => fibre_tx_sc_nd,    -- hotlink tx special char/ data sel
-               nFena_o        => fibre_tx_ena,      -- hotlink tx enable
+         -- bus backplane interface
+         lvds_reply_ac_a   => lvds_reply_ac_a,   
+         lvds_reply_bc1_a  => lvds_reply_bc1_a,
+         lvds_reply_bc2_a  => lvds_reply_bc2_a,
+         lvds_reply_bc3_a  => lvds_reply_bc3_a,
+         lvds_reply_rc1_a  => lvds_reply_rc1_a,
+         lvds_reply_rc2_a  => lvds_reply_rc2_a,
+         lvds_reply_rc3_a  => lvds_reply_rc3_a, 
+         lvds_reply_rc4_a  => lvds_reply_rc4_a,
+         lvds_reply_cc_a   => lvds_reply_cc_a,
 
+         -- fibre receiver interface 
+         fibre_clkr_i      => fibre_rx_ckr,  
+         rx_data_i         => fibre_rx_data,
+         nRx_rdy_i         => fibre_rx_rdy,
+         rvs_i             => fibre_rx_rvs,
+         rso_i             => fibre_rx_status,
+         rsc_nRd_i         => fibre_rx_sc_nd,
+         cksum_err_o       => open,
+    
+         -- fibre transmitter interface
+         tx_data_o         => fibre_tx_data,     -- byte of data to be transmitted
+         tsc_nTd_o         => fibre_tx_sc_nd,    -- hotlink tx special char/ data sel
+         nFena_o           => fibre_tx_ena,      -- hotlink tx enable
    
-               -- 25MHz clock for fibre_tx_control
-               fibre_clkw_i   => fibre_clk,
-             
-               
-               clk_200mhz_i   => mem_clk,
-   
-               sync_pulse_i   => sync,
-               sync_number_i  => sync_num
-               );
+         -- 25MHz clock for fibre_tx_control
+         fibre_clkw_i      => fibre_clk,
+        
+         -- lvds_tx interface
+         lvds_cmd_o        => cmd,
+
+         sync_pulse_i      => sync,
+         sync_number_i     => sync_num
+      );
   
 end top;

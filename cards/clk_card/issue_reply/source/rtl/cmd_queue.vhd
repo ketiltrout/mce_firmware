@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.65 2004/11/16 09:03:20 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.66 2004/11/25 01:32:37 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,12 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.66  2004/11/25 01:32:37  bburger
+-- Bryce:
+-- - Changed to cmd_code over the bus backplane to read/write only
+-- - Added interface signals for internal commands
+-- - RB command data-sizes are correctly handled
+--
 -- Revision 1.65  2004/11/16 09:03:20  bburger
 -- Bryce :  removed status_addr from ISA!
 --
@@ -181,7 +187,7 @@ signal data_size_mux        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_size_mux_sel    : std_logic;
 
 -- Send FSM:  sends u-ops over the bus backplane
-type send_states is (LOAD, BUFFER_CMD_PARAM, ISSUE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, DATA, MORE_DATA, CHECKSUM, NEXT_UOP, PAUSE);
+type send_states is (LOAD, BUFFER_CMD_PARAM, ISSUE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, DATA, MORE_DATA, CHECKSUM, NEXT_UOP, PAUSE, BRANCH);
 signal present_send_state   : send_states;
 signal next_send_state      : send_states;
 signal previous_send_state  : send_states;
@@ -1089,8 +1095,8 @@ begin
    begin
       next_send_state <= present_send_state;
       case present_send_state is
+         
          when LOAD =>
-
             -- If there is a u-op waiting to be issued and if this FSM has not been frozen by the retire FSM, then send it or skip it.
             if(send_ptr /= free_ptr) then
                if(uop_send_expired = '1') then
@@ -1118,22 +1124,38 @@ begin
             else
                next_send_state <= LOAD;
             end if;
+         
          when BUFFER_CMD_PARAM =>
-            next_send_state <= HEADER_A;         
+            next_send_state <= BRANCH;
+            
+         when BRANCH =>
+            if(send_cmd_code = STOP) then
+               next_send_state <= NEXT_UOP;
+            else
+               next_send_state <= HEADER_A;
+            end if;
+         
          when HEADER_A =>
             next_send_state <= PAUSE;
+         
          when HEADER_B =>
             next_send_state <= PAUSE;
+         
          when HEADER_C =>
             next_send_state <= PAUSE;
+         
          when HEADER_D =>
             next_send_state <= PAUSE;
+         
          when DATA =>
             next_send_state <= PAUSE;
+         
          when MORE_DATA =>
             next_send_state <= PAUSE;
+         
          when CHECKSUM =>
             next_send_state <= PAUSE;
+         
          when PAUSE =>
             -- No need to check the crc_done line because it will always be done before cmd_tx_done
             if(lvds_tx_busy = '0') then -- and crc_done was '1') then            
@@ -1168,9 +1190,11 @@ begin
 --            else
 --               next_send_state <= PAUSE;
             end if;
+         
          when NEXT_UOP =>
             -- Skip to the next u-op
             next_send_state <= LOAD;
+         
          when others =>
             next_send_state <= LOAD;
       end case;
@@ -1223,6 +1247,8 @@ begin
          
          when BUFFER_CMD_PARAM =>
             send_cmd_code_en         <= '1';
+
+         when BRANCH =>
 
          when HEADER_A =>
             lvds_tx_rdy              <= '1';
@@ -1319,11 +1345,11 @@ begin
 --
 ------------------------------------------------------------------------ 
 
-   bb_cmd_code <= "100" when 
+   bb_cmd_code <= WRITE_CMD when 
       (send_cmd_code = WRITE_BLOCK) or 
       (send_cmd_code = RESET) or 
       (send_cmd_code = START) or 
-      (send_cmd_code = STOP) else "000";
+      (send_cmd_code = STOP) else READ_CMD;
    
    with sh_reg_parallel_mux_sel select sh_reg_parallel_i <= 
       (others=>'0')                                                   when "00",
