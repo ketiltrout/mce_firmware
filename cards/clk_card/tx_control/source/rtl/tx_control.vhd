@@ -38,7 +38,7 @@
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
+
 
 ENTITY tx_control IS
    PORT( 
@@ -55,7 +55,6 @@ END tx_control ;
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
 
 
 ARCHITECTURE rtl OF tx_control IS
@@ -74,9 +73,9 @@ BEGIN
    
    BEGIN 
       
-       tx_fr_o <= NOT(nTrp_i);   -- (not) read_pulse from CYPRESS
-                                -- HOTLINK receiver mapped to 
-                                -- tx_fifo read   
+       tx_fr_o <= NOT(nTrp_i);   -- read_pulse from CYPRESS
+                                 -- HOTLINK transmitter (active low)
+                                 -- mapped to tx_fifo read (active high)  
 
    END PROCESS fifo_read;
    
