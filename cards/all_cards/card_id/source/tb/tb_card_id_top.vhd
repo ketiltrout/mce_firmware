@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_card_id_top.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,8 +31,8 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date$>	-		<text>		- <initials $Author$>
-
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
@@ -208,7 +208,7 @@ begin
          W_RST_I               <= '0';
          W_DAT_I               <= (others => '0');
 --         W_ADDR_I(31 downto 8) <= (others => '0');
-         W_ADDR_I              <= "01000011";
+         W_ADDR_I              <= CARD_ID_ADDR;
          W_WE_I                <= '0';
          W_STB_I               <= '1';
          W_CYC_I               <= '1';
@@ -324,7 +324,7 @@ begin
          W_RST_I               <= '0';
          W_DAT_I               <= (others => '0');
 --         W_ADDR_I(31 downto 8) <= (others => '0');
-         W_ADDR_I              <= "01000011";
+         W_ADDR_I              <= CARD_ID_ADDR;
          W_WE_I                <= '0';
          W_STB_I               <= '1';
          W_CYC_I               <= '1';
@@ -344,7 +344,7 @@ begin
          W_RST_I               <= '0';
          W_DAT_I               <= (others => '0');
 --         W_ADDR_I(31 downto 8) <= (others => '0');
-         W_ADDR_I              <= "01000011";
+         W_ADDR_I              <= CARD_ID_ADDR;
          W_WE_I                <= '0';
          W_STB_I               <= '1';
          W_CYC_I               <= '1';        
@@ -355,7 +355,7 @@ begin
          W_RST_I             <= '0';
          W_DAT_I             <= (others => '0');
 --         W_ADDR_I(31 downto 8) <= (others => '0');
-         W_ADDR_I(7 downto 0)  <= "01000011";         
+         W_ADDR_I(7 downto 0)  <= CARD_ID_ADDR;         
          W_WE_I              <= '0';
          W_STB_I             <= '1';
          W_CYC_I             <= '1';
