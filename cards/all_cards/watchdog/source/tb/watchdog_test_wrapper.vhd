@@ -20,8 +20,11 @@
 -- WDT state function.
 -- 
 -- Revision History:
--- Feb 29, 2004: Initial version - NRG
+--
 -- $Log: watchdog_test_wrapper.vhd,v $
+-- Revision 1.2  2004/04/21 20:02:45  bburger
+-- Changed address moniker
+--
 -- Revision 1.1  2004/04/14 21:48:56  jjacob
 -- new directory structure
 --
@@ -34,6 +37,7 @@
 -- corrected wishbone logic
 -- updated watchdog timer instantiation
 --
+-- Feb 29, 2004: Initial version - NRG
 --
 ---------------------------------------------------------------------
 
@@ -55,13 +59,6 @@ entity watchdog_test_wrapper is
       clk_i : in std_logic;   -- clock input
       en_i : in std_logic;    -- enable signal
       done_o : out std_logic; -- done ouput signal
-      
-      -- transmitter signals
-      tx_busy_i : in std_logic;  -- transmit busy flag
-      tx_ack_i : in std_logic;   -- transmit ack
-      tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-      tx_we_o : out std_logic;   -- transmit write flag
-      tx_stb_o : out std_logic;  -- transmit strobe flag
       
       -- extended signals
       wdt_o : out std_logic      -- physical watchdog pin
@@ -107,12 +104,6 @@ begin
           
                you_kick_my_dog => wdt_o);      
                
-   
-   -- unused transmitter signals:
-   tx_data_o <= (others => '0');
-   tx_we_o   <= '0';
-   tx_stb_o  <= '0';
-   
    -- unused wishbone signals:
    dat_o <= (others => '0');
    tga_o <= (others => '0');
