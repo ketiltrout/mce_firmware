@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: eeprom_ctrl.vhd,v 1.5 2004/04/06 19:51:12 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: eeprom_ctrl.vhd,v 1.6 2004/04/07 22:24:20 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -38,7 +38,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/04/06 19:51:12 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/07 22:24:20 $>	-		<text>		- <initials $Author: jjacob $>
 
 -- 
 -----------------------------------------------------------------------------
@@ -55,6 +55,7 @@ use work.eeprom_ctrl_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
+use sys_param.general_pack.all;
 
 
 entity eeprom_ctrl is
@@ -128,7 +129,8 @@ signal current_state, next_state, previous_state, pprevious_state, wb_current_st
 
 
 
-constant TIME_100NS          : integer := 100;
+constant TIME_100NS          : integer := 100;-- - CLOCK_PERIOD_NS;  -- did this because of reset behaviour of the counter
+      								  -- I want 200ns clock period
 
 -- EEPROM commands 
 
@@ -307,6 +309,19 @@ begin
 
    -- phase shifted clock for the eeprom state machine logic
    n_eeprom_clk <= not(eeprom_clk);
+   
+--   process(rst_i, clk_i)
+--   begin
+--      if rst_i = '1' then
+--         timer_100ns_rst <= '1';
+--      elsif clk_i'event and clk_i = '1' then
+--         if timer_100ns = TIME_100NS then
+--            timer_100ns_rst <= '1';
+--         else
+--            timer_100ns_rst <= '0';
+--         end if;
+--      end if;
+--   end process;
  
    timer_100ns_rst <= '1' when timer_100ns = TIME_100NS or rst_i = '1' else '0';
 ------------------------------------------------------------------------
@@ -335,7 +350,8 @@ begin
 --
 ------------------------------------------------------------------------  
 
-   rx_sr_data_reg_hold <= rx_sr_data_reg when current_state = SPI_WAIT1 and previous_state = RX_SR_DATA;
+   rx_sr_data_reg_hold <= rx_sr_data_reg when rx_sr_data_done = '1';
+   --rx_sr_data_reg_hold <= rx_sr_data_reg when current_state = SPI_WAIT1 and previous_state = RX_SR_DATA;
 
 
    process(current_state, setup_tx_rdsr_cmd_done, setup_rx_sr_data_done, pprevious_state,
@@ -1431,13 +1447,13 @@ port map(--inputs
 
 tx_byte_addr_spi : write_spi
 
-generic map(DATA_LENGTH => 8)
+generic map(DATA_LENGTH => 16)
 
 port map(--inputs
      spi_clk_i        => eeprom_clk,
      rst_i            => rst_i,
      start_i          => tx_byte_addr_start,
-     parallel_data_i  => tga_i(7 downto 0),
+     parallel_data_i  => tga_i(15 downto 0),
      
      --outputs
      spi_clk_o        => tx_byte_addr_clk,

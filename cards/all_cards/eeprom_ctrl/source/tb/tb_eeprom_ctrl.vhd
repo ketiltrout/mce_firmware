@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.6 2004/04/06 19:51:55 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.7 2004/04/07 22:23:51 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/04/06 19:51:55 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/07 22:23:51 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------
@@ -433,7 +433,7 @@ port map(
       procedure do_rx_byte_addr is
       begin
       
-         byte_addr_count <= 8;
+         byte_addr_count <= 16;
          -- data from the master's side wishbone bus
          W_RST_I               <= '0';
          W_ADDR_I              <= EEPROM_ADDR;
@@ -628,7 +628,7 @@ port map(
       procedure do_rx_byte_addr2 is
       begin
 
-         byte_addr_count <= 8;
+         byte_addr_count <= 16;
          wait for 1 ns;
          
          -- data from the master's side wishbone bus
