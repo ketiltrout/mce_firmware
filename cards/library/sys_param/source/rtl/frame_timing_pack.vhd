@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.2 2004/04/16 00:41:16 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.3 2004/04/16 21:58:43 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/16 00:41:16 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/04/16 21:58:43 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.3  2004/04/16 21:58:43  bburger
+-- changed port names
+--
 -- Revision 1.2  2004/04/16 00:41:16  bburger
 -- renamed some signals
 --
@@ -61,13 +64,37 @@ use ieee.std_logic_1164.all;
 -- cycles.
 package frame_timing_pack is
 
-   constant MUX_LINE_PERIOD : integer := 64; -- 64 50MHz cycles
-   constant END_OF_FRAME    : integer := 41*MUX_LINE_PERIOD; --(41*MUX_LINE_PERIOD);
+   constant MUX_LINE_PERIOD   : integer := 64; -- 64 50MHz cycles
+   constant END_OF_FRAME      : integer := 41*MUX_LINE_PERIOD; --(41*MUX_LINE_PERIOD);
 
+   ------------------------------------------------------------------------------------
+   -- Clock Card frame structure
+
+   -- START_OF_BLACKOUT:
+   -- This value is used by the cmd_queue to determe whether it can issue a command.
+   -- START_OF_BLACKOUT indicates the point in a frame at which there is not enough
+   -- time remaining to send out a command and have the wishbone master parse it before
+   -- data becomes invalid.
+   -- During normal operation, there should be enough time in a frame to issue all
+   -- required commands for normal operaiton.  However, START_OF_BLACKOUT may come
+   -- into consideration if a corrupted reply was received by the reply_queue and
+   -- the cmd_queue needs to reissued the corresponding u-op
+   constant START_OF_BLACKOUT : integer := END_OF_FRAME - 5*MUX_LINE_PERIOD;
+
+   -- RETIRE_TIMEOUT indicates at what point in a frame all the commands that were
+   -- in that frame must be retired.
+   -- If some commands remain to be retired at the end of a frame, some type of error
+   -- recovery must be initiated
+   constant RETIRE_TIMEOUT    : integer := END_OF_FRAME;
+
+   ------------------------------------------------------------------------------------
    -- Bias Card frame structure
+
    constant UPDATE_BIAS : integer := 0;
 
+   ------------------------------------------------------------------------------------
    -- Address Card frame structure
+
    constant SEL_ROW0  : integer :=  0*MUX_LINE_PERIOD;
    constant SEL_ROW1  : integer :=  1*MUX_LINE_PERIOD;
    constant SEL_ROW2  : integer :=  2*MUX_LINE_PERIOD;
@@ -110,8 +137,11 @@ package frame_timing_pack is
    constant SEL_ROW39 : integer := 39*MUX_LINE_PERIOD;
    constant SEL_ROWDARK : integer := 40*MUX_LINE_PERIOD;
 
+   ------------------------------------------------------------------------------------
+   -- Frame Timing Interface
+
    component frame_timing is
-      port(
+   port(
          clk_i       : in std_logic;
          sync_i      : in std_logic;
          frame_rst_i : in std_logic;
