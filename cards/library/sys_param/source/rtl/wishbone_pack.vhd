@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/05/25 21:25:57 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/05/31 21:24:04 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.5  2004/05/31 21:24:04  bburger
+-- in progress
+--
 -- Revision 1.4  2004/05/25 21:25:57  bburger
 -- compile error
 --
@@ -87,7 +90,7 @@ package wishbone_pack is
    constant AC             : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0A";
    constant RCS            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0B";
    constant BCS            : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0C";
-   constant ALL_FBGA_CARDS : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0D";
+   constant ALL_FPGA_CARDS : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0D";
    constant ALL_CARDS      : std_logic_vector(CARD_ADDR_WIDTH-1 downto 0) := x"0E";
 
    ---------------------------------------------------------------------------------
