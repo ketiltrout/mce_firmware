@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.3  2004/05/12 18:36:47  erniel
+# added device settings
+#
 # Revision 1.2  2004/05/12 08:17:09  erniel
 # added auto-detect of top-level entity name
 # added auto-recompile after pin assignment
@@ -129,15 +132,15 @@ puts "   Assigned: LVDS pins."
 
 
 # assign spare TTL
-cmp add_assignment $top_name "" "spttl_in\[1\]" LOCATION "Pin_L24"
-cmp add_assignment $top_name "" "spttl_in\[2\]" LOCATION "Pin_H26"
-cmp add_assignment $top_name "" "spttl_in\[3\]" LOCATION "Pin_H25"
-cmp add_assignment $top_name "" "spttl_out\[1\]" LOCATION "Pin_L21"
-cmp add_assignment $top_name "" "spttl_out\[2\]" LOCATION "Pin_G27"
-cmp add_assignment $top_name "" "spttl_out\[3\]" LOCATION "Pin_G28"
-cmp add_assignment $top_name "" "spttl_ena\[1\]" LOCATION "Pin_K22"
-cmp add_assignment $top_name "" "spttl_ena\[2\]" LOCATION "Pin_G26"
-cmp add_assignment $top_name "" "spttl_ena\[3\]" LOCATION "Pin_G25"
+cmp add_assignment $top_name "" "ttl_nrx\[1\]" LOCATION "Pin_L24"
+cmp add_assignment $top_name "" "ttl_nrx\[2\]" LOCATION "Pin_H26"
+cmp add_assignment $top_name "" "ttl_nrx\[3\]" LOCATION "Pin_H25"
+cmp add_assignment $top_name "" "ttl_tx\[1\]" LOCATION "Pin_L21"
+cmp add_assignment $top_name "" "ttl_tx\[2\]" LOCATION "Pin_G27"
+cmp add_assignment $top_name "" "ttl_tx\[3\]" LOCATION "Pin_G28"
+cmp add_assignment $top_name "" "ttl_txena\[1\]" LOCATION "Pin_K22"
+cmp add_assignment $top_name "" "ttl_txena\[2\]" LOCATION "Pin_G26"
+cmp add_assignment $top_name "" "ttl_txena\[3\]" LOCATION "Pin_G25"
 puts "   Assigned: Spare TTL pins."
 
 
@@ -167,14 +170,14 @@ cmp add_assignment $top_name "" psclko LOCATION "Pin_E28"
 cmp add_assignment $top_name "" psdi LOCATION "Pin_F28"
 cmp add_assignment $top_name "" pscsi LOCATION "Pin_F27"
 cmp add_assignment $top_name "" psclki LOCATION "Pin_J22"
-cmp add_assignment $top_name "" n_5vok LOCATION "Pin_AG25"
+cmp add_assignment $top_name "" n5vok LOCATION "Pin_AG25"
 puts "   Assigned: Power supply interface pins."
 
 
 # assign SMB pins
-cmp add_assignment $top_name "" smbclk LOCATION "Pin_AB21"
-cmp add_assignment $top_name "" smbdata LOCATION "Pin_AB20"
-cmp add_assignment $top_name "" talert LOCATION "Pin_Y20"
+cmp add_assignment $top_name "" smb_clk LOCATION "Pin_AB21"
+cmp add_assignment $top_name "" smb_data LOCATION "Pin_AB20"
+cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_Y20"
 puts "   Assigned: SMB interface pins."
 
 
