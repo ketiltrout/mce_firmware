@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.9 2004/06/28 13:24:04 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.10 2004/06/30 10:51:14 dca Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.10  2004/06/30 10:51:14  dca
+-- "fifo_size" changed to "addr_size" in async_fifo component declaration
+--
 -- Revision 1.9  2004/06/28 13:24:04  dca
 -- "is" removed from counter_xstep component declaration
 --
@@ -434,6 +437,23 @@ end component;
 component hex2ascii
 port(hex_i   : in std_logic_vector(3 downto 0);
      ascii_o : out std_logic_vector(7 downto 0));
+end component;
+
+------------------------------------------------------------
+--
+-- Generic LFSR
+--
+------------------------------------------------------------
+
+component lfsr
+generic(WIDTH : in integer range 3 to 64 := 8);
+port(clk        : in std_logic;
+     rst        : in std_logic;
+     ena        : in std_logic;
+     load       : in std_logic;
+     clr        : in std_logic;
+     parallel_i : in std_logic_vector(WIDTH-1 downto 0);
+     parallel_o : out std_logic_vector(WIDTH-1 downto 0));
 end component;
 
 end component_pack;
