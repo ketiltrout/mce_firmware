@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.7 2004/08/26 15:08:27 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.8 2004/08/27 15:41:48 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,14 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/26 15:08:27 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/27 15:41:48 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.8  2004/08/27 15:41:48  dca
+-- Code added to handel the case of a ST
+-- command arriving with a checksum error
+-- while fibre FSM is busy.
+--
 -- Revision 1.7  2004/08/26 15:08:27  dca
 -- cmd_ack_o signal removed.
 -- Some constants moved to command_pack
@@ -1527,7 +1532,7 @@ txd_o              <= fibre_byte;
 
       when ARB_IDLE =>
          
-         if (fibre_fsm_busy = '1' and cmd_rcvd_er_i = '1' and cmd_code_i = ASCII_S & ASCII_P ) then
+         if (fibre_fsm_busy = '1' and cmd_rcvd_er_i = '1' and cmd_code_i = ASCII_S & ASCII_T ) then
             arb_next_state <= ARB_ST_ERR;
          end if; 
            
