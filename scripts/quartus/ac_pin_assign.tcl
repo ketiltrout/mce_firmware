@@ -1,240 +1,342 @@
-###############################################################################
-# pin_assign.tcl
+#############################################################################
+# Copyright (c) 2003 SCUBA-2 Project
+#                  All Rights Reserved
 #
-# This script allows you to make pin assignments to the Nios tutorial design
+# THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+# The copyright notice above does not evidence any
+# actual or intended publication of such source code.
+#
+# SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+# REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+# MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+# PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+# THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+#
+# For the purposes of this code the SCUBA-2 Project consists of the
+# following organisations.
+#
+# UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+# UBC,   University of British Columbia, Physics & Astronomy Department,
+#        Vancouver BC, V6T 1Z1
 #
 #
-# Written by: Jeremy Fox
-# Rev 1.0
-# 10/25/00
+# ac_pin_assign.tcl
 #
-# Modified for the clock card by Neil Gruending, Mar 4, 2004
+# Project:       SCUBA-2
+# Author:        Ernie Lin
+# Organization:  UBC
 #
-# Revision History:
-# $Log: ac_pin_assign.tcl,v $
-# Revision 1.4  2004/04/29 02:32:43  bburger
-# no message
+# Description:
+# This script allows you to make pin assignments to the address card
 #
-# Revision 1.3  2004/04/28 18:03:31  bburger
-# Regrouped bus and clock signals into standard logic vectors
+# Revision history:
 #
-# Revision 1.2  2004/04/14 19:22:01  jjacob
-# added DAC buses, DAC clock signals and mictor and test headers
+# $Log$
 #
-# Revision 1.1  2004/04/14 01:00:55  bburger
-# new
 #
-# Revision 1.1  2004/04/13 19:43:26  bburger
-# new
-#
-# You can run this script from Quartus by observing the following steps:
-# 1. Place this TCL script in your project directory
-# 2. Open your project
-# 3. Go to the View Menu and Auxilary Windows -> TCL console
-# 4. In the TCL console type:
-#                        source pin_assign.tcl
-# 5. The script will assign pins and return an "assignment made" message.
-###############################################################################
+############################################################################
 
 # print welcome message
 puts "\n\nAddress Card Pin Assignment Script v1.0"
-puts "-------------------------------------"
+puts "---------------------------------------"
 
 
 # include Quartus Tcl API
 package require ::quartus::project
 package require ::quartus::flow
 
+
 # get entity name
 set top_name [get_project_settings -cmp]
 puts "\nInfo: Top-level entity is $top_name."
+
+puts "\nInfo: Assigning pins:"
+
 
 # assign device parameters
 cmp add_assignment $top_name "" "" DEVICE EP1S10F780C5
 cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET ON
-puts "   Assigned: EP1S30 device parameters."
-
-puts "\nInfo: Assigning pins:"
-
-################################################
-#### Set the pin location variables
-
-#set up groups of pins with generic names
-
-# mictor connector header (LSB in the right-most, MSB in the left-most position)
-set mictor_od        {AD19 AD18 AE19 AE18 AF19 AG18 AE20 AH19 AG19 AH20 AF20 AH21 AG21 AF21 AE21 Y17}
-set mictor_od_clk    AB17
-
-set mictor_ed        {AH26 AG26 AH25 AG25 AH24 AG24 AH23 AF25 AG22 AG23 AF22 AF23 AD21 AE22 AH22 AE24 }
-set mictor_ed_clk    AD23
+puts "   Assigned: EP1S10 device parameters."
 
 
-# test point header (LSB in the right-most, MSB in the left-most position)
-set test_header     {AF9 AG11 AD10 AH11 AE10 AF11 AD8 AH10 AE9 AE11 AF8 AH9 AG8 AF10 AG9 AH8}
+# assign LEDs
+cmp add_assignment $top_name "" red_led LOCATION "Pin_V27"
+cmp add_assignment $top_name "" ylw_led LOCATION "Pin_T24"
+cmp add_assignment $top_name "" grn_led LOCATION "Pin_T23"
+puts "   Assigned: LED pins."
 
-### LVDS receive pins
-set lvds_clk AA27
-set lvds_cmd V23
-set lvds_sync AA28
-set lvds_spare V24
 
-### LVDS transmit pins
-set lvds_txa V19
-set lvds_txb V20
+# assign dip switches
+cmp add_assignment $top_name "" dip_sw3 LOCATION "Pin_M2"
+cmp add_assignment $top_name "" dip_sw4 LOCATION "Pin_N1"
+puts "   Assigned: DIP switch pins."
 
-### DIP switch (pin 3 and 4)
-set dip_sw3 M2
-set dip_sw4 N1
 
-### LEDs (red is fault, yellow is status and green is power_ok)
-set red_led V27
-set ylw_led T24
-set grn_led T23
+# assign watchdog
+cmp add_assignment $top_name "" wdog LOCATION "Pin_T28"
+puts "   Assigned: Watchdog pin."
 
-## watchdog 
-set wdog T28
 
-## slot ID
-set slot_id {V25 V26 T25 T26}
-set card_id T21
+# assign ID pins
+cmp add_assignment $top_name "" "slot_id\[0\]" LOCATION "Pin_V25"
+cmp add_assignment $top_name "" "slot_id\[1\]" LOCATION "Pin_V26"
+cmp add_assignment $top_name "" "slot_id\[2\]" LOCATION "Pin_T25"
+cmp add_assignment $top_name "" "slot_id\[3\]" LOCATION "Pin_T26"
+cmp add_assignment $top_name "" card_id LOCATION "Pin_T21"
+puts "   Assigned: ID pins."
 
-### Micellaneous
-set nextnd U27
-set n7v_ok T22
 
-### spare TTL pins
-set nrx3 W28
-set nrx2 U20
-set nrx1 U19
-set tx1 Y26
-set tx_en1 Y25
-set tx2 U21
-set tx_en2 U22
-set tx3 Y28
-set tx_en3 Y27
+# assign LVDS pins
+cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_AA27"
+cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_V23"
+cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_AA28"
+cmp add_assignment $top_name "" lvds_spare LOCATION "Pin_V24"
+cmp add_assignment $top_name "" lvds_txa LOCATION "Pin_V19"
+cmp add_assignment $top_name "" lvds_txb LOCATION "Pin_V20"
+puts "   Assigned: LVDS pins."
 
-# smb pins
-set smb_clk U23
-set smb_data W26
-set nalert W25
 
-# DAC bus signals
-# for the DACs, the leftmost pin on each line is the LSB (bit 0), the rightmost pin is MSB (bit 13)
-# the first line lists pins for bus 0, the last line list pins for bus 10
-set dac_dat {N19 N20 L21 N21 N22 L23 N23 N24 H25 L25 L26 H27 L27 M27 
-             M21 L22 M22 H26 J25 J26 H28 J27 J28 K27 K28 L24 M23 M24 
-             L10 L9  M6  M7  L7  K4  H1  J2  G1  H2  J3  G2  H3  H4  
-             C18 D19 B18 C19 A18 B19 A19 C20 D21 C21 B21 A21 E21 C24 
-             G7  F10 D10 D5  D7  D6  C4  C6  B3  B4  C5  A3  A4  B5  
-             D9  D8  B6  C8  B8  C9  A8  B9  A9  C10 B10 B11 C11 A11 
-             AH7 AH6 AH4 AG3 AG4 AF4 AG5 AG7 AE5 AG6 AD6 AE6 AF6 AF7 
-             N3  M4  M3  L1  N7  K1  L2  J1  K2  K3  N8  M8  M9  M10 
-             V10 V9  AA4 U10 AA3 V8  AA1 AA2 Y1  Y2  W1  W4  V5  V6  
-             V4  W3  W2  V3  V1  V2  U2  U5  T5  T1  T3  T4  T6  T7  
-             B26 B25 A25 D24 B24 B23 A23 C23 A22 B22 D23 C22 E23 D22}
+# assign TTL pins
+cmp add_assignment $top_name "" "ttl_nrx\[1\]" LOCATION "Pin_U19"
+cmp add_assignment $top_name "" "ttl_nrx\[2\]" LOCATION "Pin_U20"
+cmp add_assignment $top_name "" "ttl_nrx\[3\]" LOCATION "Pin_W28"
+cmp add_assignment $top_name "" "ttl_tx\[1\]" LOCATION "Pin_Y26"
+cmp add_assignment $top_name "" "ttl_tx\[2\]" LOCATION "Pin_U21"
+cmp add_assignment $top_name "" "ttl_tx\[3\]" LOCATION "Pin_Y28"
+cmp add_assignment $top_name "" "ttl_txena\[1\]" LOCATION "Pin_Y25"
+cmp add_assignment $top_name "" "ttl_txena\[2\]" LOCATION "Pin_U22"
+cmp add_assignment $top_name "" "ttl_txena\[3\]" LOCATION "Pin_Y27"
+puts "   Assigned: Spare TTL pins."
 
-# DAC clk signals
-# The list of clock signals begins at clock 0, and ends with clock 40 (dark row)
-set dac_clk {N28 M20 N26 L20 M19  N25 L19 L28 K8 E19 
-             L8  D18 F19 K7  J18  J4  A7  E8  B7 D11
-             F8  C7  G10 A5  AB10 M5  AH5 N4  N5 AC8
-             N6  AE8 U8  U7  T8   T9  T10 U6  U9 V7
-             D20}
 
-################################################
-#### Make the DAC signal assignments
+# assign power supply interface
+cmp add_assignment $top_name "" n7vok LOCATION "Pin_T22"
+puts "   Assigned: Power supply status pin."
+
+
+# assign SMB pins
+cmp add_assignment $top_name "" smb_clk LOCATION "Pin_U23"
+cmp add_assignment $top_name "" smb_data LOCATION "Pin_W26"
+cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_W25"
+puts "   Assigned: SMB interface pins."
+
+
+# assign 2x8 test header pins
+cmp add_assignment $top_name "" "test\[1\]" LOCATION "Pin_AF9"
+cmp add_assignment $top_name "" "test\[2\]" LOCATION "Pin_AG11"
+cmp add_assignment $top_name "" "test\[3\]" LOCATION "Pin_AD10"
+cmp add_assignment $top_name "" "test\[4\]" LOCATION "Pin_AH11"
+cmp add_assignment $top_name "" "test\[5\]" LOCATION "Pin_AE10"
+cmp add_assignment $top_name "" "test\[6\]" LOCATION "Pin_AF11"
+cmp add_assignment $top_name "" "test\[7\]" LOCATION "Pin_AD8"
+cmp add_assignment $top_name "" "test\[8\]" LOCATION "Pin_AH10"
+cmp add_assignment $top_name "" "test\[9\]" LOCATION "Pin_AE9"
+cmp add_assignment $top_name "" "test\[10\]" LOCATION "Pin_AE11"
+cmp add_assignment $top_name "" "test\[11\]" LOCATION "Pin_AF8"
+cmp add_assignment $top_name "" "test\[12\]" LOCATION "Pin_AH9"
+cmp add_assignment $top_name "" "test\[13\]" LOCATION "Pin_AG8"
+cmp add_assignment $top_name "" "test\[14\]" LOCATION "Pin_AF10"
+cmp add_assignment $top_name "" "test\[15\]" LOCATION "Pin_AG9"
+cmp add_assignment $top_name "" "test\[16\]" LOCATION "Pin_AH8"
+puts "   Assigned: 2x8 test header pins."
+
+
+#assign mictor header pins (odd pod = 1-16, even pod = 17-32)
+cmp add_assignment $top_name "" "mictor\[1\]" LOCATION "Pin_AD19"
+cmp add_assignment $top_name "" "mictor\[2\]" LOCATION "Pin_AD18"
+cmp add_assignment $top_name "" "mictor\[3\]" LOCATION "Pin_AE19"
+cmp add_assignment $top_name "" "mictor\[4\]" LOCATION "Pin_AE18"
+cmp add_assignment $top_name "" "mictor\[5\]" LOCATION "Pin_AF19"
+cmp add_assignment $top_name "" "mictor\[6\]" LOCATION "Pin_AG18"
+cmp add_assignment $top_name "" "mictor\[7\]" LOCATION "Pin_AE20"
+cmp add_assignment $top_name "" "mictor\[8\]" LOCATION "Pin_AH19"
+cmp add_assignment $top_name "" "mictor\[9\]" LOCATION "Pin_AG19"
+cmp add_assignment $top_name "" "mictor\[10\]" LOCATION "Pin_AH20"
+cmp add_assignment $top_name "" "mictor\[11\]" LOCATION "Pin_AF20"
+cmp add_assignment $top_name "" "mictor\[12\]" LOCATION "Pin_AH21"
+cmp add_assignment $top_name "" "mictor\[13\]" LOCATION "Pin_AG21"
+cmp add_assignment $top_name "" "mictor\[14\]" LOCATION "Pin_AF21"
+cmp add_assignment $top_name "" "mictor\[15\]" LOCATION "Pin_AE21"
+cmp add_assignment $top_name "" "mictor\[16\]" LOCATION "Pin_Y17"
+cmp add_assignment $top_name "" "mictor\[17\]" LOCATION "Pin_AH26"
+cmp add_assignment $top_name "" "mictor\[18\]" LOCATION "Pin_AG26"
+cmp add_assignment $top_name "" "mictor\[19\]" LOCATION "Pin_AH25"
+cmp add_assignment $top_name "" "mictor\[20\]" LOCATION "Pin_AG25"
+cmp add_assignment $top_name "" "mictor\[21\]" LOCATION "Pin_AH24"
+cmp add_assignment $top_name "" "mictor\[22\]" LOCATION "Pin_AG24"
+cmp add_assignment $top_name "" "mictor\[23\]" LOCATION "Pin_AH23"
+cmp add_assignment $top_name "" "mictor\[24\]" LOCATION "Pin_AF25"
+cmp add_assignment $top_name "" "mictor\[25\]" LOCATION "Pin_AH22"
+cmp add_assignment $top_name "" "mictor\[26\]" LOCATION "Pin_AG22"
+cmp add_assignment $top_name "" "mictor\[27\]" LOCATION "Pin_AG23"
+cmp add_assignment $top_name "" "mictor\[28\]" LOCATION "Pin_AF22"
+cmp add_assignment $top_name "" "mictor\[29\]" LOCATION "Pin_AF23"
+cmp add_assignment $top_name "" "mictor\[30\]" LOCATION "Pin_AD21"
+cmp add_assignment $top_name "" "mictor\[31\]" LOCATION "Pin_AE22"
+cmp add_assignment $top_name "" "mictor\[32\]" LOCATION "Pin_AE24"
+cmp add_assignment $top_name "" "mictorclk\[1\]" LOCATION "Pin_AB17"
+cmp add_assignment $top_name "" "mictorclk\[2\]" LOCATION "Pin_AD23"
+puts "   Assigned: Mictor header pins."
+
+
+# assign EEPROM pins
+cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_T20"
+cmp add_assignment $top_name "" eeprom_so LOCATION "Pin_T19"
+cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_U26"
+cmp add_assignment $top_name "" eeprom_cs LOCATION "Pin_U25"
+puts "   Assigned: EEPROM pins."
+
+
+############################################################################
+# Address Card DAC data buses
+#
+# bus_0 goes to the DACs for Rows 00, 02, 05, 07
+# bus_1 goes to the DACs for Rows 01, 03, 04, 06
+# bus_2 goes to the DACs for Rows 08, 10, 13, 15
+# bus_3 goes to the DACs for Rows 09, 11, 12, 14
+# bus_4 goes to the DACs for Rows 16, 18, 21, 23
+# bus_5 goes to the DACs for Rows 17, 19, 20, 22
+# bus_6 goes to the DACs for Rows 24, 26, 29, 31
+# bus_7 goes to the DACs for Rows 25, 27, 28, 30
+# bus_8 goes to the DACs for Rows 32, 34, 37, 39
+# bus_9 goes to the DACs for Rows 33, 35, 36, 38
+# bus_10 goes to the DAC for Row 40
+#
+# assign DAC data bus 0
+set bus_0 {M27 L27 H27 L26 L25 H25 N24 N23 L23 N22 N21 L21 N20 N19}
 set i 0
-set j 0
-foreach {a} $dac_dat {   
-   cmp add_assignment $top_name "" "dac_dat\[$j\][$i\]" LOCATION "Pin_$a"
-   set i [expr $i+1] }
-   if { $i = 13} {
-     set j [expr $j+1]
-     set i 0
-   }     
-}   
+foreach {a} $bus_0 
+{
+   cmp add_assignment $top_name "" "dac_data0\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #0 pins."
+
+
+# assign DAC data bus 1
+set bus_1 {M24 M23 L24 K28 K27 J28 J27 H28 J26 J25 H26 M22 L22 M21}
+set i 0
+foreach {a} $bus_1
+{
+   cmp add_assignment $top_name "" "dac_data1\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #1 pins."
+
+
+# assign DAC data bus 2
+set bus_2 {H4 H3 G2 J3 H2 G1 J2 H1 K4 L7 M7 M6 L9 L10}
+set i 0
+foreach {a} $bus_2 
+{
+   cmp add_assignment $top_name "" "dac_data2\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #2 pins."
+
+
+# assign DAC data bus 3
+set bus_3 {C24 E21 A21 B21 C21 D21 C20 A19 B19 A18 C19 B18 D19 C18}
+set i 0
+foreach {a} $bus_3
+{
+   cmp add_assignment $top_name "" "dac_data3\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #3 pins."
+
+
+# assign DAC data bus 4
+set bus_4 {B5 A4 A3 C5 B4 B3 C6 C4 D6 D7 D5 D10 F10 G7}
+set i 0
+foreach {a} $bus_4 
+{
+   cmp add_assignment $top_name "" "dac_data4\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #4 pins."
+
+
+# assign DAC data bus 5
+set bus_5 {A11 C11 B11 B10 C10 A9 B9 A8 C9 B8 C8 B6 D8 D9}
+set i 0
+foreach {a} $bus_5
+{
+   cmp add_assignment $top_name "" "dac_data5\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #5 pins."
+
+
+# assign DAC data bus 6
+set bus_6 {AF7 AF6 AE6 AD6 AG6 AE5 AG7 AG5 AF4 AG4 AG3 AH4 AH6 AH7}
+set i 0
+foreach {a} $bus_6
+{
+   cmp add_assignment $top_name "" "dac_data6\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #6 pins."
+
+
+# assign DAC data bus 7
+set bus_7 {M10 M9 M8 N8 K3 K2 J1 L2 K1 N7 L1 M3 M4 N3}
+set i 0
+foreach {a} $bus_7
+{
+   cmp add_assignment $top_name "" "dac_data7\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #7 pins."
+
+
+# assign DAC data bus 8
+set bus_8 {V6 V5 W4 W1 Y2 Y1 AA2 AA1 V8 AA3 U10 AA4 V9 V10}
+set i 0
+foreach {a} $bus_8
+{
+   cmp add_assignment $top_name "" "dac_data8\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #8 pins."
+
+
+# assign DAC data bus 9
+set bus_9 {T7 T6 T4 T3 T1 T5 U5 U2 V2 V1 V3 W2 W3 V4}
+set i 0
+foreach {a} $bus_9
+{
+   cmp add_assignment $top_name "" "dac_data9\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #9 pins."
+
+
+# assign DAC data bus 10
+set bus_10 {D22 E23 C22 D23 B22 A22 C23 A23 B23 B24 D24 A25 B25 B26}
+set i 0
+foreach {a} $bus_10
+{
+   cmp add_assignment $top_name "" "dac_data10\[$i\]" LOCATION "Pin_$a"
+   set i [expr $i+1] 
+}
+puts "   Assigned: DAC data bus #10 pins."
+
+
+############################################################################
+# Address Card DAC clocks
+#
+# assign DAC clock
+set dac_clk {N28  M20  N26  L20  M19  N25  L19  L28  K8   E19  L8   D18  F19  K7   J18  J4   A7   E8   B7   D11
+             F8   C7   G10  A5   AB10 M5   AH5  N4   N5   AC8  N6   AE8  U8   U7   T8   T9   T10  U6   U9   V7   D20}
 set i 0
 foreach {a} $dac_clk {
    cmp add_assignment $top_name "" "dac_clk\[$i\]" LOCATION "Pin_$a"
    set i [expr $i+1] }
-}
 
-puts "   Assigned: DAC pins."
+puts "   Assigned: DAC clock pins."
 
-################################################
-#### Make the LVDS signal assignments
-cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_$lvds_clk"
-cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_$lvds_cmd"
-cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_$lvds_sync"
-cmp add_assignment $top_name "" lvds_spare LOCATION "Pin_$lvds_spare"
-cmp add_assignment $top_name "" lvds_txa LOCATION "Pin_$lvds_txa"
-cmp add_assignment $top_name "" lvds_txb LOCATION "Pin_$lvds_txb"
-puts "   Assigned: LVDS pins."
-
-################################################
-#### Make the DIP switch signal assignments (pin 3 and 4)
-cmp add_assignment $top_name "" dip_sw3 LOCATION "Pin_$dip_sw3"
-cmp add_assignment $top_name "" dip_sw4 LOCATION "Pin_$dip_sw4"
-puts "   Assigned: DIP Switch pins."
-
-################################################
-#### Make the LED signal assignments
-cmp add_assignment $top_name "" red_led LOCATION "Pin_$red_led"
-cmp add_assignment $top_name "" ylw_led LOCATION "Pin_$ylw_led"
-cmp add_assignment $top_name "" grn_led LOCATION "Pin_$grn_led"
-puts "   Assigned: LED pins."
-
-################################################
-#### Make the Watchdog signal assignments
-cmp add_assignment $top_name "" wdog LOCATION "Pin_$wdog"
-puts "   Assigned: watchdog pin."
-
-################################################
-#### Make the Card ID signal assignments
-cmp add_assignment $top_name "" card_id LOCATION "Pin_$card_id"
-
-################################################
-#### Make Slot ID signal assignments
-set i 0
-foreach {a} $slot_id {
-	cmp add_assignment $top_name "" "slot_id\[$i\]" LOCATION "Pin_$a"
-	set i [expr $i+1]
-}
-puts "   Assigned: ID pins."
-
-################################################
-#### Make the Micellaneous signal assignments
-cmp add_assignment $top_name "" nextnd LOCATION "Pin_$nextnd"
-cmp add_assignment $top_name "" n7v_ok LOCATION "Pin_$n7v_ok"
-
-################################################
-#### Make the spare TTL signal assignments
-cmp add_assignment $top_name "" nrx3 LOCATION "Pin_$nrx3"
-cmp add_assignment $top_name "" nrx2 LOCATION "Pin_$nrx2"
-cmp add_assignment $top_name "" nrx1 LOCATION "Pin_$nrx1"
-cmp add_assignment $top_name "" tx1 LOCATION "Pin_$tx1"
-cmp add_assignment $top_name "" tx_en1 LOCATION "Pin_$tx_en1"
-cmp add_assignment $top_name "" tx2 LOCATION "Pin_$tx2"
-cmp add_assignment $top_name "" tx_en2 LOCATION "Pin_$tx_en2"
-cmp add_assignment $top_name "" tx3 LOCATION "Pin_$tx3"
-cmp add_assignment $top_name "" tx_en3 LOCATION "Pin_$tx_en3"
-
-################################################
-#### Make the SMB interface signal assignments
-cmp add_assignment $top_name "" smb_clk LOCATION "Pin_$smb_clk"
-cmp add_assignment $top_name "" smb_data LOCATION "Pin_$smb_data"
-cmp add_assignment $top_name "" nalert LOCATION "Pin_$nalert"
-puts "   Assigned: SMB interface pins."
-
-################################################
-#### Make the test header pin assignments
-set i 0
-foreach {a} $test_header {
-   cmp add_assignment $top_name "" "test_header\[$i\]" LOCATION "Pin_$a"
-   set i [expr $i+1] }
-} 
-puts "   Assigned: test header pins."
 
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
