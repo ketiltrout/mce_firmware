@@ -41,7 +41,7 @@ package tx_fifo_pack is
    component tx_fifo 
       generic(fifo_size : Positive);
       port( 
-         Brst      : in     std_logic;
+         rst_i     : in     std_logic;
          tx_fr_i   : in     std_logic;
          tx_fw_i   : in     std_logic;
          txd_i     : in     std_logic_vector (7 DOWNTO 0);
@@ -53,4 +53,3 @@ package tx_fifo_pack is
    end component;
 
 end tx_fifo_pack;
-

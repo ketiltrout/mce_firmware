@@ -39,39 +39,40 @@
 --
 --
 -----------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numeric_std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-USE work.fo_transceiver_pack.all;
+library work;
+use work.fo_transceiver_pack.all;
 
-ENTITY tx_fifo IS
-   GENERIC( 
+entity tx_fifo is
+   generic( 
       fifo_size : Positive
    );
-   PORT( 
-      Brst      : IN     std_logic;
-      tx_fr_i   : IN     std_logic;
-      tx_fw_i   : IN     std_logic;
-      txd_i     : IN     std_logic_vector (7 DOWNTO 0);
-      tx_fe_o   : OUT    std_logic;
-      tx_ff_o   : OUT    std_logic;
-      tx_data_o : OUT    std_logic_vector (7 DOWNTO 0)
+   port( 
+      rst_i     : in     std_logic;
+      tx_fr_i   : in     std_logic;
+      tx_fw_i   : in     std_logic;
+      txd_i     : in     std_logic_vector (7 downto 0);
+      tx_fe_o   : out    std_logic;
+      tx_ff_o   : out    std_logic;
+      tx_data_o : out    std_logic_vector (7 downto 0)
    );
 
 -- Declarations
 
-END tx_fifo ;
+end tx_fifo ;
 
 
-ARCHITECTURE behav OF tx_fifo IS
+architecture behav of tx_fifo is
    
-BEGIN
+begin
    -- Instance port mappings.
    I0 : async_fifo
-      GENERIC MAP (fifo_size => fifo_size)
-      PORT MAP (
-         rst_i    => Brst,
+      generic map (fifo_size => fifo_size)
+      port map (
+         rst_i    => rst_i,
          read_i   => tx_fr_i,
          write_i  => tx_fw_i,
          d_i      => txd_i,
@@ -80,4 +81,4 @@ BEGIN
          q_o      => tx_data_o
       );
   
-END behav;
+end behav;

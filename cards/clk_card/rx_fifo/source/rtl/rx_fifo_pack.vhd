@@ -40,7 +40,7 @@ package rx_fifo_pack is
    component rx_fifo 
       generic(fifo_size : Positive);
       port( 
-         Brst      : in     std_logic;
+         rst_i     : in     std_logic;
          rx_fr_i   : in     std_logic;
          rx_fw_i   : in     std_logic;
          rx_data_i : in     std_logic_vector (7 DOWNTO 0);

@@ -31,9 +31,7 @@
 -- receiver are written to this FIFO.  Writing to this block
 -- is controlled by rx_control block (with signals from HOTLINK receiver).
 -- 
--- The FIFO needs to be deep enought to buffer one MCE command (Write_block is
--- largest command).  Note that a second command is not sent to the MCE from the 
--- host until a reply from the first is received.
+-- The FIFO needs to be deep enought to buffer one MCE command (at least 256 bytes)
 --
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
@@ -42,38 +40,39 @@
 --
 --
 -----------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numeric_std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-USE work.fo_transceiver_pack.all;
+library work;
+use work.fo_transceiver_pack.all;
 
 
-ENTITY rx_fifo IS
-   GENERIC( 
+entity rx_fifo is
+   generic( 
       fifo_size : Positive
    );
-   PORT( 
-      Brst      : IN     std_logic;
-      rx_fr_i   : IN     std_logic;
-      rx_fw_i   : IN     std_logic;
-      rx_data_i : IN     std_logic_vector (7 DOWNTO 0);
-      rx_fe_o   : OUT    std_logic;
-      rx_ff_o   : OUT    std_logic;
-      rxd_o     : OUT    std_logic_vector (7 DOWNTO 0)
+   port( 
+      rst_i     : in     std_logic;
+      rx_fr_i   : in     std_logic;
+      rx_fw_i   : in     std_logic;
+      rx_data_i : in     std_logic_vector (7 downto 0);
+      rx_fe_o   : out    std_logic;
+      rx_ff_o   : out    std_logic;
+      rxd_o     : out    std_logic_vector (7 downto 0)
    );
 
-END rx_fifo ;
+end rx_fifo ;
 
 
-ARCHITECTURE behav OF rx_fifo IS
+architecture behav of rx_fifo is
    
-BEGIN
+begin
    -- Instance port mappings.
    I0 : async_fifo
-      GENERIC MAP (fifo_size => fifo_size)
-      PORT MAP (
-         rst_i    => Brst,
+      generic map(fifo_size => fifo_size)
+      port map(
+         rst_i    => rst_i,
          read_i   => rx_fr_i,
          write_i  => rx_fw_i,
          d_i      => rx_data_i,
@@ -82,4 +81,4 @@ BEGIN
          q_o      => rxd_o
       );
   
-END behav;
+end behav;
