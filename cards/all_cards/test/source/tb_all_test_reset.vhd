@@ -30,10 +30,7 @@
 --
 -- Revision history:
 -- 
--- $Log: tb_all_test_reset.vhd,v $
--- Revision 1.1  2004/07/09 21:36:56  erniel
--- initial version
---
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
