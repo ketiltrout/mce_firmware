@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.17 2004/10/08 19:45:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.18 2004/12/02 05:41:58 jjacob Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/08 19:45:26 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/12/02 05:41:58 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.18  2004/12/02 05:41:58  jjacob
+-- added internal commands
+--
 -- Revision 1.17  2004/10/08 19:45:26  bburger
 -- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
 --
@@ -202,7 +205,8 @@ port(
       macro_instr_rdy_o            : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
       cmd_type_o                   : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o                   : out std_logic;                                          -- indicates a STOP command was recieved
-      last_frame_o                 : out std_logic;    
+      last_frame_o                 : out std_logic;  
+      internal_cmd_o               : out std_logic;  
       
       -- input from the cmd_queue
       ack_i                        : in std_logic                   -- acknowledgment from the micro-instr generator (cmd_queue) that it is ready and has grabbed the data
@@ -474,6 +478,7 @@ begin
                            '1' when ret_dat_pending_mux_sel = "01" else
                            ret_dat_pending;
 
+   internal_cmd_o <= macro_instr_rdy_reg when data_mux_sel = "10" else '0';
 
    process(clk_i, rst_i)
    begin

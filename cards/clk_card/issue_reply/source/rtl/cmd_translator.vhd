@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.22 2004/11/25 01:32:37 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.23 2004/12/02 05:42:07 jjacob Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/25 01:32:37 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/12/02 05:42:07 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.23  2004/12/02 05:42:07  jjacob
+-- added internal commands
+--
 -- Revision 1.22  2004/11/25 01:32:37  bburger
 -- Bryce:
 -- - Changed to cmd_code over the bus backplane to read/write only
@@ -714,6 +717,7 @@ port map(
       cmd_type_o                    => cmd_type_o,
       cmd_stop_o                    => cmd_stop_o,                    
       last_frame_o                  => last_frame_o,
+      internal_cmd_o                => internal_cmd_o,
       
       -- input from the micro-instruction generator
       ack_i                         => ack_i                    -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
@@ -727,14 +731,12 @@ port map(
    reply_param_id_o    <= param_id_i;
    reply_card_id_o     <= card_id_i;   
    
+   -- outputs to cmd_queue
    macro_instr_rdy_o   <= macro_instr_rdy;
    card_addr_o         <= card_addr;
    parameter_id_o      <= parameter_id;
 
 
-   -- output to cmd_queue   
-   internal_cmd_o <= internal_cmd_macro_instr_rdy;
-   
 ------------------------------------------------------------------------
 --
 -- macro-op storage/retire buffer

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_translator_pack.vhd,v 1.1 2004/11/24 01:15:52 bench2 Exp $
+-- $Id: cmd_translator_pack.vhd,v 1.2 2004/12/02 05:41:32 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_translator_pack.vhd,v $
+-- Revision 1.2  2004/12/02 05:41:32  jjacob
+-- added internal_cmd output
+--
 -- Revision 1.1  2004/11/24 01:15:52  bench2
 -- Greg: Broke apart issue reply and created pack files for all of its sub-components
 --
@@ -277,6 +280,7 @@ port(
       cmd_type_o                   : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o                   : out std_logic;                                          -- indicates a STOP command was recieved
       last_frame_o                 : out std_logic;
+      internal_cmd_o               : out std_logic;
       
       -- input from the micro-instruction arbiter
       ack_i             : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
