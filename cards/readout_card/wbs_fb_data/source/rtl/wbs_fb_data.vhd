@@ -81,6 +81,9 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.2  2004/11/26 18:28:35  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.1  2004/11/20 01:22:02  mohsen
 -- Initial release
 --
@@ -515,7 +518,7 @@ begin  -- struct
   -- Output MUX to Dispatch:
   -- 
   -- 1. addr_i selects which Admin is sending its output to the dispatch.  The
-  -- defulat connection is to p_banks_admin.
+  -- default connection is to data=0.
   --
   -- 2. Acknowlege is ORing of the acknowledge signals from all Admins.
   -----------------------------------------------------------------------------
@@ -545,7 +548,7 @@ begin  -- struct
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
                             SA_BIAS_ADDR   | OFFSET_ADDR,
     
-    qa_p_bank          when others;        -- default to ch0
+    (others => '0')    when others;        -- default to zero
 
   
   
