@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.6 2004/05/18 18:41:17 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.7 2004/05/20 01:59:24 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.7  2004/05/20 01:59:24  bburger
+-- in progress
+--
 -- Revision 1.6  2004/05/18 18:41:17  bburger
 -- in progress
 --
@@ -71,40 +74,42 @@ use work.cmd_queue_ram40.all;
 entity cmd_queue is
 port (
    -- reply_queue interface
-   mop_retire_o : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next m-op that the cmd_queue wants to retire
-   uop_retire_o : out std_logic_vector (UOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next u-op that the cmd_queue wants to retire
-   uop_status_i : in std_logic_vector (UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
-   uop_rdy_o    : in std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
-   uop_ack_i    : out std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
-   uop_discard_o: out std_logic; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
+   --mop_retire_o : out std_logic_vector(MOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next m-op that the cmd_queue wants to retire
+   --uop_retire_o : out std_logic_vector(UOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next u-op that the cmd_queue wants to retire
+   uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
+   uop_rdy_o     : in std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
+   uop_ack_i     : out std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
+   uop_discard_o : out std_logic; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
+   uop_timedout_o: out std_logic; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
+   uop_o         : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
    -- cmd_translator interface
-   card_addr_i  : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
-   par_id_i     : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
-   cmd_size_i   : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-   data_i       : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
-   mop_i        : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
-   issue_sync_i : in std_logic; -- Bit will be toggled with each new m-op that belongs to a different sync period
-   mop_rdy_i    : in std_logic; -- Tells cmd_queue when a m-op is ready
-   mop_ack_o    : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
+   card_addr_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
+   par_id_i      : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
+   cmd_size_i    : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
+   data_i        : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
+   mop_i         : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
+   issue_sync_i  : in std_logic; -- Bit will be toggled with each new m-op that belongs to a different sync period
+   mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
+   mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
 
    -- bb_tx interface
-   clk_o        : out std_logic;
-   rst_o        : out std_logic;
-   dat_o        : out std_logic_vector (7 downto 0);
-   we_o         : out std_logic;
-   stb_o        : out std_logic;
-   cyc_o        : out std_logic;
-   ack_i        : in std_logic;
+   clk_o         : out std_logic;
+   rst_o         : out std_logic;
+   dat_o         : out std_logic_vector (7 downto 0);
+   we_o          : out std_logic;
+   stb_o         : out std_logic;
+   cyc_o         : out std_logic;
+   ack_i         : in std_logic;
    --addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
    --tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
    --dat_o   : out std_logic_vector (DATA_WIDTH-1 downto 0);
    --rty_o   : out std_logic;
 
    -- Clock lines
-   sync_i       : in std_logic; -- The sync pulse determines when and when not to issue u-ops
-   clk_i        : in std_logic; -- Advances the state machines
-   fast_clk_i   : in std_logic  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
+   sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
+   clk_i         : in std_logic; -- Advances the state machines
+   fast_clk_i    : in std_logic  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
    );
 end cmd_queue;
 
@@ -168,7 +173,7 @@ signal next_insert_state : insert_states;
 signal inserted: std_logic; --Out, to the u-op counter fsm
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
-type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, NEXT_FLUSH, FLUSH_STATUS, FLUSH_DONE);
+type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, EJECT, NEXT_FLUSH, FLUSH_STATUS);
 signal present_retire_state : retire_states;
 signal next_retire_state    : retire_states;
 signal retired : std_logic; --Out, to the u-op counter fsm
@@ -192,11 +197,10 @@ signal uop_expired : std_logic;  --In
 signal freeze_send : std_logic;  --In, freezes the send pointer when flushing out invalidated u-ops
 
 -- Bus Backplane Packetization FSM:  packetizes u-ops contained in the command queue into Bus Backplane instruction format
-type packet_state is (IDLE, STRT_CMD1, STRT_CMD2, SZ_CMD1, SZ_CMD2, CARD_ADDR, PAR_ID, DATA, CHECKSUM1, CHECKSUM2, DONE);
+type packet_states is (IDLE, STRT_CMD1, STRT_CMD2, SZ_CMD1, SZ_CMD2, CARD_ADDR, PAR_ID, DATA, CHECKSUM1, CHECKSUM2, DONE);
 signal present_packet_state : packet_states;
 signal next_packet_state : packet_states;
 signal tx_uop_ack : std_logic;  --Out, to send fsm
-
 
 begin
    -- Command queue (FIFO)
@@ -286,6 +290,8 @@ begin
             next_insert_state <= DONE;
          when DONE =>
             next_insert_state <= IDLE;
+         when others =>
+            next_insert_state <= IDLE;
    end process insert_state_NS;
 
    insert_state_out: process(present_insert_state)
@@ -319,13 +325,6 @@ begin
    end process insert_state_out;
 
    -- Retire FSM:
-   --   mop_retire_o : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next m-op that the cmd_queue wants to retire
-   --   uop_retire_o : out std_logic_vector (UOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next u-op that the cmd_queue wants to retire
-   --   uop_status_i : in std_logic_vector (UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
-   --   uop_rdy_o    : in std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
-   --   uop_ack_i    : out std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on rq_uop_status_i
-   --   uop_discard_o: out std_logic; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when rq_rdy_i goes low.  rq_rdy_o can only go low after rq_ack_o has been received.
-
    retire_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -355,6 +354,9 @@ begin
                   next_retire_state <= RETIRE;
                elsif(uop_status_i = FAILURE)
                   next_retire_state <= FLUSH;
+               --Instruction timed out
+               elsif(uop_timed_out = '1')
+                  next_retire_state <= EJECT;
                end if;
             else if (uop_ack_i = '0')
                next_retire_state <= STATUS;
@@ -362,45 +364,107 @@ begin
          when RETIRE =>
             next_retire_state <= IDLE;
          when FLUSH =>
-            next_retire_state
+            if(retire_ptr != send_ptr)
+               next_retire_state <= NEXT_FLUSH;
+            elsif(retire_ptr = send_ptr)
+               next_retire_state <= IDLE;
+            end if;
+         when EJECT =>
+            next_retire_state <= IDLE;
          when NEXT_FLUSH =>
+            next_retire_state <= FLUSH_STATUS;
          when FLUSH_STATUS =>
-         when FLUSH_DONE =>
-         when others;
+            if(uop_ack_i = '0')
+               next_retire_state <= FLUSH_STATUS;
+            elsif(uop_ack_i = '1')
+               next_retire_state <= FLUSH;
+            end if;
+--         when FLUSH_DONE =>
+--            next_retire_state <= IDLE;
+         when others =>
+            next_retire_state <= IDLE;
       end case;
    end process retire_state_NS;
 
    retire_state_out: process(present_retire_state)
    begin
       rdaddress_b_sig <= retire_ptr;
-      mop_retire_o <= qb_sig(QUEUE_WIDTH-1 downto MOP_END);
-      uop_retire_o <= qb_sig(MOP_END-1 downto UOP_END);
+      --mop_retire_o <= qb_sig(QUEUE_WIDTH-1 downto MOP_END);
+      --uop_retire_o <= qb_sig(MOP_END-1 downto UOP_END);
+      uop_o <= qb;
       case present_retire_state is
          when IDLE =>
-            uop_rdy_o <= '0';
-            freeze_send <= '0';
+            uop_rdy_o      <= '0';
+            freeze_send    <= '0';
+            uop_timedout_o <= '0';
+            uop_discard_o  <= '0';
+            flush_ptr      <= retire_ptr;
          when NEXT_UOP =>
-            uop_rdy_o <= '1';
-            freeze_send <= '0';
+            uop_rdy_o      <= '1';
+            freeze_send    <= '0';
+            uop_timedout_o <= '0';
+            uop_discard_o  <= '0';
+            flush_ptr      <= retire_ptr;
          when STATUS =>
-            uop_rdy_o <= '1';
-            freeze_send <= '0';
+            uop_rdy_o      <= '1';
+            freeze_send    <= '0';
+            uop_timedout_o <= '0';
+            uop_discard_o  <= '0';
+            flush_ptr      <= retire_ptr;
          when RETIRE =>
-            uop_rdy_o <= '0';
-            freeze_send <= '0';
+            uop_rdy_o      <= '0';
+            freeze_send    <= '0';
+            uop_timedout_o <= '0';
+            uop_discard_o  <= '0';
+            if(retire_ptr = QUEUE_LEN-1)
+               retire_ptr  <= 0;
+            else
+               retire_ptr  <= retire_ptr + 1;
+            end if;
+            flush_ptr      <= retire_ptr;
          when FLUSH =>
-            uop_rdy_o <= '0';
-            freeze_send <= '';
+            uop_rdy_o      <= '0';
+            freeze_send    <= '1';
+            uop_timedout_o <= '0';
+            uop_discard_o  <= '1';
+         when EJECT =>
+            uop_rdy_o      <= '0';
+            freeze_send    <= '0';
+            uop_timedout_o <= '1';
+            uop_discard_o  <= '1';
+            if(retire_ptr = QUEUE_LEN-1)
+               retire_ptr  <= 0;
+            else
+               retire_ptr  <= retire_ptr + 1;
+            end if;
+            flush_ptr      <= retire_ptr;
          when NEXT_FLUSH =>
-            uop_rdy_o <= '1';
-            freeze_send <= '';
+            uop_rdy_o      <= '1';
+            freeze_send    <= '1';
+            uop_timedout_o <= '0';
+            uop_discard_o  <= '1';
+            if(flush_ptr = QUEUE_LEN-1)
+               flush_ptr   <= 0;
+            else
+               flush_ptr   <= flush_ptr + 1;
+            end if;
          when FLUSH_STATUS =>
-            uop_rdy_o <= '1';
-            freeze_send <= '';
-         when FLUSH_DONE =>
-            uop_rdy_o <= '0';
-            freeze_send <= '';
-         when others;
+            uop_rdy_o      <= '1';
+            freeze_send    <= '1';
+            uop_timedout_o <= '0';
+            uop_discard_o  <= '1';
+--         when FLUSH_DONE =>
+--            uop_rdy_o      <= '0';
+--            freeze_send    <= '0';
+--            uop_timedout_o <= '0';
+--            uop_discard_o  <= '0';
+--            flush_ptr      <= retire_ptr;
+         when others =>
+            uop_rdy_o      <= '0';
+            freeze_send    <= '0';
+            uop_timedout_o <= '0';
+            uop_discard_o  <= '0';
+            flush_ptr      <= retire_ptr;
       end case;
    end process retire_state_out;
 
@@ -482,13 +546,13 @@ begin
             -- Single card, single instruction
             next_gen_state <= CLEANUP;
          when CLEANUP => next_gen_state <= IDLE;
-         when others next_gen_state <= IDLE;
+         when others =>
+            next_gen_state <= IDLE;
       end case;
    end process state_NS;
 
    gen_state_out: process(present_gen_state, card_addr_i)
       begin
-
       with card_addr_i(CARD_ADDR_WIDTH-1 downto 0) select
          cards_addressed <=
             0 when NO_CARDS,
@@ -513,19 +577,19 @@ begin
       mop_rdy <= mop_rdy_i;
       case present_gen_state is
          when IDLE =>
-            mop_ack_o <= '0';
+            mop_ack_o      <= '0';
             insert_uop_rdy <= '0';
-            new_card_addr <= card_addr_i;
+            new_card_addr  <= card_addr_i;
          when PARSE =>
-            mop_ack_o <= '0';
+            mop_ack_o      <= '0';
             insert_uop_rdy <= '0';
-            new_card_addr <= card_addr_i;
+            new_card_addr  <= card_addr_i;
          when INSERT =>
             -- Add new u-ops to the queue
-            mop_ack_o <= '0';
+            mop_ack_o      <= '0';
             insert_uop_rdy <= '0';
-            uop_counter <= (others => '0');
-            new_card_addr <= card_addr_i;
+            uop_counter    <= (others => '0');
+            new_card_addr  <= card_addr_i;
          when RET_DAT | PSC_STATUS | BIT_STATUS | FPGA_TEMP | CARD_TEMP | CYC_OO_SYC =>
             if   (present_gen_state = RET_DATA)   new_par_id <= RET_DAT_ADDR;
             elsif(present_gen_state = PSC_STATUS) new_par_id <= PSC_STATUS_ADDR;
@@ -610,20 +674,25 @@ begin
                when others; -- Invalid card address
             end case;
          when SINGLE =>
-            uop_counter <= uop_counter + 1;
-            mop_ack_o <= '0';
+            uop_counter    <= uop_counter + 1;
+            mop_ack_o      <= '0';
             insert_uop_rdy <= '1';
-            new_card_addr <= card_addr_i;
+            new_card_addr  <= card_addr_i;
+
 --            if(free_ptr = H0XFF)
 --               free_ptr <= H0X00;
 --            else
 --               free_ptr <= free_ptr + 1;
 --            end if;
+
          when CLEANUP =>
-            mop_ack_o <= '1';
+            mop_ack_o      <= '1';
             insert_uop_rdy <= '0';
-            new_card_addr <= card_addr_i;
-         when others; -- Normal insertion
+            new_card_addr  <= card_addr_i;
+         when others => -- Normal insertion
+            mop_ack_o      <= '0';
+            insert_uop_rdy <= '0';
+            new_card_addr  <= card_addr_i;
       end case;
    end process state_out;
 
@@ -654,8 +723,11 @@ begin
             if(uop_send_expired = '1')
                -- If the u-op has expired, it should be skipped
                next_send_state <= SKIP;
+            elsif(qa(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count > START_OF_BLACKOUT)
+               -- The black out period has started - even though the command was for this sync period, it has expired.
+               next_send_state <= SKIP;
             elsif(qa(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count < START_OF_BLACKOUT)
-               -- If the u-op can be issued during this sync period, and if the remaining cycle time is sufficient to send the instruction, issue.  Else skip.
+               -- If the u-op can be issued during this sync period, and if the remaining cycle time is sufficient to send the instruction, issue.
                next_send_state <= ISSUE;
             else
                -- If the u-op is still good, but isn't supposed to be issued yet, stay in VERIFY
@@ -674,6 +746,7 @@ begin
             -- Skip to the next u-op
             next_send_state <= IDLE;
          when others =>
+            next_send_state <= IDLE;
       end case;
    end process send_state_NS;
 
@@ -702,7 +775,61 @@ begin
             else
                send_ptr <= send_ptr + 1;
             end if;
-         when others;
+         when others =>
+            tx_uop_rdy <= '0';
       end case;
    end process send_state_out;
+
+   -- Packetization FSM
+   packet_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         present_packet_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         present_packet_state <= next_packet_state;
+      end if;
+   end process packet_state_FF;
+
+   packet_state_NS: process()
+   begin
+      case present_packet_state is
+         when IDLE =>
+         when STRT_CMD1 =>
+         when STRT_CMD2 =>
+         when SZ_CMD1 =>
+         when SZ_CMD2 =>
+         when CARD_ADDR =>
+         when PAR_ID =>
+         when DATA =>
+         when CHECKSUM1 =>
+         when CHECKSUM2 =>
+         when DONE =>
+         when others
+      end case;
+   end process packet_state_NS;
+
+   packet_state_out: process()
+   begin
+      case present_packet_state is
+         when IDLE =>
+         when STRT_CMD1 =>
+         when STRT_CMD2 =>
+         when SZ_CMD1 =>
+         when SZ_CMD2 =>
+         when CARD_ADDR =>
+         when PAR_ID =>
+         when DATA =>
+         when CHECKSUM1 =>
+         when CHECKSUM2 =>
+         when DONE =>
+         when others
+      end case;
+   end process packet_state_out;
+
+   -- Bus Backplane Packetization FSM:  packetizes u-ops contained in the command queue into Bus Backplane instruction format
+   type packet_states is (IDLE, STRT_CMD1, STRT_CMD2, SZ_CMD1, SZ_CMD2, CARD_ADDR, PAR_ID, DATA, CHECKSUM1, CHECKSUM2, DONE);
+   signal present_packet_state : packet_states;
+   signal next_packet_state : packet_states;
+   signal tx_uop_ack : std_logic;  --Out, to send fsm
+
 end behav;
