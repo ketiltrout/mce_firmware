@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.11 2004/10/13 05:44:58 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.12 2004/10/13 20:48:10 bench2 Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/13 05:44:58 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2004/10/13 20:48:10 $> -     <text>      - <initials $Author: bench2 $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.12  2004/10/13 20:48:10  bench2
+-- Bryce:  added lvds_clk and lvds_cmd to the issue_reply_test top level
+--
 -- Revision 1.11  2004/10/13 05:44:58  bench2
 -- Bryce:  Added a new top-level signal to the clock card issue_reply_test block:  fibre_ckr aka fibre_clkr
 --
@@ -286,7 +289,7 @@ begin
    test (38) <= macro_instr_rdy;
    test (37) <= macro_op_ack;
    
-   test (36)             <= debug(0);
+   test (36)             <= fibre_rx_ckr;
    test (34 downto 11)   <= debug(31 downto 8);
 
    zero               <= '0';
