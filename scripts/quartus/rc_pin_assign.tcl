@@ -44,13 +44,21 @@ puts "-------------------------------------"
 package require ::quartus::project
 package require ::quartus::flow
 
-
 # get entity name
 set top_name [get_project_settings -cmp]
 puts "\nInfo: Top-level entity is $top_name."
 
 puts "\nInfo: Assigning pins:"
 
+## List of pins not assigned.
+#NEXTEND_IN        U10.A13
+#DCLK              U10.F16
+#MSEL2             U10.AB15
+#Dev_clrn          U10.AC9
+#dxp               U10.B14
+#U10.nCE           U10.AB13
+#U10.PLLEn         U10.AC18
+#U10.nIOPullup     U10.Y12
 
 # assign device parameters
 cmp add_assignment $top_name "" "" DEVICE EP1S30F780C5
@@ -58,69 +66,43 @@ cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET ON
 puts "   Assigned: EP1S30 device parameters."
 
-
 # assign leds
-cmp add_assignment $top_name "" grn_led LOCATION "Pin_H20"
+cmp add_assignment $top_name "" red_led LOCATION "Pin_H20"
 cmp add_assignment $top_name "" ylw_led LOCATION "Pin_H19"
-cmp add_assignment $top_name "" red_led LOCATION "Pin_AB22"
+cmp add_assignment $top_name "" grn_led LOCATION "Pin_J20"
 puts "   Assigned: LED pins."
-
 
 # assign dip switches
 cmp add_assignment $top_name "" dip_sw3 LOCATION "Pin_K10"
 cmp add_assignment $top_name "" dip_sw4 LOCATION "Pin_L11"
 puts "   Assigned: DIP switch pins."
 
-
 # assign watchdog
 cmp add_assignment $top_name "" wdog LOCATION "Pin_A5"
 puts "   Assigned: Watchdog pin."
-
 
 # assign ID pins
 cmp add_assignment $top_name "" "slot_id\[0\]" LOCATION "Pin_D5"
 cmp add_assignment $top_name "" "slot_id\[1\]" LOCATION "Pin_B6"
 cmp add_assignment $top_name "" "slot_id\[2\]" LOCATION "Pin_C9"
 cmp add_assignment $top_name "" "slot_id\[3\]" LOCATION "Pin_D10"
+
+cmp add_assignment $top_name "" card_id LOCATION "Pin_A16"
 puts "   Assigned: ID pins."
 
-
-# assign LVDS pins
-# for LVDS clk, see PLL section
-cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_G24"
-cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_F24"
-cmp add_assignment $top_name "" lvds_spare LOCATION "Pin_G23"
-cmp add_assignment $top_name "" lvds_rx0a LOCATION "Pin_W26"
-cmp add_assignment $top_name "" lvds_rx0b LOCATION "Pin_Y26"
-cmp add_assignment $top_name "" lvds_rx1a LOCATION "Pin_U26"
-cmp add_assignment $top_name "" lvds_rx1b LOCATION "Pin_V26"
-cmp add_assignment $top_name "" lvds_rx2a LOCATION "Pin_W28"
-cmp add_assignment $top_name "" lvds_rx2b LOCATION "Pin_Y28"
-cmp add_assignment $top_name "" lvds_rx3a LOCATION "Pin_T28"
-cmp add_assignment $top_name "" lvds_rx3b LOCATION "Pin_V27"
-cmp add_assignment $top_name "" lvds_rx4a LOCATION "Pin_AB28"
-cmp add_assignment $top_name "" lvds_rx4b LOCATION "Pin_AA28"
-cmp add_assignment $top_name "" lvds_rx5a LOCATION "Pin_AE28"
-cmp add_assignment $top_name "" lvds_rx5b LOCATION "Pin_AC28"
-cmp add_assignment $top_name "" lvds_rx6a LOCATION "Pin_AB26"
-cmp add_assignment $top_name "" lvds_rx6b LOCATION "Pin_AA25"
-cmp add_assignment $top_name "" lvds_rx7a LOCATION "Pin_AF28"
-cmp add_assignment $top_name "" lvds_rx7b LOCATION "Pin_AD28"
-puts "   Assigned: LVDS pins."
-
-
 # assign spare TTL
-cmp add_assignment $top_name "" "ttl_nrx\[1\]" LOCATION "Pin_L24"
-cmp add_assignment $top_name "" "ttl_nrx\[2\]" LOCATION "Pin_H26"
-cmp add_assignment $top_name "" "ttl_nrx\[3\]" LOCATION "Pin_H25"
-cmp add_assignment $top_name "" "ttl_tx\[1\]" LOCATION "Pin_L21"
-cmp add_assignment $top_name "" "ttl_tx\[2\]" LOCATION "Pin_G27"
-cmp add_assignment $top_name "" "ttl_tx\[3\]" LOCATION "Pin_G28"
-cmp add_assignment $top_name "" "ttl_txena\[1\]" LOCATION "Pin_K22"
-cmp add_assignment $top_name "" "ttl_txena\[2\]" LOCATION "Pin_G26"
-cmp add_assignment $top_name "" "ttl_txena\[3\]" LOCATION "Pin_G25"
-puts "   Assigned: Spare TTL pins."
+cmp add_assignment $top_name "" "ttl_dir\[1\]" LOCATION "Pin_G7"
+cmp add_assignment $top_name "" "ttl_in\[1\]" LOCATION "Pin_F7"
+cmp add_assignment $top_name "" "ttl_out\[1\]" LOCATION "Pin_F11"
 
+cmp add_assignment $top_name "" "ttl_dir\[2\]" LOCATION "Pin_G9"
+cmp add_assignment $top_name "" "ttl_in\[2\]" LOCATION "Pin_F8"
+cmp add_assignment $top_name "" "ttl_out\[2\]" LOCATION "Pin_G8"
+
+cmp add_assignment $top_name "" "ttl_dir\[3\]" LOCATION "Pin_H9"
+cmp add_assignment $top_name "" "ttl_in\[3\]" LOCATION "Pin_F9"
+cmp add_assignment $top_name "" "ttl_out\[3\]" LOCATION "Pin_G12"
+puts "   Assigned: Spare TTL pins."
 
 # assign PLL pins
 # PLL5 in     = CLK       (from crystal via CPLD)
@@ -140,16 +122,12 @@ cmp add_assignment $top_name "" "pll6_out\[2\]" LOCATION "Pin_AF15"
 cmp add_assignment $top_name "" "pll6_out\[3\]" LOCATION "Pin_W16"
 puts "   Assigned: PLL pins."
 
-
 # assign SMB pins
 cmp add_assignment $top_name "" smb_clk LOCATION "Pin_F17"
 cmp add_assignment $top_name "" smb_data LOCATION "Pin_G22"
-cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_Y20"
+cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_G21"
 puts "   Assigned: SMB interface pins."
 
-
-# assign 2x20 test header pins
-#puts "   Assigned: 2x20 test header pins."
 
 # assign EEPROM pins
 cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_F20"
@@ -201,6 +179,29 @@ cmp add_assignment $top_name "" sram_noe LOCATION "Pin_C20"
 cmp add_assignment $top_name "" sram_nwe LOCATION "Pin_A21"
 cmp add_assignment $top_name "" sram_ncs LOCATION "Pin_B21"
 puts "   Assigned: SRAM pins."
+
+### reply lines to clock card (brx7a, brx7b)
+cmp add_assignment $top_name "" lvds_txa LOCATION "Pin_A4"
+cmp add_assignment $top_name "" lvds_txb LOCATION "Pin_A3"
+cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_B3"
+cmp add_assignment $top_name "" lvds_spare LOCATION "Pin_B4"
+cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_B5"
+puts "   Assigned: LVDS pins."
+
+# assign power supply interface
+cmp add_assignment $top_name "" n7Vok LOCATION "Pin_J10"
+cmp add_assignment $top_name "" minus7Vok LOCATION "Pin_J9"
+cmp add_assignment $top_name "" n15Vok LOCATION "Pin_H10"
+
+puts "   Assigned: Power supply status pin."
+
+### mictor connector header (LSB in the left-most position, MSB in the right-most)
+set mictor {E13 D13 C13 E12 B13 D12 C12 B12 B11 D11 C11 A11 B10 C10 A10 E10  A9  A8  B8  B9  D9  E8  C8  D8  C7  C6  D7  A7  D6  B7  A6  E6}
+set i 0
+foreach {a} $mictor {
+	cmp add_assignment $top_name "" "mictor\[$i\]" LOCATION "Pin_$a"
+	set i [expr $i+1]
+}
 
 
 ### Serial DAC PINS
