@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.9 2004/08/30 11:04:41 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.10 2004/09/02 12:38:24 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/30 11:04:41 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/02 12:38:24 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.10  2004/09/02 12:38:24  dca
+-- 'reply_nData_i' signal replaced with 'm_op_cmd_code_i' vector
+--
 -- Revision 1.9  2004/08/30 11:04:41  dca
 -- typo corrected 'ASCII_T' replaces 'ASCII_P'
 --
@@ -89,8 +92,7 @@ port(
      rst_i                   : in  std_logic;                                            -- global reset
      clk_i                   : in  std_logic;                                            -- global clock
 
-     -- signals to/from cmd_translator
-     
+     -- signals to/from cmd_translator    
      cmd_rcvd_er_i           : in  std_logic;                                            -- command received on fibre with checksum error
      cmd_rcvd_ok_i           : in  std_logic;                                            -- command received on fibre - no checksum error
      cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);    -- fibre command code
@@ -101,11 +103,13 @@ port(
      m_op_done_i             : in  std_logic;                                            -- macro op done
      m_op_ok_nEr_i           : in  std_logic;                                            -- macro op success ('1') or error ('0') 
      m_op_cmd_code_i         : in  std_logic_vector (CMD_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
+ --    m_op_param_id_i         : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- m_op parameter id passed from reply_queue
+ --    m_op_card_id_i          : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- m_op card id passed from reply_queue
      fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
      fibre_word_req_o        : out std_logic;                                            -- asserted to requeset next fibre word
      m_op_ack_o              : out std_logic;                                            -- asserted to indicate to reply queue the the packet has been processed
-     
+
      -- signals to / from fibre_tx
      tx_ff_i                 : in std_logic;                                             -- transmit fifo full
      tx_fw_o                 : out std_logic;                                            -- transmit fifo write request
@@ -124,7 +128,6 @@ use work.issue_reply_pack.all;
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
-
 
 
 architecture rtl of reply_translator is
@@ -278,8 +281,7 @@ type fibre_state is           (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, R
                                
                                LD_CKSUM0,  TX_CKSUM0,  LD_CKSUM1,  TX_CKSUM1,   
                                LD_CKSUM2,  TX_CKSUM2,  LD_CKSUM3,  TX_CKSUM3
-                               
-                               
+                                                          
                                );
       
 signal   fibre_current_state       : fibre_state;
@@ -352,14 +354,10 @@ signal stop_err_rdy          : std_logic;
 signal arb_fsm_ack           : std_logic    ;                                  
 
 
-                                                                              
-
-
 begin
 
 
 -- m_op_done and m_op_cmd_code should hold true until m_op_ack_o asserted
-
 m_op_done_reply  <= m_op_done_i when m_op_cmd_code_i  /= DATA else '0';
 m_op_done_data   <= m_op_done_i when m_op_cmd_code_i   = DATA else '0';
 
@@ -400,10 +398,10 @@ reply_word2_2mux   <= card_id_i    ( 7 downto 0) when reply_word2_2mux_sel = '1'
 reply_word2_3mux   <= card_id_i    (15 downto 8) when reply_word2_3mux_sel = '1' else reply_word2_3;
 
 --  reply word 3 recirculation mux structures
-wordN_0mux   <= reply_data   ( 7 downto  0) when wordN_0mux_sel = '1' else wordN_0;
-wordN_1mux   <= reply_data   (15 downto  8) when wordN_1mux_sel = '1' else wordN_1;
-wordN_2mux   <= reply_data   (23 downto 16) when wordN_2mux_sel = '1' else wordN_2;
-wordN_3mux   <= reply_data   (31 downto 24) when wordN_3mux_sel = '1' else wordN_3;
+wordN_0mux         <= reply_data   ( 7 downto  0) when wordN_0mux_sel = '1' else wordN_0;
+wordN_1mux         <= reply_data   (15 downto  8) when wordN_1mux_sel = '1' else wordN_1;
+wordN_2mux         <= reply_data   (23 downto 16) when wordN_2mux_sel = '1' else wordN_2;
+wordN_3mux         <= reply_data   (31 downto 24) when wordN_3mux_sel = '1' else wordN_3;
 
 
 -- checksum calculator input recirculation strucutre 
@@ -1398,6 +1396,16 @@ txd_o              <= fibre_byte;
            fibre_byte                  <=  checksum( 7 downto 0);
            write_fifo                  <= '1';
            
+            if m_op_done_reply = '1' or             -- if this was a reply/data packet 
+              m_op_done_data  = '1' then           -- instigated by reply_queue then
+           
+              m_op_ack_o               <= '1' ;    -- acknowledge that packet has finished - i.e. started txing checksum
+                                                   -- Q should now de-assert m_op_done
+            else        
+              m_op_ack_o               <= '0';
+           end if;         
+                   
+           
        when LD_CKSUM1 =>
            fibre_byte                  <=  checksum(15 downto 8);
            write_fifo                  <= '0';
@@ -1427,15 +1435,6 @@ txd_o              <= fibre_byte;
            fibre_byte                  <=  checksum(31 downto 24);
            write_fifo                  <= '1';
            
-           if m_op_done_reply = '1' or             -- if this was a reply/data packet 
-              m_op_done_data  = '1' then           -- instigated by reply_queue then
-           
-              m_op_ack_o               <= '1' ;    -- acknowledge that packet has finished
-                                                   -- Q should now de-assert m_op_done
-            else        
-              m_op_ack_o               <= '0';
-           end if;         
-                   
                    
        when REQ_Q_WORD  =>
            fibre_word_req_o            <= '1';
