@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.7  2004/05/20 15:59:59  erniel
+# removed DAC_nclr pin, tied to status pin on board
+#
 # Revision 1.6  2004/05/17 00:12:57  erniel
 # renamed PLL 5 input pin to inclk
 #
@@ -286,7 +289,7 @@ cmp add_assignment $top_name "" "dac_ncs\[11\]" LOCATION "Pin_J27"
 cmp add_assignment $top_name "" "dac_ncs\[12\]" LOCATION "Pin_L20"
 cmp add_assignment $top_name "" "dac_ncs\[13\]" LOCATION "Pin_J25"
 cmp add_assignment $top_name "" "dac_ncs\[14\]" LOCATION "Pin_L11"
-cmp add_assignment $top_name "" "dac_ncs\[15\]" LOCATION "Pin_J13"
+cmp add_assignment $top_name "" "dac_ncs\[15\]" LOCATION "Pin_F8"
 cmp add_assignment $top_name "" "dac_ncs\[16\]" LOCATION "Pin_A4"
 cmp add_assignment $top_name "" "dac_ncs\[17\]" LOCATION "Pin_B3"
 cmp add_assignment $top_name "" "dac_ncs\[18\]" LOCATION "Pin_B4"
@@ -324,7 +327,7 @@ cmp add_assignment $top_name "" "dac_data\[11\]" LOCATION "Pin_J28"
 cmp add_assignment $top_name "" "dac_data\[12\]" LOCATION "Pin_L19"
 cmp add_assignment $top_name "" "dac_data\[13\]" LOCATION "Pin_J26"
 cmp add_assignment $top_name "" "dac_data\[14\]" LOCATION "Pin_M11"
-cmp add_assignment $top_name "" "dac_data\[15\]" LOCATION "Pin_L13"
+cmp add_assignment $top_name "" "dac_data\[15\]" LOCATION "Pin_G7"
 cmp add_assignment $top_name "" "dac_data\[16\]" LOCATION "Pin_A3"
 cmp add_assignment $top_name "" "dac_data\[17\]" LOCATION "Pin_B5"
 cmp add_assignment $top_name "" "dac_data\[18\]" LOCATION "Pin_C4"
