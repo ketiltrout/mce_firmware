@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: tb_async_rx.vhd,v $
+-- Revision 1.2  2004/06/17 01:31:44  erniel
+-- renamed clock signal to rx_clk_i
+-- modified timing of stb_i signal
+--
 -- Revision 1.1  2004/06/11 18:38:47  erniel
 -- initial version
 -- uses new async tx/rx interface

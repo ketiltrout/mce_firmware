@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.12 2004/10/06 19:51:15 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.13 2004/10/06 21:01:00 erniel Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/06 19:51:15 $> -     <text>      - <initials $Author: erniel $>
+-- <date $Date: 2004/10/06 21:01:00 $> -     <text>      - <initials $Author: erniel $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.13  2004/10/06 21:01:00  erniel
+-- removed reference to fibre_rx_pack
+--
 -- Revision 1.12  2004/10/06 19:51:15  erniel
 -- using new command_pack constants
 --

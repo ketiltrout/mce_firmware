@@ -7,8 +7,8 @@ DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L14674
 V:4ZKN:=gknRgN0^?3PYcG0
@@ -43,8 +43,8 @@ DP ieee std_logic_textio 8YS?iX`WD1REQG`ZRYQGB2
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L19906
 VSO::hf=KhLPHCgbc>TJ3M2
@@ -77,8 +77,8 @@ DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP ieee std_logic_textio 8YS?iX`WD1REQG`ZRYQGB2
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L20304
 V72AlNm`4heI2<zMeV]VI]2
@@ -108,8 +108,8 @@ tExplicit T
 Ealtaccumulate
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L324
 V3PU51HRKSaifG5f4:CaEX2
@@ -135,8 +135,8 @@ DP work altera_common_conversion ;OM;QF7=PO9heHnHoPFjN1
 DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L12207
 VZib9GBR1Pm1`TS=Q5m3N>0
@@ -166,8 +166,8 @@ tExplicit T
 Ealtcdr_rx
 DP work pllpack K=B]aPZk98D_<REJj:B`R3
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L9763
 VXXzSi@Z=4Q7Ml]i]zTOQU3
@@ -194,8 +194,8 @@ tExplicit T
 Ealtcdr_tx
 DP work pllpack K=B]aPZk98D_<REJj:B`R3
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L9981
 Vz9I3bliI5P2_043h8>8>C3
@@ -222,8 +222,8 @@ tExplicit T
 Ealtclklock
 DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L3246
 VP=[Ucn5nk5TAZG;0925Tz2
@@ -246,8 +246,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Ealtddio_bidir
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L4237
 VH`0oh4bCKckcoi>?UE1?T2
@@ -273,8 +273,8 @@ tExplicit T
 Ealtddio_in
 DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L3961
 VchaB^_E3i_oW=GFZil]8F0
@@ -298,8 +298,8 @@ tExplicit T
 Ealtddio_out
 DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L4089
 VVnlgH0MRm3EYJWZQbB]QX3
@@ -326,8 +326,8 @@ DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L14191
 VE_W3^E?J1F1SIXf7>f<Kn2
@@ -359,8 +359,8 @@ tExplicit T
 Paltera_common_conversion
 DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L162
 V;OM;QF7=PO9heHnHoPFjN1
@@ -387,8 +387,8 @@ tExplicit T
 nbody
 Paltera_device_families
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L37
 VegiA7B_mUm_2lBL>9o00]1
@@ -412,23 +412,23 @@ tExplicit T
 nbody
 Paltera_mf_components
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1055886122
-FC:/Quartus2/eda/sim_lib/altera_mf_components.vhd
+w1055857322
+FC:/quartus/eda/sim_lib/altera_mf_components.vhd
 l0
 L30
 VTIe2V5MS<dLJ0FG^z8^C02
 OE;C;5.7f;15
 31
 M1 ieee std_logic_1164
-o-work altera_mf -93 -explicit
+o-work altera_mf -93 -explicit -check_synthesis
 tExplicit T
 Ealtfp_mult
 DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP work altera_common_conversion ;OM;QF7=PO9heHnHoPFjN1
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L2440
 VF=KQ`XFddoQO6jUohYmc73
@@ -457,8 +457,8 @@ Ealtlvds_rx
 DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L10181
 VbEkS6di6ge@W]CIhX5=Ae2
@@ -487,8 +487,8 @@ Ealtlvds_tx
 DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L11342
 Vba_`zHKH1Kg6OZh[9]fJ@2
@@ -516,8 +516,8 @@ tExplicit T
 Ealtmult_accum
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L550
 VJ4n:gNaUd;8CXXY1cf;W@3
@@ -541,8 +541,8 @@ tExplicit T
 Ealtmult_add
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L1216
 V=^`2TdEHJS9Az9AD<>g1[2
@@ -565,8 +565,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Ealtpll
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L7857
 VUdfFcOg_Nc8KGAdj5diNA3
@@ -593,8 +593,8 @@ DP work altera_common_conversion ;OM;QF7=PO9heHnHoPFjN1
 DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L15301
 Vh9PIG^G2D6a`QFoLoSIQJ0
@@ -623,8 +623,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Ealtshift_taps
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L19827
 VcBGG]PE?H46=8Z?9a1G6C1
@@ -648,8 +648,8 @@ DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP work altera_common_conversion ;OM;QF7=PO9heHnHoPFjN1
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L2989
 V^QU<]Rib;VVTDOE2`8K>Z1
@@ -679,8 +679,8 @@ DP work altera_common_conversion ;OM;QF7=PO9heHnHoPFjN1
 DP std textio K]Z^fghZ6B=BjnK5NomDT3
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L16585
 VJCVa@5>Cg]U[cbngQ48Qg3
@@ -709,8 +709,8 @@ Edcfifo
 DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L19617
 V@06WSW12EMH9V1Z6D@Zal2
@@ -742,8 +742,8 @@ DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L18777
 VhFYGzl4e=X?7iboLUJ>>33
@@ -774,8 +774,8 @@ Edcfifo_dffpipe
 DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L18499
 V4jgj^enz8=MJCWoGKR[gX3
@@ -802,8 +802,8 @@ Edcfifo_fefifo
 DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L18585
 V3]1?[Am<7bS]Y]JV3:GfQ1
@@ -831,8 +831,8 @@ DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L19240
 VHOWPgnJiZhEJPYBadzJh52
@@ -860,8 +860,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Edffp
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L4791
 V;n3aPgP[T5;0:ATVkiLB]1
@@ -882,8 +882,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Ehssi_fifo
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L9239
 VB7b[XK7l>`H3Qan79o4d=3
@@ -905,8 +905,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Ehssi_pll
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L8685
 V;[N_mfTB=?Yf;;8jmmJ1^0
@@ -927,8 +927,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Ehssi_rx
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L9461
 Va15>TBb6l76`OhTZ@lh`Y3
@@ -949,8 +949,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Ehssi_tx
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L9642
 Vd]XZAKAA`jOcUOj9dIEeo2
@@ -971,8 +971,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Emn_cntr
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L4824
 VdYgIOFnN9eQZb@i^@Nblo3
@@ -993,8 +993,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Epll_reg
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L4948
 V[hF4B:AK0ckJ3KB7eVVz<1
@@ -1015,8 +1015,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Ppllpack
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L4392
 VK=B]aPZk98D_<REJj:B`R3
@@ -1040,8 +1040,8 @@ tExplicit T
 nbody
 Eram7x20_syn
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L9082
 VU_8o7dfKAfV0`XM7@7<hA0
@@ -1062,8 +1062,8 @@ o-work altera_mf -93 -explicit
 tExplicit T
 Escale_cntr
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L4874
 V95B:P_<?8CiP;MWgddfPG0
@@ -1087,8 +1087,8 @@ DP work altera_device_families egiA7B_mUm_2lBL>9o00]1
 DP ieee std_logic_unsigned hEMVMlaNCR^<OOoVNV;m90
 DP ieee std_logic_arith GJbAT?7@hRQU9IQ702DT]2
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L18073
 VT>@Llj30baLTcYDN:G=m=1
@@ -1116,8 +1116,8 @@ tExplicit T
 Estratix_pll
 DP work pllpack K=B]aPZk98D_<REJj:B`R3
 DP ieee std_logic_1164 GH1=`jDDBJ=`LM;:Ak`kf2
-w1056648198
-FC:/Quartus2/eda/sim_lib/altera_mf.vhd
+w1056619398
+FC:/quartus/eda/sim_lib/altera_mf.vhd
 l0
 L5001
 V[99L2jT4MfcnIW@Z;9g4`2

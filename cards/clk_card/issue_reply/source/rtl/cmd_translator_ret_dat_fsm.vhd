@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.14 2004/09/11 00:21:27 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.15 2004/09/30 22:34:44 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/11 00:21:27 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $>	-		<text>		- <initials $Author: erniel $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.15  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.14  2004/09/11 00:21:27  jjacob
 -- fixed syn number and timing of last, stop signals to cmd_queue
 --

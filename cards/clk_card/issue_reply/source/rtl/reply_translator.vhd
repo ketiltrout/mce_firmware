@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.13 2004/09/03 13:55:46 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.14 2004/10/06 21:48:53 erniel Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,13 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/03 13:55:46 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/06 21:48:53 $> - <text> - <initials $Author: erniel $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.14  2004/10/06 21:48:53  erniel
+-- using new command_pack constants
+-- using conv_integer and conv_std_logic_vector macros
+--
 -- Revision 1.13  2004/09/03 13:55:46  dca
 -- local command FSM removed
 -- will be added once its functionality is established

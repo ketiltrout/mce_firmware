@@ -20,7 +20,7 @@
 
 -- dip.vhd
 --
--- <revision control keyword substitutions e.g. $Id: dip_switch.vhd,v 1.2 2004/03/29 21:39:48 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: dip_switch.vhd,v 1.3 2004/05/06 18:18:37 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -32,6 +32,10 @@
 -- Revision history:
 --
 -- $Log: dip_switch.vhd,v $
+-- Revision 1.3  2004/05/06 18:18:37  erniel
+-- removed obsolete code
+-- defined number of dip switch bits in a GENERIC
+--
 -- Revision 1.2  2004/03/29 21:39:48  erniel
 -- removed obsolete slave_ctrl instantiation
 -- added rty_o signal

@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.21 2004/08/10 17:22:44 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.22 2004/09/01 17:13:17 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.22  2004/09/01 17:13:17  erniel
+-- updated counter component
+--
 -- Revision 1.21  2004/08/10 17:22:44  erniel
 -- updated lfsr component
 --

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_crc_test.vhd,v $
+-- Revision 1.2  2004/08/05 00:26:02  erniel
+-- entity renamed
+--
 -- Revision 1.1  2004/08/04 19:43:19  erniel
 -- initial version
 --

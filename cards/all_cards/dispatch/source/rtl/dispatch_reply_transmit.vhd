@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.3  2004/09/27 23:02:13  erniel
+-- using updated constants from command_pack
+--
 -- Revision 1.2  2004/09/11 00:56:52  erniel
 -- added comments
 --

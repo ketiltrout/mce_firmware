@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.11  2004/09/27 19:15:43  erniel
+-- renamed BB_NUM_HEADER_WORDS to BB_NUM_CMD_HEADER_WORDS
+--
 -- Revision 1.10  2004/09/27 18:38:36  erniel
 -- renamed card address constants
 -- renamed PASS_FAIL constant to STATUS

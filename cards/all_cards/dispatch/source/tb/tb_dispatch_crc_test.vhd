@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch_crc_test.vhd,v $
+-- Revision 1.4  2004/08/25 20:23:35  erniel
+-- added error packet test
+--
 -- Revision 1.3  2004/08/07 02:11:28  erniel
 -- added extra tests
 --

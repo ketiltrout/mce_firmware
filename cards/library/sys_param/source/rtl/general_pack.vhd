@@ -28,8 +28,11 @@
 -- pack file for general_pack
 --
 -- Revision history:
--- <date $Date: 2004/07/29 00:24:41 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/29 23:45:20 $>	- <initials $Author: mandana $>
 -- $Log: general_pack.vhd,v $
+-- Revision 1.4  2004/07/29 23:45:20  mandana
+-- moved address card constants to ac_dac_ctrl_pack.vhd
+--
 -- Revision 1.3  2004/07/29 00:24:41  mandana
 -- add AC parameters
 --

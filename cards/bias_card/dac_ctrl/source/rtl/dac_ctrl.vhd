@@ -33,8 +33,11 @@
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/05/19 18:27:49 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/20 20:07:54 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.14  2004/05/20 20:07:54  mandana
+-- fixed others for FSMs
+--
 -- Revision 1.13  2004/05/19 18:27:49  mandana
 -- deleted nclr pin on DACs, it is tied to FPGA status line
 --

@@ -20,7 +20,7 @@
 
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: tb_counter.vhd,v 1.1 2004/03/23 03:15:45 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_counter.vhd,v 1.2 2004/07/21 19:46:15 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/03/23 03:15:45 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/07/21 19:46:15 $>	- <initials $Author: erniel $>
 -- $Log: tb_counter.vhd,v $
+-- Revision 1.2  2004/07/21 19:46:15  erniel
+-- updated counter component
+-- added procedures to testbench
+--
 -- Revision 1.1  2004/03/23 03:15:45  erniel
 -- Initial version
 --

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.7  2004/09/01 17:17:01  erniel
+-- added buffer_out to process sensitivity list
+--
 -- Revision 1.6  2004/08/27 19:31:50  erniel
 -- replaced start/done with rdy/busy interface
 --

@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: ac_pin_assign.tcl,v $
+# Revision 1.12  2004/05/25 21:42:17  mandana
+# changed the LSB to MSB order on bus 0 to 9 to the correct order
+#
 # Revision 1.11  2004/05/17 00:12:57  erniel
 # renamed PLL 5 input pin to inclk
 #

@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_reset.vhd,v $
+-- Revision 1.3  2004/06/09 22:57:05  erniel
+-- corrected small bug in entity declaration
+--
 -- Revision 1.2  2004/05/12 16:49:07  erniel
 -- removed components already in all_test
 --

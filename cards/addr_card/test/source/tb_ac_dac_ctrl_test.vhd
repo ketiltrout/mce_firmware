@@ -29,8 +29,11 @@
 -- testbench for the ac_dac_ctrl, very simple: assert enable and wait for done!
 --
 -- Revision history:
--- <date $Date: 2004/04/29 17:50:25 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/29 17:23:32 $>	- <initials $Author: mandana $>
 -- $Log: tb_ac_dac_ctrl_test.vhd,v $
+-- Revision 1.2  2004/07/29 17:23:32  mandana
+-- w14_array11 name change
+--
 -- Revision 1.1  2004/04/29 17:50:25  mandana
 -- initial release
 --  

@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: card_id_wait_for_temp.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		<project name>
 -- Author:		Jonathan Jacob
@@ -32,7 +32,7 @@
 -- bytes are the serial number and the last byte is the CRC
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 

@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id: raw_data_queue_pack.vhd,v 1.1 2004/08/25 23:07:10 bburger Exp $
+-- $Id: raw_data_queue_pack.vhd,v 1.2 2004/08/31 00:00:04 bburger Exp $
 -- Description:
 -- Pack file for the raw_data_queue generated with the Quartus Megawizard
 --
 -- Revision history:
 -- $Log: raw_data_queue_pack.vhd,v $
+-- Revision 1.2  2004/08/31 00:00:04  bburger
+-- Bryce:  removed compilation errors
+--
 -- Revision 1.1  2004/08/25 23:07:10  bburger
 -- Bryce:  new
 --

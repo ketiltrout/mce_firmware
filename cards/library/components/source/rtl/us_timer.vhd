@@ -20,7 +20,7 @@
 
 -- us_counter.vhd
 --
--- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.3 2004/04/06 21:57:09 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.4 2004/04/06 22:04:57 erniel Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,8 +31,11 @@
 --
 -- Revision history:
 -- Jan. 15 2004		- Initial version      - EL
--- <date $Date: 2004/04/06 21:57:09 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/06 22:04:57 $>	-		<text>		- <initials $Author: erniel $>
 -- $Log: us_timer.vhd,v $
+-- Revision 1.4  2004/04/06 22:04:57  erniel
+-- Removed obsolete code
+--
 -- Revision 1.3  2004/04/06 21:57:09  erniel
 -- Added two counters:
 --    1. Count out a 0.5 us period

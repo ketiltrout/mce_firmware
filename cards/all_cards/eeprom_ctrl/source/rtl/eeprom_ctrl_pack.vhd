@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: eeprom_ctrl_pack.vhd,v 1.3 2004/03/31 18:59:30 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: eeprom_ctrl_pack.vhd,v 1.1 2004/04/14 21:42:26 jjacob Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jonathan Jacob
@@ -32,7 +32,7 @@
 -- Revision history:
 -- 
 --
--- <date $Date: 2004/03/31 18:59:30 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/14 21:42:26 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 

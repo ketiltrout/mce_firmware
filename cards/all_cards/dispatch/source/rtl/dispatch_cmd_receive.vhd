@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.6  2004/09/27 23:02:22  erniel
+-- using updated constants from command_pack
+--
 -- Revision 1.5  2004/09/11 01:02:49  erniel
 -- minor signal name changes
 --

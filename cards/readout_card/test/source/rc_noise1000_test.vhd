@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date: 2004/07/23 23:18:00 $>    - <initials $Author: bench1 $>
+-- <date $Date: 2004/07/26 23:47:58 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.5  2004/07/26 23:47:58  bench1
+-- Mandana: swapped adc1_rdy on mictor
+--
 -- Revision 1.4  2004/07/23 23:18:00  bench1
 -- Mandana: corrected the mictor bits
 --

@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.8 2004/09/02 14:33:23 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.9 2004/09/03 13:13:26 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/02 14:33:23 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/03 13:13:26 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.9  2004/09/03 13:13:26  dca
+-- test added for 'NO_REPLY' state (fibre FSM).
+--
 -- Revision 1.8  2004/09/02 14:33:23  dca
 -- some timing changes
 --

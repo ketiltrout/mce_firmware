@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_tx_fifo.vhd,v 1.1 2004/10/05 12:22:27 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_tx_fifo.vhd,v 1.2 2004/10/06 21:50:52 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,12 @@
 -- the tx_control block controls their transfer to the HOTLINK transmitter
 -- 
 -- Revision history:
--- <date $Date: 2004/10/05 12:22:27 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/06 21:50:52 $> - <text> - <initials $Author: erniel $>
 --
 -- $Log: fibre_tx_fifo.vhd,v $
+-- Revision 1.2  2004/10/06 21:50:52  erniel
+-- removed references to unused libraries
+--
 -- Revision 1.1  2004/10/05 12:22:27  dca
 -- moved from fibre_tx directory.
 --

@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_pack.vhd,v $
+-- Revision 1.5  2004/09/02 19:11:58  bburger
+-- Bryce:  updated the lvds_tx interface to match that in lvds_tx.vhd
+--
 -- Revision 1.4  2004/06/30 01:46:13  erniel
 -- removed async_tx declaration
 -- removed async_rx declaration

@@ -20,7 +20,7 @@
 
 -- sram_test_wrapper.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_test.vhd,v 1.1 2004/06/29 18:51:20 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_test.vhd,v 1.2 2004/07/01 00:22:51 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -31,6 +31,9 @@
 --
 -- Revision history:
 -- $Log: sram_test.vhd,v $
+-- Revision 1.2  2004/07/01 00:22:51  mandana
+-- Mandana: walking 0/1 tests combined
+--
 -- Revision 1.1  2004/06/29 18:51:20  mandana
 -- Initial release
 --

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.17 2004/09/10 19:14:36 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.18 2004/09/30 22:34:44 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/10 19:14:36 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $>	-		<text>		- <initials $Author: erniel $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.18  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.17  2004/09/10 19:14:36  jjacob
 -- modifed outputs to reply_translator to feedthrough values from fibre_rx
 --

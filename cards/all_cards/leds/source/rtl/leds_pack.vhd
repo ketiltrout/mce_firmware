@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds_pack.vhd,v 1.5 2004/03/06 01:14:37 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds_pack.vhd,v 1.1 2004/04/14 21:44:01 jjacob Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,7 +30,7 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/03/06 01:14:37 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2004/04/14 21:44:01 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 

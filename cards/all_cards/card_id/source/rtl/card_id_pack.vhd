@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: card_id_pack.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: card_id_pack.vhd,v 1.1 2004/04/14 21:40:58 jjacob Exp $>
 --
 -- Project:		<project name>
 -- Author:		<author name>
@@ -30,7 +30,7 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/14 21:40:58 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 

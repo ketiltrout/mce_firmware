@@ -30,7 +30,11 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: dip_switch_pack.vhd,v $
+-- Revision 1.2  2004/05/06 18:20:18  erniel
+-- removed constant DIP_SWITCH_BITS
+-- updated component declaration
+--
 --
 -----------------------------------------------------------------------------
 

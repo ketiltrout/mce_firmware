@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: dip_switch_test_wrapper.vhd,v $
+-- Revision 1.1  2004/05/06 18:02:34  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 

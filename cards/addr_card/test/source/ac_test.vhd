@@ -29,8 +29,11 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2004/05/25 23:29:33 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/06/25 19:39:50 $>	- <initials $Author: erniel $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.7  2004/06/25 19:39:50  erniel
+-- Bryce: updated the pll reference
+--
 -- Revision 1.6  2004/05/25 23:29:33  erniel
 -- synthesized, ramp and fixed value test debugged
 --

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.4  2004/08/25 22:16:40  bburger
+-- Bryce:  changed int_zero from signal to constant
+--
 -- Revision 1.3  2004/08/24 23:53:23  bburger
 -- Bryce:  bug fix - added a signal call int_zero for portmaps to counters
 --

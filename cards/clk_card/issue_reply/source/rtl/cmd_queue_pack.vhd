@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.12 2004/09/27 23:34:33 erniel Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.13 2004/09/30 21:59:40 erniel Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.13  2004/09/30 21:59:40  erniel
+-- using new command_pack constants
+--
 -- Revision 1.12  2004/09/27 23:34:33  erniel
 -- using new command_pack constants
 --

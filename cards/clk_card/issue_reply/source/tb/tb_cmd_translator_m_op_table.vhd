@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 
 -- 
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.5 2004/07/09 15:04:13 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.6 2004/08/24 13:19:33 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,14 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/09 15:04:13 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/08/24 13:19:33 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: tb_cmd_translator_m_op_table.vhd,v $
+-- Revision 1.6  2004/08/24 13:19:33  dca
+-- Reply and Data FSMs combined to 'FIBRE FSM'
+-- This FSM handles the writing of all packets to fibre_tx_fifo.
+-- Reply states coded and tested.  Data states in progress....
+--
 -- Revision 1.5  2004/07/09 15:04:13  dca
 -- 100% coverage now achieved.
 --

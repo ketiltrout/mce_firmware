@@ -21,7 +21,10 @@
 -- 
 -- Revision History:
 -- Mar 07, 2004: Initial version - NRG
--- $Log$
+-- $Log: prand.vhd,v $
+-- Revision 1.3  2004/03/25 21:52:00  erniel
+-- added VHDL 87-compliant syntax
+--
 --
 ---------------------------------------------------------------------
 

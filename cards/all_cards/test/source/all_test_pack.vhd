@@ -31,6 +31,10 @@
 -- Revision History:
 --
 -- $Log: all_test_pack.vhd,v $
+-- Revision 1.5  2004/06/29 22:22:10  erniel
+-- uses new rs232 interface
+-- added BER test modules
+--
 -- Revision 1.4  2004/05/17 00:57:04  erniel
 -- removed LVDS test modules
 --

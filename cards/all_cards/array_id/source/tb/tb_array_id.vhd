@@ -1,6 +1,6 @@
 -- tb_array_id.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_array_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_array_id.vhd,v 1.2 2004/03/29 19:32:54 bburger Exp $>
 --
 -- Project:		SCUBA 2
 -- Author:		bburger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/29 19:32:54 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 

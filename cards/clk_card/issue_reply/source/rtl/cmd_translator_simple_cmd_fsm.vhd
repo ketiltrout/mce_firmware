@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.8 2004/09/09 18:26:14 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.9 2004/09/30 22:34:44 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/09 18:26:14 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $>	-		<text>		- <initials $Author: erniel $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.9  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.8  2004/09/09 18:26:14  jjacob
 -- added 3 outputs:
 -- >       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number

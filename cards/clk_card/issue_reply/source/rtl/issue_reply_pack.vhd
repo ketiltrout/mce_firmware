@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.25 2004/09/29 14:54:05 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.26 2004/10/06 19:58:02 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.26  2004/10/06 19:58:02  erniel
+-- using new command_pack constants
+--
 -- Revision 1.25  2004/09/29 14:54:05  dca
 -- components declarations for all components of fibre_rx and fibre_tx added.
 --

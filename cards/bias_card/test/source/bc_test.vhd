@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.14  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.13  2004/06/25 17:20:50  bench2
 -- Mandana: Data and ncs lines for DAC15 had to be driven from test pins (originally wired to PLL clkin pins on FPGA)
 --

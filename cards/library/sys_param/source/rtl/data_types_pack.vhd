@@ -29,8 +29,11 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2004/07/29 00:22:40 $> - <initials $Author: mandana $>
+-- <date $Date: 2004/08/18 17:06:52 $> - <initials $Author: bburger $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.6  2004/08/18 17:06:52  bburger
+-- Bryce:  added a word12
+--
 -- Revision 1.5  2004/07/29 00:22:40  mandana
 -- added array data types for AC
 --

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch_cmd_receive.vhd,v $
+-- Revision 1.3  2004/08/25 20:37:37  erniel
+-- updated dispatch_cmd_receive port declaration
+--
 -- Revision 1.2  2004/08/10 00:37:47  erniel
 -- initial version
 --

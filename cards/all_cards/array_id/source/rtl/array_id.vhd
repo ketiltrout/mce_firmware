@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: array_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: array_id.vhd,v 1.2 2004/04/01 18:09:22 bburger Exp $>
 --
 -- Project:		Scuba 2
 -- Author:		Jonathan Jacob
@@ -30,7 +30,7 @@
 -- This file implements the Array ID functionality
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/01 18:09:22 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 

@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.8  2004/06/23 19:41:46  bench2
+-- Mandana: added lvds_spi_start signal to be routed to test header
+--
 -- Revision 1.7  2004/06/21 18:32:28  bench2
 -- renamed all_test_idle to bc_test_idle
 --

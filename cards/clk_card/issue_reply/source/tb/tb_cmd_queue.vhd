@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.18 2004/09/10 01:21:01 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.19 2004/09/25 01:23:49 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.19  2004/09/25 01:23:49  bburger
+-- Bryce:  Added command-code, last-frame and stop-frame interfaces
+--
 -- Revision 1.18  2004/09/10 01:21:01  bburger
 -- Bryce:  Hardware testing, bug fixing
 --

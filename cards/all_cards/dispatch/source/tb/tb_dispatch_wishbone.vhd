@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_dispatch_wishbone.vhd,v $
+-- Revision 1.1  2004/08/25 20:22:11  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 

@@ -20,7 +20,7 @@
 
 -- write_serial_data.vhd
 --
--- <revision control keyword substitutions e.g. $Id: write_spi.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: write_spi.vhd,v 1.2 2004/03/31 18:58:17 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -32,7 +32,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/31 18:58:17 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------

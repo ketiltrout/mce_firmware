@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_ram40_pack.vhd,v 1.9 2004/07/26 19:31:13 bench2 Exp $
+-- $Id: cmd_queue_ram40_pack.vhd,v 1.10 2004/09/30 21:57:51 erniel Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_ram40_pack.vhd,v $
+-- Revision 1.10  2004/09/30 21:57:51  erniel
+-- using new command_pack constants
+--
 -- Revision 1.9  2004/07/26 19:31:13  bench2
 -- Bryce: in progress
 --

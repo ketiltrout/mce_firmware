@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: lvds_rx_test_wrapper.vhd,v $
+-- Revision 1.4  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.3  2004/06/11 20:58:09  erniel
 -- Mandana: commented rx_clk_i, till it's debugged
 --

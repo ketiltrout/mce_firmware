@@ -37,8 +37,11 @@
 --              CYC_OO_SYC_ADDR  : to send the number of cycles out of sync to the master (cmd_fsm) 
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- Revision history:
--- <date $Date: 2004/07/21 22:30:15 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/07/30 00:01:55 $>	- <initials $Author: mandana $>
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.4  2004/07/30 00:01:55  mandana
+-- completed row selection FSM, only memory access FSM is simulated
+--
 -- Revision 1.3  2004/07/21 22:30:15  erniel
 -- updated counter component
 --

@@ -1,5 +1,8 @@
-<date $Date$>	- <initials $Author$>
-$Log$
+<date $Date: 2004/07/14 15:58:14 $>	- <initials $Author: mandana $>
+$Log: assumptions.txt,v $
+Revision 1.2  2004/07/14 15:58:14  mandana
+added cvs log header
+
 
 Assumptions for Address card DAC controller:
 --------------------------------------------

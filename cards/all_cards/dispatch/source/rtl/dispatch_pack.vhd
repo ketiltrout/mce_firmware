@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.4  2004/09/27 23:00:24  erniel
+-- added component declarations
+-- moved constants to command_pack
+--
 -- Revision 1.3  2004/08/28 03:10:01  erniel
 -- renamed some constants
 --

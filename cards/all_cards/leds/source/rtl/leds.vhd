@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.5 2004/03/06 01:14:27 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.6 2004/04/21 20:02:12 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,7 +30,7 @@
 -- This file implements the Array ID functionality
 --
 -- Revision history:
--- <date $Date: 2004/03/06 01:14:27 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2004/04/21 20:02:12 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 

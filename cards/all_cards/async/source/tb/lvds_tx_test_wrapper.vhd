@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.8  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.7  2004/05/31 21:41:54  erniel
 -- attempt at making the enable signal control the state transitions
 --

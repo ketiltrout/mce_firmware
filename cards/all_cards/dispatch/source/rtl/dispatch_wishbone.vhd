@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.6  2004/09/27 23:02:03  erniel
+-- using updated constants from command_pack
+--
 -- Revision 1.5  2004/09/11 00:58:08  erniel
 -- added watchdog timer functionality
 --

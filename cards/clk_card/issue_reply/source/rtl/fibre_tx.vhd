@@ -27,9 +27,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/29 14:56:41 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/05 12:22:40 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.1  2004/10/05 12:22:40  dca
+-- moved from fibre_tx directory.
+--
 -- Revision 1.3  2004/09/29 14:56:41  dca
 -- components declarations now in issue_reply_pack not fibre_tx_pack.
 --

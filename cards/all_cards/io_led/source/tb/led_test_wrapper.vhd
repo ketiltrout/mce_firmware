@@ -21,7 +21,10 @@
 -- 
 -- Revision History:
 --
--- $Log$
+-- $Log: led_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/28 02:52:01  erniel
+-- removed unused RS232 interface signals
+--
 --
 -- Feb 29, 2004: Initial version - NRG
 --

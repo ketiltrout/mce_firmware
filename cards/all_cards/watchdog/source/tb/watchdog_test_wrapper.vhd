@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: watchdog_test_wrapper.vhd,v $
+-- Revision 1.3  2004/04/28 02:47:05  erniel
+-- removed unused RS232 interface signals
+--
 -- Revision 1.2  2004/04/21 20:02:45  bburger
 -- Changed address moniker
 --

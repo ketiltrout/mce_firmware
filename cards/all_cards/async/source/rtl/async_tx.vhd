@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_tx.vhd,v $
+-- Revision 1.4  2004/08/06 20:36:24  erniel
+-- replaced some processes with rtl-blocks
+-- added setup state
+--
 -- Revision 1.3  2004/06/10 19:36:05  erniel
 -- changed interface to non-wishbone
 -- reworked code body (made it RTL description)

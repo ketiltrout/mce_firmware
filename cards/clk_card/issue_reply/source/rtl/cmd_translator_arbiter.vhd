@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.15 2004/09/13 16:44:42 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.16 2004/09/30 22:34:44 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/13 16:44:42 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $>	-		<text>		- <initials $Author: erniel $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.16  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.15  2004/09/13 16:44:42  jjacob
 -- fixed timing on macro_instr_rdy_o and a few other signals starting on line 425:
 --    macro_instr_rdy_o <= macro_instr_rdy;  -- this outputs signal one clock cycle earlier

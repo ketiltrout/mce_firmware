@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.4 2004/07/28 23:39:19 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.5 2004/09/30 22:34:44 erniel Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -42,9 +42,12 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/28 23:39:19 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $>	-		<text>		- <initials $Author: erniel $>
 --
 -- $Log: cmd_translator_m_op_table.vhd,v $
+-- Revision 1.5  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.4  2004/07/28 23:39:19  jjacob
 -- added:
 -- library sys_param;

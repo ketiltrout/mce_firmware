@@ -20,7 +20,7 @@
 
 -- sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.4 2004/03/19 22:44:42 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.5 2004/04/21 19:58:28 bburger Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,11 @@
 -- Wishbone to asynch. SRAM chip interface
 --
 -- Revision history:
--- <date $Date: 2004/03/19 22:44:42 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/21 19:58:28 $>	-		<text>		- <initials $Author: bburger $>
 -- $Log: sram_ctrl.vhd,v $
+-- Revision 1.5  2004/04/21 19:58:28  bburger
+-- Changed address moniker
+--
 -- Revision 1.4  2004/03/19 22:44:42  erniel
 -- Minor change: Tristated addr and data bus when not in use
 --

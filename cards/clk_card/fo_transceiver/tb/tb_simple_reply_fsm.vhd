@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_simple_reply_fsm.vhd,v 1.1 2004/06/15 15:50:21 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -34,7 +34,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/06/15 15:50:21 $>	-		<text>		- <initials $Author: dca $>
 -- $log$
 -----------------------------------------------------------------------------
 

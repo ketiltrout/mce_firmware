@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_control.vhd,v 1.1 2004/06/28 11:01:36 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_control.vhd,v 1.1 2004/10/05 12:23:05 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -34,7 +34,7 @@
 -- Revision history:
 -- 22nd February 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/28 11:01:36 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/10/05 12:23:05 $>	-		<text>		- <initials $Author: dca $>
 --
 
 library ieee;

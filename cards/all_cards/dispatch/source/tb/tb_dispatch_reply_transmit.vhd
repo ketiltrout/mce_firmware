@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_dispatch_reply_transmit.vhd,v $
+-- Revision 1.1  2004/09/10 16:54:24  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 

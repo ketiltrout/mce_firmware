@@ -29,8 +29,11 @@
 -- Stand-alone test module for readout card. It only routes the ADC outputs to DAC inputs. 
 --
 -- Revision history:
--- -- <date $Date: 2004/07/22 23:51:27 $>    - <initials $Author: bench1 $>
+-- -- <date $Date: 2004/07/26 22:52:59 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise_test.vhd,v $
+-- Revision 1.4  2004/07/26 22:52:59  bench1
+-- Mandana: added comment, swapped adc_rdy and adc_ovr on mictor to work with the wire-add on board.
+--
 -- Revision 1.3  2004/07/22 23:51:27  bench1
 -- Mandana: invert the last bit of ADC for all channels before routing to DAC
 --

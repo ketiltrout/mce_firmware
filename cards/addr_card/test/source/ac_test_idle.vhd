@@ -30,8 +30,12 @@
 --
 -- Revision history:
 --
--- <date $Date: 2004/05/13 17:44:06 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/17 00:52:26 $>	- <initials $Author: erniel $>
 -- $Log: ac_test_idle.vhd,v $
+-- Revision 1.4  2004/05/17 00:52:26  erniel
+-- changed LVDS tx test to two character command
+-- modified command encoding
+--
 -- Revision 1.3  2004/05/13 17:44:06  mandana
 -- modified all_test for ac_test
 --

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: cc_test.vhd,v $
+-- Revision 1.4  2004/07/02 17:37:46  mandana
+-- Mandana: walking 0/1 tests combined
+--
 -- Revision 1.3  2004/06/09 22:13:38  erniel
 -- initial version
 --

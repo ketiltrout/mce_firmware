@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.1 2004/10/05 12:22:52 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.2 2004/10/06 21:53:21 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/10/05 12:22:52 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/10/06 21:53:21 $>	-		<text>		- <initials $Author: erniel $>
 --
 -- Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------

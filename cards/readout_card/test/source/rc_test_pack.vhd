@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: rc_test_pack.vhd,v $
+-- Revision 1.8  2004/07/19 20:18:03  mandana
+-- added square wave test for parallel DACs
+--
 -- Revision 1.7  2004/07/16 23:34:10  bench1
 -- Mandana: added SRAM
 --

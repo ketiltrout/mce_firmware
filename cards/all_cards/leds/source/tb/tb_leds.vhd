@@ -1,6 +1,6 @@
 -- tb_leds.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_leds.vhd,v 1.6 2004/03/29 19:35:47 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_leds.vhd,v 1.7 2004/04/21 20:02:21 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date: 2004/03/29 19:35:47 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2004/04/21 20:02:21 $>	-		<text>		- <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 

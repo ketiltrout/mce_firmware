@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_rs232_data_tx.vhd,v $
+-- Revision 1.3  2004/05/12 23:16:48  erniel
+-- added additional transmit periods for CR/LF
+--
 -- Revision 1.2  2004/05/05 21:30:13  erniel
 -- modified behaviour of start signal
 --

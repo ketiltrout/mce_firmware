@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.8 2004/05/20 21:54:06 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.9 2004/07/21 22:30:15 erniel Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/05/20 21:54:06 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/21 22:30:15 $>	- <initials $Author: erniel $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.9  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.8  2004/05/20 21:54:06  mandana
 -- slowed down the clk to clk_i/8
 --

@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/29 20:51:03 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/19 18:27:41 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_pack.vhd,v $
+-- Revision 1.6  2004/05/19 18:27:41  mandana
+-- deleted nclr pin on DACs, it is tied to FPGA status line
+--
 -- Revision 1.5  2004/04/29 20:51:03  mandana
 -- added dac_nclr signal
 --

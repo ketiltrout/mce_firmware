@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: rc_pin_assign.tcl,v $
+# Revision 1.7  2004/07/26 20:06:46  mandana
+# renamed mictor pins
+#
 # Revision 1.6  2004/07/19 20:40:25  mandana
 # changed back the DAC numbering (that Ernie has changed) to 0-7 to stay consistant with the DAC tests
 #

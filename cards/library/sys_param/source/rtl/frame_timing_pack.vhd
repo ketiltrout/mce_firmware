@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.11 2004/08/25 01:31:45 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.12 2004/08/28 01:46:05 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/08/25 01:31:45 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/08/28 01:46:05 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.12  2004/08/28 01:46:05  bburger
+-- Bryce:  The end_of_frame parameter wasn't right
+--
 -- Revision 1.11  2004/08/25 01:31:45  bburger
 -- Bryce:  just spacing
 --

@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.8 2004/09/02 01:14:52 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.9 2004/09/10 01:21:01 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/02 01:14:52 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/09/10 01:21:01 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.9  2004/09/10 01:21:01  bburger
+-- Bryce:  Hardware testing, bug fixing
+--
 -- Revision 1.8  2004/09/02 01:14:52  bburger
 -- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
 --

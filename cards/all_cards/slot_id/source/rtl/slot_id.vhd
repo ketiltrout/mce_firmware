@@ -1,6 +1,6 @@
 -- slot_id.vhd
 --
--- <revision control keyword substitutions e.g. $Id: slot_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: slot_id.vhd,v 1.2 2004/03/16 18:57:47 jjacob Exp $>
 --
 -- Project:		SCUBA 2
 -- Author:		Jonathan Jacob
@@ -10,7 +10,7 @@
 -- This code implements the Slot ID functionality
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/16 18:57:47 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 

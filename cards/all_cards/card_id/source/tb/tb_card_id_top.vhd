@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_card_id_top.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_card_id_top.vhd,v 1.2 2004/04/07 22:26:15 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,8 +31,11 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
--- $Log$
+-- <date $Date: 2004/04/07 22:26:15 $>	-		<text>		- <initials $Author: erniel $>
+-- $Log: tb_card_id_top.vhd,v $
+-- Revision 1.2  2004/04/07 22:26:15  erniel
+-- removed hard-coded card id address
+--
 --
 -----------------------------------------------------------------------------
 

@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/08/31 21:53:03 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/09/24 02:00:26 $> - <initials $Author: erniel $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.14  2004/09/24 02:00:26  erniel
+-- removed redundancy with command_pack
+--
 -- Revision 1.13  2004/08/31 21:53:03  bburger
 -- Bryce:  added the 'DATA' command type
 --

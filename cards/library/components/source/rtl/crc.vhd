@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: crc.vhd,v $
+-- Revision 1.6  2004/08/02 16:02:50  erniel
+-- added comments
+--
 -- Revision 1.5  2004/08/02 14:43:37  erniel
 -- added _i and _o to port names to match naming conventions
 --

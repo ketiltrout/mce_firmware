@@ -38,6 +38,10 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.4  2004/10/06 19:48:35  erniel
+-- moved constants from commnad_pack to sync_gen_pack
+-- updated references to sync_gen_pack
+--
 -- Revision 1.3  2004/09/15 18:42:02  bburger
 -- Bryce:  Added a recirculation MUX
 --

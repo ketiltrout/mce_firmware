@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: addr_card_io_connectivity_chk.vhd,v 1.1 2004/04/14 22:56:37 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: addr_card_io_connectivity_chk.vhd,v 1.2 2004/04/16 00:25:45 jjacob Exp $>
 --
 -- Project:		Scuba 2
 -- Author:		Jonathan Jacob
@@ -30,7 +30,7 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2004/04/14 22:56:37 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/16 00:25:45 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 

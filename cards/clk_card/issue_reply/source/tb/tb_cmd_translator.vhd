@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.3 2004/07/20 16:00:02 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.4 2004/08/03 20:01:57 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/20 16:00:02 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/03 20:01:57 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: tb_cmd_translator.vhd,v $
+-- Revision 1.4  2004/08/03 20:01:57  jjacob
+-- added: use sys_param.command_pack.all
+--
 -- Revision 1.3  2004/07/20 16:00:02  jjacob
 -- changed from fixed declarations to parameterized
 --

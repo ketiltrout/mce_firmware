@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: simple_reply_fsm.vhd,v 1.2 2004/06/15 15:49:39 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -35,7 +35,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/06/15 15:49:39 $>	-		<text>		- <initials $Author: dca $>
 -- $log$
 -----------------------------------------------------------------------------
 library ieee;

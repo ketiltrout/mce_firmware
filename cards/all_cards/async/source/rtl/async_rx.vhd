@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_rx.vhd,v $
+-- Revision 1.6  2004/09/01 17:54:19  erniel
+-- fixed multiple sources error in shift_reg port map (open instead of '0')
+--
 -- Revision 1.5  2004/08/06 20:35:52  erniel
 -- replaced some processes with rtl-blocks
 --

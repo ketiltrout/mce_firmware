@@ -32,6 +32,10 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.8  2004/09/15 20:25:18  erniel
+# changed pin assignment of dac_dat[15]
+# changed pin assignment of dac_ncs[15]
+#
 # Revision 1.7  2004/05/20 15:59:59  erniel
 # removed DAC_nclr pin, tied to status pin on board
 #

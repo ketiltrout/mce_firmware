@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.7 2004/04/07 22:23:51 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.8 2004/05/06 18:17:05 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/04/07 22:23:51 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/05/06 18:17:05 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------

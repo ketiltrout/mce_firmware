@@ -20,7 +20,7 @@
 
 -- tb_sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_sram_ctrl.vhd,v 1.1 2004/03/23 20:08:00 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_sram_ctrl.vhd,v 1.2 2004/04/21 19:58:39 bburger Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- Testbench for SRAM controller
 --
 -- Revision history:
--- <date $Date: 2004/03/23 20:08:00 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/21 19:58:39 $>	-		<text>		- <initials $Author: bburger $>
 
 --
 -----------------------------------------------------------------------------

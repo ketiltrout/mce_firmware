@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: core_stress_test.vhd,v $
+-- Revision 1.2  2004/07/14 18:42:38  erniel
+-- added some usage documentation
+--
 -- Revision 1.1  2004/07/09 19:43:08  erniel
 -- initial version
 --

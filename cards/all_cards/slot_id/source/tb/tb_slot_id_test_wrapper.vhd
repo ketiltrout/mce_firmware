@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_slot_id_test_wrapper.vhd,v 1.2 2004/03/24 22:45:36 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_slot_id_test_wrapper.vhd,v 1.1 2004/04/16 00:30:55 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,8 +31,11 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/03/24 22:45:36 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/16 00:30:55 $>	-		<text>		- <initials $Author: mandana $>
 -- $Log: tb_slot_id_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/16 00:30:55  mandana
+-- initial release into new directory structure
+--
 -- Revision 1.2  2004/03/24 22:45:36  erniel
 -- slightly modified do_tx_byte_to_RS232 to assert tx_busy_i longer
 -- slightly modified do_finish to wait for done_o before deasserting en_i

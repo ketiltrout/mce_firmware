@@ -28,8 +28,11 @@
 -- pack file for ac_dac_ctrl
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/07/14 15:58:01 $>	- <initials $Author: mandana $>
+-- $Log: ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.2  2004/07/14 15:58:01  mandana
+-- added cvs log header
+--
 --
 -----------------------------------------------------------------------------
 library ieee, sys_param;

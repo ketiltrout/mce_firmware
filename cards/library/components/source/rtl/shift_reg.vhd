@@ -20,7 +20,7 @@
 
 -- shift_reg.vhd
 --
--- <revision control keyword substitutions e.g. $Id: shift_reg.vhd,v 1.2 2004/03/23 23:46:07 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: shift_reg.vhd,v 1.3 2004/07/28 23:37:23 erniel Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,10 +31,13 @@
 --
 -- Revision history:
 --
--- $Log$
+-- $Log: shift_reg.vhd,v $
+-- Revision 1.3  2004/07/28 23:37:23  erniel
+-- added _i and _o to port names to match naming conventions
+--
 --
 -- Dec. 19 2003  - Initial version      - EL
--- <date $Date: 2004/03/23 23:46:07 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/28 23:37:23 $>	-		<text>		- <initials $Author: erniel $>
 
 --
 ------------------------------------------------------------------------

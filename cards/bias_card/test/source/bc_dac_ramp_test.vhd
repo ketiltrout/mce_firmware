@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.4 2004/06/12 00:49:20 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.5 2004/07/21 22:30:15 erniel Exp $>
 
 --
 -- Project:	      SCUBA-2

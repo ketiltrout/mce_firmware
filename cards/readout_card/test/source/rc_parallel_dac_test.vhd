@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/19 23:17:25 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/21 22:29:29 $>	- <initials $Author: erniel $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.6  2004/07/21 22:29:29  erniel
+-- updated counter component
+--
 -- Revision 1.5  2004/07/19 23:17:25  bench1
 -- Mandana: deleted the left-over dac_clk_o and done_o assignments
 --

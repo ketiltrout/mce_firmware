@@ -20,7 +20,7 @@
 
 -- write_data_1_wire.vhd
 --
--- <revision control keyword substitutions e.g. $Id: write_data_1_wire.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: write_data_1_wire.vhd,v 1.2 2004/04/07 22:48:19 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -31,8 +31,11 @@
 --
 -- Revision history:
 -- Jan. 31 2004  - Initial version      - EL
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
--- $Log$
+-- <date $Date: 2004/04/07 22:48:19 $>	-		<text>		- <initials $Author: erniel $>
+-- $Log: write_data_1_wire.vhd,v $
+-- Revision 1.2  2004/04/07 22:48:19  erniel
+-- removed potential combinational loop in bit counter
+--
 --
 -----------------------------------------------------------------------------
 

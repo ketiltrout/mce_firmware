@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: bc_test_idle.vhd,v $
+-- Revision 1.6  2004/06/09 22:57:05  erniel
+-- corrected small bug in entity declaration
+--
 -- Revision 1.5  2004/06/08 19:04:23  mandana
 -- added the cross-talk test
 --

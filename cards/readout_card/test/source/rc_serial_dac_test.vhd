@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/16 18:06:12 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/21 22:26:24 $>	- <initials $Author: erniel $>
 -- $Log: rc_serial_dac_test.vhd,v $
+-- Revision 1.6  2004/07/21 22:26:24  erniel
+-- updated counter component
+--
 -- Revision 1.5  2004/07/16 18:06:12  bench1
 -- Mandana: less fixed values
 --

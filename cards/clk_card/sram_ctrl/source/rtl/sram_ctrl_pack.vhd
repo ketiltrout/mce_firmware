@@ -20,7 +20,7 @@
 
 -- sram_ctrl_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_ctrl_pack.vhd,v 1.1 2004/03/17 03:11:04 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl_pack.vhd,v 1.1 2004/04/14 21:52:55 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- package file for the SRAM controller
 --
 -- Revision history:
--- <date $Date: 2004/03/17 03:11:04 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/14 21:52:55 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------

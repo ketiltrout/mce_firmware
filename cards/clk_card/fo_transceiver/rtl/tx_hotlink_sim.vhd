@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tx_hotlink_sim.vhd,v 1.1 2004/04/28 12:16:28 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -33,7 +33,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/04/28 12:16:28 $>	-		<text>		- <initials $Author: dca $>
 --
 
 library ieee;

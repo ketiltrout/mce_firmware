@@ -32,8 +32,11 @@
 -- on the scope on the receiver side.
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/06/10 16:52:14 $>	- <initials $Author: mandana $>
+-- $Log: fo_test.vhd,v $
+-- Revision 1.1  2004/06/10 16:52:14  mandana
+-- initial release: stand-alone fibre test
+--
 -----------------------------------------------------------------------------
 
 library ieee, sys_param, components, work;

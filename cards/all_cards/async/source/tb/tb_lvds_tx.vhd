@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_lvds_tx.vhd,v $
+-- Revision 1.2  2004/08/27 19:30:10  erniel
+-- replaced start/done with rdy/busy interface
+--
 -- Revision 1.1  2004/06/17 01:29:58  erniel
 -- initial version
 --

@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_cmd_queue_ram_40.vhd,v $
+-- Revision 1.1  2004/08/03 23:42:35  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 

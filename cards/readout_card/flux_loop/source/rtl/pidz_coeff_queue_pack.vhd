@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id: pidz_coeff_queue_pack.vhd,v 1.2 2004/08/26 21:46:44 bburger Exp $
+-- $Id: pidz_coeff_queue_pack.vhd,v 1.3 2004/08/30 23:59:28 bburger Exp $
 -- Description:
 -- Pack file for the pidz_coeff_queue generated with the Quartus Megawizard
 --
 -- Revision history:
 -- $Log: pidz_coeff_queue_pack.vhd,v $
+-- Revision 1.3  2004/08/30 23:59:28  bburger
+-- Bryce:  added a read-port
+--
 -- Revision 1.2  2004/08/26 21:46:44  bburger
 -- Bryce:  adjusted the name of constants to be more intuitive
 --

@@ -30,8 +30,12 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/29 20:53:59 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/19 18:35:19 $>	- <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.5  2004/05/19 18:35:19  mandana
+-- deleted nclr pin on DACs, it is tied to FPGA status
+-- added ramp test
+--
 -- Revision 1.4  2004/04/29 20:53:59  mandana
 -- added dac_nclr signal and removed tx signals from wrapper
 --

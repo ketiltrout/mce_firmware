@@ -20,7 +20,7 @@
 
 -- sram_test_wrapper.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_test_wrapper.vhd,v 1.1 2004/04/14 21:53:28 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_test_wrapper.vhd,v 1.2 2004/04/21 19:58:39 bburger Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -31,6 +31,9 @@
 --
 -- Revision history:
 -- $Log: sram_test_wrapper.vhd,v $
+-- Revision 1.2  2004/04/21 19:58:39  bburger
+-- Changed address moniker
+--
 -- Revision 1.1  2004/04/14 21:53:28  jjacob
 -- new directory structure
 --

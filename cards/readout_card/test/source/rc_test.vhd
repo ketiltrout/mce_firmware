@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/07/17 00:00:00 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/19 20:19:19 $>	- <initials $Author: mandana $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.12  2004/07/19 20:19:19  mandana
+-- added square wave test for parallel DACs
+--
 -- Revision 1.11  2004/07/17 00:00:00  mandana
 -- adding SRAM test, v02 now
 --

@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.9 2004/07/21 22:30:15 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.10 2004/08/20 23:59:00 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/07/21 22:30:15 $> - <text> - <initials $Author: erniel $>
+-- <date $Date: 2004/08/20 23:59:00 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.10  2004/08/20 23:59:00  bburger
+-- Bryce:  now expects sync pulses on the last clock cycle in a frame, and restarts clk_count on the next cycle in a frame
+--
 -- Revision 1.9  2004/07/21 22:30:15  erniel
 -- updated counter component
 --

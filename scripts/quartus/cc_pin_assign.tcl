@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.7  2004/05/30 23:11:51  erniel
+# changed fo to fibre!
+#
 # Revision 1.6  2004/05/29 20:14:28  mandana
 # added fibre tx/rx pins
 #

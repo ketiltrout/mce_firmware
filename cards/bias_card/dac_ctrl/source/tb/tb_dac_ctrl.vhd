@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.5 2004/04/21 20:01:32 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.6 2004/04/29 20:53:59 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Mandana Amiri
@@ -30,8 +30,11 @@
 -- Testbench to test dac_ctrl module for bias card
 --
 -- Revision history:
--- <date $Date: 2004/04/21 20:01:32 $>	- <initials $Author: bburger $>
+-- <date $Date: 2004/04/29 20:53:59 $>	- <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl.vhd,v $
+-- Revision 1.6  2004/04/29 20:53:59  mandana
+-- added dac_nclr signal and removed tx signals from wrapper
+--
 -- Revision 1.5  2004/04/21 20:01:32  bburger
 -- Changed address moniker
 --

@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.4 2004/04/08 18:41:37 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.5 2004/04/21 20:02:34 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,8 +30,11 @@
 -- This file implements the watchbone reset functionality
 --
 -- Revision history:
--- <date $Date: 2004/04/08 18:41:37 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/21 20:02:34 $>	-		<text>		- <initials $Author: bburger $>
 -- $Log: watchdog.vhd,v $
+-- Revision 1.5  2004/04/21 20:02:34  bburger
+-- Changed address moniker
+--
 -- Revision 1.4  2004/04/08 18:41:37  erniel
 -- removed watchdog controller block
 -- removed slave controller interface block

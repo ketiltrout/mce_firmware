@@ -1,6 +1,6 @@
 -- tb_watchdog.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_watchdog.vhd,v 1.3 2004/04/08 18:44:36 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_watchdog.vhd,v 1.4 2004/04/21 20:02:45 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -10,8 +10,11 @@
 -- This code implements the testbench for the watchdog
 --
 -- Revision history:
--- <date $Date: 2004/04/08 18:44:36 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/21 20:02:45 $>	-		<text>		- <initials $Author: bburger $>
 -- $Log: tb_watchdog.vhd,v $
+-- Revision 1.4  2004/04/21 20:02:45  bburger
+-- Changed address moniker
+--
 -- Revision 1.3  2004/04/08 18:44:36  erniel
 -- removed unused random number generator
 -- removed obsolete signals

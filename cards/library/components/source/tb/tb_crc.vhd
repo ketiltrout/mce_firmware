@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_crc.vhd,v $
+-- Revision 1.6  2004/07/28 23:59:16  erniel
+-- removed configuration statement at end
+--
 -- Revision 1.5  2004/07/20 18:15:42  erniel
 -- added mid-calculation pauses
 --

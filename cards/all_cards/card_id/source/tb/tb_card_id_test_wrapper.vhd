@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_card_id_test_wrapper.vhd,v 1.2 2004/03/24 05:56:52 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_card_id_test_wrapper.vhd,v 1.1 2004/04/14 22:05:26 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,8 +31,11 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/03/24 05:56:52 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/14 22:05:26 $>	-		<text>		- <initials $Author: jjacob $>
 -- $Log: tb_card_id_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/14 22:05:26  jjacob
+-- new directory structure
+--
 -- Revision 1.2  2004/03/24 05:56:52  erniel
 -- added 8 more transmits
 --

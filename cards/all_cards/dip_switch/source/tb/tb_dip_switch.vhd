@@ -20,7 +20,7 @@
 
 -- tb_dip_switch.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_dip_switch.vhd,v 1.2 2004/03/29 21:40:31 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dip_switch.vhd,v 1.3 2004/05/18 20:00:53 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,11 @@
 -- This file implements the testbench for the DIP switch interface
 --
 -- Revision history:
--- <date $Date: 2004/03/29 21:40:31 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/05/18 20:00:53 $>	- <initials $Author: erniel $>
 -- $Log: tb_dip_switch.vhd,v $
+-- Revision 1.3  2004/05/18 20:00:53  erniel
+-- updated component declaration
+--
 -- Revision 1.2  2004/03/29 21:40:31  erniel
 -- added rty_o signal to component
 -- added tga_i signal to component

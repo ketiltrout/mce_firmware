@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lfsr.vhd,v $
+-- Revision 1.6  2004/08/02 17:40:32  erniel
+-- updated comments
+--
 -- Revision 1.5  2004/08/02 17:29:33  erniel
 -- added support for up to 168 bits wide
 --

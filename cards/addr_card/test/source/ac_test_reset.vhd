@@ -29,8 +29,11 @@
 -- Reset state for Address Card Test
 -- 
 -- Revision History:
--- <date $Date: 2004/05/13 17:44:06 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/17 00:49:22 $>	- <initials $Author: erniel $>
 -- $Log: ac_test_reset.vhd,v $
+-- Revision 1.4  2004/05/17 00:49:22  erniel
+-- *** empty log message ***
+--
 -- Revision 1.3  2004/05/13 17:44:06  mandana
 -- modified all_test for ac_test
 --

@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.2  2004/10/06 19:48:35  erniel
+-- moved constants from commnad_pack to sync_gen_pack
+-- updated references to sync_gen_pack
+--
 -- Revision 1.1  2004/08/05 00:19:33  bburger
 -- Bryce:  new
 --

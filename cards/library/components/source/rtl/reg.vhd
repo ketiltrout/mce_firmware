@@ -20,7 +20,7 @@
 
 -- reg.vhd
 --
--- <revision control keyword substitutions e.g. $Id: reg.vhd,v 1.2 2004/04/02 01:14:10 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reg.vhd,v 1.3 2004/04/02 19:41:54 erniel Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,8 +31,11 @@
 --
 -- Revision history:
 -- Mar. 3 2004   - Initial version      - EL
--- <date $Date: 2004/04/02 01:14:10 $>	-		<text>		- <initials $Author: bburger $>
--- $Log$
+-- <date $Date: 2004/04/02 19:41:54 $>	-		<text>		- <initials $Author: erniel $>
+-- $Log: reg.vhd,v $
+-- Revision 1.3  2004/04/02 19:41:54  erniel
+-- added CVS log keyword
+--
 --
 ------------------------------------------------------------------------
 

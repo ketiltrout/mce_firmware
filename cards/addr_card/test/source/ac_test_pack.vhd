@@ -29,8 +29,11 @@
 -- Package file for test module for Address card
 -- 
 -- Revision History:
--- <date $Date: 2004/05/17 19:09:08 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/05/25 23:29:51 $>	- <initials $Author: erniel $>
 -- $Log: ac_test_pack.vhd,v $
+-- Revision 1.6  2004/05/25 23:29:51  erniel
+-- synthesized, ramp and fixed value test debugged
+--
 -- Revision 1.5  2004/05/17 19:09:08  erniel
 -- expanded dac_dat_o into 11 separate 14-bit vectors
 --
