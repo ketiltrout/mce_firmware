@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/01/10 20:40:08 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2005/01/11 02:37:59 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.19  2005/01/11 02:37:59  mohsen
+-- Anthony & Mohse: Got rid multi level "if" statements to help resolve timing violation
+--
 -- Revision 1.18  2005/01/10 20:40:08  mohsen
 -- Anthony & Mohse: Got rid of priority coding to help solve timing violation.
 --
@@ -410,13 +413,13 @@ begin
                            addr_i, stb_i, cyc_i, we_i)
    ------------------------------------------------------------------------------------------
    begin
-      case current_state is
 
+     next_state <= current_state;  
 
+     case current_state is
        
       when IDLE =>
-         next_state <= IDLE;
-
+   
          -- note the if statements are exclusive
          
          --if write_data_mode = '1' then
@@ -455,9 +458,9 @@ begin
          
         
          --if (read_ret_data = '1' and data_mode_reg = MODE4_RAW and (raw_addr_cnt < RAW_ADDR_MAX+1)) then 
-         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg = MODE4_RAW and (raw_addr_cnt < RAW_ADDR_MAX+1)) then
-           next_state <= READ_DATA;
-         end if;
+--          if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg = MODE4_RAW and (raw_addr_cnt < RAW_ADDR_MAX+1)) then
+--            next_state <= READ_DATA;
+--          end if;
 
          --if (read_ret_data='1' and data_mode_reg = MODE4_RAW and (raw_addr_cnt >= RAW_ADDR_MAX+1))  then
          if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg = MODE4_RAW and (raw_addr_cnt >= RAW_ADDR_MAX+1))then
@@ -465,9 +468,9 @@ begin
          end if;
 
          --if (read_ret_data = '1' and data_mode_reg /= MODE4_RAW and (pix_addr_cnt < PIXEL_ADDR_MAX+1)) then
-         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg /= MODE4_RAW and (pix_addr_cnt < PIXEL_ADDR_MAX+1)) then
-           next_state <= READ_DATA;
-         end if;
+--          if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg /= MODE4_RAW and (pix_addr_cnt < PIXEL_ADDR_MAX+1)) then
+--            next_state <= READ_DATA;
+--          end if;
 
          --if (read_ret_data = '1' and data_mode_reg /= MODE4_RAW and (pix_addr_cnt >= PIXEL_ADDR_MAX+1)) then
          if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg /= MODE4_RAW and (pix_addr_cnt >= PIXEL_ADDR_MAX+1)) then
@@ -485,7 +488,7 @@ begin
          next_state <= WSM2;
       
       when WSM2 => 
-        next_state <= WSM2;             -- default to same state
+--         next_state <= WSM2;             -- default to same state
 
          -- exclusive if statements
          --if    (write_data_mode = '1' ) or ( write_captr_raw = '1' ) then 
@@ -510,8 +513,6 @@ begin
         
         if raw_ack = '1' then 
            next_state <= FINISH;
-        else
-           next_state <= START_RAW ;
         end if; 
       
                     
@@ -521,12 +522,14 @@ begin
       when DONE =>
          next_state <= IDLE;
       end case;
+         
     end process nextstate_fsm;
     
    -------------------------------------------------------------- 
    output_fsm: process (current_state, wbs_data, data_mode_reg)
    ---------------------------------------------------------------
    begin
+
       case current_state is
       
       when IDLE =>
