@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.1 2005/02/25 23:58:56 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.2 2005/03/04 03:41:38 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.2  2005/03/04 03:41:38  bburger
+-- Bryce:  complete subrack
+--
 -- Revision 1.1  2005/02/25 23:58:56  bburger
 -- Bryce:  new
 --
@@ -171,20 +174,28 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000B0016";  -- card id=4, ret_dat command
 
    constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00020053";  -- card id=0, ret_dat_s command
-   signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000003";   
+   signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000002";   
 
-   constant data_mode_cmd      : std_logic_vector(31 downto 0) := x"00" & ALL_READOUT_CARDS  & x"00" & DATA_MODE_ADDR;
+   constant data_mode_cmd      : std_logic_vector(31 downto 0) := x"00" & ALL_READOUT_CARDS    & x"00" & DATA_MODE_ADDR;
+   constant rcs_led_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_READOUT_CARDS    & x"00" & LED_ADDR;
+   constant rc1_led_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1       & x"00" & LED_ADDR;
+   constant rc2_led_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_2       & x"00" & LED_ADDR;
+   constant rc3_led_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_3       & x"00" & LED_ADDR;
+   constant rc4_led_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_4       & x"00" & LED_ADDR;
    
-   constant cc_led_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & LED_ADDR;
-   constant use_dv_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & USE_DV_ADDR;
+   constant cc_led_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD           & x"00" & LED_ADDR;
+   constant cc_array_id_cmd    : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD           & x"00" & ARRAY_ID_ADDR;
+   constant use_dv_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD           & x"00" & USE_DV_ADDR;
 
-   constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00" & ALL_BIAS_CARDS     & x"00" & FLUX_FB_ADDR;
-   constant bias_cmd           : std_logic_vector(31 downto 0) := x"00" & ALL_BIAS_CARDS     & x"00" & BIAS_ADDR;
-
-   constant on_bias_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ON_BIAS_ADDR;
-   constant off_bias_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & OFF_BIAS_ADDR;
-   constant row_order_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ROW_ORDER_ADDR;
-   constant enbl_mux_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ENBL_MUX_ADDR;
+   constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00" & ALL_BIAS_CARDS       & x"00" & FLUX_FB_ADDR;
+   constant bias_cmd           : std_logic_vector(31 downto 0) := x"00" & ALL_BIAS_CARDS       & x"00" & BIAS_ADDR;
+ 
+   constant on_bias_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD         & x"00" & ON_BIAS_ADDR;
+   constant off_bias_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD         & x"00" & OFF_BIAS_ADDR;
+   constant row_order_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD         & x"00" & ROW_ORDER_ADDR;
+   constant enbl_mux_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD         & x"00" & ENBL_MUX_ADDR;
+   
+   constant bc2_led_cmd        : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_2          & x"00" & LED_ADDR;
    
    constant row_len_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS       & x"00" & ROW_LEN_ADDR;    
    constant num_rows_cmd       : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS       & x"00" & NUM_ROWS_ADDR;
@@ -1387,7 +1398,7 @@ begin
 
    procedure do_reset is
    begin
-      -- setup the hotlink receiver to received the special character
+      -- setup the hotlink receiver to receive the special character
       fibre_rx_sc_nd  <= '1';
       fibre_rx_status <= '1';
       fibre_rx_rvs    <= '0';
@@ -1406,8 +1417,17 @@ begin
       -- set default values for input
       fibre_rx_rdy    <= '0';  -- data not ready (active low)
       fibre_rx_data   <= x"00";
-      
+ 
       wait for fibre_clkr_prd * 0.6;
+
+
+
+      rst_n <= '0';
+      wait for clk_period*5 ;
+      rst_n <= '1';
+      wait for clk_period*5 ;   
+      assert false report " Resetting the DUT." severity NOTE;
+      
    end do_reset;
    --------------------------------------------------
   
@@ -1570,7 +1590,7 @@ begin
          fibre_rx_rdy   <= '0';
          
          case address_id is
---            when ret_dat_s_cmd => data <= ret_dat_s_stop;
+            when ret_dat_s_cmd => data <= ret_dat_s_stop;
             when ret_dat_cmd   => data <= (others => '0');
             when others        => data <= data + 1;
          end case;
@@ -1674,14 +1694,14 @@ begin
 --      wait for 50 us;
 --
 --      command <= command_rb;
---      address_id <= cc_led_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
+--      address_id <= cc_array_id_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000000";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      
---      wait for 50 us;
+--      wait for 80 us;
 --
 --      command <= command_wb;
 --      address_id <= use_dv_cmd;
@@ -1787,6 +1807,16 @@ begin
 --      load_checksum;
 --      
 --      wait for 50 us;   
+--
+--      command <= command_rb;
+--      address_id <= flux_fdbck_cmd;
+--      data_valid <= X"00000020";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 150 us;
 ------------------------------------------------------
 -- ac setup commands
 ------------------------------------------------------     
@@ -1836,6 +1866,50 @@ begin
 --      
 --      wait for 50 us;
 --
+------------------------------------------------------
+-- readout card commands
+------------------------------------------------------      
+--
+--      command <= command_wb;
+--      address_id <= rcs_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007"; -- start is 0x2, end is 0x8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 30 us;
+--
+--      command <= command_wb;
+--      address_id <= rc2_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007"; -- start is 0x2, end is 0x8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 30 us;
+--
+--      command <= command_wb;
+--      address_id <= rc3_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007"; -- start is 0x2, end is 0x8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 30 us;
+--     
+--      command <= command_wb;
+--      address_id <= rc4_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007"; -- start is 0x2, end is 0x8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 60 us;
+
 ------------------------------------------------------
 -- ret_dat commands
 ------------------------------------------------------      
