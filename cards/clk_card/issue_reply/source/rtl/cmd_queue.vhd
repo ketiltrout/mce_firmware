@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.50 2004/09/03 23:17:24 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.51 2004/09/09 17:34:00 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.51  2004/09/09 17:34:00  bburger
+-- Bryce:  testing in progress.
+--
 -- Revision 1.50  2004/09/03 23:17:24  bburger
 -- Bryce:  fixed a bug with the control signal bit_ctr_ena to the bit counter for the CRC block.  The counter should count up to 32 and stop before the first m-op ever arrives
 --
@@ -123,7 +126,7 @@ use work.async_pack.all;
 entity cmd_queue is
    port(
       -- for testing
-      --debug_o  : out std_logic_vector(31 downto 0);
+      debug_o  : out std_logic_vector(31 downto 0);
 
       -- reply_queue interface
 --      uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
@@ -215,6 +218,8 @@ signal present_retire_state : retire_states;
 signal next_retire_state    : retire_states;
 signal retired              : std_logic; --Out, to the u-op counter fsm
 signal uop_timed_out        : std_logic;
+signal uop_to_retire        : std_logic;
+signal uop_data_size_r_int  : integer;
 
 -- Generate FSM:  translates M-ops into u-ops
 type gen_uop_states is (IDLE, INSERT, 
@@ -373,7 +378,7 @@ begin
 ------------------------------------------------------------------------ 
 
    -- [JJ] For testing
-   --debug_o(31 downto 0)  <=  clk_i & "000000000" & lvds_tx_rdy & lvds_tx_busy & uop_data_size(3 downto 0) & prev_send_state & send_state & cmd_tx_dat(31 downto 24);
+   debug_o(31 downto 0)  <=  clk_i & "000000000" & lvds_tx_rdy & lvds_tx_busy & uop_data_size(3 downto 0) & prev_send_state & send_state & cmd_tx_dat(31 downto 24);
       
    -- Command queue (FIFO)
    cmd_queue_ram40_inst: cmd_queue_ram40--_test
@@ -467,8 +472,9 @@ begin
       end if;
    end process;
    
+   uop_data_size_r_int <= conv_integer(qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END));
    queue_space_mux <= queue_space     when queue_space_mux_sel = "00" else
-                      queue_space + 1 when queue_space_mux_sel = "01" else
+                      queue_space + BB_PACKET_HEADER_SIZE + uop_data_size_r_int when queue_space_mux_sel = "01" else
                       queue_space - 1 when queue_space_mux_sel = "10" else
                       QUEUE_LEN;   -- when queue_space_mux_sel = "11";
                         
@@ -788,14 +794,21 @@ begin
                               MAX_SYNC_COUNT - qb_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) + 
                               sync_count_slv > TIMEOUT_LEN))
                               else '0';
-
-   retire_state_NS: process(present_retire_state, retire_ptr, send_ptr, uop_ack_i)--, uop_timed_out)
+                           
+      -- This signal is to be used to determine when there is a u-op to retire.  
+   -- This signal should not be asserted until the entire u-op pointed to by retire_ptr has been issued.
+   uop_to_retire <= '1' when
+      ((retire_ptr < send_ptr) and (send_ptr > retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END))) or
+      ((retire_ptr > send_ptr) and (send_ptr > QUEUE_LEN - retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END)))
+      else '0';
+   
+   retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire)--, uop_timed_out)
    begin
       case present_retire_state is
 --         when RESET =>
 --            next_retire_state <= IDLE;
          when IDLE =>
-            if(retire_ptr /= send_ptr) then
+            if(uop_to_retire = '1') then
                next_retire_state <= NEXT_UOP;
             else
                next_retire_state <= IDLE;
@@ -1477,6 +1490,8 @@ begin
 
             update_prev_state <= '1';
             --previous_send_state      <= HEADER_A;
+
+            send_ptr_mux_sel         <= "00";
             --send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
          
             -- I thought that I could update issue_sync and timeout_sync only when they're inputs would be valid
@@ -1618,6 +1633,8 @@ begin
 
             update_prev_state <= '0';
             --previous_send_state      <= previous_send_state;  --Not to be changed here.  This variable needs to be maintained as it is through the PAUSE state so that it can branch correctly in the send_state_NS FSM.
+
+            send_ptr_mux_sel         <= "00";
          
          when NEXT_UOP =>
             -- Debug
@@ -1647,7 +1664,7 @@ begin
             --previous_send_state      <= NEXT_UOP;
             
             -- The send_ptr should be incremented to the next u-op if this one has expired
-            send_ptr_mux_sel         <= "10"; --send_ptr + other signals
+            send_ptr_mux_sel         <= "10"; -- skips entire u-op
             --send_ptr                 <= send_ptr + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          
          when others =>
@@ -1679,6 +1696,9 @@ begin
 
             update_prev_state <= '0';
             --previous_send_state      <= LOAD;
+
+            send_ptr_mux_sel         <= "00"; -- skips entire u-op
+
       end case;
    end process;
 
@@ -1725,7 +1745,7 @@ begin
   
    with send_ptr_mux_sel select
       send_ptr <=
-      send_ptr_reg                                                when "00",
+      send_ptr_reg                                             when "00",
       send_ptr_reg + 1                                         when "01",
       send_ptr_reg + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "10",
       ADDR_ZERO                                                when others; --"11",
