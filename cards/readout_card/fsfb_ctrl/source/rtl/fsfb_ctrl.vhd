@@ -69,6 +69,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.2  2004/11/26 18:27:02  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.1  2004/11/05 02:13:07  mohsen
 -- Initial release
 --
@@ -143,7 +146,7 @@ begin  -- rtl
       
     elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
       if fsfb_ctrl_dat_rdy_i='1' then
-        fsfb_ctrl_dat <= fsfb_ctrl_dat_i (FSFB_ACCURACY_POSITION downto (FSFB_ACCURACY_POSITION - DAC_DAT_WIDTH +1));
+        fsfb_ctrl_dat <= fsfb_ctrl_dat_i(FSFB_DAT_WIDTH-1) & fsfb_ctrl_dat_i (FSFB_ACCURACY_POSITION-1 downto (FSFB_ACCURACY_POSITION - DAC_DAT_WIDTH +1));
       else
         fsfb_ctrl_dat <= fsfb_ctrl_dat;
       end if;
