@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.3 2004/04/02 01:05:14 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.4 2004/04/02 01:11:04 bburger Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -31,8 +31,8 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/02 01:05:14 $> - <text> - <initials $Author: bburger $>
-
+-- <date $Date: 2004/04/02 01:11:04 $> - <text> - <initials $Author: bburger $>
+-- $Log$
 --
 ------------------------------------------------------------------------
 
