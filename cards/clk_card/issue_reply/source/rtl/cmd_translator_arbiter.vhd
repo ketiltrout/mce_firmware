@@ -361,7 +361,8 @@ begin
 --
 ------------------------------------------------------------------------
   
-   process(current_state, simple_cmd_macro_instr_rdy_i, ret_dat_macro_instr_rdy_i, ret_dat_pending)           
+   process(current_state, simple_cmd_macro_instr_rdy_i, ret_dat_macro_instr_rdy_i, ret_dat_pending,
+           internal_cmd_macro_instr_rdy_i)           
    begin
 
          -- defaults
@@ -376,6 +377,11 @@ begin
        
          when IDLE =>
             ret_dat_pending_mux_sel           <= "10"; 
+            
+            if internal_cmd_macro_instr_rdy_i = '1' then
+               data_mux_sel                      <= "10";
+               internal_cmd_ack_mux_sel          <= '1';
+            end if;
             
          when INTRNL_CMD_RDY =>
             data_mux_sel                      <= "10";
