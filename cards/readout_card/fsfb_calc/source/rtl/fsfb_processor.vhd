@@ -41,6 +41,11 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.2  2004/11/09 01:07:25  anthonyk
+-- Added lock mode enable output.
+-- Carried sign information for lock mode data output.
+-- Included new generic for identifying the m.s.b. position of lock mode data output
+--
 -- Revision 1.1  2004/10/22 22:18:36  anthonyk
 -- Initial release
 --
@@ -53,6 +58,9 @@ use ieee.std_logic_arith.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
 
 entity fsfb_processor is
    generic (
@@ -108,6 +116,9 @@ use ieee.std_logic_arith.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
 
 architecture rtl of fsfb_processor is
 

@@ -33,7 +33,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: sa_bias_spi_if.vhd,v $
+-- Revision 1.1  2004/11/11 01:32:13  anthonyk
+-- Initial release
+--
 --
 --
 
@@ -45,6 +48,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.sa_bias_ctrl_pack.all;
+use work.flux_loop_ctrl_pack.all;
 
 
 entity sa_bias_spi_if is

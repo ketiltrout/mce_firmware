@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: sa_bias_ctrl_pack.vhd,v $
+-- Revision 1.2  2004/11/16 18:35:00  anthonyk
+-- Changed SPI_DATA_WIDTH to SA_BIAS_SPI_DATA_WIDTH
+--
 -- Revision 1.1  2004/11/10 23:27:55  anthonyk
 -- Initial release
 --
@@ -45,6 +48,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
+use work.flux_loop_ctrl_pack.all;
 
 package sa_bias_ctrl_pack is
 
@@ -53,9 +57,7 @@ package sa_bias_ctrl_pack is
    -- SA bias control constants
    ---------------------------------------------------------------------------------
    
-   constant SA_BIAS_DATA_WIDTH       : integer := 16;        -- maximum data width of sa bias value
-                                                             -- determined by DAC device   
-   constant SA_BIAS_SPI_DATA_WIDTH   : integer := 3;         -- data width of SPI interface 
+                                                               
    constant FAST_TO_SLOW_RATIO       : integer := 2;         -- fast to slow clock ratio
    
      

@@ -37,7 +37,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.1  2004/10/22 22:18:36  anthonyk
+-- Initial release
+--
 --
 
 
@@ -48,6 +51,8 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -125,6 +130,8 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_pack.all;
 
 architecture rtl of fsfb_io_controller is
 

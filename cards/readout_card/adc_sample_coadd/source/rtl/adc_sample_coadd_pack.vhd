@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.2  2004/10/29 01:51:42  mohsen
+-- Sorted out library use and use parameters
+--
 -- Revision 1.1  2004/10/22 00:14:37  mohsen
 -- Created
 --
@@ -42,8 +45,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
---library sys_param;
---use sys_param.wishbone_pack.all;
+library work;
+
+-- Call Parent Library
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
+
 
 
 package adc_sample_coadd_pack is
@@ -54,17 +62,11 @@ package adc_sample_coadd_pack is
   -----------------------------------------------------------------------------
 
   
-  constant RAW_DAT_WIDTH         : integer := 16;  -- two bytes
-  constant RAW_ADDR_WIDTH        : integer := 13;  -- enough for two frame
   constant ADC_LATENCY           : integer := 4;  
-  constant ADC_DAT_WIDTH         : integer := 14;
-  constant ADC_OFFSET_DAT_WIDTH  : integer := 16;  -- 2 MSB not used
-  constant ADC_OFFSET_ADDR_WIDTH : integer := 6;   
   constant TOTAL_ROW_NO          : integer := 64;
   constant FSFB_DONE_DLY         : integer := 6;
   constant NUMB_RAW_FRM_TO_GRAB  : integer := 2;   -- =#of raw frames to grab
-  constant COADD_DAT_WIDTH       : integer := 32;  -- four bytes
-  constant COADD_ADDR_WIDTH      : integer := 6;
+
   
 
   -----------------------------------------------------------------------------

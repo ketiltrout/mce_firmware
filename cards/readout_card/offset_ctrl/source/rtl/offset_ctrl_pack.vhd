@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: offset_ctrl_pack.vhd,v $
+-- Revision 1.2  2004/11/16 18:34:19  anthonyk
+-- Changed SPI_DATA_WIDTH to OFFSET_SPI_DATA_WIDTH
+--
 -- Revision 1.1  2004/11/10 23:28:14  anthonyk
 -- Initial release
 --
@@ -45,6 +48,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
+library work;
+use work.flux_loop_ctrl_pack.all;
 
 package offset_ctrl_pack is
 
@@ -53,9 +58,7 @@ package offset_ctrl_pack is
    -- Offset control constants
    ---------------------------------------------------------------------------------
    
-   constant OFFSET_DATA_WIDTH        : integer := 16;        -- maximum data width of offset value
-                                                             -- determined by DAC device   
-   constant OFFSET_SPI_DATA_WIDTH    : integer := 3;         -- data width of SPI interface 
+
    constant FAST_TO_SLOW_RATIO       : integer := 2;         -- fast to slow clock ratio
    
      

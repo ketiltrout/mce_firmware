@@ -42,6 +42,9 @@
 -- Revision history:
 -- 
 -- $Log: sa_bias_ctrl.vhd,v $
+-- Revision 1.2  2004/11/16 18:35:00  anthonyk
+-- Changed SPI_DATA_WIDTH to SA_BIAS_SPI_DATA_WIDTH
+--
 -- Revision 1.1  2004/11/13 01:22:37  anthonyk
 -- Initial release
 --
@@ -53,6 +56,7 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.sa_bias_ctrl_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -85,6 +89,8 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.sa_bias_ctrl_pack.all;
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;

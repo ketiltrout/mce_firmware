@@ -37,7 +37,10 @@
 --                                             
 -- Revision history:
 -- 
--- $Log$
+-- $Log: fsfb_proc_ramp.vhd,v $
+-- Revision 1.1  2004/10/22 22:18:36  anthonyk
+-- Initial release
+--
 --
 
 
@@ -47,6 +50,8 @@ use ieee.std_logic_arith.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_pack.all;
 
 entity fsfb_proc_ramp is
 
@@ -80,6 +85,8 @@ use ieee.std_logic_arith.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_pack.all;
 
 architecture rtl of fsfb_proc_ramp is
 

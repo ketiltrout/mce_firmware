@@ -47,9 +47,13 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/10/29 12:39:34 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/04 17:12:36 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.12  2004/11/04 17:12:36  dca
+-- code added to reset raw address if a captr_raw instruction comes arrives
+-- between 328 block reads (i.e. before all 128 block reads are performed).
+--
 -- Revision 1.11  2004/10/29 12:39:34  dca
 -- read cycle changed to block read...
 -- Can now handle master wait states being inserted.
@@ -99,7 +103,7 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.wbs_frame_data_pack.all;
-
+use work.flux_loop_pack.all;
 
 
 entity wbs_frame_data is

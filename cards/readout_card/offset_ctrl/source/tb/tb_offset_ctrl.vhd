@@ -35,6 +35,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_offset_ctrl.vhd,v $
+-- Revision 1.2  2004/11/16 18:34:35  anthonyk
+-- Changed SPI_DATA_WIDTH to OFFSET_SPI_DATA_WIDTH
+--
 -- Revision 1.1  2004/11/13 01:23:42  anthonyk
 -- Initial release
 --
@@ -50,6 +53,7 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.offset_ctrl_pack.all;
+use work.readout_card_pack.all;
 
 
 entity tb_offset_ctrl is

@@ -61,6 +61,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_adc_sample_coadd.vhd,v $
+-- Revision 1.3  2004/10/29 02:03:56  mohsen
+-- Sorted out library use and use parameters
+--
 -- Revision 1.2  2004/10/27 21:06:12  mohsen
 -- Correct "assertion" condition
 --
@@ -78,6 +81,12 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.adc_sample_coadd_pack.all;
+
+-- Call Parent Library
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
+
 
 library components;
 use components.component_pack.all;

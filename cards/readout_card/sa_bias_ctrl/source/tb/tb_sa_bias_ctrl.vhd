@@ -35,6 +35,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_sa_bias_ctrl.vhd,v $
+-- Revision 1.2  2004/11/16 18:35:12  anthonyk
+-- Changed SPI_DATA_WIDTH to SA_BIAS_SPI_DATA_WIDTH
+--
 -- Revision 1.1  2004/11/13 01:22:54  anthonyk
 -- Initial release
 --
@@ -50,7 +53,7 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.sa_bias_ctrl_pack.all;
-
+use work.readout_card_pack.all;
 
 entity tb_sa_bias_ctrl is
 

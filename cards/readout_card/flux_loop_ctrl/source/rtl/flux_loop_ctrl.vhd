@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.4  2004/11/24 23:34:00  mohsen
+-- Change in wbs_fb_data Interface
+--
 -- Revision 1.3  2004/11/17 01:02:18  anthonyk
 -- Added sa_bias/offset ctrl component blocks
 --
@@ -62,13 +65,13 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
-use work.adc_sample_coadd_pack.all;
-use work.fsfb_calc_pack.all;
-use work.fsfb_ctrl_pack.all;
-use work.flux_loop_ctrl_pack.all;
-use work.offset_ctrl_pack.all;
-use work.sa_bias_ctrl_pack.all;
 
+-- Own Library Call
+use work.flux_loop_ctrl_pack.all;
+
+-- Parent Library Call
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;

@@ -33,7 +33,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_fsfb_io_controller.vhd,v $
+-- Revision 1.1  2004/10/22 22:19:41  anthonyk
+-- Initial release
+--
 --
 --
 --
@@ -49,6 +52,7 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.fsfb_calc_pack.all;
 
+use work.flux_loop_pack.all;
 
 entity tb_fsfb_io_controller is
 

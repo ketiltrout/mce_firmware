@@ -77,6 +77,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop_ctrl.vhd,v $
+-- Revision 1.4  2004/11/24 23:33:45  mohsen
+-- Change in wbs_fb_data Interface
+--
 -- Revision 1.3  2004/11/19 23:20:18  anthonyk
 -- Added various sa_bias/offset ctrl related changes
 --
@@ -103,12 +106,16 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.adc_sample_coadd_pack.all;
-use work.fsfb_calc_pack.all;
-use work.fsfb_ctrl_pack.all;
-use work.offset_ctrl_pack.all;
-use work.sa_bias_ctrl_pack.all;
 
+-- used for PIDZ queue instantiation
+use work.fsfb_calc_pack.all;
+
+-- DUT Library Call
+use work.flux_loop_ctrl_pack.all;
+
+-- Call Parent Library
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 
 entity tb1_flux_loop_ctrl is

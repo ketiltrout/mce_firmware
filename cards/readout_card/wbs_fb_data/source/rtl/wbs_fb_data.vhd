@@ -57,11 +57,11 @@
 -- #filter_coeff4_o: Fifth filter coefficient to all flux_loop_ctrl.
 -- #filter_coeff5_o: Sixth filter coefficient to all flux_loop_ctrl .
 -- #filter_coeff6_o: Seventh filter coefficient to all flux_loop_ctrl.
--- #servo_mode_o: servo_mode D Data for flux_loop_ctrl.
--- #ramp_step_size_o: ramp_step_size D Data for flux_loop_ctrl.
--- #ramp_amp_o: ramp_ampl D Data for flux_loop_ctrl.
--- #const_val_o: const_val  D Data for flux_loop_ctrl.
--- #num_ramp_frame_cycles_o: num_ramp_frame_cycles D Data for flux_loop_ctrl.
+-- #servo_mode_o: servo_mode Data for flux_loop_ctrl.
+-- #ramp_step_size_o: ramp_step_size Data for flux_loop_ctrl.
+-- #ramp_amp_o: ramp_ampl Data for flux_loop_ctrl.
+-- #const_val_o: const_val  Data for flux_loop_ctrl.
+-- #num_ramp_frame_cycles_o: num_ramp_frame_cycles Data for flux_loop_ctrl.
 -- #dat_i: Data in from Dispatch
 -- #addr_i: Address from Dispatch showing the address of memory banks. This is
 -- kept constant during a read or write cycle.
@@ -70,17 +70,20 @@
 -- memory bank
 -- #we_i: Write Enable input from Dispatch
 -- #stb_i: Strobe signal from Dispatch.  Indicates if an address is valid or
--- not. See Wishbone manul page 54 and 57.  
+-- not. See Wishbone manual page 54 and 57.  
 -- #cyc_i: Input from Dispatch indicating a read or write cycle is in progress
--- #dat_o: Output to Dispatch.
--- #ack_o: Acknowlege signal to Dispatch on complete of any read or write
+-- #dat_o: Data out to Dispatch.
+-- #ack_o: Acknowledge signal to Dispatch on completion of any read or write
 -- cycle. 
 --
 --
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.1  2004/11/20 01:22:02  mohsen
+-- Initial release
+--
 --
 --
 ------------------------------------------------------------------------
@@ -90,13 +93,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-library sys_param;
-use sys_param.command_pack.all;
-use sys_param.wishbone_pack.all;
 
 library work;
 use work.wbs_fb_data_pack.all;
 
+-- Call Parent Library
+use work.flux_loop_pack.all;
+
+library sys_param;
+use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 
 

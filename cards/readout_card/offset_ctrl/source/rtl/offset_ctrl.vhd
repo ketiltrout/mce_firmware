@@ -42,6 +42,9 @@
 -- Revision history:
 -- 
 -- $Log: offset_ctrl.vhd,v $
+-- Revision 1.3  2004/11/16 18:34:19  anthonyk
+-- Changed SPI_DATA_WIDTH to OFFSET_SPI_DATA_WIDTH
+--
 -- Revision 1.2  2004/11/16 18:18:13  anthonyk
 -- Corrected comments
 --
@@ -56,6 +59,8 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.offset_ctrl_pack.all;
+use work.flux_loop_ctrl_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -86,7 +91,8 @@ use ieee.std_logic_1164.all;
    
 library work;
 use work.offset_ctrl_pack.all;
-   
+use work.flux_loop_pack.all;
+
 library sys_param;
 use sys_param.wishbone_pack.all;
    

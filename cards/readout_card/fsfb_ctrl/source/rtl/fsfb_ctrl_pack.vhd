@@ -31,7 +31,10 @@
 -- Revision history:
 --
 --
--- $Log$
+-- $Log: fsfb_ctrl_pack.vhd,v $
+-- Revision 1.1  2004/11/05 02:13:07  mohsen
+-- Initial release
+--
 --
 ------------------------------------------------------------------------
 
@@ -40,8 +43,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-library work;
-use work.fsfb_calc_pack.all;
+
+
 
 
 package fsfb_ctrl_pack is
@@ -52,8 +55,7 @@ package fsfb_ctrl_pack is
   -----------------------------------------------------------------------------
 
   
-  constant FSFB_DAT_WIDTH : integer := FSFB_QUEUE_DATA_WIDTH;  -- input data width
-  constant DAC_DAT_WIDTH : integer := 14;
+
 
   
   

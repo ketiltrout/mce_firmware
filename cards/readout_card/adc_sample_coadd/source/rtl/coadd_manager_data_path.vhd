@@ -113,6 +113,9 @@
 -- Revision history:
 -- 
 -- $Log: coadd_manager_data_path.vhd,v $
+-- Revision 1.2  2004/10/29 01:53:50  mohsen
+-- Sorted out library use and use parameters
+--
 -- Revision 1.1  2004/10/22 00:14:37  mohsen
 -- Created
 --
@@ -127,6 +130,11 @@ use ieee.std_logic_signed.all;
 
 library work;
 use work.adc_sample_coadd_pack.all;
+
+-- Call Parent Library
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 
 entity coadd_manager_data_path is

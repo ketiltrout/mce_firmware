@@ -50,6 +50,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.6  2004/11/25 00:32:58  mohsen
+-- Modified frame_timing and sync_gen  to frame_timing_core and sync_gen_core and updated the interface.  Note that frame_timing has gone through major revision, where it now consists of "core" and "wbs" blocks.  The frame_timing_core is used for simple test benches, whereas the frame_timing is used in test benches that use issu/reply chain.
+--
 -- Revision 1.5  2004/11/24 23:33:45  mohsen
 -- Change in wbs_fb_data Interface
 --
@@ -83,12 +86,17 @@ use sys_param.wishbone_pack.all;
 
 library work;
 
--- library for flux_loop_ctrl
-use work.adc_sample_coadd_pack.all;
+-- used for PIDZ queue instantiation
 use work.fsfb_calc_pack.all;
-use work.fsfb_ctrl_pack.all;
-use work.offset_ctrl_pack.all;
-use work.sa_bias_ctrl_pack.all;
+
+
+-- DUT Library Call
+use work.flux_loop_ctrl_pack.all;
+
+
+-- library for flux_loop_ctrl
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 -- library for frame timing core
 use work.frame_timing_core_pack.all;

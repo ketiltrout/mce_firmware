@@ -30,9 +30,12 @@
 -- test block to mimic flux_loop_cntl behaviour for wbs_frame_data test bed.
 --
 -- Revision history:
--- <date $Date: 2004/10/26 16:14:55 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/29 12:38:08 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_wbs_frame_data_flc_sim.vhd,v $
+-- Revision 1.2  2004/10/29 12:38:08  dca
+-- raw data buffer changed so that data increments on the 328 bounary.
+--
 -- Revision 1.1  2004/10/26 16:14:55  dca
 -- Used by tb_wbs_frame_data  to simulate the flux loop cntl blocks
 --
@@ -51,6 +54,7 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.wbs_frame_data_pack.all;
+use work.flux_loop_pack.all;
 
 entity tb_wbs_frame_data_flc_sim is
 

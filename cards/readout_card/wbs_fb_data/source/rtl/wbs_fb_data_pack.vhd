@@ -31,7 +31,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.1  2004/11/20 01:22:02  mohsen
+-- Initial release
+--
 --
 --
 ------------------------------------------------------------------------
@@ -40,6 +43,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+
+library work;
+
+-- Call Parent Library
+use work.flux_loop_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -52,17 +60,6 @@ package wbs_fb_data_pack is
   -----------------------------------------------------------------------------
   -- Constants 
   -----------------------------------------------------------------------------
-
-  
-  constant ADC_OFFSET_DAT_WIDTH  : integer := 16;                   -- 2 MSB not used
-  constant ADC_OFFSET_ADDR_WIDTH : integer := 6;                    -- memory used has 2**6 locations 
-  constant PIDZ_ADDR_WIDTH       : integer := ADC_OFFSET_ADDR_WIDTH;
-  constant FILT_COEFF_ADDR_WIDTH : integer := 3;                    -- Address width for Filter Coeffs
-  constant SERVO_MODE_SEL_WIDTH  : integer := WB_DATA_WIDTH-30;     -- data width of servo mode selection
-  constant RAMP_STEP_WIDTH       : integer := WB_DATA_WIDTH-18;     -- data width of ramp step size
-  constant RAMP_AMP_WIDTH        : integer := WB_DATA_WIDTH-18;     -- data width of ramp peak amplitude
-  constant RAMP_CYC_WIDTH        : integer := WB_DATA_WIDTH;        -- data width of ramp frame cycle number
-  constant CONST_VAL_WIDTH       : integer := WB_DATA_WIDTH-18;     -- data width of constant value 
 
   
   -----------------------------------------------------------------------------

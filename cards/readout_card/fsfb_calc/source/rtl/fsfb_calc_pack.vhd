@@ -34,6 +34,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.2  2004/11/09 01:10:08  anthonyk
+-- Update package to reflect newly added constant, 66 bit adder
+-- component and modified fsfb_processor definitions.
+--
 -- Revision 1.1  2004/10/22 22:18:36  anthonyk
 -- Initial release
 --
@@ -44,6 +48,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
+library work;
+use work.flux_loop_pack.all;
+use work.flux_loop_ctrl_pack.all;
+
 library sys_param;
 use sys_param.wishbone_pack.all;
 
@@ -53,19 +61,6 @@ package fsfb_calc_pack is
    -- First stage feedback calculator block constants
    ---------------------------------------------------------------------------------
    
-   constant COADD_QUEUE_DATA_WIDTH : integer := WB_DATA_WIDTH;        -- data width of coadded data queue
-   
-   constant SERVO_MODE_SEL_WIDTH   : integer := WB_DATA_WIDTH-30;     -- data width of servo mode selection
-   constant RAMP_STEP_WIDTH        : integer := WB_DATA_WIDTH-18;     -- data width of ramp step size
-   constant RAMP_AMP_WIDTH         : integer := WB_DATA_WIDTH-18;     -- data width of ramp peak amplitude
-   constant RAMP_CYC_WIDTH         : integer := WB_DATA_WIDTH;        -- data width of ramp frame cycle number
-   constant CONST_VAL_WIDTH        : integer := WB_DATA_WIDTH-18;     -- data width of constant value 
-   
-   constant COEFF_QUEUE_ADDR_WIDTH : integer := 6;                    -- address width of PIDZ coefficient queue
-   constant COEFF_QUEUE_DATA_WIDTH : integer := WB_DATA_WIDTH;        -- data width of PIDZ coefficient queue
-      
-   constant FSFB_QUEUE_ADDR_WIDTH  : integer := 6;                    -- address width of first stage feedback queue 
-   constant FSFB_QUEUE_DATA_WIDTH  : integer := WB_DATA_WIDTH;        -- data width of first stage feedback queue
    
    constant FSFB_QUEUE_INIT_VAL    : integer := 0;                    -- initialized read value from the first stage feedback queue
    

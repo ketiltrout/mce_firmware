@@ -33,7 +33,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: offset_spi_if.vhd,v $
+-- Revision 1.1  2004/11/11 01:35:05  anthonyk
+-- Initial release
+--
 --
 --
 
@@ -45,6 +48,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.offset_ctrl_pack.all;
+use work.flux_loop_ctrl_pack.all;
 
 
 entity offset_spi_if is

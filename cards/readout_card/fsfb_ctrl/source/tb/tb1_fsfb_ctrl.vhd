@@ -43,7 +43,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb1_fsfb_ctrl.vhd,v $
+-- Revision 1.1  2004/11/05 02:13:22  mohsen
+-- Initial release
+--
 --
 --
 ------------------------------------------------------------------------
@@ -55,7 +58,13 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library work;
+
+-- Call DUT Library
 use work.fsfb_ctrl_pack.all;
+
+-- Call Parent Library
+use work.flux_loop_ctrl_pack.all;
+use work.readout_card_pack.all;
 
 library components;
 use components.component_pack.all;

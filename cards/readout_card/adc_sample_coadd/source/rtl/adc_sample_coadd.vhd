@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.2  2004/10/29 01:50:58  mohsen
+-- Sorted out library use and use parameters
+--
 -- Revision 1.1  2004/10/22 00:14:37  mohsen
 -- Created
 --
@@ -123,6 +126,10 @@ use ieee.std_logic_arith.all;
 library work;
 use work.adc_sample_coadd_pack.all;
 
+-- Call Parent Library
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 
 entity adc_sample_coadd is

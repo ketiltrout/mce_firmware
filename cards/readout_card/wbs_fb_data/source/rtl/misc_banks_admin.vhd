@@ -129,7 +129,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.1  2004/11/20 01:22:02  mohsen
+-- Initial release
+--
 --
 --
 ------------------------------------------------------------------------
@@ -144,8 +147,10 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.wbs_fb_data_pack.all;
 
+-- Call Parent Library
+use work.wbs_fb_data_pack.all;
+use work.flux_loop_pack.all;
 
 
 

@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.2  2004/11/09 01:03:07  anthonyk
+-- Various changes to increase the width of the adders from 64 to 65 (first stage) and 65 to 66 (second stage) to handle all sign, overflow and carry out situations.
+--
 -- Revision 1.1  2004/10/22 22:18:36  anthonyk
 -- Initial release
 --
@@ -49,6 +52,9 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
 
 entity fsfb_proc_pidz is
 
@@ -86,6 +92,9 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
 
 architecture rtl of fsfb_proc_pidz is
 

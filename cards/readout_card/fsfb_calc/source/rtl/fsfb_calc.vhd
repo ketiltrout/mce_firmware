@@ -44,6 +44,11 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.3  2004/11/09 01:12:52  anthonyk
+-- Added lock mode enable output for fsfb_ctrl block.
+-- Added generic lock_dat_left.
+-- Updated the fsfb_processor block instantiation.
+--
 -- Revision 1.2  2004/10/25 18:02:15  anthonyk
 -- Changed input port name num_rows_sub1 to num_rows_sub1_i
 --
@@ -58,6 +63,10 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_pack.all;
+use work.flux_loop_ctrl_pack.all;
+
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -128,6 +137,9 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_pack.all;
+use work.flux_loop_ctrl_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;

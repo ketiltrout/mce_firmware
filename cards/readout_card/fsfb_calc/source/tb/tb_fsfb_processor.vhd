@@ -36,6 +36,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_processor.vhd,v $
+-- Revision 1.2  2004/11/09 17:54:12  anthonyk
+-- Various updates to reflect modified fsfb_processor definitions.
+--
 -- Revision 1.1  2004/10/22 22:19:41  anthonyk
 -- Initial release
 --
@@ -51,6 +54,8 @@ use ieee.std_logic_unsigned.all;
 library work;
 use work.fsfb_calc_pack.all;
 
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
 
 entity tb_fsfb_processor is
 

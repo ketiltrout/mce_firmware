@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.3  2004/11/17 01:02:18  anthonyk
+-- Added sa_bias/offset ctrl component blocks
+--
 -- Revision 1.2  2004/11/08 23:59:03  mohsen
 -- Sorted out parameters.  Also, added fsfb_ctrl.
 --
@@ -48,12 +51,10 @@ use ieee.std_logic_arith.all;
 
 
 library work;
-use work.adc_sample_coadd_pack.all;
-use work.fsfb_calc_pack.all;
-use work.fsfb_ctrl_pack.all;
-use work.offset_ctrl_pack.all;
-use work.sa_bias_ctrl_pack.all;
 
+-- Call Parent Library
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -66,6 +67,23 @@ package flux_loop_ctrl_pack is
   -- Constants 
   -----------------------------------------------------------------------------
 
+  -- ADC Sample Coadd Specific
+  constant COADD_DAT_WIDTH        : integer := WB_DATA_WIDTH;          -- four bytes
+
+
+  -- fsfb_cal Specific
+  constant COADD_QUEUE_DATA_WIDTH : integer := WB_DATA_WIDTH;          -- data width of coadded data queue
+  
+  -- fsfb_ctrl Specific
+  constant FSFB_DAT_WIDTH         : integer := FSFB_QUEUE_DATA_WIDTH;  -- input data width 
+
+  -- sa_bias_ctrl Specific
+  constant SA_BIAS_DATA_WIDTH     : integer := 16;                     -- maximum data width of sa bias value determined by DAC device
+
+
+  -- offset_ctrl Specific
+  constant OFFSET_DATA_WIDTH      : integer := 16;                     -- maximum data width of offset value determined by DAC device
+  
   
   -----------------------------------------------------------------------------
   -- ADC Sample Coadd Block
@@ -106,7 +124,7 @@ package flux_loop_ctrl_pack is
 
    component fsfb_calc is
       generic (
-         start_val                 : integer := FSFB_QUEUE_INIT_VAL                                -- value read from the queue when initialize_window_i is asserted
+         start_val                 : integer := 0                                                  -- value read from the queue when initialize_window_i is asserted
          );
          
       port (

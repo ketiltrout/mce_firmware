@@ -35,6 +35,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.3  2004/11/09 17:55:00  anthonyk
+-- Various updates to reflect modified fsfb_calc definitions.
+--
 -- Revision 1.2  2004/10/25 18:03:12  anthonyk
 -- Changed input port name num_rows_sub1 to num_rows_sub1_i
 --
@@ -55,6 +58,9 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+
+use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
 
 
 entity tb_fsfb_calc is

@@ -68,7 +68,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.1  2004/11/05 02:13:07  mohsen
+-- Initial release
+--
 --
 --
 ------------------------------------------------------------------------
@@ -81,7 +84,9 @@ use ieee.std_logic_arith.all;
 library work;
 use work.fsfb_ctrl_pack.all;
 
-
+-- Call Parent Library
+use work.flux_loop_ctrl_pack.all;
+use work.readout_card_pack.all;
 
 entity fsfb_ctrl is
   

@@ -37,7 +37,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb1_wbs_fb_data.vhd,v $
+-- Revision 1.1  2004/11/20 01:22:26  mohsen
+-- Initial release
+--
 --
 --
 ------------------------------------------------------------------------
@@ -49,8 +52,10 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library work;
-use work.wbs_fb_data_pack.all;
 
+-- Call Parent Library
+use work.wbs_fb_data_pack.all;
+use work.flux_loop_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
