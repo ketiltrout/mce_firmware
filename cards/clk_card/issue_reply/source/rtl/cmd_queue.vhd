@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.77 2005/02/20 00:13:59 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.78 2005/03/04 03:45:58 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.78  2005/03/04 03:45:58  bburger
+-- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
+--
 -- Revision 1.77  2005/02/20 00:13:59  bburger
 -- Bryce:  added a uop_timeout signal to the interface that will tell the cmd_queue to skip a command if it times out in the reply_queue
 --
@@ -550,6 +553,7 @@ begin
          when "010" => data_sig_mux <= (new_card_addr & par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) & mop_i & num_uops_inserted_slv);
          when "011" => data_sig_mux <= "00000000000000000000000000000" & internal_cmd_i & cmd_stop_i & last_frame_i;
          when "100" => data_sig_mux <= frame_seq_num_i; 
+         -- When the command type is "DATA" assign a packet-size of 328.
          when "101" => data_sig_mux <= (issue_sync_i & cmd_type_i & "0000101001000");
          when others => data_sig_mux <= data_i;
       end case;
