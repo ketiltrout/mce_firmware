@@ -30,7 +30,11 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_async_rx.vhd,v $
+-- Revision 1.1  2004/06/11 18:38:47  erniel
+-- initial version
+-- uses new async tx/rx interface
+--
 --
 -----------------------------------------------------------------------------
 
@@ -47,7 +51,7 @@ architecture BEH of TB_ASYNC_RX is
       port(RX_I      : in std_logic ;
            VALID_O    : out std_logic ;
            ERROR_O   : out std_logic ;
-           CLK_I     : in std_logic ;
+           RX_CLK_I  : in std_logic ;
            RST_I     : in std_logic ;
            DAT_O     : out std_logic_vector ( 7 downto 0 );
            STB_I     : in std_logic);
@@ -60,7 +64,7 @@ architecture BEH of TB_ASYNC_RX is
    signal W_RX_I      : std_logic ;
    signal W_VALID_O    : std_logic ;
    signal W_ERROR_O   : std_logic ;
-   signal W_CLK_I     : std_logic := '1';
+   signal W_RX_CLK_I  : std_logic := '1';
    signal W_RST_I     : std_logic ;
    signal W_DAT_O     : std_logic_vector ( 7 downto 0 );
    signal W_STB_I     : std_logic ;
@@ -71,12 +75,12 @@ begin
       port map(RX_I      => W_RX_I,
                VALID_O   => W_VALID_O,
                ERROR_O   => W_ERROR_O,
-               CLK_I     => W_CLK_I,
+               RX_CLK_I  => W_RX_CLK_I,
                RST_I     => W_RST_I,
                DAT_O     => W_DAT_O,
                STB_I     => W_STB_I);
 
-   W_CLK_I <= not W_CLK_I after PERIOD/2;
+   W_RX_CLK_I <= not W_RX_CLK_I after PERIOD/2;
 
    STIMULI : process
    procedure do_reset is
@@ -101,6 +105,9 @@ begin
       wait for PERIOD * 8;
       W_RX_I      <= data(0);
       wait for PERIOD * 8;
+      
+      W_STB_I     <= '0';
+      
       W_RX_I      <= data(1);
       wait for PERIOD * 8;
       W_RX_I      <= data(2);
@@ -124,7 +131,7 @@ begin
       
       wait for PERIOD * 20;
       
-      W_STB_I     <= '0';
+--      W_STB_I     <= '0';
       
    end do_receive;
    
