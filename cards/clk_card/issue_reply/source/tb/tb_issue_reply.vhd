@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.2 2004/06/15 10:27:28 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.3 2004/07/05 23:41:04 jjacob Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/06/15 10:27:28 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/07/05 23:41:04 $> - <text> - <initials $Author: jjacob $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -104,6 +104,7 @@ architecture tb of tb_issue_reply is
    
    constant ret_dat_cmd        : std_logic_vector (31 downto 0) := X"00040030";  -- card id=4, ret_dat command
    
+   constant simple_cmd         : std_logic_vector (31 downto 0) := x"00070020"; -- bias card 1, flux feedback command
    
    constant no_std_data  : std_logic_vector (31 downto 0) := X"00000001";
    constant data_block   : positive := 58;
@@ -118,6 +119,8 @@ architecture tb of tb_issue_reply is
    signal   data_valid   : std_logic_vector (31 downto 0); -- used to be set to constant X"00000028"
    signal   data         : std_logic_vector (31 downto 0) := X"00000001";--integer := 1;
   
+   signal   count        : integer;
+   
 component issue_reply
 
 port(
@@ -571,21 +574,94 @@ stimuli : process
       
       --wait until cmd_rdy = '1';
       --wait for clk_prd;
-      
+      count <= 0;
       for J in (To_integer((Unsigned(ret_dat_s_start)))) to (To_integer((Unsigned(ret_dat_s_stop)))) loop
      
          wait until t_macro_instr_rdy_o = '1';
          wait for 10*clk_prd;
          t_ack_i <= '1'; 
          assert false report "Performed the RET_DAT command....." severity NOTE;
+         count <= count + 1;
          wait until t_macro_instr_rdy_o = '0';
          t_ack_i <= '0';      
 
       end loop;
-      assert false report "test 1....." severity NOTE;
-      wait for 10*clk_prd;
+      assert false report "Done the RET_DAT command....." severity NOTE;
+      wait for 100*clk_prd;
 
+
+      -- perform another ret_dat command, but this one gets interrupted by a simple command
+      count <= 0;
+      
+      command <= command_go;
+      address_id <= ret_dat_cmd;
+      data_valid <= no_std_data;
+      data <= (others=>'0');
+      t_ack_i <= '0';
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      
+      for J in (To_integer((Unsigned(ret_dat_s_start)))) to (To_integer((Unsigned(ret_dat_s_stop-51)))) loop
+     
+         wait until t_macro_instr_rdy_o = '1';
+         wait for 10*clk_prd;
+         t_ack_i <= '1'; 
+         assert false report "Performed the second RET_DAT command....." severity NOTE;
+         count <= count + 1;
+         wait until t_macro_instr_rdy_o = '0';
+         t_ack_i <= '0';      
+
+      end loop;
+      
+      wait until t_macro_instr_rdy_o = '1';
+      wait for 10*clk_prd;
+      
+      -- the 'simple command' inturrupting the ret_dat
+      assert false report "The simple command is loading and interrupting the second RET_DAT command....." severity NOTE;
+      command <= command_wb;
+      address_id <= simple_cmd;
+      data_valid <= X"00000028";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 3000 ns;  
+      -- finish off the current ret_dat command (ret_dat_s_stop-50)
+      t_ack_i <= '1'; 
+      assert false report "Finishing off current RET_DAT command....." severity NOTE;
+      count <= count + 1;
+      wait until t_macro_instr_rdy_o = '0';
+      t_ack_i <= '0';    
+      
+      -- back to the simple command
+      --wait for 1500 ns;
+      wait until t_macro_instr_rdy_o = '1';
+      wait for clk_prd;
+      t_ack_i <= '1'; 
+      assert false report "Simple Command Acknowledged....." severity NOTE;
+      wait until t_macro_instr_rdy_o = '0';
+      t_ack_i <= '0';
+      
+      -- this is to allow the data to be clocked out
+      -- to the cmd_translator
       --wait for 1500 ns;      
+      
+      --resume with the remainder of the ret_dat commands
+      for J in (To_integer((Unsigned(ret_dat_s_stop-49)))) to (To_integer((Unsigned(ret_dat_s_stop)))) loop
+     
+         wait until t_macro_instr_rdy_o = '1';
+         wait for 10*clk_prd;
+         t_ack_i <= '1'; 
+         assert false report "Performed the second RET_DAT command....." severity NOTE;
+         count <= count + 1;
+         wait until t_macro_instr_rdy_o = '0';
+         t_ack_i <= '0';      
+
+      end loop;      
+      
+      wait for 100*clk_prd;
       
       assert false report "Simulation done." severity FAILURE;
  
