@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/15 17:57:09 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/16 00:15:38 $>	- <initials $Author: bench1 $>
 -- $Log: rc_serial_dac_test.vhd,v $
+-- Revision 1.4  2004/07/16 00:15:38  bench1
+-- Mandana: changed en_ramp to ramp in IDLE state to run continous ramp
+--
 -- Revision 1.3  2004/07/15 17:57:09  bench1
 -- Mandana: dac_data_p wouldn't hold during state changes again, had to fix
 --
@@ -86,8 +89,9 @@ type states is (IDLE, PUSH_DATA_FIX, PUSH_DATA_RAMP, SPI_START, DONE);
 
 signal present_state         : states;
 signal next_state            : states;
+type   w_array3 is array (2 downto 0) of word16; 
 type   w_array8 is array (7 downto 0) of word16; 
-signal data     : w_array8;
+signal data     : w_array3;
 
 signal idac     : integer;
 signal clk_2    : std_logic;
@@ -148,7 +152,7 @@ begin
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 6)
+   generic map(MAX => 3)
    port map(clk_i   => val_clk,
             rst_i   => logic0, -- '0' or rst_i? think!!!!!
             ena_i   => logic1,
@@ -167,11 +171,11 @@ begin
    data (0) <= "1111111111111111";--xffff     full scale
    data (1) <= "1000000000000000";--x8000     half range
    data (2) <= "0000000000000000";--x0000     0
-   data (3) <= "0000000000000001";--x0001 
-   data (4) <= "0000000000000010";--x0002 
-   data (5) <= "0000000000000100";--x0004 
-   data (6) <= "0000000000001000";--x0008 
-   data (7) <= "0000000000010000";--x0010 
+-- data (3) <= "0000000000000001";--x0001 
+-- data (4) <= "0000000000000010";--x0002 
+-- data (5) <= "0000000000000100";--x0004 
+-- data (6) <= "0000000000001000";--x0008 
+-- data (7) <= "0000000000010000";--x0010 
 
    gen_spi8: for k in 0 to 7 generate
    
