@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.1 2004/07/06 10:53:40 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.2 2004/07/09 10:17:14 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -42,9 +42,13 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/06 10:53:40 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/09 10:17:14 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: cmd_translator_m_op_table.vhd,v $
+-- Revision 1.2  2004/07/09 10:17:14  dca
+-- small FSM added to handel M_OP retires.
+-- Simultaneous store/retire NOT permitted.
+--
 -- Revision 1.1  2004/07/06 10:53:40  dca
 -- Initial Version
 --
@@ -244,8 +248,12 @@ begin
          next_state <= RETIRE_MOP_SEQ;
 
       when RETIRE_MOP_SEQ =>
-         next_state <= IDLE;   
-
+         if (macro_instr_done_i = '0') then
+            next_state <= IDLE;
+         else
+            next_state <= RETIRE_MOP_SEQ;
+         end if;  
+         
       when OTHERS =>
          next_state <= IDLE;   
          
