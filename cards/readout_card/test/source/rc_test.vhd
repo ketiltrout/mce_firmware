@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/06/22 17:42:40 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/06/22 20:54:15 $>	- <initials $Author: mandana $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.6  2004/06/22 20:54:15  mandana
+-- modified the output-port names to be consistent with tcl file
+--
 -- Revision 1.5  2004/06/22 17:42:40  mandana
 -- added mode to port map and cleaned syntax errors
 --
@@ -72,7 +75,7 @@ entity rc_test is
       
       -- rc serial dac interface
       dac_dat        : out std_logic_vector (7 downto 0); 
-      dac_sclk       : out std_logic_vector (7 downto 0);
+      dac_clk       : out std_logic_vector (7 downto 0);
       bias_dac_ncs   : out std_logic_vector (7 downto 0); 
       offset_dac_ncs : out std_logic_vector (7 downto 0); 
 
@@ -89,7 +92,8 @@ entity rc_test is
       dac_FB_clk   : out std_logic_vector (7 downto 0);      
       
       --test pins
-      test : out std_logic_vector(16 downto 3));
+      smb_clk: out std_logic; 
+      mictor : out std_logic_vector(31 downto 0));
 end rc_test;
 
 architecture behaviour of rc_test is
@@ -200,7 +204,7 @@ architecture behaviour of rc_test is
    signal rx_spare_stb  : std_logic;   
    signal debug_stb     : std_logic;
    signal test_dac_ncs      : std_logic_vector (7 downto 0);
-   signal test_dac_sclk     : std_logic_vector (7 downto 0);
+   signal test_dac_clk     : std_logic_vector (7 downto 0);
    signal test_dac_data     : std_logic_vector (7 downto 0);   
    
    signal test_data : std_logic_vector(31 downto 0);
@@ -366,7 +370,7 @@ begin
                -- transmitter signals removed!
                          
                -- extended signals
-               dac_clk_o => test_dac_sclk,
+               dac_clk_o => test_dac_clk,
                dac_dat_o => test_dac_data,
                dac_ncs_o => test_dac_ncs);
 
@@ -388,7 +392,7 @@ begin
                dac_clk_o   => dac_FB_clk);
                
    dac_dat        <= test_dac_data;
-   dac_sclk       <= test_dac_sclk;
+   dac_clk       <= test_dac_clk;
    bias_dac_ncs   <= test_dac_ncs;
    offset_dac_ncs <= test_dac_ncs;
    
@@ -491,11 +495,11 @@ begin
                elsif(cmd1 = CMD_PARALLELDAC) then
                    if (cmd2 = CMD_DAC_FIXED) then
                       if (dac_test_mode = "00") then
-	                 sel <= SEL_SDAC;
+	                 sel <= SEL_PDAC;
                       end if;                      
                    elsif (cmd2 = CMD_DAC_RAMP) then
                       dac_test_mode <= "01";
-                      sel <= SEL_SDAC;               
+                      sel <= SEL_PDAC;               
                    end if;   
                   
                else
@@ -519,9 +523,9 @@ begin
       end if;
    end process cmd_proc;
 
-   test(3) <= sel(INDEX_SDAC);
-   test(4) <= done(INDEX_SDAC);
-   test(6) <= dac_test_ncs(0);
-   test(8) <= dac_test_sclk(0);
-   test(10) <= dac_test_data(0);
+   smb_clk <= sel(INDEX_SDAC);
+   mictor(4) <= done(INDEX_SDAC);
+   mictor(6) <= dac_test_ncs(0);
+   mictor(8) <= dac_test_sclk(0);
+   mictor(10) <= dac_test_data(0);
 end behaviour;
