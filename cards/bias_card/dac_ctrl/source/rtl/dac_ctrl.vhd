@@ -33,8 +33,11 @@
 --              RESYNC_NXT_ADDR  : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/15 18:16:40 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/16 00:53:04 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.3  2004/04/16 00:53:04  mandana
+-- seperated snd_dac32 and snd_lvds FSMs
+--
 -- Revision 1.2  2004/04/15 18:16:40  mandana
 -- added WR_DAC32_NXT state to main FSM
 --
@@ -234,12 +237,14 @@ dac_ncs_o <= dac_ncs;
             write_buf   <= (others => 'Z');  
             read_lsb_en <= '0';
             read_msb_en <= '0';
+            rst_nxt_sync<= '0';            
             
          when WR_DAC32_CMD =>  
             -- use the previously-set idac value
             write_buf   <= dat_i;            
             read_lsb_en <= '1';
             read_msb_en <= '1';
+            rst_nxt_sync<= '0';                        
          
          when WR_DAC32_STORE =>
             -- use the previously-set idac value
@@ -303,7 +308,7 @@ dac_ncs_o <= dac_ncs;
             write_buf   <= (others => 'Z');
             read_lsb_en <= '0';
             read_msb_en <= '0';
-            rst_nxt_sync<= '0';            
+            rst_nxt_sync<= '0';
 
       end case;
    end process state_out;
@@ -472,9 +477,9 @@ dac_ncs_o <= dac_ncs;
    port map(
       clk_i              => clk_i,
       sync_i             => sync_i,
-      rst_on_next_sync_i => rst_nxt_sync,
-      cycle_count_o      => read_count,
-      cycle_error_o      => error_count
+      frame_rst_i        => rst_nxt_sync,
+      clk_count_o      => read_count,
+      clk_error_o      => error_count
    );
    
 ------------------------------------------------------------------------
@@ -527,10 +532,11 @@ dac_ncs_o <= dac_ncs;
    -- assert ack_o when:
    --    1. wishbone writes FLUX_FB, BIAS, RESYNC_NXT cmds to DAC_CTRL
    --    2. DAC_CTRL data is ready to be read on wishbone
-   ack_o <= '1' when (current_state = OUT_SYNC_CMD or current_state = WR_DAC32_NXT or current_state = WR_DAC_LVDS_DONE) else '0';
+   ack_o <= '1' when (current_state = OUT_SYNC_CMD     or current_state = WR_DAC32_NXT or 
+                      current_state = WR_DAC_LVDS_DONE or current_state = RESYNC_CMD) else '0';
    rty_o <= '0'; -- for now
    
-   dat_o <= read_buf when (current_state = OUT_SYNC_CMD) else (others => '0');
+   dat_o <= error_count when (current_state = OUT_SYNC_CMD) else (others => '0');
 
    master_wait      <= '1' when ( addr_i = DAC32_CTRL_ADDR    and stb_i = '0' and cyc_i = '1' and we_i = '1') else '0';   
    read_cmd         <= '1' when ( addr_i = CYC_OUT_SYNC_ADDR  and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';

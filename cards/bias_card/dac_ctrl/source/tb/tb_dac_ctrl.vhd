@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.1 2004/04/14 17:38:17 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.2 2004/04/15 18:19:36 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Mandana Amiri
@@ -30,8 +30,11 @@
 -- Testbench to test dac_ctrl module for bias card
 --
 -- Revision history:
--- <date $Date: 2004/04/14 17:38:17 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/15 18:19:36 $>	- <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl.vhd,v $
+-- Revision 1.2  2004/04/15 18:19:36  mandana
+-- debugged do_dac32_cmd & do_dac_lvds_cmd
+--
 -- Revision 1.1  2004/04/14 17:38:17  mandana
 -- initial release
 -- 
@@ -192,12 +195,12 @@ begin
       
       W_CYC_I        <= '0';
       W_WE_I         <= '0';
-      W_DAT_I        <= (others => 'Z');      
-      W_ADDR_I       <= (others => 'Z');
+      W_DAT_I        <= (others => '0');      
+      W_ADDR_I       <= (others => '0');
       
       assert false report "Processing DAC32 cmd." severity NOTE;
-      wait for PERIOD*150;
-
+      wait for PERIOD*120;
+      
    end dac32_cmd;
 ------------------------------------------------------------
 --
@@ -223,7 +226,6 @@ begin
       W_DAT_I        <= (others => '0');
       W_ADDR_I       <= (others => '0');
       W_TGA_I        <= (others => '0');
-
       
       wait for PERIOD;
       assert false report " Processing LVDS cmd." severity NOTE;
@@ -245,9 +247,17 @@ begin
       W_CYC_I        <= '1';
       
       wait until W_ACK_O = '1'; 
+      wait for PERIOD;
       
       W_STB_I        <= '0';
+      W_CYC_I        <= '0';
+      W_WE_I         <= '0';
+      W_ADDR_I       <= (others => '0');
+      
       wait for PERIOD;
+      assert false report " Processing RESYNC cmd." severity NOTE;
+      
+      wait for PERIOD*120;
          
    end resync_cmd;
 ------------------------------------------------------------
@@ -261,13 +271,20 @@ begin
       W_DAT_I        <= (others => '0');
       W_ADDR_I       <= CYC_OUT_SYNC_ADDR;
       W_TGA_I        <= (others => '0');
-      W_WE_I         <= '1';
+      W_WE_I         <= '0';
       W_STB_I        <= '1';
       W_CYC_I        <= '1';
       
       wait until W_ACK_O = '1';      
+      wait until W_ACK_O = '0';
       W_STB_I        <= '0';
+      W_CYC_I        <= '0';
+      W_ADDR_I       <= (others => '0');
+      
       wait for PERIOD;
+      W_DAT_I        <= (others => '0');
+      
+      assert false report " Processing OUT_OF_SYNC cmd." severity NOTE;
    
    end out_of_sync_cmd;
 ------------------------------------------------------------
@@ -277,7 +294,7 @@ begin
 ------------------------------------------------------------   
 
   begin
-   data (0) <= "01010101010101010101010101010101";--55555555
+   data (0) <= "11110000001100110101010101010101";--ff005555
    data (1) <= "10101010101010101010101010101010";--aaaaaaaa
    data (2) <= "00000000000000000000000000000000";--00000000
    data (3) <= "11101110111011101110111011101110";--eeeeeeee
@@ -292,7 +309,7 @@ begin
    data (12) <="10011001100110011001100110011001";--99999999
    data (13) <="00000000000000000000000000000000";--00000000
    data (14) <="01000100010001000100010001000100";--44444444
-   data (15) <="01010101010101010101010101010101";--55555555
+   data (15) <="00100010000100010101010101010101";--22115555
   
    do_nop;
    do_reset;
@@ -301,6 +318,12 @@ begin
    do_nop;
    
    dac32_cmd (data);   
+   do_nop;
+   
+   resync_cmd;
+   do_nop;
+   
+   out_of_sync_cmd;
    do_nop;
    
    assert false report " Simulation done." severity FAILURE;
