@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.44 2004/08/24 00:00:05 jjacob Exp $
+-- $Id: cmd_queue.vhd,v 1.45 2004/08/25 22:15:01 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.45  2004/08/25 22:15:01  bburger
+-- Bryce:  added a recirc mux for data_size_reg
+--
 -- Revision 1.44  2004/08/24 00:00:05  jjacob
 -- cleaning up some comments
 --
@@ -131,7 +134,10 @@ entity cmd_queue is
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
       clk_i         : in std_logic; -- Advances the state machines
-      rst_i         : in std_logic  -- Resets all FSMs
+      rst_i         : in std_logic;  -- Resets all FSMs
+      
+      -- for testing
+      --cmd_tx_dat_o  : out std_logic_vector(31 downto 0)
    );
 end cmd_queue;
 
@@ -171,7 +177,7 @@ signal num_uops             : integer;
 signal data_size_int        : integer;
 signal size_uops            : integer;
 signal num_uops_inserted    : integer; --determines when to stop inserting u-ops
-signal queue_space          : integer := QUEUE_LEN;
+signal queue_space          : integer;
 
 -- Command queue address pointers.  Each one of these are managed by a different FSM.
 signal retire_ptr           : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
@@ -316,6 +322,11 @@ signal uop_data_size2         : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto
 
 signal sh_reg_parallel_mux_sel: std_logic_vector(1 downto 0);
 
+type queue_state is           (INIT1, INIT2, DONE);
+signal queue_next_state, queue_cur_state : queue_state;
+signal queue_init_value_sel   : std_logic;
+
+
 --component first_time_tracker
 --
 --   port(
@@ -364,6 +375,9 @@ begin
          done_o     => cmd_tx_done,
          lvds_o     => tx_o
       );
+  
+   -- [JJ] for testing
+   --cmd_tx_dat_o  <= cmd_tx_dat;
       
    cmd_crc: crc
       generic map(
@@ -424,18 +438,41 @@ begin
    space_calc: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         queue_space <= QUEUE_LEN;
+         queue_space     <= QUEUE_LEN;
+         queue_cur_state <= INIT1;
       elsif(clk_i'event and clk_i = '1') then
-         queue_space <= queue_space_mux;
+         queue_space     <= queue_space_mux;
+         queue_cur_state <= queue_next_state;
       end if;
    end process;
    
-   queue_space_mux <= queue_space + 1 when queue_space_mux_sel = "01" else
+   queue_space_mux <= queue_space     when queue_space_mux_sel = "00" else
+                      queue_space + 1 when queue_space_mux_sel = "01" else
                       queue_space - 1 when queue_space_mux_sel = "10" else
-                      queue_space;
+                      QUEUE_LEN;   -- when queue_space_mux_sel = "11";
                         
-   queue_space_mux_sel <= wren_sig & retired;
+   queue_space_mux_sel <= "11" when queue_init_value_sel = '1' else wren_sig & retired;
    -- [JJ] end                   
+
+   -- initialization logic for queue_space to set it to 255 on startup
+   process(queue_cur_state)
+   begin
+      case queue_cur_state is
+         when INIT1  =>
+            queue_next_state     <= INIT2;
+            queue_init_value_sel <= '1';
+         when INIT2  =>
+            queue_next_state     <= DONE;
+            queue_init_value_sel <= '1';
+         when DONE   =>
+            queue_next_state     <= DONE;
+            queue_init_value_sel <= '0';
+         when others =>
+            queue_next_state     <= DONE;
+            queue_init_value_sel <= '0';
+      end case;
+   end process;
+
 
 ------------------------------------------------------------------------
 --
@@ -446,19 +483,20 @@ begin
    insert_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_insert_state <= RESET;
+         present_insert_state <= IDLE;--RESET;
       elsif(clk_i'event and clk_i = '1') then
          present_insert_state <= next_insert_state;
       end if;
    end process;
 
-   insert_state_NS: process(present_insert_state, insert_uop_rdy, data_size_i, data_count, data_clk_i)
+   insert_state_NS: process(present_insert_state, data_size_i, data_count, data_clk_i, insert_uop_rdy)--,mop_rdy_i
    begin
       case present_insert_state is
-         when RESET =>
-            next_insert_state <= IDLE;
+--         when RESET =>
+--            next_insert_state <= IDLE;
          when IDLE =>
             -- The gen_state FSM will only try to add a u-op to the queue if there is space available, so no checking is necessary here.
+            --if( mop_rdy_i = '1') then
             if(insert_uop_rdy = '1') then
                next_insert_state <= INSERT_HDR1;
             else
@@ -562,7 +600,8 @@ begin
 
 
    
-   insert_state_out: process(present_insert_state, data_size_reg, data_clk_i, num_uops_inserted, free_ptr, num_uops)--issue_sync_i, new_card_addr, new_par_id, 
+   insert_state_out: process(present_insert_state, data_clk_i, free_ptr, num_uops_inserted, num_uops, data_size_reg)--, issue_sync_i, new_card_addr, new_par_id, 
+   
    -- There is something sketchy about the sensitivity list.  
    -- free_ptr does not appear anywhere on the list.  
    -- It can't because of my free_ptr <= free_ptr + 1 statement below.  
@@ -578,19 +617,22 @@ begin
       data_size_mux_sel            <=  '0'; -- hold value
 
       case present_insert_state is
-         when RESET =>
-            wren_sig               <= '0';
-            data_count_mux_sel     <= "11";
-            mop_ack_o              <= '0';
-            insert_uop_ack         <= '0';
-
-            free_ptr_mux_sel       <= "11";
+--         when RESET =>
+--            wren_sig               <= '0';
+--            data_count_mux_sel     <= "11";
+--            mop_ack_o              <= '0';
+--            insert_uop_ack         <= '0';
+--
+--            free_ptr_mux_sel       <= "11";
          
          when IDLE =>
             wren_sig               <= '0';
             data_count_mux_sel     <= "11"; -- default
-            mop_ack_o              <= '0';
+            mop_ack_o             <= '0';
+            
+            
             insert_uop_ack         <= '0';
+            
 
             free_ptr_mux_sel       <= "00";
          
@@ -598,7 +640,9 @@ begin
             wren_sig               <= '1';
             data_count_mux_sel     <= "11";
 
-            mop_ack_o              <= '0';
+            
+            mop_ack_o             <= '0';
+            
             insert_uop_ack         <= '0';
             
             data_sig_mux_sel       <= "01";
@@ -617,9 +661,10 @@ begin
             -- This means that all m-ops with data can only generate a single u-op..for now.
             -- If a m-op is issued with data and generated several u-ops, only the last one will have data.
             if(num_uops_inserted = num_uops and data_size_reg /= x"0000") then
-               mop_ack_o           <= '1';
+               mop_ack_o          <= '1';
+               
             else 
-               mop_ack_o           <= '0';
+               mop_ack_o          <= '0';
             end if;
             
             insert_uop_ack         <= '0';
@@ -637,7 +682,7 @@ begin
                wren_sig            <= '1';
                data_count_mux_sel  <= "01";
                --data_count          <= data_count + 1;
-               mop_ack_o           <= '0';
+               mop_ack_o          <= '0';
                insert_uop_ack      <= '0';
                
                data_sig_mux_sel    <= "11";
@@ -649,7 +694,7 @@ begin
                wren_sig            <= '0';
                data_count_mux_sel  <= "00";
 
-               mop_ack_o           <= '0';
+               mop_ack_o          <= '0';
                insert_uop_ack      <= '0';
                
                data_sig_mux_sel    <= "11";
@@ -661,7 +706,7 @@ begin
             wren_sig               <= '0';
             data_count_mux_sel     <= "00";
 
-            mop_ack_o              <= '0';
+            mop_ack_o             <= '0';
             insert_uop_ack         <= '0';
             
             data_sig_mux_sel       <= "11";
@@ -678,9 +723,10 @@ begin
             -- In this case, by delaying its assertion until DONE, we ensure that the cmd_translator doesn't try to insert the next m_op too soon.
             -- I think that I might have to register num_uops_inserted and num_uops to make sure that they are valid when I do this check
             if(num_uops_inserted = num_uops and data_size_reg = x"0000") then
-               mop_ack_o           <= '1';
+               mop_ack_o          <= '1';
+               
             else
-               mop_ack_o           <= '0';
+               mop_ack_o          <= '0';
             end if;
 
             insert_uop_ack         <= '1';
@@ -697,7 +743,7 @@ begin
             wren_sig               <= '0';
             data_count_mux_sel     <= "11";
 
-            mop_ack_o              <= '0';
+            mop_ack_o             <= '0';
             insert_uop_ack         <= '0';
             data_sig_mux_sel       <= "00";
 
@@ -710,7 +756,7 @@ begin
    retire_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_retire_state <= RESET;
+         present_retire_state <= IDLE;--RESET;
       elsif(clk_i'event and clk_i = '1') then
          present_retire_state <= next_retire_state;
       end if;
@@ -725,8 +771,8 @@ begin
    retire_state_NS: process(present_retire_state, retire_ptr, send_ptr, uop_ack_i)--, uop_timed_out)
    begin
       case present_retire_state is
-         when RESET =>
-            next_retire_state <= IDLE;
+--         when RESET =>
+--            next_retire_state <= IDLE;
          when IDLE =>
             if(retire_ptr /= send_ptr) then
                next_retire_state <= NEXT_UOP;
@@ -787,15 +833,15 @@ begin
       flush_ptr_mux_sel  <= "00";  -- hold value
    
       case present_retire_state is
-         when RESET =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
---            uop_timedout_o <= '0';
---            uop_discard_o  <= '0';
-            retired        <= '0';
-            retire_ptr_mux_sel <= "001";
-            
-            flush_ptr_mux_sel  <= "01";
+--         when RESET =>
+--            uop_rdy_o      <= '0';
+--            freeze_send    <= '0';
+----            uop_timedout_o <= '0';
+----            uop_discard_o  <= '0';
+--            retired        <= '0';
+--            retire_ptr_mux_sel <= "001";
+--            
+--            flush_ptr_mux_sel  <= "01";
          when IDLE =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
@@ -917,7 +963,7 @@ begin
    gen_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_gen_state <= RESET;
+         present_gen_state <= IDLE;--RESET;
       elsif(clk_i'event and clk_i = '1') then
          present_gen_state <= next_gen_state;
       end if;
@@ -926,25 +972,41 @@ begin
    gen_state_NS: process(present_gen_state, mop_rdy, queue_space, size_uops,  
                          insert_uop_ack, num_uops_inserted, num_uops)--card_addr_i, par_id_i, 
    begin
+   
+   -- [JJ] test: default
+  -- mop_ack_o           <= '0';
+   
       case present_gen_state is
-         when RESET =>
-            next_gen_state <= IDLE;
+--         when RESET =>
+--            next_gen_state <= IDLE;
          when IDLE =>
             if(mop_rdy = '0') then
                next_gen_state <= IDLE;
-            elsif(mop_rdy = '1') then
-               if(queue_space < size_uops) then
-                  next_gen_state <= IDLE;
-               elsif(queue_space >= size_uops) then
-                  -- We go into CLEANUP because in this state, we set new_par_id up appropriately for insertion
+            else   
+               if(queue_space >= size_uops) then
                   next_gen_state <= CLEANUP;
-               end if;
+                  
+               else
+                  next_gen_state <= IDLE;
+               end if;            
+            
+            --elsif(mop_rdy = '1') then
+--               if(queue_space < size_uops) then
+--                  next_gen_state <= IDLE;
+--                  mop_ack_o           <= '1';
+--               else
+--               --elsif(queue_space >= size_uops) then
+--                  -- We go into CLEANUP because in this state, we set new_par_id up appropriately for insertion
+--                  next_gen_state <= CLEANUP;
+--                  --mop_ack_o           <= '1';
+--               end if;
             end if;
          when INSERT =>
             if(insert_uop_ack = '1') then
                next_gen_state <= CLEANUP;  -- Catch all invalid card_id's with this statement
             else
                next_gen_state <= INSERT;
+             --  mop_ack_o           <= '1';
             end if;
          when CLEANUP =>
             -- CYC_OO_SYNC is the last u-op instruction in a RET_DAT or STATUS m-op.
@@ -1051,11 +1113,11 @@ begin
       num_uops_inserted_mux_sel          <= "00"; --recirculate, hold value
       
       case present_gen_state is
-         when RESET =>
-            insert_uop_rdy               <= '0';
-            
-            num_uops_inserted_mux_sel    <= "10"; -- '0'
-            new_par_id_mux_sel           <= NULL_ADDR;
+--         when RESET =>
+--            insert_uop_rdy               <= '0';
+--            
+--            num_uops_inserted_mux_sel    <= "10"; -- '0'
+--            new_par_id_mux_sel           <= NULL_ADDR;
             
          when IDLE =>
             insert_uop_rdy               <= '0';
@@ -1154,7 +1216,7 @@ begin
    send_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_send_state <= RESET;
+         present_send_state <= LOAD;--RESET;
       elsif(clk_i'event and clk_i = '1') then
          present_send_state <= next_send_state;
       end if;
@@ -1187,8 +1249,8 @@ begin
                           uop_data_size, uop_data_count)
    begin
       case present_send_state is
-         when RESET =>
-            next_send_state <= LOAD;
+--         when RESET =>
+--            next_send_state <= LOAD;
          when LOAD =>
             -- If there is a u-op waiting to be issued and if this FSM has not been frozen by the retire FSM, then send it or skip it.
             if(send_ptr /= free_ptr and freeze_send = '0') then
@@ -1282,33 +1344,33 @@ begin
       sh_reg_parallel_mux_sel  <= "00";  -- (others => '0');
    
       case present_send_state is
-         when RESET =>
-            cmd_tx_start             <= '0';
-            crc_clr                  <= '1';
-            bit_ctr_ena              <= '0';
-            crc_start                <= '0';
-            
-            crc_num_bits_mux_sel     <= "10";
-            --crc_num_bits             <= 0;
-            
-            uop_data_count_mux_sel   <= "11"; -- (others => '0')
-            --uop_data_count           <= (others => '0');
-            
-            uop_data_size_mux_sel    <= "11";  -- (others => '0')
-            --uop_data_size            <= (others => '0');
-
-            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat_mux_sel       <= "100";  -- 0
-            
-            --cmd_tx_dat(31 downto  0) <= (others => '0');
-            
-            
-            --sh_reg_parallel_i        <= (others => '0');
-            
-            previous_send_state      <= RESET;
-            
-            send_ptr_mux_sel         <= "11"; --ADDR_ZERO
-            --send_ptr                 <= ADDR_ZERO;
+--         when RESET =>
+--            cmd_tx_start             <= '0';
+--            crc_clr                  <= '1';
+--            bit_ctr_ena              <= '0';
+--            crc_start                <= '0';
+--            
+--            crc_num_bits_mux_sel     <= "10";
+--            --crc_num_bits             <= 0;
+--            
+--            uop_data_count_mux_sel   <= "11"; -- (others => '0')
+--            --uop_data_count           <= (others => '0');
+--            
+--            uop_data_size_mux_sel    <= "11";  -- (others => '0')
+--            --uop_data_size            <= (others => '0');
+--
+--            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
+--            cmd_tx_dat_mux_sel       <= "100";  -- 0
+--            
+--            --cmd_tx_dat(31 downto  0) <= (others => '0');
+--            
+--            
+--            --sh_reg_parallel_i        <= (others => '0');
+--            
+--            previous_send_state      <= RESET;
+--            
+--            send_ptr_mux_sel         <= "11"; --ADDR_ZERO
+--            --send_ptr                 <= ADDR_ZERO;
          
          when LOAD =>
             cmd_tx_start             <= '0';
