@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.9 2004/07/28 23:39:05 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.10 2004/08/05 18:14:29 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/28 23:39:05 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/05 18:14:29 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.10  2004/08/05 18:14:29  jjacob
+-- changed frame_sync_num_o to use the parameter
+-- SYNC_NUM_BUS_WIDTH
+--
 -- Revision 1.9  2004/07/28 23:39:05  jjacob
 -- added:
 -- library sys_param;
@@ -110,9 +114,9 @@ port(
       -- output to fibre_rx
       ack_o             : out std_logic;
       
-      -- other inputs -- these are dead. remove these
+      -- other inputs 
       sync_pulse_i      : in    std_logic;
-      sync_number_i     : in    std_logic_vector (7 downto 0);
+      sync_number_i     : in    std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
      
       -- signals from the arbiter to micro-op sequence generator
       --ack_o             :  out std_logic;     -- DEAD unused signal --RENAME to cmd_rdy_o        -- ready signal
@@ -588,6 +592,8 @@ port map(
        
       -- output to simple cmd fsm
       simple_cmd_ack_o              => simple_cmd_ack,
+      
+      sync_number_i                 => sync_number_i,
 
       -- outputs to the micro instruction sequence generator
       m_op_seq_num_o                => m_op_seq_num_o,
