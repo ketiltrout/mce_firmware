@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: addr_card_self_test.vhd,v 1.1 2005/01/21 01:11:44 mandana Exp $
+-- $Id: addr_card_self_test.vhd,v 1.2 2005/01/31 20:53:36 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Mandana Amiri
@@ -29,8 +29,11 @@
 -- self-test blocks to create the packets and feed them in to bias card
 --
 -- Revision history:
--- <date $Date: 2005/01/21 01:11:44 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/01/31 20:53:36 $>    - <initials $Author: mandana $>
 -- $Log: addr_card_self_test.vhd,v $
+-- Revision 1.2  2005/01/31 20:53:36  mandana
+-- changed block hierarchy to use a common PLL
+--
 -- Revision 1.1  2005/01/21 01:11:44  mandana
 -- added addr_card_self_test component
 --
@@ -68,7 +71,7 @@ entity addr_card_self_test is
       lvds_txb   : out std_logic;
       
       -- TTL interface:
-      ttl_nrx1   : in std_logic;
+      --ttl_nrx1   : in std_logic;
       ttl_tx1    : out std_logic;
       ttl_txena1 : out std_logic;
       
@@ -107,7 +110,7 @@ entity addr_card_self_test is
       dip_sw3    : in std_logic;
       dip_sw4    : in std_logic;
       wdog       : out std_logic;
-      slot_id    : in std_logic_vector(3 downto 0);
+      --slot_id    : in std_logic_vector(3 downto 0);
       
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
@@ -162,9 +165,9 @@ signal rdy_lvds_tx       : std_logic;
 signal busy_lvds_tx      : std_logic;
 signal rdaddress_packet_ram: std_logic_vector (5 downto 0);
 signal q_packet_ram      : std_logic_vector (31 downto 0);
-signal i                 : integer range 0 to 409;
--- signal ac_slot_id        : std_logic_vector(3 downto 0);
--- signal ttl_nrx1          : std_logic;
+signal i                 : integer range 0 to 1000009;
+signal ac_slot_id        : std_logic_vector(3 downto 0);
+signal ttl_nrx1          : std_logic;
 
 component packet_ram
 	PORT
@@ -186,8 +189,8 @@ end component;
 
 begin
    -- hardcode slot_id and ttl_nrx1
---   ac_slot_id      <= "1111";
---   ttl_nrx1        <= '0';   
+   ac_slot_id      <= "1111";
+   ttl_nrx1        <= '0';   
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
    ttl_txena1 <= '1';
@@ -220,7 +223,7 @@ begin
          err_i                      => slave_err, 
      
          wdt_rst_o                  => wdog,
-         slot_i                     => slot_id
+         slot_i                     => ac_slot_id
       );
             
    leds_slave: leds
@@ -365,7 +368,7 @@ begin
     elsif clk'event and clk = '1' then  -- rising clock edge
       state_shift <= '0';
       i <= i + 1;
-      if i = 100 and packets_done = '0' then
+      if i = 1000000 and packets_done = '0' then
         state_shift <= '1';
         i <= 0;
       end if;
