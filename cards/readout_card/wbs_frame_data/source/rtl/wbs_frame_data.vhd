@@ -47,9 +47,15 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/12/07 19:37:46 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2004/12/09 12:58:34 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.15  2004/12/09 12:58:34  dca
+-- block now also acknowledges:
+-- read captr_raw
+-- read data_mode
+-- write ret_data
+--
 -- Revision 1.14  2004/12/07 19:37:46  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -735,7 +741,7 @@ begin
     wbs_data        <= filtered_dat   when dat_out_mux_sel = "00" else
                        unfiltered_dat when dat_out_mux_sel = "01" else
                        fb_error_dat   when dat_out_mux_sel = "10" else
-                       raw_dat        when dat_out_mux_sel = "11";
+                       raw_dat;
                  
                  
  
@@ -754,7 +760,7 @@ begin
                      filtered_dat_ch4_i when ch_mux_sel = "100" else
                      filtered_dat_ch5_i when ch_mux_sel = "101" else
                      filtered_dat_ch6_i when ch_mux_sel = "110" else
-                     filtered_dat_ch7_i when ch_mux_sel = "111";
+                     filtered_dat_ch7_i;
  
  
    unfiltered_dat <= fsfb_dat_ch0_i when ch_mux_sel = "000" else
@@ -764,7 +770,7 @@ begin
                      fsfb_dat_ch4_i when ch_mux_sel = "100" else
                      fsfb_dat_ch5_i when ch_mux_sel = "101" else
                      fsfb_dat_ch6_i when ch_mux_sel = "110" else
-                     fsfb_dat_ch7_i when ch_mux_sel = "111";
+                     fsfb_dat_ch7_i;
  
    
    fb_error_dat    <= fsfb_dat_ch0_i (31 downto 16) & coadded_dat_ch0_i(31 downto 16) when ch_mux_sel = "000" else
@@ -774,8 +780,7 @@ begin
                       fsfb_dat_ch4_i (31 downto 16) & coadded_dat_ch4_i(31 downto 16) when ch_mux_sel = "100" else
                       fsfb_dat_ch5_i (31 downto 16) & coadded_dat_ch5_i(31 downto 16) when ch_mux_sel = "101" else
                       fsfb_dat_ch6_i (31 downto 16) & coadded_dat_ch6_i(31 downto 16) when ch_mux_sel = "110" else
-                      fsfb_dat_ch7_i (31 downto 16) & coadded_dat_ch7_i(31 downto 16) when ch_mux_sel = "111";
-     
+                      fsfb_dat_ch7_i (31 downto 16) & coadded_dat_ch7_i(31 downto 16);
       
    raw_dat(31 downto 16) <= (others => '0');
    raw_dat(15 downto  0) <= raw_dat_ch0_i when raw_ch_mux_sel = "000" else
@@ -785,7 +790,7 @@ begin
                             raw_dat_ch4_i when raw_ch_mux_sel = "100" else
                             raw_dat_ch5_i when raw_ch_mux_sel = "101" else
                             raw_dat_ch6_i when raw_ch_mux_sel = "110" else
-                            raw_dat_ch7_i when raw_ch_mux_sel = "111" ; 
+                            raw_dat_ch7_i; 
        
   
 
