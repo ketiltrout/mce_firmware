@@ -1,24 +1,66 @@
---dip[1] is dip[1]
+--lvds_cmd is lvds_cmd
 --operation mode is input
 
-dip[1] = INPUT();
+lvds_cmd = INPUT();
 
 
---dip[0] is dip[0]
+--lvds_sync is lvds_sync
 --operation mode is input
 
-dip[0] = INPUT();
+lvds_sync = INPUT();
 
 
---led[1] is led[1]
+--lvds_spr is lvds_spr
+--operation mode is input
+
+lvds_spr = INPUT();
+
+
+--dip3 is dip3
+--operation mode is input
+
+dip3 = INPUT();
+
+
+--dip4 is dip4
+--operation mode is input
+
+dip4 = INPUT();
+
+
+--lvds_clk is lvds_clk
+--operation mode is input
+
+lvds_clk = INPUT();
+
+
+--nfault_led is nfault_led
 --operation mode is output
 
-led[1] = OUTPUT(dip[1]);
+nfault_led = OUTPUT(VCC);
 
 
---led[0] is led[0]
+--status_led is status_led
 --operation mode is output
 
-led[0] = OUTPUT(dip[0]);
+status_led = OUTPUT(dip3);
+
+
+--pow_ok_led is pow_ok_led
+--operation mode is output
+
+pow_ok_led = OUTPUT(dip4);
+
+
+--lvds_txa is lvds_txa
+--operation mode is output
+
+lvds_txa = OUTPUT(lvds_clk);
+
+
+--lvds_txb is lvds_txb
+--operation mode is output
+
+lvds_txb = OUTPUT(lvds_clk);
 
 

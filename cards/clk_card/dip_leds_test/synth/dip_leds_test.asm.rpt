@@ -1,5 +1,5 @@
 Assembler report for dip_leds_test compilation.
-Tue Mar 02 11:55:22 2004
+Tue Apr 13 12:44:57 2004
 Version 3.0 Build 199 06/26/2003 SJ Full Version
 
 Command: quartus_asm --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test
@@ -49,16 +49,16 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Tue Mar 02 11:55:22 2004 ;
+; Flow Status              ; Successful - Tue Apr 13 12:44:57 2004 ;
 ; Compiler Setting Name    ; dip_leds_test                         ;
 ; Top-level Entity Name    ; dip_leds_test                         ;
 ; Family                   ; Stratix                               ;
-; Device                   ; EP1S30F780C5                          ;
-; Total logic elements     ; 0 / 32,470 ( 0 % )                    ;
-; Total pins               ; 4 / 597 ( < 1 % )                     ;
-; Total memory bits        ; 0 / 3,317,184 ( 0 % )                 ;
-; DSP block 9-bit elements ; 0 / 96 ( 0 % )                        ;
-; Total PLLs               ; 0 / 10 ( 0 % )                        ;
+; Device                   ; EP1S10F780C5                          ;
+; Total logic elements     ; 0 / 10,570 ( 0 % )                    ;
+; Total pins               ; 11 / 426 ( 2 % )                      ;
+; Total memory bits        ; 0 / 920,448 ( 0 % )                   ;
+; DSP block 9-bit elements ; 0 / 48 ( 0 % )                        ;
+; Total PLLs               ; 0 / 6 ( 0 % )                         ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                         ;
 --------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 03/02/2004 11:54:02 ;
+; Start date & time     ; 04/13/2004 12:44:13 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; dip_leds_test       ;
 -----------------------------------------------
@@ -80,20 +80,20 @@ party's intellectual property, are provided herein.
 ; Module Name          ; Elapsed Time ;
 ---------------------------------------
 ; Analysis & Synthesis ; 00:00:02     ;
-; Fitter               ; 00:01:05     ;
-; Assembler            ; 00:00:08     ;
-; Total                ; 00:01:15     ;
+; Fitter               ; 00:00:36     ;
+; Assembler            ; 00:00:03     ;
+; Total                ; 00:00:41     ;
 ---------------------------------------
 
 
 -----------------------------------------------------------------
 ; Assembler Summary                                             ;
 -----------------------------------------------------------------
-; Assembler Status      ; Successful - Tue Mar 02 11:55:22 2004 ;
+; Assembler Status      ; Successful - Tue Apr 13 12:44:57 2004 ;
 ; Compiler Setting Name ; dip_leds_test                         ;
 ; Top-level Entity Name ; dip_leds_test                         ;
 ; Family                ; Stratix                               ;
-; Device                ; EP1S30F780C5                          ;
+; Device                ; EP1S10F780C5                          ;
 -----------------------------------------------------------------
 
 
@@ -148,9 +148,9 @@ party's intellectual property, are provided herein.
 ---------------------------------
 ; Option         ; Setting      ;
 ---------------------------------
-; Device         ; EP1S30F780C5 ;
+; Device         ; EP1S10F780C5 ;
 ; JTAG usercode  ; 0xFFFFFFFF   ;
-; Checksum       ; 0x00344659   ;
+; Checksum       ; 0x0012806A   ;
 ---------------------------------
 
 
@@ -159,9 +159,9 @@ party's intellectual property, are provided herein.
 --------------------------------
 ; Option         ; Setting     ;
 --------------------------------
-; Device         ; EPC8        ;
+; Device         ; EPC4        ;
 ; JTAG usercode  ; 0xFFFFFFFF  ;
-; Checksum       ; 0x0AA96832  ;
+; Checksum       ; 0x0633F45F  ;
 --------------------------------
 
 
@@ -171,11 +171,11 @@ party's intellectual property, are provided herein.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
   Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Tue Mar 02 11:55:13 2004
+  Info: Processing started: Tue Apr 13 12:44:54 2004
 Info: Command: quartus_asm --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-  Info: Processing ended: Tue Mar 02 11:55:22 2004
-  Info: Elapsed time: 00:00:08
+  Info: Processing ended: Tue Apr 13 12:44:57 2004
+  Info: Elapsed time: 00:00:02
 Info: Writing report file dip_leds_test.asm.rpt
 
 

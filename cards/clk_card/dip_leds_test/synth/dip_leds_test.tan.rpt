@@ -1,5 +1,5 @@
 Timing Analyzer report for dip_leds_test compilation.
-Tue Mar 02 11:55:24 2004
+Tue Apr 13 12:44:58 2004
 Version 3.0 Build 199 06/26/2003 SJ Full Version
 
 Command: quartus_tan --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test --timing_analysis_only
@@ -48,16 +48,16 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Tue Mar 02 11:55:22 2004 ;
+; Flow Status              ; Successful - Tue Apr 13 12:44:57 2004 ;
 ; Compiler Setting Name    ; dip_leds_test                         ;
 ; Top-level Entity Name    ; dip_leds_test                         ;
 ; Family                   ; Stratix                               ;
-; Device                   ; EP1S30F780C5                          ;
-; Total logic elements     ; 0 / 32,470 ( 0 % )                    ;
-; Total pins               ; 4 / 597 ( < 1 % )                     ;
-; Total memory bits        ; 0 / 3,317,184 ( 0 % )                 ;
-; DSP block 9-bit elements ; 0 / 96 ( 0 % )                        ;
-; Total PLLs               ; 0 / 10 ( 0 % )                        ;
+; Device                   ; EP1S10F780C5                          ;
+; Total logic elements     ; 0 / 10,570 ( 0 % )                    ;
+; Total pins               ; 11 / 426 ( 2 % )                      ;
+; Total memory bits        ; 0 / 920,448 ( 0 % )                   ;
+; DSP block 9-bit elements ; 0 / 48 ( 0 % )                        ;
+; Total PLLs               ; 0 / 6 ( 0 % )                         ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                         ;
 --------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 03/02/2004 11:54:02 ;
+; Start date & time     ; 04/13/2004 12:44:13 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; dip_leds_test       ;
 -----------------------------------------------
@@ -79,10 +79,10 @@ party's intellectual property, are provided herein.
 ; Module Name          ; Elapsed Time ;
 ---------------------------------------
 ; Analysis & Synthesis ; 00:00:02     ;
-; Fitter               ; 00:01:05     ;
-; Assembler            ; 00:00:08     ;
+; Fitter               ; 00:00:36     ;
+; Assembler            ; 00:00:03     ;
 ; Timing Analyzer      ; 00:00:00     ;
-; Total                ; 00:01:15     ;
+; Total                ; 00:00:41     ;
 ---------------------------------------
 
 
@@ -105,7 +105,7 @@ party's intellectual property, are provided herein.
 ; dip_leds_test.psf ;             ;                  ; Number of destination nodes to report                            ; 10                 ;
 ; dip_leds_test.psf ;             ;                  ; Number of source nodes to report per destination node            ; 10                 ;
 ; dip_leds_test.psf ;             ;                  ; Maximum Strongly Connected Component loop size                   ; 50                 ;
-;                   ;             ;                  ; Device name                                                      ; EP1S30F780C5       ;
+;                   ;             ;                  ; Device name                                                      ; EP1S10F780C5       ;
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -114,8 +114,8 @@ party's intellectual property, are provided herein.
 -------------------------------------------------------------------------------------------------
 ; Type                   ; Slack ; Required Time ; Actual Time ; Source Name ; Destination Name ;
 -------------------------------------------------------------------------------------------------
-; Worst-case tpd         ; N/A   ; None          ; 7.862 ns    ; dip[0]      ; led[0]           ;
-; Worst-case minimum tpd ; N/A   ; None          ; 7.756 ns    ; dip[1]      ; led[1]           ;
+; Worst-case tpd         ; N/A   ; None          ; 6.363 ns    ; dip3        ; status_led       ;
+; Worst-case minimum tpd ; N/A   ; None          ; 4.727 ns    ; lvds_clk    ; lvds_txa         ;
 -------------------------------------------------------------------------------------------------
 
 
@@ -124,8 +124,10 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------------------
 ; Slack ; Required P2P Time ; Actual P2P Time ; Source Name ; Destination Name ;
 --------------------------------------------------------------------------------
-; N/A   ; None              ; 7.862 ns        ; dip[0]      ; led[0]           ;
-; N/A   ; None              ; 7.756 ns        ; dip[1]      ; led[1]           ;
+; N/A   ; None              ; 6.363 ns        ; dip3        ; status_led       ;
+; N/A   ; None              ; 6.296 ns        ; dip4        ; pow_ok_led       ;
+; N/A   ; None              ; 4.727 ns        ; lvds_clk    ; lvds_txb         ;
+; N/A   ; None              ; 4.727 ns        ; lvds_clk    ; lvds_txa         ;
 --------------------------------------------------------------------------------
 
 
@@ -134,8 +136,10 @@ party's intellectual property, are provided herein.
 ----------------------------------------------------------------------------------------
 ; Minimum Slack ; Required P2P Time ; Actual P2P Time ; Source Name ; Destination Name ;
 ----------------------------------------------------------------------------------------
-; N/A           ; None              ; 7.756 ns        ; dip[1]      ; led[1]           ;
-; N/A           ; None              ; 7.862 ns        ; dip[0]      ; led[0]           ;
+; N/A           ; None              ; 4.727 ns        ; lvds_clk    ; lvds_txa         ;
+; N/A           ; None              ; 4.727 ns        ; lvds_clk    ; lvds_txb         ;
+; N/A           ; None              ; 6.296 ns        ; dip4        ; pow_ok_led       ;
+; N/A           ; None              ; 6.363 ns        ; dip3        ; status_led       ;
 ----------------------------------------------------------------------------------------
 
 
@@ -145,20 +149,20 @@ party's intellectual property, are provided herein.
 Info: *******************************************************************
 Info: Running Quartus II Timing Analyzer
   Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Tue Mar 02 11:55:24 2004
+  Info: Processing started: Tue Apr 13 12:44:58 2004
 Info: Command: quartus_tan --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test --timing_analysis_only
-Info: Longest tpd from source pin dip[0] to destination pin led[0] is 7.862 ns
-  Info: 1: + IC(0.000 ns) + CELL(0.927 ns) = 0.927 ns; Loc. = Pin_A8; PIN Node = 'dip[0]'
-  Info: 2: + IC(4.316 ns) + CELL(2.619 ns) = 7.862 ns; Loc. = Pin_AC23; PIN Node = 'led[0]'
-  Info: Total cell delay = 3.546 ns
-  Info: Total interconnect delay = 4.316 ns
-Info: Shortest tpd from source pin dip[1] to destination pin led[1] is 7.756 ns
-  Info: 1: + IC(0.000 ns) + CELL(0.927 ns) = 0.927 ns; Loc. = Pin_A9; PIN Node = 'dip[1]'
-  Info: 2: + IC(4.210 ns) + CELL(2.619 ns) = 7.756 ns; Loc. = Pin_AC24; PIN Node = 'led[1]'
-  Info: Total cell delay = 3.546 ns
-  Info: Total interconnect delay = 4.210 ns
+Info: Longest tpd from source pin dip3 to destination pin status_led is 6.363 ns
+  Info: 1: + IC(0.000 ns) + CELL(1.038 ns) = 1.038 ns; Loc. = Pin_M2; PIN Node = 'dip3'
+  Info: 2: + IC(2.951 ns) + CELL(2.374 ns) = 6.363 ns; Loc. = Pin_T24; PIN Node = 'status_led'
+  Info: Total cell delay = 3.412 ns
+  Info: Total interconnect delay = 2.951 ns
+Info: Shortest tpd from source pin lvds_clk to destination pin lvds_txa is 4.727 ns
+  Info: 1: + IC(0.000 ns) + CELL(1.038 ns) = 1.038 ns; Loc. = Pin_AA27; PIN Node = 'lvds_clk'
+  Info: 2: + IC(1.315 ns) + CELL(2.374 ns) = 4.727 ns; Loc. = Pin_V19; PIN Node = 'lvds_txa'
+  Info: Total cell delay = 3.412 ns
+  Info: Total interconnect delay = 1.315 ns
 Info: Quartus II Timing Analyzer was successful. 0 errors, 0 warnings
-  Info: Processing ended: Tue Mar 02 11:55:24 2004
+  Info: Processing ended: Tue Apr 13 12:44:58 2004
   Info: Elapsed time: 00:00:00
 Info: Writing report file dip_leds_test.tan.rpt
 
