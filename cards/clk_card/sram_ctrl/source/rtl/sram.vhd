@@ -20,7 +20,7 @@
 
 -- sram.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram.vhd,v 1.4 2004/03/11 03:54:56 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram.vhd,v 1.1 2004/03/17 03:05:56 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- VHDL model of asynch. SRAM chip
 --
 -- Revision history:
--- <date $Date: 2004/03/11 03:54:56 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/03/17 03:05:56 $>	-		<text>		- <initials $Author: erniel $>
 
 --
 -----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ begin
                when "000"  => sram_mem(0) <= data_in;
                when "001"  => sram_mem(1) <= data_in;
                when "010"  => sram_mem(2) <= data_in;
-               when "011"  => sram_mem(3) <= data_in;
+               when "011"  => sram_mem(3) <= (data_in(15 downto 5) & '1' & data_in(3 downto 0));
                when "100"  => sram_mem(4) <= data_in;
                when "101"  => sram_mem(5) <= data_in;
                when "110"  => sram_mem(6) <= data_in;
