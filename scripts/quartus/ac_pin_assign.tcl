@@ -31,7 +31,10 @@
 #
 # Revision history:
 #
-# $Log$
+# $Log: ac_pin_assign.tcl,v $
+# Revision 1.8  2004/05/14 19:25:36  erniel
+# initial version
+#
 #
 #
 ############################################################################
@@ -88,7 +91,7 @@ puts "   Assigned: ID pins."
 
 
 # assign LVDS pins
-cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_AA27"
+# for LVDS clk, see PLL section
 cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_V23"
 cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_AA28"
 cmp add_assignment $top_name "" lvds_spare LOCATION "Pin_V24"
@@ -108,6 +111,30 @@ cmp add_assignment $top_name "" "ttl_txena\[1\]" LOCATION "Pin_Y25"
 cmp add_assignment $top_name "" "ttl_txena\[2\]" LOCATION "Pin_U22"
 cmp add_assignment $top_name "" "ttl_txena\[3\]" LOCATION "Pin_Y27"
 puts "   Assigned: Spare TTL pins."
+
+
+# assign PLL pins
+# PLL5 in     = LVDSClk
+# PLL5 out[0] = outclk (for observing PLL)
+# PLL5 out[1] = N/C
+# PLL5 out[2] = N/C
+# PLL5 out[3] = N/C
+# PLL6 in     = N/C
+# PLL6 out[0] = N/C
+# PLL6 out[1] = N/C
+# PLL6 out[2] = N/C
+# PLL6 out[3] = N/C
+cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_K17"
+cmp add_assignment $top_name "" outclk LOCATION "Pin_E15"
+cmp add_assignment $top_name "" "pll5_out\[1\]" LOCATION "Pin_K14"
+cmp add_assignment $top_name "" "pll5_out\[2\]" LOCATION "Pin_C15"
+cmp add_assignment $top_name "" "pll5_out\[3\]" LOCATION "Pin_K16"
+cmp add_assignment $top_name "" "pll6_in" LOCATION "Pin_AC17"
+cmp add_assignment $top_name "" "pll6_out\[0\]" LOCATION "Pin_AD15"
+cmp add_assignment $top_name "" "pll6_out\[1\]" LOCATION "Pin_W14"
+cmp add_assignment $top_name "" "pll6_out\[2\]" LOCATION "Pin_AF15"
+cmp add_assignment $top_name "" "pll6_out\[3\]" LOCATION "Pin_W16"
+puts "   Assigned: PLL pins."
 
 
 # assign power supply interface
