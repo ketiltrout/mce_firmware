@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.11  2005/01/26 01:28:13  mandana
+-- removed mem_clk_i from ac_dac_ctrl, frame_timing still uses mem_clk_i
+--
 -- Revision 1.10  2005/01/19 23:39:06  bburger
 -- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
 --
@@ -80,6 +83,7 @@ use sys_param.data_types_pack.all;
 library work;
 use work.dispatch_pack.all;
 use work.leds_pack.all;
+use work.fw_rev_pack.all;
 use work.frame_timing_pack.all;
 use work.ac_dac_ctrl_pack.all;
 
@@ -149,6 +153,12 @@ end addr_card;
 
 architecture top of addr_card is
 
+-- The REVISION format is RRrrBBBB where 
+--               RR is the major revision number
+--               rr is the minor revision number
+--               BBBB is the build number
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010001";
+
 -- clocks
 signal clk      : std_logic;
 signal mem_clk  : std_logic;
@@ -174,6 +184,8 @@ signal ac_dac_ack        : std_logic;
 signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack  : std_logic;
 signal slave_err         : std_logic;
+signal fw_rev_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal fw_rev_ack           : std_logic;
 
 -- frame_timing interface
 signal restart_frame_aligned : std_logic; 
@@ -246,6 +258,22 @@ begin
          fault                      => red_led
       );
             
+   fw_rev_slave: fw_rev
+      generic map( REVISION => AC_REVISION)
+      port map(
+         clk_i                      => clk,
+         rst_i                      => rst,
+
+         dat_i                      => data,
+         addr_i                     => addr,
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
+         dat_o                      => fw_rev_data,
+         ack_o                      => fw_rev_ack
+    );
+            
    ac_dac_ctrl_slave: ac_dac_ctrl
       port map(
          dac_data_o                 => dac_data,
@@ -311,6 +339,7 @@ begin
    
    with addr select
       slave_data <= 
+         fw_rev_data       when FW_REV_ADDR,     
          led_data          when LED_ADDR,
          ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
@@ -318,6 +347,7 @@ begin
 
    with addr select
       slave_ack <= 
+         fw_rev_ack       when FW_REV_ADDR,         
          led_ack          when LED_ADDR,
          ac_dac_ack       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
@@ -325,7 +355,7 @@ begin
          
    with addr select
       slave_err <= 
-         '0'              when LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when FW_REV_ADDR | LED_ADDR | ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
          
    
