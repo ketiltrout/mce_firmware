@@ -152,16 +152,45 @@ add wave -noupdate -format Literal /tb_issue_reply/dut/i_cmd_translator/simple_c
 add wave -noupdate -format Literal /tb_issue_reply/dut/i_cmd_translator/simple_cmd_data
 add wave -noupdate -format Logic /tb_issue_reply/dut/i_cmd_translator/simple_cmd_data_clk
 add wave -noupdate -format Logic /tb_issue_reply/dut/i_cmd_translator/simple_cmd_macro_instr_rdy
-add wave -noupdate -format Literal /tb_issue_reply/dut/i_cmd_translator/arbiter_ack
 add wave -noupdate -format Logic /tb_issue_reply/dut/i_cmd_translator/macro_instr_rdy
+add wave -noupdate -divider reply_translator
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/cmd_rcvd_er_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/cmd_rcvd_ok_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/cmd_code_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/card_id_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/param_id_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/m_op_done_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/m_op_error_code_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/m_op_cmd_code_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/fibre_word_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/num_fibre_words_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/fibre_word_req_o
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/fibre_word_rdy_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/m_op_ack_o
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/cmd_stop_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/last_frame_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/frame_seq_num_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/tx_ff_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_reply_translator/tx_fw_o
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_reply_translator/txd_o
+add wave -noupdate -divider fibre_tx
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_fibre_tx/txd_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_fibre_tx/tx_fw_i
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_fibre_tx/tx_ff_o
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_fibre_tx/fibre_clkw_i
+add wave -noupdate -format Literal -radix hexadecimal /tb_issue_reply/dut/i_fibre_tx/tx_data_o
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_fibre_tx/tsc_ntd_o
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_fibre_tx/nfena_o
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_fibre_tx/tx_fr
+add wave -noupdate -format Logic /tb_issue_reply/dut/i_fibre_tx/tx_fe
 add wave -noupdate -divider cmd_queue
 add wave -noupdate -divider Generate
 add wave -noupdate -divider Insert
 add wave -noupdate -divider Send
 add wave -noupdate -divider Retire
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {20516 ns} 0}
-WaveRestoreZoom {20432 ns} {20672 ns}
+WaveRestoreCursors {{Cursor 1} {20590 ns} 0}
+WaveRestoreZoom {20380 ns} {21304 ns}
 configure wave -namecolwidth 325
 configure wave -valuecolwidth 102
 configure wave -justifyvalue left
