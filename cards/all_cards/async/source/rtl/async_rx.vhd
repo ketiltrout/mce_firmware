@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_rx.vhd,v $
+-- Revision 1.4  2004/06/11 21:21:23  erniel
+-- renamed clock signal to rx_clk_i
+--
 -- Revision 1.3  2004/06/11 18:30:46  erniel
 -- changed interface to non-wishbone
 -- reworked code body (made it RTL description)
@@ -35,6 +38,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library components;
+use components.component_pack.all;
 
 ---------------------------------------------------------------------
 
@@ -56,49 +62,63 @@ architecture behaviour of async_rx is
    type states is (IDLE, RECEIVE, DONE);
    signal pres_state : states;
    signal next_state : states;
-     
-   signal sample : std_logic_vector(2 downto 0);
+   
+   signal sample_buf_ena : std_logic;
+   signal sample_buf_clr : std_logic;  
+   signal sample_buf     : std_logic_vector(2 downto 0);
+   
    signal rxbit  : std_logic; 
-   signal data   : std_logic_vector(9 downto 0);
-   signal count  : integer;   
+   
+   signal data_buf_ena : std_logic;
+   signal data_buf_clr : std_logic;
+   signal data_buf     : std_logic_vector(9 downto 0);
+   
+   signal count_clr : std_logic;
+   signal count     : integer;   
    
 begin
 
-   rx_samplebuf: process(rst_i, rx_clk_i)
-   begin
-      if(rst_i = '1') then
-         sample <= (others => '0');
-      elsif(rx_clk_i'event and rx_clk_i = '1') then
-         sample <= rx_i & sample(2 downto 1);
-      end if;
-   end process rx_samplebuf;
+   rx_sample_buf: shift_reg
+   generic map(WIDTH => 3)
+   port map(clk_i      => rx_clk_i,
+            rst_i      => rst_i,
+            ena_i      => sample_buf_ena,
+            load_i     => '0',
+            clr_i      => sample_buf_clr,
+            shr_i      => '1',
+            serial_i   => rx_i,
+            serial_o   => '0',
+            parallel_i => (others => '0'),
+            parallel_o => sample_buf);
+
+   rxbit <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
    
-   rxbit <= (sample(2) and sample(1)) or (sample(2) and sample(0)) or (sample(1) and sample(0));
+   rx_data_buf: shift_reg
+   generic map(WIDTH => 10)
+   port map(clk_i      => rx_clk_i,
+            rst_i      => rst_i,
+            ena_i      => data_buf_ena,
+            load_i     => '0',
+            clr_i      => data_buf_clr,
+            shr_i      => '1',
+            serial_i   => rxbit,
+            serial_o   => '0',
+            parallel_i => (others => '0'),
+            parallel_o => data_buf);
+            
+   data_buf_ena <= '1' when ((count =  3) or (count = 11) or (count = 19) or (count = 27) or (count = 35) or
+                             (count = 43) or (count = 51) or (count = 59) or (count = 67) or (count = 75))
+                       else '0';
    
-   rx_databuf: process(rst_i, rx_clk_i)
-   begin
-      if(rst_i = '1') then
-         data <= (others => '0');
-      elsif(rx_clk_i'event and rx_clk_i = '1') then
-         if((count =  3) or (count = 11) or (count = 19) or (count = 27) or (count = 35) or
-            (count = 43) or (count = 51) or (count = 59) or (count = 67) or (count = 75)) then
-            data <= rxbit & data(9 downto 1);
-         end if;
-      end if;
-   end process rx_databuf;
-   
-   rx_counter: process(rst_i, rx_clk_i)
-   begin
-      if(rst_i = '1') then
-         count <= 0;
-      elsif(rx_clk_i'event and rx_clk_i = '1') then
-         if(pres_state = IDLE) then
-            count <= 0;
-         else
-            count <= count + 1;
-         end if;
-      end if;
-   end process rx_counter;
+   rx_counter: counter
+   generic map(MAX => 80,
+               WRAP_AROUND => '0')
+   port map(clk_i   => rx_clk_i,
+            rst_i   => rst_i,
+            ena_i   => '1',
+            load_i  => count_clr,
+            count_i => 0,
+            count_o => count);
    
    stateFF: process(rst_i, rx_clk_i)
    begin
@@ -109,7 +129,7 @@ begin
       end if;
    end process stateFF;
    
-   state_logic: process(pres_state, rx_i, stb_i, count, data)
+   stateNS: process(pres_state, rx_i, stb_i, count)
    begin
       case pres_state is
          when IDLE =>    if(rx_i = '0') then
@@ -117,27 +137,43 @@ begin
                          else
                             next_state <= IDLE;
                          end if;
-                         valid_o <= '0';
-                         error_o <= '0';
                          
          when RECEIVE => if(count = 80) then
                             next_state <= DONE;
                          else 
                             next_state <= RECEIVE;
                          end if;
-                         valid_o <= '0';
-                         error_o <= '0';
                                                   
          when DONE =>    if(stb_i = '1') then
                             next_state <= IDLE;
                          else
                             next_state <= DONE;
                          end if;
-                         valid_o <= '1';
-                         error_o <= not data(9);      -- error_o indicates framing error                         
       end case;
-   end process state_logic;
+   end process stateNS;
    
-   dat_o <= data(8 downto 1);
+   stateOut: process(pres_state, data_buf)
+   begin
+      sample_buf_ena <= '0';
+      sample_buf_clr <= '0';
+      data_buf_clr   <= '0';
+      count_clr      <= '0';
+      valid_o        <= '0';
+      error_o        <= '0';               -- error_o indicates framing error 
+      dat_o          <= (others => '0');
+      
+      case pres_state is
+         when IDLE =>    sample_buf_ena <= '1';
+                         sample_buf_clr <= '1';
+                         data_buf_clr   <= '1';
+                         count_clr      <= '1';
+                         
+         when RECEIVE => sample_buf_ena <= '1';
+                                                  
+         when DONE =>    valid_o <= '1';
+                         error_o <= not data_buf(9);                        
+                         dat_o <= data_buf(8 downto 1);
+      end case;
+   end process stateOut;
    
 end behaviour;
