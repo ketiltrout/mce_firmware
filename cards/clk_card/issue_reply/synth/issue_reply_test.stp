@@ -204,9 +204,11 @@
           <net name="issue_reply:i_issue_reply|macro_op_ack_o"/>
         </data_view>
       </presentation>
-      <trigger global_temp="1" is_expanded="true" name="trigger: 2004/09/22 10:00:03  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+      <trigger CRC="D202E3E2" global_temp="1" is_expanded="true" name="trigger: 2004/09/22 10:00:03  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
         <events>
           <level enabled="yes" type="basic">fibre_rx_data[0] == high &amp;&amp; fibre_rx_data[1] == low &amp;&amp; fibre_rx_data[2] == high &amp;&amp; fibre_rx_data[3] == low &amp;&amp; fibre_rx_data[4] == low &amp;&amp; fibre_rx_data[5] == high &amp;&amp; fibre_rx_data[6] == low &amp;&amp; fibre_rx_data[7] == high &amp;&amp; fibre_rx_rdy == low &amp;&amp; fibre_rx_sc_nd == low
+            
+            
             
             <op_node>
               <op_node expanded="1" left="358" top="95" type="Advanced Trigger Level Result">
@@ -218,13 +220,19 @@
           </level>
           <level enabled="yes" type="basic">fibre_rx_data[0] == low &amp;&amp; fibre_rx_data[1] == high &amp;&amp; fibre_rx_data[2] == low &amp;&amp; fibre_rx_data[3] == high &amp;&amp; fibre_rx_data[4] == high &amp;&amp; fibre_rx_data[5] == low &amp;&amp; fibre_rx_data[6] == high &amp;&amp; fibre_rx_data[7] == low &amp;&amp; fibre_rx_rdy == low &amp;&amp; fibre_rx_sc_nd == low
             
+            
+            
             <op_node/>
           </level>
           <level enabled="yes" type="basic">issue_reply:i_issue_reply|macro_instr_rdy_o == high
             
+            
+            
             <op_node/>
           </level>
           <level enabled="yes" type="basic">issue_reply:i_issue_reply|macro_op_ack_o == high
+            
+            
             
             <op_node/>
           </level>
@@ -241,6 +249,6 @@
     <single attribute="active instance" value="0"/>
     <single attribute="sof manager hidden" value="1"/>
     <multi attribute="column width" size="18" value="34,34,436,74,68,70,88,112,101,101,101,101,101,101,101,101,107,78"/>
-    <multi attribute="window position" size="7" value="1148,779,374,127,347,50,125"/>
+    <multi attribute="window position" size="7" value="1321,779,374,127,347,50,125"/>
   </global_info>
 </session>
