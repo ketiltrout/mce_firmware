@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: all_test_reset.vhd,v $
+-- Revision 1.4  2004/07/02 21:43:38  erniel
+-- added setup state to FSM
+--
 -- Revision 1.3  2004/06/29 22:14:06  erniel
 -- uses new rs232 interface
 -- reworked state machine
@@ -66,7 +69,7 @@ architecture behaviour of all_test_reset is
    type astring is array (natural range <>) of std_logic_vector(7 downto 0);
    signal message : astring (0 to 16);
       
-   signal count : integer range 0 to 17;
+   signal count : integer range 0 to 16;
    
    type states is (RESET, TX_CHAR, TX_WAIT, TX_SETUP, DONE);
    signal pres_state : states;
@@ -115,7 +118,7 @@ begin
          when TX_CHAR =>  next_state <= TX_WAIT;
          when TX_WAIT =>  if(tx_done_i = '0') then
                              next_state <= TX_WAIT;
-                          elsif(tx_done_i = '1' and count = 17) then
+                          elsif(tx_done_i = '1' and count = 16) then
                              next_state <= DONE;
                           else
                              next_state <= TX_SETUP;
