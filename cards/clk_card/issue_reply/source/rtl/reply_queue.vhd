@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.8 2004/11/30 05:12:30 erniel Exp $
+-- $Id: reply_queue.vhd,v 1.9 2004/11/30 22:58:47 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.9  2004/11/30 22:58:47  bburger
+-- Bryce:  reply_queue integration
+--
 -- Revision 1.8  2004/11/30 05:12:30  erniel
 -- fixed error code width in reply_queue_retire
 -- added reply_queue_sequencer subblock
@@ -76,19 +79,19 @@ entity reply_queue is
    port(
       -- cmd_queue interface
       cmd_to_retire_i   : in std_logic;                                           
-      cmd_retired_o     : out std_logic;                                          
+      cmd_sent_o        : out std_logic;                                          
       cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
       
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       error_code_o      : out std_logic_vector(29 downto 0);
-      matched_o         : out std_logic; -- reply ready for tx
       rdy_o             : out std_logic; -- word is valid
       ack_i             : in std_logic;
       
       -- reply_translator interface (from reply_queue_retire)
       cmd_sent_i        : in std_logic;
+      cmd_valid_o       : out std_logic; -- reply ready for tx
       cmd_code_o        : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
       param_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
       card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
@@ -121,9 +124,8 @@ architecture behav of reply_queue is
    -- Internal interface signals to/from reply_queue_retire and reply_queue_sequencer
    signal mop_num            : std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
    signal uop_num            : std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
-   signal cmd_rdy            : std_logic;
    signal card_addr          : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
-   signal cmd_code           : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+   signal cmd_code           : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
    
    -- cmd_queue signals for stop commands
    signal cq_size            : integer;
@@ -137,9 +139,9 @@ architecture behav of reply_queue is
    signal rq_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal rq_rdy             : std_logic; -- word is valid
    signal rq_ack             : std_logic;
-   signal rq_start           : std_logic;
-   signal rq_match           : std_logic;
    signal rq_err             : std_logic_vector(29 downto 0);
+   signal rq_match           : std_logic;
+   signal rq_start           : std_logic;
    
    -- reply queue receiver interfaces
    signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -212,21 +214,25 @@ begin
    size_o        <= cq_size when cmd_code =  STOP else rq_size;
    data_o        <= cq_data when cmd_code =  STOP else rq_data;
    rdy_o         <= cq_rdy  when cmd_code =  STOP else rq_rdy;   
-   matched_o     <= cmd_rdy when cmd_code =  STOP else rq_match;
    error_code_o  <= cq_err  when cmd_code =  STOP else rq_err;
    
    cq_ack        <= ack_i   when cmd_code =  STOP else '0';
-   rq_ack        <= ack_i   when cmd_code /= STOP else '0';
-   rq_start      <= cmd_rdy when cmd_code /= STOP else '0';
-   
+   rq_ack        <= ack_i   when cmd_code /= STOP else '0';   
    
    rqr : reply_queue_retire
       port map(
+         -- cmd_queue interface control
          cmd_to_retire_i   => cmd_to_retire_i,
-         cmd_sent_o        => cmd_retired_o,
+         cmd_sent_o        => cmd_sent_o,
+         
          cmd_i             => cmd_i,
          
-         cmd_sent_i        => cmd_sent_i,        
+         -- reply_translator interface control
+         cmd_sent_i        => cmd_sent_i,
+         cmd_valid_o       => cmd_valid_o,         
+         rdy_o             => cq_rdy,
+         ack_i             => cq_ack,      
+
          cmd_code_o        => cmd_code,   
          param_id_o        => param_id_o,   
          stop_bit_o        => stop_bit_o,       
@@ -234,17 +240,18 @@ begin
          frame_seq_num_o   => frame_seq_num_o,
          internal_cmd_o    => internal_cmd_o,
 
-         card_addr_o       => card_addr,    
-
          size_o            => cq_size,
          data_o            => cq_data,
-         rdy_o             => cq_rdy,
          error_code_o      => cq_err,
-         ack_i             => cq_ack,      
          
+         card_addr_o       => card_addr,
+         
+         -- reply_queue_sequencer interface control
+         matched_i         => rq_match,
+         cmd_rdy_o         => rq_start,
+
          mop_num_o         => mop_num,
          uop_num_o         => uop_num,
-         cmd_rdy_o         => cmd_rdy,
 
          clk_i             => clk_i,     
          comm_clk_i        => comm_clk_i,
@@ -331,7 +338,7 @@ begin
          micro_op_i   => uop_num,
          card_addr_i  => card_addr,
          match_o      => rq_match,
-         start_i      => rq_start
+         cmd_valid_i  => rq_start
      );
 
    rx_ac : reply_queue_receive

@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id$
+-- $Id: tb_clk_card.vhd,v 1.1 2004/11/30 23:07:53 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -27,7 +27,10 @@
 -- Description:
 --
 -- Revision history:
--- $Log$
+-- $Log: tb_clk_card.vhd,v $
+-- Revision 1.1  2004/11/30 23:07:53  bburger
+-- Bryce:  testing the Clock Card top-level
+--
 --
 -------------------------------------------------------
 
@@ -546,31 +549,6 @@ begin
       
       do_reset;    
       
-      -- Testing a go command to see if reply generated
-      -- by reply translator / fibre_tx
---      command <= command_go;
---      address_id <= on_bias_cmd;
---      data_valid <= X"00000001"; -- 1 data value
---      data       <= X"12345678"; -- dummy data
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 80 us;
-      
-      -- This is a ficticious Reset command to test whether the cmd_queue handles them properly
---      command <= command_rs;
---      address_id <= on_bias_cmd;
---      data_valid <= X"00000005"; -- 1 data value
---      data       <= X"12345678"; -- dummy data
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 200 us;
-
-      -- This is a 'WB cc sram1_start A B C' command
-      -- This command should not be parsed by the Address Card Wishbone Slave
       command <= command_wb;
       address_id <= use_dv_cmd;
       data_valid <= X"00000001";
@@ -581,18 +559,45 @@ begin
       
       wait for 160 us;
       
-      -- This is a 'WB cc sram1_start A B C' command
-      -- This command should not be parsed by the Address Card Wishbone Slave
---      command <= command_st;
---      address_id <= use_dv_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 160 us;
+      command <= command_rb;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 160 us;
+      
+      command <= command_go;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 160 us;
 
+      command <= command_st;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 160 us;
+      
+      command <= command_rs;
+      address_id <= use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 160 us;
 --------------------------------------------------------
 -- bc_dac_ctrl commands
 ------------------------------------------------------      

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.28 2004/11/25 11:04:30 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.29 2004/11/30 22:58:47 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/25 11:04:30 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/30 22:58:47 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.29  2004/11/30 22:58:47  bburger
+-- Bryce:  reply_queue integration
+--
 -- Revision 1.28  2004/11/25 11:04:30  dca
 -- internal_cmd_i added to reply_translator instantiation
 --
@@ -350,7 +353,7 @@ begin
 
         -- reply_queue interface
         uop_rdy_o       => uop_rdy,
-        uop_ack_i       => uop_rdy_stg5,--uop_ack,
+        uop_ack_i       => uop_ack,  --uop_rdy_stg5
         uop_o           => uop,
         
         -- cmd_translator interface
@@ -380,24 +383,24 @@ begin
         rst_i           => rst_i
      );
 
-   process(clk_i, rst_i)
-   begin
-      if rst_i = '1' then
-         uop_rdy_stg1 <= '0';
-         uop_rdy_stg2 <= '0';
-         uop_rdy_stg3 <= '0';
-         uop_rdy_stg4 <= '0';
-         uop_rdy_stg5 <= '0';
+--   process(clk_i, rst_i)
+--   begin
+--      if rst_i = '1' then
+--         uop_rdy_stg1 <= '0';
+--         uop_rdy_stg2 <= '0';
+--         uop_rdy_stg3 <= '0';
+--         uop_rdy_stg4 <= '0';
+--         uop_rdy_stg5 <= '0';
 --         cur_state <= IDLE;
-      elsif clk_i'event and clk_i='1' then
-         uop_rdy_stg1 <= uop_rdy;
-         uop_rdy_stg2 <= uop_rdy_stg1;
-         uop_rdy_stg3 <= uop_rdy_stg2;
-         uop_rdy_stg4 <= uop_rdy_stg3;
-         uop_rdy_stg5 <= uop_rdy_stg4;         
+--      elsif clk_i'event and clk_i='1' then
+--         uop_rdy_stg1 <= uop_rdy;
+--         uop_rdy_stg2 <= uop_rdy_stg1;
+--         uop_rdy_stg3 <= uop_rdy_stg2;
+--         uop_rdy_stg4 <= uop_rdy_stg3;
+--         uop_rdy_stg5 <= uop_rdy_stg4;         
 --         cur_state <= next_state;
-      end if;
-   end process; 
+--      end if;
+--   end process; 
    
 --   process(cur_state, uop_rdy)
 --   begin
@@ -433,14 +436,14 @@ begin
       port map(
          -- cmd_queue interface
          cmd_to_retire_i  => uop_rdy,
-         cmd_retired_o    => uop_ack,
+         cmd_sent_o       => uop_ack,
          cmd_i            => uop,
          
          -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
          size_o           => num_fibre_words,
          data_o           => fibre_word,
          error_code_o     => m_op_error_code,
-         matched_o        => m_op_rdy,
+         cmd_valid_o      => m_op_rdy,
          rdy_o            => fibre_word_rdy,
          ack_i            => fibre_word_ack,
          

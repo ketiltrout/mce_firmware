@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.2  2004/11/25 01:34:32  bburger
+-- Bryce:  changed signal dv_en interface from integer to std_logic
+--
 -- Revision 1.1  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
@@ -164,25 +167,25 @@ begin
       end if;
    end process;
 
-   sync_state_NS: process(current_state, dv_en_i, dv_i, new_frame_period)
+   sync_state_NS: process(current_state, new_frame_period)--, dv_i, dv_en_i
    begin
       case current_state is
---         when RESET =>
---            next_state <= SYNC_LOW;
          when SYNC_LOW =>
-            if(dv_en_i = '1') then
-               if(dv_i = '1') then
-                  next_state <= DV_RECEIVED;
-               else
-                  next_state <= SYNC_LOW;
-               end if;
-            else
+-- The functionality of being able to sync to the DV pulse is not implemented yet.
+-- Currently, sync pulses and sync numbers will be disabled if this setting is enabled
+--            if(dv_en_i = '1') then
+--               if(dv_i = '1') then
+--                  next_state <= DV_RECEIVED;
+--               else
+--                  next_state <= SYNC_LOW;
+--               end if;
+--            else
                if(new_frame_period = '1') then
                   next_state <= SYNC_HIGH;
                else
                   next_state <= SYNC_LOW;
                end if;
-            end if;
+--            end if;
          when SYNC_HIGH =>
             next_state <= SYNC_LOW;
          when DV_RECEIVED =>
@@ -199,8 +202,6 @@ begin
    sync_state_out: process(current_state)
    begin
       case current_state is
---         when RESET =>
---            sync_num_mux_sel <= '1';
          when SYNC_LOW =>
             sync_num_mux_sel <= '0';
          when SYNC_HIGH =>

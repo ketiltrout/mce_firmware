@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.66 2004/11/25 01:32:37 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.67 2004/11/30 22:58:47 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.67  2004/11/30 22:58:47  bburger
+-- Bryce:  reply_queue integration
+--
 -- Revision 1.66  2004/11/25 01:32:37  bburger
 -- Bryce:
 -- - Changed to cmd_code over the bus backplane to read/write only
@@ -165,7 +168,6 @@ type retire_states is (FIRST_IDLE, IDLE, NEXT_UOP, STATUS, RETIRE, HEADER_A, HEA
 signal present_retire_state : retire_states;
 signal next_retire_state    : retire_states;
 signal retired              : std_logic; --Out, to the u-op counter fsm
---signal uop_timed_out        : std_logic;
 signal uop_to_retire        : std_logic;
 signal retire_data_size_int : integer;
 signal retire_data_size_en  : std_logic;
@@ -196,12 +198,13 @@ signal freeze_send          : std_logic;  --In, freezes the send pointer when fl
 signal uop_send_expired     : std_logic;
 signal issue_sync           : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 signal timeout_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-signal uop_data_size        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-signal uop_data_size_int    : integer;
+signal send_data_size_int   : integer;
 signal uop_data_count       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal send_cmd_code_en     : std_logic;
 signal send_cmd_code        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 signal bb_cmd_code          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+signal send_data_size_en    : std_logic;
+signal send_data_size       : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
 -- Wishbone signals to/from lvds_tx
 signal cmd_tx_dat           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -282,8 +285,8 @@ signal send_ptr_mux_sel       : std_logic_vector(2 downto 0);
 signal uop_data_count_mux_sel : std_logic_vector(1 downto 0);
 signal uop_data_count_reg     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
-signal uop_data_size_mux_sel  : std_logic_vector(1 downto 0);
-signal uop_data_size_reg      : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+--signal uop_data_size_mux_sel  : std_logic_vector(1 downto 0);
+--signal uop_data_size_reg      : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal sh_reg_parallel_mux_sel: std_logic_vector(1 downto 0);
 
@@ -1091,7 +1094,7 @@ begin
 
    send_state_NS: process(present_send_state, send_ptr, free_ptr, uop_send_expired, 
                           issue_sync, timeout_sync, sync_count_slv, previous_send_state, 
-                          uop_data_size, uop_data_count, lvds_tx_busy, send_cmd_code)
+                          send_data_size, uop_data_count, lvds_tx_busy, send_cmd_code, send_data_size_int)
    begin
       next_send_state <= present_send_state;
       case present_send_state is
@@ -1166,19 +1169,19 @@ begin
 --               if(previous_send_state = HEADER_C) then
 --                  next_send_state <= HEADER_D;
                elsif(previous_send_state = HEADER_B) then
-                  if(uop_data_size = 0 or send_cmd_code = READ_BLOCK) then
+                  if(send_data_size_int = 0 or send_cmd_code = READ_BLOCK) then
                      next_send_state <= CHECKSUM;
                   else
                      next_send_state <= DATA;
                   end if;
                elsif(previous_send_state = DATA) then
-                  if(uop_data_count < uop_data_size) then
+                  if(uop_data_count < send_data_size) then
                      next_send_state <= MORE_DATA;
                   else
                      next_send_state <= CHECKSUM;
                   end if;
                elsif(previous_send_state = MORE_DATA) then
-                  if(uop_data_count < uop_data_size) then
+                  if(uop_data_count < send_data_size) then
                      next_send_state <= DATA;
                   else
                      next_send_state <= CHECKSUM;
@@ -1201,8 +1204,20 @@ begin
    end process;
 
    rdaddress_a_sig <= send_ptr;
-   uop_data_size_int <= conv_integer(uop_data_size);
+   send_data_size_int <= conv_integer(send_data_size);
    
+   send_data_size_reg : reg
+      generic map(
+         WIDTH      => QUEUE_ADDR_WIDTH
+      )
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => send_data_size_en,
+         reg_i      => qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END), 
+         reg_o      => send_data_size
+      );
+
    send_cmd_code_reg : reg
       generic map(
          WIDTH => BB_COMMAND_TYPE_WIDTH
@@ -1215,7 +1230,7 @@ begin
          reg_o      => send_cmd_code
       );
 
-   send_state_out: process(present_send_state, bit_ctr_count, previous_send_state, qa_sig)
+   send_state_out: process(present_send_state, bit_ctr_count, previous_send_state, send_cmd_code)
    begin
       -- defaults
       crc_num_bits_mux_sel     <= "00";  
@@ -1225,9 +1240,9 @@ begin
       lvds_tx_rdy              <= '0';
       send_ptr_mux_sel         <= "000"; 
       uop_data_count_mux_sel   <= "00";  
-      uop_data_size_mux_sel    <= "00";  
       cmd_tx_dat_mux_sel       <= "000"; 
       sh_reg_parallel_mux_sel  <= "00";  
+      send_data_size_en        <= '0';
       send_cmd_code_en         <= '0';
       update_prev_state        <= '0';
    
@@ -1241,28 +1256,27 @@ begin
             
             crc_num_bits_mux_sel     <= "11";
             uop_data_count_mux_sel   <= "11";  
-            uop_data_size_mux_sel    <= "11";  -- (others => '0')
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             update_prev_state        <= '1';
          
          when BUFFER_CMD_PARAM =>
             send_cmd_code_en         <= '1';
+            send_data_size_en        <= '1';
 
          when BRANCH =>
 
          when HEADER_A =>
             lvds_tx_rdy              <= '1';
             bit_ctr_ena              <= '1';
-            bit_ctr_load             <= '1';
+            bit_ctr_load             <= '1';            
             
-            if(qa_sig(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END) = READ_BLOCK) then
+            if(send_cmd_code = READ_BLOCK) then
                crc_num_bits_mux_sel     <= "10";
             else
                crc_num_bits_mux_sel     <= "01";
             end if;
             
             uop_data_count_mux_sel   <= "11";  -- (others => '0')
-            uop_data_size_mux_sel    <= "10";  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
             cmd_tx_dat_mux_sel       <= "001";  -- BB_PREAMBLE & qa_sig
             sh_reg_parallel_mux_sel  <= "01";  -- BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
             update_prev_state        <= '1';
@@ -1305,7 +1319,6 @@ begin
          when CHECKSUM =>
             lvds_tx_rdy              <= '1';
             crc_num_bits_mux_sel     <= "11";
-            uop_data_size_mux_sel    <= "11";  -- (others => '0')
             cmd_tx_dat_mux_sel       <= "011";  -- crc_reg
             update_prev_state        <= '1';
 
@@ -1323,7 +1336,6 @@ begin
          when NEXT_UOP =>
             crc_clr                  <= '1';
             crc_num_bits_mux_sel     <= "11";
-            uop_data_size_mux_sel    <= "11";  -- (others => '0')
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             update_prev_state        <= '1';
             send_ptr_mux_sel         <= "010"; -- skips entire u-op
@@ -1332,7 +1344,6 @@ begin
             crc_clr                  <= '1';
             crc_num_bits_mux_sel     <= "11";
             uop_data_count_mux_sel   <= "11";  -- (others => '0')
-            uop_data_size_mux_sel    <= "11";  -- (others => '0')
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             update_prev_state        <= '0';
 
@@ -1356,26 +1367,21 @@ begin
       BB_PREAMBLE & bb_cmd_code & qa_sig(COMMAND_TYPE_END-1 downto 0) when "01",
       qa_sig(QUEUE_WIDTH-1 downto 0)                                  when others; --"10",      
 
-   with uop_data_size_mux_sel select uop_data_size <=
-      uop_data_size_reg                               when "00",
-      qa_sig(COMMAND_TYPE_END-1 downto DATA_SIZE_END) when "10",  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
-      (others=>'0')                                   when others;
-
    with uop_data_count_mux_sel select uop_data_count <=
       uop_data_count_reg     when "00",
       uop_data_count_reg + 1 when "01",
       (others=>'0')          when others;
  
    with send_ptr_mux_sel select send_ptr <=
-      send_ptr_reg                                                                                           when "000",
-      send_ptr_reg + 1                                                                                       when "001",
-      send_ptr_reg + CQ_NUM_CMD_HEADER_WORDS + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "010",
-      send_ptr_reg + 1 + NUM_NON_BB_CMD_HEADER_WORDS                                                         when "011",
-      ADDR_ZERO                                                                                              when others;
+      send_ptr_reg                                            when "000",
+      send_ptr_reg + 1                                        when "001",
+      send_ptr_reg + CQ_NUM_CMD_HEADER_WORDS + send_data_size when "010",
+      send_ptr_reg + 1 + NUM_NON_BB_CMD_HEADER_WORDS          when "011",
+      ADDR_ZERO                                               when others;
 
    with crc_num_bits_mux_sel select crc_num_bits <=
       crc_num_bits_reg                                            when "00",
-      ((BB_NUM_CMD_HEADER_WORDS + uop_data_size_int)*QUEUE_WIDTH) when "01",
+      ((BB_NUM_CMD_HEADER_WORDS + send_data_size_int)*QUEUE_WIDTH) when "01",
       (BB_NUM_CMD_HEADER_WORDS*QUEUE_WIDTH)                       when "10",
       0                                                           when others;
       
@@ -1393,13 +1399,13 @@ begin
          cmd_tx_dat_reg    <= (others=>'0');
          send_ptr_reg      <= (others=>'0');
          uop_data_count_reg<= (others=>'0');
-         uop_data_size_reg <= (others=>'0');
+--         uop_data_size_reg <= (others=>'0');
       elsif clk_i'event and clk_i = '1' then
          crc_num_bits_reg  <= crc_num_bits;
          cmd_tx_dat_reg    <= cmd_tx_dat; 
          send_ptr_reg      <= send_ptr;
          uop_data_count_reg<= uop_data_count;
-         uop_data_size_reg <= uop_data_size;
+--         uop_data_size_reg <= uop_data_size;
       end if;
    end process;
 

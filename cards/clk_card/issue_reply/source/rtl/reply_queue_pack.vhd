@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.9 2004/11/30 22:58:47 bburger Exp $
+-- $Id: reply_queue_pack.vhd,v 1.10 2004/12/01 18:41:32 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.10  2004/12/01 18:41:32  erniel
+-- fixed error code width...again
+-- updated reply_queue_sequencer component
+--
 -- Revision 1.9  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -80,19 +84,19 @@ component reply_queue
    port(
       -- cmd_queue interface
       cmd_to_retire_i   : in std_logic;                                           
-      cmd_retired_o     : out std_logic;                                          
+      cmd_sent_o        : out std_logic;                                          
       cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
       
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       error_code_o      : out std_logic_vector(29 downto 0);
-      matched_o         : out std_logic; -- reply ready for tx
       rdy_o             : out std_logic; -- word is valid
       ack_i             : in std_logic;
       
       -- reply_translator interface (from reply_queue_retire)
       cmd_sent_i        : in std_logic;
+      cmd_valid_o       : out std_logic; -- reply ready for tx
       cmd_code_o        : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
       param_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
       card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
@@ -122,13 +126,21 @@ end component;
    
 component reply_queue_retire
    port(
-      -- cmd_queue interface
+      -- cmd_queue interface control
       cmd_to_retire_i   : in std_logic;                                           
-      cmd_sent_o     : out std_logic;                                          
+      cmd_sent_o        : out std_logic;
+      
+      -- cmd_queue interface data
       cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
       
-      -- reply_translator interface
+      -- reply_translator interface control
       cmd_sent_i        : in std_logic;
+      cmd_valid_o       : out std_logic; --
+
+      rdy_o             : out std_logic;
+      ack_i             : in std_logic;      
+      
+      -- reply_translator interface data
       cmd_code_o        : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
       param_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
       stop_bit_o        : out std_logic;                                          
@@ -136,20 +148,20 @@ component reply_queue_retire
       frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
       internal_cmd_o    : out std_logic;      
       
-      -- reply_translator and reply_queue_sequencer interface
-      card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
-
-      -- to MUX in reply_queue (for handling STOP commands)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       error_code_o      : out std_logic_vector(29 downto 0); 
-      rdy_o             : out std_logic;
-      ack_i             : in std_logic;      
+      
+      -- reply_translator and reply_queue_sequencer interface
+      card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      
+      -- reply_queue_sequencer interface control
+      matched_i         : in std_logic; --
+      cmd_rdy_o         : out std_logic;
      
-      -- reply_queue_sequencer interface
+      -- reply_queue_sequencer interface data
       mop_num_o         : out std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
       uop_num_o         : out std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
-      cmd_rdy_o         : out std_logic;
 
       -- Global signals
       clk_i             : in std_logic;
