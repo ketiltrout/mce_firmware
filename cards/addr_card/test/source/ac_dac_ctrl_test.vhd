@@ -94,8 +94,8 @@ architecture rtl of ac_dac_ctrl_test is
 type states is (IDLE, PUSH_DATA, CLKNOW, DONE); 
 signal present_state         : states;
 signal next_state            : states;
-type   array_of_5_word14 is array (5 downto 0) of word14; 
-signal data     : array_of_12_word5;
+type   array_of_6_word14 is array (5 downto 0) of word14; 
+signal data     : array_of_6_word14;
 signal idat     : integer;
 signal idac     : integer;
 signal ibus     : integer;
