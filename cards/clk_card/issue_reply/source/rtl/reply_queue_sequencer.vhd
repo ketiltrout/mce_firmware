@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.12  2005/03/03 19:47:49  mandana
+-- Had to comment out the rest of error_o line!
+--
 -- Revision 1.11  2005/03/03 19:37:45  mandana
 -- Ernie: Error encoding removed.
 --
@@ -298,55 +301,70 @@ begin
                                                                      rc2_data_i(RQ_SEQ_NUM'range) = seq_num and rc2_rdy_i = '1' and
                                                                      rc3_data_i(RQ_SEQ_NUM'range) = seq_num and rc3_rdy_i = '1' and
                                                                      rc4_data_i(RQ_SEQ_NUM'range) = seq_num and rc4_rdy_i = '1')) then
-                                   next_state <= MATCHED;
+                                   next_state <= CALC_DATA_SIZE;
                                 elsif(timeout = '1') then
                                    next_state <= TIMED_OUT;
                                 else
                                    next_state <= WAIT_FOR_REPLY;
                                 end if;
-         
-         when MATCHED =>        next_state <= CALC_DATA_SIZE;
                                     
          when CALC_DATA_SIZE => case card_addr_i is
-                                   when CLOCK_CARD =>        next_state <= READ_CC;
-                                   
-                                   when BIAS_CARD_1 =>       next_state <= READ_BC1;
-                                   
-                                   when BIAS_CARD_2 =>       next_state <= READ_BC2;
-                                   
-                                   when BIAS_CARD_3 =>       next_state <= READ_BC3;
-                                   
-                                   when ADDRESS_CARD =>      next_state <= READ_AC;
-                                   
-                                   when READOUT_CARD_1 =>    next_state <= READ_RC1;
-                                   
-                                   when READOUT_CARD_2 =>    next_state <= READ_RC2;
-                                   
-                                   when READOUT_CARD_3 =>    next_state <= READ_RC3;
-                                   
-                                   when READOUT_CARD_4 =>    next_state <= READ_RC4;
+                                   when CLOCK_CARD | 
+                                        BIAS_CARD_1 | 
+                                        BIAS_CARD_2 | 
+                                        BIAS_CARD_3 | 
+                                        ADDRESS_CARD | 
+                                        READOUT_CARD_1 | 
+                                        READOUT_CARD_2 | 
+                                        READOUT_CARD_3 | 
+                                        READOUT_CARD_4 =>    next_state <= MATCHED;
                                    
                                    when ALL_BIAS_CARDS =>    if(calc_count = 2) then
-                                                                next_state <= READ_BC1;
+                                                                next_state <= MATCHED;
                                                              else
                                                                 next_state <= CALC_DATA_SIZE;
                                                              end if;
                                                       
                                    when ALL_READOUT_CARDS => if(calc_count = 3) then
-                                                                next_state <= READ_RC1;
+                                                                next_state <= MATCHED;
                                                              else
                                                                 next_state <= CALC_DATA_SIZE;
                                                              end if;
                                    
                                    when ALL_FPGA_CARDS =>    if(calc_count = 8) then
-                                                                next_state <= READ_AC;
+                                                                next_state <= MATCHED;
                                                              else
                                                                 next_state <= CALC_DATA_SIZE;
                                                              end if;
                                                           
                                    when others => next_state <= IDLE;
                                 end case;
-                                
+
+         when MATCHED =>        case card_addr_i is
+                                   when CLOCK_CARD =>        next_state <= READ_CC;
+                                   
+                                   when BIAS_CARD_1 | 
+                                        ALL_BIAS_CARDS =>    next_state <= READ_BC1;
+                                   
+                                   when BIAS_CARD_2 =>       next_state <= READ_BC2;
+                                   
+                                   when BIAS_CARD_3 =>       next_state <= READ_BC3;
+                                   
+                                   when ADDRESS_CARD | 
+                                        ALL_FPGA_CARDS =>    next_state <= READ_AC;
+                                   
+                                   when READOUT_CARD_1 | 
+                                        ALL_READOUT_CARDS => next_state <= READ_RC1;
+                                   
+                                   when READOUT_CARD_2 =>    next_state <= READ_RC2;
+                                   
+                                   when READOUT_CARD_3 =>    next_state <= READ_RC3;
+                                   
+                                   when READOUT_CARD_4 =>    next_state <= READ_RC4;
+                                                             
+                                   when others => next_state <= IDLE;
+                                end case;
+                                         
          when READ_AC =>        if(ac_rdy_i = '0') then
                                    case card_addr_i is
                                       when ALL_FPGA_CARDS => next_state <= READ_BC1;
@@ -492,10 +510,10 @@ begin
       
          when WAIT_FOR_REPLY => timeout_clr    <= '0';
                                 case card_addr_i is
-                                   when ADDRESS_CARD =>      if(ac_data_i(RQ_SEQ_NUM'range) < seq_num and ac_rdy_i = '1') then
+                                   when CLOCK_CARD =>        if(cc_data_i(RQ_SEQ_NUM'range) < seq_num and cc_rdy_i = '1') then
                                                                 ac_discard_o <= '1';
                                                              end if;
-                                                                
+                                   
                                    when BIAS_CARD_1 =>       if(bc1_data_i(RQ_SEQ_NUM'range) < seq_num and bc1_rdy_i = '1') then
                                                                 bc1_discard_o <= '1';
                                                              end if;
@@ -506,6 +524,10 @@ begin
                                                               
                                    when BIAS_CARD_3 =>       if(bc3_data_i(RQ_SEQ_NUM'range) < seq_num and bc3_rdy_i = '1') then
                                                                 bc3_discard_o <= '1';
+                                                             end if;
+                                                             
+                                   when ADDRESS_CARD =>      if(ac_data_i(RQ_SEQ_NUM'range) < seq_num and ac_rdy_i = '1') then
+                                                                ac_discard_o <= '1';
                                                              end if;
                                                               
                                    when READOUT_CARD_1 =>    if(rc1_data_i(RQ_SEQ_NUM'range) < seq_num and rc1_rdy_i = '1') then
@@ -522,10 +544,6 @@ begin
                                                               
                                    when READOUT_CARD_4 =>    if(rc4_data_i(RQ_SEQ_NUM'range) < seq_num and rc4_rdy_i = '1') then
                                                                 rc4_discard_o <= '1';
-                                                             end if;
-                                                              
-                                   when CLOCK_CARD =>        if(cc_data_i(RQ_SEQ_NUM'range) < seq_num and cc_rdy_i = '1') then
-                                                                ac_discard_o <= '1';
                                                              end if;
                                                               
                                    when ALL_BIAS_CARDS =>    if(bc1_data_i(RQ_SEQ_NUM'range) < seq_num and bc1_rdy_i = '1') then
@@ -581,9 +599,7 @@ begin
                                                                
                                    when others =>            null;
                                 end case;
-         
-         when MATCHED =>        matched_o <= '1';
-         
+                  
          when CALC_DATA_SIZE => accum_ena      <= '1';
                                 calc_count_ena <= '1';
                                 
@@ -675,6 +691,8 @@ begin
                                                                 
                                    when others =>            null;
                                 end case;
+         
+         when MATCHED =>        matched_o <= '1';
          
          when READ_AC =>        data_o <= ac_data_i;
                                 rdy_o <= ac_rdy_i;
