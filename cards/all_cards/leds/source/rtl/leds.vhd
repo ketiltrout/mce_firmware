@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.6 2004/04/21 20:02:12 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.7 2004/10/09 09:00:32 erniel Exp $>
 --
 -- Project:      SCUBA2
 -- Author:		 Bryce Burger
@@ -31,9 +31,14 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: leds.vhd,v $
+-- Revision 1.7  2004/10/09 09:00:32  erniel
+-- removed slave_ctrl submodule
+-- removed generic map
+-- added new wishbone slave controller
 --
--- <date $Date: 2004/04/21 20:02:12 $>	-		<text>		- <initials $Author: bburger $>
+--
+-- <date $Date: 2004/10/09 09:00:32 $>	-		<text>		- <initials $Author: erniel $>
 --
 ------------------------------------------------------------------------
 
@@ -52,7 +57,7 @@ entity leds is
         rst_i   : in std_logic;		
         
         -- Wishbone signals
-        dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+        dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
         addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
         tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
