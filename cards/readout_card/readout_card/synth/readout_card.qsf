@@ -528,7 +528,6 @@ set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
 
 # Analysis & Synthesis Assignments
 # ================================
-set_global_assignment -name TOP_LEVEL_ENTITY readout_card
 set_global_assignment -name MUX_RESTRUCTURE OFF
 set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF SMART
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
@@ -538,6 +537,7 @@ set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
 set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP OFF
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME OFF
+set_global_assignment -name TOP_LEVEL_ENTITY readout_card
 set_global_assignment -name AUTO_ENABLE_SMART_COMPILE on
 
 # Fitter Assignments
@@ -550,7 +550,7 @@ set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
 set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
-set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 2ns
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 8ns
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD LVTTL
@@ -1129,6 +1129,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	# Pin & Location Assignments
 	# ==========================
 	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
+	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o*"
 
 	# Timing Assignments
 	# ==================
@@ -1158,11 +1159,16 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	set_instance_assignment -name INPUT_MAX_DELAY 11.7ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
 	set_instance_assignment -name INPUT_MIN_DELAY 3.7ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
 	set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7ns" -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Outputs"
+	set_instance_assignment -name CLOCK_SETTINGS clk0 -to "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0"
+	set_instance_assignment -name CLOCK_SETTINGS mem_clk -to "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk1"
+	set_instance_assignment -name CLOCK_SETTINGS comm_clk -to "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk2"
+	set_instance_assignment -name CLOCK_SETTINGS spi_clk -to "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk3"
 
 	# Analysis & Synthesis Assignments
 	# ================================
 	set_instance_assignment -name MAX_FANOUT 100 -to *
 	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
+	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o*"
 
 # end ENTITY(readout_card)
 # ------------------------
