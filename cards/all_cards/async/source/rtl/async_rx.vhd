@@ -21,6 +21,9 @@
 -- 
 -- Revision History:
 -- Dec 22, 2003: Initial version - NRG
+--
+-- $Log$
+--
 ---------------------------------------------------------------------
 
 library ieee;
@@ -129,7 +132,7 @@ begin
 
    -- the wishbone interface
    -- synchronize the ack to our receive clock
-   ack_sync : process (rst_i, clk_i, stb_i, cyc_i)
+   ack_sync : process (rst_i, clk_i)
    begin
       if (rst_i = '1') then
          ack_o <= '0';
