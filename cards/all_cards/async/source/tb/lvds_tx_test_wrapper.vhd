@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.4  2004/05/29 20:53:02  erniel
+-- added timer expired state changes
+--
 -- Revision 1.3  2004/05/29 00:45:42  erniel
 -- modified square wave logic
 -- modified counter enable logic
@@ -72,8 +75,8 @@ architecture behaviour of lvds_tx_test_wrapper is
    
    -- internal signals
    signal enabled : std_logic;
-   signal rnd_clk : std_logic;
-   
+   signal timer : std_logic_vector(28 downto 0);
+      
    signal random_ena : std_logic;
    signal random_dat : std_logic_vector(7 downto 0);
    
@@ -84,8 +87,6 @@ architecture behaviour of lvds_tx_test_wrapper is
    type states is (IDLE, RANDOM, COUNT, SQUARE);
    signal present_state : states;
    signal next_state    : states;
-   
-   signal timer : std_logic_vector(27 downto 0);
 
 begin
 
@@ -128,9 +129,6 @@ begin
       end if;
    end process counter;
    
---   -- the random counter should only tick if we are enabled
---   rnd_clk <= lvds_ack and lvds_stb and enabled;
-   
 --   -- test controls the state of the test
 --   test : process (rst_i, en_i)
 --   begin
@@ -141,15 +139,26 @@ begin
 --      end if;
 --   end process test;
    
-   -- done_flag controls the done output
-   done_flag : process (rst_i, clk_i)
+   process(rst_i, en_i)
    begin
-      if (rst_i = '1') then
-         done_o <= '0';
-      elsif Rising_Edge(clk_i) then
-         done_o <= en_i;
+      if(rst_i = '1') then
+         enabled <= '0';
+      elsif(en_i'event and en_i = '1') then
+         enabled <= not enabled;
       end if;
-   end process done_flag;
+   end process;
+   
+--   -- done_flag controls the done output
+--   done_flag : process (rst_i, clk_i)
+--   begin
+--      if (rst_i = '1') then
+--         done_o <= '0';
+--      elsif Rising_Edge(clk_i) then
+--         done_o <= en_i;
+--      end if;
+--   end process done_flag;
+   
+   done_o <= en_i;
    
 --   -- lvds_strobe controls the lvds strobe lines
 --   lvds_strobe : process (rst_i, clk_i)
@@ -173,10 +182,10 @@ begin
    
    state_FF: process(rst_i, clk_i)
    begin
-      if(rst_i = '1') then
+      if(rst_i = '1' or enabled = '0') then
          present_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
-         if(timer = "1111111111111111111111111111") then
+         if(timer = "11111111111111111111111111111") then
             present_state <= next_state;
          end if;
       end if;
@@ -192,13 +201,6 @@ begin
          when others => next_state <= IDLE;
       end case;
    end process state_NS;
-   
-   -- state outputs:
-   -- counter enable
-   -- random enable
-   -- transmit data
-   -- transmit stb
-   -- transmit we
    
    with present_state select
       dat <= count_dat when COUNT,
