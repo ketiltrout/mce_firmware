@@ -27,6 +27,9 @@
 -- CVS Logs:
 --
 -- $Log: cc_test.vhd,v $
+-- Revision 1.5  2004/03/27 03:24:59  erniel
+-- Added Card ID and Slot ID modules
+--
 -- Revision 1.4  2004/03/27 01:01:34  erniel
 -- Added SRAM verification module
 --
@@ -80,6 +83,9 @@ entity cc_test is
       -- slot id interface
       slot_id : in std_logic_vector (3 downto 0);
       
+      -- array id interface
+      array_id : in std_logic_vector (2 downto 0);
+      
       -- card id interface
       card_id : inout std_logic
       
@@ -88,7 +94,7 @@ end cc_test;
 
 architecture behaviour of cc_test is
    
-   constant MAX_STATES : integer := 13;
+   constant MAX_STATES : integer := 14;
    signal zero : std_logic;
    signal one : std_logic;
    signal reset : std_logic;
@@ -132,6 +138,7 @@ architecture behaviour of cc_test is
    constant INDEX_SRAM_1        : integer := 10;
    constant INDEX_SLOT_ID       : integer := 11;
    constant INDEX_CARD_ID       : integer := 12;
+   constant INDEX_ARRAY_ID      : integer := 13;
    
    constant SEL_RESET          : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE           : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -146,6 +153,7 @@ architecture behaviour of cc_test is
    constant SEL_SRAM_1         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_1 => '1', others => '0');
    constant SEL_SLOT_ID        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
    constant SEL_CARD_ID        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
+   constant SEL_ARRAY_ID       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_ARRAY_ID => '1', others => '0');
    
    constant DONE_NULL          : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
@@ -161,6 +169,7 @@ architecture behaviour of cc_test is
    constant DONE_SRAM_1        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_1 => '1', others => '0');
    constant DONE_SLOT_ID       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
    constant DONE_CARD_ID       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
+   constant DONE_ARRAY_ID      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_ARRAY_ID => '1', others => '0');
 
 begin
    -- RS232 interface start
@@ -429,6 +438,24 @@ begin
       
                -- physical pins
                data_bi => card_id);
+               
+   arrayid : s_array_id
+      port map(
+         rst_i  => reset,
+         clk_i  => clk,
+         en_i   => sel_vec(INDEX_ARRAY_ID),
+         done_o => done_vec(INDEX_ARRAY_ID),
+        
+         -- RS232 signals
+         tx_busy_i => tx_busy,
+         tx_ack_i  => tx_ack,
+         tx_data_o => tx_rec_array(INDEX_ARRAY_ID).dat,
+         tx_we_o   => tx_rec_array(INDEX_ARRAY_ID).we,
+         tx_stb_o  => tx_rec_array(INDEX_ARRAY_ID).stb,
+        
+         -- physical pins
+         array_id_i => array_id
+      );
       
       
    zero <= '0';
@@ -500,6 +527,8 @@ begin
                   when CMD_ID =>
                      if(cmd2 = CMD_ID_SLOT) then
                         sel_vec <= SEL_SLOT_ID;
+                     elsif(cmd2 = CMD_ID_ARRAY) then
+                        sel_vec <= SEL_ARRAY_ID;
                      elsif(cmd2 = CMD_ID_SERIAL) then
                         sel_vec <= SEL_CARD_ID;
                      end if;

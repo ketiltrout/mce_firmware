@@ -32,6 +32,7 @@ use ieee.std_logic_arith.all;
 
 library work;
 use work.slot_id_pack.all;
+use work.array_id_pack.all;
 
 package s_pack is
 
@@ -316,6 +317,26 @@ package s_pack is
            -- extended signals
            data_bi   : inout std_logic);
    end component;
+
+   ------------------------------------------------------------------
+   -- array ID
+   component s_array_id
+      port(rst_i     : in std_logic;    -- reset input
+           clk_i     : in std_logic;    -- clock input
+           en_i      : in std_logic;    -- enable signal
+           done_o    : out std_logic;   -- done ouput signal
+      
+           -- transmitter signals
+           tx_busy_i : in std_logic;    -- transmit busy flag
+           tx_ack_i  : in std_logic;    -- transmit ack
+           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
+           tx_we_o   : out std_logic;   -- transmit write flag
+           tx_stb_o  : out std_logic;   -- transmit strobe flag
+      
+           -- extended signals
+           array_id_i : in std_logic_vector (ARRAY_ID_BITS-1 downto 0));
+   end component;
+   
       
 end s_pack;
 
