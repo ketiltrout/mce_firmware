@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/20 21:45:44 $> - <initials $Author: erniel $>
+-- <date $Date: 2004/07/29 00:29:01 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.7  2004/07/29 00:29:01  mandana
+-- added MUX_ON/MUX_OFF default values
+--
 -- Revision 1.6  2004/07/20 21:45:44  erniel
 -- changed ALL_FBGA_CARDS to ALL_FPGA_CARDS
 --
@@ -99,6 +102,9 @@ package wishbone_pack is
    ---------------------------------------------------------------------------------
    -- Wishbone Parameter IDs
    ---------------------------------------------------------------------------------
+   -- Null Address
+   constant NULL_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"00";
+   
    -- Address Card Specific
    constant ON_BIAS_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"02";
    constant OFF_BIAS_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"03";
