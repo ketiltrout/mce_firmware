@@ -33,8 +33,11 @@
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/21 16:51:45 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/21 20:01:23 $>	- <initials $Author: bburger $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.7  2004/04/21 20:01:23  bburger
+-- Changed address moniker
+--
 -- Revision 1.6  2004/04/21 16:51:45  mandana
 -- took send_dac_lvds out of the sensitivity list
 --
@@ -260,18 +263,18 @@ dac_ncs_o <= dac_ncs;
             rst_nxt_sync<= '0';            
             
             -- range checking for DAC settings
-            if (read_buf (15 downto 0) > MAX_DAC_BC) then
-               dac_data_p (idac) <= MAX_DAC_BC;
-            elsif (read_buf (15 downto 0) < MIN_DAC_BC) then
-               dac_data_p (idac) <= MIN_DAC_BC;
+            if (read_buf (15 downto 0) > MAX_FLUX_FB) then
+               dac_data_p (idac) <= MAX_FLUX_FB;
+            elsif (read_buf (15 downto 0) < MIN_FLUX_FB) then
+               dac_data_p (idac) <= MIN_FLUX_FB;
             else
                dac_data_p (idac) <= read_buf (15 downto 0);
             end if;   
                
-            if (read_buf (31 downto 16) > MAX_DAC_BC) then
-               dac_data_p (idac + 1) <= MAX_DAC_BC;
-            elsif (read_buf (31 downto 16) < MIN_DAC_BC) then
-               dac_data_p (idac + 1) <= MIN_DAC_BC;
+            if (read_buf (31 downto 16) > MAX_FLUX_FB) then
+               dac_data_p (idac + 1) <= MAX_FLUX_FB;
+            elsif (read_buf (31 downto 16) < MIN_FLUX_FB) then
+               dac_data_p (idac + 1) <= MIN_FLUX_FB;
             else
                dac_data_p (idac + 1) <= read_buf (31 downto 16);
             end if;   
@@ -296,7 +299,7 @@ dac_ncs_o <= dac_ncs;
          when WR_DAC_LVDS_CMD =>
             idac        <= 0;            
             write_buf   <= dat_i;
-            read_lsb_en <= '1';                                      -- Temporary
+            read_lsb_en <= '1';                                      
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
          
@@ -308,10 +311,10 @@ dac_ncs_o <= dac_ncs;
             rst_nxt_sync<= '0';            
             
             -- range checking for DAC settings
-            if (read_buf (15 downto 0) > MAX_DAC_BC) then
-               dac_data_p (32) <= MAX_DAC_BC;
-            elsif (read_buf (15 downto 0) < MIN_DAC_BC) then
-               dac_data_p (32) <= MIN_DAC_BC;
+            if (read_buf (15 downto 0) > MAX_BIAS) then
+               dac_data_p (32) <= MAX_BIAS;
+            elsif (read_buf (15 downto 0) < MIN_BIAS) then
+               dac_data_p (32) <= MIN_BIAS;
             else
                dac_data_p (32) <= read_buf (15 downto 0);
             end if;   
