@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: card_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,7 +33,7 @@
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
 -- Feb. 5 2004   - Top-level controller - EL
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------
@@ -89,8 +89,8 @@ constant SEND_PACKET2 : std_logic_vector(2 downto 0) := "110";
 constant DONE         : std_logic_vector(2 downto 0) := "111";
 
 -- controller state variables:
-signal present_state : std_logic_vector(2 downto 0) := "000";
-signal next_state    : std_logic_vector(2 downto 0) := "000";
+signal present_state : std_logic_vector(2 downto 0);
+signal next_state    : std_logic_vector(2 downto 0);
 
 -- 1-wire protocol FSM start/done signals:
 signal init_start        : std_logic;
@@ -116,9 +116,9 @@ signal serial_num_hold : std_logic_vector(63 downto 0);
 signal serial_num_ready : std_logic;
 signal crc_valid  : std_logic;
 
--- dummy signal
-signal no_connect : std_logic;
-signal no_connect_tga : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+-- signals tied to ground
+signal zero_bit : std_logic;
+signal zero_32bit_vector : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
 
 begin
 
@@ -127,6 +127,10 @@ begin
 -- Card_ID top-level controller
 --
 ------------------------------------------------------------------------
+ 
+   zero_32bit_vector <= (others => '0');
+   zero_bit <= '0';
+ 
    
    state_FF : process(clk_i, rst_i)
    begin
@@ -140,7 +144,8 @@ begin
    --controller_NS: process(clk_i, rst_i, addr_i, we_i, cyc_i, stb_i, init_done, write_cmd_done, read_serial_done, crc_check_done)
    
    -- changed by JJ for synthesizability, removed clk and rst from sensitivity list
-   controller_NS: process(present_state, slave_selected, init_done, write_cmd_done, read_serial_done, crc_check_done) 
+   controller_NS: process(present_state, slave_selected, init_done, write_cmd_done,
+                          read_serial_done, crc_check_done, serial_num_ready, cyc_i) 
    begin
       case present_state is
          when IDLE =>
@@ -243,7 +248,7 @@ begin
          when SEND_PACKET1 =>
             card_id_rd_ready  <= '1';          
             if(crc_valid = '1') then
-               card_id_dat_o  <= serial_num_hold(31 downto 0);
+               card_id_dat_o  <= serial_num_hold(63 downto 32); --send MSB packet first
                --card_id_dat_o  <= serial_num(31 downto 0);
             else
                card_id_dat_o  <= (others => '1');
@@ -252,7 +257,7 @@ begin
          when SEND_PACKET2 =>
             card_id_rd_ready  <= '1';            
             if(crc_valid = '1') then
-               card_id_dat_o  <= serial_num_hold(63 downto 32);
+               card_id_dat_o  <= serial_num_hold(31 downto 0); -- second LSB packet second
                --card_id_dat_o  <= serial_num(63 downto 32);
             else
                card_id_dat_o  <= (others => '1');
@@ -376,14 +381,15 @@ begin
    port map(slave_wr_ready       => card_id_wr_ready,
             slave_rd_data_valid  => card_id_rd_ready,
             slave_retry          => slave_retry,
-            master_wr_data_valid => no_connect,
+            master_wr_data_valid => zero_bit,
             slave_ctrl_dat_i     => card_id_dat_o,
             slave_ctrl_dat_o     => card_id_dat_i,
+            slave_ctrl_tga_o     => zero_32bit_vector,
             
             clk_i  => clk_i,
             rst_i  => rst_i, 
             addr_i => addr_i,
-            tga_i  => no_connect_tga, --add a signal
+            tga_i  => zero_32bit_vector, --add a signal
             dat_i 	=> dat_i,
             dat_o  => dat_o,
             we_i   => we_i,
