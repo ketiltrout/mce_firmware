@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_ram40_pack.vhd,v 1.11 2004/10/08 19:45:26 bburger Exp $
+-- $Id: cmd_queue_ram40_pack.vhd,v 1.12 2004/10/26 23:59:16 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_ram40_pack.vhd,v $
+-- Revision 1.12  2004/10/26 23:59:16  bburger
+-- Bryce:  working out the bugs from the cmd_queue<->reply_queue interface
+--
 -- Revision 1.11  2004/10/08 19:45:26  bburger
 -- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
 --
@@ -83,7 +86,7 @@ package cmd_queue_ram40_pack is
    subtype ram_line is std_logic_vector(QUEUE_WIDTH-1 downto 0);
    type ram40 is array (0 to 255) of ram_line;
 
-   component cmd_queue_ram40 is
+   component cmd_queue_tpram is
       PORT
       (
          data        : IN STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
@@ -97,18 +100,18 @@ package cmd_queue_ram40_pack is
       );
    END component;
 
-   component cmd_queue_ram40_test is
-      PORT
-      (
-         data        : IN STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
-         wraddress   : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
-         rdaddress_a : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
-         rdaddress_b : IN STD_LOGIC_VECTOR (QUEUE_ADDR_WIDTH-1 DOWNTO 0);
-         wren        : IN STD_LOGIC;
-         clock       : IN STD_LOGIC;
-         qa          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
-         qb          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0)
-      );
-   END component;
+--   component cmd_queue_ram40 is
+--      PORT
+--      (
+--         data        : IN STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
+--         wraddress   : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+--         rdaddress_a : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+--         rdaddress_b : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+--         wren        : IN STD_LOGIC;
+--         clock       : IN STD_LOGIC;
+--         qa          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0);
+--         qb          : OUT STD_LOGIC_VECTOR (QUEUE_WIDTH-1 DOWNTO 0)
+--      );
+--   END component;
 
 end cmd_queue_ram40_pack;

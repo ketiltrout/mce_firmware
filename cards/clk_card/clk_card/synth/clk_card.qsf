@@ -78,9 +78,8 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl
 set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen.vhd
 set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_core.vhd
 set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_wbs.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_tpram.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_ram40.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_ram40_test.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_arbiter.vhd
 set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_m_op_table.vhd
