@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.24 2004/11/22 11:23:47 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.25 2004/11/24 01:15:52 bench2 Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/22 11:23:47 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/24 01:15:52 $> -     <text>      - <initials $Author: bench2 $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.25  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 -- Revision 1.24  2004/11/22 11:23:47  dca
 -- reply_translator: m_op_done_i changed to m_op_rdy_i
 --
@@ -153,8 +156,6 @@ port(
       -- global signals
       rst_i        : in     std_logic;
       clk_i        : in     std_logic;
-     
-      
       
       -- inputs from the fibre receiver 
       fibre_clkr_i : in     std_logic;
@@ -163,9 +164,7 @@ port(
       rvs_i        : in     std_logic;
       rso_i        : in     std_logic;
       rsc_nRd_i    : in     std_logic;        
-
       cksum_err_o  : out    std_logic;
-    
 
       -- interface to fibre transmitter
       tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
@@ -175,44 +174,12 @@ port(
       -- 25MHz clock for fibre_tx_control
       fibre_clkw_i : in     std_logic;                          -- in phase with 25MHz hotlink clock
 
-
-
-
---
---
---
---
---
---
---
---
---
---
---
---
---
---
---
---
---
---
       -- this signals are temporarily here for testing, in order to route these signals to top level
       -- to be viewed on the logic analyzer
-      
---      card_addr_o       :  out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
       parameter_id_o    :  out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
---      data_size_o       :  out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
       data_o            :  out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);        -- data will be passed straight thru
       data_clk_o        :  out std_logic;
       macro_instr_rdy_o :  out std_logic;
---      
---      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
---      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
---      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
---      
---      -- input from the micro-op sequence generator
---      ack_i             : in std_logic     
-      
       macro_op_ack_o  : out std_logic;
 
       -- lvds_tx interface
@@ -221,9 +188,6 @@ port(
 
       sync_pulse_i: in    std_logic;
       sync_number_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
-      
-
-
    ); 
      
 end issue_reply;

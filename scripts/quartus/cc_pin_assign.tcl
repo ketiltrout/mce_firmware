@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.10  2004/11/24 01:15:52  bench2
+# Greg: Broke apart issue reply and created pack files for all of its sub-components
+#
 # Revision 1.9  2004/10/20 18:53:46  erniel
 # updated pins for revision AA
 #
@@ -87,9 +90,12 @@ puts "\nInfo: Assigning pins:"
 # assign device parameters
 cmp add_assignment $top_name "" "" DEVICE EP1S30F780C5
 cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET ON
+cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET OFF
 puts "   Assigned: EP1S30 device parameters."
 
+# assign rst_n
+cmp add_assignment $top_name "" rst_n LOCATION "Pin_AC9"
+puts "   Assigned: RST_N pin."
 
 # assign leds
 cmp add_assignment $top_name "" grn_led LOCATION "Pin_AC23"
@@ -132,22 +138,22 @@ puts "   Assigned: ID pins."
 cmp add_assignment $top_name "" lvds_cmd LOCATION "Pin_G24"
 cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_F24"
 cmp add_assignment $top_name "" lvds_spare LOCATION "Pin_G23"
-cmp add_assignment $top_name "" lvds_rx0a LOCATION "Pin_W26"
-cmp add_assignment $top_name "" lvds_rx0b LOCATION "Pin_Y26"
-cmp add_assignment $top_name "" lvds_rx1a LOCATION "Pin_U26"
-cmp add_assignment $top_name "" lvds_rx1b LOCATION "Pin_V26"
-cmp add_assignment $top_name "" lvds_rx2a LOCATION "Pin_W28"
-cmp add_assignment $top_name "" lvds_rx2b LOCATION "Pin_Y28"
-cmp add_assignment $top_name "" lvds_rx3a LOCATION "Pin_T28"
-cmp add_assignment $top_name "" lvds_rx3b LOCATION "Pin_V27"
-cmp add_assignment $top_name "" lvds_rx4a LOCATION "Pin_AB28"
-cmp add_assignment $top_name "" lvds_rx4b LOCATION "Pin_AA28"
-cmp add_assignment $top_name "" lvds_rx5a LOCATION "Pin_AE28"
-cmp add_assignment $top_name "" lvds_rx5b LOCATION "Pin_AC28"
-cmp add_assignment $top_name "" lvds_rx6a LOCATION "Pin_AB26"
-cmp add_assignment $top_name "" lvds_rx6b LOCATION "Pin_AA25"
-cmp add_assignment $top_name "" lvds_rx7a LOCATION "Pin_AF28"
-cmp add_assignment $top_name "" lvds_rx7b LOCATION "Pin_AD28"
+cmp add_assignment $top_name "" lvds_reply_ac_a  LOCATION "Pin_W26"
+cmp add_assignment $top_name "" lvds_reply_ac_b  LOCATION "Pin_Y26"
+cmp add_assignment $top_name "" lvds_reply_bc1_a LOCATION "Pin_U26"
+cmp add_assignment $top_name "" lvds_reply_bc1_b LOCATION "Pin_V26"
+cmp add_assignment $top_name "" lvds_reply_bc2_a LOCATION "Pin_W28"
+cmp add_assignment $top_name "" lvds_reply_bc2_b LOCATION "Pin_Y28"
+cmp add_assignment $top_name "" lvds_reply_bc3_a LOCATION "Pin_T28"
+cmp add_assignment $top_name "" lvds_reply_bc3_b LOCATION "Pin_V27"
+cmp add_assignment $top_name "" lvds_reply_rc1_a LOCATION "Pin_AB28"
+cmp add_assignment $top_name "" lvds_reply_rc1_b LOCATION "Pin_AA28"
+cmp add_assignment $top_name "" lvds_reply_rc2_a LOCATION "Pin_AE28"
+cmp add_assignment $top_name "" lvds_reply_rc2_b LOCATION "Pin_AC28"
+cmp add_assignment $top_name "" lvds_reply_rc3_a LOCATION "Pin_AB26"
+cmp add_assignment $top_name "" lvds_reply_rc3_b LOCATION "Pin_AA25"
+cmp add_assignment $top_name "" lvds_reply_rc4_a LOCATION "Pin_AF28"
+cmp add_assignment $top_name "" lvds_reply_rc4_b LOCATION "Pin_AD28"
 puts "   Assigned: LVDS pins."
 
 

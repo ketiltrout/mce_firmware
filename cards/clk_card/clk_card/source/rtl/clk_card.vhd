@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: clk_card.vhd,v 1.1 2004/11/24 01:15:52 bench2 Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -28,7 +28,10 @@
 -- Clock card top-level file
 --
 -- Revision history:
--- $Log$
+-- $Log: clk_card.vhd,v $
+-- Revision 1.1  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 -----------------------------------------------------------------------------
 
 library ieee;
@@ -50,43 +53,43 @@ entity clk_card is
 port(
      -- PLL input:
      inclk      : in std_logic;
-     rst        : in std_logic;
+     rst_n      : in std_logic;
      
      -- LVDS interface:
      lvds_cmd   : in std_logic;
      lvds_sync  : in std_logic;
      lvds_spare : in std_logic;
-     lvds_txa   : out std_logic;
-     lvds_txb   : out std_logic;
+     lvds_reply_ac_a  : in std_logic;  
+     lvds_reply_ac_b  : in std_logic;
+     lvds_reply_bc1_a  : in std_logic;
+     lvds_reply_bc1_b  : in std_logic;
+     lvds_reply_bc2_a  : in std_logic;
+     lvds_reply_bc2_b  : in std_logic;
+     lvds_reply_bc3_a  : in std_logic;
+     lvds_reply_bc3_b  : in std_logic;
+     lvds_reply_rc1_a  : in std_logic;
+     lvds_reply_rc1_b  : in std_logic;
+     lvds_reply_rc2_a  : in std_logic;
+     lvds_reply_rc2_b  : in std_logic;
+     lvds_reply_rc3_a  : in std_logic; 
+     lvds_reply_rc3_b  : in std_logic;  
+     lvds_reply_rc4_a  : in std_logic; 
+     lvds_reply_rc4_b  : in std_logic;
      
      -- DV interface:
      dv_pulse_fibre  : in std_logic;
      dv_pulse_bnc    : in std_logic;
      
      -- TTL interface:
-     ttl_nrx    : in std_logic_vector(3 downto 1);
-     ttl_tx     : out std_logic_vector(3 downto 1);
-     ttl_txena  : out std_logic_vector(3 downto 1);
+--     ttl_nrx    : in std_logic_vector(3 downto 1);
+--     ttl_tx     : out std_logic_vector(3 downto 1);
+--     ttl_txena  : out std_logic_vector(3 downto 1);
      
      -- eeprom interface:
      eeprom_si  : in std_logic;
      eeprom_so  : out std_logic;
      eeprom_sck : out std_logic;
      eeprom_cs  : out std_logic;
-     
-     -- dac interface:
-     dac_data0  : out std_logic_vector(13 downto 0);
-     dac_data1  : out std_logic_vector(13 downto 0);
-     dac_data2  : out std_logic_vector(13 downto 0);
-     dac_data3  : out std_logic_vector(13 downto 0);
-     dac_data4  : out std_logic_vector(13 downto 0);
-     dac_data5  : out std_logic_vector(13 downto 0);
-     dac_data6  : out std_logic_vector(13 downto 0);
-     dac_data7  : out std_logic_vector(13 downto 0);
-     dac_data8  : out std_logic_vector(13 downto 0);
-     dac_data9  : out std_logic_vector(13 downto 0);
-     dac_data10 : out std_logic_vector(13 downto 0);
-     dac_clk    : out std_logic_vector(40 downto 0);
      
      -- miscellaneous ports:
      red_led    : out std_logic;
@@ -98,16 +101,36 @@ port(
      slot_id    : in std_logic_vector(3 downto 0);
      
      -- debug ports:
-     test       : inout std_logic_vector(16 downto 3);
-     mictor     : out std_logic_vector(32 downto 1);
-     mictorclk  : out std_logic_vector(2 downto 1);
-     rs232_rx   : in std_logic;
-     rs232_tx   : out std_logic);
+     mictor_o    : out std_logic_vector(15 downto 1);
+     mictorclk_o : out std_logic;
+     mictor_e    : out std_logic_vector(15 downto 1);
+     mictorclk_e : out std_logic;
+     rs232_rx    : in std_logic;
+     rs232_tx    : out std_logic;
+     
+     -- interface to HOTLINK fibre receiver
+     
+     fibre_rx_data      : in std_logic_vector (7 downto 0);  
+     fibre_rx_rdy       : in std_logic;                      
+     fibre_rx_rvs       : in std_logic;                      
+     fibre_rx_status    : in std_logic;                      
+     fibre_rx_sc_nd     : in std_logic;                      
+     fibre_rx_ckr       : in std_logic;                      
+     
+     -- interface to hotlink fibre transmitter
+     
+     fibre_tx_data      : out std_logic_vector (7 downto 0);
+     fibre_tx_ena       : out std_logic;  
+     fibre_tx_sc_nd     : out std_logic
+     );
      
 end clk_card;
 
 
 architecture top of clk_card is
+
+-- reset
+signal rst           : std_logic;
 
 -- clocks
 signal clk           : std_logic;
@@ -159,24 +182,36 @@ signal nFena_o           : std_logic;                          -- hotlink tx ena
 signal fibre_clkw_i      : std_logic;                          -- in phase with 25MHz hotlink clock
 
 -- lvds_tx interface
-signal tx_o              : std_logic;  -- transmitter output pin
-signal clk_200mhz_i      : std_logic;  -- PLL locked 25MHz input clock for the
-signal sync_pulse_i      : std_logic;
-signal sync_number_i     : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
+signal sync_pulse        : std_logic;
+signal sync_number       : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
+signal lvds_reply_cc     : std_logic;
+
+-- this signals are temporarily here for testing, in order to route these signals to top level
+-- to be viewed on the logic analyzer
+signal parameter_id_o    : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
+signal data_o            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);             -- data will be passed straight thru
+signal data_clk_o        : std_logic;
+signal macro_instr_rdy_o : std_logic;
+signal macro_op_ack_o    : std_logic;
+
+--[JJ] For testing
+signal debug             : std_logic_vector(31 downto 0);
 
 component pll
 port(
      inclk0 : in std_logic;
-     e2 : out std_logic ;
-     c0 : out std_logic ;
-     c1 : out std_logic ;
-     c2 : out std_logic ;
-     e0 : out std_logic ;
-     e1 : out std_logic 
+     e2     : out std_logic ;
+     c0     : out std_logic ;
+     c1     : out std_logic ;
+     c2     : out std_logic ;
+     e0     : out std_logic ;
+     e1     : out std_logic 
      );
 end component;
 
 begin
+
+   rst <= NOT rst_n;
 
    with addr select
       slave_data <= 
@@ -206,7 +241,7 @@ begin
    generic map(CARD => CLOCK_CARD)
    port map(
             lvds_cmd_i   => lvds_cmd,
-            lvds_reply_o => lvds_txa,
+            lvds_reply_o => lvds_reply_cc,
             
     --  Global signals
             clk_i      => clk,
@@ -310,33 +345,34 @@ begin
    issue_reply0: issue_reply
    port map(
    
-   -- global signals
-            rst_i          => rst,        
-            clk_i          => clk,         
-     
-   -- inputs from the fibre receiver 
-            fibre_clkr_i   => fibre_clkr_i,  
-            rx_data_i      => rx_data_i,
-            nRx_rdy_i      => nRx_rdy_i,
-            rvs_i          => rvs_i,
-            rso_i          => rso_i,
-            rsc_nRd_i      => rsc_nRd_i,
-
-            cksum_err_o    => cksum_err_o,
+               --[JJ] For testing
+               debug_o    => debug,
+   
+               -- global signals
+               rst_i             => rst,
+               clk_i             => clk,
+         
+               -- inputs from the fibre receiver 
+               fibre_clkr_i   => fibre_rx_ckr,  
+               rx_data_i      => fibre_rx_data,
+               nRx_rdy_i      => fibre_rx_rdy,
+               rvs_i          => fibre_rx_rvs,
+               rso_i          => fibre_rx_status,
+               rsc_nRd_i      => fibre_rx_sc_nd,
+               cksum_err_o    => cksum_err_o,
     
-   -- interface to fibre transmitter
-            tx_data_o      => tx_data_o,    -- byte of data to be transmitted
-            tsc_nTd_o      => tsc_nTd_o,    -- hotlink tx special char/ data sel
-            nFena_o        => nFena_o,      -- hotlink tx enable
+               -- interface to fibre transmitter
+               tx_data_o      => fibre_tx_data,     -- byte of data to be transmitted
+               tsc_nTd_o      => fibre_tx_sc_nd,    -- hotlink tx special char/ data sel
+               nFena_o        => fibre_tx_ena,      -- hotlink tx enable
 
-   -- 25MHz clock for fibre_tx_control
-            fibre_clkw_i   => fibre_clkw_i, -- in phase with 25MHz hotlink clock
-            
-   -- lvds_tx interface
-            tx_o           => tx_o,         -- transmitter output pin
-            clk_200mhz_i   => clk_200mhz_i, -- PLL locked 25MHz input clock for the
-            sync_pulse_i   => sync_pulse_i,
-            sync_number_i  => sync_number_i
-   ); 
-
+   
+               -- 25MHz clock for fibre_tx_control
+               fibre_clkw_i      => fibre_tx_clk,
+               clk_200mhz_i        => mem_clk,
+   
+               sync_pulse_i      => sync,
+               sync_number_i     => sync_num
+               );
+  
 end top;
