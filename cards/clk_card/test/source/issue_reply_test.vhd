@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.1 2004/07/08 19:12:23 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.2 2004/07/08 20:21:39 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Jonathan Jacob
@@ -34,9 +34,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/08 19:12:23 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/08 20:21:39 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.2  2004/07/08 20:21:39  jjacob
+-- modified test(38 downto 0) to test(38 downto 11)
+--
 -- Revision 1.1  2004/07/08 19:12:23  jjacob
 -- first version of issue_reply_test
 --
@@ -70,6 +73,11 @@ entity issue_reply_test is
 port(
       inclk              : in std_logic;
       fibre_rx_clk       : out std_logic;
+      
+      -- this is here because:
+      -- this one is here for CC001 because fibre_rx_clk is not connected to the pll,
+      -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
+      fibre_tx_clk       : out std_logic;
 
       -- inputs from the fibre
       fibre_rx_data      : in std_logic_vector (7 downto 0);  -- rx_data_i
@@ -165,7 +173,8 @@ component issue_reply_test_pll
 	(
 		inclk0  : IN STD_LOGIC  := '0';
 		c0		: OUT STD_LOGIC ;
-		e0		: OUT STD_LOGIC 
+		e0		: OUT STD_LOGIC ;
+		e1		: OUT STD_LOGIC 
 	);
 END component;
 
@@ -179,11 +188,11 @@ begin
 
    test(11)           <= cksum_err;
    test(15 downto 12) <= card_addr(3 downto 0);
-   test(24 downto 17) <= parameter_id(7 downto 0);
-   test(32 downto 25) <= data(7 downto 0);
-   test(33)           <= data_clk;
-   test(34)           <= macro_instr_rdy;
-   test(38 downto 35) <= data_size(3 downto 0);
+   test(23 downto 16) <= parameter_id(7 downto 0);
+   test(31 downto 24) <= data(7 downto 0);
+   test(32)           <= data_clk;
+   test(33)           <= macro_instr_rdy;
+   test(37 downto 34) <= data_size(3 downto 0);
 
    ground             <= '0';
    ground8            <= (others=>'0');
@@ -237,7 +246,9 @@ pll : issue_reply_test_pll
 	(
 		inclk0	=> inclk,
 		c0		=> pll_clk,
-		e0		=> fibre_rx_clk 
+		e0		=> fibre_rx_clk,
+		e1		=> fibre_tx_clk  -- this one is here for CC001 because fibre_rx is not connected to the pll,
+		                                 -- but fibre_tx_clk is, and it's shorted to fibre_rx_clk
 	);
 
 
