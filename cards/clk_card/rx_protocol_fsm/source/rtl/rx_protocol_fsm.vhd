@@ -506,9 +506,9 @@ BEGIN
          END IF;
       WHEN LD_BLK3 =>
          IF (rx_fe_i = '0') THEN
-            IF (write_pointer < block_size-1) THEN
+           IF (write_pointer < block_size) THEN
                next_state <= RQ_BLK0;
-            ELSIF (write_pointer = block_size-1) THEN
+            ELSE 
                next_state <= RQ_CKSM0;
             END IF;
          ELSE      
@@ -651,11 +651,11 @@ BEGIN
          WHEN LD_BLK1 =>
             cksum_in(15 downto 8) <= rxd_i(7 downto 0);
             data_in (15 downto 8) <= rxd_i(7 downto 0);
+            write_mem <= '1';
          WHEN LD_BLK2 =>
             cksum_in(23 downto 16) <= rxd_i(7 downto 0);
          WHEN LD_BLK3 =>
             cksum_in(31 downto 24) <= rxd_i(7 downto 0);
-            write_mem <= '1';
             check_update <= '1';           
 
             
