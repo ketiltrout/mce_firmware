@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.1  2004/10/28 19:49:30  mohsen
+-- created
+--
 --
 --
 ------------------------------------------------------------------------
@@ -40,8 +43,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
+
 library work;
+use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
+use work.fsfb_ctrl_pack.all;
+
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -51,7 +58,7 @@ package flux_loop_ctrl_pack is
 
   
   -----------------------------------------------------------------------------
-  -- Constants used in A/D sampler and coadder
+  -- Constants 
   -----------------------------------------------------------------------------
 
   
@@ -60,50 +67,37 @@ package flux_loop_ctrl_pack is
   -----------------------------------------------------------------------------
 
   component adc_sample_coadd
-      port (
-        -- ADC interface signals
-        adc_dat_i                 : in std_logic_vector (13 downto 0);
-        adc_ovr_i                 : in std_logic;
-        adc_rdy_i                 : in std_logic;
-        adc_clk_o                 : out std_logic;
-
-        -- global signals 
-        clk_50_i                  : in  std_logic;
-        rst_i                     : in  std_logic;
-
-        -- Frame timing signals
-        adc_coadd_en_i            : in  std_logic;
-        restart_frame_1row_prev_i : in  std_logic;
-        restart_frame_aligned_i   : in  std_logic;
-        row_switch_i              : in  std_logic;
-        initialize_window_i       : in  std_logic;
-
-        -- Wishbone Slave (wbs) Frame Data signals
-        coadded_addr_i            : in  std_logic_vector (5 downto 0);
-        coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        raw_addr_i                : in  std_logic_vector (12 downto 0);
-        raw_dat_o                 : out std_logic_vector (15 downto 0);
-        raw_req_i                 : in  std_logic;
-        raw_ack_o                 : out std_logic;
-
-        -- First Stage Feedback Calculation (fsfb_calc) block signals
-        coadd_done_o              : out std_logic;
-        current_coadd_dat_o       : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        current_diff_dat_o        : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        current_integral_dat_o    : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-
-        -- Wishbove Slave (wbs) Feedback (fb) Data Signals
-        adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-        adc_offset_adr_o          : out std_logic_vector(5 downto 0));
-        
-      
+    port (
+      adc_dat_i                 : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+      adc_ovr_i                 : in  std_logic;
+      adc_rdy_i                 : in  std_logic;
+      adc_clk_o                 : out std_logic;
+      clk_50_i                  : in  std_logic;
+      rst_i                     : in  std_logic;
+      adc_coadd_en_i            : in  std_logic;
+      restart_frame_1row_prev_i : in  std_logic;
+      restart_frame_aligned_i   : in  std_logic;
+      row_switch_i              : in  std_logic;
+      initialize_window_i       : in  std_logic;
+      coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
+      coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+      raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+      raw_req_i                 : in  std_logic;
+      raw_ack_o                 : out std_logic;
+      coadd_done_o              : out std_logic;
+      current_coadd_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      current_diff_dat_o        : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      current_integral_dat_o    : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+      adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0));
   end component;
 
  
+
   -----------------------------------------------------------------------------
   -- First Stage Feedback Calculation Block 
   -----------------------------------------------------------------------------
-
 
    component fsfb_calc is
       generic (
@@ -140,10 +134,30 @@ package flux_loop_ctrl_pack is
          fsfb_fltr_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue current data ready 
          fsfb_fltr_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
          fsfb_ctrl_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue previous data ready
-         fsfb_ctrl_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)     -- fs feedback queue previous data
+         fsfb_ctrl_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data
+         fsfb_ctrl_lock_en_o       : out    std_logic
       );
    end component fsfb_calc;
 
+
+  -----------------------------------------------------------------------------
+  -- First Stage Feedback Control Block
+  -----------------------------------------------------------------------------
+
+  component fsfb_ctrl
+    generic (
+      CONVERSION_POLARITY_MODE : integer;
+      FSFB_ACCURACY_POSITION   : integer);
+    port (
+      clk_50_i            : in  std_logic;
+      rst_i               : in  std_logic;
+      dac_dat_en_i        : in  std_logic;
+      fsfb_ctrl_dat_i     : in  std_logic_vector(FSFB_DAT_WIDTH-1 downto 0);
+      fsfb_ctrl_dat_rdy_i : in  std_logic;
+      fsfb_ctrl_lock_en_i : in  std_logic;
+      dac_dat_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+      dac_clk_o           : out std_logic);
+  end component;
 
   -----------------------------------------------------------------------------
   -- 

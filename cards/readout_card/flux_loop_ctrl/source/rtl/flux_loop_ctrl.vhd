@@ -40,7 +40,10 @@
 --
 -- Revision history:
 -- 
--- $Log: adc_sample_coadd.vhd,v $
+-- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.1  2004/10/28 19:49:30  mohsen
+-- created
+--
 -- Revision 1.1  2004/10/22 00:14:37  mohsen
 -- Created
 --
@@ -53,8 +56,11 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
+use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
+use work.fsfb_ctrl_pack.all;
 use work.flux_loop_ctrl_pack.all;
+
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -69,7 +75,7 @@ entity flux_loop_ctrl is
 
 
     -- ADC interface signals
-    adc_dat_i                 : in  std_logic_vector (13 downto 0);
+    adc_dat_i                 : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
     adc_ovr_i                 : in  std_logic;
     adc_rdy_i                 : in  std_logic;
     adc_clk_o                 : out std_logic;
@@ -89,10 +95,10 @@ entity flux_loop_ctrl is
     dac_dat_en_i              : in  std_logic;
 
     -- Wishbone Slave (wbs) Frame Data signals
-    coadded_addr_i            : in  std_logic_vector (5 downto 0);
+    coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
     coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-    raw_addr_i                : in  std_logic_vector (12 downto 0);
-    raw_dat_o                 : out std_logic_vector (15 downto 0);
+    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
     raw_req_i                 : in  std_logic;
     raw_ack_o                 : out std_logic;
 
@@ -103,8 +109,8 @@ entity flux_loop_ctrl is
 
     
     -- Wishbove Slave (wbs) Feedback (fb) Data Signals
-    adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-    adc_offset_adr_o          : out std_logic_vector(5 downto 0);
+    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+    adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
 
     servo_mode_i              : in  std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
     ramp_step_size_i          : in  std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
@@ -125,7 +131,7 @@ entity flux_loop_ctrl is
     filter_coeff_dat_i        : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     
     -- DAC Interface
-    dac_dat_o                 : out std_logic_vector(13 downto 0);
+    dac_dat_o                 : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
     dac_clk_o                 : out std_logic;
 
     -- spi DAC Interface
@@ -149,11 +155,17 @@ end flux_loop_ctrl;
 
 architecture struct of flux_loop_ctrl is
 
-
+  -- signals from adc_sample_coadd
   signal coadd_done              : std_logic;
   signal current_coadd_dat       : std_logic_vector (31 downto 0);
   signal current_diff_dat        : std_logic_vector (31 downto 0);
   signal current_integral_dat    : std_logic_vector (31 downto 0);
+
+  -- signals from fsfb_calc
+  signal fsfb_ctrl_dat           : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
+  signal fsfb_ctrl_dat_rdy       : std_logic;
+  signal fsfb_ctrl_lock_en       : std_logic;
+  
 
 
 begin  -- struct
@@ -227,9 +239,33 @@ begin  -- struct
       fsfb_ws_dat_o             => fsfb_dat_o,
       fsfb_fltr_dat_rdy_o       => fsfb_fltr_dat_rdy_o,
       fsfb_fltr_dat_o           => fsfb_fltr_dat_o,
-      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat_rdy_o,
-      fsfb_ctrl_dat_o           => fsfb_ctrl_dat_o);
-  
+      fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat_rdy,
+      fsfb_ctrl_dat_o           => fsfb_ctrl_dat,
+      fsfb_ctrl_lock_en_o       => fsfb_ctrl_lock_en);
+
+  -- bring out the internal outputs
+  fsfb_ctrl_dat_rdy_o <= fsfb_ctrl_dat_rdy;
+  fsfb_ctrl_dat_o     <= fsfb_ctrl_dat;
+
+
+  -----------------------------------------------------------------------------
+  -- Instantiation of fsfb_ctrl
+  -----------------------------------------------------------------------------
+  i_fsfb_ctrl: fsfb_ctrl
+    
+    generic map (
+        CONVERSION_POLARITY_MODE => 0,
+        FSFB_ACCURACY_POSITION   => 13)
+    
+    port map (
+        clk_50_i            => clk_50_i,
+        rst_i               => rst_i,
+        dac_dat_en_i        => dac_dat_en_i,
+        fsfb_ctrl_dat_i     => fsfb_ctrl_dat,
+        fsfb_ctrl_dat_rdy_i => fsfb_ctrl_dat_rdy,
+        fsfb_ctrl_lock_en_i => fsfb_ctrl_lock_en,
+        dac_dat_o           => dac_dat_o,
+        dac_clk_o           => dac_clk_o);
 
 
   
