@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.43 2004/08/23 17:36:04 jjacob Exp $
+-- $Id: cmd_queue.vhd,v 1.44 2004/08/24 00:00:05 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.44  2004/08/24 00:00:05  jjacob
+-- cleaning up some comments
+--
 -- Revision 1.43  2004/08/23 17:36:04  jjacob
 -- safety checkin.  Also, I have removed all synthesis warnings, and completed
 -- adding all the recirculation muxes
@@ -201,6 +204,9 @@ signal mop_rdy              : std_logic; --In from the previous block in the cha
 signal insert_uop_rdy       : std_logic; --Out, to insertion fsm, tells the insert FSM when a new u-op is available
 signal new_card_addr        : std_logic_vector(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0); --out, to insertion fsm
 signal new_par_id           : std_logic_vector(CQ_PAR_ID_BUS_WIDTH-1 downto 0) := x"00"; --out, to insertion fsm.  This is a hack.
+signal data_size_reg        : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal data_size_mux        : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal data_size_mux_sel    : std_logic;
 
 -- Send FSM:  sends u-ops over the bus backplane
 type send_states is (LOAD, ISSUE, HEADER_A, HEADER_B, DATA, MORE_DATA, CHECKSUM, NEXT_UOP, RESET, PAUSE);
@@ -427,7 +433,7 @@ begin
    queue_space_mux <= queue_space + 1 when queue_space_mux_sel = "01" else
                       queue_space - 1 when queue_space_mux_sel = "10" else
                       queue_space;
-                     	
+                        
    queue_space_mux_sel <= wren_sig & retired;
    -- [JJ] end                   
 
@@ -535,6 +541,8 @@ begin
                       free_ptr_reg + 1   when free_ptr_mux_sel = "01" else
                       ADDR_ZERO;      --when free_ptr_mux_sel = "11";
                       
+   data_size_mux  <= data_size_reg when data_size_mux_sel = '0' else data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);   
+                      
 
    process(clk_i, rst_i)
    begin
@@ -542,17 +550,19 @@ begin
          --data_sig_reg   <= (others=>'0');
          data_count <= (others=>'0');
          free_ptr_reg   <= (others=>'0');
+         data_size_reg  <= (others => '0');
       elsif clk_i'event and clk_i = '1' then
          --data_sig_reg   <= data_sig_mux;
          data_count <= data_count_mux;
          free_ptr_reg   <= free_ptr;
+         data_size_reg  <= data_size_mux;
       end if;
    end process;
 
 
 
    
-   insert_state_out: process(present_insert_state, data_size_i, data_clk_i, num_uops_inserted, free_ptr, num_uops)--issue_sync_i, new_card_addr, new_par_id, 
+   insert_state_out: process(present_insert_state, data_size_reg, data_clk_i, num_uops_inserted, free_ptr, num_uops)--issue_sync_i, new_card_addr, new_par_id, 
    -- There is something sketchy about the sensitivity list.  
    -- free_ptr does not appear anywhere on the list.  
    -- It can't because of my free_ptr <= free_ptr + 1 statement below.  
@@ -565,6 +575,7 @@ begin
       data_sig_mux_sel             <= "00"; -- (others=>'0')
       data_count_mux_sel           <= "00";
       free_ptr_mux_sel             <= "00";
+      data_size_mux_sel            <=  '0'; -- hold value
 
       case present_insert_state is
          when RESET =>
@@ -594,7 +605,9 @@ begin
 --            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
 
             free_ptr_mux_sel       <= "00";
-         
+            
+            data_size_mux_sel      <=  '1';
+
          when INSERT_HDR2 =>
             wren_sig               <= '1';
             data_count_mux_sel     <= "11";
@@ -603,7 +616,7 @@ begin
             -- In this implememtation, data are not replicated for other u-ops, if the m-op generates several u-ops.
             -- This means that all m-ops with data can only generate a single u-op..for now.
             -- If a m-op is issued with data and generated several u-ops, only the last one will have data.
-            if(num_uops_inserted = num_uops and data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) /= x"0000") then
+            if(num_uops_inserted = num_uops and data_size_reg /= x"0000") then
                mop_ack_o           <= '1';
             else 
                mop_ack_o           <= '0';
@@ -664,7 +677,7 @@ begin
             -- If there is no data with the m-op, then asserting mop_ack_o in the INSERT_HDR2 state would be too soon
             -- In this case, by delaying its assertion until DONE, we ensure that the cmd_translator doesn't try to insert the next m_op too soon.
             -- I think that I might have to register num_uops_inserted and num_uops to make sure that they are valid when I do this check
-            if(num_uops_inserted = num_uops and data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) = x"0000") then
+            if(num_uops_inserted = num_uops and data_size_reg = x"0000") then
                mop_ack_o           <= '1';
             else
                mop_ack_o           <= '0';
@@ -1561,7 +1574,7 @@ begin
    
     with send_ptr_mux_sel select
        send_ptr <=
-       send_ptr_reg		                                           when "00",
+       send_ptr_reg                                                when "00",
        send_ptr_reg + 1                                         when "01",
        send_ptr_reg + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "10",
        ADDR_ZERO                                                when others; --"11",
