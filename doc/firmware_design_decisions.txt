@@ -26,3 +26,5 @@ Bus Backplane Protocol
 - (to be decided) Read instructions will be differentiated from Write instructions by the the Size of command field.  Reads will have a Size of Command value equal to 0, and Writes will have a Size of Command value > 0.  This implies that no parameters can be passed with Read instructions.
 
 - (to be decided) All parameters that pertain to specific pieces of hardware should be stored as close to the level of the hardware as possible.  For example, 'Memory Address' should be stored in a hierarchial location as close to the SRAM or EEPROM that it pertains to, i.e. the SRAM or EEPROM slave controller.
+
+- Masters will take care of sending responses in order of commands received
