@@ -15,9 +15,12 @@ package command_pack is
    constant CMD_CODE_BUS_WIDTH     : integer := 16;
    constant CHECKSUM_BUS_WIDTH     : integer := 32;
    constant PREAMBLE_BUS_WIDTH     : integer := 16;
-   
+    
    constant BB_PREAMBLE            : std_logic_vector := x"AAAA";
    constant BB_PACKET_HEADER_SIZE  : integer := 2;
+
+   constant FIBRE_PREAMBLE1        : std_logic_vector := X"A5";
+   constant FIBRE_PREAMBLE2        : std_logic_vector := X"5A";
 
    -- used in cmd_queue
    constant ISSUE_SYNC_BUS_WIDTH   : integer := SYNC_NUM_BUS_WIDTH;  -- The width of the data field for the absolute sync count at which an instruction was issued
