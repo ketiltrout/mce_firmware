@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_translator_pack.vhd,v 1.2 2004/11/25 14:55:04 dca Exp $
+-- $Id: reply_translator_pack.vhd,v 1.3 2004/12/02 12:34:06 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_translator_pack.vhd,v $
+-- Revision 1.3  2004/12/02 12:34:06  dca
+-- m_op_* signals names changed to mop_* for consistency across issue_reply.
+--
 -- Revision 1.2  2004/11/25 14:55:04  dca
 -- internal command added & frame header buffer added to reply translator.  tb changed accordingly.
 --
@@ -67,8 +70,8 @@ port(
          
      -- signals to/from reply queue 
      mop_rdy_i              : in  std_logic;                                                 -- macro op done
-     mop_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);    -- macro op success (others => '0') else error code
-     mop_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);    -- command code vector - indicates if data or reply (and which command)
+     mop_error_code_i       : in  std_logic_vector (29                       downto 0);      -- macro op success (others => '0') else error code
+     mop_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1  downto 0);      -- command code vector - indicates if data or reply (and which command)
      mop_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);      -- mop parameter id passed from reply_queue
      mop_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);      -- mop card id passed from reply_queue
      internal_cmd_i          : in  std_logic;                                                 -- asserted if m_op is an internal command
