@@ -30,9 +30,12 @@
 -- test block to mimic flux_loop_cntl behaviour for wbs_frame_data test bed.
 --
 -- Revision history:
--- <date $Date: 2004/10/20 13:21:50 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/26 16:14:55 $> - <text> - <initials $Author: dca $>
 --
--- $Log: tb_wbs_frame_data.vhd,v $
+-- $Log: tb_wbs_frame_data_flc_sim.vhd,v $
+-- Revision 1.1  2004/10/26 16:14:55  dca
+-- Used by tb_wbs_frame_data  to simulate the flux loop cntl blocks
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -356,19 +359,21 @@ begin
           coadd_buff_ch7(i)    <=  COADD_DATA & CHANNEL_7 & conv_std_logic_vector(i,8) & x"FFFF";      
        end loop;
  
-    -- save 64 samples per pixels.....keep all 64 samples/pixel the same 
-    -- there are 2x41 pixels per channel
+    -- 64 samples per pixels.... 2x41 pixels per channel
+    -- for simulation purposes keep 41 values the same then change value...
+    -- this data set is used so we can see the data change on the 328 boundary 
+    -- 
     
-       for i in 0 to (NO_PIX_PER_CH * 2)-1 loop
-          for j in 0 to NO_SAMPLES-1 loop 
-             raw_buff_ch0(i*NO_SAMPLES+j)    <=  RAW_DATA & CHANNEL_0 & conv_std_logic_vector(i,8) ;
-             raw_buff_ch1(i*NO_SAMPLES+j)    <=  RAW_DATA & CHANNEL_1 & conv_std_logic_vector(i,8) ;
-             raw_buff_ch2(i*NO_SAMPLES+j)    <=  RAW_DATA & CHANNEL_2 & conv_std_logic_vector(i,8) ;
-             raw_buff_ch3(i*NO_SAMPLES+j)    <=  RAW_DATA & CHANNEL_3 & conv_std_logic_vector(i,8) ;
-             raw_buff_ch4(i*NO_SAMPLES+j)    <=  RAW_DATA & CHANNEL_4 & conv_std_logic_vector(i,8) ;
-             raw_buff_ch5(i*NO_SAMPLES+j)    <=  RAW_DATA & CHANNEL_5 & conv_std_logic_vector(i,8) ;
-             raw_buff_ch6(i*NO_SAMPLES+j)    <=  RAW_DATA & CHANNEL_6 & conv_std_logic_vector(i,8) ;
-             raw_buff_ch7(i*NO_SAMPLES+j)    <=  RAW_DATA & CHANNEL_7 & conv_std_logic_vector(i,8) ;
+       for i in 0 to (NO_SAMPLES * 2)-1 loop
+          for j in 0 to NO_PIX_PER_CH-1 loop 
+             raw_buff_ch0(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_0 & conv_std_logic_vector(i,8) ;
+             raw_buff_ch1(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_1 & conv_std_logic_vector(i,8) ;
+             raw_buff_ch2(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_2 & conv_std_logic_vector(i,8) ;
+             raw_buff_ch3(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_3 & conv_std_logic_vector(i,8) ;
+             raw_buff_ch4(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_4 & conv_std_logic_vector(i,8) ;
+             raw_buff_ch5(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_5 & conv_std_logic_vector(i,8) ;
+             raw_buff_ch6(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_6 & conv_std_logic_vector(i,8) ;
+             raw_buff_ch7(i*NO_PIX_PER_CH+j)    <=  RAW_DATA & CHANNEL_7 & conv_std_logic_vector(i,8) ;
          end loop;           
       end loop;
    end if; 
