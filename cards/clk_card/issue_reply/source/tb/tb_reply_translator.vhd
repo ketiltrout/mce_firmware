@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.15 2004/11/22 11:24:01 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.16 2004/12/02 12:34:22 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/22 11:24:01 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/12/02 12:34:22 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.16  2004/12/02 12:34:22  dca
+-- m_op_* signals names changed to mop_* for consistency across issue_reply.
+--
 -- Revision 1.15  2004/11/22 11:24:01  dca
 -- reply_translator: m_op_done_i changed to m_op_rdy_i
 --
@@ -109,6 +112,8 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.issue_reply_pack.all;
+use work.reply_translator_pack.all;
+
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -116,45 +121,6 @@ use sys_param.wishbone_pack.all;
 
 
 architecture bench of tb_reply_translator is
-
-
-component reply_translator 
-
-port(
-     -- global inputs 
-     rst_i                   : in  std_logic;                                               -- global reset
-     clk_i                   : in  std_logic;                                               -- global clock
-
-     -- signals to/from cmd_translator    
-     cmd_rcvd_er_i           : in  std_logic;                                               -- command received on fibre with checksum error
-     cmd_rcvd_ok_i           : in  std_logic;                                               -- command received on fibre - no checksum error
-     cmd_code_i              : in  std_logic_vector (FIBRE_CMD_CODE_WIDTH-1     downto 0);  -- fibre command code
-     card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- fibre command card id
-     param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
-         
-     -- signals to/from reply queue 
-     mop_rdy_i             : in  std_logic;                                               -- macro op done
-     mop_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
-     mop_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);  -- command code vector - indicates if data or reply (and which command)
-     mop_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
-     mop_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
-     internal_cmd_i          : in  std_logic;
-     fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
-     num_fibre_words_i       : in  integer ;                                                -- indicate number of packet words to be read from reply queue
-     fibre_word_ack_o        : out std_logic;                                               -- asserted to requeset next fibre word
-     fibre_word_rdy_i        : in std_logic;
-     mop_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
-
-     cmd_stop_i              : in std_logic;
-     last_frame_i            : in std_logic;
-     frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-
-     -- signals to / from fibre_tx
-     tx_ff_i                 : in std_logic;                                             -- transmit fifo full
-     tx_fw_o                 : out std_logic;                                            -- transmit fifo write request
-     txd_o                   : out std_logic_vector (7 downto 0)                         -- transmit fifo data input
-     );   
-end component;
 
 
 --subtype byte is std_logic_vector( 7 downto 0);
@@ -175,7 +141,7 @@ signal   cmd_ack	       : std_logic;
        
 signal   m_op_rdy      : std_logic                                              := '0'; 
 signal   m_op_cmd_code  : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1  downto 0)   := (others => '0'); 
-signal   m_op_error_code: std_logic_vector (BB_STATUS_WIDTH-1         downto 0)  := (others => '0');
+signal   m_op_error_code: std_logic_vector (29                       downto 0)  := (others => '0');
 signal   m_op_param_id  : std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0)   := (others => '0');  
 signal   m_op_card_id   : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0)   := (others => '0');  
  
@@ -230,7 +196,7 @@ begin
       num_fibre_words_i  => num_fibre_words,
       fibre_word_ack_o   => fibre_word_ack,   
       fibre_word_rdy_i   => fibre_word_rdy,
-      mop_ack_o         => m_op_ack,   
+      mop_ack_o          => m_op_ack,   
       
       cmd_stop_i         => cmd_stop,
       last_frame_i       => last_frame,
