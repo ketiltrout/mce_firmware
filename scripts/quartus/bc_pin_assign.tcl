@@ -12,8 +12,11 @@
 # Modified for the bias card by Mandana Amiri, Apr. 28, 04
 #
 # Revision history:
-# <date $Date: 2004/04/29 20:10:42 $>	- <initials $Author: mandana $>
+# <date $Date: 2004/04/29 22:59:04 $>	- <initials $Author: mandana $>
 # $Log: bc_stratix_pin_assign.tcl,v $
+# Revision 1.2  2004/04/29 22:59:04  mandana
+# LVDS pins only need positive end to be assigned
+#
 # Revision 1.1  2004/04/29 20:10:42  mandana
 # initial release
 #
