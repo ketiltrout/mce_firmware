@@ -141,7 +141,7 @@ begin
 ---------------------------------------------------------------   
    state_NS: process(present_state, en_i)
    begin
-      case present_state is
+      case present_state is            
          when IDLE =>     
             if(en_i = '1') then
                next_state <= PUSH_DATA;

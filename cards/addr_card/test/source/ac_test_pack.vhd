@@ -29,8 +29,11 @@
 -- Package file for test module for Address card
 -- 
 -- Revision History:
--- <date $Date: 2004/05/17 00:49:52 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/05/17 19:09:08 $>	- <initials $Author: erniel $>
 -- $Log: ac_test_pack.vhd,v $
+-- Revision 1.5  2004/05/17 19:09:08  erniel
+-- expanded dac_dat_o into 11 separate 14-bit vectors
+--
 -- Revision 1.4  2004/05/17 00:49:52  erniel
 -- changed LVDS tx test to two character command
 -- modified command encoding
@@ -58,7 +61,7 @@ package ac_test_pack is
       
    constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc                                                  
    constant CMD_DAC_FIX  : std_logic_vector(7 downto 0) := conv_std_logic_vector(102,8);   -- f
-   constant CMD_DAC_RAMP : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r
+   constant CMD_DAC_RAMP : std_logic_vector(7 downto 0) := conv_std_logic_vector(100,8);   -- d
    
    constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
                                                                                                                  
@@ -145,6 +148,7 @@ package ac_test_pack is
    component lvds_rx_test_wrapper
       port(rst_i : in std_logic;   -- reset input
            clk_i : in std_logic;   -- clock input
+    --       rx_clk_i : in std_logic;
            en_i : in std_logic;    -- enable signal
            done_o : out std_logic; -- done ouput signal
       
@@ -199,7 +203,7 @@ package ac_test_pack is
            dac_dat9_o  : out std_logic_vector(13 downto 0);
            dac_dat10_o : out std_logic_vector(13 downto 0);
       
-           dac_clk_o   : out std_logic_vector (40 downto 0) );
+           dac_clk_o   : out std_logic_vector (40 downto 0));
    end component;
  
    component ac_dac_ctrl_test

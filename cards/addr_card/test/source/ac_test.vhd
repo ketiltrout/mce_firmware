@@ -29,8 +29,11 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2004/05/17 00:51:13 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/05/17 19:09:34 $>	- <initials $Author: erniel $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.5  2004/05/17 19:09:34  erniel
+-- expanded dac_dat_o into 11 separate 14-bit vectors
+--
 -- Revision 1.4  2004/05/17 00:51:13  erniel
 -- added LVDS tx a & b modules
 -- removed LVDS rx clock module
@@ -85,7 +88,8 @@ entity ac_test is
       dac_data9  : out std_logic_vector(13 downto 0);
       dac_data10 : out std_logic_vector(13 downto 0);
       
-      dac_clk    : out std_logic_vector(40 downto 0)      
+      dac_clk    : out std_logic_vector(40 downto 0);
+      test : out std_logic_vector(16 downto 3)      
    );         
 end ac_test;
 
@@ -223,12 +227,12 @@ architecture behaviour of ac_test is
    signal ramp_dac_clk    : std_logic_vector(40 downto 0);
    
    signal ramp_ena : std_logic;
-   
+
 begin
---   clk_gen : pll
---      port map(inclk0 => inclk,
---               c0 => clk,
---               e0 => outclk);
+   clk_gen : pll
+      port map(inclk0 => inclk,
+               c0 => clk,
+               e0 => outclk);
 
    -- RS232 interface start
    receiver : async_rx
@@ -507,7 +511,7 @@ begin
                   end if;
 
                elsif(cmd1 = CMD_DAC_RAMP) then
-                  ramp_ena <= not ramp_ena;
+                  ramp_ena <= not (ramp_ena);
                   sel <= SEL_DAC_RAMP;
                   
                elsif(cmd1 = CMD_DEBUG) then
@@ -536,4 +540,6 @@ begin
          end case;
       end if;
    end process cmd_proc;
+
+   test(6) <= ramp_ena;
 end behaviour;

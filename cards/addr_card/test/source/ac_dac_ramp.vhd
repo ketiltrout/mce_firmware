@@ -68,8 +68,7 @@ entity ac_dac_ramp is
       dac_dat9_o  : out std_logic_vector(13 downto 0);
       dac_dat10_o : out std_logic_vector(13 downto 0);
       
-      dac_clk_o   : out std_logic_vector(40 downto 0)      
-   );   
+      dac_clk_o   : out std_logic_vector(40 downto 0) );   
 end;  
 
 architecture rtl of ac_dac_ramp is
@@ -85,6 +84,9 @@ signal ibus     : integer;
 signal clkcount : std_logic;
 signal nclk     : std_logic;
 signal ramp     : std_logic := '0';
+signal clk_2  : std_logic;
+signal clk_div: integer;
+
 
 signal logic0 : std_logic;
 signal zero : integer;
@@ -93,7 +95,20 @@ begin
 
    zero <= 0;
    logic0 <= '0';
-      
+
+-- instantiate a counter to divide the clock by 8
+   clk_div_2: counter
+   generic map(MAX => 4)
+   port map(clk_i   => clk_i,
+            rst_i   => '0',
+            ena_i   => '1',
+            load_i  => '0',
+            down_i  => '0',
+            count_i => 0 ,
+            count_o => clk_div);
+
+   clk_2   <= '1' when clk_div > 2 else '0'; -- slow down the 50MHz clock to 50/8MHz
+
 -- instantiate a counter for idac to go through all 32 DACs
    data_count: counter
    generic map(MAX => 16#3fff#)
@@ -105,7 +120,7 @@ begin
             count_i => zero,
             count_o => idata);
   
-   clkcount <= clk_i when ramp = '1' else '0';
+   clkcount <= clk_2 when ramp = '1' else '0';
    nclk <= not (clkcount);
    
    gen1: for idac in 0 to 40 generate
@@ -128,14 +143,18 @@ begin
    dac_dat8_o <= data;
    dac_dat9_o <= data;
    dac_dat10_o <= data;
-   
-   state_FF: process(clk_i, en_i)
-   begin
-      if(en_i 'event and en_i = '1') then
-         ramp <= not(ramp);
-      elsif (clk_i'event and clk_i = '1') then   
-         done_o <= en_i;
-     end if;         
-   end process state_FF;   
       
+   process(en_i)
+   begin
+      if(en_i = '1') then
+         ramp <= not ramp;
+      end if;
+   end process;
+   
+   process(clk_2)
+   begin
+      if(clk_2'event and clk_2 = '1') then
+         done_o <= en_i;
+      end if;
+   end process;
 end;
