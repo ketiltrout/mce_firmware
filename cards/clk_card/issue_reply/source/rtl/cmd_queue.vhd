@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.12 2004/06/04 01:22:58 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.13 2004/06/07 23:45:41 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.13  2004/06/07 23:45:41  bburger
+-- in progress
+--
 -- Revision 1.12  2004/06/04 01:22:58  bburger
 -- bug fixes
 --
@@ -189,14 +192,14 @@ signal retired : std_logic; --Out, to the u-op counter fsm
 signal uop_timed_out : std_logic;
 
 -- Generate FSM:  translates M-ops into u-ops
-type gen_uop_states is (IDLE, PARSE, INSERT, RET_DAT, PSC_STATUS, BIT_STATUS, FPGA_TEMP, CARD_TEMP, CYC_OO_SYC, SINGLE, CLEANUP, RESET);
+type gen_uop_states is (IDLE, INSERT, PS_CARD, CLOCK_CARD, ADDR_CARD, READOUT_CARD1, READOUT_CARD2, READOUT_CARD3, READOUT_CARD4, BIAS_CARD1, BIAS_CARD2, BIAS_CARD3, CLEANUP, RESET, DONE);
 signal present_gen_state : gen_uop_states;
 signal next_gen_state    : gen_uop_states;
 signal mop_rdy : std_logic; --In from the previous block in the chain
 signal insert_uop_rdy : std_logic; --Out, to insertion fsm
 signal new_card_addr : std_logic_vector(CARD_ADDR_BUS_WIDTH-1 downto 0); --out, to insertion fsm
 signal new_par_id : std_logic_vector(PAR_ID_BUS_WIDTH-1 downto 0) := x"000000"; --out, to insertion fsm.  This is a hack.
-signal last_card_uop : std_logic;
+--signal last_card_uop : std_logic;
 
 -- Send FSM:  sends u-ops over the bus backplane
 type send_states is (IDLE, LOAD, VERIFY, ISSUE, WAIT_FOR_ACK, SKIP, RESET);
@@ -298,6 +301,7 @@ begin
             next_insert_state <= DONE;
          when DONE =>
             next_insert_state <= STALL;
+         -- This state exists to delay the FSM from returning too quickly to the IDLE state and trying to insert the same u-op again.
          when STALL =>
             if(clk_i'event and clk_i = '1') then
                next_insert_state <= IDLE;
@@ -513,10 +517,10 @@ begin
       end if;
    end process;
 
-   last_card_uop <= '1' when ((card_addr_i = BCS and new_card_addr = BC3) or (card_addr_i = RCS and new_card_addr = RC4) or
-                              (card_addr_i = ALL_FBGA_CARDS and new_card_addr = AC) or (card_addr_i = ALL_CARDS and new_card_addr = AC)) else '0';
+   --last_card_uop <= '1' when ((card_addr_i = BCS and new_card_addr = BC3) or (card_addr_i = RCS and new_card_addr = RC4) or
+   --                           (card_addr_i = ALL_FBGA_CARDS and new_card_addr = AC) or (card_addr_i = ALL_CARDS and new_card_addr = AC)) else '0';
 
-   gen_state_NS: process(present_gen_state, mop_rdy, queue_space, num_uops, par_id_i, card_addr_i, new_card_addr, last_card_uop)
+   gen_state_NS: process(present_gen_state, mop_rdy, queue_space, num_uops, par_id_i, card_addr_i, new_par_id)
    begin
       case present_gen_state is
          when RESET =>
@@ -525,81 +529,147 @@ begin
             if(mop_rdy = '0') then
                next_gen_state <= IDLE;
             elsif(mop_rdy = '1') then
-               next_gen_state <= PARSE;
-            end if;
-         when PARSE =>
-            if(queue_space < num_uops) then
-               next_gen_state <= PARSE;
-            elsif(queue_space >= num_uops) then
-               next_gen_state <= INSERT;
+               if(queue_space < num_uops) then
+                  next_gen_state <= IDLE;
+               elsif(queue_space >= num_uops) then
+                  next_gen_state <= INSERT;
+               end if;
             end if;
          when INSERT =>
-            if(par_id_i(7 downto 0) = RET_DAT_ADDR) then
-               next_gen_state <= RET_DAT;
-            elsif(par_id_i(7 downto 0) = STATUS_ADDR) then
-               next_gen_state <= PSC_STATUS;
+            if(card_addr_i = BCS) then
+               next_gen_state <= BIAS_CARD1;
+            elsif(card_addr_i = RCS) then
+               next_gen_state <= READOUT_CARD1;
+            elsif(card_addr_i = ALL_FBGA_CARDS) then
+               next_gen_state <= ADDR_CARD;
+            elsif(card_addr_i = ALL_CARDS) then
+               next_gen_state <= PS_CARD;
+            elsif(card_addr_i = PSC) then
+               next_gen_state <= PS_CARD;
+            elsif(card_addr_i = CC) then
+               next_gen_state <= CLOCK_CARD;
+            elsif(card_addr_i = AC) then
+               next_gen_state <= ADDR_CARD;
+            elsif(card_addr_i = RC1) then
+               next_gen_state <= READOUT_CARD1;
+            elsif(card_addr_i = RC2) then
+               next_gen_state <= READOUT_CARD2;
+            elsif(card_addr_i = RC3) then
+               next_gen_state <= READOUT_CARD3;
+            elsif(card_addr_i = RC4) then
+               next_gen_state <= READOUT_CARD4;
+            elsif(card_addr_i = BC1) then
+               next_gen_state <= BIAS_CARD1;
+            elsif(card_addr_i = BC2) then
+               next_gen_state <= BIAS_CARD2;
+            elsif(card_addr_i = BC3) then
+               next_gen_state <= BIAS_CARD3;
             else
-               next_gen_state <= SINGLE;
+               next_gen_state <= CLEANUP;  -- Catch all invalid card_id's with this statement
             end if;
-         when RET_DAT | PSC_STATUS | BIT_STATUS | FPGA_TEMP | CARD_TEMP | CYC_OO_SYC =>
-            case card_addr_i is
-               when NO_CARDS =>
-                  next_gen_state <= CLEANUP;
-               -- Single card, multiple u-ops
-               when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC =>
-                  if(present_gen_state = RET_DAT) then
-                     next_gen_state <= PSC_STATUS;
-                  elsif(present_gen_state = PSC_STATUS) then
-                     next_gen_state <= BIT_STATUS;
-                  elsif(present_gen_state = BIT_STATUS) then
-                     next_gen_state <= FPGA_TEMP;
-                  elsif(present_gen_state = FPGA_TEMP) then
-                     next_gen_state <= CARD_TEMP;
-                  elsif(present_gen_state = CARD_TEMP) then
-                     next_gen_state <= CYC_OO_SYC;
-                  elsif(present_gen_state = CYC_OO_SYC) then
-                     next_gen_state <= CLEANUP;
+         when PS_CARD =>
+            if(card_addr_i = ALL_CARDS) then
+               next_gen_state <= CLOCK_CARD;
+            elsif(card_addr_i = PSC) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when CLOCK_CARD =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS) then
+               next_gen_state <= ADDR_CARD;
+            elsif(card_addr_i = CC) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when ADDR_CARD =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS) then
+               next_gen_state <= READOUT_CARD1;
+            elsif(card_addr_i = AC) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when READOUT_CARD1 =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS or card_addr_i = RCS) then
+               next_gen_state <= READOUT_CARD2;
+            elsif(card_addr_i = RC1) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when READOUT_CARD2 =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS or card_addr_i = RCS) then
+               next_gen_state <= READOUT_CARD3;
+            elsif(card_addr_i = RC2) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when READOUT_CARD3 =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS or card_addr_i = RCS) then
+               next_gen_state <= READOUT_CARD4;
+            elsif(card_addr_i = RC3) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when READOUT_CARD4 =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS) then
+               next_gen_state <= BIAS_CARD1;
+            elsif(card_addr_i = RC4 or card_addr_i = RCS) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when BIAS_CARD1 =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS or card_addr_i = BCS) then
+               next_gen_state <= BIAS_CARD2;
+            elsif(card_addr_i = BC1) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when BIAS_CARD2 =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS or card_addr_i = BCS) then
+               next_gen_state <= BIAS_CARD3;
+            elsif(card_addr_i = BC2) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when BIAS_CARD3 =>
+            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FBGA_CARDS) then
+               next_gen_state <= CLEANUP;
+            elsif(card_addr_i = BC3 or card_addr_i = BCS) then
+               next_gen_state <= CLEANUP;
+            end if;
+         when CLEANUP =>
+            -- Monitor all the exit points from this sequence of states.
+            if(par_id_i(7 downto 0) = RET_DAT_ADDR or par_id_i(7 downto 0) = STATUS_ADDR) then
+               if(new_par_id /= CYC_OO_SYC_ADDR) then
+                  if(card_addr_i = BCS) then
+                     next_gen_state <= BIAS_CARD1;
+                  elsif(card_addr_i = RCS) then
+                     next_gen_state <= READOUT_CARD1;
+                  elsif(card_addr_i = ALL_FBGA_CARDS) then
+                     next_gen_state <= ADDR_CARD;
+                  elsif(card_addr_i = ALL_CARDS) then
+                     next_gen_state <= PS_CARD;
+                  elsif(card_addr_i = PSC) then
+                     next_gen_state <= PS_CARD;
+                  elsif(card_addr_i = CC) then
+                     next_gen_state <= CLOCK_CARD;
+                  elsif(card_addr_i = AC) then
+                     next_gen_state <= ADDR_CARD;
+                  elsif(card_addr_i = RC1) then
+                     next_gen_state <= READOUT_CARD1;
+                  elsif(card_addr_i = RC2) then
+                     next_gen_state <= READOUT_CARD2;
+                  elsif(card_addr_i = RC3) then
+                     next_gen_state <= READOUT_CARD3;
+                  elsif(card_addr_i = RC4) then
+                     next_gen_state <= READOUT_CARD4;
+                  elsif(card_addr_i = BC1) then
+                     next_gen_state <= BIAS_CARD1;
+                  elsif(card_addr_i = BC2) then
+                     next_gen_state <= BIAS_CARD2;
+                  elsif(card_addr_i = BC3) then
+                     next_gen_state <= BIAS_CARD3;
+                  else
+                     next_gen_state <= IDLE;  -- Catch all invalid card_id's with this statement
                   end if;
-
-
-
-               when BCS | RCS | ALL_FBGA_CARDS | ALL_CARDS =>
-                  -- Determine the next in the sequence of u-ops to be issued to a specific card
-                  if(present_gen_state = RET_DAT and last_card_uop = '1') then
-                     next_gen_state <= PSC_STATUS;
-                  elsif(present_gen_state = PSC_STATUS and last_card_uop = '1') then
-                     next_gen_state <= BIT_STATUS;
-                  elsif(present_gen_state = BIT_STATUS and last_card_uop = '1') then
-                     next_gen_state <= FPGA_TEMP;
-                  elsif(present_gen_state = FPGA_TEMP and last_card_uop = '1') then
-                     next_gen_state <= CARD_TEMP;
-                  elsif(present_gen_state = CARD_TEMP and last_card_uop = '1') then
-                     next_gen_state <= CYC_OO_SYC;
-                  elsif(present_gen_state = CYC_OO_SYC and last_card_uop = '1') then
-                     -- CYC_OO_SYNC is the last u-op to be issued for m-op that are broken down into several u-ops
-                     --if(last_card_uop = '1') then
-                        next_gen_state <= CLEANUP;
-                     -- Here, we either start issuing the same sequence of u-ops to the next card in the list, or we've finished the list.
-                     --elsif(par_id_i(7 downto 0) = RET_DAT_ADDR) then
-                     --   next_gen_state <= RET_DAT;
-                     --elsif(par_id_i(7 downto 0) = STATUS_ADDR) then
-                     --   next_gen_state <= PSC_STATUS;
-                     --else
-                     --   next_gen_state <= CLEANUP;
-                     --end if;
-                  end if;
-               when others => next_gen_state <= CLEANUP;
-
-
-
-
-
-
-            end case;
-         when SINGLE =>
-            -- Single card, single u-op
-            next_gen_state <= CLEANUP;
-         when CLEANUP => next_gen_state <= IDLE;
+               else
+                  next_gen_state <= DONE;
+               end if;
+            else
+               next_gen_state <= DONE;
+            end if;
+         when DONE =>
+            next_gen_state <= IDLE;
          when others =>
             next_gen_state <= IDLE;
       end case;
@@ -628,7 +698,7 @@ begin
    num_uops <= uops_generated * cards_addressed;
    mop_rdy <= mop_rdy_i;
 
-   gen_state_out: process(present_gen_state, card_addr_i, clk_i) -- had new_card_addr_i
+   gen_state_out: process(present_gen_state, par_id_i, card_addr_i) -- had new_card_addr_i
       begin
       -- Note that inserted and insert_uop_rdy follow each other exactly
       case present_gen_state is
@@ -642,11 +712,6 @@ begin
             insert_uop_rdy <= '0';
             inserted       <= '0';
             new_card_addr  <= card_addr_i;
-         when PARSE =>
-            mop_ack_o      <= '0';
-            insert_uop_rdy <= '0';
-            inserted       <= '0';
-            new_card_addr  <= card_addr_i;
          when INSERT =>
             -- Add new u-ops to the queue
             mop_ack_o      <= '0';
@@ -654,109 +719,73 @@ begin
             inserted       <= '0';
             uop_counter    <= (others => '0');
             new_card_addr  <= card_addr_i;
---            if(card_addr_i = BCS) then
---               new_card_addr <= BC1;
---            elsif(card_addr_i = RCS) then
---               new_card_addr <= RC1;
---            elsif(card_addr_i = ALL_FBGA_CARDS) then
---               new_card_addr <= CC;
---            elsif(card_addr_i = ALL_CARDS) then
---               new_card_addr <= PSC;
---            end if;
-         when RET_DAT | PSC_STATUS | BIT_STATUS | FPGA_TEMP | CARD_TEMP | CYC_OO_SYC =>
-            if   (present_gen_state = RET_DAT)    then new_par_id(7 downto 0) <= RET_DAT_ADDR;
-            elsif(present_gen_state = PSC_STATUS) then new_par_id(7 downto 0) <= PSC_STATUS_ADDR;
-            elsif(present_gen_state = BIT_STATUS) then new_par_id(7 downto 0) <= BIT_STATUS_ADDR;
-            elsif(present_gen_state = FPGA_TEMP)  then new_par_id(7 downto 0) <= FPGA_TEMP_ADDR;
-            elsif(present_gen_state = CARD_TEMP)  then new_par_id(7 downto 0) <= CARD_TEMP_ADDR;
-            elsif(present_gen_state = CYC_OO_SYC) then new_par_id(7 downto 0) <= CYC_OO_SYC_ADDR;
+            if(par_id_i(7 downto 0) = RET_DAT_ADDR) then
+               new_par_id(7 downto 0) <= RET_DAT_ADDR;
+            elsif(par_id_i(7 downto 0) = STATUS_ADDR) then
+               new_par_id(7 downto 0) <= PSC_STATUS_ADDR;
+            else
+               new_par_id(7 downto 0) <= par_id_i(7 downto 0);
             end if;
-            case card_addr_i is
-               -- For any card address that may appear, we set the new_card_addr appropriately
-               when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC | BCS | RCS | ALL_FBGA_CARDS | ALL_CARDS =>
-                  uop_counter <= uop_counter + 1;
-                  insert_uop_rdy <= '1';
-                  inserted       <= '1';
-                  if(card_addr_i = BCS and clk_i'event and clk_i = '1') then
-                     if(new_card_addr = BCS) then
-                        new_card_addr <= BC1;
-                     elsif(new_card_addr = BC1) then
-                        new_card_addr <= BC2;
-                     elsif(new_card_addr = BC2) then
-                        new_card_addr <= BC3;
-                     elsif(new_card_addr = BC3) then
-                        new_card_addr <= BC1;
-                     end if;
-                  elsif(card_addr_i = RCS and clk_i'event and clk_i = '1') then
-                     if(new_card_addr = RCS) then
-                        new_card_addr <= RC1;
-                     elsif(new_card_addr = RC1) then
-                        new_card_addr <= RC2;
-                     elsif(new_card_addr = RC2) then
-                        new_card_addr <= RC3;
-                     elsif(new_card_addr = RC3) then
-                        new_card_addr <= RC4;
-                     elsif(new_card_addr = RC4) then
-                        new_card_addr <= RC1;
-                     end if;
-                  elsif(card_addr_i = ALL_FBGA_CARDS and clk_i'event and clk_i = '1') then
-                     if(new_card_addr = ALL_CARDS) then
-                        new_card_addr <= CC;
-                     elsif(new_card_addr = CC) then
-                        new_card_addr <= RC1;
-                     elsif(new_card_addr = RC1) then
-                        new_card_addr <= RC2;
-                     elsif(new_card_addr = RC2) then
-                        new_card_addr <= RC3;
-                     elsif(new_card_addr = RC3) then
-                        new_card_addr <= RC4;
-                     elsif(new_card_addr = RC4) then
-                        new_card_addr <= BC1;
-                     elsif(new_card_addr = BC1) then
-                        new_card_addr <= BC2;
-                     elsif(new_card_addr = BC2) then
-                        new_card_addr <= BC3;
-                     elsif(new_card_addr = BC3) then
-                        new_card_addr <= AC;
-                     elsif(new_card_addr = AC) then
-                        new_card_addr <= CC;
-                     end if;
-                  elsif(card_addr_i = ALL_CARDS and clk_i'event and clk_i = '1') then
-                     if(new_card_addr = ALL_CARDS) then
-                        new_card_addr <= PSC;
-                     elsif(new_card_addr = PSC) then
-                        new_card_addr <= CC;
-                     elsif(new_card_addr = CC) then
-                        new_card_addr <= RC1;
-                     elsif(new_card_addr = RC1) then
-                        new_card_addr <= RC2;
-                     elsif(new_card_addr = RC2) then
-                        new_card_addr <= RC3;
-                     elsif(new_card_addr = RC3) then
-                        new_card_addr <= RC4;
-                     elsif(new_card_addr = RC4) then
-                        new_card_addr <= BC1;
-                     elsif(new_card_addr = BC1) then
-                        new_card_addr <= BC2;
-                     elsif(new_card_addr = BC2) then
-                        new_card_addr <= BC3;
-                     elsif(new_card_addr = BC3) then
-                        new_card_addr <= AC;
-                     elsif(new_card_addr = AC) then
-                        new_card_addr <= PSC;
-                     end if;
-                  end if;
-               when others => -- Invalid card address
-                  insert_uop_rdy <= '0';
-                  inserted       <= '0';
-            end case;
-         when SINGLE =>
+         when PS_CARD | CLOCK_CARD | ADDR_CARD | READOUT_CARD1 | READOUT_CARD2 | READOUT_CARD3 | READOUT_CARD4 | BIAS_CARD1 | BIAS_CARD2 | BIAS_CARD3 =>
             uop_counter    <= uop_counter + 1;
-            mop_ack_o      <= '0';
             insert_uop_rdy <= '1';
             inserted       <= '1';
-            new_card_addr  <= card_addr_i;
+            if(present_gen_state = PS_CARD) then
+               new_card_addr <= PSC;
+            elsif(present_gen_state = CLOCK_CARD) then
+               new_card_addr <= CC;
+            elsif(present_gen_state = ADDR_CARD) then
+               new_card_addr <= AC;
+            elsif(present_gen_state = READOUT_CARD1) then
+               new_card_addr <= RC1;
+            elsif(present_gen_state = READOUT_CARD2) then
+               new_card_addr <= RC2;
+            elsif(present_gen_state = READOUT_CARD3) then
+               new_card_addr <= RC3;
+            elsif(present_gen_state = READOUT_CARD4) then
+               new_card_addr <= RC4;
+            elsif(present_gen_state = BIAS_CARD1) then
+               new_card_addr <= BC1;
+            elsif(present_gen_state = BIAS_CARD2) then
+               new_card_addr <= BC2;
+            elsif(present_gen_state = BIAS_CARD3) then
+               new_card_addr <= BC3;
+            end if;
          when CLEANUP =>
+            mop_ack_o      <= '0';
+            insert_uop_rdy <= '0';
+            inserted       <= '0';
+            new_card_addr  <= card_addr_i;
+            if(par_id_i(7 downto 0) = RET_DAT_ADDR) then
+               if(new_par_id(7 downto 0) = RET_DAT_ADDR) then
+                  new_par_id(7 downto 0) <= PSC_STATUS_ADDR;
+               elsif(new_par_id(7 downto 0) = PSC_STATUS_ADDR) then
+                  new_par_id(7 downto 0) <= BIT_STATUS_ADDR;
+               elsif(new_par_id(7 downto 0) = BIT_STATUS_ADDR) then
+                  new_par_id(7 downto 0) <= FPGA_TEMP_ADDR;
+               elsif(new_par_id(7 downto 0) = FPGA_TEMP_ADDR) then
+                  new_par_id(7 downto 0) <= CARD_TEMP_ADDR;
+               elsif(new_par_id(7 downto 0) = CARD_TEMP_ADDR) then
+                  new_par_id(7 downto 0) <= CYC_OO_SYC_ADDR;
+               elsif(new_par_id(7 downto 0) = CYC_OO_SYC_ADDR) then
+                  new_par_id(7 downto 0) <= par_id_i(7 downto 0);
+               end if;
+            elsif(par_id_i(7 downto 0) = STATUS_ADDR) then
+               if(new_par_id(7 downto 0) = PSC_STATUS_ADDR) then
+                  new_par_id(7 downto 0) <= BIT_STATUS_ADDR;
+               elsif(new_par_id(7 downto 0) = BIT_STATUS_ADDR) then
+                  new_par_id(7 downto 0) <= FPGA_TEMP_ADDR;
+               elsif(new_par_id(7 downto 0) = FPGA_TEMP_ADDR) then
+                  new_par_id(7 downto 0) <= CARD_TEMP_ADDR;
+               elsif(new_par_id(7 downto 0) = CARD_TEMP_ADDR) then
+                  new_par_id(7 downto 0) <= CYC_OO_SYC_ADDR;
+               elsif(new_par_id(7 downto 0) = CYC_OO_SYC_ADDR) then
+                  new_par_id(7 downto 0) <= par_id_i(7 downto 0);
+               end if;
+            else
+               new_par_id(7 downto 0) <= par_id_i(7 downto 0);
+            end if;
+         when DONE =>
             mop_ack_o      <= '1';
             insert_uop_rdy <= '0';
             inserted       <= '0';
