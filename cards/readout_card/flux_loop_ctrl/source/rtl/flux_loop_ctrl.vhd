@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.7  2004/12/24 01:07:54  mohsen
+-- need to slow down dac clock, so require 2 row times between sa_bias and offset write trigger.
+--
 -- Revision 1.6  2004/12/07 19:43:33  mohsen
 -- Anthony & Mohsen: Accomodate the sa_bias & offset DAC shared bus structure in the readout card hardware.
 --
@@ -278,7 +281,7 @@ begin  -- struct
     
     generic map (
         CONVERSION_POLARITY_MODE => 0,
-        FSFB_ACCURACY_POSITION   => 13)
+         FSFB_ACCURACY_POSITION   => 23)
     
     port map (
         clk_50_i            => clk_50_i,
