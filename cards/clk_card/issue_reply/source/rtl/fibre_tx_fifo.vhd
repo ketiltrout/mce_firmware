@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_tx_fifo.vhd,v 1.1 2004/08/31 12:58:44 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_tx_fifo.vhd,v 1.1 2004/10/05 12:22:27 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,12 @@
 -- the tx_control block controls their transfer to the HOTLINK transmitter
 -- 
 -- Revision history:
--- <date $Date: 2004/08/31 12:58:44 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/05 12:22:27 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx_fifo.vhd,v $
+-- Revision 1.1  2004/10/05 12:22:27  dca
+-- moved from fibre_tx directory.
+--
 -- Revision 1.1  2004/08/31 12:58:44  dca
 -- Initial Version
 --
@@ -42,13 +45,13 @@
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+--use ieee.numeric_std.all;
 
 library components;
 use components.component_pack.all;
 
-library sys_param;
-use sys_param.command_pack.all;
+--library sys_param;
+--use sys_param.command_pack.all;
 
 entity fibre_tx_fifo is
    generic( 
