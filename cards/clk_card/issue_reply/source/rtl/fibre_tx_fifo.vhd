@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_tx_fifo.vhd,v 1.1 2004/10/05 12:22:27 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_tx_fifo.vhd,v 1.2 2004/10/06 21:50:52 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,12 @@
 -- the tx_control block controls their transfer to the HOTLINK transmitter
 -- 
 -- Revision history:
--- <date $Date: 2004/10/05 12:22:27 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/06 21:50:52 $> - <text> - <initials $Author: erniel $>
 --
 -- $Log: fibre_tx_fifo.vhd,v $
+-- Revision 1.2  2004/10/06 21:50:52  erniel
+-- removed references to unused libraries
+--
 -- Revision 1.1  2004/10/05 12:22:27  dca
 -- moved from fibre_tx directory.
 --
@@ -54,17 +57,19 @@ use components.component_pack.all;
 --use sys_param.command_pack.all;
 
 entity fibre_tx_fifo is
-   generic( 
-      addr_size : Positive
-   );
+--   generic( 
+--      addr_size : Positive
+--   );
    port( 
-      rst_i     : in     std_logic;
-      tx_fr_i   : in     std_logic;
-      tx_fw_i   : in     std_logic;
-      txd_i     : in     std_logic_vector (7 downto 0);
-      tx_fe_o   : out    std_logic;
-      tx_ff_o   : out    std_logic;
-      tx_data_o : out    std_logic_vector (7 downto 0)
+      clk_i        : in     std_logic;
+      rst_i        : in     std_logic;
+      fibre_clkw_i : in     std_logic;
+      tx_fr_i      : in     std_logic;
+      tx_fw_i      : in     std_logic;
+      txd_i        : in     std_logic_vector (7 downto 0);
+      tx_fe_o      : out    std_logic;
+      tx_ff_o      : out    std_logic;
+      tx_data_o    : out    std_logic_vector (7 downto 0)
    );
 
 -- Declarations
@@ -75,17 +80,33 @@ end fibre_tx_fifo ;
 architecture behav of fibre_tx_fifo is
    
 begin
+
    -- Instance port mappings.
-   I0 : async_fifo
-      generic map (addr_size => addr_size)
-      port map (
-         rst_i    => rst_i,
-         read_i   => tx_fr_i,
-         write_i  => tx_fw_i,
-         d_i      => txd_i,
-         empty_o  => tx_fe_o,
-         full_o   => tx_ff_o,
-         q_o      => tx_data_o
-      );
+--   I0 : async_fifo
+--      generic map (addr_size => addr_size)
+--      port map (
+--         rst_i    => rst_i,
+--         read_i   => tx_fr_i,
+--         write_i  => tx_fw_i,
+--         d_i      => txd_i,
+--         empty_o  => tx_fe_o,
+--         full_o   => tx_ff_o,
+--         q_o      => tx_data_o
+--      );
   
+
+   sync_fifo_tx_inst : sync_fifo_tx 
+   port map(
+      data	  => txd_i,
+      wrreq	  => tx_fw_i,
+      rdreq	  => tx_fr_i,
+      rdclk   => fibre_clkw_i,
+      wrclk   => clk_i,
+      aclr    => rst_i,
+      q       => tx_data_o,
+      rdempty => tx_fe_o,
+      wrfull  => tx_ff_o
+	);
+
+
 end behav;
