@@ -20,7 +20,7 @@
 
 -- tb_sram.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_sram.vhd,v 1.1 2004/03/08 21:52:20 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_sram.vhd,v 1.2 2004/03/09 00:22:36 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- Testbench for SRAM model
 --
 -- Revision history:
--- <date $Date: 2004/03/08 21:52:20 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/03/09 00:22:36 $>	-		<text>		- <initials $Author: erniel $>
 
 --
 -----------------------------------------------------------------------------
@@ -83,98 +83,87 @@ begin
                RESET     => W_RESET);
 
    STIMULI : process
-   procedure write is
-   begin
    
-   
-   end write;
-   
-   procedure read is
-   begin
-   
-   end read;
-   
+   procedure reset is
    begin
       W_RESET     <= '1';
       
       wait for 20 ns;
       
       W_RESET     <= '0';
+      
+   end reset;
    
+   procedure write (addr : in std_logic_vector(19 downto 0); data : in std_logic_vector(15 downto 0)) is
+   begin
+      W_ADDRESS   <= addr;
+      W_DATA      <= (others => 'Z');
+      W_N_CE1     <= '1';
+      W_CE2       <= '0';
+      W_N_WE      <= '1';
+      
+      wait for 1 ns;
+      
+      -- assert CE
+      W_N_CE1     <= '0';
+      W_CE2       <= '1';
+      
+      wait for 1 ns;
+      
+      -- assert WE, BHE, BLE
+      W_N_WE      <= '0';
+      W_N_BHE     <= '0';
+      W_N_BLE     <= '0';
+      W_DATA      <= data;
+      
+      wait for 6 ns;
+
+      -- deassert CE, WE, BHE, BLE
+      W_N_WE      <= '1';
+      W_N_BHE     <= '1';
+      W_N_BLE     <= '1';
+      W_N_CE1     <= '1';
+      W_CE2       <= '0';
+            
+      wait for 1 ns;
+      
+      -- remove data
+      W_DATA      <= (others => 'Z');
+               
+      -- wait long enough to make write cycle 20 ns long.
+      wait for 11 ns;
+      
+   end write;
+   
+   procedure read (addr : in std_logic_vector(19 downto 0)) is
+   begin
+      W_ADDRESS   <= addr;
+      W_N_CE1     <= '0';
+      W_CE2       <= '1';
+      W_N_WE      <= '1';
       W_N_BHE     <= '0';
       W_N_BLE     <= '0';
       W_N_OE      <= '0';
-      W_N_CE1     <= '0';
-      W_CE2       <= '1';
+      
+      wait for 20 ns;
+      
+   end read;
+   
+   begin
 
-      ------------------------------------------------------         
-      -- Do some writes:
-      
-      W_ADDRESS   <= "00000000000000000000";
-      W_DATA      <= "0000111100001111";
-      W_N_WE      <= '0';
-
-      wait for 20 ns;
-
-      W_ADDRESS   <= "00000000000000000001";
-      W_DATA      <= "0000000100100011";
-      W_N_WE      <= '0';
-      
-      wait for 20 ns;
-     
-      W_ADDRESS   <= "00000000000000000010";
-      W_DATA      <= "1011101010111110";
-      W_N_WE      <= '0';
-      
-      wait for 20 ns; 
-      
-      ------------------------------------------------------
-      -- Do some reads:
-      
-      W_DATA      <= (others => 'Z');
-      
-      
-      W_ADDRESS   <= "00000000000000000000";
-      W_N_WE      <= '1';
-      
-      wait for 20 ns;
-      
-      W_ADDRESS   <= "00000000000000000001";
-      W_N_WE      <= '1';
-      
-      wait for 20 ns;
-      
-      W_ADDRESS   <= "00000000000000000010";
-      W_N_WE      <= '1';
-      
-      wait for 20 ns;
-      
-      ------------------------------------------------------      
-      -- read from empty location:
-      
-      W_ADDRESS   <= "00000000000000000011";
-      W_N_WE      <= '1';
-      
-      wait for 20 ns;
-      
-      ------------------------------------------------------      
-      -- write to empty location:
-      
-      W_ADDRESS   <= "00000000000000000011";
-      W_DATA      <= "1101111010101101";
-      W_N_WE      <= '0';
-      
-      wait for 20 ns;
-      
-      ------------------------------------------------------
-      -- read from just-filled location:
-        
-      W_DATA      <= (others => 'Z');
-          
-      W_ADDRESS   <= "00000000000000000000";
-      W_N_WE      <= '1';
-      
-      wait for 20 ns;
+      reset;
+   
+      write("00000000000000000000", "0000111100001111");
+      write("00000000000000000001", "0000000100100011");
+      write("00000000000000000010", "1011101010111110");
+   
+      read("00000000000000000000");
+      read("00000000000000000001");
+      read("00000000000000000010");
+   
+      read("00000000000000000011");
+      write("00000000000000000011", "1101111010101101");
+      read("00000000000000000011");
       
       wait;
    end process STIMULI;
