@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: bc_test_idle.vhd,v $
+-- Revision 1.5  2004/06/08 19:04:23  mandana
+-- added the cross-talk test
+--
 -- Revision 1.4  2004/06/04 21:00:26  bench2
 -- Mandana: ramp test works now
 --
@@ -53,7 +56,7 @@ use ieee.std_logic_arith.all;
 library work;
 use work.bc_test_pack.all;
 
-entity all_test_idle is
+entity bc_test_idle is
    port (
       -- basic signals
       rst_i : in std_logic;   -- reset input
@@ -78,9 +81,9 @@ entity all_test_idle is
       rx_stb_o : out std_logic;  -- receive strobe
       rx_data_i : in std_logic_vector(7 downto 0) -- receive data
    );
-end all_test_idle;
+end bc_test_idle;
 
-architecture behaviour of all_test_idle is
+architecture behaviour of bc_test_idle is
    -- transmitter definitions
    type astring is array (natural range <>) of std_logic_vector(7 downto 0);
    signal tx_buffer : astring (0 to 3);

@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_reset.vhd,v $
+-- Revision 1.2  2004/05/12 16:49:07  erniel
+-- removed components already in all_test
+--
 -- Revision 1.1  2004/05/11 23:04:40  mandana
 -- initial release - copied from all_test
 --
@@ -40,7 +43,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-entity all_test_reset is
+entity bc_test_reset is
    port (
       -- basic signals
       rst_i : in std_logic;   -- reset input
@@ -55,9 +58,9 @@ entity all_test_reset is
       tx_we_o : out std_logic;   -- transmit write flag
       tx_stb_o : out std_logic   -- transmit strobe flag
    );
-end all_test_reset;
+end bc_test_reset;
 
-architecture behaviour of all_test_reset is
+architecture behaviour of bc_test_reset is
    type astring is array (natural range <>) of std_logic_vector(7 downto 0);
    signal message : astring (0 to 15);
    
