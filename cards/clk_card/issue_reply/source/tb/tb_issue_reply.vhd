@@ -15,8 +15,8 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_issue_reply.vhd,v 1.22 2004/11/19 20:00:05 bburger Exp $
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.22 2004/11/19 20:00:05 bburger Exp $>
+-- $Id: tb_issue_reply.vhd,v 1.23 2004/11/25 01:32:37 bburger Exp $
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.23 2004/11/25 01:32:37 bburger Exp $>
 --
 -- Project:      Scuba 2
 -- Author:       David Atkinson
@@ -30,10 +30,16 @@
 --
 -- Revision history:
 -- $Log: tb_issue_reply.vhd,v $
+-- Revision 1.23  2004/11/25 01:32:37  bburger
+-- Bryce:
+-- - Changed to cmd_code over the bus backplane to read/write only
+-- - Added interface signals for internal commands
+-- - RB command data-sizes are correctly handled
+--
 -- Revision 1.22  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
--- <date $Date: 2004/11/19 20:00:05 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/25 01:32:37 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -50,7 +56,6 @@ use work.sync_gen_pack.all;
 use work.dispatch_pack.all;
 use work.ac_dac_ctrl_wbs_pack.all;
 use work.ac_dac_ctrl_pack.all;
-use work.wbs_bc_dac_ctrl_pack.all;
 use work.bc_dac_ctrl_pack.all;
 use work.frame_timing_core_pack.all;
 use work.frame_timing_pack.all;
