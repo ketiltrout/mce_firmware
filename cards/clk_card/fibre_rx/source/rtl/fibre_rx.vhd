@@ -1,0 +1,138 @@
+-- Copyright (c) 2003 SCUBA-2 Project
+-- All Rights Reserved
+-- THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+-- The copyright notice above does not evidence any
+-- actual or intended publication of such source code.
+-- SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+-- REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+-- MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+-- PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+-- THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC, University of British Columbia, Physics & Astronomy Department,
+-- Vancouver BC, V6T 1Z1
+-- 
+--
+-- <revision control keyword substitutions e.g. $Id$>
+--
+-- Project: Scuba 2
+-- Author: David Atkinson
+-- Organisation: UK ATC
+--
+-- Title
+-- fibre_rx
+--
+-- Description:
+-- Fibre Optic front end receive firmware:
+-- Instantiates:
+-- 
+-- 1. rx_control
+-- 2. rx_fifo
+-- 3. rx_protocol_fsm
+--
+-- Revision history:
+-- <date $Date$> - <text> - <initials $Author$>
+-- <log $log$>
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+
+
+entity fibre_rx is
+   port( 
+      rst_i       : in     std_logic;
+      clk_i       : in     std_logic;
+      
+      nrx_rdy_i   : in     std_logic;
+      rvs_i       : in     std_logic;
+      rso_i       : in     std_logic;
+      rsc_nrd_i   : in     std_logic;  
+      rx_data_i   : in     std_logic_vector (7 downto 0);
+      cmd_ack_i   : in     std_logic;                          -- command acknowledge
+      
+      cmd_code_o  : out    std_logic_vector (15 downto 0);     -- command code  
+      card_id_o   : out    std_logic_vector (15 downto 0);     -- card id
+      param_id_o  : out    std_logic_vector (15 downto 0);     -- parameter id
+      num_data_o  : out    std_logic_vector (7 downto 0);      -- number of valid 32 bit data words
+      cmd_data_o  : out    std_logic_vector (31 downto 0);     -- 32bit valid data word
+      cksum_err_o : out    std_logic;                          -- checksum error flag
+      cmd_rdy_o   : out    std_logic;                          -- command ready flag (checksum passed)
+      data_clk_o  : out    std_logic                           -- data clock
+
+    );
+
+
+end fibre_rx;
+
+
+
+-------------------------------------------------------
+library ieee;
+use ieee.std_logic_1164.all;
+
+library work;
+use work.rx_fifo_pack.all;
+use work.rx_control_pack.all;
+use work.rx_protocol_fsm_pack.all;
+
+architecture behav of fibre_rx is 
+
+   -- Internal signal declarations
+   signal rx_fr       : std_logic;
+   signal rx_fw       : std_logic;
+   signal rx_fe       : std_logic;
+   signal rx_ff       : std_logic;
+   signal rxd         : std_logic_vector(7 DOWNTO 0);
+            
+  begin
+
+   -- Instance port mappings.
+   I0 : rx_fifo
+      generic map (
+         fifo_size => 512
+      )
+      port map (
+         Brst        => rst_i,
+         rx_fr_i     => rx_fr,
+         rx_fw_i     => rx_fw,
+         rx_data_i   => rx_data_i,
+         rx_fe_o     => rx_fe,
+         rx_ff_o     => rx_ff,
+         rxd_o       => rxd
+   );
+
+   I1: rx_control 
+      port map ( 
+         nrx_rdy_i  =>   nrx_rdy_i,
+         rsc_nrd_i  =>   rsc_nrd_i,
+         rso_i      =>   rso_i,
+         rvs_i      =>   rvs_i,
+         rx_ff_i    =>   rx_ff,
+         rx_fw_o    =>   rx_fw
+   );
+ 
+ 
+   I2: rx_protocol_fsm
+      port map ( 
+         rst_i       =>   rst_i,
+         clk_i       =>   clk_i,
+         rx_fe_i     =>   rx_fe,
+         rxd_i       =>   rxd,
+         cmd_ack_i   =>   cmd_ack_i,
+         
+         cmd_code_o  =>   cmd_code_o,
+         card_id_o   =>   card_id_o,
+         param_id_o  =>   param_id_o,
+         num_data_o  =>   num_data_o,
+         cmd_data_o  =>   cmd_data_o,
+         cksum_err_o =>   cksum_err_o,
+         cmd_rdy_o   =>   cmd_rdy_o,
+         data_clk_o  =>   data_clk_o,
+         rx_fr_o     =>   rx_fr
+      );
+      
+end behav;
