@@ -20,7 +20,7 @@
 
 -- shift_reg.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: shift_reg.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Dec. 19 2003  - Initial version      - EL
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 ------------------------------------------------------------------------
@@ -79,7 +79,9 @@ begin
       end if;
    end process shiftreg;
 
-   serial_o <= reg(0);
+
+   
+   serial_o <= reg(0) when shr = '1' else reg(WIDTH-1); -- when doing a shr, we grab the LSB.  When doing shl, we grab the MSB
    parallel_o <= reg;
 
 end behav;
