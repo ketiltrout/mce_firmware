@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.35 2004/08/05 21:17:46 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.36 2004/08/05 23:46:01 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.36  2004/08/05 23:46:01  bburger
+-- Bryce:  Fixed a bug in the CLEANUP state of gen_state_NS.  "num_uops_inserted <= num_uops", instead of "num_uops_inserted /= num_uops"
+--
 -- Revision 1.35  2004/08/05 21:17:46  bburger
 -- Bryce:  Now works with the data-clocking format of fibre_rx
 --
@@ -731,7 +734,7 @@ begin
             -- CYC_OO_SYNC is the last u-op instruction in a RET_DAT or STATUS m-op.
             -- RET_DAT and STATUS are the only m-ops that generate u-ops with different command codes
             -- ***
-            if(num_uops_inserted <= num_uops) then
+            if(num_uops_inserted < num_uops) then
                next_gen_state <= INSERT;
             else
                next_gen_state <= DONE;
