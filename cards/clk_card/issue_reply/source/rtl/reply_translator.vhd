@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.5 2004/08/25 14:21:04 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.6 2004/08/25 15:12:21 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,13 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/25 14:21:04 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/25 15:12:21 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.6  2004/08/25 15:12:21  dca
+-- *reply_word3 * signal names changed to *wordN*
+-- Various state names changed...
+--
 -- Revision 1.5  2004/08/25 14:21:04  dca
 -- States added to FSM to process data frames...
 --
@@ -59,8 +63,12 @@
 -- NOTE (DA) 
 -- WHAT HAPPENS If STOP COMMAND COMES IN WITH A CHECKSUM ERROR WHILE
 -- READING OUT DATA FRAMES.....?
--- NEED TO ADD CODE TO HANDLE THIS SITUATION.....
+-- NEED TO ADD CODE TO HANDLE THIS SITUATION.....??
 -- CURRENTLY ERROR STOP WOULD JUST BE MISSED....(?)
+-- Note that ST is only command that can be issed while running application
+-- therefore even if it has a checksum error it should be executed - since a ST 
+-- is all it can be...
+--
 -- ALL OTHER CONDITIONS SHOULD BE COVERERD.....(NO NESTED LOOPS)
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -90,8 +98,7 @@ port(
      cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);    -- fibre command code
      card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- fibre command card id
      param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- fibre command parameter id
-     cmd_ack_o	              : out std_logic;                                            -- acknowledge instruction from cmd_translator
-       
+         
      -- signals to/from reply queue 
      m_op_done_i             : in  std_logic;                                            -- macro op done
      m_op_ok_nEr_i           : in  std_logic;                                            -- macro op success ('1') or error ('0') 
@@ -123,31 +130,8 @@ use sys_param.command_pack.all;
 
 architecture rtl of reply_translator is
 
--- define sub-type 'byte'
-subtype byte is std_logic_vector( 7 downto 0);
 
-
--- some ascii definitions for reply packets
-constant ASCII_A    : byte := X"41";  -- ascii value for 'A'
-constant ASCII_B    : byte := X"42";  -- ascii value for 'B'
-constant ASCII_D    : byte := X"44";  -- ascii value for 'D'
-constant ASCII_E    : byte := X"45";  -- ascii value for 'E'
-constant ASCII_G    : byte := X"47";  -- ascii value for 'G'
-constant ASCII_K    : byte := X"4B";  -- ascii value for 'K'
-constant ASCII_O    : byte := X"4F";  -- ascii value for 'O'
-constant ASCII_P    : byte := X"50";  -- ascii value for 'P'
-constant ASCII_R    : byte := X"52";  -- ascii value for 'R'
-constant ASCII_S    : byte := X"53";  -- ascii value for 'S'
-constant ASCII_SP   : byte := X"20";  -- ascii value for space
-
-
--- some parameters defined
-constant ERROR_WORD_WIDTH    : integer := 32;
-constant CHECKSUM_ER_NUM     : std_logic_vector (ERROR_WORD_WIDTH-1 downto 0) := X"00000001" ;
-constant NUM_HEAD_WORDS      : integer := 4;
 constant NUM_REPLY_WORDS     : integer := 4;
-constant NUM_REPLY_BYTES     : integer := (NUM_HEAD_WORDS * 4) + (NUM_REPLY_WORDS *4);
-
 
 -- reply word registers
 
@@ -161,10 +145,10 @@ signal reply_word2_1         : byte;                       -- reply word 2 byte 
 signal reply_word2_2         : byte;                       -- reply word 2 byte 2 
 signal reply_word2_3         : byte;                       -- reply word 2 byte 3 
             
-signal wordN_0         : byte;                       -- reply word 3 byte 0 
-signal wordN_1         : byte;                       -- reply word 3 byte 1 
-signal wordN_2         : byte;                       -- reply word 3 byte 2 
-signal wordN_3         : byte;                       -- reply word 3 byte 3 
+signal wordN_0               : byte;                       -- reply word 3 byte 0 
+signal wordN_1               : byte;                       -- reply word 3 byte 1 
+signal wordN_2               : byte;                       -- reply word 3 byte 2 
+signal wordN_3               : byte;                       -- reply word 3 byte 3 
 
 -- packet header registers /  definitions 
 
@@ -958,7 +942,6 @@ txd_o              <= fibre_byte;
              
       checksum_in_mux_sel      <= '0';
       
-      cmd_ack_o                <= '0';
       rst_fibre_count          <= '0';
       ena_fibre_count          <= '0';
       

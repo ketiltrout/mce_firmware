@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.3 2004/08/24 13:20:06 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.4 2004/08/25 14:21:29 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/24 13:20:06 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/08/25 14:21:29 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.4  2004/08/25 14:21:29  dca
+-- Data frame test added ...
+--
 -- Revision 1.3  2004/08/24 13:20:06  dca
 -- general progress of test bed...
 --
@@ -99,7 +102,6 @@ port(
      cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);
      card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
      param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  
-     cmd_ack_o	              : out std_logic; 
        
      -- signals to/from reply queue 
      m_op_done_i             : in  std_logic; 
@@ -118,7 +120,7 @@ port(
 end component;
 
 
-subtype byte is std_logic_vector( 7 downto 0);
+--subtype byte is std_logic_vector( 7 downto 0);
 
 
 -- some ascii definitions for reply packets
@@ -182,7 +184,6 @@ begin
      cmd_code_i         => cmd_code,    
      card_id_i          => card_id,     
      param_id_i         => param_id, 
-     cmd_ack_o	         => cmd_ack, 
        
      -- signals to/from reply queue 
      m_op_done_i        => m_op_done,     
