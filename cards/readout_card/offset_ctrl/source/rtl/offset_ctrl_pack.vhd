@@ -33,7 +33,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: offset_ctrl_pack.vhd,v $
+-- Revision 1.1  2004/11/10 23:28:14  anthonyk
+-- Initial release
+--
 --
 --
 
@@ -52,7 +55,7 @@ package offset_ctrl_pack is
    
    constant OFFSET_DATA_WIDTH        : integer := 16;        -- maximum data width of offset value
                                                              -- determined by DAC device   
-   constant SPI_DATA_WIDTH           : integer := 3;         -- data width of SPI interface 
+   constant OFFSET_SPI_DATA_WIDTH    : integer := 3;         -- data width of SPI interface 
    constant FAST_TO_SLOW_RATIO       : integer := 2;         -- fast to slow clock ratio
    
      

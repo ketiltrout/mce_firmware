@@ -34,7 +34,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_offset_ctrl.vhd,v $
+-- Revision 1.1  2004/11/13 01:23:42  anthonyk
+-- Initial release
+--
 --
 --
 
@@ -87,7 +90,7 @@ architecture test of tb_offset_ctrl is
    -- SPI chip select (active low) Bit 2
    -- SPI serial clock Bit 1
    -- SPI serial data Bit 0
-   signal   offset_spi_bus : std_logic_vector(SPI_DATA_WIDTH-1 downto 0);
+   signal   offset_spi_bus : std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
    
    -- automated check signals
    signal   sc_data         : std_logic_vector(15 downto 0);              -- serial captured data
@@ -103,7 +106,7 @@ architecture test of tb_offset_ctrl is
          clk_50_i                  : in     std_logic;                                     -- global clock (50 MHz)    
          restart_frame_aligned_i   : in     std_logic;                                     -- start of frame signal (50 MHz domain)
          offset_dat_i             : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);     -- parallel sa bias data input value from wishbone feedback data
-         offset_dac_spi_o         : out    std_logic_vector(SPI_DATA_WIDTH-1 downto 0)     -- serial sa bias data output value, clock and chip select
+         offset_dac_spi_o         : out    std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0)     -- serial sa bias data output value, clock and chip select
       );
    end component offset_ctrl;
    
