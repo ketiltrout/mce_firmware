@@ -36,8 +36,10 @@
 --                               : OR if written, sets the active row. The active row number is a byte long.
 --              CYC_OO_SYC_ADDR  : to send the number of cycles out of sync to the master (cmd_fsm) 
 --              RESYNC_ADDR      : to resync with the next sync pulse
--- 
- 
+-- Revision history:
+-- <date $Date$>	- <initials $Author$>
+-- $Log$   
+--
 -----------------------------------------------------------------------------
 
 library ieee;
@@ -160,7 +162,7 @@ component ram_dp_16x256 IS
 	);
 END component;
 
-component adder IS
+component adder8 IS
 	PORT
 	(
 		dataa		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
@@ -188,7 +190,7 @@ begin
          q_b	   => mem_q_b
 	);
 	
-   adder_inst : adder PORT MAP (
+   adder8_inst : adder8 PORT MAP (
 		dataa	 => base,
 		datab	 => idx_sig,
 		result	 => mem_addr
