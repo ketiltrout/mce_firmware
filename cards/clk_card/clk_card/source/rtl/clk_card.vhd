@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.2 2004/11/25 01:09:12 bench2 Exp $
+-- $Id: clk_card.vhd,v 1.3 2004/11/25 15:15:51 dca Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.3  2004/11/25 15:15:51  dca
+-- various signals removed from architecture
+--
 -- Revision 1.2  2004/11/25 01:09:12  bench2
 -- Greg: Changed issue_reply block instantiation and corresponding signals in the tcl file
 --
@@ -143,6 +146,9 @@ signal fibre_tx_clk  : std_logic;
 signal fibre_rx_clk  : std_logic;
 signal lvds_clk      : std_logic;
 
+signal clk_25mhz     : std_logic;  -- ???
+
+
 -- frame_timing - sync_gen interface
 signal sync       : std_logic;
 signal sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -165,9 +171,7 @@ signal sync_gen_ack        : std_logic;
 signal frame_timing_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack    : std_logic;
       
-signal clk_25mhz           : std_logic;
-
-    
+   
 -- lvds_tx interface
 signal sync_pulse        : std_logic;
 signal sync_number       : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
