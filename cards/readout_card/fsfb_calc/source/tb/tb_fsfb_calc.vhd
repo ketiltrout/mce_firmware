@@ -35,6 +35,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.4  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.3  2004/11/09 17:55:00  anthonyk
 -- Various updates to reflect modified fsfb_calc definitions.
 --
@@ -61,7 +64,7 @@ use work.fsfb_calc_pack.all;
 
 use work.flux_loop_ctrl_pack.all;
 use work.flux_loop_pack.all;
-
+use work.readout_card_pack.all;
 
 entity tb_fsfb_calc is
 

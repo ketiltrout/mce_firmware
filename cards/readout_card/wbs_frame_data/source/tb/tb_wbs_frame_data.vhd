@@ -30,9 +30,12 @@
 -- test bed for wbs_frame_data.vhd
 --
 -- Revision history:
--- <date $Date: 2004/10/29 12:37:24 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/26 18:29:08 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: tb_wbs_frame_data.vhd,v $
+-- Revision 1.5  2004/11/26 18:29:08  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.4  2004/10/29 12:37:24  dca
 -- read cycle changed to block read...
 -- test bed changed accordingly
@@ -71,6 +74,7 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.wbs_frame_data_pack.all;
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 architecture bench of tb_wbs_frame_data is
 

@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/11/04 17:12:36 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/26 18:29:08 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.13  2004/11/26 18:29:08  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.12  2004/11/04 17:12:36  dca
 -- code added to reset raw address if a captr_raw instruction comes arrives
 -- between 328 block reads (i.e. before all 128 block reads are performed).
@@ -104,6 +107,7 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.wbs_frame_data_pack.all;
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 
 entity wbs_frame_data is

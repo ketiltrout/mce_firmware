@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.2  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.1  2004/10/22 22:18:36  anthonyk
 -- Initial release
 --
@@ -51,8 +54,8 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.fsfb_calc_pack.all;
-
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -130,8 +133,8 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.fsfb_calc_pack.all;
-
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 architecture rtl of fsfb_io_controller is
 

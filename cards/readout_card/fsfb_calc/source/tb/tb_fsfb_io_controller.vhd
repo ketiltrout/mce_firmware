@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_io_controller.vhd,v $
+-- Revision 1.2  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.1  2004/10/22 22:19:41  anthonyk
 -- Initial release
 --
@@ -53,6 +56,7 @@ library work;
 use work.fsfb_calc_pack.all;
 
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 entity tb_fsfb_io_controller is
 

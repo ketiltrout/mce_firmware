@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.4  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.3  2004/11/09 01:12:52  anthonyk
 -- Added lock mode enable output for fsfb_ctrl block.
 -- Added generic lock_dat_left.
@@ -64,9 +67,9 @@ use ieee.std_logic_1164.all;
 library work;
 use work.fsfb_calc_pack.all;
 
-use work.flux_loop_pack.all;
 use work.flux_loop_ctrl_pack.all;
-
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -138,8 +141,9 @@ use ieee.std_logic_1164.all;
 library work;
 use work.fsfb_calc_pack.all;
 
-use work.flux_loop_pack.all;
 use work.flux_loop_ctrl_pack.all;
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;

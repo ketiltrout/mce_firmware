@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.3  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/11/09 01:10:08  anthonyk
 -- Update package to reflect newly added constant, 66 bit adder
 -- component and modified fsfb_processor definitions.
@@ -49,6 +52,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
+use work.readout_card_pack.all;
 use work.flux_loop_pack.all;
 use work.flux_loop_ctrl_pack.all;
 

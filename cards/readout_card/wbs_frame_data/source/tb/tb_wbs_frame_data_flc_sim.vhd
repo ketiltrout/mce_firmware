@@ -30,9 +30,12 @@
 -- test block to mimic flux_loop_cntl behaviour for wbs_frame_data test bed.
 --
 -- Revision history:
--- <date $Date: 2004/10/29 12:38:08 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/26 18:29:08 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: tb_wbs_frame_data_flc_sim.vhd,v $
+-- Revision 1.3  2004/11/26 18:29:08  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/10/29 12:38:08  dca
 -- raw data buffer changed so that data increments on the 328 bounary.
 --
@@ -55,6 +58,7 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.wbs_frame_data_pack.all;
 use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 entity tb_wbs_frame_data_flc_sim is
 
@@ -168,6 +172,8 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.wbs_frame_data_pack.all;
+use work.flux_loop_pack.all;
+use work.readout_card_pack.all;
 
 
 architecture behav of tb_wbs_frame_data_flc_sim is

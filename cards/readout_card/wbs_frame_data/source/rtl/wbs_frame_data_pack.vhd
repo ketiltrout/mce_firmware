@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2004/10/26 16:13:41 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/26 18:29:08 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.5  2004/11/26 18:29:08  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.4  2004/10/26 16:13:41  dca
 -- no message
 --
@@ -53,8 +56,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library work;
-use work.flux_loop_pack.all;
+--library work;
+--use work.flux_loop_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
