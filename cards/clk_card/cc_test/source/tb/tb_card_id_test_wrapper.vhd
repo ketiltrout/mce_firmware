@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_card_id_test_wrapper,v 1.1 2004/03/12 21:06:30 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_card_id_test_wrapper.vhd,v 1.1 2004/03/16 19:00:57 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,8 +31,8 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/03/12 21:06:30 $>	-		<text>		- <initials $Author: jjacob $>
-
+-- <date $Date: 2004/03/16 19:00:57 $>	-		<text>		- <initials $Author: jjacob $>
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
@@ -401,6 +401,8 @@ begin
       procedure do_finish is
       begin
       
+         wait until W_DONE_O = '1';
+
          wait for PERIOD;
          
          -- test software signals
@@ -447,9 +449,19 @@ begin
       do_tx_byte_to_RS232;
       do_tx_byte_to_RS232;
       do_tx_byte_to_RS232;
-      --do_tx_byte_to_RS232;
+      do_tx_byte_to_RS232;
       
-      do_tx_byte_to_RS232_last;
+      do_tx_byte_to_RS232;
+      do_tx_byte_to_RS232;
+      do_tx_byte_to_RS232;
+      do_tx_byte_to_RS232;
+      
+      do_tx_byte_to_RS232;
+      do_tx_byte_to_RS232;
+      do_tx_byte_to_RS232;
+      do_tx_byte_to_RS232;
+      
+--      do_tx_byte_to_RS232_last;
 
       do_finish;
       
