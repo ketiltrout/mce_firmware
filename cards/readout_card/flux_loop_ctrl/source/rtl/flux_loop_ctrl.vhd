@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.2  2004/11/08 23:58:33  mohsen
+-- Sorted out parameters.  Also, added fsfb_ctrl.
+--
 -- Revision 1.1  2004/10/28 19:49:30  mohsen
 -- created
 --
@@ -60,6 +63,8 @@ use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
 use work.fsfb_ctrl_pack.all;
 use work.flux_loop_ctrl_pack.all;
+use work.offset_ctrl_pack.all;
+use work.sa_bias_ctrl_pack.all;
 
 
 library sys_param;
@@ -82,6 +87,7 @@ entity flux_loop_ctrl is
 
     -- Global signals 
     clk_50_i                  : in  std_logic;
+    clk_25_i                  : in  std_logic;
     rst_i                     : in  std_logic;
  
     -- Frame timing signals
@@ -135,8 +141,8 @@ entity flux_loop_ctrl is
     dac_clk_o                 : out std_logic;
 
     -- spi DAC Interface
-    sa_bias_dac_spi_o         : out std_logic_vector(2 downto 0);
-    offset_dac_spi_o          : out std_logic_vector(2 downto 0);
+    sa_bias_dac_spi_o         : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+    offset_dac_spi_o          : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
 
 
     -- INTERNAL
@@ -268,6 +274,32 @@ begin  -- struct
         dac_clk_o           => dac_clk_o);
 
 
-  
+  -----------------------------------------------------------------------------
+  -- Instantiation of offset_ctrl
+  -----------------------------------------------------------------------------
+  i_offset_ctrl : offset_ctrl
+     port map (
+        rst_i                   => rst_i,
+        clk_25_i                => clk_25_i,
+        clk_50_i                => clk_50_i,
+        restart_frame_aligned_i => restart_frame_aligned_i,
+        offset_dat_i            => offset_dat_i,
+        offset_dac_spi_o        => offset_dac_spi_o
+        );
+
+  -----------------------------------------------------------------------------
+  -- Instantiation of sa_bias_ctrl
+  -----------------------------------------------------------------------------
+
+  i_sa_bias_ctrl : sa_bias_ctrl
+     port map (
+        rst_i                   => rst_i,
+        clk_25_i                => clk_25_i,
+        clk_50_i                => clk_50_i,
+        restart_frame_aligned_i => restart_frame_aligned_i,
+        sa_bias_dat_i           => sa_bias_dat_i,
+        sa_bias_dac_spi_o       => sa_bias_dac_spi_o
+        ); 
+        
 end struct;
 

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.2  2004/11/08 23:59:03  mohsen
+-- Sorted out parameters.  Also, added fsfb_ctrl.
+--
 -- Revision 1.1  2004/10/28 19:49:30  mohsen
 -- created
 --
@@ -48,6 +51,8 @@ library work;
 use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
 use work.fsfb_ctrl_pack.all;
+use work.offset_ctrl_pack.all;
+use work.sa_bias_ctrl_pack.all;
 
 
 library sys_param;
@@ -159,9 +164,39 @@ package flux_loop_ctrl_pack is
       dac_clk_o           : out std_logic);
   end component;
 
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
+
+   -----------------------------------------------------------------------------
+   -- Offset Control Block
+   -----------------------------------------------------------------------------
+
+   component offset_ctrl
+      port ( 
+         rst_i                     : in     std_logic;                                             -- global reset
+         clk_25_i                  : in     std_logic;                                             -- global clock (25 MHz)
+         clk_50_i                  : in     std_logic;                                             -- global clock (50 MHz)
+         restart_frame_aligned_i   : in     std_logic;                                             -- start of frame signal (50 MHz domain)
+         offset_dat_i              : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- parallel offset data input value from wishbone feedback data
+         offset_dac_spi_o          : out    std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0)     -- serial offset data output value, clock and chip select
+      );
+   end component offset_ctrl;
+
+
+   -----------------------------------------------------------------------------
+   -- SA Bias Control Block
+   -----------------------------------------------------------------------------
+  
+   component sa_bias_ctrl
+      port ( 
+         rst_i                     : in     std_logic;                                             -- global reset
+         clk_25_i                  : in     std_logic;                                             -- global clock (25 MHz)
+         clk_50_i                  : in     std_logic;                                             -- global clock (50 MHz)
+         restart_frame_aligned_i   : in     std_logic;                                             -- start of frame signal (50 MHz domain)
+         sa_bias_dat_i             : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- parallel sa bias data input value from wishbone feedback data
+         sa_bias_dac_spi_o         : out    std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0)    -- serial sa bias data output value, clock and chip select
+       );   
+    end component sa_bias_ctrl;
+  
+  
   
 end flux_loop_ctrl_pack;
 
