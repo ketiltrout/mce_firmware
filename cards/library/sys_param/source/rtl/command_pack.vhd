@@ -67,6 +67,7 @@ package command_pack is
    constant ASCII_P    : byte := X"50";  -- ascii value for 'P'
    constant ASCII_R    : byte := X"52";  -- ascii value for 'R'
    constant ASCII_S    : byte := X"53";  -- ascii value for 'S'
+   constant ASCII_T    : byte := X"54";  -- ascii value for 'T'
    constant ASCII_W    : byte := X"57";  -- ascii value for 'W'
    constant ASCII_SP   : byte := X"20";  -- ascii value for space
 
