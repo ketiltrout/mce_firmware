@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.6  2004/09/27 23:02:22  erniel
+-- using updated constants from command_pack
+--
 -- Revision 1.5  2004/09/11 01:02:49  erniel
 -- minor signal name changes
 --
@@ -376,7 +379,7 @@ begin
       end if;
    end process rx_stateFF;
    
-   rx_stateNS: process(rx_pres_state, crc_word_rdy, cmd_valid, cmd_data_size, hdr_word_count, data_word_count)
+   rx_stateNS: process(rx_pres_state, crc_word_rdy, crc_valid, cmd_valid, cmd_type, cmd_data_size, hdr_word_count, data_word_count)
    begin
       case rx_pres_state is
          when RX_HDR =>    if(crc_word_rdy = '1') then                        -- when CRC datapath is done with this word
@@ -441,7 +444,7 @@ begin
       end case;
    end process rx_stateNS;
 
-   rx_stateOut: process(rx_pres_state, hdr_word_count)
+   rx_stateOut: process(rx_pres_state, hdr_word_count, data_word_count, crc_word_out, temp0, temp1)
    begin
       -- default values:
       temp0_ld            <= '0';
