@@ -33,8 +33,11 @@
 --              RESYNC_NXT_ADDR  : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/16 00:53:04 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/16 23:30:58 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.4  2004/04/16 23:30:58  mandana
+-- completed out_sync_cmd and resync_cmd
+--
 -- Revision 1.3  2004/04/16 00:53:04  mandana
 -- seperated snd_dac32 and snd_lvds FSMs
 --
@@ -55,6 +58,7 @@ use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
+use sys_param.general_pack.all;
 use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
 
@@ -220,11 +224,7 @@ dac_ncs_o <= dac_ncs;
             
          when OUT_SYNC_CMD =>
             next_state <= IDLE; 
-            
---            SEND_DATA;                                            -- FIGURE OUT LATER, we may need an extra state            
---         when SEND_DATA =>
---            next_state <= IDLE;
-            
+                       
       end case;
    end process state_NS;
    
@@ -252,9 +252,23 @@ dac_ncs_o <= dac_ncs;
             read_lsb_en <= '1';
             read_msb_en <= '1';            
             rst_nxt_sync<= '0';            
-
-            dac_data_p (idac)     <= read_buf (15 downto 0);
-            dac_data_p (idac + 1) <= read_buf (31 downto 16);
+            
+            -- range checking for DAC settings
+            if (read_buf (15 downto 0) > MAX_DAC_BC) then
+               dac_data_p (idac) <= MAX_DAC_BC;
+            elsif (read_buf (15 downto 0) < MIN_DAC_BC) then
+               dac_data_p (idac) <= MIN_DAC_BC;
+            else
+               dac_data_p (idac) <= read_buf (15 downto 0);
+            end if;   
+               
+            if (read_buf (31 downto 16) > MAX_DAC_BC) then
+               dac_data_p (idac + 1) <= MAX_DAC_BC;
+            elsif (read_buf (31 downto 16) < MIN_DAC_BC) then
+               dac_data_p (idac + 1) <= MIN_DAC_BC;
+            else
+               dac_data_p (idac + 1) <= read_buf (31 downto 16);
+            end if;   
                                        
          when WR_DAC32_NXT =>  
             idac <= idac + 2;
@@ -286,8 +300,16 @@ dac_ncs_o <= dac_ncs;
             read_lsb_en <= '1';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
-            dac_data_p (32) <= read_buf (15 downto 0);
-                     
+            
+            -- range checking for DAC settings
+            if (read_buf (15 downto 0) > MAX_DAC_BC) then
+               dac_data_p (32) <= MAX_DAC_BC;
+            elsif (read_buf (15 downto 0) < MIN_DAC_BC) then
+               dac_data_p (32) <= MIN_DAC_BC;
+            else
+               dac_data_p (32) <= read_buf (15 downto 0);
+            end if;   
+                                 
          when WR_DAC_LVDS_DONE =>
             idac        <= 0;
             write_buf   <= (others => 'Z');
@@ -482,24 +504,7 @@ dac_ncs_o <= dac_ncs;
       clk_error_o      => error_count
    );
    
-------------------------------------------------------------------------
---
--- Instantiate register for reading the counter value
---
-------------------------------------------------------------------------
---   sync_counter: counter 
---   generic(MAX => UPDATE_BIAS);
---   port map(
---      clk_i              => clk_i,
---      rst_i              => rst_i,
---      ena_i              => '1',
---      load_i             => '1',
---      down_i             => '1',
---      count_i            => UPDATE_BIAS,
---      count_o            => read_count
---   );
-   
-------------------------------------------------------------------------
+-------------------------------------------------------------------------
 --
 -- Instantiate registers for writing the DAC data
 --
