@@ -36,7 +36,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_raw_dat_manager_ctrl.vhd,v $
+-- Revision 1.1  2004/10/22 00:16:16  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -47,6 +50,9 @@ use ieee.std_logic_arith.all;
 
 
 entity tb_raw_dat_manager_ctrl is
+
+  generic (
+    NUM_RAW_FRM_TO_GRAB : integer := 2);
   
 end tb_raw_dat_manager_ctrl;
 
@@ -55,6 +61,8 @@ architecture beh of tb_raw_dat_manager_ctrl is
 
 
   component raw_dat_manager_ctrl
+    generic (
+      NUM_RAW_FRM_TO_GRAB : integer);
     port (
       rst_i                   : in  std_logic;
       clk_i                   : in  std_logic;
@@ -85,7 +93,12 @@ begin  -- beh
   -- Instantiate the Device Under Test (DUT)
   -----------------------------------------------------------------------------
 
-  DUT: raw_dat_manager_ctrl
+  DUT : raw_dat_manager_ctrl
+
+    generic map (
+    NUM_RAW_FRM_TO_GRAB => NUM_RAW_FRM_TO_GRAB)
+
+    
     port map (
       rst_i                   => rst_i,
       clk_i                   => clk_i,

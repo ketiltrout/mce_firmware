@@ -53,6 +53,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_adc_sample_coadd.vhd,v $
+-- Revision 1.2  2004/10/23 01:27:13  mohsen
+-- Modified the maximum value the ADC can take to prevent overflow.
+--
 -- Revision 1.1  2004/10/22 00:16:16  mohsen
 -- Created
 --
@@ -64,12 +67,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-use ieee.std_logic_textio.all;
 
-library STD;
-use STD.textio.all;
-
-
+library work;
+use work.adc_sample_coadd_pack.all;
 
 
 entity tb_adc_sample_coadd is
@@ -79,49 +79,35 @@ end tb_adc_sample_coadd;
 
 architecture beh of tb_adc_sample_coadd is
 
-
   component adc_sample_coadd
-      port (
-        -- ADC interface signals
-        adc_dat_i                 : in std_logic_vector (13 downto 0);
-        adc_ovr_i                 : in std_logic;
-        adc_rdy_i                 : in std_logic;
-        adc_clk_o                 : out std_logic;
-
-        -- global signals 
-        clk_50_i                  : in  std_logic;
-        rst_i                     : in  std_logic;
-
-        -- Frame timing signals
-        adc_coadd_en_i            : in  std_logic;
-        restart_frame_1row_prev_i : in  std_logic;
-        restart_frame_aligned_i   : in  std_logic;
-        row_switch_i              : in  std_logic;
-        initialize_window_i       : in  std_logic;
-
-        -- Wishbone Slave (wbs) Frame Data signals
-        coadded_addr_i            : in  std_logic_vector (5 downto 0);
-        coadded_dat_o             : out std_logic_vector (31 downto 0);
-        raw_addr_i                : in  std_logic_vector (12 downto 0);
-        raw_dat_o                 : out std_logic_vector (15 downto 0);
-        raw_req_i                 : in  std_logic;
-        raw_ack_o                 : out std_logic;
-
-        -- First Stage Feedback Calculation (fsfb_calc) block signals
-        coadd_done_o              : out std_logic;
-        current_coadd_dat_o       : out std_logic_vector (31 downto 0);
-        current_diff_dat_o        : out std_logic_vector (31 downto 0);
-        current_integral_dat_o    : out std_logic_vector (31 downto 0);
-
-        -- Wishbove Slave (wbs) Feedback (fb) Data Signals
-        adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-        adc_offset_adr_o          : out std_logic_vector(5 downto 0));
-        
-      
+    port (
+      adc_dat_i                 : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+      adc_ovr_i                 : in  std_logic;
+      adc_rdy_i                 : in  std_logic;
+      adc_clk_o                 : out std_logic;
+      clk_50_i                  : in  std_logic;
+      rst_i                     : in  std_logic;
+      adc_coadd_en_i            : in  std_logic;
+      restart_frame_1row_prev_i : in  std_logic;
+      restart_frame_aligned_i   : in  std_logic;
+      row_switch_i              : in  std_logic;
+      initialize_window_i       : in  std_logic;
+      coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
+      coadded_dat_o             : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+      raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+      raw_req_i                 : in  std_logic;
+      raw_ack_o                 : out std_logic;
+      coadd_done_o              : out std_logic;
+      current_coadd_dat_o       : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      current_diff_dat_o        : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      current_integral_dat_o    : out std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+      adc_offset_dat_i          : in  std_logic_vector (ADC_OFFSET_DAT_WIDTH-1 downto 0);
+      adc_offset_adr_o          : out std_logic_vector (ADC_OFFSET_ADDR_WIDTH-1 downto 0));
   end component;
 
 
-  signal adc_dat_i                 : std_logic_vector (13 downto 0);
+  signal adc_dat_i                 : std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
   signal adc_ovr_i                 : std_logic;
   signal adc_rdy_i                 : std_logic;
   signal adc_clk_o                 : std_logic;
@@ -133,18 +119,18 @@ architecture beh of tb_adc_sample_coadd is
   signal row_switch_i              : std_logic;
   signal restart_frame_1row_post_i : std_logic;
   signal initialize_window_i       : std_logic;
-  signal coadded_addr_i            : std_logic_vector (5 downto 0);
-  signal coadded_dat_o             : std_logic_vector (31 downto 0);
-  signal raw_addr_i                : std_logic_vector (12 downto 0);
-  signal raw_dat_o                 : std_logic_vector (15 downto 0);
+  signal coadded_addr_i            : std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
+  signal coadded_dat_o             : std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+  signal raw_addr_i                : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+  signal raw_dat_o                 : std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
   signal raw_req_i                 : std_logic;
   signal raw_ack_o                 : std_logic;
   signal coadd_done_o              : std_logic;
-  signal current_coadd_dat_o       : std_logic_vector (31 downto 0);
-  signal current_diff_dat_o        : std_logic_vector (31 downto 0);
-  signal current_integral_dat_o    : std_logic_vector (31 downto 0);
-  signal adc_offset_dat_i          : std_logic_vector(15 downto 0);
-  signal adc_offset_adr_o          : std_logic_vector(5 downto 0);
+  signal current_coadd_dat_o       : std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+  signal current_diff_dat_o        : std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+  signal current_integral_dat_o    : std_logic_vector (COADD_DAT_WIDTH-1 downto 0);
+  signal adc_offset_dat_i          : std_logic_vector (ADC_OFFSET_DAT_WIDTH-1 downto 0);
+  signal adc_offset_adr_o          : std_logic_vector (ADC_OFFSET_ADDR_WIDTH-1 downto 0);
  
   constant PERIOD                  : time := 20 ns;
   constant EDGE_DEPENDENCY         : time := 2 ns;  --shows clk edge dependency
@@ -493,9 +479,7 @@ begin  -- beh
         wait for 25*PERIOD;
         adc_coadd_en_i <= '0';
         wait for (CLOCKS_PER_ROW-25-8)*PERIOD;      
-        coadded_addr_i          <= conv_std_logic_vector
-                                   ((conv_integer(unsigned(coadded_addr_i)) +1)
-                                    , coadded_addr_i'length);
+        coadded_addr_i          <= coadded_addr_i +1;
         if (conv_integer(unsigned(coadded_addr_i))=41-1) then
           coadded_addr_i <=(others => '0' );
         end if;
@@ -524,9 +508,7 @@ begin  -- beh
         wait for 55*PERIOD;
         adc_coadd_en_i <= '0';
         wait for (CLOCKS_PER_ROW-55-8)*PERIOD;      
-        coadded_addr_i          <= conv_std_logic_vector
-                                   ((conv_integer(unsigned(coadded_addr_i)) +1)
-                                    , coadded_addr_i'length) after 10*PERIOD;
+        coadded_addr_i          <= coadded_addr_i +1 after 10*PERIOD;
         if (conv_integer(unsigned(coadded_addr_i))=41-1) then
           coadded_addr_i <=(others => '0') after 10*PERIOD;
         end if;
@@ -542,9 +524,7 @@ begin  -- beh
         wait for 25*PERIOD;
         adc_coadd_en_i <= '0';
         wait for (CLOCKS_PER_ROW-25-8)*PERIOD;      
-        coadded_addr_i          <= conv_std_logic_vector
-                                   ((conv_integer(unsigned(coadded_addr_i)) +1)
-                                    , coadded_addr_i'length);
+        coadded_addr_i          <= coadded_addr_i +1;
         if (conv_integer(unsigned(coadded_addr_i))=41-1) then
           coadded_addr_i <=(others => '0');
         end if;
@@ -576,9 +556,7 @@ begin  -- beh
         wait for 25*PERIOD;
         adc_coadd_en_i <= '0';
         wait for (CLOCKS_PER_ROW-25-8)*PERIOD;      
-        coadded_addr_i          <= conv_std_logic_vector
-                                   ((conv_integer(unsigned(coadded_addr_i)) +1)
-                                    , coadded_addr_i'length);
+        coadded_addr_i          <=  coadded_addr_i +1;
         if (conv_integer(unsigned(coadded_addr_i))=23-1) then
           coadded_addr_i <=(others => '0');
         end if;
@@ -596,9 +574,7 @@ begin  -- beh
         wait for 55*PERIOD;
         adc_coadd_en_i <= '0';
         wait for (CLOCKS_PER_ROW-55-8)*PERIOD;      
-        coadded_addr_i          <= conv_std_logic_vector
-                                   ((conv_integer(unsigned(coadded_addr_i)) +1)
-                                    , coadded_addr_i'length) after 10*PERIOD;
+        coadded_addr_i          <= coadded_addr_i +1 after 10*PERIOD;
         if (conv_integer(unsigned(coadded_addr_i))=35-1) then
           coadded_addr_i <=(others => '0' )after 10*PERIOD;
         end if;
@@ -614,9 +590,7 @@ begin  -- beh
         wait for 25*PERIOD;
         adc_coadd_en_i <= '0';
         wait for (CLOCKS_PER_ROW-25-8)*PERIOD;      
-        coadded_addr_i          <= conv_std_logic_vector
-                                   ((conv_integer(unsigned(coadded_addr_i)) +1)
-                                    , coadded_addr_i'length);
+        coadded_addr_i          <= coadded_addr_i +1;
         if (conv_integer(unsigned(coadded_addr_i))=41-1) then
           coadded_addr_i <=(others => '0');
         end if;

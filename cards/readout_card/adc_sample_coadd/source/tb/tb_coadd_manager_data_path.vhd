@@ -57,7 +57,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_coadd_manager_data_path.vhd,v $
+-- Revision 1.1  2004/10/22 00:16:16  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -66,7 +69,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-
+library work;
+use work.adc_sample_coadd_pack.all;
 
 entity tb_coadd_manager_data_path is
 
@@ -82,27 +86,28 @@ architecture beh of tb_coadd_manager_data_path is
   
 
   component coadd_manager_data_path
-
-    generic (
-      MAX_COUNT                 : integer := 64;  -- = Total number of rows
-      MAX_SHIFT                 : integer := 5);  -- = Delay stages for the
-                                                  -- coadd enable signal.  This
-                                                  -- is latency in A/D +1.
-  
-    port (
-      rst_i                     : in  std_logic;
-      clk_i                     : in  std_logic;
-      adc_dat_i                 : in  std_logic_vector(13 downto 0);
-      adc_offset_dat_i          : in  std_logic_vector(15 downto 0);
-      adc_offset_adr_o          : out std_logic_vector(5 downto 0);
-      adc_coadd_en_i            : in  std_logic;
-      adc_coadd_en_5delay_o     : out std_logic;
-      adc_coadd_en_4delay_o     : out std_logic;
-      clr_samples_coadd_reg_i   : in  std_logic;
-      samples_coadd_reg_o       : out std_logic_vector(31 downto 0);
-      address_count_en_i        : in  std_logic;
-      clr_address_count_i       : in  std_logic;
-      coadd_write_addr_o        : out std_logic_vector(5 downto 0));
+    
+  generic (
+    MAX_COUNT                 : integer := TOTAL_ROW_NO;
+    MAX_SHIFT                 : integer := ADC_LATENCY+1); -- = Delay stages
+                                                           -- for coadd enable
+                                                           -- signals
+                                                            
+  port (
+    rst_i                     : in  std_logic;
+    clk_i                     : in  std_logic;
+    adc_dat_i                 : in  std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
+    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+    adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+    adc_coadd_en_i            : in  std_logic;
+    adc_coadd_en_5delay_o     : out std_logic;
+    adc_coadd_en_4delay_o     : out std_logic;
+    clr_samples_coadd_reg_i   : in  std_logic;
+    samples_coadd_reg_o       : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+    address_count_en_i        : in  std_logic;
+    clr_address_count_i       : in  std_logic;
+    coadd_write_addr_o        : out std_logic_vector(COADD_ADDR_WIDTH-1 downto 0));
+    
     
   end component;
 
@@ -110,17 +115,17 @@ architecture beh of tb_coadd_manager_data_path is
 
   signal rst_i                     : std_logic;
   signal clk_i                     : std_logic;
-  signal adc_dat_i                 : std_logic_vector(13 downto 0);
-  signal adc_offset_dat_i          : std_logic_vector(15 downto 0);
-  signal adc_offset_adr_o          : std_logic_vector(5 downto 0);
+  signal adc_dat_i                 : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
+  signal adc_offset_dat_i          : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+  signal adc_offset_adr_o          : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
   signal adc_coadd_en_i            : std_logic;
   signal adc_coadd_en_5delay_o     : std_logic;
   signal adc_coadd_en_4delay_o     : std_logic;
   signal clr_samples_coadd_reg_i   : std_logic;
-  signal samples_coadd_reg_o       : std_logic_vector(31 downto 0);
+  signal samples_coadd_reg_o       : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal address_count_en_i        : std_logic;
   signal clr_address_count_i       : std_logic;
-  signal coadd_write_addr_o        : std_logic_vector(5 downto 0);
+  signal coadd_write_addr_o        : std_logic_vector(COADD_ADDR_WIDTH-1 downto 0);
 
   
   constant PERIOD                : time := 20 ns;
@@ -314,17 +319,19 @@ begin  -- beh
                      (ZERO_OFFSET(conv_integer(unsigned(adc_offset_adr_o))),
                       adc_offset_dat_i'length);
                                                                   
-  
-  i_input_adc_dat: process (clk_i)
+  i_input_adc_dat: process (clk_i, rst_i)
   begin  -- process i_input_adc_dat
-    if clk_i'event and clk_i = '0' then
+    if rst_i = '1' then                 -- asynchronous reset (active hig)
+      avalue <= 0;
+    elsif clk_i'event and clk_i = '0' then  -- falling clock edge
       avalue <= avalue + 7;
-      if avalue >14000 then
+      if avalue >4000 then
         avalue <=0;
-      end if;
-      adc_dat_i <= conv_std_logic_vector(avalue, adc_dat_i'length);
+      end if;      
     end if;
   end process i_input_adc_dat;
+ 
+  adc_dat_i <= conv_std_logic_vector(avalue, adc_dat_i'length);
 
 
 

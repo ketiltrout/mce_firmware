@@ -47,7 +47,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_coadd_dynamic_manager_ctrl.vhd,v $
+-- Revision 1.1  2004/10/22 00:16:16  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -56,6 +59,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
+
+library work;
+use work.adc_sample_coadd_pack.all;
 
 
 entity tb_coadd_dynamic_manager_ctrl is
@@ -73,11 +79,11 @@ architecture beh of tb_coadd_dynamic_manager_ctrl is
 
 
   component coadd_dynamic_manager_ctrl
-
+    
     generic (
-      COADD_DONE_MAX_COUNT : integer;
-      MAX_SHIFT            : integer);
-
+      COADD_DONE_MAX_COUNT : integer := 7;  -- = max delay+1 for coadd_done 
+      MAX_SHIFT            : integer := ADC_LATENCY+1); 
+ 
     port (
       rst_i                     : in  std_logic;
       clk_i                     : in  std_logic;
@@ -91,11 +97,11 @@ architecture beh of tb_coadd_dynamic_manager_ctrl is
       address_count_en_o        : out std_logic;
       clr_address_count_o       : out std_logic;
       wren_bank0_o              : out std_logic;
-      wren_for_fsfb_o           : out std_logic;
       wren_bank1_o              : out std_logic;
+      wren_for_fsfb_o           : out std_logic;
       coadd_done_o              : out std_logic;
       current_bank_o            : out std_logic);
-    
+
   end component;
 
   

@@ -57,7 +57,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_dynamic_manager_data_path.vhd,v $
+-- Revision 1.1  2004/10/22 00:16:16  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -65,6 +68,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+
+library work;
+use work.adc_sample_coadd_pack.all;
 
 
 entity tb_dynamic_manager_data_path is
@@ -83,24 +89,25 @@ architecture beh of tb_dynamic_manager_data_path is
   component dynamic_manager_data_path
     
     generic (
-      MAX_SHIFT : integer);
-    
+      MAX_SHIFT : integer := ADC_LATENCY+1);  -- delay stages for
+                                              -- initialize_window_i
+                                          
     port (
 
       rst_i                  : in  std_logic;
       clk_i                  : in  std_logic;
       initialize_window_i    : in  std_logic;
-      current_coadd_dat_i    : in  std_logic_vector(31 downto 0);
+      current_coadd_dat_i    : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
       current_bank_i         : in  std_logic;
       wren_for_fsfb_i        : in  std_logic;
-      coadd_dat_frm_bank0_i  : in  std_logic_vector(31 downto 0);
-      coadd_dat_frm_bank1_i  : in  std_logic_vector(31 downto 0);
-      intgrl_dat_frm_bank0_i : in  std_logic_vector(31 downto 0);
-      intgrl_dat_frm_bank1_i : in  std_logic_vector(31 downto 0);
-      current_coadd_dat_o    : out std_logic_vector(31 downto 0);
-      current_diff_dat_o     : out std_logic_vector(31 downto 0);
-      current_integral_dat_o : out std_logic_vector(31 downto 0);
-      integral_result_o      : out std_logic_vector(31 downto 0));
+      coadd_dat_frm_bank0_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      coadd_dat_frm_bank1_i  : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      intgrl_dat_frm_bank0_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      intgrl_dat_frm_bank1_i : in  std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      current_coadd_dat_o    : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      current_diff_dat_o     : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      current_integral_dat_o : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+      integral_result_o      : out std_logic_vector(COADD_DAT_WIDTH-1 downto 0));
     
   end component;
 
@@ -108,17 +115,17 @@ architecture beh of tb_dynamic_manager_data_path is
   signal rst_i                  : std_logic;
   signal clk_i                  : std_logic;
   signal initialize_window_i    : std_logic;
-  signal current_coadd_dat_i    : std_logic_vector(31 downto 0);
+  signal current_coadd_dat_i    : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
   signal current_bank_i         : std_logic;
   signal wren_for_fsfb_i        : std_logic;
-  signal coadd_dat_frm_bank0_i  : std_logic_vector(31 downto 0);
-  signal coadd_dat_frm_bank1_i  : std_logic_vector(31 downto 0);
-  signal intgrl_dat_frm_bank0_i : std_logic_vector(31 downto 0);
-  signal intgrl_dat_frm_bank1_i : std_logic_vector(31 downto 0);
-  signal current_coadd_dat_o    : std_logic_vector(31 downto 0);
-  signal current_diff_dat_o     : std_logic_vector(31 downto 0);
-  signal current_integral_dat_o : std_logic_vector(31 downto 0);
-  signal integral_result_o      : std_logic_vector(31 downto 0);
+  signal coadd_dat_frm_bank0_i  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal coadd_dat_frm_bank1_i  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal intgrl_dat_frm_bank0_i : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal intgrl_dat_frm_bank1_i : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal current_coadd_dat_o    : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal current_diff_dat_o     : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal current_integral_dat_o : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal integral_result_o      : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
 
   
   constant PERIOD                : time := 20 ns;

@@ -35,7 +35,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_raw_dat_manager_data_path.vhd,v $
+-- Revision 1.1  2004/10/22 00:16:16  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -48,8 +51,8 @@ use ieee.std_logic_arith.all;
 entity tb_raw_dat_manager_data_path is
 
   generic (
-    ADDR_WIDTH : integer := 5;          -- set these values to test variations
-    MAX_COUNT  : integer := 31);        -- Normally =(2^ADDR_WIDTH)-1
+    ADDR_WIDTH : integer := 5);      -- set these values to test variations
+
   
 end tb_raw_dat_manager_data_path;
 
@@ -61,14 +64,14 @@ architecture beh of tb_raw_dat_manager_data_path is
   component raw_dat_manager_data_path
 
     generic (
-      ADDR_WIDTH : integer;               
-      MAX_COUNT  : integer);              -- Normally = (2^ADDR_WIDTH)-1
+      ADDR_WIDTH : integer);               
+
   
     port (
       rst_i        : in  std_logic;
       clk_i        : in  std_logic;
       clr_index_i  : in  std_logic;
-      addr_index_o : out std_logic_vector (ADDR_WIDTH-1 downto 0));
+      addr_index_o : out std_logic_vector(ADDR_WIDTH-1 downto 0));
     
   end component;
 
@@ -76,12 +79,15 @@ architecture beh of tb_raw_dat_manager_data_path is
   signal rst_i                   : std_logic;
   signal clk_i                   : std_logic;
   signal clr_index_i             : std_logic;
-  signal addr_index_o            : std_logic_vector (ADDR_WIDTH-1 downto 0);
+  signal addr_index_o            : std_logic_vector(ADDR_WIDTH-1 downto 0);
    
   constant PERIOD                : time := 20 ns;
   constant EDGE_DEPENDENCY       : time := 2 ns;  -- shows clk edge dependency
   constant RESET_WINDOW          : time := 8* PERIOD;
 
+
+  constant MAX_COUNT             : integer := (2**ADDR_WIDTH)-1;
+  
   
 begin  -- beh
 
@@ -92,8 +98,7 @@ begin  -- beh
   DUT : raw_dat_manager_data_path
 
     generic map (
-    ADDR_WIDTH => ADDR_WIDTH,
-    MAX_COUNT  => MAX_COUNT)
+    ADDR_WIDTH => ADDR_WIDTH)
 
     port map (
       rst_i        => rst_i,
