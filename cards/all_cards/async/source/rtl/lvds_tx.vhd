@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.11  2004/12/17 20:51:07  erniel
+-- revert to 200 MHz clock divider
+-- WARNING: temporary solution!  Work still in progress!
+--
 -- Revision 1.10  2004/12/16 18:21:08  erniel
 -- fixed small bug in counter
 --
@@ -91,7 +95,7 @@ end lvds_tx;
 architecture rtl of lvds_tx is
 
 component async_tx
-generic(CLK_DIV_FACTOR : in integer := 16); 
+generic(CLK_DIV_FACTOR : in integer := 8); 
 port(comm_clk_i : in std_logic;
      rst_i      : in std_logic;
 
