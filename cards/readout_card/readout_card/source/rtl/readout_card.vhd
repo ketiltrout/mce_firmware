@@ -301,6 +301,7 @@ signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal pre_rdy_lvds_tx      : std_logic;
   signal rst_dly              : std_logic;
   signal state_shift          : std_logic;
+  signal need_long_wait       : boolean;
 
   signal sync_gen_sync_o     : std_logic;
   signal sync_gen_sync_num_o : std_logic_vector(15 downto 0);
@@ -353,10 +354,20 @@ begin
     elsif clk'event and clk = '1' then  -- rising clock edge
       state_shift <= '0';
       i:=i+1;
-      if i = 9000000 then
+      
+      if i = 200 and need_long_wait = false then  -- wait for short time for
+                                                 -- ordinary packet to avoid
+                                                 -- buffer overflow in lvd_tx
         state_shift <= '1';
         i:=0;
       end if;
+
+      if i = 30000 and need_long_wait = true then  -- wait for long time for
+                                                   -- long packets
+        state_shift <= '1';
+        i:=0;
+      end if;
+      
     end if;
   end process i_fsm;
 
@@ -366,13 +377,19 @@ begin
   begin  -- process i_count_up
     if rst = '1' then                   -- asynchronous reset
       rdaddress_packet_ram <= (others => '0');
+      need_long_wait <= false;
       
     elsif clk'event and clk = '1' then  -- rising clock edge
       if state_shift='1' then
-        if rdaddress_packet_ram <x"8b" then
+        need_long_wait <= false;
+        
+        if rdaddress_packet_ram <x"7A" then
           rdaddress_packet_ram <= rdaddress_packet_ram +1;
+          if rdaddress_packet_ram = x"76" then
+            need_long_wait <= true;
+          end if;
         else
-          rdaddress_packet_ram <= x"76";
+          rdaddress_packet_ram <= x"74";
         end if;
       end if;
     end if;
