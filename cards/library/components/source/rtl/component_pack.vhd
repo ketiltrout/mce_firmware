@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.20 2004/08/02 14:44:10 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.21 2004/08/10 17:22:44 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.21  2004/08/10 17:22:44  erniel
+-- updated lfsr component
+--
 -- Revision 1.20  2004/08/02 14:44:10  erniel
 -- updated crc component
 -- (added _i and _o to port names to match naming conventions)
@@ -253,8 +256,8 @@ package component_pack is
         rst_i   : in std_logic;
         ena_i   : in std_logic;
         load_i  : in std_logic;
-        count_i : in integer;
-        count_o : out integer);
+        count_i : in integer range 0 to MAX;
+        count_o : out integer range 0 to MAX);
    end component;
 
 ------------------------------------------------------------
