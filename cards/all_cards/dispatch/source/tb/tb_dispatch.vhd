@@ -30,7 +30,12 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_dispatch.vhd,v $
+-- Revision 1.1  2004/10/13 04:05:29  erniel
+-- initial version
+-- includes led wishbone slave
+-- includes wishbone slave model (commented out)
+--
 --
 -----------------------------------------------------------------------------
 
@@ -394,7 +399,7 @@ begin
       transmit("10101010101010100000000000000001");
       transmit("00000111100110010000000000000000");
       transmit("00000000000000000000000000000101");
-      transmit("11101011110000101011010110101101");
+      transmit("11101011110000101011010110101100");
       
       pause(1000);
       
