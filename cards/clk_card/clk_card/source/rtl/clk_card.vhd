@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.6 2004/11/29 23:35:32 bench2 Exp $
+-- $Id: clk_card.vhd,v 1.7 2004/11/30 22:58:47 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.7  2004/11/30 22:58:47  bburger
+-- Bryce:  reply_queue integration
+--
 -- Revision 1.6  2004/11/29 23:35:32  bench2
 -- Greg: Added err_i and extended FIBRE_CHECKSUM_ERR to 8-bits for reply_argument in reply_translator.vhd
 --
@@ -67,13 +70,11 @@ use work.issue_reply_pack.all;
 entity clk_card is
    port(
       -- simulation signals
-      clk          : in std_logic;
-      mem_clk      : in std_logic;
-      comm_clk     : in std_logic;      
-      fibre_clk    : in std_logic;
-      fibre_tx_clk : in std_logic;
-      fibre_rx_clk : in std_logic;
-      lvds_clk_i   : in std_logic; 
+--      clk          : in std_logic;
+--      mem_clk      : in std_logic;
+--      comm_clk     : in std_logic;      
+--      fibre_clk    : in std_logic;
+--      lvds_clk_i   : in std_logic; 
       
       -- PLL input:
       inclk      : in std_logic;
@@ -134,6 +135,7 @@ entity clk_card is
       rs232_tx    : out std_logic;
       
       -- interface to HOTLINK fibre receiver      
+      fibre_rx_clk       : out std_logic;
       fibre_rx_data      : in std_logic_vector (7 downto 0);  
       fibre_rx_rdy       : in std_logic;                      
       fibre_rx_rvs       : in std_logic;                      
@@ -142,6 +144,7 @@ entity clk_card is
       fibre_rx_ckr       : in std_logic;                      
       
       -- interface to hotlink fibre transmitter      
+      fibre_tx_clk       : out std_logic;
       fibre_tx_data      : out std_logic_vector (7 downto 0);
       fibre_tx_ena       : out std_logic;  
       fibre_tx_sc_nd     : out std_logic
@@ -154,10 +157,12 @@ architecture top of clk_card is
 signal rst           : std_logic;
 
 -- clocks
---signal clk           : std_logic;
---signal mem_clk       : std_logic;
---signal comm_clk      : std_logic;
---signal fibre_clk     : std_logic;
+signal clk           : std_logic;
+signal mem_clk       : std_logic;
+signal comm_clk      : std_logic;
+signal fibre_clk     : std_logic;
+
+
 --signal fibre_tx_clk  : std_logic;
 --signal fibre_rx_clk  : std_logic;
 
@@ -193,7 +198,7 @@ signal lvds_reply_cc_a     : std_logic;
 -- For testing
 signal debug             : std_logic_vector(31 downto 0);
 
-component pll
+component cc_pll
    port(
       inclk0 : in std_logic;
       e2     : out std_logic ;
@@ -205,7 +210,6 @@ component pll
       e1     : out std_logic 
    );
 end component;
-
 
 begin
 
@@ -230,18 +234,19 @@ begin
          '0'              when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
-   lvds_clk <= lvds_clk_i;
---   pll0: pll
---      port map(
---         inclk0 => inclk,
---         c0     => clk,
---         c1     => mem_clk,
---         c2     => comm_clk,
---         c3     => fibre_clk,
---         e0     => fibre_tx_clk, 
---         e1     => fibre_rx_clk,   
---         e2     => lvds_clk 
---      );
+
+--   lvds_clk <= lvds_clk_i;
+   pll0: cc_pll
+      port map(
+         inclk0 => inclk,
+         c0     => clk,
+         c1     => mem_clk,
+         c2     => comm_clk,
+         c3     => fibre_clk,
+         e0     => fibre_tx_clk, 
+         e1     => fibre_rx_clk,   
+         e2     => lvds_clk 
+      );
             
    lvds_cmd <= cmd;
    cmd0: dispatch

@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.5  2004/12/06 07:22:34  bburger
+-- Bryce:
+-- Created pack files for the card top-levels.
+-- Added some simulation signals to the top-levels (i.e. clocks)
+--
 -- Revision 1.4  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -64,9 +69,9 @@ use work.ac_dac_ctrl_pack.all;
 entity addr_card is
    port(
       -- simulation signals
-      clk        : in std_logic;
-      mem_clk    : in std_logic;
-      comm_clk   : in std_logic;
+--      clk        : in std_logic;
+--      mem_clk    : in std_logic;
+--      comm_clk   : in std_logic;
 
       -- PLL input:
       inclk      : in std_logic;
@@ -125,9 +130,9 @@ end addr_card;
 architecture top of addr_card is
 
 -- clocks
---signal clk      : std_logic;
---signal mem_clk  : std_logic;
---signal comm_clk : std_logic;
+signal clk      : std_logic;
+signal mem_clk  : std_logic;
+signal comm_clk : std_logic;
 
 signal rst      : std_logic;
 
@@ -160,7 +165,7 @@ signal dac_data : w14_array11;
 --signal dac_clks : std_logic_vector(NUM_OF_ROWS downto 0);
 
 
-component pll
+component ac_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
@@ -170,11 +175,11 @@ end component;
 begin
    rst <= not rst_n;
    
---   pll0: pll
---   port map(inclk0 => inclk,
---            c0 => clk,
---            c1 => mem_clk,
---            c2 => comm_clk);
+   pll0: ac_pll
+   port map(inclk0 => inclk,
+            c0 => clk,
+            c1 => mem_clk,
+            c2 => comm_clk);
             
    cmd0: dispatch
       generic map(

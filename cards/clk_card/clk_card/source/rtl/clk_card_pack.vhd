@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: clk_card_pack.vhd,v 1.1 2004/11/30 23:07:53 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -28,7 +28,10 @@
 -- 
 --
 -- Revision history:
--- $Log$
+-- $Log: clk_card_pack.vhd,v $
+-- Revision 1.1  2004/11/30 23:07:53  bburger
+-- Bryce:  testing the Clock Card top-level
+--
 --
 -----------------------------------------------------------------------------
 
@@ -40,13 +43,11 @@ package clk_card_pack is
 component clk_card
    port(
       -- simulation signals
-      clk          : in std_logic;
-      mem_clk      : in std_logic;
-      comm_clk     : in std_logic;      
-      fibre_clk    : in std_logic;
-      fibre_tx_clk : in std_logic;
-      fibre_rx_clk : in std_logic;
-      lvds_clk_i   : in std_logic; 
+--      clk          : in std_logic;
+--      mem_clk      : in std_logic;
+--      comm_clk     : in std_logic;      
+--      fibre_clk    : in std_logic;
+--      lvds_clk_i   : in std_logic; 
       
       -- PLL input:
       inclk      : in std_logic;
@@ -78,6 +79,11 @@ component clk_card
       dv_pulse_fibre  : in std_logic;
       dv_pulse_bnc    : in std_logic;
       
+      -- TTL interface:
+--     ttl_nrx    : in std_logic_vector(3 downto 1);
+--     ttl_tx     : out std_logic_vector(3 downto 1);
+--     ttl_txena  : out std_logic_vector(3 downto 1);
+     
       -- eeprom interface:
       eeprom_si  : in std_logic;
       eeprom_so  : out std_logic;
@@ -102,6 +108,7 @@ component clk_card
       rs232_tx    : out std_logic;
       
       -- interface to HOTLINK fibre receiver      
+      fibre_rx_clk       : out std_logic;
       fibre_rx_data      : in std_logic_vector (7 downto 0);  
       fibre_rx_rdy       : in std_logic;                      
       fibre_rx_rvs       : in std_logic;                      
@@ -110,6 +117,7 @@ component clk_card
       fibre_rx_ckr       : in std_logic;                      
       
       -- interface to hotlink fibre transmitter      
+      fibre_tx_clk       : out std_logic;
       fibre_tx_data      : out std_logic_vector (7 downto 0);
       fibre_tx_ena       : out std_logic;  
       fibre_tx_sc_nd     : out std_logic

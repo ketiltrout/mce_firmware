@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_clk_card.vhd,v 1.2 2004/12/04 02:03:05 bburger Exp $
+-- $Id: tb_clk_card.vhd,v 1.3 2004/12/06 07:22:34 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,11 @@
 --
 -- Revision history:
 -- $Log: tb_clk_card.vhd,v $
+-- Revision 1.3  2004/12/06 07:22:34  bburger
+-- Bryce:
+-- Created pack files for the card top-levels.
+-- Added some simulation signals to the top-levels (i.e. clocks)
+--
 -- Revision 1.2  2004/12/04 02:03:05  bburger
 -- Bryce:  fixing some problems associated with integrating the reply_queue
 --
@@ -70,25 +75,25 @@ end tb_clk_card;
 
 architecture tb of tb_clk_card is 
  
-   signal rst_i                : std_logic := '0';
+--   signal rst_i                : std_logic := '0';
    
    -- simulation signals
    signal clk          : std_logic := '0';
    signal mem_clk      : std_logic := '0';
    signal comm_clk     : std_logic := '0';      
    signal fibre_clk    : std_logic := '0';
-   signal fibre_tx_clk : std_logic := '0';
-   signal fibre_rx_clk : std_logic := '0';
+--   signal fibre_tx_clk : std_logic := '0';
+--   signal fibre_rx_clk : std_logic := '0';
    signal lvds_clk_i   : std_logic := '0'; 
+   constant clk_period          : TIME := 20 ns;    -- 50Mhz clock
    constant comm_clk_period     : TIME := 5 ns;
    constant mem_clk_period      : TIME := 5 ns;
    constant fibre_clk_period    : TIME := 40 ns;
-   constant fibre_tx_clk_period : TIME := 40 ns;  
-   constant fibre_rx_clk_period : TIME := 40 ns;  
-   constant lvds_clk_period     : TIME := 40 ns;
+--   constant fibre_tx_clk_period : TIME := 40 ns;  
+--   constant fibre_rx_clk_period : TIME := 40 ns;  
+--   constant lvds_clk_period     : TIME := 40 ns;
      
    constant pci_dsp_dly         : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI 
-   constant clk_period          : TIME := 20 ns;    -- 50Mhz clock
    constant fibre_clkr_prd      : TIME := 40 ns;   -- 25MHz clock
    
    constant preamble1          : std_logic_vector(7 downto 0)  := X"A5";
@@ -128,7 +133,7 @@ architecture tb of tb_clk_card is
    -------------------------------------------------
    -- PLL input:
    signal inclk      : std_logic := '0';
-   signal rst_n      : std_logic;
+   signal rst_n      : std_logic := '1';
    
    -- LVDS interface:
    signal lvds_cmd   : std_logic;
@@ -238,19 +243,19 @@ architecture tb of tb_clk_card is
    signal ac_rs232_tx: std_logic;   
    
 begin
-   rst_n <= not rst_i;
+--   rst_n <= not rst_i;
    
    i_clk_card : clk_card
       port map
       (
          -- simulation signals
-         clk              => clk,         
-         mem_clk          => mem_clk,     
-         comm_clk         => comm_clk,       
-         fibre_clk        => fibre_clk,   
-         fibre_tx_clk     => fibre_tx_clk,
-         fibre_rx_clk     => fibre_rx_clk,
-         lvds_clk_i       => lvds_clk_i,    
+--         clk              => clk,         
+--         mem_clk          => mem_clk,     
+--         comm_clk         => comm_clk,       
+--         fibre_clk        => fibre_clk,   
+--         fibre_tx_clk     => fibre_tx_clk,
+--         fibre_rx_clk     => fibre_rx_clk,
+--         lvds_clk_i       => lvds_clk_i,    
          
          -- PLL input:
          inclk            => inclk,
@@ -306,6 +311,7 @@ begin
          rs232_tx         => rs232_tx,
          
          -- interface to HOTLINK fibre receiver         
+         fibre_rx_clk     => open,
          fibre_rx_data    => fibre_rx_data,   
          fibre_rx_rdy     => fibre_rx_rdy,    
          fibre_rx_rvs     => fibre_rx_rvs,    
@@ -314,6 +320,7 @@ begin
          fibre_rx_ckr     => fibre_rx_ckr,    
          
          -- interface to hotlink fibre transmitter         
+         fibre_tx_clk     => open,
          fibre_tx_data    => fibre_tx_data,   
          fibre_tx_ena     => fibre_tx_ena,    
          fibre_tx_sc_nd   => fibre_tx_sc_nd  
@@ -322,9 +329,9 @@ begin
    i_addr_card : addr_card
       port map(
          -- simulation signals
-         clk              => clk,         
-         mem_clk          => mem_clk,     
-         comm_clk         => comm_clk,       
+--         clk              => clk,         
+--         mem_clk          => mem_clk,     
+--         comm_clk         => comm_clk,       
    
          -- PLL input:
          inclk            => inclk,
@@ -388,13 +395,13 @@ begin
    -- Create test bench clock
    -------------------------------------------------
    inclk        <= not inclk        after clk_period/2;
-   clk          <= not clk          after clk_period/2;
-   comm_clk     <= not comm_clk     after comm_clk_period/2;
-   mem_clk      <= not mem_clk      after mem_clk_period/2;
-   fibre_clk    <= not fibre_clk    after fibre_clk_period/2;
-   fibre_tx_clk <= not fibre_tx_clk after fibre_tx_clk_period/2;
-   fibre_rx_clk <= not fibre_rx_clk after fibre_rx_clk_period/2;
-   lvds_clk_i   <= not lvds_clk_i   after lvds_clk_period/2;
+--   clk          <= not clk          after clk_period/2;
+--   comm_clk     <= not comm_clk     after comm_clk_period/2;
+--   mem_clk      <= not mem_clk      after mem_clk_period/2;
+--   fibre_clk    <= not fibre_clk    after fibre_clk_period/2;
+--   fibre_tx_clk <= not fibre_tx_clk after fibre_tx_clk_period/2;
+--   fibre_rx_clk <= not fibre_rx_clk after fibre_rx_clk_period/2;
+--   lvds_clk_i   <= not lvds_clk_i   after lvds_clk_period/2;
    fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
    
    ------------------------------------------------
@@ -405,9 +412,9 @@ begin
 
    procedure do_reset is
    begin
-      rst_i <= '1';
+      rst_n <= '0';
       wait for clk_period*5 ;
-      rst_i <= '0';
+      rst_n <= '1';
       wait for clk_period*5 ;   
       assert false report " Resetting the DUT." severity NOTE;
    end do_reset;
@@ -739,17 +746,17 @@ begin
 -- ac_dac_ctrl commands
 ------------------------------------------------------      
       
---      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
---      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
---      command <= command_wb;
---      address_id <= on_bias_cmd;
---      data_valid <= X"00000029"; --41 values
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 300 us;
+     -- This is a 'WB ac on_bias 0 1 2 .. 40' command
+     -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+     command <= command_wb;
+     address_id <= on_bias_cmd;
+     data_valid <= X"00000029"; --41 values
+     data       <= X"00000000";
+     load_preamble;
+     load_command;
+     load_checksum;
+     
+     wait for 300 us;
 --
 --      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
 --      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
