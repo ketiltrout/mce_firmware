@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date: 2004/07/26 23:47:58 $>    - <initials $Author: bench1 $>
+-- <date $Date: 2005/01/18 21:41:13 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.6  2005/01/18 21:41:13  bench1
+-- Mandana: Introduce N_SAMPLES to parameterize the number of samples, currently set to 200
+--
 -- Revision 1.5  2004/07/26 23:47:58  bench1
 -- Mandana: swapped adc1_rdy on mictor
 --
@@ -175,8 +178,12 @@ begin
             when N_SAMPLES - 1 =>
                en <= '1';
                nsample <= nsample + 1;
-               sum <= sum + ("0000000000"&adc1_dat);
-
+               if adc1_dat(13) = '0' then
+                 sum <= sum + ("0000000000"&adc1_dat(12 downto 0));
+               else
+                 sum <= sum - ("0000000000"&adc1_dat(12 downto 0));
+               end if;
+               
             when N_SAMPLES =>   
                nsample <= 0;
                sum     <= (others => '0');
