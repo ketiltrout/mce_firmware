@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,7 +30,7 @@
 -- This file implements the Array ID functionality
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -114,7 +114,6 @@ constant WDT_TIMER_LIMIT : integer := 180000; -- u-seconds, the wdt timeout is a
 -- In other words, the watchdog_block must receive a '1' dat_i_watchdog(0) line every 5 s.
 constant WSHBN_TIMER_LIMIT : integer := 5000000; -- u-seconds
 
-
 begin
 
 ------------------------------------------------------------------------
@@ -130,7 +129,7 @@ begin
       when IDLE =>
          wshbn_timer_state_mach_sig <= '0';
          if slave_wr_data_valid_sig = '1' then
-            if dat_i_watchdog(0) = '1' then
+            if dat_i_watchdog = WATCHDOG_KICK then
                wshbn_timer_rst_next_state <= RESET;
             end if;
          end if;
@@ -142,7 +141,7 @@ begin
       when NO_RESET =>
          wshbn_timer_state_mach_sig <= '0';
          if slave_wr_data_valid_sig = '1' then
-            if dat_i_watchdog(0) = '1' then
+            if dat_i_watchdog = WATCHDOG_KICK then
                wshbn_timer_rst_next_state <= NO_RESET;
             else
                wshbn_timer_rst_next_state <= IDLE;
