@@ -20,19 +20,19 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: eeprom_ctrl_pack.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: eeprom_ctrl_pack.vhd,v 1.2 2004/03/24 00:20:38 jjacob Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jonathan Jacob
 -- Organisation:	UBC
 --
 -- Description:
--- This file contains the declarations for the component library.
+-- This file contains the declarations for the EEPROM controller
 --
 -- Revision history:
 -- 
 --
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/24 00:20:38 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.3 2004/03/24 18:10:35 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/24 18:10:35 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------
@@ -49,10 +49,10 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 
-entity TB_EEPROM_CTRL is
-end TB_EEPROM_CTRL;
+entity TB_EEPROM_CTRL2 is
+end TB_EEPROM_CTRL2;
 
-architecture BEH of TB_EEPROM_CTRL is
+architecture BEH of TB_EEPROM_CTRL2 is
 
 
    constant PERIOD : time := 20 ns;
