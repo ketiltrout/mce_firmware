@@ -29,8 +29,11 @@
 -- Stand-alone test module for readout card. It only routes the ADC outputs to DAC inputs. 
 --
 -- Revision history:
--- -- <date $Date: 2004/07/20 22:19:50 $>    - <initials $Author: mandana $>
+-- -- <date $Date: 2004/07/21 23:05:05 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise_test.vhd,v $
+-- Revision 1.2  2004/07/21 23:05:05  bench1
+-- Mandana: route ADC1 signals to DAC1 and complement bit 13
+--
 -- Revision 1.1  2004/07/20 22:19:50  mandana
 -- Initial release, samples ADC at 50MHz, routes ADC LSb to DAC MSb
 --
@@ -155,14 +158,21 @@ begin
    dac_FB8_dat(12 downto 0) <= adc8_dat(12 downto 0);
    
    dac_FB1_dat(13) <= not(adc1_dat(13)); --adc is signed
-
+   dac_FB2_dat(13) <= not(adc2_dat(13)); --adc is signed
+   dac_FB3_dat(13) <= not(adc3_dat(13)); --adc is signed
+   dac_FB4_dat(13) <= not(adc4_dat(13)); --adc is signed
+   dac_FB5_dat(13) <= not(adc5_dat(13)); --adc is signed
+   dac_FB6_dat(13) <= not(adc6_dat(13)); --adc is signed
+   dac_FB7_dat(13) <= not(adc7_dat(13)); --adc is signed
+   dac_FB8_dat(13) <= not(adc8_dat(13)); --adc is signed
+   
    nclk <= not(clk);
    dac_FB_clk <= (others => nclk);
-   mictor (13 downto 0) <= adc1_dat(13 downto 0);
-   mictor (14)          <= adc1_rdy;
-   mictor (15)          <= adc1_ovr;
-   mictor (29 downto 16)<= adc2_dat(13 downto 0);
-   mictor (30)          <= adc2_rdy;
+   mictor (13 downto 0) <= adc7_dat(13 downto 0);
+   mictor (14)          <= adc7_rdy;
+   mictor (15)          <= adc7_ovr;
+--   mictor (29 downto 16)<= adc3_dat(13 downto 0);
+--   mictor (30)          <= adc3_rdy;
    mictor (31)          <= clk;
    
 end behaviour;
