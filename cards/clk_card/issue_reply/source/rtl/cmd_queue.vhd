@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.29 2004/07/30 00:19:29 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.30 2004/07/31 00:13:04 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,25 +30,7 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
--- Revision 1.29  2004/07/30 00:19:29  bench2
--- Bryce: in progress
---
--- Revision 1.28  2004/07/29 00:40:19  bench2
--- Bryce: in progress
---
--- Revision 1.27  2004/07/27 22:42:02  bench2
--- Bryce: in progress
---
--- Revision 1.26  2004/07/27 01:36:04  bench2
--- Bryce: in progress
---
--- Revision 1.25  2004/07/26 19:31:13  bench2
--- Bryce: in progress
---
--- Revision 1.24  2004/07/22 23:43:31  bench2
--- Bryce: in progress
---
--- Revision 1.23  2004/07/22 20:39:08  bench2
+-- Revision 1.30  2004/07/31 00:13:04  bench2
 -- Bryce: in progress
 --
 -- Revision 1.1  2004/05/11 02:17:31  bburger
@@ -151,7 +133,7 @@ signal send_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal free_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
 -- Insertion FSM:  inserts u-ops into the command queue
-type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_DATA, DONE, RESET);
+type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_DATA, INSERT_MORE_DATA, DONE, RESET);
 signal present_insert_state : insert_states;
 signal next_insert_state    : insert_states;
 signal data_count           : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
@@ -221,7 +203,7 @@ constant INT_ZERO           : integer := 0;
 
 begin
    -- Command queue (FIFO)
-   cmd_queue_ram40_inst: cmd_queue_ram40_test
+   cmd_queue_ram40_inst: cmd_queue_ram40--_test
       port map(
          data        => data_sig,
          wraddress   => wraddress_sig,
@@ -276,8 +258,8 @@ begin
          POLY_WIDTH  => CHECKSUM_BUS_WIDTH
       )
       port map(
-         clk        => clk_i,
-         rst        => rst_i,
+         clk_i      => clk_i,
+         rst_i      => rst_i,
          clr_i      => crc_clr,
          ena_i      => crc_ena,
          data_i     => crc_data,
@@ -293,12 +275,12 @@ begin
          WIDTH      => DATA_BUS_WIDTH
       )   
       port map(
-         clk        => clk_i,
-         rst        => rst_i,
-         ena        => HIGH, --Always enabled      
-         load       => crc_start,      
-         clr        => LOW, --Never clear      
-         shr        => HIGH, --Shift right: because the lvds_tx block shits out the least significant bit first       
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => HIGH, --Always enabled      
+         load_i     => crc_start,      
+         clr_i      => LOW, --Never clear      
+         shr_i      => HIGH, --Shift right: because the lvds_tx block shits out the least significant bit first       
          serial_i   => LOW, --Shift in low bits
          serial_o   => sh_reg_serial_o,  
          parallel_i => sh_reg_parallel_i,
@@ -370,6 +352,12 @@ begin
             end if;
          when INSERT_DATA =>
             -- INSERT_DATA state has to loop without any others in between to make sure that it records all data from the cmd_translator block
+            if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
+               next_insert_state <= INSERT_MORE_DATA;
+            else
+               next_insert_state <= DONE;
+            end if;
+         when INSERT_MORE_DATA =>
             if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
                next_insert_state <= INSERT_DATA;
             else
@@ -455,11 +443,26 @@ begin
             data_sig       <= data_i;
 
             -- After adding new u-op header2 info, or data:  (will this work?)
-            if(free_ptr = ADDR_FULL_SCALE) then
-               free_ptr <= ADDR_ZERO;
-            else
+--            if(free_ptr = ADDR_FULL_SCALE) then
+--               free_ptr <= ADDR_ZERO;
+--            else
                free_ptr <= free_ptr + 1;
-            end if;
+--            end if;
+            
+         when INSERT_MORE_DATA =>
+            wren_sig       <= '1';
+            data_count     <= data_count + 1;
+            mop_ack_o      <= '0';
+            insert_uop_ack <= '0';
+            
+            data_sig       <= data_i;
+
+            -- After adding new u-op header2 info, or data:  (will this work?)
+--            if(free_ptr = ADDR_FULL_SCALE) then
+--               free_ptr <= ADDR_ZERO;
+--            else
+               free_ptr <= free_ptr + 1;
+--            end if;
             
          when DONE =>
             wren_sig       <= '0';
@@ -802,7 +805,7 @@ begin
    
    -- There should be enough time in the sync period following the timeout_sync of a m-op to get rid of all it's u-ops and still have time to issue the u-ops that need to be issued during that period
    -- That is why we don't check for a range here - just for the sync period that is the timeout
-   -- This second conditions checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
+   -- This second condition checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
    -- This condition won't work properly if a frame period is too short to issue a command within the correct period.
    uop_send_expired <= '1' when (sync_count_slv = timeout_sync or
                                 (sync_count_slv = timeout_sync - 1 and clk_count > START_OF_BLACKOUT)) else '0';

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.8 2004/07/30 00:19:41 bench2 Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.9 2004/07/31 00:13:15 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.9  2004/07/31 00:13:15  bench2
+-- Bryce: in progress
+--
 -- Revision 1.8  2004/07/30 00:19:41  bench2
 -- Bryce: in progress
 --
@@ -66,6 +69,7 @@ library sys_param;
 use sys_param.general_pack.all;
 use sys_param.wishbone_pack.all;
 use sys_param.command_pack.all;
+use sys_param.frame_timing_pack.all;
 
 library work;
 use work.cmd_queue_pack.all;
@@ -164,7 +168,7 @@ begin
       );
 
    -- Continuous assignements (clocks, etc.)
-   sync_i <= not sync_i after CLOCK_PERIOD*25*64/2; -- The sync frequency is actually 200Hz.
+   sync_i <= not sync_i after CLOCK_PERIOD*END_OF_FRAME/2; -- The sync frequency is actually ~19 kHz.
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
    clk_200mhz_i <= not clk_200mhz_i after CLOCK_PERIOD/8;
    rx_ack <= rx_rdy;
@@ -253,6 +257,43 @@ begin
       wait for CLOCK_PERIOD;
    end do_strt_mux_cmd;
 
+   procedure do_on_bias_cmd is
+   begin
+      card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= AC;
+      par_id_i      <= x"00" & ON_BIAS_ADDR;
+      data_size_i   <= x"00000003";
+      mop_i         <= "00000100"; -- m-op #4
+      issue_sync_i  <= "00000100"; -- Sync pulse 4
+      data_clk_i    <= '0';
+      
+      L1: while mop_ack_o = '0' loop
+         mop_rdy_i     <= '1';
+         wait for CLOCK_PERIOD;
+      end loop;
+      
+      data_i        <= x"11111111";
+      data_clk_i    <= '1';
+      wait for CLOCK_PERIOD/2;      
+      data_clk_i    <= '0';
+      wait for CLOCK_PERIOD/2;      
+      
+      data_i        <= x"22222222";
+      data_clk_i    <= '1';
+      wait for CLOCK_PERIOD/2;      
+      data_clk_i    <= '0';
+      wait for CLOCK_PERIOD/2;      
+
+      data_i        <= x"44444444";
+      data_clk_i    <= '1';
+      wait for CLOCK_PERIOD/2;      
+      data_clk_i    <= '0';
+      wait for CLOCK_PERIOD/2;      
+
+      mop_rdy_i     <= '0';
+      assert false report " start MUX" severity NOTE;
+      wait for CLOCK_PERIOD;
+   end do_on_bias_cmd;
+
    -- Start the test
    begin
       do_nop;
@@ -263,8 +304,9 @@ begin
       do_ret_dat_cmd;
       do_rst_wtchdg_cmd;
       do_strt_mux_cmd;
+      do_on_bias_cmd;
       
-      L2: for count_value in 0 to 5000 loop
+      L2: for count_value in 0 to 5*END_OF_FRAME loop
          do_nop;
       end loop L2;
       assert false report " Simulation done." severity FAILURE;

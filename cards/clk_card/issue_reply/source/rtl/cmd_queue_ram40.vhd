@@ -84,8 +84,8 @@ ARCHITECTURE SYN OF cmd_queue_ram40 IS
 		outdata_aclr_a		: STRING;
 		outdata_aclr_b		: STRING;
 		lpm_type		: STRING;
-		ram_block_type		: STRING;
-		maximum_depth		: NATURAL;
+--		ram_block_type		: STRING;
+--		maximum_depth		: NATURAL;
 		lpm_hint		: STRING
 	);
 	PORT (
@@ -126,8 +126,8 @@ BEGIN
 		outdata_aclr_a => "OFF",
 		outdata_aclr_b => "OFF",
 		lpm_type => "alt3pram",
-		ram_block_type => "AUTO",
-		maximum_depth => 256,
+--		ram_block_type => "AUTO",
+--		maximum_depth => 256,
 		lpm_hint => "USE_EAB=ON"
 	)
 	PORT MAP (
