@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.4  2004/10/18 20:48:51  erniel
+-- corrected sensitivity list in process tx_stateNS
+--
 -- Revision 1.3  2004/09/27 23:02:13  erniel
 -- using updated constants from command_pack
 --
@@ -60,6 +63,7 @@ use work.dispatch_pack.all;
 
 entity dispatch_reply_transmit is
 port(clk_i      : in std_logic;
+     mem_clk_i  : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;		
      
@@ -80,7 +84,7 @@ end dispatch_reply_transmit;
 
 architecture rtl of dispatch_reply_transmit is
 
-type transmitter_states is (IDLE_TX, CALC_CRC_START, WORD_TX_SETUP, WORD_TX_BUSY, CRC_TX_SETUP, CRC_TX_BUSY, TX_DONE);
+type transmitter_states is (IDLE_TX, CALC_CRC, SEND_WORD, SEND_CRC, TX_DONE);
 signal tx_pres_state : transmitter_states;
 signal tx_next_state : transmitter_states;
 
@@ -154,6 +158,7 @@ begin
 
    reply_tx: lvds_tx
    port map(clk_i      => clk_i,
+            mem_clk_i  => mem_clk_i,
             comm_clk_i => comm_clk_i,
             rst_i      => rst_i,
             dat_i      => lvds_tx_data,
@@ -229,7 +234,7 @@ begin
                                    crc_next_state <= CALCULATE_CRC;
                                 end if;
                           
-         when CRC_WORD_DONE =>  if(transmit_busy = '0') then                  -- when done sending previous word, 
+         when CRC_WORD_DONE =>  if(lvds_tx_rdy = '1') then                    -- when done sending previous word, 
                                    if(crc_done = '1') then                    -- if this is the last data word, hold checksum for tx
                                       crc_next_state <= CRC_ALL_DONE;
                                    else                                       -- else prepare next data word
@@ -239,13 +244,9 @@ begin
                                    crc_next_state <= CRC_WORD_DONE;
                                 end if;
          
-         when LOAD_NEXT_WORD => if(transmit_busy = '1') then                  -- when transmitter has started, safe to load next word.
-                                   crc_next_state <= CALCULATE_CRC;
-                                else
-                                   crc_next_state <= LOAD_NEXT_WORD;
-                                end if;
+         when LOAD_NEXT_WORD => crc_next_state <= CALCULATE_CRC;
          
-         when CRC_ALL_DONE =>   if(transmit_done = '1') then                  -- when done sending crc word, return to idle
+         when CRC_ALL_DONE =>   if(lvds_tx_rdy = '1') then
                                    crc_next_state <= IDLE_CRC;
                                 else
                                    crc_next_state <= CRC_ALL_DONE;
@@ -332,39 +333,37 @@ begin
    tx_stateNS: process(tx_pres_state, reply_rdy_i, crc_word_rdy, lvds_tx_busy, word_count, reply_num_words)
    begin
       case tx_pres_state is
-         when IDLE_TX =>        if(reply_rdy_i = '1') then
-                                   tx_next_state <= CALC_CRC_START;
-                                else
-                                   tx_next_state <= IDLE_TX;
-                                end if;
+         when IDLE_TX =>   if(reply_rdy_i = '1') then
+                              tx_next_state <= CALC_CRC;
+                           else
+                              tx_next_state <= IDLE_TX;
+                           end if;
                           
-         when CALC_CRC_START => if(crc_word_rdy = '1') then                -- when crc done processing first word, start transmit
-                                   tx_next_state <= WORD_TX_SETUP;
-                                else
-                                   tx_next_state <= CALC_CRC_START;
-                                end if;
+         when CALC_CRC =>  if(crc_word_rdy = '1') then                           -- when crc done processing first word, start transmit
+                              tx_next_state <= SEND_WORD;
+                           else
+                              tx_next_state <= CALC_CRC;
+                           end if;
          
-         when WORD_TX_SETUP =>  tx_next_state <= WORD_TX_BUSY;             -- assert data to transmit and rdy, increment word count
-         
-         when WORD_TX_BUSY =>   if(lvds_tx_busy = '0') then                -- when transmit done,
-                                   if(word_count = reply_num_words) then   -- if done transmitting last data word
-                                      tx_next_state <= CRC_TX_SETUP;
-                                   else                                    -- else transmit next data word
-                                      tx_next_state <= WORD_TX_SETUP;
-                                   end if;
-                                else
-                                   tx_next_state <= WORD_TX_BUSY;
-                                end if;
+         when SEND_WORD => if(lvds_tx_busy = '0') then    -- when transmitter available and crc of next word is done,
+                              if(word_count = reply_num_words-1) then              -- if done transmitting last data word
+                                 tx_next_state <= SEND_CRC;
+                              else                                               -- else transmit next data word
+                                 tx_next_state <= CALC_CRC;
+                              end if;
+                           else
+                              tx_next_state <= SEND_WORD;
+                           end if;
  
-         when CRC_TX_SETUP =>   tx_next_state <= CRC_TX_BUSY;              -- assert crc to transmit and rdy
-         
-         when CRC_TX_BUSY =>    if(lvds_tx_busy = '0') then                -- when transmit done, assert transmit_done
-                                   tx_next_state <= TX_DONE;               -- (to allow crc to return to idle)
-                                else
-                                   tx_next_state <= CRC_TX_BUSY;
-                                end if;
+         when SEND_CRC =>  if(lvds_tx_busy = '0') then                -- when transmit done, assert transmit_done
+                              tx_next_state <= TX_DONE;               -- (to allow crc to return to idle)
+                           else
+                              tx_next_state <= SEND_CRC;
+                           end if;
                           
-         when TX_DONE =>        tx_next_state <= IDLE_TX;
+         when TX_DONE =>   tx_next_state <= IDLE_TX;
+         
+         when others =>    tx_next_state <= IDLE_TX;
       end case;
    end process tx_stateNS;
    
@@ -389,23 +388,24 @@ begin
       reply_ack_o    <= '0';
       
       case tx_pres_state is
-         when IDLE_TX =>                    reply_size_ld  <= '1';
-                                            word_count_ena <= '1';
-                                            word_count_clr <= '1';
+         when IDLE_TX =>   reply_size_ld  <= '1';
+                           word_count_ena <= '1';
+                           word_count_clr <= '1';
                                 
-         when CALC_CRC_START =>             crc_start      <= '1';
+         when CALC_CRC =>  crc_start      <= '1';
          
-         when WORD_TX_SETUP =>              tx_input_sel   <= '0';
-                                            word_count_ena <= '1';
-                                            lvds_tx_rdy    <= '1';
-                                
-         when WORD_TX_BUSY | CRC_TX_BUSY => transmit_busy  <= '1';
+         when SEND_WORD => if(lvds_tx_busy = '0') then
+                              tx_input_sel   <= '0';
+                              word_count_ena <= '1';
+                              lvds_tx_rdy    <= '1';
+                           end if;
 
-         when CRC_TX_SETUP =>               tx_input_sel   <= '1';
-                                            lvds_tx_rdy    <= '1';
+         when SEND_CRC =>  if(lvds_tx_busy = '0') then
+                              tx_input_sel   <= '1';
+                              lvds_tx_rdy    <= '1';
+                           end if;
    
-         when TX_DONE =>                    transmit_done  <= '1';
-                                            reply_ack_o    <= '1';
+         when TX_DONE =>   reply_ack_o    <= '1';
       end case;
    end process tx_stateOut;
    
