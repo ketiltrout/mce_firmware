@@ -20,7 +20,7 @@
 
 # Quartus II: Generate Tcl File for Project
 # File: readout_card.tcl
-# Generated on: Mon Jan 10 17:49:45 2005
+# Generated on: Mon Feb 07 16:32:00 2005
 
 # Load Quartus II Tcl Project package
 package require ::quartus::project
@@ -56,6 +56,7 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
+	set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
 	set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
@@ -78,12 +79,8 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/crc.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
 	set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
-	set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_tx.vhd
-	set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_rx.vhd
-	set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_tx.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
-	set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_rx.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core.vhd
@@ -91,6 +88,7 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_data_buf.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
+	set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
 	set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
 	set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_storage.vhd
 	set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_dynamic_manager_ctrl.vhd
@@ -131,6 +129,9 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 	set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
 	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
+	set_global_assignment -name INVERT_BASE_CLOCK OFF -section_id inclk
+	set_global_assignment -name MULTIPLY_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
+	set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
 	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 	set_global_assignment -name MUX_RESTRUCTURE OFF
 	set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF SMART
@@ -150,7 +151,7 @@ if {$make_assignments} {
 	set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
 	set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 	set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
-	set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 2ns
+	set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 8ns
 	set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
 	set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 	set_global_assignment -name STRATIX_DEVICE_IO_STANDARD LVTTL
@@ -606,6 +607,15 @@ if {$make_assignments} {
 	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs\[5\] -section_id "serial DAC data&cs"
 	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs\[6\] -section_id "serial DAC data&cs"
 	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs\[7\] -section_id "serial DAC data&cs"
+	set_location_assignment PIN_G7 -to ttl_dir1
+	set_location_assignment PIN_F7 -to ttl_in1
+	set_location_assignment PIN_F11 -to ttl_out1
+	set_location_assignment PIN_G9 -to ttl_dir2
+	set_location_assignment PIN_F8 -to ttl_in2
+	set_location_assignment PIN_G8 -to ttl_out2
+	set_location_assignment PIN_H9 -to ttl_dir3
+	set_location_assignment PIN_F9 -to ttl_in3
+	set_location_assignment PIN_G12 -to ttl_out3
 	set_location_assignment PIN_H20 -to red_led
 	set_location_assignment PIN_H19 -to ylw_led
 	set_location_assignment PIN_J20 -to grn_led
@@ -1014,34 +1024,15 @@ if {$make_assignments} {
 	set_location_assignment PIN_AC9 -to rst_n
 	set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
 	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
+	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o*"
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
 	set_instance_assignment -name OUTPUT_MAX_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Outputs"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*" -to "flux_loop:i_flux_loop\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*" -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "flux_loop:i_flux_loop\|wbs_fb_data:i_wbs_fb_data\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "flux_loop:i_flux_loop\|wbs_frame_data:i_wbs_frame_data\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|shift_reg:crc_data_reg\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "leds:i_LED\|led_data*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|pres_state*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|crc:crc_calc\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|fifo:tx_buffer\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|reg:data_size_reg\|reg_o*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|fifo:tx_buffer\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|tx_pres_state*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|fifo:tx_buffer\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|counter:addr_gen\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|reg:cmd0\|reg_o*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|reg:cmd1\|reg_o*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "flux_loop:i_flux_loop\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "leds:i_LED\|led_data*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|counter:word_counter\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "leds:i_LED\|pres_state*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|shift_reg:crc_data_reg\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|rx_pres_state*" -to "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*"
 	set_instance_assignment -name INPUT_MAX_DELAY 11.7ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
 	set_instance_assignment -name INPUT_MIN_DELAY 3.7ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
 	set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7ns" -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Outputs"
 	set_instance_assignment -name MAX_FANOUT 100 -to *
 	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
+	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o*"
 	set_instance_assignment -name IO_STANDARD LVDS -to adc1_clk
 	set_instance_assignment -name IO_STANDARD LVTTL -to red_led
 	set_instance_assignment -name IO_STANDARD LVDS -to adc2_clk
@@ -1065,9 +1056,6 @@ if {$make_assignments} {
 	set_global_assignment -name CUT_OFF_CLEAR_AND_PRESET_PATHS ON
 	set_global_assignment -name CUT_OFF_IO_PIN_FEEDBACK ON
 	set_global_assignment -name IGNORE_CLOCK_SETTINGS OFF
-	set_global_assignment -name INVERT_BASE_CLOCK OFF -section_id inclk
-	set_global_assignment -name MULTIPLY_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
-	set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
 	set_global_assignment -name ENABLE_IP_DEBUG OFF
 	set_global_assignment -name SAVE_DISK_SPACE ON
 	set_global_assignment -name DISABLE_OCP_HW_EVAL OFF
@@ -1149,6 +1137,9 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_VERILOG_BREAK_LOOPS OFF
 	set_global_assignment -name TOP_LEVEL_ENTITY readout_card
 	set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "<None>"
+	set_global_assignment -name EDA_SHOW_LMF_MAPPING_MESSAGES OFF -section_id eda_design_synthesis
+	set_global_assignment -name EDA_RUN_TOOL_AUTOMATICALLY OFF -section_id eda_design_synthesis
+	set_global_assignment -name EDA_INPUT_DATA_FORMAT EDIF -section_id eda_design_synthesis
 	set_global_assignment -name ECO_ALLOW_ROUTING_CHANGES OFF
 	set_global_assignment -name BASE_PIN_OUT_FILE_ON_SAMEFRAME_DEVICE OFF
 	set_global_assignment -name ENABLE_JTAG_BST_SUPPORT OFF
