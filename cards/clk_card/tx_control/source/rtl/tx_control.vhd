@@ -43,7 +43,7 @@ USE ieee.std_logic_arith.all;
 ENTITY tx_control IS
    PORT( 
       ft_clkw_i : IN     std_logic;
-      n_Trp_i     : IN     std_logic;
+      n_Trp_i   : IN     std_logic;
       tx_fe_i   : IN     std_logic;
       tsc_nTd_o : OUT    std_logic;
       nFena_o   : OUT    std_logic;
@@ -69,7 +69,7 @@ BEGIN
    
    
    ----------------------------------------------------------
-   fifo_read: PROCESS(trp_i)
+   fifo_read: PROCESS(n_Trp_i)
    ----------------------------------------------------------
    
    BEGIN 
