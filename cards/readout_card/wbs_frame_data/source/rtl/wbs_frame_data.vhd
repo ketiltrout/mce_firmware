@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/10/19 14:30:45 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/20 13:21:50 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.7  2004/10/20 13:21:50  dca
+-- FSM changed for captr_raw writes.
+--
 -- Revision 1.6  2004/10/19 14:30:45  dca
 -- raw data addressing changed.
 -- MUX structure changed
@@ -101,7 +104,7 @@ port(
      filtered_dat_ch0_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 0
      fsfb_addr_ch0_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 0   
      fsfb_dat_ch0_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 0
-     coadded_addr_ch0_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 0
+     coadded_addr_ch0_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 0
      coadded_dat_ch0_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 0
      raw_addr_ch0_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
      raw_dat_ch0_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 0
@@ -114,7 +117,7 @@ port(
      filtered_dat_ch1_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 1
      fsfb_addr_ch1_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 1   
      fsfb_dat_ch1_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 1
-     coadded_addr_ch1_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 1
+     coadded_addr_ch1_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 1
      coadded_dat_ch1_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 1
      raw_addr_ch1_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 1
      raw_dat_ch1_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 1
@@ -125,7 +128,7 @@ port(
      filtered_dat_ch2_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 2
      fsfb_addr_ch2_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 2   
      fsfb_dat_ch2_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 2
-     coadded_addr_ch2_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 2
+     coadded_addr_ch2_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 2
      coadded_dat_ch2_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 2
      raw_addr_ch2_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 2
      raw_dat_ch2_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 2
@@ -136,7 +139,7 @@ port(
      filtered_dat_ch3_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 3
      fsfb_addr_ch3_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 3   
      fsfb_dat_ch3_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 3
-     coadded_addr_ch3_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 3
+     coadded_addr_ch3_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 3
      coadded_dat_ch3_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 3
      raw_addr_ch3_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 3
      raw_dat_ch3_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 3
@@ -147,7 +150,7 @@ port(
      filtered_dat_ch4_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 4
      fsfb_addr_ch4_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 4   
      fsfb_dat_ch4_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 4
-     coadded_addr_ch4_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 4
+     coadded_addr_ch4_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 4
      coadded_dat_ch4_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 4
      raw_addr_ch4_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 4
      raw_dat_ch4_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);   -- raw data - channel 4
@@ -158,7 +161,7 @@ port(
      filtered_dat_ch5_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 5
      fsfb_addr_ch5_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 5   
      fsfb_dat_ch5_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 5
-     coadded_addr_ch5_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 5
+     coadded_addr_ch5_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 5
      coadded_dat_ch5_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 5
      raw_addr_ch5_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 5
      raw_dat_ch5_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 5
@@ -169,7 +172,7 @@ port(
      filtered_dat_ch6_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 6
      fsfb_addr_ch6_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 6   
      fsfb_dat_ch6_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 6
-     coadded_addr_ch6_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 6
+     coadded_addr_ch6_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 6
      coadded_dat_ch6_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 6
      raw_addr_ch6_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 6
      raw_dat_ch6_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 6
@@ -180,7 +183,7 @@ port(
      filtered_dat_ch7_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 7
      fsfb_addr_ch7_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 7   
      fsfb_dat_ch7_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 7
-     coadded_addr_ch7_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 7
+     coadded_addr_ch7_o        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 7
      coadded_dat_ch7_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 7
      raw_addr_ch7_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 7
      raw_dat_ch7_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 7
@@ -206,7 +209,8 @@ end wbs_frame_data;
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -249,18 +253,17 @@ signal inc_addr_sel        : std_logic;
 
 
 -- address used for modes 1, 2 and 3
-signal pixel_address       : std_logic_vector (PIXEL_ADDR_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
-signal pixel_addr_cnt      : integer;
-signal ch_mux_sel          : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -- channel select ch 0 --> 7
-signal row_address         : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);         -- row address
+
+signal pix_addr_cnt      : integer range 0 to 2**(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH)-1;
+signal pix_address       : std_logic_vector (ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
+signal ch_mux_sel        : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -- channel select ch 0 --> 7
 
 
 -- address used for mode 4
 
-signal raw_address         : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);      -- raw 'row' address
-signal raw_addr_cnt        : integer;
+signal raw_addr_cnt        : integer range 0 to 2**(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH)-1;
+signal raw_address         : std_logic_vector (RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1    downto 0);      -- raw 'row' address
 signal raw_ch_mux_sel      : std_logic_vector (CH_MUX_SEL_WIDTH-1  downto 0);       -- raw channel select
-signal raw_ch_cnt          : integer;
 
 
 signal raw_req             : std_logic;      -- signal fed to all 8 flux loop cntr channels 
@@ -299,14 +302,14 @@ begin
    raw_ack       <= raw_ack_ch0_i and raw_ack_ch1_i and raw_ack_ch2_i and  raw_ack_ch3_i and
                     raw_ack_ch4_i and raw_ack_ch5_i and raw_ack_ch6_i and  raw_ack_ch7_i ;
   
-   raw_req_ch0_o <= raw_ack;
-   raw_req_ch1_o <= raw_ack;
-   raw_req_ch2_o <= raw_ack;
-   raw_req_ch3_o <= raw_ack;
-   raw_req_ch4_o <= raw_ack;
-   raw_req_ch5_o <= raw_ack;
-   raw_req_ch6_o <= raw_ack;
-   raw_req_ch7_o <= raw_ack; 
+   raw_req_ch0_o <= raw_req;
+   raw_req_ch1_o <= raw_req;
+   raw_req_ch2_o <= raw_req;
+   raw_req_ch3_o <= raw_req;
+   raw_req_ch4_o <= raw_req;
+   raw_req_ch5_o <= raw_req;
+   raw_req_ch6_o <= raw_req;
+   raw_req_ch7_o <= raw_req; 
    
    
 -------------------------------------------------------------------------------------------------
@@ -377,7 +380,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_sel      <= '0';    
          raw_req           <= '0';
-             
+                      
       when SET_MODE =>
          ack_o             <= '1';
          dat_o             <= (others => '0');
@@ -389,7 +392,15 @@ begin
          ack_o             <= '1';
          dat_o             <= wbs_data;
          data_mode_mux_sel <= '0';
-         inc_addr_sel      <= '1';      -- increment for next read (take 1 clock cycles for addr to change then two clk cycles for dat to update)
+         
+         inc_addr_sel      <= '1';      
+         -- increment address for next read 
+         -- The increment will take 1 clock cycle
+         -- Then the data from the FLC blocks will take an additional 2 clock cycles to update.
+         -- SO there is a total of 3 clock cycles until the next data word is ready to be read by the wishbone master.
+         -- It takes 3 clock cycles to get back to READ_DATA state (READ_DATA --> DONE, DONE --> IDLE, IDLE --> READ DATA)
+         -- so the the next data will always be ready for the next data read.
+
          raw_req           <= '0';
              
       when START_RAW =>
@@ -428,25 +439,19 @@ begin
 --                        --
 --         (row_40 ch_0), (row_40 ch_1), (row_40 ch_2), (row_40 ch_3), (row_40 ch_4), (row_40 ch_5), (row_40 ch_6), (row_40 ch_7), 
 
--- for mode 4  there are  5248 'rows' per channel.  When reading out in this mode an entire channel is readout before moving to the 
--- next channel....
--- consequently the row and channel addresses are split   
--- 
--- readout ch_0: row 0 --> row 5247
---         ch_1: row 0 --> row 5247
---                 --
---                 --
---         ch_7: row 0 --> row 5247
+-- for mode 4  there are  5248 'rows' per channel (2 frames of 64 samples for each of the 41 rows).
+--  Again the addressing is such that a 'row' is read from each of the 8 channels, then the next row etc...
+--
 
-  
     
+   
    ------------------------------------- 
    address_counter: process (clk_i, rst_i) 
    -------------------------------------      
     begin
          
       if (rst_i = '1') then
-         pixel_addr_cnt <= 0 ;
+         pix_addr_cnt   <= 0 ;
          raw_addr_cnt   <= 0 ;
       elsif (clk_i'EVENT AND clk_i = '1') then
          
@@ -457,23 +462,17 @@ begin
                if raw_addr_cnt = RAW_ADDR_MAX-1 then 
                
                   raw_addr_cnt   <= 0;
-                  
-                  if raw_ch_cnt = NO_CHANNELS-1 then
-                     raw_ch_cnt <= 0;
-                  else 
-                     raw_ch_cnt <= raw_ch_cnt+1;
-                  end if;
-                       
+                                      
                else 
                   raw_addr_cnt <= raw_addr_cnt + 1;
                end if;
             
             else 
                         
-               if pixel_addr_cnt = PIXEL_ADDR_MAX-1 then 
-                  pixel_addr_cnt <= 0;     
+               if pix_addr_cnt = PIXEL_ADDR_MAX-1 then 
+                  pix_addr_cnt <= 0;     
                else 
-                  pixel_addr_cnt <= pixel_addr_cnt + 1;
+                  pix_addr_cnt <= pix_addr_cnt + 1;
                end if;
             end if;
             
@@ -482,16 +481,64 @@ begin
       end if;
    end process address_counter;
    
-   -- assign counts to bit vectors
-   pixel_address  <= std_logic_vector(to_unsigned(pixel_addr_cnt, PIXEL_ADDR_WIDTH));
-   raw_address    <= std_logic_vector(to_unsigned(raw_addr_cnt,   RAW_ADDR_WIDTH  ));
-   raw_ch_mux_sel <= std_logic_vector(to_unsigned(raw_ch_cnt,     CH_MUX_SEL_WIDTH  ));
+   -- assign counts to bit vectors - modes 1,2,3
+   -- note that the LS 3 bits of the address determine the channel
+   -- the other bits determine the row address.
    
-   -- split pixel address into row and channel     
-   row_address    <= pixel_address(PIXEL_ADDR_WIDTH-1 downto CH_MUX_SEL_WIDTH);
-   ch_mux_sel     <= pixel_address(CH_MUX_SEL_WIDTH-1 downto 0);      
+   pix_address    <= conv_std_logic_vector(pix_addr_cnt, ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);
+   ch_mux_sel     <= pix_address(CH_MUX_SEL_WIDTH-1 downto 0); 
+       
    
+   filtered_addr_ch0_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
+   fsfb_addr_ch0_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   coadded_addr_ch0_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);  
    
+   filtered_addr_ch1_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
+   fsfb_addr_ch1_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   coadded_addr_ch1_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   
+   filtered_addr_ch2_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
+   fsfb_addr_ch2_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   coadded_addr_ch2_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   
+   filtered_addr_ch3_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
+   fsfb_addr_ch3_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   coadded_addr_ch3_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   
+   filtered_addr_ch4_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
+   fsfb_addr_ch4_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   coadded_addr_ch4_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   
+   filtered_addr_ch5_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
+   fsfb_addr_ch5_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   coadded_addr_ch5_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);   
+   
+   filtered_addr_ch6_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
+   fsfb_addr_ch6_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   coadded_addr_ch6_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);  
+   
+   filtered_addr_ch7_o <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);    
+   fsfb_addr_ch7_o     <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   coadded_addr_ch7_o  <= pix_address(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);
+   
+ 
+
+   -- assign counts to address vectors - mode 4
+   -- the LS  bits determine the channle
+   -- the rest the 'row'.
+   raw_address    <= conv_std_logic_vector(raw_addr_cnt,   RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);
+   raw_ch_mux_sel <= raw_address(CH_MUX_SEL_WIDTH-1 downto 0);
+   
+   raw_addr_ch0_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);  
+   raw_addr_ch1_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   raw_addr_ch2_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   raw_addr_ch3_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   raw_addr_ch4_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   raw_addr_ch5_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   raw_addr_ch6_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   raw_addr_ch7_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
+   
+       
   
 --------------------------------------------------------------------------------------------
 --                  Data OUTPUT Select MUX
@@ -502,7 +549,7 @@ begin
    
    wbs_data        <= filtered_dat   when dat_out_mux_sel = "00" else
                       unfiltered_dat when dat_out_mux_sel = "01" else
-                      fb_error_dat   when dat_out_mux_sel = "01" else
+                      fb_error_dat   when dat_out_mux_sel = "10" else
                       raw_dat        when dat_out_mux_sel = "11";
                  
                  
