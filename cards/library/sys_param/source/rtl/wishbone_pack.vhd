@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/10/15 16:03:43 $> - <initials $Author: dca $>
+-- <date $Date: 2004/11/04 00:08:18 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.17  2004/11/04 00:08:18  bburger
+-- Bryce:  small updates
+--
 -- Revision 1.16  2004/10/15 16:03:43  dca
 -- CAPTR_RAW_ADDR definition added
 --
@@ -112,30 +115,16 @@ package wishbone_pack is
    constant NULL_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"00";
    
    -- Address Card Specific
+   constant ROW_ORDER_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"01";
    constant ON_BIAS_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"02";
    constant OFF_BIAS_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"03";
    constant ROW_MAP_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"04";
-   constant SWTCH_DLY_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"05";
-   constant ACTV_ROW_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"06";
-   constant ENBL_MUX_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
+   constant ENBL_MUX_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"05";
 
    -- Readout Card Specific
-   constant FST_ST_FB_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"10";
-   constant SA_BIAS_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"11";
-   constant OFFSET_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"12";
-   constant FILT_COEF_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"13";
-   constant COL_MAP_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"14";
-   constant SERVO_MODE_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"15";
-   constant COL_ENBL_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
-   constant SAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"17";
-   constant SAMP_NUM_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"18";
-   constant FB_DLY_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1A";
-   constant RAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1B";
-   constant RAMP_AMP_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1C";
-   constant FB_CONST_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1D";
-   
-   constant CAPTR_RAW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1F";
-
+   constant SA_BIAS_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"10";
+   constant OFFSET_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"11";
+   constant COL_MAP_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"12";
    constant GAINP0_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"70";
    constant GAINP1_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"71";
    constant GAINP2_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"72";
@@ -168,28 +157,46 @@ package wishbone_pack is
    constant GAIND5_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8D";
    constant GAIND6_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8E";
    constant GAIND7_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8F";
+   constant ADC_OFFSET0_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"68";
+   constant ADC_OFFSET1_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"69";
+   constant ADC_OFFSET2_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6A";
+   constant ADC_OFFSET3_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6B";
+   constant ADC_OFFSET4_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6C";
+   constant ADC_OFFSET5_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6D";
+   constant ADC_OFFSET6_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6E";
+   constant ADC_OFFSET7_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6F";
    
+   -- All Readout Cards
+   constant RET_DAT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
+   constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"17";
+   constant CAPTR_RAW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"18";
+   constant FLX_LP_INIT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"19";
+   constant FILT_COEF_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1A";
+   constant SERVO_MODE_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1B";
+   constant RAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1C";
+   constant RAMP_AMP_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1D";
+   constant RAMP_STEP_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1E";
+   constant FB_CONST_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"1F";
+
    -- Bias Card Specific
    constant FLUX_FB_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"20";
    constant BIAS_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"21";
 
-   -- All FPGA Cards
-   constant RET_DAT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"30";
-   constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"31";
-   constant ROW_ORDER_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"33";
-   constant RET_DAT_S_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"34";
-   constant USE_DV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"37";
+   -- System (All FPGA Cards)
+   constant ROW_LEN_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"30";
+   constant NUM_ROWS_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"31";
+   constant SAMPLE_DLY_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"32";
+   constant SAMPLE_NUM_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"33";
+   constant FB_DLY_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"34";
+   constant ROW_DLY_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"35";
+   constant RESYNC_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"36";
 
    -- Any FPGA Card
-   constant STATUS_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"40";
    constant RST_WTCHDG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"41";
-   constant RST_REG_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"42";
    constant EEPROM_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"43";
    constant VFY_EEPROM_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"44";
    constant CLR_ERROR_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"45";
    constant EEPROM_SRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"46";
-   constant RESYNC_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"48";
-
    constant BIT_STATUS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"90";
    constant FPGA_TEMP_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"91";
    constant CARD_TEMP_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"92";
@@ -201,28 +208,29 @@ package wishbone_pack is
    constant CYC_OO_SYC_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";   
    constant LED_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
 
-
    -- Clock Card Specific
-   constant CONFIG_S_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
-   constant CONFIG_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"51";
-   constant ARRAY_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
-   constant BOX_ID_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"53";
-   constant APP_CONFIG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"54";
-   constant SRAM1_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
-   constant VRFY_SRAM1_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56";
-   constant SRAM2_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"57";
-   constant VRFY_SRAM2_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"58";
-   constant FAC_CONFIG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
-   constant SRAM1_CONT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5A";
-   constant SRAM2_CONT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5B";
-   constant SRAM1_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
-   constant SRAM2_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D";
+   constant CONFIG_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
+   constant APP_CONFIG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"51";
+   constant FAC_CONFIG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
+   constant RET_DAT_S_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"53";
+   constant USE_DV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"54";
+   constant VRFY_SRAM1_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
+   constant VRFY_SRAM2_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56";
+   constant CONFIG_S_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"57";
+   constant ARRAY_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"58";
+   constant BOX_ID_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
+   constant SRAM1_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5A";
+   constant SRAM2_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5B";
+   constant SRAM1_CONT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
+   constant SRAM2_CONT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D";
+   constant SRAM1_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
+   constant SRAM2_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
 
    -- Power Card Specific
-   constant PSC_STATUS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
-   constant BRST_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
-   constant PSC_RST_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
-   constant PSC_OFF_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
+   constant BRST_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
+   constant POW_CYCLE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
+   constant PSC_STATUS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
+   constant PSC_CTRL_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
    
    
    ---------------------------------------------------------------------------------
