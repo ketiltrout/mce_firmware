@@ -54,17 +54,17 @@ entity ac_dac_xtalk is
       dip_sw4 : in std_logic;
 
       -- extended signals
-      dac_dat0  : out std_logic_vector(13 downto 0);
-      dac_dat1  : out std_logic_vector(13 downto 0);
-      dac_dat2  : out std_logic_vector(13 downto 0);
-      dac_dat3  : out std_logic_vector(13 downto 0);
-      dac_dat4  : out std_logic_vector(13 downto 0);
-      dac_dat5  : out std_logic_vector(13 downto 0);
-      dac_dat6  : out std_logic_vector(13 downto 0);
-      dac_dat7  : out std_logic_vector(13 downto 0);
-      dac_dat8  : out std_logic_vector(13 downto 0);
-      dac_dat9  : out std_logic_vector(13 downto 0);
-      dac_dat10 : out std_logic_vector(13 downto 0);
+      dac_data0  : out std_logic_vector(13 downto 0);
+      dac_data1  : out std_logic_vector(13 downto 0);
+      dac_data2  : out std_logic_vector(13 downto 0);
+      dac_data3  : out std_logic_vector(13 downto 0);
+      dac_data4  : out std_logic_vector(13 downto 0);
+      dac_data5  : out std_logic_vector(13 downto 0);
+      dac_data6  : out std_logic_vector(13 downto 0);
+      dac_data7  : out std_logic_vector(13 downto 0);
+      dac_data8  : out std_logic_vector(13 downto 0);
+      dac_data9  : out std_logic_vector(13 downto 0);
+      dac_data10 : out std_logic_vector(13 downto 0);
 
       dac_clk   : out std_logic_vector(40 downto 0) );
 end;
@@ -92,8 +92,8 @@ signal ns : states;
 
 component pll 
 port(inclk0 : in std_logic;
-     c0 : out std_logic;   -- 50 MHz
-     c1 : out std_logic);  -- 1 MHz
+     c0 : out std_logic;   -- 25 MHz
+     c1 : out std_logic);  -- 0.5 MHz
 end component;
 
 signal clk0 : std_logic;
@@ -108,21 +108,6 @@ begin
             c0 => clk0,
             c1 => clk1);
 
--- instantiate a counter to divide the clock by 40x
---   clk_div_2: counter
---   generic map(MAX => 20)
---   port map(clk_i   => clk0,
---            rst_i   => low,
---            ena_i   => high,
---            load_i  => low,
---            down_i  => low,
---            count_i => dummy,
---            count_o => clk_div);
---
---   clk_2   <= '1' when clk_div > 10 else '0'; -- slow down the 50MHz clock to 50/40MHz
---   clkcount <= clk_2;
---   nclk <= not (clkcount);
-
    process(clk1)
    begin
       if(clk1'event and clk1 = '1') then
@@ -130,53 +115,37 @@ begin
       end if;
    end process;
 
-   nclk <= clk_div(0);
+   nclk <= not clk1;
       
    gen1: for idac in 0 to 40 generate
       dac_clk(idac) <= nclk;
    end generate gen1;
 
---   process(dip_sw3, clk_2)
---   begin
---      if(dip_sw3 = '0') then
---         if(clk_2 = '0') then
---            data <= "11111111111111";
---         else
---            data <= "00000000000000";
---         end if;
---         data2 <= "10000000000000";
---      else
---         if(clk_2 = '0') then
---            data2 <= "11111111111111";
---         else
---            data2 <= "00000000000000";
---         end if;
---         data <= "10000000000000";
---      end if;
---   end process;
+--     dac_clk(0) <= nclk;
 
-   process(clk_div(0))
+   process(clk1)
    begin
-      if(clk_div(0)'event and clk_div(0) = '1') then
-         data <= not data;
+      if(clk1'event and clk1 = '1') then
+         if(data = "00000000000000") then
+            data <= "11111111111111";
+         else
+            data <= "00000000000000";
+         end if;
       end if;
    end process;
 
---   data <= clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0) & clk_div(0);
+   data2 <= "11111111111111";
 
-   data2 <= "10000000000000";
+   dac_data0 <= data when dip_sw3 = '1' else data2;
+   dac_data2 <= data when dip_sw3 = '1' else data2;
+   dac_data4 <= data when dip_sw3 = '1' else data2;
+   dac_data6 <= data when dip_sw3 = '1' else data2;
+   dac_data8 <= data when dip_sw3 = '1' else data2;
+   dac_data10 <= data when dip_sw3 = '1' else data2;
 
-
-   dac_dat0 <= data when dip_sw3 = '1' else data2;
-   dac_dat2 <= data when dip_sw3 = '1' else data2;
-   dac_dat4 <= data when dip_sw3 = '1' else data2;
-   dac_dat6 <= data when dip_sw3 = '1' else data2;
-   dac_dat8 <= data when dip_sw3 = '1' else data2;
-   dac_dat10 <= data when dip_sw3 = '1' else data2;
-
-   dac_dat1 <= data2 when dip_sw3 = '1' else data;
-   dac_dat3 <= data2 when dip_sw3 = '1' else data;
-   dac_dat5 <= data2 when dip_sw3 = '1' else data;
-   dac_dat7 <= data2 when dip_sw3 = '1' else data;
-   dac_dat9 <= data2 when dip_sw3 = '1' else data;
+   dac_data1 <= data2 when dip_sw3 = '1' else data;
+   dac_data3 <= data2 when dip_sw3 = '1' else data;
+   dac_data5 <= data2 when dip_sw3 = '1' else data;
+   dac_data7 <= data2 when dip_sw3 = '1' else data;
+   dac_data9 <= data2 when dip_sw3 = '1' else data;
 end;
