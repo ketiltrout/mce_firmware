@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_async_fifo.vhd,v 1.3 2004/06/16 10:39:20 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_async_fifo.vhd,v 1.1 2004/06/28 12:31:07 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -33,7 +33,7 @@
 --
 -- Revision history:
 
--- <date $Date: 2004/06/16 10:39:20 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 12:31:07 $>	-		<text>		- <initials $Author: dca $>
 --
 -- <$log$>
 -----------------------------------------------------------------------------
@@ -53,7 +53,8 @@ use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
  
 library work;
-use work.async_fifo_pack.all;
+use work.component_pack.all;
+
 
 
 architecture bench of tb_async_fifo is
@@ -223,15 +224,20 @@ begin
    write <= '0';
    
    do_reset;
+   assert false report "fifo reset... " severity NOTE;
+   
    do_fill_fifo;
+   assert false report "fifo should now be full... " severity NOTE;
+   
    do_empty_fifo;
+   assert false report "fifo should now be empty ... " severity NOTE;
+   
    do_half_fill_fifo;
    do_read_n_write;
    do_read_n_write;
    do_half_empty_fifo;
    
-   
-   
+      
    assert false report " End of simulation......fifo should be empty" severity FAILURE;
    wait;     
    end process stimuli;
