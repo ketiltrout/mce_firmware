@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_ac_dac_ctrl.vhd,v 1.4 2004/11/04 00:08:18 bburger Exp $
+-- $Id: wbs_ac_dac_ctrl.vhd,v 1.5 2004/11/06 03:12:01 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: wbs_ac_dac_ctrl.vhd,v $
+-- Revision 1.5  2004/11/06 03:12:01  bburger
+-- Bryce:  debugging
+--
 -- Revision 1.4  2004/11/04 00:08:18  bburger
 -- Bryce:  small updates
 --
@@ -98,7 +101,7 @@ architecture rtl of wbs_ac_dac_ctrl is
    signal row_order_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    -- WBS states:
-   type states is (IDLE, WR, WR_ACK, WR_NXT, RD, RD_MEM1, RD_ACK, RD_NXT); 
+   type states is (IDLE, WR, RD); 
    signal current_state    : states;
    signal next_state       : states;
    

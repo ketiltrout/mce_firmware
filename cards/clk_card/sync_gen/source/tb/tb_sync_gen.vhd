@@ -23,22 +23,21 @@ architecture beh of tb_sync_gen is
    signal sync                      : std_logic;
    signal sync_num_o                : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    
---   signal clk_count_o               : integer;
---   signal clk_error_o               : std_logic_vector(31 downto 0);
-   
    -- frame_timing
    signal init_window_req           : std_logic := '0';
-
    signal sample_num                : integer := 42;
-   signal sample_delay              : integer := 5;
-   signal feedback_delay            : integer := 3;
-
+   signal sample_delay              : integer := 6;
+   signal feedback_delay            : integer := 4;
+   signal address_on_delay          : integer := 2;
+   
+   signal update_bias               : std_logic;
    signal dac_dat_en                : std_logic;
    signal adc_coadd_en              : std_logic;
    signal restart_frame_1row_prev   : std_logic;
    signal restart_frame_aligned     : std_logic;
    signal restart_frame_1row_post   : std_logic;
    signal row_switch                : std_logic;
+   signal row_en                    : std_logic;
    signal initialize_window         : std_logic;
    
 
@@ -66,19 +65,23 @@ begin
          clk_i                      => clk_i,
          rst_i                      => rst_i,
          sync_i                     => sync,
-         frame_rst_i                => rst_i,      
+         frame_rst_i                => rst_i,   
+         
          init_window_req_i          => init_window_req,
                                     
          sample_num_i               => sample_num,
          sample_delay_i             => sample_delay,
          feedback_delay_i           => feedback_delay,
- 
+         address_on_delay_i         => address_on_delay,
+         
+         update_bias_o              => update_bias,
          dac_dat_en_o               => dac_dat_en,
          adc_coadd_en_o             => adc_coadd_en,
          restart_frame_1row_prev_o  => restart_frame_1row_prev,
          restart_frame_aligned_o    => restart_frame_aligned,
          restart_frame_1row_post_o  => restart_frame_1row_post,
          row_switch_o               => row_switch,
+         row_en_o                   => row_en,
          initialize_window_o        => initialize_window
       );
 

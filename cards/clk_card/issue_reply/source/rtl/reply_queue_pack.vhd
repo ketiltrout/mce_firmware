@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.1 2004/10/21 00:45:38 bburger Exp $
+-- $Id: reply_queue_pack.vhd,v 1.2 2004/10/22 01:54:38 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.2  2004/10/22 01:54:38  bburger
+-- Bryce:  fixed bugs
+--
 -- Revision 1.1  2004/10/21 00:45:38  bburger
 -- Bryce:  new
 --
@@ -111,6 +114,70 @@ package reply_queue_pack is
          clk_i             : in std_logic;
          comm_clk_i        : in std_logic;
          rst_i             : in std_logic
+      );
+   end component;   
+   
+   component reply_queue_sequencer
+      port(
+         clk_i      : in std_logic;
+         rst_i      : in std_logic;
+        
+         -- receiver FIFO interfaces:
+         ac_data_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         ac_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         ac_done_i  : in std_logic;
+         ac_ack_o   : out std_logic;
+        
+         bc1_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         bc1_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         bc1_done_i : in std_logic;
+         bc1_ack_o  : out std_logic;
+        
+         bc2_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         bc2_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         bc2_done_i : in std_logic;
+         bc2_ack_o  : out std_logic;
+        
+         bc3_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         bc3_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         bc3_done_i : in std_logic;
+         bc3_ack_o  : out std_logic;
+        
+         rc1_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         rc1_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         rc1_done_i : in std_logic;
+         rc1_ack_o  : out std_logic;
+        
+         rc2_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         rc2_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         rc2_done_i : in std_logic;
+         rc2_ack_o  : out std_logic;
+        
+         rc3_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         rc3_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         rc3_done_i : in std_logic;
+         rc3_ack_o  : out std_logic;
+        
+         rc4_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         rc4_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         rc4_done_i : in std_logic;
+         rc4_ack_o  : out std_logic;
+        
+         cc_data_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         cc_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+         cc_done_i  : in std_logic;
+         cc_ack_o   : out std_logic;
+        
+         -- fibre interface:
+         size_o : out integer;
+         data_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         rdy_o  : out std_logic;
+         ack_i  : in std_logic;
+        
+         -- cmd_queue interface:
+         macro_op_i  : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+         micro_op_i  : in std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
+         card_addr_i : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0)
       );
    end component;   
    

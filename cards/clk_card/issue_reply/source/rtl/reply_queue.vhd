@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.1 2004/10/21 00:45:38 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.2 2004/10/22 01:54:38 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.2  2004/10/22 01:54:38  bburger
+-- Bryce:  fixed bugs
+--
 -- Revision 1.1  2004/10/21 00:45:38  bburger
 -- Bryce:  new
 --
@@ -116,12 +119,72 @@ begin
          last_frame_o      => last_frame_o,     
          frame_seq_num_o   => frame_seq_num_o,  
         
-         mop_num_o           => mop_num,
-         uop_num_o           => uop_num,
+         mop_num_o         => mop_num,
+         uop_num_o         => uop_num,
 
          clk_i             => clk_i,     
          comm_clk_i        => comm_clk_i,
          rst_i             => rst_i   
       );
+      
+   rqs : reply_queue_sequencer
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+                           
+         ac_data_i         =>,
+         ac_size_i         =>,
+         ac_done_i         =>,
+         ac_ack_o          =>,
+        
+         bc1_data_i        =>,
+         bc1_size_i        =>,
+         bc1_done_i        =>,
+         bc1_ack_o         =>,
+        
+         bc2_data_i        =>,
+         bc2_size_i        =>,
+         bc2_done_i        =>,
+         bc2_ack_o         =>,
+        
+         bc3_data_i        =>,
+         bc3_size_i        =>,
+         bc3_done_i        =>,
+         bc3_ack_o         =>,
+        
+         rc1_data_i        =>,
+         rc1_size_i        =>,
+         rc1_done_i        =>,
+         rc1_ack_o         =>,
+        
+         rc2_data_i        =>,
+         rc2_size_i        =>,
+         rc2_done_i        =>,
+         rc2_ack_o         =>,
+        
+         rc3_data_i        =>,
+         rc3_size_i        =>,
+         rc3_done_i        =>,
+         rc3_ack_o         =>,
+        
+         rc4_data_i        =>,
+         rc4_size_i        =>,
+         rc4_done_i        =>,
+         rc4_ack_o         =>,
+        
+         cc_data_i         =>,
+         cc_size_i         =>,
+         cc_done_i         =>,
+         cc_ack_o          =>,
+        
+         size_o            =>,
+         data_o            =>,
+         rdy_o             =>,
+         ack_i             =>,
+        
+         macro_op_i        =>,
+         micro_op_i        =>,
+         card_addr_i       =>
+      );                   
    
 end behav;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.16 2004/11/02 07:38:09 bburger Exp $
+-- $Id: frame_timing.vhd,v 1.17 2004/11/04 00:08:18 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,8 +28,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/11/02 07:38:09 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/04 00:08:18 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.17  2004/11/04 00:08:18  bburger
+-- Bryce:  small updates
+--
 -- Revision 1.16  2004/11/02 07:38:09  bburger
 -- Bryce:  ac_dac_ctrl in progress
 --
@@ -62,9 +65,12 @@ entity frame_timing is
       -- Where does this signal come from?  Is it a re-sync request?  Or does it come from the flux_loop?
       init_window_req_i          : in std_logic;
       
+      -- Readout Card inputs
       sample_num_i               : in integer;
       sample_delay_i             : in integer;
       feedback_delay_i           : in integer;
+      
+      -- Address Card input
       address_on_delay_i         : in integer;
          
       update_bias_o              : out std_logic;
