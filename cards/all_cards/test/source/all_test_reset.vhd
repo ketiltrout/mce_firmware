@@ -31,6 +31,11 @@
 -- Revision History:
 --
 -- $Log: all_test_reset.vhd,v $
+-- Revision 1.3  2004/06/29 22:14:06  erniel
+-- uses new rs232 interface
+-- reworked state machine
+-- removed obsolete code
+--
 -- Revision 1.2  2004/05/11 03:28:09  erniel
 -- updated header information
 --
@@ -63,7 +68,7 @@ architecture behaviour of all_test_reset is
       
    signal count : integer range 0 to 17;
    
-   type states is (RESET, TX_CHAR, TX_WAIT, DONE);
+   type states is (RESET, TX_CHAR, TX_WAIT, TX_SETUP, DONE);
    signal pres_state : states;
    signal next_state : states;
    
@@ -102,43 +107,45 @@ begin
    process(pres_state, en_i, tx_done_i, count)
    begin
       case pres_state is
-         when RESET =>   if(en_i = '1') then
-                            next_state <= TX_CHAR;
-                         else
-                            next_state <= RESET;
-                         end if;
-         when TX_CHAR => next_state <= TX_WAIT;
-         when TX_WAIT => if(tx_done_i = '0') then
-                            next_state <= TX_WAIT;
-                         elsif(tx_done_i = '1' and count = 17) then
-                            next_state <= DONE;
-                         else
-                            next_state <= TX_CHAR;
-                         end if;
-         when DONE =>    next_state <= RESET;
+         when RESET =>    if(en_i = '1') then
+                             next_state <= TX_CHAR;
+                          else
+                             next_state <= RESET;
+                          end if;
+         when TX_CHAR =>  next_state <= TX_WAIT;
+         when TX_WAIT =>  if(tx_done_i = '0') then
+                             next_state <= TX_WAIT;
+                          elsif(tx_done_i = '1' and count = 17) then
+                             next_state <= DONE;
+                          else
+                             next_state <= TX_SETUP;
+                          end if;
+         when TX_SETUP => next_state <= TX_CHAR;
+         when DONE =>     next_state <= RESET;
       end case;
    end process;
    
    process(pres_state)
    begin
       case pres_state is
-         when RESET =>   tx_data_o <= (others => '0');
-                         tx_start_o <= '0';
-                         count <= 0;
-                         done_o <= '0';
+         when RESET =>    tx_data_o <= (others => '0');
+                          tx_start_o <= '0';
+                          count <= 0;
+                          done_o <= '0';
                          
-         when TX_CHAR => tx_data_o <= message(count);
-                         tx_start_o <= '1';
-                         count <= count + 1;
-                         done_o <= '0';
+         when TX_CHAR =>  tx_data_o <= message(count);
+                          tx_start_o <= '1';
+                          done_o <= '0';
                          
-         when TX_WAIT => tx_data_o <= (others => '0');
-                         tx_start_o <= '0';
-                         done_o <= '0';
+         when TX_WAIT =>  tx_data_o <= message(count);
+                          tx_start_o <= '0';
+                          done_o <= '0';
+         
+         when TX_SETUP => count <= count + 1;
                          
-         when DONE =>    tx_data_o <= (others => '0');
-                         tx_start_o <= '0';
-                         done_o <= '1';
+         when DONE =>     tx_data_o <= (others => '0');
+                          tx_start_o <= '0';
+                          done_o <= '1';
       end case;
    end process;
    
