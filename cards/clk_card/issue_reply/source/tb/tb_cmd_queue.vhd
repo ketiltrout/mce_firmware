@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.20 2004/10/08 19:41:22 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.21 2004/10/15 01:47:48 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.21  2004/10/15 01:47:48  bburger
+-- Bryce:  working on the retire functionality
+--
 -- Revision 1.20  2004/10/08 19:41:22  bburger
 -- Bryce:  Updated these files to work with Ernie's new set of constants
 --
@@ -111,6 +114,7 @@ use work.issue_reply_pack.all;
 use work.cmd_queue_ram40_pack.all;
 use work.async_pack.all;
 use work.sync_gen_pack.all;
+use work.reply_queue_pack.all;
 
 entity TB_CMD_QUEUE is
 end TB_CMD_QUEUE;
@@ -164,7 +168,7 @@ architecture BEH of TB_CMD_QUEUE is
 ------------------------------------------------------------------------
 
 begin
-   DUT : cmd_queue
+   dut : cmd_queue
       port map(
          debug_o       => debug_o,
 
@@ -197,6 +201,16 @@ begin
          sync_num_i    => sync_num_i,
          clk_i         => clk_i,
          rst_i         => rst_i
+      );
+      
+   dut2 : reply_queue
+      port map(
+         uop_rdy_i     => uop_rdy_o,  
+         uop_ack_o     => uop_ack_i,  
+         uop_i         => uop_o,  
+             
+         clk_i         => clk_i,  
+         rst_i         => rst_i    
       );
       
    rx : lvds_rx
@@ -266,8 +280,8 @@ begin
 
       cmd_type_i      <= "010";
       cmd_stop_i      <= '0';
-      last_frame_i    <= '0';
-      frame_seq_num_i <= "00000000000000000000000000000010";
+      last_frame_i    <= '1';
+      frame_seq_num_i <= "11111111111111111111111111111111";
       
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
@@ -410,18 +424,18 @@ begin
       assert false report " Simulation done." severity FAILURE;
    end process STIMULI;
    
-   uop_ack : process
-   begin
-      L2: while uop_rdy_o = '0' loop
-         uop_ack_i <= '0';         
-         wait for CLOCK_PERIOD;
-      end loop;
-
-      wait for 10*CLOCK_PERIOD;
-      uop_ack_i <= '1';
-      wait for CLOCK_PERIOD;
-      uop_ack_i <= '0';         
-   end process uop_ack;
+--   uop_ack : process
+--   begin
+--      L2: while uop_rdy_o = '0' loop
+--         uop_ack_i <= '0';         
+--         wait for CLOCK_PERIOD;
+--      end loop;
+--
+--      wait for 10*CLOCK_PERIOD;
+--      uop_ack_i <= '1';
+--      wait for CLOCK_PERIOD;
+--      uop_ack_i <= '0';         
+--   end process uop_ack;
    
 end BEH;
 

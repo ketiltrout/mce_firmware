@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.57 2004/10/14 00:38:43 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.58 2004/10/15 01:47:48 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.58  2004/10/15 01:47:48  bburger
+-- Bryce:  working on the retire functionality
+--
 -- Revision 1.57  2004/10/14 00:38:43  bburger
 -- Bryce:  cleaning up un-used signals
 --
@@ -639,12 +642,10 @@ begin
       if(rst_i = '1') then
          present_retire_state <= IDLE;
          retire_ptr <= (others=>'0');
---         flush_ptr  <= (others=>'0');
 
       elsif(clk_i'event and clk_i = '1') then
          present_retire_state <= next_retire_state;
          retire_ptr <= retire_ptr_mux;
---         flush_ptr  <= flush_ptr_mux;
 
       end if;
    end process retire_state_FF;
@@ -653,19 +654,9 @@ begin
    retire_ptr_mux <= retire_ptr when retire_ptr_mux_sel = "000" else
                      ADDR_ZERO  when retire_ptr_mux_sel = "001" else
                      retire_ptr + CQ_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when retire_ptr_mux_sel = "010" else
---                     flush_ptr when retire_ptr_mux_sel = "011" else
---                     flush_ptr + CQ_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when retire_ptr_mux_sel = "100" else
                      retire_ptr + 1 when retire_ptr_mux_sel = "101" else
                      retire_ptr + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when retire_ptr_mux_sel = "110";
    
---   flush_ptr_mux <=  flush_ptr when flush_ptr_mux_sel  = "00" else
---                     ADDR_ZERO when flush_ptr_mux_sel  = "01" else
---                     flush_ptr + CQ_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END); -- when "10"
-
---   uop_timed_out <= '1' when (sync_count_slv > qb_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END) + TIMEOUT_LEN or
---                             (sync_count_slv < qb_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END) + TIMEOUT_LEN and 
---                              MAX_SYNC_COUNT - qb_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END) + TIMEOUT_LEN + sync_count_slv > TIMEOUT_LEN))
---                              else '0';
                            
    -- This signal is to be used to determine when there is a u-op to retire.  
    -- This signal should not be asserted until the entire u-op pointed to by retire_ptr has been issued.
@@ -679,14 +670,10 @@ begin
       case present_retire_state is
          when IDLE =>
             if(uop_to_retire = '1') then
-               next_retire_state <= HEADER_A;
+               next_retire_state <= HEADER_B;
             else
                next_retire_state <= IDLE;
             end if;
---         when NEXT_UOP =>
---            next_retire_state <= HEADER_A;
-         when HEADER_A =>
-            next_retire_state <= HEADER_B;
          when HEADER_B =>
             next_retire_state <= HEADER_C;
          when HEADER_C =>
@@ -713,31 +700,18 @@ begin
    begin
       -- defaults
       retire_ptr_mux_sel <= "000"; -- hold value
---      flush_ptr_mux_sel  <= "00";  -- hold value
    
       case present_retire_state is
          when IDLE =>
             freeze_send    <= '0';
             retired        <= '0';
-            if(next_retire_state = HEADER_A) then
+            if(next_retire_state = HEADER_B) then
                retire_ptr_mux_sel <= "101";
                uop_rdy_o      <= '1';
             else
                uop_rdy_o      <= '0';
             end if;
             
---         when NEXT_UOP =>
---            uop_rdy_o      <= '1';
---            freeze_send    <= '0';
---            retired        <= '0';
---            retire_ptr_mux_sel <= "101"; 
-            
-         when HEADER_A =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
-            retired        <= '0';
-            retire_ptr_mux_sel <= "101"; 
-
          when HEADER_B =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
@@ -748,13 +722,13 @@ begin
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
             retired        <= '0';
---            retire_ptr_mux_sel <= "101"; 
+            retire_ptr_mux_sel <= "101"; 
 
          when HEADER_D =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';
             retired        <= '0';
---            retire_ptr_mux_sel <= "101"; 
+            retire_ptr_mux_sel <= "101"; 
             
          when STATUS =>
             uop_rdy_o      <= '0';
@@ -766,9 +740,6 @@ begin
             freeze_send    <= '0';
             retired        <= '1';
             
---            retire_ptr_mux_sel <= "110"; 
---            flush_ptr_mux_sel  <= "10";
-
          when others =>
             uop_rdy_o      <= '0';
             freeze_send    <= '0';

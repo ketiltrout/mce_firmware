@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.14 2004/10/13 10:39:51 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.15 2004/10/14 00:38:43 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/10/13 10:39:51 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/14 00:38:43 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -58,7 +58,7 @@ architecture tb of tb_issue_reply is
     signal   t_rst_i       : std_logic;
     signal   t_clk_i       : std_logic := '0';
      
-    signal   t_fibre_clkr    : std_logic := '0'; 
+    signal   t_fibre_clkr    : std_logic := '1'; 
       
       -- inputs from the fibre
     signal  t_rx_data_i   : std_logic_vector (7 DOWNTO 0);
