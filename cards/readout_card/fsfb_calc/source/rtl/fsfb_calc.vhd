@@ -43,7 +43,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: fsfb_calc.vhd,v $
+-- Revision 1.1  2004/10/22 22:18:36  anthonyk
+-- Initial release
+--
 --
 
 
@@ -77,7 +80,7 @@ entity fsfb_calc is
       restart_frame_1row_post_i : in     std_logic;                                             -- start of frame signal (1 row behind of actual frame start)
       row_switch_i              : in     std_logic;                                             -- row switch signal to indicate next clock cycle is the beginning of new row
       initialize_window_i       : in     std_logic;                                             -- frame window at which all values read equal to fixed preset parameter
-      num_rows_sub1             : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
+      num_rows_sub1_i           : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
       
       -- control signals from configuration registers
       servo_mode_i              : in     std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 

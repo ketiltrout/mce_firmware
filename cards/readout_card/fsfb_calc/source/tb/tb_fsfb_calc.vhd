@@ -34,7 +34,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.1  2004/10/22 22:19:41  anthonyk
+-- Initial release
+--
 --
 --
 --
@@ -84,7 +87,7 @@ architecture test of tb_fsfb_calc is
    signal ft_restart_frame_1row_post_i :     std_logic;
    signal delay_en                     :     std_logic;
    signal ft_initialize_window_i       :     std_logic  := '0';
-   signal ft_num_rows_sub1             :     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
+   signal ft_num_rows_sub1_i           :     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
    
    -- upstream block inputs for lock mode testing
    signal adc_coadd_done_i             :     std_logic;
@@ -167,7 +170,7 @@ architecture test of tb_fsfb_calc is
          restart_frame_1row_post_i : in     std_logic;                                             -- start of frame signal (1 row behind of actual frame start)
          row_switch_i              : in     std_logic;                                             -- row switch signal to indicate next clock cycle is the beginning of new row
          initialize_window_i       : in     std_logic;                                             -- frame window at which all values read equal to fixed preset parameter
-         num_rows_sub1             : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
+         num_rows_sub1_i           : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
          servo_mode_i              : in     std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
          ramp_step_size_i          : in     std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
          ramp_amp_i                : in     std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           -- ramp peak amplitude
@@ -301,7 +304,7 @@ begin
 
    rst_i <= '1', '0' after 1000 * clk_period;
    
-   ft_num_rows_sub1 <= conv_std_logic_vector(40, FSFB_QUEUE_ADDR_WIDTH);
+   ft_num_rows_sub1_i <= conv_std_logic_vector(40, FSFB_QUEUE_ADDR_WIDTH);
    
 
    -- Configure the P,I,D,Z coefficient values
@@ -443,7 +446,7 @@ begin
          restart_frame_1row_post_i => ft_restart_frame_1row_post_i,
          row_switch_i              => ft_row_switch_i,
          initialize_window_i       => ft_initialize_window_i,
-         num_rows_sub1             => ft_num_rows_sub1,
+         num_rows_sub1_i           => ft_num_rows_sub1_i,
          servo_mode_i              => cfg_servo_mode_i, 
          ramp_step_size_i          => cfg_ramp_step_size_i,
          ramp_amp_i                => cfg_ramp_amp_i,
