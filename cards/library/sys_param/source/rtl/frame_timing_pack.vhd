@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.10 2004/08/20 23:59:45 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.11 2004/08/25 01:31:45 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/08/20 23:59:45 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/08/25 01:31:45 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.11  2004/08/25 01:31:45  bburger
+-- Bryce:  just spacing
+--
 -- Revision 1.10  2004/08/20 23:59:45  bburger
 -- Bryce:  now expects sync pulses on the last clock cycle in a frame, and restarts clk_count on the next cycle in a frame
 --
@@ -90,7 +93,7 @@ package frame_timing_pack is
 
    constant MUX_LINE_PERIOD   : integer := 64; -- 64 50MHz cycles
    constant NUM_OF_ROWS       : integer := 41;
-   constant END_OF_FRAME      : integer := 15;--NUM_OF_ROWS*MUX_LINE_PERIOD-1; --(41*MUX_LINE_PERIOD);
+   constant END_OF_FRAME      : integer := NUM_OF_ROWS*MUX_LINE_PERIOD-1; --(41*MUX_LINE_PERIOD);
 
    ------------------------------------------------------------------------------------
    -- Clock Card frame structure
