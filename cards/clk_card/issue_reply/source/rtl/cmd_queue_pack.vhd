@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.10 2004/09/02 01:14:52 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.11 2004/09/25 01:23:49 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.11  2004/09/25 01:23:49  bburger
+-- Bryce:  Added command-code, last-frame and stop-frame interfaces
+--
 -- Revision 1.10  2004/09/02 01:14:52  bburger
 -- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
 --
@@ -75,6 +78,11 @@ use work.cmd_queue_ram40_pack.all;
 
 package cmd_queue_pack is
 
+   constant SYNC_NUM_BUS_WIDTH     : integer := 8;
+   
+   constant ISSUE_SYNC_BUS_WIDTH   : integer := SYNC_NUM_BUS_WIDTH;
+   constant TIMEOUT_SYNC_BUS_WIDTH : integer := SYNC_NUM_BUS_WIDTH;
+   
    component cmd_queue
       port(
          -- for testing
@@ -89,16 +97,16 @@ package cmd_queue_pack is
          uop_o         : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
          -- cmd_translator interface
-         card_addr_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
-         par_id_i      : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
-         data_size_i   : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-         data_i        : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
+         card_addr_i   : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
+         par_id_i      : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
+         data_size_i   : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
+         data_i        : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- Data belonging to a m-op
          data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
-         mop_i         : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
+         mop_i         : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
          issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
          mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
          mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
-         cmd_type_i    : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+         cmd_type_i    : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
          cmd_stop_i    : in std_logic;                                          -- indicates a STOP command was recieved
          last_frame_i  : in std_logic;                                          -- indicates the last frame of data for a ret_dat command
 
