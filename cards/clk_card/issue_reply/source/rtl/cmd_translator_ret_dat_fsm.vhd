@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.5 2004/06/21 17:02:14 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.6 2004/07/05 23:38:10 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/21 17:02:14 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/05 23:38:10 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.6  2004/07/05 23:38:10  jjacob
+-- added ack_o signal to cmd_translator_ret_dat_fsm to control the
+-- acknowledge signal back to the fibre_rx block
+--
 -- Revision 1.5  2004/06/21 17:02:14  jjacob
 -- first stable version, doesn't yet have macro-instruction buffer, doesn't have
 -- "quick" acknolwedgements for instructions that require them, no error
@@ -134,7 +138,7 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal ret_dat_done            : std_logic; 
    signal ret_dat_fsm_working     : std_logic;  
    signal ret_dat_cmd_valid       : std_logic;  
-   signal current_sync_num        : std_logic_vector(7 downto 0);
+   --signal current_sync_num        : std_logic_vector(7 downto 0);
    
    signal card_addr               : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); 
    signal parameter_id            : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
@@ -143,7 +147,7 @@ architecture rtl of cmd_translator_ret_dat_fsm is
 
    signal ret_dat_s_seq_start_num : std_logic_vector (31 downto 0);
    signal ret_dat_s_seq_stop_num  : std_logic_vector (31 downto 0);
-   signal current_seq_num         : std_logic_vector (31 downto 0);
+   --signal current_seq_num         : std_logic_vector (31 downto 0);
    
    signal word_count              : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
    
@@ -156,122 +160,27 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal next_state, current_state : state;
 
 
+   -- signals for generating the sync and sequence numbers
+   constant INPUT_NUM_SEL             : std_logic_vector(1 downto 0) := "00";
+   constant CURRENT_NUM_PLUS_1_SEL    : std_logic_vector(1 downto 0) := "01";
+   constant CURRENT_NUM_SEL           : std_logic_vector(1 downto 0) := "10";
+   
+   signal mux_sel                     : std_logic_vector(1 downto 0);
+   
+   signal current_sync_num_reg_plus_1 : std_logic_vector(7 downto 0);
+   signal current_sync_num_reg        : std_logic_vector(7 downto 0);
+   signal current_sync_num            : std_logic_vector(7 downto 0);
+  
+   signal current_seq_num_reg_plus_1  : std_logic_vector(31 downto 0);
+   signal current_seq_num_reg         : std_logic_vector(31 downto 0);
+   signal current_seq_num             : std_logic_vector(31 downto 0);
+
+
 begin
 
    -- dummy assignment, get rid of this signal later
    ret_dat_s_done_o        <= '0';
 
-
-------------------------------------------------------------------------
---
--- asynchronous state machine. Reacts immediately, no next-state clocking process
---
-------------------------------------------------------------------------
-
---   aysnc_fsm: process(ret_dat_s_start_i, data_i, word_count, data_size_i,
---                      ret_dat_start_i, rst_i, ret_dat_done)
---           -- not including async_state, ret_dat_s_seq_stop/start_num in sensitivity list on purpose
---   begin
---
---      
---   
---      case async_state is
---         when IDLE =>
---        
---            if rst_i = '1' then
---            
---               ret_dat_s_seq_start_num <= (others => '0');
---               ret_dat_s_seq_stop_num  <= (others => '0');
---               --ret_dat_s_done_o        <= '0';
---               ret_dat_start           <= '0';
---               
---               async_state             <= IDLE;
---       
---            elsif ret_dat_s_start_i = '1' then
---            
---               ret_dat_s_seq_start_num <= data_i;
---               ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
---               --ret_dat_s_done_o        <= '0';
---               ret_dat_start           <= '0';
---           
---               async_state             <= SET_SEQ_NUM;
---               
---            elsif ret_dat_start_i = '1' then
---            
---               --ret_dat_s_done_o        <= '0';
---               ret_dat_start           <= '1';
---           
---               async_state             <= RETURN_DATA_ASYNC_WAIT;
---               
---            elsif ret_dat_done = '1' then
---            
---               -- make other signal assignment here also
---               --ret_dat_s_done_o        <= '0';
---               ret_dat_start           <= '0';
---               
---               async_state             <= IDLE;
---               
---            else
---           
---               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
---               ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
---               --ret_dat_s_done_o        <= '0';
---               ret_dat_start           <= '0';
---               
---               async_state             <= IDLE;
---
---            end if;
---         
---         when SET_SEQ_NUM =>
---         
---            if word_count > data_size_i then
---             
---               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
---               ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
---               --ret_dat_s_done_o        <= '1';
---               ret_dat_start           <= '0';
---               
---               
---               if ret_dat_start_i = '1' then
---                  async_state <= RETURN_DATA_ASYNC_WAIT;
---               else
---                  async_state <= IDLE;
---               end if;
---
---            else  
---
---               ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;    
---               ret_dat_s_seq_stop_num  <= data_i;
---               --ret_dat_s_done_o        <= '0';
---               ret_dat_start           <= '0';
---
---               async_state <= SET_SEQ_NUM;
---               
---            end if;
---            
---         when RETURN_DATA_ASYNC_WAIT =>
---            if ret_dat_done = '1' then
---            
---               -- make other signal assignment here also
---               async_state             <= IDLE;
---               ret_dat_start           <= '0';
---            else
---               async_state <= RETURN_DATA_ASYNC_WAIT;
---               ret_dat_start <= '1';
---            end if;
---            
---            --ret_dat_s_done_o        <= '0';
---            
---         when others =>
---            --ret_dat_s_done_o        <= '0';
---            ret_dat_start           <= '0';
---            async_state <= IDLE;
---    
---      end case;
---   
---   end process;
---
---
 
 
 ------------------------------------------------------------------------
@@ -586,10 +495,10 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, ack_i) --card_addr_i, parameter_id_i, data_size_i, data_i, 
+   process(current_state, ack_i, ret_dat_start) --card_addr_i, parameter_id_i, data_size_i, data_i, 
    begin
    
-      -- defulat assignments
+      -- default assignments
       ack_o                   <= '0';
       
 --     card_addr               <= card_addr;              -- capture and hold the card_addr
@@ -732,81 +641,117 @@ begin
 --
 ------------------------------------------------------------------------
 
---   process(rst_i, current_state, ret_dat_start_i, sync_number_i)
+
+
+--   process(current_state, current_seq_num, ret_dat_s_seq_start_num, ret_dat_start, rst_i)
 --   begin
---      if rst_i = '1' then
---         current_sync_num <= (others => '0');
---      elsif current_state'event and current_state = RETURN_DATA_PAUSE then
---         current_sync_num <= current_sync_num + 1;
---      elsif current_state = RETURN_DATA_IDLE and ret_dat_start_i = '0' then
---         current_sync_num <= sync_number_i;
---      else
---         current_sync_num <= current_sync_num;
---      end if;
---   
+--      case current_state is
+--      
+--         when RETURN_DATA_IDLE =>
+--         
+--            if rst_i = '1' then
+--            
+--               current_sync_num        <= (others => '0');
+--               current_seq_num         <= (others => '0');
+--            
+--         
+--            elsif ret_dat_start = '1' then
+--            
+--               current_sync_num        <= current_sync_num;   -- each new ret_dat command must corresponding to the next sync pulse
+--               current_seq_num         <= current_seq_num;    -- this keeps track of what frame number we are on in the sequence of frames
+--
+--            else
+--
+--               current_sync_num        <= sync_number_i;
+--               current_seq_num         <= ret_dat_s_seq_start_num;
+--
+--            end if;
+--
+--         when RETURN_DATA | RETURN_DATA_LAST | RETURN_DATA_ACK | RETURN_DATA_STOP |
+--              RETURN_DATA_DONE | RETURN_DATA_1ST | RETURN_DATA_ACK_1ST =>
+--      
+--            current_sync_num        <= current_sync_num;   -- each new ret_dat command must corresponding to the next sync pulse
+--            current_seq_num         <= current_seq_num;    -- this keeps track of what frame number we are on in the sequence of frames
+--            
+--     
+--         when RETURN_DATA_PAUSE =>
+--         
+--            current_sync_num        <= current_sync_num + 1;
+--            current_seq_num         <= current_seq_num + 1;           
+--                  
+--        
+--         when others =>
+--                 
+--            current_sync_num        <= (others => '0');
+--            current_seq_num         <= (others => '0');
+--
+--      end case;
 --   end process;
-   
-                      
 
-
-   process(current_state, sync_number_i, ret_dat_s_seq_start_num, ret_dat_start, rst_i)
+------------------------------------------------------------------------
+--
+-- select line generation for 'sync number' and 'sequence number' mux 
+--
+------------------------------------------------------------------------
+   process(current_state, ret_dat_start)
    begin
-      case current_state is
-      
-         when RETURN_DATA_IDLE =>
-         
-            if rst_i = '1' then
-            
-               current_sync_num        <= (others => '0');
-               current_seq_num         <= (others => '0');
-            
-         
-            elsif ret_dat_start = '1' then
-            
-               current_sync_num        <= current_sync_num;   -- each new ret_dat command must corresponding to the next sync pulse
-               current_seq_num         <= current_seq_num;    -- this keeps track of what frame number we are on in the sequence of frames
-
+      case current_state is 
+           
+         when RETURN_DATA_IDLE =>         
+            if ret_dat_start = '0' then               
+               mux_sel        <= CURRENT_NUM_SEL;            
             else
-
-               current_sync_num        <= sync_number_i;
-               current_seq_num         <= ret_dat_s_seq_start_num;
-
+               mux_sel        <= INPUT_NUM_SEL;               
             end if;
 
          when RETURN_DATA | RETURN_DATA_LAST | RETURN_DATA_ACK | RETURN_DATA_STOP |
-              RETURN_DATA_DONE | RETURN_DATA_1ST | RETURN_DATA_ACK_1ST =>
-      
-            current_sync_num        <= current_sync_num;   -- each new ret_dat command must corresponding to the next sync pulse
-            current_seq_num         <= current_seq_num;    -- this keeps track of what frame number we are on in the sequence of frames
-            
---         when RETURN_DATA_ACK =>
---         
---            current_sync_num        <= current_sync_num;
---            current_seq_num         <= current_seq_num;            
-         
-         when RETURN_DATA_PAUSE =>
-         
-            current_sync_num        <= current_sync_num + 1;
-            current_seq_num         <= current_seq_num + 1;           
-                  
---         when RETURN_DATA_STOP =>  -- JJ Need to take some action, like send response back to Linux machine
---         
---            current_sync_num        <= current_sync_num;
---            current_seq_num         <= current_seq_num;
---   
---         when RETURN_DATA_DONE =>  -- JJ Need to take some action, like send response back to Linux machine
---         
---            current_sync_num        <= current_sync_num;
---            current_seq_num         <= current_seq_num;
-            
-         when others =>
-                 
-            current_sync_num        <= (others => '0');
-            current_seq_num         <= (others => '0');
+              RETURN_DATA_DONE | RETURN_DATA_1ST | RETURN_DATA_ACK_1ST =>      
+            mux_sel           <= CURRENT_NUM_SEL;
+
+         when RETURN_DATA_PAUSE =>        
+            mux_sel           <= CURRENT_NUM_PLUS_1_SEL;
+  
+         when others =>            
+            mux_sel           <= CURRENT_NUM_SEL;     
 
       end case;
    end process;
 
+------------------------------------------------------------------------
+--
+-- 'sync number' and 'sequence number' registers
+--
+------------------------------------------------------------------------
+   process(rst_i, clk_i)
+   begin
+      if rst_i = '1' then
+         current_sync_num_reg <= (others=>'0');
+         current_seq_num_reg  <= (others=>'0');
+      elsif clk_i'event and clk_i='1' then
+         current_sync_num_reg <= current_sync_num;
+         current_seq_num_reg  <= current_seq_num;
+      end if;
+   end process;
+   
+------------------------------------------------------------------------
+--
+-- 'sync number' and 'sequence number' muxes
+--
+------------------------------------------------------------------------   
+   current_sync_num <= sync_number_i               when mux_sel = INPUT_NUM_SEL          else
+                       current_sync_num_reg_plus_1 when mux_sel = CURRENT_NUM_PLUS_1_SEL else
+                       current_sync_num_reg        when mux_sel = CURRENT_NUM_SEL        else
+                       current_sync_num_reg;
+                       
+   current_sync_num_reg_plus_1 <= current_sync_num_reg + 1;
+
+   current_seq_num  <= ret_dat_s_seq_start_num     when mux_sel = INPUT_NUM_SEL          else
+                       current_seq_num_reg_plus_1  when mux_sel = CURRENT_NUM_PLUS_1_SEL else
+                       current_seq_num_reg         when mux_sel = CURRENT_NUM_SEL        else
+                       current_seq_num_reg;
+
+   current_seq_num_reg_plus_1 <= current_seq_num_reg + 1;
+   
 ------------------------------------------------------------------------
 --
 -- mux for outputs
