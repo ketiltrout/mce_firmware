@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 
 -- 
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.3 2004/07/09 10:17:50 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.4 2004/07/09 13:17:18 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,12 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/09 10:17:50 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/09 13:17:18 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: tb_cmd_translator_m_op_table.vhd,v $
+-- Revision 1.4  2004/07/09 13:17:18  dca
+-- change to start value of clk.
+--
 -- Revision 1.3  2004/07/09 10:17:50  dca
 --
 -- Simultaneous store/retire no longer permitted, so removed from TB.
@@ -202,6 +205,18 @@ begin
       wait for clk_prd;
    end do_retire_m_op;
    
+   
+   procedure do_retire_m_op_test_state is                        -- retire procedure to test fsm state condition
+   begin
+      macro_instr_done <= '1';
+      assert false report "retire macro op...." severity NOTE;
+      wait until retiring_busy <= '1';                            -- must not de-assert until retirment has begun 
+      wait for clk_prd*5;
+      macro_instr_done <= '0';
+      assert false report "macro_instr_done now low.......fsm can go back to idle" severity NOTE;
+      wait for clk_prd;
+   end do_retire_m_op_test_state;
+   
       
    begin
       do_reset;
@@ -234,32 +249,36 @@ begin
       m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));   
       do_retire_m_op;
       wait for clk_prd;
-      wait until retiring_busy <= '0';
+      wait until retiring_busy = '0';
       
       retire_m_op            <= retire_m_op + 3; 
       wait for clk_prd;     
       m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
       do_retire_m_op;
       wait for clk_prd;
-      wait until retiring_busy <= '0';
+      wait until retiring_busy = '0';
       
       retire_m_op            <= retire_m_op + 3; 
       wait for clk_prd;     
       m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
       do_retire_m_op;
       wait for clk_prd;
-      wait until retiring_busy <= '0';
+      wait until retiring_busy = '0';
       
       retire_m_op            <= retire_m_op - 9; 
       wait for clk_prd;     
       m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
-      do_retire_m_op;
-      wait for clk_prd;
-      wait until retiring_busy <= '0';
+      do_retire_m_op_test_state;
+     
       wait for clk_prd;
       
-      assert false report "m_op table should now have 4 free slots......." severity NOTE;
-      
+      if retiring_busy = '1' then
+         assert false report "ERROR retire_busy should be low......." severity FAILURE;
+      else
+         assert false report "m_op table should now have 4 free slots......." severity NOTE;
+      end if;
+         
+      wait for clk_prd;
       
         
       -- now fill again with 4 more issued commands
