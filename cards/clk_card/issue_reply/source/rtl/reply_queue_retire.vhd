@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.5 2004/11/25 01:32:37 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.6 2004/11/30 02:49:26 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.6  2004/11/30 02:49:26  erniel
+-- fixed output logic (removed dependancy on next_state)
+--
 -- Revision 1.5  2004/11/25 01:32:37  bburger
 -- Bryce:
 -- - Changed to cmd_code over the bus backplane to read/write only
@@ -67,27 +70,33 @@ use work.cmd_queue_pack.all;
 entity reply_queue_retire is
    port(
       -- cmd_queue interface
-      uop_rdy_i         : in std_logic;                                           
-      uop_ack_o         : out std_logic;                                          
-      uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
+      cmd_to_retire_i   : in std_logic;                                           
+      cmd_sent_o        : out std_logic;                                          
+      cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
       
-      -- reply_translator interface 
-      m_op_done_i       : in std_logic;
-      m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
-      m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
-      m_op_card_addr_o  : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
-      m_op_ack_i        : in std_logic;    
-      cmd_stop_o        : out std_logic;                                          
-      last_frame_o      : out std_logic;                                          
+      -- reply_translator interface
+      cmd_sent_i        : in std_logic;
+      cmd_code_o        : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      param_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
+      stop_bit_o        : out std_logic;                                          
+      last_frame_bit_o  : out std_logic;                                          
       frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
-      internal_cmd_o    : out std_logic;
+      internal_cmd_o    : out std_logic;      
+      
+      -- reply_translator and reply_queue_sequencer interface
+      card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
+
+      -- to MUX in reply_queue (for handling STOP commands)
+      size_o            : out integer;
+      data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      error_code_o      : out std_logic_vector(BB_STATUS_WIDTH-1 downto 0); 
+      rdy_o             : out std_logic;
+      ack_i             : in std_logic;      
      
-      -- Internal interface signals to the lvds_rx fifo's
+      -- reply_queue_sequencer interface
       mop_num_o         : out std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
       uop_num_o         : out std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
---      match_o           : out std_logic;
-      start_o           : out std_logic;
---      done_o            : out std_logic      
+      cmd_rdy_o         : out std_logic;
 
       -- Global signals
       clk_i             : in std_logic;
@@ -98,20 +107,23 @@ end reply_queue_retire;
 
 architecture behav of reply_queue_retire is
 
-signal uop_recieved : std_logic;
+--signal uop_recieved : std_logic;
+
+-- Signals from the reply_translator
+signal ack         : std_logic;
 
 -- Signals for the registers that store the four cmd_queue words
-signal header_a : std_logic_vector(QUEUE_WIDTH-1 downto 0);
-signal header_b : std_logic_vector(QUEUE_WIDTH-1 downto 0);
-signal header_c : std_logic_vector(QUEUE_WIDTH-1 downto 0);
-signal header_d : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+signal header_a    : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+signal header_b    : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+signal header_c    : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+signal header_d    : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal header_a_en : std_logic;
 signal header_b_en : std_logic;
 signal header_c_en : std_logic;
 signal header_d_en : std_logic;
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
-type retire_states is (IDLE, HEADERB, HEADERC, HEADERD, RECEIVED);
+type retire_states is (IDLE, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_ACK);
 signal present_retire_state : retire_states;
 signal next_retire_state    : retire_states;
 
@@ -128,7 +140,7 @@ begin
          clk_i      => clk_i,
          rst_i      => rst_i,
          ena_i      => header_a_en,
-         reg_i      => uop_i,
+         reg_i      => cmd_i,
          reg_o      => header_a
       );
 
@@ -140,7 +152,7 @@ begin
          clk_i      => clk_i,
          rst_i      => rst_i,
          ena_i      => header_b_en,
-         reg_i      => uop_i,
+         reg_i      => cmd_i,
          reg_o      => header_b
       );
 
@@ -152,7 +164,7 @@ begin
          clk_i      => clk_i,
          rst_i      => rst_i,
          ena_i      => header_c_en,
-         reg_i      => uop_i,
+         reg_i      => cmd_i,
          reg_o      => header_c
       );
 
@@ -164,25 +176,33 @@ begin
          clk_i      => clk_i,
          rst_i      => rst_i,
          ena_i      => header_d_en,
-         reg_i      => uop_i,
+         reg_i      => cmd_i,
          reg_o      => header_d
       );
 
    -- Some of the outputs to reply_translator and lvds_rx fifo's
-   m_op_cmd_code_o   <= header_a(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END);      
-   m_op_card_addr_o  <= header_b(QUEUE_WIDTH-1 downto CARD_ADDR_END);
-   m_op_param_id_o   <= header_b(CARD_ADDR_END-1 downto PARAM_ID_END);   
-   internal_cmd_o    <= header_c(2);
-   cmd_stop_o        <= header_c(1);  
-   last_frame_o      <= header_c(0);   
+   cmd_code_o        <= header_a(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END);      
+   param_id_o        <= header_b(CARD_ADDR_END-1 downto PARAM_ID_END);   
+   stop_bit_o        <= header_c(1);  
+   last_frame_bit_o  <= header_c(0);   
    frame_seq_num_o   <= header_d;
-   
+   internal_cmd_o    <= header_c(2);   
+   card_addr_o       <= header_b(QUEUE_WIDTH-1 downto CARD_ADDR_END);
+
    -- Internal signal assignments to the lvds_rx fifo's
    mop_num_o         <= header_b(PARAM_ID_END-1 downto MOP_END);
    uop_num_o         <= header_b(MOP_END-1 downto UOP_END);
    
    -- The acknowledgement of a m-op sent comes from the reply_translator
-   uop_ack_o         <= m_op_ack_i;
+-- has been integrated in the FSM
+--   cmd_sent_o        <= cmd_sent_i;
+   
+   -- Outputs for STOP commands
+   size_o            <= 0;
+   data_o            <= (others => '0');
+   error_code_o      <= (others => '0');
+   rdy_o             <= '0';
+   ack               <= ack_i;
    
    ---------------------------------------------------------
    -- Retire FSM:
@@ -196,11 +216,14 @@ begin
       end if;
    end process retire_state_FF;
 
-   retire_state_NS: process(present_retire_state, uop_rdy_i)
+   retire_state_NS: process(present_retire_state, cmd_to_retire_i, cmd_sent_i)
    begin
+      -- Default Values
+      next_retire_state <= present_retire_state;
+      
       case present_retire_state is
          when IDLE =>
-            if (uop_rdy_i = '1') then
+            if (cmd_to_retire_i = '1') then
                next_retire_state <= HEADERB;
             else
                next_retire_state <= IDLE;
@@ -212,13 +235,17 @@ begin
          when HEADERD =>
             next_retire_state <= RECEIVED;
          when RECEIVED =>
-            next_retire_state <= IDLE;
+            next_retire_state <= WAIT_FOR_ACK;
+         when WAIT_FOR_ACK =>
+            if(cmd_sent_i = '1') then
+               next_retire_state <= IDLE;
+            end if;
          when others =>
             next_retire_state <= IDLE;
       end case;
    end process;
 
-   retire_state_out: process(present_retire_state, uop_rdy_i) --next_retire_state)
+   retire_state_out: process(present_retire_state, cmd_to_retire_i, cmd_sent_i)
    begin
    
       -- Default values
@@ -226,12 +253,12 @@ begin
       header_b_en  <= '0';
       header_c_en  <= '0';
       header_d_en  <= '0';
-      start_o      <= '0';
+      cmd_sent_o   <= '0';
 
       case present_retire_state is
          when IDLE =>
 --            if (next_retire_state = HEADERB) then
-            if(uop_rdy_i = '1') then
+            if(cmd_to_retire_i = '1') then
                header_a_en <= '1';
             end if;
          
@@ -245,7 +272,12 @@ begin
             header_d_en  <= '1';
 
          when RECEIVED =>
-            start_o      <= '1';
+            cmd_rdy_o    <= '1';
+
+         when WAIT_FOR_ACK =>
+            if(cmd_sent_i = '1') then
+               cmd_sent_o <= '1';
+            end if;
             
          when others =>
 
