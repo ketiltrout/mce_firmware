@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_lvds_rx.vhd,v $
+-- Revision 1.2  2004/12/23 22:13:00  erniel
+-- updated lvds_rx component
+--
 -- Revision 1.1  2004/06/17 01:29:49  erniel
 -- initial version
 --
@@ -58,8 +61,6 @@ architecture BEH of TB_LVDS_RX is
 
    component LVDS_TX
       port(CLK_I        : in std_logic ;
-           MEM_CLK_I    : in std_logic ;
-           COMM_CLK_I   : in std_logic ;
            RST_I        : in std_logic ;
            DAT_I        : in std_logic_vector ( 31 downto 0 );
            RDY_I        : in std_logic ;
@@ -69,12 +70,10 @@ architecture BEH of TB_LVDS_RX is
    end component;
    
    constant PERIOD : time := 20000 ps;
-   constant MEM_PERIOD : time := 5000 ps;
    constant COMM_PERIOD : time := 5000 ps;
 
    -- common signals
    signal W_CLK_I        : std_logic := '1';
-   signal W_MEM_CLK_I    : std_logic := '1';
    signal W_COMM_CLK_I   : std_logic := '1';
    signal W_RST_I        : std_logic ;
    signal W_LVDS         : std_logic ;
@@ -98,20 +97,18 @@ begin
                DAT_O        => W_DAT_O,
                RDY_O        => W_RDY_O,
                ACK_I        => W_ACK_I,
-               LVDS_I       => W_LVDS);
+               LVDS_I       => W_LVDS'delayed(40 ns));
 
    tx: lvds_tx
       port map(CLK_I        => W_CLK_I,
-               MEM_CLK_I    => W_MEM_CLK_I,
-               COMM_CLK_I   => W_COMM_CLK_I,
                RST_I        => W_RST_I,
                DAT_I        => W_DAT_I,
                RDY_I        => W_RDY_I,
                BUSY_O       => W_BUSY_O,
-               LVDS_O       => W_LVDS);
+               LVDS_O       => W_LVDS); 
+   
       
    W_CLK_I <= not W_CLK_I after PERIOD/2;
-   W_MEM_CLK_I <= not W_MEM_CLK_I after MEM_PERIOD/2;
    W_COMM_CLK_I <= not W_COMM_CLK_I after COMM_PERIOD/2;
    
    STIMULI : process
