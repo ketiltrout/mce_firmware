@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_rx.vhd,v $
+-- Revision 1.3  2004/06/11 18:30:46  erniel
+-- changed interface to non-wishbone
+-- reworked code body (made it RTL description)
+--
 -- Revision 1.2  2004/04/17 21:42:14  erniel
 -- removed synthesis warnings
 --
@@ -35,7 +39,7 @@ use ieee.std_logic_1164.all;
 ---------------------------------------------------------------------
 
 entity async_rx is
-port(clk_i : in std_logic;   -- 200 MHz for LVDS, 921.6 kHz for RS232
+port(rx_clk_i : in std_logic;   -- 200 MHz for LVDS, 921.6 kHz for RS232
      rst_i    : in std_logic;
      
      dat_o    : out std_logic_vector (7 downto 0);
@@ -60,22 +64,22 @@ architecture behaviour of async_rx is
    
 begin
 
-   rx_samplebuf: process(rst_i, clk_i)
+   rx_samplebuf: process(rst_i, rx_clk_i)
    begin
       if(rst_i = '1') then
          sample <= (others => '0');
-      elsif(clk_i'event and clk_i = '1') then
+      elsif(rx_clk_i'event and rx_clk_i = '1') then
          sample <= rx_i & sample(2 downto 1);
       end if;
    end process rx_samplebuf;
    
    rxbit <= (sample(2) and sample(1)) or (sample(2) and sample(0)) or (sample(1) and sample(0));
    
-   rx_databuf: process(rst_i, clk_i)
+   rx_databuf: process(rst_i, rx_clk_i)
    begin
       if(rst_i = '1') then
          data <= (others => '0');
-      elsif(clk_i'event and clk_i = '1') then
+      elsif(rx_clk_i'event and rx_clk_i = '1') then
          if((count =  3) or (count = 11) or (count = 19) or (count = 27) or (count = 35) or
             (count = 43) or (count = 51) or (count = 59) or (count = 67) or (count = 75)) then
             data <= rxbit & data(9 downto 1);
@@ -83,11 +87,11 @@ begin
       end if;
    end process rx_databuf;
    
-   rx_counter: process(rst_i, clk_i)
+   rx_counter: process(rst_i, rx_clk_i)
    begin
       if(rst_i = '1') then
          count <= 0;
-      elsif(clk_i'event and clk_i = '1') then
+      elsif(rx_clk_i'event and rx_clk_i = '1') then
          if(pres_state = IDLE) then
             count <= 0;
          else
@@ -96,11 +100,11 @@ begin
       end if;
    end process rx_counter;
    
-   stateFF: process(rst_i, clk_i)
+   stateFF: process(rst_i, rx_clk_i)
    begin
       if(rst_i = '1') then
          pres_state <= IDLE;
-      elsif(clk_i'event and clk_i = '1') then
+      elsif(rx_clk_i'event and rx_clk_i = '1') then
          pres_state <= next_state;
       end if;
    end process stateFF;
