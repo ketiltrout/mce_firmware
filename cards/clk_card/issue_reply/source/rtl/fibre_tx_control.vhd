@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_tx_control.vhd,v 1.1 2004/08/31 12:58:36 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_tx_control.vhd,v 1.1 2004/10/05 12:22:34 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -31,9 +31,12 @@
 -- 'fibre_tx_fifo' block for transmission by the HOTLINK transmitter chip.
 --
 -- Revision history:
--- <date $Date: 2004/08/31 12:58:36 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/05 12:22:34 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx_control.vhd,v $
+-- Revision 1.1  2004/10/05 12:22:34  dca
+-- moved from fibre_tx directory.
+--
 -- Revision 1.1  2004/08/31 12:58:36  dca
 -- Initial Version
 --
@@ -43,12 +46,11 @@ use ieee.std_logic_1164.all;
 
 entity fibre_tx_control is
    port( 
-      ft_clkw_i : in     std_logic;
-      nTrp_i    : in     std_logic;
-      tx_fe_i   : in     std_logic;
-      tsc_nTd_o : out    std_logic;
-      nFena_o   : out    std_logic;
-      tx_fr_o   : out    std_logic
+      fibre_clkw_i : in     std_logic;
+      tx_fe_i      : in     std_logic;
+      tsc_nTd_o    : out    std_logic;
+      nFena_o      : out    std_logic;
+      tx_fr_o      : out    std_logic
    );
 
 end fibre_tx_control;
@@ -64,31 +66,24 @@ begin
                              -- this could have been grounded on PCB
                              -- no special chars sent to PCI interface
    
-   tx_fr_o <= not(nTrp_i);   -- read_pulse from CYPRESS
-                             -- HOTLINK transmitter (active low)
-                             -- mapped to tx_fifo read (active high)  
+ 
+   tx_fr_o <= not (tx_fe_i) ;  -- if there is something to be enable read request.
+                               -- byte will be read on fibre_clkw_i edge (read clock) 
 
-     
-     
-   nFena_o <= tx_fe_i;       -- if there's anything in the tx_fifo
-                             -- enable parallel data transmission
-                             -- 
-                             -- if FIFO is not empty tx_fe_i = '0'
-                             -- a low on nfena enables data collection 
-                             -- and transmission
-                             
--- this assignement to nFena should possibly be 
--- clocked by ft_clkw_i (as below).  Will test with hardware     
--- Note that "ft_clkw_i" is the same 25MHz clock that 
--- is routed to the CYPRESS HOTLINK transmitter chip                          
+
+-- synchronis nFena to fibre_clkw.
+-- the nFena signal is syncronised to the fifo read
+-- but with a delay of one clock cycle.
+
+
 ----------------------------------------------------------
---   clocked: PROCESS(ft_clkw_i)
+clocked: PROCESS(fibre_clkw_i)
 ----------------------------------------------------------
---begin
---   if (ft_clkw_i'EVENT and ft_clkw_i = '1') then
---      nFena_o <= tx_fe_i; 
---   end if; 
---end process clocked;
+begin
+   if (fibre_clkw_i'EVENT and fibre_clkw_i = '1') then
+      nFena_o <= tx_fe_i; 
+   end if; 
+end process clocked;
 
 
 end rtl;
