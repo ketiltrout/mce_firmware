@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_tx.vhd,v $
+-- Revision 1.5  2004/12/10 01:36:58  erniel
+-- added generic clock divide factor and clock division logic
+-- changed some signal names
+--
 -- Revision 1.4  2004/08/06 20:36:24  erniel
 -- replaced some processes with rtl-blocks
 -- added setup state
@@ -43,7 +47,7 @@ use components.component_pack.all;
 ---------------------------------------------------------------------
 
 entity async_tx is
-generic(CLK_DIV_FACTOR : in integer := 1736); 
+generic(CLK_DIV_FACTOR : in integer := 16); 
 port(comm_clk_i : in std_logic;
      rst_i      : in std_logic;
 
