@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_wbs.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.2 2004/12/14 20:17:38 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.2  2004/12/14 20:17:38  bburger
+-- Bryce:  Repaired some problems with frame_timing and added a list of frame_timing-initialization commands to clk_card
+--
 -- Revision 1.1  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -140,7 +143,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => rst_i,
          ena_i             => row_length_wren,
          reg_i             => dat_i,
@@ -152,7 +155,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => rst_i,
          ena_i             => num_rows_wren,
          reg_i             => dat_i,
@@ -164,7 +167,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => rst_i,
          ena_i             => sample_delay_wren,
          reg_i             => dat_i,
@@ -176,7 +179,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => rst_i,
          ena_i             => sample_num_wren,
          reg_i             => dat_i,
@@ -188,7 +191,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => rst_i,
          ena_i             => feedback_delay_wren,
          reg_i             => dat_i,
@@ -200,7 +203,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => rst_i,
          ena_i             => address_on_delay_wren,
          reg_i             => dat_i,
@@ -212,7 +215,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => rst_i,
          ena_i             => resync_req_wren,
          reg_i             => dat_i,
@@ -224,7 +227,7 @@ begin
          WIDTH             => PACKET_WORD_WIDTH
       )
       port map(
-         clk_i             => mem_clk_i,
+         clk_i             => clk_i,
          rst_i             => init_window_rst,
          ena_i             => init_window_req_wren,
          reg_i             => dat_i,
