@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs_pack.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
+-- $Id: sync_gen_wbs_pack.vhd,v 1.2 2004/11/25 01:34:32 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs_pack.vhd,v $
+-- Revision 1.2  2004/11/25 01:34:32  bburger
+-- Bryce:  changed signal dv_en interface from integer to std_logic
+--
 -- Revision 1.1  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -46,22 +49,24 @@ package sync_gen_wbs_pack is
 component sync_gen_wbs is        
    port(
       -- sync_gen interface:
-      dv_en_o            : out std_logic;
+      dv_en_o             : out std_logic;
+      row_len_o           : out integer;
+      num_rows_o          : out integer;
 
       -- wishbone interface:
-      dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i               : in std_logic;
-      stb_i              : in std_logic;
-      cyc_i              : in std_logic;
-      dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o              : out std_logic;
+      dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                : in std_logic;
+      stb_i               : in std_logic;
+      cyc_i               : in std_logic;
+      dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o               : out std_logic;
 
       -- global interface
-      clk_i              : in std_logic;
-      mem_clk_i          : in std_logic;
-      rst_i              : in std_logic 
+      clk_i               : in std_logic;
+      mem_clk_i           : in std_logic;
+      rst_i               : in std_logic 
    );     
 end component;
 

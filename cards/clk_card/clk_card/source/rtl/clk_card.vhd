@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.8 2004/12/08 22:15:12 bburger Exp $
+-- $Id: clk_card.vhd,v 1.9 2005/01/12 22:09:24 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.9  2005/01/12 22:09:24  mandana
+-- removed mem_clk_i from dispatch interface
+--
 -- Revision 1.8  2004/12/08 22:15:12  bburger
 -- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
 --
@@ -165,10 +168,6 @@ signal mem_clk       : std_logic;
 signal comm_clk      : std_logic;
 signal fibre_clk     : std_logic;
 
-
---signal fibre_tx_clk  : std_logic;
---signal fibre_rx_clk  : std_logic;
-
 -- sync_gen interface
 signal sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
@@ -222,19 +221,19 @@ begin
       slave_data <= 
          led_data          when LED_ADDR,
          sync_gen_data     when USE_DV_ADDR,
-         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+--         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          (others => '0')   when others;
          
    with addr select
       slave_ack <= 
          led_ack          when LED_ADDR,
          sync_gen_ack     when USE_DV_ADDR,
-         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+--         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '0'              when others;
          
    with addr select
       slave_err <= 
-         '0'              when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when LED_ADDR | USE_DV_ADDR, --| ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
 
@@ -322,39 +321,39 @@ begin
          rst_i       => rst
       );
 
-   frame_timing0: frame_timing   
-      port map(   
-         -- Readout Card interface
-         dac_dat_en_o               => open,
-         adc_coadd_en_o             => open,
-         restart_frame_1row_prev_o  => open,
-         restart_frame_aligned_o    => open, 
-         restart_frame_1row_post_o  => open,
-         initialize_window_o        => open,
-          
-         -- Address Card interface
-         row_switch_o               => open,
-         row_en_o                   => open,
-             
-         -- Bias Card interface       
-         update_bias_o              => open,
-      
-         -- Wishbone interface
-         dat_i    => data,
-         addr_i   => addr,                   
-         tga_i    => tga,                    
-         we_i     => we,
-         stb_i    => stb,                      
-         cyc_i    => cyc,                   
-         dat_o    => frame_timing_data,                     
-         ack_o    => frame_timing_ack,
-      
-         -- Global signals
-         clk_i       => clk,
-         mem_clk_i   => mem_clk,               
-         rst_i       => rst,
-         sync_i      => sync
-      );
+--   frame_timing0: frame_timing   
+--      port map(   
+--         -- Readout Card interface
+--         dac_dat_en_o               => open,
+--         adc_coadd_en_o             => open,
+--         restart_frame_1row_prev_o  => open,
+--         restart_frame_aligned_o    => open, 
+--         restart_frame_1row_post_o  => open,
+--         initialize_window_o        => open,
+--          
+--         -- Address Card interface
+--         row_switch_o               => open,
+--         row_en_o                   => open,
+--             
+--         -- Bias Card interface       
+--         update_bias_o              => open,
+--      
+--         -- Wishbone interface
+--         dat_i    => data,
+--         addr_i   => addr,                   
+--         tga_i    => tga,                    
+--         we_i     => we,
+--         stb_i    => stb,                      
+--         cyc_i    => cyc,                   
+--         dat_o    => frame_timing_data,                     
+--         ack_o    => frame_timing_ack,
+--      
+--         -- Global signals
+--         clk_i       => clk,
+--         mem_clk_i   => mem_clk,               
+--         rst_i       => rst,
+--         sync_i      => sync
+--      );
 
    issue_reply0: issue_reply
       port map(   

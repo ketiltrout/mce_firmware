@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.6  2004/12/08 22:15:12  bburger
+-- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
+--
 -- Revision 1.5  2004/12/06 07:22:34  bburger
 -- Bryce:
 -- Created pack files for the card top-levels.
@@ -182,12 +185,12 @@ begin
             c2 => comm_clk);
             
    cmd0: dispatch
-      generic map(
-         CARD => ADDRESS_CARD
-         )
+--      generic map(
+--         CARD => ADDRESS_CARD
+--         )
       port map(
          clk_i                      => clk,
-         mem_clk_i                  => mem_clk,
+--         mem_clk_i                  => mem_clk,
          comm_clk_i                 => comm_clk,
          rst_i                      => rst,
         
@@ -204,7 +207,8 @@ begin
          ack_i                      => slave_ack,
          err_i                      => slave_err, 
      
-         wdt_rst_o                  => wdog
+         wdt_rst_o                  => wdog,
+         slot_i                     => slot_id
       );
             
    leds_slave: leds

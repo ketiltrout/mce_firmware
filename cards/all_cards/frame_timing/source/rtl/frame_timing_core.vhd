@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.2 2004/12/14 20:17:38 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.3 2004/12/16 22:05:40 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.3  2004/12/16 22:05:40  bburger
+-- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
+--
 -- Revision 1.2  2004/12/14 20:17:38  bburger
 -- Bryce:  Repaired some problems with frame_timing and added a list of frame_timing-initialization commands to clk_card
 --
@@ -97,14 +100,20 @@ architecture beh of frame_timing_core is
    
    signal clk_error             : std_logic_vector(31 downto 0);
    signal counter_rst           : std_logic;
-   signal count                 : std_logic_vector(31 downto 0);
+   signal error_count           : std_logic_vector(31 downto 0);
    signal frame_count_int       : integer;
+   signal frame_count_new       : integer;
    signal row_count_int         : integer;
+   signal row_count_new         : integer;
    signal wait_for_sync         : std_logic;
    signal latch_error           : std_logic;
    signal restart_frame_aligned : std_logic;
    signal frame_rst             : std_logic;
    
+   signal end_of_frame_minus_1row : integer;
+   signal end_of_frame_plus_1row  : integer;
+   signal frame_end               : integer;
+
 --   signal row_len               : integer; -- not used yet
 --   signal num_rows              : integer; -- not used yet
 --   signal sample_delay          : integer;
@@ -116,7 +125,7 @@ architecture beh of frame_timing_core is
 --   signal init_window_req       : std_logic;
 --   signal init_window_ack       : std_logic; -- not used yet
 
-   type states is (WAIT_FRM_RST, COUNT_UP, GOT_SYNC, WAIT_TO_LATCH_ERR);
+   type states is (WAIT_FRM_RST, COUNT_UP, GOT_SYNC);--, WAIT_TO_LATCH_ERR);
    signal current_state, next_state : states;
    
    type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, SET, SET_HOLD);
@@ -124,41 +133,65 @@ architecture beh of frame_timing_core is
    
    begin
    
+   frame_end <= (num_rows_i*row_len_i)-1;
+   end_of_frame_minus_1row <= (num_rows_i*row_len_i)-row_len_i-1;
+   end_of_frame_plus_1row <= row_len_i-1;
+   
    -- Temporary
    resync_ack_o <= '0';
    
-   frame_period_cntr : counter
-      generic map(
-         MAX         => END_OF_FRAME, 
-         STEP_SIZE   => 1,
-         WRAP_AROUND => '1',
-         UP_COUNTER  => '1'
-      )
-      port map(
-         clk_i       => clk_i,
-         rst_i       => counter_rst,
-         ena_i       => '1',
-         load_i      => '0',
-         count_i     => 0,
-         count_o     => frame_count_int
-      );
+--   frame_period_cntr : counter
+--      generic map(
+--         MAX         => END_OF_FRAME, 
+--         STEP_SIZE   => 1,
+--         WRAP_AROUND => '1',
+--         UP_COUNTER  => '1'
+--      )
+--      port map(
+--         clk_i       => clk_i,
+--         rst_i       => counter_rst,
+--         ena_i       => '1',
+--         load_i      => '0',
+--         count_i     => 0,
+--         count_o     => frame_count_int
+--      );
 
-   row_dwell_cntr : counter
-      generic map(
-         MAX         => MUX_LINE_PERIOD-1, 
-         STEP_SIZE   => 1,
-         WRAP_AROUND => '1',
-         UP_COUNTER  => '1'
-      )
-      port map(
-         clk_i       => clk_i,
-         -- change this
-         rst_i       => counter_rst,
-         ena_i       => '1',
-         load_i      => '0',
-         count_i     => 0,
-         count_o     => row_count_int
-      );
+   frame_count_new <= (frame_count_int + 1) when frame_count_int < frame_end else 0;
+   frame_period_cntr: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         frame_count_int <= 0;
+      elsif(clk_i'event and clk_i = '1') then
+         frame_count_int <= frame_count_new;
+      end if;
+   end process frame_period_cntr;
+
+--   row_dwell_cntr : counter
+--      generic map(
+--         MAX         => MUX_LINE_PERIOD-1, 
+--         STEP_SIZE   => 1,
+--         WRAP_AROUND => '1',
+--         UP_COUNTER  => '1'
+--      )
+--      port map(
+--         clk_i       => clk_i,
+--         -- change this
+--         rst_i       => counter_rst,
+--         ena_i       => '1',
+--         load_i      => '0',
+--         count_i     => 0,
+--         count_o     => row_count_int
+--      );
+
+   row_count_new <= (row_count_int + 1) when row_count_int < (row_len_i-1) else 0;
+   row_dwell_cntr: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         row_count_int <= 0;
+      elsif(clk_i'event and clk_i = '1') then
+         row_count_int <= row_count_new;
+      end if;
+   end process row_dwell_cntr;
 
    clock_err_reg : reg
       generic map(
@@ -168,15 +201,17 @@ architecture beh of frame_timing_core is
          clk_i       => latch_error,
          rst_i       => frame_rst,
          ena_i       => '1',
-         reg_i       => count,
+         reg_i       => error_count,
          reg_o       => clk_error
       );
 
-   count       <= conv_std_logic_vector(frame_count_int, 32);
+   error_count <= conv_std_logic_vector(frame_count_new, 32);
    counter_rst <= '1' when wait_for_sync = '1' else '0';
    frame_rst   <= '1' when resync_req_i = '1' else '0';
-   -- Frame-timing signals
 
+   -----------------------
+   -- Frame-timing signals
+   -----------------------
    -- The persistence of the last restart_frame signal is only for as long as the next one is not received.
    -- So I can send initialize window signals whenever I want to!.
    
@@ -185,14 +220,23 @@ architecture beh of frame_timing_core is
    -- 2- After changing flux_loop parameters   
    
    update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS and current_state /= WAIT_FRM_RST else '0';
-   restart_frame_aligned      <= '1' when frame_count_int = END_OF_FRAME else '0';
-   restart_frame_1row_prev_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_PREV and current_state /= WAIT_FRM_RST else '0';
+   restart_frame_aligned      <= '1' when frame_count_int = frame_end else '0';
+   restart_frame_1row_prev_o  <= '1' when frame_count_int = end_of_frame_minus_1row and current_state /= WAIT_FRM_RST else '0';
    restart_frame_aligned_o    <= '1' when (restart_frame_aligned = '1' and current_state /= WAIT_FRM_RST) or (sync_i = '1' and current_state = WAIT_FRM_RST) else '0';
-   restart_frame_1row_post_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_POST and current_state /= WAIT_FRM_RST else '0';
-   row_switch_o               <= '1' when row_count_int = MUX_LINE_PERIOD-1 and current_state /= WAIT_FRM_RST else '0';
+   restart_frame_1row_post_o  <= '1' when frame_count_int = end_of_frame_plus_1row and current_state /= WAIT_FRM_RST else '0';
+   
+   -- row_switch_o is pulsed on the last clock cycle of every 
+   row_switch_o               <= '1' when row_count_int = row_len_i-1 and current_state /= WAIT_FRM_RST else '0';
+   
+   -- dac_dat_en_o has to be enabled on the same clock cycle that the feedback begins, and has to be disabled on the clock cycle when feedback ends
    dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i and current_state /= WAIT_FRM_RST else '0';
+   
+   -- adc_coadd_en_o has to be enabled on the same clock cycle that sampling begins, and has to be disabled on the clock cycle prior to when sampling finishes
    adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - TWO_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
-   row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int <= MUX_LINE_PERIOD-1-ONE_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
+   
+   -- row_en_o has to be enabled on the clock cycle before the row is to be activated, and has to be disabled on the clock cycle before the row is to be deactivated
+   row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int <= row_len_i-1-ONE_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
+   -----------------------
       
    init_win_state_FF: process(clk_i, rst_i)
    begin
@@ -296,9 +340,9 @@ architecture beh of frame_timing_core is
                next_state <= COUNT_UP;
             end if;
          when GOT_SYNC =>
-            next_state <= WAIT_TO_LATCH_ERR;
-         when WAIT_TO_LATCH_ERR =>
             next_state <= COUNT_UP;
+--         when WAIT_TO_LATCH_ERR =>
+--            next_state <= COUNT_UP;
          when others =>
             next_state <= WAIT_FRM_RST;
       end case;
@@ -318,11 +362,11 @@ architecture beh of frame_timing_core is
             latch_error <= '0';
             wait_for_sync <= '0';
          when GOT_SYNC =>
-            latch_error <= '0';
-            wait_for_sync <= '0';
-         when WAIT_TO_LATCH_ERR =>
             latch_error <= '1';
             wait_for_sync <= '0';
+--         when WAIT_TO_LATCH_ERR =>
+--            latch_error <= '1';
+--            wait_for_sync <= '0';
          when others =>
             latch_error <= '0';
             wait_for_sync <= '0';

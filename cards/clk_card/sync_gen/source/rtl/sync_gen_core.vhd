@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.4  2004/12/08 22:13:06  bburger
+-- Bryce:  Added default values for some signals at the top of processes
+--
 -- Revision 1.3  2004/12/04 02:03:06  bburger
 -- Bryce:  fixing some problems associated with integrating the reply_queue
 --
@@ -95,6 +98,8 @@ entity sync_gen_core is
    port(
       -- Wishbone Interface
       dv_en_i     : in std_logic;
+      row_len_i   : in integer;
+      num_rows_i  : in integer;
       
       -- Inputs/Outputs
       dv_i        : in std_logic;
@@ -115,29 +120,44 @@ architecture beh of sync_gen_core is
    
    signal new_frame_period : std_logic;   
    signal clk_count        : integer;
+   signal clk_count_new    : integer;
    signal sync_count       : integer;
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    
    signal sync_num_mux     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal sync_num_mux_sel : std_logic;
+   
+   signal frame_end        : integer;
 
 begin      
 
-   clk_ctr: counter
-      generic map(
-         MAX         => END_OF_FRAME,
-         STEP_SIZE   =>   1, 
-         WRAP_AROUND =>  '1', 
-         UP_COUNTER  =>  '1'        
-      )
-      port map(
-         clk_i       => clk_i,
-         rst_i       => rst_i,
-         ena_i       =>  '1',
-         load_i      =>  '0',
-         count_i     =>   0,
-         count_o     => clk_count
-      );
+   frame_end <= (num_rows_i*row_len_i)-1;
+
+--   clk_ctr: counter
+--      generic map(
+--         MAX         => END_OF_FRAME,
+--         STEP_SIZE   =>   1, 
+--         WRAP_AROUND =>  '1', 
+--         UP_COUNTER  =>  '1'        
+--      )
+--      port map(
+--         clk_i       => clk_i,
+--         rst_i       => rst_i,
+--         ena_i       =>  '1',
+--         load_i      =>  '0',
+--         count_i     =>   0,
+--         count_o     => clk_count
+--      );
+
+   clk_count_new <= (clk_count + 1) when clk_count < frame_end else 0;
+   clk_cntr: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         clk_count <= 0;
+      elsif(clk_i'event and clk_i = '1') then
+         clk_count <= clk_count_new;
+      end if;
+   end process clk_cntr;
 
    sync_ctr: counter
       generic map(
@@ -155,7 +175,7 @@ begin
          count_o     => sync_count
       );
 
-   new_frame_period  <= '1' when clk_count = END_OF_FRAME else '0';
+   new_frame_period  <= '1' when clk_count = frame_end else '0';
    sync_o            <= new_frame_period;
    sync_num_o        <= sync_num;
 

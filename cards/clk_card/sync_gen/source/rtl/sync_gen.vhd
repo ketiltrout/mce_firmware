@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.11  2004/12/08 22:13:06  bburger
+-- Bryce:  Added default values for some signals at the top of processes
+--
 -- Revision 1.10  2004/11/25 01:34:32  bburger
 -- Bryce:  changed signal dv_en interface from integer to std_logic
 --
@@ -121,11 +124,15 @@ architecture beh of sync_gen is
    signal clk_count        : integer;
    signal sync_count       : integer;
    signal dv_en            : std_logic;
+   signal row_len          : integer;
+   signal num_rows         : integer;
 
 begin      
    wbi: sync_gen_wbs        
       port map(
          dv_en_o     => dv_en,
+         row_len_o   => row_len,
+         num_rows_o  => num_rows,
 
          dat_i       => dat_i, 
          addr_i      => addr_i,
@@ -145,6 +152,8 @@ begin
       port map(
          -- Wishbone Interface
          dv_en_i    => dv_en,
+         row_len_i  => row_len,
+         num_rows_i => num_rows,
 
          -- Inputs/Outputs
          dv_i       => dv_i,      

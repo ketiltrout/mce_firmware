@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_wbs.vhd,v 1.2 2004/12/14 20:17:38 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.3 2005/01/06 01:34:52 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.3  2005/01/06 01:34:52  bburger
+-- Bryce:  mem_clk_i is no longer used to clock internal registers
+--
 -- Revision 1.2  2004/12/14 20:17:38  bburger
 -- Bryce:  Repaired some problems with frame_timing and added a list of frame_timing-initialization commands to clk_card
 --
@@ -53,6 +56,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+use ieee.std_logic_arith.all;
 
 library components;
 use components.component_pack.all;
@@ -60,6 +64,9 @@ use components.component_pack.all;
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
+
+library work;
+use work.frame_timing_pack.all;
 
 entity frame_timing_wbs is        
    port
@@ -138,29 +145,53 @@ begin
    
    init_window_rst    <= init_window_ack_i or rst_i;
    
-   row_length_reg : reg
-      generic map(
-         WIDTH             => PACKET_WORD_WIDTH
-      )
-      port map(
-         clk_i             => clk_i,
-         rst_i             => rst_i,
-         ena_i             => row_length_wren,
-         reg_i             => dat_i,
-         reg_o             => row_length_data
-      );
+--   row_length_reg : reg
+--      generic map(
+--         WIDTH             => PACKET_WORD_WIDTH
+--      )
+--      port map(
+--         clk_i             => clk_i,
+--         rst_i             => rst_i,
+--         ena_i             => row_length_wren,
+--         reg_i             => dat_i,
+--         reg_o             => row_length_data
+--      );
 
-   num_rows_reg : reg
-      generic map(
-         WIDTH             => PACKET_WORD_WIDTH
-      )
-      port map(
-         clk_i             => clk_i,
-         rst_i             => rst_i,
-         ena_i             => num_rows_wren,
-         reg_i             => dat_i,
-         reg_o             => num_rows_data
-      );
+   -- Custom register that gets set to MUX_LINE_PERIOD upon reset
+   row_len_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         row_length_data <= std_logic_vector(conv_unsigned(MUX_LINE_PERIOD, PACKET_WORD_WIDTH));
+      elsif(clk_i'event and clk_i = '1') then
+         if(row_length_wren = '1') then
+            row_length_data <= dat_i;
+         end if;
+      end if;
+   end process row_len_reg;
+
+--   num_rows_reg : reg
+--      generic map(
+--         WIDTH             => PACKET_WORD_WIDTH
+--      )
+--      port map(
+--         clk_i             => clk_i,
+--         rst_i             => rst_i,
+--         ena_i             => num_rows_wren,
+--         reg_i             => dat_i,
+--         reg_o             => num_rows_data
+--      );
+
+   -- Custom register that gets set to NUM_OF_ROWS upon reset
+   num_rows_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         num_rows_data <= std_logic_vector(conv_unsigned(NUM_OF_ROWS, PACKET_WORD_WIDTH));
+      elsif(clk_i'event and clk_i = '1') then
+         if(num_rows_wren = '1') then
+            num_rows_data <= dat_i;
+         end if;
+      end if;
+   end process num_rows_reg;
 
    sample_delay_reg : reg
       generic map(

@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core_pack.vhd,v $
+-- Revision 1.2  2004/11/25 01:34:32  bburger
+-- Bryce:  changed signal dv_en interface from integer to std_logic
+--
 -- Revision 1.1  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
@@ -69,6 +72,8 @@ component sync_gen_core
    port(
       -- Wishbone Interface
       dv_en_i     : in std_logic;
+      row_len_i   : in integer;
+      num_rows_i  : in integer;
       
       -- Inputs/Outputs
       dv_i        : in std_logic;
