@@ -21,16 +21,19 @@
 -- data_types_pack.vhd
 --
 --
--- Project:	      SCUBA-2
--- Author:	       Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:         Mandana Amiri
 -- Organisation:  UBC
 --
 -- Description:
 -- data types
 --
 -- Revision history:
--- <date $Date: 2004/07/06 21:33:25 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/07/29 00:22:40 $> - <initials $Author: mandana $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.5  2004/07/29 00:22:40  mandana
+-- added array data types for AC
+--
 -- Revision 1.4  2004/07/06 21:33:25  erniel
 -- added constants for logic 0 and logic 1
 --
@@ -68,6 +71,7 @@ package data_types_pack is
    ---------------------
    subtype word4          is std_logic_vector(3 downto  0);
    subtype word8          is std_logic_vector(7 downto  0);
+   subtype word12         is std_logic_vector(11 downto 0);
    subtype word16         is std_logic_vector(15 downto 0);
    subtype word24         is std_logic_vector(23 downto 0);
    subtype word32         is std_logic_vector(31 downto 0);
