@@ -20,7 +20,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: card_id_test_wrapper.vhd,v 1.1 2004/03/12 21:06:00 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: card_id_test_wrapper.vhd,v 1.2 2004/03/16 19:57:30 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -32,7 +32,8 @@
 -- and emulates the master (command FSM, for example) on the wishbone bus.
 --
 -- Revision history:
--- <date $Date: 2004/03/12 21:06:00 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/16 19:57:30 $>	-		<text>		- <initials $Author: jjacob $>
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
@@ -47,6 +48,10 @@ use work.card_id_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
+
+library components;
+use components.component_pack.all;
+
 -----------------------------------------------------------------------------
                      
 entity card_id_test_wrapper is
@@ -74,7 +79,7 @@ end;
 architecture rtl of card_id_test_wrapper is
 
    -- state definitions
-   type states is (IDLE, INITIALIZE, READ_LSB_PACKET, DONE, TX_CARD_ID);
+   type states is (IDLE, INITIALIZE, READ_LSB_PACKET, DONE, TX_CARD_ID, TX_WAIT);
    signal current_state, next_state : states;
 
    -- wishbone "emulated master" signals
@@ -87,12 +92,26 @@ architecture rtl of card_id_test_wrapper is
    signal ack_i   : std_logic;
    signal rty_i   : std_logic;
    signal cyc_o   : std_logic;
-   
-   
+      
    signal card_id_data : std_logic_vector (63 downto 0);
    
-   signal byte    : integer;
+   -- ascii decoder modification:
    
+   signal hex_data   : std_logic_vector(3 downto 0);
+   signal ascii_data : std_logic_vector(7 downto 0);
+   
+   component hex2ascii
+   port(hex_i   : in std_logic_vector(3 downto 0);
+        ascii_o : out std_logic_vector(7 downto 0));
+   end component;
+   
+   -- byte counter modification:
+   signal count_ena  : std_logic;
+   signal count_ld   : std_logic;
+   signal count_down : std_logic;
+   signal load_val   : integer;
+   signal byte       : integer;
+      
 begin
 
 ------------------------------------------------------------------------
@@ -119,23 +138,53 @@ begin
                rty_o             => rty_i,
                cyc_i             => cyc_o);
 
-
- 
-   
-   -- we don't use the transmitter
---   tx_data_o <= (others => '0');
---   tx_we_o <= '0';
---   tx_stb_o <= '0';
-
---         tx_we_o <= not(tx_ack_i or tx_busy_i or done);
---         tx_stb_o <= not(tx_ack_i or tx_busy_i or done);
-          
 ------------------------------------------------------------------------
 --
--- Emulate the master querying for the card_id
+-- instantiate the hex-to-ascii decoder
 --
-------------------------------------------------------------------------   
+------------------------------------------------------------------------
 
+   hexdecode : hex2ascii
+   port map(hex_i => hex_data,
+            ascii_o => ascii_data);
+               
+   with byte select
+      hex_data <= card_id_data(3 downto 0) when 1,
+	          card_id_data(7 downto 4) when 2,
+                  card_id_data(11 downto 8) when 3,
+                  card_id_data(15 downto 12) when 4, 
+                  card_id_data(19 downto 16) when 5, 
+                  card_id_data(23 downto 20) when 6, 
+                  card_id_data(27 downto 24) when 7,
+                  card_id_data(31 downto 28) when 8,
+                  card_id_data(35 downto 32) when 9,
+                  card_id_data(39 downto 36) when 10,
+                  card_id_data(43 downto 40) when 11,
+                  card_id_data(47 downto 44) when 12,
+                  card_id_data(51 downto 48) when 13,
+                  card_id_data(55 downto 52) when 14,
+                  card_id_data(59 downto 56) when 15,
+                  card_id_data(63 downto 60) when 16,
+                  "0000" when others;
+
+             
+------------------------------------------------------------------------
+--
+-- instantiate the byte counter
+--
+------------------------------------------------------------------------  
+
+   bytecount: counter
+   generic map(MAX => 16)
+   port map(clk_i   => clk_i,
+            rst_i   => rst_i,
+            ena_i   => count_ena,
+            load_i  => count_ld,
+            down_i  => count_down,
+            count_i => load_val,
+            count_o => byte);
+            
+            
 ------------------------------------------------------------------------
 --
 -- assign next states
@@ -143,7 +192,7 @@ begin
 ------------------------------------------------------------------------  
 
 
-   process (current_state, en_i, rty_i, ack_i, byte)
+   process (current_state, en_i, rty_i, ack_i, byte, tx_ack_i, tx_busy_i)
    begin
       case current_state is
          when IDLE =>
@@ -163,17 +212,25 @@ begin
                next_state <= INITIALIZE;
             end if;
             
---         when READ_MSB_PACKET =>
---            next_state <= READ_LSB_PACKET;
-            
          when READ_LSB_PACKET =>
             next_state <= TX_CARD_ID;
             
          when TX_CARD_ID =>
-            if byte = 0 then
-               next_state <= DONE;
+            if(tx_ack_i = '1') then
+               next_state <= TX_WAIT;
             else
                next_state <= TX_CARD_ID;
+            end if;
+            
+         when TX_WAIT =>
+            if(tx_ack_i = '0' and tx_busy_i = '0') then
+               if(byte = 0) then
+                  next_state <= DONE;
+               else
+                  next_state <= TX_CARD_ID;
+               end if;
+            else
+               next_state <= TX_WAIT;
             end if;
             
          when DONE =>
@@ -193,14 +250,8 @@ begin
 --
 ------------------------------------------------------------------------  
   
-   process (current_state, ack_i, tx_ack_i, tx_busy_i, dat_i)
+   process (current_state, ack_i, dat_i)
    begin
-   
-        tx_we_o   <= '0';
-        tx_stb_o  <= '0';  
-        --tx_data_o <= (others => '0');
-   
-   
       case current_state is
       when IDLE =>
      
@@ -216,8 +267,15 @@ begin
 	 done_o  <= '0';
 
          tx_data_o <= (others => '0');
+         tx_we_o   <= '0';
+         tx_stb_o  <= '0';
          
-         byte <= 8;
+         -- byte counter signals
+         count_ena  <= '0';
+         count_ld   <= '1';
+         count_down <= '1';
+         load_val   <= 16;
+         
          
       when INITIALIZE =>
       
@@ -231,30 +289,23 @@ begin
          
          -- output back to test module
 	 done_o  <= '0';
+
+         tx_data_o <= (others => '0');	 
+         tx_we_o   <= '0';
+         tx_stb_o  <= '0';	 
 	 
-	 if ack_i = '1' then
-	 
+	 -- byte counter signals:
+         count_ena  <= '0';
+         count_ld   <= '0';
+         count_down <= '1';
+         load_val   <= 0;
+         
+         if ack_i = '1' then
 	    -- grab the most significant portion of the card id data
             card_id_data(63 downto 32) <= dat_i; 
-         end if;
-      
-         
---      when READ_MSB_PACKET =>
---      
---         -- wishbone signals to slave
---         dat_o   <= (others => '0');
---         addr_o  <= CARD_ID_ADDR;
---         tga_o   <= (others => '0');
---         we_o    <= '0';  -- '0' indicates a read
---         stb_o   <= '1';
---         cyc_o   <= '1';
---         
---         -- output back to test module
---	 done_o  <= '0';
- 
-	 
-         
-         
+         end if; 
+        
+        
       when READ_LSB_PACKET =>
       
          -- wishbone signals to slave
@@ -267,11 +318,21 @@ begin
          
          -- output back to test module
 	 done_o  <= '0';
+
+         tx_data_o <= (others => '0');         
+         tx_we_o   <= '0';
+         tx_stb_o  <= '0';
          
+         -- byte counter signals:
+         count_ena  <= '0';
+         count_ld   <= '0';
+         count_down <= '1';
+         load_val   <= 0; 
+ 
          -- grab the card id data
          card_id_data(31 downto 0) <= dat_i;
          
-
+              
       when TX_CARD_ID =>
 
          -- wishbone signals to slave
@@ -284,23 +345,42 @@ begin
          
          -- output back to test module
 	 done_o  <= '0';
+  
+         tx_data_o <= ascii_data;
+         tx_we_o   <= '1';
+         tx_stb_o  <= '1';
          
-         -- transmit the card id data 1 byte at a time
+         -- byte counter signals:
+         count_ena  <= '1';
+         count_ld   <= '0';
+         count_down <= '1';
+         load_val   <= 0;
+         
 
-        tx_we_o <= '1';
-        tx_stb_o <= '1';  
-        
-        
-        if tx_ack_i = '1' and tx_busy_i = '0' then
-           byte <= byte - 1;
-           if byte = 0 then
-              tx_data_o <= (others => '0');
-           else
-              tx_data_o <= card_id_data(byte*8-1 downto byte*8-8);
-           end if;
-        end if;
-           
-                   
+      when TX_WAIT =>
+
+         -- wishbone signals to slave
+         dat_o   <= (others => '0');
+         addr_o  <= CARD_ID_ADDR;
+         tga_o   <= (others => '0');
+         we_o    <= '0';  -- '0' indicates a read
+         stb_o   <= '0';
+         cyc_o   <= '0';
+         
+         -- output back to test module
+	 done_o  <= '0';
+ 
+         tx_data_o <= (others => '0');
+         tx_we_o   <= '0';
+         tx_stb_o  <= '0';
+         
+         -- byte counter signals:
+         count_ena  <= '0';
+         count_ld   <= '0';
+         count_down <= '1';
+         load_val   <= 0;
+      
+      
       when DONE =>
       
          -- wishbone signals to slave
@@ -314,7 +394,16 @@ begin
          -- output back to test module
 	 done_o  <= '1';
 	 
-	 byte <= 8;
+	 tx_data_o <= (others => '0');
+         tx_we_o   <= '0';
+         tx_stb_o  <= '0';
+         
+	 -- byte counter signals:
+         count_ena  <= '0';
+         count_ld   <= '0';
+         count_down <= '1';
+         load_val   <= 0;
+         
 	 
       when others =>
 
@@ -329,13 +418,22 @@ begin
          -- output back to test module
 	 done_o  <= '0';    
 	 
+	 tx_data_o <= (others => '0');
+         tx_we_o   <= '0';
+         tx_stb_o  <= '0';
+         
+	 -- byte counter signals:
+         count_ena  <= '0';
+         count_ld   <= '0';
+         count_down <= '1';
+         load_val   <= 0;
+         
+         
 	 card_id_data <= (others => '0'); 
 
       end case;     
    end process;
-
-
-
+   
 
 ------------------------------------------------------------------------
 --
@@ -348,10 +446,8 @@ begin
       if rst_i = '1' or en_i = '0' then
          current_state <= IDLE;
       elsif clk_i'event and clk_i = '1' then
-         --if en_i = '1' then
             current_state <= next_state;
-         --end if;
       end if;
    end process;
-
+   
 end;
