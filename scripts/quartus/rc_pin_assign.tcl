@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: rc_pin_assign.tcl,v $
+# Revision 1.4  2004/07/13 16:41:42  erniel
+# Mandana: renamed eeprom si and clk pins to rs232_rx and rs232_tx
+#
 # Revision 1.3  2004/06/19 03:06:41  erniel
 # unrolled foreach loops
 #
@@ -278,7 +281,7 @@ puts "   Assigned: Serial DAC pins."
 
 
 # assign parallel DAC
-cmp add_assignment $top_name "" "dac_FB1_clk" LOCATION "Pin_N10"
+cmp add_assignment $top_name "" "dac_FB_clk\[0\]" LOCATION "Pin_N10"
 cmp add_assignment $top_name "" "dac_FB1_dat\[0\]" LOCATION "Pin_N9"
 cmp add_assignment $top_name "" "dac_FB1_dat\[1\]" LOCATION "Pin_M3"
 cmp add_assignment $top_name "" "dac_FB1_dat\[2\]" LOCATION "Pin_M4"
@@ -294,7 +297,7 @@ cmp add_assignment $top_name "" "dac_FB1_dat\[11\]" LOCATION "Pin_N4"
 cmp add_assignment $top_name "" "dac_FB1_dat\[12\]" LOCATION "Pin_N3"
 cmp add_assignment $top_name "" "dac_FB1_dat\[13\]" LOCATION "Pin_K1"
 
-cmp add_assignment $top_name "" "dac_FB2_clk" LOCATION "Pin_C2"
+cmp add_assignment $top_name "" "dac_FB_clk\[1\]" LOCATION "Pin_C2"
 cmp add_assignment $top_name "" "dac_FB2_dat\[0\]" LOCATION "Pin_C1"
 cmp add_assignment $top_name "" "dac_FB2_dat\[1\]" LOCATION "Pin_H5"
 cmp add_assignment $top_name "" "dac_FB2_dat\[2\]" LOCATION "Pin_H6"
@@ -310,7 +313,7 @@ cmp add_assignment $top_name "" "dac_FB2_dat\[11\]" LOCATION "Pin_F4"
 cmp add_assignment $top_name "" "dac_FB2_dat\[12\]" LOCATION "Pin_F3"
 cmp add_assignment $top_name "" "dac_FB2_dat\[13\]" LOCATION "Pin_K6"
 
-cmp add_assignment $top_name "" "dac_FB3_clk" LOCATION "Pin_F2"
+cmp add_assignment $top_name "" "dac_FB_clk\[2\]" LOCATION "Pin_F2"
 cmp add_assignment $top_name "" "dac_FB3_dat\[0\]" LOCATION "Pin_F1"
 cmp add_assignment $top_name "" "dac_FB3_dat\[1\]" LOCATION "Pin_J8"
 cmp add_assignment $top_name "" "dac_FB3_dat\[2\]" LOCATION "Pin_J7"
@@ -326,7 +329,7 @@ cmp add_assignment $top_name "" "dac_FB3_dat\[11\]" LOCATION "Pin_H4"
 cmp add_assignment $top_name "" "dac_FB3_dat\[12\]" LOCATION "Pin_H3"
 cmp add_assignment $top_name "" "dac_FB3_dat\[13\]" LOCATION "Pin_L6"
 
-cmp add_assignment $top_name "" "dac_FB4_clk" LOCATION "Pin_M10"
+cmp add_assignment $top_name "" "dac_FB_clk\[3\]" LOCATION "Pin_M10"
 cmp add_assignment $top_name "" "dac_FB4_dat\[0\]" LOCATION "Pin_M9"
 cmp add_assignment $top_name "" "dac_FB4_dat\[1\]" LOCATION "Pin_K4"
 cmp add_assignment $top_name "" "dac_FB4_dat\[2\]" LOCATION "Pin_K3"
@@ -342,7 +345,7 @@ cmp add_assignment $top_name "" "dac_FB4_dat\[11\]" LOCATION "Pin_L10"
 cmp add_assignment $top_name "" "dac_FB4_dat\[12\]" LOCATION "Pin_L9"
 cmp add_assignment $top_name "" "dac_FB4_dat\[13\]" LOCATION "Pin_H1"
 
-cmp add_assignment $top_name "" "dac_FB5_clk" LOCATION "Pin_AG12"
+cmp add_assignment $top_name "" "dac_FB_clk\[4\]" LOCATION "Pin_AG12"
 cmp add_assignment $top_name "" "dac_FB5_dat\[0\]" LOCATION "Pin_AF12"
 cmp add_assignment $top_name "" "dac_FB5_dat\[1\]" LOCATION "Pin_AE12"
 cmp add_assignment $top_name "" "dac_FB5_dat\[2\]" LOCATION "Pin_AG13"
@@ -358,7 +361,7 @@ cmp add_assignment $top_name "" "dac_FB5_dat\[11\]" LOCATION "Pin_AD17"
 cmp add_assignment $top_name "" "dac_FB5_dat\[12\]" LOCATION "Pin_AE17"
 cmp add_assignment $top_name "" "dac_FB5_dat\[13\]" LOCATION "Pin_AG17"
 
-cmp add_assignment $top_name "" "dac_FB6_clk" LOCATION "Pin_AH4"
+cmp add_assignment $top_name "" "dac_FB_clk\[5\]" LOCATION "Pin_AH4"
 cmp add_assignment $top_name "" "dac_FB6_dat\[0\]" LOCATION "Pin_AE5"
 cmp add_assignment $top_name "" "dac_FB6_dat\[1\]" LOCATION "Pin_AG3"
 cmp add_assignment $top_name "" "dac_FB6_dat\[2\]" LOCATION "Pin_AG5"
@@ -374,7 +377,7 @@ cmp add_assignment $top_name "" "dac_FB6_dat\[11\]" LOCATION "Pin_AF7"
 cmp add_assignment $top_name "" "dac_FB6_dat\[12\]" LOCATION "Pin_AH7"
 cmp add_assignment $top_name "" "dac_FB6_dat\[13\]" LOCATION "Pin_AG7"
 
-cmp add_assignment $top_name "" "dac_FB7_clk" LOCATION "Pin_AG18"
+cmp add_assignment $top_name "" "dac_FB_clk\[6\]" LOCATION "Pin_AG18"
 cmp add_assignment $top_name "" "dac_FB7_dat\[0\]" LOCATION "Pin_AE18"
 cmp add_assignment $top_name "" "dac_FB7_dat\[1\]" LOCATION "Pin_AD18"
 cmp add_assignment $top_name "" "dac_FB7_dat\[2\]" LOCATION "Pin_AH19"
@@ -390,7 +393,7 @@ cmp add_assignment $top_name "" "dac_FB7_dat\[11\]" LOCATION "Pin_AF21"
 cmp add_assignment $top_name "" "dac_FB7_dat\[12\]" LOCATION "Pin_AG21"
 cmp add_assignment $top_name "" "dac_FB7_dat\[13\]" LOCATION "Pin_AE21"
 
-cmp add_assignment $top_name "" "dac_FB8_clk" LOCATION "Pin_AG8"
+cmp add_assignment $top_name "" "dac_FB_clk\[7\]" LOCATION "Pin_AG8"
 cmp add_assignment $top_name "" "dac_FB8_dat\[0\]" LOCATION "Pin_AF8"
 cmp add_assignment $top_name "" "dac_FB8_dat\[1\]" LOCATION "Pin_AD8"
 cmp add_assignment $top_name "" "dac_FB8_dat\[2\]" LOCATION "Pin_AH9"
