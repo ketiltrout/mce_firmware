@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.2 2004/07/09 10:17:14 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.3 2004/07/09 12:25:31 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -42,9 +42,12 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/09 10:17:14 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/09 12:25:31 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: cmd_translator_m_op_table.vhd,v $
+-- Revision 1.3  2004/07/09 12:25:31  dca
+-- transition state condition added to FSM
+--
 -- Revision 1.2  2004/07/09 10:17:14  dca
 -- small FSM added to handel M_OP retires.
 -- Simultaneous store/retire NOT permitted.
@@ -64,7 +67,8 @@ use ieee.numeric_std.all;
 library work;
 use work.issue_reply_pack.all;
 
-
+library sys_param;
+use sys_param.command_pack.all;
 
 entity cmd_translator_m_op_table is
 

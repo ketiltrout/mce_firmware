@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.1 2004/07/05 23:47:13 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.2 2004/07/12 15:43:28 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/05 23:47:13 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/12 15:43:28 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.2  2004/07/12 15:43:28  jjacob
+-- commented out the fibre_rx component and replaced it with
+-- use work.fibre_rx_pack.all
+--
 -- Revision 1.1  2004/07/05 23:47:13  jjacob
 -- first version
 --
@@ -59,7 +63,7 @@ use work.fibre_rx_pack.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
-
+use sys_param.command_pack.all;
 
 entity issue_reply is
 

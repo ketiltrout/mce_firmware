@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.6 2004/06/21 16:57:24 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.8 2004/07/05 23:38:56 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/21 16:57:24 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/05 23:38:56 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.8  2004/07/05 23:38:56  jjacob
+-- added ack_o signal to cmd_translator_ret_dat_fsm to control the
+-- acknowledge signal back to the fibre_rx block
+--
 -- Revision 1.6  2004/06/21 16:57:24  jjacob
 -- first stable version, doesn't yet have macro-instruction buffer, doesn't have
 -- "quick" acknolwedgements for instructions that require them, no error
@@ -75,7 +79,7 @@ use work.issue_reply_pack.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
-
+use sys_param.command_pack.all;
 
 entity cmd_translator is
 
@@ -607,25 +611,6 @@ port map(
 --
 ------------------------------------------------------------------------ 
 
---   process(macro_instr_rdy)
---   begin
---      if rst_i = '1' then
---        for write_index in BUFFER_SIZE-1 loop
---           m_op_seq_num_array(write_index)         <= (others => '0');
---           frame_sync_num_array(write_index)       <= (others => '0');
---           frame_seq_num_array(write_index)        <= (others => '0');
---           in_use(write_index)                     <= '0';        
---        end loop;
---      elsif macro_instr_rdy'event and macro_instr_rdy = '1' then
---         m_op_seq_num_array(index)         <= m_op_seq_num;
---         frame_sync_num_array(index)       <= frame_sync_num;
---         frame_seq_num_array(index)        <= frame_seq_num;
---         in_use(index)                     <= '1';
---      elsif macro_instr_done'event and macro_instr_done = '1' then
---         in_use(index)                     <= '0';
---      end if;   
---   
---   end process;
 
    
 

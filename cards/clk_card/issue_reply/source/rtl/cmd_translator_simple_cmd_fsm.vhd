@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.3 2004/06/09 23:36:10 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.4 2004/06/21 17:02:29 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,16 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/09 23:36:10 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/21 17:02:29 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.4  2004/06/21 17:02:29  jjacob
+-- first stable version, doesn't yet have macro-instruction buffer, doesn't have
+-- "quick" acknolwedgements for instructions that require them, no error
+-- handling, basically no return path logic yet.  Have implemented ret_dat
+-- instructions, and "simple" instructions.  Not all instructions are fully
+-- implemented yet.
+--
 -- Revision 1.3  2004/06/09 23:36:10  jjacob
 -- cleaned formatting
 --
@@ -66,7 +73,7 @@ use work.issue_reply_pack.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
-
+use sys_param.command_pack.all;
 
 entity cmd_translator_simple_cmd_fsm is
 

@@ -5,6 +5,8 @@ use ieee.std_logic_1164.all;
 library work;
 use work.issue_reply_pack.all;
 
+library sys_param;
+use sys_param.command_pack.all;
 
 package fibre_rx_pack is
 
