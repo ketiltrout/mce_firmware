@@ -49,10 +49,10 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 
-entity TB_EEPROM_CTRL2 is
-end TB_EEPROM_CTRL2;
+entity TB_EEPROM_CTRL is
+end TB_EEPROM_CTRL;
 
-architecture BEH of TB_EEPROM_CTRL2 is
+architecture BEH of TB_EEPROM_CTRL is
 
 
    constant PERIOD : time := 20 ns;
