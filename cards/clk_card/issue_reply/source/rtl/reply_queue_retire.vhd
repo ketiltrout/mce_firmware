@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.6 2004/11/30 02:49:26 erniel Exp $
+-- $Id: reply_queue_retire.vhd,v 1.7 2004/11/30 03:22:47 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.7  2004/11/30 03:22:47  bburger
+-- Bryce:  building reply_queue top-level interface and functionality
+--
 -- Revision 1.6  2004/11/30 02:49:26  erniel
 -- fixed output logic (removed dependancy on next_state)
 --
@@ -89,7 +92,7 @@ entity reply_queue_retire is
       -- to MUX in reply_queue (for handling STOP commands)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      error_code_o      : out std_logic_vector(BB_STATUS_WIDTH-1 downto 0); 
+      error_code_o      : out std_logic_vector(26 downto 0); 
       rdy_o             : out std_logic;
       ack_i             : in std_logic;      
      

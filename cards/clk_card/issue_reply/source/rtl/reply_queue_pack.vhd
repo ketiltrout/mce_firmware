@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.6 2004/11/30 03:22:47 bburger Exp $
+-- $Id: reply_queue_pack.vhd,v 1.7 2004/11/30 04:43:32 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.7  2004/11/30 04:43:32  erniel
+-- added components:
+--    reply_queue_receiver
+--    reply_queue_sequencer
+--
 -- Revision 1.6  2004/11/30 03:22:47  bburger
 -- Bryce:  building reply_queue top-level interface and functionality
 --
@@ -129,7 +134,7 @@ component reply_queue_retire
       -- to MUX in reply_queue (for handling STOP commands)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      error_code_o      : out std_logic_vector(BB_STATUS_WIDTH-1 downto 0); 
+      error_code_o      : out std_logic_vector(26 downto 0); 
       rdy_o             : out std_logic;
       ack_i             : in std_logic;      
      
