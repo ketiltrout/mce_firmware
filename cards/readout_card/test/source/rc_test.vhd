@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: rc_test.vhd,v $
+-- Revision 1.1  2004/06/11 20:52:42  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -39,8 +42,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library work;
-use work.async_pack.all;
-use work.bc_test_pack.all;
+use work.rc_test_pack.all;
 
 entity rc_test is
    port(
@@ -59,17 +61,8 @@ entity rc_test is
       lvds_txb  : out std_logic;
       lvds_cmd   : in std_logic;
       lvds_sync  : in std_logic;
-      lvds_spare : in std_logic;
+      lvds_spare : in std_logic);
       
-      -- bc dac interface
-      dac_dat  : out std_logic_vector (31 downto 0); 
-      dac_ncs  : out std_logic_vector (31 downto 0); 
-      dac_clk  : out std_logic_vector (31 downto 0);
-      dac_nclr : out std_logic;
-      
-      lvds_dac_dat : out std_logic;
-      lvds_dac_ncs : out std_logic;
-      lvds_dac_clk : out std_logic);
 end rc_test;
 
 architecture behaviour of rc_test is
@@ -87,8 +80,6 @@ architecture behaviour of rc_test is
    signal clk : std_logic;   
    signal rst : std_logic;
    signal int_rst : std_logic;
-   
-   signal dip : std_logic_vector(1 downto 0);
 
    -- transmitter signals
    signal tx_clock : std_logic;
@@ -118,7 +109,6 @@ architecture behaviour of rc_test is
    constant INDEX_RX_SYNC    : integer := 5;
    constant INDEX_RX_SPARE   : integer := 6;     
    constant INDEX_DEBUG      : integer := 7;
-   constant INDEX_DAC_CTRL   : integer := 8;
       
    constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -128,7 +118,6 @@ architecture behaviour of rc_test is
    constant SEL_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
    constant SEL_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0');         
    constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-   constant SEL_DAC_CTRL   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    
    constant DONE_NULL       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
@@ -139,7 +128,6 @@ architecture behaviour of rc_test is
    constant DONE_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
    constant DONE_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0'); 
    constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-   constant DONE_DAC_CTRL   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
 
    -- state signals
    type states is (RESET, FETCH, DECODE, EXECUTE);

@@ -30,7 +30,10 @@
 --
 -- Revision history:
 --
--- $Log$
+-- $Log: rc_test_idle.vhd,v $
+-- Revision 1.1  2004/06/11 20:52:42  erniel
+-- initial version
+--
 --
 ---------------------------------------------------------------------
 
@@ -39,7 +42,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
-use work.bc_test_pack.all;
+use work.rc_test_pack.all;
 
 entity rc_test_idle is
    port (
@@ -90,7 +93,7 @@ architecture behaviour of rc_test_idle is
 
    signal cmd1 : std_logic_vector(7 downto 0);
    signal cmd2 : std_logic_vector(7 downto 0);
-
+   signal cmd3 : std_logic_vector(7 downto 0);
 begin
    
    ------------------------------------------------------------------
@@ -196,8 +199,7 @@ begin
             when RX_WAIT1 =>
                if (rx_newdata = '1') then
                   if(rx_data_i = CMD_RESET or  
-                     rx_data_i = CMD_DEBUG or
-                     rx_data_i = CMD_DAC) then
+                     rx_data_i = CMD_DEBUG) then
                      -- got a single character command - we're done
                      rx_state <= RX_DONE;
 

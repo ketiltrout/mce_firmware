@@ -30,7 +30,9 @@
 -- 
 -- Revision History:
 --
--- $Log$
+-- $Log: rc_test_pack.vhd,v $
+-- Revision 1.3  2004/06/11 21:15:02  erniel
+-- initial version
 --
 --
 ---------------------------------------------------------------------
@@ -132,6 +134,42 @@ package rc_test_pack is
       );
    end component;
 
+   ------------------------------------------------------------------
+   -- async modules
+   
+   component async_rx
+      port(
+         rx_i    : in std_logic;   -- receiver input pin
+         valid_o  : out std_logic;  -- receiver data ready flag
+         error_o : out std_logic;  -- receiver error flag
+   
+         -- Wishbone signals
+         clk_i   : in std_logic;   -- 8x receive bit rate
+         rst_i   : in std_logic;
+         dat_o   : out std_logic_vector (7 downto 0);
+         we_i    : in std_logic;
+         stb_i   : in std_logic;
+         ack_o   : out std_logic;
+         cyc_i   : in std_logic
+      );
+   end component;
+
+   component async_tx
+      port(
+         tx_o    : out std_logic;  -- transmitter output pin
+         busy_o  : out std_logic;  -- transmitter busy flag
+   
+         -- Wishbone signals
+         clk_i   : in std_logic;   -- 8x transmit bit rate
+         rst_i   : in std_logic;
+         dat_i   : in std_logic_vector (7 downto 0);
+         we_i    : in std_logic;
+         stb_i   : in std_logic;
+         ack_o   : out std_logic;
+         cyc_i   : in std_logic
+      );
+   end component;
+   
    ------------------------------------------------------------------
    -- LVDS transmit
    
