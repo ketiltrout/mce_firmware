@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.13 2005/02/09 20:41:10 erniel Exp $
+-- $Id: reply_queue.vhd,v 1.14 2005/02/20 00:49:35 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.14  2005/02/20 00:49:35  erniel
+-- added cmd_timeout_o
+--
 -- Revision 1.13  2005/02/09 20:41:10  erniel
 -- updated reply_queue_sequencer component
 -- updated reply_queue_receive component
@@ -155,6 +158,7 @@ architecture behav of reply_queue is
    signal rq_err             : std_logic_vector(29 downto 0);
    signal rq_match           : std_logic;
    signal rq_start           : std_logic;
+   signal rq_timeout         : std_logic;
    
    -- reply queue receiver interfaces
    signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -219,7 +223,7 @@ begin
          -- cmd_queue interface control
          cmd_to_retire_i   => cmd_to_retire_i,
          cmd_sent_o        => cmd_sent_o,
-         
+         cmd_timeout_o     => cmd_timeout_o,
          cmd_i             => cmd_i,
          
          -- reply_translator interface control
@@ -243,6 +247,7 @@ begin
          
          -- reply_queue_sequencer interface control
          matched_i         => rq_match,
+         timeout_i         => rq_timeout,
          cmd_rdy_o         => rq_start,
 
          mop_num_o         => mop_num,
@@ -316,7 +321,7 @@ begin
          card_addr_i  => card_addr,
          cmd_valid_i  => rq_start,
          matched_o    => rq_match,
-         timeout_o    => cmd_timeout_o
+         timeout_o    => rq_timeout
      );
 
    rx_ac : reply_queue_receive

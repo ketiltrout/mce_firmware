@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.34 2005/01/12 22:11:25 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.35 2005/02/20 00:13:59 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/01/12 22:11:25 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2005/02/20 00:13:59 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.35  2005/02/20 00:13:59  bburger
+-- Bryce:  added a uop_timeout signal to the interface that will tell the cmd_queue to skip a command if it times out in the reply_queue
+--
 -- Revision 1.34  2005/01/12 22:11:25  mandana
 -- remove mem_clk_i from reply_queue interface
 --
@@ -411,7 +414,7 @@ begin
          -- cmd_queue interface
          cmd_to_retire_i  => uop_rdy,
          cmd_sent_o       => uop_ack,
---         cmd_timeout      => uop_timeout,
+         cmd_timeout_o    => uop_timeout,
          cmd_i            => uop,
          
          -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.14 2005/02/20 00:38:39 erniel Exp $
+-- $Id: reply_queue_pack.vhd,v 1.15 2005/02/20 00:50:25 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.15  2005/02/20 00:50:25  erniel
+-- updated reply_queue declaration
+--
 -- Revision 1.14  2005/02/20 00:38:39  erniel
 -- changed timeout limit to 500 us
 --
@@ -103,7 +106,7 @@ constant PACKET_BUFFER_DEPTH  : integer := 9;
 constant PACKET_STORAGE_DEPTH : integer := 11;
 
 -- reply_queue timeout limit (in microseconds):
-constant TIMEOUT_LIMIT : integer := 500;
+constant TIMEOUT_LIMIT : integer := 50;
 
 -- condensed header field range declarations:
 constant RQ_STATUS    : std_logic_vector(31 downto 26) := "000000";
@@ -175,6 +178,7 @@ component reply_queue_retire
       -- cmd_queue interface control
       cmd_to_retire_i   : in std_logic;                                           
       cmd_sent_o        : out std_logic;
+      cmd_timeout_o     : out std_logic;
       
       -- cmd_queue interface data
       cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
@@ -202,7 +206,8 @@ component reply_queue_retire
       card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
       
       -- reply_queue_sequencer interface control
-      matched_i         : in std_logic; --
+      matched_i         : in std_logic;
+      timeout_i         : in std_logic;
       cmd_rdy_o         : out std_logic;
      
       -- reply_queue_sequencer interface data

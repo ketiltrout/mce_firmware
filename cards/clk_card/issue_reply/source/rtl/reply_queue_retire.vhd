@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.10 2004/12/04 02:03:06 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.11 2004/12/06 07:22:34 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.11  2004/12/06 07:22:34  bburger
+-- Bryce:
+-- Created pack files for the card top-levels.
+-- Added some simulation signals to the top-levels (i.e. clocks)
+--
 -- Revision 1.10  2004/12/04 02:03:06  bburger
 -- Bryce:  fixing some problems associated with integrating the reply_queue
 --
@@ -84,6 +89,7 @@ entity reply_queue_retire is
       -- cmd_queue interface control
       cmd_to_retire_i   : in std_logic;                                           
       cmd_sent_o        : out std_logic;
+      cmd_timeout_o     : out std_logic;
       
       -- cmd_queue interface data
       cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
@@ -111,7 +117,8 @@ entity reply_queue_retire is
       card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
       
       -- reply_queue_sequencer interface control
-      matched_i         : in std_logic; --
+      matched_i         : in std_logic;
+      timeout_i         : in std_logic;
       cmd_rdy_o         : out std_logic;
      
       -- reply_queue_sequencer interface data
@@ -239,7 +246,7 @@ begin
       end if;
    end process retire_state_FF;
 
-   retire_state_NS: process(present_retire_state, cmd_to_retire_i, cmd_sent_i, matched)
+   retire_state_NS: process(present_retire_state, cmd_to_retire_i, cmd_sent_i, matched, timeout_i)
    begin
       -- Default Values
       next_retire_state <= present_retire_state;
@@ -262,6 +269,8 @@ begin
          when WAIT_FOR_MATCH =>
             if(matched = '1') then
                next_retire_state <= WAIT_FOR_ACK;
+            elsif(timeout_i = '1') then
+               next_retire_state <= IDLE;
             end if;
          when WAIT_FOR_ACK =>
             if(cmd_sent_i = '1') then
@@ -272,7 +281,7 @@ begin
       end case;
    end process;
 
-   retire_state_out: process(present_retire_state, cmd_to_retire_i, cmd_sent_i)
+   retire_state_out: process(present_retire_state, cmd_to_retire_i, cmd_sent_i, timeout_i)
    begin   
       -- Default values
       header_a_en  <= '0';
@@ -282,6 +291,7 @@ begin
       cmd_sent_o   <= '0';
       cmd_rdy      <= '0';
       cmd_valid_o  <= '0';
+      cmd_timeout_o <= '0';
 
       case present_retire_state is
          when IDLE =>
@@ -302,7 +312,8 @@ begin
             cmd_rdy      <= '1';
 
          when WAIT_FOR_MATCH =>
-            cmd_rdy      <= '1';
+            cmd_rdy       <= '1';
+            cmd_timeout_o <= timeout_i;
             
          when WAIT_FOR_ACK =>
             cmd_rdy      <= '1';
