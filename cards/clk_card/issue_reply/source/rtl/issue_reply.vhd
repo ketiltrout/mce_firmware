@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.15 2004/10/11 13:54:32 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.16 2004/10/13 05:44:58 bench2 Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/11 13:54:32 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/10/13 05:44:58 $> -     <text>      - <initials $Author: bench2 $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.16  2004/10/13 05:44:58  bench2
+-- Bryce:  Added a new top-level signal to the clock card issue_reply_test block:  fibre_ckr aka fibre_clkr
+--
 -- Revision 1.15  2004/10/11 13:54:32  dca
 -- 'fibre_clkr_i' port added to entity.
 -- Used by component fibre_rx
@@ -127,7 +130,7 @@ port(
      
       
       
-      -- inputs from the fibre
+      -- inputs from the fibre receiver 
       fibre_clkr_i : in     std_logic;
       rx_data_i    : in     std_logic_vector (7 DOWNTO 0);
       nRx_rdy_i    : in     std_logic;
@@ -137,6 +140,17 @@ port(
 
       cksum_err_o  : out    std_logic;
     
+
+      -- interface to fibre transmitter
+      tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+      tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
+      nFena_o      : out    std_logic;                           -- hotlink tx enable
+
+      -- 25MHz clock for fibre_tx_control
+      fibre_clkw_i : in     std_logic;                          -- in phase with 25MHz hotlink clock
+
+
+
 
 --
 --
@@ -201,10 +215,10 @@ architecture rtl of issue_reply is
       signal num_data        :  std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
       signal param_id        :  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
       signal cmd_type        :  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+   
       signal cmd_ack         :  std_logic;   -- acknowledge signal from cmd_translator to fibre_rx
-      signal cmd_stop        :  std_logic;
-      signal last_frame      :  std_logic;
- 
+  
+  
       -- signals for the return path for quick responses, currently not implemented
 --      signal reply_cmd_ack_o      :  std_logic; 
 --      signal reply_card_addr_o    :  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -213,10 +227,10 @@ architecture rtl of issue_reply is
 --      signal reply_data_o         :  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
       
       signal reply_cmd_rcvd_er    :  std_logic;
-      signal reply_cmd_rcvd_ok  :  std_logic;
-      signal reply_cmd_code     :  std_logic_vector (15 downto 0);
-      signal reply_param_id     :  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0); 
-      signal reply_card_id      :  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+      signal reply_cmd_rcvd_ok    :  std_logic;
+      signal reply_cmd_code       :  std_logic_vector (15 downto 0);
+      signal reply_param_id       :  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0); 
+      signal reply_card_id        :  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
 
       signal sync_pulse           : std_logic;
       signal sync_number          : std_logic_vector (7 downto 0);
@@ -246,6 +260,30 @@ architecture rtl of issue_reply is
       signal macro_instr_rdy:  std_logic; 
       signal mop_ack :  std_logic; 
 
+ 
+      signal cmd_stop      : std_logic;
+      signal last_frame    : std_logic;
+      
+      
+     -- reply_translator reply_queue interface 
+      
+      signal   m_op_done          : std_logic;     
+      signal   m_op_error_code    : std_logic_vector(BB_STATUS_WIDTH-1           downto 0); 
+      signal   m_op_cmd_code      : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
+      signal   fibre_word         : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0); 
+      signal   num_fibre_words    : std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    
+      signal   fibre_word_req     : std_logic;
+      signal   fibre_word_rdy     : std_logic;
+      signal   m_op_ack           : std_logic;   
+      signal   reply_cmd_stop      : std_logic;
+      signal   reply_last_frame    : std_logic;
+      signal   reply_frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+ 
+ 
+
+
+
+
       -- temporary signals to simulate the sync pulse counter
 
 --      signal count                : integer;
@@ -258,6 +296,14 @@ architecture rtl of issue_reply is
 --      constant SYNC_PERIOD        : integer := 53; -- time in micro-seconds
 
 
+
+      -- reply_translator / fibre_tx interface 
+       signal txd      : std_logic_vector(7 downto 0); 
+       signal tx_fw    : std_logic; 
+       signal tx_ff    : std_logic;
+     
+     
+     
       type state is (IDLE, WAIT1, WAIT2, ACK1, ACK2);
       signal cur_state, next_state : state;
 
@@ -338,6 +384,80 @@ begin
    cksum_err_o <= cksum_err;
 
 
+
+--------------------------------------------------
+-- Instantiate fibre transmitter
+--------------------------------------------------
+
+   i_fibre_tx : fibre_tx
+
+   port map(        
+   -- global inputs
+      clk_i        => clk_i, 
+      rst_i        => rst_i, 
+         
+   -- interface to reply_translator
+
+     txd_i        => txd, 
+     tx_fw_i      => tx_fw, 
+     tx_ff_o      => tx_ff, 
+      
+   -- interface to HOTLINK transmitter
+     fibre_clkw_i  => fibre_clkw_i,
+     tx_data_o     => tx_data_o,
+     tsc_nTd_o     => tsc_nTd_o,
+     nFena_o       => nFena_o 
+
+      );
+
+
+------------------------------------------------------------------------
+--
+-- instantiate reply translator
+--
+------------------------------------------------------------------------
+
+   i_reply_translator : reply_translator
+
+   port map(
+
+   -- global inputs 
+   rst_i                   => rst_i,
+   clk_i                   => clk_i,
+
+   -- signals to/from cmd_translator    
+   cmd_rcvd_er_i           => reply_cmd_rcvd_er,
+   cmd_rcvd_ok_i           => reply_cmd_rcvd_ok,
+   cmd_code_i              => reply_cmd_code,
+   card_id_i               => reply_param_id,
+   param_id_i              => reply_card_id,
+      
+                   
+   -- signals to/from reply queue 
+
+   m_op_done_i             => m_op_done,  
+   m_op_error_code_i       => m_op_error_code, 
+   m_op_cmd_code_i         => m_op_cmd_code,
+   fibre_word_i            => fibre_word,
+   num_fibre_words_i       => num_fibre_words,
+   fibre_word_req_o        => fibre_word_req,
+   fibre_word_rdy_i        => fibre_word_rdy,
+   m_op_ack_o              => m_op_ack,    
+   
+   cmd_stop_i              => reply_cmd_stop,
+   last_frame_i            => reply_last_frame,
+   frame_seq_num_i         => reply_frame_seq_num,
+
+   -- signals to / from fibre_tx
+
+   tx_ff_i                 => tx_ff, 
+   tx_fw_o                 => tx_fw,
+   txd_o                   => txd
+   );      
+
+
+
+
 ------------------------------------------------------------------------
 --
 -- instantiate command translator
@@ -386,6 +506,9 @@ begin
 --               reply_parameter_id_o => reply_parameter_id_o,
 --               reply_data_size_o    => reply_data_size_o,
 --               reply_data_o         => reply_data_o,
+               
+               
+               -- reply_translator interface
                
                reply_cmd_rcvd_er_o  => reply_cmd_rcvd_er,
                reply_cmd_rcvd_ok_o  => reply_cmd_rcvd_ok,
