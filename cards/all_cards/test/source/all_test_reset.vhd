@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: all_test_reset.vhd,v $
+-- Revision 1.2  2004/05/11 03:28:09  erniel
+-- updated header information
+--
 -- Revision 1.1  2004/04/28 20:16:13  erniel
 -- initial version
 --
@@ -49,19 +52,20 @@ entity all_test_reset is
       done_o : out std_logic; -- done ouput signal
       
       -- transmitter signals
-      tx_busy_i : in std_logic;  -- transmit busy flag
-      tx_ack_i : in std_logic;   -- transmit ack
-      tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-      tx_we_o : out std_logic;   -- transmit write flag
-      tx_stb_o : out std_logic   -- transmit strobe flag
-   );
+      tx_data_o : out std_logic_vector(7 downto 0);
+      tx_start_o : out std_logic;
+      tx_done_i : in std_logic);   
 end all_test_reset;
 
 architecture behaviour of all_test_reset is
    type astring is array (natural range <>) of std_logic_vector(7 downto 0);
    signal message : astring (0 to 16);
+      
+   signal count : integer range 0 to 17;
    
-   signal done : std_logic;
+   type states is (RESET, TX_CHAR, TX_WAIT, DONE);
+   signal pres_state : states;
+   signal next_state : states;
    
 begin
 
@@ -78,45 +82,64 @@ begin
    message(7) <= conv_std_logic_vector(101,8);  -- e
    message(8) <= conv_std_logic_vector(115,8);  -- s
    message(9) <= conv_std_logic_vector(116,8);  -- t
-   message(10) <= conv_std_logic_vector(32,8);   -- 
+   message(10) <= conv_std_logic_vector(32,8);  -- 
    message(11) <= conv_std_logic_vector(118,8); -- v
    message(12) <= conv_std_logic_vector(48,8);  -- 0
-   message(13) <= conv_std_logic_vector(50,8);  -- 2
+   message(13) <= conv_std_logic_vector(51,8);  -- 3
    message(14) <= conv_std_logic_vector(46,8);  -- .
    message(15) <= conv_std_logic_vector(48,8);  -- 0
    message(16) <= conv_std_logic_vector(48,8);  -- 0
-   
-   -- tx_word gets ready to transmit the next word
-   tx_word : process (rst_i, en_i, tx_busy_i, message)
-      variable pos : integer range message'range;
+
+   process(rst_i, clk_i)
    begin
-      if ((rst_i = '1') or (en_i = '0')) then
-         tx_data_o <= (others => '0');
-         done <= '0';
-         pos := message'left;
-         tx_data_o <= message(message'left);
-      elsif Rising_Edge(tx_busy_i) then
-         if (pos < message'right) then
-            pos := pos + 1;
-            done <= '0';
-         else
-            pos := pos;
-            done <= '1';
-         end if;
-         tx_data_o <= message(pos);
+      if(rst_i = '1') then
+         pres_state <= RESET;
+      elsif(clk_i'event and clk_i = '1') then
+         pres_state <= next_state;
       end if;
-   end process tx_word;
-   done_o <= done;
+   end process;
    
-   -- tx_strobe controls the transmit strobe lines
-   tx_strobe : process (rst_i, en_i, clk_i)
+   process(pres_state, en_i, tx_done_i, count)
    begin
-      if ((rst_i = '1') or (en_i = '0')) then
-         tx_we_o <= '0';
-         tx_stb_o <= '0';
-      elsif Rising_Edge(clk_i) then
-         tx_we_o <= not(tx_ack_i or tx_busy_i or done);
-         tx_stb_o <= not(tx_ack_i or tx_busy_i or done);
-      end if;
-   end process tx_strobe;
+      case pres_state is
+         when RESET =>   if(en_i = '1') then
+                            next_state <= TX_CHAR;
+                         else
+                            next_state <= RESET;
+                         end if;
+         when TX_CHAR => next_state <= TX_WAIT;
+         when TX_WAIT => if(tx_done_i = '0') then
+                            next_state <= TX_WAIT;
+                         elsif(tx_done_i = '1' and count = 17) then
+                            next_state <= DONE;
+                         else
+                            next_state <= TX_CHAR;
+                         end if;
+         when DONE =>    next_state <= RESET;
+      end case;
+   end process;
+   
+   process(pres_state)
+   begin
+      case pres_state is
+         when RESET =>   tx_data_o <= (others => '0');
+                         tx_start_o <= '0';
+                         count <= 0;
+                         done_o <= '0';
+                         
+         when TX_CHAR => tx_data_o <= message(count);
+                         tx_start_o <= '1';
+                         count <= count + 1;
+                         done_o <= '0';
+                         
+         when TX_WAIT => tx_data_o <= (others => '0');
+                         tx_start_o <= '0';
+                         done_o <= '0';
+                         
+         when DONE =>    tx_data_o <= (others => '0');
+                         tx_start_o <= '0';
+                         done_o <= '1';
+      end case;
+   end process;
+   
 end;
