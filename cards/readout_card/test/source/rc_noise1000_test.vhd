@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date: 2004/07/22 23:50:41 $>    - <initials $Author: bench1 $>
+-- <date $Date: 2004/07/23 19:22:38 $>    - <initials $Author: mandana $>
 -- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.3  2004/07/23 19:22:38  mandana
+-- reset nsample
+--
 -- Revision 1.2  2004/07/22 23:50:41  bench1
 -- Mandana: sum is now calculated in the same process as nsample, but not working
 --
@@ -175,7 +178,7 @@ begin
             mictor (13 downto 0) <= sum(13 downto 0);
             mictor (14)          <= adc1_rdy;
             mictor (15)          <= clk;
-            mictor (29 downto 16)<= sum(23 downto 14);      
+            mictor (25 downto 16)<= sum(23 downto 14);      
          end if;
       end if;
    end process latch;
