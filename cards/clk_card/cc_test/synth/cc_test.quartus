@@ -1,5 +1,25 @@
 FILES
 {
+	VHDL_FILE = ..\..\..\library\sys_param\source\pack\wishbone_pack.vhd;
+	VHDL_FILE = ..\..\..\library\sys_param\source\pack\general_pack.vhd;
+	VHDL_FILE = ..\..\..\library\sys_param\source\pack\command_pack.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\pack\component_pack.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\write_spi.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\init_1_wire.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\prand.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\read_data_1_wire.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\read_serial_data.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\reg.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\shift_reg.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\slave_ctrl.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\tri_state_buf.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\tri_state_buf_vec.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\us_timer.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\write_data_1_wire.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\write_serial_data.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\crc.vhd;
+	VHDL_FILE = ..\..\..\all_cards\watchdog\source\pack\watchdog_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\watchdog\source\rtl\watchdog.vhd;
 	VHDL_FILE = ..\..\..\all_cards\io_led\source\pack\io_pack.vhd;
 	VHDL_FILE = ..\..\..\all_cards\io_led\source\rtl\io_led.vhd;
 	VHDL_FILE = ..\..\..\all_cards\async\source\pack\async_pack.vhd;

@@ -70,7 +70,7 @@ begin
    message(12) <= conv_std_logic_vector(48,8);  -- 0
    message(13) <= conv_std_logic_vector(46,8);  -- .
    message(14) <= conv_std_logic_vector(48,8);  -- 0
-   message(15) <= conv_std_logic_vector(48,8);  -- 0
+   message(15) <= conv_std_logic_vector(49,8);  -- 1
    
    -- tx_word gets ready to transmit the next word
    tx_word : process (rst_i, en_i, tx_busy_i, message)

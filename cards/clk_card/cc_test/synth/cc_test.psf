@@ -147,13 +147,16 @@ PROJECT_INFO(cc_test)
 	ORIGINAL_QUARTUS_VERSION = 2.2;
 	LAST_QUARTUS_VERSION = 2.2;
 	SHOW_REGISTRATION_MESSAGE = ON;
-	USER_LIBRARIES = "k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\io_led\source\rtl;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\io_led\source\pack;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\async\source\rtl;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\async\source\pack;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\clk_card\cc_test\source\rtl";
+	USER_LIBRARIES = "k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\watchdog\source\rtl;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\watchdog\source\pack;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\library\components\source\rtl;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\library\components\source\pack;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\library\sys_param\source\pack;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\io_led\source\rtl;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\io_led\source\pack;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\async\source\rtl;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\all_cards\async\source\pack;k:\projects\scuba2\hdl\cvs\scuba2_repository\cards\clk_card\cc_test\source\rtl";
 }
 CLOCK(clk_25)
 {
 	FMAX_REQUIREMENT = "25.0 MHz";
 	INCLUDE_EXTERNAL_PIN_DELAYS_IN_FMAX_CALCULATIONS = OFF;
 	DUTY_CYCLE = 50;
+	DIVIDE_BASE_CLOCK_PERIOD_BY = 1;
+	MULTIPLY_BASE_CLOCK_PERIOD_BY = 1;
+	INVERT_BASE_CLOCK = OFF;
 }
 CLOCK(clk_rs232_rx)
 {

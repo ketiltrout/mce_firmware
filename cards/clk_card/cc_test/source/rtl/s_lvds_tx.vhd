@@ -29,7 +29,9 @@ use ieee.std_logic_arith.all;
 
 library work;
 use work.async_pack.all;
-use work.component_pack.all;
+
+library components;
+use components.component_pack.all;
 
 entity s_lvds_tx is
    port (
@@ -86,7 +88,8 @@ begin
       generic map (size => 8)
       port map (
          clr_i => rst_i,
-         clk_i => rnd_clk,
+         clk_i => clk_i,
+         en_i => rnd_clk,
          out_o => lvds_dat
       );
 
@@ -94,7 +97,7 @@ begin
    lvds_cyc <= '1';
    
    -- the random counter should only tick if we are enabled
-   rnd_clk <= lvds_ack and enabled;
+   rnd_clk <= lvds_ack and lvds_stb and enabled;
    
    -- test controls the state of the test
    test : process (rst_i, en_i)
