@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.10  2005/03/23 19:05:02  bburger
+-- Bryce:  Test commital
+--
 -- Revision 1.9  2005/03/23 01:56:11  erniel
 -- added "when others" statements to FSMs
 --
@@ -87,6 +90,9 @@ end lvds_rx;
 
 architecture rtl of lvds_rx is
 
+signal lvds      : std_logic;
+signal lvds_temp : std_logic;
+
 signal sample_count     : integer range 0 to 272;
 signal sample_count_ena : std_logic;
 signal sample_count_clr : std_logic;
@@ -103,7 +109,9 @@ signal rx_buf_clr : std_logic;
 signal data_ld : std_logic;
 
 signal rdy : std_logic;
-signal ack : std_logic;
+
+signal ack      : std_logic;
+signal ack_temp : std_logic;
 
 type states is (IDLE, RECV, READY);
 signal pres_state : states;
@@ -129,7 +137,7 @@ begin
             load_i     => '0',
             clr_i      => sample_buf_clr,
             shr_i      => '1',
-            serial_i   => lvds_i,
+            serial_i   => lvds,
             serial_o   => open,
             parallel_i => (others => '0'),
             parallel_o => sample_buf);
@@ -175,11 +183,10 @@ begin
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, lvds_i, sample_count)
+   stateNS: process(pres_state, lvds, sample_count)
    begin
-      next_state <= pres_state;
       case pres_state is
-         when IDLE =>   if(lvds_i = '0') then
+         when IDLE =>   if(lvds = '0') then
                            next_state <= RECV;
                         else
                            next_state <= IDLE;
@@ -237,13 +244,19 @@ begin
    end process stateOut;
 
 
+   -- double synchronizer for ack_i and lvds_i:
    process(comm_clk_i)
    begin
       if(comm_clk_i = '1') then
-         ack <= ack_i;
+         ack_temp <= ack_i;
+         ack      <= ack_temp;
+         
+         lvds_temp <= lvds_i;
+         lvds      <= lvds_temp;
       end if;
    end process;
    
+
    process(rst_i, comm_clk_i)
    begin
       if(rst_i = '1') then
