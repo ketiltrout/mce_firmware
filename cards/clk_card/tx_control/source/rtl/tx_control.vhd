@@ -43,7 +43,7 @@ USE ieee.std_logic_arith.all;
 ENTITY tx_control IS
    PORT( 
       ft_clkw_i : IN     std_logic;
-      trp_i     : IN     std_logic;
+      n_Trp_i     : IN     std_logic;
       tx_fe_i   : IN     std_logic;
       tsc_nTd_o : OUT    std_logic;
       nFena_o   : OUT    std_logic;
@@ -74,7 +74,7 @@ BEGIN
    
    BEGIN 
       
-       tx_fr_o <= NOT(trp_i);   -- (not) read_pulse from CYPRESS
+       tx_fr_o <= NOT(n_Trp_i);   -- (not) read_pulse from CYPRESS
                                 -- HOTLINK receiver mapped to 
                                 -- tx_fifo read   
 
