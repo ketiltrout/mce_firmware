@@ -38,568 +38,275 @@
 -- <date $Date$>	-		<text>		- <initials $Author$>
 -- $log$
 -----------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numeric_std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ENTITY simple_reply_fsm IS
-   PORT( 
-      Brst        : IN     std_logic;
-      clk         : IN     std_logic;
+entity simple_reply_fsm is
+   port( 
+      rst_i        : in     std_logic;
+      clk_i        : in     std_logic;
 
-      cmd_code_i  : IN    std_logic_vector (15 DOWNTO 0);
-      cksum_err_i : IN    std_logic;
-      cmd_rdy_i   : IN    std_logic;
-      tx_ff_i     : IN    std_logic;
+      cmd_code_i   : in    std_logic_vector (15 downto 0);
+      cksum_err_i  : in    std_logic;
+      cmd_rdy_i    : in    std_logic;
+      tx_ff_i      : in    std_logic;
 
-      txd_o       : OUT    std_logic_vector (7 DOWNTO 0);
-      tx_fw_o     : OUT    std_logic 
+      txd_o        : out    std_logic_vector (7 downto 0);
+      tx_fw_o      : out    std_logic 
    );
 
-END simple_reply_fsm ;
+end simple_reply_fsm ;
 
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numeric_std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ARCHITECTURE rtl OF simple_reply_fsm IS
+architecture rtl of simple_reply_fsm is
 
 
 -- FSM's states defined
 
-constant IDLE        : std_logic_vector(5 downto 0) := "000000";
---constant INIT_CMD    : std_logic_vector(5 downto 0) := "000001";
---constant INIT_ERR    : std_logic_vector(5 downto 0) := "000010";
-constant TX_PRE0     : std_logic_vector(5 downto 0) := "000011";
-
-constant TX_PRE1     : std_logic_vector(5 downto 0) := "000100";
-constant TX_PRE2     : std_logic_vector(5 downto 0) := "000101";
-constant TX_PRE3     : std_logic_vector(5 downto 0) := "000110";
-constant TX_PRE4     : std_logic_vector(5 downto 0) := "000111";
-
-constant TX_PRE5     : std_logic_vector(5 downto 0) := "001000";
-constant TX_PRE6     : std_logic_vector(5 downto 0) := "001001";
-constant TX_PRE7     : std_logic_vector(5 downto 0) := "001010";
-constant TX_WD1_0    : std_logic_vector(5 downto 0) := "001011";
-
-constant TX_WD1_1    : std_logic_vector(5 downto 0) := "001100";
-constant TX_WD1_2    : std_logic_vector(5 downto 0) := "001101";
-constant TX_WD1_3    : std_logic_vector(5 downto 0) := "001110";
-constant TX_WD2_0    : std_logic_vector(5 downto 0) := "001111";
-
-constant TX_WD2_1    : std_logic_vector(5 downto 0) := "010000";
-constant TX_WD2_2    : std_logic_vector(5 downto 0) := "010001";
-constant TX_WD2_3    : std_logic_vector(5 downto 0) := "010010";
-constant TX_WD3_0    : std_logic_vector(5 downto 0) := "010011";
-
-constant TX_WD3_1    : std_logic_vector(5 downto 0) := "010100";
-constant TX_WD3_2    : std_logic_vector(5 downto 0) := "010101";
-constant TX_WD3_3    : std_logic_vector(5 downto 0) := "010110";
-constant TX_WD4_0    : std_logic_vector(5 downto 0) := "010111";
-
-constant TX_WD4_1    : std_logic_vector(5 downto 0) := "011000";
-constant TX_WD4_2    : std_logic_vector(5 downto 0) := "011001";
-constant TX_WD4_3    : std_logic_vector(5 downto 0) := "011010";
-constant LD_PRE0     : std_logic_vector(5 downto 0) := "011011";
-
-constant LD_PRE1     : std_logic_vector(5 downto 0) := "011100";
-constant LD_PRE2     : std_logic_vector(5 downto 0) := "011101";
-constant LD_PRE3     : std_logic_vector(5 downto 0) := "011110";
-constant LD_PRE4     : std_logic_vector(5 downto 0) := "011111";
-
-constant LD_PRE5     : std_logic_vector(5 downto 0) := "100000";
-constant LD_PRE6     : std_logic_vector(5 downto 0) := "100001";
-constant LD_PRE7     : std_logic_vector(5 downto 0) := "100010";
-constant LD_WD1_0    : std_logic_vector(5 downto 0) := "100011";
-
-constant LD_WD1_1    : std_logic_vector(5 downto 0) := "100100";
-constant LD_WD1_2    : std_logic_vector(5 downto 0) := "100101";
-constant LD_WD1_3    : std_logic_vector(5 downto 0) := "100110";
-constant LD_WD2_0    : std_logic_vector(5 downto 0) := "100111";
-
-constant LD_WD2_1    : std_logic_vector(5 downto 0) := "101000";
-constant LD_WD2_2    : std_logic_vector(5 downto 0) := "101001";
-constant LD_WD2_3    : std_logic_vector(5 downto 0) := "101010";
-constant LD_WD3_0    : std_logic_vector(5 downto 0) := "101011";
-
-constant LD_WD3_1    : std_logic_vector(5 downto 0) := "101100";
-constant LD_WD3_2    : std_logic_vector(5 downto 0) := "101101";
-constant LD_WD3_3    : std_logic_vector(5 downto 0) := "101110";
-constant LD_WD4_0    : std_logic_vector(5 downto 0) := "101111";
-
-constant LD_WD4_1    : std_logic_vector(5 downto 0) := "110000";
-constant LD_WD4_2    : std_logic_vector(5 downto 0) := "110001";
-constant LD_WD4_3    : std_logic_vector(5 downto 0) := "110010";
-
+constant IDLE        : std_logic_vector(1 downto 0) := "00";
+constant LD_BYTE     : std_logic_vector(1 downto 0) := "01";
+constant TX_BYTE     : std_logic_vector(1 downto 0) := "10";
 
 
 -- controller state variables:
-signal current_state  : std_logic_vector(5 downto 0) := "000000";
-signal next_state     : std_logic_vector(5 downto 0) := "000000";
+signal current_state  : std_logic_vector(1 downto 0);
+signal next_state     : std_logic_vector(1 downto 0);
 
-
--- Architecture Declarations
-constant preamble1 : std_logic_vector(7 downto 0) := "10100101";
-constant preamble2 : std_logic_vector(7 downto 0) := "01011010";
-
-constant rp_w1_byte3 : std_logic_vector(7 downto 0) := X"20";
-constant rp_w1_byte2 : std_logic_vector(7 downto 0) := X"20";
-constant rp_w1_byte1 : std_logic_vector(7 downto 0) := X"52";
-constant rp_w1_byte0 : std_logic_vector(7 downto 0) := X"50";
-
-constant rp_w2_byte3 : std_logic_vector(7 downto 0) := X"00";
-constant rp_w2_byte2 : std_logic_vector(7 downto 0) := X"00";
-constant rp_w2_byte1 : std_logic_vector(7 downto 0) := X"00";
-constant rp_w2_byte0 : std_logic_vector(7 downto 0) := X"02";
-
--- command code makes up bytes 3 and 2 of word 3
-constant rp_ok_byte1 : std_logic_vector(7 downto 0) := X"4f";  -- 'O'
-constant rp_ok_byte0 : std_logic_vector(7 downto 0) := X"4b";  -- 'K'
-
-constant rp_er_byte1 : std_logic_vector(7 downto 0) := X"45";  -- 'E'
-constant rp_er_byte0 : std_logic_vector(7 downto 0) := X"52";  -- 'R'
-
--- dummy data word 
-
-constant rp_w4_byte3 : std_logic_vector(7 downto 0) := X"00";
-constant rp_w4_byte2 : std_logic_vector(7 downto 0) := X"00";
-constant rp_w4_byte1 : std_logic_vector(7 downto 0) := X"00";
-constant rp_w4_byte0 : std_logic_vector(7 downto 0) := X"00";
-
-
-signal reply_wd3: std_logic_vector (31 downto 0);
-signal command: std_logic_vector (15 downto 0);
-
-signal txing_reply: std_logic;
 signal tx_reply: std_logic;
 
 
-BEGIN
+constant mem_size : integer:= 32;
+constant rep_size : integer:= 24;
+
+subtype mem_deep is integer range 0 to mem_size-1;
+subtype word is std_logic_vector(7 downto 0);
+
+type mem is array (0 to mem_size-1) of word;
+signal memory: mem;
+
+
+signal memory_index  : mem_deep ;  
+signal reset_index   : std_logic;   
+signal read_mem      : std_logic;
+signal data_out      : std_logic_vector(7 downto 0); -- current data word read from memory
+ 
+---------------------------------------------------------
+-- [procedure to initialise memory 
+
+   procedure init_mem(signal memory_cell : inout mem ) is
+   begin
+     for i in 0 to mem_size-1 loop
+        memory_cell(i) <= (others => '0');
+     end loop;
+   end init_mem;
+---------------------------------------------------------
+  
+   
+---------------------------------------------------------
+-- [procedure to initialise OK reply
+
+   procedure init_ok_rep(signal memory_cell : inout mem;
+                         signal cmd_code :in std_logic_vector (15 downto 0)) is
+   begin
+       memory_cell(0)  <= X"A5";
+       memory_cell(1)  <= X"A5";
+       memory_cell(2)  <= X"A5";
+       memory_cell(3)  <= X"A5";
+       
+       memory_cell(4)  <= X"5A";
+       memory_cell(5)  <= X"5A";
+       memory_cell(6)  <= X"5A";
+       memory_cell(7)  <= X"5A";
+       
+       memory_cell(8)  <= X"50";
+       memory_cell(9)  <= X"52";
+       memory_cell(10) <= X"20";
+       memory_cell(11) <= X"20";
+       
+       memory_cell(12) <= X"02";
+       memory_cell(13) <= X"00";
+       memory_cell(14) <= X"00";
+       memory_cell(15) <= X"00";
+       
+       memory_cell(16) <= X"4b";
+       memory_cell(17) <= X"4f";
+       memory_cell(18) <= cmd_code(7 downto 0);
+       memory_cell(19) <= cmd_code(15 downto 8);
+       
+       memory_cell(20) <= X"00";
+       memory_cell(21) <= X"00";
+       memory_cell(22) <= X"00";
+       memory_cell(23) <= X"00";
+       
+    end init_ok_rep;
+    
+    ---------------------------------------------------------
+-- [procedure to initialise OK reply
+
+   procedure init_er_rep(signal memory_cell : inout mem;
+                         signal cmd_code :in std_logic_vector (15 downto 0)) is
+   begin
+       memory_cell(0)  <= X"A5";
+       memory_cell(1)  <= X"A5";
+       memory_cell(2)  <= X"A5";
+       memory_cell(3)  <= X"A5";
+       
+       memory_cell(4)  <= X"5A";
+       memory_cell(5)  <= X"5A";
+       memory_cell(6)  <= X"5A";
+       memory_cell(7)  <= X"5A";
+       
+       memory_cell(8)  <= X"50";
+       memory_cell(9)  <= X"52";
+       memory_cell(10) <= X"20";
+       memory_cell(11) <= X"20";
+       
+       memory_cell(12) <= X"02";
+       memory_cell(13) <= X"00";
+       memory_cell(14) <= X"00";
+       memory_cell(15) <= X"00";
+       
+       memory_cell(16) <= X"52";
+       memory_cell(17) <= X"45";
+       memory_cell(18) <= cmd_code(7 downto 0);
+       memory_cell(19) <= cmd_code(15 downto 8);
+       
+       memory_cell(20) <= X"00";
+       memory_cell(21) <= X"00";
+       memory_cell(22) <= X"00";
+       memory_cell(23) <= X"00";
+       
+    end init_er_rep;
+---------------------------------------------------------
+
+
+begin
+
+  tx_reply <= cmd_rdy_i or cksum_err_i;
 
   ----------------------------------------------------------------------------
-   initialise_reply : PROCESS(
-      cmd_rdy_i,
-      cksum_err_i,
-      txing_reply
-   )
+   initialise_reply : process(
+      rst_i, cmd_rdy_i,
+      cksum_err_i)
    ----------------------------------------------------------------------------
-   BEGIN
-      IF (txing_reply = '1') THEN   
-         tx_reply <= '0';         
-      ELSIF (cmd_rdy_i'EVENT AND cmd_rdy_i = '1') THEN
-         reply_wd3(31 downto 16) <= cmd_code_i;
-         reply_wd3(15 downto 8) <= rp_ok_byte1;
-         reply_wd3(7 downto 0) <= rp_ok_byte0;     
-         tx_reply <= '1';
-      ELSIF (cksum_err_i'EVENT AND cksum_err_i = '1') THEN
-         reply_wd3(31 downto 16) <= cmd_code_i;
-         reply_wd3(15 downto 8) <= rp_er_byte1;
-         reply_wd3(7 downto 0) <= rp_er_byte0;  
-         tx_reply <= '1';
-      END IF;
-
-   END PROCESS initialise_reply;
-
-   ----------------------------------------------------------------------------
-   clocked : PROCESS(
-      clk,
-      Brst
-   )
-   ----------------------------------------------------------------------------
-   BEGIN
-         
-      IF (Brst = '1') THEN
-         current_state <= IDLE;
-      ELSIF (clk'EVENT AND clk = '1') THEN
-         current_state <= next_state;
-      END IF;
-
-   END PROCESS clocked;
-
-   ----------------------------------------------------------------------------
-   nextstate : PROCESS (
-      current_state,
-      tx_reply
-   )
-   ----------------------------------------------------------------------------
-   BEGIN
-     
-      CASE current_state IS
-
-      WHEN IDLE =>
-         IF (tx_reply = '1') THEN
-            next_state <= LD_PRE0;
-         ELSE
-            next_state <= IDLE; 
-         END IF;
-
-   ------------------------------------------------
-   
-
-      WHEN LD_PRE0 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_PRE0;
-         ELSE 
-            next_state <= TX_PRE0;
-         END IF;
-      WHEN LD_PRE1 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_PRE1;
-         ELSE 
-            next_state <= TX_PRE1;
-         END IF;
-      WHEN LD_PRE2 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_PRE2;
-         ELSE 
-            next_state <= TX_PRE2;
-         END IF;
-      WHEN LD_PRE3 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_PRE3;
-         ELSE 
-            next_state <= TX_PRE3;
-         END IF;
-      WHEN LD_PRE4 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_PRE4;
-         ELSE 
-            next_state <= TX_PRE4;
-         END IF;
-      WHEN LD_PRE5 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_PRE5;
-         ELSE 
-            next_state <= TX_PRE5;
-         END IF;
-      WHEN LD_PRE6 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_PRE6;
-         ELSE 
-            next_state <= TX_PRE6;
-         END IF;
-      WHEN LD_PRE7 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_PRE7;
-         ELSE 
-            next_state <= TX_PRE7;
-         END IF;
-
-
-      WHEN LD_WD1_0 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD1_0;
-         ELSE 
-            next_state <= TX_WD1_0;
-         END IF;
-      WHEN LD_WD1_1 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD1_1;
-         ELSE 
-            next_state <= TX_WD1_1;
-         END IF;
-      WHEN LD_WD1_2 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD1_2;
-         ELSE 
-            next_state <= TX_WD1_2;
-         END IF;
-      WHEN LD_WD1_3 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD1_3;
-         ELSE 
-            next_state <= TX_WD1_3;
-         END IF;
-
-      WHEN LD_WD2_0 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD2_0;
-         ELSE 
-            next_state <= TX_WD2_0;
-         END IF;
-      WHEN LD_WD2_1 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD2_1;
-         ELSE 
-            next_state <= TX_WD2_1;
-         END IF;
-      WHEN LD_WD2_2 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD2_2;
-         ELSE 
-            next_state <= TX_WD2_2;
-         END IF;
-      WHEN LD_WD2_3 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD2_3;
-         ELSE 
-            next_state <= TX_WD2_3;
-         END IF;
-
-      WHEN LD_WD3_0 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD3_0;
-         ELSE 
-            next_state <= TX_WD3_0;
-         END IF;
-      WHEN LD_WD3_1 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD3_1;
-         ELSE 
-            next_state <= TX_WD3_1;
-         END IF;
-      WHEN LD_WD3_2 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD3_2;
-         ELSE 
-            next_state <= TX_WD3_2;
-         END IF;
-      WHEN LD_WD3_3 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD3_3;
-         ELSE 
-            next_state <= TX_WD3_3;
-         END IF;
-
-      WHEN LD_WD4_0 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD4_0;
-         ELSE 
-            next_state <= TX_WD4_0;
-         END IF;
-      WHEN LD_WD4_1 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD4_1;
-         ELSE 
-            next_state <= TX_WD4_1;
-         END IF;
-      WHEN LD_WD4_2 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD4_2;
-         ELSE 
-            next_state <= TX_WD4_2;
-         END IF;
-      WHEN LD_WD4_3 =>
-         IF (tx_ff_i = '1') THEN
-            next_state <= LD_WD4_3;
-         ELSE 
-            next_state <= TX_WD4_3;
-         END IF;
-
-
-      WHEN TX_PRE0 =>
-         next_state <= LD_PRE1;
-         
-      WHEN TX_PRE1 =>
-         next_state <= LD_PRE2;
-      WHEN TX_PRE2 =>
-         next_state <= LD_PRE3;
-      WHEN TX_PRE3 =>
-         next_state <= LD_PRE4;
-      WHEN TX_PRE4 =>
-         next_state <= LD_PRE5;
-      WHEN TX_PRE5 =>
-         next_state <= LD_PRE6;
-      WHEN TX_PRE6 =>
-         next_state <= LD_PRE7;
-      WHEN TX_PRE7 =>
-         next_state <= LD_WD1_0;
-
-      WHEN TX_WD1_0 =>
-         next_state <= LD_WD1_1;
-      WHEN TX_WD1_1 =>
-         next_state <= LD_WD1_2;
-      WHEN TX_WD1_2 =>
-         next_state <= LD_WD1_3;
-      WHEN TX_WD1_3 =>
-         next_state <= LD_WD2_0;
-
-      WHEN TX_WD2_0 =>
-         next_state <= LD_WD2_1;
-      WHEN TX_WD2_1 =>
-         next_state <= LD_WD2_2;
-      WHEN TX_WD2_2 =>
-         next_state <= LD_WD2_3;
-      WHEN TX_WD2_3 =>
-         next_state <= LD_WD3_0;
-
-      WHEN TX_WD3_0 =>
-         next_state <= LD_WD3_1;
-      WHEN TX_WD3_1 =>
-         next_state <= LD_WD3_2;
-      WHEN TX_WD3_2 =>
-         next_state <= LD_WD3_3;
-      WHEN TX_WD3_3 =>
-         next_state <= LD_WD4_0;
-
-      WHEN TX_WD4_0 =>
-         next_state <= LD_WD4_1;
-      WHEN TX_WD4_1 =>
-         next_state <= LD_WD4_2;
-      WHEN TX_WD4_2 =>
-         next_state <= LD_WD4_3;
-      WHEN TX_WD4_3 =>
-         next_state <= IDLE;
-                   
-      WHEN OTHERS =>
-         next_state <= IDLE;
-      END CASE;
-
-   END PROCESS nextstate;
-
-   ----------------------------------------------------------------------------
-   output : PROCESS (
-      current_state, reply_wd3
-   )
-   ----------------------------------------------------------------------------
-   BEGIN
-
-      CASE current_state IS
+   begin
+      if (rst_i = '1') then
+         init_mem(memory);
+      elsif (cmd_rdy_i'event and cmd_rdy_i = '1') then
+         init_ok_rep(memory, cmd_code_i);
+      elsif (cksum_err_i'event and cksum_err_i = '1') then
+         init_er_rep(memory, cmd_code_i);
+      end if;
       
-      WHEN IDLE =>
-         tx_fw_o <= '0';
+   end process initialise_reply;
+
+   ----------------------------------------------------------------------------
+   clocked : process(
+      clk_i,
+      rst_i
+   )
+   ----------------------------------------------------------------------------
+   begin
          
+      if (rst_i = '1') then
+         current_state <= IDLE;
+      elsif (clk_i'EVENT AND clk_i = '1') then
+         current_state <= next_state;
+      end if;
 
-      WHEN LD_PRE0 =>
-         txd_o <= preamble1;
-         tx_fw_o <= '0';
-      WHEN LD_PRE1 =>
-         txd_o <= preamble1;
-         tx_fw_o <= '0'; 
-      WHEN LD_PRE2 =>
-         txd_o <= preamble1;
-         tx_fw_o <= '0';
-      WHEN LD_PRE3 =>
-         txd_o <= preamble1;
-         tx_fw_o <= '0';
-      WHEN LD_PRE4 =>
-         txd_o <= preamble2;
-         tx_fw_o <= '0';
-      WHEN LD_PRE5 =>
-         txd_o <= preamble2;
-         tx_fw_o <= '0'; 
-      WHEN LD_PRE6 =>
-         txd_o <= preamble2;
-         tx_fw_o <= '0';
-      WHEN LD_PRE7 =>
-         txd_o <= preamble2;
-         tx_fw_o <= '0';
+   end process clocked;
 
-      WHEN LD_WD1_0 =>
-         txd_o <= rp_w1_byte0;
-         tx_fw_o <= '0'; 
-      WHEN LD_WD1_1 =>
-         txd_o <= rp_w1_byte1;
-         tx_fw_o <= '0';
-      WHEN LD_WD1_2 =>
-         txd_o <= rp_w1_byte2;
-         tx_fw_o <= '0'; 
-      WHEN LD_WD1_3 =>
-         txd_o <= rp_w1_byte3;
-         tx_fw_o <= '0';
+   ----------------------------------------------------------------------------
+   nextstate : process (
+      current_state,
+      tx_reply,
+      tx_ff_i,
+      memory_index
+   )
+   ----------------------------------------------------------------------------
+   begin
+     
+      case current_state is
 
-      WHEN LD_WD2_0 =>
-         txd_o <= rp_w2_byte0;
-         tx_fw_o <= '0';
-      WHEN LD_WD2_1 =>
-         txd_o <= rp_w2_byte1;
-         tx_fw_o <= '0';
-      WHEN LD_WD2_2 =>
-         txd_o <= rp_w2_byte2;
-         tx_fw_o <= '0';
-      WHEN LD_WD2_3 =>
-         txd_o <= rp_w2_byte3;
-         tx_fw_o <= '0';
+      when IDLE =>
+         if (tx_reply = '1') then
+            next_state <= LD_BYTE;
+         else
+            next_state <= IDLE; 
+         end if;
 
-      WHEN LD_WD3_0 =>
-         txd_o <= reply_wd3(7 downto 0);
-         tx_fw_o <= '0';
-      WHEN LD_WD3_1 =>
-         txd_o <= reply_wd3(15 downto 8);
-         tx_fw_o <= '0';
-      WHEN LD_WD3_2 =>
-         txd_o <= reply_wd3(23 downto 16);
-         tx_fw_o <= '0';
-      WHEN LD_WD3_3 =>
-         txd_o <= reply_wd3(31 downto 24);
-         tx_fw_o <= '0';
-
-      WHEN LD_WD4_0 =>
-         txd_o <= rp_w4_byte0;
-         tx_fw_o <= '0';
-      WHEN LD_WD4_1 =>
-         txd_o <= rp_w4_byte1;
-         tx_fw_o <= '0';
-      WHEN LD_WD4_2 =>
-         txd_o <= rp_w4_byte2;
-         tx_fw_o <= '0';
-      WHEN LD_WD4_3 =>
-         txd_o <= rp_w4_byte3;
-         tx_fw_o <= '0';
-
-
-      WHEN TX_PRE0 =>
-         tx_fw_o <= '1';
-         txing_reply <= '1';
-      WHEN TX_PRE1 =>
-         tx_fw_o <= '1';
-      WHEN TX_PRE2 =>
-         tx_fw_o <= '1';
-      WHEN TX_PRE3 =>
-         tx_fw_o <= '1';
-      WHEN TX_PRE4 =>
-         tx_fw_o <= '1';
-      WHEN TX_PRE5 =>
-         tx_fw_o <= '1';
-      WHEN TX_PRE6 =>
-         tx_fw_o <= '1';
-      WHEN TX_PRE7 =>
-         tx_fw_o <= '1';
-
-      WHEN TX_WD1_0 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD1_1 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD1_2 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD1_3 =>
-         tx_fw_o <= '1';
-
-      WHEN TX_WD2_0 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD2_1 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD2_2 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD2_3 =>
-         tx_fw_o <= '1';
-
-      WHEN TX_WD3_0 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD3_1 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD3_2 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD3_3 =>
-         tx_fw_o <= '1';
-
-      WHEN TX_WD4_0 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD4_1 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD4_2 =>
-         tx_fw_o <= '1';
-      WHEN TX_WD4_3 =>
-         tx_fw_o <= '1';
-         txing_reply <= '0';
+      when LD_BYTE =>
+         if (tx_ff_i = '1') then 
+            next_state <= LD_BYTE;
+         else
+            next_state <= TX_BYTE;
+         end if;
          
-      WHEN OTHERS =>
+      when TX_BYTE =>
+         if (memory_index < rep_size) then
+            next_state <= LD_BYTE;
+         else 
+            next_state <= IDLE;
+         end if;
+          
+     
+      when others =>
+         next_state <= IDLE;
+      end case;
+
+   end process nextstate;
+
+   ----------------------------------------------------------------------------
+   output : process (
+      current_state, data_out
+   )
+   ----------------------------------------------------------------------------
+   begin
+
+      case current_state IS
+      
+      when IDLE =>
+         reset_index <= '1';
+         read_mem    <= '0';
+         tx_fw_o     <= '0';
+         
+      when LD_BYTE =>
+         reset_index <= '0';
+         read_mem    <= '1'; 
+         tx_fw_o     <= '0';
+    
+      when TX_BYTE =>
+         reset_index <= '0';
+         read_mem    <= '0'; 
+         txd_o       <= data_out;
+         tx_fw_o     <= '1';
+
+      when others =>
             NULL;
   
-      END CASE;
+      end case;
 
-   END PROCESS output;
+   end process output;
    
- 
-END rtl;
+ ------------------------------------------------------------------------------
+  read_memory: process(reset_index, read_mem)
+  ----------------------------------------------------------------------------
+  -- process to read data word from local memory
+  ----------------------------------------------------------------------------
+
+ begin
+     if (reset_index = '1') then
+        memory_index <= 0;
+     elsif (read_mem'EVENT AND read_mem = '1') then
+        data_out <= memory(memory_index); 
+        memory_index <= memory_index + 1;
+     end if; 
+
+  end process read_memory;  
+  
+end rtl;
