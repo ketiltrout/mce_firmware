@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.10  2004/12/11 00:32:01  erniel
+-- put a range on integers: hdr_word_count, data_word_count & crc_bit_count
+--
 -- Revision 1.9  2004/12/06 20:30:31  erniel
 -- fixed handling of READ commands by receive FSM
 --
@@ -79,12 +82,12 @@ use work.async_pack.all;
 use work.dispatch_pack.all;
 
 entity dispatch_cmd_receive is
-generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1);
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;		
      
      lvds_cmd_i : in std_logic;
+     card_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
      
      cmd_rdy_o : out std_logic;  -- indicates receive completed
      cmd_err_o : out std_logic;  -- indicates command failed CRC check
@@ -350,11 +353,11 @@ begin
    
    cmd_type  <= temp0(BB_COMMAND_TYPE'range);
       
-   cmd_valid <= '1' when (temp1(BB_CARD_ADDRESS'range) = CARD) or 
+   cmd_valid <= '1' when (temp1(BB_CARD_ADDRESS'range) = card_i) or 
                          (temp1(BB_CARD_ADDRESS'range) = ALL_CARDS) or 
                          (temp1(BB_CARD_ADDRESS'range) = ALL_FPGA_CARDS) or
-                         (temp1(BB_CARD_ADDRESS'range) = ALL_BIAS_CARDS and (CARD = BIAS_CARD_1 or CARD = BIAS_CARD_2 or CARD = BIAS_CARD_3)) or
-                         (temp1(BB_CARD_ADDRESS'range) = ALL_READOUT_CARDS and (CARD = READOUT_CARD_1 or CARD = READOUT_CARD_2 or CARD = READOUT_CARD_3 or CARD = READOUT_CARD_4))
+                         (temp1(BB_CARD_ADDRESS'range) = ALL_BIAS_CARDS and (card_i = BIAS_CARD_1 or card_i = BIAS_CARD_2 or card_i = BIAS_CARD_3)) or
+                         (temp1(BB_CARD_ADDRESS'range) = ALL_READOUT_CARDS and (card_i = READOUT_CARD_1 or card_i = READOUT_CARD_2 or card_i = READOUT_CARD_3 or card_i = READOUT_CARD_4))
                     else '0';
 
    
