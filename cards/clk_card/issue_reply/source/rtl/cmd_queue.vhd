@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.70 2004/12/08 22:16:23 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.71 2004/12/10 22:51:45 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.71  2004/12/10 22:51:45  bburger
+-- Bryce:  nothing, really..
+--
 -- Revision 1.70  2004/12/08 22:16:23  bburger
 -- Bryce:  replaced a retire_ptr recirc-mux that was causing compilation problems in Quartus
 --
@@ -255,13 +258,9 @@ signal data_count_mux       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_count_mux_sel   : std_logic_vector(1 downto 0);
 
 signal free_ptr_mux_sel     : std_logic_vector(1 downto 0);
-signal free_ptr_reg          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
+--signal free_ptr_reg          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
-signal retire_ptr_mux       : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal retire_ptr_mux_sel   : std_logic_vector(2 downto 0);
-
---signal flush_ptr_mux        : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
---signal flush_ptr_mux_sel    : std_logic_vector(1 downto 0);
 
 signal current_par_id      : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
@@ -287,7 +286,7 @@ signal crc_num_bits2        : integer;
 signal cmd_tx_dat_mux_sel   : std_logic_vector(2 downto 0);
 signal cmd_tx_dat_reg       : std_logic_vector(31 downto 0);
 
-signal send_ptr_reg           : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
+--signal send_ptr_reg           : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal send_ptr_mux_sel       : std_logic_vector(2 downto 0);
 
 signal uop_data_count_mux_sel : std_logic_vector(1 downto 0);
@@ -455,11 +454,24 @@ begin
    begin
       if(rst_i = '1') then
          present_insert_state <= IDLE;
+         free_ptr <= ADDR_ZERO;
+         
       elsif(clk_i'event and clk_i = '1') then
          present_insert_state <= next_insert_state;
+         
+         if(free_ptr_mux_sel = "00") then
+            free_ptr <= free_ptr;
+         elsif(free_ptr_mux_sel = "01") then
+            free_ptr <= free_ptr + 1;
+         elsif(free_ptr_mux_sel = "10") then
+            free_ptr <= ADDR_ZERO;
+         else
+            free_ptr <= free_ptr;
+         end if;
+         
       end if;
    end process;
-
+   
    insert_state_NS: process(present_insert_state, data_size_i, data_count, data_clk_i, insert_uop_rdy, cmd_type_i)--,mop_rdy_i
    begin
       next_insert_state <= present_insert_state;
@@ -531,27 +543,22 @@ begin
                      data_count + 1  when data_count_mux_sel = "01" else
                      (others => '0'); --when data_count_mux_sel = "11" else
      
-                       
-   free_ptr        <= free_ptr_reg       when free_ptr_mux_sel = "00" else
-                      free_ptr_reg + 1   when free_ptr_mux_sel = "01" else
-                      ADDR_ZERO;      --when free_ptr_mux_sel = "11";
-                      
    data_size_mux  <= data_size_reg when data_size_mux_sel = '0' else data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0);                         
 
    process(clk_i, rst_i)
    begin
       if rst_i = '1' then
          data_count     <= (others=>'0');
-         free_ptr_reg   <= (others=>'0');
+--         free_ptr_reg   <= (others=>'0');
          data_size_reg  <= (others => '0');
       elsif clk_i'event and clk_i = '1' then
          data_count     <= data_count_mux;
-         free_ptr_reg   <= free_ptr;
+--         free_ptr_reg   <= free_ptr;
          data_size_reg  <= data_size_mux;
       end if;
    end process;
    
-   insert_state_out: process(present_insert_state, data_clk_i, free_ptr, num_uops_inserted, num_uops, data_size_reg, cmd_type_i)
+   insert_state_out: process(present_insert_state, data_clk_i, num_uops_inserted, num_uops, data_size_reg, cmd_type_i)
    begin   
       --defaults
       data_sig_mux_sel             <= "000"; -- (others=>'0')
@@ -653,13 +660,14 @@ begin
 
             insert_uop_ack         <= '1';
             data_sig_mux_sel       <= "000";
-            
+
+-- I think that this is causing a bug            
             -- After adding a new u-op:
-            if(free_ptr = ADDR_FULL_SCALE) then
-               free_ptr_mux_sel    <= "11";
-            else
+--            if(free_ptr = ADDR_FULL_SCALE) then
+--               free_ptr_mux_sel    <= "11";
+--            else
                free_ptr_mux_sel    <= "01";
-            end if;
+--            end if;
             
          when others =>
             wren_sig               <= '0';
@@ -678,13 +686,16 @@ begin
    begin
       if(rst_i = '1') then
          present_retire_state <= FIRST_IDLE;
-         retire_ptr <= (others => '0');
+         retire_ptr <= ADDR_ZERO;
          uop_to_retire <= '0';
+         
       elsif(clk_i'event and clk_i = '1') then
          present_retire_state <= next_retire_state;
          
          -- This logic determines the next value of the retire_ptr
-         if(retire_ptr_mux_sel = "001") then
+         if(retire_ptr_mux_sel = "000") then
+            retire_ptr <= retire_ptr;
+         elsif(retire_ptr_mux_sel = "001") then
             retire_ptr <= ADDR_ZERO;
          elsif(retire_ptr_mux_sel = "010") then
             retire_ptr <= retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size;
@@ -1072,11 +1083,28 @@ begin
    begin
       if(rst_i = '1') then
          present_send_state <= LOAD;
+         send_ptr <= ADDR_ZERO;
       elsif(clk_i'event and clk_i = '1') then
          present_send_state <= next_send_state;
+         
          if(update_prev_state = '1') then
             previous_send_state <= present_send_state;
          end if;
+         
+         if(send_ptr_mux_sel = "000") then
+            send_ptr <= send_ptr;
+         elsif(send_ptr_mux_sel = "001") then
+            send_ptr <= send_ptr + 1;
+         elsif(send_ptr_mux_sel = "010") then
+            send_ptr <= send_ptr + CQ_NUM_CMD_HEADER_WORDS + send_data_size;
+         elsif(send_ptr_mux_sel = "011") then
+            send_ptr <= send_ptr + 1 + NUM_NON_BB_CMD_HEADER_WORDS;
+         elsif(send_ptr_mux_sel = "100") then
+            send_ptr <= ADDR_ZERO;
+         else
+            send_ptr <= send_ptr;
+         end if;
+         
       end if;
    end process send_state_FF;
 
@@ -1384,13 +1412,6 @@ begin
       uop_data_count_reg + 1 when "01",
       (others=>'0')          when others;
  
-   with send_ptr_mux_sel select send_ptr <=
-      send_ptr_reg                                            when "000",
-      send_ptr_reg + 1                                        when "001",
-      send_ptr_reg + CQ_NUM_CMD_HEADER_WORDS + send_data_size when "010",
-      send_ptr_reg + 1 + NUM_NON_BB_CMD_HEADER_WORDS          when "011",
-      ADDR_ZERO                                               when others;
-
    with crc_num_bits_mux_sel select crc_num_bits <=
       crc_num_bits_reg                                            when "00",
       ((BB_NUM_CMD_HEADER_WORDS + send_data_size_int)*QUEUE_WIDTH) when "01",
@@ -1409,13 +1430,13 @@ begin
       if rst_i = '1' then
          crc_num_bits_reg  <= 0;
          cmd_tx_dat_reg    <= (others=>'0');
-         send_ptr_reg      <= (others=>'0');
+--         send_ptr_reg      <= (others=>'0');
          uop_data_count_reg<= (others=>'0');
 --         uop_data_size_reg <= (others=>'0');
       elsif clk_i'event and clk_i = '1' then
          crc_num_bits_reg  <= crc_num_bits;
          cmd_tx_dat_reg    <= cmd_tx_dat; 
-         send_ptr_reg      <= send_ptr;
+--         send_ptr_reg      <= send_ptr;
          uop_data_count_reg<= uop_data_count;
 --         uop_data_size_reg <= uop_data_size;
       end if;
@@ -1440,5 +1461,3 @@ end behav;
 -- I need to insert a code either in the start sync, end sync or data size field.  
 -- At this point, I think that I'll use the data size field, because there are definate limits to the size that a packet will be.
 -- I can't add a new state in the send state machine that would alter the data field, because you can only read from the qa_sig data port.
-
--- The calculated CRC is always the same..
