@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.5 2004/05/20 18:00:51 jjacob Exp $
+-- $Id: issue_reply_pack.vhd,v 1.6 2004/05/25 21:25:32 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.6  2004/05/25 21:25:32  bburger
+-- added constant sync_num_bus_width
+--
 -- Revision 1.5  2004/05/20 18:00:51  jjacob
 -- changed data width from 16 to 32 bits
 --
@@ -53,10 +56,10 @@
 package issue_reply_pack is
 
    -- used for interfaces between blocks incapsulated by issue_reply
-   constant CARD_ADDR_BUS_WIDTH  : integer := 8;
-   constant PAR_ID_BUS_WIDTH     : integer := 24;
-   constant MOP_BUS_WIDTH        : integer := 3;
-   constant UOP_BUS_WIDTH        : integer := 8 - MOP_BUS_WIDTH;
+   constant CARD_ADDR_BUS_WIDTH  : integer := 16;
+   constant PAR_ID_BUS_WIDTH     : integer := 16;
+   constant MOP_BUS_WIDTH        : integer := 8;
+   constant UOP_BUS_WIDTH        : integer := 8;
    constant UOP_STATUS_BUS_WIDTH : integer := 8;
    constant DATA_SIZE_BUS_WIDTH  : integer := 8;
    constant DATA_BUS_WIDTH       : integer := 32;
