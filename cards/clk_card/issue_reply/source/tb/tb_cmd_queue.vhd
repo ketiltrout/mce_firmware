@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: tb_cmd_queue.vhd,v 1.1 2004/05/31 21:23:37 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,7 +28,10 @@
 -- Pack file for cmd_queue
 --
 -- Revision history:
--- $Log$
+-- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.1  2004/05/31 21:23:37  bburger
+-- in progress
+--
 --
 --
 ------------------------------------------------------------------------
@@ -38,6 +41,9 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.std_logic_unsigned.all;
 
+library sys_param;
+
+use sys_param.general_pack.all;
 library work;
 use work.cmd_queue_pack.all;
 use work.issue_reply_pack.all;
@@ -61,9 +67,9 @@ architecture BEH of TB_CMD_QUEUE is
    signal par_id_i      : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
    signal cmd_size_i    : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
    signal data_i        : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
+   signal data_clk_i    : std_logic; -- Clocks in 32-bit wide data
    signal mop_i         : std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
-   signal issue_sync_i  : std_logic; -- Bit will be toggled with each new m-op that belongs to a different sync period
-   signal mop_rdy_i     : std_logic; -- Tells cmd_queue when a m-op is ready
+   signal issue_sync_i  : std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);   signal mop_rdy_i     : std_logic; -- Tells cmd_queue when a m-op is ready
    signal mop_ack_o     : std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
 
    -- bb_tx interface
@@ -79,6 +85,7 @@ architecture BEH of TB_CMD_QUEUE is
    signal sync_i        : std_logic; -- The sync pulse determines when and when not to issue u-ops
    signal clk_i         : std_logic; -- Advances the state machines
    signal fast_clk_i    : std_logic;  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
+   signal rst_i         : std_logic;  -- Resets all FSMs
 
 
 ------------------------------------------------------------------------
@@ -104,6 +111,7 @@ begin
          par_id_i      => par_id_i,
          cmd_size_i    => cmd_size_i,
          data_i        => data_i,
+         data_clk_i    => data_clk_i,
          mop_i         => mop_i,
          issue_sync_i  => issue_sync_i,
          mop_rdy_i     => mop_rdy_i,
@@ -111,7 +119,7 @@ begin
 
          -- bb_tx interface
          clk_o         => clk_o,
-         rst_o         => rst_o,
+--         rst_o         => rst_o,
          dat_o         => dat_o,
          we_o          => we_o,
          stb_o         => stb_o,
@@ -121,7 +129,8 @@ begin
          -- Clock lines
          sync_i        => sync_i,
          clk_i         => clk_i,
-         fast_clk_i    => fast_clk_i
+         fast_clk_i    => fast_clk_i,
+         rst_i         => rst_i
       );
 
    -- Create a test clock
