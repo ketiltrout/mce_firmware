@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.2 2005/03/04 03:41:38 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.3 2005/03/14 20:16:14 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.3  2005/03/14 20:16:14  bburger
+-- bryce:  fixed the way that the subrack is reset
+--
 -- Revision 1.2  2005/03/04 03:41:38  bburger
 -- Bryce:  complete subrack
 --
@@ -174,7 +177,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000B0016";  -- card id=4, ret_dat command
 
    constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00020053";  -- card id=0, ret_dat_s command
-   signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000002";   
+   signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000003";   
 
    constant data_mode_cmd      : std_logic_vector(31 downto 0) := x"00" & ALL_READOUT_CARDS    & x"00" & DATA_MODE_ADDR;
    constant rcs_led_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_READOUT_CARDS    & x"00" & LED_ADDR;
@@ -819,570 +822,570 @@ begin
          fibre_tx_sc_nd   => fibre_tx_sc_nd  
       );
 
-   i_readout_card4: readout_card
-      generic map (
-         CARD => READOUT_CARD_4
-      )
-      port map (
-         rst_n          => rst_n,
-         inclk          => lvds_clk,
-         adc1_dat       => rc4_adc1_dat,
-         adc2_dat       => rc4_adc2_dat,
-         adc3_dat       => rc4_adc3_dat,
-         adc4_dat       => rc4_adc4_dat,
-         adc5_dat       => rc4_adc5_dat,
-         adc6_dat       => rc4_adc6_dat,
-         adc7_dat       => rc4_adc7_dat,
-         adc8_dat       => rc4_adc8_dat,
-         adc1_ovr       => rc4_adc1_ovr,
-         adc2_ovr       => rc4_adc2_ovr,
-         adc3_ovr       => rc4_adc3_ovr,
-         adc4_ovr       => rc4_adc4_ovr,
-         adc5_ovr       => rc4_adc5_ovr,
-         adc6_ovr       => rc4_adc6_ovr,
-         adc7_ovr       => rc4_adc7_ovr,
-         adc8_ovr       => rc4_adc8_ovr,
-         adc1_rdy       => rc4_adc1_rdy,
-         adc2_rdy       => rc4_adc2_rdy,
-         adc3_rdy       => rc4_adc3_rdy,
-         adc4_rdy       => rc4_adc4_rdy,
-         adc5_rdy       => rc4_adc5_rdy,
-         adc6_rdy       => rc4_adc6_rdy,
-         adc7_rdy       => rc4_adc7_rdy,
-         adc8_rdy       => rc4_adc8_rdy,
-         adc1_clk       => rc4_adc1_clk,
-         adc2_clk       => rc4_adc2_clk,
-         adc3_clk       => rc4_adc3_clk,
-         adc4_clk       => rc4_adc4_clk,
-         adc5_clk       => rc4_adc5_clk,
-         adc6_clk       => rc4_adc6_clk,
-         adc7_clk       => rc4_adc7_clk,
-         adc8_clk       => rc4_adc8_clk,
-         dac_FB1_dat    => rc4_dac_FB1_dat,
-         dac_FB2_dat    => rc4_dac_FB2_dat,
-         dac_FB3_dat    => rc4_dac_FB3_dat,
-         dac_FB4_dat    => rc4_dac_FB4_dat,
-         dac_FB5_dat    => rc4_dac_FB5_dat,
-         dac_FB6_dat    => rc4_dac_FB6_dat,
-         dac_FB7_dat    => rc4_dac_FB7_dat,
-         dac_FB8_dat    => rc4_dac_FB8_dat,
-         dac_FB_clk     => rc4_dac_FB_clk,
-         dac_clk        => rc4_dac_clk,
-         dac_dat        => rc4_dac_dat,
-         bias_dac_ncs   => rc4_bias_dac_ncs,
-         offset_dac_ncs => rc4_offset_dac_ncs,
-         lvds_cmd       => lvds_cmd,
-         lvds_sync      => lvds_sync,
-         lvds_spare     => lvds_spare,
-         lvds_txa       => rc4_lvds_txa,
-         lvds_txb       => rc4_lvds_txb,
-
-         ttl_dir1       => rc4_ttl_dir1,
-         ttl_in1        => bclr_n, 
-         ttl_out1       => open,
-                           
-         ttl_dir2       => rc4_ttl_dir2,
-         ttl_in2        => rc4_ttl_in2, 
-         ttl_out2       => open,
-                           
-         ttl_dir3       => rc4_ttl_dir3,
-         ttl_in3        => rc4_ttl_in3, 
-         ttl_out3       => open,
-                      
-         red_led        => rc4_red_led,
-         ylw_led        => rc4_ylw_led,
-         grn_led        => rc4_grn_led,
-         dip_sw3        => rc4_dip_sw3,
-         dip_sw4        => rc4_dip_sw4,
-         wdog           => rc4_wdog,
-         slot_id        => rc4_slot_id,
-         card_id        => rc4_card_id,
-         mictor         => rc4_mictor
-      );
-
-   i_readout_card3: readout_card
-      generic map (
-         CARD => READOUT_CARD_3
-      )
-      port map (
-         rst_n          => rst_n,
-         inclk          => lvds_clk,
-         adc1_dat       => rc3_adc1_dat,
-         adc2_dat       => rc3_adc2_dat,
-         adc3_dat       => rc3_adc3_dat,
-         adc4_dat       => rc3_adc4_dat,
-         adc5_dat       => rc3_adc5_dat,
-         adc6_dat       => rc3_adc6_dat,
-         adc7_dat       => rc3_adc7_dat,
-         adc8_dat       => rc3_adc8_dat,
-         adc1_ovr       => rc3_adc1_ovr,
-         adc2_ovr       => rc3_adc2_ovr,
-         adc3_ovr       => rc3_adc3_ovr,
-         adc4_ovr       => rc3_adc4_ovr,
-         adc5_ovr       => rc3_adc5_ovr,
-         adc6_ovr       => rc3_adc6_ovr,
-         adc7_ovr       => rc3_adc7_ovr,
-         adc8_ovr       => rc3_adc8_ovr,
-         adc1_rdy       => rc3_adc1_rdy,
-         adc2_rdy       => rc3_adc2_rdy,
-         adc3_rdy       => rc3_adc3_rdy,
-         adc4_rdy       => rc3_adc4_rdy,
-         adc5_rdy       => rc3_adc5_rdy,
-         adc6_rdy       => rc3_adc6_rdy,
-         adc7_rdy       => rc3_adc7_rdy,
-         adc8_rdy       => rc3_adc8_rdy,
-         adc1_clk       => rc3_adc1_clk,
-         adc2_clk       => rc3_adc2_clk,
-         adc3_clk       => rc3_adc3_clk,
-         adc4_clk       => rc3_adc4_clk,
-         adc5_clk       => rc3_adc5_clk,
-         adc6_clk       => rc3_adc6_clk,
-         adc7_clk       => rc3_adc7_clk,
-         adc8_clk       => rc3_adc8_clk,
-         dac_FB1_dat    => rc3_dac_FB1_dat,
-         dac_FB2_dat    => rc3_dac_FB2_dat,
-         dac_FB3_dat    => rc3_dac_FB3_dat,
-         dac_FB4_dat    => rc3_dac_FB4_dat,
-         dac_FB5_dat    => rc3_dac_FB5_dat,
-         dac_FB6_dat    => rc3_dac_FB6_dat,
-         dac_FB7_dat    => rc3_dac_FB7_dat,
-         dac_FB8_dat    => rc3_dac_FB8_dat,
-         dac_FB_clk     => rc3_dac_FB_clk,
-         dac_clk        => rc3_dac_clk,
-         dac_dat        => rc3_dac_dat,
-         bias_dac_ncs   => rc3_bias_dac_ncs,
-         offset_dac_ncs => rc3_offset_dac_ncs,
-         lvds_cmd       => lvds_cmd,
-         lvds_sync      => lvds_sync,
-         lvds_spare     => lvds_spare,
-         lvds_txa       => rc3_lvds_txa,
-         lvds_txb       => rc3_lvds_txb,
-
-         ttl_dir1       => rc3_ttl_dir1,
-         ttl_in1        => bclr_n, 
-         ttl_out1       => open,
-                           
-         ttl_dir2       => rc3_ttl_dir2,
-         ttl_in2        => rc3_ttl_in2, 
-         ttl_out2       => open,
-                           
-         ttl_dir3       => rc3_ttl_dir3,
-         ttl_in3        => rc3_ttl_in3, 
-         ttl_out3       => open,
-                      
-         red_led        => rc3_red_led,
-         ylw_led        => rc3_ylw_led,
-         grn_led        => rc3_grn_led,
-         dip_sw3        => rc3_dip_sw3,
-         dip_sw4        => rc3_dip_sw4,
-         wdog           => rc3_wdog,
-         slot_id        => rc3_slot_id,
-         card_id        => rc3_card_id,
-         mictor         => rc3_mictor
-      );
-
-   i_readout_card2: readout_card
-      generic map (
-         CARD => READOUT_CARD_2
-      )
-      port map (
-         rst_n          => rst_n,
-         inclk          => lvds_clk,
-         adc1_dat       => rc2_adc1_dat,
-         adc2_dat       => rc2_adc2_dat,
-         adc3_dat       => rc2_adc3_dat,
-         adc4_dat       => rc2_adc4_dat,
-         adc5_dat       => rc2_adc5_dat,
-         adc6_dat       => rc2_adc6_dat,
-         adc7_dat       => rc2_adc7_dat,
-         adc8_dat       => rc2_adc8_dat,
-         adc1_ovr       => rc2_adc1_ovr,
-         adc2_ovr       => rc2_adc2_ovr,
-         adc3_ovr       => rc2_adc3_ovr,
-         adc4_ovr       => rc2_adc4_ovr,
-         adc5_ovr       => rc2_adc5_ovr,
-         adc6_ovr       => rc2_adc6_ovr,
-         adc7_ovr       => rc2_adc7_ovr,
-         adc8_ovr       => rc2_adc8_ovr,
-         adc1_rdy       => rc2_adc1_rdy,
-         adc2_rdy       => rc2_adc2_rdy,
-         adc3_rdy       => rc2_adc3_rdy,
-         adc4_rdy       => rc2_adc4_rdy,
-         adc5_rdy       => rc2_adc5_rdy,
-         adc6_rdy       => rc2_adc6_rdy,
-         adc7_rdy       => rc2_adc7_rdy,
-         adc8_rdy       => rc2_adc8_rdy,
-         adc1_clk       => rc2_adc1_clk,
-         adc2_clk       => rc2_adc2_clk,
-         adc3_clk       => rc2_adc3_clk,
-         adc4_clk       => rc2_adc4_clk,
-         adc5_clk       => rc2_adc5_clk,
-         adc6_clk       => rc2_adc6_clk,
-         adc7_clk       => rc2_adc7_clk,
-         adc8_clk       => rc2_adc8_clk,
-         dac_FB1_dat    => rc2_dac_FB1_dat,
-         dac_FB2_dat    => rc2_dac_FB2_dat,
-         dac_FB3_dat    => rc2_dac_FB3_dat,
-         dac_FB4_dat    => rc2_dac_FB4_dat,
-         dac_FB5_dat    => rc2_dac_FB5_dat,
-         dac_FB6_dat    => rc2_dac_FB6_dat,
-         dac_FB7_dat    => rc2_dac_FB7_dat,
-         dac_FB8_dat    => rc2_dac_FB8_dat,
-         dac_FB_clk     => rc2_dac_FB_clk,
-         dac_clk        => rc2_dac_clk,
-         dac_dat        => rc2_dac_dat,
-         bias_dac_ncs   => rc2_bias_dac_ncs,
-         offset_dac_ncs => rc2_offset_dac_ncs,
-         lvds_cmd       => lvds_cmd,
-         lvds_sync      => lvds_sync,
-         lvds_spare     => lvds_spare,
-         lvds_txa       => rc2_lvds_txa,
-         lvds_txb       => rc2_lvds_txb,
-
-         ttl_dir1       => rc2_ttl_dir1,
-         ttl_in1        => bclr_n, 
-         ttl_out1       => open,
-                           
-         ttl_dir2       => rc2_ttl_dir2,
-         ttl_in2        => rc2_ttl_in2, 
-         ttl_out2       => open,
-                           
-         ttl_dir3       => rc2_ttl_dir3,
-         ttl_in3        => rc2_ttl_in3, 
-         ttl_out3       => open,
-                      
-         red_led        => rc2_red_led,
-         ylw_led        => rc2_ylw_led,
-         grn_led        => rc2_grn_led,
-         dip_sw3        => rc2_dip_sw3,
-         dip_sw4        => rc2_dip_sw4,
-         wdog           => rc2_wdog,
-         slot_id        => rc2_slot_id,
-         card_id        => rc2_card_id,
-         mictor         => rc2_mictor
-      );
-
-   i_readout_card1: readout_card
-      generic map (
-         CARD => READOUT_CARD_1
-      )
-      port map (
-         rst_n          => rst_n,
-         inclk          => lvds_clk,
-         adc1_dat       => rc1_adc1_dat,
-         adc2_dat       => rc1_adc2_dat,
-         adc3_dat       => rc1_adc3_dat,
-         adc4_dat       => rc1_adc4_dat,
-         adc5_dat       => rc1_adc5_dat,
-         adc6_dat       => rc1_adc6_dat,
-         adc7_dat       => rc1_adc7_dat,
-         adc8_dat       => rc1_adc8_dat,
-         adc1_ovr       => rc1_adc1_ovr,
-         adc2_ovr       => rc1_adc2_ovr,
-         adc3_ovr       => rc1_adc3_ovr,
-         adc4_ovr       => rc1_adc4_ovr,
-         adc5_ovr       => rc1_adc5_ovr,
-         adc6_ovr       => rc1_adc6_ovr,
-         adc7_ovr       => rc1_adc7_ovr,
-         adc8_ovr       => rc1_adc8_ovr,
-         adc1_rdy       => rc1_adc1_rdy,
-         adc2_rdy       => rc1_adc2_rdy,
-         adc3_rdy       => rc1_adc3_rdy,
-         adc4_rdy       => rc1_adc4_rdy,
-         adc5_rdy       => rc1_adc5_rdy,
-         adc6_rdy       => rc1_adc6_rdy,
-         adc7_rdy       => rc1_adc7_rdy,
-         adc8_rdy       => rc1_adc8_rdy,
-         adc1_clk       => rc1_adc1_clk,
-         adc2_clk       => rc1_adc2_clk,
-         adc3_clk       => rc1_adc3_clk,
-         adc4_clk       => rc1_adc4_clk,
-         adc5_clk       => rc1_adc5_clk,
-         adc6_clk       => rc1_adc6_clk,
-         adc7_clk       => rc1_adc7_clk,
-         adc8_clk       => rc1_adc8_clk,
-         dac_FB1_dat    => rc1_dac_FB1_dat,
-         dac_FB2_dat    => rc1_dac_FB2_dat,
-         dac_FB3_dat    => rc1_dac_FB3_dat,
-         dac_FB4_dat    => rc1_dac_FB4_dat,
-         dac_FB5_dat    => rc1_dac_FB5_dat,
-         dac_FB6_dat    => rc1_dac_FB6_dat,
-         dac_FB7_dat    => rc1_dac_FB7_dat,
-         dac_FB8_dat    => rc1_dac_FB8_dat,
-         dac_FB_clk     => rc1_dac_FB_clk,
-         dac_clk        => rc1_dac_clk,
-         dac_dat        => rc1_dac_dat,
-         bias_dac_ncs   => rc1_bias_dac_ncs,
-         offset_dac_ncs => rc1_offset_dac_ncs,
-         lvds_cmd       => lvds_cmd,
-         lvds_sync      => lvds_sync,
-         lvds_spare     => lvds_spare,
-         lvds_txa       => rc1_lvds_txa,
-         lvds_txb       => rc1_lvds_txb,
-
-         ttl_dir1       => rc1_ttl_dir1,
-         ttl_in1        => bclr_n, 
-         ttl_out1       => open,
-                           
-         ttl_dir2       => rc1_ttl_dir2,
-         ttl_in2        => rc1_ttl_in2, 
-         ttl_out2       => open,
-                           
-         ttl_dir3       => rc1_ttl_dir3,
-         ttl_in3        => rc1_ttl_in3, 
-         ttl_out3       => open,
-                      
-         red_led        => rc1_red_led,
-         ylw_led        => rc1_ylw_led,
-         grn_led        => rc1_grn_led,
-         dip_sw3        => rc1_dip_sw3,
-         dip_sw4        => rc1_dip_sw4,
-         wdog           => rc1_wdog,
-         slot_id        => rc1_slot_id,
-         card_id        => rc1_card_id,
-         mictor         => rc1_mictor
-      );
-
-   i_bias_card3: bias_card
-      port map
-      (
-         -- PLL input:
-         inclk         => lvds_clk,
-         rst_n         => rst_n,
-         
-         -- LVDS interface:
-         lvds_cmd      => lvds_cmd,  
-         lvds_sync     => lvds_sync, 
-         lvds_spare    => lvds_spare,
-         lvds_txa      => lvds_reply_bc3_a, 
-         lvds_txb      => lvds_reply_bc3_b, 
-         
-         -- TTL interface:
-         ttl_nrx1      => bclr_n,  
-         ttl_tx1       => open,   
-         ttl_txena1    => bc3_ttl_txena1,
-
-         ttl_nrx2      => bc3_ttl_nrx2,  
-         ttl_tx2       => open,   
-         ttl_txena2    => bc3_ttl_txena2,
-
-         ttl_nrx3      => bc3_ttl_nrx3,  
-         ttl_tx3       => open,   
-         ttl_txena3    => bc3_ttl_txena3,
-         
-         -- eeprom ice:nterface:
-         eeprom_si     => bc3_eeprom_si, 
-         eeprom_so     => bc3_eeprom_so, 
-         eeprom_sck    => bc3_eeprom_sck,
-         eeprom_cs     => bc3_eeprom_cs, 
-         
-         -- dac interface:
-         dac_ncs       => bc3_dac_ncs,      
-         dac_sclk      => bc3_dac_sclk,     
-         dac_data      => bc3_dac_data,         
-         lvds_dac_ncs  => bc3_lvds_dac_ncs, 
-         lvds_dac_sclk => bc3_lvds_dac_sclk,
-         lvds_dac_data => bc3_lvds_dac_data,
-         dac_nclr      => bc3_dac_nclr,     
-         
-         -- miscellaneous ports:
-         red_led       => bc3_red_led, 
-         ylw_led       => bc3_ylw_led, 
-         grn_led       => bc3_grn_led, 
-         dip_sw3       => bc3_dip_sw3, 
-         dip_sw4       => bc3_dip_sw4, 
-         wdog          => bc3_wdog,    
-         slot_id       => bc3_slot_id, 
-         
-         -- debug ports:
-         test          => bc3_test,       
-         mictor        => bc3_mictor,     
-         mictorclk     => bc3_mictorclk,  
-         rs232_rx      => bc3_rs232_rx,
-         rs232_tx      => bc3_rs232_tx
-      );   
-
-   i_bias_card2: bias_card
-      port map
-      (
-         -- PLL input:
-         inclk         => lvds_clk,
-         rst_n         => rst_n,
-         
-         -- LVDS interface:
-         lvds_cmd      => lvds_cmd,  
-         lvds_sync     => lvds_sync, 
-         lvds_spare    => lvds_spare,
-         lvds_txa      => lvds_reply_bc2_a, 
-         lvds_txb      => lvds_reply_bc2_b, 
-         
-         -- TTL interface:
-         ttl_nrx1      => bclr_n,  
-         ttl_tx1       => open,   
-         ttl_txena1    => bc2_ttl_txena1,
-
-         ttl_nrx2      => bc2_ttl_nrx2,  
-         ttl_tx2       => open,   
-         ttl_txena2    => bc2_ttl_txena2,
-
-         ttl_nrx3      => bc2_ttl_nrx3,  
-         ttl_tx3       => open,   
-         ttl_txena3    => bc2_ttl_txena3,
-         
-         -- eeprom ice:nterface:
-         eeprom_si     => bc2_eeprom_si, 
-         eeprom_so     => bc2_eeprom_so, 
-         eeprom_sck    => bc2_eeprom_sck,
-         eeprom_cs     => bc2_eeprom_cs, 
-         
-         -- dac interface:
-         dac_ncs       => bc2_dac_ncs,      
-         dac_sclk      => bc2_dac_sclk,     
-         dac_data      => bc2_dac_data,         
-         lvds_dac_ncs  => bc2_lvds_dac_ncs, 
-         lvds_dac_sclk => bc2_lvds_dac_sclk,
-         lvds_dac_data => bc2_lvds_dac_data,
-         dac_nclr      => bc2_dac_nclr,     
-         
-         -- miscellaneous ports:
-         red_led       => bc2_red_led, 
-         ylw_led       => bc2_ylw_led, 
-         grn_led       => bc2_grn_led, 
-         dip_sw3       => bc2_dip_sw3, 
-         dip_sw4       => bc2_dip_sw4, 
-         wdog          => bc2_wdog,    
-         slot_id       => bc2_slot_id, 
-         
-         -- debug ports:
-         test          => bc2_test,       
-         mictor        => bc2_mictor,     
-         mictorclk     => bc2_mictorclk,  
-         rs232_rx      => bc2_rs232_rx,
-         rs232_tx      => bc2_rs232_tx
-      );     
-
-   i_bias_card1: bias_card
-      port map
-      (
-         -- PLL input:
-         inclk         => lvds_clk,
-         rst_n         => rst_n,
-         
-         -- LVDS interface:
-         lvds_cmd      => lvds_cmd,  
-         lvds_sync     => lvds_sync, 
-         lvds_spare    => lvds_spare,
-         lvds_txa      => lvds_reply_bc1_a, 
-         lvds_txb      => lvds_reply_bc1_b, 
-         
-         -- TTL interface:
-         ttl_nrx1      => bclr_n,  
-         ttl_tx1       => open,   
-         ttl_txena1    => bc1_ttl_txena1,
-
-         ttl_nrx2      => bc1_ttl_nrx2,  
-         ttl_tx2       => open,   
-         ttl_txena2    => bc1_ttl_txena2,
-
-         ttl_nrx3      => bc1_ttl_nrx3,  
-         ttl_tx3       => open,   
-         ttl_txena3    => bc1_ttl_txena3,
-         
-         -- eeprom ice:nterface:
-         eeprom_si     => bc1_eeprom_si, 
-         eeprom_so     => bc1_eeprom_so, 
-         eeprom_sck    => bc1_eeprom_sck,
-         eeprom_cs     => bc1_eeprom_cs, 
-         
-         -- dac interface:
-         dac_ncs       => bc1_dac_ncs,      
-         dac_sclk      => bc1_dac_sclk,     
-         dac_data      => bc1_dac_data,         
-         lvds_dac_ncs  => bc1_lvds_dac_ncs, 
-         lvds_dac_sclk => bc1_lvds_dac_sclk,
-         lvds_dac_data => bc1_lvds_dac_data,
-         dac_nclr      => bc1_dac_nclr,     
-         
-         -- miscellaneous ports:
-         red_led       => bc1_red_led, 
-         ylw_led       => bc1_ylw_led, 
-         grn_led       => bc1_grn_led, 
-         dip_sw3       => bc1_dip_sw3, 
-         dip_sw4       => bc1_dip_sw4, 
-         wdog          => bc1_wdog,    
-         slot_id       => bc1_slot_id, 
-         
-         -- debug ports:
-         test          => bc1_test,       
-         mictor        => bc1_mictor,     
-         mictorclk     => bc1_mictorclk,  
-         rs232_rx      => bc1_rs232_rx,
-         rs232_tx      => bc1_rs232_tx
-      );     
-
-   i_addr_card : addr_card
-      port map
-      (
-         -- PLL input:
-         inclk            => lvds_clk,
-         rst_n            => rst_n,
-         
-         -- LVDS interface:
-         lvds_cmd         => lvds_cmd,  
-         lvds_sync        => lvds_sync, 
-         lvds_spare       => lvds_spare,
-         lvds_txa         => lvds_reply_ac_a, 
-         lvds_txb         => lvds_reply_ac_b, 
-      
-         -- TTL interface:
-         ttl_nrx1         => bclr_n,
-         ttl_tx1          => open,
-         ttl_txena1       => ac_ttl_txena1,
-         
-         ttl_nrx2         => ac_ttl_nrx2,
-         ttl_tx2          => open,
-         ttl_txena2       => ac_ttl_txena2,
-         
-         ttl_nrx3         => ac_ttl_nrx3,
-         ttl_tx3          => open,
-         ttl_txena3       => ac_ttl_txena3,
-         
-         -- eeprom interface:
-         eeprom_si        => ac_eeprom_si, 
-         eeprom_so        => ac_eeprom_so, 
-         eeprom_sck       => ac_eeprom_sck,
-         eeprom_cs        => ac_eeprom_cs, 
-         
-         -- dac interface:
-         dac_data0        => ac_dac_data0,  
-         dac_data1        => ac_dac_data1,  
-         dac_data2        => ac_dac_data2,  
-         dac_data3        => ac_dac_data3,  
-         dac_data4        => ac_dac_data4,  
-         dac_data5        => ac_dac_data5,  
-         dac_data6        => ac_dac_data6,  
-         dac_data7        => ac_dac_data7,  
-         dac_data8        => ac_dac_data8,  
-         dac_data9        => ac_dac_data9,  
-         dac_data10       => ac_dac_data10, 
-         dac_clk          => ac_dac_clk,    
-         
-         -- miscellaneous ports:
-         red_led          => ac_red_led, 
-         ylw_led          => ac_ylw_led, 
-         grn_led          => ac_grn_led, 
-         dip_sw3          => ac_dip_sw3, 
-         dip_sw4          => ac_dip_sw4, 
-         wdog             => ac_wdog,    
-         slot_id          => ac_slot_id, 
-         
-         -- debug ports:
-         test             => ac_test,       
-         mictor           => ac_mictor,     
-         mictorclk        => ac_mictorclk,  
-         rs232_rx         => ac_rs232_rx,
-         rs232_tx         => ac_rs232_tx
-      );
+--   i_readout_card4: readout_card
+--      generic map (
+--         CARD => READOUT_CARD_4
+--      )
+--      port map (
+--         rst_n          => rst_n,
+--         inclk          => lvds_clk,
+--         adc1_dat       => rc4_adc1_dat,
+--         adc2_dat       => rc4_adc2_dat,
+--         adc3_dat       => rc4_adc3_dat,
+--         adc4_dat       => rc4_adc4_dat,
+--         adc5_dat       => rc4_adc5_dat,
+--         adc6_dat       => rc4_adc6_dat,
+--         adc7_dat       => rc4_adc7_dat,
+--         adc8_dat       => rc4_adc8_dat,
+--         adc1_ovr       => rc4_adc1_ovr,
+--         adc2_ovr       => rc4_adc2_ovr,
+--         adc3_ovr       => rc4_adc3_ovr,
+--         adc4_ovr       => rc4_adc4_ovr,
+--         adc5_ovr       => rc4_adc5_ovr,
+--         adc6_ovr       => rc4_adc6_ovr,
+--         adc7_ovr       => rc4_adc7_ovr,
+--         adc8_ovr       => rc4_adc8_ovr,
+--         adc1_rdy       => rc4_adc1_rdy,
+--         adc2_rdy       => rc4_adc2_rdy,
+--         adc3_rdy       => rc4_adc3_rdy,
+--         adc4_rdy       => rc4_adc4_rdy,
+--         adc5_rdy       => rc4_adc5_rdy,
+--         adc6_rdy       => rc4_adc6_rdy,
+--         adc7_rdy       => rc4_adc7_rdy,
+--         adc8_rdy       => rc4_adc8_rdy,
+--         adc1_clk       => rc4_adc1_clk,
+--         adc2_clk       => rc4_adc2_clk,
+--         adc3_clk       => rc4_adc3_clk,
+--         adc4_clk       => rc4_adc4_clk,
+--         adc5_clk       => rc4_adc5_clk,
+--         adc6_clk       => rc4_adc6_clk,
+--         adc7_clk       => rc4_adc7_clk,
+--         adc8_clk       => rc4_adc8_clk,
+--         dac_FB1_dat    => rc4_dac_FB1_dat,
+--         dac_FB2_dat    => rc4_dac_FB2_dat,
+--         dac_FB3_dat    => rc4_dac_FB3_dat,
+--         dac_FB4_dat    => rc4_dac_FB4_dat,
+--         dac_FB5_dat    => rc4_dac_FB5_dat,
+--         dac_FB6_dat    => rc4_dac_FB6_dat,
+--         dac_FB7_dat    => rc4_dac_FB7_dat,
+--         dac_FB8_dat    => rc4_dac_FB8_dat,
+--         dac_FB_clk     => rc4_dac_FB_clk,
+--         dac_clk        => rc4_dac_clk,
+--         dac_dat        => rc4_dac_dat,
+--         bias_dac_ncs   => rc4_bias_dac_ncs,
+--         offset_dac_ncs => rc4_offset_dac_ncs,
+--         lvds_cmd       => lvds_cmd,
+--         lvds_sync      => lvds_sync,
+--         lvds_spare     => lvds_spare,
+--         lvds_txa       => rc4_lvds_txa,
+--         lvds_txb       => rc4_lvds_txb,
+--
+--         ttl_dir1       => rc4_ttl_dir1,
+--         ttl_in1        => bclr_n, 
+--         ttl_out1       => open,
+--                           
+--         ttl_dir2       => rc4_ttl_dir2,
+--         ttl_in2        => rc4_ttl_in2, 
+--         ttl_out2       => open,
+--                           
+--         ttl_dir3       => rc4_ttl_dir3,
+--         ttl_in3        => rc4_ttl_in3, 
+--         ttl_out3       => open,
+--                      
+--         red_led        => rc4_red_led,
+--         ylw_led        => rc4_ylw_led,
+--         grn_led        => rc4_grn_led,
+--         dip_sw3        => rc4_dip_sw3,
+--         dip_sw4        => rc4_dip_sw4,
+--         wdog           => rc4_wdog,
+--         slot_id        => rc4_slot_id,
+--         card_id        => rc4_card_id,
+--         mictor         => rc4_mictor
+--      );
+--
+--   i_readout_card3: readout_card
+--      generic map (
+--         CARD => READOUT_CARD_3
+--      )
+--      port map (
+--         rst_n          => rst_n,
+--         inclk          => lvds_clk,
+--         adc1_dat       => rc3_adc1_dat,
+--         adc2_dat       => rc3_adc2_dat,
+--         adc3_dat       => rc3_adc3_dat,
+--         adc4_dat       => rc3_adc4_dat,
+--         adc5_dat       => rc3_adc5_dat,
+--         adc6_dat       => rc3_adc6_dat,
+--         adc7_dat       => rc3_adc7_dat,
+--         adc8_dat       => rc3_adc8_dat,
+--         adc1_ovr       => rc3_adc1_ovr,
+--         adc2_ovr       => rc3_adc2_ovr,
+--         adc3_ovr       => rc3_adc3_ovr,
+--         adc4_ovr       => rc3_adc4_ovr,
+--         adc5_ovr       => rc3_adc5_ovr,
+--         adc6_ovr       => rc3_adc6_ovr,
+--         adc7_ovr       => rc3_adc7_ovr,
+--         adc8_ovr       => rc3_adc8_ovr,
+--         adc1_rdy       => rc3_adc1_rdy,
+--         adc2_rdy       => rc3_adc2_rdy,
+--         adc3_rdy       => rc3_adc3_rdy,
+--         adc4_rdy       => rc3_adc4_rdy,
+--         adc5_rdy       => rc3_adc5_rdy,
+--         adc6_rdy       => rc3_adc6_rdy,
+--         adc7_rdy       => rc3_adc7_rdy,
+--         adc8_rdy       => rc3_adc8_rdy,
+--         adc1_clk       => rc3_adc1_clk,
+--         adc2_clk       => rc3_adc2_clk,
+--         adc3_clk       => rc3_adc3_clk,
+--         adc4_clk       => rc3_adc4_clk,
+--         adc5_clk       => rc3_adc5_clk,
+--         adc6_clk       => rc3_adc6_clk,
+--         adc7_clk       => rc3_adc7_clk,
+--         adc8_clk       => rc3_adc8_clk,
+--         dac_FB1_dat    => rc3_dac_FB1_dat,
+--         dac_FB2_dat    => rc3_dac_FB2_dat,
+--         dac_FB3_dat    => rc3_dac_FB3_dat,
+--         dac_FB4_dat    => rc3_dac_FB4_dat,
+--         dac_FB5_dat    => rc3_dac_FB5_dat,
+--         dac_FB6_dat    => rc3_dac_FB6_dat,
+--         dac_FB7_dat    => rc3_dac_FB7_dat,
+--         dac_FB8_dat    => rc3_dac_FB8_dat,
+--         dac_FB_clk     => rc3_dac_FB_clk,
+--         dac_clk        => rc3_dac_clk,
+--         dac_dat        => rc3_dac_dat,
+--         bias_dac_ncs   => rc3_bias_dac_ncs,
+--         offset_dac_ncs => rc3_offset_dac_ncs,
+--         lvds_cmd       => lvds_cmd,
+--         lvds_sync      => lvds_sync,
+--         lvds_spare     => lvds_spare,
+--         lvds_txa       => rc3_lvds_txa,
+--         lvds_txb       => rc3_lvds_txb,
+--
+--         ttl_dir1       => rc3_ttl_dir1,
+--         ttl_in1        => bclr_n, 
+--         ttl_out1       => open,
+--                           
+--         ttl_dir2       => rc3_ttl_dir2,
+--         ttl_in2        => rc3_ttl_in2, 
+--         ttl_out2       => open,
+--                           
+--         ttl_dir3       => rc3_ttl_dir3,
+--         ttl_in3        => rc3_ttl_in3, 
+--         ttl_out3       => open,
+--                      
+--         red_led        => rc3_red_led,
+--         ylw_led        => rc3_ylw_led,
+--         grn_led        => rc3_grn_led,
+--         dip_sw3        => rc3_dip_sw3,
+--         dip_sw4        => rc3_dip_sw4,
+--         wdog           => rc3_wdog,
+--         slot_id        => rc3_slot_id,
+--         card_id        => rc3_card_id,
+--         mictor         => rc3_mictor
+--      );
+--
+--   i_readout_card2: readout_card
+--      generic map (
+--         CARD => READOUT_CARD_2
+--      )
+--      port map (
+--         rst_n          => rst_n,
+--         inclk          => lvds_clk,
+--         adc1_dat       => rc2_adc1_dat,
+--         adc2_dat       => rc2_adc2_dat,
+--         adc3_dat       => rc2_adc3_dat,
+--         adc4_dat       => rc2_adc4_dat,
+--         adc5_dat       => rc2_adc5_dat,
+--         adc6_dat       => rc2_adc6_dat,
+--         adc7_dat       => rc2_adc7_dat,
+--         adc8_dat       => rc2_adc8_dat,
+--         adc1_ovr       => rc2_adc1_ovr,
+--         adc2_ovr       => rc2_adc2_ovr,
+--         adc3_ovr       => rc2_adc3_ovr,
+--         adc4_ovr       => rc2_adc4_ovr,
+--         adc5_ovr       => rc2_adc5_ovr,
+--         adc6_ovr       => rc2_adc6_ovr,
+--         adc7_ovr       => rc2_adc7_ovr,
+--         adc8_ovr       => rc2_adc8_ovr,
+--         adc1_rdy       => rc2_adc1_rdy,
+--         adc2_rdy       => rc2_adc2_rdy,
+--         adc3_rdy       => rc2_adc3_rdy,
+--         adc4_rdy       => rc2_adc4_rdy,
+--         adc5_rdy       => rc2_adc5_rdy,
+--         adc6_rdy       => rc2_adc6_rdy,
+--         adc7_rdy       => rc2_adc7_rdy,
+--         adc8_rdy       => rc2_adc8_rdy,
+--         adc1_clk       => rc2_adc1_clk,
+--         adc2_clk       => rc2_adc2_clk,
+--         adc3_clk       => rc2_adc3_clk,
+--         adc4_clk       => rc2_adc4_clk,
+--         adc5_clk       => rc2_adc5_clk,
+--         adc6_clk       => rc2_adc6_clk,
+--         adc7_clk       => rc2_adc7_clk,
+--         adc8_clk       => rc2_adc8_clk,
+--         dac_FB1_dat    => rc2_dac_FB1_dat,
+--         dac_FB2_dat    => rc2_dac_FB2_dat,
+--         dac_FB3_dat    => rc2_dac_FB3_dat,
+--         dac_FB4_dat    => rc2_dac_FB4_dat,
+--         dac_FB5_dat    => rc2_dac_FB5_dat,
+--         dac_FB6_dat    => rc2_dac_FB6_dat,
+--         dac_FB7_dat    => rc2_dac_FB7_dat,
+--         dac_FB8_dat    => rc2_dac_FB8_dat,
+--         dac_FB_clk     => rc2_dac_FB_clk,
+--         dac_clk        => rc2_dac_clk,
+--         dac_dat        => rc2_dac_dat,
+--         bias_dac_ncs   => rc2_bias_dac_ncs,
+--         offset_dac_ncs => rc2_offset_dac_ncs,
+--         lvds_cmd       => lvds_cmd,
+--         lvds_sync      => lvds_sync,
+--         lvds_spare     => lvds_spare,
+--         lvds_txa       => rc2_lvds_txa,
+--         lvds_txb       => rc2_lvds_txb,
+--
+--         ttl_dir1       => rc2_ttl_dir1,
+--         ttl_in1        => bclr_n, 
+--         ttl_out1       => open,
+--                           
+--         ttl_dir2       => rc2_ttl_dir2,
+--         ttl_in2        => rc2_ttl_in2, 
+--         ttl_out2       => open,
+--                           
+--         ttl_dir3       => rc2_ttl_dir3,
+--         ttl_in3        => rc2_ttl_in3, 
+--         ttl_out3       => open,
+--                      
+--         red_led        => rc2_red_led,
+--         ylw_led        => rc2_ylw_led,
+--         grn_led        => rc2_grn_led,
+--         dip_sw3        => rc2_dip_sw3,
+--         dip_sw4        => rc2_dip_sw4,
+--         wdog           => rc2_wdog,
+--         slot_id        => rc2_slot_id,
+--         card_id        => rc2_card_id,
+--         mictor         => rc2_mictor
+--      );
+--
+--   i_readout_card1: readout_card
+--      generic map (
+--         CARD => READOUT_CARD_1
+--      )
+--      port map (
+--         rst_n          => rst_n,
+--         inclk          => lvds_clk,
+--         adc1_dat       => rc1_adc1_dat,
+--         adc2_dat       => rc1_adc2_dat,
+--         adc3_dat       => rc1_adc3_dat,
+--         adc4_dat       => rc1_adc4_dat,
+--         adc5_dat       => rc1_adc5_dat,
+--         adc6_dat       => rc1_adc6_dat,
+--         adc7_dat       => rc1_adc7_dat,
+--         adc8_dat       => rc1_adc8_dat,
+--         adc1_ovr       => rc1_adc1_ovr,
+--         adc2_ovr       => rc1_adc2_ovr,
+--         adc3_ovr       => rc1_adc3_ovr,
+--         adc4_ovr       => rc1_adc4_ovr,
+--         adc5_ovr       => rc1_adc5_ovr,
+--         adc6_ovr       => rc1_adc6_ovr,
+--         adc7_ovr       => rc1_adc7_ovr,
+--         adc8_ovr       => rc1_adc8_ovr,
+--         adc1_rdy       => rc1_adc1_rdy,
+--         adc2_rdy       => rc1_adc2_rdy,
+--         adc3_rdy       => rc1_adc3_rdy,
+--         adc4_rdy       => rc1_adc4_rdy,
+--         adc5_rdy       => rc1_adc5_rdy,
+--         adc6_rdy       => rc1_adc6_rdy,
+--         adc7_rdy       => rc1_adc7_rdy,
+--         adc8_rdy       => rc1_adc8_rdy,
+--         adc1_clk       => rc1_adc1_clk,
+--         adc2_clk       => rc1_adc2_clk,
+--         adc3_clk       => rc1_adc3_clk,
+--         adc4_clk       => rc1_adc4_clk,
+--         adc5_clk       => rc1_adc5_clk,
+--         adc6_clk       => rc1_adc6_clk,
+--         adc7_clk       => rc1_adc7_clk,
+--         adc8_clk       => rc1_adc8_clk,
+--         dac_FB1_dat    => rc1_dac_FB1_dat,
+--         dac_FB2_dat    => rc1_dac_FB2_dat,
+--         dac_FB3_dat    => rc1_dac_FB3_dat,
+--         dac_FB4_dat    => rc1_dac_FB4_dat,
+--         dac_FB5_dat    => rc1_dac_FB5_dat,
+--         dac_FB6_dat    => rc1_dac_FB6_dat,
+--         dac_FB7_dat    => rc1_dac_FB7_dat,
+--         dac_FB8_dat    => rc1_dac_FB8_dat,
+--         dac_FB_clk     => rc1_dac_FB_clk,
+--         dac_clk        => rc1_dac_clk,
+--         dac_dat        => rc1_dac_dat,
+--         bias_dac_ncs   => rc1_bias_dac_ncs,
+--         offset_dac_ncs => rc1_offset_dac_ncs,
+--         lvds_cmd       => lvds_cmd,
+--         lvds_sync      => lvds_sync,
+--         lvds_spare     => lvds_spare,
+--         lvds_txa       => rc1_lvds_txa,
+--         lvds_txb       => rc1_lvds_txb,
+--
+--         ttl_dir1       => rc1_ttl_dir1,
+--         ttl_in1        => bclr_n, 
+--         ttl_out1       => open,
+--                           
+--         ttl_dir2       => rc1_ttl_dir2,
+--         ttl_in2        => rc1_ttl_in2, 
+--         ttl_out2       => open,
+--                           
+--         ttl_dir3       => rc1_ttl_dir3,
+--         ttl_in3        => rc1_ttl_in3, 
+--         ttl_out3       => open,
+--                      
+--         red_led        => rc1_red_led,
+--         ylw_led        => rc1_ylw_led,
+--         grn_led        => rc1_grn_led,
+--         dip_sw3        => rc1_dip_sw3,
+--         dip_sw4        => rc1_dip_sw4,
+--         wdog           => rc1_wdog,
+--         slot_id        => rc1_slot_id,
+--         card_id        => rc1_card_id,
+--         mictor         => rc1_mictor
+--      );
+--
+--   i_bias_card3: bias_card
+--      port map
+--      (
+--         -- PLL input:
+--         inclk         => lvds_clk,
+--         rst_n         => rst_n,
+--         
+--         -- LVDS interface:
+--         lvds_cmd      => lvds_cmd,  
+--         lvds_sync     => lvds_sync, 
+--         lvds_spare    => lvds_spare,
+--         lvds_txa      => lvds_reply_bc3_a, 
+--         lvds_txb      => lvds_reply_bc3_b, 
+--         
+--         -- TTL interface:
+--         ttl_nrx1      => bclr_n,  
+--         ttl_tx1       => open,   
+--         ttl_txena1    => bc3_ttl_txena1,
+--
+--         ttl_nrx2      => bc3_ttl_nrx2,  
+--         ttl_tx2       => open,   
+--         ttl_txena2    => bc3_ttl_txena2,
+--
+--         ttl_nrx3      => bc3_ttl_nrx3,  
+--         ttl_tx3       => open,   
+--         ttl_txena3    => bc3_ttl_txena3,
+--         
+--         -- eeprom ice:nterface:
+--         eeprom_si     => bc3_eeprom_si, 
+--         eeprom_so     => bc3_eeprom_so, 
+--         eeprom_sck    => bc3_eeprom_sck,
+--         eeprom_cs     => bc3_eeprom_cs, 
+--         
+--         -- dac interface:
+--         dac_ncs       => bc3_dac_ncs,      
+--         dac_sclk      => bc3_dac_sclk,     
+--         dac_data      => bc3_dac_data,         
+--         lvds_dac_ncs  => bc3_lvds_dac_ncs, 
+--         lvds_dac_sclk => bc3_lvds_dac_sclk,
+--         lvds_dac_data => bc3_lvds_dac_data,
+--         dac_nclr      => bc3_dac_nclr,     
+--         
+--         -- miscellaneous ports:
+--         red_led       => bc3_red_led, 
+--         ylw_led       => bc3_ylw_led, 
+--         grn_led       => bc3_grn_led, 
+--         dip_sw3       => bc3_dip_sw3, 
+--         dip_sw4       => bc3_dip_sw4, 
+--         wdog          => bc3_wdog,    
+--         slot_id       => bc3_slot_id, 
+--         
+--         -- debug ports:
+--         test          => bc3_test,       
+--         mictor        => bc3_mictor,     
+--         mictorclk     => bc3_mictorclk,  
+--         rs232_rx      => bc3_rs232_rx,
+--         rs232_tx      => bc3_rs232_tx
+--      );   
+--
+--   i_bias_card2: bias_card
+--      port map
+--      (
+--         -- PLL input:
+--         inclk         => lvds_clk,
+--         rst_n         => rst_n,
+--         
+--         -- LVDS interface:
+--         lvds_cmd      => lvds_cmd,  
+--         lvds_sync     => lvds_sync, 
+--         lvds_spare    => lvds_spare,
+--         lvds_txa      => lvds_reply_bc2_a, 
+--         lvds_txb      => lvds_reply_bc2_b, 
+--         
+--         -- TTL interface:
+--         ttl_nrx1      => bclr_n,  
+--         ttl_tx1       => open,   
+--         ttl_txena1    => bc2_ttl_txena1,
+--
+--         ttl_nrx2      => bc2_ttl_nrx2,  
+--         ttl_tx2       => open,   
+--         ttl_txena2    => bc2_ttl_txena2,
+--
+--         ttl_nrx3      => bc2_ttl_nrx3,  
+--         ttl_tx3       => open,   
+--         ttl_txena3    => bc2_ttl_txena3,
+--         
+--         -- eeprom ice:nterface:
+--         eeprom_si     => bc2_eeprom_si, 
+--         eeprom_so     => bc2_eeprom_so, 
+--         eeprom_sck    => bc2_eeprom_sck,
+--         eeprom_cs     => bc2_eeprom_cs, 
+--         
+--         -- dac interface:
+--         dac_ncs       => bc2_dac_ncs,      
+--         dac_sclk      => bc2_dac_sclk,     
+--         dac_data      => bc2_dac_data,         
+--         lvds_dac_ncs  => bc2_lvds_dac_ncs, 
+--         lvds_dac_sclk => bc2_lvds_dac_sclk,
+--         lvds_dac_data => bc2_lvds_dac_data,
+--         dac_nclr      => bc2_dac_nclr,     
+--         
+--         -- miscellaneous ports:
+--         red_led       => bc2_red_led, 
+--         ylw_led       => bc2_ylw_led, 
+--         grn_led       => bc2_grn_led, 
+--         dip_sw3       => bc2_dip_sw3, 
+--         dip_sw4       => bc2_dip_sw4, 
+--         wdog          => bc2_wdog,    
+--         slot_id       => bc2_slot_id, 
+--         
+--         -- debug ports:
+--         test          => bc2_test,       
+--         mictor        => bc2_mictor,     
+--         mictorclk     => bc2_mictorclk,  
+--         rs232_rx      => bc2_rs232_rx,
+--         rs232_tx      => bc2_rs232_tx
+--      );     
+--
+--   i_bias_card1: bias_card
+--      port map
+--      (
+--         -- PLL input:
+--         inclk         => lvds_clk,
+--         rst_n         => rst_n,
+--         
+--         -- LVDS interface:
+--         lvds_cmd      => lvds_cmd,  
+--         lvds_sync     => lvds_sync, 
+--         lvds_spare    => lvds_spare,
+--         lvds_txa      => lvds_reply_bc1_a, 
+--         lvds_txb      => lvds_reply_bc1_b, 
+--         
+--         -- TTL interface:
+--         ttl_nrx1      => bclr_n,  
+--         ttl_tx1       => open,   
+--         ttl_txena1    => bc1_ttl_txena1,
+--
+--         ttl_nrx2      => bc1_ttl_nrx2,  
+--         ttl_tx2       => open,   
+--         ttl_txena2    => bc1_ttl_txena2,
+--
+--         ttl_nrx3      => bc1_ttl_nrx3,  
+--         ttl_tx3       => open,   
+--         ttl_txena3    => bc1_ttl_txena3,
+--         
+--         -- eeprom ice:nterface:
+--         eeprom_si     => bc1_eeprom_si, 
+--         eeprom_so     => bc1_eeprom_so, 
+--         eeprom_sck    => bc1_eeprom_sck,
+--         eeprom_cs     => bc1_eeprom_cs, 
+--         
+--         -- dac interface:
+--         dac_ncs       => bc1_dac_ncs,      
+--         dac_sclk      => bc1_dac_sclk,     
+--         dac_data      => bc1_dac_data,         
+--         lvds_dac_ncs  => bc1_lvds_dac_ncs, 
+--         lvds_dac_sclk => bc1_lvds_dac_sclk,
+--         lvds_dac_data => bc1_lvds_dac_data,
+--         dac_nclr      => bc1_dac_nclr,     
+--         
+--         -- miscellaneous ports:
+--         red_led       => bc1_red_led, 
+--         ylw_led       => bc1_ylw_led, 
+--         grn_led       => bc1_grn_led, 
+--         dip_sw3       => bc1_dip_sw3, 
+--         dip_sw4       => bc1_dip_sw4, 
+--         wdog          => bc1_wdog,    
+--         slot_id       => bc1_slot_id, 
+--         
+--         -- debug ports:
+--         test          => bc1_test,       
+--         mictor        => bc1_mictor,     
+--         mictorclk     => bc1_mictorclk,  
+--         rs232_rx      => bc1_rs232_rx,
+--         rs232_tx      => bc1_rs232_tx
+--      );     
+--
+--   i_addr_card : addr_card
+--      port map
+--      (
+--         -- PLL input:
+--         inclk            => lvds_clk,
+--         rst_n            => rst_n,
+--         
+--         -- LVDS interface:
+--         lvds_cmd         => lvds_cmd,  
+--         lvds_sync        => lvds_sync, 
+--         lvds_spare       => lvds_spare,
+--         lvds_txa         => lvds_reply_ac_a, 
+--         lvds_txb         => lvds_reply_ac_b, 
+--      
+--         -- TTL interface:
+--         ttl_nrx1         => bclr_n,
+--         ttl_tx1          => open,
+--         ttl_txena1       => ac_ttl_txena1,
+--         
+--         ttl_nrx2         => ac_ttl_nrx2,
+--         ttl_tx2          => open,
+--         ttl_txena2       => ac_ttl_txena2,
+--         
+--         ttl_nrx3         => ac_ttl_nrx3,
+--         ttl_tx3          => open,
+--         ttl_txena3       => ac_ttl_txena3,
+--         
+--         -- eeprom interface:
+--         eeprom_si        => ac_eeprom_si, 
+--         eeprom_so        => ac_eeprom_so, 
+--         eeprom_sck       => ac_eeprom_sck,
+--         eeprom_cs        => ac_eeprom_cs, 
+--         
+--         -- dac interface:
+--         dac_data0        => ac_dac_data0,  
+--         dac_data1        => ac_dac_data1,  
+--         dac_data2        => ac_dac_data2,  
+--         dac_data3        => ac_dac_data3,  
+--         dac_data4        => ac_dac_data4,  
+--         dac_data5        => ac_dac_data5,  
+--         dac_data6        => ac_dac_data6,  
+--         dac_data7        => ac_dac_data7,  
+--         dac_data8        => ac_dac_data8,  
+--         dac_data9        => ac_dac_data9,  
+--         dac_data10       => ac_dac_data10, 
+--         dac_clk          => ac_dac_clk,    
+--         
+--         -- miscellaneous ports:
+--         red_led          => ac_red_led, 
+--         ylw_led          => ac_ylw_led, 
+--         grn_led          => ac_grn_led, 
+--         dip_sw3          => ac_dip_sw3, 
+--         dip_sw4          => ac_dip_sw4, 
+--         wdog             => ac_wdog,    
+--         slot_id          => ac_slot_id, 
+--         
+--         -- debug ports:
+--         test             => ac_test,       
+--         mictor           => ac_mictor,     
+--         mictorclk        => ac_mictorclk,  
+--         rs232_rx         => ac_rs232_rx,
+--         rs232_tx         => ac_rs232_tx
+--      );
    
    ------------------------------------------------
    -- Create test bench clock
@@ -1913,15 +1916,15 @@ begin
 ------------------------------------------------------
 -- ret_dat commands
 ------------------------------------------------------      
-      command <= command_wb;
-      address_id <= data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001"; -- start is 0x2, end is 0x8
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 30 us;
+--      command <= command_wb;
+--      address_id <= data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001"; -- start is 0x2, end is 0x8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 30 us;
 
       command <= command_wb;
       address_id <= ret_dat_s_cmd;
@@ -1931,19 +1934,29 @@ begin
       load_command;
       load_checksum;
       
-      wait for 30 us;
+      wait for 60 us;
 
-      -- issue the "GO" command to start taking data frames
-      command <= command_go;
-      address_id <= ret_dat_cmd;
-      data_valid <= X"00000001";
-      -- The data field cannot be used to pass the number of data to be returned from each RC, because it is first being used to start the ret_dat process on the CC, then discarded.
-      data       <= X"00000001";
+      command <= command_rb;
+      address_id <= ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"00000002"; -- start is 0x2, end is 0x8
       load_preamble;
       load_command;
-      load_checksum;    
+      load_checksum;
       
-      wait for 1200 us;  
+      wait for 60 us;
+
+--      -- issue the "GO" command to start taking data frames
+--      command <= command_go;
+--      address_id <= ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      -- The data field cannot be used to pass the number of data to be returned from each RC, because it is first being used to start the ret_dat process on the CC, then discarded.
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;    
+--      
+--      wait for 1200 us;  
 
 
       assert false report "Simulation done." severity FAILURE;

@@ -28,8 +28,11 @@
 -- Description:
 -- taken from 
 -- Revision history:
--- <date $Date: 2005/01/17 23:04:23 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/01/27 00:21:40 $>    - <initials $Author: mandana $>
 -- $Log: tb_clk_bias_card.vhd,v $
+-- Revision 1.4  2005/01/27 00:21:40  mandana
+-- ttl_nrx, ttl_tx, ttl_txena type change from vector to std_logic
+--
 -- Revision 1.3  2005/01/17 23:04:23  mandana
 -- added slot_id
 --
@@ -816,6 +819,19 @@ begin
 -- bc_dac_ctrl commands
 ------------------------------------------------------      
       -- turn LEDs off
+<<<<<<< tb_clk_bias_card.vhd
+--      command <= command_wb;
+--      address_id <= led_cmd;
+--      data_valid <= X"00000001"; --1 values
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+      
+--      wait for 50 us;
+      
+      -- turn LEDs on
+=======
 --      command <= command_wb;
 --      address_id <= led_cmd;
 --      data_valid <= X"00000001"; --1 values
@@ -827,6 +843,7 @@ begin
 --      wait for 50 us;
 --      
 --      -- turn LEDs on
+>>>>>>> 1.3
 --      command <= command_wb;
 --      address_id <= led_cmd;
 --      data_valid <= X"00000001"; --1 values
@@ -846,6 +863,20 @@ begin
       load_command;
       load_checksum;
       
+<<<<<<< tb_clk_bias_card.vhd
+--      wait for 50 us;
+    
+    -- load values to 32 flux DACs
+      command <= command_wb;
+      address_id <= flux_fdbck_cmd;
+      data_valid <= X"00000020"; --32 values
+      data       <= X"55AA55AA";
+      load_preamble;
+      load_command;
+      load_checksum;
+    
+      wait for 150 us;
+=======
       wait for 50 us;
 
      -- read back 32 flux DACs values
@@ -858,6 +889,7 @@ begin
      load_checksum;
      
 --     wait for 50 us;
+>>>>>>> 1.3
 
       --load values to the single Bias DAC
 --      command <= command_wb;
@@ -878,7 +910,7 @@ begin
 --      load_command;
 --      load_checksum;
       
-      wait for 150 us;
+--      wait for 150 us;
  
 --------------------------------------------------------
 -- ac_dac_ctrl commands
