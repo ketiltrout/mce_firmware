@@ -86,7 +86,7 @@ entity rx_protocol_fsm is
       card_id_o   : out    std_logic_vector (15 downto 0);     -- card id
       param_id_o  : out    std_logic_vector (15 downto 0);     -- parameter id
       num_data_o  : out    std_logic_vector (7 downto 0);      -- number of valid 32 bit data words
-      cmd_data_o  : out    std_logic_vector (15 downto 0);     -- 32bit valid data word
+      cmd_data_o  : out    std_logic_vector (31 downto 0);     -- 32bit valid data word
       cksum_err_o : out    std_logic;                          -- checksum error flag
       cmd_rdy_o   : out    std_logic;                          -- command ready flag (checksum passed)
       data_clk_o  : out    std_logic;                          -- data clock
@@ -175,6 +175,8 @@ constant CKSM_FAIL   : std_logic_vector(5 downto 0) := "111010";
 constant CKSM_PASS   : std_logic_vector(5 downto 0) := "111011";
 constant READ_DATA   : std_logic_vector(5 downto 0) := "111100";
 constant TX_DATA     : std_logic_vector(5 downto 0) := "111101";
+constant WM_BLK      : std_logic_vector(5 downto 0) := "111110";
+
 
 
 -- controller state variables:
@@ -202,11 +204,13 @@ signal read_pointer: mem_deep;
 constant block_size: mem_deep := 58;  -- total number of data words in a write_block
 
 signal number_data   : positive;  -- this will be a value between 1 and 58
-signal data_in       : std_logic_vector(15 downto 0); -- current data word written to memory 
-signal data_out      : std_logic_vector(15 downto 0); -- current data word read from memory
-signal write_mem     : std_logic;  
-signal read_mem      : std_logic;
+signal data_in       : std_logic_vector(31 downto 0); -- current data word written to memory 
+signal data_out      : std_logic_vector(31 downto 0); -- current data word read from memory
+signal write_mem     : std_logic;                     -- write current data word to memory
+signal read_mem      : std_logic;                     -- read current data word from memory
 signal reset_mem     : std_logic; 
+signal write_ena     : std_logic;
+
 
 -- clocks to latch command code bytes
 signal cmd_clk0      : std_logic;
@@ -236,10 +240,12 @@ signal ckrx_clk3     : std_logic;
 -- clocks to latch command data word to local memory buffer
 signal data_clk0     : std_logic;
 signal data_clk1     : std_logic;
+signal data_clk2     : std_logic;
+signal data_clk3     : std_logic;
 
 
 -- local memory buffer declaration
-subtype word is std_logic_vector(15 downto 0);
+subtype word is std_logic_vector(31 downto 0);
 type mem is array (0 to mem_size-1) of word;
 signal memory: mem;
 
@@ -545,17 +551,23 @@ begin
          else
             next_state <= LD_BLK2;
          end if;
-      when LD_BLK3 =>
+         
+      when LD_BLK3  =>
+         next_state <= WM_BLK;
+     
+      
+      when WM_BLK =>
          if (rx_fe_i = '0') then
-           if (write_pointer < block_size) then
-               next_state <= RQ_BLK0;
+            if (write_pointer < block_size) then
+              next_state <= RQ_BLK0;
             else 
                next_state <= RQ_CKSM0;
             end if;
          else      
-            next_state <= LD_BLK3;
+            next_state <= WM_BLK;
          end if;        
 
+    
 
 ------------------------------------------------
    -- checksum states
@@ -668,6 +680,8 @@ begin
      
       data_clk0 <= '0';
       data_clk1 <= '0';
+      data_clk2 <= '0';
+      data_clk3 <= '0';     
       
   
       case current_state IS
@@ -717,9 +731,11 @@ begin
             data_clk1 <= '1';
          when LD_BLK2 =>
             ckin_clk2 <= '1';
+            data_clk2 <= '1';
          when LD_BLK3 =>
             ckin_clk3 <= '1';
-            
+            data_clk3 <= '1';
+       
             
          when LD_CKSM0 =>
             ckrx_clk0 <= '1';
@@ -730,75 +746,83 @@ begin
          when LD_CKSM3 =>
             ckrx_clk3 <= '1';
             
-
-  
-         when RQ_PRE7 =>
-            rx_fr_o <= '1' ;
-         when RQ_PRE6 =>
-            rx_fr_o <= '1' ;
-         when RQ_PRE5 =>
-            rx_fr_o <= '1' ;
-         when RQ_PRE4 =>
-            rx_fr_o <= '1' ;
-         when RQ_PRE3 =>
-            rx_fr_o <= '1' ;
-         when RQ_PRE2 =>
+            
+            
+         when RQ_PRE0 =>
             rx_fr_o <= '1' ;
          when RQ_PRE1 =>
             rx_fr_o <= '1' ;
-         when RQ_PRE0 =>
+         when RQ_PRE2 =>
+            rx_fr_o <= '1' ;
+         when RQ_PRE3 =>
+            rx_fr_o <= '1' ;
+         when RQ_PRE4 =>
+            rx_fr_o <= '1' ;
+         when RQ_PRE5 =>
+            rx_fr_o <= '1' ;
+         when RQ_PRE6 =>
+            rx_fr_o <= '1' ;
+         when RQ_PRE7 =>
             rx_fr_o <= '1' ;
  
-         when RQ_CMD3 =>
-            rx_fr_o <= '1' ;
-         when RQ_CMD2 =>
+ 
+         when RQ_CMD0 =>
             rx_fr_o <= '1' ;
          when RQ_CMD1 =>
             rx_fr_o <= '1' ;
-         when RQ_CMD0 =>
+         when RQ_CMD2 =>
+            rx_fr_o <= '1' ;
+         when RQ_CMD3 =>
             rx_fr_o <= '1' ;
 
-         when RQ_ID3 =>
+
+         when RQ_ID0 =>
+            rx_fr_o <= '1' ;
+            check_update <= '1';  -- update checksum with command code word
+         when RQ_ID1 =>
             rx_fr_o <= '1' ;
          when RQ_ID2 =>
             rx_fr_o <= '1' ;
-         when RQ_ID1 =>
+         when RQ_ID3 =>
             rx_fr_o <= '1' ;
-         when RQ_ID0 =>
-            rx_fr_o <= '1' ;
-            check_update <= '1';
 
-         when RQ_NDA3 =>
+
+         when RQ_NDA0 =>
+            rx_fr_o <= '1' ;
+            check_update <= '1'; -- update checksum with id word
+         when RQ_NDA1 =>
             rx_fr_o <= '1' ;
          when RQ_NDA2 =>
             rx_fr_o <= '1' ;
-         when RQ_NDA1 =>
+         when RQ_NDA3 =>
             rx_fr_o <= '1' ;
-         when RQ_NDA0 =>
-            rx_fr_o <= '1' ;
-            check_update <= '1';
+
         
-         when RQ_BLK3 =>
+         when RQ_BLK0 =>
+            rx_fr_o <= '1' ;    
+            check_update <= '1';  -- update checksum with previous data word (or NDA word 1st time round) 
+         when RQ_BLK1 =>
             rx_fr_o <= '1' ;
          when RQ_BLK2 =>
             rx_fr_o <= '1' ;
-            write_mem <= '1';
-         when RQ_BLK1 =>
+         when RQ_BLK3 =>
             rx_fr_o <= '1' ;
-         when RQ_BLK0 =>
-            rx_fr_o <= '1' ;    
-            check_update <= '1';              
+     
+         when WM_BLK =>   
+            write_mem <= '1';         
 
-         when RQ_CKSM3 =>
+
+         when RQ_CKSM0 =>
+            rx_fr_o <= '1' ;
+            check_update <= '1';   -- update checksum with last data word
+         when RQ_CKSM1 =>
             rx_fr_o <= '1' ;
          when RQ_CKSM2 =>
             rx_fr_o <= '1' ;
-         when RQ_CKSM1 =>
-            rx_fr_o <= '1' ;
-         when RQ_CKSM0 =>
-            rx_fr_o <= '1' ;
-            check_update <= '1';
-         
+         when RQ_CKSM3 =>
+            rx_fr_o <= '1' ;        
+ 
+ 
          when CKSM_FAIL =>
             cksum_err_o <= '1' ;
             
@@ -1062,6 +1086,33 @@ begin
         data_in (15 downto 8) <= rxd_i(7 downto 0);
      end if;
   end process latch_data1;
+
+  ------------------------------------------------------------------------------
+  latch_data2: process(data_clk2, rst_i)
+  ----------------------------------------------------------------------------
+  -- process to latch data byte2
+  ----------------------------------------------------------------------------
+  begin
+     if (rst_i = '1') then 
+        data_in (23 downto 16) <= x"00";
+     elsif (data_clk2'EVENT and data_clk2 = '1') then
+        data_in (23 downto 16) <= rxd_i(7 downto 0);
+     end if;
+  end process latch_data2;
+
+
+  ------------------------------------------------------------------------------
+  latch_data3: process(data_clk3, rst_i)
+  ----------------------------------------------------------------------------
+  -- process to latch data byte1
+  ----------------------------------------------------------------------------
+  begin
+     if (rst_i = '1') then 
+        data_in (31 downto 24) <= x"00";
+     elsif (data_clk3'EVENT and data_clk3 = '1') then
+        data_in (31 downto 24) <= rxd_i(7 downto 0);
+     end if;
+  end process latch_data3;
 
 
   ------------------------------------------------------------------------------
