@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lfsr.vhd,v $
+-- Revision 1.5  2004/08/02 17:29:33  erniel
+-- added support for up to 168 bits wide
+--
 -- Revision 1.4  2004/07/28 23:37:14  erniel
 -- added _i and _o to port names to match naming conventions
 --
@@ -66,11 +69,10 @@ signal fb : std_logic;
 begin
 
    ---------------------------------------------------------
-   -- Generating LFSR feedback signals
+   -- Generating LFSR feedback signals for widths up to 168
    --
-   --   fb : if WIDTH =  generate fb <= not(data() xor data());                                             end generate;
-   --   fb : if WIDTH =  generate fb <= not(data() xor data() xor data() xor data());                       end generate;
-   --   fb : if WIDTH =  generate fb <= not(data() xor data() xor data() xor data() xor data() xor data()); end generate;
+   -- LFSR feedback taps taken from:
+   -- Xilinx Application Note #210 v1.2, pg. 4-5
    --
    
    fb3  : if WIDTH = 3  generate fb <= not(data(3) xor data(2));                                                  end generate;
