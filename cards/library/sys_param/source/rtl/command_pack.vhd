@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.11  2004/09/27 19:15:43  erniel
+-- renamed BB_NUM_HEADER_WORDS to BB_NUM_CMD_HEADER_WORDS
+--
 -- Revision 1.10  2004/09/27 18:38:36  erniel
 -- renamed card address constants
 -- renamed PASS_FAIL constant to STATUS
@@ -50,6 +53,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 package command_pack is
 
@@ -132,10 +137,12 @@ package command_pack is
    -- Error Number Table
    ------------------------------------------------------------------------
    -- list of errors / error numbers to be returned to Linux PC (word 3 of reply packet)
-   -- if a command is unsuccessfully exectuted.
+  
+     
+   constant COMMAND_SUCCESS    : std_logic_vector (BB_STATUS_WIDTH-1 downto 0) := conv_std_logic_vector(0,BB_STATUS_WIDTH);
+   constant FIBRE_CHECKSUM_ERR : std_logic_vector (BB_STATUS_WIDTH-1 downto 0) := conv_std_logic_vector(1,BB_STATUS_WIDTH);
    
-   constant CHECKSUM_ER_NUM     : std_logic_vector (FIBRE_ERROR_WORD_WIDTH-1 downto 0) := x"00000001" ;
-
+   
 
    ------------------------------------------------------------------------
    -- ASCII character byte definitions for fibre commands/reply packets
