@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.33 2004/08/04 17:26:43 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.34 2004/08/05 18:40:57 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.34  2004/08/05 18:40:57  bburger
+-- Bryce:  In progress
+--
 -- Revision 1.33  2004/08/04 17:26:43  bburger
 -- Bryce:  In progress
 --
@@ -143,7 +146,7 @@ signal send_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal free_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
 -- Insertion FSM:  inserts u-ops into the command queue
-type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_DATA, INSERT_MORE_DATA, DONE, RESET);
+type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_DATA, INSERT_MORE_DATA, DONE, RESET, DATA_STROBE_DETECT, LATCHED_DATA);
 signal present_insert_state : insert_states;
 signal next_insert_state    : insert_states;
 signal data_count           : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
@@ -338,7 +341,7 @@ begin
       end if;
    end process;
 
-   insert_state_NS: process(present_insert_state, insert_uop_rdy, data_size_i, data_count)
+   insert_state_NS: process(present_insert_state, insert_uop_rdy, data_size_i, data_count, data_clk_i)
    begin
       case present_insert_state is
          when RESET =>
@@ -356,21 +359,37 @@ begin
             if(data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) = x"0000") then
                next_insert_state <= DONE;
             else
-               next_insert_state <= INSERT_DATA;
+               next_insert_state <= DATA_STROBE_DETECT;
             end if;
-         when INSERT_DATA =>
-            -- INSERT_DATA state has to loop without any others in between to make sure that it records all data from the cmd_translator block
+         when DATA_STROBE_DETECT =>
+            if(data_clk_i = '1') then
+               next_insert_state <= LATCHED_DATA;
+            else
+               next_insert_state <= DATA_STROBE_DETECT;
+            end if;
+         when LATCHED_DATA =>
             if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
-               next_insert_state <= INSERT_MORE_DATA;
+               next_insert_state <= DATA_STROBE_DETECT;
             else
                next_insert_state <= DONE;
             end if;
-         when INSERT_MORE_DATA =>
-            if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
-               next_insert_state <= INSERT_DATA;
-            else
-               next_insert_state <= DONE;
-            end if;
+-- This portion of the code was removed, because David's block does not transmit data on consecutive clock cycles after mop_ack_o is asserted
+-- Instead, his block outputs a data strobe that is the width of an entire clock cycle.  
+-- The data strobe is not garanteed to occur on the clock cycle following the assertion of mop_ack_o
+-- The data strobe seems to be asserted for only one clock cycle, after which it is deasserted for two before being reasserted with new data
+--         when INSERT_DATA =>
+--            -- INSERT_DATA state has to loop without any others in between to make sure that it records all data from the cmd_translator block
+--            if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
+--               next_insert_state <= INSERT_MORE_DATA;
+--            else
+--               next_insert_state <= DONE;
+--            end if;
+--         when INSERT_MORE_DATA =>
+--            if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
+--               next_insert_state <= INSERT_DATA;
+--            else
+--               next_insert_state <= DONE;
+--            end if;
          when DONE =>
             next_insert_state <= IDLE;
          when others =>
@@ -381,8 +400,11 @@ begin
    wraddress_sig         <= free_ptr;
    num_uops_inserted_slv <= std_logic_vector(conv_unsigned(num_uops_inserted, 8));
    
-   insert_state_out: process(present_insert_state, issue_sync_i, data_size_i, new_card_addr, new_par_id, mop_i, uop_counter)
-   -- There is something sketchy about the sensitivity list.  free_ptr does not appear anywhere on the list.  It can't because of my free_ptr <= free_ptr + 1 statement below.  However, it should because it appears on the lhs in the INSERT state
+   insert_state_out: process(present_insert_state, issue_sync_i, data_size_i, new_card_addr, new_par_id, mop_i, data_clk_i)
+   -- There is something sketchy about the sensitivity list.  
+   -- free_ptr does not appear anywhere on the list.  
+   -- It can't because of my free_ptr <= free_ptr + 1 statement below.  
+   -- However, it should because it appears on the lhs in the INSERT state
    begin
       case present_insert_state is
          when RESET =>
@@ -436,42 +458,61 @@ begin
             data_sig(MOP_END-1          downto UOP_END)          <= num_uops_inserted_slv; 
             
             -- After adding new u-op header1 info, move the free_ptr
---            if(free_ptr = ADDR_FULL_SCALE) then
---               free_ptr <= ADDR_ZERO;
---            else
-               free_ptr <= free_ptr + 1;
---            end if;
+            free_ptr <= free_ptr + 1;
             
-         when INSERT_DATA =>
-            wren_sig       <= '1';
-            data_count     <= data_count + 1;
+         when DATA_STROBE_DETECT =>
+            if(data_clk_i = '1') then
+               wren_sig       <= '1';
+               data_count     <= data_count + 1;
+               mop_ack_o      <= '0';
+               insert_uop_ack <= '0';
+               
+               data_sig       <= data_i;
+   
+               -- After adding new u-op header2 info, or data:  (will this work?)
+               free_ptr <= free_ptr + 1;
+            else
+               wren_sig       <= '0';
+               data_count     <= data_count;
+               mop_ack_o      <= '0';
+               insert_uop_ack <= '0';
+               
+               data_sig       <= data_i;
+   
+               free_ptr <= free_ptr;
+            end if;
+         when LATCHED_DATA =>
+            wren_sig       <= '0';
+            data_count     <= data_count;
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
             
             data_sig       <= data_i;
 
-            -- After adding new u-op header2 info, or data:  (will this work?)
---            if(free_ptr = ADDR_FULL_SCALE) then
---               free_ptr <= ADDR_ZERO;
---            else
-               free_ptr <= free_ptr + 1;
---            end if;
-            
-         when INSERT_MORE_DATA =>
-            wren_sig       <= '1';
-            data_count     <= data_count + 1;
-            mop_ack_o      <= '0';
-            insert_uop_ack <= '0';
-            
-            data_sig       <= data_i;
+            free_ptr <= free_ptr;
 
-            -- After adding new u-op header2 info, or data:  (will this work?)
---            if(free_ptr = ADDR_FULL_SCALE) then
---               free_ptr <= ADDR_ZERO;
---            else
-               free_ptr <= free_ptr + 1;
---            end if;
-            
+--         when INSERT_DATA =>
+--            wren_sig       <= '1';
+--            data_count     <= data_count + 1;
+--            mop_ack_o      <= '0';
+--            insert_uop_ack <= '0';
+--            
+--            data_sig       <= data_i;
+--
+--            -- After adding new u-op header2 info, or data:  (will this work?)
+--            free_ptr <= free_ptr + 1;
+--            
+--         when INSERT_MORE_DATA =>
+--            wren_sig       <= '1';
+--            data_count     <= data_count + 1;
+--            mop_ack_o      <= '0';
+--            insert_uop_ack <= '0';
+--            
+--            data_sig       <= data_i;
+--
+--            -- After adding new u-op header2 info, or data:  (will this work?)
+--            free_ptr <= free_ptr + 1;
+--            
          when DONE =>
             wren_sig       <= '0';
             data_count     <= (others => '0');
@@ -1200,6 +1241,8 @@ end behav;
 -- It might be something to do with having a faulty period for the sync pulse in the TB.
 
 --x Check out the ***'ed lines
+
+-- uop_counter may not belong on the sensitivity list for insert FSM
 
 -- Think about using the free_ptr index to tag the u-op sequence number in the queue.
 

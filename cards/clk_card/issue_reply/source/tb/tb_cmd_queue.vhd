@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.12 2004/08/04 17:26:30 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.13 2004/08/05 18:41:12 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.13  2004/08/05 18:41:12  bburger
+-- Bryce:  In progress
+--
 -- Revision 1.12  2004/08/04 17:26:30  bburger
 -- Bryce:  In progress
 --
@@ -86,6 +89,7 @@ use work.cmd_queue_pack.all;
 use work.issue_reply_pack.all;
 use work.cmd_queue_ram40_pack.all;
 use work.async_pack.all;
+use work.sync_gen_pack.all;
 
 entity TB_CMD_QUEUE is
 end TB_CMD_QUEUE;
@@ -126,6 +130,8 @@ architecture BEH of TB_CMD_QUEUE is
    signal rx_dat        : std_logic_vector(31 downto 0);
    signal rx_rdy        : std_logic;
    signal rx_ack        : std_logic;
+   signal dv_i          : std_logic := '0';
+   signal dv_en_i       : std_logic := '0';
 
 ------------------------------------------------------------------------
 --
@@ -177,6 +183,16 @@ begin
         ack_i          => rx_ack,
      
         lvds_i         => tx_o
+      );
+      
+   sync_pulse_mgr : sync_gen
+      port map(
+         clk_i         => clk_i,
+         rst_i         => rst_i,
+         dv_i          => dv_i,
+         dv_en_i       => dv_en_i,
+         sync_o        => sync_i,
+         sync_num_o    => sync_num_i      
       );
 
    -- Continuous assignements (clocks, etc.)
@@ -249,7 +265,6 @@ begin
       card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
       par_id_i      <= x"00" & STRT_MUX_ADDR;
       data_size_i   <= x"00000001";
-      data_i        <= x"FFFFFFFF";
       data_clk_i    <= '0';
       mop_i         <= "00000011"; -- m-op #3
       issue_sync_i  <= "00000011"; -- Sync pulse 3
@@ -259,10 +274,12 @@ begin
          wait for CLOCK_PERIOD;
       end loop;
       
+      data_i        <= x"FFFFFFFF";
+      wait for CLOCK_PERIOD;      
+      wait for CLOCK_PERIOD;      
       data_clk_i    <= '1';
-      wait for CLOCK_PERIOD/2;      
+      wait for CLOCK_PERIOD;      
       data_clk_i    <= '0';
-      wait for CLOCK_PERIOD/2;      
       
       mop_rdy_i     <= '0';
       assert false report " start MUX" severity NOTE;
@@ -284,22 +301,25 @@ begin
       end loop;
       
       data_i        <= x"11111111";
+      wait for CLOCK_PERIOD;      
+      wait for CLOCK_PERIOD;      
       data_clk_i    <= '1';
-      wait for CLOCK_PERIOD/2;      
+      wait for CLOCK_PERIOD;      
       data_clk_i    <= '0';
-      wait for CLOCK_PERIOD/2;      
       
       data_i        <= x"22222222";
+      wait for CLOCK_PERIOD;      
+      wait for CLOCK_PERIOD;      
       data_clk_i    <= '1';
-      wait for CLOCK_PERIOD/2;      
+      wait for CLOCK_PERIOD;      
       data_clk_i    <= '0';
-      wait for CLOCK_PERIOD/2;      
 
       data_i        <= x"44444444";
+      wait for CLOCK_PERIOD;      
+      wait for CLOCK_PERIOD;      
       data_clk_i    <= '1';
-      wait for CLOCK_PERIOD/2;      
+      wait for CLOCK_PERIOD;      
       data_clk_i    <= '0';
-      wait for CLOCK_PERIOD/2;      
 
       mop_rdy_i     <= '0';
       assert false report " start MUX" severity NOTE;
@@ -314,8 +334,14 @@ begin
       do_init;
       do_nop;
       do_ret_dat_cmd;
+      do_nop;
+      do_nop;
       do_rst_wtchdg_cmd;
+      do_nop;
+      do_nop;
       do_strt_mux_cmd;
+      do_nop;
+      do_nop;
       do_on_bias_cmd;
       
       L2: for count_value in 0 to 5*END_OF_FRAME loop
