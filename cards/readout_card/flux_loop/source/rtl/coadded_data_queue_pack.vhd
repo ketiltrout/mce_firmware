@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id$
+-- $Id: coadded_data_queue_pack.vhd,v 1.1 2004/08/25 23:07:10 bburger Exp $
 -- Description:
 -- Pack file for the coadded_data_queue generated with the Quartus Megawizard
 --
 -- Revision history:
--- $Log$
+-- $Log: coadded_data_queue_pack.vhd,v $
+-- Revision 1.1  2004/08/25 23:07:10  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
@@ -39,7 +42,7 @@ package coadded_data_queue_pack is
    constant CD_Q_LEN        : integer :=                  41;
    constant CD_Q_WIDTH      : integer :=                  96;
    constant CD_Q_ADDR_WIDTH : integer :=                   6;
-   constant VALUE_END       : integer := QUEUE_WIDTH    - 32;
+   constant VALUE_END       : integer := CD_Q_WIDTH     - 32;
    constant DIFFERENCE_END  : integer := VALUE_END      - 32;
    constant INTEGRAL_END    : integer := DIFFERENCE_END - 32;
 

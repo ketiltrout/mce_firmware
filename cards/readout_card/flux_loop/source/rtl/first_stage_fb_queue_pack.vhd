@@ -22,25 +22,28 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id$
+-- $Id: first_stage_fb_queue_pack.vhd,v 1.1 2004/08/25 23:07:10 bburger Exp $
 -- Description:
 -- Pack file for the raw_data_queue generated with the Quartus Megawizard
 --
 -- Revision history:
--- $Log$
+-- $Log: first_stage_fb_queue_pack.vhd,v $
+-- Revision 1.1  2004/08/25 23:07:10  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 
-package raw_data_queue_pack is
+package first_stage_fb_queue_pack is
 
    constant FSFB_Q_LEN        : integer :=                     41;
    constant FSFB_Q_WIDTH      : integer :=                     32;
    constant FSFB_Q_ADDR_WIDTH : integer :=                      6;
 
-   component raw_data_queue IS
+   component first_stage_fb_queue IS
       PORT
       (
          data        : IN STD_LOGIC_VECTOR (FSFB_Q_WIDTH-1 DOWNTO 0);
@@ -54,4 +57,4 @@ package raw_data_queue_pack is
       );
    END component;
 
-end raw_data_queue_pack;
+end first_stage_fb_queue_pack;

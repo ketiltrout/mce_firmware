@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id: flux_loop.vhd,v 1.2 2004/08/26 21:46:00 bburger Exp $
+-- $Id: flux_loop.vhd,v 1.3 2004/08/27 01:04:33 bburger Exp $
 -- Description:
 -- Readout Card flux loop
 --
 -- Revision history:
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.3  2004/08/27 01:04:33  bburger
+-- Bryce:  in progress
+--
 -- Revision 1.2  2004/08/26 21:46:00  bburger
 -- Bryce:  in progress
 --
@@ -43,13 +46,19 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library sys_param;
---use sys_param.wishbone_pack.all;
+use sys_param.wishbone_pack.all;
 --use sys_param.frame_timing_pack.all;
---use sys_param.command_pack.all;
+use sys_param.command_pack.all;
 use sys_param.data_types_pack.all;
 
 library components;
 --use components.component_pack.all;
+
+library work;
+use work.coadded_data_queue_pack.all;
+use work.first_stage_fb_queue_pack.all;
+use work.raw_data_queue_pack.all;
+use work.pidz_coeff_queue_pack.all;
 
 entity flux_loop is
    port(
@@ -114,13 +123,13 @@ entity flux_loop is
       ----------------------------------------------------------------
       clk_i         : in std_logic; -- Advances the state machines
       clk_200mhz_i  : in std_logic; -- Clocks the RAMs
-      rst_i         : in std_logic  -- Resets all FSMs    
+      rst_i         : in std_logic;  -- Resets all FSMs    
 
       ----------------------------------------------------------------
       -- Timing signals received from the frame_timing block
       ----------------------------------------------------------------
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
-      sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+      sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0)
    );
 end flux_loop;
 
@@ -220,6 +229,10 @@ architecture behav of flux_loop is
    -- Constants that can be removed when the sync_counter and frame_timer are moved out of this block
    constant HIGH              : std_logic := '1';
    constant LOW               : std_logic := '0';
+   
+   -- Timing signals
+   signal coadd_ctrl : std_logic;
+   
 
 begin
 
@@ -234,7 +247,7 @@ begin
          wraddress   => coadded_wadd(0),
          rdaddress_a => coadded_radd_a0(0),
          rdaddress_b => coadded_radd_b0(0),
-         wren        => coadded_wren_sig(0),
+         wren        => coadded_wren(0),
          clock       => clk_200mhz_i,  
          qa          => coadded_qa0(0),         
          qb          => coadded_qb0(0) 
@@ -247,7 +260,7 @@ begin
          wraddress   => coadded_wadd(0),
          rdaddress_a => coadded_radd_a1(0),
          rdaddress_b => coadded_radd_b1(0),
-         wren        => coadded_wren_sig(0),
+         wren        => coadded_wren(0),
          clock       => clk_200mhz_i,  
          qa          => coadded_qa1(0),         
          qb          => coadded_qb1(0) 
@@ -260,7 +273,7 @@ begin
          wraddress   => coadded_wadd(1),
          rdaddress_a => coadded_radd_a0(1),
          rdaddress_b => coadded_radd_b0(1),
-         wren        => coadded_wren_sig(1),
+         wren        => coadded_wren(1),
          clock       => clk_200mhz_i,  
          qa          => coadded_qa0(1),         
          qb          => coadded_qb0(1) 
@@ -273,7 +286,7 @@ begin
          wraddress   => coadded_wadd(1),
          rdaddress_a => coadded_radd_a1(1),
          rdaddress_b => coadded_radd_b1(1),
-         wren        => coadded_wren_sig(1),
+         wren        => coadded_wren(1),
          clock       => clk_200mhz_i,  
          qa          => coadded_qa1(1),         
          qb          => coadded_qb1(1) 
@@ -286,7 +299,7 @@ begin
          wraddress   => fsfb_wadd(0),
          rdaddress_a => fsfb_radd_a0(0),
          rdaddress_b => fsfb_radd_b0(0),
-         wren        => fsfb_wren_sig(0),
+         wren        => fsfb_wren(0),
          clock       => clk_200mhz_i,  
          qa          => fsfb_qa0(0),         
          qb          => fsfb_qb0(0) 
@@ -299,7 +312,7 @@ begin
          wraddress   => fsfb_wadd(0),
          rdaddress_a => fsfb_radd_a1(0),
          rdaddress_b => fsfb_radd_b1(0),
-         wren        => fsfb_wren_sig(0),
+         wren        => fsfb_wren(0),
          clock       => clk_200mhz_i,  
          qa          => fsfb_qa1(0),         
          qb          => fsfb_qb1(0) 
@@ -312,7 +325,7 @@ begin
          wraddress   => fsfb_wadd(1),
          rdaddress_a => fsfb_radd_a0(1),
          rdaddress_b => fsfb_radd_b0(1),
-         wren        => fsfb_wren_sig(1),
+         wren        => fsfb_wren(1),
          clock       => clk_200mhz_i,  
          qa          => fsfb_qa0(1),         
          qb          => fsfb_qb0(1) 
@@ -325,7 +338,7 @@ begin
          wraddress   => fsfb_wadd(1),
          rdaddress_a => fsfb_radd_a1(1),
          rdaddress_b => fsfb_radd_b1(1),
-         wren        => fsfb_wren_sig(1),
+         wren        => fsfb_wren(1),
          clock       => clk_200mhz_i,  
          qa          => fsfb_qa1(1),         
          qb          => fsfb_qb1(1) 
@@ -336,12 +349,14 @@ begin
       port map(
          data        => raw_data,
          wraddress   => raw_wadd,
-         rdaddress_a => raw_radd_a,
-         rdaddress_b => raw_radd_b,
-         wren        => raw_wren_sig,
+         rdaddress   => raw_radd_a,
+--         rdaddress_a => raw_radd_a,
+--         rdaddress_b => raw_radd_b,
+         wren        => raw_wren,
          clock       => clk_200mhz_i,  
-         qa          => raw_qa,         
-         qb          => raw_qb 
+         q          => raw_qa
+--         qa          => raw_qa,         
+--         qb          => raw_qb 
       );   
 
    -- P, I, D, Z coefficient queue
@@ -351,7 +366,7 @@ begin
          wraddress   => pidz_wadd,
          rdaddress_a => pidz_radd_a,
          rdaddress_b => pidz_radd_b,
-         wren        => pidz_wren_sig,
+         wren        => pidz_wren,
          clock       => clk_200mhz_i,  
          qa          => pidz_qa,         
          qb          => pidz_qb 
@@ -400,6 +415,8 @@ begin
          when others =>
       end case;
    end process;
+
+
    
 ----------------------------------------------------------------
 -- wishbone FSM:  for communication with the dispatch block

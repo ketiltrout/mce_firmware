@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id$
+-- $Id: raw_data_queue_pack.vhd,v 1.1 2004/08/25 23:07:10 bburger Exp $
 -- Description:
 -- Pack file for the raw_data_queue generated with the Quartus Megawizard
 --
 -- Revision history:
--- $Log$
+-- $Log: raw_data_queue_pack.vhd,v $
+-- Revision 1.1  2004/08/25 23:07:10  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
@@ -45,12 +48,14 @@ package raw_data_queue_pack is
       (
          data        : IN STD_LOGIC_VECTOR (RD_Q_WIDTH-1 DOWNTO 0);
          wraddress   : IN STD_LOGIC_VECTOR (RD_Q_ADDR_WIDTH-1 DOWNTO 0);
-         rdaddress_a : IN STD_LOGIC_VECTOR (RD_Q_ADDR_WIDTH-1 DOWNTO 0);
-         rdaddress_b : IN STD_LOGIC_VECTOR (RD_Q_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress   : IN STD_LOGIC_VECTOR (RD_Q_ADDR_WIDTH-1 DOWNTO 0);
+--         rdaddress_a : IN STD_LOGIC_VECTOR (RD_Q_ADDR_WIDTH-1 DOWNTO 0);
+--         rdaddress_b : IN STD_LOGIC_VECTOR (RD_Q_ADDR_WIDTH-1 DOWNTO 0);
          wren        : IN STD_LOGIC  := '1';
          clock       : IN STD_LOGIC ;
-         qa          : OUT STD_LOGIC_VECTOR (RD_Q_WIDTH-1 DOWNTO 0);
-         qb          : OUT STD_LOGIC_VECTOR (RD_Q_WIDTH-1 DOWNTO 0)
+         q           : OUT STD_LOGIC_VECTOR (RD_Q_WIDTH-1 DOWNTO 0)
+--         qa          : OUT STD_LOGIC_VECTOR (RD_Q_WIDTH-1 DOWNTO 0);
+--         qb          : OUT STD_LOGIC_VECTOR (RD_Q_WIDTH-1 DOWNTO 0)
       );
    END component;
 
