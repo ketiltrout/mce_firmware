@@ -162,6 +162,7 @@ begin
                             wr_ctrl <= '1';
                             read_buf_ena <= "00";
                             addr_o <= tga_i(18 downto 0) & '1';
+                            data_bi <= dat_i(31 downto 16);
                                                         
          when WRITE_DONE => ce_ctrl <= '0';
                             m_wr_ctrl <= '0';
