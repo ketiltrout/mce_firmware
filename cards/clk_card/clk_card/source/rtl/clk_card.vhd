@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.3 2004/11/25 15:15:51 dca Exp $
+-- $Id: clk_card.vhd,v 1.4 2004/11/25 15:18:18 dca Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.4  2004/11/25 15:18:18  dca
+-- moved a signal
+--
 -- Revision 1.3  2004/11/25 15:15:51  dca
 -- various signals removed from architecture
 --
@@ -142,11 +145,12 @@ signal rst           : std_logic;
 signal clk           : std_logic;
 signal mem_clk       : std_logic;
 signal comm_clk      : std_logic;
+signal fibre_clk     : std_logic;  
+
 signal fibre_tx_clk  : std_logic;
 signal fibre_rx_clk  : std_logic;
 signal lvds_clk      : std_logic;
 
-signal clk_25mhz     : std_logic;  -- ???
 
 
 -- frame_timing - sync_gen interface
@@ -195,10 +199,12 @@ port(
      c0     : out std_logic ;
      c1     : out std_logic ;
      c2     : out std_logic ;
+     c3     : out std_logic ;
      e0     : out std_logic ;
      e1     : out std_logic 
      );
 end component;
+
 
 begin
 
@@ -224,6 +230,7 @@ begin
             c0     => clk ,
             c1     => mem_clk ,
             c2     => comm_clk ,
+            c3     => fibre_clk,
             e0     => fibre_tx_clk , 
             e1     => fibre_rx_clk ,   
             e2     => lvds_clk );
@@ -358,8 +365,8 @@ begin
 
    
                -- 25MHz clock for fibre_tx_control
-               fibre_clkw_i   => clk_25mhz,
-               
+               fibre_clkw_i   => fibre_clk,
+             
                
                clk_200mhz_i   => mem_clk,
    
