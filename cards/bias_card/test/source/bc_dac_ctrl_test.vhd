@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.8 2004/05/20 21:54:06 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.1 2004/05/22 00:50:15 erniel Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,9 +35,12 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/05/20 21:54:06 $>	- <initials $Author: mandana $>
--- $Log: dac_ctrl_test_wrapper.vhd,v $
-.-----------------------------------------------------------------------------
+-- <date $Date: 2004/05/22 00:50:15 $>	- <initials $Author: erniel $>
+-- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.1  2004/05/22 00:50:15  erniel
+-- Initial release, not compiled
+--
+-----------------------------------------------------------------------------
 
 library ieee, sys_param, components, work;
 use ieee.std_logic_1164.all;
@@ -51,7 +54,7 @@ use work.dac_ctrl_pack.all;
 
 -----------------------------------------------------------------------------
                      
-entity dac_ctrl_test_wrapper is
+entity bc_dac_ctrl_test_wrapper is
    port (
       -- basic signals
       rst_i     : in std_logic;    -- reset input
@@ -73,41 +76,57 @@ entity dac_ctrl_test_wrapper is
       ack_test_o: out std_logic;
       cyc_test_o: out std_logic;
       sync_test_o: out std_logic;
-      idac_clk_o: out std_logic
+      idac_clk_o: out std_logic;
+      spi_start_o: out std_logic
       
    );   
 end;  
 
 ---------------------------------------------------------------------
 
-architecture rtl of ac_dac_ctrl_test is
+architecture rtl of bc_dac_ctrl_test_wrapper is
 
 -- DAC CTRL:
 -- State encoding and state variables:
 
 -- controller states:
-type states is (IDLE, PUSH_DATA, CLKNOW, DONE); 
+type states is (IDLE, PUSH_DATA, SPI_START, DONE); 
 signal present_state         : states;
 signal next_state            : states;
-type   w_array5 is array (4 downto 0) of word32; 
-signal data     : w_array5;
+type   w_array7 is array (6 downto 0) of word16; 
+signal data     : w_array7;
 signal idat     : integer;
 signal idac     : integer;
 signal ibus     : integer;
 
-signal logic0 : std_logic;
-signal logic1 : std_logic;
-signal zero : integer;
-signal clk_8  : std_logic;
+signal logic0   : std_logic;
+signal logic1   : std_logic;
+signal zero     : integer;
+signal clk_8    : std_logic;
+signal clk_4    : std_logic;
+signal clk_count: integer;
+signal val_clk  : std_logic;
+signal idx      : integer;
+signal send_dac32_start: std_logic;
+signal send_dac_LVDS_start: std_logic;
+signal dac_done        : std_logic_vector (32 downto 0);
+
+
+-- parallel data signals for DAC
+-- subtype word is std_logic_vector (15 downto 0); 
+type   w_array32 is array (32 downto 0) of word16; 
+signal dac_data_p      : w_array32;
 
 begin
    logic0 <= '0';
    logic1 <= '1';
    zero <= 0;
 
+   spi_start_o <= send_dac32_start;
+   
 -- instantiate a counter to divide the clock by 8
    clk_div_8: counter
-   generic map(MAX => 16)
+   generic map(MAX => 4)
    port map(clk_i   => clk_i,
             rst_i   => '0',
             ena_i   => '1',
@@ -116,19 +135,20 @@ begin
             count_i => 0 ,
             count_o => clk_count);
 
-   clk_8   <= '1' when clk_count > 8 else '0'; -- slow down the 50MHz clock to 50/8MHz
-
+--   clk_8   <= '1' when clk_count > 8 else '0'; -- slow down the 50MHz clock to 50/8MHz
+--   clk_4   <= '1' when (clk_count > 3 and clk_count <8) or (clk_count >11);
+     clk_4   <= '1' when clk_count > 2 else '0';
+     
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
    generic map(MAX => 5)
    port map(clk_i   => val_clk,
-            rst_i   => rst_i,
-            ena_i   => '1',
-            load_i  => '0',
-            down_i  => '0',
-            count_i =>  0,
+            rst_i   => logic0, -- '0' or rst_i? think!!!!!
+            ena_i   => logic1,
+            load_i  => logic0,
+            down_i  => logic0,
+            count_i =>  zero,
             count_o => idx);
- 
 
 ------------------------------------------------------------------------
 --
@@ -142,16 +162,16 @@ begin
       dac_write_spi :write_spi_with_cs
       generic map(DATA_LENGTH => 16)
       port map(--inputs
-         spi_clk_i        => clk_8,
+         spi_clk_i        => clk_4,
          rst_i            => rst_i,
          start_i          => send_dac32_start,
          parallel_data_i  => dac_data_p(k),
        
          --outputs
          spi_clk_o        => dac_clk_o (k),
-         done_o           => dac_done  (k),
-         spi_ncs_o        => dac_ncs (k),
-         serial_wr_data_o => dac_data_o(k)
+         done_o           => dac_done (k),
+         spi_ncs_o        => dac_ncs_o (k),
+         serial_wr_data_o => dac_dat_o(k)
       );
    end generate gen_spi32;      
  ----------------------------------------------------------------------
@@ -171,15 +191,15 @@ begin
       parallel_data_i  => dac_data_p(32),
     
       --outputs
-      spi_clk_o        => dac_clk_o (32),
+      spi_clk_o        => lvds_dac_clk_o,
       done_o           => dac_done  (32),
-      spi_ncs_o        => dac_ncs (32),
-      serial_wr_data_o => dac_data_o(32)
+      spi_ncs_o        => lvds_dac_ncs_o ,
+      serial_wr_data_o => lvds_dac_dat_o
    );
  
--- instantiate a counter for idac to go through all 32 DACs
+-- instantiate a counter to go through the data values
    data_count: counter
-   generic map(MAX => 5)
+   generic map(MAX => 7)
    port map(clk_i   => en_i,
             rst_i   => rst_i,
             ena_i   => logic1,
@@ -189,18 +209,20 @@ begin
             count_o => idat);
 
   -- values tried on DAC Tests with fixed values                               
-   data (0) <= "11111111111111111111111111111111";--xffffffff     full scale
-   data (1) <= "01010101010101010101010101010101";--x55555555     alternating 0,1
-   data (2) <= "00000000000000000000000000000000";--x00000000
-   data (3) <= "11110000001100110100000000000101";--xf0334005     asymmetric nibbles
-   data (4) <= "11111111111111111111111111111111";--xffffffff -- this entry wouldn't be tried
+   data (0) <= "1111111111111111";--xffff     full scale
+   data (1) <= "1000000000000000";--x8000     half range
+   data (2) <= "0000000000000000";--x0000     0
+   data (3) <= "0000000000000001";--x0001 
+   data (4) <= "0000000000000010";--x0002 
+   data (5) <= "0000000000000100";--x0004 
+   data (6) <= "0000000000001000";--x0008 
 
   -- state register:
-   state_FF: process(clk_8, rst_i)
+   state_FF: process(clk_4, rst_i)
    begin
       if(rst_i = '1') then 
          present_state <= IDLE;
-      elsif(clk_8'event and clk_8 = '1') then
+      elsif(clk_4'event and clk_4 = '1') then
          present_state <= next_state;
       end if;
    end process state_FF;
@@ -232,26 +254,32 @@ begin
       case present_state is
          when IDLE =>     
            for idac in 0 to 31 loop
-               dac_data_p(idac) <= "00000000000000";
+               dac_data_p(idac) <= "0000000000000000";
             end loop;            
-	    done_o    <= '0';
+            send_dac32_start <= '0';
+            val_clk   <= '1';
+            done_o    <= '0';
          
          when PUSH_DATA =>    
             for idac in 0 to 31 loop
-               dac_data_p(idac <= data(idx);
+               dac_data_p(idac) <= data(idx);
             end loop;
+            send_dac32_start <= '0';
+            val_clk   <= '0';
 	    done_o    <= '0';
                           
          when SPI_START =>     
             send_dac32_start <= '1';
+            val_clk   <= '0';
 	    done_o    <= '0';
 
           when DONE =>    
+            send_dac32_start <= '0';
+            val_clk   <= '0';
 	    done_o    <= '1';
 	                              
       end case;
    end process state_out;
-   
- end
+ end;
  
 
