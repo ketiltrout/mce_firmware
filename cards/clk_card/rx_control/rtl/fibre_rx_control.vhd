@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: rx_control.vhd,v 1.2 2004/06/24 08:46:57 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_control.vhd,v 1.1 2004/06/28 09:02:00 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -34,14 +34,14 @@
 -- Revision history:
 -- 22nd February 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/24 08:46:57 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 09:02:00 $>	-		<text>		- <initials $Author: dca $>
 --
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-entity rx_control is
+entity fibre_rx_control is
    port( 
       nRx_rdy_i : in     std_logic;  -- hotlink receiver data ready (active low)
       rsc_nRd_i : in     std_logic;  -- hotlink receiver special character/(not) Data 
@@ -52,14 +52,14 @@ entity rx_control is
    );
 
 
-end rx_control ;
+end fibre_rx_control ;
 
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-architecture rtl of rx_control is
+architecture rtl of fibre_rx_control is
 
 begin
 
