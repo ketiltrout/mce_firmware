@@ -27,8 +27,11 @@
 --
 -- Description:
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$   
+-- <date $Date: 2005/01/20 22:49:14 $>    - <initials $Author: mandana $>
+-- $Log: tb_bias_card_self_test.vhd,v $
+-- Revision 1.1  2005/01/20 22:49:14  mandana
+-- Inital Release: bias_card self-test with incoming packets pushed in from the RAM
+--   
 --
 -------------------------------------------------------
 
@@ -167,9 +170,17 @@ architecture tb of tb_bias_card_self_test is
    -- Address Card Signals
    -------------------------------------------------
    -- TTL interface:
-   signal ttl_nrx    : std_logic_vector(3 downto 1);
-   signal ttl_tx     : std_logic_vector(3 downto 1);
-   signal ttl_txena  : std_logic_vector(3 downto 1);
+   signal ttl_nrx1   : std_logic;
+   signal ttl_tx1    : std_logic;
+   signal ttl_txena1 : std_logic;
+
+   signal ttl_nrx2   : std_logic;
+   signal ttl_tx2    : std_logic;
+   signal ttl_txena2 : std_logic;
+
+   signal ttl_nrx3   : std_logic;
+   signal ttl_tx3    : std_logic;
+   signal ttl_txena3 : std_logic;
     
    -- eeprom interface:
    signal ac_eeprom_si  : std_logic;
@@ -349,9 +360,17 @@ begin
          lvds_txb   => lvds_reply_bc1_b, 
          
          -- TTL interface:
-         ttl_nrx    => ttl_nrx,  
-         ttl_tx     => ttl_tx,   
-         ttl_txena  => ttl_txena,
+        ttl_nrx1    => ttl_nrx1,  
+        ttl_tx1     => ttl_tx1,   
+        ttl_txena1  => ttl_txena1,
+
+        ttl_nrx2    => ttl_nrx2,  
+        ttl_tx2     => ttl_tx2,   
+        ttl_txena2  => ttl_txena2,
+
+        ttl_nrx3    => ttl_nrx3,  
+        ttl_tx3     => ttl_tx3,   
+        ttl_txena3  => ttl_txena3,
          
          -- eeprom ice:nterface:
          eeprom_si  => bc_eeprom_si, 
