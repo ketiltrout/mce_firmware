@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_async_fifo.vhd,v 1.1 2004/06/28 12:31:07 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_async_fifo.vhd,v 1.2 2004/06/29 15:25:02 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -33,7 +33,7 @@
 --
 -- Revision history:
 
--- <date $Date: 2004/06/28 12:31:07 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/29 15:25:02 $>	-		<text>		- <initials $Author: dca $>
 --
 -- <$log$>
 -----------------------------------------------------------------------------
@@ -60,7 +60,9 @@ use work.component_pack.all;
 architecture bench of tb_async_fifo is
 
 constant clk_prd      : TIME := 20 ns;    -- 50Mhz clock
-constant fifo_size    : positive := 16;
+constant addr_size    : positive := 4;
+
+signal fifo_size      : positive;
 
 signal dut_rst   : std_logic;
 signal read      : std_logic;
@@ -75,10 +77,11 @@ signal test_data    : integer := 0;
 
 begin
 
+ 
   -- Instantiate Device under test.
    DUT : async_fifo
       generic map (
-         fifo_size => fifo_size
+         addr_size => addr_size
       )
       port map (
          rst_i       => dut_rst,
@@ -89,7 +92,11 @@ begin
          full_o      => full,
          q_o         => data_out
       );
-   
+  
+-- determine size of FIFO from address size (addr_size)   
+   fifo_size <= 2**addr_size;   
+
+
 ------------------------------------------------
 -- Create test bench clock
 -------------------------------------------------
