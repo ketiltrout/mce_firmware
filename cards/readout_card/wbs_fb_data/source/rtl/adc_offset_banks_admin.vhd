@@ -69,6 +69,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_offset_banks_admin.vhd,v $
+-- Revision 1.2  2004/11/26 18:28:35  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.1  2004/11/20 01:22:02  mohsen
 -- Initial release
 --
@@ -195,10 +198,15 @@ begin  -- rtl
     rdaddress_b => adc_offset_addr_ch0_i,             -- from flux_loop_ctrl ch0
     wren        => wren_adc_offset_bank_ch0,          -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa_adc_offset_bank_ch0,            -- to output intended for dispatch
-    qb          => adc_offset_dat_ch0);             -- to flux_loop_ctrl ch0
+    qa          => open,                              -- not used anymore
+    qb          => adc_offset_dat_ch0);               -- to flux_loop_ctrl ch0
   
 
+  qa_adc_offset_bank_ch0 <= (others => '0');   -- Decided not to have access through
+                                               -- dispatch. However, still use 3-port
+                                               -- ram to limit changes.
+  
+  
   i_adc_offset_bank_ch1 : wbs_fb_storage
     port map (
     data        => dat_i,                             -- from dispatch
@@ -207,9 +215,14 @@ begin  -- rtl
     rdaddress_b => adc_offset_addr_ch1_i,             -- from flux_loop_ctrl ch1
     wren        => wren_adc_offset_bank_ch1,          -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa_adc_offset_bank_ch1,            -- to output intended for dispatch
-    qb          => adc_offset_dat_ch1);             -- to flux_loop_ctrl ch1
+    qa          => open,                              -- not used anymore
+    qb          => adc_offset_dat_ch1);               -- to flux_loop_ctrl ch1
 
+
+  qa_adc_offset_bank_ch1 <= (others => '0');   -- Decided not to have access through
+                                               -- dispatch. However, still use 3-port
+                                               -- ram to limit changes.
+  
   
   i_adc_offset_bank_ch2 : wbs_fb_storage
     port map (
@@ -219,9 +232,14 @@ begin  -- rtl
     rdaddress_b => adc_offset_addr_ch2_i,             -- from flux_loop_ctrl ch2
     wren        => wren_adc_offset_bank_ch2,          -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa_adc_offset_bank_ch2,            -- to output intended for dispatch
-    qb          => adc_offset_dat_ch2);             -- to flux_loop_ctrl ch2
+    qa          => open,                              -- not used anymore
+    qb          => adc_offset_dat_ch2);               -- to flux_loop_ctrl ch2
 
+
+  qa_adc_offset_bank_ch2 <= (others => '0');   -- Decided not to have access through
+                                               -- dispatch. However, still use 3-port
+                                               -- ram to limit changes.
+  
 
   i_adc_offset_bank_ch3 : wbs_fb_storage
     port map (
@@ -231,9 +249,14 @@ begin  -- rtl
     rdaddress_b => adc_offset_addr_ch3_i,             -- from flux_loop_ctrl ch3
     wren        => wren_adc_offset_bank_ch3,          -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa_adc_offset_bank_ch3,            -- to output intended for dispatch
-    qb          => adc_offset_dat_ch3);             -- to flux_loop_ctrl ch3
+    qa          => open,                              -- not used anymore
+    qb          => adc_offset_dat_ch3);               -- to flux_loop_ctrl ch3
 
+
+  qa_adc_offset_bank_ch3 <= (others => '0');   -- Decided not to have access through
+                                               -- dispatch. However, still use 3-port
+                                               -- ram to limit changes.
+  
 
   i_adc_offset_bank_ch4 : wbs_fb_storage
     port map (
@@ -243,9 +266,14 @@ begin  -- rtl
     rdaddress_b => adc_offset_addr_ch4_i,             -- from flux_loop_ctrl ch4
     wren        => wren_adc_offset_bank_ch4,          -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa_adc_offset_bank_ch4,            -- to output intended for dispatch
-    qb          => adc_offset_dat_ch4);             -- to flux_loop_ctrl ch4
+    qa          => open,                              -- not used anymore
+    qb          => adc_offset_dat_ch4);               -- to flux_loop_ctrl ch4
 
+
+  qa_adc_offset_bank_ch4 <= (others => '0');   -- Decided not to have access through
+                                               -- dispatch. However, still use 3-port
+                                               -- ram to limit changes.
+  
 
   i_adc_offset_bank_ch5 : wbs_fb_storage
     port map (
@@ -255,8 +283,13 @@ begin  -- rtl
     rdaddress_b => adc_offset_addr_ch5_i,             -- from flux_loop_ctrl ch5
     wren        => wren_adc_offset_bank_ch5,          -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa_adc_offset_bank_ch5,            -- to output intended for dispatch
-    qb          => adc_offset_dat_ch5);             -- to flux_loop_ctrl ch5
+    qa          => open,                              -- not used anymore
+    qb          => adc_offset_dat_ch5);               -- to flux_loop_ctrl ch5
+  
+
+  qa_adc_offset_bank_ch5 <= (others => '0');   -- Decided not to have access through
+                                               -- dispatch. However, still use 3-port
+                                               -- ram to limit changes.
   
 
   i_adc_offset_bank_ch6 : wbs_fb_storage
@@ -267,9 +300,14 @@ begin  -- rtl
     rdaddress_b => adc_offset_addr_ch6_i,             -- from flux_loop_ctrl ch6
     wren        => wren_adc_offset_bank_ch6,          -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa_adc_offset_bank_ch6,            -- to output intended for dispatch
-    qb          => adc_offset_dat_ch6);             -- to flux_loop_ctrl ch6
+    qa          => open,                              -- not used anymore
+    qb          => adc_offset_dat_ch6);               -- to flux_loop_ctrl ch6
 
+
+  qa_adc_offset_bank_ch6 <= (others => '0');   -- Decided not to have access through
+                                               -- dispatch. However, still use 3-port
+                                               -- ram to limit changes.
+  
 
   i_adc_offset_bank_ch7 : wbs_fb_storage
     port map (
@@ -279,9 +317,14 @@ begin  -- rtl
     rdaddress_b => adc_offset_addr_ch7_i,             -- from flux_loop_ctrl ch7
     wren        => wren_adc_offset_bank_ch7,          -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => qa_adc_offset_bank_ch7,            -- to output intended for dispatch
-    qb          => adc_offset_dat_ch7);             -- to flux_loop_ctrl ch7
+    qa          => open,                              -- not used anymore
+    qb          => adc_offset_dat_ch7);               -- to flux_loop_ctrl ch7
 
+
+  qa_adc_offset_bank_ch7 <= (others => '0');   -- Decided not to have access through
+                                               -- dispatch. However, still use 3-port
+                                               -- ram to limit changes.
+  
 
   
   -----------------------------------------------------------------------------
