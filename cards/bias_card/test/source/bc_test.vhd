@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.4  2004/05/16 23:40:19  erniel
+-- added LVDS tx a & b modules
+-- removed LVDS rx clock module
+--
 -- Revision 1.3  2004/05/12 18:03:04  mandana
 -- seperated the lvds_dac signals on the wrapper
 --
@@ -354,7 +358,7 @@ begin
    zero <= '0';
    one <= '1';                         
    rst <= not n_rst or int_rst;
-   test_data <= "10010000000011011100101011111110";  -- 0x900DCAFE
+   test_data <= "10110000000010111111101011001110";  -- 0xB00BFACE
    
    -- functionality of async_mux:
    
