@@ -55,3 +55,9 @@ array_id
 slot_id
    + sys_param.wishbone_pack.all
    + slave_ctrl
+
+sram_ctrl
+   + components.component_pack.all
+   + sys_param.wishbone_pack.all
+   + reg
+
