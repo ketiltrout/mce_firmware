@@ -29,8 +29,11 @@
 -- Package file for test module for Address card
 -- 
 -- Revision History:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/05/13 17:44:06 $>	- <initials $Author: mandana $>
+-- $Log: ac_test_pack.vhd,v $
+-- Revision 1.3  2004/05/13 17:44:06  mandana
+-- modified all_test for ac_test
+--
 --
 ---------------------------------------------------------------------
 
@@ -49,20 +52,21 @@ package ac_test_pack is
 
    -- One character commands ------------------------------------------
       
-   constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc
-   constant CMD_TX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t                                                     
+   constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc                                                  
    constant CMD_DAC_FIX  : std_logic_vector(7 downto 0) := conv_std_logic_vector(102,8);   -- f
    constant CMD_DAC_RAMP : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r
    
    constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
                                                                                                                  
    -- Two character commands ------------------------------------------
-                                    
-   constant CMD_RX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r
-   constant CMD_RX_CLK   : std_logic_vector(7 downto 0) := conv_std_logic_vector(49,8);    -- 1    
-   constant CMD_RX_CMD   : std_logic_vector(7 downto 0) := conv_std_logic_vector(50,8);    -- 2
-   constant CMD_RX_SYNC  : std_logic_vector(7 downto 0) := conv_std_logic_vector(51,8);    -- 3
-   constant CMD_RX_SPARE : std_logic_vector(7 downto 0) := conv_std_logic_vector(52,8);    -- 4
+   
+   constant CMD_TX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t                                  
+   constant CMD_TX_A     : std_logic_vector(7 downto 0) := conv_std_logic_vector(97,8);    -- a
+   constant CMD_TX_B     : std_logic_vector(7 downto 0) := conv_std_logic_vector(98,8);    -- b
+   constant CMD_RX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r 
+   constant CMD_RX_CMD   : std_logic_vector(7 downto 0) := conv_std_logic_vector(99,8);    -- c
+   constant CMD_RX_SYNC  : std_logic_vector(7 downto 0) := conv_std_logic_vector(121,8);   -- y
+   constant CMD_RX_SPARE : std_logic_vector(7 downto 0) := conv_std_logic_vector(112,8);   -- p
 
    ------------------------------------------------------------------
    --
@@ -151,6 +155,9 @@ package ac_test_pack is
            lvds_i : in std_logic);
    end component;
    
+   ------------------------------------------------------------------
+   -- RS232 transmit
+   
    component rs232_data_tx
       generic(WIDTH : in integer range 4 to 1024 := 8);
       port(clk_i   : in std_logic;
@@ -164,24 +171,29 @@ package ac_test_pack is
            tx_data_o : out std_logic_vector(7 downto 0);
            tx_we_o   : out std_logic;
            tx_stb_o  : out std_logic);
-  end component;
+   end component;
 
-  component ac_dac_ramp
+   ------------------------------------------------------------------
+   -- DAC tests
+   
+   component ac_dac_ramp
       port(rst_i       : in std_logic ;
            clk_i       : in std_logic ;
            en_i        : in std_logic ;
            done_o      : out std_logic ;
+           
            dac_dat_o   : out w_array11; 
            dac_clk_o   : out std_logic_vector (40 downto 0) );
-  end component;
-
-  component ac_dac_ctrl_test
+   end component;
+ 
+   component ac_dac_ctrl_test
       port(rst_i       : in std_logic ;
            clk_i       : in std_logic ;
            en_i        : in std_logic ;
            done_o      : out std_logic ;
+           
            dac_dat_o   : out w_array11; 
            dac_clk_o   : out std_logic_vector (40 downto 0) );
-  end component;
+   end component;
   
 end ac_test_pack;

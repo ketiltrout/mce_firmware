@@ -30,8 +30,11 @@
 --
 -- Revision history:
 --
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/05/13 17:44:06 $>	- <initials $Author: mandana $>
+-- $Log: ac_test_idle.vhd,v $
+-- Revision 1.3  2004/05/13 17:44:06  mandana
+-- modified all_test for ac_test
+--
 --
 ---------------------------------------------------------------------
 
@@ -154,7 +157,8 @@ begin
    ------------------------------------------------------------------
    -- receiver control processes
    -- rx_strobe controls the receiver strobe line
-   rx_strobe : process (rst_i, en_i, clk_i, rx_valid_i, rx_ack_i, done)
+--   rx_strobe : process (rst_i, en_i, clk_i, rx_valid_i, rx_ack_i, done)
+   rx_strobe : process (rst_i, en_i, clk_i)
    begin
       if ((rst_i = '1') or (en_i = '0')) then
          rx_stb_o <= '0';
@@ -196,14 +200,14 @@ begin
             when RX_WAIT1 =>
                if (rx_newdata = '1') then
                   if(rx_data_i = CMD_RESET or  
-                     rx_data_i = CMD_TX or
                      rx_data_i = CMD_DEBUG or
                      rx_data_i = CMD_DAC_FIX or
                      rx_data_i = CMD_DAC_RAMP) then
                      -- got a single character command - we're done
                      rx_state <= RX_DONE;
 
-                  elsif(rx_data_i = CMD_RX) then
+                  elsif(rx_data_i = CMD_RX or
+                        rx_data_i = CMD_TX) then
                      rx_state <= RX_WAIT2;
 
                   else
@@ -216,7 +220,8 @@ begin
             
             when RX_WAIT2 =>
                if(rx_newdata = '1') then   
-                  if(rx_data_i = CMD_RX_CLK or
+                  if(rx_data_i = CMD_TX_A or
+                     rx_data_i = CMD_TX_B or
                      rx_data_i = CMD_RX_CMD or
                      rx_data_i = CMD_RX_SYNC or
                      rx_data_i = CMD_RX_SPARE) then
