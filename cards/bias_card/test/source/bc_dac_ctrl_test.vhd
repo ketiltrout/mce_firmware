@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.3 2004/06/04 21:00:26 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.4 2004/06/07 23:18:48 bench2 Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/06/04 21:00:26 $>	- <initials $Author: bench2 $>
+-- <date $Date: 2004/06/07 23:18:48 $>	- <initials $Author: bench2 $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.4  2004/06/07 23:18:48  bench2
+-- Mandana: lvds added
+--
 -- Revision 1.3  2004/06/04 21:00:26  bench2
 -- Mandana: ramp test works now
 --
@@ -76,11 +79,7 @@ entity bc_dac_ctrl_test_wrapper is
       lvds_dac_ncs_o: out std_logic;
       lvds_dac_clk_o: out std_logic;
       
-      ack_test_o: out std_logic;
-      cyc_test_o: out std_logic;
-      sync_test_o: out std_logic;
-      spi_start_o: out std_logic
-      
+      spi_start_o: out std_logic      
    );   
 end;  
 
