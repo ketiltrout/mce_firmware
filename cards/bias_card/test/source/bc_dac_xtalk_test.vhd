@@ -93,7 +93,7 @@ signal logic0   : std_logic;
 signal logic1   : std_logic;
 signal zero     : integer;
 signal clk_2    : std_logic;
-signal clk_count: integer;
+signal clk_count: std_logic_vector(10 downto 0);
 signal send_dac32_start   : std_logic;
 signal send_dac_lvds_start: std_logic;
 signal dac_done           : std_logic_vector (32 downto 0);
@@ -113,18 +113,29 @@ begin
    spi_start_o <= send_dac32_start;
 
 -- instantiate a counter to divide the clock by 2
-   clk_div_2: counter
-   generic map(MAX => 8)
-   port map(clk_i   => clk_i,
-            rst_i   => logic0, 
-            ena_i   => logic1,
-            load_i  => logic0,
-            down_i  => logic0,
-            count_i => zero,
-            count_o => clk_count);
-
-   clk_2   <= '1' when clk_count > 4 else '0';
+--   clk_div_2: counter
+--   generic map(MAX => 8)
+--   port map(clk_i   => clk_i,
+--            rst_i   => logic0, 
+--            ena_i   => logic1,
+--            load_i  => logic0,
+--            down_i  => logic0,
+--            count_i => zero,
+--            count_o => clk_count);
+--
+--   clk_2   <= '1' when clk_count > 4 else '0';
    
+   process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         clk_count <= (others =>'0');
+      elsif(clk_i'event and clk_i = '1') then
+         clk_count <= clk_count + 1;
+      end if;
+   end process;
+
+   clk_2 <= clk_count(9);
+
   -- values tried on DAC Tests with fixed values                               
    data(0) <= "0000000000000000";--x0000     zero range
    data(1) <= "1111111111111111";--xffff     full range
