@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.7  2004/10/13 04:01:15  erniel
+-- parameterized watchdog timer limit
+--
 -- Revision 1.6  2004/09/27 23:02:03  erniel
 -- using updated constants from command_pack
 --
@@ -173,7 +176,7 @@ begin
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, cmd_rdy_i, ack_i, addr)
+   stateNS: process(pres_state, cmd_rdy_i, ack_i, addr, data_size_i)
    begin
       case pres_state is
          when IDLE =>     if(cmd_rdy_i = '1') then
