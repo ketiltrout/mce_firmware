@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.10 2004/07/05 23:51:08 jjacob Exp $
+-- $Id: issue_reply_pack.vhd,v 1.11 2004/07/06 00:29:15 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.11  2004/07/06 00:29:15  bburger
+-- in progress
+--
 -- Revision 1.10  2004/07/05 23:51:08  jjacob
 -- added ack_o output to cmd_translator_ret_dat_fsm
 --
@@ -295,5 +298,27 @@ port(
 
 end component;
 
+component cmd_translator_m_op_table 
+
+port(
+     -- global inputs
+     rst_i             : in     std_logic;
+
+     -- inputs from cmd_translator (top level)     
+     card_addr_store_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+     parameter_id_store_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+     m_op_seq_num_store_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
+     frame_seq_num_store_i   : in std_logic_vector (31                    downto 0);
+     macro_instr_rdy_i       : in std_logic;                                           -- '1' when data is valid and ready to be stored in table 
+ 
+     -- inputs from reply translator
+     m_op_seq_num_retire_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
+     macro_instr_done_i       : in std_logic;                                          --'1' when issued command ready to be retired from table  
+      
+     table_empty_o            : out std_logic;                                         -- asserted if table full.  no more macro instructions should be retired.
+     table_full_o             : out std_logic                                          -- asserted if table full.  No more macro instructions should be issued.
+   ); 
+     
+end component;
 
 end issue_reply_pack;
