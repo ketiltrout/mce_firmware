@@ -30,12 +30,19 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: lvds_rx.vhd,v $
+-- Revision 1.1  2004/06/17 01:25:41  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library components;
+use components.component_pack.all;
+
 
 entity lvds_rx is
 port(clk_i      : in std_logic;
@@ -66,11 +73,17 @@ signal rx_stb : std_logic;
 signal rx_rdy : std_logic;
 signal rx_error : std_logic;
 
-signal data_reg : std_logic_vector(31 downto 0);
+signal bytes_received : integer range 0 to 4;
+signal byte_count_ena : std_logic;
+signal byte_count_clr : std_logic;
 
-signal byte_count : integer range 0 to 4;
+signal byte_ld  : std_logic;
+signal byte0_ld : std_logic;
+signal byte1_ld : std_logic;
+signal byte2_ld : std_logic;
+signal byte3_ld : std_logic;
 
-type states is (IDLE, LATCH, RXWAIT, DONE);
+type states is (IDLE, LATCH, RXDONE, RXWAIT, DONE);
 signal pres_state : states;
 signal next_state : states;
 
@@ -84,7 +97,58 @@ begin
             rx_i     => lvds_i,
             valid_o  => rx_rdy,
             error_o  => rx_error);
-                  
+    
+   byte_counter: counter
+   generic map(MAX => 4,
+               WRAP_AROUND => '0')
+   port map(clk_i   => clk_i,
+            rst_i   => rst_i,
+            ena_i   => byte_count_ena,
+            load_i  => byte_count_clr,
+            count_i => 0,
+            count_o => bytes_received);
+            
+   data_buf0: reg
+   generic map(WIDTH => 8)
+   port map(clk_i  => clk_i,
+            rst_i  => rst_i,
+            ena_i  => byte0_ld,
+ 
+            reg_i  => rx_data,
+            reg_o  => dat_o(7 downto 0));
+
+   data_buf1: reg
+   generic map(WIDTH => 8)
+   port map(clk_i  => clk_i,
+            rst_i  => rst_i,
+            ena_i  => byte1_ld,
+ 
+            reg_i  => rx_data,
+            reg_o  => dat_o(15 downto 8));
+            
+   data_buf2: reg
+   generic map(WIDTH => 8)
+   port map(clk_i  => clk_i,
+            rst_i  => rst_i,
+            ena_i  => byte2_ld,
+ 
+            reg_i  => rx_data,
+            reg_o  => dat_o(23 downto 16));
+            
+   data_buf3: reg
+   generic map(WIDTH => 8)
+   port map(clk_i  => clk_i,
+            rst_i  => rst_i,
+            ena_i  => byte3_ld,
+ 
+            reg_i  => rx_data,
+            reg_o  => dat_o(31 downto 24));
+            
+   byte0_ld <= '1' when bytes_received = 0 and byte_ld = '1' else '0';
+   byte1_ld <= '1' when bytes_received = 1 and byte_ld = '1' else '0';
+   byte2_ld <= '1' when bytes_received = 2 and byte_ld = '1' else '0';
+   byte3_ld <= '1' when bytes_received = 3 and byte_ld = '1' else '0';
+   
    stateFF: process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
@@ -94,28 +158,30 @@ begin
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, rx_rdy, ack_i, byte_count)
+   stateNS: process(pres_state, rx_rdy, ack_i, bytes_received)
    begin
       case pres_state is
-         when IDLE =>   if(rx_rdy = '1') then       -- if receiver signals incoming byte, prepare to copy it
+         when IDLE =>   if(rx_rdy = '1') then         -- if receiver signals incoming byte, prepare to copy it
                            next_state <= LATCH;
                         else
                            next_state <= IDLE;
                         end if;
                         
-         when LATCH =>  if(byte_count = 4) then     -- if we've received 4 bytes, then done.  Otherwise, wait for next byte.
+         when LATCH =>  next_state <= RXDONE;         -- copy the byte
+         
+         when RXDONE => if(bytes_received = 4) then   -- if we've received 4 bytes, then done.  Otherwise, wait for next byte.
                            next_state <= DONE;
                         else
                            next_state <= RXWAIT;
                         end if;
                         
-         when RXWAIT => if(rx_rdy = '1') then       -- if when waiting for next byte, receiver signals byte ready, prepare to copy
+         when RXWAIT => if(rx_rdy = '1') then         -- when waiting for next byte, receiver signals byte ready, prepare to copy
                            next_state <= LATCH;
                         else
                            next_state <= RXWAIT;
                         end if;
          
-         when DONE =>   if(ack_i = '1') then        -- when external module has copied received word, return to idle.
+         when DONE =>   if(ack_i = '1') then          -- when external module has copied received word, return to idle.
                            next_state <= IDLE;
                         else
                            next_state <= DONE;
@@ -125,31 +191,24 @@ begin
    
    stateOut: process(pres_state)
    begin
+      rdy_o          <= '0';
+      rx_stb         <= '0';
+      byte_ld        <= '0';
+      byte_count_ena <= '0';
+      byte_count_clr <= '0';
+      
       case pres_state is
-         when IDLE =>   data_reg <= (others => '0');
-                        dat_o <= (others => '0');
-                        rdy_o <= '0';
-                        rx_stb <= '0';
-                        byte_count <= 0;
+         when IDLE =>   byte_count_ena <= '1';
+                        byte_count_clr <= '1';
                         
-         when LATCH =>  case byte_count is
-                           when 0 => data_reg(7 downto 0) <= rx_data;
-                           when 1 => data_reg(15 downto 8) <= rx_data;
-                           when 2 => data_reg(23 downto 16) <= rx_data;
-                           when others => data_reg(31 downto 24) <= rx_data;
-                        end case;
-                        dat_o <= (others => '0');
-                        rdy_o <= '0';
-                        rx_stb <= '1';
-                        byte_count <= byte_count + 1;
+         when LATCH =>  byte_ld        <= '1';
+                        byte_count_ena <= '1';
+         
+         when RXDONE => rx_stb         <= '1';
+
+         when DONE =>   rdy_o          <= '1';
                         
-         when RXWAIT => dat_o <= (others => '0');
-                        rdy_o <= '0';
-                        rx_stb <= '0';
-                        
-         when DONE =>   dat_o <= data_reg;
-                        rdy_o <= '1';
-                        rx_stb <= '0';
+         when others => null;
       end case;
    end process stateOut;
 
