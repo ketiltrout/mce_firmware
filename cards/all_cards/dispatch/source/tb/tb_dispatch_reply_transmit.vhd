@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch_reply_transmit.vhd,v $
+-- Revision 1.2  2005/01/05 23:24:45  erniel
+-- updated lvds_rx component
+--
 -- Revision 1.1  2004/09/10 16:54:24  erniel
 -- initial version
 --
@@ -54,8 +57,6 @@ architecture BEH of TB_DISPATCH_REPLY_TRANSMIT is
 
    component DISPATCH_REPLY_TRANSMIT
       port(CLK_I         : in std_logic ;
-           MEM_CLK_I     : in std_logic ;
-           COMM_CLK_I    : in std_logic ;
            RST_I         : in std_logic ;
            LVDS_TX_O     : out std_logic ;
            REPLY_RDY_I   : in std_logic ;
@@ -103,8 +104,6 @@ begin
 
    DUT : DISPATCH_REPLY_TRANSMIT
       port map(CLK_I         => W_CLK_I,
-               MEM_CLK_I     => W_MEM_CLK_I,
-               COMM_CLK_I    => W_COMM_CLK_I,
                RST_I         => W_RST_I,
                LVDS_TX_O     => W_LVDS_TX_O,
                REPLY_RDY_I   => W_REPLY_RDY_I,
