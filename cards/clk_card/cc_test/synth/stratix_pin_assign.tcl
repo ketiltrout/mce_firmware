@@ -45,6 +45,11 @@ cmp add_assignment $top_name "" "" DEVICE EP1S30F780C6
 set clk J17
 set reset_n AC9
 
+### LVDS transmit pins
+set cmd G24
+set sync F24
+set txspare G23
+
 ### Data bus, Address bus, and related control signals
 #set ext_addr {A4 A3 B3 B5 B4 C4 A5 C5 D5 E6 A6 B7 D6 A7 D7 C6 C7 B6 D8 C8 E8 D9 B9}
 #set ext_data {H12 F12 J12 M12 H17 K18 H18 G18 B8 A8 A9 C9 E10 A10 C10 B10 A11 C11 D11 B11 D10 G10 F10 H11 G11 F8 J9 J13 L13 M11 L11 G7}
@@ -71,6 +76,12 @@ set txd AH22
 #### Make the clock and reset signal assignments
 cmp add_assignment $top_name "" clk LOCATION "Pin_$clk"
 cmp add_assignment $top_name "" reset_n LOCATION "Pin_$reset_n"
+
+################################################
+#### Make the LVDS signal assignments
+cmp add_assignment $top_name "" cmd LOCATION "Pin_$cmd"
+cmp add_assignment $top_name "" sync LOCATION "Pin_$sync"
+cmp add_assignment $top_name "" txspare LOCATION "Pin_$txspare"
 
 #################################################
 #### Make the external Flash and SRAM assignments
