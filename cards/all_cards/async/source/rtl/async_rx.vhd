@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_rx.vhd,v $
+-- Revision 1.7  2004/12/10 01:34:44  erniel
+-- added generic clock divide factor and clock division logic
+-- changed sampling interval to centre of received bit
+--
 -- Revision 1.6  2004/09/01 17:54:19  erniel
 -- fixed multiple sources error in shift_reg port map (open instead of '0')
 --
@@ -51,13 +55,13 @@ use components.component_pack.all;
 ---------------------------------------------------------------------
 
 entity async_rx is
-generic(CLK_DIV_FACTOR : integer := 217);
+generic(CLK_DIV_FACTOR : integer := 2);
 port(comm_clk_i : in std_logic;
      rst_i      : in std_logic;
      
      dat_o : out std_logic_vector (7 downto 0);
      rdy_o : out std_logic;
-     err_o : out std_logic;
+     ack_i : in std_logic;
 
      rx_i : in std_logic);     
 end async_rx ;
@@ -149,7 +153,7 @@ begin
    data_buf_ena <= '1' when ((count =  5) or (count = 13) or (count = 21) or (count = 29) or (count = 37) or
                              (count = 45) or (count = 53) or (count = 61) or (count = 69) or (count = 77))
                        else '0';
-   
+                              
    stateFF: process(rst_i, rx_clk)
    begin
       if(rst_i = '1') then
@@ -159,7 +163,7 @@ begin
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, rx_i, count)
+   stateNS: process(pres_state, rx_i, count, ack_i)
    begin
       case pres_state is
          when IDLE =>    if(rx_i = '0') then
@@ -174,7 +178,11 @@ begin
                             next_state <= RECEIVE;
                          end if;
                                                   
-         when DONE =>    next_state <= IDLE;
+         when DONE =>    if(ack_i = '1') then
+                            next_state <= IDLE;
+                         else
+                            next_state <= DONE;
+                         end if;
       end case;
    end process stateNS;
    
@@ -185,7 +193,6 @@ begin
       data_buf_clr   <= '0';
       count_clr      <= '0';
       rdy_o          <= '0';
-      err_o          <= '0';               -- err_o indicates framing error 
       dat_o          <= (others => '0');
       
       case pres_state is
@@ -196,9 +203,8 @@ begin
                          
          when RECEIVE => sample_buf_ena <= '1';
                                                   
-         when DONE =>    rdy_o <= '1';
-                         err_o <= not data_buf(9);                        
-                         dat_o <= data_buf(8 downto 1);
+         when DONE =>    rdy_o          <= '1';
+                         dat_o          <= data_buf(8 downto 1);
       end case;
    end process stateOut;
    
