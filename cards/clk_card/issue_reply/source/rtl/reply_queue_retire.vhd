@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.1 2004/10/21 00:45:38 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.2 2004/10/22 01:54:38 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.2  2004/10/22 01:54:38  bburger
+-- Bryce:  fixed bugs
+--
 -- Revision 1.1  2004/10/21 00:45:38  bburger
 -- Bryce:  new
 --
@@ -47,6 +50,7 @@ use components.component_pack.all;
 
 library work;
 use work.cmd_queue_ram40_pack.all;
+use work.cmd_queue_pack.all;
 
 entity reply_queue_retire is
    port(
