@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/02/20 00:11:50 $> - <initials $Author: bburger $>
+-- <date $Date: 2005/02/21 18:51:18 $> - <initials $Author: mandana $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.21  2005/02/21 18:51:18  mandana
+-- changed fw_rev command
+--
 -- Revision 1.20  2005/02/20 00:11:50  bburger
 -- Bryce:  added firmware version command (fmwr_vsn)
 --
@@ -199,7 +202,6 @@ package wishbone_pack is
    constant ROW_DLY_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"35";
    constant RESYNC_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"36";
    constant FLX_LP_INIT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"37";
-   constant FW_REV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"38";
 
    -- Any FPGA Card
    constant RST_WTCHDG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"41";
@@ -213,7 +215,7 @@ package wishbone_pack is
    constant CARD_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"93";
    constant CARD_TYPE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"94";
    constant SLOT_ID_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"95";
-   constant FMWR_VRSN_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"96";
+   constant FW_REV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"96";
    constant DIP_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"97";
    constant CYC_OO_SYC_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"98";   
    constant LED_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
