@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_pack.vhd,v $
+-- Revision 1.4  2004/06/30 01:46:13  erniel
+-- removed async_tx declaration
+-- removed async_rx declaration
+--
 -- Revision 1.3  2004/06/29 21:30:04  erniel
 -- removed old async declarations
 -- removed old tx_t declaration
@@ -59,8 +63,8 @@ package async_pack is
         rst_i      : in std_logic;
      
         dat_i      : in std_logic_vector(31 downto 0);
-        start_i    : in std_logic;
-        done_o     : out std_logic;
+        rdy_i      : in std_logic;
+        busy_o     : out std_logic;
      
         lvds_o     : out std_logic);
    end component;
