@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.10  2005/01/11 20:51:48  erniel
+-- updated dispatch_cmd_receive declaration
+-- updated dispatch_reply_transmit declaration
+-- updated dispatch top-level declaration
+--
 -- Revision 1.9  2004/12/16 01:47:44  erniel
 -- added mem_clk port to disaptch_reply_transmit
 --
@@ -84,8 +89,12 @@ package dispatch_pack is
    
    -- buffer declarations:
    constant MAX_DATA_WORDS : integer := (2**BB_DATA_SIZE_WIDTH);
-   constant BUF_DATA_WIDTH : integer := PACKET_WORD_WIDTH;
-   constant BUF_ADDR_WIDTH : integer := 6;   
+   
+   constant CMD_BUF_DATA_WIDTH : integer := PACKET_WORD_WIDTH;
+   constant CMD_BUF_ADDR_WIDTH : integer := 6;   
+   
+   constant REPLY_BUF_DATA_WIDTH : integer := PACKET_WORD_WIDTH;
+   constant REPLY_BUF_ADDR_WIDTH : integer := 9;
    
    -- component declarations:
    component dispatch_cmd_receive
@@ -98,8 +107,8 @@ package dispatch_pack is
         cmd_err_o  : out std_logic; 
         header0_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
         header1_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-        buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-        buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+        buf_data_o : out std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
+        buf_addr_o : out std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
         buf_wren_o : out std_logic);
    end component;
    
@@ -110,12 +119,12 @@ package dispatch_pack is
         data_size_i      : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
         cmd_type_i       : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);     
         param_id_i       : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
-        cmd_buf_data_i   : in std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-        cmd_buf_addr_o   : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+        cmd_buf_data_i   : in std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
+        cmd_buf_addr_o   : out std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
         wb_rdy_o         : out std_logic;
         wb_err_o         : out std_logic;
-        reply_buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-        reply_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+        reply_buf_data_o : out std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
+        reply_buf_addr_o : out std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
         reply_buf_wren_o : out std_logic;
         wait_i           : in std_logic;
         dat_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -139,17 +148,8 @@ package dispatch_pack is
         header0_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
         header1_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
         header2_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-        buf_data_i  : in std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-        buf_addr_o  : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0));
-   end component;
-   
-   component dispatch_data_buf
-   port(data      : in std_logic_vector (BUF_DATA_WIDTH-1 downto 0);
-        wren      : in std_logic;
-        wraddress : in std_logic_vector (BUF_ADDR_WIDTH-1 downto 0);
-        rdaddress : in std_logic_vector (BUF_ADDR_WIDTH-1 downto 0);
-        clock     : in std_logic;
-        q         : out std_logic_vector (BUF_DATA_WIDTH-1 downto 0));
+        buf_data_i  : in std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
+        buf_addr_o  : out std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0));
    end component;
    
    component dispatch
