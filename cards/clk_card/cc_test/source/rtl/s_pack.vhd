@@ -30,6 +30,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
+library work;
+use work.slot_id_pack.all;
+
 package s_pack is
 
    -- define serial port command characters
@@ -276,6 +279,44 @@ package s_pack is
            n_we_o  : out std_logic);
    end component;
    
+   ------------------------------------------------------------------
+   -- slot ID
+   component slot_id_test_wrapper
+      port(rst_i     : in std_logic;    -- reset input
+           clk_i     : in std_logic;    -- clock input
+           en_i      : in std_logic;    -- enable signal
+           done_o    : out std_logic;   -- done ouput signal
+      
+           -- transmitter signals
+           tx_busy_i : in std_logic;    -- transmit busy flag
+           tx_ack_i  : in std_logic;    -- transmit ack
+           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
+           tx_we_o   : out std_logic;   -- transmit write flag
+           tx_stb_o  : out std_logic;   -- transmit strobe flag
+      
+           -- extended signals
+           slot_id_i : in std_logic_vector (SLOT_ID_BITS-1 downto 0));
+   end component;
+   
+   ------------------------------------------------------------------
+   -- card ID
+   component card_id_test_wrapper
+      port(rst_i     : in std_logic;    -- reset input
+           clk_i     : in std_logic;    -- clock input
+           en_i      : in std_logic;    -- enable signal
+           done_o    : out std_logic;   -- done ouput signal
+      
+           -- transmitter signals
+           tx_busy_i : in std_logic;    -- transmit busy flag
+           tx_ack_i  : in std_logic;    -- transmit ack
+           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
+           tx_we_o   : out std_logic;   -- transmit write flag
+           tx_stb_o  : out std_logic;   -- transmit strobe flag
+      
+           -- extended signals
+           data_bi   : inout std_logic);
+   end component;
+      
 end s_pack;
 
 

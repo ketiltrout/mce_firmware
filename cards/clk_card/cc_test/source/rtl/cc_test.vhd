@@ -26,7 +26,10 @@
 --
 -- CVS Logs:
 --
--- $Log$
+-- $Log: cc_test.vhd,v $
+-- Revision 1.4  2004/03/27 01:01:34  erniel
+-- Added SRAM verification module
+--
 --
 ---------------------------------------------------------------------
 
@@ -72,14 +75,20 @@ entity cc_test is
       sram1_noe  : out std_logic;
       sram1_nce1 : out std_logic;
       sram1_ce2  : out std_logic;
-      sram1_nwe  : out std_logic
+      sram1_nwe  : out std_logic;
+      
+      -- slot id interface
+      slot_id : in std_logic_vector (3 downto 0);
+      
+      -- card id interface
+      card_id : inout std_logic
       
    );
 end cc_test;
 
 architecture behaviour of cc_test is
    
-   constant MAX_STATES : integer := 11;
+   constant MAX_STATES : integer := 13;
    signal zero : std_logic;
    signal one : std_logic;
    signal reset : std_logic;
@@ -121,6 +130,8 @@ architecture behaviour of cc_test is
    constant INDEX_LVDS_TX_SPARE : integer := 8;
    constant INDEX_SRAM_0        : integer := 9;
    constant INDEX_SRAM_1        : integer := 10;
+   constant INDEX_SLOT_ID       : integer := 11;
+   constant INDEX_CARD_ID       : integer := 12;
    
    constant SEL_RESET          : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE           : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -133,7 +144,9 @@ architecture behaviour of cc_test is
    constant SEL_LVDS_TX_SPARE  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SPARE => '1', others => '0');
    constant SEL_SRAM_0         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_0 => '1', others => '0');
    constant SEL_SRAM_1         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_1 => '1', others => '0');
-
+   constant SEL_SLOT_ID        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
+   constant SEL_CARD_ID        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
+   
    constant DONE_NULL          : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant DONE_IDLE          : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -146,6 +159,8 @@ architecture behaviour of cc_test is
    constant DONE_LVDS_TX_SPARE : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LVDS_TX_SPARE => '1', others => '0');
    constant DONE_SRAM_0        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_0 => '1', others => '0');
    constant DONE_SRAM_1        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_1 => '1', others => '0');
+   constant DONE_SLOT_ID       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
+   constant DONE_CARD_ID       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
 
 begin
    -- RS232 interface start
@@ -383,6 +398,39 @@ begin
                ce2_o   => sram1_ce2,
                n_we_o  => sram1_nwe);
                  
+   slotid : slot_id_test_wrapper
+      port map(rst_i  => reset,
+               clk_i  => clk,
+               en_i   => sel_vec(INDEX_SLOT_ID),
+               done_o => done_vec(INDEX_SLOT_ID),
+      
+               -- RS232 signals
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => tx_rec_array(INDEX_SLOT_ID).dat,
+               tx_we_o   => tx_rec_array(INDEX_SLOT_ID).we,
+               tx_stb_o  => tx_rec_array(INDEX_SLOT_ID).stb,
+        
+               -- physical pins
+               slot_id_i => slot_id);
+               
+   cardid : card_id_test_wrapper
+      port map(rst_i => reset,
+               clk_i     => clk,
+               en_i      => sel_vec(INDEX_CARD_ID),
+               done_o    => done_vec(INDEX_CARD_ID),
+      
+               -- RS232 signals
+               tx_busy_i => tx_busy,
+               tx_ack_i  => tx_ack,
+               tx_data_o => tx_rec_array(INDEX_CARD_ID).dat,
+               tx_we_o   => tx_rec_array(INDEX_CARD_ID).we,
+               tx_stb_o  => tx_rec_array(INDEX_CARD_ID).stb,
+      
+               -- physical pins
+               data_bi => card_id);
+      
+      
    zero <= '0';
    one <= '1';                         
    reset <= not reset_n;
@@ -447,6 +495,13 @@ begin
                         sel_vec <= SEL_SRAM_0;
                      else
                         sel_vec <= SEL_SRAM_1;
+                     end if;
+                     
+                  when CMD_ID =>
+                     if(cmd2 = CMD_ID_SLOT) then
+                        sel_vec <= SEL_SLOT_ID;
+                     elsif(cmd2 = CMD_ID_SERIAL) then
+                        sel_vec <= SEL_CARD_ID;
                      end if;
                      
                   when others =>
