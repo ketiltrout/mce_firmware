@@ -29,8 +29,13 @@
 -- Generic parameterized counter
 --
 -- Revision history:
--- <date $Date: 2004/05/17 20:10:44 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/21 19:45:10 $>	- <initials $Author: erniel $>
 -- $Log: counter.vhd,v $
+-- Revision 1.3  2004/07/21 19:45:10  erniel
+-- added generics to parameterize counter behaviour:
+--    WRAP_AROUND
+--    UP_COUNTER
+--
 -- Revision 1.2  2004/05/17 20:10:44  mandana
 -- changed the count increments to generic STEPSIZE=1
 --
@@ -49,7 +54,7 @@ use ieee.std_logic_unsigned.all;
 entity counter is
 generic(MAX         : integer := 255;
         STEP_SIZE   : integer := 1;
-        WRAP_AROUND : std_logic := '0';
+        WRAP_AROUND : std_logic := '1';
         UP_COUNTER  : std_logic := '1');
 port(clk_i   : in std_logic;
      rst_i   : in std_logic;
