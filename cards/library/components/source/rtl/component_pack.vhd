@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.23 2004/10/12 14:17:10 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.24 2004/10/25 19:00:58 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.24  2004/10/25 19:00:58  erniel
+-- added generic showahead fifo
+--
 -- Revision 1.23  2004/10/12 14:17:10  dca
 -- sync_fifo_tx component declaration added
 --
@@ -314,7 +317,6 @@ package component_pack is
    generic(DATA_WIDTH : integer := 32;
            ADDR_WIDTH : integer := 8);
    port(clk_i     : in std_logic;
-        mem_clk_i : in std_logic;
         rst_i     : in std_logic;
 
         data_i : in std_logic_vector(DATA_WIDTH-1 downto 0);

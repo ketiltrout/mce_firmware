@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fifo.vhd,v $
+-- Revision 1.2  2004/10/27 03:41:35  erniel
+-- tested simultaneous read and write
+--
 -- Revision 1.1  2004/10/25 19:01:36  erniel
 -- initial version
 --
@@ -40,39 +43,39 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 
+library components;
+use components.component_pack.all;
+
 entity TB_FIFO is
 end TB_FIFO;
 
 architecture BEH of TB_FIFO is
-
-   component FIFO
-
-      generic(DATA_WIDTH   : integer  := 32 ;
-              ADDR_WIDTH   : integer  := 8 );
-
-      port(CLK_I       : in std_logic ;
-           MEM_CLK_I   : in std_logic ;
-           RST_I       : in std_logic ;
-           DATA_I      : in std_logic_vector ( DATA_WIDTH - 1 downto 0 );
-           DATA_O      : out std_logic_vector ( DATA_WIDTH - 1 downto 0 );
-           READ_I      : in std_logic ;
-           WRITE_I     : in std_logic ;
-           CLEAR_I     : in std_logic ;
-           EMPTY_O     : out std_logic ;
-           FULL_O      : out std_logic ;
-           ERROR_O     : out std_logic ;
-           USED_O      : out integer );
-
-   end component;
+--
+--   component FIFO
+--
+--      generic(DATA_WIDTH   : integer  := 32 ;
+--              ADDR_WIDTH   : integer  := 8 );
+--
+--      port(CLK_I       : in std_logic ;
+--           RST_I       : in std_logic ;
+--           DATA_I      : in std_logic_vector ( DATA_WIDTH - 1 downto 0 );
+--           DATA_O      : out std_logic_vector ( DATA_WIDTH - 1 downto 0 );
+--           READ_I      : in std_logic ;
+--           WRITE_I     : in std_logic ;
+--           CLEAR_I     : in std_logic ;
+--           EMPTY_O     : out std_logic ;
+--           FULL_O      : out std_logic ;
+--           ERROR_O     : out std_logic ;
+--           USED_O      : out integer );
+--
+--   end component;
 
 
    constant PERIOD : time := 20 ns;
-   constant MEM_PERIOD : time := 4 ns;
 
    constant DATA_WIDTH : integer := 8;
    
    signal W_CLK_I       : std_logic := '1';
-   signal W_MEM_CLK_I   : std_logic := '1';
    signal W_RST_I       : std_logic ;
    signal W_DATA_I      : std_logic_vector ( DATA_WIDTH - 1 downto 0 );
    signal W_DATA_O      : std_logic_vector ( DATA_WIDTH - 1 downto 0 );
@@ -92,7 +95,6 @@ begin
                   ADDR_WIDTH   => 2 )
 
       port map(CLK_I       => W_CLK_I,
-               MEM_CLK_I   => W_MEM_CLK_I,
                RST_I       => W_RST_I,
                DATA_I      => W_DATA_I,
                DATA_O      => W_DATA_O,
@@ -105,7 +107,6 @@ begin
                USED_O      => W_USED_O);
 
    W_CLK_I       <= not W_CLK_I after PERIOD/2;
-   W_MEM_CLK_I   <= not W_MEM_CLK_I after MEM_PERIOD/2;
 
    STIMULI : process
    procedure do_reset is
