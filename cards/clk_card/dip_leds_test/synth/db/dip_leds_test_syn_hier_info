@@ -1,6 +1,7 @@
 |dip_leds_test
-dip[1] => |dip_leds_test|led[1]
-dip[0] => |dip_leds_test|led[0]
-led[1] <= |dip_leds_test|dip[1]
-led[0] <= |dip_leds_test|dip[0]
+dip3 => |dip_leds_test|status_led
+dip4 => |dip_leds_test|pow_ok_led
+nfault_led <= VCC
+status_led <= |dip_leds_test|dip3
+pow_ok_led <= |dip_leds_test|dip4
 
