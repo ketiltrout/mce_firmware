@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.24 2004/09/29 14:25:14 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.25 2004/09/29 14:54:05 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.25  2004/09/29 14:54:05  dca
+-- components declarations for all components of fibre_rx and fibre_tx added.
+--
 -- Revision 1.24  2004/09/29 14:25:14  dca
 -- component 'fibre_tx' port map corrected
 --
@@ -37,7 +40,7 @@
 --
 -- Revision 1.22  2004/09/09 18:28:49  jjacob
 -- added 3 outputs to cmd_translator:
--- >       cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+-- >       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
 -- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
 -- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
 --
@@ -46,8 +49,8 @@
 --       reply_cmd_rcvd_er_o         : out std_logic;
 --       reply_cmd_rcvd_ok_o         : out std_logic;
 --       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
---       reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
---       reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)
+--       reply_param_id_o            : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+--       reply_card_id_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)
 --
 -- and also added an input for the checksum error to route to the reply_cmd_rcvd_er_
 --
@@ -56,7 +59,7 @@
 --
 -- Revision 1.19  2004/08/05 18:16:30  jjacob
 -- changed frame_sync_num_o to use the parameter
--- SYNC_NUM_BUS_WIDTH
+-- SYNC_NUM_WIDTH
 --
 -- Revision 1.18  2004/07/22 23:09:02  bench2
 -- Bryce: moved system-level constants to command_pack
@@ -75,7 +78,7 @@
 -- cmd_translator_m_op_table entity.
 --
 -- Revision 1.13  2004/07/07 10:52:03  dca
--- CMD_CODE_BUS_WIDTH parameter added
+-- FIBRE_CMD_CODE_WIDTH parameter added
 --
 -- Revision 1.12  2004/07/06 11:09:47  dca
 -- "cmd_translator_m_op_table" component declaration included.
@@ -87,7 +90,7 @@
 -- added ack_o output to cmd_translator_ret_dat_fsm
 --
 -- Revision 1.9  2004/06/30 23:14:40  bburger
--- bug fix: DATA_SIZE_BUS_WIDTH is =32, was =8
+-- bug fix: FIBRE_DATA_SIZE_WIDTH is =32, was =8
 --
 -- Revision 1.8  2004/06/29 22:42:31  jjacob
 -- updating testbench, not even the first version yet.  This is a safety
@@ -103,13 +106,13 @@
 -- changed data width from 16 to 32 bits
 --
 -- Revision 1.4  2004/05/17 22:54:13  jjacob
--- modified DATA_SIZE_BUS_WIDTH = 8 from 16
+-- modified FIBRE_DATA_SIZE_WIDTH = 8 from 16
 --
 -- Revision 1.3  2004/05/11 17:35:14  jjacob
 -- increased parameter ID to 24 bits, even though we only use bottom 8 bits.
 --
 -- Revision 1.2  2004/05/10 19:24:41  bburger
--- added UOP_STATUS_BUS_WIDTH
+-- added BB_STATUS_WIDTH
 --
 -- Revision 1.1  2004/05/10 19:01:45  bburger
 -- new
@@ -123,8 +126,8 @@ use ieee.std_logic_1164.all;
 library sys_param;
 use sys_param.command_pack.all;
 
-library sys_param;
-use sys_param.wishbone_pack.all;
+library work;
+use work.sync_gen_pack.all;
 
 package issue_reply_pack is
 
@@ -145,15 +148,15 @@ port(
 
       -- inputs from fibre_rx
 
-      card_id_i         : in    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
+      card_id_i         : in    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
       cmd_code_i        : in    std_logic_vector (15 downto 0);   -- the least significant 16-bits from the fibre packet
-      cmd_data_i        : in    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);   -- the data
+      cmd_data_i        : in    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);   -- the data
       cksum_err_i       : in    std_logic;
       cmd_rdy_i         : in    std_logic;                        -- indicates the fibre_rx outputs are valid
       data_clk_i        : in    std_logic;                        -- used to clock the data out
-      num_data_i        : in    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
+      num_data_i        : in    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
       --reg_addr_i        : in    std_logic_vector (23 downto 0);   -- the parameter ID
-      param_id_i        : in    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);   -- the parameter ID
+      param_id_i        : in    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);   -- the parameter ID
 
       -- output to fibre_rx
       ack_o             : out std_logic;
@@ -164,13 +167,13 @@ port(
 
       -- signals from the arbiter to cmd_queue (micro-op sequence generator)
       --ack_o             :  out std_logic;     -- DEAD unused signal --RENAME to cmd_rdy_o        -- ready signal
-      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
+      card_addr_o       :  out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o    :  out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+      data_size_o       :  out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      data_o            :  out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);        -- data will be passed straight thru
       data_clk_o        :  out std_logic;
       macro_instr_rdy_o :  out std_logic;
-      cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
       last_frame_o      :  out std_logic;  
        
@@ -179,17 +182,17 @@ port(
 
 
       -- outputs to the cmd_queue (micro instruction sequence generator)
-      m_op_seq_num_o        : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);
+      m_op_seq_num_o        : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
       frame_seq_num_o       : out std_logic_vector (31 downto 0);
-      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
+      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);--(7 downto 0);
 
 
       -- outputs to reply_translator for commands that require quick acknowldgements  
       reply_cmd_rcvd_er_o         : out std_logic;
       reply_cmd_rcvd_ok_o         : out std_logic;
       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
-      reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
-      reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)    -- specifies which card the command is targetting
+      reply_param_id_o            : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+      reply_card_id_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)    -- specifies which card the command is targetting
 
 
 
@@ -208,10 +211,10 @@ port(
       clk_i             : in     std_logic;
 
       -- inputs from cmd_translator top level
-      card_addr_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+      data_size_i       : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_i            : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_i        : in std_logic;                                              -- for clocking out the data
       cmd_code_i        : in std_logic_vector (15 downto 0);
 
@@ -221,13 +224,13 @@ port(
       cmd_stop_i        : in std_logic;
 
       -- outputs to the macro-instruction arbiter
-      card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o       : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_o            : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+      data_size_o       : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o        : out std_logic;                                          -- for clocking out the data
       macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      cmd_type_o        : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
 
       -- input from the macro-instruction arbiter
       ack_i             : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
@@ -249,10 +252,10 @@ port(
 
       -- inputs from fibre_rx
 
-      card_addr_i             : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_i          : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_i             : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_i                  : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_i             : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_i          : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+      data_size_i             : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_i                  : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_i              : in std_logic;                                          -- for clocking out the data
       cmd_code_i              : in std_logic_vector (15 downto 0);
   
@@ -268,20 +271,20 @@ port(
       ret_dat_s_done_o        : out std_logic;
 
       -- outputs to the macro-instruction arbiter
-      card_addr_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o          : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o             : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      data_o                  : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o          : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+      data_size_o             : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      data_o                  : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o              : out std_logic;                                          -- for clocking out the data
       macro_instr_rdy_o       : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      cmd_type_o              : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_type_o              : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o              : out std_logic;                                          -- indicates a STOP command was recieved
       last_frame_o            : out std_logic;
       
       ret_dat_fsm_working_o   : out std_logic;
 
       frame_seq_num_o         : out std_logic_vector (31 downto 0);
-      frame_sync_num_o        : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
+      frame_sync_num_o        : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);--(7 downto 0);
 
       -- input from the macro-instruction arbiter
       ack_i                   : in std_logic;                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
@@ -306,14 +309,14 @@ port(
       ret_dat_frame_seq_num_i      : in std_logic_vector (31 downto 0);
       ret_dat_frame_sync_num_i     : in std_logic_vector (7 downto 0);
 
-      ret_dat_card_addr_i          : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      ret_dat_parameter_id_i       : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targett_ig
-      ret_dat_data_size_i          : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      ret_dat_data_i               : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      ret_dat_card_addr_i          : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      ret_dat_parameter_id_i       : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targett_ig
+      ret_dat_data_size_i          : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      ret_dat_data_i               : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       ret_dat_data_clk_i           : in std_logic;                                                      -- for clocking out the data
       ret_dat_macro_instr_rdy_i    : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_i        : in std_logic;
-      ret_dat_cmd_type_i           : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      ret_dat_cmd_type_i           : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       ret_dat_cmd_stop_i           : in std_logic;                                          -- indicates a STOP command was recieved
       ret_dat_last_frame_i         : in std_logic;   
  
@@ -321,32 +324,32 @@ port(
       ret_dat_ack_o                : out std_logic;                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
 
       -- inputs from the 'simple commands' state machine
-      simple_cmd_card_addr_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      simple_cmd_parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      simple_cmd_data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      simple_cmd_data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      simple_cmd_card_addr_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      simple_cmd_parameter_id_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+      simple_cmd_data_size_i       : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      simple_cmd_data_i            : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       simple_cmd_data_clk_i        : in std_logic;                                          -- for clocking out the data
       simple_cmd_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      simple_cmd_type_i            : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      simple_cmd_type_i            : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       -- input from the macro-instruction arbiter
       simple_cmd_ack_o             : out std_logic ;
       
       -- input for sync_number for simple commands
-      sync_number_i                : in  std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
+      sync_number_i                : in  std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
 
       -- outputs to the cmd_queue (micro instruction sequence generator)
-      m_op_seq_num_o               : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);        --( 7 downto 0);
+      m_op_seq_num_o               : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);        --( 7 downto 0);
       frame_seq_num_o              : out std_logic_vector (31 downto 0);
-      frame_sync_num_o             : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);   --(7 downto 0);
+      frame_sync_num_o             : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);   --(7 downto 0);
       
       -- outputs to the micro-instruction generator
-      card_addr_o                  : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o               : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o                  : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      data_o                       : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_o                  : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o               : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+      data_size_o                  : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      data_o                       : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o                   : out std_logic;                                               -- for clocking out the data
       macro_instr_rdy_o            : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      cmd_type_o                   : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_type_o                   : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o                   : out std_logic;                                          -- indicates a STOP command was recieved
       last_frame_o                 : out std_logic;
       
@@ -365,14 +368,14 @@ port(
      clk_i                   : in     std_logic;
 
      -- inputs from cmd_translator (top level)     
-     card_addr_store_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-     parameter_id_store_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
-     m_op_seq_num_store_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
+     card_addr_store_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+     parameter_id_store_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+     m_op_seq_num_store_i    : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
      frame_seq_num_store_i   : in std_logic_vector (31                    downto 0);
      macro_instr_rdy_i       : in std_logic;                                           -- '1' when data is valid and ready to be stored in table 
  
      -- inputs from reply translator
-     m_op_seq_num_retire_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
+     m_op_seq_num_retire_i    : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
      macro_instr_done_i       : in std_logic;                                          --'1' when issued command ready to be retired from table  
       
      retiring_busy_o          : out std_logic;                                         -- asserted high if retiring a command, during which no command should be issued.
@@ -419,18 +422,18 @@ port(
    -- signals to/from cmd_translator    
    cmd_rcvd_er_i           : in  std_logic;                                            -- command received on fibre with checksum error
    cmd_rcvd_ok_i           : in  std_logic;                                            -- command received on fibre - no checksum error
-   cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);    -- fibre command code
-   card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- fibre command card id
-   param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- fibre command parameter id
+   cmd_code_i              : in  std_logic_vector (FIBRE_CMD_CODE_WIDTH-1  downto 0);    -- fibre command code
+   card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- fibre command card id
+   param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);    -- fibre command parameter id
          
    -- signals to/from reply queue 
    m_op_done_i             : in  std_logic;                                            -- macro op done
    m_op_ok_nEr_i           : in  std_logic;                                            -- macro op success ('1') or error ('0') 
-   m_op_cmd_code_i         : in  std_logic_vector (CMD_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
---    m_op_param_id_i         : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- m_op parameter id passed from reply_queue
---    m_op_card_id_i          : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- m_op card id passed from reply_queue
-   fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- packet word read from reply queue
-   num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
+   m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
+--    m_op_param_id_i         : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);    -- m_op parameter id passed from reply_queue
+--    m_op_card_id_i          : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- m_op card id passed from reply_queue
+   fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- packet word read from reply queue
+   num_fibre_words_i       : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
    fibre_word_req_o        : out std_logic;                                            -- asserted to requeset next fibre word
    m_op_ack_o              : out std_logic;                                            -- asserted to indicate to reply queue the the packet has been processed
 
@@ -506,11 +509,11 @@ port(
    rxd_i       : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);      -- receive data byte 
    cmd_ack_i   : in     std_logic;                                             -- command acknowledge
 
-   cmd_code_o  : out    std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);      -- command code  
-   card_id_o   : out    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);     -- card id
-   param_id_o  : out    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);        -- parameter id
-   num_data_o  : out    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);     -- number of valid 32 bit data words
-   cmd_data_o  : out    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);          -- 32bit valid data word
+   cmd_code_o  : out    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);      -- command code  
+   card_id_o   : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);     -- card id
+   param_id_o  : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);        -- parameter id
+   num_data_o  : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);     -- number of valid 32 bit data words
+   cmd_data_o  : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);          -- 32bit valid data word
    cksum_err_o : out    std_logic;                                             -- checksum error flag
    cmd_rdy_o   : out    std_logic;                                             -- command ready flag (checksum passed)
    data_clk_o  : out    std_logic;                                             -- data clock
@@ -546,11 +549,11 @@ port(
    rx_data_i   : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);
    cmd_ack_i   : in     std_logic;                                           -- command acknowledge
    
-   cmd_code_o  : out    std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);    -- command code  
-   card_id_o   : out    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- card id
-   param_id_o  : out    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- parameter id
-   num_data_o  : out    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- number of valid 32 bit data words
-   cmd_data_o  : out    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- 32bit valid data word
+   cmd_code_o  : out    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);    -- command code  
+   card_id_o   : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);   -- card id
+   param_id_o  : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- parameter id
+   num_data_o  : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);   -- number of valid 32 bit data words
+   cmd_data_o  : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);        -- 32bit valid data word
    cksum_err_o : out    std_logic;                                           -- checksum error flag
    cmd_rdy_o   : out    std_logic;                                           -- command ready flag (checksum passed)
    data_clk_o  : out    std_logic                                            -- data clock
