@@ -167,19 +167,19 @@ value "C:\\scuba2_repository\\architecture\\readout_card\\hds\\flux_loop"
 )
 (vvPair
 variable "date"
-value "11/10/2004"
+value "11/15/2004"
 )
 (vvPair
 variable "day"
-value "Wed"
+value "Mon"
 )
 (vvPair
 variable "day_long"
-value "Wednesday"
+value "Monday"
 )
 (vvPair
 variable "dd"
-value "10"
+value "15"
 )
 (vvPair
 variable "entity_name"
@@ -275,7 +275,7 @@ value "<TBD>"
 )
 (vvPair
 variable "time"
-value "16:44:26"
+value "16:01:25"
 )
 (vvPair
 variable "unit"
@@ -17266,7 +17266,7 @@ vasetType 1
 fg "65280,65280,46080"
 lineColor "0,0,32768"
 )
-xt "73000,189500,83000,191500"
+xt "73000,189500,84500,192500"
 )
 oxt "0,0,15000,5000"
 text (MLText
@@ -17274,14 +17274,15 @@ uid 85244,0
 va (VaSet
 fg "0,0,32768"
 )
-xt "73200,189700,83100,190700"
+xt "73200,189700,83700,191700"
 st "
 Mohsen is working on this
+70% Complete on Nov15 2004
 "
 tm "CommentText"
 wrapOption 3
-visibleHeight 2000
-visibleWidth 10000
+visibleHeight 3000
+visibleWidth 11500
 )
 )
 *580 (SaComponent
@@ -26263,7 +26264,7 @@ boundaryWidth 0
 )
 hasePageBreakOrigin 1
 pageBreakOrigin "-91500,0"
-lastUid 86042,0
+lastUid 86086,0
 defaultCommentText (CommentText
 shape (Rectangle
 layer 0
