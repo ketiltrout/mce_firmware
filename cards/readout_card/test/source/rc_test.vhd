@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/07/15 17:57:40 $>	- <initials $Author: bench1 $>
+-- <date $Date: 2004/07/16 00:16:37 $>	- <initials $Author: bench1 $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.9  2004/07/16 00:16:37  bench1
+-- Mandana: set the dac_test_mode for parallel dacs
+--
 -- Revision 1.8  2004/07/15 17:57:40  bench1
 -- Mandana: corrected fix vs. ramp switch on dac tests
 --
@@ -95,8 +98,17 @@ entity rc_test is
       dac_FB7_dat    : out std_logic_vector (13 downto 0);
       dac_FB8_dat    : out std_logic_vector (13 downto 0);
 
-      dac_FB_clk   : out std_logic_vector (7 downto 0);      
+      dac_FB_clk   : out std_logic_vector (7 downto 0);     
       
+      -- SRAM bank interface
+      sram_addr : out std_logic_vector(19 downto 0);
+      sram_data : inout std_logic_vector(15 downto 0);
+      sram_nbhe : out std_logic;
+      sram_nble : out std_logic;
+      sram_noe  : out std_logic;
+      sram_nwe  : out std_logic;
+      sram_ncs  : out std_logic;
+            
       --test pins
       smb_clk: out std_logic; 
       mictor : out std_logic_vector(31 downto 0));
@@ -142,7 +154,7 @@ architecture behaviour of rc_test is
    signal rx_ack   : std_logic;
    
    -- state constants
-   constant MAX_STATES : integer := 10;
+   constant MAX_STATES : integer := 11;
 
    constant INDEX_RESET      : integer := 0;
    constant INDEX_IDLE       : integer := 1;
@@ -154,6 +166,7 @@ architecture behaviour of rc_test is
    constant INDEX_DEBUG      : integer := 7;
    constant INDEX_SDAC       : integer := 8;
    constant INDEX_PDAC       : integer := 9;
+   constant INDEX_SRAM       : integer := 10;
          
    constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -165,7 +178,8 @@ architecture behaviour of rc_test is
    constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    constant SEL_SDAC       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SDAC => '1', others => '0');
    constant SEL_PDAC       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_PDAC => '1', others => '0');
-      
+   constant SEL_SRAM       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM => '1', others => '0');
+   
    constant DONE_NULL       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant DONE_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -177,6 +191,7 @@ architecture behaviour of rc_test is
    constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    constant DONE_SDAC       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SDAC => '1', others => '0');
    constant DONE_PDAC       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_PDAC => '1', others => '0');
+   constant DONE_SRAM       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM => '1', others => '0');   
 
    -- state signals
    type states is (RESET, FETCH, DECODE, EXECUTE);
@@ -218,6 +233,8 @@ architecture behaviour of rc_test is
 
    signal rx_clk : std_logic;
    signal dac_test_mode : std_logic_vector(1 downto 0);
+   
+   signal dummy, pass, fail: std_logic;
    
 begin
    clk_gen : pll
@@ -363,6 +380,27 @@ begin
                tx_data_o => debug_data,
                tx_we_o   => debug_we,
                tx_stb_o  => debug_stb); 
+               
+   sram : sram_test_wrapper 
+      port map(-- test control signals
+               rst_i    => rst,
+               clk_i    => clk,
+               en_i     => sel(INDEX_SRAM),
+               done_o   => done(INDEX_SRAM),
+                
+               -- RS232 signals
+                
+               -- physical pins
+               addr_o   => sram_addr,
+               data_bi  => sram_data,
+               n_ble_o  => sram_nbhe,
+               n_bhe_o  => sram_nble,
+               n_oe_o   => sram_noe, 
+               n_ce1_o  => sram_ncs, 
+               ce2_o    => dummy, 
+               n_we_o   => sram_nwe,
+               pass     => pass,
+               fail     => fail);               
                
    rc_serial_dac : rc_serial_dac_test_wrapper
       port map(
@@ -530,7 +568,7 @@ begin
       end if;
    end process cmd_proc;
 
-   smb_clk <= sel(INDEX_PDAC);
+   smb_clk <= pass;
    mictor(4) <= done(INDEX_SDAC);
    mictor(6) <= dac_test_ncs(0);
    mictor(8) <= dac_test_sclk(0);
