@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.9 2004/09/10 01:21:01 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.10 2004/10/08 19:45:26 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/10 01:21:01 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/10/08 19:45:26 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.10  2004/10/08 19:45:26  bburger
+-- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
+--
 -- Revision 1.9  2004/09/10 01:21:01  bburger
 -- Bryce:  Hardware testing, bug fixing
 --
@@ -108,6 +111,8 @@ port(
       fibre_rx_rvs       : in std_logic;                      -- rvs_i
       fibre_rx_status    : in std_logic;                      -- rso_i
       fibre_rx_sc_nd     : in std_logic;                      -- rsc_nRd_i
+      fibre_rx_ckr       : in std_logic;                      -- fibre_clkr_i
+
 
       -- output to the test header
       test               : out std_logic_vector(38 downto 11)  -- cksum_err
@@ -197,22 +202,23 @@ component issue_reply
 
 port(
       -- for testing
-      debug_o    : out std_logic_vector (31 downto 0);
+      debug_o           : out std_logic_vector (31 downto 0);
 
       -- global signals
-      rst_i        : in     std_logic;
-      clk_i        : in     std_logic;
+      rst_i             : in     std_logic;
+      clk_i             : in     std_logic;
             
       -- inputs from the fibre
-      rx_data_i   : in     std_logic_vector (7 DOWNTO 0);
-      nRx_rdy_i   : in     std_logic;
-      rvs_i       : in     std_logic;
-      rso_i       : in     std_logic;
-      rsc_nRd_i   : in     std_logic;        
-
-      cksum_err_o : out    std_logic;
-      sync_pulse_i: in     std_logic;
-      sync_number_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
+      fibre_clkr_i      : in    std_logic;
+      rx_data_i         : in     std_logic_vector (7 DOWNTO 0);
+      nRx_rdy_i         : in     std_logic;
+      rvs_i             : in     std_logic;
+      rso_i             : in     std_logic;
+      rsc_nRd_i         : in     std_logic;        
+ 
+      cksum_err_o       : out    std_logic;
+      sync_pulse_i      : in     std_logic;
+      sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
       
 --      -- outputs to the micro-instruction sequence generator
 --      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
@@ -229,10 +235,10 @@ port(
 --      -- input from the micro-op sequence generator
 --      ack_i             :  in std_logic  
   
-      macro_op_ack_o  : out std_logic; -- from cmd_queue to cmd_translator
+      macro_op_ack_o    : out std_logic; -- from cmd_queue to cmd_translator
       -- lvds_tx interface
-      tx_o           : out std_logic;  -- transmitter output pin
-      clk_200mhz_i   : in std_logic    -- PLL locked 25MHz input clock for the 
+      tx_o              : out std_logic;  -- transmitter output pin
+      clk_200mhz_i      : in std_logic    -- PLL locked 25MHz input clock for the 
    ); 
 end component;
 
@@ -297,6 +303,7 @@ begin
             clk_i             => pll_clk,
       
             -- inputs from the fibre
+            fibre_clkr_i      => fibre_rx_ckr,
             rx_data_i         => fibre_rx_data,
             nRx_rdy_i         => fibre_rx_rdy,
             rvs_i             => fibre_rx_rvs,

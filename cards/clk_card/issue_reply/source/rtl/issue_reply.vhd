@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.14 2004/10/08 19:45:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.15 2004/10/11 13:54:32 dca Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/08 19:45:26 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/10/11 13:54:32 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.15  2004/10/11 13:54:32  dca
+-- 'fibre_clkr_i' port added to entity.
+-- Used by component fibre_rx
+--
 -- Revision 1.14  2004/10/08 19:45:26  bburger
 -- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
 --
@@ -124,14 +128,14 @@ port(
       
       
       -- inputs from the fibre
-      fibre_clkr_i : in    std_logic;
+      fibre_clkr_i : in     std_logic;
       rx_data_i    : in     std_logic_vector (7 DOWNTO 0);
       nRx_rdy_i    : in     std_logic;
       rvs_i        : in     std_logic;
       rso_i        : in     std_logic;
       rsc_nRd_i    : in     std_logic;        
 
-      cksum_err_o : out    std_logic;
+      cksum_err_o  : out    std_logic;
     
 
 --

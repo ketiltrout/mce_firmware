@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.7  2004/05/30 23:11:51  erniel
+# changed fo to fibre!
+#
 # Revision 1.6  2004/05/29 20:14:28  mandana
 # added fibre tx/rx pins
 #
@@ -379,6 +382,9 @@ cmp add_assignment $top_name "" "fibre_rx_sc_nd" LOCATION "Pin_AF10"
 
 #fibre_rx_rvs
 cmp add_assignment $top_name "" "fibre_rx_rvs" LOCATION "Pin_AD10"
+
+#fibre_rx_ckr
+cmp add_assignment $top_name "" "fibre_rx_ckr" LOCATION "Pin_AE10"
 
 
 # assign flash interface

@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.11 2004/09/25 01:23:49 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.12 2004/10/08 19:41:22 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/09/25 01:23:49 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/08 19:41:22 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -163,6 +163,7 @@ port(
       
       
       -- inputs from the fibre
+      fibre_clkr_i : in    std_logic;
       rx_data_i   : in     std_logic_vector (7 DOWNTO 0);
       nRx_rdy_i   : in     std_logic;
       rvs_i       : in     std_logic;
@@ -216,6 +217,7 @@ port map(
       
       
       -- inputs from the fibre
+      fibre_clkr_i => t_clk_i,
       rx_data_i   => t_rx_data_i,
       nRx_rdy_i   => t_nrx_rdy_i,
       rvs_i       => t_rvs_i,
