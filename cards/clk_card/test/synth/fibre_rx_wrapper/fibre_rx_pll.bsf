@@ -44,7 +44,7 @@ party's intellectual property, are provided herein.
 		(line (pt 272 64)(pt 240 64)(line_width 1))
 	)
 	(drawing
-		(text "inclk0 frequency: 50.000 MHz" (rect 50 59 175 71)(font "Arial" ))
+		(text "inclk0 frequency: 25.000 MHz" (rect 50 59 175 71)(font "Arial" ))
 		(text "Operation Mode: Normal" (rect 50 73 151 85)(font "Arial" ))
 		(text "Clk " (rect 51 96 68 108)(font "Arial" ))
 		(text "Ratio" (rect 73 96 95 108)(font "Arial" ))
@@ -52,7 +52,7 @@ party's intellectual property, are provided herein.
 		(text "Td (ns)" (rect 135 96 164 108)(font "Arial" ))
 		(text "DC (%)" (rect 169 96 200 108)(font "Arial" ))
 		(text "c0" (rect 54 111 64 123)(font "Arial" ))
-		(text "1/2" (rect 78 111 91 123)(font "Arial" ))
+		(text "1/1" (rect 78 111 91 123)(font "Arial" ))
 		(text "0.00" (rect 106 111 124 123)(font "Arial" ))
 		(text "0.00" (rect 140 111 158 123)(font "Arial" ))
 		(text "50.00" (rect 173 111 196 123)(font "Arial" ))

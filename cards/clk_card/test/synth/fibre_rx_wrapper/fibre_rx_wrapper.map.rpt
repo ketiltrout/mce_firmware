@@ -1,5 +1,5 @@
 Analysis & Synthesis report for fibre_rx_wrapper compilation.
-Mon Oct 18 11:12:16 2004
+Mon Nov 01 13:36:23 2004
 Version 3.0 Build 199 06/26/2003 SJ Full Version
 
 Command: quartus_map --import_settings_files=on --export_settings_files=off fibre_rx_wrapper -c fibre_rx_wrapper
@@ -51,12 +51,12 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Mon Oct 18 11:12:16 2004 ;
+; Flow Status              ; Successful - Mon Nov 01 13:36:23 2004 ;
 ; Compiler Setting Name    ; fibre_rx_wrapper                      ;
 ; Top-level Entity Name    ; fibre_rx_wrapper                      ;
 ; Family                   ; Stratix                               ;
-; Device                   ; EP1S10F780C6ES                        ;
-; Total logic elements     ; 5,497                                 ;
+; Device                   ; EP1S30F780C5                          ;
+; Total logic elements     ; 5,538                                 ;
 ; Total pins               ; 10                                    ;
 ; Total memory bits        ; 58,880                                ;
 ; DSP block 9-bit elements ; 0                                     ;
@@ -70,7 +70,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 10/18/2004 11:11:02 ;
+; Start date & time     ; 11/01/2004 13:35:10 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; fibre_rx_wrapper    ;
 -----------------------------------------------
@@ -89,11 +89,11 @@ party's intellectual property, are provided herein.
 -----------------------------------------------------------------------
 ; Analysis & Synthesis Summary                                        ;
 -----------------------------------------------------------------------
-; Analysis & Synthesis Status ; Successful - Mon Oct 18 11:12:16 2004 ;
+; Analysis & Synthesis Status ; Successful - Mon Nov 01 13:36:23 2004 ;
 ; Compiler Setting Name       ; fibre_rx_wrapper                      ;
 ; Top-level Entity Name       ; fibre_rx_wrapper                      ;
 ; Family                      ; Stratix                               ;
-; Total logic elements        ; 5,497                                 ;
+; Total logic elements        ; 5,538                                 ;
 ; Total pins                  ; 10                                    ;
 ; Total memory bits           ; 58,880                                ;
 ; DSP block 9-bit elements    ; 0                                     ;
@@ -127,7 +127,7 @@ Hierarchy
   fibre_rx_wrapper
     sld_signaltap:auto_signaltap_0
       sld_rom_sr:crc_rom_sr
-        lpm_counter:word_counter_rtl_1052
+        lpm_counter:word_counter_rtl_1054
           alt_counter_stratix:wysi_counter
       sld_ela_control:ela_control
         sld_ela_level_seq_mgr:ela_level_seq_mgr
@@ -279,7 +279,9 @@ Hierarchy
         lpm_counter:read_pointer_counter
           alt_counter_stratix:wysi_counter
       altsyncram:stp_non_zero_ram_gen_stp_buffer_ram
-    lpm_counter:cmd_index_rtl_24
+    lpm_counter:cmd_index_rtl_25
+      alt_counter_stratix:wysi_counter
+    lpm_counter:count_rtl_26
       alt_counter_stratix:wysi_counter
     fibre_rx:i_fibre_rx
       fibre_rx_fifo:I0
@@ -322,9 +324,9 @@ Hierarchy
                 altsyncram_tmb1:altsyncram14
       fibre_rx_control:I1
       fibre_rx_protocol:I2
-        lpm_counter:read_pointer_rtl_26
+        lpm_counter:read_pointer_rtl_28
           alt_counter_stratix:wysi_counter
-        lpm_counter:write_pointer_rtl_25
+        lpm_counter:write_pointer_rtl_27
           alt_counter_stratix:wysi_counter
     fibre_rx_pll:i_pll
       altpll:altpll_component
@@ -333,7 +335,7 @@ Hierarchy
       sld_dffex:GEN_IRF_1_IRF
       sld_dffex:GEN_SHADOW_IRF_1_S_IRF
       sld_rom_sr:HUB_INFO_REG
-        lpm_counter:word_counter_rtl_1082
+        lpm_counter:word_counter_rtl_1084
           alt_counter_stratix:wysi_counter
       lpm_decode:instruction_decoder
         declut:decoder
@@ -377,7 +379,7 @@ Hierarchy
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ; Compilation Hierarchy Node                                                              ; Logic Cells ; Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Full Hierarchy Name                                                                                                                                                                                                        ;
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-; |fibre_rx_wrapper                                                                       ; 5497 (78)   ; 3424      ; 58880       ; 0            ; 0       ; 0         ; 0         ; 5    ; 0            ; 2073 (67)    ; 2921 (6)          ; 503 (5)          ; |fibre_rx_wrapper                                                                                                                                                                                                          ;
+; |fibre_rx_wrapper                                                                       ; 5538 (86)   ; 3456      ; 58880       ; 0            ; 0       ; 0         ; 0         ; 5    ; 0            ; 2082 (75)    ; 2922 (7)          ; 534 (4)          ; |fibre_rx_wrapper                                                                                                                                                                                                          ;
 ;    |fibre_rx:i_fibre_rx|                                                                ; 4053 (0)    ; 2440      ; 2048        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 1613 (0)     ; 2314 (0)          ; 126 (0)          ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx                                                                                                                                                                                      ;
 ;       |fibre_rx_fifo:I0|                                                                ; 160 (0)     ; 126       ; 2048        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 34 (0)       ; 82 (0)            ; 44 (0)           ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0                                                                                                                                                                     ;
 ;          |sync_fifo_rx:SFIFO|                                                           ; 160 (0)     ; 126       ; 2048        ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 34 (0)       ; 82 (0)            ; 44 (0)           ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO                                                                                                                                                  ;
@@ -409,15 +411,17 @@ Hierarchy
 ;                   |lpm_counter:cntr2|                                                   ; 8 (0)       ; 8         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 8 (0)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_1a21:auto_generated|lpm_counter:cntr2                                                                             ;
 ;                      |alt_counter_stratix:wysi_counter|                                 ; 8 (8)       ; 8         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 8 (8)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_1a21:auto_generated|lpm_counter:cntr2|alt_counter_stratix:wysi_counter                                            ;
 ;       |fibre_rx_protocol:I2|                                                            ; 3893 (3881) ; 2314      ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 1579 (1579)  ; 2232 (2232)       ; 82 (70)          ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2                                                                                                                                                                 ;
-;          |lpm_counter:read_pointer_rtl_26|                                              ; 6 (0)       ; 6         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 6 (0)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|lpm_counter:read_pointer_rtl_26                                                                                                                                 ;
-;             |alt_counter_stratix:wysi_counter|                                          ; 6 (6)       ; 6         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 6 (6)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|lpm_counter:read_pointer_rtl_26|alt_counter_stratix:wysi_counter                                                                                                ;
-;          |lpm_counter:write_pointer_rtl_25|                                             ; 6 (0)       ; 6         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 6 (0)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|lpm_counter:write_pointer_rtl_25                                                                                                                                ;
-;             |alt_counter_stratix:wysi_counter|                                          ; 6 (6)       ; 6         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 6 (6)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|lpm_counter:write_pointer_rtl_25|alt_counter_stratix:wysi_counter                                                                                               ;
+;          |lpm_counter:read_pointer_rtl_28|                                              ; 6 (0)       ; 6         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 6 (0)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|lpm_counter:read_pointer_rtl_28                                                                                                                                 ;
+;             |alt_counter_stratix:wysi_counter|                                          ; 6 (6)       ; 6         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 6 (6)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|lpm_counter:read_pointer_rtl_28|alt_counter_stratix:wysi_counter                                                                                                ;
+;          |lpm_counter:write_pointer_rtl_27|                                             ; 6 (0)       ; 6         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 6 (0)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|lpm_counter:write_pointer_rtl_27                                                                                                                                ;
+;             |alt_counter_stratix:wysi_counter|                                          ; 6 (6)       ; 6         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 6 (6)            ; |fibre_rx_wrapper|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|lpm_counter:write_pointer_rtl_27|alt_counter_stratix:wysi_counter                                                                                               ;
 ;    |fibre_rx_pll:i_pll|                                                                 ; 0 (0)       ; 0         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; |fibre_rx_wrapper|fibre_rx_pll:i_pll                                                                                                                                                                                       ;
 ;       |altpll:altpll_component|                                                         ; 0 (0)       ; 0         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; |fibre_rx_wrapper|fibre_rx_pll:i_pll|altpll:altpll_component                                                                                                                                                               ;
-;    |lpm_counter:cmd_index_rtl_24|                                                       ; 39 (0)      ; 32        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (0)        ; 0 (0)             ; 32 (0)           ; |fibre_rx_wrapper|lpm_counter:cmd_index_rtl_24                                                                                                                                                                             ;
-;       |alt_counter_stratix:wysi_counter|                                                ; 39 (39)     ; 32        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (7)        ; 0 (0)             ; 32 (32)          ; |fibre_rx_wrapper|lpm_counter:cmd_index_rtl_24|alt_counter_stratix:wysi_counter                                                                                                                                            ;
-;    |sld_hub:SLD_HUB_INST|                                                               ; 152 (38)    ; 64        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 88 (32)      ; 19 (1)            ; 45 (5)           ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST                                                                                                                                                                                     ;
+;    |lpm_counter:cmd_index_rtl_25|                                                       ; 39 (0)      ; 32        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (0)        ; 0 (0)             ; 32 (0)           ; |fibre_rx_wrapper|lpm_counter:cmd_index_rtl_25                                                                                                                                                                             ;
+;       |alt_counter_stratix:wysi_counter|                                                ; 39 (39)     ; 32        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (7)        ; 0 (0)             ; 32 (32)          ; |fibre_rx_wrapper|lpm_counter:cmd_index_rtl_25|alt_counter_stratix:wysi_counter                                                                                                                                            ;
+;    |lpm_counter:count_rtl_26|                                                           ; 32 (0)      ; 32        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 32 (0)           ; |fibre_rx_wrapper|lpm_counter:count_rtl_26                                                                                                                                                                                 ;
+;       |alt_counter_stratix:wysi_counter|                                                ; 32 (32)     ; 32        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 32 (32)          ; |fibre_rx_wrapper|lpm_counter:count_rtl_26|alt_counter_stratix:wysi_counter                                                                                                                                                ;
+;    |sld_hub:SLD_HUB_INST|                                                               ; 153 (38)    ; 64        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 89 (32)      ; 19 (1)            ; 45 (5)           ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST                                                                                                                                                                                     ;
 ;       |lpm_decode:instruction_decoder|                                                  ; 7 (0)       ; 5         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 2 (0)        ; 0 (0)             ; 5 (0)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|lpm_decode:instruction_decoder                                                                                                                                                      ;
 ;          |altshift:external_latency_ffs|                                                ; 5 (5)       ; 5         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 5 (5)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|lpm_decode:instruction_decoder|altshift:external_latency_ffs                                                                                                                        ;
 ;          |declut:decoder|                                                               ; 2 (2)       ; 0         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 2 (2)        ; 0 (0)             ; 0 (0)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|lpm_decode:instruction_decoder|declut:decoder                                                                                                                                       ;
@@ -429,10 +433,10 @@ Hierarchy
 ;       |sld_dffex:IRF_ENA|                                                               ; 1 (1)       ; 1         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 1 (1)             ; 0 (0)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_dffex:IRF_ENA                                                                                                                                                                   ;
 ;       |sld_dffex:IRSR|                                                                  ; 8 (8)       ; 8         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 1 (1)             ; 7 (7)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_dffex:IRSR                                                                                                                                                                      ;
 ;       |sld_dffex:RESET|                                                                 ; 1 (1)       ; 1         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 1 (1)             ; 0 (0)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_dffex:RESET                                                                                                                                                                     ;
-;       |sld_jtag_state_machine:jtag_state_machine|                                       ; 63 (63)     ; 16        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 47 (47)      ; 0 (0)             ; 16 (16)          ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_jtag_state_machine:jtag_state_machine                                                                                                                                           ;
+;       |sld_jtag_state_machine:jtag_state_machine|                                       ; 64 (64)     ; 16        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 48 (48)      ; 0 (0)             ; 16 (16)          ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_jtag_state_machine:jtag_state_machine                                                                                                                                           ;
 ;       |sld_rom_sr:HUB_INFO_REG|                                                         ; 16 (11)     ; 9         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (7)        ; 0 (0)             ; 9 (4)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_rom_sr:HUB_INFO_REG                                                                                                                                                             ;
-;          |lpm_counter:word_counter_rtl_1082|                                            ; 5 (0)       ; 5         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 5 (0)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_rom_sr:HUB_INFO_REG|lpm_counter:word_counter_rtl_1082                                                                                                                           ;
-;             |alt_counter_stratix:wysi_counter|                                          ; 5 (5)       ; 5         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 5 (5)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_rom_sr:HUB_INFO_REG|lpm_counter:word_counter_rtl_1082|alt_counter_stratix:wysi_counter                                                                                          ;
+;          |lpm_counter:word_counter_rtl_1084|                                            ; 5 (0)       ; 5         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 5 (0)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_rom_sr:HUB_INFO_REG|lpm_counter:word_counter_rtl_1084                                                                                                                           ;
+;             |alt_counter_stratix:wysi_counter|                                          ; 5 (5)       ; 5         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 5 (5)            ; |fibre_rx_wrapper|sld_hub:SLD_HUB_INST|sld_rom_sr:HUB_INFO_REG|lpm_counter:word_counter_rtl_1084|alt_counter_stratix:wysi_counter                                                                                          ;
 ;    |sld_signaltap:auto_signaltap_0|                                                     ; 1175 (117)  ; 877       ; 56832       ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 298 (1)      ; 582 (109)         ; 295 (7)          ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0                                                                                                                                                                           ;
 ;       |altsyncram:stp_non_zero_ram_gen_stp_buffer_ram|                                  ; 0 (0)       ; 0         ; 56832       ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|altsyncram:stp_non_zero_ram_gen_stp_buffer_ram                                                                                                                            ;
 ;       |sld_acquisition_buffer:sld_acquisition_buffer_inst|                              ; 22 (3)      ; 19        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 3 (2)        ; 9 (0)             ; 10 (1)           ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|sld_acquisition_buffer:sld_acquisition_buffer_inst                                                                                                                        ;
@@ -569,8 +573,8 @@ Hierarchy
 ;          |lpm_shiftreg:info_data_shift_out|                                             ; 19 (19)     ; 19        ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 19 (19)          ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|sld_offload_buffer_mgr:stp_non_zero_depth_offload_gen_stp_offload_buff_mgr_inst|lpm_shiftreg:info_data_shift_out                                                          ;
 ;          |lpm_shiftreg:ram_data_shift_out|                                              ; 111 (111)   ; 111       ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 111 (111)        ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|sld_offload_buffer_mgr:stp_non_zero_depth_offload_gen_stp_offload_buff_mgr_inst|lpm_shiftreg:ram_data_shift_out                                                           ;
 ;       |sld_rom_sr:crc_rom_sr|                                                           ; 15 (11)     ; 8         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 7 (7)        ; 0 (0)             ; 8 (4)            ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|sld_rom_sr:crc_rom_sr                                                                                                                                                     ;
-;          |lpm_counter:word_counter_rtl_1052|                                            ; 4 (0)       ; 4         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 4 (0)            ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|sld_rom_sr:crc_rom_sr|lpm_counter:word_counter_rtl_1052                                                                                                                   ;
-;             |alt_counter_stratix:wysi_counter|                                          ; 4 (4)       ; 4         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 4 (4)            ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|sld_rom_sr:crc_rom_sr|lpm_counter:word_counter_rtl_1052|alt_counter_stratix:wysi_counter                                                                                  ;
+;          |lpm_counter:word_counter_rtl_1054|                                            ; 4 (0)       ; 4         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 4 (0)            ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|sld_rom_sr:crc_rom_sr|lpm_counter:word_counter_rtl_1054                                                                                                                   ;
+;             |alt_counter_stratix:wysi_counter|                                          ; 4 (4)       ; 4         ; 0           ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 4 (4)            ; |fibre_rx_wrapper|sld_signaltap:auto_signaltap_0|sld_rom_sr:crc_rom_sr|lpm_counter:word_counter_rtl_1054|alt_counter_stratix:wysi_counter                                                                                  ;
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -586,7 +590,7 @@ The equations can be found in C:\scuba2_repository\cards\clk_card\test\synth\fib
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
   Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Mon Oct 18 11:11:02 2004
+  Info: Processing started: Mon Nov 01 13:35:10 2004
 Info: Command: quartus_map --import_settings_files=on --export_settings_files=off fibre_rx_wrapper -c fibre_rx_wrapper
 Info: Found 1 design units and 0 entities in source file C:\scuba2_repository\cards\library\sys_param\source\rtl\general_pack.vhd
   Info: Found design unit 1: general_pack
@@ -941,14 +945,15 @@ Info: Found 6 design units and 2 entities in source file c:\quartus\libraries\me
 Info: Found 2 design units and 1 entities in source file c:\quartus\libraries\megafunctions\sld_dffex.vhd
   Info: Found design unit 1: sld_dffex-dffex
   Info: Found entity 1: sld_dffex
-Info: Inferred 3 megafunctions from design logic
-  Info: Inferred lpm_counter megafunction (LPM_WIDTH=32) from the following logic: cmd_index_rtl_24
-  Info: Inferred lpm_counter megafunction (LPM_WIDTH=6) from the following logic: fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|write_pointer_rtl_25
-  Info: Inferred lpm_counter megafunction (LPM_WIDTH=6) from the following logic: fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|read_pointer_rtl_26
+Info: Inferred 4 megafunctions from design logic
+  Info: Inferred lpm_counter megafunction (LPM_WIDTH=32) from the following logic: cmd_index_rtl_25
+  Info: Inferred lpm_counter megafunction (LPM_WIDTH=32) from the following logic: count_rtl_26
+  Info: Inferred lpm_counter megafunction (LPM_WIDTH=6) from the following logic: fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|write_pointer_rtl_27
+  Info: Inferred lpm_counter megafunction (LPM_WIDTH=6) from the following logic: fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|read_pointer_rtl_28
 Info: Inferred 1 megafunctions from design logic
-  Info: Inferred lpm_counter megafunction (LPM_WIDTH=4) from the following logic: sld_signaltap:auto_signaltap_0|sld_rom_sr:crc_rom_sr|word_counter_rtl_1052
+  Info: Inferred lpm_counter megafunction (LPM_WIDTH=4) from the following logic: sld_signaltap:auto_signaltap_0|sld_rom_sr:crc_rom_sr|word_counter_rtl_1054
 Info: Inferred 1 megafunctions from design logic
-  Info: Inferred lpm_counter megafunction (LPM_WIDTH=5) from the following logic: SLD_HUB:SLD_HUB_INST|sld_rom_sr:HUB_INFO_REG|word_counter_rtl_1082
+  Info: Inferred lpm_counter megafunction (LPM_WIDTH=5) from the following logic: SLD_HUB:SLD_HUB_INST|sld_rom_sr:HUB_INFO_REG|word_counter_rtl_1084
 Info: State machine |fibre_rx_wrapper|stim_current_state contains 4 states and 0 state bits
 Info: State machine |fibre_rx_wrapper|cmd_current_state contains 6 states and 0 state bits
 Info: Selected Auto state machine encoding method for state machine |fibre_rx_wrapper|stim_current_state
@@ -1208,15 +1213,18 @@ Warning: Output pins are stuck at VCC or GND
   Warning: Pin test1_o stuck at GND
 Info: Registers with preset signals will power-up high
 Info: Converted 3 single input CARRY primitives to CARRY_SUM primitives
-Info: Implemented 5628 device resources after synthesis - the final resource count might be different
+Warning: Design contains 2 input pin(s) that do not drive logic
+  Warning: No output dependent on input pin stim1_i
+  Warning: No output dependent on input pin stim2_i
+Info: Implemented 5669 device resources after synthesis - the final resource count might be different
   Info: Implemented 8 input pins
   Info: Implemented 2 output pins
-  Info: Implemented 5497 logic cells
+  Info: Implemented 5538 logic cells
   Info: Implemented 119 RAM segments
   Info: Implemented 1 ClockLock PLLs
-Info: Quartus II Analysis & Synthesis was successful. 0 errors, 2 warnings
-  Info: Processing ended: Mon Oct 18 11:12:16 2004
-  Info: Elapsed time: 00:01:14
+Info: Quartus II Analysis & Synthesis was successful. 0 errors, 5 warnings
+  Info: Processing ended: Mon Nov 01 13:36:23 2004
+  Info: Elapsed time: 00:01:13
 Info: Writing report file fibre_rx_wrapper.map.rpt
 
 

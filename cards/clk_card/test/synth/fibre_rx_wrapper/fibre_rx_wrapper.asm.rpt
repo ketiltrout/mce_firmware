@@ -1,5 +1,5 @@
 Assembler report for fibre_rx_wrapper compilation.
-Mon Oct 18 11:16:02 2004
+Mon Nov 01 13:40:41 2004
 Version 3.0 Build 199 06/26/2003 SJ Full Version
 
 Command: quartus_asm --import_settings_files=off --export_settings_files=off fibre_rx_wrapper -c fibre_rx_wrapper
@@ -49,16 +49,16 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Mon Oct 18 11:16:02 2004 ;
+; Flow Status              ; Successful - Mon Nov 01 13:40:41 2004 ;
 ; Compiler Setting Name    ; fibre_rx_wrapper                      ;
 ; Top-level Entity Name    ; fibre_rx_wrapper                      ;
 ; Family                   ; Stratix                               ;
-; Device                   ; EP1S10F780C6ES                        ;
-; Total logic elements     ; 4,141 / 10,570 ( 39 % )               ;
-; Total pins               ; 5 / 426 ( 1 % )                       ;
-; Total memory bits        ; 58,880 / 920,448 ( 6 % )              ;
-; DSP block 9-bit elements ; 0 / 48 ( 0 % )                        ;
-; Total PLLs               ; 1 / 6 ( 16 % )                        ;
+; Device                   ; EP1S30F780C5                          ;
+; Total logic elements     ; 4,181 / 32,470 ( 12 % )               ;
+; Total pins               ; 5 / 597 ( < 1 % )                     ;
+; Total memory bits        ; 58,880 / 3,317,184 ( 1 % )            ;
+; DSP block 9-bit elements ; 0 / 96 ( 0 % )                        ;
+; Total PLLs               ; 1 / 10 ( 10 % )                       ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                         ;
 --------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 10/18/2004 11:11:02 ;
+; Start date & time     ; 11/01/2004 13:35:10 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; fibre_rx_wrapper    ;
 -----------------------------------------------
@@ -80,20 +80,20 @@ party's intellectual property, are provided herein.
 ; Module Name          ; Elapsed Time ;
 ---------------------------------------
 ; Analysis & Synthesis ; 00:01:19     ;
-; Fitter               ; 00:03:14     ;
-; Assembler            ; 00:00:26     ;
-; Total                ; 00:04:59     ;
+; Fitter               ; 00:03:40     ;
+; Assembler            ; 00:00:30     ;
+; Total                ; 00:05:29     ;
 ---------------------------------------
 
 
 -----------------------------------------------------------------
 ; Assembler Summary                                             ;
 -----------------------------------------------------------------
-; Assembler Status      ; Successful - Mon Oct 18 11:16:02 2004 ;
+; Assembler Status      ; Successful - Mon Nov 01 13:40:41 2004 ;
 ; Compiler Setting Name ; fibre_rx_wrapper                      ;
 ; Top-level Entity Name ; fibre_rx_wrapper                      ;
 ; Family                ; Stratix                               ;
-; Device                ; EP1S10F780C6ES                        ;
+; Device                ; EP1S30F780C5                          ;
 -----------------------------------------------------------------
 
 
@@ -143,15 +143,15 @@ party's intellectual property, are provided herein.
 -----------------------------
 
 
------------------------------------
+---------------------------------
 ; Assembler Device Options: fibre_rx_wrapper.sof ;
------------------------------------
-; Option         ; Setting        ;
------------------------------------
-; Device         ; EP1S10F780C6ES ;
-; JTAG usercode  ; 0xFFFFFFFF     ;
-; Checksum       ; 0x0044AF7E     ;
------------------------------------
+---------------------------------
+; Option         ; Setting      ;
+---------------------------------
+; Device         ; EP1S30F780C5 ;
+; JTAG usercode  ; 0xFFFFFFFF   ;
+; Checksum       ; 0x0065C3B1   ;
+---------------------------------
 
 
 --------------------------------
@@ -159,9 +159,9 @@ party's intellectual property, are provided herein.
 --------------------------------
 ; Option         ; Setting     ;
 --------------------------------
-; Device         ; EPC4        ;
+; Device         ; EPC8        ;
 ; JTAG usercode  ; 0xFFFFFFFF  ;
-; Checksum       ; 0x050C93A0  ;
+; Checksum       ; 0x0A6AABC7  ;
 --------------------------------
 
 
@@ -171,11 +171,11 @@ party's intellectual property, are provided herein.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
   Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Mon Oct 18 11:15:41 2004
+  Info: Processing started: Mon Nov 01 13:40:16 2004
 Info: Command: quartus_asm --import_settings_files=off --export_settings_files=off fibre_rx_wrapper -c fibre_rx_wrapper
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-  Info: Processing ended: Mon Oct 18 11:16:02 2004
-  Info: Elapsed time: 00:00:21
+  Info: Processing ended: Mon Nov 01 13:40:41 2004
+  Info: Elapsed time: 00:00:25
 Info: Writing report file fibre_rx_wrapper.asm.rpt
 
 

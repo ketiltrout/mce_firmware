@@ -53,10 +53,7 @@ port(
      rst_i                   : in  std_logic;                                            -- global reset
      clk_i                   : in  std_logic;                                            -- global clock
 
-     -- two input signals (to generate monostable pulse) used to stimulate command packet generation    
-     stim1_i                 : in  std_logic;  
-     stim2_i                 : in  std_logic; 
-  
+
      test1_o                 : out std_logic
      
      );      
@@ -142,6 +139,12 @@ constant command_size  : positive := 256;
 type memory is array (0 to command_size-1) of byte;
 
 signal command_buff: memory := (others => Byte'(others => '0'));
+
+
+signal count   : integer ;
+constant delay : integer := 50000000 ;
+signal rst_count : std_logic;
+signal ena_count : std_logic;
 
 begin
 
@@ -269,27 +272,21 @@ begin
 
 
    -------------------------------------------------------------------------
-   stim_fsm_nextstate : process (stim_current_state, stim1_i, stim2_i)
+   stim_fsm_nextstate : process (stim_current_state, count)
    ----------------------------------------------------------------------------
    begin
      
       case stim_current_state is
 
       when S0 =>
-         
-
-         if (stim1_i = '1' and stim2_i = '0') then
-            stim_next_state <= S1;           -- if switch 1 on 
-         else 
-            stim_next_state <= S0;   
-         end if; 
-           
+            stim_next_state <= S1;           
+                  
       when S1 =>
          
-         if (stim1_i = '0' and stim2_i = '1') then
-            stim_next_state <= S2;          -- if switch 2 on 
+         if count < delay  then
+            stim_next_state <= S1;         
          else 
-            stim_next_state <= S1;   
+            stim_next_state <= S2;   
          end if; 
          
       when S2 =>
@@ -315,19 +312,27 @@ begin
 
       when S0 =>
          
-         cmd_trig  <= '0'; 
+         cmd_trig    <= '0'; 
+         rst_count   <= '1';
+         ena_count   <= '0';
   
       when S1 =>
       
-         cmd_trig  <= '0'; 
+         cmd_trig    <= '0'; 
+         rst_count   <= '0';
+         ena_count   <= '1';
        
       when S2 =>
       
-         cmd_trig  <= '1' ;       -- trigger the generatation of a command packet
-         
+         cmd_trig    <= '1' ;       -- trigger the generatation of a command packet
+         rst_count   <= '0';
+         ena_count   <= '0';
+
       when S3 =>
          
-         cmd_trig  <= '1';
+         cmd_trig    <= '1';
+         rst_count   <= '1';
+         ena_count   <= '0';
  
       end case;
       
@@ -504,5 +509,29 @@ begin
                     cmd_index + 1 when inc_buff_sel = "01" else
                     0;
                             
+ 
+  ------------------------------------------------------------------------------
+  delay_count: process(rst_i, clk_i)
+  ----------------------------------------------------------------------------
+  
+  
+  begin
+     
+    if (rst_i = '1') then
+       count <= 0 ;
+        
+    elsif (clk_i'EVENT AND clk_i = '1') then
+       
+       if rst_count = '1' then
+          count <= 0 ;
+       elsif ena_count = '1' then
+          count <= count + 1;
+       end if;
+      
+    end if;
+     
+  end process delay_count;   
+
+
          
 end rtl;
