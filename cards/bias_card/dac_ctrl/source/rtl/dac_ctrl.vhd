@@ -29,12 +29,15 @@
 -- DAC_CTRL slave processes the following commands issued by Command_FSM on Bias card:
 --              FLUX_FB_ADDR     : to send a 16b bias value to each of 32 DACs
 --              BIAS_ADDR        : to send a 16b bias value to an LVDS DAC
---              CYC_OUT_SYNC_ADDR: to send the number of cycles out of sync to the master (cmd_fsm) 
+--              CYC_OO_SYC_ADDR: to send the number of cycles out of sync to the master (cmd_fsm) 
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/21 20:01:23 $>	- <initials $Author: bburger $>
+-- <date $Date: 2004/04/21 20:40:26 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.8  2004/04/21 20:40:26  mandana
+-- change MAX_DAC_BC to MAX_FLUX_FB
+--
 -- Revision 1.7  2004/04/21 20:01:23  bburger
 -- Changed address moniker
 --
@@ -553,7 +556,7 @@ dac_ncs_o <= dac_ncs;
    dat_o <= error_count when (current_state = OUT_SYNC_CMD) else (others => '0');
 
    master_wait      <= '1' when ( addr_i = DAC32_CTRL_ADDR    and stb_i = '0' and cyc_i = '1' and we_i = '1') else '0';   
-   read_cmd         <= '1' when ( addr_i = CYC_OO_SYNC_ADDR  and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   read_cmd         <= '1' when ( addr_i = CYC_OO_SYC_ADDR  and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    write_dac32      <= '1' when ( addr_i = DAC32_CTRL_ADDR    and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0'; 
    write_dac_lvds   <= '1' when ( addr_i = DAC_LVDS_CTRL_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';                               
    write_resync     <= '1' when ( addr_i = RESYNC_ADDR    and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';                               
