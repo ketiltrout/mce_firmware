@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.7 2004/05/06 18:16:43 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.1 2004/06/21 17:12:21 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,17 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/05/06 18:16:43 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/21 17:12:21 $>	-		<text>		- <initials $Author: jjacob $>
 --
--- $Log$
+-- $Log: tb_issue_reply.vhd,v $
+-- Revision 1.1  2004/06/21 17:12:21  jjacob
+-- first stable version to test the macro instruction sequence generator.
+-- doesn't yet test macro-instruction buffer, doesn't have
+-- "quick" acknolwedgements for instructions that require them, no error
+-- handling, basically no return path logic yet.  Have implemented ret_dat
+-- instructions, and "simple" instructions.  Not all instructions are fully
+-- implemented yet.
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -66,13 +74,13 @@ architecture BEH of tb_issue_reply is
    component CMD_TRANSLATOR
       port(RST_I            : in std_logic ;
            CLK_I            : in std_logic ;
-           CARD_ADDR_I      : in std_logic_vector ( 7 downto 0 );
+           CARD_ID_I        : in std_logic_vector (CARD_ADDR_BUS_WIDTH - 1 downto 0 );
            CMD_CODE_I       : in std_logic_vector ( 15 downto 0 );
-           CMD_DATA_I       : in std_logic_vector ( 31 downto 0 );
+           CMD_DATA_I       : in std_logic_vector (DATA_BUS_WIDTH - 1 downto 0 );
            CMD_RDY_I        : in std_logic ;
            DATA_CLK_I       : in std_logic ;
-           NUM_DATA_I       : in std_logic_vector ( 7 downto 0 );
-           REG_ADDR_I       : in std_logic_vector ( 23 downto 0 );
+           NUM_DATA_I       : in std_logic_vector (DATA_SIZE_BUS_WIDTH - 1 downto 0 );
+           PARAM_ID_I       : in std_logic_vector (PAR_ID_BUS_WIDTH - 1 downto 0 );
            SYNC_PULSE_I     : in std_logic ;
            sync_number_i    : in std_logic_vector (7 downto 0);
            ack_o        : out std_logic ;
@@ -106,13 +114,13 @@ architecture BEH of tb_issue_reply is
 
    signal W_RST_I            : std_logic ;
    signal W_CLK_I            : std_logic := '0';
-   signal W_CARD_ADDR_I      : std_logic_vector ( 7 downto 0 );
+   signal W_CARD_ID_I        : std_logic_vector ( CARD_ADDR_BUS_WIDTH - 1 downto 0 );
    signal W_CMD_CODE_I       : std_logic_vector ( 15 downto 0 );
    signal W_CMD_DATA_I       : std_logic_vector ( 31 downto 0 );
    signal W_CMD_RDY_I        : std_logic ;
    signal W_DATA_CLK_I       : std_logic ;
    signal W_NUM_DATA_I       : std_logic_vector ( 7 downto 0 );
-   signal W_REG_ADDR_I       : std_logic_vector ( 23 downto 0 );
+   signal W_PARAM_ID_I       : std_logic_vector ( 15 downto 0 );
    signal W_SYNC_PULSE_I     : std_logic ;
    signal w_sync_number_i    : std_logic_vector (7 downto 0);
    signal W_ACK_O            : std_logic ;
@@ -149,13 +157,13 @@ begin
    DUT : CMD_TRANSLATOR
       port map(RST_I            => W_RST_I,
                CLK_I            => W_CLK_I,
-               CARD_ADDR_I      => W_CARD_ADDR_I,
+               CARD_ID_I      => w_card_id_i,
                CMD_CODE_I       => W_CMD_CODE_I,
                CMD_DATA_I       => W_CMD_DATA_I,
                CMD_RDY_I        => W_CMD_RDY_I,
                DATA_CLK_I       => W_DATA_CLK_I,
                NUM_DATA_I       => W_NUM_DATA_I,
-               REG_ADDR_I       => W_REG_ADDR_I,
+               PARAM_ID_I       => W_PARAM_ID_I,
                SYNC_PULSE_I     => W_SYNC_PULSE_I,
                sync_number_i    => w_sync_number_i,
                ack_o            => W_ACK_O,
@@ -218,13 +226,13 @@ begin
          W_RST_I            <= '0';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= (others => '0'); -- std_logic_vector ( 7 downto 0 );
+         w_card_id_i      <= (others => '0'); -- std_logic_vector ( 7 downto 0 );
          W_CMD_CODE_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_DATA_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= (others => '0'); --  std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I       <= (others => '0'); --  std_logic_vector ( 23 downto 0 );
+         W_PARAM_ID_I       <= (others => '0'); --  std_logic_vector ( 23 downto 0 );
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
@@ -252,13 +260,13 @@ begin
          W_RST_I            <= '1';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= (others => '0'); -- std_logic_vector ( 7 downto 0 );
+         w_card_id_i      <= (others => '0'); -- std_logic_vector ( 7 downto 0 );
          W_CMD_CODE_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_DATA_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= (others => '0'); --  std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I       <= (others => '0'); --  std_logic_vector ( 23 downto 0 );
+         W_PARAM_ID_I       <= (others => '0'); --  std_logic_vector ( 23 downto 0 );
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
@@ -294,14 +302,14 @@ begin
          W_RST_I            <= '0';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= x"03";           -- readout card A
+         w_card_id_i        <= x"0003";           -- readout card A
          W_CMD_CODE_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_DATA_I       <= x"FFFFFFFF";         -- first word of data;
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= "00000100";      -- std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I(23 downto 8)      <= (others => '0'); -- bits(23 downto 8)
-         W_REG_ADDR_I(7 downto 0)       <= FST_ST_FB_ADDR;  -- bits(7 downto 0)
+         W_PARAM_ID_I(15 downto 8)      <= (others => '0'); -- bits(23 downto 8)
+         W_PARAM_ID_I(7 downto 0)       <= FST_ST_FB_ADDR;  -- bits(7 downto 0)
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
@@ -320,8 +328,8 @@ begin
          
          W_DATA_CLK_I       <= '1';
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -350,8 +358,8 @@ begin
          wait for PERIOD*3;
          
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -372,8 +380,8 @@ begin
          W_DATA_CLK_I       <= '0';
          
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -392,8 +400,8 @@ begin
          wait for PERIOD*3;
          
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -429,14 +437,14 @@ begin
          W_RST_I            <= '0';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= x"04";           -- readout card B
+         w_card_id_i      <= x"0004";           -- readout card B
          W_CMD_CODE_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_DATA_I       <= x"0000000A";     -- first word of data;
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= "00000010";      -- std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I(23 downto 8)      <= (others => '0'); -- bits(23 downto 8)
-         W_REG_ADDR_I(7 downto 0)       <= RET_DAT_S_ADDR;  -- bits(7 downto 0)
+         W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
+         W_PARAM_ID_I(7 downto 0)                         <= RET_DAT_S_ADDR;  -- bits(7 downto 0)
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
@@ -526,14 +534,14 @@ begin
          W_RST_I            <= '0';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= x"04";           -- readout card B
+         w_card_id_i      <= x"0004";           -- readout card B
          W_CMD_CODE_I       <= x"474F";     -- "START" command code
          W_CMD_DATA_I       <= (others => '0');
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= "00000000";      -- std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I(23 downto 8)      <= (others => '0'); -- bits(23 downto 8)
-         W_REG_ADDR_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
+         W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
+         W_PARAM_ID_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
@@ -638,14 +646,14 @@ begin
          W_RST_I            <= '0';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= x"04";           -- readout card B
+         w_card_id_i      <= x"0004";           -- readout card B
          W_CMD_CODE_I       <= x"474F";     -- "START" command code
          W_CMD_DATA_I       <= (others => '0');
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= "00000000";      -- std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I(23 downto 8)      <= (others => '0'); -- bits(23 downto 8)
-         W_REG_ADDR_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
+         W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
+         W_PARAM_ID_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
@@ -741,14 +749,14 @@ begin
          W_RST_I            <= '0';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= x"05";           -- 
+         w_card_id_i      <= x"0005";           -- 
          W_CMD_CODE_I       <= x"474F";     -- "START" command code
          W_CMD_DATA_I       <= (others => '0');
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= "00000000";      -- std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I(23 downto 8)      <= (others => '0'); -- bits(23 downto 8)
-         W_REG_ADDR_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
+         W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
+         W_PARAM_ID_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
@@ -787,14 +795,14 @@ begin
          W_RST_I            <= '0';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= x"03";           -- readout card A
+         w_card_id_i      <= x"0003";           -- readout card A
          W_CMD_CODE_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_DATA_I       <= x"FFFFFFFF";         -- first word of data;
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= "00000101";      -- std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I(23 downto 8)      <= (others => '0'); -- bits(23 downto 8)
-         W_REG_ADDR_I(7 downto 0)       <= FST_ST_FB_ADDR;  -- bits(7 downto 0)
+         W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
+         W_PARAM_ID_I(7 downto 0)       <= FST_ST_FB_ADDR;  -- bits(7 downto 0)
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
@@ -819,8 +827,8 @@ begin
          W_DATA_CLK_I       <= '1';
          wait for PERIOD;
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -843,8 +851,8 @@ begin
          wait for PERIOD*3;
          
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -866,8 +874,8 @@ begin
          W_DATA_CLK_I       <= '0';
          
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -887,8 +895,8 @@ begin
          wait for PERIOD*3;
          
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -909,8 +917,8 @@ begin
          wait for PERIOD*3;
          
          if W_DATA_O = W_CMD_DATA_I and 
-            W_CARD_ADDR_O = W_CARD_ADDR_I and
-            W_PARAMETER_ID_O = W_REG_ADDR_I and 
+            W_CARD_ADDR_O = w_card_id_i and
+            W_PARAMETER_ID_O = W_PARAM_ID_I and 
             W_DATA_SIZE_O = W_NUM_DATA_I  then
             
             self_check_o       <= '0';
@@ -938,13 +946,13 @@ begin
          W_RST_I            <= '0';
 
          -- signals from fibre_rx_prototcol_fsm
-         W_CARD_ADDR_I      <= (others => '0'); -- std_logic_vector ( 7 downto 0 );
+         w_card_id_i      <= (others => '0'); -- std_logic_vector ( 7 downto 0 );
          W_CMD_CODE_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_DATA_I       <= (others => '0'); -- std_logic_vector ( 15 downto 0 );
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
          W_NUM_DATA_I       <= (others => '0'); --  std_logic_vector ( 7 downto 0 );
-         W_REG_ADDR_I       <= (others => '0'); --  std_logic_vector ( 23 downto 0 );
+         W_PARAM_ID_I       <= (others => '0'); --  std_logic_vector ( 23 downto 0 );
          
          -- sync pulse
          W_SYNC_PULSE_I     <= '0';
