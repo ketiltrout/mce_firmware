@@ -20,7 +20,7 @@
 
 -- s_array_id_tb.vhd
 --
--- <revision control keyword substitutions e.g. $Id: s_array_id_tb.vhd,v 1.1 2004/04/02 17:59:42 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: s_array_id_tb.vhd,v 1.1 2004/04/14 22:16:23 jjacob Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -30,8 +30,11 @@
 -- ArrayID test wrapper testbench.
 --
 -- Revision history:
--- <date $Date: 2004/04/02 17:59:42 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/04/14 22:16:23 $> - <text> - <initials $Author: jjacob $>
 -- $Log: s_array_id_tb.vhd,v $
+-- Revision 1.1  2004/04/14 22:16:23  jjacob
+-- new directory structure
+--
 -- Revision 1.1  2004/04/02 17:59:42  bburger
 -- Updated file header
 --

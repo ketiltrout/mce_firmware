@@ -22,6 +22,9 @@
 -- Revision History:
 -- Feb 29, 2004: Initial version - NRG
 -- $Log: s_watchdog.vhd,v $
+-- Revision 1.2  2004/04/21 19:58:50  bburger
+-- Changed address moniker
+--
 -- Revision 1.1  2004/04/14 22:16:23  jjacob
 -- new directory structure
 --

@@ -27,6 +27,9 @@
 -- CVS Logs:
 --
 -- $Log: cc_test.vhd,v $
+-- Revision 1.1  2004/04/14 22:16:23  jjacob
+-- new directory structure
+--
 -- Revision 1.6  2004/04/02 17:50:57  bburger
 -- Added ArrayID functionality
 --
