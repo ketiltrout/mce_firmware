@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.15 2004/10/26 23:59:16 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.16 2004/10/29 23:09:22 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.16  2004/10/29 23:09:22  bburger
+-- Bryce:  Weekend update
+--
 -- Revision 1.15  2004/10/26 23:59:16  bburger
 -- Bryce:  working out the bugs from the cmd_queue<->reply_queue interface
 --
@@ -89,72 +92,74 @@ use work.cmd_queue_ram40_pack.all;
 
 package cmd_queue_pack is
    
-   constant MAX_NUM_UOPS     : integer :=   10;
-   
-   -- Calculated constants for inputing data on the correct lines into/out-of the queue
-   -- The following fields make up the first four lines of each u-op entry in the queue:
-   constant NUM_NON_BB_CMD_HEADER_WORDS : integer := 2;
-   constant CQ_NUM_CMD_HEADER_WORDS : integer := BB_NUM_CMD_HEADER_WORDS + NUM_NON_BB_CMD_HEADER_WORDS;
+constant MAX_NUM_UOPS     : integer :=   10;
 
-   -- Line 1:
-   -- ISSUE_SYNC_WIDTH (16 bits),
-   -- COMMAND_TYPE_END (3 bits),
-   -- CQ_DATA_SIZE_BUS_WIDTH (13 bits)
-   constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH;
-   constant COMMAND_TYPE_END : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH;
-   constant DATA_SIZE_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH - BB_DATA_SIZE_WIDTH;
+-- Calculated constants for inputing data on the correct lines into/out-of the queue
+-- The following fields make up the first four lines of each u-op entry in the queue:
+constant NUM_NON_BB_CMD_HEADER_WORDS : integer := 2;
+constant CQ_NUM_CMD_HEADER_WORDS : integer := BB_NUM_CMD_HEADER_WORDS + NUM_NON_BB_CMD_HEADER_WORDS;
 
-   -- Line 2:
-   -- BB_CARD_ADDRESS_WIDTH (8 bits),
-   -- BB_PARAMETER_ID_WIDTH (8 bits),
-   -- BB_MACRO_OP_SEQ_WIDTH (8 bits),
-   -- BB_MICRO_OP_SEQ_WIDTH (8 bits)
-   constant CARD_ADDR_END    : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH;
-   constant PARAM_ID_END     : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH;
-   constant MOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH;
-   constant UOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH - BB_MICRO_OP_SEQ_WIDTH;
+-- Line 1:
+-- ISSUE_SYNC_WIDTH (16 bits),
+-- COMMAND_TYPE_END (3 bits),
+-- CQ_DATA_SIZE_BUS_WIDTH (13 bits)
+constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH;
+constant COMMAND_TYPE_END : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH;
+constant DATA_SIZE_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMAND_TYPE_WIDTH - BB_DATA_SIZE_WIDTH;
 
-   -- Line 3:
-   -- 'Data Frame Stop' bit (bit 1)
-   -- 'Last Data Frame' bit (bit 0)
-   
-   -- Line 4:
-   -- Data Frame Sequence Number (32 bits)   
-   
-   component cmd_queue
-      port(
-         -- for testing
-         debug_o  : out std_logic_vector(31 downto 0);
+-- Line 2:
+-- BB_CARD_ADDRESS_WIDTH (8 bits),
+-- BB_PARAMETER_ID_WIDTH (8 bits),
+-- BB_MACRO_OP_SEQ_WIDTH (8 bits),
+-- BB_MICRO_OP_SEQ_WIDTH (8 bits)
+constant CARD_ADDR_END    : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH;
+constant PARAM_ID_END     : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH;
+constant MOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH;
+constant UOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH - BB_MICRO_OP_SEQ_WIDTH;
 
-         -- reply_queue interface
-         uop_rdy_o       : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
-         uop_ack_i       : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
-         uop_o           : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
+-- Line 3:
+-- 'Data Frame Stop' bit (bit 1)
+-- 'Last Data Frame' bit (bit 0)
 
-         -- cmd_translator interface
-         card_addr_i     : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
-         par_id_i        : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
-         data_size_i     : in std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-         data_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- Data belonging to a m-op
-         data_clk_i      : in std_logic; -- Clocks in 32-bit wide data
-         mop_i           : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
-         issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-         mop_rdy_i       : in std_logic; -- Tells cmd_queue when a m-op is ready
-         mop_ack_o       : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
-         cmd_type_i      : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
-         cmd_stop_i      : in std_logic;                                          -- indicates a STOP command was recieved
-         last_frame_i    : in std_logic;                                          -- indicates the last frame of data for a ret_dat command
-         frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+-- Line 4:
+-- Data Frame Sequence Number (32 bits)   
 
-         -- lvds_tx interface
-         tx_o            : out std_logic;  -- transmitter output pin
-         clk_200mhz_i    : in std_logic;  -- PLL locked 25MHz input clock for the
+component cmd_queue
+   port(
+      -- for testing
+      debug_o  : out std_logic_vector(31 downto 0);
 
-         -- Clock lines
-         sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
-         sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-         clk_i           : in std_logic; -- Advances the state machines
-         rst_i           : in std_logic  -- Resets all FSMs
-      );
-   end component;
+      -- reply_queue interface
+      uop_rdy_o       : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
+      uop_ack_i       : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
+      uop_o           : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
+
+      -- cmd_translator interface
+      card_addr_i     : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
+      par_id_i        : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
+      data_size_i     : in std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
+      data_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- Data belonging to a m-op
+      data_clk_i      : in std_logic; -- Clocks in 32-bit wide data
+      mop_i           : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
+      issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      mop_rdy_i       : in std_logic; -- Tells cmd_queue when a m-op is ready
+      mop_ack_o       : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
+      cmd_type_i      : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_stop_i      : in std_logic;                                          -- indicates a STOP command was recieved
+      last_frame_i    : in std_logic;                                          -- indicates the last frame of data for a ret_dat command
+      frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      internal_cmd_i  : in std_logic;
+
+      -- lvds_tx interface
+      tx_o            : out std_logic;  -- transmitter output pin
+      clk_200mhz_i    : in std_logic;  -- PLL locked 25MHz input clock for the
+
+      -- Clock lines
+      sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
+      sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      clk_i           : in std_logic; -- Advances the state machines
+      rst_i           : in std_logic  -- Resets all FSMs
+   );
+end component;
+
 end cmd_queue_pack;

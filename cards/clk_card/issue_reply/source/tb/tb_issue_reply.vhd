@@ -15,8 +15,8 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_issue_reply.vhd,v 1.20 2004/11/06 03:12:01 bburger Exp $
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.21 2004/11/09 15:14:10 dca Exp $>
+-- $Id: tb_issue_reply.vhd,v 1.22 2004/11/19 20:00:05 bburger Exp $
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.22 2004/11/19 20:00:05 bburger Exp $>
 --
 -- Project:      Scuba 2
 -- Author:       David Atkinson
@@ -29,8 +29,11 @@
 -- Test bed for the issue_reply chain
 --
 -- Revision history:
--- $Log$
--- <date $Date: 2004/11/09 15:14:10 $> - <text> - <initials $Author: dca $>
+-- $Log: tb_issue_reply.vhd,v $
+-- Revision 1.22  2004/11/19 20:00:05  bburger
+-- Bryce :  updated frame_timing and sync_gen interfaces
+--
+-- <date $Date: 2004/11/19 20:00:05 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -51,6 +54,7 @@ use work.wbs_bc_dac_ctrl_pack.all;
 use work.bc_dac_ctrl_pack.all;
 use work.frame_timing_core_pack.all;
 use work.frame_timing_pack.all;
+use work.issue_reply_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -121,6 +125,7 @@ architecture tb of tb_issue_reply is
    constant command_rb         : std_logic_vector(31 downto 0) := x"20205242";
    constant command_go         : std_logic_vector(31 downto 0) := X"2020474F";
    constant command_st         : std_logic_vector(31 downto 0) := x"20205354";
+   constant command_rs         : std_logic_vector(31 downto 0) := x"20205253";
    signal address_id           : std_logic_vector(31 downto 0) := X"00000000";--X"0002015C";
    
    constant ret_dat_s_num_data : std_logic_vector(31 downto 0) := X"00000002";  -- 2 data words, start and stop frame #
@@ -128,10 +133,11 @@ architecture tb of tb_issue_reply is
    signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000011";   
    constant ret_dat_num_data   : std_logic_vector(31 downto 0) := X"00000001";  
    
-   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000B0030";  -- card id=4, ret_dat command
-   constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00020034";  -- card id=0, ret_dat_s command
 --   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_READOUT_CARDS  & x"00" & RET_DAT_ADDR;
 --   constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & RET_DAT_S_ADDR;
+   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000B0030";  -- card id=4, ret_dat command
+   constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00020034";  -- card id=0, ret_dat_s command
+
    constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & FLUX_FB_ADDR;
    constant bias_cmd           : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & BIAS_ADDR;
    constant sram1_strt_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & SRAM1_STRT_ADDR;
@@ -154,7 +160,7 @@ architecture tb of tb_issue_reply is
    signal count                : integer;
    
    signal dv_i                 : std_logic := '0';
-   signal dv_en_i              : integer := 0;
+   signal dv_en_i              : std_logic := '0';
    
    signal sync_pulse           : std_logic;
    signal sync_number          : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -211,37 +217,37 @@ architecture tb of tb_issue_reply is
    signal spi_bias_clk            : std_logic;
    signal spi_dac_nclr            : std_logic;
 
-   component issue_reply            
-   port(
-      -- global signals
-      rst_i          : in std_logic;
-      clk_i          : in std_logic;
-
-      -- inputs from the fibre
-      fibre_clkr_i   : in std_logic;
-      rx_data_i      : in std_logic_vector(7 DOWNTO 0);
-      nRx_rdy_i      : in std_logic;
-      rvs_i          : in std_logic;
-      rso_i          : in std_logic;
-      rsc_nRd_i      : in std_logic;    
-      
-      
-      -- interface to fibre transmitter
-      tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
-      tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
-      nFena_o      : out    std_logic;                           -- hotlink tx enable
-
-      -- 25MHz clock for fibre_tx_control
-      fibre_clkw_i : in     std_logic;                          -- in phase with 25MHz hotlink clock
-    
-      
-      -- lvds_tx interface
-      tx_o           : out std_logic;  -- transmitter output pin
-      clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
-      sync_pulse_i   : in std_logic;
-      sync_number_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
-   ); 
-   end component;
+--   component issue_reply            
+--   port(
+--      -- global signals
+--      rst_i          : in std_logic;
+--      clk_i          : in std_logic;
+--
+--      -- inputs from the fibre
+--      fibre_clkr_i   : in std_logic;
+--      rx_data_i      : in std_logic_vector(7 DOWNTO 0);
+--      nRx_rdy_i      : in std_logic;
+--      rvs_i          : in std_logic;
+--      rso_i          : in std_logic;
+--      rsc_nRd_i      : in std_logic;    
+--      
+--      
+--      -- interface to fibre transmitter
+--      tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+--      tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
+--      nFena_o      : out    std_logic;                           -- hotlink tx enable
+--
+--      -- 25MHz clock for fibre_tx_control
+--      fibre_clkw_i : in     std_logic;                          -- in phase with 25MHz hotlink clock
+--    
+--      
+--      -- lvds_tx interface
+--      tx_o           : out std_logic;  -- transmitter output pin
+--      clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
+--      sync_pulse_i   : in std_logic;
+--      sync_number_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
+--   ); 
+--   end component;
     
 begin
 
@@ -720,8 +726,8 @@ begin
       
       do_reset;    
       
---      -- Testing a go command to see if reply generated
---      -- by reply translator / fibre_tx
+      -- Testing a go command to see if reply generated
+      -- by reply translator / fibre_tx
 --      command <= command_go;
 --      address_id <= on_bias_cmd;
 --      data_valid <= X"00000001"; -- 1 data value
@@ -732,14 +738,22 @@ begin
 --      
 --      wait for 80 us;
       
-      
-      
+      -- This is a ficticious Reset command to test whether the cmd_queue handles them properly
+--      command <= command_rs;
+--      address_id <= on_bias_cmd;
+--      data_valid <= X"00000005"; -- 1 data value
+--      data       <= X"12345678"; -- dummy data
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 200 us;
       
       -- This is a 'WB cc sram1_start A B C' command
       -- This command should not be parsed by the Address Card Wishbone Slave
 --      command <= command_wb;
 --      address_id <= sram1_strt_cmd;
---      data_valid <= X"00000001";--X"00000028";
+--      data_valid <= X"00000001";
 --      data       <= X"0000000A";
 --      load_preamble;
 --      load_command;
@@ -785,19 +799,19 @@ begin
       load_command;
       load_checksum;
       
-      wait for 200 us;
+      wait for 300 us;
 
       -- This is a 'WB ac on_bias 0 1 2 .. 40' command
       -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
-      command <= command_wb;
-      address_id <= off_bias_cmd;
+      command <= command_rb;
+      address_id <= on_bias_cmd;
       data_valid <= X"00000029"; --41 values
-      data       <= X"00000029";
+      data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
       
-      wait for 200 us;
+      wait for 400 us;
 
       -- This is a 'WB ac on_bias 0 1 2 .. 40' command
       -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
@@ -810,36 +824,36 @@ begin
       load_checksum;
       
       wait for 200 us;
-
-      command <= command_wb;
-      address_id <= enbl_mux_cmd;
-      data_valid <= X"00000001"; --1 value
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 120 us;
-
-      command <= command_wb;
-      address_id <= enbl_mux_cmd;
-      data_valid <= X"00000001"; --1 value
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 120 us;
-
-      command <= command_wb;
-      address_id <= enbl_mux_cmd;
-      data_valid <= X"00000001"; --1 value
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 300 us;
+--
+--      command <= command_wb;
+--      address_id <= enbl_mux_cmd;
+--      data_valid <= X"00000001"; --1 value
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 120 us;
+--
+--      command <= command_wb;
+--      address_id <= enbl_mux_cmd;
+--      data_valid <= X"00000001"; --1 value
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 120 us;
+--
+--      command <= command_wb;
+--      address_id <= enbl_mux_cmd;
+--      data_valid <= X"00000001"; --1 value
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 400 us;
 
 --------------------------------------------------------
 -- data return commands

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.20 2004/10/08 20:51:08 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.21 2004/10/14 00:38:43 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/08 20:51:08 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/10/14 00:38:43 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.21  2004/10/14 00:38:43  bburger
+-- Bryce:  cleaning up un-used signals
+--
 -- Revision 1.20  2004/10/08 20:51:08  bburger
 -- Bryce: No explicit command code checking is done except for commands that that require special handling (ret_dat, ret_dat_s)
 --
@@ -125,6 +128,7 @@ use components.component_pack.all;
 library work;
 use work.issue_reply_pack.all;
 use work.sync_gen_pack.all;
+use work.cmd_translator_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;

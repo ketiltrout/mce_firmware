@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.3 2004/10/26 23:59:16 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.4 2004/11/13 03:25:34 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.4  2004/11/13 03:25:34  bburger
+-- Bryce:  integration with ernie's side of reply_queue
+--
 -- Revision 1.3  2004/10/26 23:59:16  bburger
 -- Bryce:  working out the bugs from the cmd_queue<->reply_queue interface
 --
@@ -71,6 +74,7 @@ entity reply_queue_retire is
       cmd_stop_o        : out std_logic;                                          
       last_frame_o      : out std_logic;                                          
       frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
+      internal_cmd_o    : out std_logic;
      
       -- Internal interface signals to the lvds_rx fifo's
       mop_num_o         : out std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
@@ -162,6 +166,7 @@ begin
    m_op_cmd_code_o   <= header_a(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END);      
    m_op_card_addr_o  <= header_b(QUEUE_WIDTH-1 downto CARD_ADDR_END);
    m_op_param_id_o   <= header_b(CARD_ADDR_END-1 downto PARAM_ID_END);   
+   internal_cmd_o    <= header_c(2);
    cmd_stop_o        <= header_c(1);  
    last_frame_o      <= header_c(0);   
    frame_seq_num_o   <= header_d;

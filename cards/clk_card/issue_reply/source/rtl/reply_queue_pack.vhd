@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.3 2004/11/08 23:40:29 bburger Exp $
+-- $Id: reply_queue_pack.vhd,v 1.4 2004/11/13 03:25:34 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.4  2004/11/13 03:25:34  bburger
+-- Bryce:  integration with ernie's side of reply_queue
+--
 -- Revision 1.3  2004/11/08 23:40:29  bburger
 -- Bryce:  small modifications
 --
@@ -53,47 +56,48 @@ use work.sync_gen_pack.all;
 
 package reply_queue_pack is
    
-   component reply_queue
-      port(
-         -- cmd_queue interface
-         uop_rdy_i         : in std_logic;                                           
-         uop_ack_o         : out std_logic;                                          
-         uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
-         
-         -- reply_translator interface 
-         m_op_done_o       : out std_logic;
-         m_op_error_code_o : out std_logic_vector(BB_STATUS_WIDTH-1 downto 0); 
-         m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
-         m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
-         m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
-         fibre_word_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
-         num_fibre_words_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);    
-         fibre_word_req_i  : in std_logic; 
-         fibre_word_rdy_o  : out std_logic;
-         m_op_ack_i        : in std_logic;    
-         cmd_stop_o        : out std_logic;                                          
-         last_frame_o      : out std_logic;                                          
-         frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
-        
-         -- Bus Backplane interface
-         lvds_rx0a         : in std_logic;
-         lvds_rx1a         : in std_logic;
-         lvds_rx2a         : in std_logic;
-         lvds_rx3a         : in std_logic;
-         lvds_rx4a         : in std_logic;
-         lvds_rx5a         : in std_logic;
-         lvds_rx6a         : in std_logic;
-         lvds_rx7a         : in std_logic;
-         
-         -- Global signals
-         clk_i             : in std_logic;
-         comm_clk_i        : in std_logic;
-         rst_i             : in std_logic
-      );
-   end component;
+component reply_queue
+   port(
+      -- cmd_queue interface
+      uop_rdy_i         : in std_logic;                                           
+      uop_ack_o         : out std_logic;                                          
+      uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
+      
+      -- reply_translator interface 
+      m_op_done_o       : out std_logic;
+      m_op_error_code_o : out std_logic_vector(BB_STATUS_WIDTH-1 downto 0); 
+      m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
+      m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
+      fibre_word_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
+      num_fibre_words_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);    
+      fibre_word_req_i  : in std_logic; 
+      fibre_word_rdy_o  : out std_logic;
+      m_op_ack_i        : in std_logic;    
+      cmd_stop_o        : out std_logic;                                          
+      last_frame_o      : out std_logic;                                          
+      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      internal_cmd_o    : out std_logic;
+     
+      -- Bus Backplane interface
+      lvds_rx0a         : in std_logic;
+      lvds_rx1a         : in std_logic;
+      lvds_rx2a         : in std_logic;
+      lvds_rx3a         : in std_logic;
+      lvds_rx4a         : in std_logic;
+      lvds_rx5a         : in std_logic;
+      lvds_rx6a         : in std_logic;
+      lvds_rx7a         : in std_logic;
+      
+      -- Global signals
+      clk_i             : in std_logic;
+      comm_clk_i        : in std_logic;
+      rst_i             : in std_logic
+   );
+end component;
    
-   component reply_queue_retire
-      port(
+component reply_queue_retire
+   port(
       -- cmd_queue interface
       uop_rdy_i         : in std_logic;                                           
       uop_ack_o         : out std_logic;                                          
@@ -108,6 +112,7 @@ package reply_queue_pack is
       cmd_stop_o        : out std_logic;                                          
       last_frame_o      : out std_logic;                                          
       frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
+      internal_cmd_o    : out std_logic;
      
       -- Internal interface signals to the lvds_rx fifo's
       mop_num_o         : out std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
@@ -120,71 +125,71 @@ package reply_queue_pack is
       clk_i             : in std_logic;
       comm_clk_i        : in std_logic;
       rst_i             : in std_logic
-      );
-   end component;   
+   );
+end component;   
    
-   component reply_queue_sequencer
-      port(
-         clk_i      : in std_logic;
-         rst_i      : in std_logic;
-        
-         -- receiver FIFO interfaces:
-         ac_data_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         ac_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         ac_done_i  : in std_logic;
-         ac_ack_o   : out std_logic;
-        
-         bc1_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         bc1_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         bc1_done_i : in std_logic;
-         bc1_ack_o  : out std_logic;
-        
-         bc2_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         bc2_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         bc2_done_i : in std_logic;
-         bc2_ack_o  : out std_logic;
-        
-         bc3_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         bc3_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         bc3_done_i : in std_logic;
-         bc3_ack_o  : out std_logic;
-        
-         rc1_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         rc1_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         rc1_done_i : in std_logic;
-         rc1_ack_o  : out std_logic;
-        
-         rc2_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         rc2_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         rc2_done_i : in std_logic;
-         rc2_ack_o  : out std_logic;
-        
-         rc3_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         rc3_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         rc3_done_i : in std_logic;
-         rc3_ack_o  : out std_logic;
-        
-         rc4_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         rc4_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         rc4_done_i : in std_logic;
-         rc4_ack_o  : out std_logic;
-        
-         cc_data_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         cc_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-         cc_done_i  : in std_logic;
-         cc_ack_o   : out std_logic;
-        
-         -- fibre interface:
-         size_o : out integer;
-         data_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-         rdy_o  : out std_logic;
-         ack_i  : in std_logic;
-        
-         -- cmd_queue interface:
-         macro_op_i  : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
-         micro_op_i  : in std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
-         card_addr_i : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0)
-      );
-   end component;   
+component reply_queue_sequencer
+   port(
+      clk_i      : in std_logic;
+      rst_i      : in std_logic;
+     
+      -- receiver FIFO interfaces:
+      ac_data_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      ac_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      ac_done_i  : in std_logic;
+      ac_ack_o   : out std_logic;
+     
+      bc1_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      bc1_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      bc1_done_i : in std_logic;
+      bc1_ack_o  : out std_logic;
+     
+      bc2_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      bc2_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      bc2_done_i : in std_logic;
+      bc2_ack_o  : out std_logic;
+     
+      bc3_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      bc3_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      bc3_done_i : in std_logic;
+      bc3_ack_o  : out std_logic;
+     
+      rc1_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      rc1_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      rc1_done_i : in std_logic;
+      rc1_ack_o  : out std_logic;
+     
+      rc2_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      rc2_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      rc2_done_i : in std_logic;
+      rc2_ack_o  : out std_logic;
+     
+      rc3_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      rc3_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      rc3_done_i : in std_logic;
+      rc3_ack_o  : out std_logic;
+     
+      rc4_data_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      rc4_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      rc4_done_i : in std_logic;
+      rc4_ack_o  : out std_logic;
+     
+      cc_data_i  : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      cc_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+      cc_done_i  : in std_logic;
+      cc_ack_o   : out std_logic;
+     
+      -- fibre interface:
+      size_o : out integer;
+      data_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      rdy_o  : out std_logic;
+      ack_i  : in std_logic;
+     
+      -- cmd_queue interface:
+      macro_op_i  : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+      micro_op_i  : in std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
+      card_addr_i : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0)
+   );
+end component;   
    
 end reply_queue_pack;

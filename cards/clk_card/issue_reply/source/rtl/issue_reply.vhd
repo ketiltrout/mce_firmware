@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.25 2004/11/24 01:15:52 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.26 2004/11/25 01:09:12 bench2 Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/24 01:15:52 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2004/11/25 01:09:12 $> -     <text>      - <initials $Author: bench2 $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.26  2004/11/25 01:09:12  bench2
+-- Greg: Changed issue_reply block instantiation and corresponding signals in the tcl file
+--
 -- Revision 1.25  2004/11/24 01:15:52  bench2
 -- Greg: Broke apart issue reply and created pack files for all of its sub-components
 --
@@ -259,8 +262,7 @@ architecture rtl of issue_reply is
       signal last_frame    : std_logic;
       
       
-     -- reply_translator reply_queue interface 
-      
+      -- reply_translator reply_queue interface      
       signal   m_op_rdy            : std_logic;     
       signal   m_op_error_code     : std_logic_vector(BB_STATUS_WIDTH-1           downto 0); 
       signal   m_op_cmd_code       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
@@ -274,7 +276,7 @@ architecture rtl of issue_reply is
       signal   reply_cmd_stop      : std_logic;
       signal   reply_last_frame    : std_logic;
       signal   reply_frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
- 
+      signal   internal_cmd        : std_logic := '0';
  
 
 
@@ -553,6 +555,7 @@ begin
          cmd_stop_i      => cmd_stop,
          last_frame_i    => last_frame,
          frame_seq_num_i => frame_seq_num,--frame_seq_num_o,
+         internal_cmd_i  => internal_cmd,
 
          -- lvds_tx interface
          tx_o            => tx_o,

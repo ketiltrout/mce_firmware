@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.4 2004/11/13 03:25:34 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.5 2004/11/13 03:30:25 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.5  2004/11/13 03:30:25  bburger
+-- Bryce:  card_id renamed to card_addr
+--
 -- Revision 1.4  2004/11/13 03:25:34  bburger
 -- Bryce:  integration with ernie's side of reply_queue
 --
@@ -75,7 +78,8 @@ entity reply_queue is
       m_op_ack_i        : in std_logic;    
       cmd_stop_o        : out std_logic;                                          
       last_frame_o      : out std_logic;                                          
-      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
+      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      internal_cmd_o    : out std_logic;
      
       -- Bus Backplane interface
       lvds_rx0a         : in std_logic;
@@ -124,7 +128,8 @@ begin
          m_op_ack_i        => m_op_ack_i,        
          cmd_stop_o        => cmd_stop_o,       
          last_frame_o      => last_frame_o,     
-         frame_seq_num_o   => frame_seq_num_o,  
+         frame_seq_num_o   => frame_seq_num_o,
+         internal_cmd_o    => internal_cmd_o,
         
          mop_num_o         => mop_num,
          uop_num_o         => uop_num,

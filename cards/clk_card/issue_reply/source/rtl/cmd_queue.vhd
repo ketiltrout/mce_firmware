@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.64 2004/11/15 20:03:41 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.65 2004/11/16 09:03:20 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.65  2004/11/16 09:03:20  bburger
+-- Bryce :  removed status_addr from ISA!
+--
 -- Revision 1.64  2004/11/15 20:03:41  bburger
 -- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
 --
@@ -80,28 +83,28 @@ entity cmd_queue is
       -- cmd_translator interface
       card_addr_i     : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
       par_id_i        : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
-      data_size_i     : in std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0); -- The number of 32-bit words of data in the m-op
+      data_size_i     : in std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
       data_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- Data belonging to a m-op
       data_clk_i      : in std_logic; -- Clocks in 32-bit wide data
       mop_i           : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
-      issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0); -- The issuing sync-pulse sequence number
+      issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       mop_rdy_i       : in std_logic; -- Tells cmd_queue when a m-op is ready
-      mop_ack_o       : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op and is ready to receive data
-      cmd_type_i      : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      mop_ack_o       : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
+      cmd_type_i      : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_i      : in std_logic;                                          -- indicates a STOP command was recieved
       last_frame_i    : in std_logic;                                          -- indicates the last frame of data for a ret_dat command
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      
+      internal_cmd_i  : in std_logic;
+
       -- lvds_tx interface
       tx_o            : out std_logic;  -- transmitter output pin
-      clk_200mhz_i    : in std_logic;  -- PLL locked 25MHz input clock for the LVDS tranceivers 
+      clk_200mhz_i    : in std_logic;  -- PLL locked 25MHz input clock for the
 
       -- Clock lines
       sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       clk_i           : in std_logic; -- Advances the state machines
       rst_i           : in std_logic  -- Resets all FSMs
-      
    );
 end cmd_queue;
 
@@ -143,7 +146,7 @@ signal send_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal free_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
 -- Insertion FSM:  inserts u-ops into the command queue
-type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_HDR3, INSERT_HDR4, INSERT_DATA, INSERT_MORE_DATA, DONE, RESET, DATA_STROBE_DETECT, LATCHED_DATA);
+type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_HDR3, INSERT_HDR4, INSERT_DATA, INSERT_MORE_DATA, DONE, DATA_STROBE_DETECT, LATCHED_DATA);
 signal present_insert_state : insert_states;
 signal next_insert_state    : insert_states;
 signal data_count           : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
@@ -152,7 +155,7 @@ signal num_uops_inserted_slv: std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0)
 signal one_more             : std_logic;
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
-type retire_states is (FIRST_IDLE, IDLE, NEXT_UOP, STATUS, RETIRE, HEADER_A, HEADER_B, HEADER_C, HEADER_D);
+type retire_states is (FIRST_IDLE, IDLE, NEXT_UOP, STATUS, RETIRE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, SKIP_UOP);
 signal present_retire_state : retire_states;
 signal next_retire_state    : retire_states;
 signal retired              : std_logic; --Out, to the u-op counter fsm
@@ -162,9 +165,11 @@ signal retire_data_size_int : integer;
 signal retire_data_size_en  : std_logic;
 signal retire_data_size     : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal one_less             : std_logic;
+signal retire_cmd_code_en   : std_logic;
+signal retire_cmd_code      : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 
 -- Generate FSM:  translates M-ops into u-ops
-type gen_uop_states is (IDLE, INSERT, CLEANUP, RESET, DONE);
+type gen_uop_states is (IDLE, INSERT, CLEANUP, DONE);
 signal present_gen_state    : gen_uop_states;
 signal next_gen_state       : gen_uop_states;
 signal mop_rdy              : std_logic; --In from the previous block in the chain  
@@ -176,7 +181,7 @@ signal data_size_mux        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_size_mux_sel    : std_logic;
 
 -- Send FSM:  sends u-ops over the bus backplane
-type send_states is (LOAD, ISSUE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, DATA, MORE_DATA, CHECKSUM, NEXT_UOP, RESET, PAUSE);
+type send_states is (LOAD, BUFFER_CMD_PARAM, ISSUE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, DATA, MORE_DATA, CHECKSUM, NEXT_UOP, PAUSE);
 signal present_send_state   : send_states;
 signal next_send_state      : send_states;
 signal previous_send_state  : send_states;
@@ -188,8 +193,9 @@ signal timeout_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 signal uop_data_size        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal uop_data_size_int    : integer;
 signal uop_data_count       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
---signal send_state           : std_logic_vector(3 downto 0);
---signal prev_send_state      : std_logic_vector(3 downto 0); 
+signal send_cmd_code_en     : std_logic;
+signal send_cmd_code        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+signal bb_cmd_code          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 
 -- Wishbone signals to/from lvds_tx
 signal cmd_tx_dat           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -431,13 +437,13 @@ begin
    insert_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_insert_state <= IDLE;--RESET;
+         present_insert_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
          present_insert_state <= next_insert_state;
       end if;
    end process;
 
-   insert_state_NS: process(present_insert_state, data_size_i, data_count, data_clk_i, insert_uop_rdy)--,mop_rdy_i
+   insert_state_NS: process(present_insert_state, data_size_i, data_count, data_clk_i, insert_uop_rdy, cmd_type_i)--,mop_rdy_i
    begin
       next_insert_state <= present_insert_state;
       case present_insert_state is
@@ -456,7 +462,7 @@ begin
          when INSERT_HDR3 =>
             next_insert_state <= INSERT_HDR4;
          when INSERT_HDR4 =>
-            if(data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0) = x"0000") then
+            if((cmd_type_i = READ_BLOCK) or (data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0) = x"0000")) then
                next_insert_state <= DONE;
             else
                next_insert_state <= DATA_STROBE_DETECT;
@@ -484,13 +490,13 @@ begin
    num_uops_inserted_slv <= std_logic_vector(conv_unsigned(num_uops_inserted, 8));
 
    -- data_sig routing mux
-   process(data_sig_mux_sel, issue_sync_i, cmd_type_i, data_size_i, new_card_addr, new_par_id, mop_i, num_uops_inserted_slv, data_i, cmd_stop_i, last_frame_i, frame_seq_num_i)
+   process(data_sig_mux_sel, issue_sync_i, cmd_type_i, data_size_i, new_card_addr, new_par_id, mop_i, num_uops_inserted_slv, data_i, cmd_stop_i, last_frame_i, frame_seq_num_i, internal_cmd_i)
    begin
       case data_sig_mux_sel is
          when "000" => data_sig_mux <= (others=>'0');
          when "001" => data_sig_mux <= (issue_sync_i & cmd_type_i & data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0));
          when "010" => data_sig_mux <= (new_card_addr & new_par_id & mop_i & num_uops_inserted_slv);
-         when "011" => data_sig_mux <= "000000000000000000000000000000" & cmd_stop_i & last_frame_i;
+         when "011" => data_sig_mux <= "00000000000000000000000000000" & internal_cmd_i & cmd_stop_i & last_frame_i;
          when "100" => data_sig_mux <= frame_seq_num_i; 
          when others => data_sig_mux <= data_i;
       end case;
@@ -518,17 +524,17 @@ begin
    process(clk_i, rst_i)
    begin
       if rst_i = '1' then
-         data_count <= (others=>'0');
+         data_count     <= (others=>'0');
          free_ptr_reg   <= (others=>'0');
          data_size_reg  <= (others => '0');
       elsif clk_i'event and clk_i = '1' then
-         data_count <= data_count_mux;
+         data_count     <= data_count_mux;
          free_ptr_reg   <= free_ptr;
          data_size_reg  <= data_size_mux;
       end if;
    end process;
    
-   insert_state_out: process(present_insert_state, data_clk_i, free_ptr, num_uops_inserted, num_uops, data_size_reg)
+   insert_state_out: process(present_insert_state, data_clk_i, free_ptr, num_uops_inserted, num_uops, data_size_reg, cmd_type_i)
    begin   
       --defaults
       data_sig_mux_sel             <= "000"; -- (others=>'0')
@@ -579,10 +585,10 @@ begin
             -- In this implememtation, data are not replicated for other u-ops, if the m-op generates several u-ops.
             -- This means that all m-ops with data can only generate a single u-op..for now.
             -- If a m-op is issued with data and generated several u-ops, only the last one will have data.
-            if(num_uops_inserted = num_uops and data_size_reg /= x"0000") then
-               mop_ack_o          <= '1';
+            if(num_uops_inserted = num_uops and data_size_reg /= x"0000" and cmd_type_i /= READ_BLOCK) then
+               mop_ack_o           <= '1';
             else 
-               mop_ack_o          <= '0';
+               mop_ack_o           <= '0';
             end if;
             
             insert_uop_ack         <= '0';
@@ -594,14 +600,14 @@ begin
             if(data_clk_i = '1') then
                wren_sig            <= '1';
                data_count_mux_sel  <= "01";
-               mop_ack_o          <= '0';
+               mop_ack_o           <= '0';
                insert_uop_ack      <= '0';
                data_sig_mux_sel    <= "111";
                free_ptr_mux_sel    <= "01";
             else
                wren_sig            <= '0';
                data_count_mux_sel  <= "00";
-               mop_ack_o          <= '0';
+               mop_ack_o           <= '0';
                insert_uop_ack      <= '0';
                data_sig_mux_sel    <= "111";
                free_ptr_mux_sel    <= "00";
@@ -610,7 +616,7 @@ begin
          when LATCHED_DATA =>
             wren_sig               <= '0';
             data_count_mux_sel     <= "00";
-            mop_ack_o             <= '0';
+            mop_ack_o              <= '0';
             insert_uop_ack         <= '0';
             data_sig_mux_sel       <= "111";
             free_ptr_mux_sel       <= "00";
@@ -622,7 +628,7 @@ begin
             -- If there is no data with the m-op, then asserting mop_ack_o in the INSERT_HDR2 state would be too soon
             -- In this case, by delaying its assertion until DONE, we ensure that the cmd_translator doesn't try to insert the next m_op too soon.
             -- I think that I might have to register num_uops_inserted and num_uops to make sure that they are valid when I do this check
-            if(num_uops_inserted = num_uops and data_size_reg = x"0000") then
+            if(num_uops_inserted = num_uops and (data_size_reg = x"0000" or cmd_type_i = READ_BLOCK)) then
                mop_ack_o          <= '1';
             else
                mop_ack_o          <= '0';
@@ -663,9 +669,13 @@ begin
 
          -- This signal is to be used to determine when there is a u-op to retire.  
          -- This signal should not be asserted until the entire u-op pointed to by retire_ptr has been issued.   
-         if((retire_ptr < send_ptr) and (send_ptr+1 > retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size)) then
+         if((retire_ptr < send_ptr) and (retire_cmd_code /= READ_BLOCK) and (send_ptr+1 > retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size)) then
             uop_to_retire <= '1';
-         elsif((retire_ptr > send_ptr) and (send_ptr+1 > QUEUE_LEN - retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size)) then
+         elsif((retire_ptr > send_ptr) and (retire_cmd_code /= READ_BLOCK) and (send_ptr+1 > QUEUE_LEN - retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size)) then
+            uop_to_retire <= '1';
+         elsif((retire_ptr < send_ptr) and (retire_cmd_code = READ_BLOCK) and (send_ptr+1 > retire_ptr + CQ_NUM_CMD_HEADER_WORDS)) then
+            uop_to_retire <= '1';
+         elsif((retire_ptr > send_ptr) and (retire_cmd_code = READ_BLOCK) and (send_ptr+1 > QUEUE_LEN - retire_ptr + CQ_NUM_CMD_HEADER_WORDS)) then
             uop_to_retire <= '1';
          else
             uop_to_retire <= '0';
@@ -686,14 +696,26 @@ begin
          reg_o      => retire_data_size
       );
 
+   retire_cmd_code_reg : reg
+      generic map(
+         WIDTH => BB_COMMAND_TYPE_WIDTH
+      )
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => retire_cmd_code_en,
+         reg_i      => qb_sig(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END),
+         reg_o      => retire_cmd_code
+      );
+
    -- Re-circulation muxes
    retire_ptr_mux <= retire_ptr when retire_ptr_mux_sel = "000" else
                      ADDR_ZERO  when retire_ptr_mux_sel = "001" else
-                     retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size when retire_ptr_mux_sel = "010" else
+                     retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size when retire_ptr_mux_sel = "010" else  -- Skip the u-op
                      retire_ptr + 1 when retire_ptr_mux_sel = "101" else
                      retire_ptr + 1 + retire_data_size when retire_ptr_mux_sel = "110";
    
-   retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire, send_ptr, retire_ptr)
+   retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire, send_ptr, retire_ptr, retire_cmd_code)
    begin
       next_retire_state <= present_retire_state;
       case present_retire_state is
@@ -704,7 +726,11 @@ begin
          
          when IDLE =>
             if(uop_to_retire = '1') then
-               next_retire_state <= HEADER_B;
+               if(retire_cmd_code = START or retire_cmd_code = RESET) then
+                  next_retire_state <= SKIP_UOP;
+               else
+                  next_retire_state <= HEADER_B;
+               end if;
             end if;
          
          when HEADER_B =>
@@ -726,6 +752,9 @@ begin
          when RETIRE =>
             next_retire_state <= FIRST_IDLE;
          
+         when SKIP_UOP =>
+            next_retire_state <= FIRST_IDLE;
+            
          when others =>
             next_retire_state <= FIRST_IDLE;
       end case;
@@ -734,7 +763,7 @@ begin
    rdaddress_b_sig <= retire_ptr;
    uop_o <= qb_sig;
 
-   retire_state_out: process(present_retire_state, next_retire_state, send_ptr, retire_ptr)
+   retire_state_out: process(present_retire_state, next_retire_state, send_ptr, retire_ptr, retire_cmd_code)
    begin
       -- defaults
       uop_rdy_o      <= '0';
@@ -742,12 +771,14 @@ begin
       retired        <= '0';
       retire_ptr_mux_sel  <= "000"; -- hold value
       retire_data_size_en <= '0';
+      retire_cmd_code_en  <= '0';
       one_less            <= '0';
    
       case present_retire_state is
          when FIRST_IDLE =>
             if(send_ptr /= retire_ptr) then
                retire_data_size_en <= '1';
+               retire_cmd_code_en  <= '1';
             end if;
          
          when IDLE =>
@@ -766,13 +797,23 @@ begin
             retire_ptr_mux_sel <= "101"; 
 
          when HEADER_D =>
-            retire_ptr_mux_sel <= "110"; 
+            if(retire_cmd_code = READ_BLOCK) then
+               retire_ptr_mux_sel <= "101";
+            else
+               retire_ptr_mux_sel <= "110";
+            end if;
             
          when STATUS =>
             
          when RETIRE =>
             retired        <= '1';
             one_less       <= '1';
+
+         when SKIP_UOP =>
+            -- We only enter this state if retiring a Reset or a Start command
+            retired        <= '1';
+            one_less       <= '1';
+            retire_ptr_mux_sel <= "010"; 
             
          when others =>
       end case;
@@ -787,7 +828,7 @@ begin
    gen_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_gen_state <= IDLE;--RESET;
+         present_gen_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
          present_gen_state <= next_gen_state;
       end if;
@@ -1001,7 +1042,7 @@ begin
          FPGA_TEMP_ADDR                                  when FPGA_TEMP_ADDR,
          CARD_TEMP_ADDR                                  when CARD_TEMP_ADDR,
          CYC_OO_SYC_ADDR                                 when CYC_OO_SYC_ADDR,
-         par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0)        when PAR_ID, --0xEE
+         par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0)      when PAR_ID, --0xEE
          current_par_id                                  when RECIRC, --0xEF
          current_par_id                                  when others;
 
@@ -1009,7 +1050,7 @@ begin
    send_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_send_state <= LOAD;--RESET;
+         present_send_state <= LOAD;
       elsif(clk_i'event and clk_i = '1') then
          present_send_state <= next_send_state;
          if(update_prev_state = '1') then
@@ -1044,7 +1085,7 @@ begin
 
    send_state_NS: process(present_send_state, send_ptr, free_ptr, uop_send_expired, 
                           issue_sync, timeout_sync, sync_count_slv, previous_send_state, 
-                          uop_data_size, uop_data_count, lvds_tx_busy)
+                          uop_data_size, uop_data_count, lvds_tx_busy, send_cmd_code)
    begin
       next_send_state <= present_send_state;
       case present_send_state is
@@ -1053,20 +1094,20 @@ begin
             -- If there is a u-op waiting to be issued and if this FSM has not been frozen by the retire FSM, then send it or skip it.
             if(send_ptr /= free_ptr) then
                if(uop_send_expired = '1') then
-                  -- If the u-op has expired, it should be skipped
+                  -- If the u-op has expired, it is still issued.  This may have to change
                   --next_send_state <= NEXT_UOP;
-                  next_send_state <= HEADER_A;
+                  next_send_state <= BUFFER_CMD_PARAM;
                elsif(issue_sync < timeout_sync) then
                   -- Determine whether the current sync period is between the issue sync and the timeout sync.  If so, the u-op should be issued.
                   if(sync_count_slv >= issue_sync and sync_count_slv < timeout_sync) then
-                     next_send_state <= HEADER_A;
+                     next_send_state <= BUFFER_CMD_PARAM;
                   else
                      next_send_state <= LOAD;
                   end if;
                -- The timeout_sync can have wrapped with respect to the issue_sync
                elsif(issue_sync > timeout_sync) then
                   if(sync_count_slv >= issue_sync or sync_count_slv < timeout_sync) then
-                     next_send_state <= HEADER_A;
+                     next_send_state <= BUFFER_CMD_PARAM;
                   else
                      next_send_state <= LOAD;
                   end if;
@@ -1077,7 +1118,8 @@ begin
             else
                next_send_state <= LOAD;
             end if;
-
+         when BUFFER_CMD_PARAM =>
+            next_send_state <= HEADER_A;         
          when HEADER_A =>
             next_send_state <= PAUSE;
          when HEADER_B =>
@@ -1102,10 +1144,10 @@ begin
 --               if(previous_send_state = HEADER_C) then
 --                  next_send_state <= HEADER_D;
                elsif(previous_send_state = HEADER_B) then
-                  if(uop_data_size /= 0) then
-                     next_send_state <= DATA;
-                  else
+                  if(uop_data_size = 0 or send_cmd_code = READ_BLOCK) then
                      next_send_state <= CHECKSUM;
+                  else
+                     next_send_state <= DATA;
                   end if;
                elsif(previous_send_state = DATA) then
                   if(uop_data_count < uop_data_size) then
@@ -1136,54 +1178,71 @@ begin
 
    rdaddress_a_sig <= send_ptr;
    uop_data_size_int <= conv_integer(uop_data_size);
+   
+   send_cmd_code_reg : reg
+      generic map(
+         WIDTH => BB_COMMAND_TYPE_WIDTH
+      )
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => send_cmd_code_en,
+         reg_i      => qa_sig(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END),
+         reg_o      => send_cmd_code
+      );
 
-   send_state_out: process(present_send_state, bit_ctr_count, previous_send_state)
+   send_state_out: process(present_send_state, bit_ctr_count, previous_send_state, qa_sig)
    begin
       -- defaults
-      crc_num_bits_mux_sel     <= "00";  -- hold value
-      cmd_tx_dat_mux_sel       <= "000"; -- hold value
-      send_ptr_mux_sel         <= "000";  -- hold value
-      uop_data_count_mux_sel   <= "00";  -- hold value
-      uop_data_size_mux_sel    <= "00";  -- hold value      
-      sh_reg_parallel_mux_sel  <= "00";  -- (others => '0');
-      
-      update_prev_state <= '0';
+      crc_num_bits_mux_sel     <= "00";  
+      crc_clr                  <= '0';
+      bit_ctr_load             <= '0';
+      bit_ctr_ena              <= '0';
+      lvds_tx_rdy              <= '0';
+      send_ptr_mux_sel         <= "000"; 
+      uop_data_count_mux_sel   <= "00";  
+      uop_data_size_mux_sel    <= "00";  
+      cmd_tx_dat_mux_sel       <= "000"; 
+      sh_reg_parallel_mux_sel  <= "00";  
+      send_cmd_code_en         <= '0';
+      update_prev_state        <= '0';
    
       case present_send_state is
          when LOAD =>            
-            lvds_tx_rdy              <= '0';
             crc_clr                  <= '1';
 
             if(bit_ctr_count < 32) then
                bit_ctr_ena           <= '1';
-            else
-               bit_ctr_ena           <= '0';
             end if;
             
-            bit_ctr_load             <= '0';
-            crc_num_bits_mux_sel     <= "10";
-            uop_data_count_mux_sel   <= "11";  -- (others => '0')
+            crc_num_bits_mux_sel     <= "11";
+            uop_data_count_mux_sel   <= "11";  
             uop_data_size_mux_sel    <= "11";  -- (others => '0')
-            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             update_prev_state        <= '1';
          
+         when BUFFER_CMD_PARAM =>
+            send_cmd_code_en         <= '1';
+
          when HEADER_A =>
             lvds_tx_rdy              <= '1';
-            crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             bit_ctr_load             <= '1';
-            crc_num_bits_mux_sel     <= "01";
+            
+            if(qa_sig(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END) = READ_BLOCK) then
+               crc_num_bits_mux_sel     <= "10";
+            else
+               crc_num_bits_mux_sel     <= "01";
+            end if;
+            
             uop_data_count_mux_sel   <= "11";  -- (others => '0')
             uop_data_size_mux_sel    <= "10";  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
             cmd_tx_dat_mux_sel       <= "001";  -- BB_PREAMBLE & qa_sig
             sh_reg_parallel_mux_sel  <= "01";  -- BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
             update_prev_state        <= '1';
-            send_ptr_mux_sel         <= "000";
 
          when HEADER_B =>
             lvds_tx_rdy              <= '1';
-            crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             bit_ctr_load             <= '1';
             uop_data_count_mux_sel   <= "11";  -- (others => '0')
@@ -1194,7 +1253,6 @@ begin
         
          when DATA =>
             lvds_tx_rdy              <= '1';
-            crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             bit_ctr_load             <= '1';
             uop_data_count_mux_sel   <= "01";  -- uop_data_count + 1
@@ -1210,7 +1268,6 @@ begin
             
          when MORE_DATA =>
             lvds_tx_rdy              <= '1';
-            crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
             bit_ctr_load             <= '1';
             uop_data_count_mux_sel   <= "01";  -- uop_data_count + 1
@@ -1221,50 +1278,37 @@ begin
          
          when CHECKSUM =>
             lvds_tx_rdy              <= '1';
-            crc_clr                  <= '0';
-            bit_ctr_ena              <= '0';
-            bit_ctr_load             <= '0';
-            crc_num_bits_mux_sel     <= "10";
+            crc_num_bits_mux_sel     <= "11";
             uop_data_size_mux_sel    <= "11";  -- (others => '0')
             cmd_tx_dat_mux_sel       <= "011";  -- crc_reg
             update_prev_state        <= '1';
 
             if(previous_send_state = HEADER_B) then
+               -- If we came here from HEADER_B, there was no data (this includes RB commands with no-zero data fields)
                send_ptr_mux_sel      <= "011"; --send_ptr + 3           
             else
                send_ptr_mux_sel      <= "001";
             end if;
          
          when PAUSE =>
-            lvds_tx_rdy              <= '0';
-            crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
-            bit_ctr_load             <= '0';
             update_prev_state        <= '0';
-            send_ptr_mux_sel         <= "000";
          
          when NEXT_UOP =>
-            lvds_tx_rdy              <= '0';
             crc_clr                  <= '1';
-            bit_ctr_ena              <= '0';
-            bit_ctr_load             <= '0';
-            crc_num_bits_mux_sel     <= "10";
+            crc_num_bits_mux_sel     <= "11";
             uop_data_size_mux_sel    <= "11";  -- (others => '0')
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             update_prev_state        <= '1';
             send_ptr_mux_sel         <= "010"; -- skips entire u-op
          
          when others =>
-            lvds_tx_rdy              <= '0';
             crc_clr                  <= '1';
-            bit_ctr_ena              <= '0';
-            bit_ctr_load             <= '0';
-            crc_num_bits_mux_sel     <= "10";
+            crc_num_bits_mux_sel     <= "11";
             uop_data_count_mux_sel   <= "11";  -- (others => '0')
             uop_data_size_mux_sel    <= "11";  -- (others => '0')
             cmd_tx_dat_mux_sel       <= "100";  -- 0
             update_prev_state        <= '0';
-            send_ptr_mux_sel         <= "000"; -- does nothing
 
       end case;
    end process;
@@ -1275,45 +1319,46 @@ begin
 --
 ------------------------------------------------------------------------ 
 
-   with sh_reg_parallel_mux_sel select
-      sh_reg_parallel_i <= 
-      (others=>'0')                                           when "00",
-      BB_PREAMBLE & qa_sig(ISSUE_SYNC_END-1 downto 0)         when "01",
-      qa_sig(QUEUE_WIDTH-1 downto 0)                          when others; --"10",      
+   bb_cmd_code <= "100" when 
+      (send_cmd_code = WRITE_BLOCK) or 
+      (send_cmd_code = RESET) or 
+      (send_cmd_code = START) or 
+      (send_cmd_code = STOP) else "000";
+   
+   with sh_reg_parallel_mux_sel select sh_reg_parallel_i <= 
+      (others=>'0')                                                   when "00",
+      BB_PREAMBLE & bb_cmd_code & qa_sig(COMMAND_TYPE_END-1 downto 0) when "01",
+      qa_sig(QUEUE_WIDTH-1 downto 0)                                  when others; --"10",      
 
-   with uop_data_size_mux_sel select
-      uop_data_size <=
-      uop_data_size_reg                                       when "00",
-      qa_sig(COMMAND_TYPE_END-1 downto DATA_SIZE_END)         when "10",  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
-      (others=>'0')                                           when others;
+   with uop_data_size_mux_sel select uop_data_size <=
+      uop_data_size_reg                               when "00",
+      qa_sig(COMMAND_TYPE_END-1 downto DATA_SIZE_END) when "10",  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
+      (others=>'0')                                   when others;
 
-   with uop_data_count_mux_sel select
-      uop_data_count <=
-      uop_data_count_reg                                      when "00",
-      uop_data_count_reg + 1                                  when "01",
-      (others=>'0')                                           when others;
+   with uop_data_count_mux_sel select uop_data_count <=
+      uop_data_count_reg     when "00",
+      uop_data_count_reg + 1 when "01",
+      (others=>'0')          when others;
  
-   with send_ptr_mux_sel select
-      send_ptr <=
-      send_ptr_reg                                             when "000",
-      send_ptr_reg + 1                                         when "001",
+   with send_ptr_mux_sel select send_ptr <=
+      send_ptr_reg                                                                                           when "000",
+      send_ptr_reg + 1                                                                                       when "001",
       send_ptr_reg + CQ_NUM_CMD_HEADER_WORDS + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "010",
-      send_ptr_reg + 1 + NUM_NON_BB_CMD_HEADER_WORDS           when "011",
-      ADDR_ZERO                                                when others; --"11",
+      send_ptr_reg + 1 + NUM_NON_BB_CMD_HEADER_WORDS                                                         when "011",
+      ADDR_ZERO                                                                                              when others;
 
-   with crc_num_bits_mux_sel select
-      crc_num_bits <=
-      crc_num_bits_reg                                          when "00",
+   with crc_num_bits_mux_sel select crc_num_bits <=
+      crc_num_bits_reg                                            when "00",
       ((BB_NUM_CMD_HEADER_WORDS + uop_data_size_int)*QUEUE_WIDTH) when "01",
-      0                                                         when others;
+      (BB_NUM_CMD_HEADER_WORDS*QUEUE_WIDTH)                       when "10",
+      0                                                           when others;
       
-   with cmd_tx_dat_mux_sel select
-      cmd_tx_dat <=
-      cmd_tx_dat_reg                                            when "000",
-      BB_PREAMBLE & qa_sig(ISSUE_SYNC_END-1 downto 0)           when "001",
-      qa_sig(QUEUE_WIDTH-1 downto 0)                            when "010",
-      crc_reg                                                   when "011",
-      (others=>'0')                                             when others; --"100",
+   with cmd_tx_dat_mux_sel select cmd_tx_dat <=
+      cmd_tx_dat_reg                                                  when "000",
+      BB_PREAMBLE & bb_cmd_code & qa_sig(COMMAND_TYPE_END-1 downto 0) when "001",
+      qa_sig(QUEUE_WIDTH-1 downto 0)                                  when "010",
+      crc_reg                                                         when "011",
+      (others=>'0')                                                   when others;
       
    process(rst_i, clk_i)
    begin
@@ -1344,126 +1389,6 @@ begin
 
 end behav;
 
--- Bugs:
---x The insert FSM doesn't insert the first u-op in a sequence
---  I had to adjust the order that commands are issed over the bus backplane
-
---x The address card should be the last card that u-ops are issued to
---  There was a problem with what signals were on the sensitivity list.  For statements like i<=i+1, i should not appear in the sensitivity list
-
---x The generate FSM keeps on repeating the issue of u-ops to the AC
---  Solved by deasserting mop_rdy_o after mop_ack_i returned high
-
---x uops issued over the bus backplane should be issued in the following order: {for each uop(for each applicable card(issue uop))}
--- Done
-
---x the next_gen_state change occurs one clock cycle too late
---  added last_card_uop to the gen_NS fsm sensitivity list
-
---x last_card_uop count wrong.
--- removed last_card_uop becuase it is not used anymore.
-
---x new_card_addr should change one clock cycle earlier at the beginning of a sequence of u-ops issued
---  Done
-
---x the generate FSM cycles over two u-ops during a u-op transition
---  Done
-
---x uop_counter wraps at 31.  BB_MICRO_OP_SEQ_WIDTH is only bit bits wide.
---  BB_MICRO_OP_SEQ_WIDTH and BB_MACRO_OP_SEQ_WIDTH have been widened to 8 bits each.
-
---x I need to widen the RAM lines to 64 bits.
---  Done.
-
---x Change the handshaking protocol with the cmd_translator so that the ack signal is only asserted when the cmd_queue is done receiving a m-op.
---  This is already done by the Generate FSM
-
---x How do I convert and integer to a std_logic_vector
--- conv_std_logic_vector(name of vector, width of vector)
--- include ieee.std_logic_unsigned.all
-
---x Right now, determinig whether there is enough queue_space is calculated based on the number of u-ops that are inserted
--- it should actually be calculated based on the number of u-ops and how large each u-op is.
-
---x Change the clock frequency for the ram block and insertion FSM to clk_i instead of fast_clk_i
--- Done but not tested
-
---x Figure out how to take continuous data from the cmd_translator block
--- The insert FSM can take continuous data at the normal clock frequency
--- Once it is done, it asserts insert_uop_ack to let the generate FSM know that it's ready to receive the next u-op
--- While it is inserting the u-op and data, it asserts the inserting signal to all the queue-size FSM to alter the space available in the queue
--- To begin the continuous data stream, the insert FSM asserts the mop_ack_o line directly.
-
---x Slow down the insertion FSM so that everything works with the same clock.
--- To do this, I will have to implement a handshaking protocol to stall the generate FSM while the insert FSM is busy
--- The handshaking protocol between insert and generate FSMs has been implemented.
--- The handshaking signals used are insert_uop_rdy and insert_uop_ack
--- These signals are used exclusively for this purpose.
-
---x Send FSM must send out all relevant fields in the correct order, while creating a checksum on the fly
-
---x Combine the packetization and send FSMs together, because they both need write access to send_ptr.
-
---x Disable the CRC while the lvds_tx block finishes transmission, so that the CRC block doesn't count garbage data against the CRC.  
--- We are garunteed that the CRC block will finish calculating the checksum before the lvdsl_tx finishes tx'in the data
-
---x The 25Mhz LVDS clk should actually be 200 Mhz
-
---x add the crc_ena block signal to the crc calculation block in a manner that the crc is not calculated on garbage bits.
-
---x Write the supporting code in the send FSM for freeze_send.
-
---x Check the sensitivity lists on the FSMs that I've been testing this morning.
-
---x The insert fsm needs to put data into the queue in a single cycle.
-
---x The communication between Generate FSM and Insert FSM is faulty.  
--- Generate does not wait for insert to finish before asserting the next card address
-
---x Think about changing the order of the packet header information
--- I have changed the order of the BB-packet fields to make it easier for the Master's to discard a packet that doesn't pertain to it
--- Now word 0 contains (Bus Backplane preamble, card address, parameter id)
--- Now word 1 contains (data size, m-op code, u-op code)
--- Actually, I just figured out that I can't do it, because I need the 'data size' field in the first word so that management of the retire pointer matches all others.
--- Data Size needs to be accessed by the retire pointer in the first index of each packet as stored in the command queue.
--- If it was in the second index of each command queue, the pointer handling would be overly complicated.
--- I would have to handle the pointer differently depending on whether the 'retire_ptr' has reached the 'free_ptr' or not
--- Ernie will have to take two pieces of data first, before he discards the rest.
--- However, Ernie doesn't need to worry about managing several u-ops at once in a single queue - only one at a time.
-
---x issue_sync and timeout_sync signals seem to be used both for the insert and send FSM.  
--- However, both should actually be two different signals - one to each FSM.
--- The insert FSM should get it's issue and timeout information from the cmd_translator block.
--- The send FSM should get it's issue and timeout information from the cmd_queue RAM.
--- Actually, after closer inspection, this is how it works.
-
---x issue_sync and timeout_sync don't seem to be getting valid values
-
---x mop_ack_o needs to be asserted in the DONE state if there is no data included with the m_op
--- This will allow the FSM to recover before cmd_translator can issued the next m-op, as soon as 2 clock cycles after mop_ack_o is asserted
-
---x Test packets with multiple data words.  I'm not sure that the insert FSM will work properly with only one state.
-
---x Find some way to initialize the RAM to 0xFFFFFFFF
--- Don't worry about this
-
---x There's a problem with the use of the counters i've used in frame_timing and cmd_queue.  
--- They all continue on counting after they've gone past the limit that they count to.
--- The bad thing about this is that if the counter wraps after exceeding the time limit, then there could be problems.
--- The cmd_queue counter has been fixed, but I don't think that the frame_timing counter has.
--- Actually, for the frame_timing block, we do not want the clk_count to restart
-
---x Check out clk_error, and figure out why it is so out of whack.  
--- It might be something to do with having a faulty period for the sync pulse in the TB.
-
---x Check out the ***'ed lines
-
---x uop_counter may not belong on the sensitivity list for insert FSM
--- Removed
-
---x If the sync pulse changes while I'm transmitting a series of commands that were only good for the previous sync period, what should I do?
--- Stop tranmission?
-
 -- Think about using the free_ptr index to tag the u-op sequence number in the queue.
 
 -- The send FSM needs a way of notifying the retire fsm wheter a u-op has been skipped or not
@@ -1473,18 +1398,3 @@ end behav;
 -- I can't add a new state in the send state machine that would alter the data field, because you can only read from the qa_sig data port.
 
 -- The calculated CRC is always the same..
-
-----------------------------------------------
--- Debugging with logic analyser:
-
--- I found a problem in the send fsm.  when sending a packet it seems to freeze in PAUSE after HEADER_A
--- Instead of going IDLE, HEADER_A, PAUSE, HEADER_B, PAUSE, ..
--- It goes IDLE, HEADER_A, PAUSE (forever)
--- There might be a problem with the length of time between a switch from PAUSE to HEADER_B
--- Investigate adjusting the trigger tomorrow.
--- Its not a problem with the logic analyser.  I tried triggering on information in HEADER_B, but it never appeared
--- The info was for WB cc sram1_start 10; which has card_addr '02' and param_id '5C'
--- Those values never appeared.  I now suspect that the FSM is freezing in PAUSE and refusing to go into HEADER_B
--- I suppose that cmd_tx_done is not working as expected.
--- In fact, ernie updated the lvds_tx block to get rid of that signal.  The problem was that it was asserted to soon, and not remaining so long enough
--- I should update my block to used the latest lvds_tx block.
