@@ -1,0 +1,28 @@
+FILES
+{
+	VHDL_FILE = ..\..\..\all_cards\io_led\source\pack\io_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\io_led\source\rtl\io_led.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\pack\async_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\rtl\async_tx.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\rtl\async_mux.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\rtl\async_rx.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\rtl\async_clk.vhd;
+	VHDL_FILE = ..\source\rtl\s_pack.vhd;
+	VHDL_FILE = ..\source\rtl\s_idle.vhd;
+	VHDL_FILE = ..\source\rtl\s_led.vhd;
+	VHDL_FILE = ..\source\rtl\s_reset.vhd;
+	VHDL_FILE = ..\source\rtl\cc_test.vhd;
+}
+COMPILER_SETTINGS_LIST
+{
+	COMPILER_SETTINGS = cc_test;
+}
+SIMULATOR_SETTINGS_LIST
+{
+	SIMULATOR_SETTINGS = cc_test;
+}
+SOFTWARE_SETTINGS_LIST
+{
+	SOFTWARE_SETTINGS = Debug;
+	SOFTWARE_SETTINGS = Release;
+}

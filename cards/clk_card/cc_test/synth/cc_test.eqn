@@ -1,0 +1,2367 @@
+--B1L1Q is async_clk:aclock|add_22~1 at LC_X53_Y2_N1
+--operation mode is arithmetic
+
+B1L1Q_lut_out = !B1L1Q;
+B1L1Q_sload_eqn = (B1_reduce_nor_20 & VCC) # (!B1_reduce_nor_20 & B1L1Q_lut_out);
+B1L1Q = DFFEA(B1L1Q_sload_eqn, GLOBAL(clk), VCC, , !GLOBAL(reset_n), VCC);
+
+--B1L5 is async_clk:aclock|add_22~1COUT0COUT0COUT0 at LC_X53_Y2_N1
+--operation mode is arithmetic
+
+B1L5_cout_0 = B1L1Q;
+B1L5 = CARRY(B1L5_cout_0);
+
+--B1L8 is async_clk:aclock|add_22~1COUT1COUT1COUT1 at LC_X53_Y2_N1
+--operation mode is arithmetic
+
+B1L8_cout_1 = B1L1Q;
+B1L8 = CARRY(B1L8_cout_1);
+
+
+--B1L9Q is async_clk:aclock|add_22~2 at LC_X53_Y2_N2
+--operation mode is arithmetic
+
+B1L9Q_lut_out = B1L9Q $ !B1L5;
+B1L9Q_sload_eqn = (B1_reduce_nor_20 & ~GND) # (!B1_reduce_nor_20 & B1L9Q_lut_out);
+B1L9Q = DFFEA(B1L9Q_sload_eqn, GLOBAL(clk), VCC, , !GLOBAL(reset_n), ~GND);
+
+--B1L31 is async_clk:aclock|add_22~2COUT0COUT0COUT0 at LC_X53_Y2_N2
+--operation mode is arithmetic
+
+B1L31_cout_0 = !B1L9Q & !B1L5;
+B1L31 = CARRY(B1L31_cout_0);
+
+--B1L61 is async_clk:aclock|add_22~2COUT1COUT1COUT1 at LC_X53_Y2_N2
+--operation mode is arithmetic
+
+B1L61_cout_1 = !B1L9Q & !B1L8;
+B1L61 = CARRY(B1L61_cout_1);
+
+
+--B1L71Q is async_clk:aclock|add_22~3 at LC_X53_Y2_N3
+--operation mode is arithmetic
+
+B1L71Q_lut_out = B1L71Q $ B1L31;
+B1L71Q_sload_eqn = (B1_reduce_nor_20 & VCC) # (!B1_reduce_nor_20 & B1L71Q_lut_out);
+B1L71Q = DFFEA(B1L71Q_sload_eqn, GLOBAL(clk), VCC, , !GLOBAL(reset_n), VCC);
+
+--B1L02 is async_clk:aclock|add_22~3COUT0COUT0 at LC_X53_Y2_N3
+--operation mode is arithmetic
+
+B1L02_cout_0 = B1L71Q # !B1L31;
+B1L02 = CARRY(B1L02_cout_0);
+
+--B1L22 is async_clk:aclock|add_22~3COUT1COUT1 at LC_X53_Y2_N3
+--operation mode is arithmetic
+
+B1L22_cout_1 = B1L71Q # !B1L61;
+B1L22 = CARRY(B1L22_cout_1);
+
+
+--B1L32Q is async_clk:aclock|add_22~4 at LC_X53_Y2_N4
+--operation mode is arithmetic
+
+B1L32Q_lut_out = B1L32Q $ !B1L02;
+B1L32Q_sload_eqn = (B1_reduce_nor_20 & ~GND) # (!B1_reduce_nor_20 & B1L32Q_lut_out);
+B1L32Q = DFFEA(B1L32Q_sload_eqn, GLOBAL(clk), VCC, , !GLOBAL(reset_n), ~GND);
+
+--B1L42 is async_clk:aclock|add_22~4COUT at LC_X53_Y2_N4
+--operation mode is arithmetic
+
+B1L42 = B1L52;
+
+
+--B1L72Q is async_clk:aclock|add_22~5 at LC_X53_Y2_N5
+--operation mode is arithmetic
+
+B1L72Q_carry_eqn = (!B1L42 & GND) # (B1L42 & VCC);
+B1L72Q_lut_out = B1L72Q $ B1L72Q_carry_eqn;
+B1L72Q_sload_eqn = (B1_reduce_nor_20 & VCC) # (!B1_reduce_nor_20 & B1L72Q_lut_out);
+B1L72Q = DFFEA(B1L72Q_sload_eqn, GLOBAL(clk), VCC, , !GLOBAL(reset_n), VCC);
+
+--B1L13 is async_clk:aclock|add_22~5COUT0COUT0COUT0 at LC_X53_Y2_N5
+--operation mode is arithmetic
+
+B1L13_cout_0 = B1L72Q # VCC;
+B1L13 = CARRY(B1L13_cout_0);
+
+--B1L43 is async_clk:aclock|add_22~5COUT1COUT1COUT1 at LC_X53_Y2_N5
+--operation mode is arithmetic
+
+B1L43_cout_1 = B1L72Q # GND;
+B1L43 = CARRY(B1L43_cout_1);
+
+
+--B1L53Q is async_clk:aclock|add_22~6 at LC_X53_Y2_N6
+--operation mode is normal
+
+B1L53Q_carry_eqn = (!B1L42 & B1L13) # (B1L42 & B1L43);
+B1L53Q_lut_out = B1L53Q_carry_eqn $ !B1L53Q;
+B1L53Q_sload_eqn = (B1_reduce_nor_20 & VCC) # (!B1_reduce_nor_20 & B1L53Q_lut_out);
+B1L53Q = DFFEA(B1L53Q_sload_eqn, GLOBAL(clk), VCC, , !GLOBAL(reset_n), VCC);
+
+
+--H1L42Q is async_tx:transmitter|tx_o~reg0 at LC_X47_Y6_N9
+--operation mode is normal
+
+H1L42Q_lut_out = !H1_sreg[9];
+H1L42Q = DFFEA(H1L42Q_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), H1L32, , );
+
+
+--M1_led_bit is s_led:led_fault_state|io_led:led|led_bit at LC_X45_Y4_N2
+--operation mode is normal
+
+M1_led_bit_lut_out = E1_dat_o[0];
+M1_led_bit = DFFEA(M1_led_bit_lut_out, GLOBAL(clk), GLOBAL(reset_n), M1L3, , );
+
+
+--M3_led_bit is s_led:led_status_state|io_led:led|led_bit at LC_X46_Y1_N4
+--operation mode is normal
+
+M3_led_bit_lut_out = E3_dat_o[0];
+M3_led_bit = DFFEA(M3_led_bit_lut_out, GLOBAL(clk), GLOBAL(reset_n), M3L3, , );
+
+
+--M2_led_bit is s_led:led_power_state|io_led:led|led_bit at LC_X37_Y4_N2
+--operation mode is normal
+
+M2_led_bit_lut_out = E2_dat_o[0];
+M2_led_bit = DFFEA(M2_led_bit_lut_out, GLOBAL(clk), GLOBAL(reset_n), M2L3, , );
+
+
+--H1_sreg[9] is async_tx:transmitter|sreg[9] at LC_X50_Y6_N3
+--operation mode is normal
+
+H1_sreg[9]_lut_out = !H1L3 & (H1_txcount[9] & H1_sreg[8] # !H1_txcount[9] & H1_sreg[9]);
+H1_sreg[9] = DFFEA(H1_sreg[9]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--B1L44Q is async_clk:aclock|txclk_o~reg0 at LC_X53_Y4_N8
+--operation mode is normal
+
+B1L44Q_lut_out = B1_tx_clock_txcount[1] & B1_tx_clock_txcount[2] & B1_tx_clock_txcount[0];
+B1L44Q = DFFEA(B1L44Q_lut_out, GLOBAL(B1_rxclk), GLOBAL(reset_n), , , );
+
+
+--H1_txcount[9] is async_tx:transmitter|txcount[9] at LC_X49_Y6_N4
+--operation mode is normal
+
+H1_txcount[9]_lut_out = H1_txcount[9] & (H1_txcount[8] # C1L91Q & C1L02Q) # !H1_txcount[9] & C1L91Q & C1L02Q;
+H1_txcount[9] = DFFEA(H1_txcount[9]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--C1L91Q is async_mux:amux|out_o_stb~reg0 at LC_X49_Y6_N1
+--operation mode is normal
+
+C1L91Q_lut_out = G1L01Q & (C1L9 # C1L01 # !sel_vec[0]) # !G1L01Q & C1L9 & sel_vec[0];
+C1L91Q = DFFEA(C1L91Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--C1L02Q is async_mux:amux|out_o_we~reg0 at LC_X49_Y6_N8
+--operation mode is normal
+
+C1L02Q_lut_out = G1L01Q & (C1L8 # C1L01 # !sel_vec[0]) # !G1L01Q & C1L8 & sel_vec[0];
+C1L02Q = DFFEA(C1L02Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1L32 is async_tx:transmitter|tx_o~0 at LC_X49_Y6_N0
+--operation mode is normal
+
+H1L32 = H1_txcount[9] & (!C1L02Q # !C1L91Q);
+
+
+--E1_dat_o[0] is s_led:led_fault_state|dat_o[0] at LC_X45_Y4_N4
+--operation mode is normal
+
+E1_dat_o[0]_lut_out = !M1_led_bit;
+E1_dat_o[0] = DFFEA(E1_dat_o[0]_lut_out, GLOBAL(clk), !GLOBAL(E1L5), E1L3, , );
+
+
+--E1_stb is s_led:led_fault_state|stb at LC_X45_Y5_N3
+--operation mode is normal
+
+E1_stb_lut_out = E1L8Q # E1_stb & E1L11 # !E1L6Q;
+E1_stb = DFFEA(E1_stb_lut_out, GLOBAL(clk), !GLOBAL(E1L5), , , );
+
+
+--E1_we is s_led:led_fault_state|we at LC_X45_Y5_N2
+--operation mode is normal
+
+E1_we_lut_out = E1L8Q # E1L11 & E1_we;
+E1_we = DFFEA(E1_we_lut_out, GLOBAL(clk), !GLOBAL(E1L5), , , );
+
+
+--M1L3 is s_led:led_fault_state|io_led:led|led_bit~0 at LC_X45_Y5_N4
+--operation mode is normal
+
+M1L3 = E1_stb & E1_we;
+
+
+--E3_dat_o[0] is s_led:led_status_state|dat_o[0] at LC_X46_Y1_N2
+--operation mode is normal
+
+E3_dat_o[0]_lut_out = !M3_led_bit;
+E3_dat_o[0] = DFFEA(E3_dat_o[0]_lut_out, GLOBAL(clk), !GLOBAL(E3L5), E3L3, , );
+
+
+--E3_stb is s_led:led_status_state|stb at LC_X46_Y2_N3
+--operation mode is normal
+
+E3_stb_lut_out = E3L8Q # E3L11 & E3_stb # !E3L6Q;
+E3_stb = DFFEA(E3_stb_lut_out, GLOBAL(clk), !GLOBAL(E3L5), , , );
+
+
+--E3_we is s_led:led_status_state|we at LC_X46_Y2_N4
+--operation mode is normal
+
+E3_we_lut_out = E3L8Q # E3L11 & E3_we;
+E3_we = DFFEA(E3_we_lut_out, GLOBAL(clk), !GLOBAL(E3L5), , , );
+
+
+--M3L3 is s_led:led_status_state|io_led:led|led_bit~0 at LC_X46_Y2_N7
+--operation mode is normal
+
+M3L3 = E3_stb & E3_we;
+
+
+--E2_dat_o[0] is s_led:led_power_state|dat_o[0] at LC_X38_Y4_N9
+--operation mode is normal
+
+E2_dat_o[0]_lut_out = !M2_led_bit;
+E2_dat_o[0] = DFFEA(E2_dat_o[0]_lut_out, GLOBAL(clk), !GLOBAL(E2L5), E2L3, , );
+
+
+--E2_stb is s_led:led_power_state|stb at LC_X38_Y4_N3
+--operation mode is normal
+
+E2_stb_lut_out = E2L8Q # E2_stb & E2L11 # !E2L6Q;
+E2_stb = DFFEA(E2_stb_lut_out, GLOBAL(clk), !GLOBAL(E2L5), , , );
+
+
+--E2_we is s_led:led_power_state|we at LC_X38_Y4_N6
+--operation mode is normal
+
+E2_we_lut_out = E2L8Q # E2L11 & E2_we;
+E2_we = DFFEA(E2_we_lut_out, GLOBAL(clk), !GLOBAL(E2L5), , , );
+
+
+--M2L3 is s_led:led_power_state|io_led:led|led_bit~0 at LC_X38_Y4_N5
+--operation mode is normal
+
+M2L3 = E2_stb & E2_we;
+
+
+--H1_sreg[8] is async_tx:transmitter|sreg[8] at LC_X50_Y6_N6
+--operation mode is normal
+
+H1_sreg[8]_lut_out = C1L91Q & (C1L02Q & C1L11Q # !C1L02Q & H1L4) # !C1L91Q & H1L4;
+H1_sreg[8] = DFFEA(H1_sreg[8]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L3 is async_tx:transmitter|i~1 at LC_X49_Y6_N6
+--operation mode is normal
+
+H1L3 = C1L91Q & C1L02Q;
+
+
+--B1_tx_clock_txcount[0] is async_clk:aclock|tx_clock_txcount[0] at LC_X53_Y4_N2
+--operation mode is normal
+
+B1_tx_clock_txcount[0]_lut_out = !B1_tx_clock_txcount[0];
+B1_tx_clock_txcount[0] = DFFEA(B1_tx_clock_txcount[0]_lut_out, GLOBAL(B1_rxclk), GLOBAL(reset_n), , , );
+
+
+--B1_tx_clock_txcount[1] is async_clk:aclock|tx_clock_txcount[1] at LC_X53_Y4_N4
+--operation mode is normal
+
+B1_tx_clock_txcount[1]_lut_out = B1_tx_clock_txcount[1] $ B1_tx_clock_txcount[0];
+B1_tx_clock_txcount[1] = DFFEA(B1_tx_clock_txcount[1]_lut_out, GLOBAL(B1_rxclk), GLOBAL(reset_n), , , );
+
+
+--B1_tx_clock_txcount[2] is async_clk:aclock|tx_clock_txcount[2] at LC_X53_Y4_N5
+--operation mode is normal
+
+B1_tx_clock_txcount[2]_lut_out = B1_tx_clock_txcount[2] $ (B1_tx_clock_txcount[1] & B1_tx_clock_txcount[0]);
+B1_tx_clock_txcount[2] = DFFEA(B1_tx_clock_txcount[2]_lut_out, GLOBAL(B1_rxclk), GLOBAL(reset_n), , , );
+
+
+--H1_txcount[8] is async_tx:transmitter|txcount[8] at LC_X49_Y6_N5
+--operation mode is normal
+
+H1_txcount[8]_lut_out = H1L3 # H1_txcount[9] & H1_txcount[7] # !H1_txcount[9] & H1_txcount[8];
+H1_txcount[8] = DFFEA(H1_txcount[8]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--G1L01Q is s_reset:reset_state|tx_we_o~reg0 at LC_X50_Y5_N5
+--operation mode is normal
+
+G1L01Q_lut_out = !G1_done & !H1L1Q & !H1L2Q;
+G1L01Q = DFFEA(G1L01Q_lut_out, GLOBAL(clk), !GLOBAL(G1L2), , , );
+
+
+--D1_tx_strobe is s_idle:idle_state|tx_strobe at LC_X50_Y5_N4
+--operation mode is normal
+
+D1_tx_strobe_lut_out = F1L31Q # !H1L1Q & (D1_tx_strobe # D1L43);
+D1_tx_strobe = DFFEA(D1_tx_strobe_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--sel_vec[1] is sel_vec[1] at LC_X47_Y5_N7
+--operation mode is normal
+
+sel_vec[1]_lut_out = A1L3Q # sel_vec[1] & (A1L43 # A1L23);
+sel_vec[1] = DFFEA(sel_vec[1]_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--C1L9 is async_mux:amux|i~291 at LC_X47_Y6_N2
+--operation mode is normal
+
+C1L9 = sel_vec[1] & D1_tx_strobe;
+
+
+--sel_vec[0] is sel_vec[0] at LC_X46_Y5_N6
+--operation mode is normal
+
+sel_vec[0]_lut_out = A1L2Q & (sel_vec[0] # !A1L43 & !A1L23);
+sel_vec[0] = DFFEA(sel_vec[0]_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--sel_vec[2] is sel_vec[2] at LC_X46_Y5_N8
+--operation mode is normal
+
+sel_vec[2]_lut_out = A1L63 # sel_vec[2] & (A1L43 # A1L23);
+sel_vec[2] = DFFEA(sel_vec[2]_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--sel_vec[3] is sel_vec[3] at LC_X46_Y5_N4
+--operation mode is normal
+
+sel_vec[3]_lut_out = A1L53 # sel_vec[3] & (A1L43 # A1L23);
+sel_vec[3] = DFFEA(sel_vec[3]_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--sel_vec[4] is sel_vec[4] at LC_X46_Y5_N5
+--operation mode is normal
+
+sel_vec[4]_lut_out = A1L33 # sel_vec[4] & (A1L23 # A1L43);
+sel_vec[4] = DFFEA(sel_vec[4]_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--C1L01 is async_mux:amux|i~718 at LC_X46_Y6_N6
+--operation mode is normal
+
+C1L01 = !sel_vec[3] & !sel_vec[4] & !sel_vec[1] & !sel_vec[2];
+
+
+--D1L731Q is s_idle:idle_state|tx_we_o~reg0 at LC_X50_Y5_N3
+--operation mode is normal
+
+D1L731Q_lut_out = F1L31Q # !H1L1Q & (D1L731Q # D1L43);
+D1L731Q = DFFEA(D1L731Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--C1L8 is async_mux:amux|i~280 at LC_X50_Y5_N9
+--operation mode is normal
+
+C1L8 = sel_vec[1] & D1L731Q;
+
+
+--E1L5 is s_led:led_fault_state|i~1 at LC_X46_Y5_N9
+--operation mode is normal
+
+E1L5 = !reset_n # !sel_vec[4];
+
+
+--E1L7Q is s_led:led_fault_state|led_state~9 at LC_X45_Y5_N8
+--operation mode is normal
+
+E1L7Q_lut_out = !M1L1Q & E1L7Q # !E1L6Q;
+E1L7Q = DFFEA(E1L7Q_lut_out, GLOBAL(clk), !GLOBAL(E1L5), , , );
+
+
+--E1L3 is s_led:led_fault_state|dat_o[0]~0 at LC_X45_Y5_N7
+--operation mode is normal
+
+E1L3 = M1L1Q & E1L7Q;
+
+--E1L8Q is s_led:led_fault_state|led_state~10 at LC_X45_Y5_N7
+--operation mode is normal
+
+E1L8Q = DFFEA(E1L3, GLOBAL(clk), !GLOBAL(E1L5), , , );
+
+
+--E1L01Q is s_led:led_fault_state|led_state~12 at LC_X45_Y5_N0
+--operation mode is normal
+
+E1L01Q_lut_out = E1L01Q # M1L1Q & E1L9Q;
+E1L01Q = DFFEA(E1L01Q_lut_out, GLOBAL(clk), !GLOBAL(E1L5), , , );
+
+
+--E1L9Q is s_led:led_fault_state|led_state~11 at LC_X45_Y5_N9
+--operation mode is normal
+
+E1L9Q_lut_out = E1L8Q # !M1L1Q & E1L9Q;
+E1L9Q = DFFEA(E1L9Q_lut_out, GLOBAL(clk), !GLOBAL(E1L5), , , );
+
+
+--E1L11 is s_led:led_fault_state|Select_49~23 at LC_X45_Y5_N5
+--operation mode is normal
+
+M1L1Q_qfbk = M1L1Q;
+E1L11 = E1L01Q # !M1L1Q_qfbk & (E1L7Q # E1L9Q);
+
+--M1L1Q is s_led:led_fault_state|io_led:led|ack_o~reg0 at LC_X45_Y5_N5
+--operation mode is normal
+
+M1L1Q_sload_eqn = (VCC & E1_stb) # (GND & E1L11);
+M1L1Q = DFFEA(M1L1Q_sload_eqn, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--E1L6Q is s_led:led_fault_state|led_state~8 at LC_X45_Y5_N1
+--operation mode is normal
+
+E1L6Q_lut_out = VCC;
+E1L6Q = DFFEA(E1L6Q_lut_out, GLOBAL(clk), !GLOBAL(E1L5), , , );
+
+
+--E3L5 is s_led:led_status_state|i~1 at LC_X46_Y6_N5
+--operation mode is normal
+
+E3L5 = !sel_vec[3] # !reset_n;
+
+
+--E3L7Q is s_led:led_status_state|led_state~9 at LC_X46_Y2_N9
+--operation mode is normal
+
+E3L7Q_lut_out = !M3L1Q & E3L7Q # !E3L6Q;
+E3L7Q = DFFEA(E3L7Q_lut_out, GLOBAL(clk), !GLOBAL(E3L5), , , );
+
+
+--E3L3 is s_led:led_status_state|dat_o[0]~0 at LC_X46_Y2_N6
+--operation mode is normal
+
+E3L3 = M3L1Q & E3L7Q;
+
+--E3L8Q is s_led:led_status_state|led_state~10 at LC_X46_Y2_N6
+--operation mode is normal
+
+E3L8Q = DFFEA(E3L3, GLOBAL(clk), !GLOBAL(E3L5), , , );
+
+
+--E3L01Q is s_led:led_status_state|led_state~12 at LC_X46_Y2_N8
+--operation mode is normal
+
+E3L01Q_lut_out = E3L01Q # E3L9Q & M3L1Q;
+E3L01Q = DFFEA(E3L01Q_lut_out, GLOBAL(clk), !GLOBAL(E3L5), , , );
+
+
+--E3L9Q is s_led:led_status_state|led_state~11 at LC_X46_Y2_N2
+--operation mode is normal
+
+E3L9Q_lut_out = E3L8Q # E3L9Q & !M3L1Q;
+E3L9Q = DFFEA(E3L9Q_lut_out, GLOBAL(clk), !GLOBAL(E3L5), , , );
+
+
+--E3L11 is s_led:led_status_state|Select_49~23 at LC_X46_Y2_N5
+--operation mode is normal
+
+M3L1Q_qfbk = M3L1Q;
+E3L11 = E3L01Q # !M3L1Q_qfbk & (E3L9Q # E3L7Q);
+
+--M3L1Q is s_led:led_status_state|io_led:led|ack_o~reg0 at LC_X46_Y2_N5
+--operation mode is normal
+
+M3L1Q_sload_eqn = (VCC & E3_stb) # (GND & E3L11);
+M3L1Q = DFFEA(M3L1Q_sload_eqn, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--E3L6Q is s_led:led_status_state|led_state~8 at LC_X46_Y3_N4
+--operation mode is normal
+
+E3L6Q_lut_out = VCC;
+E3L6Q = DFFEA(E3L6Q_lut_out, GLOBAL(clk), !GLOBAL(E3L5), , , );
+
+
+--E2L5 is s_led:led_power_state|i~1 at LC_X46_Y6_N7
+--operation mode is normal
+
+E2L5 = !sel_vec[2] # !reset_n;
+
+
+--E2L7Q is s_led:led_power_state|led_state~9 at LC_X38_Y4_N0
+--operation mode is normal
+
+E2L7Q_lut_out = !M2L1Q & E2L7Q # !E2L6Q;
+E2L7Q = DFFEA(E2L7Q_lut_out, GLOBAL(clk), !GLOBAL(E2L5), , , );
+
+
+--E2L3 is s_led:led_power_state|dat_o[0]~0 at LC_X38_Y4_N2
+--operation mode is normal
+
+E2L3 = M2L1Q & E2L7Q;
+
+--E2L8Q is s_led:led_power_state|led_state~10 at LC_X38_Y4_N2
+--operation mode is normal
+
+E2L8Q = DFFEA(E2L3, GLOBAL(clk), !GLOBAL(E2L5), , , );
+
+
+--E2L01Q is s_led:led_power_state|led_state~12 at LC_X38_Y4_N4
+--operation mode is normal
+
+E2L01Q_lut_out = E2L01Q # E2L9Q & M2L1Q;
+E2L01Q = DFFEA(E2L01Q_lut_out, GLOBAL(clk), !GLOBAL(E2L5), , , );
+
+
+--E2L9Q is s_led:led_power_state|led_state~11 at LC_X38_Y4_N8
+--operation mode is normal
+
+E2L9Q_lut_out = E2L8Q # E2L9Q & !M2L1Q;
+E2L9Q = DFFEA(E2L9Q_lut_out, GLOBAL(clk), !GLOBAL(E2L5), , , );
+
+
+--E2L11 is s_led:led_power_state|Select_49~23 at LC_X38_Y4_N7
+--operation mode is normal
+
+M2L1Q_qfbk = M2L1Q;
+E2L11 = E2L01Q # !M2L1Q_qfbk & (E2L9Q # E2L7Q);
+
+--M2L1Q is s_led:led_power_state|io_led:led|ack_o~reg0 at LC_X38_Y4_N7
+--operation mode is normal
+
+M2L1Q_sload_eqn = (VCC & E2_stb) # (GND & E2L11);
+M2L1Q = DFFEA(M2L1Q_sload_eqn, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--E2L6Q is s_led:led_power_state|led_state~8 at LC_X38_Y4_N1
+--operation mode is normal
+
+E2L6Q_lut_out = VCC;
+E2L6Q = DFFEA(E2L6Q_lut_out, GLOBAL(clk), !GLOBAL(E2L5), , , );
+
+
+--C1L11Q is async_mux:amux|out_o_dat[0]~reg0 at LC_X51_Y6_N0
+--operation mode is normal
+
+C1L11Q_lut_out = C1L1 # G1L3Q & (C1L01 # !sel_vec[0]);
+C1L11Q = DFFEA(C1L11Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1_sreg[7] is async_tx:transmitter|sreg[7] at LC_X50_Y6_N4
+--operation mode is normal
+
+H1_sreg[7]_lut_out = C1L91Q & (C1L02Q & C1L21Q # !C1L02Q & H1L5) # !C1L91Q & H1L5;
+H1_sreg[7] = DFFEA(H1_sreg[7]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L4 is async_tx:transmitter|i~217 at LC_X50_Y6_N2
+--operation mode is normal
+
+H1L4 = H1_sreg[7] & (H1_sreg[8] # H1_txcount[9]) # !H1_sreg[7] & H1_sreg[8] & !H1_txcount[9];
+
+
+--B1L73 is async_clk:aclock|reduce_nor_20~4 at LC_X53_Y2_N9
+--operation mode is normal
+
+B1L73 = B1L32Q # B1L1Q # B1L71Q # B1L9Q;
+
+
+--B1_reduce_nor_20 is async_clk:aclock|reduce_nor_20 at LC_X53_Y2_N8
+--operation mode is normal
+
+B1_reduce_nor_20 = !B1L53Q & !B1L72Q & !B1L73;
+
+--B1_rxclk is async_clk:aclock|rxclk at LC_X53_Y2_N8
+--operation mode is normal
+
+B1_rxclk = DFFEA(B1_reduce_nor_20, GLOBAL(clk), VCC, reset_n, , );
+
+
+--H1_txcount[7] is async_tx:transmitter|txcount[7] at LC_X49_Y6_N7
+--operation mode is normal
+
+H1_txcount[7]_lut_out = H1L3 # H1_txcount[9] & H1_txcount[6] # !H1_txcount[9] & H1_txcount[7];
+H1_txcount[7] = DFFEA(H1_txcount[7]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--G1_done is s_reset:reset_state|done at LC_X50_Y5_N0
+--operation mode is normal
+
+G1_done_lut_out = G1_tx_word_pos[0] & G1_tx_word_pos[1] & G1_tx_word_pos[3] & G1_tx_word_pos[2];
+G1_done = DFFEA(G1_done_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--G1L2 is s_reset:reset_state|i~1 at LC_X50_Y4_N2
+--operation mode is normal
+
+G1L2 = sel_vec[0] # !reset_n;
+
+
+--F1L31Q is async_rx:receiver|flag_o~reg0 at LC_X50_Y2_N2
+--operation mode is normal
+
+F1L31Q_lut_out = VCC;
+F1L31Q = DFFEA(F1L31Q_lut_out, !GLOBAL(F1_rxcount[9]), F1_stb_sync, , , );
+
+
+--D1_tx_done is s_idle:idle_state|tx_done at LC_X52_Y5_N6
+--operation mode is normal
+
+D1_tx_done_lut_out = D1_transmit_ptr[1] & D1_transmit_ptr[0];
+D1_tx_done = DFFEA(D1_tx_done_lut_out, GLOBAL(H1L2Q), !GLOBAL(D1L02), , , );
+
+
+--D1L43 is s_idle:idle_state|i~538 at LC_X50_Y5_N2
+--operation mode is normal
+
+D1L43 = !D1_tx_done & !H1L2Q;
+
+
+--D1L22 is s_idle:idle_state|i~28 at LC_X46_Y2_N1
+--operation mode is normal
+
+D1L22 = !reset_n # !sel_vec[1];
+
+
+--A1L3Q is cmd_state~9 at LC_X47_Y7_N3
+--operation mode is normal
+
+A1L3Q_lut_out = A1L92 # A1L13 # A1L4Q & A1L03;
+A1L3Q = DFFEA(A1L3Q_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--E2L4Q is s_led:led_power_state|done_o~reg0 at LC_X38_Y5_N6
+--operation mode is normal
+
+E2L4Q_lut_out = VCC;
+E2L4Q = DFFEA(E2L4Q_lut_out, GLOBAL(clk), !GLOBAL(E2L5), E2L01Q, , );
+
+
+--E3L4Q is s_led:led_status_state|done_o~reg0 at LC_X46_Y3_N2
+--operation mode is normal
+
+E3L4Q_lut_out = VCC;
+E3L4Q = DFFEA(E3L4Q_lut_out, GLOBAL(clk), !GLOBAL(E3L5), E3L01Q, , );
+
+
+--E1L4Q is s_led:led_fault_state|done_o~reg0 at LC_X45_Y5_N6
+--operation mode is normal
+
+E1L4Q_lut_out = VCC;
+E1L4Q = DFFEA(E1L4Q_lut_out, GLOBAL(clk), !GLOBAL(E1L5), E1L01Q, , );
+
+
+--A1L6 is cmd_state~42 at LC_X46_Y6_N4
+--operation mode is normal
+
+A1L6 = !E2L4Q & !E1L4Q & !E3L4Q;
+
+
+--A1L5Q is cmd_state~11 at LC_X47_Y7_N6
+--operation mode is normal
+
+A1L5Q_lut_out = A1L23 # A1L4Q & !A1L03;
+A1L5Q = DFFEA(A1L5Q_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--D1_done is s_idle:idle_state|done at LC_X47_Y7_N9
+--operation mode is normal
+
+D1_done_lut_out = VCC;
+D1_done = DFFEA(D1_done_lut_out, GLOBAL(clk), !GLOBAL(D1L22), D1L33, , );
+
+
+--A1L23 is Select_87~1 at LC_X47_Y7_N8
+--operation mode is normal
+
+A1L23 = A1L6 & A1L5Q & !G1_done & !D1_done;
+
+
+--D1L7Q is s_idle:idle_state|cmd1_o[6]~reg0 at LC_X48_Y5_N6
+--operation mode is normal
+
+D1L7Q_lut_out = F1_data[6];
+D1L7Q = DFFEA(D1L7Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), D1L8, , );
+
+
+--D1L6Q is s_idle:idle_state|cmd1_o[5]~reg0 at LC_X48_Y5_N7
+--operation mode is normal
+
+D1L6Q_lut_out = F1_data[5];
+D1L6Q = DFFEA(D1L6Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), D1L8, , );
+
+
+--D1L9Q is s_idle:idle_state|cmd1_o[7]~reg0 at LC_X48_Y5_N9
+--operation mode is normal
+
+D1L9Q_lut_out = F1_data[7];
+D1L9Q = DFFEA(D1L9Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), D1L8, , );
+
+
+--A1L61 is reduce_nor_40~15 at LC_X48_Y5_N4
+--operation mode is normal
+
+D1L3Q_qfbk = D1L3Q;
+A1L61 = !D1L6Q & D1L7Q & D1L3Q_qfbk & !D1L9Q;
+
+--D1L3Q is s_idle:idle_state|cmd1_o[2]~reg0 at LC_X48_Y5_N4
+--operation mode is normal
+
+D1L3Q_sload_eqn = (VCC & F1_data[2]) # (GND & A1L61);
+D1L3Q = DFFEA(D1L3Q_sload_eqn, GLOBAL(clk), !GLOBAL(D1L22), D1L8, , );
+
+
+--A1L4Q is cmd_state~10 at LC_X47_Y7_N4
+--operation mode is normal
+
+A1L4Q_lut_out = !G1_done & D1_done & A1L3Q & A1L6;
+A1L4Q = DFFEA(A1L4Q_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--A1L91 is reduce_nor_46~10 at LC_X48_Y5_N0
+--operation mode is normal
+
+D1L4Q_qfbk = D1L4Q;
+A1L91 = D1L4Q_qfbk # !D1L2Q # !D1L5Q # !D1L1Q;
+
+--D1L4Q is s_idle:idle_state|cmd1_o[3]~reg0 at LC_X48_Y5_N0
+--operation mode is normal
+
+D1L4Q_sload_eqn = (VCC & F1_data[3]) # (GND & A1L91);
+D1L4Q = DFFEA(D1L4Q_sload_eqn, GLOBAL(clk), !GLOBAL(D1L22), D1L8, , );
+
+
+--A1L43 is Select_89~8 at LC_X47_Y5_N5
+--operation mode is normal
+
+A1L43 = A1L61 & !A1L91 & A1L4Q;
+
+
+--A1L2Q is cmd_state~8 at LC_X46_Y6_N3
+--operation mode is normal
+
+A1L2Q_lut_out = A1L2Q # !D1_done & A1L6 & G1_done;
+A1L2Q = DFFEA(A1L2Q_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--A1L71 is reduce_nor_40~23 at LC_X48_Y5_N8
+--operation mode is normal
+
+D1L1Q_qfbk = D1L1Q;
+A1L71 = D1L2Q # D1L5Q # D1L1Q_qfbk # !D1L4Q;
+
+--D1L1Q is s_idle:idle_state|cmd1_o[0]~reg0 at LC_X48_Y5_N8
+--operation mode is normal
+
+D1L1Q_sload_eqn = (VCC & F1_data[0]) # (GND & A1L71);
+D1L1Q = DFFEA(D1L1Q_sload_eqn, GLOBAL(clk), !GLOBAL(D1L22), D1L8, , );
+
+
+--D1L31Q is s_idle:idle_state|cmd2_o[3]~reg0 at LC_X48_Y4_N6
+--operation mode is normal
+
+D1L31Q_lut_out = D1L611 # D1L31Q & (!D1L15Q # !D1L84);
+D1L31Q = DFFEA(D1L31Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L01Q is s_idle:idle_state|cmd2_o[0]~reg0 at LC_X47_Y5_N3
+--operation mode is normal
+
+D1L01Q_lut_out = D1L911 # D1L01Q & (!D1L15Q # !D1L84);
+D1L01Q = DFFEA(D1L01Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L41Q is s_idle:idle_state|cmd2_o[4]~reg0 at LC_X47_Y4_N9
+--operation mode is normal
+
+D1L41Q_lut_out = D1L511 # D1L41Q & (!D1L15Q # !D1L84);
+D1L41Q = DFFEA(D1L41Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L51Q is s_idle:idle_state|cmd2_o[5]~reg0 at LC_X46_Y4_N7
+--operation mode is normal
+
+D1L51Q_lut_out = D1L411 # D1L51Q & (!D1L84 # !D1L15Q);
+D1L51Q = DFFEA(D1L51Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L61Q is s_idle:idle_state|cmd2_o[6]~reg0 at LC_X46_Y4_N4
+--operation mode is normal
+
+D1L61Q_lut_out = D1L311 # D1L61Q & (!D1L15Q # !D1L84);
+D1L61Q = DFFEA(D1L61Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L71Q is s_idle:idle_state|cmd2_o[7]~reg0 at LC_X46_Y4_N3
+--operation mode is normal
+
+D1L71Q_lut_out = D1L901 # D1L71Q & (!D1L84 # !D1L15Q);
+D1L71Q = DFFEA(D1L71Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--A1L31 is reduce_nor_27~6 at LC_X46_Y4_N0
+--operation mode is normal
+
+A1L31 = D1L51Q & D1L41Q & !D1L71Q & !D1L61Q;
+
+
+--D1L11Q is s_idle:idle_state|cmd2_o[1]~reg0 at LC_X48_Y4_N5
+--operation mode is normal
+
+D1L11Q_lut_out = D1L811 # D1L11Q & (!D1L15Q # !D1L84);
+D1L11Q = DFFEA(D1L11Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L21Q is s_idle:idle_state|cmd2_o[2]~reg0 at LC_X47_Y4_N3
+--operation mode is normal
+
+D1L21Q_lut_out = D1L711 # D1L21Q & (!D1L84 # !D1L15Q);
+D1L21Q = DFFEA(D1L21Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--A1L41 is reduce_nor_27~21 at LC_X47_Y4_N6
+--operation mode is normal
+
+A1L41 = !D1L21Q & !D1L11Q;
+
+
+--reduce_nor_27 is reduce_nor_27 at LC_X47_Y4_N7
+--operation mode is normal
+
+reduce_nor_27 = D1L01Q # D1L31Q # !A1L41 # !A1L31;
+
+
+--A1L63 is Select_93~5 at LC_X47_Y5_N2
+--operation mode is normal
+
+A1L63 = A1L61 & !reduce_nor_27 & !A1L71 & A1L4Q;
+
+
+--A1L21 is reduce_nor_27~0 at LC_X47_Y4_N4
+--operation mode is normal
+
+A1L21 = A1L31 & !D1L31Q & !D1L21Q & !D1L11Q;
+
+
+--A1L81 is reduce_nor_40~28 at LC_X48_Y5_N5
+--operation mode is normal
+
+D1L5Q_qfbk = D1L5Q;
+A1L81 = D1L5Q_qfbk # !D1L4Q;
+
+--D1L5Q is s_idle:idle_state|cmd1_o[4]~reg0 at LC_X48_Y5_N5
+--operation mode is normal
+
+D1L5Q_sload_eqn = (VCC & F1_data[4]) # (GND & A1L81);
+D1L5Q = DFFEA(D1L5Q_sload_eqn, GLOBAL(clk), !GLOBAL(D1L22), D1L8, , );
+
+
+--reduce_nor_40 is reduce_nor_40 at LC_X48_Y5_N2
+--operation mode is normal
+
+D1L2Q_qfbk = D1L2Q;
+reduce_nor_40 = D1L1Q # A1L81 # D1L2Q_qfbk # !A1L61;
+
+--D1L2Q is s_idle:idle_state|cmd1_o[1]~reg0 at LC_X48_Y5_N2
+--operation mode is normal
+
+D1L2Q_sload_eqn = (VCC & F1_data[1]) # (GND & reduce_nor_40);
+D1L2Q = DFFEA(D1L2Q_sload_eqn, GLOBAL(clk), !GLOBAL(D1L22), D1L8, , );
+
+
+--A1L53 is Select_91~5 at LC_X47_Y5_N6
+--operation mode is normal
+
+A1L53 = D1L01Q & !reduce_nor_40 & A1L21 & A1L4Q;
+
+
+--A1L33 is Select_89~5 at LC_X47_Y5_N1
+--operation mode is normal
+
+A1L33 = !reduce_nor_40 & !A1L21 & A1L4Q;
+
+
+--D1L321Q is s_idle:idle_state|tx_data_o[0]~reg0 at LC_X51_Y5_N9
+--operation mode is normal
+
+D1L321Q_lut_out = F1_data[0] & (D1_tx_done # !D1_transmit_ptr[0]) # !F1_data[0] & !D1_tx_done & !D1_transmit_ptr[0];
+D1L321Q = DFFEA(D1L321Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--C1L1 is async_mux:amux|i~215 at LC_X51_Y5_N7
+--operation mode is normal
+
+C1L1 = D1L321Q & sel_vec[1] & sel_vec[0];
+
+
+--G1L3Q is s_reset:reset_state|tx_data_o[0]~reg0 at LC_X51_Y5_N3
+--operation mode is normal
+
+G1L3Q_lut_out = !G1_tx_word_pos[3] & (G1_tx_word_pos[0] & !G1_tx_word_pos[1] # !G1_tx_word_pos[0] & (G1_tx_word_pos[1] # !G1_tx_word_pos[2]));
+G1L3Q = DFFEA(G1L3Q_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--C1L21Q is async_mux:amux|out_o_dat[1]~reg0 at LC_X51_Y6_N8
+--operation mode is normal
+
+C1L21Q_lut_out = C1L2 # !G1L4Q & (C1L01 # !sel_vec[0]);
+C1L21Q = DFFEA(C1L21Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1_sreg[6] is async_tx:transmitter|sreg[6] at LC_X50_Y6_N9
+--operation mode is normal
+
+H1_sreg[6]_lut_out = C1L91Q & (C1L02Q & C1L31Q # !C1L02Q & H1L6) # !C1L91Q & H1L6;
+H1_sreg[6] = DFFEA(H1_sreg[6]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L5 is async_tx:transmitter|i~227 at LC_X50_Y6_N5
+--operation mode is normal
+
+H1L5 = H1_sreg[7] & (H1_sreg[6] # !H1_txcount[9]) # !H1_sreg[7] & H1_sreg[6] & H1_txcount[9];
+
+
+--H1_txcount[6] is async_tx:transmitter|txcount[6] at LC_X49_Y6_N2
+--operation mode is normal
+
+H1_txcount[6]_lut_out = H1L3 # H1_txcount[9] & H1_txcount[5] # !H1_txcount[9] & H1_txcount[6];
+H1_txcount[6] = DFFEA(H1_txcount[6]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--G1_tx_word_pos[0] is s_reset:reset_state|tx_word_pos[0] at LC_X51_Y5_N5
+--operation mode is normal
+
+G1_tx_word_pos[0]_lut_out = G1_tx_word_pos[3] & G1_tx_word_pos[1] & G1_tx_word_pos[2] # !G1_tx_word_pos[0];
+G1_tx_word_pos[0] = DFFEA(G1_tx_word_pos[0]_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--G1_tx_word_pos[1] is s_reset:reset_state|tx_word_pos[1] at LC_X51_Y5_N2
+--operation mode is normal
+
+G1_tx_word_pos[1]_lut_out = G1_tx_word_pos[0] & (G1_tx_word_pos[3] & G1_tx_word_pos[2] # !G1_tx_word_pos[1]) # !G1_tx_word_pos[0] & G1_tx_word_pos[1];
+G1_tx_word_pos[1] = DFFEA(G1_tx_word_pos[1]_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--G1_tx_word_pos[2] is s_reset:reset_state|tx_word_pos[2] at LC_X50_Y5_N8
+--operation mode is normal
+
+G1_tx_word_pos[2]_lut_out = G1_tx_word_pos[2] & (G1_tx_word_pos[3] # !G1_tx_word_pos[1] # !G1_tx_word_pos[0]) # !G1_tx_word_pos[2] & G1_tx_word_pos[0] & G1_tx_word_pos[1];
+G1_tx_word_pos[2] = DFFEA(G1_tx_word_pos[2]_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--G1_tx_word_pos[3] is s_reset:reset_state|tx_word_pos[3] at LC_X50_Y5_N7
+--operation mode is normal
+
+G1_tx_word_pos[3]_lut_out = G1_tx_word_pos[3] # G1_tx_word_pos[0] & G1_tx_word_pos[1] & G1_tx_word_pos[2];
+G1_tx_word_pos[3] = DFFEA(G1_tx_word_pos[3]_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--F1_rxcount[9] is async_rx:receiver|rxcount[9] at LC_X49_Y2_N9
+--operation mode is normal
+
+F1_rxcount[9]_lut_out = F1_rxcount[9] & (F1_rxcount[8] # !F1_rxclock[7]) # !F1_rxcount[9] & F1_rxbit;
+F1_rxcount[9] = DFFEA(F1_rxcount[9]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1_stb_sync is async_rx:receiver|stb_sync at LC_X51_Y2_N5
+--operation mode is normal
+
+F1_stb_sync_lut_out = !D1L46Q;
+F1_stb_sync = DFFEA(F1_stb_sync_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--D1_transmit_ptr[0] is s_idle:idle_state|transmit_ptr[0] at LC_X51_Y6_N7
+--operation mode is normal
+
+D1_transmit_ptr[0]_lut_out = D1_transmit_ptr[1] # !D1_transmit_ptr[0];
+D1_transmit_ptr[0] = DFFEA(D1_transmit_ptr[0]_lut_out, GLOBAL(H1L2Q), !GLOBAL(D1_error), , GLOBAL(D1L42), VCC);
+
+
+--D1_transmit_ptr[1] is s_idle:idle_state|transmit_ptr[1] at LC_X52_Y5_N9
+--operation mode is normal
+
+D1_transmit_ptr[1]_lut_out = D1_transmit_ptr[1] # D1_transmit_ptr[0];
+D1_transmit_ptr[1] = DFFEA(D1_transmit_ptr[1]_lut_out, GLOBAL(H1L2Q), !GLOBAL(D1L02), , , );
+
+
+--D1_error is s_idle:idle_state|error at LC_X49_Y5_N1
+--operation mode is normal
+
+D1_error_lut_out = D1L26 # D1_error & (!D1L011 # !D1L84);
+D1_error = DFFEA(D1_error_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L02 is s_idle:idle_state|i~0 at LC_X52_Y5_N5
+--operation mode is normal
+
+D1L02 = D1_error # !sel_vec[1] # !reset_n;
+
+
+--A1L02 is reduce_or_58~3 at LC_X46_Y6_N2
+--operation mode is normal
+
+A1L02 = !G1_done & !E2L4Q & !E1L4Q & !E3L4Q;
+
+
+--A1L13 is Select_85~227 at LC_X47_Y7_N2
+--operation mode is normal
+
+A1L13 = A1L02 & (D1_done & A1L5Q # !D1_done & A1L3Q) # !A1L02 & (A1L3Q # A1L5Q);
+
+
+--A1L92 is Select_85~4 at LC_X46_Y6_N8
+--operation mode is normal
+
+A1L92 = !D1_done & A1L6 & !A1L2Q & G1_done;
+
+
+--A1L03 is Select_85~195 at LC_X47_Y5_N4
+--operation mode is normal
+
+A1L03 = A1L71 & A1L91 # !A1L61;
+
+
+--D1L35Q is s_idle:idle_state|rx_state~10 at LC_X49_Y5_N8
+--operation mode is normal
+
+D1L35Q_lut_out = D1L35Q # D1L67 & D1_rx_newdata;
+D1L35Q = DFFEA(D1L35Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L33 is s_idle:idle_state|i~503 at LC_X47_Y6_N8
+--operation mode is normal
+
+H1L1Q_qfbk = H1L1Q;
+D1L33 = !H1L2Q & !D1_tx_strobe & !H1L1Q_qfbk & D1L35Q;
+
+--H1L1Q is async_tx:transmitter|ack_o~reg0 at LC_X47_Y6_N8
+--operation mode is normal
+
+H1L1Q_sload_eqn = (VCC & C1L91Q) # (GND & D1L33);
+H1L1Q = DFFEA(H1L1Q_sload_eqn, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--D1L25Q is s_idle:idle_state|rx_state~9 at LC_X49_Y5_N7
+--operation mode is normal
+
+D1L25Q_lut_out = D1L25Q & (!D1L15Q & D1_tx_done # !D1_rx_newdata) # !D1L25Q & !D1L15Q & D1_tx_done;
+D1L25Q = DFFEA(D1L25Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1_rx_newdata is s_idle:idle_state|rx_newdata at LC_X49_Y5_N3
+--operation mode is normal
+
+D1_rx_newdata_lut_out = VCC;
+D1_rx_newdata = DFFEA(D1_rx_newdata_lut_out, GLOBAL(F1L31Q), !D1L12, , , );
+
+
+--D1L8 is s_idle:idle_state|cmd1_o[7]~127 at LC_X48_Y4_N8
+--operation mode is normal
+
+D1L8 = D1_rx_newdata & D1L25Q;
+
+
+--D1L92 is s_idle:idle_state|i~424 at LC_X48_Y4_N0
+--operation mode is normal
+
+D1L92 = F1_data[3] & (D1_rx_newdata # D1L31Q) # !F1_data[3] & !D1_rx_newdata & D1L31Q;
+
+
+--D1L16Q is s_idle:idle_state|rx_state~18 at LC_X49_Y3_N9
+--operation mode is normal
+
+D1L16Q_lut_out = D1L16Q & (F1_data[2] & D1L69 # !D1_rx_newdata) # !D1L16Q & F1_data[2] & D1L69;
+D1L16Q = DFFEA(D1L16Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L65Q is s_idle:idle_state|rx_state~13 at LC_X49_Y5_N9
+--operation mode is normal
+
+D1L65Q_lut_out = D1L69 & (D1L65Q & !D1_rx_newdata # !F1_data[2]) # !D1L69 & D1L65Q & !D1_rx_newdata;
+D1L65Q = DFFEA(D1L65Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L75Q is s_idle:idle_state|rx_state~14 at LC_X49_Y4_N3
+--operation mode is normal
+
+D1L75Q_lut_out = D1_rx_newdata & D1L25Q & D1L101 # !D1_rx_newdata & D1L75Q;
+D1L75Q = DFFEA(D1L75Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L111 is s_idle:idle_state|Select_626~200 at LC_X49_Y5_N4
+--operation mode is normal
+
+D1L111 = !D1L75Q & !D1L65Q;
+
+
+--D1L95Q is s_idle:idle_state|rx_state~16 at LC_X49_Y4_N9
+--operation mode is normal
+
+D1L95Q_lut_out = D1_rx_newdata & D1L401 & D1L25Q # !D1_rx_newdata & D1L95Q;
+D1L95Q = DFFEA(D1L95Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L55Q is s_idle:idle_state|rx_state~12 at LC_X48_Y3_N3
+--operation mode is normal
+
+D1L55Q_lut_out = D1L32 # D1L8 & D1L001 & D1L58;
+D1L55Q = DFFEA(D1L55Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L85Q is s_idle:idle_state|rx_state~15 at LC_X48_Y3_N9
+--operation mode is normal
+
+D1L85Q_lut_out = D1L201 # D1L85Q & !D1_rx_newdata;
+D1L85Q = DFFEA(D1L85Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L06Q is s_idle:idle_state|rx_state~17 at LC_X48_Y3_N7
+--operation mode is normal
+
+D1L06Q_lut_out = D1L601 # !D1_rx_newdata & D1L06Q;
+D1L06Q = DFFEA(D1L06Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L211 is s_idle:idle_state|Select_626~201 at LC_X49_Y4_N4
+--operation mode is normal
+
+D1L211 = !D1L06Q & !D1L55Q & !D1L85Q & !D1L95Q;
+
+
+--D1L611 is s_idle:idle_state|Select_634~20 at LC_X48_Y4_N1
+--operation mode is normal
+
+D1L611 = D1L92 & (D1L16Q # !D1L211 # !D1L111);
+
+
+--D1L45Q is s_idle:idle_state|rx_state~11 at LC_X48_Y5_N3
+--operation mode is normal
+
+D1L45Q_lut_out = D1L97 & (D1_rx_newdata # D1L45Q & !D1L36) # !D1L97 & D1L45Q & !D1L36;
+D1L45Q = DFFEA(D1L45Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L84 is s_idle:idle_state|reduce_or_625~2 at LC_X48_Y5_N1
+--operation mode is normal
+
+D1L84 = !D1L45Q & !D1L35Q & !D1L25Q;
+
+
+--D1L15Q is s_idle:idle_state|rx_state~8 at LC_X48_Y6_N4
+--operation mode is normal
+
+D1L15Q_lut_out = D1L15Q & (!D1L45Q # !D1L36) # !D1L15Q & D1_tx_done & (!D1L45Q # !D1L36);
+D1L15Q = DFFEA(D1L15Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L23 is s_idle:idle_state|i~433 at LC_X47_Y5_N8
+--operation mode is normal
+
+D1L23 = F1_data[0] & (D1L01Q # D1_rx_newdata) # !F1_data[0] & D1L01Q & !D1_rx_newdata;
+
+
+--D1L911 is s_idle:idle_state|Select_640~20 at LC_X47_Y5_N9
+--operation mode is normal
+
+D1L911 = D1L23 & (D1L16Q # !D1L211 # !D1L111);
+
+
+--D1L82 is s_idle:idle_state|i~421 at LC_X47_Y4_N5
+--operation mode is normal
+
+D1L82 = F1_data[4] & (D1_rx_newdata # D1L41Q) # !F1_data[4] & !D1_rx_newdata & D1L41Q;
+
+
+--D1L511 is s_idle:idle_state|Select_632~20 at LC_X47_Y4_N8
+--operation mode is normal
+
+D1L511 = D1L82 & (D1L16Q # !D1L211 # !D1L111);
+
+
+--D1L72 is s_idle:idle_state|i~418 at LC_X46_Y4_N8
+--operation mode is normal
+
+D1L72 = D1_rx_newdata & F1_data[5] # !D1_rx_newdata & D1L51Q;
+
+
+--D1L411 is s_idle:idle_state|Select_630~20 at LC_X46_Y4_N9
+--operation mode is normal
+
+D1L411 = D1L72 & (D1L16Q # !D1L111 # !D1L211);
+
+
+--D1L62 is s_idle:idle_state|i~415 at LC_X46_Y4_N1
+--operation mode is normal
+
+D1L62 = D1L61Q & (F1_data[6] # !D1_rx_newdata) # !D1L61Q & F1_data[6] & D1_rx_newdata;
+
+
+--D1L311 is s_idle:idle_state|Select_628~20 at LC_X46_Y4_N2
+--operation mode is normal
+
+D1L311 = D1L62 & (D1L16Q # !D1L111 # !D1L211);
+
+
+--D1L52 is s_idle:idle_state|i~412 at LC_X46_Y4_N5
+--operation mode is normal
+
+D1L52 = D1L71Q & (F1_data[7] # !D1_rx_newdata) # !D1L71Q & D1_rx_newdata & F1_data[7];
+
+
+--D1L901 is s_idle:idle_state|Select_626~20 at LC_X46_Y4_N6
+--operation mode is normal
+
+D1L901 = D1L52 & (D1L16Q # !D1L111 # !D1L211);
+
+
+--D1L13 is s_idle:idle_state|i~430 at LC_X48_Y4_N7
+--operation mode is normal
+
+D1L13 = D1L11Q & (F1_data[1] # !D1_rx_newdata) # !D1L11Q & D1_rx_newdata & F1_data[1];
+
+
+--D1L811 is s_idle:idle_state|Select_638~20 at LC_X48_Y4_N9
+--operation mode is normal
+
+D1L811 = D1L13 & (D1L16Q # !D1L111 # !D1L211);
+
+
+--D1L03 is s_idle:idle_state|i~427 at LC_X48_Y4_N4
+--operation mode is normal
+
+D1L03 = D1L21Q & (F1_data[2] # !D1_rx_newdata) # !D1L21Q & D1_rx_newdata & F1_data[2];
+
+
+--D1L711 is s_idle:idle_state|Select_636~20 at LC_X47_Y4_N2
+--operation mode is normal
+
+D1L711 = D1L03 & (D1L16Q # !D1L111 # !D1L211);
+
+
+--D1L421Q is s_idle:idle_state|tx_data_o[1]~reg0 at LC_X51_Y6_N9
+--operation mode is normal
+
+D1L421Q_lut_out = F1_data[1] & (D1_tx_done # D1_transmit_ptr[0]) # !F1_data[1] & !D1_tx_done & D1_transmit_ptr[0];
+D1L421Q = DFFEA(D1L421Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--C1L2 is async_mux:amux|i~219 at LC_X51_Y6_N2
+--operation mode is normal
+
+C1L2 = sel_vec[0] & D1L421Q & sel_vec[1];
+
+
+--G1L4Q is s_reset:reset_state|tx_data_o[1]~reg0 at LC_X51_Y5_N0
+--operation mode is normal
+
+G1L4Q_lut_out = G1_tx_word_pos[0] & (G1_tx_word_pos[1] # G1_tx_word_pos[2]) # !G1_tx_word_pos[0] & (G1_tx_word_pos[3] & (G1_tx_word_pos[1] # !G1_tx_word_pos[2]) # !G1_tx_word_pos[3] & !G1_tx_word_pos[1]);
+G1L4Q = DFFEA(G1L4Q_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--C1L31Q is async_mux:amux|out_o_dat[2]~reg0 at LC_X51_Y6_N6
+--operation mode is normal
+
+C1L31Q_lut_out = C1L3 # G1L5Q & (C1L01 # !sel_vec[0]);
+C1L31Q = DFFEA(C1L31Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1_sreg[5] is async_tx:transmitter|sreg[5] at LC_X48_Y6_N6
+--operation mode is normal
+
+H1_sreg[5]_lut_out = C1L02Q & (C1L91Q & C1L41Q # !C1L91Q & H1L7) # !C1L02Q & H1L7;
+H1_sreg[5] = DFFEA(H1_sreg[5]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L6 is async_tx:transmitter|i~237 at LC_X48_Y6_N0
+--operation mode is normal
+
+H1L6 = H1_txcount[9] & H1_sreg[5] # !H1_txcount[9] & H1_sreg[6];
+
+
+--H1_txcount[5] is async_tx:transmitter|txcount[5] at LC_X49_Y6_N3
+--operation mode is normal
+
+H1_txcount[5]_lut_out = H1L3 # H1_txcount[9] & H1_txcount[4] # !H1_txcount[9] & H1_txcount[5];
+H1_txcount[5] = DFFEA(H1_txcount[5]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--F1_rxcount[8] is async_rx:receiver|rxcount[8] at LC_X49_Y2_N0
+--operation mode is normal
+
+F1_rxcount[8]_lut_out = F1L41 # F1L21 & F1_rxcount[7] # !F1L21 & F1_rxcount[8];
+F1_rxcount[8] = DFFEA(F1_rxcount[8]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1_rxbit is async_rx:receiver|rxbit at LC_X47_Y2_N7
+--operation mode is normal
+
+F1_rxbit_lut_out = F1_sreg[1] & (F1_sreg[0] # F1_sreg[2]) # !F1_sreg[1] & F1_sreg[0] & F1_sreg[2];
+F1_rxbit = DFFEA(F1_rxbit_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1_rxclock[7] is async_rx:receiver|rxclock[7] at LC_X47_Y3_N4
+--operation mode is normal
+
+F1_rxclock[7]_lut_out = F1_rxclock[7] & !F1_rxbit & !F1_rxcount[9] # !F1_rxclock[7] & F1_rxcount[9] & F1_rxclock[6];
+F1_rxclock[7] = DFFEA(F1_rxclock[7]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--B1L93Q is async_clk:aclock|rxclk_o~reg0 at LC_X56_Y2_N6
+--operation mode is normal
+
+B1L93Q_lut_out = B1_reduce_nor_20;
+B1L93Q = DFFEA(B1L93Q_lut_out, GLOBAL(clk), GLOBAL(reset_n), , , );
+
+
+--D1L46Q is s_idle:idle_state|rx_stb_o~reg0 at LC_X51_Y2_N2
+--operation mode is normal
+
+D1L46Q_lut_out = F1L31Q & !F1L1Q;
+D1L46Q = DFFEA(D1L46Q_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L42 is s_idle:idle_state|i~142 at LC_X52_Y5_N4
+--operation mode is normal
+
+D1L42 = !D1_error & (!sel_vec[1] # !reset_n);
+
+
+--D1L26 is s_idle:idle_state|rx_state~31 at LC_X47_Y6_N7
+--operation mode is normal
+
+H1L2Q_qfbk = H1L2Q;
+D1L26 = !H1L1Q & !D1_tx_strobe & !H1L2Q_qfbk & D1L45Q;
+
+--H1L2Q is async_tx:transmitter|busy_o~reg0 at LC_X47_Y6_N7
+--operation mode is normal
+
+H1L2Q_sload_eqn = (VCC & H1_txcount[9]) # (GND & D1L26);
+H1L2Q = DFFEA(H1L2Q_sload_eqn, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--D1L011 is s_idle:idle_state|Select_626~191 at LC_X49_Y5_N0
+--operation mode is normal
+
+D1L011 = D1L211 & !D1L16Q & !D1L75Q & !D1L65Q;
+
+
+--D1L86 is s_idle:idle_state|Select_595~510 at LC_X51_Y3_N3
+--operation mode is normal
+
+F1_data[4]_qfbk = F1_data[4];
+D1L86 = F1_data[5] & !F1_data[3] & F1_data[4]_qfbk & !F1_data[7];
+
+--F1_data[4] is async_rx:receiver|data[4] at LC_X51_Y3_N3
+--operation mode is normal
+
+F1_data[4]_sload_eqn = (VCC & F1_rxdata[6]) # (GND & D1L86);
+F1_data[4] = DFFEA(F1_data[4]_sload_eqn, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L11, , );
+
+
+--D1L44 is s_idle:idle_state|reduce_nor_264~25 at LC_X50_Y4_N3
+--operation mode is normal
+
+D1L44 = !F1_data[2] & D1L86 & !F1_data[6];
+
+
+--D1L17 is s_idle:idle_state|Select_595~513 at LC_X48_Y4_N2
+--operation mode is normal
+
+D1L17 = !D1L06Q & !D1L85Q;
+
+
+--D1L56 is s_idle:idle_state|Select_595~63 at LC_X48_Y4_N3
+--operation mode is normal
+
+D1L56 = D1L44 & !D1L17 & (!F1_data[0] # !F1_data[1]);
+
+
+--D1L79 is s_idle:idle_state|Select_598~18 at LC_X51_Y3_N2
+--operation mode is normal
+
+F1_data[5]_qfbk = F1_data[5];
+D1L79 = !F1_data[7] & !F1_data[5]_qfbk & F1_data[6];
+
+--F1_data[5] is async_rx:receiver|data[5] at LC_X51_Y3_N2
+--operation mode is normal
+
+F1_data[5]_sload_eqn = (VCC & F1_rxdata[7]) # (GND & D1L79);
+F1_data[5] = DFFEA(F1_data[5]_sload_eqn, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L11, , );
+
+
+--D1L93 is s_idle:idle_state|reduce_nor_139~24 at LC_X51_Y4_N6
+--operation mode is normal
+
+D1L93 = F1_data[0] & !F1_data[3];
+
+
+--D1L96 is s_idle:idle_state|Select_595~511 at LC_X51_Y4_N3
+--operation mode is normal
+
+D1L96 = F1_data[1] & !F1_data[2];
+
+
+--D1L63 is s_idle:idle_state|reduce_nor_133~0 at LC_X51_Y4_N8
+--operation mode is normal
+
+D1L63 = !F1_data[4] # !D1L96 # !D1L93 # !D1L79;
+
+
+--D1L501 is s_idle:idle_state|Select_601~25 at LC_X51_Y3_N1
+--operation mode is normal
+
+F1_data[1]_qfbk = F1_data[1];
+D1L501 = !F1_data[4] & F1_data[1]_qfbk & !F1_data[0];
+
+--F1_data[1] is async_rx:receiver|data[1] at LC_X51_Y3_N1
+--operation mode is normal
+
+F1_data[1]_sload_eqn = (VCC & F1_rxdata[3]) # (GND & D1L501);
+F1_data[1] = DFFEA(F1_data[1]_sload_eqn, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L11, , );
+
+
+--D1L34 is s_idle:idle_state|reduce_nor_227~9 at LC_X52_Y4_N6
+--operation mode is normal
+
+D1L34 = !F1_data[4] & !F1_data[1];
+
+
+--D1L37 is s_idle:idle_state|Select_595~561 at LC_X49_Y4_N7
+--operation mode is normal
+
+D1L37 = D1L56 # D1L65Q & !D1L59;
+
+
+--D1L89 is s_idle:idle_state|Select_598~23 at LC_X51_Y3_N6
+--operation mode is normal
+
+F1_data[6]_qfbk = F1_data[6];
+D1L89 = F1_data[6]_qfbk & !F1_data[5];
+
+--F1_data[6] is async_rx:receiver|data[6] at LC_X51_Y3_N6
+--operation mode is normal
+
+F1_data[6]_sload_eqn = (VCC & F1_rxdata[8]) # (GND & D1L89);
+F1_data[6] = DFFEA(F1_data[6]_sload_eqn, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L11, , );
+
+
+--D1L001 is s_idle:idle_state|Select_599~12 at LC_X49_Y3_N6
+--operation mode is normal
+
+D1L001 = !F1_data[0] & F1_data[4] & !F1_data[3] & !F1_data[2];
+
+
+--D1L101 is s_idle:idle_state|Select_599~21 at LC_X50_Y3_N7
+--operation mode is normal
+
+F1_data[7]_qfbk = F1_data[7];
+D1L101 = D1L89 & F1_data[1] & !F1_data[7]_qfbk & D1L001;
+
+--F1_data[7] is async_rx:receiver|data[7] at LC_X50_Y3_N7
+--operation mode is normal
+
+F1_data[7]_sload_eqn = (VCC & F1_rxdata[9]) # (GND & D1L101);
+F1_data[7] = DFFEA(F1_data[7]_sload_eqn, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L11, , );
+
+
+--D1L04 is s_idle:idle_state|reduce_nor_139~29 at LC_X51_Y4_N5
+--operation mode is normal
+
+D1L04 = !F1_data[2] # !F1_data[1];
+
+
+--D1L73 is s_idle:idle_state|reduce_nor_139~0 at LC_X51_Y4_N0
+--operation mode is normal
+
+D1L73 = D1L04 # !D1L93 # !D1L79 # !F1_data[4];
+
+
+--D1L66 is s_idle:idle_state|Select_595~73 at LC_X49_Y4_N5
+--operation mode is normal
+
+D1L66 = D1L73 & D1L101 & (D1L55Q # D1L95Q) # !D1L73 & (D1L55Q # D1L95Q);
+
+
+--D1L401 is s_idle:idle_state|Select_601~13 at LC_X50_Y4_N7
+--operation mode is normal
+
+D1L401 = F1_data[2] & !F1_data[3] & D1L501 & D1L79;
+
+
+--D1L27 is s_idle:idle_state|Select_595~515 at LC_X49_Y3_N4
+--operation mode is normal
+
+D1L27 = !F1_data[3] & F1_data[4];
+
+
+--D1L07 is s_idle:idle_state|Select_595~512 at LC_X49_Y3_N5
+--operation mode is normal
+
+D1L07 = D1L27 & !F1_data[6] & F1_data[5] & !F1_data[7];
+
+
+--D1L76 is s_idle:idle_state|Select_595~292 at LC_X50_Y4_N0
+--operation mode is normal
+
+D1L76 = D1L75Q # F1_data[0] & D1L96 & D1L06Q;
+
+
+--D1L57 is s_idle:idle_state|Select_595~579 at LC_X49_Y4_N2
+--operation mode is normal
+
+D1L57 = D1L07 & (D1L76 # D1L401 & D1L95Q) # !D1L07 & D1L401 & D1L95Q;
+
+
+--D1L38 is s_idle:idle_state|Select_596~1335 at LC_X49_Y3_N3
+--operation mode is normal
+
+D1L38 = F1_data[1] # F1_data[2] # !D1L07;
+
+
+--D1L47 is s_idle:idle_state|Select_595~567 at LC_X49_Y4_N6
+--operation mode is normal
+
+D1L47 = D1L57 # D1L66 # !D1L38 & D1L16Q;
+
+
+--D1L83 is s_idle:idle_state|reduce_nor_139~21 at LC_X50_Y4_N8
+--operation mode is normal
+
+D1L83 = F1_data[4] & !F1_data[3] & D1L79 & F1_data[0];
+
+
+--D1L14 is s_idle:idle_state|reduce_nor_143~0 at LC_X51_Y4_N9
+--operation mode is normal
+
+D1L14 = F1_data[2] # !D1L501 # !D1L79 # !F1_data[3];
+
+
+--D1L24 is s_idle:idle_state|reduce_nor_147~0 at LC_X51_Y4_N4
+--operation mode is normal
+
+D1L24 = !F1_data[2] # !D1L34 # !D1L93 # !D1L79;
+
+
+--D1L53 is s_idle:idle_state|reduce_nor_128~11 at LC_X51_Y4_N2
+--operation mode is normal
+
+D1L53 = !F1_data[0] & F1_data[6];
+
+
+--D1L68 is s_idle:idle_state|Select_596~1388 at LC_X51_Y4_N1
+--operation mode is normal
+
+D1L68 = F1_data[2] $ !F1_data[1] # !D1L53 # !D1L86;
+
+
+--D1L28 is s_idle:idle_state|Select_596~1333 at LC_X51_Y4_N7
+--operation mode is normal
+
+D1L28 = D1L24 & D1L14 & D1L68 & D1L63;
+
+
+--D1L74 is s_idle:idle_state|reduce_or_182~0 at LC_X50_Y4_N9
+--operation mode is normal
+
+D1L74 = F1_data[1] & F1_data[2] & D1L83 # !D1L28;
+
+
+--D1L67 is s_idle:idle_state|Select_595~581 at LC_X49_Y4_N8
+--operation mode is normal
+
+D1L67 = D1L47 # D1L37 # D1L25Q & D1L74;
+
+
+--F1_rxdata[4] is async_rx:receiver|rxdata[4] at LC_X51_Y3_N4
+--operation mode is normal
+
+F1_rxdata[4]_lut_out = F1_rxdata[5];
+F1_rxdata[4] = DFFEA(F1_rxdata[4]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L21, , );
+
+
+--F1L11 is async_rx:receiver|data[7]~1 at LC_X49_Y2_N2
+--operation mode is normal
+
+F1L11 = !F1_rxcount[8] & F1_rxcount[9] & F1_rxclock[7];
+
+
+--D1_rx_newdata_clr is s_idle:idle_state|rx_newdata_clr at LC_X49_Y5_N5
+--operation mode is normal
+
+D1_rx_newdata_clr_lut_out = !D1L801 & (!D1L25Q & D1L011 # !D1_rx_newdata);
+D1_rx_newdata_clr = DFFEA(D1_rx_newdata_clr_lut_out, GLOBAL(clk), !GLOBAL(D1L22), , , );
+
+
+--D1L12 is s_idle:idle_state|i~26 at LC_X49_Y5_N2
+--operation mode is normal
+
+D1L12 = !reset_n # !D1_rx_newdata_clr # !sel_vec[1];
+
+
+--F1_rxdata[8] is async_rx:receiver|rxdata[8] at LC_X51_Y3_N7
+--operation mode is normal
+
+F1_rxdata[8]_lut_out = F1_rxdata[9];
+F1_rxdata[8] = DFFEA(F1_rxdata[8]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L21, , );
+
+
+--F1_rxdata[7] is async_rx:receiver|rxdata[7] at LC_X51_Y3_N9
+--operation mode is normal
+
+F1_rxdata[7]_lut_out = F1_rxdata[8];
+F1_rxdata[7] = DFFEA(F1_rxdata[7]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L21, , );
+
+
+--F1_rxdata[9] is async_rx:receiver|rxdata[9] at LC_X50_Y3_N1
+--operation mode is normal
+
+F1_rxdata[9]_lut_out = !F1_rxbit;
+F1_rxdata[9] = DFFEA(F1_rxdata[9]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L21, , );
+
+
+--F1_rxdata[5] is async_rx:receiver|rxdata[5] at LC_X51_Y3_N8
+--operation mode is normal
+
+F1_rxdata[5]_lut_out = F1_rxdata[6];
+F1_rxdata[5] = DFFEA(F1_rxdata[5]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L21, , );
+
+
+--F1_rxdata[2] is async_rx:receiver|rxdata[2] at LC_X50_Y3_N3
+--operation mode is normal
+
+F1_rxdata[2]_lut_out = F1_rxdata[3];
+F1_rxdata[2] = DFFEA(F1_rxdata[2]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L21, , );
+
+
+--F1_rxdata[3] is async_rx:receiver|rxdata[3] at LC_X51_Y3_N5
+--operation mode is normal
+
+F1_rxdata[3]_lut_out = F1_rxdata[4];
+F1_rxdata[3] = DFFEA(F1_rxdata[3]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L21, , );
+
+
+--F1_rxdata[6] is async_rx:receiver|rxdata[6] at LC_X51_Y3_N0
+--operation mode is normal
+
+F1_rxdata[6]_lut_out = F1_rxdata[7];
+F1_rxdata[6] = DFFEA(F1_rxdata[6]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L21, , );
+
+
+--D1L58 is s_idle:idle_state|Select_596~1337 at LC_X48_Y3_N5
+--operation mode is normal
+
+D1L58 = !F1_data[1] & !F1_data[7] & F1_data[6] & !F1_data[5];
+
+
+--D1L99 is s_idle:idle_state|Select_598~25 at LC_X48_Y3_N0
+--operation mode is normal
+
+D1L99 = F1_data[3] & !F1_data[4];
+
+
+--D1L69 is s_idle:idle_state|Select_598~15 at LC_X48_Y3_N1
+--operation mode is normal
+
+D1L69 = F1_data[0] & D1L99 & D1L58 & D1L8;
+
+
+--D1L32 is s_idle:idle_state|i~76 at LC_X48_Y3_N2
+--operation mode is normal
+
+D1L32 = D1L55Q & !D1_rx_newdata;
+
+
+--D1L301 is s_idle:idle_state|Select_600~12 at LC_X49_Y3_N2
+--operation mode is normal
+
+D1L301 = F1_data[4] & !F1_data[3] & !F1_data[0];
+
+
+--D1L201 is s_idle:idle_state|Select_600~10 at LC_X48_Y3_N8
+--operation mode is normal
+
+D1L201 = D1L8 & D1L58 & F1_data[2] & D1L301;
+
+
+--D1L701 is s_idle:idle_state|Select_602~13 at LC_X48_Y3_N4
+--operation mode is normal
+
+D1L701 = F1_data[2] & !F1_data[0];
+
+
+--D1L601 is s_idle:idle_state|Select_602~10 at LC_X48_Y3_N6
+--operation mode is normal
+
+D1L601 = D1L701 & D1L99 & D1L58 & D1L8;
+
+
+--D1L64 is s_idle:idle_state|reduce_nor_273~18 at LC_X49_Y3_N1
+--operation mode is normal
+
+D1L64 = F1_data[1] & !F1_data[0];
+
+
+--D1L54 is s_idle:idle_state|reduce_nor_273~0 at LC_X49_Y3_N8
+--operation mode is normal
+
+D1L54 = F1_data[2] # F1_data[6] # !D1L64 # !D1L86;
+
+
+--D1L09 is s_idle:idle_state|Select_596~1421 at LC_X50_Y3_N9
+--operation mode is normal
+
+F1_data[2]_qfbk = F1_data[2];
+D1L09 = D1L85Q # F1_data[2]_qfbk & D1L06Q;
+
+--F1_data[2] is async_rx:receiver|data[2] at LC_X50_Y3_N9
+--operation mode is normal
+
+F1_data[2]_sload_eqn = (VCC & F1_rxdata[4]) # (GND & D1L09);
+F1_data[2] = DFFEA(F1_data[2]_sload_eqn, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L11, , );
+
+
+--D1L08 is s_idle:idle_state|Select_596~652 at LC_X50_Y3_N2
+--operation mode is normal
+
+D1L08 = D1L06Q # !F1_data[2] & D1L75Q;
+
+
+--D1L98 is s_idle:idle_state|Select_596~1415 at LC_X50_Y3_N8
+--operation mode is normal
+
+D1L98 = D1L09 # D1L08 & (!F1_data[0] # !F1_data[1]);
+
+
+--D1L18 is s_idle:idle_state|Select_596~657 at LC_X49_Y3_N7
+--operation mode is normal
+
+D1L18 = D1L75Q & (F1_data[6] # !D1L86) # !D1L75Q & D1L06Q & (F1_data[6] # !D1L86);
+
+
+--D1L77 is s_idle:idle_state|Select_596~52 at LC_X49_Y3_N0
+--operation mode is normal
+
+D1L77 = D1L16Q # D1L54 & (D1L18 # D1L98);
+
+
+--D1L19 is s_idle:idle_state|Select_596~1440 at LC_X49_Y4_N0
+--operation mode is normal
+
+D1L19 = D1L77 & (D1L38 # D1L65Q & D1L59) # !D1L77 & D1L65Q & D1L59;
+
+
+--D1L48 is s_idle:idle_state|Select_596~1336 at LC_X50_Y4_N1
+--operation mode is normal
+
+D1L48 = D1L73 & (!D1L79 # !F1_data[1] # !D1L001);
+
+
+--D1L78 is s_idle:idle_state|Select_596~1397 at LC_X50_Y4_N5
+--operation mode is normal
+
+D1L78 = F1_data[4] & (F1_data[3] # F1_data[0]) # !F1_data[4] & (!F1_data[2] & !F1_data[0] # !F1_data[3]);
+
+
+--D1L88 is s_idle:idle_state|Select_596~1403 at LC_X50_Y4_N4
+--operation mode is normal
+
+D1L88 = D1L25Q & (D1L78 # F1_data[1] # !D1L79);
+
+
+--D1L87 is s_idle:idle_state|Select_596~63 at LC_X50_Y4_N6
+--operation mode is normal
+
+D1L87 = !D1L401 & (D1L95Q # D1L28 & D1L88);
+
+
+--D1L97 is s_idle:idle_state|Select_596~64 at LC_X49_Y4_N1
+--operation mode is normal
+
+D1L97 = D1L19 # D1L48 & (D1L87 # D1L55Q);
+
+
+--D1L36 is s_idle:idle_state|rx_state~389 at LC_X47_Y6_N4
+--operation mode is normal
+
+D1L36 = !H1L1Q & !D1_tx_strobe & !H1L2Q;
+
+
+--D1L521Q is s_idle:idle_state|tx_data_o[2]~reg0 at LC_X51_Y6_N1
+--operation mode is normal
+
+D1L521Q_lut_out = F1_data[2] & (D1_tx_done # D1_transmit_ptr[1]) # !F1_data[2] & !D1_tx_done & D1_transmit_ptr[1];
+D1L521Q = DFFEA(D1L521Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--C1L3 is async_mux:amux|i~223 at LC_X51_Y6_N3
+--operation mode is normal
+
+C1L3 = sel_vec[0] & D1L521Q & sel_vec[1];
+
+
+--G1L5Q is s_reset:reset_state|tx_data_o[2]~reg0 at LC_X51_Y5_N1
+--operation mode is normal
+
+G1L5Q_lut_out = G1_tx_word_pos[3] & !G1_tx_word_pos[1] & (G1_tx_word_pos[0] $ G1_tx_word_pos[2]) # !G1_tx_word_pos[3] & (G1_tx_word_pos[0] & G1_tx_word_pos[2] # !G1_tx_word_pos[0] & !G1_tx_word_pos[1]);
+G1L5Q = DFFEA(G1L5Q_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--C1L41Q is async_mux:amux|out_o_dat[3]~reg0 at LC_X48_Y6_N3
+--operation mode is normal
+
+C1L41Q_lut_out = C1L4 # !G1L6Q & (C1L01 # !sel_vec[0]);
+C1L41Q = DFFEA(C1L41Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1_sreg[4] is async_tx:transmitter|sreg[4] at LC_X48_Y6_N2
+--operation mode is normal
+
+H1_sreg[4]_lut_out = C1L02Q & (C1L91Q & C1L51Q # !C1L91Q & H1L8) # !C1L02Q & H1L8;
+H1_sreg[4] = DFFEA(H1_sreg[4]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L7 is async_tx:transmitter|i~247 at LC_X48_Y6_N5
+--operation mode is normal
+
+H1L7 = H1_sreg[4] & (H1_sreg[5] # H1_txcount[9]) # !H1_sreg[4] & H1_sreg[5] & !H1_txcount[9];
+
+
+--H1_txcount[4] is async_tx:transmitter|txcount[4] at LC_X50_Y6_N8
+--operation mode is normal
+
+H1_txcount[4]_lut_out = H1L3 # H1_txcount[9] & H1_txcount[3] # !H1_txcount[9] & H1_txcount[4];
+H1_txcount[4] = DFFEA(H1_txcount[4]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--F1L41 is async_rx:receiver|i~111 at LC_X49_Y2_N6
+--operation mode is normal
+
+F1L41 = !F1_rxcount[9] & F1_rxbit;
+
+
+--F1_rxcount[7] is async_rx:receiver|rxcount[7] at LC_X49_Y2_N4
+--operation mode is normal
+
+F1_rxcount[7]_lut_out = F1L12 # F1_rxcount[6] & F1_rxcount[9] & F1_rxclock[7];
+F1_rxcount[7] = DFFEA(F1_rxcount[7]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L21 is async_rx:receiver|data[7]~1251 at LC_X47_Y2_N5
+--operation mode is normal
+
+F1L21 = F1_rxcount[9] & F1_rxclock[7];
+
+
+--F1_sreg[1] is async_rx:receiver|sreg[1] at LC_X47_Y2_N4
+--operation mode is normal
+
+F1_sreg[1]_lut_out = F1_sreg[0];
+F1_sreg[1] = DFFEA(F1_sreg[1]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1_sreg[0] is async_rx:receiver|sreg[0] at LC_X47_Y2_N6
+--operation mode is normal
+
+F1_sreg[0]_lut_out = !rxd;
+F1_sreg[0] = DFFEA(F1_sreg[0]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1_sreg[2] is async_rx:receiver|sreg[2] at LC_X47_Y2_N9
+--operation mode is normal
+
+F1_sreg[2]_lut_out = F1_sreg[1];
+F1_sreg[2] = DFFEA(F1_sreg[2]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1_rxclock[6] is async_rx:receiver|rxclock[6] at LC_X47_Y3_N8
+--operation mode is normal
+
+F1_rxclock[6]_lut_out = F1L51 # !F1_rxclock[7] & F1_rxcount[9] & F1_rxclock[5];
+F1_rxclock[6] = DFFEA(F1_rxclock[6]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L1Q is async_rx:receiver|ack_o~reg0 at LC_X51_Y2_N4
+--operation mode is normal
+
+F1L1Q_lut_out = D1L46Q;
+F1L1Q = DFFEA(F1L1Q_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--D1L801 is s_idle:idle_state|Select_606~39 at LC_X49_Y5_N6
+--operation mode is normal
+
+D1L801 = !D1_rx_newdata_clr & (!D1L15Q & !D1_tx_done # !D1L84);
+
+
+--D1L621Q is s_idle:idle_state|tx_data_o[3]~reg0 at LC_X51_Y6_N4
+--operation mode is normal
+
+D1L621Q_lut_out = D1_tx_tbuf[3] & (F1_data[3] # !D1_tx_done) # !D1_tx_tbuf[3] & D1_tx_done & F1_data[3];
+D1L621Q = DFFEA(D1L621Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--C1L4 is async_mux:amux|i~227 at LC_X47_Y6_N5
+--operation mode is normal
+
+C1L4 = sel_vec[1] & sel_vec[0] & D1L621Q;
+
+
+--G1L6Q is s_reset:reset_state|tx_data_o[3]~reg0 at LC_X50_Y5_N6
+--operation mode is normal
+
+G1L6Q_lut_out = G1_tx_word_pos[0] # G1_tx_word_pos[1] # G1_tx_word_pos[3] $ G1_tx_word_pos[2];
+G1L6Q = DFFEA(G1L6Q_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--C1L51Q is async_mux:amux|out_o_dat[4]~reg0 at LC_X48_Y6_N7
+--operation mode is normal
+
+C1L51Q_lut_out = C1L5 # G1L7Q & (C1L01 # !sel_vec[0]);
+C1L51Q = DFFEA(C1L51Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1_sreg[3] is async_tx:transmitter|sreg[3] at LC_X52_Y6_N9
+--operation mode is normal
+
+H1_sreg[3]_lut_out = C1L91Q & (C1L02Q & C1L61Q # !C1L02Q & H1L9) # !C1L91Q & H1L9;
+H1_sreg[3] = DFFEA(H1_sreg[3]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L8 is async_tx:transmitter|i~257 at LC_X48_Y6_N8
+--operation mode is normal
+
+H1L8 = H1_sreg[4] & (H1_sreg[3] # !H1_txcount[9]) # !H1_sreg[4] & H1_sreg[3] & H1_txcount[9];
+
+
+--H1_txcount[3] is async_tx:transmitter|txcount[3] at LC_X50_Y6_N1
+--operation mode is normal
+
+H1_txcount[3]_lut_out = H1L3 # H1_txcount[9] & H1_txcount[2] # !H1_txcount[9] & H1_txcount[3];
+H1_txcount[3] = DFFEA(H1_txcount[3]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--F1L12 is async_rx:receiver|i~859 at LC_X49_Y2_N1
+--operation mode is normal
+
+F1L12 = F1_rxcount[7] & (!F1_rxclock[7] # !F1_rxcount[9]) # !F1_rxcount[7] & !F1_rxcount[9] & F1_rxbit;
+
+
+--F1_rxcount[6] is async_rx:receiver|rxcount[6] at LC_X49_Y2_N3
+--operation mode is normal
+
+F1_rxcount[6]_lut_out = F1L22 # F1_rxcount[9] & F1_rxcount[5] & F1_rxclock[7];
+F1_rxcount[6] = DFFEA(F1_rxcount[6]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L51 is async_rx:receiver|i~129 at LC_X47_Y3_N5
+--operation mode is normal
+
+F1L51 = !F1_rxbit & !F1_rxcount[9] & F1_rxclock[6];
+
+
+--F1_rxclock[5] is async_rx:receiver|rxclock[5] at LC_X47_Y3_N6
+--operation mode is normal
+
+F1_rxclock[5]_lut_out = F1_rxcount[9] & F1_rxclock[4] & !F1_rxclock[7] # !F1_rxcount[9] & F1L02;
+F1_rxclock[5] = DFFEA(F1_rxclock[5]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--D1_tx_tbuf[3] is s_idle:idle_state|tx_tbuf[3] at LC_X51_Y6_N5
+--operation mode is normal
+
+D1_tx_tbuf[3]_lut_out = VCC;
+D1_tx_tbuf[3] = DFFEA(D1_tx_tbuf[3]_lut_out, GLOBAL(H1L2Q), !GLOBAL(D1_error), , GLOBAL(D1L42), VCC);
+
+
+--D1L721Q is s_idle:idle_state|tx_data_o[4]~reg0 at LC_X51_Y5_N4
+--operation mode is normal
+
+D1L721Q_lut_out = D1_tx_done & F1_data[4] # !D1_tx_done & D1_tx_tbuf[4];
+D1L721Q = DFFEA(D1L721Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--C1L5 is async_mux:amux|i~231 at LC_X48_Y6_N9
+--operation mode is normal
+
+C1L5 = sel_vec[1] & sel_vec[0] & D1L721Q;
+
+
+--G1L7Q is s_reset:reset_state|tx_data_o[4]~reg0 at LC_X50_Y5_N1
+--operation mode is normal
+
+G1L7Q_lut_out = G1_tx_word_pos[3] & (G1_tx_word_pos[0] # G1_tx_word_pos[1]) # !G1_tx_word_pos[3] & G1_tx_word_pos[2] & (G1_tx_word_pos[1] # !G1_tx_word_pos[0]);
+G1L7Q = DFFEA(G1L7Q_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--C1L61Q is async_mux:amux|out_o_dat[5]~reg0 at LC_X52_Y6_N0
+--operation mode is normal
+
+C1L61Q_lut_out = C1L6 # G1L8Q & (C1L01 # !sel_vec[0]);
+C1L61Q = DFFEA(C1L61Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1_sreg[2] is async_tx:transmitter|sreg[2] at LC_X52_Y6_N7
+--operation mode is normal
+
+H1_sreg[2]_lut_out = C1L91Q & (C1L02Q & C1L71Q # !C1L02Q & H1L01) # !C1L91Q & H1L01;
+H1_sreg[2] = DFFEA(H1_sreg[2]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L9 is async_tx:transmitter|i~267 at LC_X52_Y6_N6
+--operation mode is normal
+
+H1L9 = H1_sreg[3] & (H1_sreg[2] # !H1_txcount[9]) # !H1_sreg[3] & H1_sreg[2] & H1_txcount[9];
+
+
+--H1_txcount[2] is async_tx:transmitter|txcount[2] at LC_X50_Y6_N7
+--operation mode is normal
+
+H1_txcount[2]_lut_out = H1L3 # H1_txcount[9] & H1_txcount[1] # !H1_txcount[9] & H1_txcount[2];
+H1_txcount[2] = DFFEA(H1_txcount[2]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--F1L22 is async_rx:receiver|i~867 at LC_X49_Y2_N8
+--operation mode is normal
+
+F1L22 = F1_rxcount[9] & F1_rxcount[6] & !F1_rxclock[7] # !F1_rxcount[9] & (F1_rxbit # F1_rxcount[6]);
+
+
+--F1_rxcount[5] is async_rx:receiver|rxcount[5] at LC_X49_Y2_N5
+--operation mode is normal
+
+F1_rxcount[5]_lut_out = F1L32 # F1_rxcount[4] & F1_rxcount[9] & F1_rxclock[7];
+F1_rxcount[5] = DFFEA(F1_rxcount[5]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L02 is async_rx:receiver|i~357 at LC_X47_Y3_N1
+--operation mode is normal
+
+F1L02 = F1_rxbit # F1_rxclock[5];
+
+
+--F1_rxclock[4] is async_rx:receiver|rxclock[4] at LC_X47_Y3_N3
+--operation mode is normal
+
+F1_rxclock[4]_lut_out = F1L61 # F1_rxcount[9] & F1_rxclock[3] & !F1_rxclock[7];
+F1_rxclock[4] = DFFEA(F1_rxclock[4]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--D1_tx_tbuf[4] is s_idle:idle_state|tx_tbuf[4] at LC_X52_Y5_N2
+--operation mode is normal
+
+D1_tx_tbuf[4]_lut_out = D1_transmit_ptr[1];
+D1_tx_tbuf[4] = DFFEA(D1_tx_tbuf[4]_lut_out, GLOBAL(H1L2Q), !GLOBAL(D1L02), , , );
+
+
+--D1L821Q is s_idle:idle_state|tx_data_o[5]~reg0 at LC_X52_Y6_N5
+--operation mode is normal
+
+D1L821Q_lut_out = D1_tx_tbuf[5] & (F1_data[5] # !D1_tx_done) # !D1_tx_tbuf[5] & F1_data[5] & D1_tx_done;
+D1L821Q = DFFEA(D1L821Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--C1L6 is async_mux:amux|i~235 at LC_X52_Y6_N8
+--operation mode is normal
+
+C1L6 = sel_vec[0] & D1L821Q & sel_vec[1];
+
+
+--G1L8Q is s_reset:reset_state|tx_data_o[5]~reg0 at LC_X51_Y5_N8
+--operation mode is normal
+
+G1L8Q_lut_out = G1_tx_word_pos[3] # G1_tx_word_pos[0] & (G1_tx_word_pos[1] # G1_tx_word_pos[2]) # !G1_tx_word_pos[0] & G1_tx_word_pos[1] & G1_tx_word_pos[2];
+G1L8Q = DFFEA(G1L8Q_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--C1L71Q is async_mux:amux|out_o_dat[6]~reg0 at LC_X52_Y6_N4
+--operation mode is normal
+
+C1L71Q_lut_out = C1L7 # G1L9Q & (C1L01 # !sel_vec[0]);
+C1L71Q = DFFEA(C1L71Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1_sreg[1] is async_tx:transmitter|sreg[1] at LC_X46_Y6_N1
+--operation mode is normal
+
+H1_sreg[1]_lut_out = C1L91Q & (C1L02Q & C1L81Q # !C1L02Q & H1L11) # !C1L91Q & H1L11;
+H1_sreg[1] = DFFEA(H1_sreg[1]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L01 is async_tx:transmitter|i~277 at LC_X52_Y6_N3
+--operation mode is normal
+
+H1L01 = H1_sreg[1] & (H1_sreg[2] # H1_txcount[9]) # !H1_sreg[1] & H1_sreg[2] & !H1_txcount[9];
+
+
+--H1_txcount[1] is async_tx:transmitter|txcount[1] at LC_X50_Y6_N0
+--operation mode is normal
+
+H1_txcount[1]_lut_out = H1L3 # H1_txcount[9] & H1_txcount[0] # !H1_txcount[9] & H1_txcount[1];
+H1_txcount[1] = DFFEA(H1_txcount[1]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--F1L32 is async_rx:receiver|i~875 at LC_X49_Y2_N7
+--operation mode is normal
+
+F1L32 = F1_rxcount[9] & F1_rxcount[5] & !F1_rxclock[7] # !F1_rxcount[9] & (F1_rxbit # F1_rxcount[5]);
+
+
+--F1_rxcount[4] is async_rx:receiver|rxcount[4] at LC_X48_Y2_N0
+--operation mode is normal
+
+F1_rxcount[4]_lut_out = F1L42 # F1_rxclock[7] & F1_rxcount[3] & F1_rxcount[9];
+F1_rxcount[4] = DFFEA(F1_rxcount[4]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L61 is async_rx:receiver|i~147 at LC_X47_Y3_N7
+--operation mode is normal
+
+F1L61 = F1_rxclock[4] & !F1_rxcount[9] & !F1_rxbit;
+
+
+--F1_rxclock[3] is async_rx:receiver|rxclock[3] at LC_X47_Y3_N9
+--operation mode is normal
+
+F1_rxclock[3]_lut_out = F1L71 # !F1_rxclock[7] & F1_rxclock[2] & F1_rxcount[9];
+F1_rxclock[3] = DFFEA(F1_rxclock[3]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--D1_tx_tbuf[5] is s_idle:idle_state|tx_tbuf[5] at LC_X52_Y5_N8
+--operation mode is normal
+
+D1_tx_tbuf[5]_lut_out = D1_transmit_ptr[1];
+D1_tx_tbuf[5] = DFFEA(D1_tx_tbuf[5]_lut_out, GLOBAL(H1L2Q), !GLOBAL(D1L42), , GLOBAL(D1_error), VCC);
+
+
+--D1L921Q is s_idle:idle_state|tx_data_o[6]~reg0 at LC_X52_Y6_N1
+--operation mode is normal
+
+D1L921Q_lut_out = F1_data[6] & D1_tx_done;
+D1L921Q = DFFEA(D1L921Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--C1L7 is async_mux:amux|i~239 at LC_X52_Y6_N2
+--operation mode is normal
+
+C1L7 = sel_vec[0] & D1L921Q & sel_vec[1];
+
+
+--G1L9Q is s_reset:reset_state|tx_data_o[6]~reg0 at LC_X51_Y5_N6
+--operation mode is normal
+
+G1L9Q_lut_out = G1_tx_word_pos[3] & G1_tx_word_pos[0] & !G1_tx_word_pos[1] & !G1_tx_word_pos[2] # !G1_tx_word_pos[3] & (G1_tx_word_pos[2] # G1_tx_word_pos[0] $ G1_tx_word_pos[1]);
+G1L9Q = DFFEA(G1L9Q_lut_out, GLOBAL(H1L2Q), !GLOBAL(G1L2), , , );
+
+
+--C1L81Q is async_mux:amux|out_o_dat[7]~reg0 at LC_X46_Y6_N9
+--operation mode is normal
+
+C1L81Q_lut_out = D1L031Q & sel_vec[1] & sel_vec[0];
+C1L81Q = DFFEA(C1L81Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--H1_sreg[0] is async_tx:transmitter|sreg[0] at LC_X48_Y6_N1
+--operation mode is normal
+
+H1_sreg[0]_lut_out = H1_txcount[9] & C1L02Q & C1L91Q # !H1_txcount[9] & (H1_sreg[0] # C1L02Q & C1L91Q);
+H1_sreg[0] = DFFEA(H1_sreg[0]_lut_out, GLOBAL(B1L44Q), VCC, reset_n, , );
+
+
+--H1L11 is async_tx:transmitter|i~287 at LC_X47_Y6_N6
+--operation mode is normal
+
+H1L11 = H1_sreg[1] & (H1_sreg[0] # !H1_txcount[9]) # !H1_sreg[1] & H1_txcount[9] & H1_sreg[0];
+
+
+--H1_txcount[0] is async_tx:transmitter|txcount[0] at LC_X49_Y6_N9
+--operation mode is normal
+
+H1_txcount[0]_lut_out = H1_txcount[9] & C1L91Q & C1L02Q # !H1_txcount[9] & (H1_txcount[0] # C1L91Q & C1L02Q);
+H1_txcount[0] = DFFEA(H1_txcount[0]_lut_out, GLOBAL(B1L44Q), GLOBAL(reset_n), , , );
+
+
+--F1L42 is async_rx:receiver|i~883 at LC_X48_Y2_N2
+--operation mode is normal
+
+F1L42 = F1_rxcount[4] & (!F1_rxcount[9] # !F1_rxclock[7]) # !F1_rxcount[4] & F1_rxbit & !F1_rxcount[9];
+
+
+--F1_rxcount[3] is async_rx:receiver|rxcount[3] at LC_X48_Y2_N3
+--operation mode is normal
+
+F1_rxcount[3]_lut_out = F1L52 # F1_rxclock[7] & F1_rxcount[2] & F1_rxcount[9];
+F1_rxcount[3] = DFFEA(F1_rxcount[3]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L71 is async_rx:receiver|i~156 at LC_X47_Y3_N2
+--operation mode is normal
+
+F1L71 = !F1_rxbit & !F1_rxcount[9] & F1_rxclock[3];
+
+
+--F1_rxclock[2] is async_rx:receiver|rxclock[2] at LC_X47_Y2_N3
+--operation mode is normal
+
+F1_rxclock[2]_lut_out = F1L81 # F1_rxclock[1] & F1_rxcount[9] & !F1_rxclock[7];
+F1_rxclock[2] = DFFEA(F1_rxclock[2]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--D1L031Q is s_idle:idle_state|tx_data_o[7]~reg0 at LC_X46_Y5_N2
+--operation mode is normal
+
+D1L031Q_lut_out = F1_data[7] & D1_tx_done;
+D1L031Q = DFFEA(D1L031Q_lut_out, GLOBAL(clk), VCC, , , );
+
+
+--F1L52 is async_rx:receiver|i~891 at LC_X48_Y2_N7
+--operation mode is normal
+
+F1L52 = F1_rxcount[3] & (!F1_rxcount[9] # !F1_rxclock[7]) # !F1_rxcount[3] & F1_rxbit & !F1_rxcount[9];
+
+
+--F1_rxcount[2] is async_rx:receiver|rxcount[2] at LC_X48_Y2_N5
+--operation mode is normal
+
+F1_rxcount[2]_lut_out = F1L62 # F1_rxcount[9] & F1_rxclock[7] & F1_rxcount[1];
+F1_rxcount[2] = DFFEA(F1_rxcount[2]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L81 is async_rx:receiver|i~165 at LC_X47_Y2_N1
+--operation mode is normal
+
+F1L81 = !F1_rxcount[9] & !F1_rxbit & F1_rxclock[2];
+
+
+--F1_rxclock[1] is async_rx:receiver|rxclock[1] at LC_X47_Y2_N8
+--operation mode is normal
+
+F1_rxclock[1]_lut_out = F1L91 # F1_rxclock[0] & !F1_rxclock[7] & F1_rxcount[9];
+F1_rxclock[1] = DFFEA(F1_rxclock[1]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L62 is async_rx:receiver|i~899 at LC_X48_Y2_N4
+--operation mode is normal
+
+F1L62 = F1_rxcount[2] & (!F1_rxcount[9] # !F1_rxclock[7]) # !F1_rxcount[2] & F1_rxbit & !F1_rxcount[9];
+
+
+--F1_rxcount[1] is async_rx:receiver|rxcount[1] at LC_X48_Y2_N6
+--operation mode is normal
+
+F1_rxcount[1]_lut_out = F1L72 # F1_rxcount[9] & F1_rxclock[7] & F1_rxcount[0];
+F1_rxcount[1] = DFFEA(F1_rxcount[1]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L91 is async_rx:receiver|i~174 at LC_X47_Y2_N2
+--operation mode is normal
+
+F1L91 = !F1_rxbit & !F1_rxcount[9] & F1_rxclock[1];
+
+
+--F1_rxclock[0] is async_rx:receiver|rxclock[0] at LC_X48_Y2_N1
+--operation mode is normal
+
+F1_rxclock[0]_lut_out = F1_rxcount[9] & F1_rxclock[7] # !F1_rxcount[9] & !F1_rxbit & F1_rxclock[0];
+F1_rxclock[0] = DFFEA(F1_rxclock[0]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--F1L72 is async_rx:receiver|i~907 at LC_X48_Y2_N8
+--operation mode is normal
+
+F1L72 = F1_rxcount[9] & !F1_rxclock[7] & F1_rxcount[1] # !F1_rxcount[9] & (F1_rxbit # F1_rxcount[1]);
+
+
+--F1_rxcount[0] is async_rx:receiver|rxcount[0] at LC_X48_Y2_N9
+--operation mode is normal
+
+F1_rxcount[0]_lut_out = F1_rxcount[9] & !F1_rxclock[7] & F1_rxcount[0] # !F1_rxcount[9] & (F1_rxbit # F1_rxcount[0]);
+F1_rxcount[0] = DFFEA(F1_rxcount[0]_lut_out, GLOBAL(B1L93Q), GLOBAL(reset_n), , , );
+
+
+--D1L39 is s_idle:idle_state|Select_596~1450 at LC_X50_Y3_N5
+--operation mode is normal
+
+F1_data[0]_qfbk = F1_data[0];
+D1L39 = F1_data[1] & (F1_data[0]_qfbk # F1_data[3] $ F1_data[2]) # !F1_data[1] & (F1_data[3] # F1_data[2] # !F1_data[0]_qfbk);
+
+--F1_data[0] is async_rx:receiver|data[0] at LC_X50_Y3_N5
+--operation mode is normal
+
+F1_data[0]_sload_eqn = (VCC & F1_rxdata[2]) # (GND & D1L39);
+F1_data[0] = DFFEA(F1_data[0]_sload_eqn, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L11, , );
+
+
+--D1L49 is s_idle:idle_state|Select_596~1451 at LC_X50_Y3_N4
+--operation mode is normal
+
+F1_data[3]_qfbk = F1_data[3];
+D1L49 = F1_data[2] # F1_data[3]_qfbk # !F1_data[1] # !F1_data[0];
+
+--F1_data[3] is async_rx:receiver|data[3] at LC_X50_Y3_N4
+--operation mode is normal
+
+F1_data[3]_sload_eqn = (VCC & F1_rxdata[5]) # (GND & D1L49);
+F1_data[3] = DFFEA(F1_data[3]_sload_eqn, GLOBAL(B1L93Q), GLOBAL(reset_n), F1L11, , );
+
+
+--D1L29 is s_idle:idle_state|Select_596~1449 at LC_X50_Y3_N6
+--operation mode is normal
+
+D1L29 = D1L49 & (D1L39 # F1_data[4]) # !D1L49 & D1L39 & !F1_data[4];
+
+
+--D1L59 is s_idle:idle_state|Select_596~1455 at LC_X50_Y3_N0
+--operation mode is normal
+
+D1L59 = F1_data[7] # F1_data[5] # D1L29 # !F1_data[6];
+
+
+--~GND is ~GND at LC_X53_Y2_N7
+--operation mode is normal
+
+~GND = GND;
+
+
+--reset_n is reset_n at Pin_AC9
+--operation mode is input
+
+reset_n = INPUT();
+
+
+--clk is clk at Pin_J17
+--operation mode is input
+
+clk = INPUT();
+
+
+--rxd is rxd at Pin_AG22
+--operation mode is input
+
+rxd = INPUT();
+
+
+--txd is txd at Pin_AH22
+--operation mode is output
+
+txd = OUTPUT(!H1L42Q);
+
+
+--led[2] is led[2] at Pin_AB22
+--operation mode is output
+
+led[2] = OUTPUT(!M1_led_bit);
+
+
+--led[1] is led[1] at Pin_AC23
+--operation mode is output
+
+led[1] = OUTPUT(!M3_led_bit);
+
+
+--led[0] is led[0] at Pin_AC24
+--operation mode is output
+
+led[0] = OUTPUT(!M2_led_bit);
+
+
+
