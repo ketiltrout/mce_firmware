@@ -30,7 +30,10 @@
 --
 -- Revision history:
 --
--- $Log$
+-- $Log: cc_test_idle.vhd,v $
+-- Revision 1.1  2004/06/09 22:13:38  erniel
+-- initial version
+--
 --
 ---------------------------------------------------------------------
 
@@ -80,7 +83,7 @@ architecture behaviour of cc_test_idle is
    signal tx_strobe : std_logic;
    
    -- receiver definitions
-   type rx_states is (RX_WAIT_TX, RX_WAIT1, RX_WAIT2, RX_WAIT3, RX_DONE, RX_ERROR);
+   type rx_states is (RX_WAIT_TX, RX_WAIT1, RX_WAIT2, RX_DONE, RX_ERROR);
    signal rx_state : rx_states;
    signal rx_newdata : std_logic;
    signal rx_newdata_clr : std_logic;
@@ -155,7 +158,7 @@ begin
    ------------------------------------------------------------------
    -- receiver control processes
    -- rx_strobe controls the receiver strobe line
-   rx_strobe : process (rst_i, en_i, clk_i) --, rx_valid_i, rx_ack_i) --, done)
+   rx_strobe : process (rst_i, en_i, clk_i, rx_valid_i, rx_ack_i, done)
    begin
       if ((rst_i = '1') or (en_i = '0')) then
          rx_stb_o <= '0';
@@ -179,12 +182,12 @@ begin
    begin
       if ((rst_i = '1') or (en_i = '0')) then
          rx_state <= RX_WAIT_TX;
-         done_o <= '0';
+         done <= '0';
          error <= '0';
          rx_newdata_clr <= '1';
-         cmd1_o <= (others => '0');
-         cmd2_o <= (others => '0');
-         cmd3_o <= (others => '0');
+         cmd1 <= (others => '0');
+         cmd2 <= (others => '0');
+         cmd3 <= (others => '0');
          
       elsif Rising_Edge(clk_i) then
          case rx_state is
@@ -207,8 +210,8 @@ begin
 
                   elsif(rx_data_i = CMD_TX or
                         rx_data_i = CMD_RX or
-                        rx_data_i = CMD_SRAM or
-                        rx_data_i = CMD_FIBRE) then
+                        rx_data_i = CMD_SRAM) then -- or
+--                        rx_data_i = CMD_FIBRE) then
                      rx_state <= RX_WAIT2;
 
                   else
@@ -216,49 +219,25 @@ begin
                      rx_state <= RX_ERROR;
                   end if;
                   rx_newdata_clr <= '1';
-                  cmd1_o <= rx_data_i;
+                  cmd1 <= rx_data_i;
                end if;
             
             when RX_WAIT2 =>
                if(rx_newdata = '1') then   
                   if(rx_data_i = CMD_TX_CMD or
-                     rx_data_i = CMD_TX_SYNC or
-                     rx_data_i = CMD_TX_SPARE or
                      rx_data_i = CMD_SRAM_1 or
                      rx_data_i = CMD_SRAM_2 or
-                     rx_data_i = CMD_FIBRE_BIST or
-                     rx_data_i = CMD_FIBRE_TX or
-                     rx_data_i = CMD_FIBRE_RX) then
+                     rx_data_i = CMD_TX_SYNC or
+                     rx_data_i = CMD_TX_SPARE) then -- or
+--                     rx_data_i = CMD_FIBRE_BIST or
+--                     rx_data_i = CMD_FIBRE_TX or
+--                     rx_data_i = CMD_FIBRE_RX) then
                      rx_state <= RX_DONE;
-                     
-                  elsif(rx_data_i = CMD_RX_0 or
-                        rx_data_i = CMD_RX_1 or
-                        rx_data_i = CMD_RX_2 or
-                        rx_data_i = CMD_RX_3 or
-                        rx_data_i = CMD_RX_4 or
-                        rx_data_i = CMD_RX_5 or
-                        rx_data_i = CMD_RX_6 or
-                        rx_data_i = CMD_RX_7) then
-                     rx_state <= RX_WAIT3;
-                     
                   else                        
                      rx_state <= RX_ERROR;
                   end if;
                   rx_newdata_clr <= '1';
-                  cmd2_o <= rx_data_i;
-               end if;
-               
-            when RX_WAIT3 =>
-               if(rx_newdata = '1') then
-                  if(rx_data_i = CMD_RX_A or
-                     rx_data_i = CMD_RX_B) then
-                     rx_state <= RX_DONE;
-                     
-                  else
-                     rx_state <= RX_ERROR;
-                  end if;
-                  rx_newdata_clr <= '1';
-                  cmd3_o <= rx_data_i;
+                  cmd2 <= rx_data_i;
                else
                   rx_newdata_clr <= '0';
                end if;
@@ -266,7 +245,7 @@ begin
             when RX_DONE =>
                -- wait for the last character to transmit
                if (tx_active = '0') then
-                  done_o <= '1';
+                  done <= '1';
                end if;
                
             when RX_ERROR =>
@@ -281,9 +260,9 @@ begin
          end case;
       end if;
    end process receiver;
---   done_o <= done;
+  done_o <= done;
    
---   cmd1_o <= cmd1;
---   cmd2_o <= cmd2;
+   cmd1_o <= cmd1;
+   cmd2_o <= cmd2;
 --   cmd3_o <= cmd3;
 end;
