@@ -30,9 +30,12 @@
 -- test bed for wbs_frame_data.vhd
 --
 -- Revision history:
--- <date $Date: 2004/10/20 13:21:50 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/26 16:14:12 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_wbs_frame_data.vhd,v $
+-- Revision 1.1  2004/10/26 16:14:12  dca
+-- Initial Version
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -63,6 +66,8 @@ architecture bench of tb_wbs_frame_data is
 signal dut_rst        : std_logic;
 signal dut_clk        : std_logic := '1';
 constant clk_prd      : TIME := 20 ns;    -- 50Mhz clock
+
+signal flc_buff_rst   : std_logic;   -- initialise FLUX loop contorl buffers...
 
 signal param_id       :  std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
    
@@ -377,7 +382,7 @@ begin
    port map (
    
      -- global inputs 
-     rst_i                     =>  dut_rst, 
+     rst_i                     =>  flc_buff_rst, 
      clk_i                     =>  dut_clk,
 
      -- signals to/from flux_loop_ctrl    
@@ -518,6 +523,11 @@ begin
    procedure do_reset is
    -----------------------
       begin
+         wbm_addr_o <= (others => '0'); 
+         wbm_stb_o  <= '0';
+         wbm_cyc_o  <= '0';
+         wbm_we_o   <= '0';
+   
          dut_rst <= '1';
          wait for clk_prd*5 ;
          dut_rst <= '0';
@@ -527,6 +537,19 @@ begin
          wait for clk_prd;
       end do_reset;
    --------------------------
+   
+   --------------------------------     
+   procedure do_init_flc_buffers is
+   --------------------------------
+   begin    
+      flc_buff_rst <= '1'; 
+      wait for clk_prd;
+      assert false report " FLC Buffers Initialised......" severity NOTE;
+      flc_buff_rst <= '0';
+      wait for clk_prd;
+   end do_init_flc_buffers;
+   
+   
    
    ------------------------------     
    procedure do_set_data_mode is 
@@ -612,8 +635,11 @@ begin
 --------------------------------------------------
 
    begin
-    
+   
    do_reset;
+   
+   do_init_flc_buffers;
+   
    
    -- Capture Raw Data - FLC instruction         
    do_req_raw_data;
@@ -633,7 +659,7 @@ begin
      assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
      assert (conv_integer(coadded_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
-   assert false report "A Frame of feedback/error data has been read....." severity NOTE;
+   assert false report "A Frame of FEEDBACK/ERROR data has been read....." severity NOTE;
    
    
    
@@ -646,12 +672,12 @@ begin
       do_read_data;
    end loop;
    
-   assert false report "A Frame of unfilterd data has been read....." severity NOTE;
+   assert false report "A Frame of UNFILTEREDdata has been read....." severity NOTE;
    
    wait for clk_prd;
    
-     assert (wbm_dat_reg = x"1728FFFF" ) report   "last data value incorrect ....." severity ERROR;
-     assert (conv_integer(fsfb_addr_ch7) = 0) report " Address value not back to zero " severity ERROR;
+     assert (wbm_dat_reg = x"1728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+     assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
   
    
@@ -665,7 +691,7 @@ begin
       do_read_data;
    end loop;
       
-   assert false report "A Frame of filtered data has been read....." severity NOTE;
+   assert false report "A Frame of FILTERED data has been read....." severity NOTE;
    
      assert (wbm_dat_reg = x"0728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
      assert (conv_integer(filtered_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
@@ -689,7 +715,7 @@ begin
    assert (conv_integer(raw_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
       
-   assert false report "A Frame of raw data has been read....." severity NOTE;
+   assert false report "A Frame of RAW data has been read....." severity NOTE;
 
 
 

@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/10/20 13:21:50 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/26 16:13:33 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.8  2004/10/26 16:13:33  dca
+-- 1st complete version.
+--
 -- Revision 1.7  2004/10/20 13:21:50  dca
 -- FSM changed for captr_raw writes.
 --
@@ -249,8 +252,8 @@ signal raw_dat             : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal dat_out_mux_sel     : std_logic_vector (1 downto 0);
 
 -- enable this signal to increment address counters
-signal inc_addr_sel        : std_logic;
-
+signal inc_addr_ena        : std_logic;
+signal rst_addr_ena        : std_logic;
 
 -- address used for modes 1, 2 and 3
 
@@ -378,14 +381,16 @@ begin
          ack_o             <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
-         inc_addr_sel      <= '0';    
+         inc_addr_ena      <= '0'; 
+       --  rst_addr_ena		    <= '1';   
          raw_req           <= '0';
                       
       when SET_MODE =>
          ack_o             <= '1';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '1';
-         inc_addr_sel      <= '0';
+         inc_addr_ena      <= '0';
+       --  rst_addr_ena		    <= '0';
          raw_req           <= '0';
 
       when READ_DATA =>
@@ -393,35 +398,39 @@ begin
          dat_o             <= wbs_data;
          data_mode_mux_sel <= '0';
          
-         inc_addr_sel      <= '1';      
+         inc_addr_ena      <= '1';      
          -- increment address for next read 
-         -- The increment will take 1 clock cycle
-         -- Then the data from the FLC blocks will take an additional 2 clock cycles to update.
+         -- The increment will take 1 clock cycle,
+         -- then the data from the FLC blocks will take an additional 2 clock cycles to update.
          -- SO there is a total of 3 clock cycles until the next data word is ready to be read by the wishbone master.
          -- It takes 3 clock cycles to get back to READ_DATA state (READ_DATA --> DONE, DONE --> IDLE, IDLE --> READ DATA)
          -- so the the next data will always be ready for the next data read.
-
+    
+       --  rst_addr_ena		    <= '0';
          raw_req           <= '0';
              
       when START_RAW =>
          ack_o             <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
-         inc_addr_sel      <= '0';
+         inc_addr_ena      <= '0';
+       --  rst_addr_ena		    <= '0';
          raw_req           <= '1';
          
       when RAW_FINISH =>   
          ack_o             <= '1';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
-         inc_addr_sel      <= '0';
+         inc_addr_ena      <= '0';
+     --    rst_addr_ena		    <= '0';
          raw_req           <= '0';   
                     
       when DONE =>
          ack_o             <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
-         inc_addr_sel      <= '0';
+         inc_addr_ena      <= '0';
+       --  rst_addr_ena		    <= '0';
          raw_req           <= '0';
          
       end case;
@@ -430,7 +439,9 @@ begin
          
 -------------------------------------------------------------------------------------------------------------         
     
--- for modes 1,2,3 pixel_addr_cnt is used.  Bits 2..0 determine the channel, and bits 8..3 determine the row.
+-- for modes 1,2,3 pixel_addr_cnt is used.  Bits 2 downto 0 determine the channel, and bits 8 downto 3 determine 
+-- the row.
+--
 -- the address cycles through:
 --
 --         (row_0 ch_0), (row_0 ch_1), (row_0 ch_2), (row_0 ch_3), (row_0 ch_4), (row_0 ch_5), (row_0 ch_6), (row_0 ch_7),
@@ -440,52 +451,50 @@ begin
 --         (row_40 ch_0), (row_40 ch_1), (row_40 ch_2), (row_40 ch_3), (row_40 ch_4), (row_40 ch_5), (row_40 ch_6), (row_40 ch_7), 
 
 -- for mode 4  there are  5248 'rows' per channel (2 frames of 64 samples for each of the 41 rows).
---  Again the addressing is such that a 'row' is read from each of the 8 channels, then the next row etc...
+--  Again the addressing is such that a 'row' is read from each of the 8 channels, then the next 'row' etc...
 --
 
     
-   
+ 
    ------------------------------------- 
    address_counter: process (clk_i, rst_i) 
    -------------------------------------      
     begin
          
-      if (rst_i = '1') then
+      if (rst_i = '1') then                         -- asynchronous reset
          pix_addr_cnt   <= 0 ;
          raw_addr_cnt   <= 0 ;
       elsif (clk_i'EVENT AND clk_i = '1') then
          
-         if inc_addr_sel = '1' then
-         
+  --       if rst_addr_ena = '1' then                 -- synchronous reset
+  --         pix_addr_cnt   <= 0 ;
+  --         raw_addr_cnt   <= 0 ;
+         if inc_addr_ena = '1' then
             if data_mode_reg = MODE4_RAW then 
-             
                if raw_addr_cnt = RAW_ADDR_MAX-1 then 
-               
                   raw_addr_cnt   <= 0;
-                                      
                else 
                   raw_addr_cnt <= raw_addr_cnt + 1;
                end if;
-            
             else 
-                        
                if pix_addr_cnt = PIXEL_ADDR_MAX-1 then 
                   pix_addr_cnt <= 0;     
                else 
                   pix_addr_cnt <= pix_addr_cnt + 1;
                end if;
             end if;
-            
-            
          end if;
-      end if;
-   end process address_counter;
+     end if;
+  end process address_counter;
    
+   
+      
+  
    -- assign counts to bit vectors - modes 1,2,3
    -- note that the LS 3 bits of the address determine the channel
    -- the other bits determine the row address.
    
-   pix_address    <= conv_std_logic_vector(pix_addr_cnt, ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);
+   pix_address    <= conv_std_logic_vector(pix_addr_cnt, ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);   
    ch_mux_sel     <= pix_address(CH_MUX_SEL_WIDTH-1 downto 0); 
        
    
@@ -526,8 +535,12 @@ begin
    -- assign counts to address vectors - mode 4
    -- the LS  bits determine the channle
    -- the rest the 'row'.
-   raw_address    <= conv_std_logic_vector(raw_addr_cnt,   RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);
+ 
+  
+   raw_address    <= conv_std_logic_vector(raw_addr_cnt,   RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH);   
    raw_ch_mux_sel <= raw_address(CH_MUX_SEL_WIDTH-1 downto 0);
+   
+   
    
    raw_addr_ch0_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH);  
    raw_addr_ch1_o <= raw_address(RAW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto CH_MUX_SEL_WIDTH); 
@@ -545,12 +558,12 @@ begin
 ---------------------------------------------------------------------------------------------
   
    
-   dat_out_mux_sel <= data_mode_reg(1 downto 0);
+    dat_out_mux_sel <= data_mode_reg(1 downto 0);
    
-   wbs_data        <= filtered_dat   when dat_out_mux_sel = "00" else
-                      unfiltered_dat when dat_out_mux_sel = "01" else
-                      fb_error_dat   when dat_out_mux_sel = "10" else
-                      raw_dat        when dat_out_mux_sel = "11";
+    wbs_data        <= filtered_dat   when dat_out_mux_sel = "00" else
+                       unfiltered_dat when dat_out_mux_sel = "01" else
+                       fb_error_dat   when dat_out_mux_sel = "10" else
+                       raw_dat        when dat_out_mux_sel = "11";
                  
                  
  
