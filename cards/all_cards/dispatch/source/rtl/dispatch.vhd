@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.6  2005/01/11 20:49:29  erniel
+-- removed unnecessary mem_clk_i port
+--
 -- Revision 1.5  2005/01/11 20:40:12  erniel
 -- replaced CARD generic with slot_id & decoder
 -- updated dispatch cmd_receive component
@@ -51,6 +54,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library altera_mf;
+use altera_mf.altera_mf_components.all;
 
 library components;
 use components.component_pack.all;
@@ -123,18 +129,20 @@ signal reply_header2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal cmd_hdr_ld   : std_logic;
 
 signal cmd_buf_wren   : std_logic;
-signal cmd_buf_wrdata : std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-signal cmd_buf_wraddr : std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
-signal cmd_buf_rddata : std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-signal cmd_buf_rdaddr : std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+signal cmd_buf_wrdata : std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
+signal cmd_buf_wraddr : std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
+signal cmd_buf_rddata : std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
+signal cmd_buf_rdaddr : std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
 
 signal reply_buf_wren   : std_logic;
-signal reply_buf_wrdata : std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-signal reply_buf_wraddr : std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
-signal reply_buf_rddata : std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-signal reply_buf_rdaddr : std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+signal reply_buf_wrdata : std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
+signal reply_buf_wraddr : std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
+signal reply_buf_rddata : std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
+signal reply_buf_rdaddr : std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
 
 signal card : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+
+signal n_clk : std_logic;
 
 begin
    
@@ -181,13 +189,30 @@ begin
             reg_i => cmd_hdr1,
             reg_o => cmd_header1);
 
-   receive_buf : dispatch_data_buf
-   port map(data      => cmd_buf_wrdata,
-            wren      => cmd_buf_wren,
-            wraddress => cmd_buf_wraddr,
-            rdaddress => cmd_buf_rdaddr,
-            clock     => clk_i,
-            q         => cmd_buf_rddata);
+   receive_buf : altsyncram
+   generic map(operation_mode         => "DUAL_PORT",
+               width_a                => CMD_BUF_DATA_WIDTH,
+               widthad_a              => CMD_BUF_ADDR_WIDTH,
+               width_b                => CMD_BUF_DATA_WIDTH,
+               widthad_b              => CMD_BUF_ADDR_WIDTH,
+               lpm_type               => "altsyncram",
+               width_byteena_a        => 1,
+               outdata_reg_b          => "UNREGISTERED",
+               indata_aclr_a          => "NONE",
+               wrcontrol_aclr_a       => "NONE",
+               address_aclr_a         => "NONE",
+               address_reg_b          => "CLOCK1",
+               address_aclr_b         => "NONE",
+               outdata_aclr_b         => "NONE",
+               ram_block_type         => "AUTO",
+               intended_device_family => "Stratix")
+   port map(clock0    => clk_i,
+            clock1    => n_clk,
+            wren_a    => cmd_buf_wren,
+            address_a => cmd_buf_wraddr,
+            data_a    => cmd_buf_wrdata,
+            address_b => cmd_buf_rdaddr,
+            q_b       => cmd_buf_rddata);
    
    wishbone : dispatch_wishbone
    port map(clk_i            => clk_i,
@@ -257,14 +282,31 @@ begin
             ena_i => '1',
             reg_i => reply_hdr2,
             reg_o => reply_header2);
-                 
-   transmit_buf : dispatch_data_buf
-   port map(data      => reply_buf_wrdata,
-            wren      => reply_buf_wren,
-            wraddress => reply_buf_wraddr,
-            rdaddress => reply_buf_rdaddr,
-            clock     => clk_i,
-            q         => reply_buf_rddata);            
+
+   transmit_buf : altsyncram
+   generic map(operation_mode         => "DUAL_PORT",
+               width_a                => REPLY_BUF_DATA_WIDTH,
+               widthad_a              => REPLY_BUF_ADDR_WIDTH,
+               width_b                => REPLY_BUF_DATA_WIDTH,
+               widthad_b              => REPLY_BUF_ADDR_WIDTH,
+               lpm_type               => "altsyncram",
+               width_byteena_a        => 1,
+               outdata_reg_b          => "UNREGISTERED",
+               indata_aclr_a          => "NONE",
+               wrcontrol_aclr_a       => "NONE",
+               address_aclr_a         => "NONE",
+               address_reg_b          => "CLOCK1",
+               address_aclr_b         => "NONE",
+               outdata_aclr_b         => "NONE",
+               ram_block_type         => "AUTO",
+               intended_device_family => "Stratix")
+   port map(clock0    => clk_i,
+            clock1    => n_clk,
+            wren_a    => reply_buf_wren,
+            address_a => reply_buf_wraddr,
+            data_a    => reply_buf_wrdata,
+            address_b => reply_buf_rdaddr,
+            q_b       => reply_buf_rddata);            
             
    
    ---------------------------------------------------------
