@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.6  2004/08/27 19:31:50  erniel
+-- replaced start/done with rdy/busy interface
+--
 -- Revision 1.5  2004/08/25 22:16:40  bburger
 -- Bryce:  changed int_zero from signal to constant
 --
@@ -181,7 +184,7 @@ begin
       end case;
    end process stateNS;
 
-   stateOut: process(pres_state, bytes_sent)
+   stateOut: process(pres_state, bytes_sent, buffer_out)
    begin
       tx_rdy         <= '0';
       buffer_ena     <= '0';
