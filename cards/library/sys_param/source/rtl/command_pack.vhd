@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.10  2004/09/27 18:38:36  erniel
+-- renamed card address constants
+-- renamed PASS_FAIL constant to STATUS
+-- removed redundant fibre constants
+--
 -- Revision 1.9  2004/09/24 18:14:49  erniel
 -- moved definitions from wishbone pack
 -- moved definitions from dispatch pack
@@ -55,7 +60,7 @@ package command_pack is
    -- Bus Backplane-Side Declarations
    ------------------------------------------------------------------------
    
-   constant BB_NUM_HEADER_WORDS       : integer := 2;
+   constant BB_NUM_CMD_HEADER_WORDS   : integer := 2;
    constant BB_NUM_REPLY_HEADER_WORDS : integer := 3;
       
    -- header field range declarations:
