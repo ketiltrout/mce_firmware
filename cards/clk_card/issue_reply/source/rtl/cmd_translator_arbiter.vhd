@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.1 2004/06/03 23:40:34 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.2 2004/06/09 23:35:54 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/03 23:40:34 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/09 23:35:54 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.2  2004/06/09 23:35:54  jjacob
+-- cleaned formatting
+--
 -- Revision 1.1  2004/06/03 23:40:34  jjacob
 -- first version
 --
@@ -130,54 +133,107 @@ end cmd_translator_arbiter;
 architecture rtl of cmd_translator_arbiter is
 
 
-   signal arbiter_condition         : std_logic;
+   signal arbiter_condition         : std_logic_vector(1 downto 0);
    signal macro_instr_rdy           : std_logic;
    signal m_op_seq_num              : std_logic_vector (7 downto 0);
 
    
    type a_state is (SIMPLE_CMD, RET_DAT);
+   
+   type state is (SIMPLE_CMD, SIMPLE_CMD_SETUP, RET_DAT, RET_DAT_SETUP);
                    
    signal async_state : a_state;
+   
+   signal current_state, next_state : state;
 
 
 
 begin
 
-
-
 ------------------------------------------------------------------------
 --
--- asynchronous arbiter state machine
+-- synchronous arbiter state machine
 --
 ------------------------------------------------------------------------
-
-   arbiter_condition <= not(simple_cmd_macro_instr_rdy_i) and ret_dat_fsm_working_i;
-
-   process(arbiter_condition, m_op_seq_num, ret_dat_frame_seq_num_i, ret_dat_frame_sync_num_i,
-           ret_dat_card_addr_i, ret_dat_parameter_id_i, ret_dat_data_size_i, ret_dat_data_i,
-           ret_dat_data_clk_i, ret_dat_macro_instr_rdy_i, simple_cmd_card_addr_i, simple_cmd_parameter_id_i,
-           simple_cmd_data_size_i, simple_cmd_data_i, simple_cmd_data_clk_i, simple_cmd_macro_instr_rdy_i)
+   process(rst_i, clk_i)
    begin
-      case async_state is
+      if rst_i = '1' then
+         current_state <= SIMPLE_CMD;
+      elsif clk_i'event and clk_i = '1' then
+         current_state <= next_state;
+      end if;
+   
+   end process;
+
+
+------------------------------------------------------------------------
+--
+-- synchronous arbiter state machine
+-- assign next states
+--
+------------------------------------------------------------------------
+
+   arbiter_condition <= simple_cmd_macro_instr_rdy_i & ret_dat_macro_instr_rdy_i;
+
+   process(current_state, arbiter_condition)
+   begin
+      case current_state is
          when SIMPLE_CMD =>
-            if arbiter_condition = '1' then
-            
-               m_op_seq_num_o       <= m_op_seq_num;
-               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
-               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
-      
-               card_addr_o          <= ret_dat_card_addr_i; 
-               parameter_id_o       <= ret_dat_parameter_id_i; 
-               data_size_o          <= ret_dat_data_size_i;
-               data_o               <= ret_dat_data_i; 
-               data_clk_o           <= ret_dat_data_clk_i;
-               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i; 
-            
-               async_state <= RET_DAT;
-               
+            if arbiter_condition = "01" then
+               next_state <= RET_DAT_SETUP;          
             else
+               next_state <= SIMPLE_CMD;
+            end if;
             
-               m_op_seq_num_o       <= m_op_seq_num;
+         when RET_DAT_SETUP =>
+            case arbiter_condition is
+               when "00" => next_state <= SIMPLE_CMD;
+               when "01" => next_state <= RET_DAT;
+               when "10" => next_state <= SIMPLE_CMD;
+               when "11" => next_state <= SIMPLE_CMD;
+               when others => next_state <= SIMPLE_CMD;
+            end case;
+          
+         when RET_DAT =>
+            case arbiter_condition is
+               when "00" => next_state <= SIMPLE_CMD;
+               when "01" => next_state <= RET_DAT;
+               when "10" => next_state <= SIMPLE_CMD_SETUP; -- need to go into setup here for a one cycle break
+               when "11" => next_state <= SIMPLE_CMD_SETUP; -- need to go into setup here for a one cycle break
+               when others => next_state <= SIMPLE_CMD_SETUP;
+            end case;
+            
+         when SIMPLE_CMD_SETUP =>
+            case arbiter_condition is
+               when "00" => next_state <= SIMPLE_CMD;
+               when "01" => next_state <= RET_DAT_SETUP;
+               when "10" => next_state <= SIMPLE_CMD;
+               when "11" => next_state <= SIMPLE_CMD;
+               when others => next_state <= SIMPLE_CMD;
+            end case;
+            
+         when others => next_state <= SIMPLE_CMD;
+      end case;
+               
+   end process;
+
+------------------------------------------------------------------------
+--
+-- synchronous arbiter state machine
+-- assign outputs
+--
+------------------------------------------------------------------------
+
+   arbiter_condition <= simple_cmd_macro_instr_rdy_i & ret_dat_macro_instr_rdy_i;
+
+   process(current_state, simple_cmd_card_addr_i, simple_cmd_parameter_id_i, simple_cmd_data_size_i,
+           simple_cmd_data_i, simple_cmd_data_clk_i, simple_cmd_macro_instr_rdy_i, ret_dat_frame_seq_num_i,
+           ret_dat_frame_sync_num_i, ret_dat_card_addr_i, ret_dat_parameter_id_i, ret_dat_data_size_i,
+           ret_dat_data_i, ret_dat_data_clk_i)
+   begin
+      case current_state is
+         when SIMPLE_CMD =>
+
                frame_seq_num_o      <= (others=>'0');
                frame_sync_num_o     <= (others=>'0');
       
@@ -188,61 +244,156 @@ begin
                data_clk_o           <= simple_cmd_data_clk_i;
                macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i; 
             
-               async_state <= SIMPLE_CMD;
-            end if;
-            
-         when RET_DAT =>
-            if arbiter_condition = '1' then
-            
-               m_op_seq_num_o       <= m_op_seq_num;
-               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
-               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
-      
-               card_addr_o          <= ret_dat_card_addr_i; 
-               parameter_id_o       <= ret_dat_parameter_id_i; 
-               data_size_o          <= ret_dat_data_size_i;
-               data_o               <= ret_dat_data_i; 
-               data_clk_o           <= ret_dat_data_clk_i;
-               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
-            
-               async_state <= RET_DAT;
-            else
-            
-               m_op_seq_num_o       <= m_op_seq_num;
-               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
-               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
-      
-               card_addr_o          <= ret_dat_card_addr_i; 
-               parameter_id_o       <= ret_dat_parameter_id_i; 
-               data_size_o          <= ret_dat_data_size_i;
-               data_o               <= ret_dat_data_i; 
-               data_clk_o           <= ret_dat_data_clk_i;
-               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
-               
-               async_state <= SIMPLE_CMD;
-            end if;
-            
-         when others =>
+         when RET_DAT_SETUP =>
          
-            m_op_seq_num_o       <= m_op_seq_num;
-            frame_seq_num_o      <= (others=>'0');
-            frame_sync_num_o     <= (others=>'0');
+               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
+               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
       
-            card_addr_o          <= simple_cmd_card_addr_i; 
-            parameter_id_o       <= simple_cmd_parameter_id_i; 
-            data_size_o          <= simple_cmd_data_size_i;
-            data_o               <= simple_cmd_data_i; 
-            data_clk_o           <= simple_cmd_data_clk_i;
-            macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
+               card_addr_o          <= ret_dat_card_addr_i; 
+               parameter_id_o       <= ret_dat_parameter_id_i; 
+               data_size_o          <= ret_dat_data_size_i;
+               data_o               <= ret_dat_data_i; 
+               data_clk_o           <= ret_dat_data_clk_i;
+               macro_instr_rdy      <= '0';
+          
+         when RET_DAT =>
+         
+               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
+               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
+      
+               card_addr_o          <= ret_dat_card_addr_i; 
+               parameter_id_o       <= ret_dat_parameter_id_i; 
+               data_size_o          <= ret_dat_data_size_i;
+               data_o               <= ret_dat_data_i; 
+               data_clk_o           <= ret_dat_data_clk_i;
+               macro_instr_rdy      <= '1';
             
-            async_state          <= SIMPLE_CMD;
+         when SIMPLE_CMD_SETUP =>
+         
+               frame_seq_num_o      <= (others=>'0');
+               frame_sync_num_o     <= (others=>'0');
+      
+               card_addr_o          <= simple_cmd_card_addr_i; 
+               parameter_id_o       <= simple_cmd_parameter_id_i; 
+               data_size_o          <= simple_cmd_data_size_i;
+               data_o               <= simple_cmd_data_i; 
+               data_clk_o           <= simple_cmd_data_clk_i;
+               macro_instr_rdy      <= '0';
             
+         when others => 
+         
+               frame_seq_num_o      <= (others=>'0');
+               frame_sync_num_o     <= (others=>'0');
+      
+               card_addr_o          <= simple_cmd_card_addr_i; 
+               parameter_id_o       <= simple_cmd_parameter_id_i; 
+               data_size_o          <= simple_cmd_data_size_i;
+               data_o               <= simple_cmd_data_i; 
+               data_clk_o           <= simple_cmd_data_clk_i;
+               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i; 
+               
       end case;
+               
    end process;
+------------------------------------------------------------------------
+--
+-- asynchronous arbiter state machine
+--
+------------------------------------------------------------------------
+
+--   arbiter_condition <= not(simple_cmd_macro_instr_rdy_i) and ret_dat_fsm_working_i;
+--
+--   process(arbiter_condition, m_op_seq_num, ret_dat_frame_seq_num_i, ret_dat_frame_sync_num_i,
+--           ret_dat_card_addr_i, ret_dat_parameter_id_i, ret_dat_data_size_i, ret_dat_data_i,
+--           ret_dat_data_clk_i, ret_dat_macro_instr_rdy_i, simple_cmd_card_addr_i, simple_cmd_parameter_id_i,
+--           simple_cmd_data_size_i, simple_cmd_data_i, simple_cmd_data_clk_i, simple_cmd_macro_instr_rdy_i)
+--   begin
+--      case async_state is
+--         when SIMPLE_CMD =>
+--            if arbiter_condition = '1' then
+--            
+--               m_op_seq_num_o       <= m_op_seq_num;
+--               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
+--               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
+--      
+--               card_addr_o          <= ret_dat_card_addr_i; 
+--               parameter_id_o       <= ret_dat_parameter_id_i; 
+--               data_size_o          <= ret_dat_data_size_i;
+--               data_o               <= ret_dat_data_i; 
+--               data_clk_o           <= ret_dat_data_clk_i;
+--               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i; 
+--            
+--               async_state <= RET_DAT;
+--               
+--            else
+--            
+--               m_op_seq_num_o       <= m_op_seq_num;
+--               frame_seq_num_o      <= (others=>'0');
+--               frame_sync_num_o     <= (others=>'0');
+--      
+--               card_addr_o          <= simple_cmd_card_addr_i; 
+--               parameter_id_o       <= simple_cmd_parameter_id_i; 
+--               data_size_o          <= simple_cmd_data_size_i;
+--               data_o               <= simple_cmd_data_i; 
+--               data_clk_o           <= simple_cmd_data_clk_i;
+--               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i; 
+--            
+--               async_state <= SIMPLE_CMD;
+--            end if;
+--            
+--         when RET_DAT =>
+--            if arbiter_condition = '1' then
+--            
+--               m_op_seq_num_o       <= m_op_seq_num;
+--               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
+--               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
+--      
+--               card_addr_o          <= ret_dat_card_addr_i; 
+--               parameter_id_o       <= ret_dat_parameter_id_i; 
+--               data_size_o          <= ret_dat_data_size_i;
+--               data_o               <= ret_dat_data_i; 
+--               data_clk_o           <= ret_dat_data_clk_i;
+--               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
+--            
+--               async_state <= RET_DAT;
+--            else
+--            
+--               m_op_seq_num_o       <= m_op_seq_num;
+--               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
+--               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
+--      
+--               card_addr_o          <= ret_dat_card_addr_i; 
+--               parameter_id_o       <= ret_dat_parameter_id_i; 
+--               data_size_o          <= ret_dat_data_size_i;
+--               data_o               <= ret_dat_data_i; 
+--               data_clk_o           <= ret_dat_data_clk_i;
+--               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
+--               
+--               async_state <= SIMPLE_CMD;
+--            end if;
+--            
+--         when others =>
+--         
+--            m_op_seq_num_o       <= m_op_seq_num;
+--            frame_seq_num_o      <= (others=>'0');
+--            frame_sync_num_o     <= (others=>'0');
+--      
+--            card_addr_o          <= simple_cmd_card_addr_i; 
+--            parameter_id_o       <= simple_cmd_parameter_id_i; 
+--            data_size_o          <= simple_cmd_data_size_i;
+--            data_o               <= simple_cmd_data_i; 
+--            data_clk_o           <= simple_cmd_data_clk_i;
+--            macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
+--            
+--            async_state          <= SIMPLE_CMD;
+--            
+--      end case;
+--   end process;
    
    -- potentially needs fixing for synchronization between incoming commands
-   simple_cmd_ack_o <= '1' when simple_cmd_macro_instr_rdy_i = '1'  else '0';
-   ret_dat_ack_o    <= '1' when (simple_cmd_macro_instr_rdy_i = '0' and ret_dat_macro_instr_rdy_i = '1') else '0';
+   simple_cmd_ack_o <= '1' when simple_cmd_macro_instr_rdy_i = '1'  and current_state = SIMPLE_CMD else '0';
+   ret_dat_ack_o    <= '1' when (simple_cmd_macro_instr_rdy_i = '0' and ret_dat_macro_instr_rdy_i = '1' and current_state = RET_DAT)
+                       else '0';
    
    macro_instr_rdy_o <= macro_instr_rdy;
 ------------------------------------------------------------------------

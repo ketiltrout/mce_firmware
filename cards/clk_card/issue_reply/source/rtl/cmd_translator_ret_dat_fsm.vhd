@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.2 2004/06/03 23:39:47 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.3 2004/06/09 23:36:02 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/03 23:39:47 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/09 23:36:02 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.3  2004/06/09 23:36:02  jjacob
+-- cleaned formatting
+--
 -- Revision 1.2  2004/06/03 23:39:47  jjacob
 -- safety checkin
 --
@@ -138,6 +141,9 @@ architecture rtl of cmd_translator_ret_dat_fsm is
 
 begin
 
+   -- dummy assignment, get rid of this signal later
+   ret_dat_s_done_o        <= '0';
+
 
 ------------------------------------------------------------------------
 --
@@ -150,7 +156,7 @@ begin
            -- not including async_state, ret_dat_s_seq_stop/start_num in sensitivity list on purpose
    begin
 
-      ret_dat_s_done_o        <= '0';
+      
    
       case async_state is
          when IDLE =>
@@ -159,29 +165,37 @@ begin
             
                ret_dat_s_seq_start_num <= (others => '0');
                ret_dat_s_seq_stop_num  <= (others => '0');
+               --ret_dat_s_done_o        <= '0';
                
-               async_state             <= IDLE;   
+               async_state             <= IDLE;
        
             elsif ret_dat_s_start_i = '1' then
             
                ret_dat_s_seq_start_num <= data_i;
                ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+               --ret_dat_s_done_o        <= '0';
            
                async_state             <= SET_SEQ_NUM;
                
             elsif ret_dat_start_i = '1' then
+            
+               --ret_dat_s_done_o        <= '0';
            
                async_state             <= RETURN_DATA_ASYNC_WAIT;
                
             elsif ret_dat_done = '1' then
             
                -- make other signal assignment here also
+               --ret_dat_s_done_o        <= '0';
+               
                async_state             <= IDLE;
                
             else
            
                ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
                ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
+               --ret_dat_s_done_o        <= '0';
+               
                async_state             <= IDLE;
 
             end if;
@@ -192,7 +206,8 @@ begin
              
                ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
                ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
-               ret_dat_s_done_o        <= '1';
+               --ret_dat_s_done_o        <= '1';
+               
                
                if ret_dat_start_i = '1' then
                   async_state <= RETURN_DATA_ASYNC_WAIT;
@@ -204,6 +219,7 @@ begin
 
                ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;    
                ret_dat_s_seq_stop_num  <= data_i;
+               --ret_dat_s_done_o        <= '0';
 
                async_state <= SET_SEQ_NUM;
                
@@ -218,8 +234,11 @@ begin
                async_state <= RETURN_DATA_ASYNC_WAIT;
             end if;
             
+            --ret_dat_s_done_o        <= '0';
+            
          when others =>
-         
+            --ret_dat_s_done_o        <= '0';
+            
             async_state <= IDLE;
     
       end case;
