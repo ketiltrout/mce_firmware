@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.74 2004/12/16 22:05:40 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.75 2005/01/11 22:58:23 erniel Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,10 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.75  2005/01/11 22:58:23  erniel
+-- updated lvds_tx component
+-- removed comm_clk_i from ports
+--
 -- Revision 1.74  2004/12/16 22:05:40  bburger
 -- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
 --
@@ -161,8 +165,8 @@ signal qb_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal sync_count_slv       : std_logic_vector(ISSUE_SYNC_WIDTH-1 downto 0);
 
 -- Command queue management variables
-signal uops_generated       : integer;
-signal cards_addressed      : integer;
+--signal uops_generated       : integer;
+--signal cards_addressed      : integer;
 signal num_uops             : integer;
 signal data_size_int        : integer;
 signal size_uops            : integer;
@@ -199,13 +203,13 @@ signal retire_cmd_code_en   : std_logic;
 signal retire_cmd_code      : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 
 -- Generate FSM:  translates M-ops into u-ops
-type gen_uop_states is (IDLE, INSERT, CLEANUP, DONE);
+type gen_uop_states is (IDLE, PROPAGATION_DELAY, INSERT, CLEANUP, DONE);
 signal present_gen_state    : gen_uop_states;
 signal next_gen_state       : gen_uop_states;
 signal mop_rdy              : std_logic; --In from the previous block in the chain  
 signal insert_uop_rdy       : std_logic; --Out, to insertion fsm, tells the insert FSM when a new u-op is available
 signal new_card_addr        : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); --out, to insertion fsm
-signal new_par_id           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); --out, to insertion fsm.  This is a hack.
+--signal new_par_id           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); --out, to insertion fsm.  This is a hack.
 signal data_size_reg        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_size_mux        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_size_mux_sel    : std_logic;
@@ -273,9 +277,9 @@ signal free_ptr_mux_sel     : std_logic_vector(1 downto 0);
 
 signal retire_ptr_mux_sel   : std_logic_vector(2 downto 0);
 
-signal current_par_id      : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+--signal current_par_id       : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
-signal new_par_id_mux_sel           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+--signal new_par_id_mux_sel           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
 constant PAR_ID             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"EE";
 constant RECIRC             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"EF";
@@ -529,12 +533,14 @@ begin
    num_uops_inserted_slv <= std_logic_vector(conv_unsigned(num_uops_inserted, 8));
 
    -- data_sig routing mux
-   process(data_sig_mux_sel, issue_sync_i, cmd_type_i, data_size_i, new_card_addr, new_par_id, mop_i, num_uops_inserted_slv, data_i, cmd_stop_i, last_frame_i, frame_seq_num_i, internal_cmd_i)
+--   process(data_sig_mux_sel, issue_sync_i, cmd_type_i, data_size_i, new_card_addr, new_par_id, mop_i, num_uops_inserted_slv, data_i, cmd_stop_i, last_frame_i, frame_seq_num_i, internal_cmd_i)
+   process(data_sig_mux_sel, issue_sync_i, cmd_type_i, data_size_i, new_card_addr, par_id_i, mop_i, num_uops_inserted_slv, data_i, cmd_stop_i, last_frame_i, frame_seq_num_i, internal_cmd_i)
    begin
       case data_sig_mux_sel is
          when "000" => data_sig_mux <= (others=>'0');
          when "001" => data_sig_mux <= (issue_sync_i & cmd_type_i & data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0));
-         when "010" => data_sig_mux <= (new_card_addr & new_par_id & mop_i & num_uops_inserted_slv);
+--         when "010" => data_sig_mux <= (new_card_addr & new_par_id & mop_i & num_uops_inserted_slv);
+         when "010" => data_sig_mux <= (new_card_addr & par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) & mop_i & num_uops_inserted_slv);
          when "011" => data_sig_mux <= "00000000000000000000000000000" & internal_cmd_i & cmd_stop_i & last_frame_i;
          when "100" => data_sig_mux <= frame_seq_num_i; 
          when others => data_sig_mux <= data_i;
@@ -884,13 +890,22 @@ begin
          when IDLE =>
             if(mop_rdy = '0') then
                next_gen_state <= IDLE;
-            else   
-               if(queue_space >= size_uops and num_uops_contained < MAX_NUM_UOPS) then
-                  next_gen_state <= CLEANUP;                  
-               else
-                  next_gen_state <= IDLE;
-               end if;            
+            else
+               next_gen_state <= PROPAGATION_DELAY;
+--               if(queue_space >= size_uops and num_uops_contained < MAX_NUM_UOPS) then
+--                  next_gen_state <= CLEANUP;                  
+--               else
+--                  next_gen_state <= IDLE;
+--               end if;            
             end if;
+         
+         when PROPAGATION_DELAY =>
+            if(queue_space >= size_uops and num_uops_contained < MAX_NUM_UOPS) then
+               next_gen_state <= CLEANUP;                  
+            else
+               next_gen_state <= PROPAGATION_DELAY;
+            end if;            
+
          when INSERT =>
             if(insert_uop_ack = '1') then
                next_gen_state <= CLEANUP;  -- Catch all invalid card_id's with this statement
@@ -898,6 +913,7 @@ begin
                next_gen_state <= INSERT;
              --  mop_ack_o           <= '1';
             end if;
+            
          when CLEANUP =>
             -- CYC_OO_SYNC is the last u-op instruction in a RET_DAT or STATUS m-op.
             -- RET_DAT and STATUS are the only m-ops that generate u-ops with different command codes
@@ -907,6 +923,7 @@ begin
             else
                next_gen_state <= DONE;
             end if;
+            
          when DONE =>
             next_gen_state <= IDLE;
          when others =>
@@ -914,29 +931,35 @@ begin
       end case;
    end process;
 
-   with card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) select
-      cards_addressed <=
-         0 when NO_CARDS,
-         1 when POWER_SUPPLY_CARD | CLOCK_CARD | READOUT_CARD_1 | READOUT_CARD_2 | READOUT_CARD_3 | READOUT_CARD_4 | BIAS_CARD_1 | BIAS_CARD_2 | BIAS_CARD_3 | ADDRESS_CARD,
-         3 when ALL_BIAS_CARDS,
-         4 when ALL_READOUT_CARDS,
-         9 when ALL_FPGA_CARDS,
-         10 when ALL_CARDS,
-         0 when others; -- invalid card address
+--   with card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) select
+--      cards_addressed <=
+--         0 when NO_CARDS,
+--         1 when POWER_SUPPLY_CARD | CLOCK_CARD | READOUT_CARD_1 | READOUT_CARD_2 | READOUT_CARD_3 | READOUT_CARD_4 | BIAS_CARD_1 | BIAS_CARD_2 | BIAS_CARD_3 | ADDRESS_CARD,
+--         3 when ALL_BIAS_CARDS,
+--         4 when ALL_READOUT_CARDS,
+--         9 when ALL_FPGA_CARDS,
+--         10 when ALL_CARDS,
+--         0 when others; -- invalid card address
+--
+--   -- The par_id checking is done in the cmd_translator block.
+--   -- Thus, here I can use the 'when others' case for something other than
+--   -- error checking, because the par_id that cmd_translator issues to cmd_queue
+--   -- is always valid.
 
-   -- The par_id checking is done in the cmd_translator block.
-   -- Thus, here I can use the 'when others' case for something other than
-   -- error checking, because the par_id that cmd_translator issues to cmd_queue
-   -- is always valid.
+-- num_uops may well become an obsolete parameter if the number of uops generated from a mop is always the same, i.e. 1
    with par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) select
-      uops_generated <=
+      num_uops <=
          1 when RET_DAT_ADDR, --***If you wish the cmd_queue to generate and issue all commands that are inherant in a ret_dat command, change the literal to 6 
 --         0 when STATUS_ADDR,  --***If you wish the cmd_queue to generate and issue all commands that are inherant in a status command, change the literal to 5
          1 when others; -- all other m-ops generate one u-op
+--   num_uops      <= uops_generated;
 
-   num_uops      <= uops_generated;
    data_size_int <= conv_integer(data_size_i);
-   size_uops     <= num_uops * (CQ_NUM_CMD_HEADER_WORDS + data_size_int);
+-- size_uops now does not depend on num_uops for now.
+-- In other words, the cmd_queue will not generate more than one u-op for any macro-op that it receives
+-- Given this, we have removed the num_uops factor in the equation below to remove timing errors that existed as a result of delays associated with multiplication
+--   size_uops     <= num_uops * (CQ_NUM_CMD_HEADER_WORDS + data_size_int);
+   size_uops     <= (CQ_NUM_CMD_HEADER_WORDS + data_size_int);
    mop_rdy <= mop_rdy_i;
    new_card_addr     <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 
@@ -991,17 +1014,20 @@ begin
       end case;
    end process;
 
-   gen_state_out: process(present_gen_state, par_id_i, current_par_id, first_time_uop_inc)
+   gen_state_out: process(present_gen_state, first_time_uop_inc)--current_par_id, 
       begin      
       -- default
-      new_par_id_mux_sel                 <= RECIRC;
+--      new_par_id_mux_sel                 <= RECIRC;
       num_uops_inserted_mux_sel          <= "00"; --recirculate, hold value
       
       case present_gen_state is
          when IDLE =>
             insert_uop_rdy               <= '0';
+--            new_par_id_mux_sel           <= NULL_ADDR;
 
-            new_par_id_mux_sel           <= NULL_ADDR;
+         when PROPAGATION_DELAY =>
+            insert_uop_rdy               <= '0';
+
          when INSERT =>
             -- Add new u-ops to the queue
             insert_uop_rdy               <= '1';
@@ -1015,18 +1041,18 @@ begin
          when CLEANUP =>
             insert_uop_rdy               <= '0';
 
-           if(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
-               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
-                  when NULL_ADDR       => new_par_id_mux_sel <= RET_DAT_ADDR;
-                  when RET_DAT_ADDR    => new_par_id_mux_sel <= PSC_STATUS_ADDR;
-                  when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
-                  when BIT_STATUS_ADDR => new_par_id_mux_sel <= FPGA_TEMP_ADDR;
-                  when FPGA_TEMP_ADDR  => new_par_id_mux_sel <= CARD_TEMP_ADDR;
-                  when CARD_TEMP_ADDR  => new_par_id_mux_sel <= CYC_OO_SYC_ADDR;
-                  when CYC_OO_SYC_ADDR => new_par_id_mux_sel <= PAR_ID;
-                  when others          => new_par_id_mux_sel <= RECIRC;
-               end case;
-               
+--           if(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
+--               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
+--                  when NULL_ADDR       => new_par_id_mux_sel <= RET_DAT_ADDR;
+--                  when RET_DAT_ADDR    => new_par_id_mux_sel <= PSC_STATUS_ADDR;
+--                  when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
+--                  when BIT_STATUS_ADDR => new_par_id_mux_sel <= FPGA_TEMP_ADDR;
+--                  when FPGA_TEMP_ADDR  => new_par_id_mux_sel <= CARD_TEMP_ADDR;
+--                  when CARD_TEMP_ADDR  => new_par_id_mux_sel <= CYC_OO_SYC_ADDR;
+--                  when CYC_OO_SYC_ADDR => new_par_id_mux_sel <= PAR_ID;
+--                  when others          => new_par_id_mux_sel <= RECIRC;
+--               end case;
+--               
 --            elsif(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = STATUS_ADDR) then
 --               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
 --                  when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
@@ -1036,10 +1062,10 @@ begin
 --                  when CYC_OO_SYC_ADDR => new_par_id_mux_sel <= PAR_ID;
 --                  when others          => new_par_id_mux_sel <= RECIRC;
 --               end case;
-
-            else
-               new_par_id_mux_sel        <= PAR_ID;
-            end if;
+--
+--            else
+--               new_par_id_mux_sel        <= PAR_ID;
+--            end if;
 
          when DONE =>
             insert_uop_rdy               <= '0';
@@ -1052,20 +1078,17 @@ begin
             -- uop_counter indicates the number of uops contained in the queue at any given time
             -- thus, it should not be zero'ed unless the system is reset
             num_uops_inserted_mux_sel    <= "10"; -- '0'
-            
       end case;
    end process;
 
    process(rst_i, clk_i)
    begin
       if rst_i = '1' then
-         current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) <= NULL_ADDR;
+--         current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) <= NULL_ADDR;
          num_uops_inserted_reg                          <= 0;
-
       elsif clk_i'event and clk_i = '1' then
-         current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) <= new_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0);
+--         current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) <= new_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0);
          num_uops_inserted_reg                          <= num_uops_inserted;
-
       end if;
    end process;
 
@@ -1075,17 +1098,17 @@ begin
          num_uops_inserted_reg + 1 when "01",
          0                         when others;
    
-   with new_par_id_mux_sel select
-      new_par_id <=
-         RET_DAT_ADDR                                    when RET_DAT_ADDR,
-         PSC_STATUS_ADDR                                 when PSC_STATUS_ADDR,
-         BIT_STATUS_ADDR                                 when BIT_STATUS_ADDR,
-         FPGA_TEMP_ADDR                                  when FPGA_TEMP_ADDR,
-         CARD_TEMP_ADDR                                  when CARD_TEMP_ADDR,
-         CYC_OO_SYC_ADDR                                 when CYC_OO_SYC_ADDR,
-         par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0)      when PAR_ID, --0xEE
-         current_par_id                                  when RECIRC, --0xEF
-         current_par_id                                  when others;
+--   with new_par_id_mux_sel select
+--      new_par_id <=
+--         RET_DAT_ADDR                                    when RET_DAT_ADDR,
+--         PSC_STATUS_ADDR                                 when PSC_STATUS_ADDR,
+--         BIT_STATUS_ADDR                                 when BIT_STATUS_ADDR,
+--         FPGA_TEMP_ADDR                                  when FPGA_TEMP_ADDR,
+--         CARD_TEMP_ADDR                                  when CARD_TEMP_ADDR,
+--         CYC_OO_SYC_ADDR                                 when CYC_OO_SYC_ADDR,
+--         par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0)      when PAR_ID, --0xEE
+--         current_par_id                                  when RECIRC, --0xEF
+--         current_par_id                                  when others;
 
    -- Send FSM:
    send_state_FF: process(clk_i, rst_i)
