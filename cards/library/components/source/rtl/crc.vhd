@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: crc.vhd,v $
+-- Revision 1.5  2004/08/02 14:43:37  erniel
+-- added _i and _o to port names to match naming conventions
+--
 -- Revision 1.4  2004/07/19 21:25:34  erniel
 -- added num_bits input port
 -- removed DATA_LENGTH generic
@@ -93,6 +96,22 @@ signal bit_count : integer;
 
 begin
    
+   ---------------------------------------------------------
+   -- Implement CRC feedback logic
+   --
+   -- Example with Maxim DS18S20 (refer to datasheet pg. 7)
+   -- (dff(1) is MSB, dff(8) is LSB)
+   --                                          i  poly_i(i)
+   -- data_i xor dff(8)            -> dff(1)   1     1
+   --                       dff(1) -> dff(2)   2     0
+   --                       dff(2) -> dff(3)   3     0
+   --                       dff(3) -> dff(4)   4     0
+   -- data_i xor dff(8) xor dff(4) -> dff(5)   5     1
+   -- data_i xor dff(8) xor dff(5) -> dff(6)   6     1
+   --                       dff(6) -> dff(7)   7     0
+   --                       dff(7) -> dff(8)   8     0
+   --
+   
    crc_gen: for i in 1 to POLY_WIDTH generate
       crc_lsb: if i = 1 generate
          crc_temp(i) <= data_i xor crc_reg(POLY_WIDTH);
@@ -105,7 +124,12 @@ begin
       end generate;
    end generate;
    
-   
+   ---------------------------------------------------------
+   -- Implement CRC valid bit (valid if checksum = 0)
+   --
+   -- (NOR is "= 0" operator)
+   --
+      
    valid_gen: for i in 1 to POLY_WIDTH generate
       valid_lsb: if i = 1 generate
          valid_temp(i) <= crc_reg(i);
@@ -120,6 +144,9 @@ begin
       end generate;
    end generate;
    
+   ---------------------------------------------------------
+   -- Implement CRC checksum register
+   --
    
    reg_update: process(clk_i, rst_i)
    begin
