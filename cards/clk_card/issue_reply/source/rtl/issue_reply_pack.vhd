@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.22 2004/09/09 18:28:49 jjacob Exp $
+-- $Id: issue_reply_pack.vhd,v 1.23 2004/09/29 13:14:14 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.23  2004/09/29 13:14:14  dca
+-- Component declarations added for fibre_tx and reply_translator.
+--
 -- Revision 1.22  2004/09/09 18:28:49  jjacob
 -- added 3 outputs to cmd_translator:
 -- >       cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
@@ -379,26 +382,23 @@ end component;
 
 component fibre_tx 
 
-port(       
-     -- global inputs
-     rst_i        : in     std_logic;
+      port(       
+      -- global inputs
+         rst_i        : in     std_logic;                         -- global reset
          
-     -- interface to reply_translator
+      -- interface to reply_translator
       
-     txd_i        : in     std_logic_vector (7 downto 0);
-     tx_fw_i      : in     std_logic;        
-     tx_ff_o      : out    std_logic;
+         txd_i        : in     std_logic_vector (7 downto 0);     -- FIFO input byte
+         tx_fw_i      : in     std_logic;                         -- FIFO write request
+         tx_ff_o      : out    std_logic;                         -- FIFO full flag
       
-     -- interface to HOTLINK transmitter
-     tx_fr_i      : in     std_logic;
-     ft_clkw_i    : in     std_logic;
-     nTrp_i       : in     std_logic;
-     tx_fe_o      : out    std_logic; 
-     tx_data_o    : out    std_logic_vector (7 downto 0);
-     tsc_nTd_o    : out    std_logic;
-     nFena_o      : out    std_logic;
-     tx_fr_o      : out    std_logic
-     );
+      -- interface to HOTLINK transmitter
+         ft_clkw_i    : in     std_logic;                          -- 25MHz hotlink clock
+         nTrp_i       : in     std_logic;                          -- hotlink tx read pulse (active low)
+         tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+         tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
+         nFena_o      : out    std_logic                           -- hotlink tx enable
+      );
 
 end component;
 
