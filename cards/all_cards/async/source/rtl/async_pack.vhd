@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_pack.vhd,v $
+-- Revision 1.7  2005/01/11 19:37:15  erniel
+-- updated component declarations
+--
 -- Revision 1.6  2004/12/14 23:01:42  erniel
 -- updated lvds_tx declaration
 -- updated rs232_tx declaration
@@ -76,8 +79,7 @@ package async_pack is
    end component;
 
    component lvds_rx
-   port(clk_i      : in std_logic;
-        comm_clk_i : in std_logic;
+   port(comm_clk_i : in std_logic;
         rst_i      : in std_logic;
      
         dat_o      : out std_logic_vector(31 downto 0);
