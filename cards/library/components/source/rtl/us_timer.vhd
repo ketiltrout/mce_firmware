@@ -20,7 +20,7 @@
 
 -- us_counter.vhd
 --
--- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.3 2004/04/06 21:57:09 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.4 2004/04/06 22:04:57 erniel Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -30,9 +30,15 @@
 -- This file implements a microsecond timer
 --
 -- Revision history:
+--
+-- $Log$
+--
 -- Jan. 15 2004		- Initial version      - EL
--- <date $Date: 2004/04/06 21:57:09 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/06 22:04:57 $>	-		<text>		- <initials $Author: erniel $>
 -- $Log: us_timer.vhd,v $
+-- Revision 1.4  2004/04/06 22:04:57  erniel
+-- Removed obsolete code
+--
 -- Revision 1.3  2004/04/06 21:57:09  erniel
 -- Added two counters:
 --    1. Count out a 0.5 us period
@@ -59,42 +65,27 @@ end us_timer;
 
 architecture behav of us_timer is
 
-signal us_count      : integer;
-signal clk_count     : integer;
-signal clk_count_rst : std_logic;
-signal slow_clk      : std_logic;
+signal us_count  : integer;
+signal clk_count : integer;
+signal slow_clk  : std_logic;
 
 begin
 
-   -- fast counter runs at system clock rate and counts number of system clock periods
+   -- fast counter runs at system clock rate and generates a pulse every 1 us
    fast_counter: process(clk)
    begin
-      if(clk'event and clk = '1') then
-         if(clk_count_rst = '1') then
+      if(clk'event and clk = '1') then 
+         if((clk_count >= (1000/CLOCK_PERIOD_NS)-1) or (timer_reset_i = '1')) then
+            slow_clk <= '1';
             clk_count <= 0;
          else
+            slow_clk <= '0';
             clk_count <= clk_count + 1;
          end if;
       end if;
    end process fast_counter;
-
-   -- fast counter counts to (500 ns / clock_period) then resets.
-   -- ie. if clock_period = 20 ns, then every 500/20 = 25 clock periods, 500 ns = 0.5 us have passed.
-   clk_count_rst <= '1' when ((timer_reset_i = '1') or (clk_count >= (500/CLOCK_PERIOD_NS)-1)) else '0';
-      
    
-   -- slow clock generator generates 1 MHz clock (50% duty) for slow counter
-   slow_clk_gen: process(clk_count, timer_reset_i)
-   begin
-      if(timer_reset_i = '1') then
-         slow_clk <= '0';
-      elsif(clk_count >= (500/CLOCK_PERIOD_NS)-1) then
-         slow_clk <= not slow_clk;
-      end if;
-   end process slow_clk_gen;
-   
-   
-   -- slow counter runs at derived 1 MHz clock and counts elapsed microseconds until reset by user
+   -- slow counter counts out the elapsed microseconds
    slow_counter: process(slow_clk, timer_reset_i)
    begin
       if(timer_reset_i = '1') then
@@ -102,7 +93,7 @@ begin
       elsif(slow_clk'event and slow_clk = '1') then
          us_count <= us_count + 1;
       end if;
-   end process slow_counter;
+   end process slow_counter; 
    
    timer_count_o <= us_count;
    
