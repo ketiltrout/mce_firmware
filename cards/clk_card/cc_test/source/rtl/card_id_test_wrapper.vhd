@@ -20,7 +20,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: card_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: card_id_test_wrapper.vhd,v 1.1 2004/03/12 21:06:00 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -32,7 +32,7 @@
 -- and emulates the master (command FSM, for example) on the wishbone bus.
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/12 21:06:00 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -----------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
-use work.io_pack.all;
+--use work.io_pack.all;
 use work.card_id_pack.all;
 
 library sys_param;
@@ -71,7 +71,7 @@ end;
 
 ---------------------------------------------------------------------
 
-architecture behaviour of card_id_test_wrapper is
+architecture rtl of card_id_test_wrapper is
 
    -- state definitions
    type states is (IDLE, INITIALIZE, READ_LSB_PACKET, DONE, TX_CARD_ID);
@@ -91,7 +91,7 @@ architecture behaviour of card_id_test_wrapper is
    
    signal card_id_data : std_logic_vector (63 downto 0);
    
-   signal byte    : integer := 8;
+   signal byte    : integer;
    
 begin
 
@@ -216,6 +216,8 @@ begin
 	 done_o  <= '0';
 
          tx_data_o <= (others => '0');
+         
+         byte <= 8;
          
       when INITIALIZE =>
       
@@ -343,12 +345,12 @@ begin
 
    process(clk_i, rst_i, en_i)
    begin
-      if rst_i = '1' then
+      if rst_i = '1' or en_i = '0' then
          current_state <= IDLE;
       elsif clk_i'event and clk_i = '1' then
-         if en_i = '1' then
+         --if en_i = '1' then
             current_state <= next_state;
-         end if;
+         --end if;
       end if;
    end process;
 
