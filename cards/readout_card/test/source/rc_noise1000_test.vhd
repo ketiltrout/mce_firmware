@@ -30,8 +30,11 @@
 -- then dumps the result on the mictor once every 1000 samples.
 --
 -- Revision history:
--- <date $Date: 2005/01/18 21:41:13 $>    - <initials $Author: bench1 $>
+-- <date $Date: 2005/01/18 22:01:16 $>    - <initials $Author: mandana $>
 -- $Log: rc_noise1000_test.vhd,v $
+-- Revision 1.7  2005/01/18 22:01:16  mandana
+-- changed to signed operation
+--
 -- Revision 1.6  2005/01/18 21:41:13  bench1
 -- Mandana: Introduce N_SAMPLES to parameterize the number of samples, currently set to 200
 --
@@ -57,7 +60,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
+use ieee.std_logic_signed.all;
+--use ieee.numeric_std.all;
 
 entity rc_noise1000_test is
    port(
@@ -140,7 +144,7 @@ architecture behaviour of rc_noise1000_test is
         e0 : out std_logic);
    end component;
 
-   constant N_SAMPLES : integer := 200;    -- Esc
+   constant N_SAMPLES : integer := 200;   
 
    signal zero : std_logic;
    signal one : std_logic;
@@ -178,11 +182,7 @@ begin
             when N_SAMPLES - 1 =>
                en <= '1';
                nsample <= nsample + 1;
-               if adc1_dat(13) = '0' then
-                 sum <= sum + ("0000000000"&adc1_dat(12 downto 0));
-               else
-                 sum <= sum - ("0000000000"&adc1_dat(12 downto 0));
-               end if;
+                 sum <= sum + adc1_dat;
                
             when N_SAMPLES =>   
                nsample <= 0;
@@ -191,14 +191,14 @@ begin
 
             when others  =>
                nsample <= nsample + 1;
-               sum <= sum + ("0000000000"&adc1_dat);
+               sum <= sum + adc1_dat;
                en <= '0';
                
          end case;  
        end if;
    end process co_add;
    
-   mictor (13 downto 0) <= sum(23 downto 10);
+   mictor (13 downto 0) <= sum (23) & sum(22 downto 10);
    mictor (14)          <= clk;
    mictor (15)          <= adc1_rdy;
    mictor (31)          <= adc1_rdy and en;
