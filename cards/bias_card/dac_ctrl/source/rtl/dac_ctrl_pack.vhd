@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/08 17:55:54 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/14 21:50:27 $>	- <initials $Author: jjacob $>
 -- $Log: dac_ctrl_pack.vhd,v $
+-- Revision 1.1  2004/04/14 21:50:27  jjacob
+-- new directory structure
+--
 -- Revision 1.1  2004/04/08 17:55:54  mandana
 -- Initial release
 --   
@@ -71,5 +74,5 @@ component dac_ctrl
         sync_i  : in  std_logic
    );     
    end component;
-end dac_if_pack;
+end dac_ctrl_pack;
 
