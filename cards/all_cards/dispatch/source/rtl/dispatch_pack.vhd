@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.9  2004/12/16 01:47:44  erniel
+-- added mem_clk port to disaptch_reply_transmit
+--
 -- Revision 1.8  2004/11/29 23:35:32  bench2
 -- Greg: Added err_i and extended FIBRE_CHECKSUM_ERR to 8-bits for reply_argument in reply_translator.vhd
 --
@@ -68,6 +71,9 @@ library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
+library work;
+use work.slot_id_pack.all;
+
 package dispatch_pack is
 
    -- Watchdog timer limit, in microseconds:
@@ -83,11 +89,11 @@ package dispatch_pack is
    
    -- component declarations:
    component dispatch_cmd_receive
-   generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := CLOCK_CARD);
    port(clk_i      : in std_logic;
         comm_clk_i : in std_logic;
         rst_i      : in std_logic;     
         lvds_cmd_i : in std_logic;
+        card_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
         cmd_rdy_o  : out std_logic; 
         cmd_err_o  : out std_logic; 
         header0_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -126,8 +132,6 @@ package dispatch_pack is
    
    component dispatch_reply_transmit
    port(clk_i       : in std_logic;
-        mem_clk_i   : in std_logic;
-        comm_clk_i  : in std_logic;
         rst_i       : in std_logic;    
         lvds_tx_o   : out std_logic;
         reply_rdy_i : in std_logic;
@@ -148,10 +152,8 @@ package dispatch_pack is
         q         : out std_logic_vector (BUF_DATA_WIDTH-1 downto 0));
    end component;
    
-   component dispatch 
-   generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := CLOCK_CARD);
+   component dispatch
    port(clk_i        : in std_logic;
-        mem_clk_i    : in std_logic;
         comm_clk_i   : in std_logic;
         rst_i        : in std_logic;      
         lvds_cmd_i   : in std_logic;
@@ -165,7 +167,8 @@ package dispatch_pack is
         dat_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
         ack_i        : in std_logic;
         err_i        : in std_logic;
-        wdt_rst_o    : out std_logic);
+        wdt_rst_o    : out std_logic;
+        slot_i       : in std_logic_vector(SLOT_ID_BITS-1 downto 0));
    end component;
      
 end dispatch_pack;
