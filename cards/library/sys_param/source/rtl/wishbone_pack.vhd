@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/02/22 18:17:14 $> - <initials $Author: bburger $>
+-- <date $Date: 2005/03/19 00:31:23 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.23  2005/03/19 00:31:23  bburger
+-- bryce:  Fixed several bugs.  Tagging cc_01010007.
+--
 -- Revision 1.22  2005/02/22 18:17:14  bburger
 -- Bryce:  removed the redundant fmsr_vsn command
 --
@@ -133,7 +136,6 @@ package wishbone_pack is
    constant ROW_ORDER_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"01";
    constant ON_BIAS_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"02";
    constant OFF_BIAS_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"03";
-   constant ROW_MAP_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"04";
    constant ENBL_MUX_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"05";
 
    -- Readout Card Specific
