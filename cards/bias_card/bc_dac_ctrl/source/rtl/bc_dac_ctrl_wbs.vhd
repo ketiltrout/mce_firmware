@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: wbs_bc_dac_ctrl.vhd,v 1.1 2004/11/11 01:46:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with bc_dac_ctrl
 --
 -- Revision history:
--- $Log$
+-- $Log: wbs_bc_dac_ctrl.vhd,v $
+-- Revision 1.1  2004/11/11 01:46:56  bburger
+-- Bryce:  new
+--
 --
 --
 -----------------------------------------------------------------------------
@@ -45,10 +48,10 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.wbs_ac_dac_ctrl_pack.all;
-use work.wbs_bc_dac_ctrl_pack.all;
+use work.ac_dac_ctrl_wbs_pack.all;
+use work.bc_dac_ctrl_pack.all;
 
-entity wbs_bc_dac_ctrl is        
+entity bc_dac_ctrl_wbs is        
    port
    (
       -- ac_dac_ctrl interface:
@@ -58,11 +61,6 @@ entity wbs_bc_dac_ctrl is
       flux_fb_changed_o : out std_logic;
       bias_changed_o    : out std_logic;
 
-      -- global interface
-      clk_i             : in std_logic;
-      mem_clk_i         : in std_logic;
-      rst_i             : in std_logic; 
-      
       -- wishbone interface:
       dat_i             : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i            : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -71,11 +69,16 @@ entity wbs_bc_dac_ctrl is
       stb_i             : in std_logic;
       cyc_i             : in std_logic;
       dat_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o             : out std_logic
-   );     
-end wbs_bc_dac_ctrl;
+      ack_o             : out std_logic;
 
-architecture rtl of wbs_bc_dac_ctrl is
+      -- global interface
+      clk_i             : in std_logic;
+      mem_clk_i         : in std_logic;
+      rst_i             : in std_logic 
+   );     
+end bc_dac_ctrl_wbs;
+
+architecture rtl of bc_dac_ctrl_wbs is
 
    -- FSM inputs
    signal wr_cmd           : std_logic;

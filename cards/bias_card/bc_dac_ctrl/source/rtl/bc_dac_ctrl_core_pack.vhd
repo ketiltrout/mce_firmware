@@ -46,47 +46,41 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.command_pack.all;
 
---library work;
---use work.bc_dac_ctrl_pack.all;
+library work;
+use work.bc_dac_ctrl_pack.all;
 
-package bc_dac_ctrl_pack is
+package bc_dac_ctrl_core_pack is
 
-constant NUM_FLUX_FB_DACS : integer := 32;
-constant BIAS_DATA_LENGTH : integer := 16;
-constant COL_ADDR_WIDTH   : integer := 6; 
-
-component bc_dac_ctrl
+component bc_dac_ctrl_core
    port
    (
       -- DAC hardware interface:
       -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
       flux_fb_data_o    : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);   
       flux_fb_ncs_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      flux_fb_clk_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
+      flux_fb_clk_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+      
       bias_data_o       : out std_logic;
       bias_ncs_o        : out std_logic;
-      bias_clk_o        : out std_logic;      
-      dac_nclr_o        : out std_logic;
+      bias_clk_o        : out std_logic;
       
-      -- wishbone interface:
-      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                    : in std_logic;
-      stb_i                   : in std_logic;
-      cyc_i                   : in std_logic;
-      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                   : out std_logic;
+      dac_nclr_o        : out std_logic;
+
+      -- wbs_bc_dac_ctrl interface:
+      flux_fb_addr_o    : out std_logic_vector(COL_ADDR_WIDTH-1 downto 0);
+      flux_fb_data_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      bias_data_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      flux_fb_changed_i : in std_logic;
+      bias_changed_i    : in std_logic;
       
       -- frame_timing signals
       update_bias_i     : in std_logic;
       
       -- Global Signals      
       clk_i             : in std_logic;
-      mem_clk_i         : in std_logic;
       rst_i             : in std_logic      
    );     
 end component;
    
-end bc_dac_ctrl_pack;
+end bc_dac_ctrl_core_pack;
 

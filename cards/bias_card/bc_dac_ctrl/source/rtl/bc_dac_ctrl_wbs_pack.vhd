@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: wbs_bc_dac_ctrl_pack.vhd,v 1.1 2004/11/11 01:46:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with bc_dac_ctrl
 --
 -- Revision history:
--- $Log$
+-- $Log: wbs_bc_dac_ctrl_pack.vhd,v $
+-- Revision 1.1  2004/11/11 01:46:56  bburger
+-- Bryce:  new
+--
 --
 --
 -----------------------------------------------------------------------------
@@ -40,11 +43,12 @@ library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
-package wbs_bc_dac_ctrl_pack is
+library work;
+use work.bc_dac_ctrl_pack.all;
 
-constant COL_ADDR_WIDTH : integer := 6; 
+package bc_dac_ctrl_wbs_pack is
 
-component wbs_bc_dac_ctrl is        
+component bc_dac_ctrl_wbs is        
    port
    (
       -- ac_dac_ctrl interface:
@@ -54,11 +58,6 @@ component wbs_bc_dac_ctrl is
       flux_fb_changed_o : out std_logic;
       bias_changed_o    : out std_logic;
 
-      -- global interface
-      clk_i             : in std_logic;
-      mem_clk_i         : in std_logic;
-      rst_i             : in std_logic; 
-      
       -- wishbone interface:
       dat_i             : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       addr_i            : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
@@ -67,7 +66,12 @@ component wbs_bc_dac_ctrl is
       stb_i             : in std_logic;
       cyc_i             : in std_logic;
       dat_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o             : out std_logic
+      ack_o             : out std_logic;
+
+      -- global interface
+      clk_i             : in std_logic;
+      mem_clk_i         : in std_logic;
+      rst_i             : in std_logic
    );     
 end component;
 

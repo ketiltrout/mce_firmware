@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.1 2004/11/11 01:47:10 bburger Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.2 2004/11/15 20:03:41 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.2  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.1  2004/11/11 01:47:10  bburger
 -- Bryce:  new
 --
@@ -51,8 +54,9 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.wbs_bc_dac_ctrl_pack.all;
 use work.bc_dac_ctrl_pack.all;
+use work.bc_dac_ctrl_core_pack.all;
+use work.bc_dac_ctrl_wbs_pack.all;
 use work.frame_timing_pack.all;
 
 entity bc_dac_ctrl is
@@ -62,288 +66,94 @@ entity bc_dac_ctrl is
       -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
       flux_fb_data_o    : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);   
       flux_fb_ncs_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      flux_fb_clk_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
-      
+      flux_fb_clk_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
       bias_data_o       : out std_logic;
       bias_ncs_o        : out std_logic;
-      bias_clk_o        : out std_logic;
-      
+      bias_clk_o        : out std_logic;      
       dac_nclr_o        : out std_logic;
-
-      -- wbs_bc_dac_ctrl interface:
-      flux_fb_addr_o    : out std_logic_vector(COL_ADDR_WIDTH-1 downto 0);
-      flux_fb_data_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      bias_data_i       : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      flux_fb_changed_i : in std_logic;
-      bias_changed_i    : in std_logic;
+      
+      -- wishbone interface:
+      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                    : in std_logic;
+      stb_i                   : in std_logic;
+      cyc_i                   : in std_logic;
+      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                   : out std_logic;
       
       -- frame_timing signals
       update_bias_i     : in std_logic;
       
       -- Global Signals      
       clk_i             : in std_logic;
+      mem_clk_i         : in std_logic;
       rst_i             : in std_logic      
    );     
 end bc_dac_ctrl;
 
 architecture rtl of bc_dac_ctrl is
 
-   type flux_fb_states is (IDLE, PENDING, LOAD, CLOCK_OUT, LAST_BIT, NEXT_DAC);
-   signal flux_fb_current_state  : flux_fb_states;
-   signal flux_fb_next_state     : flux_fb_states;
+   -- wbs_bc_dac_ctrl interface:
+   signal flux_fb_addr    : std_logic_vector(COL_ADDR_WIDTH-1 downto 0);
+   signal flux_fb_data    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal bias_data       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal flux_fb_changed : std_logic;
+   signal bias_changed    : std_logic;   
    
-   type bias_states is (IDLE, PENDING, LOAD, CLOCK_OUT, LAST_BIT);
-   signal bias_current_state     : bias_states;
-   signal bias_next_state        : bias_states;
-   
-   -- Flux Feedback SPI interface
-   signal flux_fb_clk            : std_logic;
-   signal flux_fb_done           : std_logic;
-   signal flux_fb_ncs            : std_logic;
-   signal flux_fb_data           : std_logic;
-   signal flux_fb_start          : std_logic;
-   
-   -- Bias Feedback SPI interface
-   signal bias_clk               : std_logic;
-   signal bias_done              : std_logic;
-   signal bias_ncs               : std_logic;
-   signal bias_data              : std_logic;
-   signal bias_start             : std_logic;
-   
-   -- Counter for the Flux Feedback DACs
-   signal dac_count_clk          : std_logic;
-   signal dac_count_rst          : std_logic;
-   signal dac_count              : integer;
-
 begin
 
-   dac_nclr_o <= not rst_i;
+ bcdc_core: bc_dac_ctrl_core
+   port map(
+      -- DAC hardware interface:
+      flux_fb_data_o    => flux_fb_data_o,
+      flux_fb_ncs_o     => flux_fb_ncs_o, 
+      flux_fb_clk_o     => flux_fb_clk_o, 
+      
+      bias_data_o       => bias_data_o,
+      bias_ncs_o        => bias_ncs_o, 
+      bias_clk_o        => bias_clk_o, 
+      
+      dac_nclr_o        => dac_nclr_o,
 
-   dac_counter: counter_xstep 
-   generic map
-   (
-      MAX => (2**COL_ADDR_WIDTH)-1
-   )
-   port map
-   (
-      clk_i   => dac_count_clk,
-      rst_i   => dac_count_rst,
-      ena_i   => '1',
-      step_i  => 1,
-      count_o => dac_count
+      -- wbs_bc_dac_ctrl interface:
+      flux_fb_addr_o    => flux_fb_addr,
+      flux_fb_data_i    => flux_fb_data,   
+      bias_data_i       => bias_data,      
+      flux_fb_changed_i => flux_fb_changed,
+      bias_changed_i    => bias_changed,   
+      
+      -- frame_timing signals
+      update_bias_i     => update_bias_i,
+      
+      -- Global Signals      
+      clk_i             => clk_i,
+      rst_i             => rst_i
+   );     
+
+bcdc_wbs: bc_dac_ctrl_wbs
+   port map(
+      -- ac_dac_ctrl interface:
+      flux_fb_addr_i    => flux_fb_addr,
+      flux_fb_data_o    => flux_fb_data,   
+      bias_data_o       => bias_data,      
+      flux_fb_changed_o => flux_fb_changed,
+      bias_changed_o    => bias_changed,   
+
+      -- wishbone interface:
+      dat_i             => dat_i, 
+      addr_i            => addr_i,
+      tga_i             => tga_i, 
+      we_i              => we_i,  
+      stb_i             => stb_i, 
+      cyc_i             => cyc_i, 
+      dat_o             => dat_o, 
+      ack_o             => ack_o, 
+
+      -- global interface
+      clk_i             => clk_i,
+      mem_clk_i         => mem_clk_i,
+      rst_i             => rst_i
    );
-   
-   state_FF : process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         flux_fb_current_state <= IDLE;
-         bias_current_state    <= IDLE;
-      elsif(clk_i'event and clk_i = '1') then
-         flux_fb_current_state <= flux_fb_next_state;
-         bias_current_state    <= bias_next_state;
-      end if;
-   end process state_FF;
-   
-------------------------------------------------------------------------
--- FSM for the 32 flux feedback DACs
-------------------------------------------------------------------------   
-   flux_fb_state_NS : process(flux_fb_current_state, flux_fb_changed_i, update_bias_i, flux_fb_done, dac_count)
-   begin      
-      -- Default assignment
-      flux_fb_next_state <= flux_fb_current_state;
-      
-      case flux_fb_current_state is 
-         when IDLE => 
-            if(flux_fb_changed_i = '1') then
-               flux_fb_next_state <= PENDING;
-            end if;   
-                     
-         when PENDING =>
-            if(update_bias_i = '1') then         
-               flux_fb_next_state <= LOAD;                
-            end if;           
-          
-         when LOAD =>
-            flux_fb_next_state <= CLOCK_OUT;
-            
-         when CLOCK_OUT =>
-            if(flux_fb_done = '1') then
-               flux_fb_next_state <= LAST_BIT;                
-            end if;
-         
-         when LAST_BIT =>
-            flux_fb_next_state <= NEXT_DAC;                
-         
-         when NEXT_DAC =>
-            if(dac_count < NUM_FLUX_FB_DACS) then
-               flux_fb_next_state <= LOAD;
-            else 
-               flux_fb_next_state <= IDLE;
-            end if;   
-            
-         when others =>
-            flux_fb_next_state <= IDLE;
-      end case;
-   end process flux_fb_state_NS;   
-   
-   flux_fb_addr_o <= std_logic_vector(conv_unsigned(dac_count, COL_ADDR_WIDTH));
-   
-   flux_fb_state_out : process(flux_fb_current_state, dac_count, flux_fb_data, flux_fb_ncs, flux_fb_clk)
-   begin
-      -- Default assignments
-      dac_count_clk  <= '0';
-      dac_count_rst  <= '0';
-      flux_fb_start  <= '0';
-      flux_fb_data_o <= (others => '0');    
-      flux_fb_ncs_o  <= (others => '1');
-      flux_fb_clk_o  <= (others => '0');        
-      
-      case flux_fb_current_state is 
-         
-         when IDLE =>
-            dac_count_rst             <= '1';
-         
-         when PENDING =>          
-            dac_count_rst             <= '1';
-         
-         when LOAD =>
-            flux_fb_start             <= '1';
-            flux_fb_data_o(dac_count) <= flux_fb_data;
-            flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
-            flux_fb_clk_o(dac_count)  <= flux_fb_clk;
-         
-         when CLOCK_OUT =>
-            flux_fb_data_o(dac_count) <= flux_fb_data;
-            flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
-            flux_fb_clk_o(dac_count)  <= flux_fb_clk;
-         
-         when LAST_BIT =>
-            flux_fb_data_o(dac_count) <= flux_fb_data;
-            flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
-            flux_fb_clk_o(dac_count)  <= flux_fb_clk;
-
-         when NEXT_DAC =>
-            dac_count_clk             <= '1';            
-         
-         when others =>
-      end case;      
-   end process flux_fb_state_out;
-
-----------------------------------------------------------------------
--- FSM for the bias DAC
-----------------------------------------------------------------------
-   bias_state_NS : process(bias_current_state, bias_changed_i, update_bias_i, bias_done)
-   begin      
-      -- Default assignment
-      bias_next_state <= bias_current_state;
-      
-      case bias_current_state is 
-         when IDLE => 
-            if(bias_changed_i = '1') then
-               bias_next_state <= PENDING;
-            end if;   
-                     
-         when PENDING =>
-            if(update_bias_i = '1') then         
-               bias_next_state <= LOAD;                
-            end if;           
-          
-         when LOAD =>
-            bias_next_state <= CLOCK_OUT;
-            
-         when CLOCK_OUT =>
-            if(bias_done = '1') then
-               bias_next_state <= LAST_BIT;                
-            end if;
-
-         when LAST_BIT =>
-            bias_next_state <= IDLE;                
-         
-         when others =>
-            bias_next_state <= IDLE;
-            
-      end case;
-   end process bias_state_NS;   
-   
-   bias_state_out : process(bias_current_state, bias_data, bias_ncs, bias_clk)
-   begin
-      -- Default assignments
-      bias_start     <= '0';
-      bias_data_o    <= '0';    
-      bias_ncs_o     <= '1';
-      bias_clk_o     <= '0';        
-      
-      case bias_current_state is 
-         
-         when IDLE =>
-         
-         when PENDING =>          
-         
-         when LOAD =>
-            bias_start    <= '1';
-            bias_data_o   <= bias_data;
-            bias_ncs_o    <= bias_ncs;
-            bias_clk_o    <= bias_clk;
-         
-         when CLOCK_OUT =>
-            bias_data_o   <= bias_data;
-            bias_ncs_o    <= bias_ncs;
-            bias_clk_o    <= bias_clk;
-
-         when LAST_BIT =>
-            bias_data_o   <= bias_data;
-            bias_ncs_o    <= bias_ncs;
-            bias_clk_o    <= bias_clk;
-         
-         when others =>
-         
-      end case;      
-   end process bias_state_out;
-   
-------------------------------------------------------------------------
--- SPI interfaces to the 32 flux feedback DACs
-------------------------------------------------------------------------
-   flux_fb_dac : write_spi_with_cs
-      generic map
-      (
-         DATA_LENGTH => BIAS_DATA_LENGTH
-      )
-      port map
-      (
-         --inputs
-         spi_clk_i        => clk_i,
-         rst_i            => rst_i,
-         start_i          => flux_fb_start,
-         parallel_data_i  => flux_fb_data_i(BIAS_DATA_LENGTH-1 downto 0),
-       
-         --outputs
-         spi_clk_o        => flux_fb_clk,
-         done_o           => flux_fb_done,
-         spi_ncs_o        => flux_fb_ncs,
-         serial_wr_data_o => flux_fb_data
-      );
-
-----------------------------------------------------------------------
--- SPI interface to the bias DAC
-----------------------------------------------------------------------
-    bias_dac : write_spi_with_cs
-       generic map
-       (
-          DATA_LENGTH => BIAS_DATA_LENGTH
-       )
-       port map
-       (
-          --inputs
-          spi_clk_i        => clk_i,
-          rst_i            => rst_i,
-          start_i          => bias_start,
-          parallel_data_i  => bias_data_i(BIAS_DATA_LENGTH-1 downto 0),
-        
-          --outputs
-          spi_clk_o        => bias_clk,
-          done_o           => bias_done,
-          spi_ncs_o        => bias_ncs,
-          serial_wr_data_o => bias_data
-       );
       
 end rtl;
