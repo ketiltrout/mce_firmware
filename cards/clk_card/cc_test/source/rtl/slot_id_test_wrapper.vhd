@@ -20,7 +20,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: slot_id_test_wrapper.vhd,v 1.1 2004/03/12 21:06:00 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: slot_id_test_wrapper.vhd,v 1.1 2004/03/16 19:57:53 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -32,7 +32,8 @@
 -- and emulates the master (command FSM, for example) on the wishbone bus.
 --
 -- Revision history:
--- <date $Date: 2004/03/12 21:06:00 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/16 19:57:53 $>	-		<text>		- <initials $Author: jjacob $>
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
@@ -74,7 +75,7 @@ end;
 architecture rtl of slot_id_test_wrapper is
 
    -- state definitions
-   type state is (IDLE, READ, TX_SLOT_ID, DONE);
+   type state is (IDLE, READ, TX_SLOT_ID, TX_WAIT, DONE);
    signal current_state, next_state : state;
 
    -- wishbone "emulated master" signals
@@ -87,6 +88,16 @@ architecture rtl of slot_id_test_wrapper is
    signal ack_i   : std_logic;
    signal rty_i   : std_logic;
    signal cyc_o   : std_logic;  
+   
+   -- hex to ascii modifications:
+   
+   component hex2ascii
+   port(hex_i : in std_logic_vector(3 downto 0);
+        ascii_o : out std_logic_vector(7 downto 0));
+   end component;
+   
+   signal slot_id_hex   : std_logic_vector(3 downto 0);
+   signal slot_id_ascii : std_logic_vector(7 downto 0);
    
 begin
 
@@ -131,6 +142,17 @@ begin
 --         tx_we_o <= not(tx_ack_i or tx_busy_i or done);
 --         tx_stb_o <= not(tx_ack_i or tx_busy_i or done);
           
+          
+------------------------------------------------------------------------
+--
+-- instantiate the hex-to-ascii decoder
+--
+------------------------------------------------------------------------
+
+   decoder: hex2ascii
+   port map(hex_i => slot_id_hex,
+            ascii_o => slot_id_ascii);
+            
 ------------------------------------------------------------------------
 --
 -- Emulate the master querying for the slot_id
@@ -161,10 +183,17 @@ begin
             end if;
             
          when TX_SLOT_ID =>
-            if tx_ack_i = '1' and tx_busy_i = '0' then
-               next_state <= DONE;
+            if(tx_ack_i = '1') then
+               next_state <= TX_WAIT;
             else
                next_state <= TX_SLOT_ID;
+            end if;
+         
+         when TX_WAIT =>
+            if tx_ack_i = '0' and tx_busy_i = '0' then
+               next_state <= DONE;
+            else
+               next_state <= TX_WAIT;
             end if;
                      
          when DONE =>
@@ -218,6 +247,8 @@ begin
 
          -- output back to test module
 	 done_o  <= '0';
+	 
+	 slot_id_hex <= dat_i(3 downto 0);
 
          tx_data_o <= (others => '0');
          
@@ -225,7 +256,7 @@ begin
 
          -- wishbone signals to slave
          dat_o   <= (others => '0');
-         addr_o  <= SLOT_ID_ADDR;
+         addr_o  <= (others => '0');
          tga_o   <= (others => '0');
          we_o    <= '0';
          stb_o   <= '0';
@@ -234,11 +265,29 @@ begin
          -- output back to test module
 	 done_o  <= '0';
 
-         tx_data_o <= dat_i(7 downto 0);
+         tx_data_o <= slot_id_ascii;
                         
          tx_we_o <= '1'; -- writing to the RS232
          tx_stb_o <= '1';
  
+      when TX_WAIT =>
+         -- wishbone signals to slave
+         dat_o   <= (others => '0');
+         addr_o  <= (others => '0');
+         tga_o   <= (others => '0');
+         we_o    <= '0';
+         stb_o   <= '0';
+         cyc_o   <= '0';
+
+         -- output back to test module
+	 done_o  <= '0';
+
+         tx_data_o <= (others => '0');
+                        
+         tx_we_o <= '0'; -- writing to the RS232
+         tx_stb_o <= '0';
+         
+       
       when DONE =>
 
          -- wishbone signals to slave
