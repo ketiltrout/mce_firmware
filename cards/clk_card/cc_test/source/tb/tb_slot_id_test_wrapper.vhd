@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_slot_id_test_wrapper,v 1.1 2004/03/12 21:06:30 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_slot_id_test_wrapper.vhd,v 1.1 2004/03/16 19:01:23 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,8 +31,8 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/03/12 21:06:30 $>	-		<text>		- <initials $Author: jjacob $>
-
+-- <date $Date: 2004/03/16 19:01:23 $>	-		<text>		- <initials $Author: jjacob $>
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
@@ -244,11 +244,11 @@ begin
          W_TX_ACK_I    <= '0';
          
          
-         wait for PERIOD;    
+         wait for PERIOD*3;    
 
          W_RST_I       <= '0';
-         W_EN_I        <= '0';
-         W_TX_BUSY_I   <= '1';  -- indicates it's busy now writing the "grabbed" data to the RS232
+         W_EN_I        <= '1';
+         W_TX_BUSY_I   <= '0';  -- indicates it's busy now writing the "grabbed" data to the RS232
          W_TX_ACK_I    <= '0';
          
          wait for PERIOD;    
@@ -261,6 +261,7 @@ begin
       procedure do_finish is
       begin
       
+         wait until W_DONE_O = '1';
          wait for PERIOD;
          
          -- test software signals
