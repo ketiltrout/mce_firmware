@@ -20,7 +20,7 @@
 
 -- shift_reg.vhd
 --
--- <revision control keyword substitutions e.g. $Id: shift_reg.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: shift_reg.vhd,v 1.2 2004/03/23 23:46:07 jjacob Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -30,8 +30,11 @@
 -- This implements a bidirectional shift register with parallel/serial input/output.
 --
 -- Revision history:
+--
+-- $Log$
+--
 -- Dec. 19 2003  - Initial version      - EL
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/23 23:46:07 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 ------------------------------------------------------------------------
@@ -42,12 +45,12 @@ use ieee.std_logic_arith.all;
 
 entity shift_reg is
    generic(WIDTH : in integer range 2 to 512 := 8);
-   port(clk        : in std_logic;
-        rst        : in std_logic;
-        ena        : in std_logic;
-        load       : in std_logic;
-        clr        : in std_logic;
-        shr        : in std_logic;
+   port(clk_i      : in std_logic;
+        rst_i      : in std_logic;
+        ena_i      : in std_logic;
+        load_i     : in std_logic;
+        clr_i      : in std_logic;
+        shr_i      : in std_logic;
         serial_i   : in std_logic;
         serial_o   : out std_logic;
         parallel_i : in std_logic_vector(WIDTH-1 downto 0);
@@ -58,18 +61,18 @@ architecture behav of shift_reg is
 signal reg : std_logic_vector(WIDTH-1 downto 0);
 begin
 
-   shiftreg: process(clk, rst)
+   shiftreg: process(clk_i, rst_i)
    begin
-      if(rst = '1') then
+      if(rst_i = '1') then
          reg <= (others => '0');
-      elsif(clk'event and clk = '1') then
-         if(ena = '1') then
-            if(clr = '1') then
+      elsif(clk_i'event and clk_i = '1') then
+         if(ena_i = '1') then
+            if(clr_i = '1') then
                reg <= (others => '0');
-            elsif(load = '1') then
+            elsif(load_i = '1') then
                reg <= parallel_i;
             else
-               if(shr = '1') then
+               if(shr_i = '1') then
                   reg <= serial_i & reg(WIDTH-1 downto 1);
                else
                   reg <= reg(WIDTH-2 downto 0) & serial_i;
@@ -81,7 +84,7 @@ begin
 
 
    
-   serial_o <= reg(0) when shr = '1' else reg(WIDTH-1); -- when doing a shr, we grab the LSB.  When doing shl, we grab the MSB
+   serial_o <= reg(0) when shr_i = '1' else reg(WIDTH-1); -- when doing a shr, we grab the LSB.  When doing shl, we grab the MSB
    parallel_o <= reg;
 
 end behav;

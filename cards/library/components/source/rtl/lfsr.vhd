@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lfsr.vhd,v $
+-- Revision 1.3  2004/07/07 20:21:25  erniel
+-- renamed lfsr data port (again) to lfsr_i/o
+--
 -- Revision 1.2  2004/07/07 19:42:08  erniel
 -- renamed parallel data to data_i/o
 --
@@ -45,11 +48,11 @@ use ieee.std_logic_1164.all;
 
 entity lfsr is
    generic(WIDTH : in integer range 3 to 64 := 8);
-   port(clk    : in std_logic;
-        rst    : in std_logic;
-        ena    : in std_logic;
-        load   : in std_logic;
-        clr    : in std_logic;
+   port(clk_i  : in std_logic;
+        rst_i  : in std_logic;
+        ena_i  : in std_logic;
+        load_i : in std_logic;
+        clr_i  : in std_logic;
         lfsr_i : in std_logic_vector(WIDTH-1 downto 0);
         lfsr_o : out std_logic_vector(WIDTH-1 downto 0));
 end lfsr;
@@ -141,15 +144,15 @@ begin
    -- Shift register part
    --
    
-   process(clk, rst)
+   process(clk_i, rst_i)
    begin
-      if(rst = '1') then
+      if(rst_i = '1') then
          data <= (others => '0');
-      elsif(clk'event and clk = '1') then
-         if(ena = '1') then
-            if(clr = '1') then
+      elsif(clk_i'event and clk_i = '1') then
+         if(ena_i = '1') then
+            if(clr_i = '1') then
                data <= (others => '0');
-            elsif(load = '1') then
+            elsif(load_i = '1') then
                data <= lfsr_i;
             else
                data <= fb & data(1 to WIDTH-1);
