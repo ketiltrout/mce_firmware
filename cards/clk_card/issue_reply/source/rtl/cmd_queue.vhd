@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.31 2004/08/04 03:10:23 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.32 2004/08/04 17:12:44 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.32  2004/08/04 17:12:44  bburger
+-- Bryce:  In progress
+--
 -- Revision 1.31  2004/08/04 03:10:23  bburger
 -- Bryce:  In progress
 --
@@ -71,13 +74,13 @@ entity cmd_queue is
       uop_o         : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
       -- cmd_translator interface
-      card_addr_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
-      par_id_i      : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
-      data_size_i   : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of 32-bit words of data in the m-op
-      data_i        : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
+      card_addr_i   : in std_logic_vector(CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
+      par_id_i      : in std_logic_vector(PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
+      data_size_i   : in std_logic_vector(DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of 32-bit words of data in the m-op
+      data_i        : in std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
       data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
-      mop_i         : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
-      issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0); -- The issuing sync-pulse sequence number
+      mop_i         : in std_logic_vector(MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
+      issue_sync_i  : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0); -- The issuing sync-pulse sequence number
       mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
       mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op and is ready to receive data
       
@@ -87,6 +90,7 @@ entity cmd_queue is
 
       -- Clock lines
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
+      sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
       clk_i         : in std_logic; -- Advances the state machines
       rst_i         : in std_logic  -- Resets all FSMs
    );
@@ -116,9 +120,9 @@ signal uop_counter          : std_logic_vector(UOP_BUS_WIDTH - 1 downto 0);
 
 -- Sync-pulse counter inputs/outputs.  These are used to determine when u-ops have expired.
 signal sync_count_slv       : std_logic_vector(7 downto 0);
-signal sync_count_int       : integer;
-signal clk_count            : integer;
-signal clk_error            : std_logic_vector(31 downto 0);
+--signal sync_count_int       : integer;
+--signal clk_count            : integer;
+--signal clk_error            : std_logic_vector(31 downto 0);
 
 -- Command queue management variables
 signal uops_generated       : integer;
@@ -219,30 +223,30 @@ begin
       );
 
    -- The sync counter will be moved outside this block
-   sync_counter: counter
-      generic map(
-         MAX         => MAX_SYNC_COUNT,
-         STEP_SIZE   => 1, 
-         WRAP_AROUND => LOW, 
-         UP_COUNTER  => HIGH        
-         )
-      port map(
-         clk_i       => sync_i,
-         rst_i       => rst_i,
-         ena_i       => HIGH,
-         load_i      => LOW,
-         count_i     => INT_ZERO,
-         count_o     => sync_count_int
-      );
+--   sync_counter: counter
+--      generic map(
+--         MAX         => MAX_SYNC_COUNT,
+--         STEP_SIZE   => 1, 
+--         WRAP_AROUND => LOW, 
+--         UP_COUNTER  => HIGH        
+--         )
+--      port map(
+--         clk_i       => sync_i,
+--         rst_i       => rst_i,
+--         ena_i       => HIGH,
+--         load_i      => LOW,
+--         count_i     => INT_ZERO,
+--         count_o     => sync_count_int
+--      );
 
-   frame_timer: frame_timing
-     port map(
-         clk_i       => clk_i,
-         sync_i      => sync_i,
-         frame_rst_i => rst_i,
-         clk_count_o => clk_count,
-         clk_error_o => clk_error
-     );
+--   frame_timer: frame_timing
+--     port map(
+--         clk_i       => clk_i,
+--         sync_i      => sync_i,
+--         frame_rst_i => rst_i,
+--         clk_count_o => clk_count,
+--         clk_error_o => clk_error
+--     );
 
    -- lvds_tx is the LVDS interface to the Bus Backplane
    cmd_tx: lvds_tx
@@ -1068,7 +1072,10 @@ begin
    end process;
 
    n_clk             <= not clk_i;
-   sync_count_slv    <= std_logic_vector(conv_unsigned(sync_count_int, 8));
+   sync_count_slv    <= sync_num_i;
+   -- This line was used when the sync number was generate internally to this block.
+   -- Now it is generated externally, but I've kept this line to demonstrate the proper method for converting int=>std_logic_vector
+   --sync_count_slv    <= std_logic_vector(conv_unsigned(sync_count_int, 8));
    
    -- CRC logic
    crc_ena           <= '1' when bit_ctr_count < 32 else '0';   

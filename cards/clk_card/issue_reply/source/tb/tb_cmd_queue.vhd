@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.10 2004/08/04 03:10:40 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.11 2004/08/04 17:12:55 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.11  2004/08/04 17:12:55  bburger
+-- Bryce:  In progress
+--
 -- Revision 1.10  2004/08/04 03:10:40  bburger
 -- Bryce:  In progress
 --
@@ -111,6 +114,7 @@ architecture BEH of TB_CMD_QUEUE is
 
    -- Clock lines
    signal sync_i        : std_logic := '0'; -- The sync pulse determines when and when not to issue u-ops
+   signal sync_num_i    : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
    signal clk_i         : std_logic := '0'; -- Advances the state machines
    signal clk_400mhz_i  : std_logic := '0';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
    signal rst_i         : std_logic := '0';  -- Resets all FSMs
@@ -154,6 +158,7 @@ begin
 
          -- Clock lines
          sync_i        => sync_i,
+         sync_num_i    => sync_num_i,
          clk_i         => clk_i,
          rst_i         => rst_i
       );

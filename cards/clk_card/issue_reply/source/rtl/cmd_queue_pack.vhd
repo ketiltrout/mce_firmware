@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.6 2004/07/22 20:39:08 bench2 Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.7 2004/07/22 23:43:31 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.7  2004/07/22 23:43:31  bench2
+-- Bryce: in progress
+--
 -- Revision 1.6  2004/07/22 20:39:08  bench2
 -- Bryce: in progress
 --
@@ -89,6 +92,7 @@ package cmd_queue_pack is
 
          -- Clock lines
          sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
+         sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
          clk_i         : in std_logic; -- Advances the state machines
          rst_i         : in std_logic  -- Resets all FSMs
       );
