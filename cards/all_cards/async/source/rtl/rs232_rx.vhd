@@ -31,6 +31,14 @@
 -- Revision history:
 -- 
 -- $Log: rs232_rx.vhd,v $
+-- Revision 1.4  2005/01/12 22:47:11  erniel
+-- removed async_rx instantiation
+-- removed clk_i from ports
+-- modified receiver datapath (based on async_rx datapath)
+-- modified receiver control
+-- modified rdy_o / ack_i logic
+-- signal name and state name changes
+--
 -- Revision 1.3  2005/01/05 23:39:31  erniel
 -- updated async_rx component
 --
@@ -52,7 +60,7 @@ library components;
 use components.component_pack.all;
 
 entity rs232_rx is
-port(comm_clk_i : in std_logic;
+port(clk_i      : in std_logic;
      rst_i      : in std_logic;
      
      dat_o      : out std_logic_vector(7 downto 0);
@@ -64,7 +72,7 @@ end rs232_rx;
 
 architecture rtl of rs232_rx is
 
-signal sample_count     : integer range 0 to 17362;
+signal sample_count     : integer range 0 to 4340;
 signal sample_count_ena : std_logic;
 signal sample_count_clr : std_logic;
 
@@ -89,9 +97,9 @@ signal next_state : states;
 begin
     
    sample_counter: counter
-   generic map(MAX => 17361,
+   generic map(MAX => 4339,
                WRAP_AROUND => '0')
-   port map(clk_i   => comm_clk_i,
+   port map(clk_i   => clk_i,
             rst_i   => rst_i,
             ena_i   => sample_count_ena,
             load_i  => sample_count_clr,
@@ -100,7 +108,7 @@ begin
             
    rx_sample: shift_reg
    generic map(WIDTH => 3)
-   port map(clk_i      => comm_clk_i,
+   port map(clk_i      => clk_i,
             rst_i      => rst_i,
             ena_i      => sample_buf_ena,
             load_i     => '0',
@@ -116,7 +124,7 @@ begin
    
    rx_buffer: shift_reg
    generic map(WIDTH => 10)
-   port map(clk_i      => comm_clk_i,
+   port map(clk_i      => clk_i,
             rst_i      => rst_i,
             ena_i      => rx_buf_ena,
             load_i     => '0',
@@ -129,7 +137,7 @@ begin
             
    data_buffer: reg
    generic map(WIDTH => 8)
-   port map(clk_i  => comm_clk_i,
+   port map(clk_i  => clk_i,
             rst_i  => rst_i,
             ena_i  => data_ld,
  
@@ -143,11 +151,11 @@ begin
 --
 ------------------------------------------------------------
 
-   stateFF: process(rst_i, comm_clk_i)
+   stateFF: process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
          pres_state <= IDLE;
-      elsif(comm_clk_i'event and comm_clk_i = '1') then
+      elsif(clk_i'event and clk_i = '1') then
          pres_state <= next_state;
       end if;
    end process stateFF;
@@ -161,7 +169,7 @@ begin
                          next_state <= IDLE;
                       end if;
                       
-         when RECV => if(sample_count = 17361) then
+         when RECV => if(sample_count = 4339) then
                          next_state <= READY;
                       else
                          next_state <= RECV;
@@ -191,53 +199,45 @@ begin
                        rx_buf_clr       <= '1';
                        
          when RECV =>  sample_count_ena <= '1';
-                       -- for RS232 bitrate of 115 kbps, sample each bit for every 217 comm_clk_i periods.
-                       if(sample_count = 216   or sample_count = 433   or sample_count = 650   or sample_count = 867   or 
-                          sample_count = 1084  or sample_count = 1301  or sample_count = 1952  or sample_count = 2169  or 
-                          sample_count = 2386  or sample_count = 2603  or sample_count = 2820  or sample_count = 3037  or 
-                          sample_count = 3688  or sample_count = 3905  or sample_count = 4122  or sample_count = 4339  or
-                          sample_count = 4556  or sample_count = 4773  or sample_count = 5424  or sample_count = 5641  or 
-                          sample_count = 5858  or sample_count = 6075  or sample_count = 6292  or sample_count = 6509  or 
-                          sample_count = 7160  or sample_count = 7377  or sample_count = 7594  or sample_count = 7811  or 
-                          sample_count = 8028  or sample_count = 8245  or sample_count = 8896  or sample_count = 9113  or 
-                          sample_count = 9330  or sample_count = 9547  or sample_count = 9764  or sample_count = 9981  or 
-                          sample_count = 10632 or sample_count = 10849 or sample_count = 11066 or sample_count = 11283 or 
-                          sample_count = 11500 or sample_count = 11717 or sample_count = 12368 or sample_count = 12585 or 
-                          sample_count = 12802 or sample_count = 13019 or sample_count = 13236 or sample_count = 13453 or 
-                          sample_count = 14104 or sample_count = 14321 or sample_count = 14538 or sample_count = 14755 or 
-                          sample_count = 14972 or sample_count = 15189 or sample_count = 15840 or sample_count = 16057 or 
-                          sample_count = 16274 or sample_count = 16491 or sample_count = 16708 or sample_count = 16925) then
+                       -- for RS232 bitrate of 115 kbps, sample each bit for every 54 clk_i periods.
+                       if(sample_count = 53   or sample_count = 107  or sample_count = 161  or sample_count = 216  or 
+                          sample_count = 270  or sample_count = 324  or sample_count = 487  or sample_count = 541  or 
+                          sample_count = 595  or sample_count = 650  or sample_count = 704  or sample_count = 758  or
+                          sample_count = 921  or sample_count = 975  or sample_count = 1029 or sample_count = 1084 or 
+                          sample_count = 1138 or sample_count = 1192 or sample_count = 1355 or sample_count = 1409 or 
+                          sample_count = 1463 or sample_count = 1518 or sample_count = 1572 or sample_count = 1626 or 
+                          sample_count = 1789 or sample_count = 1843 or sample_count = 1897 or sample_count = 1952 or 
+                          sample_count = 2006 or sample_count = 2060 or sample_count = 2223 or sample_count = 2277 or 
+                          sample_count = 2331 or sample_count = 2386 or sample_count = 2440 or sample_count = 2494 or 
+                          sample_count = 2657 or sample_count = 2711 or sample_count = 2765 or sample_count = 2820 or 
+                          sample_count = 2874 or sample_count = 2928 or sample_count = 3091 or sample_count = 3145 or 
+                          sample_count = 3199 or sample_count = 3254 or sample_count = 3308 or sample_count = 3362 or 
+                          sample_count = 3525 or sample_count = 3579 or sample_count = 3633 or sample_count = 3688 or 
+                          sample_count = 3742 or sample_count = 3796 or sample_count = 3959 or sample_count = 4013 or 
+                          sample_count = 4067 or sample_count = 4122 or sample_count = 4176 or sample_count = 4230) then
                           sample_buf_ena <= '1';
                        end if;
-                       if(sample_count = 1302  or sample_count = 3038  or sample_count = 4774  or sample_count = 6510  or 
-                          sample_count = 8246  or sample_count = 9982  or sample_count = 11718 or sample_count = 13454 or 
-                          sample_count = 15190 or sample_count = 16926) then 
+                       if(sample_count = 325  or sample_count = 759  or sample_count = 1193 or sample_count = 1627 or 
+                          sample_count = 2061 or sample_count = 2495 or sample_count = 2929 or sample_count = 3363 or 
+                          sample_count = 3797 or sample_count = 4231) then 
                           rx_buf_ena <= '1';
                        end if;
-                       if(sample_count = 17361) then 
+                       if(sample_count = 4339) then 
                           data_ld       <= '1';
                        end if;
                        
          when READY => rdy              <= '1';
       end case;
    end process stateOut;
-
-
-   process(comm_clk_i)
-   begin
-      if(comm_clk_i = '1') then
-         ack <= ack_i;
-      end if;
-   end process;
    
-   process(rst_i, comm_clk_i)
+   process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
          rdy_o <= '0';
-      elsif(comm_clk_i'event and comm_clk_i = '1') then
+      elsif(clk_i'event and clk_i = '1') then
          if(rdy = '1') then
             rdy_o <= '1';
-         elsif(ack = '1') then
+         elsif(ack_i = '1') then
             rdy_o <= '0';
          end if;
       end if;
