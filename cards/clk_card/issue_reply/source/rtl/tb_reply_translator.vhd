@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.1 2004/08/17 16:36:32 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date$> - <text> - <initials $Author$>
+-- <date $Date: 2004/08/17 16:36:32 $> - <text> - <initials $Author: dca $>
 --
--- $Log: reply_translator.vhd,v$
+-- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.1  2004/08/17 16:36:32  dca
+-- Initial Version
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -90,6 +93,7 @@ port(
      m_op_ok_nEr_i           : in  std_logic;
      reply_nData_i           : in  std_logic; 
      fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);
+     num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);
      fibre_word_req_o        : out std_logic;
      m_op_ack_o              : out std_logic;
      
@@ -139,6 +143,7 @@ signal   m_op_ok_nEr    : std_logic                                             
 signal   reply_nData    : std_logic                                             := '0';
 signal   fibre_word     : std_logic_vector (DATA_BUS_WIDTH-1      downto 0)     := (others => '0');
 signal   fibre_word_req : std_logic                                             := '0';
+signal   num_fibre_words: std_logic_vector (DATA_BUS_WIDTH-1      downto 0)     := (others => '0');
 signal   m_op_ack       : std_logic                                             := '0';
      
 signal   tx_ff          : std_logic                                             := '0';
@@ -170,6 +175,7 @@ begin
      m_op_ok_nEr_i      => m_op_ok_nEr,   
      reply_nData_i      => reply_nData,
      fibre_word_i       => fibre_word, 
+     num_fibre_words_i  => num_fibre_words,
      fibre_word_req_o   => fibre_word_req,   
      m_op_ack_o         => m_op_ack,   
      
@@ -357,9 +363,11 @@ begin
       reply_nData             <= '1';
       m_op_done               <= '1';       
       m_op_ok_nEr             <= '1';   
+      num_fibre_words         <= X"00000001";
+      
       
       wait until fibre_word_req = '1';
-      fibre_word               <= X"00000000";
+      fibre_word               <= X"69696969";   -- would really be "000000" but wan to see change in data
       
           
       wait until txd = X"A5";
