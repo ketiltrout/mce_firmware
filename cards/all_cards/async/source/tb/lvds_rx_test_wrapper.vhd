@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: lvds_rx_test_wrapper.vhd,v $
+-- Revision 1.2  2004/06/04 00:44:40  erniel
+-- *** empty log message ***
+--
 -- Revision 1.1  2004/05/05 21:28:27  erniel
 -- changed entity name from s_lvds_rx
 --
@@ -44,7 +47,7 @@ entity lvds_rx_test_wrapper is
       -- basic signals
       rst_i : in std_logic;   -- reset input
       clk_i : in std_logic;   -- clock input
-      rx_clk_i : in std_logic;
+--      rx_clk_i : in std_logic;
       en_i : in std_logic;    -- enable signal
       done_o : out std_logic; -- done ouput signal
       
