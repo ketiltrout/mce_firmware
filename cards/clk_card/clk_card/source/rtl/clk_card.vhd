@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.22 2005/03/19 00:31:23 bburger Exp $
+-- $Id: clk_card.vhd,v 1.23 2005/03/24 18:33:16 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.23  2005/03/24 18:33:16  bburger
+-- Bryce:  changed version number to  01010008
+--
 -- Revision 1.22  2005/03/19 00:31:23  bburger
 -- bryce:  Fixed several bugs.  Tagging cc_01010007.
 --
@@ -165,7 +168,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"01010008";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"01010010";
 
 -- reset
 signal rst           : std_logic;
