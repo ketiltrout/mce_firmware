@@ -47,9 +47,13 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/10/18 16:35:47 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/19 14:30:45 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.6  2004/10/19 14:30:45  dca
+-- raw data addressing changed.
+-- MUX structure changed
+--
 -- Revision 1.5  2004/10/18 16:35:47  dca
 -- continued progress
 --
@@ -92,6 +96,20 @@ port(
      clk_i                  : in  std_logic;                                          -- global clock
 
      -- signals to/from flux_loop_ctrl    
+
+     filtered_addr_ch0_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 0
+     filtered_dat_ch0_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 0
+     fsfb_addr_ch0_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 0   
+     fsfb_dat_ch0_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 0
+     coadded_addr_ch0_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 0
+     coadded_dat_ch0_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 0
+     raw_addr_ch0_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
+     raw_dat_ch0_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 0
+     raw_req_ch0_o             : out std_logic;                                        -- raw data request - channel 0
+     raw_ack_ch0_i             : in  std_logic;                                        -- raw data acknowledgement - channel 0
+
+
+
      filtered_addr_ch1_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 1
      filtered_dat_ch1_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 1
      fsfb_addr_ch1_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 1   
@@ -169,16 +187,6 @@ port(
      raw_req_ch7_o             : out std_logic;                                        -- raw data request - channel 7
      raw_ack_ch7_i             : in  std_logic;                                        -- raw data acknowledgement - channel 7
    
-     filtered_addr_ch8_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 8
-     filtered_dat_ch8_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 8
-     fsfb_addr_ch8_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 8   
-     fsfb_dat_ch8_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 8
-     coadded_addr_ch8_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 8
-     coadded_dat_ch8_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 8
-     raw_addr_ch8_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 8
-     raw_dat_ch8_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 8
-     raw_req_ch8_o             : out std_logic;                                        -- raw data request - channel 8
-     raw_ack_ch8_i             : in  std_logic;                                        -- raw data acknowledgement - channel 8
    
     
      -- signals to/from dispatch  (wishbone interface)
@@ -219,11 +227,6 @@ signal data_mode_reg       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal data_mode           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal data_mode_mux_sel   : std_logic ;
 
--- signal for registering captr raw word
-
-signal captr_raw_reg       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal captr_raw           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal captr_raw_mux_sel   : std_logic ;
 
 -- data mapped to wishbone data output
 
@@ -248,7 +251,7 @@ signal inc_addr_sel        : std_logic;
 -- address used for modes 1, 2 and 3
 signal pixel_address       : std_logic_vector (PIXEL_ADDR_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
 signal pixel_addr_cnt      : integer;
-signal ch_mux_sel          : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -- channel select ch 1 --> 8
+signal ch_mux_sel          : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -- channel select ch 0 --> 7
 signal row_address         : std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);         -- row address
 
 
@@ -260,12 +263,12 @@ signal raw_ch_mux_sel      : std_logic_vector (CH_MUX_SEL_WIDTH-1  downto 0);   
 signal raw_ch_cnt          : integer;
 
 
-signal raw_req             : std_logic;      -- MUXed raw data request line
-signal raw_ack             : std_logic;      -- MUXed raw data acknowledge line
+signal raw_req             : std_logic;      -- signal fed to all 8 flux loop cntr channels 
+signal raw_ack             : std_logic;      -- ANDedacknowledgements from all 8 flux loop cntr channels
 
 -- slave controller FSM
 
-type state is (IDLE, SET_MODE, SET_RAW, GET_RAW, READ_DAT, DONE);                           
+type state is (IDLE, READ_DATA, START_RAW, RAW_FINISH, SET_MODE, DONE);                           
 
 signal current_state: state;
 signal next_state:    state;
@@ -287,6 +290,25 @@ begin
                    else '0';
    
    
+   
+ 
+-------------------------------------------------------------------------------------------------
+--                       Flux Loop Cntr  -  request/acknowledge signals 
+------------------------------------------------------------------------------------------------  
+     
+   raw_ack       <= raw_ack_ch0_i and raw_ack_ch1_i and raw_ack_ch2_i and  raw_ack_ch3_i and
+                    raw_ack_ch4_i and raw_ack_ch5_i and raw_ack_ch6_i and  raw_ack_ch7_i ;
+  
+   raw_req_ch0_o <= raw_ack;
+   raw_req_ch1_o <= raw_ack;
+   raw_req_ch2_o <= raw_ack;
+   raw_req_ch3_o <= raw_ack;
+   raw_req_ch4_o <= raw_ack;
+   raw_req_ch5_o <= raw_ack;
+   raw_req_ch6_o <= raw_ack;
+   raw_req_ch7_o <= raw_ack; 
+   
+   
 -------------------------------------------------------------------------------------------------
 --                                  Wishbone slave controller FSM
 ------------------------------------------------------------------------------------------------
@@ -305,7 +327,7 @@ begin
    end process clock_fsm;
    
    --------------------------------------------------------------------------------------
-   nextstate_fsm: process (current_state, data_mode_reg, raw_ack,
+   nextstate_fsm: process (current_state, raw_ack,
                            write_data_mode, read_ret_data, write_captr_raw)
    ---------------------------------------------------------------------------------------
    begin
@@ -316,30 +338,25 @@ begin
             next_state <= SET_MODE;
          
          elsif read_ret_data = '1' then
-            
-            if data_mode_reg = MODE4_RAW then 
-               next_state <= GET_RAW;
-            else 
-               next_state <= READ_DAT;
-            end if;
-                   
+            next_state <= READ_DATA;
+                              
          elsif write_captr_raw = '1' then
-            next_state <= SET_RAW;
+            next_state <= START_RAW;
              
          else
             next_state <= IDLE;
         
          end if;
               
-      when GET_RAW  => 
+      when START_RAW  => 
         if raw_ack = '1' then 
-           next_state <= READ_DAT;
+           next_state <= RAW_FINISH;
         else
-           next_state <= GET_RAW ;
+           next_state <= START_RAW ;
         end if; 
       
                     
-      when SET_MODE | SET_RAW | READ_DAT =>
+      when SET_MODE | READ_DATA | RAW_FINISH=>
          next_state <= DONE;
       
       when DONE =>
@@ -358,7 +375,6 @@ begin
          ack_o             <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
-         captr_raw_mux_sel <= '0';
          inc_addr_sel      <= '0';    
          raw_req           <= '0';
              
@@ -366,41 +382,35 @@ begin
          ack_o             <= '1';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '1';
-         captr_raw_mux_sel <= '0';
          inc_addr_sel      <= '0';
          raw_req           <= '0';
 
-      when READ_DAT =>
+      when READ_DATA =>
          ack_o             <= '1';
          dat_o             <= wbs_data;
          data_mode_mux_sel <= '0';
-         captr_raw_mux_sel <= '0';
-         inc_addr_sel      <= '0';
+         inc_addr_sel      <= '1';      -- increment for next read (take 1 clock cycles for addr to change then two clk cycles for dat to update)
          raw_req           <= '0';
-         
-       when GET_RAW => 
+             
+      when START_RAW =>
          ack_o             <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
-         captr_raw_mux_sel <= '0';
          inc_addr_sel      <= '0';
          raw_req           <= '1';
-       
          
-      when SET_RAW =>
+      when RAW_FINISH =>   
          ack_o             <= '1';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
-         captr_raw_mux_sel <= '1';
          inc_addr_sel      <= '0';
-         raw_req           <= '0';
-         
+         raw_req           <= '0';   
+                    
       when DONE =>
          ack_o             <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
-         captr_raw_mux_sel <= '0';
-         inc_addr_sel      <= '1';
+         inc_addr_sel      <= '0';
          raw_req           <= '0';
          
       end case;
@@ -412,21 +422,21 @@ begin
 -- for modes 1,2,3 pixel_addr_cnt is used.  Bits 2..0 determine the channel, and bits 8..3 determine the row.
 -- the address cycles through:
 --
---         (row_0 ch_1), (row_0 ch_2), (row_0 ch_3), (row_0 ch_4), (row_0 ch_5), (row_0 ch_6), (row_0 ch_7), (row_0 ch_8),
---         (row_1 ch_1), (row_1 ch_2), (row_1 ch_3), (row_1 ch_4), (row_1 ch_5), (row_1 ch_6), (row_1 ch_7), (row_1 ch_8),    
+--         (row_0 ch_0), (row_0 ch_1), (row_0 ch_2), (row_0 ch_3), (row_0 ch_4), (row_0 ch_5), (row_0 ch_6), (row_0 ch_7),
+--         (row_1 ch_0), (row_1 ch_1), (row_1 ch_2), (row_1 ch_3), (row_1 ch_4), (row_1 ch_5), (row_1 ch_6), (row_1 ch_7),     
 --                        --               
 --                        --
---         (row_40 ch_1), (row_40 ch_2), (row_40 ch_3), (row_40 ch_4), (row_40 ch_5), (row_40 ch_6), (row_40 ch_7), (row_40 ch_8), 
+--         (row_40 ch_0), (row_40 ch_1), (row_40 ch_2), (row_40 ch_3), (row_40 ch_4), (row_40 ch_5), (row_40 ch_6), (row_40 ch_7), 
 
 -- for mode 4  there are  5248 'rows' per channel.  When reading out in this mode an entire channel is readout before moving to the 
 -- next channel....
 -- consequently the row and channel addresses are split   
 -- 
--- readout ch_1: row 0 --> row 5247
---         ch_2: row 0 --> row 5247
+-- readout ch_0: row 0 --> row 5247
+--         ch_1: row 0 --> row 5247
 --                 --
 --                 --
---         ch_8: row 0 --> row 5247
+--         ch_7: row 0 --> row 5247
 
   
     
@@ -505,75 +515,48 @@ begin
   
  
  
-   filtered_dat   <= filtered_dat_ch1_i when ch_mux_sel = "000" else
-                     filtered_dat_ch2_i when ch_mux_sel = "001" else
-                     filtered_dat_ch3_i when ch_mux_sel = "010" else
-                     filtered_dat_ch4_i when ch_mux_sel = "011" else
-                     filtered_dat_ch5_i when ch_mux_sel = "100" else
-                     filtered_dat_ch6_i when ch_mux_sel = "101" else
-                     filtered_dat_ch7_i when ch_mux_sel = "110" else
-                     filtered_dat_ch8_i when ch_mux_sel = "111";
+   filtered_dat   <= filtered_dat_ch0_i when ch_mux_sel = "000" else
+                     filtered_dat_ch1_i when ch_mux_sel = "001" else
+                     filtered_dat_ch2_i when ch_mux_sel = "010" else
+                     filtered_dat_ch3_i when ch_mux_sel = "011" else
+                     filtered_dat_ch4_i when ch_mux_sel = "100" else
+                     filtered_dat_ch5_i when ch_mux_sel = "101" else
+                     filtered_dat_ch6_i when ch_mux_sel = "110" else
+                     filtered_dat_ch7_i when ch_mux_sel = "111";
  
  
-   unfiltered_dat <= fsfb_dat_ch1_i when ch_mux_sel = "000" else
-                     fsfb_dat_ch2_i when ch_mux_sel = "001" else
-                     fsfb_dat_ch3_i when ch_mux_sel = "010" else
-                     fsfb_dat_ch4_i when ch_mux_sel = "011" else
-                     fsfb_dat_ch5_i when ch_mux_sel = "100" else
-                     fsfb_dat_ch6_i when ch_mux_sel = "101" else
-                     fsfb_dat_ch7_i when ch_mux_sel = "110" else
-                     fsfb_dat_ch8_i when ch_mux_sel = "111";
+   unfiltered_dat <= fsfb_dat_ch0_i when ch_mux_sel = "000" else
+                     fsfb_dat_ch1_i when ch_mux_sel = "001" else
+                     fsfb_dat_ch2_i when ch_mux_sel = "010" else
+                     fsfb_dat_ch3_i when ch_mux_sel = "011" else
+                     fsfb_dat_ch4_i when ch_mux_sel = "100" else
+                     fsfb_dat_ch5_i when ch_mux_sel = "101" else
+                     fsfb_dat_ch6_i when ch_mux_sel = "110" else
+                     fsfb_dat_ch7_i when ch_mux_sel = "111";
  
    
-   fb_error_dat    <= fsfb_dat_ch1_i (31 downto 16) & coadded_dat_ch1_i(31 downto 16) when ch_mux_sel = "000" else
-                      fsfb_dat_ch2_i (31 downto 16) & coadded_dat_ch2_i(31 downto 16) when ch_mux_sel = "001" else 
-                      fsfb_dat_ch3_i (31 downto 16) & coadded_dat_ch3_i(31 downto 16) when ch_mux_sel = "010" else
-                      fsfb_dat_ch4_i (31 downto 16) & coadded_dat_ch4_i(31 downto 16) when ch_mux_sel = "011" else
-                      fsfb_dat_ch5_i (31 downto 16) & coadded_dat_ch5_i(31 downto 16) when ch_mux_sel = "100" else
-                      fsfb_dat_ch6_i (31 downto 16) & coadded_dat_ch6_i(31 downto 16) when ch_mux_sel = "101" else
-                      fsfb_dat_ch7_i (31 downto 16) & coadded_dat_ch7_i(31 downto 16) when ch_mux_sel = "110" else
-                      fsfb_dat_ch8_i (31 downto 16) & coadded_dat_ch8_i(31 downto 16) when ch_mux_sel = "111";
+   fb_error_dat    <= fsfb_dat_ch0_i (31 downto 16) & coadded_dat_ch0_i(31 downto 16) when ch_mux_sel = "000" else
+                      fsfb_dat_ch1_i (31 downto 16) & coadded_dat_ch1_i(31 downto 16) when ch_mux_sel = "001" else 
+                      fsfb_dat_ch2_i (31 downto 16) & coadded_dat_ch2_i(31 downto 16) when ch_mux_sel = "010" else
+                      fsfb_dat_ch3_i (31 downto 16) & coadded_dat_ch3_i(31 downto 16) when ch_mux_sel = "011" else
+                      fsfb_dat_ch4_i (31 downto 16) & coadded_dat_ch4_i(31 downto 16) when ch_mux_sel = "100" else
+                      fsfb_dat_ch5_i (31 downto 16) & coadded_dat_ch5_i(31 downto 16) when ch_mux_sel = "101" else
+                      fsfb_dat_ch6_i (31 downto 16) & coadded_dat_ch6_i(31 downto 16) when ch_mux_sel = "110" else
+                      fsfb_dat_ch7_i (31 downto 16) & coadded_dat_ch7_i(31 downto 16) when ch_mux_sel = "111";
      
       
    raw_dat(31 downto 16) <= (others => '0');
-   raw_dat(15 downto  0) <= raw_dat_ch1_i when raw_ch_mux_sel = "000" else
-                            raw_dat_ch2_i when raw_ch_mux_sel = "001" else 
+   raw_dat(15 downto  0) <= raw_dat_ch0_i when raw_ch_mux_sel = "000" else
+                            raw_dat_ch1_i when raw_ch_mux_sel = "001" else 
                             raw_dat_ch2_i when raw_ch_mux_sel = "010" else
-                            raw_dat_ch2_i when raw_ch_mux_sel = "011" else
-                            raw_dat_ch2_i when raw_ch_mux_sel = "100" else
-                            raw_dat_ch2_i when raw_ch_mux_sel = "101" else
-                            raw_dat_ch2_i when raw_ch_mux_sel = "110" else
-                            raw_dat_ch2_i when raw_ch_mux_sel = "111" ; 
+                            raw_dat_ch3_i when raw_ch_mux_sel = "011" else
+                            raw_dat_ch4_i when raw_ch_mux_sel = "100" else
+                            raw_dat_ch5_i when raw_ch_mux_sel = "101" else
+                            raw_dat_ch6_i when raw_ch_mux_sel = "110" else
+                            raw_dat_ch7_i when raw_ch_mux_sel = "111" ; 
        
-      
-      
-    -- raw data acknowledge MUX  
-      
-    raw_ack             <=  raw_ack_ch1_i when raw_ch_mux_sel = "000" else
-                            raw_ack_ch2_i when raw_ch_mux_sel = "001" else 
-                            raw_ack_ch2_i when raw_ch_mux_sel = "010" else
-                            raw_ack_ch2_i when raw_ch_mux_sel = "011" else
-                            raw_ack_ch2_i when raw_ch_mux_sel = "100" else
-                            raw_ack_ch2_i when raw_ch_mux_sel = "101" else
-                            raw_ack_ch2_i when raw_ch_mux_sel = "110" else
-                            raw_ack_ch2_i when raw_ch_mux_sel = "111" ; 
-       
+  
 
-
-    -- output raw dat request select
-    
-    raw_req_ch1_o       <=  raw_req  when raw_ch_mux_sel = "000" else '0';
-    raw_req_ch2_o       <=  raw_req  when raw_ch_mux_sel = "001" else '0';
-    raw_req_ch3_o       <=  raw_req  when raw_ch_mux_sel = "010" else '0';
-    raw_req_ch4_o       <=  raw_req  when raw_ch_mux_sel = "011" else '0';
-    raw_req_ch5_o       <=  raw_req  when raw_ch_mux_sel = "100" else '0';
-    raw_req_ch6_o       <=  raw_req  when raw_ch_mux_sel = "101" else '0';
-    raw_req_ch7_o       <=  raw_req  when raw_ch_mux_sel = "110" else '0';
-    raw_req_ch8_o       <=  raw_req  when raw_ch_mux_sel = "111" else '0';
-    
-    
-       
-      
 -------------------------------------------------------------------------------------------------
 --                                  Data Mode Recirculation MUX
 ------------------------------------------------------------------------------------------------
@@ -589,21 +572,6 @@ begin
      end if;
   end process dff_data_mode;
           
--------------------------------------------------------------------------------------------------
---                                  Capture Raw Recirculation MUX
-------------------------------------------------------------------------------------------------
-
-  captr_raw  <= captr_raw_reg when captr_raw_mux_sel = '0' else dat_i;
-   
-  dff_captr_raw: process(clk_i, rst_i)
-  begin
-     if (rst_i = '1') then 
-        captr_raw_reg <= (others => '0');
-     elsif (clk_i'EVENT and clk_i = '1') then
-        captr_raw_reg <= captr_raw;
-     end if;
-  end process dff_captr_raw;
-------------------------------------------------------------------------------------------------           
-
+-----------------------------------------------------------------------------------------
            
 end rtl;
