@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.3 2004/06/30 10:58:14 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.4 2004/07/07 10:48:19 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -39,7 +39,7 @@
 --
 -- If the checksum is correct then the various words of the command
 -- are made available at the block's output the and command ready
--- line (cmd_rdy_o) is asserted. 
+-- line (cmd_rdycksum_rcvd_mux) is asserted. 
 --  
 --
 -- Once the cmd_ack_i line goes high, the data words associated with the command 
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/30 10:58:14 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/07 10:48:19 $>	-		<text>		- <initials $Author: dca $>
 -- <$log$>
 -----------------------------------------------------------------------------
 library ieee;
@@ -110,152 +110,253 @@ architecture rtl of fibre_rx_protocol is
 
 -- FSM's states defined
 
-constant IDLE        : std_logic_vector(5 downto 0) := "000000";
+constant IDLE            : std_logic_vector(5 downto 0) := "000000";
 
-constant RQ_PRE0     : std_logic_vector(5 downto 0) := "000001";
-constant CK_PRE0     : std_logic_vector(5 downto 0) := "000010";
-constant RQ_PRE1     : std_logic_vector(5 downto 0) := "000011";
-constant CK_PRE1     : std_logic_vector(5 downto 0) := "000100";
-constant RQ_PRE2     : std_logic_vector(5 downto 0) := "000101";
-constant CK_PRE2     : std_logic_vector(5 downto 0) := "000110";
-constant RQ_PRE3     : std_logic_vector(5 downto 0) := "000111";
-constant CK_PRE3     : std_logic_vector(5 downto 0) := "001000";
+constant RQ_PRE0         : std_logic_vector(5 downto 0) := "000001";
+constant CK_PRE0         : std_logic_vector(5 downto 0) := "000010";
+constant RQ_PRE1         : std_logic_vector(5 downto 0) := "000011";
+constant CK_PRE1         : std_logic_vector(5 downto 0) := "000100";
+constant RQ_PRE2         : std_logic_vector(5 downto 0) := "000101";
+constant CK_PRE2         : std_logic_vector(5 downto 0) := "000110";
+constant RQ_PRE3         : std_logic_vector(5 downto 0) := "000111";
+constant CK_PRE3         : std_logic_vector(5 downto 0) := "001000";
 
-constant RQ_PRE4     : std_logic_vector(5 downto 0) := "001001";
-constant CK_PRE4     : std_logic_vector(5 downto 0) := "001010";
-constant RQ_PRE5     : std_logic_vector(5 downto 0) := "001011";
-constant CK_PRE5     : std_logic_vector(5 downto 0) := "001100";
-constant RQ_PRE6     : std_logic_vector(5 downto 0) := "001101";
-constant CK_PRE6     : std_logic_vector(5 downto 0) := "001110";
-constant RQ_PRE7     : std_logic_vector(5 downto 0) := "001111";
-constant CK_PRE7     : std_logic_vector(5 downto 0) := "010000";
+constant RQ_PRE4         : std_logic_vector(5 downto 0) := "001001";
+constant CK_PRE4         : std_logic_vector(5 downto 0) := "001010";
+constant RQ_PRE5         : std_logic_vector(5 downto 0) := "001011";
+constant CK_PRE5         : std_logic_vector(5 downto 0) := "001100";
+constant RQ_PRE6         : std_logic_vector(5 downto 0) := "001101";
+constant CK_PRE6         : std_logic_vector(5 downto 0) := "001110";
+constant RQ_PRE7         : std_logic_vector(5 downto 0) := "001111";
+constant CK_PRE7         : std_logic_vector(5 downto 0) := "010000";
 
-constant RQ_CMD0     : std_logic_vector(5 downto 0) := "010001";
-constant LD_CMD0     : std_logic_vector(5 downto 0) := "010010";
-constant RQ_CMD1     : std_logic_vector(5 downto 0) := "010011";
-constant LD_CMD1     : std_logic_vector(5 downto 0) := "010100";
-constant RQ_CMD2     : std_logic_vector(5 downto 0) := "010101";
-constant LD_CMD2     : std_logic_vector(5 downto 0) := "010110";
-constant RQ_CMD3     : std_logic_vector(5 downto 0) := "010111";
-constant LD_CMD3     : std_logic_vector(5 downto 0) := "011000";
+constant RQ_CMD0         : std_logic_vector(5 downto 0) := "010001";
+constant LD_CMD0         : std_logic_vector(5 downto 0) := "010010";
+constant RQ_CMD1         : std_logic_vector(5 downto 0) := "010011";
+constant LD_CMD1         : std_logic_vector(5 downto 0) := "010100";
+constant RQ_CMD2         : std_logic_vector(5 downto 0) := "010101";
+constant LD_CMD2         : std_logic_vector(5 downto 0) := "010110";
+constant RQ_CMD3         : std_logic_vector(5 downto 0) := "010111";
+constant LD_CMD3         : std_logic_vector(5 downto 0) := "011000";
 
-constant RQ_ID0      : std_logic_vector(5 downto 0) := "011001";
-constant LD_ID0      : std_logic_vector(5 downto 0) := "011010";
-constant RQ_ID1      : std_logic_vector(5 downto 0) := "011011";
-constant LD_ID1      : std_logic_vector(5 downto 0) := "011100";
-constant RQ_ID2      : std_logic_vector(5 downto 0) := "011101";
-constant LD_ID2      : std_logic_vector(5 downto 0) := "011110";
-constant RQ_ID3      : std_logic_vector(5 downto 0) := "011111";
-constant LD_ID3      : std_logic_vector(5 downto 0) := "100000";
+constant RQ_ID0          : std_logic_vector(5 downto 0) := "011001";
+constant LD_ID0          : std_logic_vector(5 downto 0) := "011010";
+constant RQ_ID1          : std_logic_vector(5 downto 0) := "011011";
+constant LD_ID1          : std_logic_vector(5 downto 0) := "011100";
+constant RQ_ID2          : std_logic_vector(5 downto 0) := "011101";
+constant LD_ID2          : std_logic_vector(5 downto 0) := "011110";
+constant RQ_ID3          : std_logic_vector(5 downto 0) := "011111";
+constant LD_ID3          : std_logic_vector(5 downto 0) := "100000";
 
-constant RQ_CKSM0    : std_logic_vector(5 downto 0) := "100001";
-constant LD_CKSM0    : std_logic_vector(5 downto 0) := "100010";
-constant RQ_CKSM1    : std_logic_vector(5 downto 0) := "100011";
-constant LD_CKSM1    : std_logic_vector(5 downto 0) := "100100";
-constant RQ_CKSM2    : std_logic_vector(5 downto 0) := "100101";
-constant LD_CKSM2    : std_logic_vector(5 downto 0) := "100110";
-constant RQ_CKSM3    : std_logic_vector(5 downto 0) := "100111";
-constant LD_CKSM3    : std_logic_vector(5 downto 0) := "101000";
+constant RQ_CKSM0        : std_logic_vector(5 downto 0) := "100001";
+constant LD_CKSM0        : std_logic_vector(5 downto 0) := "100010";
+constant RQ_CKSM1        : std_logic_vector(5 downto 0) := "100011";
+constant LD_CKSM1        : std_logic_vector(5 downto 0) := "100100";
+constant RQ_CKSM2        : std_logic_vector(5 downto 0) := "100101";
+constant LD_CKSM2        : std_logic_vector(5 downto 0) := "100110";
+constant RQ_CKSM3        : std_logic_vector(5 downto 0) := "100111";
+constant LD_CKSM3        : std_logic_vector(5 downto 0) := "101000";
 
-constant RQ_NDA0     : std_logic_vector(5 downto 0) := "101001";
-constant LD_NDA0     : std_logic_vector(5 downto 0) := "101010";
-constant RQ_NDA1     : std_logic_vector(5 downto 0) := "101011";
-constant LD_NDA1     : std_logic_vector(5 downto 0) := "101100";
-constant RQ_NDA2     : std_logic_vector(5 downto 0) := "101101";
-constant LD_NDA2     : std_logic_vector(5 downto 0) := "101110";
-constant RQ_NDA3     : std_logic_vector(5 downto 0) := "101111";
-constant LD_NDA3     : std_logic_vector(5 downto 0) := "110000";
+constant RQ_NDA0         : std_logic_vector(5 downto 0) := "101001";
+constant LD_NDA0         : std_logic_vector(5 downto 0) := "101010";
+constant RQ_NDA1         : std_logic_vector(5 downto 0) := "101011";
+constant LD_NDA1         : std_logic_vector(5 downto 0) := "101100";
+constant RQ_NDA2         : std_logic_vector(5 downto 0) := "101101";
+constant LD_NDA2         : std_logic_vector(5 downto 0) := "101110";
+constant RQ_NDA3         : std_logic_vector(5 downto 0) := "101111";
+constant LD_NDA3         : std_logic_vector(5 downto 0) := "110000";
 
-constant RQ_BLK0     : std_logic_vector(5 downto 0) := "110001";
-constant LD_BLK0     : std_logic_vector(5 downto 0) := "110010";
-constant RQ_BLK1     : std_logic_vector(5 downto 0) := "110011";
-constant LD_BLK1     : std_logic_vector(5 downto 0) := "110100";
-constant RQ_BLK2     : std_logic_vector(5 downto 0) := "110101";
-constant LD_BLK2     : std_logic_vector(5 downto 0) := "110110";
-constant RQ_BLK3     : std_logic_vector(5 downto 0) := "110111";
-constant LD_BLK3     : std_logic_vector(5 downto 0) := "111000";
+constant RQ_BLK0         : std_logic_vector(5 downto 0) := "110001";
+constant LD_BLK0         : std_logic_vector(5 downto 0) := "110010";
+constant RQ_BLK1         : std_logic_vector(5 downto 0) := "110011";
+constant LD_BLK1         : std_logic_vector(5 downto 0) := "110100";
+constant RQ_BLK2         : std_logic_vector(5 downto 0) := "110101";
+constant LD_BLK2         : std_logic_vector(5 downto 0) := "110110";
+constant RQ_BLK3         : std_logic_vector(5 downto 0) := "110111";
+constant LD_BLK3         : std_logic_vector(5 downto 0) := "111000";
 
-constant TEST_CKSM   : std_logic_vector(5 downto 0) := "111001";
-constant CKSM_FAIL   : std_logic_vector(5 downto 0) := "111010";
-constant CKSM_PASS   : std_logic_vector(5 downto 0) := "111011";
-constant READ_DATA   : std_logic_vector(5 downto 0) := "111100";
-constant TX_DATA     : std_logic_vector(5 downto 0) := "111101";
-constant WM_BLK      : std_logic_vector(5 downto 0) := "111110";
+constant WM_BLK          : std_logic_vector(5 downto 0) := "111001";
+constant TEST_CKSM       : std_logic_vector(5 downto 0) := "111010";
+constant CKSM_FAIL       : std_logic_vector(5 downto 0) := "111011";
+constant CKSM_PASS       : std_logic_vector(5 downto 0) := "111100";
+constant DATA_READ       : std_logic_vector(5 downto 0) := "111101";
+constant DATA_SETL       : std_logic_vector(5 downto 0) := "111110";
+constant DATA_TX         : std_logic_vector(5 downto 0) := "111111";
+
 
 
 
 -- controller state variables:
-signal current_state  : std_logic_vector(5 downto 0);
-signal next_state     : std_logic_vector(5 downto 0);
+signal current_state     : std_logic_vector(5 downto 0);
+signal next_state        : std_logic_vector(5 downto 0);
 
 
 -- Architecture Declarations
-constant preamble1 : std_logic_vector(7 downto 0) := X"A5";
-constant preamble2 : std_logic_vector(7 downto 0) := X"5A";
+constant preamble1       : std_logic_vector(7 downto 0) := X"A5";
+constant preamble2       : std_logic_vector(7 downto 0) := X"5A";
 
-signal cksum_calc : std_logic_vector(31 downto 0);
-signal cksum_in : std_logic_vector(31 downto 0);
-signal cksum_rcvd : std_logic_vector(31 downto 0);
-signal check_update : std_logic;
-signal check_reset : std_logic;
+-- internal architecture signals 
+
+signal cksum_calc        : std_logic_vector(31 downto 0);    -- calculated checksum value, continually being updated
+signal cksum_in          : std_logic_vector(31 downto 0);    -- current value to be used to update cksum_calc
+signal cksum_rcvd        : std_logic_vector(31 downto 0);    -- received checksum from rtl pc
+
+signal check_update      : std_logic;                        -- control signal to initiate a checksum update
+signal check_reset       : std_logic;                        -- control signal to initiate a checksum reset
+
+-- signals mapped to output ports
+
+signal cmd_code          : std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);   -- command code  
+signal card_id           : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- card id
+signal param_id          : std_logic_vector (PAR_ID_BUS_WIDTH-1  downto 0);    -- parameter id
+signal num_data          : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- number of valid 32-bit data words
+signal cmd_data          : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- 32-bit valid data word
+signal cksum_err         : std_logic;                                          -- checksum error flag
+signal cmd_rdy           : std_logic;                                          -- command ready flag (checksum passed)
+signal data_clk          : std_logic;                                          -- data clock
+signal rx_fr             : std_logic;	                                         -- receive fifo read request
+
+-- mux outputs used to register command bytes
+
+signal cmd_code_mux      : std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);   -- command code  
+signal card_id_mux       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- card id
+signal param_id_mux      : std_logic_vector (PAR_ID_BUS_WIDTH-1  downto 0);    -- parameter id
+signal num_data_mux      : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- number of valid 32-bit data words
 
 
-constant mem_size: positive := 64;
-subtype mem_deep is integer range 0 to mem_size-1;
-signal write_pointer: mem_deep;
-signal read_pointer: mem_deep;
+signal cksum_in_mux      : std_logic_vector(31 downto 0);                      -- checksum in value to be registered 
+signal cksum_rcvd_mux    : std_logic_vector(31 downto 0);                      -- checksum rcvd value to be registered
+signal data_in_mux       : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data word to be registered in memory buffer
+signal cmd_data_mux      : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data word to be registered at output
 
-
-constant block_size: mem_deep := 58;  -- total number of data words in a write_block
-
-signal number_data   : positive;  -- this will be a value between 1 and 58
-signal data_in       : std_logic_vector(31 downto 0); -- current data word written to memory 
-signal data_out      : std_logic_vector(31 downto 0); -- current data word read from memory
-signal write_mem     : std_logic;                     -- write current data word to memory
-signal read_mem      : std_logic;                     -- read current data word from memory
-signal reset_mem     : std_logic; 
-
-
-
--- clocks to latch command code bytes
-signal cmd_clk0      : std_logic;
-signal cmd_clk1      : std_logic;
-
--- clocks to latch id bytes
-signal id_clk0       : std_logic;
-signal id_clk1       : std_logic;
-signal id_clk2       : std_logic;
-signal id_clk3       : std_logic;
-
--- clock to latch number of data byte
-signal nda_clk0      : std_logic;
-
--- clocks to latch current 32bit command word to checksum calculator
-signal ckin_clk0     : std_logic;
-signal ckin_clk1     : std_logic;
-signal ckin_clk2     : std_logic;
-signal ckin_clk3     : std_logic;
-
--- clocks to latch received checksum bytes
-signal ckrx_clk0     : std_logic;
-signal ckrx_clk1     : std_logic;
-signal ckrx_clk2     : std_logic;
-signal ckrx_clk3     : std_logic;
-
--- clocks to latch command data word to local memory buffer
-signal data_clk0     : std_logic;
-signal data_clk1     : std_logic;
-signal data_clk2     : std_logic;
-signal data_clk3     : std_logic;
 
 
 -- local memory buffer declaration
+
+constant mem_size        : positive := 64;
+
 subtype word is std_logic_vector(31 downto 0);
 type mem is array (0 to mem_size-1) of word;
 signal memory: mem;
 
+subtype mem_deep is integer range 0 to mem_size-1;
+signal write_pointer     : mem_deep;
+signal read_pointer      : mem_deep;
+
+constant block_size      : mem_deep := 58;                                    -- total number of data words in a write_block
+
+signal number_data       : integer;                                           -- this will be a value between 1 and 58
+signal data_in           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);       -- current data word written to memory 
+signal data_out          : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);       -- current data word read from memory
+signal write_mem         : std_logic;                                         -- write current data word to memory
+signal read_mem          : std_logic;                                         -- read current data word from memory
+signal reset_mem         : std_logic; 
+
+
+
+-- mux select lines used when registering command code bytes
+signal cmd_mux_sel0      : std_logic;
+signal cmd_mux_sel1      : std_logic;
+
+-- mux select lines used when registering id bytes
+signal id_mux_sel0       : std_logic;
+signal id_mux_sel1       : std_logic;
+signal id_mux_sel2       : std_logic;
+signal id_mux_sel3       : std_logic;
+
+-- mux select lines used when registering number of data byte
+signal nda_mux_sel0      : std_logic;
+signal nda_mux_sel1      : std_logic;
+signal nda_mux_sel2      : std_logic;
+signal nda_mux_sel3      : std_logic;
+
+-- mux select lines used when registering current 32bit command word to checksum calculator
+signal ckin_mux_sel0     : std_logic;
+signal ckin_mux_sel1     : std_logic;
+signal ckin_mux_sel2     : std_logic;
+signal ckin_mux_sel3     : std_logic;
+
+-- mux select lines used when registering received checksum bytes
+signal ckrx_mux_sel0     : std_logic;
+signal ckrx_mux_sel1     : std_logic;
+signal ckrx_mux_sel2     : std_logic;
+signal ckrx_mux_sel3     : std_logic;
+
+-- mux select lines used when registering command data word to local memory buffer
+signal data_in_mux_sel0  : std_logic;
+signal data_in_mux_sel1  : std_logic;
+signal data_in_mux_sel2  : std_logic;
+signal data_in_mux_sel3  : std_logic;
+
+-- output data MUX select line to register output data word
+
+signal data_out_mux_sel  : std_logic;
+
 
 begin
+
+-- output assignments
+
+   cmd_code_o      <= cmd_code  ;  
+   card_id_o       <= card_id   ;
+   param_id_o      <= param_id  ;
+   num_data_o      <= num_data  ;    
+   cmd_data_o      <= cmd_data  ;
+   cksum_err_o     <= cksum_err ;
+   cmd_rdy_o       <= cmd_rdy   ;   
+   data_clk_o      <= data_clk  ;
+   rx_fr_o         <= rx_fr     ;
+   
+  
+   
+-- recirculation mux code
+   
+   cmd_code_mux (7  downto 0)    <= rxd_i (7 downto 0) when cmd_mux_sel0     = '1' else cmd_code   (7  downto 0);
+   cmd_code_mux (15 downto 8)    <= rxd_i (7 downto 0) when cmd_mux_sel1     = '1' else cmd_code   (15 downto 8);
+  
+   
+   param_id_mux (7  downto 0)    <= rxd_i (7 downto 0) when id_mux_sel0      = '1' else param_id   (7  downto 0);  
+   param_id_mux (15 downto 8)    <= rxd_i (7 downto 0) when id_mux_sel1      = '1' else param_id   (15 downto 8);
+   card_id_mux  (7  downto 0)    <= rxd_i (7 downto 0) when id_mux_sel2      = '1' else card_id    (7  downto 0);  
+   card_id_mux  (15 downto 8)    <= rxd_i (7 downto 0) when id_mux_sel3      = '1' else card_id    (15 downto 8);
+   
+   num_data_mux (7  downto 0)    <= rxd_i (7 downto 0) when nda_mux_sel0     = '1' else num_data   (7  downto 0); 
+   num_data_mux (15 downto 8)    <= rxd_i (7 downto 0) when nda_mux_sel1     = '1' else num_data   (15  downto 8);
+   num_data_mux (23 downto 16)   <= rxd_i (7 downto 0) when nda_mux_sel2     = '1' else num_data   (23  downto 16);
+   num_data_mux (31 downto 24)   <= rxd_i (7 downto 0) when nda_mux_sel3     = '1' else num_data   (31  downto 24);
+
+   
+   data_in_mux (7  downto 0)     <= rxd_i (7 downto 0) when data_in_mux_sel0 = '1' else data_in    (7  downto 0);
+   data_in_mux (15 downto 8)     <= rxd_i (7 downto 0) when data_in_mux_sel1 = '1' else data_in    (15 downto 8);
+   data_in_mux (23 downto 16)    <= rxd_i (7 downto 0) when data_in_mux_sel2 = '1' else data_in    (23 downto 16);
+   data_in_mux (31 downto 24)    <= rxd_i (7 downto 0) when data_in_mux_sel3 = '1' else data_in    (31 downto 24);
+ 
+ 
+   cksum_rcvd_mux (7  downto 0)  <= rxd_i (7 downto 0) when ckrx_mux_sel0    = '1' else cksum_rcvd (7  downto 0);
+   cksum_rcvd_mux (15 downto 8)  <= rxd_i (7 downto 0) when ckrx_mux_sel1    = '1' else cksum_rcvd (15 downto 8);
+   cksum_rcvd_mux (23 downto 16) <= rxd_i (7 downto 0) when ckrx_mux_sel2    = '1' else cksum_rcvd (23 downto 16);
+   cksum_rcvd_mux (31 downto 24) <= rxd_i (7 downto 0) when ckrx_mux_sel3    = '1' else cksum_rcvd (31 downto 24);
+    
+  
+   cksum_in_mux (7  downto 0)    <= rxd_i (7 downto 0) when ckin_mux_sel0    = '1' else cksum_in   (7  downto 0);
+   cksum_in_mux (15 downto 8)    <= rxd_i (7 downto 0) when ckin_mux_sel1    = '1' else cksum_in   (15 downto 8);
+   cksum_in_mux (23 downto 16)   <= rxd_i (7 downto 0) when ckin_mux_sel2    = '1' else cksum_in   (23 downto 16);
+   cksum_in_mux (31 downto 24)   <= rxd_i (7 downto 0) when ckin_mux_sel3    = '1' else cksum_in   (31 downto 24);
+ 
+  
+-- output data MUX
+
+   cmd_data_mux (31 downto 0) <= data_out (31 downto 0) when data_out_mux_sel = '1' else cmd_data  (31 downto 0);
+ 
+
+-- concurrent statement - integer value of number of data.
+
+
+  number_data <= To_integer(Unsigned(num_data(7 downto 0)));
+   
+   
+
+-- processes
 
    ----------------------------------------------------------------------------
    clocked : process(
@@ -618,7 +719,7 @@ begin
       
       when CKSM_PASS =>
          if (cmd_ack_i = '1') then
-            next_state <= READ_DATA;
+            next_state <= DATA_READ;
          else
             next_state <= CKSM_PASS;
          end if;
@@ -628,11 +729,13 @@ begin
 
 -----------------------------------------------
             
-      when READ_DATA =>
-            next_state <= TX_DATA;
-      when TX_DATA =>
+      when DATA_READ =>
+            next_state <= DATA_SETL;
+      when DATA_SETL =>
+            next_state <= DATA_TX;
+      when DATA_TX =>
          if (read_pointer < number_data) then   
-            next_state <= READ_DATA;
+            next_state <= DATA_READ;
          else   
             next_state <= IDLE;
          end if;               
@@ -645,204 +748,214 @@ begin
 
    ----------------------------------------------------------------------------
    output : process (
-      current_state,
+      current_state   --,
     --  rxd_i,
-      data_out
+    --  data_out
    )
    ----------------------------------------------------------------------------
    begin
       -- Default Assignment
-      cksum_err_o <= '0';
-      cmd_rdy_o <= '0';
-      rx_fr_o <= '0';
-      data_clk_o <= '0';
+      cksum_err          <= '0';
+      cmd_rdy            <= '0';
+      rx_fr              <= '0';
+      data_clk           <= '0';
      
-      write_mem <= '0'; 
-      read_mem <= '0';
-      reset_mem <= '0';
-      check_update <= '0';
-      check_reset <= '0';
+      write_mem          <= '0'; 
+      read_mem           <= '0';
+      reset_mem          <= '0';
+      check_update       <= '0';
+      check_reset        <= '0';
       
-      cmd_clk0  <= '0';
-      cmd_clk1  <= '0';
+      cmd_mux_sel0       <= '0';
+      cmd_mux_sel1       <= '0';
             
-      id_clk0   <= '0';
-      id_clk1   <= '0';
-      id_clk2   <= '0';
-      id_clk3   <= '0';
+      id_mux_sel0        <= '0';
+      id_mux_sel1        <= '0';
+      id_mux_sel2        <= '0';
+      id_mux_sel3        <= '0';
       
-      nda_clk0  <= '0';
+      nda_mux_sel0       <= '0';
+      nda_mux_sel1       <= '0';
+      nda_mux_sel2       <= '0';
+      nda_mux_sel3       <= '0';
       
-      ckin_clk0 <= '0';
-      ckin_clk1 <= '0';
-      ckin_clk2 <= '0';
-      ckin_clk3 <= '0';
+      ckin_mux_sel0      <= '0';
+      ckin_mux_sel1      <= '0';
+      ckin_mux_sel2      <= '0';
+      ckin_mux_sel3      <= '0';
       
-      ckrx_clk0 <= '0';
-      ckrx_clk1 <= '0';
-      ckrx_clk2 <= '0';
-      ckrx_clk3 <= '0';
+      ckrx_mux_sel0      <= '0';
+      ckrx_mux_sel1      <= '0';
+      ckrx_mux_sel2      <= '0';
+      ckrx_mux_sel3      <= '0';
      
-      data_clk0 <= '0';
-      data_clk1 <= '0';
-      data_clk2 <= '0';
-      data_clk3 <= '0';     
+      data_in_mux_sel0   <= '0';
+      data_in_mux_sel1   <= '0';
+      data_in_mux_sel2   <= '0';
+      data_in_mux_sel3   <= '0';   
+      
+      data_out_mux_sel   <= '0';   
       
   
       case current_state IS
          when IDLE =>
-            reset_mem <= '1';
-            check_reset <= '1';  
-            cmd_data_o <= (others => '0');
+            reset_mem         <= '1';
+            check_reset       <= '1';  
+            data_out_mux_sel  <= '1';     -- set to '1' so that output is reset to data_out is reset to (others => '0')
+      
+
 
          when LD_CMD0 =>
-            cmd_clk0 <= '1';
-            ckin_clk0 <= '1';
+            cmd_mux_sel0      <= '1';
+            ckin_mux_sel0     <= '1';
          when LD_CMD1 =>
-            cmd_clk1 <= '1';
-            ckin_clk1 <= '1';              
+            cmd_mux_sel1      <= '1';
+            ckin_mux_sel1     <= '1';              
          when LD_CMD2 =>
-            ckin_clk2 <= '1';
+            ckin_mux_sel2     <= '1';
          when LD_CMD3 =>
-            ckin_clk3 <= '1';
+            ckin_mux_sel3     <= '1';
             
          when LD_ID0 =>
-            id_clk0   <= '1';
-            ckin_clk0 <= '1';  
+            id_mux_sel0       <= '1';
+            ckin_mux_sel0     <= '1';  
          when LD_ID1 =>
-            id_clk1   <= '1';
-            ckin_clk1 <= '1';   
+            id_mux_sel1       <= '1';
+            ckin_mux_sel1     <= '1';   
          when LD_ID2 =>
-            id_clk2   <= '1'; 
-            ckin_clk2 <= '1';
+            id_mux_sel2       <= '1'; 
+            ckin_mux_sel2     <= '1';
          when LD_ID3 =>
-            id_clk3   <= '1';
-            ckin_clk3 <= '1';
+            id_mux_sel3       <= '1';
+            ckin_mux_sel3     <= '1';
             
          when LD_NDA0 =>
-            nda_clk0 <= '1'; 
-            ckin_clk0 <= '1';             
+            nda_mux_sel0      <= '1'; 
+            ckin_mux_sel0     <= '1';             
          when LD_NDA1 =>
-            ckin_clk1 <= '1';
+            ckin_mux_sel1     <= '1';
          when LD_NDA2 =>
-            ckin_clk2 <= '1';
+            ckin_mux_sel2     <= '1';
          when LD_NDA3 =>
-            ckin_clk3 <= '1';
+            ckin_mux_sel3     <= '1';
             
          when LD_BLK0 =>
-            ckin_clk0 <= '1';
-            data_clk0 <= '1';
+            ckin_mux_sel0     <= '1';
+            data_in_mux_sel0  <= '1';
          when LD_BLK1 =>
-            ckin_clk1 <= '1';
-            data_clk1 <= '1';
+            ckin_mux_sel1     <= '1';
+            data_in_mux_sel1  <= '1';
          when LD_BLK2 =>
-            ckin_clk2 <= '1';
-            data_clk2 <= '1';
+            ckin_mux_sel2     <= '1';
+            data_in_mux_sel2  <= '1';
          when LD_BLK3 =>
-            ckin_clk3 <= '1';
-            data_clk3 <= '1';
+            ckin_mux_sel3     <= '1';
+            data_in_mux_sel3  <= '1';
        
             
          when LD_CKSM0 =>
-            ckrx_clk0 <= '1';
+            ckrx_mux_sel0     <= '1';
          when LD_CKSM1 =>
-            ckrx_clk1 <= '1';
+            ckrx_mux_sel1     <= '1';
          when LD_CKSM2 =>
-            ckrx_clk2 <= '1';
+            ckrx_mux_sel2     <= '1';
          when LD_CKSM3 =>
-            ckrx_clk3 <= '1';
+            ckrx_mux_sel3     <= '1';
             
             
             
          when RQ_PRE0 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_PRE1 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_PRE2 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_PRE3 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_PRE4 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_PRE5 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_PRE6 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_PRE7 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
  
  
          when RQ_CMD0 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_CMD1 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_CMD2 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_CMD3 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
 
 
          when RQ_ID0 =>
-            rx_fr_o <= '1' ;
-            check_update <= '1';  -- update checksum with command code word
+            rx_fr             <= '1' ;
+            check_update      <= '1';  -- update checksum with command code word
          when RQ_ID1 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_ID2 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_ID3 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
 
 
          when RQ_NDA0 =>
-            rx_fr_o <= '1' ;
-            check_update <= '1'; -- update checksum with id word
+            rx_fr             <= '1' ;
+            check_update      <= '1'; -- update checksum with id word
          when RQ_NDA1 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_NDA2 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_NDA3 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
 
         
          when RQ_BLK0 =>
-            rx_fr_o <= '1' ;    
-            check_update <= '1';  -- update checksum with previous data word (or NDA word 1st time round) 
+            rx_fr             <= '1' ;    
+            check_update      <= '1';  -- update checksum with previous data word (or NDA word 1st time round) 
          when RQ_BLK1 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_BLK2 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
          when RQ_BLK3 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1' ;
      
          when WM_BLK =>   
-            write_mem <= '1';         
+            write_mem         <= '1';         
 
 
          when RQ_CKSM0 =>
-            rx_fr_o <= '1' ;
-            check_update <= '1';   -- update checksum with last data word
+            rx_fr             <= '1';
+            check_update      <= '1';   -- update checksum with last data word
          when RQ_CKSM1 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1';
          when RQ_CKSM2 =>
-            rx_fr_o <= '1' ;
+            rx_fr             <= '1';
          when RQ_CKSM3 =>
-            rx_fr_o <= '1' ;        
+            rx_fr             <= '1';        
  
  
          when CKSM_FAIL =>
-            cksum_err_o <= '1' ;
+            cksum_err         <= '1';
             
          when CKSM_PASS =>
-            cmd_rdy_o <= '1';
+            cmd_rdy           <= '1';
 
-         when READ_DATA =>
-            read_mem <= '1'; 
-            cmd_rdy_o <= '1' ;
-            data_clk_o <= '0' ;
-         when TX_DATA =>
-            cmd_data_o <= data_out ;
-            cmd_rdy_o <= '1' ;
-            data_clk_o <= '1' ;
+         when DATA_READ =>
+            read_mem          <= '1'; 
+            cmd_rdy           <= '1';
+            data_out_mux_sel  <= '1';
+
+         when DATA_SETL =>
+             cmd_rdy          <= '1';
+            
+         when DATA_TX =>
+            cmd_rdy           <= '1' ;
+            data_clk          <= '1' ;
 
          when others =>
             null;
@@ -850,281 +963,332 @@ begin
       end case;
 
    end process output;
-   
 
+
+   
   ------------------------------------------------------------------------------
-  latch_cmd0: process(cmd_clk0, rst_i)
+  dff_cmd0: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to output cmd_code0 byte
+  -- process to register cmd_code0 byte
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cmd_code_o(7 downto 0) <= (others => '0');
-     elsif (cmd_clk0'EVENT and cmd_clk0 = '1') then
-        cmd_code_o(7 downto 0) <= rxd_i(7 downto 0);
+        cmd_code(7 downto 0) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cmd_code(7 downto 0) <= cmd_code_mux(7 downto 0);
      end if;
-  end process latch_cmd0;
+  end process dff_cmd0;
   
-  
+   
   ------------------------------------------------------------------------------
-  latch_cmd1: process(cmd_clk1, rst_i)
+  dff_cmd1: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cmd_code1 byte
+  -- process to register cmd_code1 byte
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        cmd_code_o(15 downto 8) <= (others => '0');
-     elsif (cmd_clk1'EVENT and cmd_clk1 = '1') then
-        cmd_code_o(15 downto 8) <= rxd_i(7 downto 0);
+        cmd_code(15 downto 8) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cmd_code(15 downto 8) <= cmd_code_mux(15 downto 8);
      end if;
-  end process latch_cmd1;
+  end process dff_cmd1;
   
-  
-     
-  
+      
   ------------------------------------------------------------------------------
-  latch_id0: process(id_clk0, rst_i)
+  dff_id0: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch id0 byte
+  -- process to register id0 byte
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        param_id_o(7 downto 0) <= (others => '0');
-     elsif (id_clk0'EVENT and id_clk0 = '1') then
-        param_id_o(7 downto 0) <= rxd_i(7 downto 0);
+        param_id(7 downto 0) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        param_id(7 downto 0) <= param_id_mux(7 downto 0);
      end if;
-  end process latch_id0;
+  end process dff_id0;
   
   
   ------------------------------------------------------------------------------
-  latch_id1: process(id_clk1, rst_i)
+  dff_id1: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch id1 byte
+  -- process to register id1 byte
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        param_id_o(15 downto 8) <= (others => '0');
-     elsif (id_clk1'EVENT and id_clk1 = '1') then
-        param_id_o(15 downto 8) <= rxd_i(7 downto 0);
+        param_id(15 downto 8) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        param_id(15 downto 8) <= param_id_mux(15 downto 8);
      end if;
-  end process latch_id1;
+  end process dff_id1;
   
   
   ------------------------------------------------------------------------------
-  latch_id2: process(id_clk2, rst_i)
+  dff_id2: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch id2 byte
+  -- process to register id2 byte
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        card_id_o(7 downto 0) <= (others => '0');
-     elsif (id_clk2'EVENT and id_clk2 = '1') then
-        card_id_o(7 downto 0) <= rxd_i(7 downto 0);
+        card_id(7 downto 0) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        card_id(7 downto 0) <= card_id_mux(7 downto 0);
      end if;
-  end process latch_id2;
+  end process dff_id2;
   
   
   ------------------------------------------------------------------------------
-  latch_id3: process(id_clk3, rst_i)
+  dff_id3: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch id3 byte
+  -- process to register id3 byte
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        card_id_o(15 downto 8) <= (others => '0');
-     elsif (id_clk3'EVENT and id_clk3 = '1') then
-        card_id_o(15 downto 8) <= rxd_i(7 downto 0);
+        card_id(15 downto 8) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        card_id(15 downto 8) <= card_id_mux(15 downto 8);
      end if;
-  end process latch_id3;
+  end process dff_id3;
    
   
   ------------------------------------------------------------------------------
-  latch_nda0: process(nda_clk0, rst_i)
+  dff_nda0: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch nda0 byte
+  -- process to register nda0 byte
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
-        num_data_o <= (others => '0');
-        number_data <= 1;
-     elsif (nda_clk0'EVENT and nda_clk0 = '1') then
-        num_data_o(7 downto 0) <= rxd_i(7 downto 0);
-        num_data_o(DATA_SIZE_BUS_WIDTH-1 downto 8) <= (others => '0');
-        number_data <= To_integer(Unsigned(rxd_i(7 downto 0)));
+        num_data(7 downto 0) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        num_data(7 downto 0) <= num_data_mux(7 downto 0);
      end if;
-  end process latch_nda0;
-  
-        
+  end process dff_nda0;
   
   ------------------------------------------------------------------------------
-  latch_ckin0: process(ckin_clk0, rst_i)
+  dff_nda1: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cksum_in byte0
+  -- process to register nda0 byte
+  ----------------------------------------------------------------------------
+  begin
+     if (rst_i = '1') then 
+        num_data(15 downto 8) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        num_data(15 downto 8) <= num_data_mux(15 downto 8);
+     end if;
+  end process dff_nda1;
+  
+  ------------------------------------------------------------------------------
+  dff_nda2: process(clk_i, rst_i)
+  ----------------------------------------------------------------------------
+  -- process to register nda0 byte
+  ----------------------------------------------------------------------------
+  begin
+     if (rst_i = '1') then 
+        num_data(23 downto 16) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        num_data(23 downto 16) <= num_data_mux(23 downto 16);
+     end if;
+  end process dff_nda2;
+  
+  
+  ------------------------------------------------------------------------------
+  dff_nda3: process(clk_i, rst_i)
+  ----------------------------------------------------------------------------
+  -- process to register nda0 byte
+  ----------------------------------------------------------------------------
+  begin
+     if (rst_i = '1') then 
+        num_data(31 downto 24) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        num_data(31 downto 24) <= num_data_mux(31 downto 24);
+     end if;
+  end process dff_nda3;
+  
+  
+
+  
+  
+  ------------------------------------------------------------------------------
+  dff_ckin0: process(clk_i, rst_i)
+  ----------------------------------------------------------------------------
+  -- process to register cksum_in byte0
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         cksum_in(7 downto 0) <= (others => '0');
-     elsif (ckin_clk0'EVENT and ckin_clk0 = '1') then
-        cksum_in(7 downto 0) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cksum_in(7 downto 0) <= cksum_in_mux(7 downto 0);
      end if;
-  end process latch_ckin0;
+  end process dff_ckin0;
          
   ------------------------------------------------------------------------------
-  latch_ckin1: process(ckin_clk1, rst_i)
+  dff_ckin1: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cksum_in byte1
+  -- process to register cksum_in byte1
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         cksum_in(15 downto 8) <= (others => '0');
-     elsif (ckin_clk1'EVENT and ckin_clk1 = '1') then
-        cksum_in(15 downto 8) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cksum_in(15 downto 8) <= cksum_in_mux(15 downto 8);
      end if;
-  end process latch_ckin1;
+  end process dff_ckin1;
                 
         
   ------------------------------------------------------------------------------
-  latch_ckin2: process(ckin_clk2, rst_i)
+  dff_ckin2: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cksum_in byte2
+  -- process to register cksum_in byte2
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         cksum_in(23 downto 16) <= (others => '0');
-     elsif (ckin_clk2'EVENT and ckin_clk2 = '1') then
-        cksum_in(23 downto 16) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cksum_in(23 downto 16) <= cksum_in_mux(23 downto 16);
      end if;
-  end process latch_ckin2;
+  end process dff_ckin2;
  
  
    ------------------------------------------------------------------------------
-  latch_ckin3: process(ckin_clk3, rst_i)
+  dff_ckin3: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cksum_in byte3
+  -- process to register cksum_in byte3
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         cksum_in(31 downto 24) <= (others => '0');
-     elsif (ckin_clk3'EVENT and ckin_clk3 = '1') then
-        cksum_in(31 downto 24) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cksum_in(31 downto 24) <= cksum_in_mux(31 downto 24);
      end if;
-  end process latch_ckin3;
+  end process dff_ckin3;
  
  
   ------------------------------------------------------------------------------
-  latch_ckrx0: process(ckrx_clk0, rst_i)
+  dff_ckrx0: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cksum_rcvd byte0
+  -- process to register cksum_rcvd byte0
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         cksum_rcvd(7 downto 0) <= (others => '0');
-     elsif (ckrx_clk0'EVENT and ckrx_clk0 = '1') then
-        cksum_rcvd(7 downto 0) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cksum_rcvd(7 downto 0) <= cksum_rcvd_mux(7 downto 0);
      end if;
-  end process latch_ckrx0;
+  end process dff_ckrx0;
          
   ------------------------------------------------------------------------------
-  latch_ckrx1: process(ckrx_clk1, rst_i)
+  dff_ckrx1: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cksum_rcvd byte1
+  -- process to register cksum_rcvd byte1
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         cksum_rcvd(15 downto 8) <= (others => '0');
-     elsif (ckrx_clk1'EVENT and ckrx_clk1 = '1') then
-        cksum_rcvd(15 downto 8) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cksum_rcvd(15 downto 8) <= cksum_rcvd_mux(15 downto 8);
      end if;
-  end process latch_ckrx1;
+  end process dff_ckrx1;
                 
         
   ------------------------------------------------------------------------------
-  latch_ckrx2: process(ckrx_clk2, rst_i)
+  dff_ckrx2: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cksum_rcvd byte2
+  -- process to register cksum_rcvd byte2
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         cksum_rcvd(23 downto 16) <= (others => '0');
-     elsif (ckrx_clk2'EVENT and ckrx_clk2 = '1') then
-        cksum_rcvd(23 downto 16) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cksum_rcvd(23 downto 16) <= cksum_rcvd_mux(23 downto 16);
      end if;
-  end process latch_ckrx2;
+  end process dff_ckrx2;
  
  
    ------------------------------------------------------------------------------
-  latch_ckrx3: process(ckrx_clk3, rst_i)
+  dff_ckrx3: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch cksum_rcvd byte3
+  -- process to register cksum_rcvd byte3
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         cksum_rcvd(31 downto 24) <= (others => '0');
-     elsif (ckrx_clk3'EVENT and ckrx_clk3 = '1') then
-        cksum_rcvd(31 downto 24) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cksum_rcvd(31 downto 24) <= cksum_rcvd_mux(31 downto 24);
      end if;
-  end process latch_ckrx3;
+  end process dff_ckrx3;
 
 
   ------------------------------------------------------------------------------
-  latch_data0: process(data_clk0, rst_i)
+  dff_data0: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch data byte0
+  -- process to register data byte0
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         data_in (7 downto 0) <= (others => '0');
-     elsif (data_clk0'EVENT and data_clk0 = '1') then
-        data_in (7 downto 0) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        data_in (7 downto 0) <= data_in_mux(7 downto 0);
      end if;
-  end process latch_data0;
+  end process dff_data0;
 
 
   ------------------------------------------------------------------------------
-  latch_data1: process(data_clk1, rst_i)
+  dff_data1: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch data byte1
+  -- process to register data byte1
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         data_in (15 downto 8) <= (others => '0');
-     elsif (data_clk1'EVENT and data_clk1 = '1') then
-        data_in (15 downto 8) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        data_in (15 downto 8) <= data_in_mux(15 downto 8);
      end if;
-  end process latch_data1;
+  end process dff_data1;
 
   ------------------------------------------------------------------------------
-  latch_data2: process(data_clk2, rst_i)
+  dff_data2: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch data byte2
+  -- process to register data byte2
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         data_in (23 downto 16) <= (others => '0');
-     elsif (data_clk2'EVENT and data_clk2 = '1') then
-        data_in (23 downto 16) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        data_in (23 downto 16) <= data_in_mux(23 downto 16);
      end if;
-  end process latch_data2;
+  end process dff_data2;
 
 
   ------------------------------------------------------------------------------
-  latch_data3: process(data_clk3, rst_i)
+  dff_data3: process(clk_i, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch data byte1
+  -- process to register data byte1
   ----------------------------------------------------------------------------
   begin
      if (rst_i = '1') then 
         data_in (31 downto 24) <= (others => '0');
-     elsif (data_clk3'EVENT and data_clk3 = '1') then
-        data_in (31 downto 24) <= rxd_i(7 downto 0);
+     elsif (clk_i'EVENT and clk_i = '1') then
+        data_in (31 downto 24) <= data_in_mux(31 downto 24);
      end if;
-  end process latch_data3;
+  end process dff_data3;
+
 
 
   ------------------------------------------------------------------------------
-  checksum_calculator: process(check_update, check_reset
-  --, cksum_in
-  )
+  dff_cmd_data: process(clk_i, rst_i)
+  ----------------------------------------------------------------------------
+  -- process to register cmd data word
+  ----------------------------------------------------------------------------
+  begin
+     if (rst_i = '1') then 
+        cmd_data (31 downto 0) <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        cmd_data (31 downto 0) <= cmd_data_mux(31 downto 0);
+     end if;
+  end process dff_cmd_data;
+
+
+  ------------------------------------------------------------------------------
+  checksum_calculator: process(check_reset, check_update)
   ----------------------------------------------------------------------------
   -- process to update calculated checksum
   ----------------------------------------------------------------------------
@@ -1148,6 +1312,11 @@ begin
  begin
      if (reset_mem = '1') then
         write_pointer <= 0;
+        
+        for reset_index in 0 to mem_size-1 loop
+           memory(reset_index) <= (others => '0');
+        end loop;
+        
      elsif (write_mem'EVENT AND write_mem = '1') then
         memory(write_pointer) <= data_in; 
         write_pointer <= write_pointer + 1;
