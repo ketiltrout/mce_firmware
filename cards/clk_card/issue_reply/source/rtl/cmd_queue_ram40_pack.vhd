@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_ram40_pack.vhd,v 1.7 2004/07/07 00:35:23 bburger Exp $
+-- $Id: cmd_queue_ram40_pack.vhd,v 1.8 2004/07/22 23:43:31 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_ram40_pack.vhd,v $
+-- Revision 1.8  2004/07/22 23:43:31  bench2
+-- Bryce: in progress
+--
 -- Revision 1.7  2004/07/07 00:35:23  bburger
 -- in progress
 --
@@ -91,6 +94,24 @@ package cmd_queue_ram40_pack is
    constant PARAM_ID_END     : integer := QUEUE_WIDTH - CQ_CARD_ADDR_BUS_WIDTH - CQ_PAR_ID_BUS_WIDTH;
    constant MOP_END          : integer := QUEUE_WIDTH - CQ_CARD_ADDR_BUS_WIDTH - CQ_PAR_ID_BUS_WIDTH - MOP_BUS_WIDTH;
    constant UOP_END          : integer := QUEUE_WIDTH - CQ_CARD_ADDR_BUS_WIDTH - CQ_PAR_ID_BUS_WIDTH - MOP_BUS_WIDTH - UOP_BUS_WIDTH;
+
+   -- Line 1:
+   -- ISSUE_SYNC_BUS_WIDTH (8 bits),
+   -- TIMEOUT_SYNC_BUS_WIDTH (8 bits),
+   -- CQ_CARD_ADDR_BUS_WIDTH (8 bits),
+   -- CQ_PAR_ID_BUS_WIDTH (8 bits),
+--   constant ISSUE_SYNC_END   : integer := QUEUE_WIDTH - ISSUE_SYNC_BUS_WIDTH;
+--   constant TIMEOUT_SYNC_END : integer := QUEUE_WIDTH - ISSUE_SYNC_BUS_WIDTH - TIMEOUT_SYNC_BUS_WIDTH;
+--   constant CARD_ADDR_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_BUS_WIDTH - TIMEOUT_SYNC_BUS_WIDTH - CQ_CARD_ADDR_BUS_WIDTH;
+--   constant PARAM_ID_END     : integer := QUEUE_WIDTH - ISSUE_SYNC_BUS_WIDTH - TIMEOUT_SYNC_BUS_WIDTH - CQ_CARD_ADDR_BUS_WIDTH - CQ_PAR_ID_BUS_WIDTH;
+
+   -- Line 2:
+   -- CQ_DATA_SIZE_BUS_WIDTH (16 bits)
+   -- MOP_BUS_WIDTH (8 bits),
+   -- UOP_BUS_WIDTH (8 bits)
+--   constant DATA_SIZE_END    : integer := QUEUE_WIDTH - CQ_DATA_SIZE_BUS_WIDTH;
+--   constant MOP_END          : integer := QUEUE_WIDTH - CQ_DATA_SIZE_BUS_WIDTH - MOP_BUS_WIDTH;
+--   constant UOP_END          : integer := QUEUE_WIDTH - CQ_DATA_SIZE_BUS_WIDTH - MOP_BUS_WIDTH - UOP_BUS_WIDTH;
 
    component cmd_queue_ram40 is
       PORT

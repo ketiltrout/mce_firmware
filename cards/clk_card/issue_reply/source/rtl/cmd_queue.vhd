@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.23 2004/07/22 20:39:08 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.24 2004/07/22 23:43:31 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.24  2004/07/22 23:43:31  bench2
+-- Bryce: in progress
+--
 -- Revision 1.23  2004/07/22 20:39:08  bench2
 -- Bryce: in progress
 --
@@ -133,12 +136,12 @@ signal send_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal free_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
 -- Insertion FSM:  inserts u-ops into the command queue
-type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_DATA, DONE, RESET, STALL);
+type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_DATA, DONE, RESET);
 signal present_insert_state : insert_states;
 signal next_insert_state    : insert_states;
 signal data_count           : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
 signal insert_uop_ack       : std_logic; --tells the generate FSM when the insert FSM is ready to insert the next u-op
-signal inserting            : std_logic; --used to keep track of how much space there is in the queue.  It is asserted until the insert FSM asserts finishes inserting a u-op
+--signal inserting            : std_logic; --used to keep track of how much space there is in the queue.  It is asserted until the insert FSM asserts finishes inserting a u-op
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
 type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, EJECT, NEXT_FLUSH, FLUSH_STATUS, RESET);
@@ -151,7 +154,7 @@ signal uop_timed_out        : std_logic;
 type gen_uop_states is (IDLE, INSERT, PS_CARD, CLOCK_CARD, ADDR_CARD, READOUT_CARD1, READOUT_CARD2, READOUT_CARD3, READOUT_CARD4, BIAS_CARD1, BIAS_CARD2, BIAS_CARD3, CLEANUP, RESET, DONE);
 signal present_gen_state    : gen_uop_states;
 signal next_gen_state       : gen_uop_states;
-signal new_insert_state     : gen_uop_states;
+--signal new_insert_state     : gen_uop_states;
 signal mop_rdy              : std_logic; --In from the previous block in the chain  
 signal insert_uop_rdy       : std_logic; --Out, to insertion fsm, tells the insert FSM when a new u-op is available
 signal new_card_addr        : std_logic_vector(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0); --out, to insertion fsm
@@ -162,7 +165,6 @@ type send_states is (LOAD, ISSUE, HEADER_A, HEADER_B, DATA, MORE_DATA, CHECKSUM,
 signal present_send_state   : send_states;
 signal next_send_state      : send_states;
 signal previous_send_state  : send_states;
--- ***This signal needs support in the send FSM.
 signal freeze_send          : std_logic;  --In, freezes the send pointer when flushing out invalidated u-ops
 signal uop_send_expired     : std_logic;
 signal issue_sync           : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
@@ -308,9 +310,9 @@ begin
       if(rst_i = '1') then
          queue_space <= QUEUE_LEN;
       elsif(clk_i'event and clk_i = '1') then
-         if(inserting = '1' and retired = '0') then
+         if(wren_sig = '1' and retired = '0') then
             queue_space <= queue_space - 1;
-         elsif(inserting = '0' and retired = '1') then
+         elsif(wren_sig = '0' and retired = '1') then
             queue_space <= queue_space + 1;
          -- All other operations balance each other out
          end if;
@@ -327,7 +329,7 @@ begin
       end if;
    end process;
 
-   insert_state_NS: process(present_insert_state, insert_uop_rdy, data_size_i, data_count, new_insert_state, present_gen_state)
+   insert_state_NS: process(present_insert_state, insert_uop_rdy, data_size_i, data_count)
    begin
       case present_insert_state is
          when RESET =>
@@ -356,75 +358,67 @@ begin
                next_insert_state <= DONE;
             end if;
          when DONE =>
-            next_insert_state <= STALL;
-         -- This state exists to delay the FSM from returning too quickly to the IDLE state and trying to insert the same u-op again.
-         -- The side effect of this state is that the u-op is only inserted on the second clk_400mhz_i cycle after it becomes available for insertion
-         when STALL =>
-            if(new_insert_state /= present_gen_state and
-              (present_gen_state = PS_CARD or
-               present_gen_state = CLOCK_CARD or
-               present_gen_state = ADDR_CARD or
-               present_gen_state = READOUT_CARD1 or
-               present_gen_state = READOUT_CARD2 or
-               present_gen_state = READOUT_CARD3 or
-               present_gen_state = READOUT_CARD4 or
-               present_gen_state = BIAS_CARD1 or
-               present_gen_state = BIAS_CARD2 or
-               present_gen_state = BIAS_CARD3)) then
-               next_insert_state <= IDLE;
-            else
-               next_insert_state <= STALL;
-            end if;
+            next_insert_state <= IDLE;
          when others =>
             next_insert_state <= IDLE;
       end case;
    end process;
 
+   wraddress_sig <= free_ptr;
 
-   insert_state_out: process(present_insert_state, issue_sync_i, data_size_i, new_card_addr, new_par_id, mop_i, uop_counter, next_insert_state, present_gen_state)
+   insert_state_out: process(present_insert_state, issue_sync_i, data_size_i, new_card_addr, new_par_id, mop_i, uop_counter)
    -- There is something sketchy about the sensitivity list.  free_ptr does not appear anywhere on the list.  It can't because of my free_ptr <= free_ptr + 1 statement below.  However, it should because it appears on the lhs in the INSERT state
    begin
-      wraddress_sig <= free_ptr;
       case present_insert_state is
          when RESET =>
             wren_sig       <= '0';
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
-            inserting      <= '0';
+--            inserting      <= '0';
             data_sig       <= (others => '0');
             free_ptr       <= ADDR_ZERO;
          when IDLE =>
-            -- The RAM block and the functions that write to it will be operating at higher speed than the rest of the logic.
-            -- INSERT and DONE should complete in less than one clk_i cycle for this to work
             wren_sig       <= '0';
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
-            inserting      <= '0';
+--            inserting      <= '0';
             data_sig       <= (others => '0');
          when INSERT_HDR1 =>
             wren_sig       <= '1';
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
-            inserting      <= '1';
+--            inserting      <= '1';
+            
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             data_sig(QUEUE_WIDTH-1      downto ISSUE_SYNC_END)   <= issue_sync_i;
             data_sig(ISSUE_SYNC_END-1   downto TIMEOUT_SYNC_END) <= issue_sync_i + TIMEOUT_LEN;
             data_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)    <= data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+         
          when INSERT_HDR2 =>
             wren_sig       <= '1';
             data_count     <= (others => '0');
-            mop_ack_o      <= '1';
+            
+            -- Asserting mop_ack_o causes cmd_translator to begin passing data through to cmd_queue.
+            -- In this implememtation, data are not replicated for other u-ops, if the m-op generates several u-ops.
+            -- This means that all m-ops with data can only generate a single u-op..for now.
+            -- If a m-op is issued with data and generated several u-ops, only the last one will have data.
+            if(num_uops_inserted = num_uops) then
+               mop_ack_o   <= '1';
+            end if;
+            
             insert_uop_ack <= '0';
-            inserting      <= '1';
-            -- In this state, I need to assert the 
+--            inserting      <= '1';
+            
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             data_sig(QUEUE_WIDTH-1      downto CARD_ADDR_END)    <= new_card_addr;
             data_sig(CARD_ADDR_END-1    downto PARAM_ID_END)     <= new_par_id;
             data_sig(PARAM_ID_END-1     downto MOP_END)          <= mop_i;
-            -- new u-op sequence number.  This FSM automatically increments uop_counter after a u-op is added.
             data_sig(MOP_END-1          downto UOP_END)          <= uop_counter;
-            -- After adding new u-op header1 info:
+            
+            -- After adding new u-op header1 info, move the free_ptr
             if(free_ptr = ADDR_FULL_SCALE) then
                free_ptr <= ADDR_ZERO;
             else
@@ -435,13 +429,9 @@ begin
             data_count     <= data_count + 1;
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
-            inserting      <= '1';
+--            inserting      <= '1';
             data_sig       <= data_i;
-            if(next_insert_state = DONE) then
-               -- This is here so that the STALL state can detect when the Generate FSM tries to issue a new u-op
-               -- The Insert FSM will remain stalled until it detetects a new u-op from the Generate FSM
-               new_insert_state <= present_gen_state;
-            end if;
+
             -- After adding new u-op header2 info, or data:  (will this work?)
             if(free_ptr = ADDR_FULL_SCALE) then
                free_ptr <= ADDR_ZERO;
@@ -453,27 +443,21 @@ begin
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '1';
-            inserting      <= '0';
+--            inserting      <= '0';
             data_sig       <= (others => '0');
+            
             -- After adding a new u-op:
             if(free_ptr = ADDR_FULL_SCALE) then
                free_ptr <= ADDR_ZERO;
             else
                free_ptr <= free_ptr + 1;
             end if;
-         when STALL =>
-            wren_sig       <= '0';
-            data_count     <= (others => '0');
-            mop_ack_o      <= '0';
-            insert_uop_ack <= '0';
-            inserting      <= '0';
-            data_sig       <= (others => '0');
          when others =>
             wren_sig       <= '0';
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
-            inserting      <= '0';
+--            inserting      <= '0';
             data_sig       <= (others => '0');
       end case;
    end process;
@@ -578,8 +562,8 @@ begin
             uop_timedout_o <= '0';
             uop_discard_o  <= '0';
             retired        <= '1';
-            retire_ptr     <= retire_ptr + PREAMBLE_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
-            flush_ptr      <= flush_ptr + PREAMBLE_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            retire_ptr     <= retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            flush_ptr      <= flush_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when FLUSH =>
             uop_rdy_o      <= '0';
             freeze_send    <= '1';
@@ -597,8 +581,8 @@ begin
             uop_timedout_o <= '1';
             uop_discard_o  <= '1';
             retired        <= '1';
-            retire_ptr     <= retire_ptr + PREAMBLE_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
-            flush_ptr      <= flush_ptr + PREAMBLE_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            retire_ptr     <= retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            flush_ptr      <= flush_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when NEXT_FLUSH =>
             uop_rdy_o      <= '1';
             freeze_send    <= '1';
@@ -606,7 +590,7 @@ begin
             uop_discard_o  <= '1';
             retired        <= '0';
             -- flush_ptr acts as a place holder at this time
-            retire_ptr      <= retire_ptr + PREAMBLE_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            retire_ptr      <= retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when FLUSH_STATUS =>
             uop_rdy_o      <= '1';
             freeze_send    <= '1';
@@ -642,6 +626,7 @@ begin
             if(mop_rdy = '0') then
                next_gen_state <= IDLE;
             elsif(mop_rdy = '1') then
+               -- ***This needs to be changed
                if(queue_space < size_uops) then
                   next_gen_state <= IDLE;
                elsif(queue_space >= size_uops) then
@@ -681,111 +666,147 @@ begin
                next_gen_state <= CLEANUP;  -- Catch all invalid card_id's with this statement
             end if;
          when PS_CARD =>
-            if(card_addr_i = ALL_CARDS) then
-               next_gen_state <= CLOCK_CARD;
-            elsif(card_addr_i = PSC) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS) then
+                  next_gen_state <= CLOCK_CARD;
+               elsif(card_addr_i = PSC) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= PS_CARD;
             end if;
          when CLOCK_CARD =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
-               next_gen_state <= ADDR_CARD;
-            elsif(card_addr_i = CC) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
+                  next_gen_state <= ADDR_CARD;
+               elsif(card_addr_i = CC) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= CLOCK_CARD;
             end if;
          when ADDR_CARD =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
-               next_gen_state <= READOUT_CARD1;
-            elsif(card_addr_i = AC) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
+                  next_gen_state <= READOUT_CARD1;
+               elsif(card_addr_i = AC) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= ADDR_CARD;
             end if;
          when READOUT_CARD1 =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
-               next_gen_state <= READOUT_CARD2;
-            elsif(card_addr_i = RC1) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
+                  next_gen_state <= READOUT_CARD2;
+               elsif(card_addr_i = RC1) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= READOUT_CARD1;
             end if;
          when READOUT_CARD2 =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
-               next_gen_state <= READOUT_CARD3;
-            elsif(card_addr_i = RC2) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
+                  next_gen_state <= READOUT_CARD3;
+               elsif(card_addr_i = RC2) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= READOUT_CARD2;
             end if;
          when READOUT_CARD3 =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
-               next_gen_state <= READOUT_CARD4;
-            elsif(card_addr_i = RC3) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = RCS) then
+                  next_gen_state <= READOUT_CARD4;
+               elsif(card_addr_i = RC3) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= READOUT_CARD3;
             end if;
          when READOUT_CARD4 =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
-               next_gen_state <= BIAS_CARD1;
-            elsif(card_addr_i = RC4 or card_addr_i = RCS) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
+                  next_gen_state <= BIAS_CARD1;
+               elsif(card_addr_i = RC4 or card_addr_i = RCS) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= READOUT_CARD4;
             end if;
          when BIAS_CARD1 =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = BCS) then
-               next_gen_state <= BIAS_CARD2;
-            elsif(card_addr_i = BC1) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = BCS) then
+                  next_gen_state <= BIAS_CARD2;
+               elsif(card_addr_i = BC1) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= BIAS_CARD1;
             end if;
          when BIAS_CARD2 =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = BCS) then
-               next_gen_state <= BIAS_CARD3;
-            elsif(card_addr_i = BC2) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS or card_addr_i = BCS) then
+                  next_gen_state <= BIAS_CARD3;
+               elsif(card_addr_i = BC2) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= BIAS_CARD2;
             end if;
          when BIAS_CARD3 =>
-            if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
-               next_gen_state <= CLEANUP;
-            elsif(card_addr_i = BC3 or card_addr_i = BCS) then
-               next_gen_state <= CLEANUP;
+            if(insert_uop_ack = '1') then
+               if(card_addr_i = ALL_CARDS or card_addr_i = ALL_FPGA_CARDS) then
+                  next_gen_state <= CLEANUP;
+               elsif(card_addr_i = BC3 or card_addr_i = BCS) then
+                  next_gen_state <= CLEANUP;
+               end if;
+            else
+               next_gen_state <= BIAS_CARD3;
             end if;
          when CLEANUP =>
-            if(insert_uop_ack = '1') then
-               -- Monitor all the exit points from this sequence of states.
-               if(par_id_i(7 downto 0) = RET_DAT_ADDR or par_id_i(7 downto 0) = STATUS_ADDR) then
-                  -- CYC_OO_SYNC is the last u-op instruction in a RET_DAT or STATUS m-op.
-                  -- RET_DAT and STATUS are the only m-op that generate u-ops with different command codes
-                  if(num_uops_inserted /= num_uops) then
-                     if(card_addr_i = BCS) then
-                        next_gen_state <= BIAS_CARD1;
-                     elsif(card_addr_i = RCS) then
-                        next_gen_state <= READOUT_CARD1;
-                     elsif(card_addr_i = ALL_FPGA_CARDS) then
-                        next_gen_state <= ADDR_CARD;
-                     elsif(card_addr_i = ALL_CARDS) then
-                        next_gen_state <= PS_CARD;
-                     elsif(card_addr_i = PSC) then
-                        next_gen_state <= PS_CARD;
-                     elsif(card_addr_i = CC) then
-                        next_gen_state <= CLOCK_CARD;
-                     elsif(card_addr_i = AC) then
-                        next_gen_state <= ADDR_CARD;
-                     elsif(card_addr_i = RC1) then
-                        next_gen_state <= READOUT_CARD1;
-                     elsif(card_addr_i = RC2) then
-                        next_gen_state <= READOUT_CARD2;
-                     elsif(card_addr_i = RC3) then
-                        next_gen_state <= READOUT_CARD3;
-                     elsif(card_addr_i = RC4) then
-                        next_gen_state <= READOUT_CARD4;
-                     elsif(card_addr_i = BC1) then
-                        next_gen_state <= BIAS_CARD1;
-                     elsif(card_addr_i = BC2) then
-                        next_gen_state <= BIAS_CARD2;
-                     elsif(card_addr_i = BC3) then
-                        next_gen_state <= BIAS_CARD3;
-                     else
-                        next_gen_state <= IDLE;  -- Catch all invalid card_id's with this statement
-                     end if;
+            -- Monitor all the exit points from this sequence of states.
+            if(par_id_i(7 downto 0) = RET_DAT_ADDR or par_id_i(7 downto 0) = STATUS_ADDR) then
+               -- CYC_OO_SYNC is the last u-op instruction in a RET_DAT or STATUS m-op.
+               -- RET_DAT and STATUS are the only m-op that generate u-ops with different command codes
+               if(num_uops_inserted /= num_uops) then
+                  if(card_addr_i = BCS) then
+                     next_gen_state <= BIAS_CARD1;
+                  elsif(card_addr_i = RCS) then
+                     next_gen_state <= READOUT_CARD1;
+                  elsif(card_addr_i = ALL_FPGA_CARDS) then
+                     next_gen_state <= ADDR_CARD;
+                  elsif(card_addr_i = ALL_CARDS) then
+                     next_gen_state <= PS_CARD;
+                  elsif(card_addr_i = PSC) then
+                     next_gen_state <= PS_CARD;
+                  elsif(card_addr_i = CC) then
+                     next_gen_state <= CLOCK_CARD;
+                  elsif(card_addr_i = AC) then
+                     next_gen_state <= ADDR_CARD;
+                  elsif(card_addr_i = RC1) then
+                     next_gen_state <= READOUT_CARD1;
+                  elsif(card_addr_i = RC2) then
+                     next_gen_state <= READOUT_CARD2;
+                  elsif(card_addr_i = RC3) then
+                     next_gen_state <= READOUT_CARD3;
+                  elsif(card_addr_i = RC4) then
+                     next_gen_state <= READOUT_CARD4;
+                  elsif(card_addr_i = BC1) then
+                     next_gen_state <= BIAS_CARD1;
+                  elsif(card_addr_i = BC2) then
+                     next_gen_state <= BIAS_CARD2;
+                  elsif(card_addr_i = BC3) then
+                     next_gen_state <= BIAS_CARD3;
                   else
-                     next_gen_state <= DONE;
+                     next_gen_state <= IDLE;  -- Catch all invalid card_id's with this statement
                   end if;
                else
                   next_gen_state <= DONE;
                end if;
             else
-               next_gen_state <= CLEANUP;
+               next_gen_state <= DONE;
             end if;
          when DONE =>
             next_gen_state <= IDLE;
@@ -816,7 +837,7 @@ begin
 
    num_uops      <= uops_generated * cards_addressed;
    data_size_int <= conv_integer(data_size_i);
-   size_uops     <= num_uops * (PREAMBLE_WORDS + data_size_int);
+   size_uops     <= num_uops * (BB_PACKET_HEADER_SIZE + data_size_int);
 
    mop_rdy <= mop_rdy_i;
 
@@ -1038,11 +1059,13 @@ begin
             crc_clr                  <= '0';
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             crc_start                <= '1';
-            crc_num_bits             <= (PREAMBLE_WORDS + uop_data_size_int)*QUEUE_WIDTH;
+            crc_num_bits             <= (BB_PACKET_HEADER_SIZE + uop_data_size_int)*QUEUE_WIDTH;
             uop_data_count           <= (others => '0');
             uop_data_size            <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
-            cmd_tx_dat(31 downto 16) <= PREAMBLE;
-            cmd_tx_dat(15 downto  0) <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
+            
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
+            cmd_tx_dat(31 downto 0) <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
+
             previous_send_state      <= HEADER_A;
          when HEADER_B =>
             cmd_tx_start             <= '1';
@@ -1050,10 +1073,10 @@ begin
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             crc_start                <= '1';
             uop_data_count           <= (others => '0');
-            cmd_tx_dat(31 downto 24) <= qa_sig(QUEUE_WIDTH-1 downto CARD_ADDR_END);
-            cmd_tx_dat(23 downto 16) <= qa_sig(CARD_ADDR_END-1 downto PARAM_ID_END);
-            cmd_tx_dat(15 downto  8) <= qa_sig(PARAM_ID_END-1 downto MOP_END);
-            cmd_tx_dat( 7 downto  0) <= qa_sig(MOP_END-1 downto UOP_END);
+
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
+            cmd_tx_dat(31 downto 0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
+
             previous_send_state      <= HEADER_B;
             send_ptr                 <= send_ptr + 1;
          when DATA =>
@@ -1062,7 +1085,10 @@ begin
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             crc_start                <= '1';
             uop_data_count           <= uop_data_count + 1;
+            
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            
             previous_send_state      <= DATA;
             send_ptr                 <= send_ptr + 1;
          when MORE_DATA =>
@@ -1071,7 +1097,10 @@ begin
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             crc_start                <= '1';
             uop_data_count           <= uop_data_count + 1;
+            
+            -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
+
             previous_send_state      <= MORE_DATA;
             send_ptr                 <= send_ptr + 1;
          when CHECKSUM =>
@@ -1100,7 +1129,7 @@ begin
             uop_data_size            <= (others => '0');
             previous_send_state      <= NEXT_UOP;
             -- The send_ptr should be incremented to the next u-op if this one has expired
-            send_ptr                 <= send_ptr + PREAMBLE_WORDS + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            send_ptr                 <= send_ptr + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when others =>
             cmd_tx_start             <= '0';
             crc_clr                  <= '1';
@@ -1195,12 +1224,33 @@ end behav;
 
 --x The insert fsm needs to put data into the queue in a single cycle.
 
+--x The communication between Generate FSM and Insert FSM is faulty.  
+-- Generate does not wait for insert to finish before asserting the next card address
+
+--x Think about changing the order of the packet header information
+-- I have changed the order of the BB-packet fields to make it easier for the Master's to discard a packet that doesn't pertain to it
+-- Now word 0 contains (Bus Backplane preamble, card address, parameter id)
+-- Now word 1 contains (data size, m-op code, u-op code)
+-- Actually, I just figured out that I can't do it, because I need the 'data size' field in the first word so that management of the retire pointer matches all others.
+-- Data Size needs to be accessed by the retire pointer in the first index of each packet as stored in the command queue.
+-- If it was in the second index of each command queue, the pointer handling would be overly complicated.
+-- I would have to handle the pointer differently depending on whether the 'retire_ptr' has reached the 'free_ptr' or not
+-- Ernie will have to take two pieces of data first, before he discards the rest.
+-- However, Ernie doesn't need to worry about managing several u-ops at once in a single queue - only one at a time.
+
 -- The send FSM needs a way of notifying the retire fsm wheter a u-op has been skipped or not
+-- NEXT_UOP in send_states should tag the uop with a special code so that the retire fsm can recognize that it was skipped.
+-- I need to insert a code either in the start sync, end sync or data size field.  
+-- At this point, I think that I'll use the data size field, because there are definate limits to the size that a packet will be.
+-- I can't add a new state in the send state machine that would alter the data field, because you can only read from the qa_sig data port.
 
 -- there's a problem with the use of the counters i've used in frame_timing and cmd_queue.  
 -- They all continue on counting after they've gone past the limit that they count to.
 -- The bad thing about this is that if the counter wraps after exceeding the time limit, then there could be problems.
 
--- The communication between Generate FSM and Insert FSM is faulty.  
--- Generate does not wait for insert to finish before asserting the next card address
+-- Check out the ***'ed lines
 
+-- issue_sync and timeout_sync signals seem to be used both for the insert and send FSM.  
+-- However, both should actually be two different signals - one to each FSM.
+-- The insert FSM should get it's issue and timeout information from the cmd_translator block.
+-- The send FSM should get it's issue and timeout information from the cmd_queue RAM.
