@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.3 2004/07/28 23:39:34 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.4 2004/08/05 18:16:55 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/28 23:39:34 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/05 18:16:55 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.4  2004/08/05 18:16:55  jjacob
+-- added cmd_queue instantiation
+--
 -- Revision 1.3  2004/07/28 23:39:34  jjacob
 -- added:
 -- library sys_param;
@@ -347,7 +350,7 @@ begin
    begin
          if rst_i = '1' then
             count_rst <= '1';
-         elsif count = 10 then
+         elsif count = 53 then
             count_rst   <= '1';
          else
             count_rst   <= '0';
