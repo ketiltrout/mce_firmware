@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.1 2004/04/14 21:54:38 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.2 2004/04/15 18:47:40 mandana Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -42,8 +42,11 @@
 -- Feb. 3  2004  - Added 1-wire modules - EL
 
 -- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date: 2004/04/14 21:54:38 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/15 18:47:40 $>	-		<text>		- <initials $Author: mandana $>
 -- $Log: component_pack.vhd,v $
+-- Revision 1.2  2004/04/15 18:47:40  mandana
+-- added write_spi_with_cs
+--
 -- Revision 1.1  2004/04/14 21:54:38  jjacob
 -- new directory structure
 --
@@ -173,7 +176,21 @@ package component_pack is
            count_i : in integer;
            count_o : out integer);
    end component;
+
+------------------------------------------------------------
+--
+-- generic step counter
+--
+------------------------------------------------------------ 
  
+   component counter_xstep is
+      generic(MAX : integer := 255);
+      port(clk_i   : in std_logic;
+           rst_i   : in std_logic;
+           ena_i   : in std_logic;
+           step_i  : in integer;
+           count_o : out integer);
+   end component;
  
 ------------------------------------------------------------
 --
