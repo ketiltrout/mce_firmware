@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.63 2004/11/15 19:32:07 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.64 2004/11/15 20:03:41 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.64  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.63  2004/11/15 19:32:07  bburger
 -- Bryce : fixed a bug that affected the uop_rdy_o signal
 --
@@ -846,7 +849,7 @@ begin
    with par_id_i(7 downto 0) select
       uops_generated <=
          1 when RET_DAT_ADDR, --***If you wish the cmd_queue to generate and issue all commands that are inherant in a ret_dat command, change the literal to 6 
-         0 when STATUS_ADDR,  --***If you wish the cmd_queue to generate and issue all commands that are inherant in a status command, change the literal to 5
+--         0 when STATUS_ADDR,  --***If you wish the cmd_queue to generate and issue all commands that are inherant in a status command, change the literal to 5
          1 when others; -- all other m-ops generate one u-op
 
    num_uops      <= uops_generated;
@@ -942,15 +945,15 @@ begin
                   when others          => new_par_id_mux_sel <= RECIRC;
                end case;
                
-            elsif(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = STATUS_ADDR) then
-               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
-                  when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
-                  when BIT_STATUS_ADDR => new_par_id_mux_sel <= FPGA_TEMP_ADDR;
-                  when FPGA_TEMP_ADDR  => new_par_id_mux_sel <= CARD_TEMP_ADDR;
-                  when CARD_TEMP_ADDR  => new_par_id_mux_sel <= CYC_OO_SYC_ADDR;
-                  when CYC_OO_SYC_ADDR => new_par_id_mux_sel <= PAR_ID;
-                  when others          => new_par_id_mux_sel <= RECIRC;
-               end case;
+--            elsif(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = STATUS_ADDR) then
+--               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
+--                  when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
+--                  when BIT_STATUS_ADDR => new_par_id_mux_sel <= FPGA_TEMP_ADDR;
+--                  when FPGA_TEMP_ADDR  => new_par_id_mux_sel <= CARD_TEMP_ADDR;
+--                  when CARD_TEMP_ADDR  => new_par_id_mux_sel <= CYC_OO_SYC_ADDR;
+--                  when CYC_OO_SYC_ADDR => new_par_id_mux_sel <= PAR_ID;
+--                  when others          => new_par_id_mux_sel <= RECIRC;
+--               end case;
 
             else
                new_par_id_mux_sel        <= PAR_ID;
