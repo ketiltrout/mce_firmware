@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/06/12 01:03:07 $>	- <initials $Author: mandana $>
+-- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.1  2004/06/12 01:03:07  mandana
+-- Initial release
+--
 --
 --
 -----------------------------------------------------------------------------
@@ -47,7 +50,6 @@ use sys_param.wishbone_pack.all;
 use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
 use components.component_pack.all;
-use work.dac_ctrl_pack.all;
 
 -----------------------------------------------------------------------------
                      
@@ -233,9 +235,9 @@ begin
             dac7_dat_fix <= "00000000000000";
    
             for idac in 0 to 7 loop
-               dac_clk_o(idac) <= '0';
+               dac_clk_fix(idac) <= '0';
             end loop;
-	    done_o    <= '0';
+	    done_fix    <= '0';
          
          when PUSH_DATA =>    
             dac0_dat_fix <= data_fix(idat);
@@ -250,7 +252,7 @@ begin
             for idac in 0 to 7 loop
                dac_clk_fix(idac) <= '0';
             end loop;
-	    done_o    <= '0';
+	    done_fix    <= '0';
                           
          when CLKNOW =>    
             dac0_dat_fix <= data_fix(idat);
@@ -263,9 +265,9 @@ begin
             dac7_dat_fix <= data_fix(idat);
             
             for idac in 0 to 7 loop
-               dac_clk_o(idac) <= '1';
+               dac_clk_fix(idac) <= '1';
             end loop;
-	    done_o    <= '0';
+	    done_fix    <= '0';
 
           when DONE =>    
             dac0_dat_fix <= "00000000000000";

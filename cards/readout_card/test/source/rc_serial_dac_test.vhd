@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/06/12 01:03:07 $>	- <initials $Author: mandana $>
+-- $Log: rc_serial_dac_test.vhd,v $
+-- Revision 1.1  2004/06/12 01:03:07  mandana
+-- Initial release
+--
 --
 --
 -----------------------------------------------------------------------------
@@ -47,8 +50,6 @@ use sys_param.wishbone_pack.all;
 use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
 use components.component_pack.all;
-use work.dac_ctrl_pack.all;
-
 -----------------------------------------------------------------------------
                      
 entity rc_serial_dac_test_wrapper is
@@ -99,6 +100,8 @@ signal logic0   : std_logic;
 signal logic1   : std_logic;
 signal zero     : integer;
 signal ramp_data: std_logic_vector(15 downto 0);
+signal done_fix : std_logic;
+signal done_ramp: std_logic;
 
 -- parallel data signals for DAC
 -- subtype word is std_logic_vector (15 downto 0); 
@@ -230,22 +233,22 @@ begin
                dac_data_p(idac) <= "0000000000000000";
             end loop;            
             send_dac_start    <= '0';
-            val_clk   <= '1';
-            done_o    <= '0';
+            val_clk           <= '1';
+            done_fix          <= '0';
          
          when PUSH_DATA_FIX =>    
             for idac in 0 to 7 loop
                dac_data_p(idac) <= data(idx);
             end loop;
             send_dac_start    <= '0';
-            val_clk   <= '0';
-	    done_o    <= '0';
+            val_clk           <= '0';
+	    done_fix          <= '0';
                           
          when PUSH_DATA_RAMP =>    
             for idac in 0 to 7 loop
                dac_data_p(idac) <= ramp_data;
             end loop;
-            send_dac_start <= '0';
+            send_dac_start   <= '0';
 
          when SPI_START =>     -- we may need to hold ramp data in this state         
             send_dac_start    <= '1';
@@ -256,7 +259,7 @@ begin
             send_dac_start    <= '0';
         --    val_clk   <= '0';
             if en_fix = '1' then   
-	       done_o    <= '1';
+	       done_fix      <= '1';
 	    end if;   
             -- for fix values, we want to assert done_o after one value is loaded
             -- but for the ramp done_o signal is asserted in a process.
@@ -274,11 +277,11 @@ begin
    process(clk_2)
    begin
       if(clk_2'event and clk_2 = '1') then
-         done_o <= en_ramp;
+         done_ramp <= en_ramp;
       end if;
    end process;
 
-   
+   done_o <= done_fix when en_fix = '1' else done_ramp;
 
    end;
  
