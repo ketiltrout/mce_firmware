@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.21 2004/08/11 00:09:00 jjacob Exp $
+-- $Id: issue_reply_pack.vhd,v 1.22 2004/09/09 18:28:49 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.22  2004/09/09 18:28:49  jjacob
+-- added 3 outputs to cmd_translator:
+-- >       cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+-- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
+-- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
+--
 -- Revision 1.21  2004/08/11 00:09:00  jjacob
 -- added the following signals to cmd_translator for the reply_translator interface:
 --       reply_cmd_rcvd_er_o         : out std_logic;
@@ -369,5 +375,69 @@ port(
    ); 
      
 end component;
+
+
+component fibre_tx 
+
+port(       
+     -- global inputs
+     rst_i        : in     std_logic;
+         
+     -- interface to reply_translator
+      
+     txd_i        : in     std_logic_vector (7 downto 0);
+     tx_fw_i      : in     std_logic;        
+     tx_ff_o      : out    std_logic;
+      
+     -- interface to HOTLINK transmitter
+     tx_fr_i      : in     std_logic;
+     ft_clkw_i    : in     std_logic;
+     nTrp_i       : in     std_logic;
+     tx_fe_o      : out    std_logic; 
+     tx_data_o    : out    std_logic_vector (7 downto 0);
+     tsc_nTd_o    : out    std_logic;
+     nFena_o      : out    std_logic;
+     tx_fr_o      : out    std_logic
+     );
+
+end component;
+
+
+component reply_translator
+
+port(
+
+   -- global inputs 
+   rst_i                   : in  std_logic;                                            -- global reset
+   clk_i                   : in  std_logic;                                            -- global clock
+
+   -- signals to/from cmd_translator    
+   cmd_rcvd_er_i           : in  std_logic;                                            -- command received on fibre with checksum error
+   cmd_rcvd_ok_i           : in  std_logic;                                            -- command received on fibre - no checksum error
+   cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);    -- fibre command code
+   card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- fibre command card id
+   param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- fibre command parameter id
+         
+   -- signals to/from reply queue 
+   m_op_done_i             : in  std_logic;                                            -- macro op done
+   m_op_ok_nEr_i           : in  std_logic;                                            -- macro op success ('1') or error ('0') 
+   m_op_cmd_code_i         : in  std_logic_vector (CMD_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
+--    m_op_param_id_i         : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- m_op parameter id passed from reply_queue
+--    m_op_card_id_i          : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- m_op card id passed from reply_queue
+   fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- packet word read from reply queue
+   num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
+   fibre_word_req_o        : out std_logic;                                            -- asserted to requeset next fibre word
+   m_op_ack_o              : out std_logic;                                            -- asserted to indicate to reply queue the the packet has been processed
+
+   -- signals to / from fibre_tx
+   tx_ff_i                 : in std_logic;                                             -- transmit fifo full
+   tx_fw_o                 : out std_logic;                                            -- transmit fifo write request
+   txd_o                   : out std_logic_vector (7 downto 0)                         -- transmit fifo data input
+   );      
+
+end component;
+
+
+
 
 end issue_reply_pack;
