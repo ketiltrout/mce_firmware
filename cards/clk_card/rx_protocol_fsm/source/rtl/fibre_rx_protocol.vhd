@@ -20,14 +20,14 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: rx_protocol_fsm.vhd,v 1.11 2004/06/14 13:07:31 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.1 2004/06/28 10:08:53 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
 --               
 -- Organisation:  UK ATC
 --
--- Description:  rx_protocol_fsm
+-- Description:  fibre_rx_protocol
 --
 -- This block reads any incomming commands buffered in the rx_fifo and 
 -- packages them up for subsequent blocks.
@@ -46,7 +46,7 @@
 -- are clocked out sequentially (cmd_data_o) on the rising 
 -- edge of the clock "data_clk_o".  cmd_rdy_o is asserted during this entire time.  
 --
---  see rx_protocol_fsm.doc for more details
+--  see fibre_rx_protocol.doc for more details
 --
 -- The command stucture for all commands (WB, RB, ST, GO, RS) is as follows:
 --
@@ -67,14 +67,14 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/14 13:07:31 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 10:08:53 $>	-		<text>		- <initials $Author: dca $>
 -- <$log$>
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity rx_protocol_fsm is
+entity fibre_rx_protocol is
    port( 
       rst_i       : in     std_logic;                          -- reset
       clk_i       : in     std_logic;                          -- clock 
@@ -93,14 +93,14 @@ entity rx_protocol_fsm is
       rx_fr_o     : out    std_logic                           -- receive fifo read request
    );
 
-end rx_protocol_fsm ;
+end fibre_rx_protocol;
 
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-architecture rtl of rx_protocol_fsm is
+architecture rtl of fibre_rx_protocol is
 
 
 -- FSM's states defined
