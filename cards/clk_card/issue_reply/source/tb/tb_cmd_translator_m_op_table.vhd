@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 
 -- 
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.5 2004/07/09 15:04:13 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.6 2004/08/24 13:19:33 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,14 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/09 15:04:13 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/08/24 13:19:33 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: tb_cmd_translator_m_op_table.vhd,v $
+-- Revision 1.6  2004/08/24 13:19:33  dca
+-- Reply and Data FSMs combined to 'FIBRE FSM'
+-- This FSM handles the writing of all packets to fibre_tx_fifo.
+-- Reply states coded and tested.  Data states in progress....
+--
 -- Revision 1.5  2004/07/09 15:04:13  dca
 -- 100% coverage now achieved.
 --
@@ -85,14 +90,14 @@ architecture bench of tb_cmd_translator_m_op_table is
 
 
 signal   dut_rst              : std_logic;
-signal   card_addr_store      : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); 
-signal   parameter_id_store   : std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  
-signal   m_op_seq_num_store   : std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
+signal   card_addr_store      : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); 
+signal   parameter_id_store   : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);  
+signal   m_op_seq_num_store   : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
 signal   frame_seq_num_store  : std_logic_vector (31                    downto 0);
 signal   macro_instr_rdy      : std_logic;                                           
-signal   card_addr_retire     : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  
-signal   parameter_id_retire  : std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  
-signal   m_op_seq_num_retire  : std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
+signal   card_addr_retire     : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  
+signal   parameter_id_retire  : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);  
+signal   m_op_seq_num_retire  : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
 signal   frame_seq_num_retire : std_logic_vector (31                    downto 0);
 signal   macro_instr_done     : std_logic;                                           
 signal   table_full           : std_logic;     
@@ -114,10 +119,10 @@ signal  retire_m_op    : integer := 16;
 constant BUFFER_SIZE  : integer := 16;
     
 -- local memory buffer word size declaration
-subtype card_addr_word      is std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
-subtype parameter_id_word   is std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0); 
-subtype m_op_seq_num_word   is std_logic_vector (MOP_BUS_WIDTH-1       downto 0); 
-subtype frame_seq_num_word  is std_logic_vector (31                    downto 0); 
+subtype card_addr_word      is std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1      downto 0);
+subtype parameter_id_word   is std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1      downto 0); 
+subtype m_op_seq_num_word   is std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1         downto 0); 
+subtype frame_seq_num_word  is std_logic_vector (31                              downto 0); 
 
 -- local memory buffer declarations
 type card_addr_mem     is array (0 to BUFFER_SIZE-1) of card_addr_word;
@@ -230,9 +235,9 @@ begin
       
       for I in 0 to 15 loop
                     
-         card_addr_store        <= std_logic_vector(to_unsigned(issue_m_op,CARD_ADDR_BUS_WIDTH));
-         parameter_id_store     <= std_logic_vector(to_unsigned(issue_m_op,PAR_ID_BUS_WIDTH));
-         m_op_seq_num_store     <= std_logic_vector(to_unsigned(issue_m_op,MOP_BUS_WIDTH));
+         card_addr_store        <= std_logic_vector(to_unsigned(issue_m_op,FIBRE_CARD_ADDRESS_WIDTH));
+         parameter_id_store     <= std_logic_vector(to_unsigned(issue_m_op,FIBRE_PARAMETER_ID_WIDTH));
+         m_op_seq_num_store     <= std_logic_vector(to_unsigned(issue_m_op,BB_MACRO_OP_SEQ_WIDTH));
          frame_seq_num_store    <= std_logic_vector(to_unsigned(issue_m_op,32));
          do_store_m_op;
          
@@ -251,28 +256,28 @@ begin
       
       retire_m_op               <= retire_m_op + 7; 
       wait for clk_prd;
-      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));   
+      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,BB_MACRO_OP_SEQ_WIDTH));   
       do_retire_m_op;
       wait for clk_prd;
       wait until retiring_busy = '0';
       
       retire_m_op            <= retire_m_op + 3; 
       wait for clk_prd;     
-      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
+      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,BB_MACRO_OP_SEQ_WIDTH));
       do_retire_m_op;
       wait for clk_prd;
       wait until retiring_busy = '0';
       
       retire_m_op            <= retire_m_op + 3; 
       wait for clk_prd;     
-      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
+      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,BB_MACRO_OP_SEQ_WIDTH));
       do_retire_m_op;
       wait for clk_prd;
       wait until retiring_busy = '0';
       
       retire_m_op            <= retire_m_op - 9; 
       wait for clk_prd;     
-      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
+      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,BB_MACRO_OP_SEQ_WIDTH));
       do_retire_m_op_test_state;
      
       wait for clk_prd;
@@ -292,9 +297,9 @@ begin
       
       for I in 0 to 3 loop
                     
-         card_addr_store        <= std_logic_vector(to_unsigned(issue_m_op,CARD_ADDR_BUS_WIDTH));
-         parameter_id_store     <= std_logic_vector(to_unsigned(issue_m_op,PAR_ID_BUS_WIDTH));
-         m_op_seq_num_store     <= std_logic_vector(to_unsigned(issue_m_op,MOP_BUS_WIDTH));
+         card_addr_store        <= std_logic_vector(to_unsigned(issue_m_op,FIBRE_CARD_ADDRESS_WIDTH));
+         parameter_id_store     <= std_logic_vector(to_unsigned(issue_m_op,FIBRE_PARAMETER_ID_WIDTH));
+         m_op_seq_num_store     <= std_logic_vector(to_unsigned(issue_m_op,BB_MACRO_OP_SEQ_WIDTH));
          frame_seq_num_store    <= std_logic_vector(to_unsigned(issue_m_op,32));
          do_store_m_op;
          
