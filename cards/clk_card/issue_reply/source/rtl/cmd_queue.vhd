@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.39 2004/08/18 06:48:43 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.40 2004/08/19 18:22:42 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,10 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.40  2004/08/19 18:22:42  jjacob
+-- merged 1.38 with 1.39.  Added re-circulation muxes to most state machines.
+-- Still have to do last couple state machines
+--
 -- Revision 1.39  2004/08/18 06:48:43  bench2
 -- Bryce: removed unnecessary interface signals between the cmd_queue and the reply_queue.
 --
@@ -276,6 +280,29 @@ signal crc_num_bits_mux_sel : std_logic_vector(1 downto 0);
 signal crc_num_bits_reg     : integer;
 signal crc_num_bits2        : integer;
 
+signal cmd_tx_dat_mux_sel   : std_logic_vector(2 downto 0);
+signal cmd_tx_dat_reg       : std_logic_vector(31 downto 0);
+signal cmd_tx_dat2          : std_logic_vector(31 downto 0);
+
+signal header_a_state       : std_logic;
+signal first_time_header_a  : std_logic;
+
+component first_time_tracker
+
+   port(
+   
+      clk_i                 : in std_logic;    -- Advances the state machines
+      rst_i                 : in std_logic;     -- Resets all FSMs
+
+      next_tracking_state_i : in std_logic;    -- '1' when you are in the state to track, '0' otherwise
+      
+      -- lvds_tx interface
+      first_time_o          : out std_logic  -- high by default, goes low after you have been in a state for more
+                                              -- than one clock cycle.  Once you leave that state, goes high again.
+   );
+end component;
+
+
 begin
 
 ------------------------------------------------------------------------
@@ -292,7 +319,7 @@ begin
          rdaddress_a => rdaddress_a_sig,
          rdaddress_b => rdaddress_b_sig,
          wren        => wren_sig,
-         clock       => n_clk,         
+         clock       => clk_200mhz_i, --n_clk,      clk_i, --   
          qa          => qa_sig, -- qa_sig data are used by the send FSM         
          qb          => qb_sig -- qb_sig data are used by the retire FSM
       );
@@ -1207,9 +1234,9 @@ begin
    send_state_out: process(present_send_state)
    begin
    
-      -- default
-      crc_num_bits_mux_sel <= "00";  -- hold value
-   
+      -- defaults
+      crc_num_bits_mux_sel     <= "00";  -- hold value
+      cmd_tx_dat_mux_sel       <= "000"; -- hold value
    
       case present_send_state is
          when RESET =>
@@ -1225,7 +1252,9 @@ begin
             uop_data_size            <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto  0) <= (others => '0');
+            cmd_tx_dat_mux_sel       <= "100";  -- 0
+            
+            --cmd_tx_dat(31 downto  0) <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= RESET;
@@ -1243,7 +1272,9 @@ begin
             uop_data_size            <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto  0) <= (others => '0');
+            cmd_tx_dat_mux_sel       <= "100";  -- 0
+            
+            --cmd_tx_dat(31 downto  0) <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= LOAD;
@@ -1266,11 +1297,18 @@ begin
             uop_data_size            <= qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto 0)  <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
+            if first_time_header_a = '1' then
+               cmd_tx_dat_mux_sel    <= "001";  -- BB_PREAMBLE & qa_sig
+            else
+               cmd_tx_dat_mux_sel    <= "000";  -- recirculate [JJ] implement another 'first time' state machine
+            end if;  
+            
+            
+            --cmd_tx_dat(31 downto 0)  <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
             sh_reg_parallel_i        <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
 
             previous_send_state      <= HEADER_A;
-            send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
+            --send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
          
             -- I thought that I could update issue_sync and timeout_sync only when they're inputs would be valid
             -- However, I discovered that for some reason, this doesn't work.
@@ -1286,7 +1324,9 @@ begin
             uop_data_count           <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto 0)  <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            cmd_tx_dat_mux_sel       <= "010";  -- qa_sig
+            
+            --cmd_tx_dat(31 downto 0)  <= qa_sig(QUEUE_WIDTH-1 downto 0);
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
             previous_send_state      <= HEADER_B;
@@ -1300,7 +1340,9 @@ begin
             uop_data_count           <= uop_data_count + 1;
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            cmd_tx_dat_mux_sel       <= "010";  -- qa_sig
+            
+            --cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
             
             previous_send_state      <= DATA;            
@@ -1314,7 +1356,9 @@ begin
             uop_data_count           <= uop_data_count + 1;
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
+            cmd_tx_dat_mux_sel       <= "010";  -- qa_sig
+            
+            --cmd_tx_dat(31 downto  0) <= qa_sig(QUEUE_WIDTH-1 downto 0);
             sh_reg_parallel_i        <= qa_sig(QUEUE_WIDTH-1 downto 0);
 
             previous_send_state      <= MORE_DATA;
@@ -1331,11 +1375,13 @@ begin
             uop_data_size            <= (others => '0');
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto  0) <= crc_reg;
+            cmd_tx_dat_mux_sel       <= "011";  -- crc_reg
+            
+            --cmd_tx_dat(31 downto  0) <= crc_reg;
             sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= CHECKSUM;
---            send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
+            send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
          
          when PAUSE =>
             cmd_tx_start             <= '1';
@@ -1360,7 +1406,9 @@ begin
             uop_data_size            <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto  0) <= (others => '0');
+            cmd_tx_dat_mux_sel       <= "100";  -- 0
+            
+            --cmd_tx_dat(31 downto  0) <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
 
             previous_send_state      <= NEXT_UOP;
@@ -1380,12 +1428,31 @@ begin
             uop_data_size            <= (others => '0');
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
-            cmd_tx_dat(31 downto  0) <= (others => '0');
+            cmd_tx_dat_mux_sel       <= "100";  -- 0
+            
+            --cmd_tx_dat(31 downto  0) <= (others => '0');
             sh_reg_parallel_i        <= (others => '0');
 
             previous_send_state      <= LOAD;
       end case;
    end process;
+
+
+   header_a_state <= '1' when next_send_state = HEADER_A else '0';
+   
+   i_first_time_tracker : first_time_tracker
+   port map(
+   
+      clk_i                 => clk_i,
+      rst_i                 => rst_i,
+
+      next_tracking_state_i => header_a_state,
+      
+      first_time_o          => first_time_header_a 
+                                             
+   );
+   
+
 
 
    with crc_num_bits_mux_sel select
@@ -1394,12 +1461,22 @@ begin
       ((BB_PACKET_HEADER_SIZE + uop_data_size_int)*QUEUE_WIDTH) when "01",
       0                                                         when others;
       
+   with cmd_tx_dat_mux_sel select
+      cmd_tx_dat <=
+      cmd_tx_dat_reg                                            when "000",
+      BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0)         when "001",
+      qa_sig(QUEUE_WIDTH-1 downto 0)                            when "010",
+      crc_reg                                                   when "011",
+      (others=>'0')                                             when others; --"100",
+      
    process(rst_i, clk_i)
    begin
       if rst_i = '1' then
-         crc_num_bits_reg <= 0;
+         crc_num_bits_reg  <= 0;
+         cmd_tx_dat_reg    <= (others=>'0');
       elsif clk_i'event and clk_i = '1' then
-         crc_num_bits_reg <= crc_num_bits;
+         crc_num_bits_reg  <= crc_num_bits;
+         cmd_tx_dat_reg    <= cmd_tx_dat; 
       end if;
    end process;
 
