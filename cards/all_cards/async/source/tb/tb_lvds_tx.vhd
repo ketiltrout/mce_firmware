@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_lvds_tx.vhd,v $
+-- Revision 1.1  2004/06/17 01:29:58  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -47,8 +50,8 @@ architecture BEH of TB_LVDS_TX is
            COMM_CLK_I   : in std_logic ;
            RST_I        : in std_logic ;
            DAT_I        : in std_logic_vector ( 31 downto 0 );
-           START_I      : in std_logic ;
-           DONE_O       : out std_logic ;
+           RDY_I        : in std_logic ;
+           BUSY_O       : out std_logic ;
            LVDS_O       : out std_logic );
 
    end component;
@@ -61,8 +64,8 @@ architecture BEH of TB_LVDS_TX is
    signal W_COMM_CLK_I   : std_logic := '1';
    signal W_RST_I        : std_logic ;
    signal W_DAT_I        : std_logic_vector ( 31 downto 0 );
-   signal W_START_I      : std_logic ;
-   signal W_DONE_O       : std_logic ;
+   signal W_RDY_I        : std_logic ;
+   signal W_BUSY_O       : std_logic ;
    signal W_LVDS_O       : std_logic ;
 
 begin
@@ -72,8 +75,8 @@ begin
                COMM_CLK_I   => W_COMM_CLK_I,
                RST_I        => W_RST_I,
                DAT_I        => W_DAT_I,
-               START_I      => W_START_I,
-               DONE_O       => W_DONE_O,
+               RDY_I        => W_RDY_I,
+               BUSY_O       => W_BUSY_O,
                LVDS_O       => W_LVDS_O);
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
@@ -84,13 +87,13 @@ begin
    begin
       W_RST_I        <= '1';
       W_DAT_I        <= (others => '0');
-      W_START_I      <= '0';
+      W_RDY_I        <= '0';
       
       wait for PERIOD;
       
       W_RST_I        <= '0';
       W_DAT_I        <= (others => '0');
-      W_START_I      <= '0';
+      W_RDY_I        <= '0';
       
       wait for PERIOD;
       
@@ -100,13 +103,13 @@ begin
    begin
       W_RST_I        <= '0';
       W_DAT_I        <= data;
-      W_START_I      <= '1';
+      W_RDY_I        <= '1';
       
       wait for PERIOD;
       
-      W_START_I      <= '0';
+      W_RDY_I        <= '0';
       
-      wait until W_DONE_O = '1';
+      wait until W_BUSY_O = '0';
       
       wait for PERIOD;
       

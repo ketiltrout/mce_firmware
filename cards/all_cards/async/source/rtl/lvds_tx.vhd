@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.5  2004/08/25 22:16:40  bburger
+-- Bryce:  changed int_zero from signal to constant
+--
 -- Revision 1.4  2004/08/24 23:53:23  bburger
 -- Bryce:  bug fix - added a signal call int_zero for portmaps to counters
 --
@@ -61,8 +64,8 @@ port(clk_i      : in std_logic;
      rst_i      : in std_logic;
      
      dat_i      : in std_logic_vector(31 downto 0);
-     start_i    : in std_logic;
-     done_o     : out std_logic;
+     rdy_i      : in std_logic;
+     busy_o     : out std_logic;
      
      lvds_o     : out std_logic);
 end lvds_tx;
@@ -147,10 +150,10 @@ begin
       end if;
    end process stateFF;
 
-   stateNS: process(pres_state, start_i, tx_busy, bytes_sent)
+   stateNS: process(pres_state, rdy_i, tx_busy, bytes_sent)
    begin
       case pres_state is
-         when IDLE =>   if(start_i = '1') then
+         when IDLE =>   if(rdy_i = '1') then
                            next_state <= TX;
                         else
                            next_state <= IDLE;
@@ -184,12 +187,14 @@ begin
       buffer_ena     <= '0';
       byte_count_ena <= '0';
       byte_count_clr <= '0';
-      done_o         <= '0';
+      busy_o         <= '1';
       tx_data        <= (others => '0');
+      
       case pres_state is
          when IDLE =>   buffer_ena     <= '1';
                         byte_count_ena <= '1';
                         byte_count_clr <= '1';
+                        busy_o         <= '0';
                          
          when TX =>     case bytes_sent is
                            when 0 =>      tx_data <= buffer_out(7 downto 0);
@@ -200,8 +205,6 @@ begin
                         tx_rdy <= '1';
                         
          when SETUP =>  byte_count_ena <= '1';
-         
-         when DONE =>   done_o <= '1';
          
          when others => null;                        
       end case;
