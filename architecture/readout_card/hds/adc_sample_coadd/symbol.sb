@@ -61,19 +61,19 @@ value "C:\\scuba2_repository\\architecture\\readout_card\\hds\\adc_sample_coadd"
 )
 (vvPair
 variable "date"
-value "09/24/2004"
+value "09/28/2004"
 )
 (vvPair
 variable "day"
-value "Fri"
+value "Tue"
 )
 (vvPair
 variable "day_long"
-value "Friday"
+value "Tuesday"
 )
 (vvPair
 variable "dd"
-value "24"
+value "28"
 )
 (vvPair
 variable "entity_name"
@@ -165,7 +165,7 @@ value "<TBD>"
 )
 (vvPair
 variable "time"
-value "17:22:46"
+value "15:53:48"
 )
 (vvPair
 variable "unit"
@@ -208,7 +208,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "36000,6625,36750,7375"
+xt "39000,6625,39750,7375"
 )
 n "adc_clk_o"
 t "std_logic"
@@ -223,20 +223,21 @@ f (Text
 uid 77,0
 va (VaSet
 )
-xt "31700,6500,35000,7500"
+xt "34700,6500,38000,7500"
 st "adc_clk_o"
 ju 2
-blo "35000,7300"
+blo "38000,7300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 78,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,10800,64000,11600"
-st "adc_clk_o       : OUT    std_logic  ;"
+xt "48000,10800,72500,11600"
+st "adc_clk_o               : OUT    std_logic  ;"
 )
 )
 *3 (CptPort
@@ -249,7 +250,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "14250,18625,15000,19375"
+xt "14250,21625,15000,22375"
 )
 n "adc_coadd_en_i"
 t "std_logic"
@@ -263,19 +264,20 @@ f (Text
 uid 82,0
 va (VaSet
 )
-xt "16000,18500,22200,19500"
+xt "16000,21500,22200,22500"
 st "adc_coadd_en_i"
-blo "16000,19300"
+blo "16000,22300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 83,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,2000,64000,2800"
-st "adc_coadd_en_i  : IN     std_logic  ;"
+xt "48000,2000,72500,2800"
+st "adc_coadd_en_i          : IN     std_logic  ;"
 )
 )
 *4 (CptPort
@@ -288,7 +290,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "14250,19625,15000,20375"
+xt "14250,18625,15000,19375"
 )
 n "adc_dat_i"
 t "std_logic_vector"
@@ -303,19 +305,20 @@ f (Text
 uid 87,0
 va (VaSet
 )
-xt "16000,19500,22600,20500"
+xt "16000,18500,22600,19500"
 st "adc_dat_i : (13:0)"
-blo "16000,20300"
+blo "16000,19300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 88,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,2800,74500,3600"
-st "adc_dat_i       : IN     std_logic_vector (13 DOWNTO 0) ;"
+xt "48000,2800,82500,3600"
+st "adc_dat_i               : IN     std_logic_vector (13 DOWNTO 0) ;"
 )
 )
 *5 (CptPort
@@ -328,7 +331,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "14250,20625,15000,21375"
+xt "14250,19625,15000,20375"
 )
 n "adc_ovr_i"
 t "std_logic"
@@ -342,19 +345,20 @@ f (Text
 uid 92,0
 va (VaSet
 )
-xt "16000,20500,19200,21500"
+xt "16000,19500,19200,20500"
 st "adc_ovr_i"
-blo "16000,21300"
+blo "16000,20300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 93,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,3600,64000,4400"
-st "adc_ovr_i       : IN     std_logic  ;"
+xt "48000,3600,72500,4400"
+st "adc_ovr_i               : IN     std_logic  ;"
 )
 )
 *6 (CptPort
@@ -367,7 +371,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "14250,21625,15000,22375"
+xt "14250,20625,15000,21375"
 )
 n "adc_rdy_i"
 t "std_logic"
@@ -381,19 +385,20 @@ f (Text
 uid 97,0
 va (VaSet
 )
-xt "16000,21500,19200,22500"
+xt "16000,20500,19200,21500"
 st "adc_rdy_i"
-blo "16000,22300"
+blo "16000,21300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 98,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,4400,64000,5200"
-st "adc_rdy_i       : IN     std_logic  ;"
+xt "48000,4400,72500,5200"
+st "adc_rdy_i               : IN     std_logic  ;"
 )
 )
 *7 (CptPort
@@ -429,10 +434,11 @@ tm "CptPortNameMgr"
 dt (MLText
 uid 103,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,5200,64000,6000"
-st "clk_50_i        : IN     std_logic  ;"
+xt "48000,5200,72500,6000"
+st "clk_50_i                : IN     std_logic  ;"
 )
 )
 *8 (CptPort
@@ -469,10 +475,11 @@ tm "CptPortNameMgr"
 dt (MLText
 uid 108,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,6000,74000,6800"
-st "coadded_addr_i  : IN     std_logic_vector (5 DOWNTO 0) ;"
+xt "48000,6000,82000,6800"
+st "coadded_addr_i          : IN     std_logic_vector (5 DOWNTO 0) ;"
 )
 )
 *9 (CptPort
@@ -485,7 +492,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "36000,7625,36750,8375"
+xt "39000,7625,39750,8375"
 )
 n "coadded_dat_o"
 t "std_logic_vector"
@@ -501,20 +508,21 @@ f (Text
 uid 112,0
 va (VaSet
 )
-xt "26200,7500,35000,8500"
+xt "29200,7500,38000,8500"
 st "coadded_dat_o : (31:0)"
 ju 2
-blo "35000,8300"
+blo "38000,8300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 113,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,12400,74500,13200"
-st "coadded_dat_o   : OUT    std_logic_vector (31 DOWNTO 0) ;"
+xt "48000,12400,82500,13200"
+st "coadded_dat_o           : OUT    std_logic_vector (31 DOWNTO 0) ;"
 )
 )
 *10 (CptPort
@@ -527,7 +535,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "36000,8625,36750,9375"
+xt "39000,8625,39750,9375"
 )
 n "raw_ack_o"
 t "std_logic"
@@ -542,20 +550,21 @@ f (Text
 uid 117,0
 va (VaSet
 )
-xt "31500,8500,35000,9500"
+xt "34500,8500,38000,9500"
 st "raw_ack_o"
 ju 2
-blo "35000,9300"
+blo "38000,9300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 118,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,13200,64000,14000"
-st "raw_ack_o       : OUT    std_logic  ;"
+xt "48000,15600,72500,16400"
+st "raw_ack_o               : OUT    std_logic  ;"
 )
 )
 *11 (CptPort
@@ -592,10 +601,11 @@ tm "CptPortNameMgr"
 dt (MLText
 uid 123,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,6800,74500,7600"
-st "raw_addr_i      : IN     std_logic_vector (12 DOWNTO 0) ;"
+xt "48000,6800,82500,7600"
+st "raw_addr_i              : IN     std_logic_vector (12 DOWNTO 0) ;"
 )
 )
 *12 (CptPort
@@ -608,7 +618,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "36000,9625,36750,10375"
+xt "39000,9625,39750,10375"
 )
 n "raw_dat_o"
 t "std_logic_vector"
@@ -624,20 +634,21 @@ f (Text
 uid 127,0
 va (VaSet
 )
-xt "28200,9500,35000,10500"
+xt "31200,9500,38000,10500"
 st "raw_dat_o : (13:0)"
 ju 2
-blo "35000,10300"
+blo "38000,10300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 128,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,14000,73500,14800"
-st "raw_dat_o       : OUT    std_logic_vector (13 DOWNTO 0)"
+xt "48000,16400,81500,17200"
+st "raw_dat_o               : OUT    std_logic_vector (13 DOWNTO 0)"
 )
 )
 *13 (CptPort
@@ -673,10 +684,11 @@ tm "CptPortNameMgr"
 dt (MLText
 uid 133,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,7600,64000,8400"
-st "raw_req_i       : IN     std_logic  ;"
+xt "48000,7600,72500,8400"
+st "raw_req_i               : IN     std_logic  ;"
 )
 )
 *14 (CptPort
@@ -689,7 +701,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "14250,15625,15000,16375"
+xt "14250,14625,15000,15375"
 )
 n "restart_frame_i"
 t "std_logic"
@@ -703,19 +715,20 @@ f (Text
 uid 137,0
 va (VaSet
 )
-xt "16000,15500,21900,16500"
+xt "16000,14500,21900,15500"
 st "restart_frame_i"
-blo "16000,16300"
+blo "16000,15300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 138,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,8400,64000,9200"
-st "restart_frame_i : IN     std_logic  ;"
+xt "48000,8400,72500,9200"
+st "restart_frame_i         : IN     std_logic  ;"
 )
 )
 *15 (CptPort
@@ -728,7 +741,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "14250,16625,15000,17375"
+xt "14250,15625,15000,16375"
 )
 n "row_switch_i"
 t "std_logic"
@@ -742,19 +755,20 @@ f (Text
 uid 142,0
 va (VaSet
 )
-xt "16000,16500,21100,17500"
+xt "16000,15500,21100,16500"
 st "row_switch_i"
-blo "16000,17300"
+blo "16000,16300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 143,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,9200,64000,10000"
-st "row_switch_i    : IN     std_logic  ;"
+xt "48000,9200,72500,10000"
+st "row_switch_i            : IN     std_logic  ;"
 )
 )
 *16 (CptPort
@@ -767,7 +781,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "14250,6625,15000,7375"
+xt "14250,16625,15000,17375"
 )
 n "rst_i"
 t "std_logic"
@@ -781,19 +795,20 @@ f (Text
 uid 147,0
 va (VaSet
 )
-xt "16000,6500,17500,7500"
+xt "16000,16500,17500,17500"
 st "rst_i"
-blo "16000,7300"
+blo "16000,17300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 148,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,10000,64000,10800"
-st "rst_i           : IN     std_logic  ;"
+xt "48000,10000,72500,10800"
+st "rst_i                   : IN     std_logic  ;"
 )
 )
 *17 (CptPort
@@ -806,7 +821,7 @@ va (VaSet
 vasetType 1
 fg "0,65535,0"
 )
-xt "36000,10625,36750,11375"
+xt "39000,10625,39750,11375"
 )
 n "coadd_done_o"
 t "std_logic"
@@ -821,31 +836,241 @@ f (Text
 uid 207,0
 va (VaSet
 )
-xt "29400,10500,35000,11500"
+xt "32400,10500,38000,11500"
 st "coadd_done_o"
 ju 2
-blo "35000,11300"
+blo "38000,11300"
 tm "CptPortNameMgr"
 )
 )
 dt (MLText
 uid 208,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
-xt "44000,11600,64000,12400"
-st "coadd_done_o    : OUT    std_logic  ;"
+xt "48000,11600,72500,12400"
+st "coadd_done_o            : OUT    std_logic  ;"
+)
+)
+*18 (CptPort
+uid 210,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 211,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "39000,11625,39750,12375"
+)
+n "current_coadd_dat_o"
+t "std_logic_vector"
+b "(31 DOWNTO 0)"
+m 1
+o 17
+r 17
+tg (CPTG
+uid 212,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 213,0
+va (VaSet
+)
+xt "27200,11500,38000,12500"
+st "current_coadd_dat_o : (31:0)"
+ju 2
+blo "38000,12300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 214,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "48000,13200,82500,14000"
+st "current_coadd_dat_o     : OUT    std_logic_vector (31 DOWNTO 0) ;"
+)
+)
+*19 (CptPort
+uid 215,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 216,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "39000,12625,39750,13375"
+)
+n "current_diff_dat_o"
+t "std_logic_vector"
+b "(31 DOWNTO 0)"
+m 1
+o 17
+r 18
+tg (CPTG
+uid 217,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 218,0
+va (VaSet
+)
+xt "28200,12500,38000,13500"
+st "current_diff_dat_o : (31:0)"
+ju 2
+blo "38000,13300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 219,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "48000,14000,82500,14800"
+st "current_diff_dat_o      : OUT    std_logic_vector (31 DOWNTO 0) ;"
+)
+)
+*20 (CptPort
+uid 220,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 221,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "39000,13625,39750,14375"
+)
+n "current_integral_dat_o"
+t "std_logic_vector"
+b "(31 DOWNTO 0)"
+m 1
+o 17
+r 19
+tg (CPTG
+uid 222,0
+ps "CptPortTextPlaceStrategy"
+stg "RightVerticalLayoutStrategy"
+f (Text
+uid 223,0
+va (VaSet
+)
+xt "26600,13500,38000,14500"
+st "current_integral_dat_o : (31:0)"
+ju 2
+blo "38000,14300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 224,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "48000,14800,82500,15600"
+st "current_integral_dat_o  : OUT    std_logic_vector (31 DOWNTO 0) ;"
+)
+)
+*21 (CptPort
+uid 228,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 229,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,25625,15000,26375"
+)
+n "initialize_window_i"
+t "std_logic"
+o 20
+r 20
+tg (CPTG
+uid 230,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 231,0
+va (VaSet
+)
+xt "16000,25500,23000,26500"
+st "initialize_window_i"
+blo "16000,26300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 232,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,26500,800"
+st "initialize_window_i     : IN     std_logic  ;"
+)
+)
+*22 (CptPort
+uid 233,0
+ps "OnEdgeStrategy"
+shape (Triangle
+uid 234,0
+ro 90
+va (VaSet
+vasetType 1
+fg "0,65535,0"
+)
+xt "14250,26625,15000,27375"
+)
+n "restart_frame_aligned_i"
+t "std_logic"
+o 20
+r 21
+tg (CPTG
+uid 235,0
+ps "CptPortTextPlaceStrategy"
+stg "VerticalLayoutStrategy"
+f (Text
+uid 236,0
+va (VaSet
+)
+xt "16000,26500,25200,27500"
+st "restart_frame_aligned_i"
+blo "16000,27300"
+tm "CptPortNameMgr"
+)
+)
+dt (MLText
+uid 237,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+xt "2000,0,26500,800"
+st "restart_frame_aligned_i : IN     std_logic  ;"
 )
 )
 ]
 shape (Rectangle
 va (VaSet
 vasetType 1
-fg "0,65535,0"
+fg "65535,65535,0"
 lineColor "0,32896,0"
 lineWidth 2
 )
-xt "15000,6000,36000,26000"
+xt "15000,6000,39000,28000"
 )
 biTextGroup (BiTextGroup
 uid 10,0
@@ -870,7 +1095,7 @@ st "adc_sample_coadd"
 blo "22400,16800"
 )
 )
-gi *18 (GenericInterface
+gi *23 (GenericInterface
 uid 13,0
 ps "CenterOffsetStrategy"
 matrix (Matrix
@@ -878,6 +1103,7 @@ uid 14,0
 text (MLText
 uid 15,0
 va (VaSet
+isHidden 1
 font "Courier New,8,0"
 )
 xt "0,12000,0,12000"
@@ -896,10 +1122,10 @@ sIVOD 1
 )
 columnWidths "All,20,60,60,95,105,103,60,77;"
 )
-*19 (Grouping
+*24 (Grouping
 uid 150,0
 optionalChildren [
-*20 (CommentGraphic
+*25 (CommentGraphic
 uid 152,0
 shape (ZoomableIcon
 uid 153,0
@@ -914,7 +1140,7 @@ iconName "C:\\scuba2_repository\\architecture\\logos\\ubc.jpg"
 )
 oxt "269480,230900,273000,236000"
 )
-*21 (CommentGraphic
+*26 (CommentGraphic
 uid 154,0
 shape (PolyLine2D
 pts [
@@ -933,7 +1159,7 @@ xt "27000,36000,27000,43000"
 )
 oxt "255000,230000,255000,237000"
 )
-*22 (CommentGraphic
+*27 (CommentGraphic
 uid 156,0
 shape (PolyLine2D
 pts [
@@ -952,7 +1178,7 @@ xt "67000,36000,67000,43000"
 )
 oxt "295000,230000,295000,237000"
 )
-*23 (CommentGraphic
+*28 (CommentGraphic
 uid 158,0
 shape (PolyLine2D
 pts [
@@ -971,7 +1197,7 @@ xt "27000,36000,67000,36000"
 )
 oxt "255000,230000,295000,230000"
 )
-*24 (CommentText
+*29 (CommentText
 uid 160,0
 shape (Rectangle
 uid 161,0
@@ -1001,7 +1227,7 @@ visibleWidth 20000
 )
 position 4
 )
-*25 (CommentText
+*30 (CommentText
 uid 163,0
 shape (Rectangle
 uid 164,0
@@ -1030,7 +1256,7 @@ visibleWidth 15000
 )
 position 1
 )
-*26 (CommentText
+*31 (CommentText
 uid 166,0
 shape (Rectangle
 uid 167,0
@@ -1065,7 +1291,7 @@ visibleWidth 20000
 )
 position 1
 )
-*27 (CommentText
+*32 (CommentText
 uid 169,0
 shape (Rectangle
 uid 170,0
@@ -1094,7 +1320,7 @@ visibleWidth 5000
 )
 position 1
 )
-*28 (CommentText
+*33 (CommentText
 uid 172,0
 shape (Rectangle
 uid 173,0
@@ -1123,7 +1349,7 @@ visibleWidth 8000
 )
 position 1
 )
-*29 (CommentText
+*34 (CommentText
 uid 175,0
 shape (Rectangle
 uid 176,0
@@ -1153,7 +1379,7 @@ visibleWidth 8000
 )
 position 1
 )
-*30 (CommentText
+*35 (CommentText
 uid 178,0
 shape (Rectangle
 uid 179,0
@@ -1182,7 +1408,7 @@ visibleWidth 5000
 )
 position 1
 )
-*31 (CommentText
+*36 (CommentText
 uid 181,0
 shape (Rectangle
 uid 182,0
@@ -1212,7 +1438,7 @@ visibleWidth 15000
 )
 position 1
 )
-*32 (CommentText
+*37 (CommentText
 uid 184,0
 shape (Rectangle
 uid 185,0
@@ -1242,7 +1468,7 @@ visibleWidth 8000
 )
 position 1
 )
-*33 (CommentGraphic
+*38 (CommentGraphic
 uid 187,0
 shape (ZoomableIcon
 uid 188,0
@@ -1257,7 +1483,7 @@ iconName "C:\\scuba2_repository\\architecture\\logos\\ATC.jpg"
 )
 oxt "257000,231112,267000,236000"
 )
-*34 (CommentText
+*39 (CommentText
 uid 189,0
 shape (Rectangle
 uid 190,0
@@ -1286,7 +1512,7 @@ visibleWidth 5000
 )
 position 1
 )
-*35 (CommentText
+*40 (CommentText
 uid 192,0
 shape (Rectangle
 uid 193,0
@@ -1316,7 +1542,7 @@ visibleWidth 15000
 )
 position 1
 )
-*36 (CommentText
+*41 (CommentText
 uid 195,0
 shape (Rectangle
 uid 196,0
@@ -1346,7 +1572,7 @@ visibleWidth 12000
 )
 position 1
 )
-*37 (CommentText
+*42 (CommentText
 uid 198,0
 shape (Rectangle
 uid 199,0
@@ -1376,7 +1602,7 @@ visibleWidth 12000
 )
 position 1
 )
-*38 (CommentText
+*43 (CommentText
 uid 201,0
 shape (Rectangle
 uid 202,0
@@ -1432,22 +1658,24 @@ xShown 1
 yShown 1
 color "26368,26368,26368"
 )
-packageList *39 (PackageList
+packageList *44 (PackageList
 uid 70,0
 stg "VerticalLayoutStrategy"
 textVec [
-*40 (Text
+*45 (Text
 uid 71,0
 va (VaSet
+isHidden 1
 font "arial,8,1"
 )
 xt "0,0,5400,1000"
 st "Package List"
 blo "0,800"
 )
-*41 (MLText
+*46 (MLText
 uid 72,0
 va (VaSet
+isHidden 1
 )
 xt "0,1000,10900,4000"
 st "LIBRARY ieee;
@@ -1457,9 +1685,9 @@ tm "PackageList"
 )
 ]
 )
-windowSize "64,51,960,801"
-viewArea "-500,-5990,75820,41980"
-cachedDiagramExtent "0,0,74500,49000"
+windowSize "-4,-4,1284,994"
+viewArea "-500,-6000,111100,66630"
+cachedDiagramExtent "0,0,80000,49000"
 hasePageBreakOrigin 1
 pageBreakOrigin "0,0"
 defaultCommentText (CommentText
@@ -1544,7 +1772,7 @@ st "<cell>"
 blo "22400,16800"
 )
 )
-gi *42 (GenericInterface
+gi *47 (GenericInterface
 ps "CenterOffsetStrategy"
 matrix (Matrix
 text (MLText
@@ -1633,12 +1861,13 @@ font "Courier New,8,0"
 )
 )
 )
-DeclarativeBlock *43 (SymDeclBlock
+DeclarativeBlock *48 (SymDeclBlock
 uid 1,0
 stg "SymDeclLayoutStrategy"
 declLabel (Text
 uid 2,0
 va (VaSet
+isHidden 1
 font "Arial,8,1"
 )
 xt "42000,0,47400,1000"
@@ -1648,6 +1877,7 @@ blo "42000,800"
 portLabel (Text
 uid 3,0
 va (VaSet
+isHidden 1
 font "Arial,8,1"
 )
 xt "42000,1000,44300,2000"
@@ -1659,9 +1889,9 @@ uid 4,0
 va (VaSet
 font "Arial,8,1"
 )
-xt "42000,14800,44000,15800"
+xt "42000,1000,44000,2000"
 st "User:"
-blo "42000,15600"
+blo "42000,1800"
 )
 internalLabel (Text
 uid 6,0
@@ -1678,7 +1908,7 @@ uid 5,0
 va (VaSet
 font "Courier New,8,0"
 )
-xt "44000,15800,44000,15800"
+xt "44000,2000,44000,2000"
 tm "SyDeclarativeTextMgr"
 )
 internalText (MLText
@@ -1691,5 +1921,5 @@ xt "42000,0,42000,0"
 tm "SyDeclarativeTextMgr"
 )
 )
-lastUid 208,0
+lastUid 237,0
 )
