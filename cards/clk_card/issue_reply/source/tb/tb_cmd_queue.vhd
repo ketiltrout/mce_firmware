@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.24 2004/10/29 23:09:22 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.25 2004/11/15 20:03:41 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.25  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.24  2004/10/29 23:09:22  bburger
 -- Bryce:  Weekend update
 --
@@ -324,7 +327,7 @@ begin
    procedure do_strt_mux_cmd is
    begin
       card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) <= ALL_CARDS;
-      par_id_i      <= x"00" & STRT_MUX_ADDR;
+      par_id_i      <= x"00" & ENBL_MUX_ADDR;
       data_size_i   <= x"00000001";
       data_clk_i    <= '0';
       mop_i         <= "00000011"; -- m-op #3
