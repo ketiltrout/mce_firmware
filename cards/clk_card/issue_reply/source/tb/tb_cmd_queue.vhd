@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.2 2004/05/31 21:56:02 mandana Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.3 2004/06/07 23:45:53 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.3  2004/06/07 23:45:53  bburger
+-- in progress
+--
 -- Revision 1.2  2004/05/31 21:56:02  mandana
 -- syntax fix
 --
@@ -69,7 +72,7 @@ architecture BEH of TB_CMD_QUEUE is
    -- cmd_translator interface
    signal card_addr_i   : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0) := (others => '0'); -- The card address of the m-op
    signal par_id_i      : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0) := (others => '0'); -- The parameter id of the m-op
-   signal cmd_size_i    : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0) := (others => '0'); -- The number of bytes of data in the m-op
+   signal data_size_i   : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0) := (others => '0'); -- The number of bytes of data in the m-op
    signal data_i        : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := (others => '0');  -- Data belonging to a m-op
    signal data_clk_i    : std_logic := '0'; -- Clocks in 32-bit wide data
    signal mop_i         : std_logic_vector (MOP_BUS_WIDTH-1 downto 0) := (others => '0'); -- M-op sequence number
@@ -77,22 +80,19 @@ architecture BEH of TB_CMD_QUEUE is
    signal mop_rdy_i     : std_logic := '0'; -- Tells cmd_queue when a m-op is ready
    signal mop_ack_o     : std_logic := '0'; -- Tells the cmd_translator when cmd_queue has taken the m-op
 
-   -- bb_tx interface
-   signal clk_o         : std_logic := '0';
-   signal rst_o         : std_logic := '0';
-   signal dat_o         : std_logic_vector (7 downto 0) := (others => '0');
-   signal we_o          : std_logic := '0';
-   signal stb_o         : std_logic := '0';
-   signal cyc_o         : std_logic := '0';
-   signal ack_i         : std_logic := '0';
+   -- lvds_tx interface
+   signal tx_o          : std_logic := '0';  -- transmitter output pin
+   signal clk_25mhz_i   : std_logic := '0';  -- PLL locked 25MHz input clock for the
 
    -- Clock lines
    signal sync_i        : std_logic := '0'; -- The sync pulse determines when and when not to issue u-ops
    signal clk_i         : std_logic := '0'; -- Advances the state machines
-   signal fast_clk_i    : std_logic := '0';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
+   signal clk_400mhz_i  : std_logic := '0';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
    signal rst_i         : std_logic := '0';  -- Resets all FSMs
 
    signal count_value   : integer := 0;
+
+
 
 ------------------------------------------------------------------------
 --
@@ -101,7 +101,6 @@ architecture BEH of TB_CMD_QUEUE is
 ------------------------------------------------------------------------
 
 begin
-
    DUT : cmd_queue
       port map(
          -- reply_queue interface
@@ -115,7 +114,7 @@ begin
          -- cmd_translator
          card_addr_i   => card_addr_i,
          par_id_i      => par_id_i,
-         cmd_size_i    => cmd_size_i,
+         data_size_i   => data_size_i,
          data_i        => data_i,
          data_clk_i    => data_clk_i,
          mop_i         => mop_i,
@@ -123,25 +122,21 @@ begin
          mop_rdy_i     => mop_rdy_i,
          mop_ack_o     => mop_ack_o,
 
-         -- bb_tx interface
-         clk_o         => clk_o,
-         dat_o         => dat_o,
-         we_o          => we_o,
-         stb_o         => stb_o,
-         cyc_o         => cyc_o,
-         ack_i         => ack_i,
+         -- lvds_tx interface
+         tx_o          => tx_o,
+         clk_25mhz_i   => clk_25mhz_i,
 
          -- Clock lines
          sync_i        => sync_i,
          clk_i         => clk_i,
-         fast_clk_i    => fast_clk_i,
+         clk_400mhz_i  => clk_400mhz_i,
          rst_i         => rst_i
       );
 
    -- Create a test clock
    sync_i <= not sync_i after CLOCK_PERIOD*40; -- The sync period is much shorter than customary.
-   clk_i <= not clk_i after CLOCK_PERIOD/2;
-   fast_clk_i <= not fast_clk_i after CLOCK_PERIOD/16;  -- fast clock allows the ram to oversample by 8x
+   clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
+   clk_400mhz_i <= not clk_400mhz_i after CLOCK_PERIOD/16;
 
    -- Create stimulus
    STIMULI : process
@@ -166,12 +161,12 @@ begin
 
    procedure do_data_cmd is
    begin
-      card_addr_i   <= ALL_CARDS;
-      par_id_i      <= x"000030"; --RET_DAT_ADDR;
-      cmd_size_i    <= (others => '0');
+      card_addr_i(7 downto 0) <= ALL_CARDS;
+      par_id_i      <= x"0030"; --RET_DAT_ADDR;
+      data_size_i   <= (others => '0');
       data_i        <= (others => '0');
       data_clk_i    <= '0';
-      mop_i         <= "000";
+      mop_i         <= "00000001"; -- m-op #1
       issue_sync_i  <= "00000011"; -- Sync pulse 3
 
       L1: while mop_ack_o = '0' loop
