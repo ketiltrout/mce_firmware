@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.6 2004/07/28 23:39:12 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.7 2004/07/30 23:31:32 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/28 23:39:12 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/30 23:31:32 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.7  2004/07/30 23:31:32  jjacob
+-- safety checkin for the long weekend
+--
 -- Revision 1.6  2004/07/28 23:39:12  jjacob
 -- added:
 -- library sys_param;
@@ -190,7 +193,7 @@ begin
 
 ------------------------------------------------------------------------
 --
--- synchronous arbiter state machine
+-- arbiter state machine state sequencer
 --
 ------------------------------------------------------------------------
    process(rst_i, clk_i)
@@ -206,12 +209,10 @@ begin
 
 ------------------------------------------------------------------------
 --
--- synchronous arbiter state machine
+-- arbiter state machine
 -- assign next states
 --
 ------------------------------------------------------------------------
-
-
 
    process(current_state, simple_cmd_macro_instr_rdy_i, ret_dat_macro_instr_rdy_i)--, ack_i)
    begin
@@ -240,7 +241,7 @@ begin
             
          when RET_DAT_RDY =>
             if simple_cmd_macro_instr_rdy_i = '1' then
-               next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING;--RET_DAT_PAUSE;--SIMPLE_CMD_RDY;
+               next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING;
             elsif ret_dat_macro_instr_rdy_i = '1' then
                next_state <= RET_DAT_RDY;
             else
@@ -253,61 +254,23 @@ begin
             elsif ret_dat_macro_instr_rdy_i = '0' and simple_cmd_macro_instr_rdy_i = '1' then
                next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT;
             else
-               next_state <= IDLE;--SIMPLE_CMD_RDY;
+               next_state <= IDLE;
             end if;
             
          when RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT =>
             next_state <= SIMPLE_CMD_RDY;
          
             
-         when others => next_state <= IDLE;--SIMPLE_CMD_RDY;
+         when others => next_state <= IDLE;
          
       end case;
            
    end process;
 
 
-   -- routing muxes
-   card_addr_o          <= simple_cmd_card_addr_i       when data_mux_sel = '0' else ret_dat_card_addr_i; 
-   parameter_id_o       <= simple_cmd_parameter_id_i    when data_mux_sel = '0' else ret_dat_parameter_id_i; 
-   data_size_o          <= simple_cmd_data_size_i       when data_mux_sel = '0' else ret_dat_data_size_i;
-   data_o               <= simple_cmd_data_i            when data_mux_sel = '0' else ret_dat_data_i; 
-   data_clk_o           <= simple_cmd_data_clk_i        when data_mux_sel = '0' else ret_dat_data_clk_i;
-   
-   frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
-   frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
-
---   frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else frame_seq_num;
---   frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else frame_sync_num;
---   
---   frame_seq_num_1st_stg        <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
---   frame_sync_num_1st_stg       <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;   
-
-   simple_cmd_ack_o     <= ack_i                        when simple_cmd_ack_mux_sel = '1' else '0';
-   ret_dat_ack_o        <= ack_i                        when ret_dat_ack_mux_sel = '1'    else '0'; 
-   
-   macro_instr_rdy_1st_stg      <= simple_cmd_macro_instr_rdy_i when data_mux_sel = '0'            else ret_dat_macro_instr_rdy_i;
-   macro_instr_rdy              <= macro_instr_rdy_1st_stg      when macro_instr_rdy_mux_sel = '0' else '0';
-
---   process(clk_i, rst_i)
---   begin
---      if rst_i = '1' then
---         macro_instr_rdy      <= '0';
---         frame_seq_num        <= (others=>'0');
---         frame_sync_num       <= (others=>'0');
---      elsif clk_i'event and clk_i = '1' then
---         macro_instr_rdy      <= macro_instr_rdy_1st_stg;
---         frame_seq_num        <= frame_seq_num_1st_stg;
---         frame_sync_num       <= frame_sync_num_1st_stg;
---      end if;
---   end process;
-
---   frame_seq_num_o  <= frame_seq_num;
---   frame_sync_num_o <= frame_sync_num;
-
 ------------------------------------------------------------------------
 --
--- synchronous arbiter state machine
+-- arbiter state machine
 -- assign outputs
 --
 ------------------------------------------------------------------------
@@ -360,12 +323,14 @@ begin
          when RET_DAT_RDY =>
          
 
---            if ret_dat_macro_instr_rdy_i = '1' then
---               data_mux_sel                      <= '1';
---               --ret_dat_ack_mux_sel               <= '1';
---            end if; 
-                       
-            data_mux_sel                      <= '1';
+            if ret_dat_macro_instr_rdy_i = '1' then
+               data_mux_sel                      <= '1';
+               --ret_dat_ack_mux_sel               <= '1';
+            end if; 
+            
+            
+                      
+--            data_mux_sel                      <= '1';
             ret_dat_ack_mux_sel               <= '1';
             
             --m_op_seq_num_mux_sel              <= "10";
@@ -402,6 +367,49 @@ begin
    end process;
 
 
+------------------------------------------------------------------------
+--
+-- routing muxes
+--
+------------------------------------------------------------------------
+
+   card_addr_o          <= simple_cmd_card_addr_i       when data_mux_sel = '0' else ret_dat_card_addr_i; 
+   parameter_id_o       <= simple_cmd_parameter_id_i    when data_mux_sel = '0' else ret_dat_parameter_id_i; 
+   data_size_o          <= simple_cmd_data_size_i       when data_mux_sel = '0' else ret_dat_data_size_i;
+   data_o               <= simple_cmd_data_i            when data_mux_sel = '0' else ret_dat_data_i; 
+   data_clk_o           <= simple_cmd_data_clk_i        when data_mux_sel = '0' else ret_dat_data_clk_i;
+   
+   frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
+   frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
+
+--   frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else frame_seq_num;
+--   frame_sync_num_o     <= (others=>'0')                when data_mux_sel = '0' else frame_sync_num;
+--   
+--   frame_seq_num_1st_stg        <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
+--   frame_sync_num_1st_stg       <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_sync_num_i;   
+
+   simple_cmd_ack_o     <= ack_i                        when simple_cmd_ack_mux_sel = '1' else '0';
+   ret_dat_ack_o        <= ack_i                        when ret_dat_ack_mux_sel = '1'    else '0'; 
+   
+   macro_instr_rdy_1st_stg      <= simple_cmd_macro_instr_rdy_i when data_mux_sel = '0'            else ret_dat_macro_instr_rdy_i;
+   macro_instr_rdy              <= macro_instr_rdy_1st_stg      when macro_instr_rdy_mux_sel = '0' else '0';
+
+--   process(clk_i, rst_i)
+--   begin
+--      if rst_i = '1' then
+--         macro_instr_rdy      <= '0';
+----         frame_seq_num        <= (others=>'0');
+----         frame_sync_num       <= (others=>'0');
+--      elsif clk_i'event and clk_i = '1' then
+--         macro_instr_rdy      <= macro_instr_rdy_1st_stg;
+----         frame_seq_num        <= frame_seq_num_1st_stg;
+----         frame_sync_num       <= frame_sync_num_1st_stg;
+--      end if;
+--   end process;
+
+--   frame_seq_num_o  <= frame_seq_num;
+--   frame_sync_num_o <= frame_sync_num;
+
  
    -- re-circulation mux for ret_dat_pending signal
    ret_dat_pending_mux <= '0' when ret_dat_pending_mux_sel = "00" else
@@ -419,7 +427,6 @@ begin
 
 
 
--- turn into re-circ mux structure
 ------------------------------------------------------------------------
 --
 -- processes to increment macro-op sequence number
@@ -500,34 +507,6 @@ begin
          m_op_seq_num <= m_op_seq_num_mux;
       end if;
    end process;
---   
--- 
---   process(rst_i, macro_instr_rdy)
---   begin
---      if rst_i = '1' then
---         m_op_seq_num <= x"00";
---      elsif macro_instr_rdy'event and macro_instr_rdy = '1' then
---         m_op_seq_num <= m_op_seq_num_mux;
---      end if;   
---   end process;
-  
---   process(rst_i, macro_instr_rdy)
---   begin
---      if rst_i = '1' then
---         m_op_seq_num <= x"00";
---      elsif macro_instr_rdy'event and macro_instr_rdy = '1' then
---         m_op_seq_num <= m_op_seq_num + 1;
---      end if;   
---   end process;
-
---   process(rst_i, macro_instr_rdy_1st_stg)
---   begin
---      if rst_i = '1' then
---         m_op_seq_num <= x"00";
---      elsif macro_instr_rdy_1st_stg'event and macro_instr_rdy_1st_stg = '1' then
---         m_op_seq_num <= m_op_seq_num + 1;
---      end if;   
---   end process;
    
    m_op_seq_num_o <= m_op_seq_num;
 
