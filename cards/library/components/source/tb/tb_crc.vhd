@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_crc.vhd,v $
+-- Revision 1.5  2004/07/20 18:15:42  erniel
+-- added mid-calculation pauses
+--
 -- Revision 1.4  2004/07/19 21:27:14  erniel
 -- updated crc component
 --
@@ -185,8 +188,3 @@ begin
    end process STIMULI;
 
 end BEH;
-
-configuration CFG_TB_CRC of TB_CRC is
-   for BEH
-   end for;
-end CFG_TB_CRC;
