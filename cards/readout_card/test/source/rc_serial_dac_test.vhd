@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/06/22 20:52:45 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/15 17:57:09 $>	- <initials $Author: bench1 $>
 -- $Log: rc_serial_dac_test.vhd,v $
+-- Revision 1.3  2004/07/15 17:57:09  bench1
+-- Mandana: dac_data_p wouldn't hold during state changes again, had to fix
+--
 -- Revision 1.2  2004/06/22 20:52:45  mandana
 -- fixed synthesis errors
 --
@@ -205,7 +208,7 @@ begin
          when IDLE =>     
             if(en_fix = '1') then
                next_state <= PUSH_DATA_FIX;
-            elsif(en_ramp = '1') then
+            elsif(ramp = '1') then
                next_state <= PUSH_DATA_RAMP;
             else
                next_state <= IDLE;
