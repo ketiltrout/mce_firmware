@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.10 2004/08/06 00:29:56 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.11 2004/09/02 18:24:36 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/06 00:29:56 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/02 18:24:36 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.11  2004/09/02 18:24:36  jjacob
+-- cleaning up and formatting
+--
 -- Revision 1.10  2004/08/06 00:29:56  jjacob
 -- added +1 to the current sync number so ret_dat commands always start
 -- on the next sync pulse
@@ -176,7 +179,7 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    
    signal word_count                      : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
    
-   type sync_state is                     (IDLE, SET_SEQ_NUM_1, SET_SEQ_NUM_2, RETURN_DATA_ASYNC_WAIT);
+   type sync_state is                     (IDLE, SET_SEQ_NUM_1, SET_SEQ_NUM_2, RETURN_DATA_WAIT);
    signal sync_next_state, sync_current_state : sync_state;
    
    type state is                          (RETURN_DATA_IDLE, RETURN_DATA_STOP, RETURN_DATA_DONE, 
@@ -256,7 +259,7 @@ begin
                end if;
             elsif ret_dat_start_i = '1' then
                ret_dat_start               <= '1';  
-               sync_next_state             <= RETURN_DATA_ASYNC_WAIT;
+               sync_next_state             <= RETURN_DATA_WAIT;
             elsif ret_dat_done = '1' then
                ret_dat_start               <= '0';       
                sync_next_state             <= IDLE;
@@ -276,7 +279,7 @@ begin
             if data_clk_i = '1' then
                ret_dat_s_seq_stop_num_mux_sel  <= '1';
                if ret_dat_start_i = '1' then
-                  sync_next_state          <= RETURN_DATA_ASYNC_WAIT;
+                  sync_next_state          <= RETURN_DATA_WAIT;
                else
                   sync_next_state          <= IDLE;
                end if;
@@ -284,11 +287,11 @@ begin
                sync_next_state             <= SET_SEQ_NUM_2;
             end if;
                          
-         when RETURN_DATA_ASYNC_WAIT =>
+         when RETURN_DATA_WAIT =>
             if ret_dat_done = '1' then
                sync_next_state             <= IDLE;
             else
-               sync_next_state             <= RETURN_DATA_ASYNC_WAIT;
+               sync_next_state             <= RETURN_DATA_WAIT;
                ret_dat_start               <= '1';
             end if;
 
@@ -389,7 +392,7 @@ begin
 
 ------------------------------------------------------------------------
 --
--- next state logic for state machine for 
+-- output logic for state machine for 
 -- issuing ret_dat macro-ops
 --
 ------------------------------------------------------------------------
@@ -543,7 +546,8 @@ begin
                        current_sync_num_reg        when mux_sel = CURRENT_NUM_SEL        else
                        current_sync_num_reg;
                        
-   current_sync_num_reg_plus_1 <= current_sync_num_reg + 1;
+   current_sync_num_reg_plus_1 <= current_sync_num_reg + 1; -- this is the sync pulse increment value for consecutive frames of data
+                                    				                    -- Ex: if you want every 1000 frames, change to "+ 1000"
 
    current_seq_num  <= ret_dat_s_seq_start_num     when mux_sel = INPUT_NUM_SEL          else
                        current_seq_num_reg_plus_1  when mux_sel = CURRENT_NUM_PLUS_1_SEL else
@@ -559,7 +563,7 @@ begin
 ------------------------------------------------------------------------  
    
    process(ret_dat_s_start_i, ret_dat_fsm_working, card_addr_i, parameter_id_i, data_size_i, data_i,
-           current_seq_num, current_sync_num, card_addr, parameter_id, data_size, data, data_clk_i)
+           current_seq_num, current_sync_num, card_addr, parameter_id, data_size, data) --, data_clk_i
    begin
       if ret_dat_s_start_i = '1' then
       
@@ -571,7 +575,7 @@ begin
          data_size_o      <= data_size_i;
          data_o           <= data_i;
          
-         data_clk_o       <= data_clk_i;
+         data_clk_o       <= '0'; -- no need to pass the data_clk through --data_clk_i;
          
       elsif ret_dat_fsm_working = '1' then
       

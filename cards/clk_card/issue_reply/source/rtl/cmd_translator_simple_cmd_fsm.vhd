@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.5 2004/07/28 23:39:26 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.6 2004/09/02 18:24:44 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/28 23:39:26 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/02 18:24:44 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.6  2004/09/02 18:24:44  jjacob
+-- cleaning up and formatting
+--
 -- Revision 1.5  2004/07/28 23:39:26  jjacob
 -- added:
 -- library sys_param;
@@ -128,39 +131,47 @@ begin
 --
 ------------------------------------------------------------------------
 
+   card_addr_o        <= card_addr_i    when cmd_start_i = '1' else (others => '0');
+   parameter_id_o     <= parameter_id_i when cmd_start_i = '1' else (others => '0');
+   data_size_o        <= data_size_i    when cmd_start_i = '1' else (others => '0');
+   data_o             <= data_i         when cmd_start_i = '1' else (others => '0');
+   data_clk_o         <= data_clk_i     when cmd_start_i = '1' else '0';
+   macro_instr_rdy_o  <= '1'            when cmd_start_i = '1' else '0';
 
-   process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
-           data_i, data_clk_i)
-   begin
-      case cmd_start_i is
-         when '1' =>
-            card_addr_o        <= card_addr_i;
-            parameter_id_o     <= parameter_id_i;
-            data_size_o        <= data_size_i;
-            data_o             <= data_i;
-            data_clk_o         <= data_clk_i;
-            macro_instr_rdy_o  <= '1';
-            
-         when '0' =>
-         
-            card_addr_o        <= (others => '0');
-            parameter_id_o     <= (others => '0');
-            data_size_o        <= (others => '0');
-            data_o             <= (others => '0');
-            data_clk_o         <= '0';
-            macro_instr_rdy_o  <= '0';
-            
-         when others =>
-         
-            card_addr_o        <= (others => '0');
-            parameter_id_o     <= (others => '0');
-            data_size_o        <= (others => '0');
-            data_o             <= (others => '0');
-            data_clk_o         <= '0';
-            macro_instr_rdy_o  <= '0';
-         
-      end case;
-      
-   end process;
+
+
+--   process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
+--           data_i, data_clk_i)
+--   begin
+--      case cmd_start_i is
+--         when '1' =>
+--            card_addr_o        <= card_addr_i;
+--            parameter_id_o     <= parameter_id_i;
+--            data_size_o        <= data_size_i;
+--            data_o             <= data_i;
+--            data_clk_o         <= data_clk_i;
+--            macro_instr_rdy_o  <= '1';
+--            
+--         when '0' =>
+--         
+--            card_addr_o        <= (others => '0');
+--            parameter_id_o     <= (others => '0');
+--            data_size_o        <= (others => '0');
+--            data_o             <= (others => '0');
+--            data_clk_o         <= '0';
+--            macro_instr_rdy_o  <= '0';
+--            
+--         when others =>
+--         
+--            card_addr_o        <= (others => '0');
+--            parameter_id_o     <= (others => '0');
+--            data_size_o        <= (others => '0');
+--            data_o             <= (others => '0');
+--            data_clk_o         <= '0';
+--            macro_instr_rdy_o  <= '0';
+--         
+--      end case;
+--      
+--   end process;
       
 end rtl;

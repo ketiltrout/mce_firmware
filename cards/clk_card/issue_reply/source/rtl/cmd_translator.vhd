@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.13 2004/08/25 22:15:33 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.14 2004/09/02 18:24:17 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/25 22:15:33 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2004/09/02 18:24:17 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.14  2004/09/02 18:24:17  jjacob
+-- cleaning up and formatting
+--
 -- Revision 1.13  2004/08/25 22:15:33  bburger
 -- Bryce:  removed the dbl_buffer command
 --
@@ -386,10 +389,12 @@ begin
  		    
                cmd_start             <= '0';
                cmd_stop              <= '0';
+               
+               --error_handler_start <= '1'; -- example what to do if an error occurs
           
          end case;
                  
-      else
+      else -- if cmd_rdy = '0'
 
          ret_dat_start         <= '0';
          ret_dat_stop          <= '0';
@@ -405,22 +410,24 @@ begin
    end process;
  
 
-   process(arbiter_ack, simple_cmd_ack, ret_dat_ack, ret_dat_s_ack)
-   begin
-      case arbiter_ack is
+--   process(arbiter_ack, simple_cmd_ack, ret_dat_ack, ret_dat_s_ack)
+--   begin
+--      case arbiter_ack is
+--
+--         when "001" =>
+--            ack_o <= simple_cmd_ack;
+--         when "010" =>
+--            ack_o <= ret_dat_ack;
+--         when "100" =>
+--            ack_o <= ret_dat_s_ack;
+--         when others =>
+--            ack_o <= '0';
+--      end case;   
+--   end process;
+--   
+--   arbiter_ack <= ret_dat_s_ack & ret_dat_ack & simple_cmd_ack;
 
-         when "001" =>
-            ack_o <= simple_cmd_ack;
-         when "010" =>
-            ack_o <= ret_dat_ack;
-         when "100" =>
-            ack_o <= ret_dat_s_ack;
-         when others =>
-            ack_o <= '0';
-      end case;   
-   end process;
-   
-   arbiter_ack <= ret_dat_s_ack & ret_dat_ack & simple_cmd_ack;
+   ack_o <= ret_dat_s_ack or ret_dat_ack or simple_cmd_ack;
 
 ------------------------------------------------------------------------
 --
