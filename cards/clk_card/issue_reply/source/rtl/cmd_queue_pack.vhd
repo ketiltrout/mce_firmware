@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.2 2004/05/31 21:23:19 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.3 2004/05/31 21:55:49 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.3  2004/05/31 21:55:49  mandana
+-- syntax fix
+--
 -- Revision 1.2  2004/05/31 21:23:19  bburger
 -- in progress
 --
@@ -47,6 +50,10 @@ use work.cmd_queue_ram40_pack.all;
 
 package cmd_queue_pack is
 
+   subtype ram_line is std_logic_vector(39 downto 0);
+   type ram40 is array (0 to 255) of ram_line;
+
+
    component cmd_queue
       port (
       -- reply_queue interface
@@ -64,7 +71,7 @@ package cmd_queue_pack is
       data_i        : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
       data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
       mop_i         : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
-      issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0); 
+      issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
       mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
       mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
 

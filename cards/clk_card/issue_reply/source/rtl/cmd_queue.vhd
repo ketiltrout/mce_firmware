@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.14 2004/06/10 00:39:22 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.15 2004/06/11 00:42:12 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.15  2004/06/11 00:42:12  bburger
+-- in progress
+--
 -- Revision 1.14  2004/06/10 00:39:22  bburger
 -- in progress
 --
@@ -203,7 +206,7 @@ signal mop_rdy : std_logic; --In from the previous block in the chain
 signal insert_uop_rdy : std_logic; --Out, to insertion fsm
 signal new_card_addr : std_logic_vector(CARD_ADDR_BUS_WIDTH-1 downto 0); --out, to insertion fsm
 signal new_par_id : std_logic_vector(PAR_ID_BUS_WIDTH-1 downto 0) := x"000000"; --out, to insertion fsm.  This is a hack.
---signal last_card_uop : std_logic;
+signal last_card_uop : std_logic;
 
 -- Send FSM:  sends u-ops over the bus backplane
 type send_states is (IDLE, LOAD, VERIFY, ISSUE, WAIT_FOR_ACK, SKIP, RESET);
@@ -230,7 +233,7 @@ begin
 
    nfast_clk <= not fast_clk_i;
    -- Command queue (FIFO)
-   cmd_queue_ram40_inst: cmd_queue_ram40
+   cmd_queue_ram40_inst: cmd_queue_ram40_test
       port map(
          data        => data_sig,
          wraddress   => wraddress_sig,
@@ -238,7 +241,7 @@ begin
          rdaddress_b => rdaddress_b_sig,
          wren        => wren_sig,
          clock       => nfast_clk,
-         enable      => HIGH,
+--         aclr        => LOW,
          qa          => qa_sig,
          qb          => qb_sig
       );
@@ -538,8 +541,8 @@ begin
       end if;
    end process;
 
-   --last_card_uop <= '1' when ((card_addr_i = BCS and new_card_addr = BC3) or (card_addr_i = RCS and new_card_addr = RC4) or
-   --                           (card_addr_i = ALL_FBGA_CARDS and new_card_addr = AC) or (card_addr_i = ALL_CARDS and new_card_addr = AC)) else '0';
+   last_card_uop <= '1' when ((card_addr_i = BCS and new_card_addr = BC3) or (card_addr_i = RCS and new_card_addr = RC4) or
+                              (card_addr_i = ALL_FBGA_CARDS and new_card_addr = AC) or (card_addr_i = ALL_CARDS and new_card_addr = AC)) else '0';
 
    gen_state_NS: process(present_gen_state, mop_rdy, queue_space, num_uops, par_id_i, card_addr_i, new_par_id)
    begin
@@ -844,6 +847,7 @@ begin
             if(uop_send_expired = '1') then
                -- If the u-op has expired, it should be skipped
                next_send_state <= SKIP;
+            -- The next two if statements will throw simulation warnings if the outputs of the RAM block are undefined.
             elsif(qa_sig(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count > START_OF_BLACKOUT) then
                -- The black out period has started - even though the command was for this sync period, it has expired.
                next_send_state <= SKIP;
@@ -873,7 +877,7 @@ begin
 
    rdaddress_a_sig <= send_ptr;
 
-   send_state_out: process(present_send_state, send_ptr)
+   send_state_out: process(present_send_state)
    begin
       case present_send_state is
          when RESET =>

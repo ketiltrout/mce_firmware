@@ -49,7 +49,6 @@ ENTITY cmd_queue_ram40 IS
 		rdaddress_b		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 		wren		: IN STD_LOGIC  := '1';
 		clock		: IN STD_LOGIC ;
-		enable		: IN STD_LOGIC  := '1';
 		qa		: OUT STD_LOGIC_VECTOR (39 DOWNTO 0);
 		qb		: OUT STD_LOGIC_VECTOR (39 DOWNTO 0)
 	);
@@ -91,7 +90,6 @@ ARCHITECTURE SYN OF cmd_queue_ram40 IS
 	PORT (
 			qa	: OUT STD_LOGIC_VECTOR (39 DOWNTO 0);
 			qb	: OUT STD_LOGIC_VECTOR (39 DOWNTO 0);
-			inclocken	: IN STD_LOGIC ;
 			wren	: IN STD_LOGIC ;
 			inclock	: IN STD_LOGIC ;
 			data	: IN STD_LOGIC_VECTOR (39 DOWNTO 0);
@@ -131,7 +129,6 @@ BEGIN
 		lpm_hint => "USE_EAB=ON"
 	)
 	PORT MAP (
-		inclocken => enable,
 		wren => wren,
 		inclock => clock,
 		data => data,
@@ -162,7 +159,7 @@ END SYN;
 -- Retrieval info: PRIVATE: REGrren_b NUMERIC "0"
 -- Retrieval info: PRIVATE: REGqa NUMERIC "0"
 -- Retrieval info: PRIVATE: REGqb NUMERIC "0"
--- Retrieval info: PRIVATE: enable NUMERIC "1"
+-- Retrieval info: PRIVATE: enable NUMERIC "0"
 -- Retrieval info: PRIVATE: CLRdata NUMERIC "0"
 -- Retrieval info: PRIVATE: CLRwrite NUMERIC "0"
 -- Retrieval info: PRIVATE: CLRrdaddress_a NUMERIC "0"
@@ -208,7 +205,6 @@ END SYN;
 -- Retrieval info: USED_PORT: rdaddress_b 0 0 8 0 INPUT NODEFVAL rdaddress_b[7..0]
 -- Retrieval info: USED_PORT: wren 0 0 0 0 INPUT VCC wren
 -- Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
--- Retrieval info: USED_PORT: enable 0 0 0 0 INPUT VCC enable
 -- Retrieval info: CONNECT: @data 0 0 40 0 data 0 0 40 0
 -- Retrieval info: CONNECT: qa 0 0 40 0 @qa 0 0 40 0
 -- Retrieval info: CONNECT: qb 0 0 40 0 @qb 0 0 40 0
@@ -217,5 +213,4 @@ END SYN;
 -- Retrieval info: CONNECT: @rdaddress_b 0 0 8 0 rdaddress_b 0 0 8 0
 -- Retrieval info: CONNECT: @wren 0 0 0 0 wren 0 0 0 0
 -- Retrieval info: CONNECT: @inclock 0 0 0 0 clock 0 0 0 0
--- Retrieval info: CONNECT: @inclocken 0 0 0 0 enable 0 0 0 0
 -- Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
