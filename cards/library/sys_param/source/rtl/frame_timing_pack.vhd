@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.13 2004/10/22 01:55:31 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.14 2004/10/23 02:28:48 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/10/22 01:55:31 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/23 02:28:48 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.14  2004/10/23 02:28:48  bburger
+-- Bryce:  Work out a couple of bugs to do with the initialization window
+--
 -- Revision 1.13  2004/10/22 01:55:31  bburger
 -- Bryce:  adding timing signals for RC flux_loop
 --
@@ -100,6 +103,8 @@ package frame_timing_pack is
    constant MUX_LINE_PERIOD        : integer := 64; -- 64 50MHz cycles
    constant NUM_OF_ROWS            : integer := 41;
    constant END_OF_FRAME           : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-1; --(41*MUX_LINE_PERIOD);
+   
+   -- Timing constants for the Readout Card
    constant END_OF_FRAME_1ROW_PREV : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-MUX_LINE_PERIOD-1;
    constant END_OF_FRAME_1ROW_POST : integer := MUX_LINE_PERIOD-1;
 
@@ -131,7 +136,7 @@ package frame_timing_pack is
    constant RETIRE_TIMEOUT    : integer := END_OF_FRAME;
 
    ------------------------------------------------------------------------------------
-   -- Bias Card frame structure
+   -- Bias Card begins updating its bias values on the second clock cycle of a frame
    constant UPDATE_BIAS : integer := 2;
    
    ------------------------------------------------------------------------------------
@@ -148,10 +153,6 @@ package frame_timing_pack is
    40*MUX_LINE_PERIOD);
     
    ------------------------------------------------------------------------------------
-   -- Readout Card frame structure
-
-
-   ------------------------------------------------------------------------------------
    -- Frame Timing Interface
 
    component frame_timing is
@@ -166,6 +167,7 @@ package frame_timing_pack is
          sample_delay_i             : in integer;
          feedback_delay_i           : in integer;
 
+         update_bias_o              : out std_logic;
          dac_dat_en_o               : out std_logic;
          adc_coadd_en_o             : out std_logic;
          restart_frame_1row_prev_o  : out std_logic;

@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.11 2004/10/22 01:55:31 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.12 2004/10/23 02:28:48 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/10/22 01:55:31 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/23 02:28:48 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.12  2004/10/23 02:28:48  bburger
+-- Bryce:  Work out a couple of bugs to do with the initialization window
+--
 -- Revision 1.11  2004/10/22 01:55:31  bburger
 -- Bryce:  adding timing signals for RC flux_loop
 --
@@ -92,6 +95,7 @@ entity frame_timing is
       sample_delay_i             : in integer;
       feedback_delay_i           : in integer;
          
+      update_bias_o              : out std_logic;
       dac_dat_en_o               : out std_logic;--
       adc_coadd_en_o             : out std_logic;--
       restart_frame_1row_prev_o  : out std_logic;--
@@ -177,6 +181,7 @@ architecture beh of frame_timing is
    -- 1- After a resync
    -- 2- After changing flux_loop parameters   
    
+   update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS else '0';
    restart_frame_1row_prev_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_PREV else '0';
    restart_frame_aligned_o    <= restart_frame_aligned;
    restart_frame_1row_post_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_POST else '0';
