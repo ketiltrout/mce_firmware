@@ -31,6 +31,8 @@ FILES
 	VHDL_FILE = ..\..\..\library\components\source\rtl\tri_state_buf.vhd;
 	VHDL_FILE = ..\..\..\library\components\source\rtl\tri_state_buf_vec.vhd;
 	VHDL_FILE = ..\..\..\library\components\source\rtl\us_timer.vhd;
+	VHDL_FILE = ..\..\sync_gen\source\rtl\sync_gen.vhd;
+	VHDL_FILE = ..\..\sync_gen\source\rtl\sync_gen_pack.vhd;
 	VHDL_FILE = ..\source\rtl\cmd_queue_ram40_pack.vhd;
 	VHDL_FILE = ..\source\rtl\cmd_queue_pack.vhd;
 	VHDL_FILE = ..\source\rtl\cmd_queue_ram40_test.vhd;
