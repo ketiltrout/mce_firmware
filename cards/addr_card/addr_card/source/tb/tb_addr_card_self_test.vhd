@@ -27,8 +27,11 @@
 --
 -- Description:
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
+-- <date $Date: 2005/01/21 01:11:44 $>    - <initials $Author: mandana $>
 -- $Log: tb_addr_card_self_test.vhd,v $
+-- Revision 1.1  2005/01/21 01:11:44  mandana
+-- added addr_card_self_test component
+--
 --   
 --
 -------------------------------------------------------
@@ -452,10 +455,11 @@ begin
    ac_slot_id      <= "1111";
 --   cc_slot_id      <= "1000";
    ------------------------------------------------
-   -- Create test bench clock
+   -- Create test bench clock and emulate signals coming from clock card.
    -------------------------------------------------
    inclk        <= not inclk        after clk_period/2;   
    lvds_sync    <= not lvds_sync    after clk_period*2600/2;
+   ttl_nrx(1)   <= '0';
    ------------------------------------------------
    -- Create test bench stimuli
    -------------------------------------------------
