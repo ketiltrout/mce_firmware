@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.8 2004/08/27 18:44:03 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.9 2004/09/28 15:21:55 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,8 +67,9 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/08/27 18:44:03 $>	-		<text>		- <initials $Author: jjacob $>
--- <$log$>
+-- <date $Date: 2004/09/28 15:21:55 $>	-		<text>		- <initials $Author: dca $>
+--
+-- Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -393,8 +394,8 @@ begin
       cksum_rcvd,
       write_pointer,
       read_pointer,
-      number_data,
-      cmd_code
+      number_data --,
+   --   cmd_code
    )
    ----------------------------------------------------------------------------
    begin
@@ -729,11 +730,17 @@ begin
       
       when CKSM_PASS =>
          if (cmd_ack_i = '1') then
-            if ((number_data = 0 ) or (cmd_code = ASCII_R & ASCII_B) ) then  
+         
+         -- if ((number_data = 0 ) or (cmd_code = ASCII_R & ASCII_B) ) then  
+         -- replace following if statement with the above (commented out) if statement 
+         -- and no dummy words will be clocked for the read_block command  
+         
+            if (number_data = 0 ) then  
                next_state <= IDLE;
             else
                next_state <= DATA_READ;
             end if; 
+         
          else
             next_state <= CKSM_PASS;
          end if;
