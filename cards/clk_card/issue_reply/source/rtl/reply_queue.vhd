@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.10 2004/12/04 02:03:06 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.11 2004/12/06 07:23:04 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.11  2004/12/06 07:23:04  bburger
+-- Bryce:  Modified cmd_queue and reply_queue stop them from allowing start commands over the backplane
+--
 -- Revision 1.10  2004/12/04 02:03:06  bburger
 -- Bryce:  fixing some problems associated with integrating the reply_queue
 --
@@ -116,7 +119,6 @@ entity reply_queue is
       
       -- Global signals
       clk_i             : in std_logic;
-      mem_clk_i         : in std_logic;
       comm_clk_i        : in std_logic;
       rst_i             : in std_logic
    );
@@ -347,7 +349,6 @@ begin
    rx_ac : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
@@ -365,7 +366,6 @@ begin
    rx_bc1 : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
@@ -383,7 +383,6 @@ begin
    rx_bc2 : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
@@ -401,7 +400,6 @@ begin
    rx_bc3 : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
@@ -419,7 +417,6 @@ begin
    rx_rc1 : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
@@ -437,7 +434,6 @@ begin
    rx_rc2 : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
@@ -455,7 +451,6 @@ begin
    rx_rc3 : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
@@ -473,7 +468,6 @@ begin
    rx_rc4 : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
@@ -491,7 +485,6 @@ begin
    rx_cc : reply_queue_receive
       port map(
          clk_i        => clk_i,
-         mem_clk_i    => mem_clk_i,
          comm_clk_i   => comm_clk_i,
          rst_i        => rst_i,
                
