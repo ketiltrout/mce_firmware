@@ -46,7 +46,7 @@ use ieee.numeric_std.all;
 
 entity async_fifo is
    generic( 
-      fifo_size : Positive
+      addr_size : Positive
    );
    port( 
       rst_i     : in     std_logic;
@@ -60,31 +60,32 @@ entity async_fifo is
 
 end async_fifo ;
 
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+
 architecture rtl of async_fifo is
 
    -- Architecture Declarations
-   
-   subtype fifo_deep is integer range 0 to fifo_size-1;
   
+   
+   subtype word is std_logic_vector(7 downto 0);                     -- define the size of a fifo word
+   type mem is array (0 to 2**addr_size-1) of word;                  -- define the size of the fifo ram
+   signal memory        : mem;                                       -- assign the ram to signal 'memory'
 
-   subtype word is std_logic_vector(7 downto 0);
-   type mem is array (0 to fifo_size-1) of word;
-   signal memory: mem;
+   signal write_addr    : std_logic_vector(addr_size-1 downto 0);    --  ram write address
+   signal read_addr     : std_logic_vector(addr_size-1 downto 0);    --  ram read address 
+   
+   subtype fifo_deep is integer range 0 to 2**addr_size-1;
+   signal fifo_count    : fifo_deep;                                 -- number of words in fifo still to be read
+   signal last_count    : fifo_deep;                                 -- number of words in fifo before last read/write
+   
+   signal empty         : std_logic;                                 -- empty flag
+   signal full          : std_logic;                                 -- full flag
 
-   signal write_pointer : fifo_deep;
-   signal read_pointer  : fifo_deep;
-   
-   signal fifo_count    : fifo_deep;   -- 
-   signal last_count    : fifo_deep;   -- used to determine if FIFO full or empty.
-   
-   signal empty         : std_logic;
-   signal full          : std_logic;
-   
-   
+
 begin
 
    empty_o <= empty;
@@ -98,18 +99,16 @@ begin
   
    begin
       if (rst_i = '1') then
-         write_pointer <= 0;
-        
-         for i in 0 to fifo_size-1 loop
+         write_addr <= (others => '0');
+         for i in 0 to (2**addr_size-1) loop
             memory(i) <= (others => '0');
-         end loop;   
-           
-       elsif (write_i'EVENT and write_i = '1') then
-         memory(write_pointer) <= d_i; 
-            if (write_pointer = fifo_size-1) then
-               write_pointer <= 0;
-            else
-               write_pointer <= write_pointer + 1;
+         end loop;
+      elsif (write_i'EVENT and write_i = '1') then
+         memory(to_integer(unsigned(write_addr))) <= d_i; 
+            if ((to_integer(unsigned(write_addr))) = 2**addr_size-1) then          -- if at last address
+               write_addr <= (others => '0');                                      -- reset to 0
+            else                                                                   -- else increment by 1
+               write_addr <= std_logic_vector(to_unsigned((to_integer(unsigned(write_addr)) + 1), addr_size));
             end if; 
        end if; 
     end process fifo_write_ram;
@@ -122,30 +121,36 @@ begin
   
    begin
       if (rst_i = '1') then
-         read_pointer <= 0;
-         q_o <= (others => '1');
+         read_addr <= (others => '0');
+         q_o <= (others => '0');
       elsif (read_i'EVENT and read_i = '1') then
-         q_o <=  memory(read_pointer);
-         if (read_pointer = fifo_size-1) then
-            read_pointer <= 0;
-         else
-            read_pointer <= read_pointer + 1;
+         q_o <=  memory(to_integer(unsigned(read_addr)));
+         if (to_integer(unsigned(read_addr)) = 2**addr_size-1) then        -- if at last address 
+            read_addr <= (others => '0');                                  -- reset to 0
+         else                                                              -- else increament by 1
+            read_addr <= std_logic_vector(to_unsigned((to_integer(unsigned(read_addr)) + 1), addr_size));
          end if;
       end if; 
     end process fifo_read_ram;
 
    ----------------------------------------------------------------------------
-   fifo_state : process(read_pointer, write_pointer)
+   fifo_state : process(read_addr, write_addr, fifo_count)
    ----------------------------------------------------------------------------
    -- process to establish how many words are currently in the fifo
    ----------------------------------------------------------------------------
    
    begin  
-      last_count <= fifo_count;            -- save last count
-      if write_pointer < read_pointer then 
-         fifo_count <= fifo_size + write_pointer - read_pointer;
+      
+      -- save last fifo count if read or write address incremented
+      if (read_addr(0)'event) or (write_addr(0)'event) then
+         last_count <= fifo_count;                    
+      end if;
+      
+      -- calculate current fifo count
+      if (to_integer(unsigned(write_addr))) < (to_integer(unsigned(read_addr))) then 
+         fifo_count <= (2**addr_size) + (to_integer(unsigned(write_addr))) - (to_integer(unsigned(read_addr)));
       else 
-         fifo_count <= write_pointer - read_pointer; 
+         fifo_count <= (to_integer(unsigned(write_addr))) - (to_integer(unsigned(read_addr))); 
       end if;   
    end process fifo_state;
         
@@ -153,12 +158,12 @@ begin
    flag_fifo : process(fifo_count, last_count)
    ----------------------------------------------------------------------------
    -- process which sets the full and empty flags depending on fifo_count
-   -- when write_pointer and read_pointer are equal (fifo_count = 0) then the 
+   -- when write_addr and read_addr are equal (fifo_count = 0) then the 
    -- fifo is either full or empty.  Value of last_count determines which.
    ----------------------------------------------------------------------------
       begin
          if (fifo_count = 0) then
-            if (last_count = fifo_size - 1) then   -- i.e. if last operation was a write
+            if (last_count = 2**addr_size - 1) then   -- i.e. if last operation was a write
                empty <= '0';
                full <= '1';
             else 
