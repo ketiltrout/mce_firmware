@@ -29,8 +29,11 @@
 -- 
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$   
+-- <date $Date: 2004/04/15 18:37:58 $>	- <initials $Author: mandana $>
+-- $Log: write_spi_with_cs.vhd,v $
+-- Revision 1.1  2004/04/15 18:37:58  mandana
+-- initial release
+--   
 --
 -----------------------------------------------------------------------------
 
@@ -138,9 +141,6 @@ begin
                next_state <= WRITE;
             end if;
 
-        when others =>
-           next_state <= IDLE;
-           
       end case;
    end process;
 
@@ -187,7 +187,7 @@ begin
          
          when WRITE =>
          
-            if count > DATA_LENGTH then
+            if count >= DATA_LENGTH - 1 then
                run_spi_clk     <= '1'; 
                shift_reg_en    <= '1';
                spi_ncs_o       <= '0';
@@ -206,17 +206,7 @@ begin
                shift_reg_clr   <= '0';
                done_o          <= '0';
             end if;
-            
-         when others =>
-         
-            run_spi_clk        <= '0';
-            shift_reg_en       <= '0';
-            spi_ncs_o          <= '1';
-            reset_counter      <= '1';
-            shift_reg_load     <= '1';
-            shift_reg_clr      <= '1';
-            done_o             <= '0';
-            
+                        
       end case;
    end process;
             
