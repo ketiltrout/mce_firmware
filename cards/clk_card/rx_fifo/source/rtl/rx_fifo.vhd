@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: rx_fifo.vhd,v 1.3 2004/06/15 11:13:16 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -36,7 +36,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/06/15 11:13:16 $>	-		<text>		- <initials $Author: dca $>
 --
 --
 -----------------------------------------------------------------------------
@@ -52,13 +52,13 @@ entity rx_fifo is
       fifo_size : Positive
    );
    port( 
-      rst_i     : in     std_logic;
-      rx_fr_i   : in     std_logic;
-      rx_fw_i   : in     std_logic;
-      rx_data_i : in     std_logic_vector (7 downto 0);
-      rx_fe_o   : out    std_logic;
-      rx_ff_o   : out    std_logic;
-      rxd_o     : out    std_logic_vector (7 downto 0)
+      rst_i     : in     std_logic;                       -- global reset
+      rx_fr_i   : in     std_logic;                       -- fifo read request
+      rx_fw_i   : in     std_logic;                       -- fifo write request
+      rx_data_i : in     std_logic_vector (7 downto 0);   -- fifo data input
+      rx_fe_o   : out    std_logic;                       -- fifo empty flag
+      rx_ff_o   : out    std_logic;                       -- fifo full flagg
+      rxd_o     : out    std_logic_vector (7 downto 0)    -- fifo data output
    );
 
 end rx_fifo ;

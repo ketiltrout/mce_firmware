@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: rx_control.vhd,v 1.1 2004/04/01 14:44:37 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -34,38 +34,36 @@
 -- Revision history:
 -- 22nd February 2004   - Initial version      - DA
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/04/01 14:44:37 $>	-		<text>		- <initials $Author: dca $>
 --
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
 
-ENTITY rx_control IS
-   PORT( 
-      nRx_rdy_i : IN     std_logic;
-      rsc_nRd_i : IN     std_logic;
-      rso_i     : IN     std_logic;
-      rvs_i     : IN     std_logic;
-      rx_ff_i   : IN     std_logic;
-      rx_fw_o   : OUT    std_logic
+entity rx_control is
+   port( 
+      nRx_rdy_i : in     std_logic;  -- hotlink receiver data ready (active low)
+      rsc_nRd_i : in     std_logic;  -- hotlink receiver special character/(not) Data 
+      rso_i     : in     std_logic;  -- hotlink receiver status out
+      rvs_i     : in     std_logic;  -- hotlink receiver violation symbol detected
+      rx_ff_i   : in     std_logic;  -- rx_fifo full flag
+      rx_fw_o   : out    std_logic   -- rx_fifo write request
    );
 
--- Declarations
 
-END rx_control ;
-
-
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
+end rx_control ;
 
 
-ARCHITECTURE rtl OF rx_control IS
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
 
-BEGIN
+architecture rtl of rx_control is
 
-   rx_fw_o <= NOT(nRx_rdy_i) AND NOT(rsc_nRd_i) AND NOT(rvs_i) AND NOT(rx_ff_i)
-              AND rso_i;
+begin
 
-END rtl;
+   rx_fw_o <= not(nRx_rdy_i) and not(rsc_nRd_i) and not(rvs_i) and not(rx_ff_i)
+              and rso_i;
+
+end rtl;
