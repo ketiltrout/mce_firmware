@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.4 2004/06/08 00:14:10 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.5 2004/06/09 23:32:47 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/08 00:14:10 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/09 23:32:47 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.5  2004/06/09 23:32:47  jjacob
+-- cleaned formatting
+--
 -- Revision 1.4  2004/06/08 00:14:10  jjacob
 -- updating
 --
@@ -87,18 +90,24 @@ port(
       num_data_i        : in    std_logic_vector (7 downto 0);    -- number of 16-bit data words to be clocked out
       reg_addr_i        : in    std_logic_vector (23 downto 0);   -- the parameter ID
       
+      -- output to fibre_rx
+      ack_o             : out std_logic;
+      
       -- other inputs
       sync_pulse_i      : in    std_logic;
       sync_number_i     : in    std_logic_vector (7 downto 0);
      
-      -- signals from the arbiter, to micro-op  sequence generator )
-      ack_o             :  out std_logic;     -- RENAME to cmd_rdy_o                                     -- ready signal
+      -- signals from the arbiter to micro-op sequence generator
+      --ack_o             :  out std_logic;     -- DEAD unused signal --RENAME to cmd_rdy_o        -- ready signal
       card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
       data_clk_o        :  out std_logic;
       macro_instr_rdy_o :  out std_logic;
+      
+      -- input from the micro-op sequence generator
+      ack_i                 : in std_logic;                    -- acknowledge signal from the micro-instruction sequence generator
 
 
       -- outputs to the micro instruction sequence generator
@@ -112,11 +121,9 @@ port(
       reply_card_addr_o     : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       reply_data_size_o     : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)  ;      -- data will be passed straight thru
+      reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)     -- data will be passed straight thru
       
-      ack_i                 : in std_logic
-
-
+ 
    ); 
      
 end cmd_translator;
@@ -168,10 +175,25 @@ architecture rtl of cmd_translator is
    signal simple_cmd_data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
    signal simple_cmd_data_clk        : std_logic;
    signal simple_cmd_macro_instr_rdy : std_logic;
+   
+   signal arbiter_ack                : std_logic_vector (1 downto 0);
+   signal macro_instr_rdy            : std_logic;
 
    constant START_CMD : std_logic_vector (15 downto 0) := x"474F";
    constant STOP_CMD  : std_logic_vector (15 downto 0) := x"5354";
-
+   
+   
+   -- memory arrays for macro-op storage/retire buffer
+--   constant BUFFER_SIZE              : integer := 8;
+--   type byte is                       std_logic_vector(7 downto 0);
+--   type word is                       std_logic_vector(31 downto 0);
+--   
+--   signal frame_seq_num_array        : word(BUFFER_SIZE-1 downto 0);
+--   signal frame_sync_num_array       : byre(BUFFER_SIZE-1 downto 0);
+--   signal m_op_seq_num_array         : byte(BUFFER_SIZE-1 downto 0);
+--   
+--   signal in_use                     : std_logic_vector(BUFFER_SIZE-1 downto 0);
+   
 
 component cmd_translator_simple_cmd_fsm
 
@@ -536,6 +558,24 @@ begin
    end process;
  
 
+   process(arbiter_ack, simple_cmd_ack, ret_dat_ack)
+   begin
+      case arbiter_ack is
+
+         when "01" =>
+            ack_o <= simple_cmd_ack;
+         when "10" =>
+            ack_o <= ret_dat_ack;
+         when "00" | "11" =>
+            ack_o <= '0';
+         when others =>
+            ack_o <= '0';
+      end case;   
+   end process;
+   
+   arbiter_ack <= ret_dat_ack  & simple_cmd_ack;
+
+
 ------------------------------------------------------------------------
 --
 -- instantiate logic to handle ret_dat command
@@ -679,12 +719,44 @@ port map(
       data_size_o                   => data_size_o,    -- num_data_i, indicates number of 16-bit words of data
       data_o                        => data_o,         -- data will be passed straight thru in 16-bit words
       data_clk_o       				    => data_clk_o	,                          -- for clocking out the data
-      macro_instr_rdy_o             => macro_instr_rdy_o,                    -- ='1' when the data is valid, else it's '0'
+      macro_instr_rdy_o             => macro_instr_rdy,                    -- ='1' when the data is valid, else it's '0'
       
       -- input from the micro-instruction generator
       ack_i                         => ack_i            -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
 
    ); 
      
+     
+   macro_instr_rdy_o <= macro_instr_rdy;
    
-end rtl;
+------------------------------------------------------------------------
+--
+-- macro-op storage/retire buffer
+--
+------------------------------------------------------------------------ 
+
+--   process(macro_instr_rdy)
+--   begin
+--      if rst_i = '1' then
+--        for write_index in BUFFER_SIZE-1 loop
+--           m_op_seq_num_array(write_index)         <= (others => '0');
+--           frame_sync_num_array(write_index)       <= (others => '0');
+--           frame_seq_num_array(write_index)        <= (others => '0');
+--           in_use(write_index)                     <= '0';        
+--        end loop;
+--      elsif macro_instr_rdy'event and macro_instr_rdy = '1' then
+--         m_op_seq_num_array(index)         <= m_op_seq_num;
+--         frame_sync_num_array(index)       <= frame_sync_num;
+--         frame_seq_num_array(index)        <= frame_seq_num;
+--         in_use(index)                     <= '1';
+--      elsif macro_instr_done'event and macro_instr_done = '1' then
+--         in_use(index)                     <= '0';
+--      end if;   
+--   
+--   end process;
+
+   
+
+
+
+end rtl; 
