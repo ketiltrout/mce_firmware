@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.6 2004/09/02 18:24:44 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.7 2004/09/02 23:41:27 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/02 18:24:44 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/02 23:41:27 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.7  2004/09/02 23:41:27  jjacob
+-- cleaning up and formatting
+--
 -- Revision 1.6  2004/09/02 18:24:44  jjacob
 -- cleaning up and formatting
 --
@@ -99,6 +102,7 @@ port(
       data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_i        : in std_logic;							                         -- for clocking out the data
+      cmd_code_i        : in std_logic_vector (15 downto 0);
       
       -- other inputs
       sync_pulse_i      : in std_logic;
@@ -112,6 +116,7 @@ port(
       data_o            : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o        : out std_logic;							                          -- for clocking out the data
       macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
+      cmd_type_o        : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       
       -- input from the macro-instruction arbiter
       ack_i             : in std_logic                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
@@ -138,8 +143,18 @@ begin
    data_clk_o         <= data_clk_i     when cmd_start_i = '1' else '0';
    macro_instr_rdy_o  <= '1'            when cmd_start_i = '1' else '0';
 
-
-
+   -- re-mapping logic for cmd_code_i -> cmd_type_o
+   with cmd_code_i select
+      cmd_type_o <=
+      WRITE_BLOCK   when x"5742",
+      READ_BLOCK    when x"5242",
+      START         when x"474F",
+      STOP          when x"5354",
+      RESET         when x"5253",
+      (others=>'1') when others;  -- undefined cmd_type
+   
+   
+   
 --   process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
 --           data_i, data_clk_i)
 --   begin

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.12 2004/08/24 00:00:44 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.13 2004/09/02 18:24:28 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/24 00:00:44 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/02 18:24:28 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.13  2004/09/02 18:24:28  jjacob
+-- cleaning up and formatting
+--
 -- Revision 1.12  2004/08/24 00:00:44  jjacob
 -- registered the macro_instr_rdy_o signal, and the ack_i signal to/from the
 -- cmd_queue to break a combinational loop
@@ -122,7 +125,10 @@ port(
       ret_dat_data_clk_i           : in std_logic;							                                   -- for clocking out the data
       ret_dat_macro_instr_rdy_i    : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_i        : in std_logic;
-
+      ret_dat_cmd_type_i           : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      ret_dat_cmd_stop_i           : in std_logic;                                          -- indicates a STOP command was recieved
+      ret_dat_last_frame_i         : in std_logic;  
+        
       -- output to the 'return data' state machine
       ret_dat_ack_o                : out std_logic;                                         -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
 
@@ -133,7 +139,8 @@ port(
       simple_cmd_data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       simple_cmd_data_clk_i        : in std_logic;							                                   -- for clocking out the data
       simple_cmd_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
- 
+      simple_cmd_type_i            : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      
       -- output to the ret_dat state machine
       simple_cmd_ack_o             : out std_logic ;  
       
@@ -145,14 +152,17 @@ port(
       frame_seq_num_o              : out std_logic_vector (31 downto 0);
       frame_sync_num_o             : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);   -- (7 downto 0);
       
-      -- outputs to the micro-instruction generator (cmd_queue)
+      -- outputs to the cmd_queue (micro-instruction generator)
       card_addr_o                  : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_o               : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_o                  : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
       data_o                       : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o                   : out std_logic;							                                   -- for clocking out the data
       macro_instr_rdy_o            : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-
+      cmd_type_o                   : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_stop_o                   : out std_logic;                                          -- indicates a STOP command was recieved
+      last_frame_o                 : out std_logic;    
+      
       -- input from the micro-instruction generator (cmd_queue)
       ack_i                        : in std_logic                   -- acknowledgment from the micro-instr generator (cmd_queue) that it is ready and has grabbed the data
 
@@ -197,6 +207,13 @@ architecture rtl of cmd_translator_arbiter is
    signal sync_number_plus_1        : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
    
    signal ack_reg                   : std_logic;
+   
+   signal cmd_type_reg              : std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);
+   signal cmd_type                  : std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);
+   signal cmd_stop_reg              : std_logic;
+   signal cmd_stop                  : std_logic;
+   signal last_frame_reg            : std_logic;
+   signal last_frame                : std_logic;
    
    constant SIMPLE_CMD              : std_logic := '0';
    constant RET_DAT                 : std_logic := '1';
@@ -356,9 +373,12 @@ begin
 
    card_addr_o          <= simple_cmd_card_addr_i       when data_mux_sel = '0' else ret_dat_card_addr_i; 
    parameter_id_o       <= simple_cmd_parameter_id_i    when data_mux_sel = '0' else ret_dat_parameter_id_i; 
-   data_size_o          <= simple_cmd_data_size_i       when data_mux_sel = '0' else (others=>'0');-- fix this! ret_dat_data_size_i;
+   data_size_o          <= simple_cmd_data_size_i       when data_mux_sel = '0' else (others=>'0');-- fix this in fibre_rx! data_size should be '0', not '1' for ret_dat commands. ret_dat_data_size_i;
    data_o               <= simple_cmd_data_i            when data_mux_sel = '0' else ret_dat_data_i; 
    data_clk_o           <= simple_cmd_data_clk_i        when data_mux_sel = '0' else ret_dat_data_clk_i;
+   cmd_type             <= simple_cmd_type_i            when data_mux_sel = '0' else ret_dat_cmd_type_i;
+   cmd_stop             <= '0'                          when data_mux_sel = '0' else ret_dat_cmd_stop_i;
+   last_frame           <= '0'                          when data_mux_sel = '0' else ret_dat_last_frame_i;
    
    frame_seq_num_o      <= (others=>'0')                when data_mux_sel = '0' else ret_dat_frame_seq_num_i;
    frame_sync_num_o     <= sync_number_plus_1           when data_mux_sel = '0' else ret_dat_frame_sync_num_i;
@@ -383,14 +403,23 @@ begin
          macro_instr_rdy_reg    <= '0';
          ack_reg                <= '0';
          ret_dat_pending        <= '0';
+         cmd_type_reg           <= (others=>'0');
+         cmd_stop_reg           <= '0';
+         last_frame_reg         <= '0';
       elsif clk_i'event and clk_i = '1' then
          macro_instr_rdy_reg    <= macro_instr_rdy;
          ack_reg                <= ack_i;
          ret_dat_pending        <= ret_dat_pending_mux;
+         cmd_type_reg           <= cmd_type;
+         cmd_stop_reg           <= cmd_stop;
+         last_frame_reg         <= last_frame;
       end if;
    end process;
 
    macro_instr_rdy_o <= macro_instr_rdy_reg;
+   cmd_type_o        <= cmd_type_reg;
+   cmd_stop_o        <= cmd_stop_reg;
+   last_frame_o      <= last_frame_reg;
    
 ------------------------------------------------------------------------
 --
