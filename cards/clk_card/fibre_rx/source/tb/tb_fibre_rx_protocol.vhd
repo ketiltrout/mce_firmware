@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.2 2004/06/28 10:50:55 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.1 2004/06/28 11:11:40 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,7 +32,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/28 10:50:55 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 11:11:40 $>	-		<text>		- <initials $Author: dca $>
 -- $log$
 -----------------------------------------------------------------------------
 library ieee;
@@ -600,15 +600,17 @@ assert false report "tested preamble1 waits" severity NOTE;
        
    begin
       
+           
+      cmd_ack <= '0';
+      rx_fe   <= '1';
+      rxd     <= (others => '1');
+      
       do_reset; 
       load_preamble_test1;
       do_reset;  
       load_preamble_test2;
       do_reset;
       
-      
-      -- load a valid wb command
-      cmd_ack <= '0';
              
       command <= command_wb;
       load_preamble;
