@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test_wrapper.vhd,v 1.2 2004/05/29 19:12:55 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.1 2004/06/02 17:46:19 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -66,10 +66,6 @@ entity bc_dac_ramp_test_wrapper is
       lvds_dac_ncs_o: out std_logic;
       lvds_dac_clk_o: out std_logic;
       
-      ack_test_o: out std_logic;
-      cyc_test_o: out std_logic;
-      sync_test_o: out std_logic;
-      idac_clk_o: out std_logic;
       spi_start_o: out std_logic
       
    );   
@@ -127,7 +123,7 @@ begin
      
 -- instantiate a counter for generating ramp
    data_count: counter
-   generic map(MAX => 16#3fff#)
+   generic map(MAX => 16#ffff#)
    port map(clk_i   => clkcount,
             rst_i   => rst_i,
             ena_i   => ramp,
@@ -136,7 +132,7 @@ begin
             count_i => zero,
             count_o => idata);
   
-   clkcount <= dac_done(0) when ramp = '1' else '0';
+   clkcount <= dac_done(0);-- when ramp = '1' else '0';
    data <= conv_std_logic_vector(idata,16);
    
 ------------------------------------------------------------------------
@@ -196,11 +192,11 @@ begin
       end if;
    end process state_FF;
 ---------------------------------------------------------------   
-   state_NS: process(present_state, en_i)
+   state_NS: process(present_state, ramp,data)
    begin
       case present_state is
          when IDLE =>     
-            if(en_i = '1') then
+            if(ramp = '1') then
                next_state <= PUSH_DATA;
             else
                next_state <= IDLE;
@@ -218,7 +214,7 @@ begin
       end case;
    end process state_NS;
 -----------------------------------------------------------------   
-   state_out: process(present_state)
+   state_out: process(present_state,data)
    begin
       case present_state is
          when IDLE =>     
@@ -226,28 +222,24 @@ begin
                dac_data_p(idac) <= "0000000000000000";
             end loop;            
             send_dac32_start <= '0';
-            done_o    <= '0';
          
          when PUSH_DATA =>    
             for idac in 0 to 31 loop
                dac_data_p(idac) <= data;
             end loop;
             send_dac32_start <= '0';
-	    done_o    <= '0';
                           
          when SPI_START =>     
             for idac in 0 to 31 loop
                dac_data_p(idac) <= data;
             end loop;
             send_dac32_start <= '1';
-	    done_o    <= '0';
 
           when DONE =>    
             for idac in 0 to 31 loop
                dac_data_p(idac) <= data;
             end loop;
             send_dac32_start <= '0';
-	    done_o    <= '1';
 	                              
       end case;
    end process state_out;

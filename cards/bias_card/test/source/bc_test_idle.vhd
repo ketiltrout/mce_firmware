@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: bc_test_idle.vhd,v $
+-- Revision 1.3  2004/05/16 23:38:38  erniel
+-- changed LVDS tx test to two character command
+-- modified command encoding
+--
 -- Revision 1.2  2004/05/12 16:49:07  erniel
 -- removed components already in all_test
 --
@@ -201,7 +205,8 @@ begin
                if (rx_newdata = '1') then
                   if(rx_data_i = CMD_RESET or  
                      rx_data_i = CMD_DEBUG or
-                     rx_data_i = CMD_DAC) then
+                     rx_data_i = CMD_DAC_FIX or
+                     rx_data_i = CMD_DAC_RAMP) then
                      -- got a single character command - we're done
                      rx_state <= RX_DONE;
 

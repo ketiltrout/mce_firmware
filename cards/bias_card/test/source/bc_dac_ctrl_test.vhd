@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.1 2004/05/22 00:50:15 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.2 2004/05/29 19:12:55 erniel Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -28,15 +28,15 @@
 -- Organisation:  UBC
 --
 -- Description:
--- dac_ctrl test wrapper file.  This file instanstiates the dac_ctrl
--- and emulates the master (command FSM, for example) on the wishbone bus.
--- when enabled, same value is loaded to lvds DAC and 32 DACs simultaneously.
--- The next enable signal would load another set of values to the DACs. overall
--- 5 different set of values are loaded.
+-- bc_dac_ctrl_test file: It sends fixed values to the inputs of the
+-- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/05/22 00:50:15 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/05/29 19:12:55 $>	- <initials $Author: erniel $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.2  2004/05/29 19:12:55  erniel
+-- synthesized,  fixed value test debugged
+--
 -- Revision 1.1  2004/05/22 00:50:15  erniel
 -- Initial release, not compiled
 --
@@ -76,7 +76,6 @@ entity bc_dac_ctrl_test_wrapper is
       ack_test_o: out std_logic;
       cyc_test_o: out std_logic;
       sync_test_o: out std_logic;
-      idac_clk_o: out std_logic;
       spi_start_o: out std_logic
       
    );   
@@ -102,8 +101,7 @@ signal ibus     : integer;
 signal logic0   : std_logic;
 signal logic1   : std_logic;
 signal zero     : integer;
-signal clk_8    : std_logic;
-signal clk_4    : std_logic;
+signal clk_2    : std_logic;
 signal clk_count: integer;
 signal val_clk  : std_logic;
 signal idx      : integer;
@@ -124,8 +122,8 @@ begin
 
    spi_start_o <= send_dac32_start;
    
--- instantiate a counter to divide the clock by 8
-   clk_div_8: counter
+-- instantiate a counter to divide the clock by 2
+   clk_div_2: counter
    generic map(MAX => 4)
    port map(clk_i   => clk_i,
             rst_i   => '0',
@@ -134,10 +132,7 @@ begin
             down_i  => '0',
             count_i => 0 ,
             count_o => clk_count);
-
---   clk_8   <= '1' when clk_count > 8 else '0'; -- slow down the 50MHz clock to 50/8MHz
---   clk_4   <= '1' when (clk_count > 3 and clk_count <8) or (clk_count >11);
-     clk_4   <= '1' when clk_count > 2 else '0';
+   clk_2   <= '1' when clk_count > 2 else '0';
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
@@ -162,7 +157,7 @@ begin
       dac_write_spi :write_spi_with_cs
       generic map(DATA_LENGTH => 16)
       port map(--inputs
-         spi_clk_i        => clk_4,
+         spi_clk_i        => clk_2,
          rst_i            => rst_i,
          start_i          => send_dac32_start,
          parallel_data_i  => dac_data_p(k),
@@ -218,11 +213,11 @@ begin
    data (6) <= "0000000000001000";--x0008 
 
   -- state register:
-   state_FF: process(clk_4, rst_i)
+   state_FF: process(clk_2, rst_i)
    begin
       if(rst_i = '1') then 
          present_state <= IDLE;
-      elsif(clk_4'event and clk_4 = '1') then
+      elsif(clk_2'event and clk_2 = '1') then
          present_state <= next_state;
       end if;
    end process state_FF;

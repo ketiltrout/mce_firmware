@@ -31,6 +31,10 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.4  2004/05/16 23:38:12  erniel
+-- changed LVDS tx test to two character command
+-- modified command encoding
+--
 -- Revision 1.3  2004/05/12 18:03:15  mandana
 -- seperated the lvds_dac signals on the wrapper
 --
@@ -57,7 +61,8 @@ package bc_test_pack is
    -- One character commands ------------------------------------------
       
    constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc
-   constant CMD_DAC      : std_logic_vector(7 downto 0) := conv_std_logic_vector(98,8);    -- d
+   constant CMD_DAC_FIX  : std_logic_vector(7 downto 0) := conv_std_logic_vector(102,8);   -- f
+   constant CMD_DAC_RAMP : std_logic_vector(7 downto 0) := conv_std_logic_vector(100,8);   -- d   
    constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
                                                                                                               
    -- Two character commands ------------------------------------------
@@ -142,6 +147,7 @@ package bc_test_pack is
    component lvds_rx_test_wrapper
       port(rst_i : in std_logic;   -- reset input
            clk_i : in std_logic;   -- clock input
+           rx_clk_i : in std_logic;
            en_i : in std_logic;    -- enable signal
            done_o : out std_logic; -- done ouput signal
       
@@ -175,9 +181,9 @@ package bc_test_pack is
   end component;
   
   ------------------------------------------------------------------
-   -- BC DAC CTRL
+   -- BC DAC CTRL FIX values
   
-  component dac_ctrl_test_wrapper
+  component bc_dac_ctrl_test_wrapper
      port (
         -- basic signals
           rst_i     : in std_logic;    -- reset input
@@ -192,13 +198,43 @@ package bc_test_pack is
           dac_ncs_o : out std_logic_vector (31 downto 0); 
           dac_clk_o : out std_logic_vector (31 downto 0);
           
-          dac_nclr_o: out std_logic;
+--          dac_nclr_o: out std_logic;
           
           lvds_dac_dat_o : out std_logic;
           lvds_dac_ncs_o : out std_logic;
-          lvds_dac_clk_o : out std_logic
+          lvds_dac_clk_o : out std_logic;
+          ack_test_o     : out std_logic;
+          cyc_test_o     : out std_logic;
+          sync_test_o    : out std_logic;
+          spi_start_o    : out std_logic
           );   
   end component;  
   
 
+  ------------------------------------------------------------------
+  -- BC DAC RAMP
+
+component bc_dac_ramp_test_wrapper is
+   port (
+      -- basic signals
+      rst_i     : in std_logic;    -- reset input
+      clk_i     : in std_logic;    -- clock input
+      en_i      : in std_logic;    -- enable signal
+      done_o    : out std_logic;   -- done ouput signal
+      
+      -- transmitter signals removed!
+                
+      -- extended signals
+      dac_dat_o : out std_logic_vector (31 downto 0); 
+      dac_ncs_o : out std_logic_vector (31 downto 0); 
+      dac_clk_o : out std_logic_vector (31 downto 0);
+     
+      lvds_dac_dat_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_clk_o: out std_logic;
+      
+      spi_start_o: out std_logic
+      
+   );   
+end component;  
 end bc_test_pack;
