@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.27 2005/03/04 03:45:58 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.27.2.1 2005/03/08 21:52:48 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/03/04 03:45:58 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/03/08 21:52:48 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.27.2.1  2005/03/08 21:52:48  bburger
+--  (branch) disabled internal commands
+--
 -- Revision 1.27  2005/03/04 03:45:58  bburger
 -- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
 --
@@ -162,56 +165,57 @@ port(
 
      -- global inputs
 
-      rst_i             : in     std_logic;
-      clk_i             : in     std_logic;
+      rst_i             : in std_logic;
+      clk_i             : in std_logic;
 
       -- inputs from fibre_rx
-      card_id_i         : in    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
-      cmd_code_i        : in    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
-      cmd_data_i        : in    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- the data
-      cksum_err_i       : in    std_logic;
-      cmd_rdy_i         : in    std_logic;                                            -- indicates the fibre_rx outputs are valid
-      data_clk_i        : in    std_logic;                                            -- used to clock the data out
-      num_data_i        : in    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
-      param_id_i        : in    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+      card_id_i         : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
+      cmd_code_i        : in std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
+      cmd_data_i        : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- the data
+      cksum_err_i       : in std_logic;
+      cmd_rdy_i         : in std_logic;                                            -- indicates the fibre_rx outputs are valid
+      data_clk_i        : in std_logic;                                            -- used to clock the data out
+      num_data_i        : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
+      param_id_i        : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
  
       -- output to fibre_rx
       ack_o             : out std_logic;
       
       -- ret_dat_wbs interface:
-      start_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      stop_seq_num_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- other inputs 
-      sync_pulse_i      : in    std_logic;
-      sync_number_i     : in    std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);     --(7 downto 0);
+      sync_pulse_i      : in std_logic;
+      sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);     --(7 downto 0);
      
       -- signals from the arbiter to cmd_queue (micro-op sequence generator)
-      card_addr_o       :  out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    :  out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o       :  out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      data_o            :  out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru
-      data_clk_o        :  out std_logic;
-      macro_instr_rdy_o :  out std_logic;
-      cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
-      cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
-      last_frame_o      :  out std_logic;           -- indicates the last frame of data for a ret_dat command
-      internal_cmd_o    :  out std_logic;                                       
+      card_addr_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+      data_size_o       : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      data_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru
+      data_clk_o        : out std_logic;
+      macro_instr_rdy_o : out std_logic;
+      cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_stop_o        : out std_logic;                                          -- indicates a STOP command was recieved
+      last_frame_o      : out std_logic;           -- indicates the last frame of data for a ret_dat command
+      internal_cmd_o    : out std_logic;                                       
       
       -- input from the cmd_queue (micro-op sequence generator)
-      ack_i                 : in std_logic;                    -- acknowledge signal from the micro-instruction sequence generator
+      ack_i             : in std_logic;                    -- acknowledge signal from the micro-instruction sequence generator
 
       -- outputs to the cmd_queue (micro instruction sequence generator)
-      m_op_seq_num_o        : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
-      frame_seq_num_o       : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
-      frame_sync_num_o      : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);   --(7 downto 0);
+      m_op_seq_num_o    : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+      frame_seq_num_o   : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      frame_sync_num_o  : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);   --(7 downto 0);
 
       -- outputs to reply_translator for commands that require quick acknowldgements
-      reply_cmd_rcvd_er_o         : out std_logic;
-      reply_cmd_rcvd_ok_o         : out std_logic;
-      reply_cmd_code_o            : out std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);
-      reply_param_id_o            : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
-      reply_card_id_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)     -- specifies which card the command is targetting
+      reply_cmd_rcvd_er_o : out std_logic;
+      reply_cmd_rcvd_ok_o : out std_logic;
+      reply_cmd_code_o    : out std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);
+      reply_param_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+      reply_card_id_o     : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)     -- specifies which card the command is targetting
 
    ); 
      
@@ -646,6 +650,7 @@ i_return_data_cmd : cmd_translator_ret_dat_fsm
       -- ret_dat_wbs interface:
       start_seq_num_i        => start_seq_num_i,
       stop_seq_num_i         => stop_seq_num_i, 
+      data_rate_i            => data_rate_i,
 
       -- other inputs
       sync_pulse_i           => sync_pulse_i,
