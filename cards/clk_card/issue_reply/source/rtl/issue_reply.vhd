@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.9 2004/09/02 01:14:52 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.10 2004/09/10 01:21:01 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/02 01:14:52 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/09/10 01:21:01 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.10  2004/09/10 01:21:01  bburger
+-- Bryce:  Hardware testing, bug fixing
+--
 -- Revision 1.9  2004/09/02 01:14:52  bburger
 -- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
 --
@@ -96,6 +99,7 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
 use sys_param.command_pack.all;
+
 --use sys_param.frame_timing_pack.all;
 
 entity issue_reply is
@@ -180,8 +184,10 @@ architecture rtl of issue_reply is
       signal data_clk        :  std_logic;                                            -- used to clock the data out
       signal num_data        :  std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
       signal param_id        :  std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
-      
+      signal cmd_type        :  std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       signal cmd_ack         :  std_logic;   -- acknowledge signal from cmd_translator to fibre_rx
+      signal cmd_stop        :  std_logic;
+      signal last_frame      :  std_logic;
  
       -- signals for the return path for quick responses, currently not implemented
 --      signal reply_cmd_ack_o      :  std_logic; 
@@ -204,6 +210,8 @@ architecture rtl of issue_reply is
       -- reply_queue interface
       signal uop_status : std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0);
       signal uop_rdy : std_logic;
+      signal uop_rdy_stg1 :std_logic;
+      signal uop_rdy_stg2 :std_logic;
       signal uop_ack : std_logic;
       signal uop_discard : std_logic;
       signal uop_timedout : std_logic;
@@ -224,15 +232,18 @@ architecture rtl of issue_reply is
 
       -- temporary signals to simulate the sync pulse counter
 
-      signal count                : integer;
-      signal count_rst            : std_logic;
-      signal sync_number_mux_sel  : std_logic;
-      signal sync_number_mux      : std_logic_vector(7 downto 0);
-      
-      type state is               (IDLE, COUNTING, INCREMENT);
-      signal current_state, next_state : state;
-      constant SYNC_PERIOD        : integer := 53; -- time in micro-seconds
+--      signal count                : integer;
+--      signal count_rst            : std_logic;
+--      signal sync_number_mux_sel  : std_logic;
+--      signal sync_number_mux      : std_logic_vector(7 downto 0);
+--      
+--      type state is               (IDLE, COUNTING, INCREMENT);
+--      signal current_state, next_state : state;
+--      constant SYNC_PERIOD        : integer := 53; -- time in micro-seconds
 
+
+      type state is (IDLE, WAIT1, WAIT2, ACK1, ACK2);
+      signal cur_state, next_state : state;
 
 
 --   component fibre_rx is
@@ -347,6 +358,9 @@ begin
                m_op_seq_num_o       => m_op_seq_num,--m_op_seq_num_o,
                frame_seq_num_o      => frame_seq_num,--frame_seq_num_o,
                frame_sync_num_o     => frame_sync_num,--frame_sync_num_o,
+               cmd_type_o           => cmd_type,
+               cmd_stop_o           => cmd_stop,
+               last_frame_o         => last_frame,       
                
                --input from the u-op sequence generator
                ack_i                => mop_ack,
@@ -389,7 +403,7 @@ begin
         -- uop_status_i   => uop_status,  -- tie these signals
 
          uop_rdy_o      => uop_rdy,
-         uop_ack_i      => uop_ack,
+         uop_ack_i      => uop_ack,--uop_rdy_stg2,--
 
         -- uop_discard_o  => uop_discard,
         -- uop_timedout_o => uop_timedout,
@@ -406,6 +420,9 @@ begin
          issue_sync_i   => frame_sync_num,
          mop_rdy_i      => macro_instr_rdy,
          mop_ack_o      => mop_ack,
+         cmd_type_i     => cmd_type,
+         cmd_stop_i     => cmd_stop,
+         last_frame_i   => last_frame,
 
          -- lvds_tx interface
          tx_o           => tx_o,
@@ -418,6 +435,52 @@ begin
          rst_i          => rst_i
       );
 
+   process(clk_i, rst_i)
+   begin
+      if rst_i = '1' then
+         uop_rdy_stg1 <= '0';
+         uop_rdy_stg2 <= '0';
+         cur_state <= IDLE;
+      elsif clk_i'event and clk_i='1' then
+         uop_rdy_stg1 <= uop_rdy;
+         uop_rdy_stg2 <= uop_rdy_stg1;
+         cur_state <= next_state;
+      end if;
+   end process; 
+   
+   process(cur_state, uop_rdy)
+   begin
+      -- defaults
+      --uop_ack    <= '0';
+      
+      case cur_state is
+         when IDLE =>
+            if uop_rdy <= '1' then
+               next_state <= WAIT1;
+            else
+               next_state <= IDLE;
+            end if;
+            
+         when WAIT1 =>
+            next_state <= WAIT2;
+            
+         when WAIT2 =>
+            next_state <= ACK1;
+            
+         when ACK1 =>
+            next_state <= ACK2;
+            --uop_ack    <= '1';
+            
+         when ACK2 =>
+            next_state <= IDLE;
+            --uop_ack    <= '1';
+            
+         when others =>
+            next_state <= IDLE;
+         
+      end case;
+   end process;
+   
       
           
 ------------------------------------------------------------------------
@@ -426,63 +489,63 @@ begin
 --
 ------------------------------------------------------------------------
 
-    i_timer : us_timer
-    port map(clk           => clk_i,
-           timer_reset_i   => count_rst,
-           timer_count_o   => count
-           );
-           
-
-   process(current_state, count)
-   begin
-   
-      -- default
-      count_rst           <= '0';
-      sync_number_mux_sel <= '0';
-   
-      case current_state is
-         when IDLE =>
-            next_state <= COUNTING;
-            count_rst  <= '1';
-            
-         when COUNTING =>
-            if count = SYNC_PERIOD then
-               --count_rst           <= '1';
-               --sync_number_mux_sel <= '1';
-               next_state <= INCREMENT;
-            else
-               next_state <= COUNTING;
-            end if;
-            
-         when INCREMENT =>
-            count_rst           <= '1';
-            sync_number_mux_sel <= '1';
-            next_state <= COUNTING;
-            
-         when others =>
-            next_state <= IDLE;
-                     
-      end case;
-   end process;
-
-
-   process(clk_i, rst_i)
-   begin
-      if rst_i = '1' then
-         sync_number    <= (others=>'0');
-         current_state <= IDLE;
-      elsif clk_i'event and clk_i = '1' then
-         current_state <= next_state;
-         sync_number    <= sync_number_mux;
-      end if;
-   end process;
-
-   sync_number_mux <= sync_number + 1 when sync_number_mux_sel = '1' else sync_number;
-
-
-   
-   sync_pulse <= sync_number_mux_sel;
-
+--    i_timer : us_timer
+--    port map(clk           => clk_i,
+--           timer_reset_i   => count_rst,
+--           timer_count_o   => count
+--           );
+--           
+--
+--   process(current_state, count)
+--   begin
+--   
+--      -- default
+--      count_rst           <= '0';
+--      sync_number_mux_sel <= '0';
+--   
+--      case current_state is
+--         when IDLE =>
+--            next_state <= COUNTING;
+--            count_rst  <= '1';
+--            
+--         when COUNTING =>
+--            if count = SYNC_PERIOD then
+--               --count_rst           <= '1';
+--               --sync_number_mux_sel <= '1';
+--               next_state <= INCREMENT;
+--            else
+--               next_state <= COUNTING;
+--            end if;
+--            
+--         when INCREMENT =>
+--            count_rst           <= '1';
+--            sync_number_mux_sel <= '1';
+--            next_state <= COUNTING;
+--            
+--         when others =>
+--            next_state <= IDLE;
+--                     
+--      end case;
+--   end process;
+--
+--
+--   process(clk_i, rst_i)
+--   begin
+--      if rst_i = '1' then
+--         sync_number    <= (others=>'0');
+--         current_state <= IDLE;
+--      elsif clk_i'event and clk_i = '1' then
+--         current_state <= next_state;
+--         sync_number    <= sync_number_mux;
+--      end if;
+--   end process;
+--
+--   sync_number_mux <= sync_number + 1 when sync_number_mux_sel = '1' else sync_number;
+--
+--
+--   
+--   sync_pulse <= sync_number_mux_sel;
+--
    --[JJ] for testing
    --sync_pulse_o <= sync_pulse;
 

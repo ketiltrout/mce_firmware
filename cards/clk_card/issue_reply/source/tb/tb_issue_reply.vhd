@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.9 2004/08/11 00:11:14 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.10 2004/09/01 17:13:24 jjacob Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/08/11 00:11:14 $> - <text> - <initials $Author: jjacob $>
+-- <date $Date: 2004/09/01 17:13:24 $> - <text> - <initials $Author: jjacob $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -101,15 +101,17 @@ architecture tb of tb_issue_reply is
    constant preamble2    : std_logic_vector (7 downto 0)  := X"5A";
    constant pre_fail     : std_logic_vector (7 downto 0)  := X"55";
    constant command_wb   : std_logic_vector (31 downto 0) := X"20205742";
+   constant command_rb   : std_logic_vector (31 downto 0) := x"20205242";
 
    constant command_go   : std_logic_vector (31 downto 0) := X"2020474F";
+   constant command_st   : std_logic_vector (31 downto 0) := x"20205354";
    --constant address_id   : std_logic_vector (31 downto 0) := X"0002015C";
    signal address_id   : std_logic_vector (31 downto 0) := X"00000000";--X"0002015C";
    
    constant ret_dat_s_cmd      : std_logic_vector (31 downto 0) := X"00000034";  -- card id=0, ret_dat_s command
    constant ret_dat_s_num_data : std_logic_vector (31 downto 0) := X"00000002";  -- 2 data words, start and stop frame #
-   constant ret_dat_s_start    : std_logic_vector (31 downto 0)  := X"00000002";
-   constant ret_dat_s_stop     : std_logic_vector (31 downto 0)  := X"00000008";
+   signal ret_dat_s_start    : std_logic_vector (31 downto 0)  := X"00000002";
+   signal ret_dat_s_stop     : std_logic_vector (31 downto 0)  := X"00000008";
    
    constant ret_dat_cmd        : std_logic_vector (31 downto 0) := X"00040030";  -- card id=4, ret_dat command
    
@@ -572,20 +574,54 @@ stimuli : process
       wait for 100 us;
       
       -- This is a 'WB bc1 flux_fdbck 8' command x"00070020"
-      command <= command_wb;
+--      command <= command_wb;
+--      
+--      address_id <= flux_fdbck_cmd;
+--      data_valid <= X"00000001";--X"00000028";
+--      data       <= X"00000008";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--      
+--      -- This is a 'RB cc sram1_start' command x"005C0020"
+--      command <= command_rb;
+--      
+--      address_id <= sram1_strt_cmd;
+--      data_valid <= X"00000001";--X"00000028";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--      
+--      -- do a return data setup command 'WB sys ret_dat_s 2 8'
+--      -- ** note, you will not see any output for this command as it does setup in the cmd_translator only
+--      address_id <= ret_dat_s_cmd;
+--      data_valid <= ret_dat_s_num_data;
+--      data <= ret_dat_s_start; -- start is 0x2, end is 0x8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_go;
+--      address_id <= ret_dat_cmd;
+--      data_valid <= no_std_data;
+--      data <= (others=>'0');
+--      load_preamble;
+--      load_command;
+--      load_checksum;    
+--      
+--      wait for 8*55 us;  
       
-      address_id <= flux_fdbck_cmd;
-      data_valid <= X"00000001";--X"00000028";
-      data       <= X"00000008";
---      t_ack_i <= '0';
-      load_preamble;
-      load_command;
-      load_checksum;
+      -- This sequence of two commands will be used to test the ability to stop the return of data frames in mid-sequence
+      ret_dat_s_start <= x"00000003";
+      ret_dat_s_stop <= x"00000099";
       
-      wait for 100 us;
-      
-      -- do a return data setup command 'WB sys ret_dat_s 2 8'
-      -- ** note, you will not see any output for this command as it does setup in the cmd_translator only
       address_id <= ret_dat_s_cmd;
       data_valid <= ret_dat_s_num_data;
       data <= ret_dat_s_start; -- start is 0x2, end is 0x8
@@ -603,9 +639,17 @@ stimuli : process
       load_command;
       load_checksum;    
       
-      wait for 8*55 us;  
-      
+      wait for 1 us;  
 
+      command <= command_st;
+      address_id <= ret_dat_cmd;
+      data_valid <= no_std_data;
+      data <= (others=>'0');
+      load_preamble;
+      load_command;
+      load_checksum;    
+      
+      wait for 20*55 us;  
       
 --      --wait until cmd_rdy = '1';
 --      --wait for clk_prd;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.9 2004/08/18 06:48:43 bench2 Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.10 2004/09/02 01:14:52 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.10  2004/09/02 01:14:52  bburger
+-- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
+--
 -- Revision 1.9  2004/08/18 06:48:43  bench2
 -- Bryce: removed unnecessary interface signals between the cmd_queue and the reply_queue.
 --
@@ -64,6 +67,7 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 library work;
 use work.issue_reply_pack.all;
@@ -87,13 +91,16 @@ package cmd_queue_pack is
          -- cmd_translator interface
          card_addr_i   : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
          par_id_i      : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
-         data_size_i    : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
+         data_size_i   : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
          data_i        : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
          data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
          mop_i         : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
          issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
          mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
          mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
+         cmd_type_i    : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+         cmd_stop_i    : in std_logic;                                          -- indicates a STOP command was recieved
+         last_frame_i  : in std_logic;                                          -- indicates the last frame of data for a ret_dat command
 
          -- lvds_tx interface
          tx_o          : out std_logic;  -- transmitter output pin

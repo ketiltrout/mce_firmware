@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.17 2004/09/03 00:39:25 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.18 2004/09/10 01:21:01 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.18  2004/09/10 01:21:01  bburger
+-- Bryce:  Hardware testing, bug fixing
+--
 -- Revision 1.17  2004/09/03 00:39:25  bburger
 -- Bryce:  modified the interface to include debug_o, and updated the lvds_tx interface to use bsy and rdy signals implemented in lvds_tx.vhd v1.6
 --
@@ -108,7 +111,7 @@ end TB_CMD_QUEUE;
 
 architecture BEH of TB_CMD_QUEUE is
 
-   signal debug_o       : std_logic_vector(31 downto 0);
+   --signal debug_o       : std_logic_vector(31 downto 0);
    -- reply_queue interface
 --   signal uop_status_i  : std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0) := (others => '0'); -- Tells the cmd_queue whether a reply was successful or erroneous
    signal uop_rdy_o     : std_logic := '0'; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
@@ -127,6 +130,9 @@ architecture BEH of TB_CMD_QUEUE is
    signal issue_sync_i  : std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0) := (others => '0');
    signal mop_rdy_i     : std_logic := '0'; -- Tells cmd_queue when a m-op is ready
    signal mop_ack_o     : std_logic := '0'; -- Tells the cmd_translator when cmd_queue has taken the m-op
+   signal cmd_type_i    : std_logic_vector (CMD_TYPE_WIDTH-1 downto 0) := "000";       -- this is a re-mapping of the cmd_code into a 3-bit number
+   signal cmd_stop_i    : std_logic := '0';                                          -- indicates a STOP command was recieved
+   signal last_frame_i  : std_logic := '0';                                          -- indicates the last frame of data for a ret_dat command
 
    -- lvds_tx interface
    signal tx_o          : std_logic := '0';  -- transmitter output pin
@@ -155,7 +161,7 @@ architecture BEH of TB_CMD_QUEUE is
 begin
    DUT : cmd_queue
       port map(
-         debug_o       => debug_o,
+--         debug_o       => debug_o,
 
          -- reply_queue interface
 --         uop_status_i  => uop_status_i,
@@ -175,6 +181,9 @@ begin
          issue_sync_i  => issue_sync_i,
          mop_rdy_i     => mop_rdy_i,
          mop_ack_o     => mop_ack_o,
+         cmd_type_i    => cmd_type_i,
+         cmd_stop_i    => cmd_stop_i,
+         last_frame_i  => last_frame_i,
 
          -- lvds_tx interface
          tx_o          => tx_o,

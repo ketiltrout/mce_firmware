@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.52 2004/09/09 21:14:39 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.53 2004/09/10 01:21:01 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,77 +30,8 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
--- Revision 1.52  2004/09/09 21:14:39  bburger
--- Bryce:  debugging the retire fsm.  Added the uop_to_retire signal
---
--- Revision 1.51  2004/09/09 17:34:00  bburger
--- Bryce:  testing in progress.
---
--- Revision 1.50  2004/09/03 23:17:24  bburger
--- Bryce:  fixed a bug with the control signal bit_ctr_ena to the bit counter for the CRC block.  The counter should count up to 32 and stop before the first m-op ever arrives
---
--- Revision 1.49  2004/09/03 00:39:25  bburger
--- Bryce:  modified the interface to include debug_o, and updated the lvds_tx interface to use bsy and rdy signals implemented in lvds_tx.vhd v1.6
---
--- Revision 1.48  2004/09/02 01:14:52  bburger
--- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
---
--- Revision 1.47  2004/09/01 17:09:33  bburger
--- Bryce:  compilation error - there was an extra ';'
---
--- Revision 1.46  2004/08/31 21:43:13  jjacob
--- updating
---
--- Revision 1.45  2004/08/25 22:15:01  bburger
--- Bryce:  added a recirc mux for data_size_reg
---
--- Revision 1.44  2004/08/24 00:00:05  jjacob
--- cleaning up some comments
---
--- Revision 1.43  2004/08/23 17:36:04  jjacob
--- safety checkin.  Also, I have removed all synthesis warnings, and completed
--- adding all the recirculation muxes
---
--- Revision 1.42  2004/08/20 21:25:08  jjacob
--- commented out first_time_checker
---
--- Revision 1.41  2004/08/20 21:08:29  jjacob
--- still adding re-circulation muxes, in progress.  Packets seem fine except
--- for the checksum
---
--- Revision 1.40  2004/08/19 18:22:42  jjacob
--- merged 1.38 with 1.39.  Added re-circulation muxes to most state machines.
--- Still have to do last couple state machines
---
--- Revision 1.39  2004/08/18 06:48:43  bench2
--- Bryce: removed unnecessary interface signals between the cmd_queue and the reply_queue.
---
--- Revision 1.38  2004/08/06 00:49:15  bburger
--- Bryce:  Added a comment
---
--- Revision 1.37  2004/08/05 23:55:45  bburger
--- Bryce:  Fixed a bug in the CLEANUP state of gen_state_NS.  "num_uops_inserted < num_uops", instead of "num_uops_inserted <= num_uops".  This allows the card_addr_i and par_id_i inputs to not be changed immedately when uop_rdy goes low
---
--- Revision 1.36  2004/08/05 23:46:01  bburger
--- Bryce:  Fixed a bug in the CLEANUP state of gen_state_NS.  "num_uops_inserted <= num_uops", instead of "num_uops_inserted /= num_uops"
---
--- Revision 1.35  2004/08/05 21:17:46  bburger
--- Bryce:  Now works with the data-clocking format of fibre_rx
---
--- Revision 1.34  2004/08/05 18:40:57  bburger
--- Bryce:  In progress
---
--- Revision 1.33  2004/08/04 17:26:43  bburger
--- Bryce:  In progress
---
--- Revision 1.32  2004/08/04 17:12:44  bburger
--- Bryce:  In progress
---
--- Revision 1.31  2004/08/04 03:10:23  bburger
--- Bryce:  In progress
---
--- Revision 1.30  2004/07/31 00:13:04  bench2
--- Bryce: in progress
+-- Revision 1.53  2004/09/10 01:21:01  bburger
+-- Bryce:  Hardware testing, bug fixing
 --
 -- Revision 1.1  2004/05/11 02:17:31  bburger
 -- new
@@ -149,6 +80,9 @@ entity cmd_queue is
       issue_sync_i  : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0); -- The issuing sync-pulse sequence number
       mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
       mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op and is ready to receive data
+      cmd_type_i    : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_stop_i    : in std_logic;                                          -- indicates a STOP command was recieved
+      last_frame_i  : in std_logic;                                          -- indicates the last frame of data for a ret_dat command
       
       -- lvds_tx interface
       tx_o          : out std_logic;  -- transmitter output pin
@@ -587,7 +521,10 @@ begin
    begin
       case data_sig_mux_sel is
          when "00" => data_sig_mux <=(others=>'0');
-         when "01" => data_sig_mux <=(issue_sync_i & (issue_sync_i + TIMEOUT_LEN) & data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0));
+         -- ***The three zero-bits below are space holders for the command code
+         when "01" => data_sig_mux <=(issue_sync_i & (issue_sync_i + TIMEOUT_LEN) & 
+         --"000" & 
+         data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0));
          when "10" => data_sig_mux <=(new_card_addr & new_par_id & mop_i & num_uops_inserted_slv);
          when others => data_sig_mux <= data_i;
       end case;
