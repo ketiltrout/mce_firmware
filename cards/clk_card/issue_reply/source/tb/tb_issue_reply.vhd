@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.19 2004/11/04 00:08:18 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.20 2004/11/06 03:12:01 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for the issue_reply chain
 --
 -- Revision history:
--- <date $Date: 2004/11/04 00:08:18 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/06 03:12:01 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -73,25 +73,33 @@ architecture tb of tb_issue_reply is
    signal t_rx_rdy             : std_logic;
    signal t_rx_ack             : std_logic;
    signal t_rx                 : std_logic;
+   
+   -- fibre outputs 
+      
+   signal  t_tx_data_o         : std_logic_vector(7 DOWNTO 0);
+   signal  t_tsc_nTd_o         : std_logic;
+   signal  t_nFena_o           : std_logic;
 
    -- Clock signals
    signal t_cksum_err_o        : std_logic;     
    signal t_tx                 : std_logic; -- transmitter output pin
    signal t_clk_i              : std_logic := '0';    
    signal t_fibre_clkr         : std_logic := '1'; 
+   signal t_fibre_clkw         : std_logic := '1';
    signal t_clk_200mhz_i       : std_logic := '0';
    signal comm_clk             : std_logic := '0';
    constant pci_dsp_dly        : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI 
    constant clk_prd            : TIME := 20 ns;    -- 50Mhz clock
    constant clk_prd_200mhz     : TIME := 5 ns;    -- 200Mhz clock
    constant fibre_clkr_prd     : TIME := 40 ns;   -- 25MHz clock   
+   constant fibre_clkw_prd     : TIME := 40 ns;   -- 25MHz clock   
    constant comm_clk_period    : TIME := 40 ns;
    constant mem_clk_period     : TIME := 5 ns;
    constant clk_period         : TIME := 20 ns;
 
-   constant preamble1          : std_logic_vector(7 downto 0) := X"A5";
-   constant preamble2          : std_logic_vector(7 downto 0) := X"5A";
-   constant pre_fail           : std_logic_vector(7 downto 0) := X"55";
+   constant preamble1          : std_logic_vector(7 downto 0)  := X"A5";
+   constant preamble2          : std_logic_vector(7 downto 0)  := X"5A";
+   constant pre_fail           : std_logic_vector(7 downto 0)  := X"55";
    constant command_wb         : std_logic_vector(31 downto 0) := X"20205742";
    constant command_rb         : std_logic_vector(31 downto 0) := x"20205242";
    constant command_go         : std_logic_vector(31 downto 0) := X"2020474F";
@@ -180,7 +188,17 @@ architecture tb of tb_issue_reply is
       nRx_rdy_i      : in std_logic;
       rvs_i          : in std_logic;
       rso_i          : in std_logic;
-      rsc_nRd_i      : in std_logic;        
+      rsc_nRd_i      : in std_logic;    
+      
+      
+      -- interface to fibre transmitter
+      tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+      tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
+      nFena_o      : out    std_logic;                           -- hotlink tx enable
+
+      -- 25MHz clock for fibre_tx_control
+      fibre_clkw_i : in     std_logic;                          -- in phase with 25MHz hotlink clock
+    
       
       -- lvds_tx interface
       tx_o           : out std_logic;  -- transmitter output pin
@@ -197,12 +215,21 @@ begin
    (
       rst_i                      => t_rst_i,
       clk_i                      => t_clk_i,      
+   
       fibre_clkr_i               => t_fibre_clkr,
       rx_data_i                  => t_rx_data_i,
       nRx_rdy_i                  => t_nrx_rdy_i,
       rvs_i                      => t_rvs_i,
       rso_i                      => t_rso_i,
       rsc_nRd_i                  => t_rsc_nrd_i,   
+      
+      tx_data_o                  => t_tx_data_o,
+      tsc_nTd_o                  => t_tsc_nTd_o,
+      nFena_o                    => t_nFena_o,
+
+      -- 25MHz clock for fibre_tx_control
+      fibre_clkw_i               => t_fibre_clkw,
+      
       tx_o                       => t_tx,  -- transmitter output pin
       clk_200mhz_i               => t_clk_200mhz_i,  -- PLL locked 25MHz input clock for the
       sync_pulse_i               => sync_pulse,
@@ -331,6 +358,7 @@ begin
    t_clk_i         <= not t_clk_i        after clk_prd/2;
    t_clk_200mhz_i  <= not t_clk_200mhz_i after clk_prd_200mhz/2;   
    t_fibre_clkr    <= not t_fibre_clkr   after fibre_clkr_prd/2;
+   t_fibre_clkw    <= not t_fibre_clkw   after fibre_clkw_prd/2;
    comm_clk        <= not comm_clk       after comm_clk_period/2;
     
    ------------------------------------------------
@@ -601,6 +629,23 @@ begin
    begin
       
       do_reset;    
+      
+      
+        -- Testing a go command to see if reply generated
+        -- by reply translator / fibre_tx
+        
+      command <= command_go;
+      address_id <= on_bias_cmd;
+      data_valid <= X"00000001"; -- 1 data value
+      data       <= X"12345678"; -- dummy data
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 80 us;
+      
+      
+      
       
       -- This is a 'WB cc sram1_start A B C' command
       -- This command should not be parsed by the Address Card Wishbone Slave
