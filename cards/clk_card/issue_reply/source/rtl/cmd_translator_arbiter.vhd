@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.1 2004/05/28 15:52:27 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.1 2004/06/03 23:40:34 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/05/28 15:52:27 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/03 23:40:34 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.1  2004/06/03 23:40:34  jjacob
+-- first version
+--
 -- Revision 1.1  2004/05/28 15:52:27  jjacob
 -- first version
 --
@@ -81,6 +84,7 @@ port(
       ret_dat_data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       ret_dat_data_clk_i        : in std_logic;							                          -- for clocking out the data
       ret_dat_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
+      ret_dat_fsm_working_i     : in std_logic;
       
  
       -- output to the 'return data' state machine
@@ -127,6 +131,7 @@ architecture rtl of cmd_translator_arbiter is
 
 
    signal arbiter_condition         : std_logic;
+   signal macro_instr_rdy           : std_logic;
    signal m_op_seq_num              : std_logic_vector (7 downto 0);
 
    
@@ -146,8 +151,7 @@ begin
 --
 ------------------------------------------------------------------------
 
-   arbiter_condition <= not(simple_cmd_macro_instr_rdy_i) and ret_dat_macro_instr_rdy_i;
-
+   arbiter_condition <= not(simple_cmd_macro_instr_rdy_i) and ret_dat_fsm_working_i;
 
    process(arbiter_condition, m_op_seq_num, ret_dat_frame_seq_num_i, ret_dat_frame_sync_num_i,
            ret_dat_card_addr_i, ret_dat_parameter_id_i, ret_dat_data_size_i, ret_dat_data_i,
@@ -167,22 +171,22 @@ begin
                data_size_o          <= ret_dat_data_size_i;
                data_o               <= ret_dat_data_i; 
                data_clk_o           <= ret_dat_data_clk_i;
-               macro_instr_rdy_o    <= ret_dat_macro_instr_rdy_i; 
+               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i; 
             
                async_state <= RET_DAT;
                
             else
             
                m_op_seq_num_o       <= m_op_seq_num;
-               frame_seq_num_o      <= (others=>'0');--simple_cmd_frame_seq_num_i;
-               frame_sync_num_o     <= (others=>'0');--simple_cmd_frame_sync_num_i;
+               frame_seq_num_o      <= (others=>'0');
+               frame_sync_num_o     <= (others=>'0');
       
                card_addr_o          <= simple_cmd_card_addr_i; 
                parameter_id_o       <= simple_cmd_parameter_id_i; 
                data_size_o          <= simple_cmd_data_size_i;
                data_o               <= simple_cmd_data_i; 
                data_clk_o           <= simple_cmd_data_clk_i;
-               macro_instr_rdy_o    <= simple_cmd_macro_instr_rdy_i; 
+               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i; 
             
                async_state <= SIMPLE_CMD;
             end if;
@@ -199,7 +203,7 @@ begin
                data_size_o          <= ret_dat_data_size_i;
                data_o               <= ret_dat_data_i; 
                data_clk_o           <= ret_dat_data_clk_i;
-               macro_instr_rdy_o    <= ret_dat_macro_instr_rdy_i;
+               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
             
                async_state <= RET_DAT;
             else
@@ -213,7 +217,7 @@ begin
                data_size_o          <= ret_dat_data_size_i;
                data_o               <= ret_dat_data_i; 
                data_clk_o           <= ret_dat_data_clk_i;
-               macro_instr_rdy_o    <= ret_dat_macro_instr_rdy_i;
+               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
                
                async_state <= SIMPLE_CMD;
             end if;
@@ -221,25 +225,39 @@ begin
          when others =>
          
             m_op_seq_num_o       <= m_op_seq_num;
-            frame_seq_num_o      <= (others=>'0');--simple_cmd_frame_seq_num_i;
-            frame_sync_num_o     <= (others=>'0');--simple_cmd_frame_sync_num_i;
+            frame_seq_num_o      <= (others=>'0');
+            frame_sync_num_o     <= (others=>'0');
       
             card_addr_o          <= simple_cmd_card_addr_i; 
             parameter_id_o       <= simple_cmd_parameter_id_i; 
             data_size_o          <= simple_cmd_data_size_i;
             data_o               <= simple_cmd_data_i; 
             data_clk_o           <= simple_cmd_data_clk_i;
-            macro_instr_rdy_o    <= simple_cmd_macro_instr_rdy_i;
+            macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
             
-            async_state <= SIMPLE_CMD;
+            async_state          <= SIMPLE_CMD;
             
       end case;
    end process;
    
    -- potentially needs fixing for synchronization between incoming commands
    simple_cmd_ack_o <= '1' when simple_cmd_macro_instr_rdy_i = '1'  else '0';
-   ret_dat_ack_o    <= '1' when arbiter_condition = '1' else '0';
-
-
-      
+   ret_dat_ack_o    <= '1' when (simple_cmd_macro_instr_rdy_i = '0' and ret_dat_macro_instr_rdy_i = '1') else '0';
+   
+   macro_instr_rdy_o <= macro_instr_rdy;
+------------------------------------------------------------------------
+--
+-- process to increment macro-op sequence number
+--
+------------------------------------------------------------------------   
+   
+   process(rst_i, macro_instr_rdy)
+   begin
+      if rst_i = '1' then
+         m_op_seq_num <= x"00";
+      elsif macro_instr_rdy'event and macro_instr_rdy = '1' then
+         m_op_seq_num <= m_op_seq_num + 1;
+      end if;   
+   end process;
+        
 end rtl;

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.1 2004/05/28 15:53:10 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.2 2004/06/04 23:01:24 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/05/28 15:53:10 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/04 23:01:24 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.2  2004/06/04 23:01:24  jjacob
+-- daily update/ safety checkin
+--
 -- Revision 1.1  2004/05/28 15:53:10  jjacob
 -- first version
 --
@@ -61,14 +64,12 @@ use sys_param.general_pack.all;
 
 entity cmd_translator_simple_cmd_fsm is
 
---generic(cmd_translator_ADDR               : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := EEPROM_ADDR  );
-
 port(
 
      -- global inputs
 
-      rst_i        : in     std_logic;
-      clk_i        : in     std_logic;
+      rst_i             : in     std_logic;
+      clk_i             : in     std_logic;
 
       -- inputs from cmd_translator top level      
 
@@ -79,9 +80,9 @@ port(
       data_clk_i        : in std_logic;							                         -- for clocking out the data
       
       -- other inputs
-      sync_pulse_i    : in std_logic;
-      cmd_start_i : in std_logic;
-      cmd_stop_i  : in std_logic;
+      sync_pulse_i      : in std_logic;
+      cmd_start_i       : in std_logic;
+      cmd_stop_i        : in std_logic;
   
       -- outputs to the macro-instruction arbiter
       card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
@@ -91,13 +92,8 @@ port(
       data_clk_o        : out std_logic;							                          -- for clocking out the data
       macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
       
- 
       -- input from the macro-instruction arbiter
       ack_i             : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
-
-      -- outputs to the reply_translator block
-      
-      
 
    ); 
      
@@ -110,134 +106,17 @@ architecture rtl of cmd_translator_simple_cmd_fsm is
    type state is (IDLE, ISSUE_CMD);
    
    signal current_state, next_state : state;
-   --signal word_count : integer;
    signal word_count     : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
-   signal zero_vector    : std_logic_vector (DATA_SIZE_BUS_WIDTH-2 downto 0);
-   signal one            : std_logic;
+
+
+
+------------------------------------------------------------------------
+--
+-- 
+--
+------------------------------------------------------------------------
 
 begin
-
-------------------------------------------------------------------------
---
--- state sequencer
---
-------------------------------------------------------------------------
-
---   process(clk_i, rst_i)
---   begin
---      if rst_i = '1' then
---         current_state <= IDLE;
---      elsif clk_i'event and clk_i = '1' then
---         current_state <= next_state;
---      end if;
---   end process;
-
-------------------------------------------------------------------------
---
--- assign next state
---
-------------------------------------------------------------------------
-
---   process(current_state, cmd_start_i, word_count, data_size_i)
---   begin
---      case current_state is
---         when IDLE =>
---            if cmd_start_i = '1' then
---               next_state <= ISSUE_CMD;
---            else
---               next_state <= IDLE;
---            end if;
---            
---         when ISSUE_CMD =>
---            if word_count >= data_size_i then
---               next_state <= IDLE;--ISSUE_CMD_DONE;
---            else
---               next_state <= ISSUE_CMD;
---            end if;
---            
-----         when ISSUE_CMD_DONE =>
-----            next_state <= IDLE;
---            
---         when others =>
---            next_state <= IDLE;
---            
---      end case;
--- 
---   end process;
---
-
-------------------------------------------------------------------------
---
--- assign outputs
---
-------------------------------------------------------------------------
-
---   process(cmd_start_i, current_state, data_size_i, card_addr_i, parameter_id_i,
---           data_i, data_clk_i, word_count) -- maybe include word_count, but may cause delta-cycle issue
---   begin
---      case current_state is
---         when IDLE =>
---         
---            if cmd_start_i = '1' then
---            
---               card_addr_o        <= card_addr_i;
---               parameter_id_o     <= parameter_id_i;
---               data_size_o        <= data_size_i;
---               data_o             <= data_i;
---               data_clk_o         <= data_clk_i;
---               macro_instr_rdy_o  <= '1';
---            
---               --word_count         <= word_count + 1;
---
---            else
---
---               card_addr_o        <= (others => '0');
---               parameter_id_o     <= (others => '0');
---               data_size_o        <= (others => '0');
---               data_o             <= (others => '0');
---               data_clk_o         <= '0';
---               macro_instr_rdy_o  <= '0';
---            
---               --word_count         <= (others => '0');
---
---            end if;
---         
---         when ISSUE_CMD =>
---         
---            if word_count >= data_size_i then
---            
---               card_addr_o        <= (others => '0');
---               parameter_id_o     <= (others => '0');
---               data_size_o        <= (others => '0');
---               data_o             <= (others => '0');
---               data_clk_o         <= '0';
---               macro_instr_rdy_o  <= '0';
---            
---               --word_count         <= (others => '0');
---
---            else            
---               -- outputs to the macro-instruction arbiter
---               card_addr_o        <= card_addr_i;
---               parameter_id_o     <= parameter_id_i;
---               data_size_o        <= data_size_i;
---               data_o             <= data_i;
---               data_clk_o         <= data_clk_i;
---               macro_instr_rdy_o  <= '1';
---            
---               --word_count         <= word_count + 1;
---               
---            end if;
---         
---
---            
-----         when ISSUE_CMD_DONE =>
---       
---      end case;
---   
---   end process;
---
-
---   macro_instr_rdy_o  <= '1';
 
    process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
            data_i, data_clk_i)
@@ -270,130 +149,7 @@ begin
             macro_instr_rdy_o  <= '0';
          
       end case;
-   
-   
+      
    end process;
-
-
-
-
-------------------------------------------------------------------------
---
--- asynchronous state machine. Reacts immediately, no next-state clocking process
---
-------------------------------------------------------------------------
-
---   process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
---           data_i, data_clk_i, word_count) -- maybe include word_count, but may cause delta-cycle issue
---   begin
---      case current_state is
---      
--- 
---         when IDLE =>
---         
---            if cmd_start_i = '1' then
---            
---               card_addr_o        <= card_addr_i;
---               parameter_id_o     <= parameter_id_i;
---               data_size_o        <= data_size_i;
---               data_o             <= data_i;
---               data_clk_o         <= data_clk_i;
---               macro_instr_rdy_o  <= '1';
---            
---               --word_count         <= word_count + 1;
---               
---               current_state <= ISSUE_CMD;
---
---            else
---
---               card_addr_o        <= (others => '0');
---               parameter_id_o     <= (others => '0');
---               data_size_o        <= (others => '0');
---               data_o             <= (others => '0');
---               data_clk_o         <= '0';
---               macro_instr_rdy_o  <= '0';
---            
---               --word_count         <= (others => '0');
---               current_state <= IDLE;
---
---            end if;
---            
---
---                        
---         when ISSUE_CMD =>
---         
---            if word_count > data_size_i then
---            
---               card_addr_o        <= (others => '0');
---               parameter_id_o     <= (others => '0');
---               data_size_o        <= (others => '0');
---               data_o             <= (others => '0');
---               data_clk_o         <= '0';
---               macro_instr_rdy_o  <= '0';
---            
---               --word_count         <= (others => '0');
---               
---               current_state <= IDLE;
---
---            else            
---               -- outputs to the macro-instruction arbiter
---               card_addr_o        <= card_addr_i;
---               parameter_id_o     <= parameter_id_i;
---               data_size_o        <= data_size_i;
---               data_o             <= data_i;
---               data_clk_o         <= data_clk_i;
---               macro_instr_rdy_o  <= '1';
---            
---               --word_count         <= word_count + 1;
---               current_state <= ISSUE_CMD;
---               
---            end if;
---            
---         when others =>
---         
---            card_addr_o        <= (others => '0');
---            parameter_id_o     <= (others => '0');
---            data_size_o        <= (others => '0');
---            data_o             <= (others => '0');
---            data_clk_o         <= '0';
---            macro_instr_rdy_o  <= '0';
---            
---               --word_count         <= (others => '0');
---            current_state <= IDLE;
---         
---
---            
-----         when ISSUE_CMD_DONE =>
---       
---      end case;
---   
---   end process;
--- 
- 
- 
- 
-
- 
- 
-------------------------------------------------------------------------
---
--- word count
---
------------------------------------------------------------------------- 
--- write a counter based on data_clk
---   process (current_state, data_clk_i)
---   begin
---      case current_state is
---         when IDLE =>
---            word_count <= (others => '0');
---         when ISSUE_CMD =>
---            if data_clk_i'event and data_clk_i='1' then
---               word_count <= word_count + 1;
---            end if;
---         when others =>
---            word_count <= (others => '0');
---      end case;
---   end process;
-   
       
 end rtl;
