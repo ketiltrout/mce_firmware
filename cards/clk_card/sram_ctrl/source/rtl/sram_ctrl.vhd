@@ -20,7 +20,7 @@
 
 -- sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.5 2004/03/11 03:57:16 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.1 2004/03/17 03:12:51 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,8 @@
 -- Wishbone to asynch. SRAM chip interface
 --
 -- Revision history:
--- <date $Date: 2004/03/11 03:57:16 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/03/17 03:12:51 $>	-		<text>		- <initials $Author: erniel $>
+-- $Log$
 
 --
 -----------------------------------------------------------------------------
@@ -373,8 +374,8 @@ begin
       case present_test_state is
          when TEST_IDLE => ce_ctrl_test   <= '0';
                            wr_ctrl_test   <= '0';
-                           addr_test      <= (others => '0');
-                           data_test      <= (others => '0');
+                           addr_test      <= (others => 'Z');
+                           data_test      <= (others => 'Z');
                            step_rst_ctrl  <= '0';
                            addr_dir_ctrl  <= '0';
                            test_done      <= '0';
@@ -441,7 +442,7 @@ begin
                             
          when DONE =>      ce_ctrl_test   <= '0';
                            wr_ctrl_test   <= '0';
-                           addr_test      <= (others => '0');
+                           addr_test      <= (others => 'Z');
                            data_test      <= (others => 'Z');
                            step_rst_ctrl  <= '0';
                            addr_dir_ctrl  <= '0';
