@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.9 2004/07/31 00:13:15 bench2 Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.10 2004/08/04 03:10:40 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.10  2004/08/04 03:10:40  bburger
+-- Bryce:  In progress
+--
 -- Revision 1.9  2004/07/31 00:13:15  bench2
 -- Bryce: in progress
 --
@@ -64,6 +67,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_arith.all;
 
 library sys_param;
 use sys_param.general_pack.all;
@@ -168,7 +172,7 @@ begin
       );
 
    -- Continuous assignements (clocks, etc.)
-   sync_i <= not sync_i after CLOCK_PERIOD*END_OF_FRAME/2; -- The sync frequency is actually ~19 kHz.
+   sync_i <= not sync_i after CLOCK_PERIOD*(END_OF_FRAME+2)/2; -- The sync frequency is actually ~19 kHz.
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
    clk_200mhz_i <= not clk_200mhz_i after CLOCK_PERIOD/8;
    rx_ack <= rx_rdy;

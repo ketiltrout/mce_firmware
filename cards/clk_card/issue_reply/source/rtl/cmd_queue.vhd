@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.30 2004/07/31 00:13:04 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.31 2004/08/04 03:10:23 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.31  2004/08/04 03:10:23  bburger
+-- Bryce:  In progress
+--
 -- Revision 1.30  2004/07/31 00:13:04  bench2
 -- Bryce: in progress
 --
@@ -335,7 +338,6 @@ begin
             next_insert_state <= IDLE;
          when IDLE =>
             -- The gen_state FSM will only try to add a u-op to the queue if there is space available, so no checking is necessary here.
-            -- ***This needs to react as soon as there is a u-op ready to insert..
             if(insert_uop_rdy = '1') then
                next_insert_state <= INSERT_HDR1;
             else
@@ -345,7 +347,6 @@ begin
             next_insert_state <= INSERT_HDR2;
          when INSERT_HDR2 =>
             if(data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) = x"0000") then
---            if(data_size_int = 0) then
                next_insert_state <= DONE;
             else
                next_insert_state <= INSERT_DATA;
@@ -424,15 +425,15 @@ begin
             data_sig(QUEUE_WIDTH-1      downto CARD_ADDR_END)    <= new_card_addr;
             data_sig(CARD_ADDR_END-1    downto PARAM_ID_END)     <= new_par_id;
             data_sig(PARAM_ID_END-1     downto MOP_END)          <= mop_i;
-            --*** (free_ptr - 1) might be the best way to designate the u-op sequency number, instead of using num_uops_inserted
+            --*** (free_ptr - 1) might be the best way to designate the u-op sequence number, instead of using num_uops_inserted
             data_sig(MOP_END-1          downto UOP_END)          <= num_uops_inserted_slv; 
             
             -- After adding new u-op header1 info, move the free_ptr
-            if(free_ptr = ADDR_FULL_SCALE) then
-               free_ptr <= ADDR_ZERO;
-            else
+--            if(free_ptr = ADDR_FULL_SCALE) then
+--               free_ptr <= ADDR_ZERO;
+--            else
                free_ptr <= free_ptr + 1;
-            end if;
+--            end if;
             
          when INSERT_DATA =>
             wren_sig       <= '1';
@@ -662,7 +663,6 @@ begin
             if(mop_rdy = '0') then
                next_gen_state <= IDLE;
             elsif(mop_rdy = '1') then
-               -- ***This needs to be changed
                if(queue_space < size_uops) then
                   next_gen_state <= IDLE;
                elsif(queue_space >= size_uops) then
@@ -807,8 +807,16 @@ begin
    -- That is why we don't check for a range here - just for the sync period that is the timeout
    -- This second condition checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
    -- This condition won't work properly if a frame period is too short to issue a command within the correct period.
-   uop_send_expired <= '1' when (sync_count_slv = timeout_sync or
-                                (sync_count_slv = timeout_sync - 1 and clk_count > START_OF_BLACKOUT)) else '0';
+   -- I have removed the second condition for the time being, because on a regular basis, there won't be time to re-issue commands during the same frame-period.
+   -- Thus, u-op will not be re-issued if they were erroneous the first time.
+   -- The concept of START_OF_BLACKOUT had been added to forsee the possibility of re-issuing u-ops during the same frame
+   -- The idea was that there would always be enough time in a frame to send one set of data-taking u-ops during a frame, but there wouldn't be enough time for an unlimited number of retries
+   -- The start START_OF_BLACKOUT period would basically denote the time in the frame at which it would be too late to re-start transmitting all the u-ops associated with taking data.
+   -- There is also a problem with the second condition, in that if the clk_count has slipped to the end of the previous frame when the sync pulse arrives, then clk_count > START_OF_BLACKOUT.  
+   -- We need something different here.
+   -- Something like:  '1' when (abs_value((END_OF_FRAME - clk_count) < something) else '0';
+   uop_send_expired <= '1' when (sync_count_slv = timeout_sync) else '0';
+   --                          or (sync_count_slv = timeout_sync - 1 and clk_count > START_OF_BLACKOUT)) else '0';
 
    send_state_NS: process(present_send_state, send_ptr, free_ptr, freeze_send, uop_send_expired, 
                           issue_sync, timeout_sync, sync_count_slv, cmd_tx_done, previous_send_state, 
@@ -1167,21 +1175,23 @@ end behav;
 --x mop_ack_o needs to be asserted in the DONE state if there is no data included with the m_op
 -- This will allow the FSM to recover before cmd_translator can issued the next m-op, as soon as 2 clock cycles after mop_ack_o is asserted
 
--- Test packets with multiple data words.  I'm not sure that the insert FSM will work properly with only one state.
+--x Test packets with multiple data words.  I'm not sure that the insert FSM will work properly with only one state.
 
--- Think about using the free_ptr index to tag the u-op sequence number in the queue.
+--x Find some way to initialize the RAM to 0xFFFFFFFF
+-- Don't worry about this
 
--- There's a problem with the use of the counters i've used in frame_timing and cmd_queue.  
+--x There's a problem with the use of the counters i've used in frame_timing and cmd_queue.  
 -- They all continue on counting after they've gone past the limit that they count to.
 -- The bad thing about this is that if the counter wraps after exceeding the time limit, then there could be problems.
 -- The cmd_queue counter has been fixed, but I don't think that the frame_timing counter has.
+-- Actually, for the frame_timing block, we do not want the clk_count to restart
 
--- Check out the ***'ed lines
-
--- Find some way to initialize the RAM to 0xFFFFFFFF
-
--- Check out clk_error, and figure out why it is so out of whack.  
+--x Check out clk_error, and figure out why it is so out of whack.  
 -- It might be something to do with having a faulty period for the sync pulse in the TB.
+
+--x Check out the ***'ed lines
+
+-- Think about using the free_ptr index to tag the u-op sequence number in the queue.
 
 -- The send FSM needs a way of notifying the retire fsm wheter a u-op has been skipped or not
 -- NEXT_UOP in send_states should tag the uop with a special code so that the retire fsm can recognize that it was skipped.
