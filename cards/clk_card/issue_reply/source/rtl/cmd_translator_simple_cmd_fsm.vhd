@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.7 2004/09/02 23:41:27 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.8 2004/09/09 18:26:14 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/02 23:41:27 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/09 18:26:14 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.8  2004/09/09 18:26:14  jjacob
+-- added 3 outputs:
+-- >       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+-- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
+-- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
+--
 -- Revision 1.7  2004/09/02 23:41:27  jjacob
 -- cleaning up and formatting
 --
@@ -78,12 +84,7 @@ use ieee.std_logic_unsigned.all;
 library components;
 use components.component_pack.all;
 
-library work;
-use work.issue_reply_pack.all;
-
 library sys_param;
-use sys_param.wishbone_pack.all;
-use sys_param.general_pack.all;
 use sys_param.command_pack.all;
 
 entity cmd_translator_simple_cmd_fsm is
@@ -97,10 +98,10 @@ port(
 
       -- inputs from cmd_translator top level      
 
-      card_addr_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_i       : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_i            : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_i       : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_i            : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_i        : in std_logic;							                         -- for clocking out the data
       cmd_code_i        : in std_logic_vector (15 downto 0);
       
@@ -110,13 +111,13 @@ port(
       cmd_stop_i        : in std_logic;
   
       -- outputs to the macro-instruction arbiter
-      card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_o       : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_o            : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_o       : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o        : out std_logic;							                          -- for clocking out the data
       macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      cmd_type_o        : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       
       -- input from the macro-instruction arbiter
       ack_i             : in std_logic                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data

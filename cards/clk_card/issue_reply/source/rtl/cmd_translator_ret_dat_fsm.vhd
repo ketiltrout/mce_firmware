@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.13 2004/09/09 18:26:05 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.14 2004/09/11 00:21:27 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,12 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/09 18:26:05 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/11 00:21:27 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.14  2004/09/11 00:21:27  jjacob
+-- fixed syn number and timing of last, stop signals to cmd_queue
+--
 -- Revision 1.13  2004/09/09 18:26:05  jjacob
 -- added 3 outputs:
--- >       cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+-- >       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
 -- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
 -- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
 --
@@ -54,7 +57,7 @@
 --
 -- Revision 1.9  2004/08/05 18:14:52  jjacob
 -- changed frame_sync_num_o to use the parameter
--- SYNC_NUM_BUS_WIDTH
+-- SYNC_NUM_WIDTH
 --
 -- Revision 1.8  2004/07/28 23:38:34  jjacob
 -- added:
@@ -99,15 +102,15 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library sys_param;
-use sys_param.wishbone_pack.all;
-use sys_param.general_pack.all;
+--use sys_param.wishbone_pack.all;
+--use sys_param.general_pack.all;
 use sys_param.command_pack.all;
 
 library components;
 use components.component_pack.all;
 
 library work;
-use work.issue_reply_pack.all;
+use work.sync_gen_pack.all;
 
 entity cmd_translator_ret_dat_fsm is
 
@@ -120,10 +123,10 @@ port(
 
       -- inputs from fibre_rx      
 
-      card_addr_i             : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_i          : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_i             : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_i                  : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_i             : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_i          : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_i             : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_i                  : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_i              : in std_logic;							                               -- for clocking out the data
       cmd_code_i              : in std_logic_vector (15 downto 0);
       
@@ -139,16 +142,16 @@ port(
       ret_dat_s_done_o        : out std_logic;
       
       frame_seq_num_o         : out std_logic_vector (31 downto 0);
-      frame_sync_num_o        : out std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);   -- (7 downto 0);
+      frame_sync_num_o        : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);   -- (7 downto 0);
       
       -- outputs to the macro-instruction arbiter
-      card_addr_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o          : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_o             : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      data_o                  : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
+      card_addr_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o          : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_o             : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      data_o                  : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
       data_clk_o              : out std_logic;							                                -- for clocking out the data
       macro_instr_rdy_o       : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      cmd_type_o              : out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_type_o              : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o              : out std_logic;                      
       last_frame_o            : out std_logic;
       
@@ -179,15 +182,15 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal ret_dat_stop_reg                : std_logic;
    signal ret_dat_stop_mux_sel            : std_logic_vector(1 downto 0);
    
-   signal card_addr                       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); 
-   signal parameter_id                    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
-   signal data_size                       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
-   signal data_mux                        : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);
+   signal card_addr                       : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); 
+   signal parameter_id                    : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+   signal data_size                       : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+   signal data_mux                        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    
-   signal card_addr_reg                   : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); 
-   signal parameter_id_reg                : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
-   signal data_size_reg                   : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
-   signal data_reg                        : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);
+   signal card_addr_reg                   : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); 
+   signal parameter_id_reg                : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+   signal data_size_reg                   : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+   signal data_reg                        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    
    signal ret_dat_s_seq_start_num         : std_logic_vector (31 downto 0);
    signal ret_dat_s_seq_start_num_mux     : std_logic_vector (31 downto 0);
@@ -197,7 +200,7 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal ret_dat_s_seq_stop_num_mux      : std_logic_vector (31 downto 0);
    signal ret_dat_s_seq_stop_num_mux_sel  : std_logic;
    
-   signal word_count                      : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
+   signal word_count                      : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
    
    type sync_state is                     (IDLE, SET_SEQ_NUM_1, SET_SEQ_NUM_2, RETURN_DATA_WAIT);
    signal sync_next_state, sync_current_state : sync_state;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.3 2004/07/09 12:25:31 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_m_op_table.vhd,v 1.4 2004/07/28 23:39:19 jjacob Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -42,9 +42,14 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/09 12:25:31 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/28 23:39:19 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_m_op_table.vhd,v $
+-- Revision 1.4  2004/07/28 23:39:19  jjacob
+-- added:
+-- library sys_param;
+-- use sys_param.command_pack.all;
+--
 -- Revision 1.3  2004/07/09 12:25:31  dca
 -- transition state condition added to FSM
 --
@@ -62,10 +67,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-
-library work;
-use work.issue_reply_pack.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_signed.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -78,14 +81,14 @@ port(
      clk_i                   : in     std_logic;
 
      -- inputs from cmd_translator (top level)     
-     card_addr_store_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-     parameter_id_store_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
-     m_op_seq_num_store_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
+     card_addr_store_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+     parameter_id_store_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+     m_op_seq_num_store_i    : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
      frame_seq_num_store_i   : in std_logic_vector (31                    downto 0);
      macro_instr_rdy_i       : in std_logic;                                           -- ='1' when the data is valid, else it's '0'
  
      -- inputs from reply translator
-     m_op_seq_num_retire_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
+     m_op_seq_num_retire_i    : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
      macro_instr_done_i       : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
  
      retiring_busy_o          : out std_logic;                                         -- asserted high while retiring a m_op, during which time no other m-ops should be issues.
@@ -96,13 +99,6 @@ port(
 end cmd_translator_m_op_table;
 
 
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-
-library work;
-use work.issue_reply_pack.all;
-
 architecture rtl of cmd_translator_m_op_table is
 
 
@@ -110,9 +106,9 @@ architecture rtl of cmd_translator_m_op_table is
 constant BUFFER_SIZE               : positive := 16;
 
 -- local memory buffer word size declaration
-subtype card_addr_word      is std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
-subtype parameter_id_word   is std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0); 
-subtype m_op_seq_num_word   is std_logic_vector (MOP_BUS_WIDTH-1       downto 0); 
+subtype card_addr_word      is std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+subtype parameter_id_word   is std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0); 
+subtype m_op_seq_num_word   is std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0); 
 subtype frame_seq_num_word  is std_logic_vector (31                    downto 0); 
 
 -- local memory buffer declarations
@@ -330,10 +326,12 @@ begin
    -- process to check if table is full or empty 
    ----------------------------------------------
    begin
-      if table_status = std_logic_vector(to_signed(-1,BUFFER_SIZE)) then        -- table empty
+      if table_status = conv_std_logic_vector(-1, BUFFER_SIZE) then
+--      if table_status = std_logic_vector(to_signed(-1,BUFFER_SIZE)) then        -- table empty
          table_full_o    <= '1';
          table_empty_o   <= '0';
-      elsif table_status = std_logic_vector(to_unsigned(0,BUFFER_SIZE)) then    -- table full
+      elsif table_status = conv_std_logic_vector(0, BUFFER_SIZE) then
+--      elsif table_status = std_logic_vector(to_unsigned(0,BUFFER_SIZE)) then    -- table full
          table_full_o    <= '0';
          table_empty_o   <= '1';
       else                                                                      -- neither empty not full
