@@ -28,8 +28,11 @@
 -- Description:
 -- taken from 
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$   
+-- <date $Date: 2004/12/16 18:17:06 $>    - <initials $Author: bench2 $>
+-- $Log: tb_clk_bias_card.vhd,v $
+-- Revision 1.1  2004/12/16 18:17:06  bench2
+-- Mandana: testbench to test bias_card through clk_card
+--   
 --
 -------------------------------------------------------
 
@@ -105,6 +108,7 @@ architecture tb of tb_clk_bias_card is
 
    constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & FLUX_FB_ADDR;
    constant bias_cmd           : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & BIAS_ADDR;
+   constant led_cmd            : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & LED_ADDR;
    constant sram1_strt_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & SRAM1_STRT_ADDR;
    constant on_bias_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ON_BIAS_ADDR;
    constant off_bias_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & OFF_BIAS_ADDR;
@@ -788,33 +792,57 @@ begin
 ----------------------------------------------------------
 -- bc_dac_ctrl commands
 ------------------------------------------------------      
+      -- turn LEDs off
       command <= command_wb;
-      address_id <= flux_fdbck_cmd;
-      data_valid <= X"00000020"; --32 values
-      data       <= X"55AA55AA";
+      address_id <= led_cmd;
+      data_valid <= X"00000001"; --1 values
+      data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
       
       wait for 50 us;
-
+      
+      -- turn LEDs on
       command <= command_wb;
-      address_id <= bias_cmd;
-      data_valid <= X"00000001"; --1 value
-      data       <= X"00000021";
+      address_id <= led_cmd;
+      data_valid <= X"00000001"; --1 values
+      data       <= X"00000007";
       load_preamble;
       load_command;
       load_checksum;
       
-      wait for 50 us;
+--      wait for 50 us;
+      
+      -- load values to 32 flux DACs
+--      command <= command_wb;
+--      address_id <= flux_fdbck_cmd;
+--      data_valid <= X"00000020"; --32 values
+--      data       <= X"55AA55AA";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+      
+--      wait for 50 us;
 
-      command <= command_wb;
-      address_id <= flux_fdbck_cmd;
-      data_valid <= X"00000020"; --32 values
-      data       <= X"88888888";
-      load_preamble;
-      load_command;
-      load_checksum;
+      --load values to the single Bias DAC
+--      command <= command_wb;
+--      address_id <= bias_cmd;
+--      data_valid <= X"00000001"; --1 value
+--      data       <= X"00000021";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+      
+--      wait for 50 us;
+
+--      command <= command_wb;
+--      address_id <= flux_fdbck_cmd;
+--      data_valid <= X"00000020"; --32 values
+--      data       <= X"88888888";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
       
       wait for 150 us;
  
