@@ -54,6 +54,16 @@ port(
      clk_i                   : in  std_logic;                                            -- global clock
 
 
+     -- interface to hotlink receiver
+     fibre_rx_data           : in  std_logic_vector (7 downto 0) ;
+     fibre_rx_rdy            : in  std_logic;
+     fibre_rx_status         : in  std_logic;
+     fibre_rx_sc_nd          : in  std_logic;
+     fibre_rx_rvs            : in  std_logic;
+     fibre_rx_ckr            : in  std_logic;
+
+     fibre_tx_clk            : out std_logic;
+     fibre_rx_clk            : out std_logic;
      test1_o                 : out std_logic
      
      );      
@@ -80,10 +90,13 @@ architecture rtl of fibre_rx_wrapper is
 component fibre_rx_pll 
   port (
   inclk0  : in  std_logic;
-  c0      : out std_logic
+  c0      : out std_logic;
+  e0      : out std_logic;
+  e1      : out std_logic
 );
 
 end component;
+
 
 
 
@@ -108,22 +121,12 @@ signal data_clk     : std_logic;
 signal ext_clkr      : std_logic;
 signal cmd_trig     : std_logic;
 
--- stimulation FSM to get monstable stimulation pulse                             
-type     stim_state is       (S0, S1, S2, S3);
-signal   stim_current_state  : stim_state;
-signal   stim_next_state     : stim_state;
-
 
 -- cmd acknowledge FSM to reply to command ready                             
 type     ack_state is       (IDLE, ACK);
 signal   ack_current_state  : ack_state;
 signal   ack_next_state     : ack_state;
 
-
--- cmd generate  FSM                              
-type     cmd_state is       (IDLE, GET_BYTE, LOAD_BYTE, UPDATE, WS1, WS2);
-signal   cmd_current_state  : cmd_state;
-signal   cmd_next_state     : cmd_state;
 
 signal   cmd_index     : integer ;
 signal   cmd_index_mux : integer ;
@@ -198,7 +201,10 @@ begin
   i_pll : fibre_rx_pll 
   port map (
   inclk0	 =>   clk_i,
-  c0	   =>   int_clkr);
+  c0	     =>   int_clkr,
+  e0         =>   fibre_tx_clk, 
+  e1         =>   fibre_rx_clk
+  );
     
 ---------------------------
    i_fibre_rx : fibre_rx
@@ -208,13 +214,13 @@ begin
    -- global inputs 
       rst_i        => rst_i,                 
       clk_i        => clk_i,
-   
-      fibre_clkr_i => int_clkr,          
-      nRx_rdy_i    => nRx_rdy,
-      rvs_i        => rvs,   
-      rso_i        => rso, 
-      rsc_nrd_i    => rsc_nrd,   
-      rx_data_i    => rx_data,    
+  
+      fibre_clkr_i => fibre_rx_ckr,          
+      nRx_rdy_i    => fibre_rx_rdy,
+      rvs_i        => fibre_rx_rvs,   
+      rso_i        => fibre_rx_status, 
+      rsc_nrd_i    => fibre_rx_sc_nd,   
+      rx_data_i    => fibre_rx_data,    
       cmd_ack_i    => cmd_ack, 
    
       cmd_code_o   => cmd_code,
@@ -239,104 +245,13 @@ begin
    begin
          
       if (rst_i = '1') then
-         stim_current_state <= S0;
-         ack_current_state <= IDLE;
+          ack_current_state <= IDLE;
       elsif (clk_i'EVENT AND clk_i = '1') then
-         stim_current_state <= stim_next_state;
-         ack_current_state <= ack_next_state;
-         
-    --     int_clkr <= not (int_clkr);
-         
+          ack_current_state <= ack_next_state;
       end if;
 
    end process fsm_clocked;
-   
-   ---------------------------------------------------------------------------
-   -- FSM: clkr   
-   ----------------------------------------------------------------------------
-   fsm_clkr : process(
-      int_clkr,
-      rst_i
-   )
-   ----------------------------------------------------------------------------
-   begin
-         
-      if (rst_i = '1') then
-         cmd_current_state <= IDLE;
-      elsif (int_clkr'EVENT AND int_clkr = '1') then
-         cmd_current_state <= cmd_next_state;
-         
-      end if;
-
-   end process fsm_clkr;
-
-
-   -------------------------------------------------------------------------
-   stim_fsm_nextstate : process (stim_current_state, count)
-   ----------------------------------------------------------------------------
-   begin
-     
-      case stim_current_state is
-
-      when S0 =>
-            stim_next_state <= S1;           
-                  
-      when S1 =>
-         
-         if count < delay  then
-            stim_next_state <= S1;         
-         else 
-            stim_next_state <= S2;   
-         end if; 
-         
-      when S2 =>
-         stim_next_state <= S3;
-         
-      when S3 =>
-         stim_next_state <= S0;
-
-      when others =>
-         stim_next_state <= S0;
-         
-      end case;
-      
-   end process stim_fsm_nextstate;            
-   
-   -------------------------------------------------------------------------
-   stim_fsm_output : process (stim_current_state)
-   ----------------------------------------------------------------------------
-   begin
-      
-
-      case stim_current_state is
-
-      when S0 =>
-         
-         cmd_trig    <= '0'; 
-         rst_count   <= '1';
-         ena_count   <= '0';
-  
-      when S1 =>
-      
-         cmd_trig    <= '0'; 
-         rst_count   <= '0';
-         ena_count   <= '1';
        
-      when S2 =>
-      
-         cmd_trig    <= '1' ;       -- trigger the generatation of a command packet
-         rst_count   <= '0';
-         ena_count   <= '0';
-
-      when S3 =>
-         
-         cmd_trig    <= '1';
-         rst_count   <= '1';
-         ena_count   <= '0';
- 
-      end case;
-      
-   end process stim_fsm_output;            
          
    -------------------------------------------------------------------------
    ack_fsm_nextstate : process (ack_current_state, cmd_rdy)
@@ -386,152 +301,7 @@ begin
       
    end process ack_fsm_output;        
    
-   
-   -------------------------------------------------------------------------
-   cmd_fsm_nextstate : process (cmd_current_state, cmd_trig, cmd_index)
-   ----------------------------------------------------------------------------
-   begin
-     
-      case cmd_current_state is
-
-      when IDLE =>
-         
-         if (cmd_trig = '1') then
-            cmd_next_state <= GET_BYTE;           -- if switch 1 on 
-         else 
-            cmd_next_state <= IDLE;   
-         end if; 
-           
-      when GET_BYTE =>
-         
-         cmd_next_state <= LOAD_BYTE;
-              
-            
-      when LOAD_BYTE =>
-         
-         cmd_next_state <= UPDATE;
-              
-            
-      when UPDATE =>
-         
-         cmd_next_state <= WS1;
-       
-      when WS1 =>
-         
-         cmd_next_state <= WS2;
-         
-              
-      when WS2 =>
-         
-         if (cmd_index < 256) then   
-            cmd_next_state <= GET_BYTE;
-         else 
-            cmd_next_state <= IDLE;
-         end if;
-                 
-      when others =>
-         cmd_next_state <= IDLE;
-         
-      end case;
-      
-   end process cmd_fsm_nextstate;            
-   
-   -------------------------------------------------------------------------
-   cmd_fsm_output : process (cmd_current_state, command_buff, cmd_index)
-   ----------------------------------------------------------------------------
-   begin
-      
-             
-    case cmd_current_state is
-
-      when IDLE =>
-         nRx_rdy       <= '1';
-         inc_buff_sel  <= "11";
-         rx_data       <= (others => '0');
-        
-      when GET_BYTE =>
-         nRx_rdy       <= '1';
-         inc_buff_sel  <= "00";
-         rx_data       <= command_buff(cmd_index);
-         
-                   
-      when LOAD_BYTE =>
-         nRx_rdy       <= '0';
-         inc_buff_sel  <= "00";
-         rx_data       <= command_buff(cmd_index);
-      
-      when UPDATE =>
-         nRx_rdy       <= '1';
-         inc_buff_sel  <= "01";
-         rx_data       <= command_buff(cmd_index);
-      
-       
-      when WS1 =>
-      
-         nRx_rdy       <= '1';
-         inc_buff_sel  <= "00";
-         rx_data       <= (others => '0');
-      
-      when WS2 => 
-      
-         nRx_rdy       <= '1';
-         inc_buff_sel  <= "00";
-         rx_data       <= (others => '0');
-      
-                 
-      end case;
-      
-   end process cmd_fsm_output;            
-     
-   
-   
-  ------------------------------------------------------------------------------
-  index_count: process(rst_i, int_clkr)
-  ----------------------------------------------------------------------------
-  -- process to update calculated checksum
-  ----------------------------------------------------------------------------
-  
-  begin
-     
-    if (rst_i = '1') then
-       cmd_index <= 0 ;
-        
-    elsif (int_clkr'EVENT AND int_clkr = '1') then
-       
-       cmd_index  <= cmd_index_mux;
-       
-    end if;
-     
-  end process index_count;   
-  
-  -- mux
-  cmd_index_mux     <= cmd_index  when inc_buff_sel = "00" else 
-                    cmd_index + 1 when inc_buff_sel = "01" else
-                    0;
-                            
+                               
  
-  ------------------------------------------------------------------------------
-  delay_count: process(rst_i, clk_i)
-  ----------------------------------------------------------------------------
-  
-  
-  begin
-     
-    if (rst_i = '1') then
-       count <= 0 ;
-        
-    elsif (clk_i'EVENT AND clk_i = '1') then
-       
-       if rst_count = '1' then
-          count <= 0 ;
-       elsif ena_count = '1' then
-          count <= count + 1;
-       end if;
-      
-    end if;
-     
-  end process delay_count;   
-
-
          
 end rtl;
