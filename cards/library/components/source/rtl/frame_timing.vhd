@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.6 2004/04/16 23:30:21 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.7 2004/05/17 22:33:06 mandana Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/16 23:30:21 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2004/05/17 22:33:06 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.7  2004/05/17 22:33:06  mandana
+-- changed counter output to integer
+--
 -- Revision 1.6  2004/04/16 23:30:21  mandana
 -- fixed frame_rst
 --
@@ -81,7 +84,10 @@ architecture beh of frame_timing is
    signal count : std_logic_vector(31 downto 0);
    signal count_int : integer;
    signal reg_rst : std_logic;
-
+   type states is (WAIT_FRM_RST, WAIT_FOR_SYNC);
+   
+   signal current_state, next_state : states;
+   
    begin
    cntr : counter
       generic map(MAX => END_OF_FRAME)
@@ -110,27 +116,30 @@ architecture beh of frame_timing is
    -- Inputs/Outputs
    clk_count_o <= count_int;
    clk_error_o <= clk_error;
-
-   frst : process (sync_i, frame_rst_i, count_int)
+   
+-- CLOCKED FSMs
+   state_FF: process(clk_i)
    begin
---      frame_rst <= '0';
-
-      -- Re-sync to the true frame, counter wrap-around
-      if (sync_i'event and sync_i = '1' and frame_rst = '1') then
-         counter_rst <= '1';
-         reg_rst     <= '1';
-         frame_rst <= '0';
-      elsif (count_int = END_OF_FRAME) then
-         counter_rst <= '1';
-         reg_rst     <= '0';
-      else
-         counter_rst <= '0';
-         reg_rst     <= '0';
+      if(clk_i'event and clk_i = '1') then
+         current_state     <= next_state;
       end if;
+   end process state_FF;
 
-      -- Detect a Frame Reset signal
-      if (frame_rst_i'event and frame_rst_i = '1') then
-         frame_rst <= '1';
-      end if;
-   end process;
+  state_NS: process(current_state, sync_i, frame_rst_i)
+   begin
+      case current_state is
+         when WAIT_FRM_RST =>
+            if frame_rst_i = '1' then
+               next_state <= WAIT_FOR_SYNC;            
+            end if;                  
+         when WAIT_FOR_SYNC =>
+            if (sync_i = '1') then
+               next_state <= WAIT_FRM_RST;
+            end if;
+      end case;
+   end process state_NS;
+   
+   counter_rst <= '1' when current_state = WAIT_FOR_SYNC and sync_i = '1' else '0';
+   reg_rst     <= '1' when current_state = WAIT_FOR_SYNC and sync_i = '1' else '0';
+   
 end beh;
