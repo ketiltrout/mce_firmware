@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.36 2004/11/30 22:58:47 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.37 2005/01/12 21:53:01 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.37  2005/01/12 21:53:01  mandana
+-- Updated cmd_queue interface by deleting comm_clk_i
+--
 -- Revision 1.36  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -58,6 +61,7 @@ component issue_reply
       -- global signals
       rst_i             : in std_logic;
       clk_i             : in std_logic;
+      comm_clk_i        : in std_logic;
       mem_clk_i         : in std_logic;
       
       -- inputs from the bus backplane
