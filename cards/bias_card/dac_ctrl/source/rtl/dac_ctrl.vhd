@@ -33,8 +33,11 @@
 --              RESYNC_NXT_ADDR  : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/08 17:56:18 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/15 18:16:40 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.2  2004/04/15 18:16:40  mandana
+-- added WR_DAC32_NXT state to main FSM
+--
 -- Revision 1.1  2004/04/08 17:56:18  mandana
 -- Initial release
 --   
@@ -91,9 +94,14 @@ type states is (IDLE, WR_DAC32_CMD, WR_DAC32_STORE, WR_DAC32_NXT, WR_DAC32_DONE,
 signal current_state         : states;
 signal next_state            : states;
 
-type snd_states is (SND_IDLE, DAC32_PENDING, LVDS_PENDING, SND_LVDS, SND_DAC32);
-signal snd_current_state     : snd_states;
-signal snd_next_state        : snd_states;
+type snd_lvds_states is (SND_LVDS_IDLE, LVDS_PENDING, SND_LVDS);
+signal snd_lvds_current_state     : snd_lvds_states;
+signal snd_lvds_next_state        : snd_lvds_states;
+
+type snd_dac32_states is (SND_DAC32_IDLE, DAC32_PENDING, SND_DAC32);
+signal snd_dac32_current_state     : snd_dac32_states;
+signal snd_dac32_next_state        : snd_dac32_states;
+
 
 -- Wishbone signals (decoded):
 signal master_wait     : std_logic; 
@@ -170,7 +178,11 @@ dac_ncs_o <= dac_ncs;
             end if;
             
          when WR_DAC32_CMD =>
-            next_state <= WR_DAC32_STORE;
+            if write_dac32 = '1' then
+              next_state <= WR_DAC32_STORE;
+            else
+              next_state <= WR_DAC32_DONE;
+            end if;
             
          when WR_DAC32_STORE =>                    
             next_state <= WR_DAC32_NXT;
@@ -298,53 +310,111 @@ dac_ncs_o <= dac_ncs;
    
 ------------------------------------------------------------------------
 --
--- FSM for sending out the data at UPDAT_BIAS time
+-- FSM for sending out the lvds DAC data at UPDAT_BIAS time
 -- 
 ------------------------------------------------------------------------
-   snd_state_FF: process(clk_i, rst_i)
+   snd_lvds_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         snd_current_state <= SND_IDLE;
+         snd_lvds_current_state <= SND_LVDS_IDLE;
       elsif(clk_i'event and clk_i = '1') then
-         snd_current_state <= snd_next_state;
+         snd_lvds_current_state <= snd_lvds_next_state;
       end if;
-   end process snd_state_FF;
+   end process snd_lvds_state_FF;
    
-   snd_state_NS: process (snd_current_state, send_dac32, send_dac_lvds,read_count)
+   snd_lvds_state_NS: process (snd_lvds_current_state, send_dac_lvds,read_count)
    begin 
-      case snd_current_state is 
-         when SND_IDLE => 
-            if send_dac32 = '1' then
-               snd_next_state <= DAC32_PENDING;
-            elsif send_dac_lvds = '1' then
-               snd_next_state <= LVDS_PENDING;
+      case snd_lvds_current_state is 
+         when SND_LVDS_IDLE => 
+            if send_dac_lvds = '1' then
+               snd_lvds_next_state <= LVDS_PENDING;
             else 
-               snd_next_state <= SND_IDLE;
+               snd_lvds_next_state <= SND_LVDS_IDLE;
+            end if;   
+                     
+         when LVDS_PENDING  =>
+            if (read_count = update_bias_count) then		    
+               snd_lvds_next_state <= SND_LVDS;		            
+            else
+               snd_lvds_next_state <= LVDS_PENDING;
+            end if;           
+          
+         when SND_LVDS  =>
+            snd_lvds_next_state <= SND_LVDS_IDLE;
+                                       
+      end case;
+   end process snd_lvds_state_NS;   
+   send_dac_lvds_start <= '1' when (snd_lvds_current_state = SND_LVDS) else '0';
+   
+--   snd_lvds_state_out: process(snd_lvds_current_state)
+--   begin
+--      case snd_lvds_current_state is
+--         when SND_IDLE =>
+--            snd_dac_lvds_start <= '0';
+--            
+--         when LVDS_PENDING =>
+--            snd_dac_lvds_start <= '0';
+--            
+--         when SND_LVDS => 
+--            snd_dac_lvds_start <= '1';
+--         
+--      end case;
+--   end process snd_lvds_state_out;
+   
+------------------------------------------------------------------------
+--
+-- FSM for sending out the 32 DAC data at UPDAT_BIAS time
+-- 
+------------------------------------------------------------------------
+   snd_dac32_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         snd_dac32_current_state <= SND_DAC32_IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         snd_dac32_current_state <= snd_dac32_next_state;
+      end if;
+   end process snd_dac32_state_FF;
+   
+   snd_dac32_state_NS: process (snd_dac32_current_state, send_dac_lvds,read_count)
+   begin 
+      case snd_dac32_current_state is 
+         when SND_DAC32_IDLE => 
+            if send_dac32 = '1' then
+               snd_dac32_next_state <= DAC32_PENDING;
+            else 
+               snd_dac32_next_state <= SND_DAC32_IDLE;
             end if;   
          
          when DAC32_PENDING =>
             if read_count = update_bias_count then   -- ok ok we can store it once during init.
-               snd_next_state <= SND_DAC32;
+               snd_dac32_next_state <= SND_DAC32;
             else
-               snd_next_state <= DAC32_PENDING;
+               snd_dac32_next_state <= DAC32_PENDING;
             end if;
-            
-         when LVDS_PENDING  =>
-            if (read_count = update_bias_count) then		    
-               snd_next_state <= SND_LVDS;		            
-            else
-               snd_next_state <= LVDS_PENDING;
-            end if;           
-          
-         when SND_LVDS  =>
-            snd_next_state <= SND_IDLE;
-                   
+                               
          when SND_DAC32 =>
-            snd_next_state <= SND_IDLE;
-           
-            
+            snd_dac32_next_state <= SND_DAC32_IDLE;
+                       
       end case;
-   end process snd_state_NS;   
+   end process snd_dac32_state_NS;   
+   
+   send_dac32_start    <= '1' when (snd_dac32_current_state = SND_DAC32) else '0';
+    
+--   snd_dac32_state_out: process(snd_dac32_current_state)
+--   begin
+--      case snd_dac32_current_state is
+--         when SND_IDLE =>
+--            snd_dac32_start <= '0';
+--            
+--         when LVDS_PENDING =>
+--            snd_dac32_start <= '0';
+--            
+--         when SND_LVDS => 
+--            snd_dac32_start <= '1';
+--         
+--      end case;
+--   end process snd_dac32_state_out;
+
 ------------------------------------------------------------------------
 --
 -- Instantiate spi interface blocks, they all share the same start signal
@@ -471,8 +541,6 @@ dac_ncs_o <= dac_ncs;
    -- if command is fully received, now we can send the data to the dacs
    send_dac32       <= '1' when (current_state = WR_DAC32_DONE and cyc_i = '0') else '0';
    send_dac_lvds    <= '1' when (current_state = WR_DAC_LVDS_DONE) else '0';
-   send_dac32_start    <= '1' when (snd_current_state = SND_DAC32) else '0';
-   send_dac_lvds_start <= '1' when (snd_current_state = SND_LVDS) else '0';
    
    spi_busy         <= '1' when (dac_ncs (0) = '0'  or dac_ncs(1) = '0'  or dac_ncs(2) = '0'  or dac_ncs(3) = '0'  or
                                dac_ncs (4) = '0'  or dac_ncs(5) = '0'  or dac_ncs(6) = '0'  or dac_ncs(7) = '0'  or
