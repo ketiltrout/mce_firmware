@@ -130,19 +130,19 @@ value "C:\\scuba2_repository\\architecture\\readout_card\\hds\\flux_loop_ctrl_bl
 )
 (vvPair
 variable "date"
-value "11/03/2004"
+value "11/08/2004"
 )
 (vvPair
 variable "day"
-value "Wed"
+value "Mon"
 )
 (vvPair
 variable "day_long"
-value "Wednesday"
+value "Monday"
 )
 (vvPair
 variable "dd"
-value "03"
+value "08"
 )
 (vvPair
 variable "entity_name"
@@ -234,7 +234,7 @@ value "<TBD>"
 )
 (vvPair
 variable "time"
-value "15:17:31"
+value "10:05:16"
 )
 (vvPair
 variable "unit"
@@ -5655,7 +5655,7 @@ shape (Rectangle
 uid 6346,0
 va (VaSet
 vasetType 1
-fg "65535,65535,0"
+fg "65535,0,65535"
 lineColor "0,32896,0"
 lineWidth 2
 )
@@ -6909,32 +6909,31 @@ visibleWidth 10600
 )
 )
 *247 (CommentText
-uid 7022,0
+uid 7039,0
 shape (Rectangle
-uid 7023,0
+uid 7040,0
 layer 0
 va (VaSet
 vasetType 1
 fg "65280,65280,46080"
 lineColor "0,0,32768"
 )
-xt "112000,68000,124000,71000"
+xt "111000,67000,121000,69000"
 )
 oxt "0,0,15000,5000"
 text (MLText
-uid 7024,0
+uid 7041,0
 va (VaSet
 fg "0,0,32768"
 )
-xt "112200,68200,122100,70200"
+xt "111200,67200,114800,68200"
 st "
-Mohsen is working on this
-Nov 3: 10% complete
+Completed
 "
 tm "CommentText"
 wrapOption 3
-visibleHeight 3000
-visibleWidth 12000
+visibleHeight 1600
+visibleWidth 9600
 )
 )
 *248 (Wire
@@ -10255,11 +10254,11 @@ tm "BdCompilerDirectivesTextMgr"
 associable 1
 )
 windowSize "-4,-4,1277,994"
-viewArea "78600,53698,143949,95091"
+viewArea "76192,59108,129459,92848"
 cachedDiagramExtent "-29000,-10000,212900,138000"
 hasePageBreakOrigin 1
 pageBreakOrigin "-78000,-51000"
-lastUid 7024,0
+lastUid 7041,0
 defaultCommentText (CommentText
 shape (Rectangle
 layer 0
