@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: all_test_reset.vhd,v $
+-- Revision 1.5  2004/07/06 21:29:03  erniel
+-- minor fix: fixed index out of range bug
+--
 -- Revision 1.4  2004/07/02 21:43:38  erniel
 -- added setup state to FSM
 --

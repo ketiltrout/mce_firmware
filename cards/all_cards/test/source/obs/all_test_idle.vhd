@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: all_test_idle.vhd,v $
+-- Revision 1.5  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.4  2004/05/17 00:57:04  erniel
 -- removed LVDS test modules
 --
