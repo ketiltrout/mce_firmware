@@ -82,8 +82,10 @@ type states is (IDLE, PUSH_DATA, SPI_START, DONE);
 signal present_state         : states;
 signal next_state            : states;
 
+type   w_array3 is array (2 downto 0) of word16; 
+signal data     : w_array3;
+
 signal idx    : integer;
-signal data     : word16;
 signal data1    : word16;
 signal data2    : word16;
 signal idac     : integer;
@@ -93,10 +95,10 @@ signal zero     : integer;
 signal clk_2    : std_logic;
 signal clk_count: integer;
 signal send_dac32_start: std_logic;
-signal send_dac_LVDS_start: std_logic;
-signal dac_done        : std_logic_vector (32 downto 0);
-signal clkcount : std_logic;
+signal send_dac_lvds_start: std_logic;
+signal dac_done           : std_logic_vector (32 downto 0);
 signal xtalk     : std_logic;
+signal cmd2_cond : std_logic;
 
 -- parallel data signals for DAC
 -- subtype word is std_logic_vector (15 downto 0); 
@@ -124,41 +126,15 @@ begin
    clk_2   <= '1' when clk_count > 2 else '0';
      
   -- values tried on DAC Tests with fixed values                               
-   data <= "1000000000000000";--x0000     half range
-   
-   data1(0) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(1) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(2) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(3) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(4) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(5) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(6) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(7) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(8) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(9) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(10) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(11) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(12) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(13) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(14) <= clk_2 when cmd2 = "00110000" else '0';
-   data1(15) <= clk_2 when cmd2 = "00110000" else '1';
+   data(0) <= "0000000000000000";--x0000     half range
+   data(1) <= "1111111111111111";--x0000     half range
+   data(2) <= "1000000000000000";--x0000     half range
 
-   data2(0) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(1) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(2) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(3) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(4) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(5) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(6) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(7) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(8) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(9) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(10) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(11) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(12) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(13) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(14) <= '0' when cmd2 = "00110000" else clk_2;
-   data2(15) <= '1' when cmd2 = "00110000" else clk_2;
+   cmd2_cond <= '1' when cmd2 = "00110000" else '0';
+   
+   data1 <= data(idx) when cmd2_cond = '1' else data(2);
+   data2 <= data(2)   when cmd2_cond = '1' else data(idx);
+      
 ------------------------------------------------------------------------
 --
 -- Instantiate spi interface blocks, they all share the same start signal
@@ -259,7 +235,7 @@ begin
                           
          when SPI_START =>     
             for idac in 0 to 15 loop
-               dac_data_p(idac*2) <= data1;
+               dac_data_p(idac*2)   <= data1;
                dac_data_p(idac*2+1) <= data2;
             end loop;
             dac_data_p (32) <= data1;
@@ -289,6 +265,11 @@ begin
    begin
       if(clk_2'event and clk_2 = '1') then
          done_o <= en_i;
+         if idx = 1 then 
+            idx <= 0;
+         else
+            idx <= 1;
+         end if;   
       end if;
    end process;
 
