@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.13 2004/09/02 18:24:28 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.14 2004/09/09 18:25:51 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/02 18:24:28 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/09 18:25:51 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.14  2004/09/09 18:25:51  jjacob
+-- added 3 outputs:
+-- >       cmd_type_o        :  out std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+-- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
+-- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
+--
 -- Revision 1.13  2004/09/02 18:24:28  jjacob
 -- cleaning up and formatting
 --
@@ -416,10 +422,17 @@ begin
       end if;
    end process;
 
-   macro_instr_rdy_o <= macro_instr_rdy_reg;
-   cmd_type_o        <= cmd_type_reg;
-   cmd_stop_o        <= cmd_stop_reg;
-   last_frame_o      <= last_frame_reg;
+   macro_instr_rdy_o <= macro_instr_rdy;  -- this outputs signal one clock cycle earlier
+   --macro_instr_rdy_o <= macro_instr_rdy_reg;  -- this outputs signal one clock cycle later
+   
+   cmd_type_o        <= cmd_type;
+   --cmd_type_o        <= cmd_type_reg;
+   
+   cmd_stop_o        <= cmd_stop;
+   --cmd_stop_o        <= cmd_stop_reg;
+   
+   last_frame_o      <= last_frame;
+   --last_frame_o      <= last_frame_reg;
    
 ------------------------------------------------------------------------
 --
