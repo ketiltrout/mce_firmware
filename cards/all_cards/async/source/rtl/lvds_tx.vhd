@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.2  2004/08/06 20:38:29  erniel
+-- replaced some processes with rtl-blocks
+-- added setup state
+--
 -- Revision 1.1  2004/06/17 01:25:41  erniel
 -- initial version
 --
@@ -105,7 +109,7 @@ begin
       end if;
    end process clk_divide;
    
-   tx_clk <= tx_clk_divide(2);   -- 200 MHz input clock divided by 8 = 25 MHz
+   tx_clk <= not tx_clk_divide(2);   -- 200 MHz input clock divided by 8 = 25 MHz
    
    data_buffer: reg
    generic map(WIDTH => 32)
