@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.9 2004/11/18 05:21:56 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.10 2004/11/20 01:20:44 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.10  2004/11/20 01:20:44  bburger
+-- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
+--
 -- Revision 1.9  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -91,32 +94,18 @@ entity ac_dac_ctrl is
       
       -- Global Signals      
       clk_i                   : in std_logic;
-      mem_clk_i               : in std_logic;
       rst_i                   : in std_logic     
    );     
 end ac_dac_ctrl;
 
 architecture rtl of ac_dac_ctrl is
 
--- Row Addressing FSM signals:
-type row_states is (IDLE, LOAD_ON_VAL, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL);                
-signal row_current_state   : row_states;
-signal row_next_state      : row_states;
-signal row_num_int         : integer;
---signal load_new_vals       : std_logic;
---signal frame_aligned_reg   : std_logic;
 signal mux_en              : std_logic;
 
 signal on_off_addr         : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
 signal dac_id              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal on_data             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal off_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
---signal mux_en_wbs          : std_logic;
-
--- DAC signals 
-signal k                   : integer;
---signal dac_data            : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
-signal dac_id_int          : integer;
 
 begin
 
@@ -129,7 +118,6 @@ begin
          mux_en_o      => mux_en,     
                       
          clk_i         => clk_i,    
-         mem_clk_i     => mem_clk_i,
          rst_i         => rst_i,    
                        
          dat_i         => dat_i, 
@@ -162,7 +150,6 @@ begin
          
          -- Global Signals      
          clk_i                    => clk_i,    
-         mem_clk_i                => mem_clk_i,
          rst_i                    => rst_i    
       );                          
      
