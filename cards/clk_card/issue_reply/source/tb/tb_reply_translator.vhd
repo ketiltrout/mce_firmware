@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.14 2004/11/18 16:18:17 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.15 2004/11/22 11:24:01 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/18 16:18:17 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/22 11:24:01 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.15  2004/11/22 11:24:01  dca
+-- reply_translator: m_op_done_i changed to m_op_rdy_i
+--
 -- Revision 1.14  2004/11/18 16:18:17  dca
 -- Reading of fibre_word_i from reply_queue altered.
 --
@@ -130,16 +133,17 @@ port(
      param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
          
      -- signals to/from reply queue 
-     m_op_rdy_i             : in  std_logic;                                               -- macro op done
-     m_op_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
-     m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);  -- command code vector - indicates if data or reply (and which command)
-     m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
-     m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
+     mop_rdy_i             : in  std_logic;                                               -- macro op done
+     mop_error_code_i       : in  std_logic_vector(BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
+     mop_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);  -- command code vector - indicates if data or reply (and which command)
+     mop_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  -- m_op parameter id passed from reply_queue
+     mop_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  -- m_op card id passed from reply_queue
+     internal_cmd_i          : in  std_logic;
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  integer ;                                                -- indicate number of packet words to be read from reply queue
      fibre_word_ack_o        : out std_logic;                                               -- asserted to requeset next fibre word
      fibre_word_rdy_i        : in std_logic;
-     m_op_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
+     mop_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
 
      cmd_stop_i              : in std_logic;
      last_frame_i            : in std_logic;
@@ -194,7 +198,7 @@ signal   cmd_stop         : std_logic                                           
 signal   last_frame       : std_logic                                            := '0'; 
 signal   frame_seq_num    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0)       := (others => '0');
 
-
+signal   internal_cmd     : std_logic                                            := '0';
 
 
 begin
@@ -216,16 +220,17 @@ begin
       param_id_i         => param_id, 
        
       -- signals to/from reply queue 
-      m_op_rdy_i        => m_op_rdy,     
-      m_op_error_code_i  => m_op_error_code,   
-      m_op_cmd_code_i    => m_op_cmd_code,
-      m_op_param_id_i    => m_op_param_id,
-      m_op_card_id_i     => m_op_card_id,
+      mop_rdy_i        => m_op_rdy,     
+      mop_error_code_i  => m_op_error_code,   
+      mop_cmd_code_i    => m_op_cmd_code,
+      mop_param_id_i    => m_op_param_id,
+      mop_card_id_i     => m_op_card_id,
+      internal_cmd_i     => internal_cmd,
       fibre_word_i       => fibre_word, 
       num_fibre_words_i  => num_fibre_words,
       fibre_word_ack_o   => fibre_word_ack,   
       fibre_word_rdy_i   => fibre_word_rdy,
-      m_op_ack_o         => m_op_ack,   
+      mop_ack_o         => m_op_ack,   
       
       cmd_stop_i         => cmd_stop,
       last_frame_i       => last_frame,
@@ -353,6 +358,8 @@ begin
       wait for clk_prd*40;
       assert false report "test 1: checksum error reply finised...?" severity NOTE;    
       
+     
+    
      
       -----------------------------------
       -- test 2: GO command
@@ -593,10 +600,7 @@ begin
       m_op_error_code         <= (others => '0' );
       num_fibre_words         <= 16; 
       
-      fibre_word_rdy          <= '1';
-      
-      
-              
+               
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
       assert false report "test 6: preamble txmitted" severity NOTE;
@@ -695,6 +699,62 @@ begin
       
       wait for clk_prd*10;
 
+
+ 
+     
+       ------------------------------
+      -- test X: INTERNAL HEADER COMMAND
+      --------------------------------
+
+      wait for clk_prd * 10;
+           
+      m_op_card_id            <= X"2C";
+      m_op_param_id           <= ROW_ORDER_ADDR;
+      m_op_cmd_code           <= READ_BLOCK;
+      m_op_rdy               <= '1';       
+      m_op_error_code         <= (others => '0' );
+      num_fibre_words         <= 41;
+      internal_cmd            <= '1';
+      
+      assert false report "TEST X: INTERNAL COMMAND READY..." severity NOTE;  
+      
+      wait for clk_prd;
+      
+      assert false report "TEST X: INTERNAL COMMAND FIRST WORD READY..." severity NOTE;  
+      
+        
+            
+      for i in 0 to (num_fibre_words-1) loop 
+         
+         
+         fibre_word              <= conv_std_logic_vector(i,32);
+         fibre_word_rdy          <= '1';
+         
+         wait until fibre_word_ack = '1';
+         wait for clk_prd;
+         
+      end loop;
+         
+         fibre_word_rdy          <= '0';
+    
+      wait until m_op_ack      = '1'; 
+      wait for clk_prd;
+       
+      m_op_card_id            <= (others => '0');
+      m_op_param_id           <= (others => '0');
+      m_op_cmd_code           <= (others => '0');
+      m_op_rdy                <= '0';       
+      m_op_error_code         <= (others => '0' );
+      num_fibre_words         <= 0;
+      internal_cmd            <= '0';
+           
+      wait for clk_prd * 20;
+    
+      assert false report "TEST X: INTERNAL COMMAND FINISHED......." severity NOTE;     
+
+
+
+
       ------------------------------
       -- test 8: DATA FRAME:
       --------------------------------
@@ -723,8 +783,9 @@ begin
       
       cmd_stop                <= '0'; 
       last_frame              <= '1';   -- lets make it the last frame
-      frame_seq_num           <= (others => '1');
+      frame_seq_num           <= X"F0F0F0F0";
       
+ 
               
       wait until txd = FIBRE_PREAMBLE1;
       wait until txd = FIBRE_PREAMBLE2;
@@ -734,30 +795,31 @@ begin
       wait until txd = ASCII_D;
       assert false report "test 8: header word 'DA' txmitted" severity NOTE;
       
-                   
+            
 
-    --  for i in 1 to (to_integer(unsigned(num_fibre_words))) loop 
       for i in 1 to (num_fibre_words) loop 
+      
+         fibre_word_rdy          <= '1';      -- fibre words ready from queue
+         fibre_word <= conv_std_logic_vector((10*i),32);
          
-         fibre_word_rdy          <= '1';
-         frame_data <= (i * 32) + 1; 
-         fibre_word <= conv_std_logic_vector(frame_data,32);
-         wait until fibre_word_ack = '1';
-         assert false report "test 8: next fibre word txmitted" severity NOTE;
-         wait for clk_prd;
-         
+                 
          -- a ST command with checksum error arrives during readout....
          if i = 3 then
             cmd_code ( 7 downto 0)  <= ASCII_T;
             cmd_code (15 downto 8)  <= ASCII_S;
             card_id                 <= X"0808" ;   
             param_id                <= X"8080" ;
-           
-            wait for clk_prd;
+            cmd_rcvd_er             <= '1';
             assert false report "ST with CHECKSUM ERROR arrives mid readout..." severity NOTE;
-            do_checksum_error;
       
          end if; 
+         
+         wait until fibre_word_ack = '1';
+         assert false report "test 8: next fibre word txmitted" severity NOTE;
+         wait for clk_prd;
+         
+         cmd_rcvd_er                <= '0'; 
+                 
          
       end loop;
          

@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.22 2004/11/25 14:54:34 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.23 2004/11/29 23:35:32 bench2 Exp $>
 --
 -- Project:          Scuba 2
 -- Author:           David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/25 14:54:34 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/29 23:35:32 $> - <text> - <initials $Author: bench2 $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.23  2004/11/29 23:35:32  bench2
+-- Greg: Added err_i and extended FIBRE_CHECKSUM_ERR to 8-bits for reply_argument in reply_translator.vhd
+--
 -- Revision 1.22  2004/11/25 14:54:34  dca
 -- internal command added.
 -- frame header buffer added
@@ -151,17 +154,17 @@ port(
      param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
          
      -- signals to/from reply queue 
-     m_op_rdy_i              : in  std_logic;                                                -- macro op response ready to be processed
-     m_op_error_code_i       : in  std_logic_vector (BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
-     m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);   -- command code vector - indicates if data or reply (and which command)
-     m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);     -- m_op card id passed from reply_queue
-     m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);      -- m_op card id passed from reply_queue
-     internal_cmd_i          : in  std_logic;                                                -- indicates that completed m_op is an internal command and does not require fibre packet
+     mop_rdy_i              : in  std_logic;                                                -- macro op response ready to be processed
+     mop_error_code_i       : in  std_logic_vector (BB_STATUS_WIDTH-1           downto 0);   -- macro op success (others => '0') else error code
+     mop_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);   -- command code vector - indicates if data or reply (and which command)
+     mop_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);     -- mop card id passed from reply_queue
+     mop_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);      -- mop card id passed from reply_queue
+     internal_cmd_i          : in  std_logic;                                                -- indicates that completed mop is an internal command and does not require fibre packet
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  integer ;                                                   -- indicate number of packet words to be read from reply queue
      fibre_word_ack_o        : out std_logic;                                               -- asserted to requeset next fibre word
      fibre_word_rdy_i        : in std_logic;
-     m_op_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
+     mop_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
 
      cmd_stop_i              : in std_logic;
      last_frame_i            : in std_logic;
@@ -408,10 +411,10 @@ signal reply_status          : std_logic_vector (15 downto 0);                --
 signal reply_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- this word is the reply or data word read from cmd_queue
 signal packet_type           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- indicates reply or data packet - written to header word 3
 
-signal m_op_rdy_reply        : std_logic;                                     -- asserted high when a m_op is done and processing a reply packet
-signal m_op_rdy_data         : std_logic;                                     -- asserted high when a m_op is done and processing a data packet
-signal m_op_no_reply         : std_logic;                                     -- asserted high when a m_op is done but no packet to be generated
-signal m_op_rdy_head_row     : std_logic;                                     -- asserted high when internal m_op is ready to update header row addressing info.  
+signal mop_rdy_reply        : std_logic;                                     -- asserted high when a mop is done and processing a reply packet
+signal mop_rdy_data         : std_logic;                                     -- asserted high when a mop is done and processing a data packet
+signal mop_no_reply         : std_logic;                                     -- asserted high when a mop is done but no packet to be generated
+signal mop_rdy_head_row     : std_logic;                                     -- asserted high when internal mop is ready to update header row addressing info.  
 signal rst_checksum          : std_logic;                                     -- signal asserted to reset packet checksum
 signal ena_checksum          : std_logic;                                     -- signal assertd to update packet checksum with checksum_in value
 
@@ -533,27 +536,27 @@ frame_status(1)              <=   cmd_stop_i;
 frame_status(0)              <=   last_frame_i;
 
 
--- a reply packet should be generated if m_op_rdy_reply is asserted.
+-- a reply packet should be generated if mop_rdy_reply is asserted.
 
-m_op_rdy_reply  <= m_op_rdy_i when (  (m_op_cmd_code_i = WRITE_BLOCK or 
-                                       m_op_cmd_code_i = READ_BLOCK  or 
-                                       m_op_cmd_code_i = STOP)       and
+mop_rdy_reply  <= mop_rdy_i when (  (mop_cmd_code_i = WRITE_BLOCK or 
+                                       mop_cmd_code_i = READ_BLOCK  or 
+                                       mop_cmd_code_i = STOP)       and
                                       (internal_cmd_i  = '0') )
                    else '0';
 
--- no reply should be generated if m_op_no_reply is asserted
-m_op_no_reply    <= m_op_rdy_i when ( (m_op_cmd_code_i = RESET    or 
-                                       m_op_cmd_code_i = START)   and
+-- no reply should be generated if mop_no_reply is asserted
+mop_no_reply    <= mop_rdy_i when ( (mop_cmd_code_i = RESET    or 
+                                       mop_cmd_code_i = START)   and
                                       (internal_cmd_i  = '0') )    
                     else '0';
 
--- a data packet should be generated if m_op_rdy_data is asserted
-m_op_rdy_data    <= m_op_rdy_i when m_op_cmd_code_i = DATA else '0';
+-- a data packet should be generated if mop_rdy_data is asserted
+mop_rdy_data    <= mop_rdy_i when mop_cmd_code_i = DATA else '0';
 
 
 -- update frame header buffer with row address info
-m_op_rdy_head_row   <= m_op_rdy_i when ((m_op_cmd_code_i = READ_BLOCK)      and 
-                                        (m_op_param_id_i = ROW_ORDER_ADDR)  and 
+mop_rdy_head_row   <= mop_rdy_i when ((mop_cmd_code_i = READ_BLOCK)      and 
+                                        (mop_param_id_i = ROW_ORDER_ADDR)  and 
                                         (internal_cmd_i  = '1')             and
                                         (fibre_word_rdy_i = '1') ) 
                         else '0';
@@ -609,7 +612,7 @@ packet_word1_3mux   <= cmd_code_i      (15 downto  8)  when packet_word1_3mux_se
 
 --  packet word 2 recirculation mux structures
 packet_word2_0mux   <= param_id_i      ( 7 downto  0)  when packet_word2_0mux_sel = "01" else
-                       m_op_param_id_i ( 7 downto  0)  when packet_word2_0mux_sel = "10" else
+                       mop_param_id_i ( 7 downto  0)  when packet_word2_0mux_sel = "10" else
                        frame_seq_num_i ( 7 downto  0)  when packet_word2_0mux_sel = "11" else
                        packet_word2_0;
                        
@@ -619,7 +622,7 @@ packet_word2_1mux   <= param_id_i      (15 downto  8)  when packet_word2_1mux_se
                        packet_word2_1;
                        
 packet_word2_2mux   <= card_id_i       ( 7 downto  0)  when packet_word2_2mux_sel = "01" else 
-                       m_op_card_id_i  ( 7 downto  0)  when packet_word2_2mux_sel = "10" else
+                       mop_card_id_i  ( 7 downto  0)  when packet_word2_2mux_sel = "10" else
                        frame_seq_num_i (23 downto 16)  when packet_word2_2mux_sel = "11" else
                        packet_word2_2;
 
@@ -771,10 +774,10 @@ txd_o              <= fibre_byte;
 
    -------------------------------------------------------------------------
    fibre_fsm_nextstate : process ( 
-      fibre_current_state, cmd_rcvd_ok_i, cmd_rcvd_er_i, m_op_rdy_reply,
-      m_op_no_reply, m_op_rdy_data, cmd_code_i, m_op_error_code_i, tx_ff_i, 
-      num_fibre_words_i, fibre_word_count, m_op_cmd_code_i, stop_err_rdy,
-      fibre_word_rdy_i, m_op_rdy_head_row, pres_head_count
+      fibre_current_state, cmd_rcvd_ok_i, cmd_rcvd_er_i, mop_rdy_reply,
+      mop_no_reply, mop_rdy_data, cmd_code_i, mop_error_code_i, tx_ff_i, 
+      num_fibre_words_i, fibre_word_count, mop_cmd_code_i, stop_err_rdy,
+      fibre_word_rdy_i, mop_rdy_head_row, pres_head_count
    )
    ----------------------------------------------------------------------------
    begin
@@ -797,15 +800,15 @@ txd_o              <= fibre_byte;
             
          elsif (stop_err_rdy = '1') then                 -- if we missed a stop command with checksum error during data readout
             fibre_next_state <= ST_ER_REPLY;     
-         elsif (m_op_rdy_reply = '1' and m_op_error_code_i = COMMAND_SUCCESS) then 
+         elsif (mop_rdy_reply = '1' and mop_error_code_i = COMMAND_SUCCESS) then 
             fibre_next_state <= REPLY_OK;
-         elsif (m_op_rdy_reply = '1' and m_op_error_code_i /= COMMAND_SUCCESS) then 
+         elsif (mop_rdy_reply = '1' and mop_error_code_i /= COMMAND_SUCCESS) then 
             fibre_next_state <= REPLY_ER; 
-         elsif (m_op_no_reply = '1') then 
+         elsif (mop_no_reply = '1') then 
             fibre_next_state <= NO_REPLY;
-         elsif (m_op_rdy_data = '1') then
+         elsif (mop_rdy_data = '1') then
             fibre_next_state <= DATA_FRAME;
-         elsif (m_op_rdy_head_row = '1') then
+         elsif (mop_rdy_head_row = '1') then
             fibre_next_state <= HEAD_WRITE;
          else
             fibre_next_state <= FIBRE_IDLE;   
@@ -816,8 +819,8 @@ txd_o              <= fibre_byte;
           
             fibre_next_state <= LD_HEAD1_0;
           
-      when NO_REPLY =>                                 -- generate an acknowledgement to a m_op done that doesn't require a packet to be generated
-         if (m_op_no_reply = '1') then               -- wait in this state until m_op_rdy deasserted... 
+      when NO_REPLY =>                                 -- generate an acknowledgement to a mop done that doesn't require a packet to be generated
+         if (mop_no_reply = '1') then               -- wait in this state until mop_rdy deasserted... 
             fibre_next_state <= NO_REPLY;
          else
             fibre_next_state <= FIBRE_IDLE;           -- once deasserted return to IDLE
@@ -1086,10 +1089,10 @@ txd_o              <= fibre_byte;
 
        when TX_WORD2_3 =>
        
-          if  (m_op_rdy_data = '1') then           -- if data frame
+          if  (mop_rdy_data = '1') then           -- if data frame
              fibre_next_state <= LD_RAM0;          -- get header words from RAM
           
-          elsif (m_op_rdy_reply = '1' and m_op_cmd_code_i = READ_BLOCK and m_op_error_code_i = COMMAND_SUCCESS) then    -- if successful read_block reply then 
+          elsif (mop_rdy_reply = '1' and mop_cmd_code_i = READ_BLOCK and mop_error_code_i = COMMAND_SUCCESS) then    -- if successful read_block reply then 
              fibre_next_state <= WAIT_Q_WORD;                                    -- need to request data block words
           
           else
@@ -1333,8 +1336,8 @@ txd_o              <= fibre_byte;
          
    -------------------------------------------------------------------------
    reply_fsm_output : process (
-      fibre_current_state, checksum, m_op_error_code_i, data_packet_size,
-      m_op_rdy_reply, m_op_rdy_data, m_op_cmd_code_i,  rb_packet_size, 
+      fibre_current_state, checksum, mop_error_code_i, data_packet_size,
+      mop_rdy_reply, mop_rdy_data, mop_cmd_code_i,  rb_packet_size, 
       packet_header3_0, packet_header3_1, packet_header3_2, packet_header3_3,
       packet_header4_0, packet_header4_1, packet_header4_2, packet_header4_3,
       packet_word1_0,    packet_word1_1,    packet_word1_2,    packet_word1_3,
@@ -1381,7 +1384,7 @@ txd_o              <= fibre_byte;
       rst_fibre_count          <= '0';
       ena_fibre_count          <= '0';
       
-      m_op_ack_o               <= '0';
+      mop_ack_o               <= '0';
       arb_fsm_ack              <= '0';
       
       fibre_byte               <= (others => '0');
@@ -1516,7 +1519,7 @@ txd_o              <= fibre_byte;
            
       when REPLY_OK    =>   
 
-            if (m_op_cmd_code_i = READ_BLOCK) then 
+            if (mop_cmd_code_i = READ_BLOCK) then 
                packet_size             <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);    
             else
                packet_size             <= conv_std_logic_vector(NUM_REPLY_WORDS,32); 
@@ -1526,7 +1529,7 @@ txd_o              <= fibre_byte;
             reply_status( 7 downto 0)  <= ASCII_K ;
             reply_status(15 downto 8)  <= ASCII_O ;
             packet_type                <= REPLY_PACKET; 
-            reply_argument             <= "00000" & m_op_error_code_i ;        -- this will be error code x"00" - i.e. success.
+            reply_argument             <= "00000" & mop_error_code_i ;        -- this will be error code x"00" - i.e. success.
 
               
             packet_word1_0mux_sel      <= "10";
@@ -1558,7 +1561,7 @@ txd_o              <= fibre_byte;
             reply_status( 7 downto 0)  <= ASCII_R ;
             reply_status(15 downto 8)  <= ASCII_E ;
             packet_type                <= REPLY_PACKET;
-            reply_argument             <= "00000" & m_op_error_code_i ;     
+            reply_argument             <= "00000" & mop_error_code_i ;     
             
               
             packet_word1_0mux_sel      <= "10";
@@ -1585,7 +1588,7 @@ txd_o              <= fibre_byte;
             packet_header4_3mux_sel    <= '1';               -- register packet header 4 byte 3
        
        when NO_REPLY       =>                                -- if no_reply is required just acknowledge the 
-            m_op_ack_o                 <= '1';               -- m_op done.
+            mop_ack_o                 <= '1';               -- mop done.
                         
        when DATA_FRAME     =>   
     
@@ -1956,13 +1959,13 @@ txd_o              <= fibre_byte;
            write_fifo                  <= '1';
            
                   
-           if m_op_rdy_reply = '1' or             -- if this was a reply/data packet 
-              m_op_rdy_data  = '1' then           -- instigated by reply_queue then
+           if mop_rdy_reply = '1' or             -- if this was a reply/data packet 
+              mop_rdy_data  = '1' then           -- instigated by reply_queue then
            
-              m_op_ack_o               <= '1' ;    -- acknowledge that packet has finished - i.e. started txing checksum
-                                                   -- Q should now de-assert m_op_rdy
+              mop_ack_o               <= '1' ;    -- acknowledge that packet has finished - i.e. started txing checksum
+                                                   -- Q should now de-assert mop_rdy
             else        
-              m_op_ack_o               <= '0';
+              mop_ack_o               <= '0';
            end if;         
            
            
@@ -2013,10 +2016,10 @@ txd_o              <= fibre_byte;
           ena_head_count               <= '1';       -- increment address pointer
          
        when DONE => 
-            m_op_ack_o                 <= '0';
+            mop_ack_o                 <= '0';
                        
        when HEAD_DONE =>
-           m_op_ack_o                  <= '1';
+           mop_ack_o                  <= '1';
        
        when others =>
            null;
