@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: rx_protocol_fsm.vhd,v 1.1 2004/04/06 10:59:11 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id$>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -41,23 +41,13 @@
 -- are made available at the block's output the and command ready
 -- line (cmd_rdy_o) is asserted.   
 --
--- In the case of the write_block command the data words are clocked out
--- sequentially (16 bit words).  See block description document for more
--- details.
--- 
+-- The data words associated with the command are clocked out
+-- sequentially (cmd_data_o) on the rising 
+-- edge of the clock "data_clk_o", while cmd_rdy_o is asserted.  
 --
--- The command structure for commands WM, RM, GO, ST, RS and RB
--- is as follows:
+--  see rx_protocol_fsm.doc for more details
 --
--- word 1 : Preamble
--- word 2 : Preamble
--- word 3 : Command code 
--- word 4 : Address (card and register)
--- word 5 : Argument (i.e. data)
--- word 6 : checksum
---
---
--- The command stucture for WB is as follows:
+-- The command stucture for all commands (WB, RB, ST, GO, RS) is as follows:
 --
 -- word 1 : Preamble
 -- word 2 : Preamble
@@ -76,8 +66,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/04/06 10:59:11 $>	-		<text>		- <initials $Author: dca $>
---
+-- <date $Date$>	-		<text>		- <initials $Author$>
 -- $log$
 -----------------------------------------------------------------------------
 LIBRARY ieee;
@@ -113,100 +102,85 @@ ARCHITECTURE fsm OF rx_protocol_fsm IS
 
 -- FSM's states defined
 
-constant IDLE         : std_logic_vector(6 downto 0) := "0000000";
+constant IDLE        : std_logic_vector(6 downto 0) := "0000000";
 
-constant RQ_PRE0      : std_logic_vector(6 downto 0) := "0000001";
-constant PRE0_CK      : std_logic_vector(6 downto 0) := "0000010";
-constant PRE0_OK      : std_logic_vector(6 downto 0) := "0000011";
-constant RQ_PRE1      : std_logic_vector(6 downto 0) := "0000100";
-constant PRE1_CK      : std_logic_vector(6 downto 0) := "0000101";
-constant PRE1_OK      : std_logic_vector(6 downto 0) := "0000110";
-constant RQ_PRE2      : std_logic_vector(6 downto 0) := "0000111";
-constant PRE2_CK      : std_logic_vector(6 downto 0) := "0001000";
+constant RQ_PRE0     : std_logic_vector(6 downto 0) := "0000001";
+constant PRE0_CK     : std_logic_vector(6 downto 0) := "0000010";
+constant PRE0_OK     : std_logic_vector(6 downto 0) := "0000011";
+constant RQ_PRE1     : std_logic_vector(6 downto 0) := "0000100";
+constant PRE1_CK     : std_logic_vector(6 downto 0) := "0000101";
+constant PRE1_OK     : std_logic_vector(6 downto 0) := "0000110";
+constant RQ_PRE2     : std_logic_vector(6 downto 0) := "0000111";
+constant PRE2_CK     : std_logic_vector(6 downto 0) := "0001000";
 
-constant PRE2_OK      : std_logic_vector(6 downto 0) := "0001001";
-constant RQ_PRE3      : std_logic_vector(6 downto 0) := "0001010";
-constant PRE3_CK      : std_logic_vector(6 downto 0) := "0001011";
-constant PRE3_OK      : std_logic_vector(6 downto 0) := "0001100";
-constant RQ_PRE4      : std_logic_vector(6 downto 0) := "0001101";
-constant PRE4_CK      : std_logic_vector(6 downto 0) := "0001110";
-constant PRE4_OK      : std_logic_vector(6 downto 0) := "0001111";
-constant RQ_PRE5      : std_logic_vector(6 downto 0) := "0010000";
+constant PRE2_OK     : std_logic_vector(6 downto 0) := "0001001";
+constant RQ_PRE3     : std_logic_vector(6 downto 0) := "0001010";
+constant PRE3_CK     : std_logic_vector(6 downto 0) := "0001011";
+constant PRE3_OK     : std_logic_vector(6 downto 0) := "0001100";
+constant RQ_PRE4     : std_logic_vector(6 downto 0) := "0001101";
+constant PRE4_CK     : std_logic_vector(6 downto 0) := "0001110";
+constant PRE4_OK     : std_logic_vector(6 downto 0) := "0001111";
+constant RQ_PRE5     : std_logic_vector(6 downto 0) := "0010000";
 
-constant PRE5_CK      : std_logic_vector(6 downto 0) := "0010001";
-constant PRE5_OK      : std_logic_vector(6 downto 0) := "0010010";
-constant RQ_PRE6      : std_logic_vector(6 downto 0) := "0010011";
-constant PRE6_CK      : std_logic_vector(6 downto 0) := "0010100";
-constant PRE6_OK      : std_logic_vector(6 downto 0) := "0010101";
-constant RQ_PRE7      : std_logic_vector(6 downto 0) := "0010110";
-constant PRE7_CK      : std_logic_vector(6 downto 0) := "0010111";
-constant PRE7_OK      : std_logic_vector(6 downto 0) := "0011000";
+constant PRE5_CK     : std_logic_vector(6 downto 0) := "0010001";
+constant PRE5_OK     : std_logic_vector(6 downto 0) := "0010010";
+constant RQ_PRE6     : std_logic_vector(6 downto 0) := "0010011";
+constant PRE6_CK     : std_logic_vector(6 downto 0) := "0010100";
+constant PRE6_OK     : std_logic_vector(6 downto 0) := "0010101";
+constant RQ_PRE7     : std_logic_vector(6 downto 0) := "0010110";
+constant PRE7_CK     : std_logic_vector(6 downto 0) := "0010111";
+constant PRE7_OK     : std_logic_vector(6 downto 0) := "0011000";
 
-constant RQ_CMD0      : std_logic_vector(6 downto 0) := "0011001";
-constant LD_CMD0      : std_logic_vector(6 downto 0) := "0011010";
-constant RQ_CMD1      : std_logic_vector(6 downto 0) := "0011011";
-constant LD_CMD1      : std_logic_vector(6 downto 0) := "0011100";
-constant RQ_CMD2      : std_logic_vector(6 downto 0) := "0011101";
-constant LD_CMD2      : std_logic_vector(6 downto 0) := "0011110";
-constant RQ_CMD3      : std_logic_vector(6 downto 0) := "0011111";
-constant LD_CMD3      : std_logic_vector(6 downto 0) := "0100000";
+constant RQ_CMD0     : std_logic_vector(6 downto 0) := "0011001";
+constant LD_CMD0     : std_logic_vector(6 downto 0) := "0011010";
+constant RQ_CMD1     : std_logic_vector(6 downto 0) := "0011011";
+constant LD_CMD1     : std_logic_vector(6 downto 0) := "0011100";
+constant RQ_CMD2     : std_logic_vector(6 downto 0) := "0011101";
+constant LD_CMD2     : std_logic_vector(6 downto 0) := "0011110";
+constant RQ_CMD3     : std_logic_vector(6 downto 0) := "0011111";
+constant LD_CMD3     : std_logic_vector(6 downto 0) := "0100000";
 
-constant RQ_ADDR0     : std_logic_vector(6 downto 0) := "0100001";
-constant LD_ADDR0     : std_logic_vector(6 downto 0) := "0100010";
-constant RQ_ADDR1     : std_logic_vector(6 downto 0) := "0100011";
-constant LD_ADDR1     : std_logic_vector(6 downto 0) := "0100100";
-constant RQ_ADDR2     : std_logic_vector(6 downto 0) := "0100101";
-constant LD_ADDR2     : std_logic_vector(6 downto 0) := "0100110";
-constant RQ_ADDR3     : std_logic_vector(6 downto 0) := "0100111";
-constant LD_ADDR3     : std_logic_vector(6 downto 0) := "0101000";
+constant RQ_ADDR0    : std_logic_vector(6 downto 0) := "0100001";
+constant LD_ADDR0    : std_logic_vector(6 downto 0) := "0100010";
+constant RQ_ADDR1    : std_logic_vector(6 downto 0) := "0100011";
+constant LD_ADDR1    : std_logic_vector(6 downto 0) := "0100100";
+constant RQ_ADDR2    : std_logic_vector(6 downto 0) := "0100101";
+constant LD_ADDR2    : std_logic_vector(6 downto 0) := "0100110";
+constant RQ_ADDR3    : std_logic_vector(6 downto 0) := "0100111";
+constant LD_ADDR3    : std_logic_vector(6 downto 0) := "0101000";
 
-constant RQ_DATA0     : std_logic_vector(6 downto 0) := "0101001";
-constant LD_DATA0     : std_logic_vector(6 downto 0) := "0101010";
-constant RQ_DATA1     : std_logic_vector(6 downto 0) := "0101011";
-constant LD_DATA1     : std_logic_vector(6 downto 0) := "0101100";
-constant RQ_DATA2     : std_logic_vector(6 downto 0) := "0101101";
-constant LD_DATA2     : std_logic_vector(6 downto 0) := "0101110";
-constant RQ_DATA3     : std_logic_vector(6 downto 0) := "0101111";
-constant LD_DATA3     : std_logic_vector(6 downto 0) := "0110000";
+constant RQ_CKSM0    : std_logic_vector(6 downto 0) := "0101001";
+constant LD_CKSM0    : std_logic_vector(6 downto 0) := "0101010";
+constant RQ_CKSM1    : std_logic_vector(6 downto 0) := "0101011";
+constant LD_CKSM1    : std_logic_vector(6 downto 0) := "0101100";
+constant RQ_CKSM2    : std_logic_vector(6 downto 0) := "0101101";
+constant LD_CKSM2    : std_logic_vector(6 downto 0) := "0101110";
+constant RQ_CKSM3    : std_logic_vector(6 downto 0) := "0101111";
+constant LD_CKSM3    : std_logic_vector(6 downto 0) := "0110000";
 
-constant RQ_CKSM0     : std_logic_vector(6 downto 0) := "0110001";
-constant LD_CKSM0     : std_logic_vector(6 downto 0) := "0110010";
-constant RQ_CKSM1     : std_logic_vector(6 downto 0) := "0110011";
-constant LD_CKSM1     : std_logic_vector(6 downto 0) := "0110100";
-constant RQ_CKSM2     : std_logic_vector(6 downto 0) := "0110101";
-constant LD_CKSM2     : std_logic_vector(6 downto 0) := "0110110";
-constant RQ_CKSM3     : std_logic_vector(6 downto 0) := "0110111";
-constant LD_CKSM3     : std_logic_vector(6 downto 0) := "0111000";
+constant RQ_NDA0     : std_logic_vector(6 downto 0) := "0110001";
+constant LD_NDA0     : std_logic_vector(6 downto 0) := "0110010";
+constant RQ_NDA1     : std_logic_vector(6 downto 0) := "0110011";
+constant LD_NDA1     : std_logic_vector(6 downto 0) := "0110100";
+constant RQ_NDA2     : std_logic_vector(6 downto 0) := "0110101";
+constant LD_NDA2     : std_logic_vector(6 downto 0) := "0110110";
+constant RQ_NDA3     : std_logic_vector(6 downto 0) := "0110111";
+constant LD_NDA3     : std_logic_vector(6 downto 0) := "0111000";
 
-constant CKSM_PASS    : std_logic_vector(6 downto 0) := "0111001";
-constant CKSM_FAIL    : std_logic_vector(6 downto 0) := "0111010";
+constant RQ_BLK0     : std_logic_vector(6 downto 0) := "0111001";
+constant LD_BLK0     : std_logic_vector(6 downto 0) := "0111010";
+constant RQ_BLK1     : std_logic_vector(6 downto 0) := "0111011";
+constant LD_BLK1     : std_logic_vector(6 downto 0) := "0111100";
+constant RQ_BLK2     : std_logic_vector(6 downto 0) := "0111101";
+constant LD_BLK2     : std_logic_vector(6 downto 0) := "0111110";
+constant RQ_BLK3     : std_logic_vector(6 downto 0) := "0111111";
+constant LD_BLK3     : std_logic_vector(6 downto 0) := "1000000";
 
-constant WB_CHECK     : std_logic_vector(6 downto 0) := "0111011";
-constant WB_CMD       : std_logic_vector(6 downto 0) := "0111100"; 
-constant STD_CMD      : std_logic_vector(6 downto 0) := "0111101";
+constant CKSM_PASS   : std_logic_vector(6 downto 0) := "1000001";
+constant CKSM_FAIL   : std_logic_vector(6 downto 0) := "1000010";
 
-constant RQ_NDA0      : std_logic_vector(6 downto 0) := "0111110";
-constant LD_NDA0      : std_logic_vector(6 downto 0) := "0111111";
-constant RQ_NDA1      : std_logic_vector(6 downto 0) := "1000000";
-constant LD_NDA1      : std_logic_vector(6 downto 0) := "1000001";
-constant RQ_NDA2      : std_logic_vector(6 downto 0) := "1000010";
-constant LD_NDA2      : std_logic_vector(6 downto 0) := "1000011";
-constant RQ_NDA3      : std_logic_vector(6 downto 0) := "1000100";
-constant LD_NDA3      : std_logic_vector(6 downto 0) := "1000101";
-
-constant RQ_BLK0      : std_logic_vector(6 downto 0) := "1000110";
-constant LD_BLK0      : std_logic_vector(6 downto 0) := "1000111";
-constant RQ_BLK1      : std_logic_vector(6 downto 0) := "1001000";
-constant LD_BLK1      : std_logic_vector(6 downto 0) := "1001001";
-constant RQ_BLK2      : std_logic_vector(6 downto 0) := "1001010";
-constant LD_BLK2      : std_logic_vector(6 downto 0) := "1001011";
-constant RQ_BLK3      : std_logic_vector(6 downto 0) := "1001100";
-constant LD_BLK3      : std_logic_vector(6 downto 0) := "1001101";
-
-
-constant STD_CMD_RDY  : std_logic_vector(6 downto 0) := "1001110";
-constant GET_WB_DATA  : std_logic_vector(6 downto 0) := "1001111";
-constant TX_WB_DATA   : std_logic_vector(6 downto 0) := "1010000";
+constant READ_DATA   : std_logic_vector(6 downto 0) := "1000011";
+constant TX_DATA     : std_logic_vector(6 downto 0) := "1000100";
 
 
 -- controller state variables:
@@ -282,8 +256,9 @@ BEGIN
             next_state <= IDLE;
          END IF;
 
-------------------------------------------------
-
+   ------------------------------------------------
+   
+   --preamble states
 
       WHEN RQ_PRE0 =>
          next_state <= PRE0_CK;
@@ -407,8 +382,9 @@ BEGIN
             next_state <= PRE7_OK;
          END IF;
                   
- --------------------------------------------
-
+   --------------------------------------------
+   -- command word states
+       
       WHEN RQ_CMD0 =>
             next_state <= LD_CMD0;
       WHEN RQ_CMD1 =>
@@ -443,8 +419,8 @@ BEGIN
          ELSE
             next_state <= LD_CMD3;
          END IF;
----------------------------------------------------------
-
+   ---------------------------------------------------------
+   --- address word states
 
       WHEN RQ_ADDR0 =>
             next_state <= LD_ADDR0;
@@ -477,63 +453,14 @@ BEGIN
          END IF;        
 
       WHEN LD_ADDR3 =>
-         IF (command = write_block) THEN
-            next_state <= WB_CMD;
-         ELSE   
-            next_state <= STD_CMD;
-         END IF;
-         
-----------------------------------------------------------         
-         
-      WHEN STD_CMD =>   
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_DATA0;
-         ELSE
-            next_state <= STD_CMD;
-         END IF;
-         
-      WHEN WB_CMD =>  
          IF (rx_fe_i = '0') THEN
             next_state <= RQ_NDA0;
          ELSE
-            next_state <= WB_CMD;
+            next_state <= LD_ADDR3;
          END IF; 
--------------------------------------------------------------
-      WHEN RQ_DATA0 =>
-            next_state <= LD_DATA0;   
-      WHEN RQ_DATA1 =>
-            next_state <= LD_DATA1;
-      WHEN RQ_DATA2 =>
-            next_state <= LD_DATA2;
-      WHEN RQ_DATA3 =>
-            next_state <= LD_DATA3;
 
-         
-      WHEN LD_DATA0 =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_DATA1;
-         ELSE
-            next_state <= LD_DATA0;
-         END IF;
-      WHEN LD_DATA1 =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_DATA2;
-         ELSE
-            next_state <= LD_DATA1;
-         END IF;
-      WHEN LD_DATA2 =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_DATA3;
-         ELSE
-            next_state <= LD_DATA2;
-         END IF;
-      WHEN LD_DATA3 =>
-         IF (rx_fe_i = '0') THEN
-            next_state <= RQ_CKSM0;
-         ELSE
-            next_state <= LD_DATA3;
-         END IF;
--------------------------------------------------
+-------------------------------------------------------------
+   -- number of data states
          
       WHEN RQ_NDA0 =>
             next_state <= LD_NDA0;    
@@ -571,6 +498,7 @@ BEGIN
 
 
 -----------------------------------------------
+   --- store data states
 
       WHEN RQ_BLK0 =>
             next_state <= LD_BLK0;    
@@ -614,6 +542,7 @@ BEGIN
 
 
 ------------------------------------------------
+   -- checksum states
 
       WHEN RQ_CKSM0 =>
             next_state <= LD_CKSM0; 
@@ -649,26 +578,20 @@ BEGIN
             next_state <= CKSM_FAIL;
          END IF;
             
------------------------------------------------
-
 
       WHEN CKSM_PASS =>
-         IF (command = write_block) THEN
-            next_state <= GET_WB_DATA;
-         ELSE
-            next_state <= STD_CMD_RDY;
-         END IF;
-      
+         next_state <= READ_DATA;
+    
       WHEN CKSM_FAIL =>
             next_state <= IDLE;
-      WHEN STD_CMD_RDY =>
-            next_state <= IDLE;
+
+-----------------------------------------------
             
-      WHEN GET_WB_DATA =>
-            next_state <= TX_WB_DATA;
-      WHEN TX_WB_DATA =>
+      WHEN READ_DATA =>
+            next_state <= TX_DATA;
+      WHEN TX_DATA =>
          IF (read_pointer < number_data) THEN   
-            next_state <= GET_WB_DATA;
+            next_state <= READ_DATA;
          ELSE   
             next_state <= IDLE;
          END IF;               
@@ -738,19 +661,6 @@ BEGIN
             cksum_in(31 downto 24) <= rxd_i(7 downto 0);
             check_update <= '1';
 
-         WHEN LD_DATA0 =>
-            cmd_data_o(7 downto 0) <= rxd_i(7 downto 0);  
-            cksum_in(7 downto 0) <= rxd_i(7 downto 0);
-            num_data_o <= "00000001"; 
-         WHEN LD_DATA1 =>
-            cmd_data_o(15 downto 8) <= rxd_i(7 downto 0);
-            cksum_in(15 downto 8) <= rxd_i(7 downto 0); 
-         WHEN LD_DATA2 =>
-            cksum_in(23 downto 16) <= rxd_i(7 downto 0);
-         WHEN LD_DATA3 =>
-            cksum_in(31 downto 24) <= rxd_i(7 downto 0);
-            check_update <= '1'; 
- 
          WHEN LD_NDA0 =>
             num_data_o <= rxd_i(7 downto 0);
             cksum_in(7 downto 0) <= rxd_i(7 downto 0);
@@ -762,15 +672,7 @@ BEGIN
          WHEN LD_NDA3 =>
             cksum_in(31 downto 24) <= rxd_i(7 downto 0);
             check_update <= '1';
-            
-         WHEN LD_CKSM0 =>
-            cksum_rcvd(7 downto 0) <= rxd_i(7 downto 0);  
-         WHEN LD_CKSM1 =>
-             cksum_rcvd(15 downto 8) <= rxd_i(7 downto 0);
-         WHEN LD_CKSM2 =>
-            cksum_rcvd(23 downto 16) <= rxd_i(7 downto 0);      
-         WHEN LD_CKSM3 =>
-            cksum_rcvd(31 downto 24) <= rxd_i(7 downto 0); 
+
 
          WHEN LD_BLK0 =>
             cksum_in(7 downto 0) <= rxd_i(7 downto 0);
@@ -784,6 +686,16 @@ BEGIN
             cksum_in(31 downto 24) <= rxd_i(7 downto 0);
             write_mem <= '1';
             check_update <= '1';           
+
+            
+         WHEN LD_CKSM0 =>
+            cksum_rcvd(7 downto 0) <= rxd_i(7 downto 0);  
+         WHEN LD_CKSM1 =>
+            cksum_rcvd(15 downto 8) <= rxd_i(7 downto 0);
+         WHEN LD_CKSM2 =>
+            cksum_rcvd(23 downto 16) <= rxd_i(7 downto 0);      
+         WHEN LD_CKSM3 =>
+            cksum_rcvd(31 downto 24) <= rxd_i(7 downto 0); 
 
   
          WHEN RQ_PRE7 =>
@@ -821,15 +733,6 @@ BEGIN
          WHEN RQ_ADDR0 =>
             rx_fr_o <= '1' ;
 
-         WHEN RQ_DATA3 =>
-            rx_fr_o <= '1' ;
-         WHEN RQ_DATA2 =>
-            rx_fr_o <= '1' ;
-         WHEN RQ_DATA1 =>
-            rx_fr_o <= '1' ;
-         WHEN RQ_DATA0 =>
-            rx_fr_o <= '1' ;
-
          WHEN RQ_NDA3 =>
             rx_fr_o <= '1' ;
          WHEN RQ_NDA2 =>
@@ -861,14 +764,12 @@ BEGIN
             cksum_err_o <= '0' ;
          WHEN CKSM_FAIL =>
             cksum_err_o <= '1' ;
-         WHEN STD_CMD_RDY =>
-            cmd_rdy_o <= '1' ;
-            data_clk_o <= '1' ;
-         WHEN GET_WB_DATA =>
+
+         WHEN READ_DATA =>
             read_mem <= '1'; 
             cmd_rdy_o <= '1' ;
             data_clk_o <= '0' ;
-         WHEN TX_WB_DATA =>
+         WHEN TX_DATA =>
             cmd_data_o <= data_out ;
             cmd_rdy_o <= '1' ;
             data_clk_o <= '1' ;
