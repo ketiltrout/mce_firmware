@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 
 -- 
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.1 2004/07/06 10:54:53 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.2 2004/07/06 11:02:43 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,13 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/06 10:54:53 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/06 11:02:43 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: tb_cmd_translator_m_op_table.vhd,v $
+-- Revision 1.2  2004/07/06 11:02:43  dca
+-- "cmd_translator_m_op_table" component declaration removed.
+-- Now referenced from issue_reply_pack.
+--
 -- Revision 1.1  2004/07/06 10:54:53  dca
 -- Initial Version
 --
@@ -81,10 +85,11 @@ signal   frame_seq_num_retire : std_logic_vector (31                    downto 0
 signal   macro_instr_done     : std_logic;                                           
 signal   table_full           : std_logic;     
 signal   table_empty          : std_logic;  
+signal   retiring_busy        : std_logic;  
   
 -- tb clock signals
-signal   tb_clk       : std_logic;  
-constant clk_prd      : TIME := 10 ns;    -- 100Mhz clock
+signal   tb_clk       : std_logic := '0';  
+constant clk_prd      : TIME := 40 ns;    -- 25Mhz clock
   
   
 -- issue macro op 
@@ -129,7 +134,8 @@ begin
    
    port map ( 
    
-     rst_i                    =>  dut_rst,   
+     rst_i                    =>  dut_rst,  
+     clk_i                    =>  tb_clk, 
      card_addr_store_i        =>  card_addr_store,
      parameter_id_store_i     =>  parameter_id_store,
      m_op_seq_num_store_i     =>  m_op_seq_num_store,
@@ -137,6 +143,7 @@ begin
      macro_instr_rdy_i        =>  macro_instr_rdy,
      m_op_seq_num_retire_i    =>  m_op_seq_num_retire,
      macro_instr_done_i       =>  macro_instr_done,
+     retiring_busy_o          =>  retiring_busy,
      table_empty_o            =>  table_empty,
      table_full_o             =>  table_full
    ); 
@@ -186,23 +193,12 @@ begin
    begin
       macro_instr_done <= '1';
       assert false report "retire macro op...." severity NOTE;
-      wait for clk_prd;
+      wait until retiring_busy <= '1';                            -- must not de-assert until retirment has begun 
       macro_instr_done <= '0';
       wait for clk_prd;
    end do_retire_m_op;
    
-   procedure do_store_retire_together is
-   begin
-      macro_instr_done <= '1';
-      macro_instr_rdy  <= '1';
-      assert false report "store/retire simultaneously macro op...." severity NOTE;
-      wait for clk_prd;
-      macro_instr_done <= '0';
-      macro_instr_rdy  <= '0';
-      wait for clk_prd;
-   end do_store_retire_together;
-   
-    
+      
    begin
       do_reset;
       
@@ -234,47 +230,34 @@ begin
       m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));   
       do_retire_m_op;
       wait for clk_prd;
+      wait until retiring_busy <= '0';
       
       retire_m_op            <= retire_m_op + 3; 
       wait for clk_prd;     
       m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
       do_retire_m_op;
       wait for clk_prd;
+      wait until retiring_busy <= '0';
       
       retire_m_op            <= retire_m_op + 3; 
       wait for clk_prd;     
       m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
       do_retire_m_op;
       wait for clk_prd;
+      wait until retiring_busy <= '0';
       
       retire_m_op            <= retire_m_op - 9; 
       wait for clk_prd;     
       m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
       do_retire_m_op;
       wait for clk_prd;
-      
+      wait until retiring_busy <= '0';
+      wait for clk_prd;
       
       assert false report "m_op table should now have 4 free slots......." severity NOTE;
       
       
-      
-      -- issue and retire simultaneously
-      
-      retire_m_op            <= retire_m_op - 3; 
-      wait for clk_prd;     
-      m_op_seq_num_retire    <= std_logic_vector(to_unsigned(retire_m_op,MOP_BUS_WIDTH));
-      card_addr_store        <= std_logic_vector(to_unsigned(issue_m_op,CARD_ADDR_BUS_WIDTH));
-      parameter_id_store     <= std_logic_vector(to_unsigned(issue_m_op,PAR_ID_BUS_WIDTH));
-      m_op_seq_num_store     <= std_logic_vector(to_unsigned(issue_m_op,MOP_BUS_WIDTH));
-      frame_seq_num_store    <= std_logic_vector(to_unsigned(issue_m_op,32));
-      wait for clk_prd  ; 
-      do_store_retire_together;
-      wait for clk_prd*2; 
-      issue_m_op             <= issue_m_op + 1;
-      wait for clk_prd*2;
-      
-      assert false report "m_op store/retire simultaneously......." severity NOTE;
-      
+        
       -- now fill again with 4 more issued commands
       -- ......will fill from lowest free slot
           
@@ -294,13 +277,11 @@ begin
       end loop;
       
       assert false report "m_op table should be full again......." severity NOTE;
-      wait for clk_prd*2;
-      
-      
-      
-      wait for clk_prd*2;
+      wait for clk_prd*1;
+               
       do_reset;
       wait for clk_prd*2;
+
       assert false report "simulation finished...." severity FAILURE;
       
       wait;
