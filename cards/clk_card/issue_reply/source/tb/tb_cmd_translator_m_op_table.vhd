@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 
 -- 
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.1 2004/07/06 10:54:53 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,12 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/07/06 10:54:53 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: tb_cmd_translator_m_op_table.vhd,v $
+-- Revision 1.1  2004/07/06 10:54:53  dca
+-- Initial Version
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -64,26 +67,6 @@ use work.issue_reply_pack.all;
 
 architecture bench of tb_cmd_translator_m_op_table is
 
-component cmd_translator_m_op_table
-port(
-     -- global inputs
-     rst_i             : in     std_logic;
-
-     -- inputs from cmd_translator (top level)     
-     card_addr_store_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-     parameter_id_store_i    : in std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
-     m_op_seq_num_store_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
-     frame_seq_num_store_i   : in std_logic_vector (31                    downto 0);
-     macro_instr_rdy_i       : in std_logic;                                           -- ='1' when the data is valid, else it's '0'
- 
-     -- inputs from reply translator
-     m_op_seq_num_retire_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
-     macro_instr_done_i       : in std_logic;                                           -- ='1' when the data is valid, else it's '0'
- 
-     table_empty_o            : out std_logic;
-     table_full_o             : out std_logic                                          -- asserted if table full.  If so no more marco instructions should be issued
-   ); 
-end component;
 
 signal   dut_rst              : std_logic;
 signal   card_addr_store      : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0); 
