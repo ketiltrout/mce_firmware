@@ -205,6 +205,28 @@ package s_pack is
          led_o : out std_logic      -- physical LED pin
       );
    end component;
+   
+   ------------------------------------------------------------------
+   -- watchdog state
+   component s_watchdog
+      port (
+         -- basic signals
+         rst_i : in std_logic;   -- reset input
+         clk_i : in std_logic;   -- clock input
+         en_i : in std_logic;    -- enable signal
+         done_o : out std_logic; -- done output signal
+         
+         -- transmitter signals
+         tx_busy_i : in std_logic;  -- transmit busy flag
+         tx_ack_i : in std_logic;   -- transmit ack
+         tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
+         tx_we_o : out std_logic;   -- transmit write flag
+         tx_stb_o : out std_logic;  -- transmit strobe flag
+         
+         -- extended signals
+         wdt_o : out std_logic      -- physical Watchdog pin
+      );
+   end component;
 
 end s_pack;
 

@@ -38,13 +38,14 @@ entity cc_test is
       clk : in std_logic;
       txd : out std_logic;
       rxd : in std_logic;
-      led : out std_logic_vector(2 downto 0)
+      led : out std_logic_vector(2 downto 0);
+      wdt : out std_logic
    );
 end cc_test;
 
 architecture behaviour of cc_test is
    
-   constant MAX_STATES : integer := 5;
+   constant MAX_STATES : integer := 6;
    signal zero : std_logic;
    signal one : std_logic;
    signal reset : std_logic;
@@ -80,6 +81,7 @@ architecture behaviour of cc_test is
    constant INDEX_LED_POWER : integer := 2;
    constant INDEX_LED_STATUS : integer := 3;
    constant INDEX_LED_FAULT : integer := 4;
+   constant INDEX_WATCHDOG : integer := 5;
    
    constant SEL_RESET : std_logic_vector(MAX_STATES - 1 downto 0) :=
                         (INDEX_RESET => '1', others => '0');
@@ -91,6 +93,8 @@ architecture behaviour of cc_test is
                         (INDEX_LED_STATUS => '1', others => '0');
    constant SEL_LED_FAULT : std_logic_vector(MAX_STATES - 1 downto 0) :=
                         (INDEX_LED_FAULT => '1', others => '0');
+   constant SEL_WATCHDOG : std_logic_vector(MAX_STATES - 1 downto 0) :=
+                        (INDEX_WATCHDOG => '1', others => '0');
 
    constant DONE_NULL : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET : std_logic_vector(MAX_STATES - 1 downto 0) :=
@@ -103,6 +107,8 @@ architecture behaviour of cc_test is
                         (INDEX_LED_STATUS => '1', others => '0');
    constant DONE_LED_FAULT : std_logic_vector(MAX_STATES - 1 downto 0) :=
                         (INDEX_LED_FAULT => '1', others => '0');
+   constant DONE_WATCHDOG : std_logic_vector(MAX_STATES - 1 downto 0) :=
+                        (INDEX_WATCHDOG => '1', others => '0');
 
 begin
    -- RS232 interface start
@@ -233,6 +239,21 @@ begin
          tx_stb_o => tx_rec_array(INDEX_LED_FAULT).stb,
          led_o => led(2)
       );
+      
+   -- watchdog timer
+   watchdog_timer : s_watchdog
+      port map (
+         rst_i => reset,
+         clk_i => clk,
+         en_i => sel_vec(INDEX_WATCHDOG),
+         done_o => done_vec(INDEX_WATCHDOG),
+         tx_busy_i => tx_busy,
+         tx_ack_i => tx_ack,
+         tx_data_o => tx_rec_array(INDEX_WATCHDOG).dat,
+         tx_we_o => tx_rec_array(INDEX_WATCHDOG).we,
+         tx_stb_o => tx_rec_array(INDEX_WATCHDOG).stb,
+         wdt_o => wdt
+      );
          
    zero <= '0';
    one <= '1';                         
@@ -279,8 +300,8 @@ begin
                         sel_vec <= SEL_LED_FAULT;
                      end if;
                   when CMD_WATCHDOG =>
-                     -- boot watchdog
-                   
+                     -- kick watchdog
+                     sel_vec <= SEL_WATCHDOG;
                   
                   when others =>
                      -- must not be implemented yet!
