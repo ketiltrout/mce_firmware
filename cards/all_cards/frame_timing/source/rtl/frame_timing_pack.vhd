@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.5 2005/01/13 03:14:51 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.6 2005/02/17 22:42:12 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,13 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2005/01/13 03:14:51 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2005/02/17 22:42:12 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.6  2005/02/17 22:42:12  bburger
+-- Bryce:  changes to synchronization in the MCE in response to two problems
+-- - a rising edge on the sync line during configuration
+-- - an errant pulse on the restart_frame_1row_post_o from frame_timing block
+--
 -- Revision 1.5  2005/01/13 03:14:51  bburger
 -- Bryce:
 -- addr_card and clk_card:  added slot_id functionality, removed mem_clock
@@ -76,7 +81,7 @@ package frame_timing_pack is
    constant END_OF_FRAME           : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-1;
    constant SYNC_PULSE_BIT0        : std_logic := '1';
    constant SYNC_PULSE_BIT1        : std_logic := '0';
-   constant SYNC_PULSE_BIT2        : std_logic := '1';
+   constant SYNC_PULSE_BIT2        : std_logic := '0';
    constant SYNC_PULSE_BIT3        : std_logic := '0';
    
    ------------------------------------------------------------------------------------
