@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.2 2004/07/05 23:41:22 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.3 2004/07/20 16:00:02 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/05 23:41:22 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/20 16:00:02 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: tb_cmd_translator.vhd,v $
+-- Revision 1.3  2004/07/20 16:00:02  jjacob
+-- changed from fixed declarations to parameterized
+--
 -- Revision 1.2  2004/07/05 23:41:22  jjacob
 -- updating
 --
@@ -67,6 +70,7 @@ use work.fibre_rx_pack.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
+use sys_param.command_pack.all;
 
 entity tb_cmd_translator is
 
