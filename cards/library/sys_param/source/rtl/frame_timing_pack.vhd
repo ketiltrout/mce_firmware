@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.4 2004/05/13 00:09:10 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.5 2004/05/14 21:10:06 mandana Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/05/13 00:09:10 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/05/14 21:10:06 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.5  2004/05/14 21:10:06  mandana
+-- changed frame_timing values to integer(Bias_count)
+--
 -- Revision 1.4  2004/05/13 00:09:10  bburger
 -- added a few timing parameters for the clock card
 --
@@ -95,10 +98,7 @@ package frame_timing_pack is
 
    ------------------------------------------------------------------------------------
    -- Bias Card frame structure
-   constant UPDATE_BIAS : integer := 88;
-
-   constant UPDATE_BIAS : integer := 0;
-
+   constant UPDATE_BIAS : integer := 3;
    ------------------------------------------------------------------------------------
    -- Address Card frame structure
    constant SEL_ROW : w_array41:= (
