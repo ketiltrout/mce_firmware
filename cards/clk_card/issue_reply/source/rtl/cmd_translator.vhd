@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.19 2004/10/08 19:45:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.20 2004/10/08 20:51:08 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/08 19:45:26 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/10/08 20:51:08 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.20  2004/10/08 20:51:08  bburger
+-- Bryce: No explicit command code checking is done except for commands that that require special handling (ret_dat, ret_dat_s)
+--
 -- Revision 1.19  2004/10/08 19:45:26  bburger
 -- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
 --
@@ -229,7 +232,6 @@ architecture rtl of cmd_translator is
    signal simple_cmd_macro_instr_rdy : std_logic;
    signal simple_cmd_type            : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
    
-   signal arbiter_ack                : std_logic_vector (2 downto 0);
    signal macro_instr_rdy            : std_logic;
    signal cmd_code                   : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);
    signal ret_dat_cmd_stop           : std_logic;

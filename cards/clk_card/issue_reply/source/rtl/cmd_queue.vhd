@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.55 2004/09/30 21:59:40 erniel Exp $
+-- $Id: cmd_queue.vhd,v 1.56 2004/10/08 19:45:26 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.56  2004/10/08 19:45:26  bburger
+-- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
+--
 -- Revision 1.55  2004/09/30 21:59:40  erniel
 -- using new command_pack constants
 --
@@ -117,8 +120,6 @@ signal rdaddress_b_sig      : std_logic_vector(7 downto 0);
 signal wren_sig             : std_logic;
 signal qa_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal qb_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
-signal nfast_clk            : std_logic;
-signal n_clk                : std_logic;
 
 -- Sync-pulse counter inputs/outputs.  These are used to determine when u-ops have expired.
 signal sync_count_slv       : std_logic_vector(ISSUE_SYNC_WIDTH-1 downto 0);
@@ -145,8 +146,6 @@ signal next_insert_state    : insert_states;
 signal data_count           : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal insert_uop_ack       : std_logic; --tells the generate FSM when the insert FSM is ready to insert the next u-op
 signal num_uops_inserted_slv: std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
-signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
 type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, EJECT, NEXT_FLUSH, FLUSH_STATUS, RESET);
@@ -219,17 +218,13 @@ constant INT_ZERO           : integer := 0;
 signal queue_space_mux      : integer;
 signal queue_space_mux_sel  : std_logic_vector(1 downto 0);
 
-signal data_sig_reg         : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal data_sig_mux         : std_logic_vector(QUEUE_WIDTH-1 downto 0);
-signal data_sig2            : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal data_sig_mux_sel     : std_logic_vector(2 downto 0);
 
 signal data_count_mux       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); 
 signal data_count_mux_sel   : std_logic_vector(1 downto 0);
 
-signal free_ptr_mux         : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal free_ptr_mux_sel     : std_logic_vector(1 downto 0);
-signal free_ptr2             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal free_ptr_reg          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
 signal retire_ptr_mux       : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
@@ -240,8 +235,6 @@ signal flush_ptr_mux_sel    : std_logic_vector(1 downto 0);
 
 signal current_par_id      : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
-signal new_par_id_mux           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
-signal new_par_id_reg           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 signal new_par_id_mux_sel           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
 constant PAR_ID             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"EE";
@@ -263,10 +256,6 @@ signal crc_num_bits2        : integer;
 
 signal cmd_tx_dat_mux_sel   : std_logic_vector(2 downto 0);
 signal cmd_tx_dat_reg       : std_logic_vector(31 downto 0);
-signal cmd_tx_dat2          : std_logic_vector(31 downto 0);
-
-signal header_a_state       : std_logic;
-signal first_time_header_a  : std_logic;
 
 signal send_ptr_reg           : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal send_ptr_mux_sel       : std_logic_vector(2 downto 0);
@@ -276,7 +265,6 @@ signal uop_data_count_reg     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal uop_data_size_mux_sel  : std_logic_vector(1 downto 0);
 signal uop_data_size_reg      : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-signal uop_data_size2         : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal sh_reg_parallel_mux_sel: std_logic_vector(1 downto 0);
 
@@ -304,7 +292,7 @@ begin
          rdaddress_a => rdaddress_a_sig,
          rdaddress_b => rdaddress_b_sig,
          wren        => wren_sig,
-         clock       => clk_200mhz_i, --n_clk,      clk_i, --   
+         clock       => clk_200mhz_i,  
          qa          => qa_sig, -- qa_sig data are used by the send FSM         
          qb          => qb_sig -- qb_sig data are used by the retire FSM
       );
@@ -510,12 +498,10 @@ begin
    process(clk_i, rst_i)
    begin
       if rst_i = '1' then
-         --data_sig_reg   <= (others=>'0');
          data_count <= (others=>'0');
          free_ptr_reg   <= (others=>'0');
          data_size_reg  <= (others => '0');
       elsif clk_i'event and clk_i = '1' then
-         --data_sig_reg   <= data_sig_mux;
          data_count <= data_count_mux;
          free_ptr_reg   <= free_ptr;
          data_size_reg  <= data_size_mux;
@@ -1366,7 +1352,6 @@ begin
       end if;
    end process;
 
-   n_clk             <= not clk_i;
    sync_count_slv    <= sync_num_i;
    -- This line was used when the sync number was generate internally to this block.
    -- Now it is generated externally, but I've kept this line to demonstrate the proper method for converting int=>std_logic_vector

@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.13 2004/10/13 05:44:58 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.14 2004/10/13 10:39:51 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/10/13 05:44:58 $> - <text> - <initials $Author: bench2 $>
+-- <date $Date: 2004/10/13 10:39:51 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -115,10 +115,11 @@ architecture tb of tb_issue_reply is
    
    constant ret_dat_s_cmd      : std_logic_vector (31 downto 0) := X"00000034";  -- card id=0, ret_dat_s command
    constant ret_dat_s_num_data : std_logic_vector (31 downto 0) := X"00000002";  -- 2 data words, start and stop frame #
-   signal ret_dat_s_start    : std_logic_vector (31 downto 0)  := X"00000002";
-   signal ret_dat_s_stop     : std_logic_vector (31 downto 0)  := X"00000008";
+   signal ret_dat_s_start      : std_logic_vector (31 downto 0)  := X"00000003";
+   signal ret_dat_s_stop       : std_logic_vector (31 downto 0)  := X"00000011";
    
    constant ret_dat_cmd        : std_logic_vector (31 downto 0) := X"000D0030";  -- card id=4, ret_dat command
+   constant ret_dat_num_data   : std_logic_vector (31 downto 0) := X"00000001";  -- 2 data words, start and stop frame #
    
    constant flux_fdbck_cmd         : std_logic_vector (31 downto 0) := x"00070020"; -- bias card 1, flux feedback command
    constant sram1_strt_cmd     : std_logic_vector (31 downto 0) := x"0002005C"; -- clock card, sram1_start command
@@ -583,11 +584,9 @@ stimuli : process
       
       -- This is a 'WB cc sram1_start A B C' command
       command <= command_wb;
-      
       address_id <= sram1_strt_cmd;
-      data_valid <= X"00000003";--X"00000028";
+      data_valid <= X"00000001";--X"00000028";
       data       <= X"0000000A";
---      t_ack_i <= '0';
       load_preamble;
       load_command;
       load_checksum;
@@ -641,8 +640,9 @@ stimuli : process
       
       -- This sequence of two commands will be used to test the ability to stop the return of data frames in mid-sequence
       ret_dat_s_start <= x"00000003";
-      ret_dat_s_stop <= x"00000099";
+      ret_dat_s_stop  <= x"00000008";
       
+      command <= command_wb;
       address_id <= ret_dat_s_cmd;
       data_valid <= ret_dat_s_num_data;
       data <= ret_dat_s_start; -- start is 0x2, end is 0x8
@@ -654,23 +654,25 @@ stimuli : process
 
       command <= command_go;
       address_id <= ret_dat_cmd;
-      data_valid <= no_std_data;
-      data <= (others=>'0');
+      data_valid <= ret_dat_num_data;
+      data <= (others=>'1');
       load_preamble;
       load_command;
       load_checksum;    
       
       wait for 1 us;  
 
-      command <= command_st;
-      address_id <= ret_dat_cmd;
-      data_valid <= no_std_data;
-      data <= (others=>'0');
-      load_preamble;
-      load_command;
-      load_checksum;    
+      -- This stop command seems to cause problems if it occurs after the ret_dat commands have already been issued to the cmd_queue
+      -- It currently doesn't work because the cmd_queue fills up faster than the the stop command can be processed.
+      --command <= command_st;
+      --address_id <= ret_dat_cmd;
+      --data_valid <= ret_dat_num_data;
+      --data <= (others=>'0');
+      --load_preamble;
+      --load_command;
+      --load_checksum;    
       
-      wait for 20*55 us;  
+      wait for 10*55 us;  
       
 --      --wait until cmd_rdy = '1';
 --      --wait for clk_prd;
