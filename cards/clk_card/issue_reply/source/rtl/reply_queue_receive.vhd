@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.11  2005/02/10 03:04:11  erniel
+-- added data output register for pipelined performance
+--
 -- Revision 1.10  2005/02/09 21:01:02  erniel
 -- removed separate header fifo (consolidated data and header fifos)
 -- added another fifo stage for temporary storage during CRC verify
@@ -115,7 +118,7 @@ signal lvds_ack  : std_logic;
 --------------------------------------------------
 -- CRC datapath control:
 
-type crc_states is (CRC_IDLE, CRC_INIT, CRC_SYNC, CRC_CALCULATE, CRC_WORD_RDY, WRITE_STATUS, WAIT_NEXT_WORD, LOAD_NEXT_WORD);
+type crc_states is (CRC_IDLE, CRC_INIT, CRC_SYNC, CRC_CALCULATE, CRC_WORD_RDY, WAIT_NEXT_WORD, LOAD_NEXT_WORD);
 signal crc_ps : crc_states;
 signal crc_ns : crc_states;
 
@@ -174,15 +177,15 @@ signal header0_ld : std_logic;
 signal header1_ld : std_logic;
 signal header2_ld : std_logic;
 
-signal wr_count     : integer;
+signal wr_count     : integer range 0 to 2**PACKET_STORAGE_DEPTH;
 signal wr_count_ena : std_logic;
 signal wr_count_clr : std_logic;
 
-signal rd_count     : integer;
+signal rd_count     : integer range 0 to 2**PACKET_STORAGE_DEPTH;
 signal rd_count_ena : std_logic;
 signal rd_count_clr : std_logic;
 
-signal packets : integer range 0 to 2**PACKET_STORAGE_DEPTH-1;
+signal packets : integer range 0 to 2**PACKET_STORAGE_DEPTH;
 
 signal wr_done : std_logic;
 signal rd_done : std_logic;
@@ -652,16 +655,14 @@ begin
                       
          when PACKET_READY =>   if(discard_i = '1') then
                                    read_ns <= DISCARD_PACKET;
-                                elsif(ack_i = '1') then
-                                   if(rd_count = header(RQ_DATA_SIZE'range)) then
-                                      read_ns <= READ_DONE;                                   
-                                   end if;
+                                elsif(ack_i = '1' and rd_count = header(RQ_DATA_SIZE'range)) then
+                                   read_ns <= READ_DONE;                                   
                                 else
                                    read_ns <= PACKET_READY;
                                 end if;
                             
          when DISCARD_PACKET => if(rd_count = header(RQ_DATA_SIZE'range)) then
-                                   read_ns <= READ_IDLE;
+                                   read_ns <= READ_DONE;
                                 else
                                    read_ns <= DISCARD_PACKET;
                                 end if;
@@ -671,7 +672,7 @@ begin
       end case;
    end process read_FSM_NS;
    
-   read_FSM_Out : process(read_ps, ack_i)
+   read_FSM_Out : process(read_ps, header, rd_count, ack_i)
    begin      
       packet_read  <= '0';
       header_ld    <= '0';
@@ -690,14 +691,16 @@ begin
                                 data_ld      <= '1';
          
          when PACKET_READY =>   rdy_o <= '1';
-                                if(ack_i = '1') then
+                                if(ack_i = '1' and rd_count < header(RQ_DATA_SIZE'range)) then
                                    packet_read  <= '1';
                                    data_ld      <= '1';
                                    rd_count_ena <= '1';
                                 end if;
          
-         when DISCARD_PACKET => packet_read  <= '1';
-                                rd_count_ena <= '1';
+         when DISCARD_PACKET => if(rd_count < header(RQ_DATA_SIZE'range)) then
+                                   packet_read  <= '1';
+                                   rd_count_ena <= '1';
+                                end if;
          
          when READ_DONE =>      rd_done <= '1';
          
