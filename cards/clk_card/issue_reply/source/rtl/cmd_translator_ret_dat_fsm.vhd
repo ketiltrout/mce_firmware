@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.3 2004/06/09 23:36:02 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.4 2004/06/10 21:15:32 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/09 23:36:02 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/10 21:15:32 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.4  2004/06/10 21:15:32  jjacob
+-- no message
+--
 -- Revision 1.3  2004/06/09 23:36:02  jjacob
 -- cleaned formatting
 --
@@ -116,6 +119,7 @@ end cmd_translator_ret_dat_fsm;
 
 architecture rtl of cmd_translator_ret_dat_fsm is
 
+   signal ret_dat_start           : std_logic; 
    signal ret_dat_done            : std_logic; 
    signal ret_dat_fsm_working     : std_logic;  
    signal ret_dat_cmd_valid       : std_logic;  
@@ -135,7 +139,8 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    type a_state is                 (IDLE, SET_SEQ_NUM, RETURN_DATA_ASYNC_WAIT);  --asychronous states  
    signal async_state             : a_state;
    
-   type state is                   (RETURN_DATA_IDLE, RETURN_DATA_STOP, RETURN_DATA_DONE, RETURN_DATA_PAUSE, RETURN_DATA); --synchronous states
+   type state is                   (RETURN_DATA_IDLE, RETURN_DATA_STOP, RETURN_DATA_DONE, 
+                                    RETURN_DATA_PAUSE, RETURN_DATA, RETURN_DATA_ACK, RETURN_DATA_LAST); --synchronous states
    signal next_state, current_state : state;
 
 
@@ -166,6 +171,7 @@ begin
                ret_dat_s_seq_start_num <= (others => '0');
                ret_dat_s_seq_stop_num  <= (others => '0');
                --ret_dat_s_done_o        <= '0';
+               ret_dat_start           <= '0';
                
                async_state             <= IDLE;
        
@@ -174,12 +180,14 @@ begin
                ret_dat_s_seq_start_num <= data_i;
                ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
                --ret_dat_s_done_o        <= '0';
+               ret_dat_start           <= '0';
            
                async_state             <= SET_SEQ_NUM;
                
             elsif ret_dat_start_i = '1' then
             
                --ret_dat_s_done_o        <= '0';
+               ret_dat_start           <= '1';
            
                async_state             <= RETURN_DATA_ASYNC_WAIT;
                
@@ -187,6 +195,7 @@ begin
             
                -- make other signal assignment here also
                --ret_dat_s_done_o        <= '0';
+               ret_dat_start           <= '0';
                
                async_state             <= IDLE;
                
@@ -195,6 +204,7 @@ begin
                ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
                ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
                --ret_dat_s_done_o        <= '0';
+               ret_dat_start           <= '0';
                
                async_state             <= IDLE;
 
@@ -207,6 +217,7 @@ begin
                ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;
                ret_dat_s_seq_stop_num  <= ret_dat_s_seq_stop_num;
                --ret_dat_s_done_o        <= '1';
+               ret_dat_start           <= '0';
                
                
                if ret_dat_start_i = '1' then
@@ -220,6 +231,7 @@ begin
                ret_dat_s_seq_start_num <= ret_dat_s_seq_start_num;    
                ret_dat_s_seq_stop_num  <= data_i;
                --ret_dat_s_done_o        <= '0';
+               ret_dat_start           <= '0';
 
                async_state <= SET_SEQ_NUM;
                
@@ -229,16 +241,18 @@ begin
             if ret_dat_done = '1' then
             
                -- make other signal assignment here also
-               async_state <= IDLE;
+               async_state             <= IDLE;
+               ret_dat_start           <= '0';
             else
                async_state <= RETURN_DATA_ASYNC_WAIT;
+               ret_dat_start <= '1';
             end if;
             
             --ret_dat_s_done_o        <= '0';
             
          when others =>
             --ret_dat_s_done_o        <= '0';
-            
+            ret_dat_start           <= '0';
             async_state <= IDLE;
     
       end case;
@@ -267,14 +281,16 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, ret_dat_start_i, ret_dat_stop_i, current_seq_num, ret_dat_s_seq_stop_num, ack_i)
+   process(current_state, ret_dat_start, ret_dat_stop_i, current_seq_num, ret_dat_s_seq_stop_num, ack_i)
    begin
       case current_state is
       
          when RETURN_DATA_IDLE =>
          
-            if ret_dat_start_i = '1' then
+            if ret_dat_start = '1' and ack_i = '0' then
                next_state <= RETURN_DATA;
+            elsif ret_dat_start = '1' and ack_i = '1' then
+               next_state <= RETURN_DATA_ACK;
             else
                next_state <= RETURN_DATA_IDLE;
             end if;
@@ -282,10 +298,15 @@ begin
          when RETURN_DATA =>
         
             if ack_i = '1' then
-               next_state <= RETURN_DATA_PAUSE;
+               next_state <= RETURN_DATA_PAUSE;--RETURN_DATA_ACK; --
+            elsif ret_dat_stop_i = '1' then
+               next_state <= RETURN_DATA_LAST;
             else
                next_state <= RETURN_DATA;
-            end if; 
+            end if;
+            
+         when RETURN_DATA_ACK =>
+            next_state <= RETURN_DATA_PAUSE;
             
          when RETURN_DATA_PAUSE =>
             if ret_dat_stop_i = '1' then
@@ -299,9 +320,24 @@ begin
          when RETURN_DATA_STOP =>
             next_state <= RETURN_DATA_IDLE;
             
-         when RETURN_DATA_DONE =>
-            next_state <= RETURN_DATA_IDLE;
+         when RETURN_DATA_LAST =>
+            if ack_i = '1' then
+               next_state <= RETURN_DATA_IDLE;--RETURN_DATA_DONE;
+            else
+               next_state <= RETURN_DATA_LAST;
+            end if;            
             
+--         when RETURN_DATA_DONE =>
+--            next_state <= RETURN_DATA_IDLE;
+            
+        
+         when RETURN_DATA_DONE =>
+            if ack_i = '1' then
+               next_state <= RETURN_DATA_IDLE;
+            else
+               next_state <= RETURN_DATA_DONE;
+            end if;    
+                        
          when others =>
             next_state <= RETURN_DATA_IDLE;
             
@@ -315,14 +351,13 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, sync_number_i, card_addr_i, parameter_id_i, data_size_i, data_i,
-           ret_dat_s_seq_start_num, ret_dat_start_i)
+   process(current_state, card_addr_i, parameter_id_i, data_size_i, data_i, ack_i)
    begin
       case current_state is
       
          when RETURN_DATA_IDLE =>
          
-            if ret_dat_start_i = '1' then
+            if ret_dat_start = '1' then
 
                ret_dat_cmd_valid       <= '1';
                macro_instr_rdy_o       <= '1';
@@ -344,12 +379,26 @@ begin
 
             end if;
   
-         when RETURN_DATA =>
+         when RETURN_DATA | RETURN_DATA_ACK =>
 
             ret_dat_cmd_valid       <= '1';
             macro_instr_rdy_o       <= '1';
             ret_dat_done            <= '0';
             ret_dat_fsm_working     <= '1';  
+            
+         when RETURN_DATA_LAST =>
+         
+           if ack_i = '1' then
+               ret_dat_cmd_valid       <= '1';
+               macro_instr_rdy_o       <= '1';
+               ret_dat_done            <= '1';
+               ret_dat_fsm_working     <= '1';
+            else
+               ret_dat_cmd_valid       <= '1';
+               macro_instr_rdy_o       <= '1';
+               ret_dat_done            <= '0';
+               ret_dat_fsm_working     <= '1';
+            end if;           
          
          when RETURN_DATA_PAUSE =>
 
@@ -367,10 +416,17 @@ begin
    
          when RETURN_DATA_DONE =>  -- JJ Need to take some action, like send response back to Linux machine
          
-            ret_dat_cmd_valid       <= '1';
-            macro_instr_rdy_o       <= '1';
-            ret_dat_done            <= '1';
-            ret_dat_fsm_working     <= '1';
+            if ack_i = '1' then
+               ret_dat_cmd_valid       <= '1';
+               macro_instr_rdy_o       <= '1';
+               ret_dat_done            <= '1';
+               ret_dat_fsm_working     <= '1';
+            else
+               ret_dat_cmd_valid       <= '1';
+               macro_instr_rdy_o       <= '1';
+               ret_dat_done            <= '0';
+               ret_dat_fsm_working     <= '1';
+            end if;           
             
          when others =>
          
@@ -397,13 +453,30 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, sync_number_i, ret_dat_s_seq_start_num, ret_dat_start_i)
+--   process(rst_i, current_state, ret_dat_start_i, sync_number_i)
+--   begin
+--      if rst_i = '1' then
+--         current_sync_num <= (others => '0');
+--      elsif current_state'event and current_state = RETURN_DATA_PAUSE then
+--         current_sync_num <= current_sync_num + 1;
+--      elsif current_state = RETURN_DATA_IDLE and ret_dat_start_i = '0' then
+--         current_sync_num <= sync_number_i;
+--      else
+--         current_sync_num <= current_sync_num;
+--      end if;
+--   
+--   end process;
+   
+                      
+
+
+   process(current_state, sync_number_i, ret_dat_s_seq_start_num, ret_dat_start)
    begin
       case current_state is
       
          when RETURN_DATA_IDLE =>
          
-            if ret_dat_start_i = '1' then
+            if ret_dat_start = '1' then
             
                current_sync_num        <= current_sync_num;   -- each new ret_dat command must corresponding to the next sync pulse
                current_seq_num         <= current_seq_num;    -- this keeps track of what frame number we are on in the sequence of frames
@@ -415,25 +488,30 @@ begin
 
             end if;
 
-         when RETURN_DATA =>
+         when RETURN_DATA | RETURN_DATA_LAST | RETURN_DATA_ACK | RETURN_DATA_STOP | RETURN_DATA_DONE =>
       
             current_sync_num        <= current_sync_num;   -- each new ret_dat command must corresponding to the next sync pulse
             current_seq_num         <= current_seq_num;    -- this keeps track of what frame number we are on in the sequence of frames
+            
+--         when RETURN_DATA_ACK =>
+--         
+--            current_sync_num        <= current_sync_num;
+--            current_seq_num         <= current_seq_num;            
          
          when RETURN_DATA_PAUSE =>
          
             current_sync_num        <= current_sync_num + 1;
-            current_seq_num         <= current_seq_num + 1;
+            current_seq_num         <= current_seq_num + 1;           
                   
-         when RETURN_DATA_STOP =>  -- JJ Need to take some action, like send response back to Linux machine
-         
-            current_sync_num        <= current_sync_num;
-            current_seq_num         <= current_seq_num;
-   
-         when RETURN_DATA_DONE =>  -- JJ Need to take some action, like send response back to Linux machine
-         
-            current_sync_num        <= current_sync_num;
-            current_seq_num         <= current_seq_num;
+--         when RETURN_DATA_STOP =>  -- JJ Need to take some action, like send response back to Linux machine
+--         
+--            current_sync_num        <= current_sync_num;
+--            current_seq_num         <= current_seq_num;
+--   
+--         when RETURN_DATA_DONE =>  -- JJ Need to take some action, like send response back to Linux machine
+--         
+--            current_sync_num        <= current_sync_num;
+--            current_seq_num         <= current_seq_num;
             
          when others =>
                  

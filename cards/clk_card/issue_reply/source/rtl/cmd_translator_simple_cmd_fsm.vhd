@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.2 2004/06/04 23:01:24 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.3 2004/06/09 23:36:10 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/04 23:01:24 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/09 23:36:10 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.3  2004/06/09 23:36:10  jjacob
+-- cleaned formatting
+--
 -- Revision 1.2  2004/06/04 23:01:24  jjacob
 -- daily update/ safety checkin
 --
@@ -45,6 +48,9 @@
 --
 -- 
 -----------------------------------------------------------------------------
+
+-- maybe absorb this file into the top level, there's not much functionality here anymore
+
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -93,7 +99,8 @@ port(
       macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
       
       -- input from the macro-instruction arbiter
-      ack_i             : in std_logic                   -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
+      ack_i             : in std_logic                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
+      							 -- not currently used
 
    ); 
      
@@ -103,10 +110,43 @@ end cmd_translator_simple_cmd_fsm;
 architecture rtl of cmd_translator_simple_cmd_fsm is
 
 
-   type state is (IDLE, ISSUE_CMD);
+   --type state is (IDLE, ISSUE_CMD);
    
-   signal current_state, next_state : state;
-   signal word_count     : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
+   --signal current_state, next_state : state;
+   --signal word_count     : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
+
+
+begin
+------------------------------------------------------------------------
+--
+-- 
+--
+------------------------------------------------------------------------
+
+--   process(current_state, cmd_start_i, ack_i)
+--   begin
+--      case current_state is
+--         when IDLE =>
+--            if cmd_start_i = '1' and ack_i = '1' then
+--               next_state <= SIMPLE_CMD_ISSUE;
+--            elsif cmd_start_i = '1' and ack_i = '0' then
+--               next_state <= SIMPLE_CMD_STALL;
+--            else
+--               next_state <= IDLE;
+--            end if;
+--            
+--         when SIMPLE_CMD_ISSUE =>
+--            if cmd_start_i = '1' then
+--               next_state <= SIMPLE_CMD_ISSUE;
+--            else 
+--               next_state <= IDLE;
+--            end if;
+--         
+--         when SIMPLE_CMD_STALL =>
+--            if ack_i
+--         
+--   
+--   end process;
 
 
 
@@ -116,7 +156,7 @@ architecture rtl of cmd_translator_simple_cmd_fsm is
 --
 ------------------------------------------------------------------------
 
-begin
+
 
    process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
            data_i, data_clk_i)

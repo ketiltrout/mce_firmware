@@ -104,7 +104,7 @@ port(
       simple_cmd_macro_instr_rdy_i : in std_logic;                                          -- ='1' when the data is valid, else it's '0'
       
  
-      -- input from the macro-instruction arbiter
+      -- output to the ret_dat state machine
       simple_cmd_ack_o             : out std_logic ;  
 
 
@@ -133,20 +133,26 @@ end cmd_translator_arbiter;
 architecture rtl of cmd_translator_arbiter is
 
 
-   signal arbiter_condition         : std_logic_vector(1 downto 0);
+
    signal macro_instr_rdy           : std_logic;
    signal m_op_seq_num              : std_logic_vector (7 downto 0);
 
    
-   type a_state is (SIMPLE_CMD, RET_DAT);
+   --type a_state is (SIMPLE_CMD, RET_DAT);
    
-   type state is (SIMPLE_CMD, SIMPLE_CMD_SETUP, RET_DAT, RET_DAT_SETUP);
+   type state is (IDLE, SIMPLE_CMD_RDY, SIMPLE_CMD_PAUSE, RET_DAT_RDY, RET_DAT_PAUSE, RET_DAT_RDY_SIMPLE_CMD_PENDING,
+                  RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT);
                    
-   signal async_state : a_state;
+   --signal async_state : a_state;
    
    signal current_state, next_state : state;
-
-
+   
+   signal arbiter_mux      : std_logic;
+ 
+   signal ret_dat_pending  : std_logic;
+   
+   constant SIMPLE_CMD : std_logic := '0';
+   constant RET_DAT    : std_logic := '1';
 
 begin
 
@@ -158,7 +164,7 @@ begin
    process(rst_i, clk_i)
    begin
       if rst_i = '1' then
-         current_state <= SIMPLE_CMD;
+         current_state <= SIMPLE_CMD_RDY;
       elsif clk_i'event and clk_i = '1' then
          current_state <= next_state;
       end if;
@@ -173,49 +179,88 @@ begin
 --
 ------------------------------------------------------------------------
 
-   arbiter_condition <= simple_cmd_macro_instr_rdy_i & ret_dat_macro_instr_rdy_i;
 
-   process(current_state, arbiter_condition)
+
+   process(current_state, simple_cmd_macro_instr_rdy_i, ret_dat_macro_instr_rdy_i)--, ack_i)
    begin
       case current_state is
-         when SIMPLE_CMD =>
-            if arbiter_condition = "01" then
-               next_state <= RET_DAT_SETUP;          
+         when IDLE =>
+            if simple_cmd_macro_instr_rdy_i = '1' then
+               next_state <= SIMPLE_CMD_RDY;
+            elsif ret_dat_macro_instr_rdy_i = '1' then
+               next_state <= RET_DAT_RDY;
             else
-               next_state <= SIMPLE_CMD;
+               next_state <= IDLE;
+            end if;
+      
+      
+         when SIMPLE_CMD_RDY =>
+            if simple_cmd_macro_instr_rdy_i = '1' then
+               next_state <= SIMPLE_CMD_RDY;
+            elsif ret_dat_macro_instr_rdy_i = '1' then
+               next_state <= SIMPLE_CMD_PAUSE;--RET_DAT_RDY;
+            else
+               next_state <= IDLE;--SIMPLE_CMD_RDY;
             end if;
             
-         when RET_DAT_SETUP =>
-            case arbiter_condition is
-               when "00" => next_state <= SIMPLE_CMD;
-               when "01" => next_state <= RET_DAT;
-               when "10" => next_state <= SIMPLE_CMD;
-               when "11" => next_state <= SIMPLE_CMD;
-               when others => next_state <= SIMPLE_CMD;
-            end case;
-          
-         when RET_DAT =>
-            case arbiter_condition is
-               when "00" => next_state <= SIMPLE_CMD;
-               when "01" => next_state <= RET_DAT;
-               when "10" => next_state <= SIMPLE_CMD_SETUP; -- need to go into setup here for a one cycle break
-               when "11" => next_state <= SIMPLE_CMD_SETUP; -- need to go into setup here for a one cycle break
-               when others => next_state <= SIMPLE_CMD_SETUP;
-            end case;
+         when SIMPLE_CMD_PAUSE =>
+            next_state <= RET_DAT_RDY;
             
-         when SIMPLE_CMD_SETUP =>
-            case arbiter_condition is
-               when "00" => next_state <= SIMPLE_CMD;
-               when "01" => next_state <= RET_DAT_SETUP;
-               when "10" => next_state <= SIMPLE_CMD;
-               when "11" => next_state <= SIMPLE_CMD;
-               when others => next_state <= SIMPLE_CMD;
-            end case;
+         when RET_DAT_RDY =>
+            if simple_cmd_macro_instr_rdy_i = '1' then
+               next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING;--RET_DAT_PAUSE;--SIMPLE_CMD_RDY;
+            elsif ret_dat_macro_instr_rdy_i = '1' then
+               next_state <= RET_DAT_RDY;
+            else
+               next_state <= IDLE;--SIMPLE_CMD_RDY;
+            end if; 
             
-         when others => next_state <= SIMPLE_CMD;
+         when RET_DAT_RDY_SIMPLE_CMD_PENDING =>
+            if ret_dat_macro_instr_rdy_i = '1' and simple_cmd_macro_instr_rdy_i = '1' then
+               next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING;
+            elsif ret_dat_macro_instr_rdy_i = '0' and simple_cmd_macro_instr_rdy_i = '1' then
+               next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT;
+            else
+               next_state <= IDLE;--SIMPLE_CMD_RDY;
+            end if;
+            
+         when RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT =>
+            next_state <= SIMPLE_CMD_RDY;
+         
+            
+         when others => next_state <= IDLE;--SIMPLE_CMD_RDY;
+         
       end case;
-               
+           
    end process;
+
+
+--   process(current_state, simple_cmd_macro_instr_rdy_i, ret_dat_macro_instr_rdy_i)--, ack_i)
+--   begin
+--      case current_state is
+--         when SIMPLE_CMD_RDY =>
+--            if simple_cmd_macro_instr_rdy_i = '1' then
+--               next_state <= SIMPLE_CMD_RDY;
+--            elsif ret_dat_macro_instr_rdy_i = '1' then
+--               next_state <= RET_DAT_RDY;
+--            else
+--               next_state <= SIMPLE_CMD_RDY;
+--            end if;
+--            
+--         when RET_DAT_RDY =>
+--            if simple_cmd_macro_instr_rdy_i = '1' then
+--               next_state <= SIMPLE_CMD_RDY;
+--            elsif ret_dat_macro_instr_rdy_i = '1' then
+--               next_state <= RET_DAT_RDY;
+--            else
+--               next_state <= SIMPLE_CMD_RDY;
+--            end if; 
+--            
+--         when others => next_state <= SIMPLE_CMD_RDY;
+--         
+--      end case;
+--           
+--   end process;
 
 ------------------------------------------------------------------------
 --
@@ -224,16 +269,25 @@ begin
 --
 ------------------------------------------------------------------------
 
-   arbiter_condition <= simple_cmd_macro_instr_rdy_i & ret_dat_macro_instr_rdy_i;
 
-   process(current_state, simple_cmd_card_addr_i, simple_cmd_parameter_id_i, simple_cmd_data_size_i,
-           simple_cmd_data_i, simple_cmd_data_clk_i, simple_cmd_macro_instr_rdy_i, ret_dat_frame_seq_num_i,
-           ret_dat_frame_sync_num_i, ret_dat_card_addr_i, ret_dat_parameter_id_i, ret_dat_data_size_i,
-           ret_dat_data_i, ret_dat_data_clk_i)
+
+
+   process(current_state, simple_cmd_macro_instr_rdy_i, ret_dat_macro_instr_rdy_i,
+   
+           simple_cmd_card_addr_i, simple_cmd_parameter_id_i, simple_cmd_data_size_i,
+           simple_cmd_data_i, simple_cmd_data_clk_i,
+           
+           ret_dat_frame_seq_num_i, ret_dat_frame_sync_num_i, ret_dat_card_addr_i,
+           ret_dat_parameter_id_i, ret_dat_data_size_i, ret_dat_data_i, ret_dat_data_clk_i, ack_i,
+           
+           ret_dat_pending)
+           
+           
    begin
       case current_state is
-         when SIMPLE_CMD =>
-
+         when SIMPLE_CMD_RDY =>
+         
+            if simple_cmd_macro_instr_rdy_i = '1' then
                frame_seq_num_o      <= (others=>'0');
                frame_sync_num_o     <= (others=>'0');
       
@@ -242,9 +296,90 @@ begin
                data_size_o          <= simple_cmd_data_size_i;
                data_o               <= simple_cmd_data_i; 
                data_clk_o           <= simple_cmd_data_clk_i;
-               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i; 
+               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
+               
+               simple_cmd_ack_o     <= ack_i;
+               ret_dat_ack_o        <= '0';
+               
+
+
+               --demux                 <= SIMPLE_CMD;
             
-         when RET_DAT_SETUP =>
+
+            elsif ret_dat_macro_instr_rdy_i = '1' then
+               if ret_dat_pending = '1' then  -- JJ might not need this signal if else is never executed
+               
+               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
+               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
+      
+               card_addr_o          <= ret_dat_card_addr_i; 
+               parameter_id_o       <= ret_dat_parameter_id_i; 
+               data_size_o          <= ret_dat_data_size_i;
+               data_o               <= ret_dat_data_i; 
+               data_clk_o           <= ret_dat_data_clk_i;
+               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
+               
+               simple_cmd_ack_o     <= '0';
+               ret_dat_ack_o        <= '0';
+               
+               else  -- JJ is this 'else' ever executed? (don't think so)
+
+               
+               frame_seq_num_o      <= ret_dat_frame_seq_num_i;  
+               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
+      
+               card_addr_o          <= ret_dat_card_addr_i; 
+               parameter_id_o       <= ret_dat_parameter_id_i; 
+               data_size_o          <= ret_dat_data_size_i;
+               data_o               <= ret_dat_data_i; 
+               data_clk_o           <= ret_dat_data_clk_i;
+               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
+               
+               simple_cmd_ack_o     <= '0';
+               ret_dat_ack_o        <= ack_i; 
+               
+               end if;
+               
+
+
+           --  demux                 <= RET_DAT;
+
+            else
+               frame_seq_num_o      <= (others=>'0');
+               frame_sync_num_o     <= (others=>'0');
+      
+               card_addr_o          <= simple_cmd_card_addr_i; 
+               parameter_id_o       <= simple_cmd_parameter_id_i; 
+               data_size_o          <= simple_cmd_data_size_i;
+               data_o               <= simple_cmd_data_i; 
+               data_clk_o           <= simple_cmd_data_clk_i;
+               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
+               
+               simple_cmd_ack_o     <= ack_i;
+               ret_dat_ack_o        <= '0';
+               
+
+
+             --  demux                 <= SIMPLE_CMD;
+            end if;
+         when SIMPLE_CMD_PAUSE =>
+         
+               frame_seq_num_o      <= (others=>'0');
+               frame_sync_num_o     <= (others=>'0');
+      
+               card_addr_o          <= simple_cmd_card_addr_i; 
+               parameter_id_o       <= simple_cmd_parameter_id_i; 
+               data_size_o          <= simple_cmd_data_size_i;
+               data_o               <= simple_cmd_data_i; 
+               data_clk_o           <= simple_cmd_data_clk_i;
+               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
+               
+               simple_cmd_ack_o     <= '0';
+               ret_dat_ack_o        <= '0'; 
+               
+
+            
+         when RET_DAT_PAUSE =>
          
                frame_seq_num_o      <= ret_dat_frame_seq_num_i;
                frame_sync_num_o     <= ret_dat_frame_sync_num_i;
@@ -254,9 +389,16 @@ begin
                data_size_o          <= ret_dat_data_size_i;
                data_o               <= ret_dat_data_i; 
                data_clk_o           <= ret_dat_data_clk_i;
-               macro_instr_rdy      <= '0';
-          
-         when RET_DAT =>
+               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
+               
+               simple_cmd_ack_o     <= '0';
+               ret_dat_ack_o        <= '0';  
+               
+
+               
+         when RET_DAT_RDY =>
+         
+            --if ret_dat_macro_instr_rdy_i = '0' then
          
                frame_seq_num_o      <= ret_dat_frame_seq_num_i;
                frame_sync_num_o     <= ret_dat_frame_sync_num_i;
@@ -266,85 +408,52 @@ begin
                data_size_o          <= ret_dat_data_size_i;
                data_o               <= ret_dat_data_i; 
                data_clk_o           <= ret_dat_data_clk_i;
-               macro_instr_rdy      <= '1';
-            
-         when SIMPLE_CMD_SETUP =>
-         
-               frame_seq_num_o      <= (others=>'0');
-               frame_sync_num_o     <= (others=>'0');
-      
-               card_addr_o          <= simple_cmd_card_addr_i; 
-               parameter_id_o       <= simple_cmd_parameter_id_i; 
-               data_size_o          <= simple_cmd_data_size_i;
-               data_o               <= simple_cmd_data_i; 
-               data_clk_o           <= simple_cmd_data_clk_i;
-               macro_instr_rdy      <= '0';
-            
-         when others => 
-         
-               frame_seq_num_o      <= (others=>'0');
-               frame_sync_num_o     <= (others=>'0');
-      
-               card_addr_o          <= simple_cmd_card_addr_i; 
-               parameter_id_o       <= simple_cmd_parameter_id_i; 
-               data_size_o          <= simple_cmd_data_size_i;
-               data_o               <= simple_cmd_data_i; 
-               data_clk_o           <= simple_cmd_data_clk_i;
-               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i; 
+               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
                
-      end case;
+               simple_cmd_ack_o     <= '0';
+               ret_dat_ack_o        <= ack_i;
                
-   end process;
-------------------------------------------------------------------------
---
--- asynchronous arbiter state machine
---
-------------------------------------------------------------------------
 
---   arbiter_condition <= not(simple_cmd_macro_instr_rdy_i) and ret_dat_fsm_working_i;
---
---   process(arbiter_condition, m_op_seq_num, ret_dat_frame_seq_num_i, ret_dat_frame_sync_num_i,
---           ret_dat_card_addr_i, ret_dat_parameter_id_i, ret_dat_data_size_i, ret_dat_data_i,
---           ret_dat_data_clk_i, ret_dat_macro_instr_rdy_i, simple_cmd_card_addr_i, simple_cmd_parameter_id_i,
---           simple_cmd_data_size_i, simple_cmd_data_i, simple_cmd_data_clk_i, simple_cmd_macro_instr_rdy_i)
---   begin
---      case async_state is
---         when SIMPLE_CMD =>
---            if arbiter_condition = '1' then
---            
---               m_op_seq_num_o       <= m_op_seq_num;
---               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
---               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
---      
---               card_addr_o          <= ret_dat_card_addr_i; 
---               parameter_id_o       <= ret_dat_parameter_id_i; 
---               data_size_o          <= ret_dat_data_size_i;
---               data_o               <= ret_dat_data_i; 
---               data_clk_o           <= ret_dat_data_clk_i;
---               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i; 
---            
---               async_state <= RET_DAT;
---               
+                
+            --   demux                 <= RET_DAT;
+         
+--            if ack_i = '1' then --ack_i = '1' then
+--               next_state <= SIMPLE_CMD_RDY;
 --            else
---            
---               m_op_seq_num_o       <= m_op_seq_num;
---               frame_seq_num_o      <= (others=>'0');
---               frame_sync_num_o     <= (others=>'0');
---      
---               card_addr_o          <= simple_cmd_card_addr_i; 
---               parameter_id_o       <= simple_cmd_parameter_id_i; 
---               data_size_o          <= simple_cmd_data_size_i;
---               data_o               <= simple_cmd_data_i; 
---               data_clk_o           <= simple_cmd_data_clk_i;
---               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i; 
---            
---               async_state <= SIMPLE_CMD;
---            end if;
---            
---         when RET_DAT =>
---            if arbiter_condition = '1' then
---            
---               m_op_seq_num_o       <= m_op_seq_num;
+--               next_state <= RET_DAT_RDY;
+--            end if
+
+         when RET_DAT_RDY_SIMPLE_CMD_PENDING =>
+         
+               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
+               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
+      
+               card_addr_o          <= ret_dat_card_addr_i; 
+               parameter_id_o       <= ret_dat_parameter_id_i; 
+               data_size_o          <= ret_dat_data_size_i;
+               data_o               <= ret_dat_data_i; 
+               data_clk_o           <= ret_dat_data_clk_i;
+               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
+               
+               simple_cmd_ack_o     <= '0';
+               ret_dat_ack_o        <= ack_i;
+               
+
+               
+         when RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT =>
+         
+               frame_seq_num_o      <= (others=>'0');
+               frame_sync_num_o     <= (others=>'0');
+      
+               card_addr_o          <= simple_cmd_card_addr_i; 
+               parameter_id_o       <= simple_cmd_parameter_id_i; 
+               data_size_o          <= simple_cmd_data_size_i;
+               data_o               <= simple_cmd_data_i; 
+               data_clk_o           <= simple_cmd_data_clk_i;
+               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
+         
+         
+         
 --               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
 --               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
 --      
@@ -354,46 +463,67 @@ begin
 --               data_o               <= ret_dat_data_i; 
 --               data_clk_o           <= ret_dat_data_clk_i;
 --               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
---            
---               async_state <= RET_DAT;
---            else
---            
---               m_op_seq_num_o       <= m_op_seq_num;
---               frame_seq_num_o      <= ret_dat_frame_seq_num_i;
---               frame_sync_num_o     <= ret_dat_frame_sync_num_i;
---      
---               card_addr_o          <= ret_dat_card_addr_i; 
---               parameter_id_o       <= ret_dat_parameter_id_i; 
---               data_size_o          <= ret_dat_data_size_i;
---               data_o               <= ret_dat_data_i; 
---               data_clk_o           <= ret_dat_data_clk_i;
---               macro_instr_rdy      <= ret_dat_macro_instr_rdy_i;
---               
---               async_state <= SIMPLE_CMD;
---            end if;
---            
---         when others =>
---         
---            m_op_seq_num_o       <= m_op_seq_num;
---            frame_seq_num_o      <= (others=>'0');
---            frame_sync_num_o     <= (others=>'0');
---      
---            card_addr_o          <= simple_cmd_card_addr_i; 
---            parameter_id_o       <= simple_cmd_parameter_id_i; 
---            data_size_o          <= simple_cmd_data_size_i;
---            data_o               <= simple_cmd_data_i; 
---            data_clk_o           <= simple_cmd_data_clk_i;
---            macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
---            
---            async_state          <= SIMPLE_CMD;
---            
---      end case;
---   end process;
+               
+               simple_cmd_ack_o     <= '0';
+               ret_dat_ack_o        <= '0';
+               
+
+         
+      
+         when others =>
+         
+               frame_seq_num_o      <= (others=>'0');
+               frame_sync_num_o     <= (others=>'0');
+      
+               card_addr_o          <= simple_cmd_card_addr_i; 
+               parameter_id_o       <= simple_cmd_parameter_id_i; 
+               data_size_o          <= simple_cmd_data_size_i;
+               data_o               <= simple_cmd_data_i; 
+               data_clk_o           <= simple_cmd_data_clk_i;
+               macro_instr_rdy      <= simple_cmd_macro_instr_rdy_i;
+               
+               simple_cmd_ack_o     <= ack_i;
+               ret_dat_ack_o        <= '0';  
+               
+
    
-   -- potentially needs fixing for synchronization between incoming commands
-   simple_cmd_ack_o <= '1' when simple_cmd_macro_instr_rdy_i = '1'  and current_state = SIMPLE_CMD else '0';
-   ret_dat_ack_o    <= '1' when (simple_cmd_macro_instr_rdy_i = '0' and ret_dat_macro_instr_rdy_i = '1' and current_state = RET_DAT)
-                       else '0';
+            --  demux                 <= SIMPLE_CMD;    
+
+         end case;
+      end process;
+ 
+ 
+   process(clk_i, rst_i)
+   begin
+      if rst_i = '1' then
+         ret_dat_pending         <= '0';
+      elsif clk_i'event and clk_i = '1' then
+         if current_state = RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT then
+            ret_dat_pending      <= '1';
+         elsif current_state = RET_DAT_RDY then
+            ret_dat_pending      <= '0';
+         else
+            ret_dat_pending      <= ret_dat_pending;
+         end if;
+      end if;
+   end process;
+      
+--      process(demux, ack_i)
+--      begin
+--         if demux = RET_DAT then
+--            simple_cmd_ack_o <= '0';
+--            ret_dat_ack_o    <= ack_i;
+--         else
+--            simple_cmd_ack_o <= ack_i;
+--            ret_dat_ack_o    <= '0';
+--         end if;
+--      
+--      end process;
+--
+--      simple_cmd_ack_o <= ack_i when demux = SIMPLE_CMD else '0';
+--      ret_dat_ack_o    <= ack_i when demux = RET_DAT    else '0'; 
+--
+
    
    macro_instr_rdy_o <= macro_instr_rdy;
 ------------------------------------------------------------------------
@@ -410,5 +540,7 @@ begin
          m_op_seq_num <= m_op_seq_num + 1;
       end if;   
    end process;
+   
+   m_op_seq_num_o <= m_op_seq_num;
         
 end rtl;
