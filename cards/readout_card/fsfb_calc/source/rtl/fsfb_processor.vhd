@@ -40,7 +40,10 @@
 --                                             
 -- Revision history:
 -- 
--- $Log$
+-- $Log: fsfb_processor.vhd,v $
+-- Revision 1.1  2004/10/22 22:18:36  anthonyk
+-- Initial release
+--
 --
 --
 
@@ -52,6 +55,9 @@ library work;
 use work.fsfb_calc_pack.all;
 
 entity fsfb_processor is
+   generic (
+      lock_dat_left           : integer := 30                                                 -- most significant bit position of lock mode data output
+      );
 
    port (
       -- global signals
@@ -86,7 +92,10 @@ entity fsfb_processor is
    
       -- First stage feedback queue interface (write operation to current queue)
       fsfb_proc_update_o      : out    std_logic;                                             -- update pulse to the current fsfb_queue
-      fsfb_proc_dat_o         : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0)       -- new data to be written to the current fsfb_queue
+      fsfb_proc_dat_o         : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);      -- new data to be written to the current fsfb_queue
+      
+      -- First stage feedback control interface 
+      fsfb_proc_lock_en_o     : out    std_logic                                              -- fsfb_ctrl lock data mode enable
   
       );
 
@@ -129,6 +138,8 @@ begin
    -- 11:  Lock 
    lock_mode_en  <= servo_mode_i(1) and servo_mode_i(0);
    
+   -- Output the mode indicator to fsfb_ctrl downstream block
+   fsfb_proc_lock_en_o <= lock_mode_en;
    
    -- Logic connections for update control output to the current queue
    fsfb_proc_update_o <= (coadd_done_i and const_mode_en) or ramp_update_1d or pidz_update;
@@ -185,12 +196,20 @@ begin
       
       update_dat : case servo_mode_i is
          -- constant mode setting
-         --when "01"   => fsfb_proc_dat_o <= ZEROES & "000" & const_val_i;
          when "01"   => fsfb_proc_dat_o <= const_dat_ltch;
+         
          -- ramp mode setting
          when "10"   => fsfb_proc_dat_o <= ramp_dat_ltch;
+         
          -- lock mode setting
-         when "11"   => fsfb_proc_dat_o <= pidz_sum(FSFB_QUEUE_DATA_WIDTH downto 0);
+         
+         -- obtain sign bit from msb of pidz_sum and append it as bit 31 of result. 
+         -- Bit 32 always gets zero as it is ignored in lock mode.  Therefore, the
+         -- magnitude only covers bit 30 down to 0.
+         
+         when "11"   => fsfb_proc_dat_o <= '0' & pidz_sum(pidz_sum'left) & 
+                                           pidz_sum(lock_dat_left downto (lock_dat_left-(FSFB_QUEUE_DATA_WIDTH-2)));
+         
          -- invalid setting
          when others => fsfb_proc_dat_o <= (others => '0');
       end case update_dat;
