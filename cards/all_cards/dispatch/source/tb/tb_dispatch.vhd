@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch.vhd,v $
+-- Revision 1.2  2004/10/18 20:50:14  erniel
+-- corrected typo in packet (was causing a CRC error)
+--
 -- Revision 1.1  2004/10/13 04:05:29  erniel
 -- initial version
 -- includes led wishbone slave
@@ -75,6 +78,7 @@ architecture BEH of TB_DISPATCH is
            CYC_O          : out std_logic ;
            DAT_I          : in std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
            ACK_I          : in std_logic ;
+           ERR_I          : in std_logic ;
            WDT_RST_O      : out std_logic );
 
    end component;
@@ -133,6 +137,7 @@ architecture BEH of TB_DISPATCH is
    signal W_CYC_O          : std_logic ;
    signal W_DAT_I          : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 ) := (others => '0');
    signal W_ACK_I          : std_logic ;
+   signal W_ERR_I          : std_logic ;
    signal W_WDT_RST_O      : std_logic ;
 
    signal W_LVDS_DAT_I     : std_logic_vector ( 31 downto 0 );
@@ -186,6 +191,7 @@ begin
                CYC_O          => W_CYC_O,
                DAT_I          => W_DAT_I,
                ACK_I          => W_ACK_I,
+               ERR_I          => W_ERR_I,
                WDT_RST_O      => W_WDT_RST_O);
 
    TX : LVDS_TX
@@ -325,6 +331,8 @@ begin
             status => W_YELLOW,
             fault  => W_RED);
             
+   W_ERR_I <= '0' when W_ADDR_O = LED_ADDR else '1';
+            
    -----------------------------------------------------------
    -- Testbench stimulus
    -----------------------------------------------------------
@@ -396,19 +404,42 @@ begin
 --      
 --      pause(1000);
       
-      transmit("10101010101010100000000000000001");
-      transmit("00000111100110010000000000000000");
-      transmit("00000000000000000000000000000101");
-      transmit("11101011110000101011010110101100");
+      transmit("10101010101010101000000000000001");  -- write 1 data word
+      transmit("00000111100110010000000000000000");  -- to LEDs
+      transmit("00000000000000000000000000000101");  -- turn on LED0 and LED2
+      transmit("10011100001000111000000000110011");  -- CRC = 0x9C238033
       
       pause(1000);
       
-      transmit("10101010101010100010000000000001");
-      transmit("00000111100110010000000000000000");
-      transmit("10111111111000000010100001001101");
+      transmit("10101010101010100000000000000001");  -- read 1 data word
+      transmit("00000111100110010000000000000000");  -- from LEDs
+      transmit("01110000010111010001000111010001");  -- CRC = 0x705D11D1
+      
+      pause(1000);
+      
+      -- error cases:
+      
+      -- 1. invalid slave only
+      transmit("10101010101010100000000000000001");  -- read 1 data word
+      transmit("00000111100101110000000000000000");  -- from an invalid slave
+      transmit("11101110110111100011110001011111");  -- CRC = 0xEEDE3C5F
       
       pause(1000);
 
+      -- 2. invalid slave and bad CRC
+      transmit("10101010101010100000000000000001");  -- read 1 data word
+      transmit("00000111100101110000000000000000");  -- from an invalid slave
+      transmit("11101110110111100011110001011110");  -- CRC = 0xEEDE3C5E (bad CRC)
+      
+      pause(1000);
+      
+      -- 3. bad CRC only
+      transmit("10101010101010100000000000000001");  -- read 1 data word
+      transmit("00000111100101110000000000000000");  -- from LEDs
+      transmit("11101110110111100011110001011110");  -- CRC = 0xEEDE3C5E
+      
+      pause(1000);
+      
       assert FALSE report "End of Simulation." severity FAILURE;
       
       wait for PERIOD;
