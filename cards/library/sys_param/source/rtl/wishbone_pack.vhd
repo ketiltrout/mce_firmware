@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/08/19 20:37:04 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/08/26 18:10:03 $> - <initials $Author: erniel $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.12  2004/08/26 18:10:03  erniel
+-- added command_type field declarations
+--
 -- Revision 1.11  2004/08/19 20:37:04  bburger
 -- Bryce:  moded data_mode
 --
@@ -97,6 +100,7 @@ package wishbone_pack is
    constant START       : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "010";
    constant STOP        : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "011";
    constant RESET       : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "100";
+   constant DATA        : std_logic_vector(CMD_TYPE_WIDTH-1 downto 0) := "101";
    
    ---------------------------------------------------------------------------------
    -- Status Fields
