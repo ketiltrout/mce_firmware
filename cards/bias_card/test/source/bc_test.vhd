@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.12  2004/06/23 19:39:34  bench2
+-- Mandana: add mux for lvds signals
+--
 -- Revision 1.11  2004/06/21 18:32:15  bench2
 -- renamed all_test_idle to bc_test_idle
 --
@@ -644,4 +647,7 @@ begin
    test(10) <= dac_test_data(1);
    test(14) <= spi_start;
    test(13) <= lvds_spi_start;
+   test(15) <= dac_test_ncs(15);
+   test(16) <= dac_test_data(15);
+
 end behaviour;
