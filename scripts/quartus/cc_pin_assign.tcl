@@ -32,6 +32,11 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.2  2004/05/12 08:17:09  erniel
+# added auto-detect of top-level entity name
+# added auto-recompile after pin assignment
+# increased script verbosity
+#
 # Revision 1.1  2004/05/12 01:57:39  erniel
 # initial version
 #
@@ -56,9 +61,11 @@ puts "\nInfo: Top-level entity is $top_name."
 puts "\nInfo: Assigning pins:"
 
 
-# assign device
+# assign device parameters
 cmp add_assignment $top_name "" "" DEVICE EP1S30F780C5
-puts "   Assigned: Stratix EP1S30 Device."
+cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET ON
+puts "   Assigned: EP1S30 device parameters."
 
 
 # assign leds
