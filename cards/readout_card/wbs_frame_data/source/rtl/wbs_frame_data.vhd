@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/10/13 14:14:55 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/15 14:56:44 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.3  2004/10/15 14:56:44  dca
+-- start on wishbone controller
+--
 -- Revision 1.2  2004/10/13 14:14:55  dca
 -- more signals added to entity declaration
 --
@@ -192,13 +195,15 @@ architecture rtl of wbs_frame_data is
 
 signal write_data_mode     : std_logic;                        
 signal read_ret_data       : std_logic;
+signal write_captr_raw     : std_logic;
+
 signal data_mode_reg       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal data_mode           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal data_mode_mux_sel   : std_logic ;
 
 -- slave controller FSM
 
-type state is (IDLE, MODE, RET, RAW, DONE);                           
+type state is (IDLE, SET_MODE, GET_DAT, SET_RAW, DONE);                           
 
 signal current_state: state;
 signal next_state:    state;
@@ -217,8 +222,8 @@ begin
    read_ret_data   <= '1' when (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
                    else '0';
 
-   --read/write_capt_raw   <= '1' when
-   
+   write_captr_raw <= '1' when (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
+                   else '0';
    
    
 -------------------------------------------------------------------------------------------------
@@ -238,27 +243,28 @@ begin
 
    end process clock_fsm;
    
-   ---------------------------------------------------------------------
-   nextstate_fsm: process (current_state, write_data_mode, read_ret_data) --,_captr_raw)
-   ---------------------------------------------------------------------
+   --------------------------------------------------------------------------------------
+   nextstate_fsm: process (current_state, write_data_mode, read_ret_data, write_captr_raw)
+   ---------------------------------------------------------------------------------------
    begin
       case current_state is
       
       when IDLE =>
          if write_data_mode = '1' then 
-            next_state <= MODE;
+            next_state <= SET_MODE;
          
          elsif read_ret_data = '1' then
-            next_state <= RET;
+            next_state <= GET_DAT;
          
-       --  elsif -cpar_raw = '1' then
-       --    next_state <= RAW
-         
+         elsif write_captr_raw = '1' then
+            next_state <= SET_RAW;
+             
          else
             next_state <= IDLE;
+        
          end if;
               
-      when MODE | RET | RAW =>
+      when SET_MODE | GET_DAT | SET_RAW =>
          next_state <= DONE;
       
       when DONE =>
@@ -278,20 +284,22 @@ begin
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
              
-      when MODE =>
+      when SET_MODE =>
          ack_o             <= '1';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '1';
       
-      when RET =>
+      when GET_DAT =>
          ack_o             <= '0';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          
-      when RAW =>
-         ack_o             <= '0';
+      when SET_RAW =>
+         ack_o             <= '1';
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
+         
+  --       captr_raw_mux_sel <= '1';
          
       when DONE =>
          ack_o             <= '0';
