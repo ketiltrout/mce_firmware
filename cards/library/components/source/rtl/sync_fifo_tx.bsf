@@ -93,7 +93,6 @@ party's intellectual property, are provided herein.
 		(line (pt 160 120)(pt 144 120)(line_width 1))
 	)
 	(drawing
-		(text "(ack)" (rect 51 99 72 111)(font "Arial" ))
 		(text "8 bits x 256 words" (rect 68 140 144 152)(font "Arial" ))
 		(line (pt 16 16)(pt 144 16)(line_width 1))
 		(line (pt 144 16)(pt 144 152)(line_width 1))
