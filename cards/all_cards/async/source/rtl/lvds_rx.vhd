@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.7  2005/01/11 02:35:44  erniel
+-- removed async_rx instantiation
+-- modified receiver datapath (based on async_rx datapath)
+-- modified receiver control
+-- signal name and state name changes
+--
 -- Revision 1.6  2004/12/16 18:21:08  erniel
 -- fixed small bug in counter
 --
@@ -62,8 +68,7 @@ library components;
 use components.component_pack.all;
 
 entity lvds_rx is
-port(clk_i      : in std_logic;
-     comm_clk_i : in std_logic;
+port(comm_clk_i : in std_logic;
      rst_i      : in std_logic;
      
      dat_o      : out std_logic_vector(31 downto 0);
@@ -88,8 +93,10 @@ signal rx_buf     : std_logic_vector(33 downto 0);
 signal rx_buf_ena : std_logic;
 signal rx_buf_clr : std_logic;
 
-signal data_ld  : std_logic;
-signal data_rdy : std_logic;
+signal data_ld : std_logic;
+
+signal rdy : std_logic;
+signal ack : std_logic;
 
 type states is (IDLE, RECV, READY);
 signal pres_state : states;
@@ -189,7 +196,7 @@ begin
       rx_buf_ena       <= '0';
       rx_buf_clr       <= '0';
       data_ld          <= '0';
-      data_rdy         <= '0';
+      rdy              <= '0';
       
       case pres_state is
          when IDLE =>  sample_count_ena <= '1';
@@ -213,26 +220,26 @@ begin
                           data_ld       <= '1';
                        end if;
                        
-         when READY => data_rdy         <= '1';
+         when READY => rdy              <= '1';
       end case;
    end process stateOut;
 
 
-------------------------------------------------------------
---
---  This process controls rdy_o & synchronizes it to clk_i
---
-------------------------------------------------------------
-
-   -- FF with asynch set, asynch reset, and synch clear:
-   process(data_rdy, rst_i, clk_i)
+   process(comm_clk_i)
    begin
-      if(data_rdy = '1') then
-         rdy_o <= '1';
-      elsif(rst_i = '1') then
+      if(comm_clk_i = '1') then
+         ack <= ack_i;
+      end if;
+   end process;
+   
+   process(rst_i, comm_clk_i)
+   begin
+      if(rst_i = '1') then
          rdy_o <= '0';
-      elsif(clk_i'event and clk_i = '1') then
-         if(ack_i = '1') then
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
+         if(rdy = '1') then
+            rdy_o <= '1';
+         elsif(ack = '1') then
             rdy_o <= '0';
          end if;
       end if;
