@@ -95,16 +95,14 @@ begin
    begin
       if (rst_i = '1') then
          write_pointer <= 0;
-      else 
-         if (write_i'EVENT and write_i = '1') then
-            memory(write_pointer) <= d_i; 
-               if (write_pointer = fifo_size-1) then
-                  write_pointer <= 0;
-               else
-                  write_pointer <= write_pointer + 1;
-               end if; 
-         end if;
-      end if; 
+      elsif (write_i'EVENT and write_i = '1') then
+         memory(write_pointer) <= d_i; 
+            if (write_pointer = fifo_size-1) then
+               write_pointer <= 0;
+            else
+               write_pointer <= write_pointer + 1;
+            end if; 
+       end if; 
     end process fifo_write_ram;
 
   ----------------------------------------------------------------------------
