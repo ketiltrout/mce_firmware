@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$ 
+-- <date $Date: 2004/06/21 22:34:37 $>	- <initials $Author: mandana $>
+-- $Log: rc_test.vhd,v $
+-- Revision 1.3  2004/06/21 22:34:37  mandana
+-- try merge
+-- 
 --
 -----------------------------------------------------------------------------
 
@@ -305,7 +308,6 @@ begin
    rx_sync : lvds_rx_test_wrapper
       port map(rst_i     => rst,
                clk_i     => clk,
-               rx_clk_i  => rx_clk,
                en_i      => sel(INDEX_RX_SYNC),
                done_o    => done(INDEX_RX_SYNC),
                lvds_i    => lvds_sync,
@@ -319,7 +321,6 @@ begin
    rx_spare : lvds_rx_test_wrapper
       port map(rst_i     => rst,
                clk_i     => clk,
-               rx_clk_i  => rx_clk,
                en_i      => sel(INDEX_RX_SPARE),
                done_o    => done(INDEX_RX_SPARE),
                lvds_i    => lvds_spare,
@@ -332,7 +333,7 @@ begin
 
                
    debug_tx : rs232_data_tx
-      generic map(WIDTH => 32)
+      generic map(WIDTH => 40)
       port map(clk_i   => clk,
                rst_i   => rst,
                data_i  => test_data,
