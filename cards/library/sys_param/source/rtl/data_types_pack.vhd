@@ -29,8 +29,11 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2004/04/08 00:44:31 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/14 21:56:40 $>	- <initials $Author: jjacob $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.1  2004/04/14 21:56:40  jjacob
+-- new directory structure
+--
 -- Revision 1.3  2004/04/08 00:44:31  mandana
 -- fixed syntax
 --
@@ -59,4 +62,7 @@ package data_types_pack is
    subtype word48         is std_logic_vector(47 downto 0);
    subtype word64         is std_logic_vector(63 downto 0);
    
+   subtype word14    is std_logic_vector(13 downto 0); -- for address card dacs
+   type    w_array11 is array (10 downto 0) of word14; -- for address card bus 
+
 end data_types_pack;
