@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -42,7 +42,7 @@
 -- Feb. 3  2004  - Added 1-wire modules - EL
 
 -- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -247,5 +247,24 @@ port(clk           : in std_logic;
      read_data_i        : in std_logic; -- serial data from the eeprom
      read_data_o        : out std_logic_vector(DATA_LENGTH-1 downto 0) ); -- serial data from the eeprom sent back to the eeprom controller state machine
 end component;   
-   
+
+
+------------------------------------------------------------
+--
+-- Pusedo random number generator
+--
+------------------------------------------------------------ 
+
+component prand
+   generic (
+      size : integer := 8     -- how many output bits do we want
+                              -- (8, 16, 24 or 32)
+   );
+   port (
+      clr_i : in std_logic;   -- asynchoronous clear input
+      clk_i : in std_logic;   -- calculation clock
+      out_o : out std_logic_vector (size - 1 downto 0)   -- random output
+   );
+end component;
+
 end component_pack;
