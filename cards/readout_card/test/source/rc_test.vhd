@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/06/22 20:54:15 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/15 00:38:26 $>	- <initials $Author: bench1 $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.7  2004/07/15 00:38:26  bench1
+-- Mandana: changed dac_sclk to dac_clk to match tcl file
+--
 -- Revision 1.6  2004/06/22 20:54:15  mandana
 -- modified the output-port names to be consistent with tcl file
 --
@@ -485,9 +488,10 @@ begin
                   
                elsif(cmd1 = CMD_SERIALDAC) then
                    if (cmd2 = CMD_DAC_FIXED) then
-                      if (dac_test_mode = "00") then
+--                      if (dac_test_mode = "00") then
+                         dac_test_mode <= "00";
 	                 sel <= SEL_SDAC;
-                      end if;                      
+--                      end if;                      
                    elsif (cmd2 = CMD_DAC_RAMP) then
                       dac_test_mode <= "01";
                       sel <= SEL_SDAC;               
@@ -523,7 +527,7 @@ begin
       end if;
    end process cmd_proc;
 
-   smb_clk <= sel(INDEX_SDAC);
+   smb_clk <= sel(INDEX_PDAC);
    mictor(4) <= done(INDEX_SDAC);
    mictor(6) <= dac_test_ncs(0);
    mictor(8) <= dac_test_sclk(0);
