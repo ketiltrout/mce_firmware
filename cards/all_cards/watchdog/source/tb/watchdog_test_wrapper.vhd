@@ -21,7 +21,10 @@
 -- 
 -- Revision History:
 -- Feb 29, 2004: Initial version - NRG
--- $Log: s_watchdog.vhd,v $
+-- $Log: watchdog_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/13 23:02:37  erniel
+-- no message
+--
 -- Revision 1.5  2004/04/09 03:50:31  erniel
 -- removed unecessary states from state machine
 -- separated state machine into 3 processes

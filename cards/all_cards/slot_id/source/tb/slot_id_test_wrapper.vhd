@@ -20,7 +20,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: slot_id_test_wrapper.vhd,v 1.2 2004/03/24 22:42:45 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: slot_id_test_wrapper.vhd,v 1.1 2004/04/13 23:02:23 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -32,8 +32,11 @@
 -- and emulates the master (command FSM, for example) on the wishbone bus.
 --
 -- Revision history:
--- <date $Date: 2004/03/24 22:42:45 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/04/13 23:02:23 $>	-		<text>		- <initials $Author: erniel $>
 -- $Log: slot_id_test_wrapper.vhd,v $
+-- Revision 1.1  2004/04/13 23:02:23  erniel
+-- no message
+--
 -- Revision 1.2  2004/03/24 22:42:45  erniel
 -- added hex decoder to allow ASCII transmit
 -- added extra state and modified state transitions
