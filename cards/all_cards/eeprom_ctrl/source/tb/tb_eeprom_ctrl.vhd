@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.5 2004/03/31 19:18:48 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.6 2004/04/06 19:51:55 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date: 2004/03/31 19:18:48 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/06 19:51:55 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------
@@ -56,6 +56,9 @@ architecture BEH of TB_EEPROM_CTRL is
 
 
    constant PERIOD : time := 20 ns;
+   
+   constant spi_clk_half_period : time := 100 ns;
+   constant spi_clk_full_period : time := 200 ns;
 
    signal W_N_EEPROM_CS_O     : std_logic ;
    signal W_N_EEPROM_HOLD_O   : std_logic ;
@@ -88,6 +91,8 @@ architecture BEH of TB_EEPROM_CTRL is
    
    signal rx_eeprom_data      : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
    signal sample_sr_data      : std_logic_vector (7 downto 0) := "11111100";
+   
+
    
 begin
 
@@ -256,9 +261,11 @@ port map(
             instr(instr_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit RDSR command to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             instr_count <= instr_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
       end do_setup_rx_rdsr_cmd;
@@ -276,7 +283,8 @@ port map(
             bit_count <= bit_count - 1;
             assert false report " Reading data from the EEPROM." severity NOTE;
 
-            wait for 240 ns;
+            --wait for 240 ns;
+            wait for spi_clk_full_period;
     
          end loop;
       end do_setup_tx_sr_data;
@@ -323,9 +331,11 @@ port map(
             instr(instr_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit WRSR command to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             instr_count <= instr_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
       end do_setup_rx_wrsr_cmd;
@@ -347,9 +357,11 @@ port map(
             sample_sr_data(instr_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit Status Register to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             instr_count <= instr_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
       end do_setup_rx_sr_data;
@@ -370,9 +382,11 @@ port map(
             instr(instr_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit WREN cmd to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             instr_count <= instr_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
       end do_setup_rx_wren_cmd;
@@ -404,9 +418,11 @@ port map(
             instr(instr_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit READ command to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             instr_count <= instr_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
          
@@ -435,9 +451,11 @@ port map(
             byte_addr(byte_addr_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit byte address to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             byte_addr_count <= byte_addr_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
          
@@ -461,7 +479,8 @@ port map(
             bit_count <= bit_count - 1;
             assert false report " Reading data from the EEPROM." severity NOTE;
 
-            wait for 240 ns;
+            --wait for 240 ns;
+            wait for spi_clk_full_period;
     
          end loop;
          
@@ -595,9 +614,11 @@ port map(
             instr(instr_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit WRITE command to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             instr_count <= instr_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
       end do_rx_wr_cmd;
@@ -627,9 +648,11 @@ port map(
             byte_addr(byte_addr_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit WRITE command to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             byte_addr_count <= byte_addr_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
           
@@ -660,9 +683,11 @@ port map(
             rx_eeprom_data(bit_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit WRITE command to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             bit_count <= bit_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
           
@@ -678,7 +703,8 @@ port map(
      procedure do_wr_status is
       begin
 
-         wait for 450 ns;
+         wait for spi_clk_half_period*3;
+         --wait for 450 ns;
          
          
          bit_count <= 32;
@@ -699,9 +725,11 @@ port map(
             rx_eeprom_data(bit_count-1) <= W_EEPROM_SI_O;
        
             assert false report " EEPROM Controller is writing the 8-bit WRITE command to the EEPROM." severity NOTE;
-            wait for 40 ns;
+            --wait for 40 ns;
+            wait for spi_clk_half_period;
             bit_count <= bit_count - 1;
-            wait for 200 ns;
+            --wait for 200 ns;
+            wait for spi_clk_half_period;
             
          end loop;
           
@@ -751,7 +779,8 @@ port map(
          
 
       
-         wait for 300 ns;
+         --wait for 300 ns;
+         wait for spi_clk_half_period*3;
          
          assert false report " Waiting...." severity NOTE;
       end do_wait ;  
@@ -784,7 +813,8 @@ port map(
             W_TGA_I               <= (others => '0');
          end if;     
             
-         wait for 300 ns;
+         --wait for 300 ns;
+         wait for spi_clk_half_period*3;
          
          assert false report " Attempting a bus cycle...." severity NOTE;
       end do_try_bus_cycle ; 
@@ -812,7 +842,8 @@ port map(
             bit_count <= bit_count - 1;
             assert false report " Reading data from the EEPROM." severity NOTE;
 
-            wait for 240 ns;
+            --wait for 240 ns;
+            wait for spi_clk_full_period;
     
          end loop;
       end do_tx_sr_data;
@@ -844,7 +875,8 @@ port map(
          -- data from the EEPROM
          W_EEPROM_SO_I         <= 'Z';
       
-         wait for 300 ns;
+         --wait for 300 ns;
+         wait for spi_clk_half_period*3;
          
          assert false report " Finishing up." severity NOTE;
       end do_finish ;         
