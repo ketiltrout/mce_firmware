@@ -9,7 +9,7 @@ use work.issue_reply_pack.all;
 package fibre_rx_pack is
 
    constant RX_FIFO_DATA_WIDTH   : integer := 8;       -- size of data words in fibre receive FIFO
-   constant RX_FIFO_ADDR_SIZE    : integer := 9;       -- size of address bus in fibre receive FIFO 
+   constant RX_FIFO_ADDR_SIZE    : integer := 8;       -- size of address bus in fibre receive FIFO 
 
 
 --------------------------------------
