@@ -66,6 +66,8 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_tx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
@@ -90,11 +92,20 @@ set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/bc_dac_ctrl.v
 set_global_assignment -name VHDL_FILE ../../bc_dac_ctrl/source/rtl/bc_dac_ctrl_wbs.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/bias_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/bias_card.vhd
-set_global_assignment -name VHDL_FILE ../source/tb/tb_bias_card_self_test.vhd
 set_global_assignment -name HEX_FILE ../source/tb/bias_card_wb.hex
+set_global_assignment -name SIGNALTAP_FILE bias.stp
 
 # Pin & Location Assignments
 # ==========================
+set_location_assignment PIN_U19 -to ttl_nrx1
+set_location_assignment PIN_U20 -to ttl_nrx2
+set_location_assignment PIN_W28 -to ttl_nrx3
+set_location_assignment PIN_Y26 -to ttl_tx1
+set_location_assignment PIN_U21 -to ttl_tx2
+set_location_assignment PIN_Y28 -to ttl_tx3
+set_location_assignment PIN_Y25 -to ttl_txena1
+set_location_assignment PIN_U22 -to ttl_txena2
+set_location_assignment PIN_Y27 -to ttl_txena3
 set_location_assignment PIN_AC9 -to rst_n
 set_location_assignment PIN_V27 -to red_led
 set_location_assignment PIN_T24 -to ylw_led
@@ -489,13 +500,14 @@ set_location_assignment PIN_E21 -to dac_data\[31\]
 
 # Analysis & Synthesis Assignments
 # ================================
+set_global_assignment -name TOP_LEVEL_ENTITY bias_card
 set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF SMART
 set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
+set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "<None>"
 set_global_assignment -name FAMILY Stratix
-set_global_assignment -name TOP_LEVEL_ENTITY bias_card_self_test
-set_global_assignment -name AUTO_ENABLE_SMART_COMPILE on
+set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
 
 # Fitter Assignments
 # ==================
@@ -508,7 +520,11 @@ set_instance_assignment -name IO_STANDARD LVDS -to lvds_dac_data
 
 # EDA Netlist Writer Assignments
 # ==============================
-set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim (VHDL output from Quartus II)"
+set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
+set_global_assignment -name EDA_TIMING_ANALYSIS_TOOL "<None>"
+set_global_assignment -name EDA_BOARD_DESIGN_TOOL "<None>"
+set_global_assignment -name EDA_FORMAL_VERIFICATION_TOOL "<None>"
+set_global_assignment -name EDA_RESYNTHESIS_TOOL "<None>"
 
 # Simulator Assignments
 # =====================
@@ -521,7 +537,8 @@ set_global_assignment -name ENABLE_DRC_SETTINGS ON
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP off
+set_global_assignment -name ENABLE_SIGNALTAP on
+set_global_assignment -name USE_SIGNALTAP_FILE "E:/public_html/sc2mce/system/clk_card/test_plan/sof_pof_files/cc_10mar2005_c.stp"
 
 # LogicLock Region Assignments
 # ============================
@@ -550,12 +567,12 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 # end EDA_TOOL_SETTINGS(eda_simulation)
 # -------------------------------------
 
-# ---------------------------------
-# start ENTITY(bias_card_self_test)
+# -----------------------
+# start ENTITY(bias_card)
 
 	# Timing Assignments
 	# ==================
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
 
-# end ENTITY(bias_card_self_test)
-# -------------------------------
+# end ENTITY(bias_card)
+# ---------------------
