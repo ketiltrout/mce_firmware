@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.7 2004/08/27 16:50:40 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.8 2004/08/27 18:44:03 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/08/27 16:50:40 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/27 18:44:03 $>	-		<text>		- <initials $Author: jjacob $>
 -- <$log$>
 -----------------------------------------------------------------------------
 library ieee;
@@ -207,10 +207,10 @@ signal cksum_rcvd        : std_logic_vector(31 downto 0);    -- received checksu
 signal check_update      : std_logic;                        -- control signal to initiate a checksum update
 signal check_reset       : std_logic;                        -- control signal to initiate a checksum reset
 
-signal cksum_calc_mux     : std_logic_vector(31 downto 0);
+--signal cksum_calc_mux     : std_logic_vector(31 downto 0);
 signal cksum_calc_mux_sel : std_logic_vector(1 downto 0);
 
-signal cksum_calc2        : std_logic_vector(31 downto 0); 
+--signal cksum_calc2        : std_logic_vector(31 downto 0); 
 signal cksum_calc_reg     : std_logic_vector(31 downto 0); 
 
 -- signals mapped to output ports
@@ -393,7 +393,8 @@ begin
       cksum_rcvd,
       write_pointer,
       read_pointer,
-      number_data
+      number_data,
+      cmd_code
    )
    ----------------------------------------------------------------------------
    begin
@@ -728,7 +729,11 @@ begin
       
       when CKSM_PASS =>
          if (cmd_ack_i = '1') then
-            next_state <= DATA_READ;
+            if ((number_data = 0 ) or (cmd_code = ASCII_R & ASCII_B) ) then  
+               next_state <= IDLE;
+            else
+               next_state <= DATA_READ;
+            end if; 
          else
             next_state <= CKSM_PASS;
          end if;
