@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.5 2005/01/17 22:58:06 mandana Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.6 2005/01/20 23:08:14 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,10 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.6  2005/01/20 23:08:14  mandana
+-- added a register for flux_fb_changed_i
+-- removed debug connections
+--
 -- Revision 1.5  2005/01/17 22:58:06  mandana
 -- add an extra state for loading the data to the SPI module
 --
@@ -314,10 +318,10 @@ begin
 ----------------------------------------------------------------------
    flux_fb_changed_reg: process(flux_fb_changed_clr, flux_fb_changed_i)
    begin
-         if(flux_fb_changed_i'event and flux_fb_changed_i = '1') then
-            flux_fb_changed <= '1';
-         elsif (flux_fb_changed_clr = '1') then
+         if (flux_fb_changed_clr = '1') then
             flux_fb_changed <= '0';
+         elsif(flux_fb_changed_i'event and flux_fb_changed_i = '1') then
+            flux_fb_changed <= '1';
          end if;         
    end process flux_fb_changed_reg;
      
