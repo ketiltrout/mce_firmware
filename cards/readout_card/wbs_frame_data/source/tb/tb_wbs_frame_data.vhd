@@ -30,9 +30,12 @@
 -- test bed for wbs_frame_data.vhd
 --
 -- Revision history:
--- <date $Date: 2004/11/26 18:29:08 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2004/12/07 19:37:46 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: tb_wbs_frame_data.vhd,v $
+-- Revision 1.6  2004/12/07 19:37:46  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.5  2004/11/26 18:29:08  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -691,6 +694,53 @@ begin
    --------------------------
    
    
+   ------------------------------     
+   procedure do_read_data_mode is 
+   ------------------------------
+      begin
+      
+         wbm_addr_o <= DATA_MODE_ADDR;
+         wbm_stb_o  <= '1';
+         wbm_cyc_o  <= '1';
+         wbm_we_o   <= '0';
+         
+         wait until wbm_ack_i = '1';
+         wait for clk_prd;
+         
+         wbm_addr_o <= (others => '0'); 
+         wbm_stb_o  <= '0';
+         wbm_cyc_o  <= '0';
+         wbm_we_o   <= '0';
+          
+         wait for clk_prd;
+           
+      end do_read_data_mode;
+   --------------------------
+   
+   
+    ------------------------------     
+   procedure do_write_ret_data is 
+   ------------------------------
+      begin
+      
+         wbm_addr_o <= RET_DAT_ADDR;
+         wbm_stb_o  <= '1';
+         wbm_cyc_o  <= '1';
+         wbm_we_o   <= '1';
+         
+         wait until wbm_ack_i = '1';
+         wait for clk_prd;
+         
+         wbm_addr_o <= (others => '0'); 
+         wbm_stb_o  <= '0';
+         wbm_cyc_o  <= '0';
+         wbm_we_o   <= '0';
+          
+         wait for clk_prd;
+           
+      end do_write_ret_data;
+   --------------------------
+   
     ----------------------------    
    procedure do_req_raw_data is
    -----------------------------
@@ -718,6 +768,34 @@ begin
       
       end do_req_raw_data;
    --------------------------
+   
+   
+    ----------------------------    
+   procedure do_read_captr_raw is
+   -----------------------------
+      begin
+
+
+         wbm_addr_o <= CAPTR_RAW_ADDR;
+         wbm_stb_o  <= '1';
+         wbm_cyc_o  <= '1';
+         wbm_we_o   <= '0';
+                  
+         wait until wbm_ack_i = '1';
+         wait for clk_prd;
+         
+         wbm_addr_o <= (others => '0'); 
+         wbm_stb_o  <= '0';
+         wbm_cyc_o  <= '0';
+         wbm_we_o   <= '0';   
+         wbm_dat_o  <= (others => '0') ;      
+         
+         wait for clk_prd;
+         
+      
+      end do_read_captr_raw;
+   --------------------------
+   
      
    -----------------------------------------    
    procedure do_insert_master_wait_state is
@@ -774,6 +852,26 @@ begin
    -- Capture Raw Data - FLC instruction         
    do_req_raw_data;
    
+   -- test writing and reading data mode
+   wbm_dat_o <= MODE3_FB_ERROR;
+   do_set_data_mode;
+   assert false report " DATA MODE SET ....." severity NOTE;
+   wait for clk_prd;
+   do_read_data_mode;
+   assert false report " DATA MODE READ ....." severity NOTE;
+   wait for clk_prd;
+   
+   -- test reading captr raw.....  (meaningless instruction whcih requires ack...)
+  
+   do_read_captr_raw;
+   assert false report " CAPTR RAW READ ....." severity NOTE;
+   wait for clk_prd;
+   
+   -- test writing ret_dat (error instruction whcih requires ack...)
+  
+   do_write_ret_data;
+   assert false report " WRITE RET_DATA ....." severity NOTE;
+   wait for clk_prd;
    
    
    -- Get MODE 3 coadd/error data
