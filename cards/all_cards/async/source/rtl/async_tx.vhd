@@ -20,6 +20,9 @@
 -- Wishbone asynchronous transmitter implementation.
 -- 
 -- Revision History:
+--
+-- $Log$
+--
 -- Dec 22, 2003: Initial version - NRG
 ---------------------------------------------------------------------
 
