@@ -29,9 +29,13 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2004/10/18 16:35:36 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/19 14:30:39 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.2  2004/10/19 14:30:39  dca
+-- raw data addressing changed.
+-- MUX structure changed
+--
 -- Revision 1.1  2004/10/18 16:35:36  dca
 -- initial version
 --
@@ -69,13 +73,26 @@ constant MODE4_RAW         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := 
 
 component wbs_frame_data
 
-
 port(
      -- global inputs 
      rst_i                  : in  std_logic;                                          -- global reset
      clk_i                  : in  std_logic;                                          -- global clock
 
      -- signals to/from flux_loop_ctrl    
+
+     filtered_addr_ch0_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 0
+     filtered_dat_ch0_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 0
+     fsfb_addr_ch0_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 0   
+     fsfb_dat_ch0_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 0
+     coadded_addr_ch0_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 0
+     coadded_dat_ch0_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 0
+     raw_addr_ch0_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
+     raw_dat_ch0_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 0
+     raw_req_ch0_o             : out std_logic;                                        -- raw data request - channel 0
+     raw_ack_ch0_i             : in  std_logic;                                        -- raw data acknowledgement - channel 0
+
+
+
      filtered_addr_ch1_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 1
      filtered_dat_ch1_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 1
      fsfb_addr_ch1_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 1   
@@ -153,16 +170,6 @@ port(
      raw_req_ch7_o             : out std_logic;                                        -- raw data request - channel 7
      raw_ack_ch7_i             : in  std_logic;                                        -- raw data acknowledgement - channel 7
    
-     filtered_addr_ch8_o       : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- filtered data address - channel 8
-     filtered_dat_ch8_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 8
-     fsfb_addr_ch8_o           : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 8   
-     fsfb_dat_ch8_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 8
-     coadded_addr_ch8_0        : out std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 8
-     coadded_dat_ch8_i         : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 8
-     raw_addr_ch8_o            : out std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 8
-     raw_dat_ch8_i             : in  std_logic_vector (RAW_DATA_WIDTH-1    downto 0);  -- raw data - channel 8
-     raw_req_ch8_o             : out std_logic;                                        -- raw data request - channel 8
-     raw_ack_ch8_i             : in  std_logic;                                        -- raw data acknowledgement - channel 8
    
     
      -- signals to/from dispatch  (wishbone interface)
@@ -176,8 +183,9 @@ port(
                   
      dat_o 	                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- data out
      ack_o                     : out std_logic                                         -- acknowledge out
-     );
-    
+     );   
+     
+     
 end component;
 
 end package;
