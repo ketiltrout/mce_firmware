@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.15 2004/08/18 06:48:54 bench2 Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.16 2004/08/21 00:01:42 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.16  2004/08/21 00:01:42  bburger
+-- Bryce
+--
 -- Revision 1.15  2004/08/18 06:48:54  bench2
 -- Bryce: removed unnecessary interface signals between the cmd_queue and the reply_queue.
 --
@@ -102,6 +105,7 @@ end TB_CMD_QUEUE;
 
 architecture BEH of TB_CMD_QUEUE is
 
+   signal debug_o       : std_logic_vector(31 downto 0);
    -- reply_queue interface
 --   signal uop_status_i  : std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0) := (others => '0'); -- Tells the cmd_queue whether a reply was successful or erroneous
    signal uop_rdy_o     : std_logic := '0'; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
@@ -123,13 +127,13 @@ architecture BEH of TB_CMD_QUEUE is
 
    -- lvds_tx interface
    signal tx_o          : std_logic := '0';  -- transmitter output pin
-   signal clk_200mhz_i  : std_logic := '0';  -- PLL locked 25MHz input clock for the
+   signal clk_200mhz_i  : std_logic := '1';  -- PLL locked 25MHz input clock for the
 
    -- Clock lines
    signal sync_i        : std_logic := '1'; -- The sync pulse determines when and when not to issue u-ops
    signal sync_num_i    : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0) := (others => '0');
    signal clk_i         : std_logic := '1'; -- Advances the state machines
-   signal clk_400mhz_i  : std_logic := '1';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
+   --signal clk_400mhz_i  : std_logic := '1';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
    signal rst_i         : std_logic := '0';  -- Resets all FSMs
 
    signal count_value   : integer := 0;
@@ -148,6 +152,8 @@ architecture BEH of TB_CMD_QUEUE is
 begin
    DUT : cmd_queue
       port map(
+         debug_o       => debug_o,
+
          -- reply_queue interface
 --         uop_status_i  => uop_status_i,
          uop_rdy_o     => uop_rdy_o,

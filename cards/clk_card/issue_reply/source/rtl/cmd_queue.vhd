@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.47 2004/09/01 17:09:33 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.48 2004/09/02 01:14:52 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.48  2004/09/02 01:14:52  bburger
+-- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
+--
 -- Revision 1.47  2004/09/01 17:09:33  bburger
 -- Bryce:  compilation error - there was an extra ';'
 --
@@ -237,8 +240,10 @@ signal send_state           : std_logic_vector(3 downto 0);
 
 -- Wishbone signals to/from lvds_tx
 signal cmd_tx_dat           : std_logic_vector(31 downto 0);
-signal cmd_tx_start         : std_logic;
-signal cmd_tx_done          : std_logic;
+--signal cmd_tx_start         : std_logic;
+--signal cmd_tx_done          : std_logic;
+signal lvds_tx_rdy          : std_logic;
+signal lvds_tx_busy         : std_logic;
 
 -- CRC signals:
 signal crc_clr              : std_logic;
@@ -248,7 +253,6 @@ signal crc_num_bits         : integer;
 signal crc_done             : std_logic;
 signal crc_valid            : std_logic;
 signal crc_checksum         : std_logic_vector(CHECKSUM_BUS_WIDTH-1 downto 0);
-signal crc_start            : std_logic; --Not part of the interface to the crc block; enables sh_reg and bit_ctr.
 signal crc_reg              : std_logic_vector(CHECKSUM_BUS_WIDTH-1 downto 0);
 
 -- Shift Register signals:
@@ -259,6 +263,7 @@ signal sh_reg_parallel_o    : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); --Dum
 -- Bit Counter signals
 signal bit_ctr_count        : integer;
 signal bit_ctr_ena          : std_logic; -- enables the counter which controls the enable line to the CRC block.  The counter should only be functional when there is a to calculate.
+signal bit_ctr_load         : std_logic; --Not part of the interface to the crc block; enables sh_reg and bit_ctr.
 
 -- Constants that can be removed when the sync_counter and frame_timer are moved out of this block
 constant HIGH               : std_logic := '1';
@@ -359,6 +364,9 @@ begin
 --
 ------------------------------------------------------------------------ 
 
+   -- [JJ] For testing
+   debug_o(31 downto 0)  <=  clk_i & "0000000" & uop_data_size(3 downto 0) & send_state & cmd_tx_dat(31 downto 16);
+      
    -- Command queue (FIFO)
    cmd_queue_ram40_inst: cmd_queue_ram40--_test
       port map(
@@ -373,20 +381,17 @@ begin
       );
 
    -- lvds_tx is the LVDS interface to the Bus Backplane
-   cmd_tx: lvds_tx
+   cmd_tx2: lvds_tx
       port map(
          clk_i      => clk_i,
          comm_clk_i => clk_200mhz_i,
          rst_i      => rst_i,
          dat_i      => cmd_tx_dat,
-         start_i    => cmd_tx_start,
-         done_o     => cmd_tx_done,
+         rdy_i      => lvds_tx_rdy,
+         busy_o     => lvds_tx_busy,
          lvds_o     => tx_o
       );
   
-   -- [JJ] for testing
-   debug_o(31 downto 0)  <=  clk_i & "0000000" & uop_data_size(3 downto 0) & send_state & cmd_tx_dat(31 downto 16);
-      
    cmd_crc: crc
       generic map(
          POLY_WIDTH  => CHECKSUM_BUS_WIDTH
@@ -412,7 +417,7 @@ begin
          clk_i      => clk_i,
          rst_i      => rst_i,
          ena_i      => HIGH, --Always enabled      
-         load_i     => crc_start,      
+         load_i     => bit_ctr_load,      
          clr_i      => LOW, --Never clear      
          shr_i      => HIGH, --Shift right: because the lvds_tx block shits out the least significant bit first       
          serial_i   => LOW, --Shift in low bits
@@ -432,7 +437,7 @@ begin
          clk_i       => clk_i,
          rst_i       => rst_i,
          ena_i       => bit_ctr_ena,
-         load_i      => crc_start,
+         load_i      => bit_ctr_load,
          count_i     => INT_ZERO,
          count_o     => bit_ctr_count
       );
@@ -1253,8 +1258,8 @@ begin
    --                          or (sync_count_slv = timeout_sync - 1 and clk_count > START_OF_BLACKOUT)) else '0';
 
    send_state_NS: process(present_send_state, send_ptr, free_ptr, freeze_send, uop_send_expired, 
-                          issue_sync, timeout_sync, sync_count_slv, cmd_tx_done, previous_send_state, 
-                          uop_data_size, uop_data_count)
+                          issue_sync, timeout_sync, sync_count_slv, previous_send_state, 
+                          uop_data_size, uop_data_count, lvds_tx_busy)
    begin
       case present_send_state is
 --         when RESET =>
@@ -1298,7 +1303,7 @@ begin
             next_send_state <= PAUSE;
          when PAUSE =>
             -- No need to check the crc_done line because it will always be done before cmd_tx_done
-            if(cmd_tx_done = '1') then -- and crc_done was '1') then            
+            if(lvds_tx_busy = '0') then -- and crc_done was '1') then            
                if(previous_send_state = HEADER_A) then
                   next_send_state <= HEADER_B;
                elsif(previous_send_state = HEADER_B) then
@@ -1358,7 +1363,7 @@ begin
 --            cmd_tx_start             <= '0';
 --            crc_clr                  <= '1';
 --            bit_ctr_ena              <= '0';
---            crc_start                <= '0';
+--            bit_ctr_load             <= '0';
 --            
 --            crc_num_bits_mux_sel     <= "10";
 --            --crc_num_bits             <= 0;
@@ -1386,10 +1391,11 @@ begin
             -- Debug
             send_state <= "0001";
 
-            cmd_tx_start             <= '0';
+            lvds_tx_rdy              <= '0';
+
             crc_clr                  <= '1';
             bit_ctr_ena              <= '0';
-            crc_start                <= '0';
+            bit_ctr_load             <= '0';
             
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
@@ -1419,10 +1425,11 @@ begin
             -- Debug
             send_state <= "0010";
 
-            cmd_tx_start             <= '1';
+            lvds_tx_rdy              <= '1';
+
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
-            crc_start                <= '1';
+            bit_ctr_load             <= '1';
             
             crc_num_bits_mux_sel     <= "01";
             --crc_num_bits             <= (BB_PACKET_HEADER_SIZE + uop_data_size_int)*QUEUE_WIDTH;
@@ -1459,10 +1466,11 @@ begin
             -- Debug
             send_state <= "0011";
 
-            cmd_tx_start             <= '1';
+            lvds_tx_rdy              <= '1';
+
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
-            crc_start                <= '1';
+            bit_ctr_load             <= '1';
             
             uop_data_count_mux_sel   <= "11";  -- (others => '0')
             --uop_data_count           <= (others => '0');
@@ -1483,10 +1491,11 @@ begin
             -- Debug
             send_state <= "0100";
 
-            cmd_tx_start             <= '1';
+            lvds_tx_rdy              <= '1';
+
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
-            crc_start                <= '1';
+            bit_ctr_load             <= '1';
             
             uop_data_count_mux_sel   <= "01";  -- uop_data_count + 1
             --uop_data_count           <= uop_data_count + 1;
@@ -1508,10 +1517,11 @@ begin
             -- Debug
             send_state <= "0101";
 
-            cmd_tx_start             <= '1';
+            lvds_tx_rdy              <= '1';
+
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
-            crc_start                <= '1';
+            bit_ctr_load             <= '1';
             
             uop_data_count_mux_sel   <= "01";  -- uop_data_count + 1
             --uop_data_count           <= uop_data_count + 1;
@@ -1533,10 +1543,11 @@ begin
             -- Debug
             send_state <= "0110";
 
-            cmd_tx_start             <= '1';
+            lvds_tx_rdy              <= '1';
+
             crc_clr                  <= '0';
             bit_ctr_ena              <= '0';
-            crc_start                <= '0';
+            bit_ctr_load             <= '0';
             
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
@@ -1561,10 +1572,11 @@ begin
             -- Debug
             send_state <= "0111";
 
-            cmd_tx_start             <= '1';
+            lvds_tx_rdy              <= '0';
+
             crc_clr                  <= '0';
             bit_ctr_ena              <= '1';
-            crc_start                <= '0';
+            bit_ctr_load             <= '0';
             ----uop_data_size            <= '0';  Not to be zero'ed here.  This is an intermediate state between the HEADER, DATA and CHECKSUM states
 
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
@@ -1577,10 +1589,11 @@ begin
             -- Debug
             send_state <= "1000";
 
-            cmd_tx_start             <= '0';
+            lvds_tx_rdy              <= '0';
+
             crc_clr                  <= '1';
             bit_ctr_ena              <= '0';
-            crc_start                <= '0';
+            bit_ctr_load             <= '0';
             
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
@@ -1605,10 +1618,11 @@ begin
             -- Debug
             send_state <= "1111";
 
-            cmd_tx_start             <= '0';
+            lvds_tx_rdy              <= '0';
+
             crc_clr                  <= '1';
             bit_ctr_ena              <= '0';
-            crc_start                <= '0';
+            bit_ctr_load             <= '0';
             
             crc_num_bits_mux_sel     <= "10";
             --crc_num_bits             <= 0;
@@ -1651,32 +1665,32 @@ begin
 --
 ------------------------------------------------------------------------ 
 
-    with sh_reg_parallel_mux_sel select
-       sh_reg_parallel_i <= 
-       (others=>'0')                                           when "00",
-       BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0)       when "01",
-       qa_sig(QUEUE_WIDTH-1 downto 0)                          when others; --"10",      
+   with sh_reg_parallel_mux_sel select
+      sh_reg_parallel_i <= 
+      (others=>'0')                                           when "00",
+      BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0)       when "01",
+      qa_sig(QUEUE_WIDTH-1 downto 0)                          when others; --"10",      
 
-    with uop_data_size_mux_sel select
-       uop_data_size <=
-       uop_data_size_reg                                       when "00",
-       qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)         when "10",  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
-       (others=>'0')                                           when others;
+   with uop_data_size_mux_sel select
+      uop_data_size <=
+      uop_data_size_reg                                       when "00",
+      qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)         when "10",  -- qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END)
+      (others=>'0')                                           when others;
 
 
-    with uop_data_count_mux_sel select
-       uop_data_count <=
-       uop_data_count_reg                                      when "00",
-       uop_data_count_reg + 1                                  when "01",
-       (others=>'0')                                           when others;
+   with uop_data_count_mux_sel select
+      uop_data_count <=
+      uop_data_count_reg                                      when "00",
+      uop_data_count_reg + 1                                  when "01",
+      (others=>'0')                                           when others;
 
-   
-    with send_ptr_mux_sel select
-       send_ptr <=
-       send_ptr_reg                                                when "00",
-       send_ptr_reg + 1                                         when "01",
-       send_ptr_reg + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "10",
-       ADDR_ZERO                                                when others; --"11",
+  
+   with send_ptr_mux_sel select
+      send_ptr <=
+      send_ptr_reg                                                when "00",
+      send_ptr_reg + 1                                         when "01",
+      send_ptr_reg + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "10",
+      ADDR_ZERO                                                when others; --"11",
 
 
 
