@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.6  2005/02/15 00:55:24  bburger
+-- Bryce:  removed a register that was associated with timing problems
+--
 -- Revision 1.5  2005/01/13 03:14:51  bburger
 -- Bryce:
 -- addr_card and clk_card:  added slot_id functionality, removed mem_clock
@@ -120,7 +123,7 @@ end sync_gen_core;
 
 architecture beh of sync_gen_core is
 
-   type states is (SYNC_LOW, SYNC_HIGH, DV_RECEIVED, RESET);   
+   type states is (SYNC_LOW, SYNC_HIGH, DV_RECEIVED, RESET, SEND_BIT0, SEND_BIT1, SEND_BIT2, SEND_BIT3);   
    signal current_state, next_state : states;
    
    signal new_frame_period : std_logic;   
@@ -162,7 +165,7 @@ begin
    end process sync_cntr;
 
    new_frame_period  <= '1' when clk_count = frame_end else '0';
-   sync_o            <= new_frame_period;
+--   sync_o            <= new_frame_period;
    sync_num_o        <= sync_num;
 
    sync_state_FF: process(clk_i, rst_i)
@@ -191,12 +194,18 @@ begin
 --               end if;
 --            else
                if(new_frame_period = '1') then
-                  next_state <= SYNC_HIGH;
+                  next_state <= SEND_BIT0;
                else
                   next_state <= SYNC_LOW;
                end if;
 --            end if;
-         when SYNC_HIGH =>
+         when SEND_BIT0 =>
+            next_state <= SEND_BIT1;
+         when SEND_BIT1 =>
+            next_state <= SEND_BIT2;
+         when SEND_BIT2 =>
+            next_state <= SEND_BIT3;
+         when SEND_BIT3 =>
             next_state <= SYNC_LOW;
          when DV_RECEIVED =>
             if(new_frame_period = '1') then
@@ -212,15 +221,20 @@ begin
    sync_state_out: process(current_state)
    begin
       sync_num_mux_sel <= '0';
+      sync_o <= '0';
       case current_state is
          when SYNC_LOW =>
-            sync_num_mux_sel <= '0';
-         when SYNC_HIGH =>
+         when SEND_BIT0 =>
+            sync_o <= SYNC_PULSE_BIT0;
+         when SEND_BIT1 =>
+            sync_o <= SYNC_PULSE_BIT1;
+         when SEND_BIT2 =>
+            sync_o <= SYNC_PULSE_BIT2;
+         when SEND_BIT3 =>
+            sync_o <= SYNC_PULSE_BIT3;
             sync_num_mux_sel <= '1';
          when DV_RECEIVED =>
-            sync_num_mux_sel <= '0';
          when others =>
-            sync_num_mux_sel <= '0';
       end case;
    end process;
    

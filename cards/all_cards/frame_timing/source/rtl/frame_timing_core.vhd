@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.4 2005/01/13 03:14:51 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.5 2005/01/18 22:21:47 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.5  2005/01/18 22:21:47  bburger
+-- Bryce:  Added offesets to some of the frame_timing_core signal to compensate for FSM latency
+--
 -- Revision 1.4  2005/01/13 03:14:51  bburger
 -- Bryce:
 -- addr_card and clk_card:  added slot_id functionality, removed mem_clock
@@ -100,37 +103,32 @@ end frame_timing_core;
 
 architecture beh of frame_timing_core is
    
-   constant ONE_CYCLE_LATENCY   : integer := 1;
-   constant TWO_CYCLE_LATENCY   : integer := 2;
+   constant ONE_CYCLE_LATENCY     : integer := 1;
+   constant TWO_CYCLE_LATENCY     : integer := 2;
+--   constant MIN_ADDRESS_ON_DELAY  : integer := 3;
+--   constant MIN_SAMPLE_DELAY      : integer := ;
+--   constant MIN_FEEDBACK_DELAY    : integer := ;
    
-   signal clk_error             : std_logic_vector(31 downto 0);
-   signal counter_rst           : std_logic;
-   signal error_count           : std_logic_vector(31 downto 0);
-   signal frame_count_int       : integer;
-   signal frame_count_new       : integer;
-   signal row_count_int         : integer;
-   signal row_count_new         : integer;
-   signal wait_for_sync         : std_logic;
-   signal latch_error           : std_logic;
-   signal restart_frame_aligned : std_logic;
-   signal frame_rst             : std_logic;
+--   signal clk_error               : std_logic_vector(31 downto 0);
+--   signal counter_rst             : std_logic;
+--   signal error_count             : std_logic_vector(31 downto 0);
+   signal frame_count_int         : integer;
+   signal frame_count_new         : integer;
+   signal row_count_int           : integer;
+   signal row_count_new           : integer;
+--   signal wait_for_sync           : std_logic;
+--   signal latch_error             : std_logic;
+   signal enable_counters         : std_logic;
+--   signal restart_frame_aligned   : std_logic;
+--   signal frame_rst               : std_logic;
+   signal sync_received           : std_logic;
    
    signal end_of_frame_minus_1row : integer;
    signal end_of_frame_plus_1row  : integer;
-   signal frame_end               : integer;
+--   signal frame_end               : integer;
+   signal address_on_delay        : integer;
 
---   signal row_len               : integer; -- not used yet
---   signal num_rows              : integer; -- not used yet
---   signal sample_delay          : integer;
---   signal sample_num            : integer;
---   signal feedback_delay        : integer;
---   signal address_on_delay      : integer;
---   signal resync_req            : std_logic;
---   signal resync_ack            : std_logic; -- not used yet
---   signal init_window_req       : std_logic;
---   signal init_window_ack       : std_logic; -- not used yet
-
-   type states is (WAIT_FRM_RST, COUNT_UP, GOT_SYNC);--, WAIT_TO_LATCH_ERR);
+   type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);--, WAIT_TO_LATCH_ERR);
    signal current_state, next_state : states;
    
    type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, SET, SET_HOLD);
@@ -138,81 +136,56 @@ architecture beh of frame_timing_core is
    
    begin
    
-   frame_end <= (num_rows_i*row_len_i)-1;
+--   frame_end <= (num_rows_i*row_len_i)-1;
    end_of_frame_minus_1row <= (num_rows_i*row_len_i)-row_len_i-1;
    end_of_frame_plus_1row <= row_len_i-1;
    
    -- Temporary
    resync_ack_o <= '0';
    
---   frame_period_cntr : counter
---      generic map(
---         MAX         => END_OF_FRAME, 
---         STEP_SIZE   => 1,
---         WRAP_AROUND => '1',
---         UP_COUNTER  => '1'
---      )
---      port map(
---         clk_i       => clk_i,
---         rst_i       => counter_rst,
---         ena_i       => '1',
---         load_i      => '0',
---         count_i     => 0,
---         count_o     => frame_count_int
---      );
-
-   frame_count_new <= (frame_count_int + 1) when frame_count_int < frame_end else 0;
+--   frame_count_new <= (frame_count_int + 1) when frame_count_int < frame_end else 0;
+   frame_count_new <= (frame_count_int + 1) when sync_received = '0' else 0;
    frame_period_cntr: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          frame_count_int <= 0;
       elsif(clk_i'event and clk_i = '1') then
-         frame_count_int <= frame_count_new;
+         if(enable_counters = '1') then
+            frame_count_int <= frame_count_new;
+         end if;
       end if;
    end process frame_period_cntr;
 
---   row_dwell_cntr : counter
---      generic map(
---         MAX         => MUX_LINE_PERIOD-1, 
---         STEP_SIZE   => 1,
---         WRAP_AROUND => '1',
---         UP_COUNTER  => '1'
---      )
---      port map(
---         clk_i       => clk_i,
---         -- change this
---         rst_i       => counter_rst,
---         ena_i       => '1',
---         load_i      => '0',
---         count_i     => 0,
---         count_o     => row_count_int
---      );
-
-   row_count_new <= (row_count_int + 1) when row_count_int < (row_len_i-1) else 0;
+   row_count_new <= (row_count_int + 1) when row_count_int < (row_len_i-1) and sync_received = '0' else 0;
+--   row_count_new <= (row_count_int + 1) when sync_received = '0' else 0;
    row_dwell_cntr: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          row_count_int <= 0;
       elsif(clk_i'event and clk_i = '1') then
-         row_count_int <= row_count_new;
+         if(enable_counters = '1') then
+            row_count_int <= row_count_new;
+         end if;
       end if;
    end process row_dwell_cntr;
 
-   clock_err_reg : reg
-      generic map(
-         WIDTH       => 32
-      )
-      port map(
-         clk_i       => latch_error,
-         rst_i       => frame_rst,
-         ena_i       => '1',
-         reg_i       => error_count,
-         reg_o       => clk_error
-      );
+      
+--   -- This is pointless now that the frame_timing block resynchronizes on every sync pulse.
+--   clock_err_reg : reg
+--      generic map(
+--         WIDTH       => 32
+--      )
+--      port map(
+--         clk_i       => latch_error,
+--         rst_i       => frame_rst,
+--         ena_i       => '1',
+--         reg_i       => error_count,
+--         reg_o       => clk_error
+--      );
 
-   error_count <= conv_std_logic_vector(frame_count_new, 32);
-   counter_rst <= '1' when wait_for_sync = '1' else '0';
-   frame_rst   <= '1' when resync_req_i = '1' else '0';
+--   error_count <= conv_std_logic_vector(frame_count_new, 32);
+--   counter_rst <= '1' when wait_for_sync = '1' else '0';
+--   frame_rst   <= '1' when resync_req_i = '1' else '0';
 
    -----------------------
    -- Frame-timing signals
@@ -224,28 +197,31 @@ architecture beh of frame_timing_core is
    -- 1- After a resync
    -- 2- After changing flux_loop parameters   
    
-   restart_frame_aligned      <= '1' when frame_count_int = frame_end else '0';
-   restart_frame_1row_prev_o  <= '1' when frame_count_int = end_of_frame_minus_1row and current_state /= WAIT_FRM_RST else '0';
-   restart_frame_aligned_o    <= '1' when (restart_frame_aligned = '1' and current_state /= WAIT_FRM_RST) or (sync_i = '1' and current_state = WAIT_FRM_RST) else '0';
-   restart_frame_1row_post_o  <= '1' when frame_count_int = end_of_frame_plus_1row and current_state /= WAIT_FRM_RST else '0';
+--   restart_frame_aligned      <= '1' when frame_count_int = frame_end else '0';
+--   restart_frame_aligned      <= sync_received;
+   restart_frame_1row_prev_o  <= '1' when frame_count_int = end_of_frame_minus_1row else '0';
+   restart_frame_aligned_o    <= sync_received;
+   restart_frame_1row_post_o  <= '1' when frame_count_int = end_of_frame_plus_1row else '0';
    
    -- The bias card DACs begin to be updated approximately 6 cycles after update_bias_o is asserted.
    -- The length of time required to update all 32 flux_feedback values on the bias card is longer than one row dwell period.
-   update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS and current_state /= WAIT_FRM_RST else '0';
+   update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS else '0';
 
    -- row_switch_o is pulsed on the last clock cycle of every 
-   row_switch_o               <= '1' when row_count_int = row_len_i - 1 and current_state /= WAIT_FRM_RST else '0';
+   row_switch_o               <= '1' when row_count_int = row_len_i - 1 or sync_received = '1' else '0';
    
    -- dac_dat_en_o has to be enabled on the clock cycle before the feedback begins, and lasts until the end of the row for safety reasons
    -- the dac_dat_en_o line is taken notice of after 6 clock cycle have elapsed on a new row.
-   dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i - 1 and current_state /= WAIT_FRM_RST else '0';
+   dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i - 1 else '0';
    
    -- adc_coadd_en_o has to be enabled on the same clock cycle that sampling begins, and has to be disabled on the same clock cycle when sampling finishes.  
    -- This is possible because of the 4-cycle latency in the ADCs
-   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - 1 and current_state /= WAIT_FRM_RST else '0';
+   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - 1 and row_count_int <= row_len_i-1 else '0';
    
    -- row_en_o has to be enabled on the clock cycle before the row is to be activated, and has to be disabled on the clock cycle before the row is to be deactivated
-   row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int <= row_len_i-1-ONE_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
+   -- row_en_o is only taken notice of a minimum of 3 clock cycles after a row_switch, to allow the ac_dac_ctrl_core time to preload the new value.
+--   address_on_delay           <= MIN_ADDRESS_ON_DELAY when address_on_delay_i < MIN_ADDRESS_ON_DELAY else address_on_delay_i;
+   row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int <= row_len_i-1-ONE_CYCLE_LATENCY else '0';
    -----------------------
       
    init_win_state_FF: process(clk_i, rst_i)
@@ -257,7 +233,7 @@ architecture beh of frame_timing_core is
       end if;
    end process init_win_state_FF;
 
-   init_win_state_NS: process(current_init_win_state, restart_frame_aligned, init_window_req_i)
+   init_win_state_NS: process(current_init_win_state, sync_received, init_window_req_i)
    begin
       next_init_win_state <= current_init_win_state;
 
@@ -265,18 +241,18 @@ architecture beh of frame_timing_core is
          when SET =>
             next_init_win_state <= SET_HOLD;
          when SET_HOLD =>
-            if(restart_frame_aligned = '1') then
+            if(sync_received = '1') then
                next_init_win_state <= INIT_ON;
             end if;
          when INIT_ON =>
             next_init_win_state <= INIT_HOLD;
          when INIT_HOLD =>
-            if(restart_frame_aligned = '1') then
+            if(sync_received = '1') then
                next_init_win_state <= INIT_OFF;
             end if;               
          when INIT_OFF =>
             if(init_window_req_i = '1') then
-               if(restart_frame_aligned = '1') then
+               if(sync_received = '1') then
                   next_init_win_state <= SET;
                else
                   next_init_win_state <= SET_HOLD;
@@ -323,64 +299,117 @@ architecture beh of frame_timing_core is
    -- According to simulations, when I register clk_error_o, it takes the value of clk_count_o from the previous clock cycle.
    -- That seems wonky to me, and in practice, we will probably have to test this.
    -- If the second clock cycle delay is not needed in hardware, then just remove the WAIT_TO_LATCH_ERR state from the FSM.
-   state_FF: process(clk_i, frame_rst)
+   state_FF: process(clk_i, resync_req_i)
    begin
-      if(frame_rst = '1') then
-         current_state <= WAIT_FRM_RST;
+      if(resync_req_i = '1') then
+         current_state <= IDLE;
+         enable_counters <= '0';
+         
       elsif(clk_i'event and clk_i = '1') then
          current_state <= next_state;
+         
+         if(enable_counters = '0') then
+            if(sync_received = '1') then
+               enable_counters <= '1';
+            end if;
+         end if;
+         
       end if;
    end process state_FF;
 
    state_NS: process(current_state, sync_i)
    begin
       next_state <= current_state;
-      
       case current_state is
-         when WAIT_FRM_RST =>
-            if (sync_i = '1') then
-               next_state <= COUNT_UP;
+         when IDLE =>
+            if(sync_i = SYNC_PULSE_BIT0) then
+               next_state <= GOT_BIT0;
             else
-               next_state <= WAIT_FRM_RST;
-            end if;                  
-         when COUNT_UP =>
-            if (sync_i = '1') then
+               next_state <= IDLE;
+            end if;
+         when GOT_BIT0 =>
+            if(sync_i = SYNC_PULSE_BIT1) then
+               next_state <= GOT_BIT1;
+            else
+               next_state <= IDLE;
+            end if;
+         when GOT_BIT1 =>
+            if(sync_i = SYNC_PULSE_BIT2) then
+               next_state <= GOT_BIT2;
+            else
+               next_state <= IDLE;
+            end if;
+         when GOT_BIT2 =>
+            if(sync_i = SYNC_PULSE_BIT3) then
                next_state <= GOT_SYNC;
             else
-               next_state <= COUNT_UP;
+               next_state <= IDLE;
             end if;
          when GOT_SYNC =>
-            next_state <= COUNT_UP;
---         when WAIT_TO_LATCH_ERR =>
---            next_state <= COUNT_UP;
+            next_state <= IDLE;
          when others =>
-            next_state <= WAIT_FRM_RST;
       end case;
    end process state_NS;
    
-   state_out: process(current_state, sync_i)
+   state_out: process(current_state)
    begin
+      sync_received <= '0';
       case current_state is
-         when WAIT_FRM_RST =>
-            latch_error <= '0';
-            if(sync_i = '1') then
-               wait_for_sync <= '1';
-            else
-               wait_for_sync <= '0';
-            end if;
-         when COUNT_UP =>
-            latch_error <= '0';
-            wait_for_sync <= '0';
+         when IDLE =>
+         when GOT_BIT0 =>
+         when GOT_BIT1 =>
+         when GOT_BIT2 =>
+         when GOT_BIT3 =>
          when GOT_SYNC =>
-            latch_error <= '1';
-            wait_for_sync <= '0';
---         when WAIT_TO_LATCH_ERR =>
---            latch_error <= '1';
---            wait_for_sync <= '0';
+            sync_received <= '1';
          when others =>
-            latch_error <= '0';
-            wait_for_sync <= '0';
       end case;
    end process state_out;
-   
+
+--   state_NS: process(current_state, sync_i)
+--   begin
+--      next_state <= current_state;
+--      
+--      case current_state is
+--         when WAIT_FRM_RST =>
+--            if (sync_i = '1') then
+--               next_state <= COUNT_UP;
+--            else
+--               next_state <= WAIT_FRM_RST;
+--            end if;                  
+--         when COUNT_UP =>
+--            if (sync_i = '1') then
+--               next_state <= GOT_SYNC;
+--            else
+--               next_state <= COUNT_UP;
+--            end if;
+--         when GOT_SYNC =>
+--            next_state <= COUNT_UP;
+--         when others =>
+--            next_state <= WAIT_FRM_RST;
+--      end case;
+--   end process state_NS;
+--   
+--   state_out: process(current_state, sync_i)
+--   begin
+--      case current_state is
+--         when WAIT_FRM_RST =>
+--            latch_error <= '0';
+--            if(sync_i = '1') then
+--               wait_for_sync <= '1';
+--            else
+--               wait_for_sync <= '0';
+--            end if;
+--         when COUNT_UP =>
+--            latch_error <= '0';
+--            wait_for_sync <= '0';
+--         when GOT_SYNC =>
+--            latch_error <= '1';
+--            wait_for_sync <= '0';
+--         when others =>
+--            latch_error <= '0';
+--            wait_for_sync <= '0';
+--      end case;
+--   end process state_out;
+
 end beh;

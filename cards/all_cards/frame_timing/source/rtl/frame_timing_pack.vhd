@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.4 2004/11/19 20:00:05 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.5 2005/01/13 03:14:51 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,13 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/11/19 20:00:05 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2005/01/13 03:14:51 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.5  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.4  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
@@ -69,6 +74,10 @@ package frame_timing_pack is
    constant MUX_LINE_PERIOD        : integer := 64; -- 64 50MHz cycles
    constant NUM_OF_ROWS            : integer := 41;
    constant END_OF_FRAME           : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-1;
+   constant SYNC_PULSE_BIT0        : std_logic := '1';
+   constant SYNC_PULSE_BIT1        : std_logic := '0';
+   constant SYNC_PULSE_BIT2        : std_logic := '1';
+   constant SYNC_PULSE_BIT3        : std_logic := '0';
    
    ------------------------------------------------------------------------------------
    -- Clock Card frame structure

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.12 2005/01/18 22:20:47 bburger Exp $
+-- $Id: clk_card.vhd,v 1.13 2005/01/19 23:39:06 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.13  2005/01/19 23:39:06  bburger
+-- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
+--
 -- Revision 1.12  2005/01/18 22:20:47  bburger
 -- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
 --
@@ -239,18 +242,18 @@ begin
    with addr select
       slave_data <= 
          led_data          when LED_ADDR,
-         sync_gen_data     when USE_DV_ADDR,
+         sync_gen_data     when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR,
          (others => '0')   when others;
          
    with addr select
       slave_ack <= 
          led_ack          when LED_ADDR,
-         sync_gen_ack     when USE_DV_ADDR,
+         sync_gen_ack     when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR,
          '0'              when others;
          
    with addr select
       slave_err <= 
-         '0'              when LED_ADDR | USE_DV_ADDR, --| ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR, --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
    pll0: cc_pll

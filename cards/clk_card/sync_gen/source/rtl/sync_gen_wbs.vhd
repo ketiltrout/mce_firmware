@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs.vhd,v 1.3 2005/01/13 03:14:51 bburger Exp $
+-- $Id: sync_gen_wbs.vhd,v 1.4 2005/02/15 00:55:24 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.4  2005/02/15 00:55:24  bburger
+-- Bryce:  removed a register that was associated with timing problems
+--
 -- Revision 1.3  2005/01/13 03:14:51  bburger
 -- Bryce:
 -- addr_card and clk_card:  added slot_id functionality, removed mem_clock
@@ -193,8 +196,10 @@ begin
    state_out: process(current_state, stb_i, addr_i)
    begin
       -- Default assignments
-      ack_o      <= '0';
-      dv_en_wren <= '0';
+      ack_o           <= '0';
+      dv_en_wren      <= '0';
+      row_length_wren <= '0';
+      num_rows_wren   <= '0';
      
       case current_state is         
          when IDLE  =>                   
