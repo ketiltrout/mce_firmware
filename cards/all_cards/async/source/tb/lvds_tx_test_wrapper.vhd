@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.5  2004/05/29 21:32:24  erniel
+-- added test enable/disable logic
+--
 -- Revision 1.4  2004/05/29 20:53:02  erniel
 -- added timer expired state changes
 --
@@ -185,7 +188,7 @@ begin
       if(rst_i = '1' or enabled = '0') then
          present_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
-         if(timer = "11111111111111111111111111111") then
+         if(present_state = IDLE or timer = "11111111111111111111111111111") then
             present_state <= next_state;
          end if;
       end if;
@@ -197,8 +200,8 @@ begin
          when IDLE =>   next_state <= RANDOM;
          when RANDOM => next_state <= COUNT;
          when COUNT =>  next_state <= SQUARE;
-         when SQUARE => next_state <= IDLE;
-         when others => next_state <= IDLE;
+         when SQUARE => next_state <= RANDOM;
+         when others => next_state <= RANDOM;
       end case;
    end process state_NS;
    
