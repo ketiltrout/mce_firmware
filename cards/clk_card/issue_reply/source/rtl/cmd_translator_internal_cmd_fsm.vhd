@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.9 2004/09/30 22:34:44 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.1 2004/12/02 05:42:51 jjacob Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	       Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:         Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/30 22:34:44 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/12/02 05:42:51 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_internal_cmd_fsm.vhd,v $
+-- Revision 1.1  2004/12/02 05:42:51  jjacob
+-- new file for issuing internal commands
+--
 -- 
 -----------------------------------------------------------------------------
 
@@ -71,13 +74,13 @@ port(
       parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_o       : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);     -- data_size_i, indicates number of 16-bit words of data
       data_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- data will be passed straight thru in 16-bit words
-      data_clk_o        : out std_logic;							                               -- for clocking out the data
+      data_clk_o        : out std_logic;                                                   -- for clocking out the data
       macro_instr_rdy_o : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
       cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);     -- this is a re-mapping of the cmd_code into a 3-bit number
       
       -- input from the macro-instruction arbiter
       ack_i             : in std_logic                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
-      							 -- not currently used
+                            -- not currently used
 
    ); 
      
@@ -134,7 +137,7 @@ begin
    macro_instr_rdy_o <= '1'                     when current_state = ISSUE_INTRNL_CMD else '0';
    cmd_type_o        <= READ_BLOCK              when current_state = ISSUE_INTRNL_CMD else (others => '0');
    
-   data_size_o       <= (others => '0');
+   data_size_o       <= x"00000029";
    data_o            <= (others => '0');
    data_clk_o        <= '0';
 

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.16 2004/10/29 23:09:22 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.17 2004/11/25 01:32:37 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.17  2004/11/25 01:32:37  bburger
+-- Bryce:
+-- - Changed to cmd_code over the bus backplane to read/write only
+-- - Added interface signals for internal commands
+-- - RB command data-sizes are correctly handled
+--
 -- Revision 1.16  2004/10/29 23:09:22  bburger
 -- Bryce:  Weekend update
 --
@@ -152,12 +158,15 @@ component cmd_queue
 
       -- lvds_tx interface
       tx_o            : out std_logic;  -- transmitter output pin
-      clk_200mhz_i    : in std_logic;  -- PLL locked 25MHz input clock for the
 
-      -- Clock lines
+      -- frame_timing interface
       sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+      -- Clock lines
       clk_i           : in std_logic; -- Advances the state machines
+      comm_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
+      mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
       rst_i           : in std_logic  -- Resets all FSMs
    );
 end component;

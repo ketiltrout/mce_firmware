@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.1 2004/11/19 20:00:05 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.2 2004/12/14 20:17:38 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.2  2004/12/14 20:17:38  bburger
+-- Bryce:  Repaired some problems with frame_timing and added a list of frame_timing-initialization commands to clk_card
+--
 -- Revision 1.1  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
@@ -202,6 +205,8 @@ architecture beh of frame_timing_core is
 
    init_win_state_NS: process(current_init_win_state, restart_frame_aligned, init_window_req_i)
    begin
+      next_init_win_state <= current_init_win_state;
+
       case current_init_win_state is
          when SET =>
             next_init_win_state <= SET_HOLD;
@@ -275,6 +280,8 @@ architecture beh of frame_timing_core is
 
    state_NS: process(current_state, sync_i)
    begin
+      next_state <= current_state;
+      
       case current_state is
          when WAIT_FRM_RST =>
             if (sync_i = '1') then

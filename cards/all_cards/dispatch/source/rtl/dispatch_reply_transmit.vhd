@@ -21,8 +21,8 @@
 --
 -- dispatch_reply_transmit.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.5  2004/12/16 01:57:33  erniel
+-- modified transmit FSM to account for new "queued" LVDS_tx
+-- modified crc FSM to process words as quickly as possible
+--
 -- Revision 1.4  2004/10/18 20:48:51  erniel
 -- corrected sensitivity list in process tx_stateNS
 --
@@ -65,7 +69,7 @@ entity dispatch_reply_transmit is
 port(clk_i      : in std_logic;
      mem_clk_i  : in std_logic;
      comm_clk_i : in std_logic;
-     rst_i      : in std_logic;		
+     rst_i      : in std_logic;     
      
      lvds_tx_o : out std_logic;
      
@@ -186,7 +190,9 @@ begin
                   
    crc_bit_counter : counter
       generic map(MAX         => PACKET_WORD_WIDTH,
-                  WRAP_AROUND => '0')
+                  STEP_SIZE   => 1,
+                  WRAP_AROUND => '0',
+                  UP_COUNTER  => '1')
       port map(clk_i   => clk_i,
                rst_i   => rst_i,
                ena_i   => '1',
@@ -217,7 +223,7 @@ begin
       end if;
    end process crc_stateFF;
    
-   crc_stateNS: process(crc_pres_state, crc_start, crc_bit_count, crc_done, transmit_busy, transmit_done)
+   crc_stateNS: process(crc_pres_state, crc_start, crc_bit_count, crc_done, lvds_tx_rdy)
    begin
       case crc_pres_state is
          when IDLE_CRC =>       if(crc_start = '1') then
@@ -367,7 +373,7 @@ begin
       end case;
    end process tx_stateNS;
    
-   tx_stateOut: process(tx_pres_state, word_count)
+   tx_stateOut: process(tx_pres_state, word_count, lvds_tx_busy)
    begin
       case word_count is
          when 0 =>      crc_input_sel <= "00";

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.30 2004/12/04 02:03:38 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.31 2004/12/09 01:56:22 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/12/04 02:03:38 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/12/09 01:56:22 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.31  2004/12/09 01:56:22  bburger
+-- Bryce:  updated the port map on the reply_translator to match the entity
+--
 -- Revision 1.30  2004/12/04 02:03:38  bburger
 -- Bryce:  fixing some problems associated with integrating the reply_queue
 --
@@ -168,6 +171,7 @@ architecture rtl of issue_reply is
    signal mop_ack             : std_logic; 
    signal cmd_stop            : std_logic;
    signal last_frame          : std_logic;      
+   signal internal_cmd_issued : std_logic;
    
    -- reply_translator to reply_queue interface      
    signal m_op_rdy            : std_logic;     
@@ -329,6 +333,7 @@ begin
          cmd_type_o          => cmd_type,
          cmd_stop_o          => cmd_stop,
          last_frame_o        => last_frame,       
+         internal_cmd_o      => internal_cmd_issued,
          
          --input from the u-op sequence generator
          ack_i               => mop_ack,
@@ -343,7 +348,7 @@ begin
          sync_pulse_i        => sync_pulse_i,
          sync_number_i       => sync_number_i
       );
-               
+
    ------------------------------------------------------------------------
    -- command queue (u-op sequence generator)
    ------------------------------------------------------------------------               
@@ -373,64 +378,21 @@ begin
         cmd_stop_i      => cmd_stop,
         last_frame_i    => last_frame,
         frame_seq_num_i => frame_seq_num,--frame_seq_num_o,
-        internal_cmd_i  => internal_cmd,
+        internal_cmd_i  => internal_cmd_issued,
 
         -- lvds_tx interface
         tx_o            => lvds_cmd_o,
-        clk_200mhz_i    => comm_clk_i,
 
-        -- Clock lines
+        -- frame_timing interface
         sync_i          => sync_pulse_i,
         sync_num_i      => sync_number_i,
+
+        -- Clock lines
         clk_i           => clk_i,
+        comm_clk_i      => comm_clk_i,
+        mem_clk_i       => mem_clk_i,
         rst_i           => rst_i
      );
-
---   process(clk_i, rst_i)
---   begin
---      if rst_i = '1' then
---         uop_rdy_stg1 <= '0';
---         uop_rdy_stg2 <= '0';
---         uop_rdy_stg3 <= '0';
---         uop_rdy_stg4 <= '0';
---         uop_rdy_stg5 <= '0';
---         cur_state <= IDLE;
---      elsif clk_i'event and clk_i='1' then
---         uop_rdy_stg1 <= uop_rdy;
---         uop_rdy_stg2 <= uop_rdy_stg1;
---         uop_rdy_stg3 <= uop_rdy_stg2;
---         uop_rdy_stg4 <= uop_rdy_stg3;
---         uop_rdy_stg5 <= uop_rdy_stg4;         
---         cur_state <= next_state;
---      end if;
---   end process; 
-   
---   process(cur_state, uop_rdy)
---   begin
---      case cur_state is
---         when IDLE =>
---            if uop_rdy <= '1' then
---               next_state <= WAIT1;
---            else
---               next_state <= IDLE;
---            end if;
---            
---         when WAIT1 =>
---            next_state <= WAIT2;
---            
---         when WAIT2 =>
---            next_state <= ACK1;
---            
---         when ACK1 =>
---            next_state <= ACK2;
---            
---         when ACK2 =>
---            next_state <= IDLE;
---            
---         when others =>
---            next_state <= IDLE;
---      end case;
---   end process;
 
    ------------------------------------------------------------------------
    -- reply queue

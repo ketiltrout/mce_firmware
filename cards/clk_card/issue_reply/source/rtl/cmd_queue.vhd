@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.72 2004/12/13 06:43:44 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.73 2004/12/14 06:01:23 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.73  2004/12/14 06:01:23  bburger
+-- Bryce:  Fixed a bug in the cmd_queue retire FSM that didn't allow the pointer to wrap properly
+--
 -- Revision 1.72  2004/12/13 06:43:44  bburger
 -- Bryce:  Changed the RAM memory management
 --
@@ -122,12 +125,15 @@ entity cmd_queue is
 
       -- lvds_tx interface
       tx_o            : out std_logic;  -- transmitter output pin
-      clk_200mhz_i    : in std_logic;  -- PLL locked 25MHz input clock for the
 
-      -- Clock lines
+      -- frame_timing interface
       sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+      -- Clock lines
       clk_i           : in std_logic; -- Advances the state machines
+      comm_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
+      mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
       rst_i           : in std_logic  -- Resets all FSMs
    );
 end cmd_queue;
@@ -284,7 +290,7 @@ signal first_time_uop_inc       : std_logic;
 
 signal crc_num_bits_mux_sel : std_logic_vector(1 downto 0);
 signal crc_num_bits_reg     : integer;
-signal crc_num_bits2        : integer;
+--signal crc_num_bits2        : integer;
 
 signal cmd_tx_dat_mux_sel   : std_logic_vector(2 downto 0);
 signal cmd_tx_dat_reg       : std_logic_vector(31 downto 0);
@@ -326,7 +332,7 @@ begin
          rdaddress_a => rdaddress_a_sig,
          rdaddress_b => rdaddress_b_sig,
          wren        => wren_sig,
-         clock       => clk_200mhz_i,  
+         clock       => mem_clk_i,  
          qa          => qa_sig, -- qa_sig data are used by the send FSM         
          qb          => qb_sig -- qb_sig data are used by the retire FSM
       );
@@ -335,7 +341,8 @@ begin
    cmd_tx2: lvds_tx
       port map(
          clk_i      => clk_i,
-         comm_clk_i => clk_200mhz_i,
+         comm_clk_i => comm_clk_i,
+         mem_clk_i  => mem_clk_i,
          rst_i      => rst_i,
          dat_i      => cmd_tx_dat,
          rdy_i      => lvds_tx_rdy,
@@ -1136,7 +1143,7 @@ begin
 
    send_state_NS: process(present_send_state, send_ptr, free_ptr, uop_send_expired, 
                           issue_sync, timeout_sync, sync_count_slv, previous_send_state, 
-                          send_data_size, uop_data_count, lvds_tx_busy, send_cmd_code, send_data_size_int)
+                          send_data_size, uop_data_count, lvds_tx_busy, send_cmd_code, send_data_size_int, bit_ctr_count)
    begin
       next_send_state <= present_send_state;
       case present_send_state is
@@ -1176,8 +1183,10 @@ begin
          when BRANCH =>
             if(send_cmd_code = STOP or send_cmd_code = START) then
                next_send_state <= NEXT_UOP;
-            else
+            elsif(lvds_tx_busy = '0') then
                next_send_state <= HEADER_A;
+            else
+               next_send_state <= BRANCH;
             end if;
          
          when HEADER_A =>
@@ -1203,7 +1212,7 @@ begin
          
          when PAUSE =>
             -- No need to check the crc_done line because it will always be done before cmd_tx_done
-            if(lvds_tx_busy = '0') then -- and crc_done was '1') then            
+            if(lvds_tx_busy = '0' and bit_ctr_count = CHECKSUM_WORD_WIDTH) then-- and crc_done = '1') then            
                if(previous_send_state = HEADER_A) then
                   next_send_state <= HEADER_B;
                elsif(previous_send_state = HEADER_B) then
@@ -1285,7 +1294,7 @@ begin
          when LOAD =>            
             crc_clr                  <= '1';
 
-            if(bit_ctr_count < 32) then
+            if(bit_ctr_count < CHECKSUM_WORD_WIDTH) then
                bit_ctr_ena           <= '1';
             end if;
             
