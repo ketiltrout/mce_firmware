@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.1 2004/07/05 23:47:13 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.1 2004/07/08 19:12:23 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Jonathan Jacob
@@ -34,9 +34,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/05 23:47:13 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/08 19:12:23 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.1  2004/07/08 19:12:23  jjacob
+-- first version of issue_reply_test
+--
 -- Revision 1.1  2004/07/05 23:47:13  jjacob
 -- first version
 --
@@ -76,13 +79,13 @@ port(
       fibre_rx_sc_nd     : in std_logic;                      -- rsc_nRd_i
 
       -- output to simulated u-op sequence generator (logic analyzer)
-      test               : out std_logic_vector(38 downto 0); -- cksum_err
-                                                              -- card_addr
-                                                              -- parameter_id
-                                                              -- data
-                                                              -- data_clk
-                                                              -- macro_instr_rdy
-                                                              -- data_size
+      test               : out std_logic_vector(38 downto 11); -- cksum_err
+                                                               -- card_addr
+                                                               -- parameter_id
+                                                               -- data
+                                                               -- data_clk
+                                                               -- macro_instr_rdy
+                                                               -- data_size
 
       -- inputs from the simulated u-op sequence generator (dip switch)
       dip_sw2            : in std_logic                       --ack_i
