@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_fifo.vhd,v $
+-- Revision 1.1  2004/10/25 19:01:36  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -138,6 +141,17 @@ begin
       wait for PERIOD;
    end do_read;
    
+   procedure do_both (data : std_logic_vector(DATA_WIDTH-1 downto 0)) is
+   begin
+      W_RST_I       <= '0';
+      W_DATA_I      <= data;
+      W_READ_I      <= '1';
+      W_WRITE_I     <= '1';
+      W_CLEAR_I     <= '0';
+      
+      wait for PERIOD;
+   end do_both;
+   
    procedure do_clear is
    begin
       W_RST_I       <= '0';
@@ -155,18 +169,18 @@ begin
       
       do_write("00000001");
       do_write("00000010");
+      do_write("00000011");
       do_write("00000100");
-      do_write("00001000");
-      do_write("00010000");  -- fifo is full, should not be added (write disabled)
-      
-      do_clear;
+      do_write("00000101");  -- fifo is full, should not be added (write disabled)
       
       do_read;
       do_read;
       
-      do_write("10000000");
+      do_write("00000110");
       
-      do_read;
+      do_both("00000111");
+      do_both("00001000");
+      
       do_read;
       
       do_clear;
