@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_pack.vhd,v $
+-- Revision 1.3  2004/06/29 21:30:04  erniel
+-- removed old async declarations
+-- removed old tx_t declaration
+--
 -- Revision 1.2  2004/06/29 21:24:28  erniel
 -- removed obsolete modules
 -- added LVDS transmit/receive
@@ -37,30 +41,14 @@ use ieee.std_logic_1164.all;
 
 package async_pack is
 
-   ---------------------------------------------------------
-   -- Core asynchronous modules
-   
-   component async_tx
-   port(tx_clk_i : in std_logic;   -- 25 MHz for LVDS, 115.2 kHz for RS232
-        rst_i    : in std_logic;
-
-        dat_i    : in std_logic_vector (7 downto 0);
-        stb_i    : in std_logic;
-        tx_o     : out std_logic;
-        busy_o   : out std_logic);
-   end component;
-
-   component async_rx
-   port(rx_clk_i : in std_logic;   -- 200 MHz for LVDS, 921.6 kHz for RS232
-        rst_i    : in std_logic;
-     
-        dat_o    : out std_logic_vector (7 downto 0);
-        stb_i    : in std_logic;
-        rx_i     : in std_logic;
-        valid_o  : out std_logic;
-        error_o  : out std_logic);
-   end component;
-
+   --
+   -- Notes:
+   -- 
+   -- clk_i       is the system clock (50 MHz)
+   --
+   -- comm_clk_i  is the base clock from which the transmit and
+   --             receive clocks are derived (200 MHz)
+   --
 
    ---------------------------------------------------------
    -- LVDS wrapper modules
