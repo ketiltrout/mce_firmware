@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.5  2004/11/30 22:58:47  bburger
+-- Bryce:  reply_queue integration
+--
 -- Revision 1.4  2004/11/30 03:20:23  erniel
 -- added error_o logic
 --
@@ -143,7 +146,7 @@ end reply_queue_sequencer;
 architecture rtl of reply_queue_sequencer is
 
 type seq_states is (IDLE, INSPECT_HEADERS, READ_AC_DATA, READ_BC1_DATA, READ_BC2_DATA, READ_BC3_DATA, 
-                    READ_RC1_DATA, READ_RC2_DATA, READ_RC3_DATA, READ_RC4_DATA, READ_CC_DATA, DONE);
+                    READ_RC1_DATA, READ_RC2_DATA, READ_RC3_DATA, READ_RC4_DATA, READ_CC_DATA, UPDATE_HEADERS);
 signal pres_state : seq_states;
 signal next_state : seq_states;
 
@@ -292,7 +295,7 @@ begin
                                     if(card_addr_i = ALL_FPGA_CARDS) then
                                        next_state <= READ_BC1_DATA;
                                     else
-                                       next_state <= DONE;
+                                       next_state <= UPDATE_HEADERS;
                                     end if;
                                  else
                                     next_state <= READ_AC_DATA;
@@ -302,7 +305,7 @@ begin
                                     if((card_addr_i = ALL_FPGA_CARDS) or (card_addr_i = ALL_BIAS_CARDS)) then
                                        next_state <= READ_BC2_DATA;
                                     else
-                                       next_state <= DONE;
+                                       next_state <= UPDATE_HEADERS;
                                     end if;
                                  else
                                     next_state <= READ_BC1_DATA;
@@ -312,7 +315,7 @@ begin
                                     if((card_addr_i = ALL_FPGA_CARDS) or (card_addr_i = ALL_BIAS_CARDS)) then
                                        next_state <= READ_BC3_DATA;
                                     else
-                                       next_state <= DONE;
+                                       next_state <= UPDATE_HEADERS;
                                     end if;
                                  else
                                     next_state <= READ_BC2_DATA;
@@ -322,7 +325,7 @@ begin
                                     if(card_addr_i = ALL_FPGA_CARDS) then
                                        next_state <= READ_RC1_DATA;
                                     else
-                                       next_state <= DONE;
+                                       next_state <= UPDATE_HEADERS;
                                     end if;
                                  else
                                     next_state <= READ_BC3_DATA;
@@ -332,7 +335,7 @@ begin
                                     if((card_addr_i = ALL_FPGA_CARDS) or (card_addr_i = ALL_READOUT_CARDS)) then
                                        next_state <= READ_RC2_DATA;
                                     else
-                                       next_state <= DONE;
+                                       next_state <= UPDATE_HEADERS;
                                     end if;
                                  else
                                     next_state <= READ_RC1_DATA;
@@ -342,7 +345,7 @@ begin
                                     if((card_addr_i = ALL_FPGA_CARDS) or (card_addr_i = ALL_READOUT_CARDS)) then
                                        next_state <= READ_RC3_DATA;
                                     else
-                                       next_state <= DONE;
+                                       next_state <= UPDATE_HEADERS;
                                     end if;
                                  else
                                     next_state <= READ_RC2_DATA;
@@ -352,7 +355,7 @@ begin
                                     if((card_addr_i = ALL_FPGA_CARDS) or (card_addr_i = ALL_READOUT_CARDS)) then
                                        next_state <= READ_RC4_DATA;
                                     else
-                                       next_state <= DONE;
+                                       next_state <= UPDATE_HEADERS;
                                     end if;
                                  else
                                     next_state <= READ_RC3_DATA;
@@ -362,19 +365,19 @@ begin
                                     if(card_addr_i = ALL_FPGA_CARDS) then
                                        next_state <= READ_CC_DATA;
                                     else
-                                       next_state <= DONE;
+                                       next_state <= UPDATE_HEADERS;
                                     end if;
                                  else
                                     next_state <= READ_RC4_DATA;
                                  end if;
          
          when READ_CC_DATA =>    if(cc_done_i = '1') then
-                                    next_state <= DONE;         
+                                    next_state <= UPDATE_HEADERS;         
                                  else
                                     next_state <= READ_CC_DATA;
                                  end if;
-                          
-         when DONE =>            next_state <= IDLE;
+         
+         when UPDATE_HEADERS =>  next_state <= IDLE;
          
          when others =>          next_state <= IDLE;
       end case;
@@ -583,7 +586,48 @@ begin
          when READ_CC_DATA =>    data_o    <= cc_data_i;
                                  rdy_o     <= '1';
                                  cc_ack_o  <= ack_i;
-         
+                                 
+         when UPDATE_HEADERS =>  case card_addr_i is
+                                    when ADDRESS_CARD =>      ac_ack_o  <= '1';
+                                    
+                                    when BIAS_CARD_1 =>       bc1_ack_o <= '1';
+                                    
+                                    when BIAS_CARD_2 =>       bc2_ack_o <= '1';
+                                    
+                                    when BIAS_CARD_3 =>       bc3_ack_o <= '1';
+                                    
+                                    when READOUT_CARD_1 =>    rc1_ack_o <= '1';
+                                    
+                                    when READOUT_CARD_2 =>    rc2_ack_o <= '1';
+                                    
+                                    when READOUT_CARD_3 =>    rc3_ack_o <= '1';
+                                    
+                                    when READOUT_CARD_4 =>    rc4_ack_o <= '1';
+                                    
+                                    when CLOCK_CARD =>        cc_ack_o  <= '1';
+                                    
+                                    when ALL_BIAS_CARDS =>    bc1_ack_o <= '1';
+                                                              bc2_ack_o <= '1';
+                                                              bc3_ack_o <= '1';
+                                                              
+                                    when ALL_READOUT_CARDS => rc1_ack_o <= '1';
+                                                              rc2_ack_o <= '1';
+                                                              rc3_ack_o <= '1';
+                                                              rc4_ack_o <= '1';
+                                                              
+                                    when ALL_FPGA_CARDS =>    ac_ack_o  <= '1';
+                                                              bc1_ack_o <= '1';
+                                                              bc2_ack_o <= '1';
+                                                              bc3_ack_o <= '1';
+                                                              rc1_ack_o <= '1';
+                                                              rc2_ack_o <= '1';
+                                                              rc3_ack_o <= '1';
+                                                              rc4_ack_o <= '1';
+                                                              cc_ack_o  <= '1';
+                                                              
+                                    when others => null;
+                                 end case;
+                                 
          when others =>          null;
       end case;
    end process state_Out;
