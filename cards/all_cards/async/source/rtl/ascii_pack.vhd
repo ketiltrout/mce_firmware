@@ -31,7 +31,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: ascii_pack.vhd,v $
+-- Revision 1.1  2004/12/10 00:12:15  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -42,6 +45,7 @@ use ieee.std_logic_unsigned.all;
 
 package ascii_pack is
 
+   -- letters:
    constant a : std_logic_vector(7 downto 0) := "01100001";
    constant b : std_logic_vector(7 downto 0) := "01100010";
    constant c : std_logic_vector(7 downto 0) := "01100011";
@@ -69,6 +73,7 @@ package ascii_pack is
    constant y : std_logic_vector(7 downto 0) := "01111001";
    constant z : std_logic_vector(7 downto 0) := "01111010";
 
+   -- numbers:
    constant zero  : std_logic_vector(7 downto 0) := "00110000";
    constant one   : std_logic_vector(7 downto 0) := "00110001";
    constant two   : std_logic_vector(7 downto 0) := "00110010";
@@ -80,6 +85,7 @@ package ascii_pack is
    constant eight : std_logic_vector(7 downto 0) := "00111000";
    constant nine  : std_logic_vector(7 downto 0) := "00111001";
 
+   -- punctuation:
    constant space     : std_logic_vector(7 downto 0) := "00100000";
    constant comma     : std_logic_vector(7 downto 0) := "00101100";
    constant period    : std_logic_vector(7 downto 0) := "00101110";
@@ -92,10 +98,20 @@ package ascii_pack is
    constant minus     : std_logic_vector(7 downto 0) := "00101101";
    constant equal     : std_logic_vector(7 downto 0) := "00111101";
 
-   constant line_feed    : std_logic_vector(7 downto 0) := "00001010";
-   constant carriage_ret : std_logic_vector(7 downto 0) := "00001101";
+   -- control characters:
+   constant nullchar : std_logic_vector(7 downto 0) := "00000000";
+   constant tab      : std_logic_vector(7 downto 0) := "00001001";
+   constant newline  : std_logic_vector(7 downto 0) := "00001101";
+   constant escape   : std_logic_vector(7 downto 0) := "00011011";
 
+   -- conversion of lowercase/punctuation -> uppercase/alternate punctuation
    function shift (key : std_logic_vector(7 downto 0)) return std_logic_vector;
+
+   -- conversion of 4-bit -> hex character (ascii)
+   function hex2asc (input : std_logic_vector(3 downto 0)) return std_logic_vector;
+
+   -- conversion of 1-bit -> bin character (ascii)
+   function bin2asc (input : std_logic) return std_logic_vector;
 
 end ascii_pack;
 
@@ -135,5 +151,43 @@ package body ascii_pack is
       end case;
       return result;
    end function shift;
+
+   function hex2asc (input : std_logic_vector(3 downto 0)) return std_logic_vector is
+   variable result : std_logic_vector(7 downto 0);
+   begin
+      case input is
+         when "0000" => result := "00110000";       -- 0
+         when "0001" => result := "00110001";       -- 1
+         when "0010" => result := "00110010";       -- 2
+         when "0011" => result := "00110011";       -- 3
+         when "0100" => result := "00110100";       -- 4
+         when "0101" => result := "00110101";       -- 5
+         when "0110" => result := "00110110";       -- 6
+         when "0111" => result := "00110111";       -- 7
+         when "1000" => result := "00111000";       -- 8
+         when "1001" => result := "00111001";       -- 9
+         when "1010" => result := "01000001";       -- A
+         when "1011" => result := "01000010";       -- B
+         when "1100" => result := "01000011";       -- C
+         when "1101" => result := "01000100";       -- D
+         when "1110" => result := "01000101";       -- E
+         when "1111" => result := "01000110";       -- F
+
+         when others => result := "01011000";       -- X
+      end case;
+      return result;
+   end function hex2asc;
+
+   function bin2asc (input : std_logic) return std_logic_vector is
+   variable result : std_logic_vector(7 downto 0);
+   begin
+      case input is
+         when '0' =>    result := "00110000";       -- 0
+         when '1' =>    result := "00110001";       -- 1
+
+         when others => result := "01011000";       -- X
+      end case;
+      return result;
+   end function bin2asc;
 
 end package body ascii_pack;
