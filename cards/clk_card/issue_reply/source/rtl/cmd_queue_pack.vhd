@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.14 2004/10/08 19:45:26 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.15 2004/10/26 23:59:16 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.15  2004/10/26 23:59:16  bburger
+-- Bryce:  working out the bugs from the cmd_queue<->reply_queue interface
+--
 -- Revision 1.14  2004/10/08 19:45:26  bburger
 -- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
 --
@@ -86,7 +89,7 @@ use work.cmd_queue_ram40_pack.all;
 
 package cmd_queue_pack is
    
-   constant MAX_NUM_UOPS     : integer :=   3;
+   constant MAX_NUM_UOPS     : integer :=   10;
    
    -- Calculated constants for inputing data on the correct lines into/out-of the queue
    -- The following fields make up the first four lines of each u-op entry in the queue:

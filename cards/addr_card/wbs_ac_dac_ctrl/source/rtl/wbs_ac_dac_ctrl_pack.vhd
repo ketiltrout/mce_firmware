@@ -31,7 +31,6 @@ component wbs_ac_dac_ctrl is
       stb_i          : in std_logic;
       cyc_i          : in std_logic;
       dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      rty_o          : out std_logic;
       ack_o          : out std_logic
    );     
 end component;

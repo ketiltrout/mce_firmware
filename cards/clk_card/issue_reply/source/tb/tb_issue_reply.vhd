@@ -15,20 +15,20 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.15 2004/10/14 00:38:43 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.16 2004/10/19 06:13:51 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
 -- Organisation: UK ATC
 --
 -- Title
--- tb_fibre_rx
+-- tb_issue_reply
 --
 -- Description:
--- Test bed for fibre_rx
+-- Test bed for the issue_reply chain
 --
 -- Revision history:
--- <date $Date: 2004/10/14 00:38:43 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/19 06:13:51 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -41,272 +41,251 @@ library work;
 use work.issue_reply_pack.all;
 use work.async_pack.all;
 use work.sync_gen_pack.all;
+use work.dispatch_pack.all;
+use work.wbs_ac_dac_ctrl_pack.all;
 
 library components;
 use components.component_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 entity tb_issue_reply is     
 end tb_issue_reply;
 
 architecture tb of tb_issue_reply is 
-
-
  
-    signal   t_rst_i       : std_logic;
-    signal   t_clk_i       : std_logic := '0';
+   signal   t_rst_i            : std_logic;
      
-    signal   t_fibre_clkr    : std_logic := '1'; 
-      
-      -- inputs from the fibre
-    signal  t_rx_data_i   : std_logic_vector (7 DOWNTO 0);
-    signal  t_nRx_rdy_i   : std_logic;
-    signal  t_rvs_i       : std_logic;
-    signal  t_rso_i       : std_logic;
-    signal  t_rsc_nRd_i   : std_logic;    
-    
-    --rx signals
-    signal t_rx_dat        : std_logic_vector(31 downto 0);
-    signal t_rx_rdy        : std_logic;
-    signal t_rx_ack        : std_logic;    
-
-    signal  t_cksum_err_o : std_logic;
-      
---      -- outputs to the micro-instruction sequence generator
---      -- these signals will be absorbed when the issue_reply block's boundary extends
---      -- to include u-op sequence generator.
---    signal  t_card_addr_o       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
---    signal  t_parameter_id_o    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
---    signal  t_data_size_o       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
---    signal  t_data_o            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
---    signal  t_data_clk_o        : std_logic;
---    signal  t_macro_instr_rdy_o : std_logic;
---      
---    signal  t_m_op_seq_num_o    : std_logic_vector(7 downto 0);
---    signal  t_frame_seq_num_o   : std_logic_vector(31 downto 0);
---    signal  t_frame_sync_num_o  : std_logic_vector(7 downto 0);
---      
---      -- input from the micro-op sequence generator
---    signal  t_ack_i             : std_logic; 
-    
-   signal t_tx                  : std_logic; -- transmitter output pin
-   signal t_clk_200mhz_i        : std_logic := '0';
-
-   constant pci_dsp_dly         : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI
- 
-   constant clk_prd             : TIME := 20 ns;    -- 50Mhz clock
-   constant clk_prd_200mhz      : TIME := 5 ns;    -- 200Mhz clock
-
-   constant fibre_clkr_prd      : TIME := 40 ns ;   -- 25MHz clock
-
-
-   constant preamble1    : std_logic_vector (7 downto 0)  := X"A5";
-   constant preamble2    : std_logic_vector (7 downto 0)  := X"5A";
-   constant pre_fail     : std_logic_vector (7 downto 0)  := X"55";
-   constant command_wb   : std_logic_vector (31 downto 0) := X"20205742";
-   constant command_rb   : std_logic_vector (31 downto 0) := x"20205242";
-
-   constant command_go   : std_logic_vector (31 downto 0) := X"2020474F";
-   constant command_st   : std_logic_vector (31 downto 0) := x"20205354";
-   --constant address_id   : std_logic_vector (31 downto 0) := X"0002015C";
-   signal address_id   : std_logic_vector (31 downto 0) := X"00000000";--X"0002015C";
+   -- Inputs from the fibre
+   signal t_rx_data_i         : std_logic_vector(7 DOWNTO 0);
+   signal t_nRx_rdy_i         : std_logic;
+   signal t_rvs_i             : std_logic;
+   signal t_rso_i             : std_logic;
+   signal t_rsc_nRd_i         : std_logic;    
    
-   constant ret_dat_s_cmd      : std_logic_vector (31 downto 0) := X"00000034";  -- card id=0, ret_dat_s command
-   constant ret_dat_s_num_data : std_logic_vector (31 downto 0) := X"00000002";  -- 2 data words, start and stop frame #
-   signal ret_dat_s_start      : std_logic_vector (31 downto 0)  := X"00000003";
-   signal ret_dat_s_stop       : std_logic_vector (31 downto 0)  := X"00000011";
+   -- RX signals
+   signal t_rx_dat             : std_logic_vector(31 downto 0);
+   signal t_rx_rdy             : std_logic;
+   signal t_rx_ack             : std_logic;
+   signal t_rx                 : std_logic;
+
+   -- Clock signals
+   signal t_cksum_err_o        : std_logic;     
+   signal t_tx                 : std_logic; -- transmitter output pin
+   signal t_clk_i              : std_logic := '0';    
+   signal t_fibre_clkr         : std_logic := '1'; 
+   signal t_clk_200mhz_i       : std_logic := '0';
+   signal comm_clk             : std_logic := '0';
+   constant pci_dsp_dly        : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI 
+   constant clk_prd            : TIME := 20 ns;    -- 50Mhz clock
+   constant clk_prd_200mhz     : TIME := 5 ns;    -- 200Mhz clock
+   constant fibre_clkr_prd     : TIME := 40 ns;   -- 25MHz clock   
+   constant comm_clk_period    : TIME := 40 ns;
+   constant mem_clk_period     : TIME := 5 ns;
+   constant clk_period         : TIME := 20 ns;
+
+   constant preamble1          : std_logic_vector(7 downto 0) := X"A5";
+   constant preamble2          : std_logic_vector(7 downto 0) := X"5A";
+   constant pre_fail           : std_logic_vector(7 downto 0) := X"55";
+   constant command_wb         : std_logic_vector(31 downto 0) := X"20205742";
+   constant command_rb         : std_logic_vector(31 downto 0) := x"20205242";
+   constant command_go         : std_logic_vector(31 downto 0) := X"2020474F";
+   constant command_st         : std_logic_vector(31 downto 0) := x"20205354";
+   signal address_id           : std_logic_vector(31 downto 0) := X"00000000";--X"0002015C";
    
-   constant ret_dat_cmd        : std_logic_vector (31 downto 0) := X"000D0030";  -- card id=4, ret_dat command
-   constant ret_dat_num_data   : std_logic_vector (31 downto 0) := X"00000001";  -- 2 data words, start and stop frame #
-   
-   constant flux_fdbck_cmd         : std_logic_vector (31 downto 0) := x"00070020"; -- bias card 1, flux feedback command
-   constant sram1_strt_cmd     : std_logic_vector (31 downto 0) := x"0002005C"; -- clock card, sram1_start command
-   
-   constant no_std_data  : std_logic_vector (31 downto 0) := X"00000001";
-   constant data_block   : positive := 58;
-   constant data_word1   : std_logic_vector (31 downto 0) := X"00001234";
-   constant data_word2   : std_logic_vector (31 downto 0) := X"00005678";
-   constant check_err    : std_logic_vector (31 downto 0) := X"fafafafa";
- 
-   
-   signal   checksum     : std_logic_vector(31 downto 0):= X"00000000";
-   signal   command      : std_logic_vector (31 downto 0);
-   
-   signal   data_valid   : std_logic_vector (31 downto 0); -- used to be set to constant X"00000028"
-   signal   data         : std_logic_vector (31 downto 0) := X"00000001";--integer := 1;
+   constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00000034";  -- card id=0, ret_dat_s command
+   constant ret_dat_s_num_data : std_logic_vector(31 downto 0) := X"00000002";  -- 2 data words, start and stop frame #
+   signal ret_dat_s_start      : std_logic_vector(31 downto 0) := X"00000003";
+   signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000011";   
+   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000D0030";  -- card id=4, ret_dat command
+   constant ret_dat_num_data   : std_logic_vector(31 downto 0) := X"00000001";  -- 2 data words, start and stop frame #   
+   constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00070020"; -- bias card 1, flux feedback command
+   constant sram1_strt_cmd     : std_logic_vector(31 downto 0) := x"0002005C"; -- clock card, sram1_start command
   
-   signal   count        : integer;
-
-
-
-
-      -- temporary signals to simulate the sync pulse counter
-
-      signal sync_count           : integer;
-      signal count_rst            : std_logic;
-      signal sync_number_mux_sel  : std_logic;
-      signal sync_number_mux      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      
-      type state is               (IDLE, COUNTING, INCREMENT);
-      signal current_state, next_state : state;
-      constant SYNC_PERIOD        : integer := 53; -- time in micro-seconds
-      
-    signal sync_pulse    : std_logic;
-    signal sync_number   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-    
- 
+   constant no_std_data        : std_logic_vector(31 downto 0) := X"00000001";
+   constant data_block         : positive := 58;
+   constant data_word1         : std_logic_vector(31 downto 0) := X"00001234";
+   constant data_word2         : std_logic_vector(31 downto 0) := X"00005678";
+   constant check_err          : std_logic_vector(31 downto 0) := X"fafafafa"; 
    
-component issue_reply
-
-port(
-
+   signal checksum             : std_logic_vector(31 downto 0) := X"00000000";
+   signal command              : std_logic_vector(31 downto 0);   
+   signal data_valid           : std_logic_vector(31 downto 0); -- used to be set to constant X"00000028"
+   signal data                 : std_logic_vector(31 downto 0) := X"00000001";--integer := 1;
+  
+   signal count                : integer;
+   
+   signal dv_i                 : std_logic := '0';
+   signal dv_en_i              : std_logic := '0';
+   
+   signal sync_pulse           : std_logic;
+   signal sync_number          : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   
+   -- wbs_ac_dac_ctrl signals
+   signal on_off_addr          : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0) := (others => '0');
+   signal W_DAT_O              : std_logic_vector(WB_DATA_WIDTH - 1 downto 0 );
+   signal W_ADDR_O             : std_logic_vector(WB_ADDR_WIDTH - 1 downto 0 );
+   signal W_TGA_O              : std_logic_vector(WB_TAG_ADDR_WIDTH - 1 downto 0 );
+   signal W_WE_O               : std_logic;
+   signal W_STB_O              : std_logic;
+   signal W_CYC_O              : std_logic;
+   signal W_DAT_I              : std_logic_vector(WB_DATA_WIDTH - 1 downto 0 ) := (others => '0');
+   signal W_ACK_I              : std_logic;
+   
+   component issue_reply
+   port(
       -- global signals
-      rst_i        : in     std_logic;
-      clk_i        : in     std_logic;
-     
-      
-      
-      -- inputs from the fibre
-      fibre_clkr_i : in    std_logic;
-      rx_data_i    : in     std_logic_vector (7 DOWNTO 0);
-      nRx_rdy_i    : in     std_logic;
-      rvs_i        : in     std_logic;
-      rso_i        : in     std_logic;
-      rsc_nRd_i    : in     std_logic;        
+      rst_i          : in std_logic;
+      clk_i          : in std_logic;
 
-      
-      
-      -- outputs to the micro-instruction sequence generator
-      -- these signals will be absorbed when the issue_reply block's boundary extends
-      -- to include u-op sequence generator.
---      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
---      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
---      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
---      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
---      data_clk_o        :  out std_logic;
---      macro_instr_rdy_o :  out std_logic;
---      
---      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
---      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
---      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
---      
---      -- input from the micro-op sequence generator
---      ack_i             : in std_logic     
-      
+      -- inputs from the fibre
+      fibre_clkr_i   : in std_logic;
+      rx_data_i      : in std_logic_vector(7 DOWNTO 0);
+      nRx_rdy_i      : in std_logic;
+      rvs_i          : in std_logic;
+      rso_i          : in std_logic;
+      rsc_nRd_i      : in std_logic;        
       
       -- lvds_tx interface
       tx_o           : out std_logic;  -- transmitter output pin
       clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
       sync_pulse_i   : in std_logic;
       sync_number_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
-
-
    ); 
-     
-end component;
-
+   end component;
     
 begin
 
-
-
-
-dut : issue_reply
-
-port map(
-
+   dut : issue_reply
+   port map
+   (
       -- global signals
-      rst_i        => t_rst_i,
-      clk_i        => t_clk_i,
-      
+      rst_i         => t_rst_i,
+      clk_i         => t_clk_i,      
       
       -- inputs from the fibre
-      fibre_clkr_i => t_fibre_clkr,
-      rx_data_i   => t_rx_data_i,
-      nRx_rdy_i   => t_nrx_rdy_i,
-      rvs_i       => t_rvs_i,
-      rso_i       => t_rso_i,
-      rsc_nRd_i   => t_rsc_nrd_i,
-
---      cksum_err_o => t_cksum_err_o,
---      
---      -- outputs to the micro-instruction sequence generator
---      -- these signals will be absorbed when the issue_reply block's boundary extends
---      -- to include u-op sequence generator.
---      card_addr_o       => t_card_addr_o,        -- specifies which card the command is targetting
---      parameter_id_o    => t_parameter_id_o,     -- comes from param_id_i, indicates which device(s) the command is targetting
---      data_size_o       => t_data_size_o,        -- num_data_i, indicates number of 16-bit words of data
---      data_o            => t_data_o,             -- data will be passed straight thru
---      data_clk_o        => t_data_clk_o,
---      macro_instr_rdy_o => t_macro_instr_rdy_o,
---      
---      m_op_seq_num_o    => t_m_op_seq_num_o,
---      frame_seq_num_o   => t_frame_seq_num_o,
---      frame_sync_num_o  => t_frame_sync_num_o,
---      
---      -- input from the micro-op sequence generator
---      ack_i             => t_ack_i
-      
+      fibre_clkr_i  => t_fibre_clkr,
+      rx_data_i     => t_rx_data_i,
+      nRx_rdy_i     => t_nrx_rdy_i,
+      rvs_i         => t_rvs_i,
+      rso_i         => t_rso_i,
+      rsc_nRd_i     => t_rsc_nrd_i,
+   
       -- lvds_tx interface
       tx_o          => t_tx,  -- transmitter output pin
-      clk_200mhz_i   => t_clk_200mhz_i,  -- PLL locked 25MHz input clock for the
-      sync_pulse_i      => sync_pulse,
-      sync_number_i     => sync_number
-
-
+      clk_200mhz_i  => t_clk_200mhz_i,  -- PLL locked 25MHz input clock for the
+      sync_pulse_i  => sync_pulse,
+      sync_number_i => sync_number
    ); 
-     
+   
+   i_sync_gen : sync_gen
+   port map
+   (
+      clk_i         => t_clk_i,
+      rst_i         => t_rst_i,
+      dv_i          => dv_i,
+      dv_en_i       => dv_en_i,
+      sync_o        => sync_pulse,
+      sync_num_o    => sync_number      
+   );
+   
+   i_dispatch : DISPATCH
+   generic map
+   (
+      CARD   => ADDRESS_CARD 
+   )
+   port map
+   (
+      CLK_I         => t_clk_i,
+      MEM_CLK_I     => t_clk_200mhz_i,
+      COMM_CLK_I    => t_clk_200mhz_i,
+      RST_I         => t_rst_i,
+      LVDS_CMD_I    => t_tx,
+      LVDS_REPLY_O  => t_rx,
+      DAT_O         => W_DAT_O,
+      ADDR_O        => W_ADDR_O,
+      TGA_O         => W_TGA_O,
+      WE_O          => W_WE_O,
+      STB_O         => W_STB_O,
+      CYC_O         => W_CYC_O,
+      DAT_I         => W_DAT_I,
+      ACK_I         => W_ACK_I,
+      WDT_RST_O     => open
+   );
+
    rx : lvds_rx
-      port map(
-        clk_i          => t_clk_i,
-        comm_clk_i     => t_clk_200mhz_i,
-        rst_i          => t_rst_i,
-     
-        dat_o          => t_rx_dat,
-        rdy_o          => t_rx_rdy,
-        ack_i          => t_rx_ack,
-     
-        lvds_i         => t_tx
-      );
+   port map
+   (
+      clk_i         => t_clk_i,
+      comm_clk_i    => t_clk_200mhz_i,
+      rst_i         => t_rst_i,
+      dat_o         => t_rx_dat,
+      rdy_o         => t_rx_rdy,
+      ack_i         => t_rx_ack,
+      lvds_i        => t_tx
+   );
    
+   i_wbs_ac_dac_ctrl : wbs_ac_dac_ctrl
+   port map
+   (
+      -- ac_dac_ctrl interface:
+      on_off_addr_i => on_off_addr,
+      on_data_o     => open,
+      off_data_o    => open, 
+      mux_en_o      => open,
+
+      -- global interface
+      clk_i         => t_clk_i,
+      mem_clk_i     => t_clk_200mhz_i,
+      rst_i         => t_rst_i,
+      
+      -- wishbone interface:
+      dat_i         => W_DAT_O,
+      addr_i        => W_ADDR_O,
+      tga_i         => W_TGA_O,
+      we_i          => W_WE_O,
+      stb_i         => W_STB_O,
+      cyc_i         => W_CYC_O,
+      dat_o         => W_DAT_I,
+      ack_o         => W_ACK_I
+   );   
+   
+   -- set up hotlink receiver signals 
    t_rx_ack <= t_rx_rdy;
- 
- -- set up hotlink receiver signals 
-      t_rvs_i         <= '0';  -- no violation
-      t_rso_i         <= '1';  -- status ok
-      t_rsc_nRd_i     <= '0';  -- data     
+   t_rvs_i         <= '0';  -- no violation
+   t_rso_i         <= '1';  -- status ok
+   t_rsc_nRd_i     <= '0';  -- data     
           
-------------------------------------------------
--- Create test bench clock
--------------------------------------------------
+   ------------------------------------------------
+   -- Create test bench clock
+   -------------------------------------------------
   
-   t_clk_i        <= not t_clk_i        after clk_prd/2;
-   t_clk_200mhz_i <= not t_clk_200mhz_i after clk_prd_200mhz/2;
-   
-   t_fibre_clkr   <= not t_fibre_clkr   after fibre_clkr_prd/2;  
+   t_clk_i         <= not t_clk_i        after clk_prd/2;
+   t_clk_200mhz_i  <= not t_clk_200mhz_i after clk_prd_200mhz/2;   
+   t_fibre_clkr    <= not t_fibre_clkr   after fibre_clkr_prd/2;
+   comm_clk        <= not comm_clk       after comm_clk_period/2;
     
-------------------------------------------------
--- Create test bench stimuli
--------------------------------------------------
+   ------------------------------------------------
+   -- Create test bench stimuli
+   -------------------------------------------------
    
-stimuli : process
+   stimuli : process
   
-------------------------------------------------
--- Stimulus procedures
--------------------------------------------------
+   ------------------------------------------------
+   -- Stimulus procedures
+   -------------------------------------------------
       
    procedure do_reset is
    begin
       t_rst_i <= '1';
       wait for clk_prd*5 ;
       t_rst_i <= '0';
-      wait for clk_prd*5 ;
-   
+      wait for clk_prd*5 ;   
       assert false report " Resetting the DUT." severity NOTE;
    end do_reset;
---------------------------------------------------
+   --------------------------------------------------
   
    procedure load_preamble is
    begin
@@ -325,21 +304,18 @@ stimuli : process
       wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i    <= '0';
       wait for fibre_clkr_prd * 0.6;
-   end loop;  
-   
+   end loop;     
    
    t_nrx_rdy_i <= '1';
-   wait for pci_dsp_dly; 
-    
+   wait for pci_dsp_dly;     
     
    assert false report "preamble OK" severity NOTE;
    end load_preamble;
    
-  ---------------------------------------------------------    
+   ---------------------------------------------------------    
  
    procedure load_command is 
-   begin
-   
+   begin   
       checksum  <= command;
     
       t_nrx_rdy_i   <= '1';
@@ -371,11 +347,10 @@ stimuli : process
       t_nrx_rdy_i <= '1';
       wait for pci_dsp_dly;   
      
-  -- load up address_id
-
+      -- load up address_id
       checksum <= checksum XOR address_id;
      
-       t_nrx_rdy_i   <= '1';
+      t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= address_id(7 downto 0);
       wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
@@ -399,13 +374,11 @@ stimuli : process
       t_nrx_rdy_i   <= '0';
       wait for fibre_clkr_prd * 0.6;
      
-     assert false report "address id loaded" severity NOTE;
-     t_nrx_rdy_i <= '1';
-     wait for pci_dsp_dly; 
+      assert false report "address id loaded" severity NOTE;
+      t_nrx_rdy_i <= '1';
+      wait for pci_dsp_dly; 
      
-    -- load up data valid 
-   
-       
+      -- load up data valid       
       checksum <= checksum XOR data_valid;
   
       t_nrx_rdy_i   <= '1';
@@ -432,110 +405,92 @@ stimuli : process
       t_nrx_rdy_i   <= '0';
       wait for fibre_clkr_prd * 0.6;
       
-     assert false report "data valid loaded" severity NOTE;
-     t_nrx_rdy_i <= '1';
-     wait for pci_dsp_dly; 
+      assert false report "data valid loaded" severity NOTE;
+      t_nrx_rdy_i <= '1';
+      wait for pci_dsp_dly; 
       
-      
-  
-  -- load up data block
-  
-   
-  -- first load valid data
-      
+      -- load up data block
+      -- first load valid data
       for I in 0 to (To_integer((Unsigned(data_valid)))-1) loop
       --for I in 0 to (data_valid-1) loop
-      
-      t_nrx_rdy_i   <= '1';
---      t_rx_data_i <= std_logic_vector(To_unsigned(data,8));
---      checksum (7 downto 0) <= checksum (7 downto 0) XOR std_logic_vector(To_unsigned(data,8));
-      
-      t_rx_data_i <= data(7 downto 0);
-      checksum (7 downto 0) <= checksum (7 downto 0) XOR data(7 downto 0);
-      wait for fibre_clkr_prd * 0.4;
-      t_nrx_rdy_i   <= '0';
-      wait for fibre_clkr_prd * 0.6;
-      
-      t_nrx_rdy_i   <= '1';
---      t_rx_data_i <= std_logic_vector(To_unsigned(data,8));
---      checksum (15 downto 8) <= checksum (15 downto 8) XOR std_logic_vector(To_unsigned(data,8));
-      
-      t_rx_data_i <= data(15 downto 8);
-      checksum (15 downto 8) <= checksum (15 downto 8) XOR data(15 downto 8);
-      wait for fibre_clkr_prd * 0.4;
-      t_nrx_rdy_i   <= '0';
-      wait for fibre_clkr_prd * 0.6;
-      
-      t_nrx_rdy_i   <= '1';
---      t_rx_data_i <= std_logic_vector(To_unsigned(data,8));
---      checksum (23 downto 16) <= checksum (23 downto 16) XOR std_logic_vector(To_unsigned(data,8));
-
-      t_rx_data_i <= data(23 downto 16);
-      checksum (23 downto 16) <= checksum (23 downto 16) XOR data(23 downto 16);
-      wait for fibre_clkr_prd * 0.4;
-      t_nrx_rdy_i   <= '0';
-      wait for fibre_clkr_prd * 0.6;
-      
-      t_nrx_rdy_i   <= '1';
---      t_rx_data_i <= std_logic_vector(To_unsigned(data,8));
---      checksum (31 downto 24) <= checksum (31 downto 24) XOR std_logic_vector(To_unsigned(data,8));
-      
-      t_rx_data_i <= data(31 downto 24);
-      checksum (31 downto 24) <= checksum (31 downto 24) XOR data(31 downto 24);
-      wait for fibre_clkr_prd * 0.4;
-      t_nrx_rdy_i   <= '0';
-      
-      case address_id is
-         when ret_dat_s_cmd => data <= ret_dat_s_stop;
-         when ret_dat_cmd   => data <= (others => '0');
-         when others        => data <= data + 1;
-      end case;
-      
-      wait for fibre_clkr_prd * 0.6;
-      
-      t_nrx_rdy_i <= '1';
-      wait for pci_dsp_dly; 
-      
-    end loop;
- 
-    
-    for J in (To_integer((Unsigned(data_valid)))) to data_block-1 loop
-     
-        
-      t_nrx_rdy_i   <= '1';
-      t_rx_data_i <= X"00";
-      wait for fibre_clkr_prd * 0.4;
-      t_nrx_rdy_i   <= '0';
-      wait for fibre_clkr_prd * 0.6;
-      
-      t_nrx_rdy_i   <= '1';
-      t_rx_data_i <= X"00";
-      wait for fibre_clkr_prd * 0.4;
-      t_nrx_rdy_i   <= '0';
-      wait for fibre_clkr_prd * 0.6;
-      
-      t_nrx_rdy_i   <= '1';
-      t_rx_data_i <= X"00";
-      wait for fibre_clkr_prd * 0.4;
-      t_nrx_rdy_i   <= '0';
-      wait for fibre_clkr_prd * 0.6;
-      
-      t_nrx_rdy_i   <= '1';
-      t_rx_data_i <= X"00";
-      wait for fibre_clkr_prd * 0.4;
-      t_nrx_rdy_i   <= '0';
-      wait for fibre_clkr_prd * 0.6;
          
-      t_nrx_rdy_i <= '1';
-      wait for pci_dsp_dly; 
-   
-    end loop;
-      
-    assert false report "data words loaded to memory...." severity NOTE;
+         t_nrx_rdy_i   <= '1';
+         
+         t_rx_data_i <= data(7 downto 0);
+         checksum (7 downto 0) <= checksum (7 downto 0) XOR data(7 downto 0);
+         wait for fibre_clkr_prd * 0.4;
+         t_nrx_rdy_i   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+         
+         t_nrx_rdy_i   <= '1';
+         
+         t_rx_data_i <= data(15 downto 8);
+         checksum (15 downto 8) <= checksum (15 downto 8) XOR data(15 downto 8);
+         wait for fibre_clkr_prd * 0.4;
+         t_nrx_rdy_i   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+         
+         t_nrx_rdy_i   <= '1';
 
-    end load_command;
+         t_rx_data_i <= data(23 downto 16);
+         checksum (23 downto 16) <= checksum (23 downto 16) XOR data(23 downto 16);
+         wait for fibre_clkr_prd * 0.4;
+         t_nrx_rdy_i   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+         
+         t_nrx_rdy_i   <= '1';
+         
+         t_rx_data_i <= data(31 downto 24);
+         checksum (31 downto 24) <= checksum (31 downto 24) XOR data(31 downto 24);
+         wait for fibre_clkr_prd * 0.4;
+         t_nrx_rdy_i   <= '0';
+         
+         case address_id is
+            when ret_dat_s_cmd => data <= ret_dat_s_stop;
+            when ret_dat_cmd   => data <= (others => '0');
+            when others        => data <= data + 1;
+         end case;
+         
+         wait for fibre_clkr_prd * 0.6;
+         
+         t_nrx_rdy_i <= '1';
+         wait for pci_dsp_dly;        
+      end loop;
     
-------------------------------------------------------
+      for J in (To_integer((Unsigned(data_valid)))) to data_block-1 loop
+         t_nrx_rdy_i   <= '1';
+         t_rx_data_i <= X"00";
+         wait for fibre_clkr_prd * 0.4;
+         t_nrx_rdy_i   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+         
+         t_nrx_rdy_i   <= '1';
+         t_rx_data_i <= X"00";
+         wait for fibre_clkr_prd * 0.4;
+         t_nrx_rdy_i   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+         
+         t_nrx_rdy_i   <= '1';
+         t_rx_data_i <= X"00";
+         wait for fibre_clkr_prd * 0.4;
+         t_nrx_rdy_i   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+         
+         t_nrx_rdy_i   <= '1';
+         t_rx_data_i <= X"00";
+         wait for fibre_clkr_prd * 0.4;
+         t_nrx_rdy_i   <= '0';
+         wait for fibre_clkr_prd * 0.6;
+            
+         t_nrx_rdy_i <= '1';
+         wait for pci_dsp_dly; 
+      end loop;
+        
+      assert false report "data words loaded to memory...." severity NOTE;
+
+   end load_command;
+    
+   ------------------------------------------------------
 
    procedure load_checksum is
     
@@ -579,8 +534,7 @@ stimuli : process
        
    begin
       
-      do_reset; 
-      
+      do_reset;    
       
       -- This is a 'WB cc sram1_start A B C' command
       command <= command_wb;
@@ -822,71 +776,7 @@ stimuli : process
       --wait for 120 us;
       
       assert false report "Simulation done." severity FAILURE;
- 
 
    end process stimuli;
-       
-------------------------------------------------------------------------
---
--- temporary sync_number counter
---
-------------------------------------------------------------------------
-
-    i_timer : us_timer
-    port map(clk           => t_clk_i,
-           timer_reset_i   => count_rst,
-           timer_count_o   => sync_count
-           );
-           
-
-   process(current_state, sync_count)
-   begin
    
-      -- default
-      count_rst           <= '0';
-      sync_number_mux_sel <= '0'; -- hold value
-   
-      case current_state is
-         when IDLE =>
-            next_state <= COUNTING;
-            count_rst  <= '1';
-            
-         when COUNTING =>
-            if sync_count >= SYNC_PERIOD then
-               --count_rst           <= '1';
-               --sync_number_mux_sel <= '1';
-               next_state <= INCREMENT;
-            else
-               next_state <= COUNTING;
-            end if;
-            
-         when INCREMENT =>
-            count_rst           <= '1';
-            sync_number_mux_sel <= '1';
-            next_state <= COUNTING;
-            
-         when others =>
-            next_state <= IDLE;
-                     
-      end case;
-   end process;
-
-
-   process(t_clk_i, t_rst_i)
-   begin
-      if t_rst_i = '1' then
-         sync_number    <= (others=>'0');
-         current_state <= IDLE;
-      elsif t_clk_i'event and t_clk_i = '1' then
-         current_state <= next_state;
-         sync_number    <= sync_number_mux;
-      end if;
-   end process;
-
-   sync_number_mux <= sync_number + 1 when sync_number_mux_sel = '1' else sync_number;
-
-   sync_pulse <= sync_number_mux_sel;
-  
-   
- 
 end tb;

@@ -35,7 +35,6 @@ entity wbs_ac_dac_ctrl is
       stb_i                : in std_logic;
       cyc_i                : in std_logic;
       dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      rty_o                : out std_logic;
       ack_o                : out std_logic
    );     
 end wbs_ac_dac_ctrl;
@@ -50,6 +49,7 @@ architecture rtl of wbs_ac_dac_ctrl is
    -- RAM/Register signals
    constant null_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
    constant null_sig       : std_logic := '0';
+   
    signal on_val_wren      : std_logic;   
    signal off_val_wren     : std_logic;
    signal row_order_wren   : std_logic;
@@ -240,7 +240,6 @@ begin
       (others => '0') when others;
    
    master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
-   rty_o <= '0'; -- for now
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
