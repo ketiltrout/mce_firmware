@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.17 2004/11/25 01:32:37 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.18 2004/12/16 22:05:40 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.18  2004/12/16 22:05:40  bburger
+-- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
+--
 -- Revision 1.17  2004/11/25 01:32:37  bburger
 -- Bryce:
 -- - Changed to cmd_code over the bus backplane to read/write only
@@ -165,7 +168,6 @@ component cmd_queue
 
       -- Clock lines
       clk_i           : in std_logic; -- Advances the state machines
-      comm_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
       mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
       rst_i           : in std_logic  -- Resets all FSMs
    );
