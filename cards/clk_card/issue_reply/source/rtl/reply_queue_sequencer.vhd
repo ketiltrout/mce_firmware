@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.13  2005/03/05 01:27:50  bburger
+-- Ernie: moved position of MATCHED state to after CALC_DATA_SIZE
+--
 -- Revision 1.12  2005/03/03 19:47:49  mandana
 -- Had to comment out the rest of error_o line!
 --
@@ -95,7 +98,11 @@ library work;
 use work.reply_queue_pack.all;
 
 entity reply_queue_sequencer is
-port(clk_i : in std_logic;
+port(
+     -- for debugging
+     timer_trigger_o : out std_logic;
+
+     clk_i : in std_logic;
      rst_i : in std_logic;
      
      -- reply_queue_receive FIFO interfaces:
@@ -184,6 +191,9 @@ signal calc_count_ena : std_logic;
 signal calc_count_clr : std_logic;
 signal calc_count : integer range 0 to 10;
 
+-- Debugging Logic
+signal timer_count   : integer;
+
 begin
 
    
@@ -195,6 +205,19 @@ begin
    --           rc1_data_i(31 downto 29) & rc2_data_i(31 downto 29) & rc3_data_i(31 downto 29) & rc4_data_i(31 downto 29) &
    --           cc_data_i(31 downto 29) & "000";
    
+   ---------------------------------------------------------
+   -- Debugging Logic
+   ---------------------------------------------------------
+   -- This timer will allow us to trigger earlier to monitor the timeout of commands with little data.
+   -- The purpose of time is to provide a trigger to track down unreliablility issues.
+   
+   timer_trigger_o <= '1' when timer_count >= 53 else '0';
+   trigger_timer : us_timer
+      port map(
+         clk           => clk_i,
+         timer_reset_i => timeout_clr,
+         timer_count_o => timer_count
+      );
    
    ---------------------------------------------------------
    -- Timeout Logic

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.16 2005/02/20 02:00:29 bburger Exp $
+-- $Id: reply_queue_pack.vhd,v 1.17 2005/03/12 02:19:01 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.17  2005/03/12 02:19:01  bburger
+-- bryce:  bug fixes
+--
 -- Revision 1.16  2005/02/20 02:00:29  bburger
 -- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
 --
@@ -247,7 +250,11 @@ component reply_queue_accumulator
 end component;
 
 component reply_queue_sequencer
-   port(clk_i : in std_logic;
+   port(
+        -- for debugging
+        timer_trigger_o : out std_logic;
+
+        clk_i : in std_logic;
         rst_i : in std_logic;
   
         -- receiver FIFO interfaces:

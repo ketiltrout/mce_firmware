@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.14 2005/02/20 00:49:35 erniel Exp $
+-- $Id: reply_queue.vhd,v 1.15 2005/02/20 02:00:29 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.15  2005/02/20 02:00:29  bburger
+-- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
+--
 -- Revision 1.14  2005/02/20 00:49:35  erniel
 -- added cmd_timeout_o
 --
@@ -260,6 +263,9 @@ begin
 
    rq_seq : reply_queue_sequencer
       port map(
+         -- for debugging
+         timer_trigger_o => open,
+                  
          clk_i        => clk_i,
          rst_i        => rst_i,
  
