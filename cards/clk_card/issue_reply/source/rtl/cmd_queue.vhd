@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.13 2004/06/07 23:45:41 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.14 2004/06/10 00:39:22 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.14  2004/06/10 00:39:22  bburger
+-- in progress
+--
 -- Revision 1.13  2004/06/07 23:45:41  bburger
 -- in progress
 --
@@ -155,6 +158,7 @@ signal wren_sig        : std_logic;
 --signal fast_clk        : std_logic;
 signal qa_sig          : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal qb_sig          : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+signal nfast_clk       : std_logic;
 
 -- Output that indicates the number u-ops contained in the command queue
 signal uop_counter : std_logic_vector(UOP_BUS_WIDTH - 1 downto 0);
@@ -182,7 +186,6 @@ signal free_ptr : std_logic_vector(7 downto 0) := "00000000";
 type insert_states is (IDLE, INSERT, DONE, RESET, STALL);
 signal present_insert_state : insert_states;
 signal next_insert_state : insert_states;
-signal inserted: std_logic; --Out, to the u-op counter fsm
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
 type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, EJECT, NEXT_FLUSH, FLUSH_STATUS, RESET);
@@ -195,6 +198,7 @@ signal uop_timed_out : std_logic;
 type gen_uop_states is (IDLE, INSERT, PS_CARD, CLOCK_CARD, ADDR_CARD, READOUT_CARD1, READOUT_CARD2, READOUT_CARD3, READOUT_CARD4, BIAS_CARD1, BIAS_CARD2, BIAS_CARD3, CLEANUP, RESET, DONE);
 signal present_gen_state : gen_uop_states;
 signal next_gen_state    : gen_uop_states;
+signal new_insert_state : gen_uop_states;
 signal mop_rdy : std_logic; --In from the previous block in the chain
 signal insert_uop_rdy : std_logic; --Out, to insertion fsm
 signal new_card_addr : std_logic_vector(CARD_ADDR_BUS_WIDTH-1 downto 0); --out, to insertion fsm
@@ -223,6 +227,8 @@ constant LOW : std_logic := '0';
 constant INT_ZERO : integer := 0;
 
 begin
+
+   nfast_clk <= not fast_clk_i;
    -- Command queue (FIFO)
    cmd_queue_ram40_inst: cmd_queue_ram40
       port map(
@@ -231,7 +237,8 @@ begin
          rdaddress_a => rdaddress_a_sig,
          rdaddress_b => rdaddress_b_sig,
          wren        => wren_sig,
-         clock       => fast_clk_i,
+         clock       => nfast_clk,
+         enable      => HIGH,
          qa          => qa_sig,
          qb          => qb_sig
       );
@@ -264,9 +271,9 @@ begin
       if(rst_i = '1') then
          queue_space <= QUEUE_LEN;
       elsif(clk_i'event and clk_i = '1') then
-         if(inserted = '1' and retired = '0') then
+         if(insert_uop_rdy = '1' and retired = '0') then
             queue_space <= queue_space - 1;
-         elsif(inserted = '0' and retired = '1') then
+         elsif(insert_uop_rdy = '0' and retired = '1') then
             queue_space <= queue_space + 1;
          -- All other operations balance each other out
          end if;
@@ -284,7 +291,7 @@ begin
       end if;
    end process;
 
-   insert_state_NS: process(present_insert_state, insert_uop_rdy, clk_i)
+   insert_state_NS: process(present_insert_state, insert_uop_rdy, present_gen_state)
    begin
       case present_insert_state is
          when RESET =>
@@ -302,8 +309,19 @@ begin
          when DONE =>
             next_insert_state <= STALL;
          -- This state exists to delay the FSM from returning too quickly to the IDLE state and trying to insert the same u-op again.
+         -- The side effect of this state is that the u-op is only inserted on the second fast_clk_i cycle after it becomes available for insertion
          when STALL =>
-            if(clk_i'event and clk_i = '1') then
+            if(new_insert_state /= present_gen_state and
+              (present_gen_state = PS_CARD or
+               present_gen_state = CLOCK_CARD or
+               present_gen_state = ADDR_CARD or
+               present_gen_state = READOUT_CARD1 or
+               present_gen_state = READOUT_CARD2 or
+               present_gen_state = READOUT_CARD3 or
+               present_gen_state = READOUT_CARD4 or
+               present_gen_state = BIAS_CARD1 or
+               present_gen_state = BIAS_CARD2 or
+               present_gen_state = BIAS_CARD3)) then
                next_insert_state <= IDLE;
             else
                next_insert_state <= STALL;
@@ -313,7 +331,7 @@ begin
       end case;
    end process;
 
-   insert_state_out: process(present_insert_state, mop_i, uop_counter, issue_sync_i, new_card_addr, new_par_id)
+   insert_state_out: process(present_insert_state, mop_i, uop_counter, issue_sync_i, new_card_addr, new_par_id, present_gen_state)
    -- There is something sketchy about the sensitivity list.  free_ptr does not appear anywhere on the list.  It can't because of my free_ptr <= free_ptr + 1 statement below.  However, it should because it appears on the lhs in the INSERT state
    begin
       case present_insert_state is
@@ -332,6 +350,9 @@ begin
             data_sig(CARD_ADDR_END - 1 downto 0)                 <= new_par_id(7 downto 0);
             wraddress_sig                                        <= free_ptr;
             wren_sig                                             <= '1';
+            -- This is here so that the STALL state can detect when the Generate FSM tries to issue a new u-op
+            -- The Insert FSM will remain stalled until it detetects a new u-op from the Generate FSM
+            new_insert_state <= present_gen_state;
          when DONE =>
             -- After adding a new u-op:
             if(free_ptr = H0XFF) then
@@ -700,23 +721,19 @@ begin
 
    gen_state_out: process(present_gen_state, par_id_i, card_addr_i) -- had new_card_addr_i
       begin
-      -- Note that inserted and insert_uop_rdy follow each other exactly
       case present_gen_state is
          when RESET =>
             mop_ack_o      <= '0';
             insert_uop_rdy <= '0';
-            inserted       <= '0';
             new_card_addr  <= card_addr_i;
          when IDLE =>
             mop_ack_o      <= '0';
             insert_uop_rdy <= '0';
-            inserted       <= '0';
             new_card_addr  <= card_addr_i;
          when INSERT =>
             -- Add new u-ops to the queue
             mop_ack_o      <= '0';
             insert_uop_rdy <= '0';
-            inserted       <= '0';
             uop_counter    <= (others => '0');
             new_card_addr  <= card_addr_i;
             if(par_id_i(7 downto 0) = RET_DAT_ADDR) then
@@ -729,7 +746,6 @@ begin
          when PS_CARD | CLOCK_CARD | ADDR_CARD | READOUT_CARD1 | READOUT_CARD2 | READOUT_CARD3 | READOUT_CARD4 | BIAS_CARD1 | BIAS_CARD2 | BIAS_CARD3 =>
             uop_counter    <= uop_counter + 1;
             insert_uop_rdy <= '1';
-            inserted       <= '1';
             if(present_gen_state = PS_CARD) then
                new_card_addr <= PSC;
             elsif(present_gen_state = CLOCK_CARD) then
@@ -754,7 +770,6 @@ begin
          when CLEANUP =>
             mop_ack_o      <= '0';
             insert_uop_rdy <= '0';
-            inserted       <= '0';
             new_card_addr  <= card_addr_i;
             if(par_id_i(7 downto 0) = RET_DAT_ADDR) then
                if(new_par_id(7 downto 0) = RET_DAT_ADDR) then
@@ -788,12 +803,10 @@ begin
          when DONE =>
             mop_ack_o      <= '1';
             insert_uop_rdy <= '0';
-            inserted       <= '0';
             new_card_addr  <= card_addr_i;
          when others => -- Normal insertion
             mop_ack_o      <= '0';
             insert_uop_rdy <= '0';
-            inserted       <= '0';
             new_card_addr  <= card_addr_i;
       end case;
    end process;
@@ -807,6 +820,10 @@ begin
          present_send_state <= next_send_state;
       end if;
    end process send_state_FF;
+
+   uop_send_expired <= '1' when (sync_count_slv > qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) or
+                                (sync_count_slv < qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) and
+                                 MAX_SYNC_COUNT - qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) + sync_count_slv > TIMEOUT_LEN)) else '0';
 
    send_state_NS: process(present_send_state, send_ptr, free_ptr, qa_sig, clk_count, uop_send_expired, issue_sync_i, tx_uop_ack)
    begin
@@ -854,9 +871,6 @@ begin
       end case;
    end process;
 
-   uop_send_expired <= '1' when (sync_count_slv > qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) or
-                                (sync_count_slv < qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) and
-                                 MAX_SYNC_COUNT - qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) + sync_count_slv > TIMEOUT_LEN)) else '0';
    rdaddress_a_sig <= send_ptr;
 
    send_state_out: process(present_send_state, send_ptr)
