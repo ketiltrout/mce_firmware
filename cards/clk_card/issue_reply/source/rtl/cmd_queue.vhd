@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.81 2005/03/16 02:20:58 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.82 2005/03/19 00:31:23 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.82  2005/03/19 00:31:23  bburger
+-- bryce:  Fixed several bugs.  Tagging cc_01010007.
+--
 -- Revision 1.81  2005/03/16 02:20:58  bburger
 -- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
 --
@@ -276,7 +279,9 @@ begin
    debug_o(31 downto 0)  <=  cmd_tx_dat(31 downto 1) & lvds_tx_busy;
       
    timer_clr       <= '1' when num_uops_contained = 0 else '0';
-   timer_trigger_o <= '1' when timer_count >= 85 else '0';
+   
+   -- This trigger is way over the time needed for a ret_dat command - to see if there are bottle necks on the MCE side of things
+   timer_trigger_o <= '1' when timer_count >= 1200 else '0';
    trigger_timer : us_timer
       port map(
          clk           => clk_i,

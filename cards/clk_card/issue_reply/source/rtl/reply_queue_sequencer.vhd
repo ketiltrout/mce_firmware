@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.14  2005/03/23 19:25:54  bburger
+-- Bryce:  Added a debugging trigger
+--
 -- Revision 1.13  2005/03/05 01:27:50  bburger
 -- Ernie: moved position of MATCHED state to after CALC_DATA_SIZE
 --
@@ -211,7 +214,7 @@ begin
    -- This timer will allow us to trigger earlier to monitor the timeout of commands with little data.
    -- The purpose of time is to provide a trigger to track down unreliablility issues.
    
-   timer_trigger_o <= '1' when timer_count >= 53 else '0';
+   timer_trigger_o <= '1' when timer_count >= 600 else '0';
    trigger_timer : us_timer
       port map(
          clk           => clk_i,
