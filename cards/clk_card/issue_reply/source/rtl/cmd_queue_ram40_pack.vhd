@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: cmd_queue_ram40_pack.vhd,v 1.1 2004/05/25 21:26:29 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,7 +28,10 @@
 -- Pack file for the ram block used by cmd_queue
 --
 -- Revision history:
--- $Log$
+-- $Log: cmd_queue_ram40_pack.vhd,v $
+-- Revision 1.1  2004/05/25 21:26:29  bburger
+-- pack file
+--
 --
 ------------------------------------------------------------------------
 
@@ -47,8 +50,8 @@ package cmd_queue_ram40_pack is
          wraddress   : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
          rdaddress_a : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
          rdaddress_b : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-         wren        : IN STD_LOGIC  := '1';
-         clock       : IN STD_LOGIC ;
+         wren        : IN STD_LOGIC;
+         clock       : IN STD_LOGIC;
          qa          : OUT STD_LOGIC_VECTOR (39 DOWNTO 0);
          qb          : OUT STD_LOGIC_VECTOR (39 DOWNTO 0)
       );

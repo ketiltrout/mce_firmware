@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/05/14 21:39:07 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/05/25 21:25:57 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.4  2004/05/25 21:25:57  bburger
+-- compile error
+--
 -- Revision 1.3  2004/05/14 21:39:07  bburger
 -- added card addresses
 --
@@ -66,7 +69,7 @@ package wishbone_pack is
    -- Status Fields
    ---------------------------------------------------------------------------------
    constant SUCCESS        : std_logic_vector(7 downto 0) := "11111111";
-   constant FAILURE        : std_logic_vector(7 downto 0) := "00000000";
+   constant FAIL           : std_logic_vector(7 downto 0) := "00000000";
 
    ---------------------------------------------------------------------------------
    -- Card Addresses

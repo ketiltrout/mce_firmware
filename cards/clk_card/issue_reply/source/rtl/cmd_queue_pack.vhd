@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: cmd_queue_pack.vhd,v 1.1 2004/05/25 21:26:29 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,7 +28,10 @@
 -- Pack file for cmd_queue
 --
 -- Revision history:
--- $Log$
+-- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.1  2004/05/25 21:26:29  bburger
+-- pack file
+--
 --
 ------------------------------------------------------------------------
 
@@ -44,8 +47,6 @@ package cmd_queue_pack is
    component cmd_queue
       port (
       -- reply_queue interface
-      --mop_retire_o : out std_logic_vector(MOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next m-op that the cmd_queue wants to retire
-      --uop_retire_o : out std_logic_vector(UOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next u-op that the cmd_queue wants to retire
       uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
       uop_rdy_o     : in std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
       uop_ack_i     : out std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
@@ -71,10 +72,6 @@ package cmd_queue_pack is
       stb_o         : out std_logic;
       cyc_o         : out std_logic;
       ack_i         : in std_logic;
-      --addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
-      --tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
-      --dat_o   : out std_logic_vector (DATA_WIDTH-1 downto 0);
-      --rty_o   : out std_logic;
 
       -- Clock lines
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
