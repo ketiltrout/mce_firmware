@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.7 2004/07/27 22:54:51 bench2 Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.8 2004/07/30 00:19:41 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.8  2004/07/30 00:19:41  bench2
+-- Bryce: in progress
+--
 -- Revision 1.7  2004/07/27 22:54:51  bench2
 -- Bryce: in progress
 --
@@ -160,7 +163,7 @@ begin
         lvds_i         => tx_o
       );
 
-   -- Create a test clock
+   -- Continuous assignements (clocks, etc.)
    sync_i <= not sync_i after CLOCK_PERIOD*25*64/2; -- The sync frequency is actually 200Hz.
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
    clk_200mhz_i <= not clk_200mhz_i after CLOCK_PERIOD/8;
@@ -168,8 +171,6 @@ begin
 
    -- Create stimulus
    STIMULI : process
-
-   -- Procdures for creating stimulus
 
    procedure do_init is
    begin
@@ -232,7 +233,7 @@ begin
       card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
       par_id_i      <= x"00" & STRT_MUX_ADDR;
       data_size_i   <= x"00000001";
-      data_i        <= x"0000FFFF";
+      data_i        <= x"FFFFFFFF";
       data_clk_i    <= '0';
       mop_i         <= "00000011"; -- m-op #3
       issue_sync_i  <= "00000011"; -- Sync pulse 3
@@ -243,9 +244,10 @@ begin
       end loop;
       
       data_clk_i    <= '1';
-      wait for CLOCK_PERIOD;
-      
+      wait for CLOCK_PERIOD/2;      
       data_clk_i    <= '0';
+      wait for CLOCK_PERIOD/2;      
+      
       mop_rdy_i     <= '0';
       assert false report " start MUX" severity NOTE;
       wait for CLOCK_PERIOD;
@@ -254,20 +256,13 @@ begin
    -- Start the test
    begin
       do_nop;
+      -- This delay is to synchronize the inputs controlled by this TB with the state transitions of the cmd_queue FSMs
+      wait for CLOCK_PERIOD/2;
       do_init;
       do_nop;
       do_ret_dat_cmd;
-      do_nop;
-      do_nop;
-      do_nop;
       do_rst_wtchdg_cmd;
-      do_nop;
-      do_nop;
-      do_nop;
       do_strt_mux_cmd;
-      do_nop;
-      do_nop;
-      do_nop;
       
       L2: for count_value in 0 to 5000 loop
          do_nop;

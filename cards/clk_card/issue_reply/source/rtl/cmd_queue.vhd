@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.28 2004/07/29 00:40:19 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.29 2004/07/30 00:19:29 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.29  2004/07/30 00:19:29  bench2
+-- Bryce: in progress
+--
 -- Revision 1.28  2004/07/29 00:40:19  bench2
 -- Bryce: in progress
 --
@@ -153,6 +156,7 @@ signal present_insert_state : insert_states;
 signal next_insert_state    : insert_states;
 signal data_count           : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
 signal insert_uop_ack       : std_logic; --tells the generate FSM when the insert FSM is ready to insert the next u-op
+signal num_uops_inserted_slv: std_logic_vector(UOP_BUS_WIDTH-1 downto 0);
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
 type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, EJECT, NEXT_FLUSH, FLUSH_STATUS, RESET);
@@ -378,8 +382,9 @@ begin
       end case;
    end process;
 
-   wraddress_sig <= free_ptr;
-
+   wraddress_sig         <= free_ptr;
+   num_uops_inserted_slv <= std_logic_vector(conv_unsigned(num_uops_inserted, 8));
+   
    insert_state_out: process(present_insert_state, issue_sync_i, data_size_i, new_card_addr, new_par_id, mop_i, uop_counter)
    -- There is something sketchy about the sensitivity list.  free_ptr does not appear anywhere on the list.  It can't because of my free_ptr <= free_ptr + 1 statement below.  However, it should because it appears on the lhs in the INSERT state
    begin
@@ -391,12 +396,15 @@ begin
             insert_uop_ack <= '0';
             data_sig       <= (others => '0');
             free_ptr       <= ADDR_ZERO;
+         
          when IDLE =>
             wren_sig       <= '0';
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
+            
             data_sig       <= (others => '0');
+         
          when INSERT_HDR1 =>
             wren_sig       <= '1';
             data_count     <= (others => '0');
@@ -416,8 +424,10 @@ begin
             -- In this implememtation, data are not replicated for other u-ops, if the m-op generates several u-ops.
             -- This means that all m-ops with data can only generate a single u-op..for now.
             -- If a m-op is issued with data and generated several u-ops, only the last one will have data.
-            if(num_uops_inserted = num_uops) then --and data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) /= x"0000") then
+            if(num_uops_inserted = num_uops and data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) /= x"0000") then
                mop_ack_o   <= '1';
+            else 
+               mop_ack_o   <= '0';
             end if;
             
             insert_uop_ack <= '0';
@@ -426,7 +436,8 @@ begin
             data_sig(QUEUE_WIDTH-1      downto CARD_ADDR_END)    <= new_card_addr;
             data_sig(CARD_ADDR_END-1    downto PARAM_ID_END)     <= new_par_id;
             data_sig(PARAM_ID_END-1     downto MOP_END)          <= mop_i;
-            data_sig(MOP_END-1          downto UOP_END)          <= uop_counter;
+            --*** (free_ptr - 1) might be the best way to designate the u-op sequency number, instead of using num_uops_inserted
+            data_sig(MOP_END-1          downto UOP_END)          <= num_uops_inserted_slv; 
             
             -- After adding new u-op header1 info, move the free_ptr
             if(free_ptr = ADDR_FULL_SCALE) then
@@ -434,11 +445,13 @@ begin
             else
                free_ptr <= free_ptr + 1;
             end if;
+            
          when INSERT_DATA =>
             wren_sig       <= '1';
             data_count     <= data_count + 1;
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
+            
             data_sig       <= data_i;
 
             -- After adding new u-op header2 info, or data:  (will this work?)
@@ -447,6 +460,7 @@ begin
             else
                free_ptr <= free_ptr + 1;
             end if;
+            
          when DONE =>
             wren_sig       <= '0';
             data_count     <= (others => '0');
@@ -454,10 +468,11 @@ begin
             -- If there is no data with the m-op, then asserting mop_ack_o in the INSERT_HDR2 state would be too soon
             -- In this case, by delaying its assertion until DONE, we ensure that the cmd_translator doesn't try to insert the next m_op too soon.
             -- I think that I might have to register num_uops_inserted and num_uops to make sure that they are valid when I do this check
-            mop_ack_o      <= '0';
---            if(num_uops_inserted = num_uops and data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) = x"0000") then
---               mop_ack_o   <= '1';
---            end if;
+            if(num_uops_inserted = num_uops and data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) = x"0000") then
+               mop_ack_o   <= '1';
+            else
+               mop_ack_o   <= '0';
+            end if;
 
             insert_uop_ack <= '1';
             data_sig       <= (others => '0');
@@ -468,6 +483,7 @@ begin
             else
                free_ptr <= free_ptr + 1;
             end if;
+            
          when others =>
             wren_sig       <= '0';
             data_count     <= (others => '0');
@@ -777,8 +793,13 @@ begin
       end if;
    end process send_state_FF;
 
+   -- issue_sync and timeout_sync need to be assigned continuously because they don't seem to update correctly inside the FSM
+   -- There's something fishy about this.  
+   -- The trade off with continuous assignement is that sometimes the assignment will be invalid, while send pointer is pointing at the first word of a packet
+   -- That's ok, though.  I only used issue_sync and timeout_sync when they're valid.
    issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
    timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
+   
    -- There should be enough time in the sync period following the timeout_sync of a m-op to get rid of all it's u-ops and still have time to issue the u-ops that need to be issued during that period
    -- That is why we don't check for a range here - just for the sync period that is the timeout
    -- This second conditions checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
@@ -904,8 +925,11 @@ begin
             
             previous_send_state      <= LOAD;
             
---            issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
---            timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
+            -- I thought that I could update issue_sync and timeout_sync only when they're inputs would be valid
+            -- However, I discovered that for some reason, this doesn't work.
+            -- This is worth investigation.
+            --issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
+            --timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
          
          when HEADER_A =>
             cmd_tx_start             <= '1';
@@ -921,10 +945,13 @@ begin
             sh_reg_parallel_i        <= BB_PREAMBLE & qa_sig(TIMEOUT_SYNC_END-1 downto 0);
 
             previous_send_state      <= HEADER_A;
---            send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
+            send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
          
---            issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
---            timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
+            -- I thought that I could update issue_sync and timeout_sync only when they're inputs would be valid
+            -- However, I discovered that for some reason, this doesn't work.
+            -- This is worth investigation.
+            --issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
+            --timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
 
          when HEADER_B =>
             cmd_tx_start             <= '1';
@@ -981,7 +1008,7 @@ begin
             sh_reg_parallel_i        <= (others => '0');
             
             previous_send_state      <= CHECKSUM;
-            send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
+--            send_ptr                 <= send_ptr + 1; -- The pointer is already at the next u-op
          
          when PREGNANT_PAUSE =>
             cmd_tx_start             <= '1';
@@ -1132,15 +1159,19 @@ end behav;
 -- The send FSM should get it's issue and timeout information from the cmd_queue RAM.
 -- Actually, after closer inspection, this is how it works.
 
--- The send FSM needs a way of notifying the retire fsm wheter a u-op has been skipped or not
--- NEXT_UOP in send_states should tag the uop with a special code so that the retire fsm can recognize that it was skipped.
--- I need to insert a code either in the start sync, end sync or data size field.  
--- At this point, I think that I'll use the data size field, because there are definate limits to the size that a packet will be.
--- I can't add a new state in the send state machine that would alter the data field, because you can only read from the qa_sig data port.
+--x issue_sync and timeout_sync don't seem to be getting valid values
 
--- there's a problem with the use of the counters i've used in frame_timing and cmd_queue.  
+--x mop_ack_o needs to be asserted in the DONE state if there is no data included with the m_op
+-- This will allow the FSM to recover before cmd_translator can issued the next m-op, as soon as 2 clock cycles after mop_ack_o is asserted
+
+-- Test packets with multiple data words.  I'm not sure that the insert FSM will work properly with only one state.
+
+-- Think about using the free_ptr index to tag the u-op sequence number in the queue.
+
+-- There's a problem with the use of the counters i've used in frame_timing and cmd_queue.  
 -- They all continue on counting after they've gone past the limit that they count to.
 -- The bad thing about this is that if the counter wraps after exceeding the time limit, then there could be problems.
+-- The cmd_queue counter has been fixed, but I don't think that the frame_timing counter has.
 
 -- Check out the ***'ed lines
 
@@ -1149,7 +1180,8 @@ end behav;
 -- Check out clk_error, and figure out why it is so out of whack.  
 -- It might be something to do with having a faulty period for the sync pulse in the TB.
 
--- issue_sync and timeout_sync don't seem to be getting valid values
-
--- mop_ack_o needs to be asserted in the DONE state if there is no data included with the m_op
--- This will allow the FSM to recover before cmd_translator can issued the next m-op, as soon as 2 clock cycles after mop_ack_o is asserted
+-- The send FSM needs a way of notifying the retire fsm wheter a u-op has been skipped or not
+-- NEXT_UOP in send_states should tag the uop with a special code so that the retire fsm can recognize that it was skipped.
+-- I need to insert a code either in the start sync, end sync or data size field.  
+-- At this point, I think that I'll use the data size field, because there are definate limits to the size that a packet will be.
+-- I can't add a new state in the send state machine that would alter the data field, because you can only read from the qa_sig data port.
