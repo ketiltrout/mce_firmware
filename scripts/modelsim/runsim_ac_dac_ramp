@@ -1,0 +1,5 @@
+vsim -coverage tb_ac_dac_ramp(beh)
+add wave -hex /*
+add wave -hex tb_ac_dac_ramp/dut/*
+run -all
+view signals list wave
