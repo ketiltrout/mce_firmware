@@ -1,13 +1,28 @@
+March 11, 2004 - 
 - The address of any functional block, whether 8-, 16- or 32-bits will always be encoded to the lowest bits on the address bus to the slave_ctrl block.
 
 - BoardID and BoxID will always be read during a subrack reset or power-up so that the information is available as soon as the user wants it (otherwise need to wait several milli-sec) and more importantly so that the temperature of the board is immediately available without needing to query the silicon-id chip for it's serial number first.
 
-- March 11, 2003:
-  Since our Stratix EP1S10/30's don't have the capability to drive high impedence on internal buses, for our wishbone
-  implementation, will multiplex the outgoing data lines.  The multiplexor select lines will be derived from our wishbone
-  address map.  The rty and ack signals will not be multiplexed, they will be OR'ed out towards the master.  Therefore,
-  the rty and ack signals should only be active when the slave is selected.  For the outgoing data, they will all be
-  connected to the 32-bit wishbone bus, however, for slaves that don't use all 32-bits (such as the array_id for example),
-  the unused bits should be tied to zero '0' so that the Quartus synthesis tool can optimize those signals away.  Another
-  note, the data multiplexor should not be one-hot encoded, as unused data signals here cannot easily be optimized away by
-  Quartus.
+- Since our Stratix EP1S10/30's don't have the capability to drive high impedence on internal buses, for our wishbone implementation, will multiplex the outgoing data lines.  The multiplexor select lines will be derived from our wishbone address map.  The rty and ack signals will not be multiplexed, they will be OR'ed out towards the master.  Therefore, the rty and ack signals should only be active when the slave is selected.  For the outgoing data, they will all be connected to the 32-bit wishbone bus, however, for slaves that don't use all 32-bits (such as the array_id for example), the unused bits should be tied to zero '0' so that the Quartus synthesis tool can optimize those signals away.  Another note, the data multiplexor should not be one-hot encoded, as unused data signals here cannot easily be optimized away by Quartus.
+
+April 26, 2004 - Bryce Burger
+- During the first pass of design, the Clock Card will not re-send commands if an error occured during transmission or executions of the command on the card.  Eventually, the CC may be allowed to re-send commands, but this will require a counter/timer to limit the number of re-sends the Clock Card does.
+
+The largest transmission over the bus backplane will be 1/4 of an array of 32-bit scientific data from a single Readout Card to the Clock Card.  1312 bytes at 25MHz requires 0.525ms.  A 200Hz frame occurs every 5ms, giving the Readout Cards a window of time approximately 10 times larger than the length of data they need to transmit.  Thus, re-sending for data is possible.
+
+- During the first pass of the desing, the Clock Card will not put more than one instruction in flight to any single card at one time.  After the first design, depending on the resources available on each FPGA in the system, the instruction buffers distributed throughout the system may be increased in size to allow more than one instruction in flight at the same time.
+
+- If more than one instruction is allowed in flight at the same time, several measures may be taken to insure that instructions which which must be issued in a well timed manner have priority over slower, non-critical instructions.  To ensure that instructions that must synchronized arrive at their destinations and are executed all around the same time, a classificaiton scheme will be useful:
+
+(a) It will be useful to classify instrucions either as timing-critical or non-timing-critical.  Thus for timing-critical instructions, the Issue block on the Clock Card will wait for all instructions that are currently in flight to finish executing before it issues the timing-critical instruction.  It is important to note that, in general (assuming that the slave blocks can respond to timing-critical instructions within a clock cycle), the bandwidth for instruction transmission over the Bus Backplane is much lower than the bandwidth for instruction execution over the wishbone interface.  This means that after a timing-critical instruciton is sent over the Bus Backplane, it will finish executing on the cards long before the next command is sent.  Because the Bus Backplane is unable to supply the instructions at the fastest execution bandwidth, as soon as it issues a fast command, it can consider it done.  The only impediment, then, to the timely execution of timing-critical commands is slow, non-timing-critical instructions.  Thus, the CC will let a slow instruction finish executing before issuing a timing critical one.  Note here that synchronization of commands between cards is more important than the number of commands that can be executed per unit time.
+
+(b) Because bandwith over the Bus Backplane is slow compared to execution time, priority cues may be helpful if a number of high-priority instructions can be amassed in the queue, and if a single instructions can beging the sequential execution of all instructions in rapid-fire.  If the Clock card has control over which priority cue is executing when, then this may be a feisable approach for certain sequences of instructions.
+
+----------------------
+Bus Backplane Protocol
+----------------------
+- If there is an error with a wishbone slave on a card (for example, a slave hangs forever, and never responds), the master will have a time-out mechanism to recover.  If this time-out is reached, the master’s response will have the PASS/FAIL byte set to FAIL in it's response.  The PASS/FAIL field will be a 8-bit (= 1 byte) field in the response, and will always be present in every response (even successful ones).  The PASS/FAIL byte will be after the parameter ID, and before the Data field in the return packet.  As a secondary recovery system, if the wishbone master (dispatch block) on the target card hangs up forever, the clock card logic should also have a time-out mechanism to un-freeze the system.
+
+- (to be decided) Read instructions will be differentiated from Write instructions by the the Size of command field.  Reads will have a Size of Command value equal to 0, and Writes will have a Size of Command value > 0.  This implies that no parameters can be passed with Read instructions.
+
+- (to be decided) All parameters that pertain to specific pieces of hardware should be stored as close to the level of the hardware as possible.  For example, 'Memory Address' should be stored in a hierarchial location as close to the SRAM or EEPROM that it pertains to, i.e. the SRAM or EEPROM slave controller.
