@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.6 2004/05/20 17:19:40 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.7 2004/06/28 12:51:07 dca Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.7  2004/06/28 12:51:07  dca
+-- added async_fifo
+--
 -- Revision 1.6  2004/05/20 17:19:40  mandana
 -- updated counter with STEPSIZE
 --
@@ -92,8 +95,8 @@ package component_pack is
 -- async_fifo 
 --
 ------------------------------------------------------------  
-
-component async_fifo
+   
+   component async_fifo
       generic(fifo_size : Positive);
       port( 
          rst_i     : in     std_logic;
