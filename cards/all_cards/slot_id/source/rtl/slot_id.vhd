@@ -1,6 +1,6 @@
 -- slot_id.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: slot_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA 2
 -- Author:		Jonathan Jacob
@@ -10,7 +10,7 @@
 -- This code implements the Slot ID functionality
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -28,12 +28,12 @@ library components;
 use components.component_pack.all;
 
 entity slot_id is
-   generic (
-      SLOT_ID_ADDR  : std_logic_vector(WB_ADDR_WIDTH - 1 downto 0) := (others => '0');
-      SLOT_ID_ADDR_WIDTH : integer := WB_ADDR_WIDTH;
-      SLOT_ID_DATA_WIDTH : integer := WB_DATA_WIDTH;
-      TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH
-   );      
+   --generic (
+      --SLOT_ID_ADDR  : std_logic_vector(WB_ADDR_WIDTH - 1 downto 0) := SLOT_ID_ADDR;
+      --SLOT_ID_ADDR_WIDTH : integer := WB_ADDR_WIDTH;
+      --SLOT_ID_DATA_WIDTH : integer := WB_DATA_WIDTH;
+      --TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH
+  -- );      
    port (   
       slot_id_i : in std_logic_vector (SLOT_ID_BITS-1 downto 0);
       -- wishbone signals
@@ -41,7 +41,7 @@ entity slot_id is
       rst_i   : in std_logic;		
       dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
       addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-      tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
+      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
       we_i    : in std_logic;
       stb_i   : in std_logic;
       cyc_i   : in std_logic;
@@ -57,12 +57,19 @@ architecture rtl of slot_id is
 signal slot_id_reg : std_logic_vector (SLOT_ID_BITS-1 downto 0);
 signal slot_id_valid : std_logic;
 signal slave_wr_ready_sig : std_logic;
+signal slave_retry : std_logic;
 signal padded_slot_id_reg : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal no_connect : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal no_connect2 : std_logic;
-signal no_connect3 : std_logic;
-
+--signal no_connect : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+--signal no_connect2 : std_logic;
+--signal no_connect3 : std_logic;
+signal zero_bit : std_logic;
+--signal zero_8bit_vector : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal zero_32bit_vector : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
 begin
+
+   zero_bit          <= '0';
+   --zero_8bit_vector  <= (others => '0');
+   zero_32bit_vector <= (others => '0');
 
 ------------------------------------------------------------------------
 --
@@ -83,7 +90,7 @@ begin
    end process;
    
    slave_wr_ready_sig <= '0'; -- never ready since can't write to slot ID
-   
+   slave_retry <= '0'; -- this slave will never cancel the bus cycle
 ------------------------------------------------------------------------
 --
 -- Wishbone
@@ -99,14 +106,15 @@ begin
       SLAVE_SEL  => SLOT_ID_ADDR,
       ADDR_WIDTH => WB_ADDR_WIDTH,
       DATA_WIDTH => WB_DATA_WIDTH,
-      TAG_ADDR_WIDTH => TAG_ADDR_WIDTH)
+      TAG_ADDR_WIDTH => WB_TAG_ADDR_WIDTH)
    port map (
       slave_wr_ready        => slave_wr_ready_sig, -- can't write to the slot ID
       slave_rd_data_valid   => slot_id_valid,
-      slave_retry           => no_connect3,
-      master_wr_data_valid  => no_connect2,
+      slave_retry           => slave_retry, --no_connect3,
+      master_wr_data_valid  => zero_bit, --no_connect2,
       slave_ctrl_dat_i      => padded_slot_id_reg,
-      slave_ctrl_dat_o      => no_connect,
+      slave_ctrl_dat_o      => zero_32bit_vector, --no_connect,
+      slave_ctrl_tga_o      => zero_32bit_vector,
       clk_i                 => clk_i,
       rst_i                 => rst_i,
       dat_i                 => dat_i,
