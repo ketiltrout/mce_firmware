@@ -184,8 +184,8 @@ architecture top of readout_card is
     port (
       data      : IN  STD_LOGIC_VECTOR (31 DOWNTO 0);
       wren      : IN  STD_LOGIC := '1';
-      wraddress : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
+      wraddress : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
+      rdaddress : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
       clock     : IN  STD_LOGIC;
       q         : OUT STD_LOGIC_VECTOR (31 DOWNTO 0));
   end component;
@@ -289,7 +289,7 @@ signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   -- Signals for HW test
   -----------------------------------------------------------------------------
 
-  signal rdaddress_packet_ram : STD_LOGIC_VECTOR (5 DOWNTO 0);
+  signal rdaddress_packet_ram : STD_LOGIC_VECTOR (7 DOWNTO 0);
   signal q_packet_ram         : STD_LOGIC_VECTOR (31 DOWNTO 0);
   signal rdy_lvds_tx          : std_logic;
   signal busy_lvds_tx         : std_logic;
@@ -345,23 +345,17 @@ begin
 
   i_fsm: process (clk, rst)
 
-    variable i : integer range 0 to 99;
-    variable j : integer range 0 to 90000009;
+    variable i : integer range 0 to 9000009;
   begin  -- process i_fsm
     if rst = '1' then                   -- asynchronous reset
       state_shift <= '0';
       i:=0;
-      j:=0;
     elsif clk'event and clk = '1' then  -- rising clock edge
       state_shift <= '0';
-      j:=j+1;
-      if j=90000000 then
-        j:=89999999;
-        i:=i+1;
-        if i = 90 then
-          state_shift <= '1';
-          i:=0;
-        end if;      
+      i:=i+1;
+      if i = 90 then
+        state_shift <= '1';
+        i:=0;
       end if;
     end if;
   end process i_fsm;
@@ -375,10 +369,10 @@ begin
       
     elsif clk'event and clk = '1' then  -- rising clock edge
       if state_shift='1' then
-        if rdaddress_packet_ram < "111010" then
+        if rdaddress_packet_ram <x"7c" then
           rdaddress_packet_ram <= rdaddress_packet_ram +1;
         else
-          rdaddress_packet_ram <= "110100";
+          rdaddress_packet_ram <= x"76";
         end if;
       end if;
     end if;
@@ -489,7 +483,8 @@ begin
 
    
    --dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft;
-   dispatch_ack_in <= ack_led or ack_ft;  -- for HW test
+   dispatch_ack_in <= ack_led or ack_ft or ack_fb;  -- for HW test with led &
+                                                    -- frame timing & wbs_fb
 
  
 
@@ -559,93 +554,93 @@ begin
    -- Flux_loop Instantiation
    ----------------------------------------------------------------------------
 
---     i_flux_loop: flux_loop
---       port map (
---           clk_50_i                  => clk,
---           clk_25_i                  => spi_clk,
---           rst_i                     => rst,
---           adc_coadd_en_i            => adc_coadd_en,
---           restart_frame_1row_prev_i => restart_frame_1row_prev,
---           restart_frame_aligned_i   => restart_frame_aligned,
---           restart_frame_1row_post_i => restart_frame_1row_post,
---           row_switch_i              => row_switch,
---           initialize_window_i       => initialize_window,
---           num_rows_sub1_i           => (others => '0'),
---           dac_dat_en_i              => dac_dat_en,
---           dat_i                     => dispatch_dat_out,
---           addr_i                    => dispatch_addr_out,
---           tga_i                     => dispatch_tga_out,
---           we_i                      => dispatch_we_out,
---           stb_i                     => dispatch_stb_out,
---           cyc_i                     => dispatch_cyc_out,
---           dat_frame_o               => dat_frame,
---           ack_frame_o               => ack_frame,
---           dat_fb_o                  => dat_fb,
---           ack_fb_o                  => ack_fb,
---           adc_dat_ch0_i             => adc1_dat,
---           adc_dat_ch1_i             => adc2_dat,
---           adc_dat_ch2_i             => adc3_dat,
---           adc_dat_ch3_i             => adc4_dat,
---           adc_dat_ch4_i             => adc5_dat,
---           adc_dat_ch5_i             => adc6_dat,
---           adc_dat_ch6_i             => adc7_dat,
---           adc_dat_ch7_i             => adc8_dat,
---           adc_ovr_ch0_i             => adc1_ovr,
---           adc_ovr_ch1_i             => adc2_ovr,
---           adc_ovr_ch2_i             => adc3_ovr,
---           adc_ovr_ch3_i             => adc4_ovr,
---           adc_ovr_ch4_i             => adc5_ovr,
---           adc_ovr_ch5_i             => adc6_ovr,
---           adc_ovr_ch6_i             => adc7_ovr,
---           adc_ovr_ch7_i             => adc8_ovr,
---           adc_rdy_ch0_i             => adc1_rdy,
---           adc_rdy_ch1_i             => adc2_rdy,
---           adc_rdy_ch2_i             => adc3_rdy,
---           adc_rdy_ch3_i             => adc4_rdy,
---           adc_rdy_ch4_i             => adc5_rdy,
---           adc_rdy_ch5_i             => adc6_rdy,
---           adc_rdy_ch6_i             => adc7_rdy,
---           adc_rdy_ch7_i             => adc8_rdy,
---           adc_clk_ch0_o             => adc1_clk,
---           adc_clk_ch1_o             => adc2_clk,
---           adc_clk_ch2_o             => adc3_clk,
---           adc_clk_ch3_o             => adc4_clk,
---           adc_clk_ch4_o             => adc5_clk,
---           adc_clk_ch5_o             => adc6_clk,
---           adc_clk_ch6_o             => adc7_clk,
---           adc_clk_ch7_o             => adc8_clk,
---           dac_dat_ch0_o             => dac_FB1_dat,
---           dac_dat_ch1_o             => dac_FB2_dat,
---           dac_dat_ch2_o             => dac_FB3_dat,
---           dac_dat_ch3_o             => dac_FB4_dat,
---           dac_dat_ch4_o             => dac_FB5_dat,
---           dac_dat_ch5_o             => dac_FB6_dat,
---           dac_dat_ch6_o             => dac_FB7_dat,
---           dac_dat_ch7_o             => dac_FB8_dat,
---           dac_clk_ch0_o             => dac_FB_clk(0),
---           dac_clk_ch1_o             => dac_FB_clk(1),
---           dac_clk_ch2_o             => dac_FB_clk(2),
---           dac_clk_ch3_o             => dac_FB_clk(3),
---           dac_clk_ch4_o             => dac_FB_clk(4),
---           dac_clk_ch5_o             => dac_FB_clk(5),
---           dac_clk_ch6_o             => dac_FB_clk(6),
---           dac_clk_ch7_o             => dac_FB_clk(7),
---           sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
---           sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
---           sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
---           sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
---           sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
---           sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
---           sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
---           sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
---           offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
---           offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
---           offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
---           offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
---           offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
---           offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
---           offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
---           offset_dac_spi_ch7_o      => offset_dac_spi_ch7);
+     i_flux_loop: flux_loop
+       port map (
+           clk_50_i                  => clk,
+           clk_25_i                  => spi_clk,
+           rst_i                     => rst,
+           adc_coadd_en_i            => adc_coadd_en,
+           restart_frame_1row_prev_i => restart_frame_1row_prev,
+           restart_frame_aligned_i   => restart_frame_aligned,
+           restart_frame_1row_post_i => restart_frame_1row_post,
+           row_switch_i              => row_switch,
+           initialize_window_i       => initialize_window,
+           num_rows_sub1_i           => (others => '0'),
+           dac_dat_en_i              => dac_dat_en,
+           dat_i                     => dispatch_dat_out,
+           addr_i                    => dispatch_addr_out,
+           tga_i                     => dispatch_tga_out,
+           we_i                      => dispatch_we_out,
+           stb_i                     => dispatch_stb_out,
+           cyc_i                     => dispatch_cyc_out,
+           dat_frame_o               => dat_frame,
+           ack_frame_o               => ack_frame,
+           dat_fb_o                  => dat_fb,
+           ack_fb_o                  => ack_fb,
+           adc_dat_ch0_i             => adc1_dat,
+           adc_dat_ch1_i             => adc2_dat,
+           adc_dat_ch2_i             => adc3_dat,
+           adc_dat_ch3_i             => adc4_dat,
+           adc_dat_ch4_i             => adc5_dat,
+           adc_dat_ch5_i             => adc6_dat,
+           adc_dat_ch6_i             => adc7_dat,
+           adc_dat_ch7_i             => adc8_dat,
+           adc_ovr_ch0_i             => adc1_ovr,
+           adc_ovr_ch1_i             => adc2_ovr,
+           adc_ovr_ch2_i             => adc3_ovr,
+           adc_ovr_ch3_i             => adc4_ovr,
+           adc_ovr_ch4_i             => adc5_ovr,
+           adc_ovr_ch5_i             => adc6_ovr,
+           adc_ovr_ch6_i             => adc7_ovr,
+           adc_ovr_ch7_i             => adc8_ovr,
+           adc_rdy_ch0_i             => adc1_rdy,
+           adc_rdy_ch1_i             => adc2_rdy,
+           adc_rdy_ch2_i             => adc3_rdy,
+           adc_rdy_ch3_i             => adc4_rdy,
+           adc_rdy_ch4_i             => adc5_rdy,
+           adc_rdy_ch5_i             => adc6_rdy,
+           adc_rdy_ch6_i             => adc7_rdy,
+           adc_rdy_ch7_i             => adc8_rdy,
+           adc_clk_ch0_o             => adc1_clk,
+           adc_clk_ch1_o             => adc2_clk,
+           adc_clk_ch2_o             => adc3_clk,
+           adc_clk_ch3_o             => adc4_clk,
+           adc_clk_ch4_o             => adc5_clk,
+           adc_clk_ch5_o             => adc6_clk,
+           adc_clk_ch6_o             => adc7_clk,
+           adc_clk_ch7_o             => adc8_clk,
+           dac_dat_ch0_o             => dac_FB1_dat,
+           dac_dat_ch1_o             => dac_FB2_dat,
+           dac_dat_ch2_o             => dac_FB3_dat,
+           dac_dat_ch3_o             => dac_FB4_dat,
+           dac_dat_ch4_o             => dac_FB5_dat,
+           dac_dat_ch5_o             => dac_FB6_dat,
+           dac_dat_ch6_o             => dac_FB7_dat,
+           dac_dat_ch7_o             => dac_FB8_dat,
+           dac_clk_ch0_o             => dac_FB_clk(0),
+           dac_clk_ch1_o             => dac_FB_clk(1),
+           dac_clk_ch2_o             => dac_FB_clk(2),
+           dac_clk_ch3_o             => dac_FB_clk(3),
+           dac_clk_ch4_o             => dac_FB_clk(4),
+           dac_clk_ch5_o             => dac_FB_clk(5),
+           dac_clk_ch6_o             => dac_FB_clk(6),
+           dac_clk_ch7_o             => dac_FB_clk(7),
+           sa_bias_dac_spi_ch0_o     => sa_bias_dac_spi_ch0,
+           sa_bias_dac_spi_ch1_o     => sa_bias_dac_spi_ch1,
+           sa_bias_dac_spi_ch2_o     => sa_bias_dac_spi_ch2,
+           sa_bias_dac_spi_ch3_o     => sa_bias_dac_spi_ch3,
+           sa_bias_dac_spi_ch4_o     => sa_bias_dac_spi_ch4,
+           sa_bias_dac_spi_ch5_o     => sa_bias_dac_spi_ch5,
+           sa_bias_dac_spi_ch6_o     => sa_bias_dac_spi_ch6,
+           sa_bias_dac_spi_ch7_o     => sa_bias_dac_spi_ch7,
+           offset_dac_spi_ch0_o      => offset_dac_spi_ch0,
+           offset_dac_spi_ch1_o      => offset_dac_spi_ch1,
+           offset_dac_spi_ch2_o      => offset_dac_spi_ch2,
+           offset_dac_spi_ch3_o      => offset_dac_spi_ch3,
+           offset_dac_spi_ch4_o      => offset_dac_spi_ch4,
+           offset_dac_spi_ch5_o      => offset_dac_spi_ch5,
+           offset_dac_spi_ch6_o      => offset_dac_spi_ch6,
+           offset_dac_spi_ch7_o      => offset_dac_spi_ch7);
 
    
    -- Chip select signal assignment

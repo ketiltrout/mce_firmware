@@ -47,8 +47,8 @@ ENTITY packet_ram IS
 	(
 		data		: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 		wren		: IN STD_LOGIC  := '1';
-		wraddress		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-		rdaddress		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+		wraddress		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+		rdaddress		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 		clock		: IN STD_LOGIC ;
 		q		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
 	);
@@ -86,8 +86,8 @@ ARCHITECTURE SYN OF packet_ram IS
 	PORT (
 			wren_a	: IN STD_LOGIC ;
 			clock0	: IN STD_LOGIC ;
-			address_a	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-			address_b	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+			address_a	: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+			address_b	: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
 			q_b	: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 			data_a	: IN STD_LOGIC_VECTOR (31 DOWNTO 0)
 	);
@@ -101,11 +101,11 @@ BEGIN
 		intended_device_family => "Stratix",
 		operation_mode => "DUAL_PORT",
 		width_a => 32,
-		widthad_a => 6,
-		numwords_a => 64,
+		widthad_a => 8,
+		numwords_a => 256,
 		width_b => 32,
-		widthad_b => 6,
-		numwords_b => 64,
+		widthad_b => 8,
+		numwords_b => 256,
 		lpm_type => "altsyncram",
 		width_byteena_a => 1,
 		outdata_reg_b => "CLOCK0",
@@ -143,7 +143,7 @@ END SYN;
 -- Retrieval info: PRIVATE: WIDTH_WRITE_B NUMERIC "32"
 -- Retrieval info: PRIVATE: WIDTH_READ_A NUMERIC "32"
 -- Retrieval info: PRIVATE: WIDTH_READ_B NUMERIC "32"
--- Retrieval info: PRIVATE: MEMSIZE NUMERIC "2048"
+-- Retrieval info: PRIVATE: MEMSIZE NUMERIC "8192"
 -- Retrieval info: PRIVATE: Clock NUMERIC "0"
 -- Retrieval info: PRIVATE: rden NUMERIC "0"
 -- Retrieval info: PRIVATE: BYTE_ENABLE_A NUMERIC "0"
@@ -191,11 +191,11 @@ END SYN;
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: CONSTANT: OPERATION_MODE STRING "DUAL_PORT"
 -- Retrieval info: CONSTANT: WIDTH_A NUMERIC "32"
--- Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "6"
--- Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "64"
+-- Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "8"
+-- Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "256"
 -- Retrieval info: CONSTANT: WIDTH_B NUMERIC "32"
--- Retrieval info: CONSTANT: WIDTHAD_B NUMERIC "6"
--- Retrieval info: CONSTANT: NUMWORDS_B NUMERIC "64"
+-- Retrieval info: CONSTANT: WIDTHAD_B NUMERIC "8"
+-- Retrieval info: CONSTANT: NUMWORDS_B NUMERIC "256"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
 -- Retrieval info: CONSTANT: WIDTH_BYTEENA_A NUMERIC "1"
 -- Retrieval info: CONSTANT: OUTDATA_REG_B STRING "CLOCK0"
@@ -210,14 +210,14 @@ END SYN;
 -- Retrieval info: USED_PORT: data 0 0 32 0 INPUT NODEFVAL data[31..0]
 -- Retrieval info: USED_PORT: wren 0 0 0 0 INPUT VCC wren
 -- Retrieval info: USED_PORT: q 0 0 32 0 OUTPUT NODEFVAL q[31..0]
--- Retrieval info: USED_PORT: wraddress 0 0 6 0 INPUT NODEFVAL wraddress[5..0]
--- Retrieval info: USED_PORT: rdaddress 0 0 6 0 INPUT NODEFVAL rdaddress[5..0]
+-- Retrieval info: USED_PORT: wraddress 0 0 8 0 INPUT NODEFVAL wraddress[7..0]
+-- Retrieval info: USED_PORT: rdaddress 0 0 8 0 INPUT NODEFVAL rdaddress[7..0]
 -- Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
 -- Retrieval info: CONNECT: @data_a 0 0 32 0 data 0 0 32 0
 -- Retrieval info: CONNECT: @wren_a 0 0 0 0 wren 0 0 0 0
 -- Retrieval info: CONNECT: q 0 0 32 0 @q_b 0 0 32 0
--- Retrieval info: CONNECT: @address_a 0 0 6 0 wraddress 0 0 6 0
--- Retrieval info: CONNECT: @address_b 0 0 6 0 rdaddress 0 0 6 0
+-- Retrieval info: CONNECT: @address_a 0 0 8 0 wraddress 0 0 8 0
+-- Retrieval info: CONNECT: @address_b 0 0 8 0 rdaddress 0 0 8 0
 -- Retrieval info: CONNECT: @clock0 0 0 0 0 clock 0 0 0 0
 -- Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
 -- Retrieval info: GEN_FILE: TYPE_NORMAL packet_ram.vhd TRUE
