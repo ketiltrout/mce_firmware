@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.5 2004/09/29 15:06:10 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.1.1.1 2004/10/08 10:38:27 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,7 +32,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/29 15:06:10 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/10/08 10:38:27 $>	-		<text>		- <initials $Author: dca $>
 -- $log$
 -----------------------------------------------------------------------------
 library ieee;
@@ -61,14 +61,14 @@ architecture behav of tb_fibre_rx_protocol is
    signal tb_clk         : std_logic := '0';
    signal rx_fe          : std_logic;
    signal rxd            : std_logic_vector(RX_FIFO_DATA_WIDTH-1 downto 0);
-   signal card_id        : std_logic_vector(CARD_ADDR_BUS_WIDTH-1 downto 0);
-   signal cmd_code       : std_logic_vector(CMD_CODE_BUS_WIDTH-1 downto 0);
-   signal cmd_data       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+   signal card_id        : std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal cmd_code       : std_logic_vector(FIBRE_CMD_CODE_WIDTH-1 downto 0);
+   signal cmd_data       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal cksum_err      : std_logic;
    signal cmd_rdy        : std_logic;
    signal data_clk       : std_logic;
-   signal num_data       : std_logic_vector(DATA_SIZE_BUS_WIDTH-1 downto 0);
-   signal param_id       : std_logic_vector(PAR_ID_BUS_WIDTH-1  downto 0);
+   signal num_data       : std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+   signal param_id       : std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1  downto 0);
    signal rx_fr          : std_logic;
    signal cmd_ack  	     : std_logic;
 
