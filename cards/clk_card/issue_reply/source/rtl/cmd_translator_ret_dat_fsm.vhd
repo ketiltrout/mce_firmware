@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.8 2004/07/28 23:38:34 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.9 2004/08/05 18:14:52 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/28 23:38:34 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/05 18:14:52 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.9  2004/08/05 18:14:52  jjacob
+-- changed frame_sync_num_o to use the parameter
+-- SYNC_NUM_BUS_WIDTH
+--
 -- Revision 1.8  2004/07/28 23:38:34  jjacob
 -- added:
 -- library sys_param;
@@ -593,7 +597,7 @@ begin
 -- 'sync number' and 'sequence number' muxes
 --
 ------------------------------------------------------------------------   
-   current_sync_num <= sync_number_i               when mux_sel = INPUT_NUM_SEL          else
+   current_sync_num <= sync_number_i + 1           when mux_sel = INPUT_NUM_SEL          else
                        current_sync_num_reg_plus_1 when mux_sel = CURRENT_NUM_PLUS_1_SEL else
                        current_sync_num_reg        when mux_sel = CURRENT_NUM_SEL        else
                        current_sync_num_reg;
