@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.4 2005/01/07 01:31:27 bench2 Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.5 2005/01/17 22:58:06 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.5  2005/01/17 22:58:06  mandana
+-- add an extra state for loading the data to the SPI module
+--
 -- Revision 1.4  2005/01/07 01:31:27  bench2
 -- Mandana: create type dac_states
 -- changed SPI modules to run at 12.5MHz
@@ -109,6 +112,8 @@ architecture rtl of bc_dac_ctrl_core is
    type dac_states is (IDLE, PENDING, LOAD1, LOAD2, CLOCK_OUT, LAST_BIT, NEXT_DAC, NEXT_DAC2);
    signal flux_fb_current_state  : dac_states;
    signal flux_fb_next_state     : dac_states;
+   signal flux_fb_changed        : std_logic;
+   signal flux_fb_changed_clr    : std_logic;
    
    signal bias_current_state     : dac_states;
    signal bias_next_state        : dac_states;
@@ -194,29 +199,19 @@ begin
 ------------------------------------------------------------------------
 -- FSM for the 32 flux feedback DACs
 ------------------------------------------------------------------------   
-   flux_fb_state_NS : process(flux_fb_current_state, flux_fb_changed_i, update_bias_i, flux_fb_done, dac_count)
+   flux_fb_state_NS : process(flux_fb_current_state, flux_fb_changed, update_bias_i, flux_fb_done, dac_count)
    begin      
       -- Default assignment
-  --    flux_fb_next_state <= flux_fb_current_state;
-      debug (0) <= '0';
-      debug (1) <= '0';
-      debug (2) <= '0';
-      debug (3) <= '0';
-      debug (4) <= '0';
-      debug (5) <= '0';
-      debug (6) <= '0';
-      debug (7) <= '0';
+      flux_fb_next_state <= flux_fb_current_state;
             
       case flux_fb_current_state is 
          when IDLE => 
-            if(flux_fb_changed_i = '1') then
+            if(flux_fb_changed = '1') then
                flux_fb_next_state <= PENDING;
             else 
                flux_fb_next_state <= IDLE;
             end if;   
             
-            debug (0) <= '1';                       
-
          when PENDING =>
             if(update_bias_i = '1') then         
                flux_fb_next_state <= LOAD1;                
@@ -224,14 +219,12 @@ begin
                flux_fb_next_state <= PENDING;
                            
             end if;           
-            debug (1) <= '1';                       
 
          when LOAD1 =>
            flux_fb_next_state <= LOAD2;
 
          when LOAD2 =>
             flux_fb_next_state <= CLOCK_OUT;
-            debug (2) <= '1';                       
 
          when CLOCK_OUT =>
             if(flux_fb_done = '1') then
@@ -239,11 +232,9 @@ begin
             else 
                flux_fb_next_state <= CLOCK_OUT;
             end if;
-            debug (3) <= '1';                       
 
          when LAST_BIT =>
             flux_fb_next_state <= NEXT_DAC;                
-            debug (4) <= '1';                                
 
          when NEXT_DAC =>
             if(dac_count < NUM_FLUX_FB_DACS - 1) then
@@ -251,15 +242,13 @@ begin
             else 
                flux_fb_next_state <= IDLE;
             end if;   
-            debug (5) <= '1';                                   
 
 	 when NEXT_DAC2 =>
 	    flux_fb_next_state <= LOAD1;
-	    debug (6) <= '1';
 
          when others =>
             flux_fb_next_state <= IDLE;
-            debug (7) <= '1';
+
       end case;
    end process flux_fb_state_NS;   
    
@@ -273,7 +262,8 @@ begin
       flux_fb_start  <= '0';
       flux_fb_data_o <= (others => '0');    
       flux_fb_ncs_o  <= (others => '1');
-      flux_fb_clk_o  <= (others => '0');        
+      flux_fb_clk_o  <= (others => '0');     
+      flux_fb_changed_clr <= '0';
       
       case flux_fb_current_state is 
          
@@ -289,7 +279,6 @@ begin
             flux_fb_clk_o(dac_count)  <= flux_fb_clk;
          
          when LOAD2 =>
---            flux_fb_start             <= '1';
             flux_fb_data_o(dac_count) <= flux_fb_data;
             flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
             flux_fb_clk_o(dac_count)  <= flux_fb_clk;
@@ -304,6 +293,11 @@ begin
             flux_fb_data_o(dac_count) <= flux_fb_data;
             flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
             flux_fb_clk_o(dac_count)  <= flux_fb_clk;
+         
+         when NEXT_DAC =>
+            if(dac_count = 0 ) then
+               flux_fb_changed_clr    <= '1';      
+            end if;
 
          when NEXT_DAC2 =>
             dac_count_clk             <= '1';            
@@ -315,12 +309,25 @@ begin
    end process flux_fb_state_out;
 
 ----------------------------------------------------------------------
+-- register the change, in case a new change commands comes in when 
+-- state machine is not in IDLE, i.e. DAC values are being clocked out.
+----------------------------------------------------------------------
+   flux_fb_changed_reg: process(flux_fb_changed_clr, flux_fb_changed_i)
+   begin
+         if(flux_fb_changed_i'event and flux_fb_changed_i = '1') then
+            flux_fb_changed <= '1';
+         elsif (flux_fb_changed_clr = '1') then
+            flux_fb_changed <= '0';
+         end if;         
+   end process flux_fb_changed_reg;
+     
+----------------------------------------------------------------------
 -- FSM for the bias DAC
 ----------------------------------------------------------------------
    bias_state_NS : process(bias_current_state, bias_changed_i, update_bias_i, bias_done)
    begin      
       -- Default assignment
---      bias_next_state <= bias_current_state;
+      bias_next_state <= bias_current_state;
       
       case bias_current_state is 
          when IDLE => 
@@ -370,12 +377,12 @@ begin
 --         when PENDING =>          
          
          when LOAD1 =>
-            bias_start    <= '1';
             bias_data_o   <= bias_data;
             bias_ncs_o    <= bias_ncs;
             bias_clk_o    <= bias_clk;
          
          when CLOCK_OUT =>
+            bias_start    <= '1';
             bias_data_o   <= bias_data;
             bias_ncs_o    <= bias_ncs;
             bias_clk_o    <= bias_clk;
