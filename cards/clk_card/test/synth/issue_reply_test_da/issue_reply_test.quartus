@@ -23,6 +23,7 @@ FILES
 	VHDL_FILE = ..\..\..\sync_gen\source\rtl\sync_gen.vhd;
 	VHDL_FILE = ..\..\..\issue_reply\source\rtl\fibre_rx_control.vhd;
 	VHDL_FILE = ..\..\..\..\library\components\source\rtl\sync_fifo_rx.vhd;
+	VHDL_FILE = ..\..\..\..\library\components\source\rtl\sync_fifo_tx.vhd;
 	VHDL_FILE = ..\..\..\issue_reply\source\rtl\fibre_rx_fifo.vhd;
 	VHDL_FILE = ..\..\..\issue_reply\source\rtl\fibre_rx_protocol.vhd;
 	VHDL_FILE = ..\..\..\issue_reply\source\rtl\fibre_rx.vhd;

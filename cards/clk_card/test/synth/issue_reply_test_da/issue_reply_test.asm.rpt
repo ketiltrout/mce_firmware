@@ -1,5 +1,5 @@
 Assembler report for issue_reply_test compilation.
-Mon Nov 08 16:22:27 2004
+Thu Nov 11 09:35:43 2004
 Version 3.0 Build 199 06/26/2003 SJ Full Version
 
 Command: quartus_asm --import_settings_files=off --export_settings_files=off issue_reply_test -c issue_reply_test
@@ -49,14 +49,14 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Mon Nov 08 16:22:27 2004 ;
+; Flow Status              ; Successful - Thu Nov 11 09:35:43 2004 ;
 ; Compiler Setting Name    ; issue_reply_test                      ;
 ; Top-level Entity Name    ; issue_reply_test                      ;
 ; Family                   ; Stratix                               ;
 ; Device                   ; EP1S30F780C5                          ;
-; Total logic elements     ; 5,586 / 32,470 ( 17 % )               ;
-; Total pins               ; 46 / 597 ( 7 % )                      ;
-; Total memory bits        ; 747,520 / 3,317,184 ( 22 % )          ;
+; Total logic elements     ; 6,185 / 32,470 ( 19 % )               ;
+; Total pins               ; 56 / 597 ( 9 % )                      ;
+; Total memory bits        ; 1,339,392 / 3,317,184 ( 40 % )        ;
 ; DSP block 9-bit elements ; 0 / 96 ( 0 % )                        ;
 ; Total PLLs               ; 1 / 10 ( 10 % )                       ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                         ;
@@ -68,7 +68,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 11/08/2004 16:13:21 ;
+; Start date & time     ; 11/11/2004 09:25:31 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; issue_reply_test    ;
 -----------------------------------------------
@@ -79,17 +79,17 @@ party's intellectual property, are provided herein.
 ---------------------------------------
 ; Module Name          ; Elapsed Time ;
 ---------------------------------------
-; Analysis & Synthesis ; 00:01:51     ;
-; Fitter               ; 00:06:41     ;
-; Assembler            ; 00:00:31     ;
-; Total                ; 00:09:03     ;
+; Analysis & Synthesis ; 00:02:14     ;
+; Fitter               ; 00:07:10     ;
+; Assembler            ; 00:00:33     ;
+; Total                ; 00:09:57     ;
 ---------------------------------------
 
 
 -----------------------------------------------------------------
 ; Assembler Summary                                             ;
 -----------------------------------------------------------------
-; Assembler Status      ; Successful - Mon Nov 08 16:22:27 2004 ;
+; Assembler Status      ; Successful - Thu Nov 11 09:35:43 2004 ;
 ; Compiler Setting Name ; issue_reply_test                      ;
 ; Top-level Entity Name ; issue_reply_test                      ;
 ; Family                ; Stratix                               ;
@@ -150,7 +150,7 @@ party's intellectual property, are provided herein.
 ---------------------------------
 ; Device         ; EP1S30F780C5 ;
 ; JTAG usercode  ; 0xFFFFFFFF   ;
-; Checksum       ; 0x007734BA   ;
+; Checksum       ; 0x007F04EC   ;
 ---------------------------------
 
 
@@ -161,7 +161,7 @@ party's intellectual property, are provided herein.
 --------------------------------
 ; Device         ; EPC8        ;
 ; JTAG usercode  ; 0xFFFFFFFF  ;
-; Checksum       ; 0x0A3F70E3  ;
+; Checksum       ; 0x0A36B34E  ;
 --------------------------------
 
 
@@ -171,11 +171,11 @@ party's intellectual property, are provided herein.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
   Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Mon Nov 08 16:22:01 2004
+  Info: Processing started: Thu Nov 11 09:35:15 2004
 Info: Command: quartus_asm --import_settings_files=off --export_settings_files=off issue_reply_test -c issue_reply_test
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-  Info: Processing ended: Mon Nov 08 16:22:27 2004
-  Info: Elapsed time: 00:00:25
+  Info: Processing ended: Thu Nov 11 09:35:43 2004
+  Info: Elapsed time: 00:00:27
 Info: Writing report file issue_reply_test.asm.rpt
 
 
