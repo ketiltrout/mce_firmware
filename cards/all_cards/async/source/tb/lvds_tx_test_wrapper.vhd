@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.2  2004/05/28 20:14:02  erniel
+-- added extra transmit patterns
+--
 -- Revision 1.1  2004/04/28 02:54:50  erniel
 -- removed unused RS232 interface signals
 --
@@ -185,36 +188,37 @@ begin
    -- transmit stb
    -- transmit we
    
-   state_out: process(present_state)
+   with present_state select
+      dat <= count_dat when COUNT,
+             random_dat when RANDOM,
+             "00011100" when SQUARE,
+             "00000000" when others;
+   
+   state_out: process(present_state, ack, busy)
    begin
       case present_state is
          when IDLE =>   count_ena  <= '0';
                         random_ena <= '0';
-                        dat        <= (others => '0');
                         stb        <= '0';
                         we         <= '0';
                         
          when RANDOM => count_ena  <= '0';
-                        random_ena <= '1';
-                        dat        <= random_dat;
+                        random_ena <= ack;
                         stb        <= not ack and not busy;
                         we         <= not ack and not busy;
                         
-         when COUNT =>  count_ena  <= '1';
+         when COUNT =>  count_ena  <= ack;
                         random_ena <= '0';
-                        dat        <= count_dat;
                         stb        <= not ack and not busy;
                         we         <= not ack and not busy;
                         
          when SQUARE => count_ena  <= '0';
                         random_ena <= '0';
-                        dat        <= "10101010";
                         stb        <= not ack and not busy;
                         we         <= not ack and not busy;
                         
          when others => count_ena  <= '0';
                         random_ena <= '0';
-                        dat        <= (others => '0');
                         stb        <= '0';
                         we         <= '0';
       end case;
