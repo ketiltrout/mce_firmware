@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.10 2004/08/05 18:14:29 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.11 2004/08/05 20:52:01 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/08/05 18:14:29 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/05 20:52:01 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.11  2004/08/05 20:52:01  jjacob
+-- added sync_number input to arbiter instatiation
+--
 -- Revision 1.10  2004/08/05 18:14:29  jjacob
 -- changed frame_sync_num_o to use the parameter
 -- SYNC_NUM_BUS_WIDTH
@@ -101,10 +104,10 @@ port(
 
       -- inputs from fibre_rx      
 
-      card_id_i        : in    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
+      card_id_i         : in    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
       cmd_code_i        : in    std_logic_vector (15 downto 0);   -- the least significant 16-bits from the fibre packet
       cmd_data_i        : in    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);   -- the data
-      --cksum_err_i    : in    std_logic;
+      cksum_err_i       : in    std_logic;
       cmd_rdy_i         : in    std_logic;                        -- indicates the fibre_rx outputs are valid
       data_clk_i        : in    std_logic;                        -- used to clock the data out
       num_data_i        : in    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
@@ -138,12 +141,20 @@ port(
 
 
       -- outputs to reply_translator for commands that require quick acknowldgements
-      reply_cmd_ack_o       : out std_logic;                                          -- for commands that require an acknowledge before the command executes
-      reply_card_addr_o     : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
-      reply_data_size_o     : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)     -- data will be passed straight thru
+--      reply_cmd_ack_o       : out std_logic;                                          -- for commands that require an acknowledge before the command executes
+--      reply_card_addr_o     : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+--      reply_parameter_id_o  : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from param_id_i, indicates which device(s) the command is targetting
+--      reply_data_size_o     : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+--      reply_data_o          : out std_logic_vector (DATA_BUS_WIDTH-1 downto 0)        -- data will be passed straight thru
       
+      reply_cmd_rcvd_er_o         : out std_logic;
+      reply_cmd_rcvd_ok_o         : out std_logic;
+      reply_cmd_code_o            : out std_logic_vector (15 downto 0);
+      reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
+      reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)    -- specifies which card the command is targetting
+
+ 
+ 
  
    ); 
      
@@ -170,12 +181,12 @@ architecture rtl of cmd_translator is
    -- signals to state machine controlling simple commands
    signal cmd_start         : std_logic;
    signal cmd_stop          : std_logic;
-   signal cmd_ack           : std_logic;
+   --signal cmd_ack           : std_logic;
    
    -- signals to state machine controlling non-existent parameter ID (error)
-   signal error_handler_start   : std_logic;
-   signal error_handler_stop    : std_logic;
-   signal error_handler_ack     : std_logic;
+--   signal error_handler_start   : std_logic;
+--   signal error_handler_stop    : std_logic;
+--   signal error_handler_ack     : std_logic;
    
    -- 'return data' signals to the arbiter, (then to micro-op  sequence generator )
    signal ret_dat_cmd_ack            : std_logic;                                         -- ready signal
@@ -207,7 +218,7 @@ architecture rtl of cmd_translator is
    constant STOP_CMD  : std_logic_vector (15 downto 0) := x"5354";
    
    
-   -- memory arrays for macro-op storage/retire buffer
+--  memory arrays for macro-op storage/retire buffer
 --   constant BUFFER_SIZE              : integer := 8;
 --   type byte is                       std_logic_vector(7 downto 0);
 --   type word is                       std_logic_vector(31 downto 0);
@@ -218,7 +229,9 @@ architecture rtl of cmd_translator is
 --   
 --   signal in_use                     : std_logic_vector(BUFFER_SIZE-1 downto 0);
    
-
+   
+   signal parameter_id : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
+   signal card_addr    : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
 
 
 begin
@@ -253,8 +266,8 @@ begin
                   cmd_start            <= '0';
                   cmd_stop             <= '0';
                   
-                  error_handler_start  <= '0';
-                  error_handler_stop   <= '0';
+                  -- error_handler_start  <= '0';
+                  -- error_handler_stop   <= '0';
                   
                else -- assume it's a stop command (STOP_CMD)
 
@@ -267,8 +280,8 @@ begin
                   cmd_start            <= '0';
                   cmd_stop             <= '0';
                   
-                  error_handler_start  <= '0';
-                  error_handler_stop   <= '0';
+                  -- error_handler_start  <= '0';
+                  -- error_handler_stop   <= '0';
                      
                end if;   
                
@@ -281,18 +294,18 @@ begin
                ret_dat_s_start          <= '1';
                ret_dat_s_ack            <= '1';
                               
-               reply_cmd_ack_o          <= '0';
-               reply_card_addr_o        <= (others => '0');
-               reply_parameter_id_o     <= (others => '0');
-               reply_data_size_o        <= (others => '0');
-               reply_data_o             <= (others => '0');
+--               reply_cmd_ack_o          <= '0';
+--               reply_card_addr_o        <= (others => '0');
+--               reply_parameter_id_o     <= (others => '0');
+--               reply_data_size_o        <= (others => '0');
+--               reply_data_o             <= (others => '0');
 
                      
                cmd_start                <= '0';
                cmd_stop                 <= '0';
                   
-               error_handler_start      <= '0';
-               error_handler_stop       <= '0';
+               -- error_handler_start      <= '0';
+               -- error_handler_stop       <= '0';
   
             ---------------------------------------------------------------------------------
             -- Address Card Specific
@@ -405,8 +418,8 @@ begin
  	       cmd_start             <= '1';
                cmd_stop              <= '0';
                     
-               error_handler_start   <= '0';
-               error_handler_stop    <= '0';
+               -- error_handler_start   <= '0';
+               -- error_handler_stop    <= '0';
          
             when others =>
 
@@ -419,8 +432,8 @@ begin
                cmd_start             <= '0';
                cmd_stop              <= '0';
                
-               error_handler_start   <= '1'; 
-               error_handler_stop    <= '0';
+               -- error_handler_start   <= '1'; 
+               -- error_handler_stop    <= '0';
                        
          end case;
                  
@@ -435,8 +448,8 @@ begin
          cmd_start             <= '0';
          cmd_stop              <= '0';
          
-         error_handler_start   <= '0';
-         error_handler_stop    <= '0';
+         -- error_handler_start   <= '0';
+         -- error_handler_stop    <= '0';
          
       end if;
       
@@ -601,20 +614,28 @@ port map(
       frame_sync_num_o              => frame_sync_num_o,
       
       -- outputs to the micro-instruction generator
-      card_addr_o                   => card_addr_o,    -- specifies which card the command is targetting
-      parameter_id_o                => parameter_id_o, -- comes from param_id_i, indicates which device(s) the command is targetting
+      card_addr_o                   => card_addr,--_o,    -- specifies which card the command is targetting
+      parameter_id_o                => parameter_id,--_o, -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o                   => data_size_o,    -- num_data_i, indicates number of 16-bit words of data
       data_o                        => data_o,         -- data will be passed straight thru in 16-bit words
-      data_clk_o       				    => data_clk_o	,                          -- for clocking out the data
-      macro_instr_rdy_o             => macro_instr_rdy,                    -- ='1' when the data is valid, else it's '0'
+      data_clk_o       				    => data_clk_o	,    -- for clocking out the data
+      macro_instr_rdy_o             => macro_instr_rdy,-- ='1' when the data is valid, else it's '0'
       
       -- input from the micro-instruction generator
       ack_i                         => ack_i            -- acknowledgment from the micro-instr arbiter that it is ready and has grabbed the data
 
    ); 
      
-     
-   macro_instr_rdy_o <= macro_instr_rdy;
+
+    
+   macro_instr_rdy_o   <= macro_instr_rdy;
+   reply_cmd_rcvd_er_o <= cksum_err_i;
+   reply_cmd_rcvd_ok_o <= macro_instr_rdy;
+   reply_cmd_code_o    <= cmd_code_i;
+   reply_param_id_o    <= parameter_id;
+   reply_card_id_o     <= card_addr;
+   card_addr_o         <= card_addr;
+   parameter_id_o      <= parameter_id;
    
 ------------------------------------------------------------------------
 --
