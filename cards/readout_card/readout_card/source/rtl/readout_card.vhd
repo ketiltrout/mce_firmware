@@ -437,16 +437,16 @@ begin
   -- Ramp counter for ADC
   -----------------------------------------------------------------------------
 
-  adc1_dat_hw_test <= "00000000000001";
+  --adc1_dat_hw_test <= (others => '1');--"00000000000001";
   
---   i_ramp_adc: process (clk, rst)
---   begin  -- process i_ramp_adc
---     if rst = '1' then                   -- asynchronous reset (active high)
---       adc1_dat_hw_test <= (others => '0');
---     elsif clk'event and clk = '1' then  -- rising clock edge
---       adc1_dat_hw_test <= adc1_dat_hw_test + 1;
---     end if;
---   end process i_ramp_adc;
+   i_ramp_adc: process (clk, rst)
+   begin  -- process i_ramp_adc
+     if rst = '1' then                   -- asynchronous reset (active high)
+       adc1_dat_hw_test <= (others => '0');
+     elsif clk'event and clk = '1' then  -- rising clock edge
+       adc1_dat_hw_test <= adc1_dat_hw_test + 1;
+     end if;
+   end process i_ramp_adc;
   
 -------------------------------------------------------------------------------
 -- End of added blocks for HW test
@@ -630,7 +630,8 @@ begin
            ack_frame_o               => ack_frame,
            dat_fb_o                  => dat_fb,
            ack_fb_o                  => ack_fb,
-           adc_dat_ch0_i             => adc1_dat_hw_test,
+--           adc_dat_ch0_i             => adc1_dat_hw_test,
+           adc_dat_ch0_i             => adc1_dat,
            adc_dat_ch1_i             => adc2_dat,
            adc_dat_ch2_i             => adc3_dat,
            adc_dat_ch3_i             => adc4_dat,
