@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.2 2004/12/21 22:06:51 bburger Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.3 2005/01/04 19:19:47 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.3  2005/01/04 19:19:47  bburger
+-- Mandana: changed mictor assignment to 0 to 31 and swapped odd and even pods
+--
 -- Revision 1.2  2004/12/21 22:06:51  bburger
 -- Bryce:  update
 --
@@ -97,7 +100,7 @@ end bc_dac_ctrl_core;
 
 architecture rtl of bc_dac_ctrl_core is
 
-   type dac_states is (IDLE, PENDING, LOAD, CLOCK_OUT, LAST_BIT, NEXT_DAC);
+   type dac_states is (IDLE, PENDING, LOAD, CLOCK_OUT, LAST_BIT, NEXT_DAC, NEXT_DAC2);
    signal flux_fb_current_state  : dac_states;
    signal flux_fb_next_state     : dac_states;
    
@@ -134,6 +137,11 @@ begin
    debug (9)  <= clk_div2;
    debug (10) <= flux_fb_changed_i;
    debug (11) <= update_bias_i;
+   debug (12) <= flux_fb_done;
+   debug (13) <= flux_fb_start;
+   debug (14) <= dac_count_rst;
+   debug (15) <= dac_count_clk;
+   debug (21 downto 16) <= std_logic_vector(conv_unsigned(dac_count, COL_ADDR_WIDTH));
    
 -- instantiate a counter to divide the clock by 2
    clk_div_2: counter
@@ -149,17 +157,20 @@ begin
             count_o => clk_count);
    clk_div2   <= '1' when clk_count > 1 else '0';
 
-   dac_counter: counter_xstep 
+   dac_counter: counter 
    generic map
    (
-      MAX => (2**COL_ADDR_WIDTH)-1
-   )
+        MAX => NUM_FLUX_FB_DACS,  -- an intentional out of range!
+        STEP_SIZE => 1,
+        WRAP_AROUND => '1',
+        UP_COUNTER => '1')        
    port map
    (
       clk_i   => dac_count_clk,
       rst_i   => dac_count_rst,
       ena_i   => '1',
-      step_i  => 1,
+      load_i  => '0',
+      count_i => 0,
       count_o => dac_count
    );
    
@@ -194,10 +205,8 @@ begin
          when IDLE => 
             if(flux_fb_changed_i = '1') then
                flux_fb_next_state <= PENDING;
-               debug(7) <= '1';
             else 
                flux_fb_next_state <= IDLE;
-               debug(7) <= '0';
             end if;   
             
             debug (0) <= '1';                       
@@ -228,16 +237,20 @@ begin
             debug (4) <= '1';                                
 
          when NEXT_DAC =>
-            if(dac_count < NUM_FLUX_FB_DACS) then
-               flux_fb_next_state <= LOAD;
+            if(dac_count < NUM_FLUX_FB_DACS - 1) then
+               flux_fb_next_state <= NEXT_DAC2;
             else 
                flux_fb_next_state <= IDLE;
             end if;   
             debug (5) <= '1';                                   
 
+	 when NEXT_DAC2 =>
+	    flux_fb_next_state <= LOAD;
+	    debug (6) <= '1';
+
          when others =>
             flux_fb_next_state <= IDLE;
-            debug (6) <= '1';
+            debug (7) <= '1';
       end case;
    end process flux_fb_state_NS;   
    
@@ -268,6 +281,7 @@ begin
             flux_fb_clk_o(dac_count)  <= flux_fb_clk;
          
          when CLOCK_OUT =>
+            flux_fb_start             <= '1';
             flux_fb_data_o(dac_count) <= flux_fb_data;
             flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
             flux_fb_clk_o(dac_count)  <= flux_fb_clk;
@@ -277,7 +291,7 @@ begin
             flux_fb_ncs_o(dac_count)  <= flux_fb_ncs;
             flux_fb_clk_o(dac_count)  <= flux_fb_clk;
 
-         when NEXT_DAC =>
+         when NEXT_DAC2 =>
             dac_count_clk             <= '1';            
          
          when others => 
