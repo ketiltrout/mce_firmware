@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: all_test_idle.vhd,v $
+-- Revision 1.3  2004/05/11 03:26:31  erniel
+-- added LVDS rx test commands
+--
 -- Revision 1.2  2004/05/03 02:36:52  erniel
 -- reduced receiver state machine complexity
 --
@@ -204,13 +207,11 @@ begin
                      rx_data_i = CMD_CARD_ID or
                      rx_data_i = CMD_SLOT_ID or
                      rx_data_i = CMD_DIP or
-                     rx_data_i = CMD_TX or
                      rx_data_i = CMD_DEBUG) then
                      -- got a single character command - we're done
                      rx_state <= RX_DONE;
 
-                  elsif(rx_data_i = CMD_LED or
-                        rx_data_i = CMD_RX) then
+                  elsif(rx_data_i = CMD_LED) then
                      rx_state <= RX_WAIT2;
 
                   else
@@ -225,11 +226,7 @@ begin
                if(rx_newdata = '1') then   
                   if(rx_data_i = CMD_LED_1 or
                      rx_data_i = CMD_LED_2 or
-                     rx_data_i = CMD_LED_3 or
-                     rx_data_i = CMD_RX_CLK or
-                     rx_data_i = CMD_RX_CMD or
-                     rx_data_i = CMD_RX_SYNC or
-                     rx_data_i = CMD_RX_SPARE) then
+                     rx_data_i = CMD_LED_3) then
                      rx_state <= RX_DONE;
                   else
                      rx_state <= RX_ERROR;

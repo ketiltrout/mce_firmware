@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: all_test.vhd,v $
+-- Revision 1.3  2004/05/11 03:24:11  erniel
+-- added LVDS rx test wrappers
+-- added dip switch test wrapper
+-- changed state machine state names
+-- added rs232_data_tx sanity test
+--
 -- Revision 1.2  2004/05/03 02:38:05  erniel
 -- implemented reset command
 --
@@ -71,13 +77,6 @@ entity all_test is
       
       -- watchdog timer interface                      
       wdog : out std_logic;
-            
-      -- LVDS interfaces
-      lvds_tx    : out std_logic;
-      lvds_clk   : in std_logic;
-      lvds_cmd   : in std_logic;
-      lvds_sync  : in std_logic;
-      lvds_spare : in std_logic;
       
       -- id interfaces
       slot_id : in std_logic_vector (3 downto 0);
@@ -120,7 +119,7 @@ architecture behaviour of all_test is
    signal rx_ack   : std_logic;
    
    -- state constants
-   constant MAX_STATES : integer := 15;
+   constant MAX_STATES : integer := 10;
 
    constant INDEX_RESET      : integer := 0;
    constant INDEX_IDLE       : integer := 1;
@@ -128,15 +127,10 @@ architecture behaviour of all_test is
    constant INDEX_LED_STATUS : integer := 3;
    constant INDEX_LED_FAULT  : integer := 4;
    constant INDEX_DIP        : integer := 5;      
-   constant INDEX_WATCHDOG   : integer := 6;
-   constant INDEX_TX         : integer := 7;
-   constant INDEX_RX_CLK     : integer := 8;
-   constant INDEX_RX_CMD     : integer := 9;
-   constant INDEX_RX_SYNC    : integer := 10;
-   constant INDEX_RX_SPARE   : integer := 11;   
-   constant INDEX_SLOT_ID    : integer := 12; 
-   constant INDEX_CARD_ID    : integer := 13;   
-   constant INDEX_DEBUG      : integer := 14;
+   constant INDEX_WATCHDOG   : integer := 6;  
+   constant INDEX_SLOT_ID    : integer := 7; 
+   constant INDEX_CARD_ID    : integer := 8;   
+   constant INDEX_DEBUG      : integer := 9;
       
    constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
@@ -144,12 +138,7 @@ architecture behaviour of all_test is
    constant SEL_LED_STATUS : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
    constant SEL_LED_FAULT  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
    constant SEL_DIP        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DIP => '1', others => '0');
-   constant SEL_WATCHDOG   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
-   constant SEL_TX         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX => '1', others => '0');
-   constant SEL_RX_CLK     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CLK => '1', others => '0');
-   constant SEL_RX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CMD => '1', others => '0');
-   constant SEL_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
-   constant SEL_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0');         
+   constant SEL_WATCHDOG   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');        
    constant SEL_SLOT_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
    constant SEL_CARD_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
    constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
@@ -162,11 +151,6 @@ architecture behaviour of all_test is
    constant DONE_LED_FAULT  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
    constant DONE_DIP        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DIP => '1', others => '0');
    constant DONE_WATCHDOG   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
-   constant DONE_TX         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX => '1', others => '0');
-   constant DONE_RX_CLK     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CLK => '1', others => '0');
-   constant DONE_RX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CMD => '1', others => '0');
-   constant DONE_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
-   constant DONE_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0'); 
    constant DONE_SLOT_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
    constant DONE_CARD_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
    constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
@@ -184,45 +168,32 @@ architecture behaviour of all_test is
    -- device return signals:
    signal reset_data    : std_logic_vector(7 downto 0);
    signal idle_data     : std_logic_vector(7 downto 0);
-   signal dip_data      : std_logic_vector(7 downto 0);
-   signal rx_clk_data   : std_logic_vector(7 downto 0);
-   signal rx_cmd_data   : std_logic_vector(7 downto 0);
-   signal rx_sync_data  : std_logic_vector(7 downto 0);
-   signal rx_spare_data : std_logic_vector(7 downto 0);      
+   signal dip_data      : std_logic_vector(7 downto 0);     
    signal slot_id_data  : std_logic_vector(7 downto 0);
    signal card_id_data  : std_logic_vector(7 downto 0);
    signal debug_data    : std_logic_vector(7 downto 0);
    
    signal reset_we      : std_logic;
    signal idle_we       : std_logic;
-   signal dip_we        : std_logic;
-   signal rx_clk_we     : std_logic;
-   signal rx_cmd_we     : std_logic;
-   signal rx_sync_we    : std_logic;
-   signal rx_spare_we   : std_logic;      
+   signal dip_we        : std_logic;     
    signal slot_id_we    : std_logic;
    signal card_id_we    : std_logic;
    signal debug_we      : std_logic;
    
    signal reset_stb     : std_logic;
    signal idle_stb      : std_logic;
-   signal dip_stb       : std_logic;
-   signal rx_clk_stb    : std_logic;
-   signal rx_cmd_stb    : std_logic;
-   signal rx_sync_stb   : std_logic;
-   signal rx_spare_stb  : std_logic;   
+   signal dip_stb       : std_logic;  
    signal slot_id_stb   : std_logic;
    signal card_id_stb   : std_logic;
    signal debug_stb     : std_logic;
    
-   signal test_data : std_logic_vector(31 downto 0);
+   signal test_data : std_logic_vector(39 downto 0);
    
 begin
 --   clk_gen : pll
---      port map(inclk0 => pll_i,
+--      port map(inclk0 => inclk,
 --               c0 => clk,
---               e0 => lvds_clk,
---               e1 => pll_o);
+--               e0 => outclk);
 
    -- RS232 interface start
    receiver : async_rx
@@ -322,67 +293,6 @@ begin
                done_o    => done(INDEX_WATCHDOG),
                wdt_o     => wdog);
          
-   -- LVDS transmitter
-   tx : lvds_tx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_TX),
-               done_o    => done(INDEX_TX),
-               lvds_o    => lvds_tx);
-
-   -- LVDS receivers
-   rx_clk : lvds_rx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_RX_CLK),
-               done_o    => done(INDEX_RX_CLK),
-               lvds_i    => lvds_clk,
-            
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => rx_clk_data,
-               tx_we_o   => rx_clk_we,
-               tx_stb_o  => rx_clk_stb);
-   
-   rx_cmd : lvds_rx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_RX_CMD),
-               done_o    => done(INDEX_RX_CMD),
-               lvds_i    => lvds_cmd,
-            
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => rx_cmd_data,
-               tx_we_o   => rx_cmd_we,
-               tx_stb_o  => rx_cmd_stb);
-    
-   rx_sync : lvds_rx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_RX_SYNC),
-               done_o    => done(INDEX_RX_SYNC),
-               lvds_i    => lvds_sync,
-            
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => rx_sync_data,
-               tx_we_o   => rx_sync_we,
-               tx_stb_o  => rx_sync_stb);
-   
-   rx_spare : lvds_rx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_RX_SPARE),
-               done_o    => done(INDEX_RX_SPARE),
-               lvds_i    => lvds_spare,
-            
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => rx_spare_data,
-               tx_we_o   => rx_spare_we,
-               tx_stb_o  => rx_spare_stb);
-      
    -- DIP switches
    dip <= dip_sw3 & dip_sw4;
    dip_sw : dip_switch_test_wrapper
@@ -425,7 +335,7 @@ begin
                tx_stb_o  => card_id_stb);    
                
    debug_tx : rs232_data_tx
-      generic map(WIDTH => 32)
+      generic map(WIDTH => 40)
       port map(clk_i   => clk,
                rst_i   => rst,
                data_i  => test_data,
@@ -441,7 +351,7 @@ begin
    zero <= '0';
    one <= '1';                         
    rst <= not n_rst or int_rst;
-   test_data <= "11011110101011011011111011101111";  -- 0xDEADBEEF
+   test_data <= "1011101011011010010101011011101010111110";  -- 0xBADA55BABE
    
    -- functionality of async_mux:
    
@@ -449,10 +359,6 @@ begin
       tx_data <= reset_data    when SEL_RESET,
                  idle_data     when SEL_IDLE,
                  dip_data      when SEL_DIP,
-                 rx_clk_data   when SEL_RX_CLK,
-                 rx_cmd_data   when SEL_RX_CMD,
-                 rx_sync_data  when SEL_RX_SYNC,
-                 rx_spare_data when SEL_RX_SPARE,
                  slot_id_data  when SEL_SLOT_ID,
                  card_id_data  when SEL_CARD_ID,
                  debug_data    when SEL_DEBUG,
@@ -462,10 +368,6 @@ begin
       tx_we   <= reset_we      when SEL_RESET,
                  idle_we       when SEL_IDLE,
                  dip_we        when SEL_DIP,
-                 rx_clk_we     when SEL_RX_CLK,
-                 rx_cmd_we     when SEL_RX_CMD,
-                 rx_sync_we    when SEL_RX_SYNC,
-                 rx_spare_we   when SEL_RX_SPARE,
                  slot_id_we    when SEL_SLOT_ID,
                  card_id_we    when SEL_CARD_ID,
                  debug_we      when SEL_DEBUG,
@@ -475,10 +377,6 @@ begin
       tx_stb  <= reset_stb     when SEL_RESET,
                  idle_stb      when SEL_IDLE,
                  dip_stb       when SEL_DIP,
-                 rx_clk_stb    when SEL_RX_CLK,
-                 rx_cmd_stb    when SEL_RX_CMD,
-                 rx_sync_stb   when SEL_RX_SYNC,
-                 rx_spare_stb  when SEL_RX_SPARE,
                  slot_id_stb   when SEL_SLOT_ID,
                  card_id_stb   when SEL_CARD_ID,
                  debug_stb     when SEL_DEBUG,
@@ -531,21 +429,6 @@ begin
                elsif(cmd1 = CMD_DIP) then
                   -- read DIP switch
                   sel <= SEL_DIP;
-
-               elsif(cmd1 = CMD_TX) then
-                  -- random number tx test
-                  sel <= SEL_TX;
-               
-               elsif(cmd1 = CMD_RX) then
-                  if(cmd2 = CMD_RX_CLK) then
-                     sel <= SEL_RX_CLK;
-                  elsif(cmd2 = CMD_RX_CMD) then
-                     sel <= SEL_RX_CMD;
-                  elsif(cmd2 = CMD_RX_SYNC) then
-                     sel <= SEL_RX_SYNC;
-                  elsif(cmd2 = CMD_RX_SPARE) then
-                     sel <= SEL_RX_SPARE;
-                  end if;
                   
                elsif(cmd1 = CMD_SLOT_ID) then
                   sel <= SEL_SLOT_ID;
