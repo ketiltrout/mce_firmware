@@ -77,6 +77,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop_ctrl.vhd,v $
+-- Revision 1.2  2004/11/08 23:56:22  mohsen
+-- Sorted out parameters.  Also, incorporated fsfb_ctrl in the testbench and done self check.
+--
 -- Revision 1.1  2004/10/28 19:50:04  mohsen
 -- created
 --
@@ -100,7 +103,8 @@ library work;
 use work.adc_sample_coadd_pack.all;
 use work.fsfb_calc_pack.all;
 use work.fsfb_ctrl_pack.all;
-
+use work.offset_ctrl_pack.all;
+use work.sa_bias_ctrl_pack.all;
 
 
 
@@ -126,6 +130,7 @@ architecture beh of tb1_flux_loop_ctrl is
 
     -- Global signals 
     clk_50_i                  : in  std_logic;
+    clk_25_i                  : in  std_logic;
     rst_i                     : in  std_logic;
 
     -- Frame timing signals
@@ -178,8 +183,8 @@ architecture beh of tb1_flux_loop_ctrl is
     dac_clk_o                 : out std_logic;
 
     -- spi DAC Interface
-    sa_bias_dac_spi_o         : out std_logic_vector(2 downto 0);
-    offset_dac_spi_o          : out std_logic_vector(2 downto 0);
+    sa_bias_dac_spi_o         : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+    offset_dac_spi_o          : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
 
     -- INTERNAL
     fsfb_fltr_dat_rdy_o       : out std_logic;                                             -- fs feedback queue current data ready 
@@ -197,6 +202,7 @@ architecture beh of tb1_flux_loop_ctrl is
     signal adc_rdy_i                 : std_logic;
     signal adc_clk_o                 : std_logic;
     signal clk_50_i                  : std_logic;
+    signal clk_25_i                  : std_logic;
     signal rst_i                     : std_logic :='1';
     signal adc_coadd_en_i            : std_logic := '0';
     signal restart_frame_1row_prev_i : std_logic;
@@ -468,6 +474,7 @@ begin  -- beh
     adc_rdy_i                 => adc_rdy_i,
     adc_clk_o                 => adc_clk_o,
     clk_50_i                  => clk_50_i,
+    clk_25_i                  => clk_25_i,
     rst_i                     => rst_i,
     adc_coadd_en_i            => adc_coadd_en_i,
     restart_frame_1row_prev_i => restart_frame_1row_prev_i,
@@ -617,7 +624,7 @@ begin  -- beh
   -- Clocking
   -----------------------------------------------------------------------------
 
-  clocking: process
+  clocking_50: process
   begin  -- process clocking
 
     clk_50_i <= '1';
@@ -630,7 +637,22 @@ begin  -- beh
 
     wait;
     
-  end process clocking;
+  end process clocking_50;
+  
+  clocking_25: process
+  begin  -- process clocking
+
+    clk_25_i <= '1';
+    wait for PERIOD;
+    
+    while (not finish_tb1) loop
+      clk_25_i <= not clk_25_i;
+      wait for PERIOD;
+    end loop;
+
+    wait;
+    
+  end process clocking_25;
 
   -----------------------------------------------------------------------------
   -- Generate restart_frame_aligned_i, restart_frame_1row_post_i, and
