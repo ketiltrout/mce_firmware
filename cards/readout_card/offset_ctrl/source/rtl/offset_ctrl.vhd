@@ -41,7 +41,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: offset_ctrl.vhd,v $
+-- Revision 1.1  2004/11/13 01:23:13  anthonyk
+-- Initial release
+--
 --
 --
 
@@ -66,10 +69,10 @@ entity offset_ctrl is
       restart_frame_aligned_i   : in     std_logic;                                             -- start of frame signal (50 MHz domain)
       
       -- control signals from configuration register
-      offset_dat_i              : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- parallel sa bias data input value from wishbone feedback data
+      offset_dat_i              : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- parallel offset data input value from wishbone feedback data
       
       -- SPI interface to MAX 5443 DAC
-      offset_dac_spi_o          : out    std_logic_vector(SPI_DATA_WIDTH-1 downto 0)            -- serial sa bias data output value, clock and chip select
+      offset_dac_spi_o          : out    std_logic_vector(SPI_DATA_WIDTH-1 downto 0)            -- serial offset data output value, clock and chip select
           
    );
 end offset_ctrl;
