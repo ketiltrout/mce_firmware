@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.2 2004/10/22 01:54:38 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.3 2004/10/26 23:59:16 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.3  2004/10/26 23:59:16  bburger
+-- Bryce:  working out the bugs from the cmd_queue<->reply_queue interface
+--
 -- Revision 1.2  2004/10/22 01:54:38  bburger
 -- Bryce:  fixed bugs
 --
@@ -55,23 +58,26 @@ use work.cmd_queue_pack.all;
 entity reply_queue_retire is
    port(
       -- cmd_queue interface
-      uop_rdy_i         : in std_logic;                                           -- Done
-      uop_ack_o         : out std_logic;                                          -- Done
-      uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            -- Done
+      uop_rdy_i         : in std_logic;                                           
+      uop_ack_o         : out std_logic;                                          
+      uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
       
       -- reply_translator interface 
       m_op_done_i       : in std_logic;
-      m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); -- Done
-      m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- Done
-      m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- Done
+      m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
+      m_op_card_addr_o  : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
       m_op_ack_i        : in std_logic;    
-      cmd_stop_o        : out std_logic;                                          -- Done
-      last_frame_o      : out std_logic;                                          -- Done
-      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     -- Done
+      cmd_stop_o        : out std_logic;                                          
+      last_frame_o      : out std_logic;                                          
+      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
      
       -- Internal interface signals to the lvds_rx fifo's
       mop_num_o         : out std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
       uop_num_o         : out std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
+--      match_o           : out std_logic;
+      start_o           : out std_logic;
+--      done_o            : out std_logic      
 
       -- Global signals
       clk_i             : in std_logic;
@@ -154,7 +160,7 @@ begin
 
    -- Some of the outputs to reply_translator and lvds_rx fifo's
    m_op_cmd_code_o   <= header_a(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END);      
-   m_op_card_id_o    <= header_b(QUEUE_WIDTH-1 downto CARD_ADDR_END);
+   m_op_card_addr_o  <= header_b(QUEUE_WIDTH-1 downto CARD_ADDR_END);
    m_op_param_id_o   <= header_b(CARD_ADDR_END-1 downto PARAM_ID_END);   
    cmd_stop_o        <= header_c(1);  
    last_frame_o      <= header_c(0);   
@@ -194,6 +200,8 @@ begin
             next_retire_state <= HEADERD;
          when HEADERD =>
             next_retire_state <= RECEIVED;
+         when RECEIVED =>
+            next_retire_state <= IDLE;
          when others =>
             next_retire_state <= IDLE;
       end case;
@@ -203,36 +211,31 @@ begin
    begin
    
       -- Default values
-      header_a_en <= '0';
-      header_b_en <= '0';
-      header_c_en <= '0';
-      header_d_en <= '0';
+      header_a_en  <= '0';
+      header_b_en  <= '0';
+      header_c_en  <= '0';
+      header_d_en  <= '0';
+      start_o      <= '0';
 
       case present_retire_state is
          when IDLE =>
-            uop_recieved <= '0';
-            
             if (next_retire_state = HEADERB) then
                header_a_en <= '1';
             end if;
          
          when HEADERB =>
-            uop_recieved <= '0';
             header_b_en  <= '1';
 
          when HEADERC =>
-            uop_recieved <= '0';
             header_c_en  <= '1';
             
          when HEADERD => 
-            uop_recieved <= '0';
             header_d_en  <= '1';
 
          when RECEIVED =>
-            uop_recieved <= '1';
+            start_o      <= '1';
             
          when others =>
-            uop_recieved <= '0';
 
       end case;
    end process;

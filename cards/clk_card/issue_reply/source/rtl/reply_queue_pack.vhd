@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.2 2004/10/22 01:54:38 bburger Exp $
+-- $Id: reply_queue_pack.vhd,v 1.3 2004/11/08 23:40:29 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.3  2004/11/08 23:40:29  bburger
+-- Bryce:  small modifications
+--
 -- Revision 1.2  2004/10/22 01:54:38  bburger
 -- Bryce:  fixed bugs
 --
@@ -91,29 +94,32 @@ package reply_queue_pack is
    
    component reply_queue_retire
       port(
-         -- cmd_queue interface
-         uop_rdy_i         : in std_logic;                                           
-         uop_ack_o         : out std_logic;                                          
-         uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
-         
-         -- reply_translator interface 
-         m_op_done_i       : in std_logic; -- From the lvds_rx fifo fsm, lets the reply_queue_retire fsm that the m-op has been located
-         m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
-         m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
-         m_op_card_id_o    : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
-         m_op_ack_i        : in std_logic;    
-         cmd_stop_o        : out std_logic;                                          
-         last_frame_o      : out std_logic;                                          
-         frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
-        
-         -- Internal interface signals to the lvds_rx fifo's
-         mop_num_o         : out std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
-         uop_num_o         : out std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
-   
-         -- Global signals
-         clk_i             : in std_logic;
-         comm_clk_i        : in std_logic;
-         rst_i             : in std_logic
+      -- cmd_queue interface
+      uop_rdy_i         : in std_logic;                                           
+      uop_ack_o         : out std_logic;                                          
+      uop_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);            
+      
+      -- reply_translator interface 
+      m_op_done_i       : in std_logic;
+      m_op_cmd_code_o   : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      m_op_param_id_o   : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
+      m_op_card_addr_o  : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
+      m_op_ack_i        : in std_logic;    
+      cmd_stop_o        : out std_logic;                                          
+      last_frame_o      : out std_logic;                                          
+      frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
+     
+      -- Internal interface signals to the lvds_rx fifo's
+      mop_num_o         : out std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+      uop_num_o         : out std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
+--      match_o           : out std_logic;
+      start_o           : out std_logic;
+--      done_o            : out std_logic      
+
+      -- Global signals
+      clk_i             : in std_logic;
+      comm_clk_i        : in std_logic;
+      rst_i             : in std_logic
       );
    end component;   
    

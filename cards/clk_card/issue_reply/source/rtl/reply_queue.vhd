@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.2 2004/10/22 01:54:38 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.3 2004/11/08 23:40:29 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.3  2004/11/08 23:40:29  bburger
+-- Bryce:  small modifications
+--
 -- Revision 1.2  2004/10/22 01:54:38  bburger
 -- Bryce:  fixed bugs
 --
@@ -94,6 +97,7 @@ architecture behav of reply_queue is
    signal mop_num   : std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
    signal uop_num   : std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
    signal mop_done  : std_logic := '0';
+   signal start     : std_logic;
 --   signal data_rdy  : std_logic;
 --   signal data_stb  : std_logic;
 --   signal data      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -121,6 +125,7 @@ begin
         
          mop_num_o         => mop_num,
          uop_num_o         => uop_num,
+         start_o           => start,
 
          clk_i             => clk_i,     
          comm_clk_i        => comm_clk_i,
