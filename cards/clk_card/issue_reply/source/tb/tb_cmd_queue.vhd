@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.19 2004/09/25 01:23:49 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.20 2004/10/08 19:41:22 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.20  2004/10/08 19:41:22  bburger
+-- Bryce:  Updated these files to work with Ernie's new set of constants
+--
 -- Revision 1.19  2004/09/25 01:23:49  bburger
 -- Bryce:  Added command-code, last-frame and stop-frame interfaces
 --
@@ -114,46 +117,45 @@ end TB_CMD_QUEUE;
 
 architecture BEH of TB_CMD_QUEUE is
 
-   --signal debug_o       : std_logic_vector(31 downto 0);
+   signal debug_o       : std_logic_vector(31 downto 0);
+   
    -- reply_queue interface
---   signal uop_status_i  : std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0) := (others => '0'); -- Tells the cmd_queue whether a reply was successful or erroneous
-   signal uop_rdy_o     : std_logic := '0'; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
-   signal uop_ack_i     : std_logic := '0'; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
---   signal uop_discard_o : std_logic := '0'; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
---   signal uop_timedout_o: std_logic := '0'; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
-   signal uop_o         : std_logic_vector(QUEUE_WIDTH-1 downto 0) := (others => '0'); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
+   signal uop_rdy_o       : std_logic := '0'; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
+   signal uop_ack_i       : std_logic := '0'; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
+   signal uop_o           : std_logic_vector(QUEUE_WIDTH-1 downto 0) := (others => '0'); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
    -- cmd_translator interface
-   signal card_addr_i   : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0) := (others => '0'); -- The card address of the m-op
-   signal par_id_i      : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0) := (others => '0'); -- The parameter id of the m-op
-   signal data_size_i   : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0) := (others => '0'); -- The number of bytes of data in the m-op
-   signal data_i        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := (others => '0');  -- Data belonging to a m-op
-   signal data_clk_i    : std_logic := '0'; -- Clocks in 32-bit wide data
-   signal mop_i         : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0) := (others => '0'); -- M-op sequence number
-   signal issue_sync_i  : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0) := (others => '0');
-   signal mop_rdy_i     : std_logic := '0'; -- Tells cmd_queue when a m-op is ready
-   signal mop_ack_o     : std_logic := '0'; -- Tells the cmd_translator when cmd_queue has taken the m-op
-   signal cmd_type_i    : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";       -- this is a re-mapping of the cmd_code into a 3-bit number
-   signal cmd_stop_i    : std_logic := '0';                                          -- indicates a STOP command was recieved
-   signal last_frame_i  : std_logic := '0';                                          -- indicates the last frame of data for a ret_dat command
+   signal card_addr_i     : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0) := (others => '0'); -- The card address of the m-op
+   signal par_id_i        : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0) := (others => '0'); -- The parameter id of the m-op
+   signal data_size_i     : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0) := (others => '0'); -- The number of bytes of data in the m-op
+   signal data_i          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := (others => '0');  -- Data belonging to a m-op
+   signal data_clk_i      : std_logic := '0'; -- Clocks in 32-bit wide data
+   signal mop_i           : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0) := (others => '0'); -- M-op sequence number
+   signal issue_sync_i    : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0) := (others => '0');
+   signal mop_rdy_i       : std_logic := '0'; -- Tells cmd_queue when a m-op is ready
+   signal mop_ack_o       : std_logic := '0'; -- Tells the cmd_translator when cmd_queue has taken the m-op
+   signal cmd_type_i      : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0) := (others => '0');       -- this is a re-mapping of the cmd_code into a 3-bit number
+   signal cmd_stop_i      : std_logic := '0';                                          -- indicates a STOP command was recieved
+   signal last_frame_i    : std_logic := '0';                                          -- indicates the last frame of data for a ret_dat command
+   signal frame_seq_num_i : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := (others => '0');
 
    -- lvds_tx interface
-   signal tx_o          : std_logic := '0';  -- transmitter output pin
-   signal clk_200mhz_i  : std_logic := '1';  -- PLL locked 25MHz input clock for the
+   signal tx_o            : std_logic := '0';  -- transmitter output pin
+   signal clk_200mhz_i    : std_logic := '1';  -- PLL locked 25MHz input clock for the
 
    -- Clock lines
-   signal sync_i        : std_logic := '1'; -- The sync pulse determines when and when not to issue u-ops
-   signal sync_num_i    : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0) := (others => '0');
-   signal clk_i         : std_logic := '1'; -- Advances the state machines
-   --signal clk_400mhz_i  : std_logic := '1';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
-   signal rst_i         : std_logic := '0';  -- Resets all FSMs
+   signal sync_i          : std_logic := '1'; -- The sync pulse determines when and when not to issue u-ops
+   signal sync_num_i      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0) := (others => '0');
+   signal clk_i           : std_logic := '1'; -- Advances the state machines
+   --signal clk_400mhz_i    : std_logic := '1';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
+   signal rst_i           : std_logic := '0';  -- Resets all FSMs
 
-   signal count_value   : integer := 0;
-   signal rx_dat        : std_logic_vector(31 downto 0);
-   signal rx_rdy        : std_logic;
-   signal rx_ack        : std_logic;
-   signal dv_i          : std_logic := '0';
-   signal dv_en_i       : std_logic := '0';
+   signal count_value     : integer := 0;
+   signal rx_dat          : std_logic_vector(31 downto 0);
+   signal rx_rdy          : std_logic;
+   signal rx_ack          : std_logic;
+   signal dv_i            : std_logic := '0';
+   signal dv_en_i         : std_logic := '0';
 
 ------------------------------------------------------------------------
 --
@@ -164,14 +166,11 @@ architecture BEH of TB_CMD_QUEUE is
 begin
    DUT : cmd_queue
       port map(
---         debug_o       => debug_o,
+         debug_o       => debug_o,
 
          -- reply_queue interface
---         uop_status_i  => uop_status_i,
          uop_rdy_o     => uop_rdy_o,
          uop_ack_i     => uop_ack_i,
---         uop_discard_o => uop_discard_o,
---         uop_timedout_o=> uop_timedout_o,
          uop_o         => uop_o,
 
          -- cmd_translator
@@ -187,6 +186,7 @@ begin
          cmd_type_i    => cmd_type_i,
          cmd_stop_i    => cmd_stop_i,
          last_frame_i  => last_frame_i,
+         frame_seq_num_i => frame_seq_num_i,
 
          -- lvds_tx interface
          tx_o          => tx_o,
@@ -255,13 +255,19 @@ begin
 
    procedure do_ret_dat_cmd is
    begin
+      -- <ret_dat       ParId="0x30" Type="cmd" Count="1" />
       card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) <= ALL_CARDS;
-      par_id_i      <= x"00" & RET_DAT_ADDR;
-      data_size_i   <= (others => '0');
-      data_i        <= (others => '0');
-      data_clk_i    <= '0';
-      mop_i         <= "00000001"; -- m-op #1
-      issue_sync_i  <= "0000000000000001"; -- Sync pulse 1
+      par_id_i        <= x"00" & RET_DAT_ADDR;
+      data_size_i     <= (others => '0');
+      data_i          <= (others => '0');
+      data_clk_i      <= '0';
+      mop_i           <= "00000001"; -- m-op #1
+      issue_sync_i    <= "0000000000000001"; -- Sync pulse 1
+
+      cmd_type_i      <= "010";
+      cmd_stop_i      <= '0';
+      last_frame_i    <= '0';
+      frame_seq_num_i <= "00000000000000000000000000000010";
       
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
@@ -277,16 +283,27 @@ begin
    begin
       card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) <= ALL_CARDS;
       par_id_i      <= x"00" & RST_WTCHDG_ADDR;
-      data_size_i   <= (others => '0');
-      data_i        <= (others => '0');
+      data_size_i   <= x"00000001";
       data_clk_i    <= '0';
       mop_i         <= "00000010"; -- m-op #2
       issue_sync_i  <= "0000000000000010"; -- Sync pulse 2
       
+      cmd_type_i      <= "000";
+      cmd_stop_i      <= '0';
+      last_frame_i    <= '0';
+      frame_seq_num_i <= "00000000000000000000000000000000";
+
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
          wait for CLOCK_PERIOD;
       end loop;
+      
+      data_i        <= x"FFFFFFFF";
+      wait for CLOCK_PERIOD;      
+      wait for CLOCK_PERIOD;      
+      data_clk_i    <= '1';
+      wait for CLOCK_PERIOD;      
+      data_clk_i    <= '0';
       
       mop_rdy_i     <= '0';
       assert false report " reset watchdog" severity NOTE;
@@ -302,6 +319,11 @@ begin
       mop_i         <= "00000011"; -- m-op #3
       issue_sync_i  <= "0000000000000011"; -- Sync pulse 3
       
+      cmd_type_i      <= "000";
+      cmd_stop_i      <= '0';
+      last_frame_i    <= '0';
+      frame_seq_num_i <= "00000000000000000000000000000000";
+
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
          wait for CLOCK_PERIOD;
@@ -328,6 +350,11 @@ begin
       issue_sync_i  <= "0000000000000100"; -- Sync pulse 4
       data_clk_i    <= '0';
       
+      cmd_type_i      <= "000";
+      cmd_stop_i      <= '0';
+      last_frame_i    <= '0';
+      frame_seq_num_i <= "00000000000000000000000000000000";
+
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
          wait for CLOCK_PERIOD;
@@ -390,6 +417,7 @@ begin
          wait for CLOCK_PERIOD;
       end loop;
 
+      wait for 10*CLOCK_PERIOD;
       uop_ack_i <= '1';
       wait for CLOCK_PERIOD;
       uop_ack_i <= '0';         
