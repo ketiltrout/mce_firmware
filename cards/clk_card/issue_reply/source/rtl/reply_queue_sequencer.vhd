@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.7  2004/12/01 18:43:11  erniel
+-- changed UPDATE_HEADERS state to hold until cmd_valid deasserted
+--
 -- Revision 1.6  2004/12/01 04:26:54  erniel
 -- added UPDATE HEADERS state
 --
@@ -62,6 +65,9 @@ use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+
+library components;
+use components.component_pack.all;
 
 entity reply_queue_sequencer is
 port(clk_i : in std_logic;
@@ -156,8 +162,23 @@ signal next_state : seq_states;
 signal match   : std_logic;
 signal seq_num : std_logic_vector(15 downto 0);
 
+signal data_size_reg_en : std_logic;
+signal data_size : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+signal regd_data_size : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+
 begin
 
+   
+   size_o <= conv_integer(regd_data_size);
+   data_size_reg : reg
+      generic map(WIDTH      => BB_DATA_SIZE_WIDTH)
+      port map(clk_i      => clk_i,
+               rst_i      => rst_i,
+               ena_i      => data_size_reg_en,
+               reg_i      => data_size,
+               reg_o      => regd_data_size);
+   
+   
    seq_num <= macro_op_i & micro_op_i;
    
    match_o <= '1' when (((card_addr_i = ADDRESS_CARD)   and    (ac_header_i(31 downto 16)  = seq_num)) or
@@ -421,50 +442,53 @@ begin
       rc4_nack_o <= '0';
       cc_nack_o  <= '0';
       
-      size_o <= 0;
+      data_size <= (others => '0');
+      data_size_reg_en <= '0';
       data_o <= (others => '0');
       rdy_o  <= '0';
      
       case pres_state is
-         when INSPECT_HEADERS => case card_addr_i is
-                                    when ADDRESS_CARD =>      size_o <= conv_integer(ac_header_i(12 downto 0));
+         when INSPECT_HEADERS => data_size_reg_en <= '1';         
+                                 
+                                 case card_addr_i is
+                                    when ADDRESS_CARD =>      data_size <= ac_header_i(12 downto 0);
                                     
-                                    when BIAS_CARD_1 =>       size_o <= conv_integer(bc1_header_i(12 downto 0));
+                                    when BIAS_CARD_1 =>       data_size <= bc1_header_i(12 downto 0);
                                     
-                                    when BIAS_CARD_2 =>       size_o <= conv_integer(bc2_header_i(12 downto 0));
+                                    when BIAS_CARD_2 =>       data_size <= bc2_header_i(12 downto 0);
                                     
-                                    when BIAS_CARD_3 =>       size_o <= conv_integer(bc3_header_i(12 downto 0));
+                                    when BIAS_CARD_3 =>       data_size <= bc3_header_i(12 downto 0);
                                     
-                                    when READOUT_CARD_1 =>    size_o <= conv_integer(rc1_header_i(12 downto 0));
+                                    when READOUT_CARD_1 =>    data_size <= rc1_header_i(12 downto 0);
                                     
-                                    when READOUT_CARD_2 =>    size_o <= conv_integer(rc2_header_i(12 downto 0));
+                                    when READOUT_CARD_2 =>    data_size <= rc2_header_i(12 downto 0);
                                     
-                                    when READOUT_CARD_3 =>    size_o <= conv_integer(rc3_header_i(12 downto 0));
+                                    when READOUT_CARD_3 =>    data_size <= rc3_header_i(12 downto 0);
                                     
-                                    when READOUT_CARD_4 =>    size_o <= conv_integer(rc4_header_i(12 downto 0));
+                                    when READOUT_CARD_4 =>    data_size <= rc4_header_i(12 downto 0);
                                     
-                                    when CLOCK_CARD =>        size_o <= conv_integer(cc_header_i(12 downto 0));
+                                    when CLOCK_CARD =>        data_size <= cc_header_i(12 downto 0);
                                     
-                                    when ALL_BIAS_CARDS =>    size_o <= conv_integer(bc1_header_i(12 downto 0) + 
-                                                                                     bc2_header_i(12 downto 0) + 
-                                                                                     bc3_header_i(12 downto 0));
+                                    when ALL_BIAS_CARDS =>    data_size <= bc1_header_i(12 downto 0) + 
+                                                                        bc2_header_i(12 downto 0) + 
+                                                                        bc3_header_i(12 downto 0);
+                                                                        
+                                    when ALL_READOUT_CARDS => data_size <= rc1_header_i(12 downto 0) + 
+                                                                        rc2_header_i(12 downto 0) + 
+                                                                        rc3_header_i(12 downto 0) + 
+                                                                        rc4_header_i(12 downto 0);
+                                                                        
+                                    when ALL_FPGA_CARDS =>    data_size <= ac_header_i(12 downto 0) +
+                                                                        bc1_header_i(12 downto 0) + 
+                                                                        bc2_header_i(12 downto 0) + 
+                                                                        bc3_header_i(12 downto 0) +
+                                                                        rc1_header_i(12 downto 0) + 
+                                                                        rc2_header_i(12 downto 0) + 
+                                                                        rc3_header_i(12 downto 0) + 
+                                                                        rc4_header_i(12 downto 0) +
+                                                                        cc_header_i(12 downto 0);
                                                                                      
-                                    when ALL_READOUT_CARDS => size_o <= conv_integer(rc1_header_i(12 downto 0) + 
-                                                                                     rc2_header_i(12 downto 0) + 
-                                                                                     rc3_header_i(12 downto 0) + 
-                                                                                     rc4_header_i(12 downto 0));
-                                                                                     
-                                    when ALL_FPGA_CARDS =>    size_o <= conv_integer(ac_header_i(12 downto 0) +
-                                                                                     bc1_header_i(12 downto 0) + 
-                                                                                     bc2_header_i(12 downto 0) + 
-                                                                                     bc3_header_i(12 downto 0) +
-                                                                                     rc1_header_i(12 downto 0) + 
-                                                                                     rc2_header_i(12 downto 0) + 
-                                                                                     rc3_header_i(12 downto 0) + 
-                                                                                     rc4_header_i(12 downto 0) +
-                                                                                     cc_header_i(12 downto 0));
-                                                                                     
-                                    when others =>            size_o <= 0;
+                                    when others =>            data_size <= (others => '0');
                                  end case;
                                  
                                  case card_addr_i is
