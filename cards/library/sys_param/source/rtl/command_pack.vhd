@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.12  2004/10/21 09:19:35  dca
+-- width of error table entries changed.
+-- COMMAND_SUCCESS added
+--
 -- Revision 1.11  2004/09/27 19:15:43  erniel
 -- renamed BB_NUM_HEADER_WORDS to BB_NUM_CMD_HEADER_WORDS
 --
@@ -76,7 +80,7 @@ package command_pack is
    constant BB_PARAMETER_ID : std_logic_vector(23 downto 16) := "00000000";
    constant BB_MACRO_OP_SEQ : std_logic_vector(15 downto 8)  := "00000000";
    constant BB_MICRO_OP_SEQ : std_logic_vector(7 downto 0)   := "00000000";
-   constant BB_STATUS       : std_logic_vector(31 downto 24) := "00000000";
+   constant BB_STATUS       : std_logic_vector(31 downto 29) := "000";
    
    -- header field width declarations:      
    constant BB_PREAMBLE_WIDTH     : integer := BB_PREAMBLE'length;
@@ -90,12 +94,8 @@ package command_pack is
    
    -- header field value declarations:
    -- command types:
-   constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
-   constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
-   constant START       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "010";
-   constant STOP        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "011";
-   constant RESET       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "100";
-   constant DATA        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "101";
+   constant WRITE_CMD : std_logic_vector := "100";
+   constant READ_CMD  : std_logic_vector := "000";
 
    -- card addresses:
    constant NO_CARDS          : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"00";
@@ -114,10 +114,23 @@ package command_pack is
    constant ALL_FPGA_CARDS    : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0D";
    constant ALL_CARDS         : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0E";
 
-   -- status fields:
-   constant SUCCESS : std_logic_vector(BB_STATUS_WIDTH-1 downto 0) := x"FF";
-   constant FAIL    : std_logic_vector(BB_STATUS_WIDTH-1 downto 0) := x"00";
+   -- status/error codes:
+   constant WB_SLAVE_ERR  : std_logic_vector(BB_STATUS_WIDTH-1 downto 0) := "100";   
+   constant CHECKSUM_ERR  : std_logic_vector(BB_STATUS_WIDTH-1 downto 0) := "010";
+   constant FIFO_FULL_ERR : std_logic_vector(BB_STATUS_WIDTH-1 downto 0) := "001";
    
+   
+   ------------------------------------------------------------------------
+   -- Issue-Reply Declarations
+   ------------------------------------------------------------------------
+   
+   -- command types:
+   constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
+   constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
+   constant START       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "010";
+   constant STOP        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "011";
+   constant RESET       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "100";
+   constant DATA        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "101";
    
    ------------------------------------------------------------------------
    -- Fibre-Side Declarations
