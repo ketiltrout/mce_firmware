@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/12/17 09:59:29 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2005/01/10 20:40:08 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.18  2005/01/10 20:40:08  mohsen
+-- Anthony & Mohse: Got rid of priority coding to help solve timing violation.
+--
 -- Revision 1.17  2004/12/17 09:59:29  dca
 -- fixed bug where FSM output signal 'dec_addr_ena' was previously unassigned in  two states.
 --
@@ -256,15 +259,15 @@ use sys_param.wishbone_pack.all;
 architecture rtl of wbs_frame_data is
 
 -- three wishbone read/write request enables
-signal write_data_mode     : std_logic;                        
+--signal write_data_mode     : std_logic;                        
 signal read_ret_data       : std_logic;
-signal write_captr_raw     : std_logic;
+--signal write_captr_raw     : std_logic;
 
 -- three further wishbone read/write request enables
 -- in general these won't be called but need to be handled
-signal read_data_mode     : std_logic;    -- to verify written mode value                     
-signal write_ret_data     : std_logic;   -- only would occur as an error
-signal read_captr_raw     : std_logic;   -- only would occur as an error.  read is meaningless.
+--signal read_data_mode     : std_logic;    -- to verify written mode value                     
+--signal write_ret_data     : std_logic;   -- only would occur as an error
+--signal read_captr_raw     : std_logic;   -- only would occur as an error.  read is meaningless.
 
 
 -- signals for registering data mode word
@@ -335,35 +338,39 @@ begin
 --                       Wishbone interface  -  identify 3 commands 
 ------------------------------------------------------------------------------------------------
 
-   write_data_mode <= '1' when (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
-                   else '0';
-    
-   read_ret_data   <= '1' when (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
-                   else '0';
+-- removed all these to reduce logic loevels and help solve timing violations.
+--  However, keep them as some sort of comment into the functionality.
+  
+--    write_data_mode <= '1' when (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
+--                    else '0';
 
-   write_captr_raw <= '1' when (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
-                   else '0';
+  -- Only use for ack_o signal in the new version
+    read_ret_data   <= '1' when (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
+                    else '0';
+
+--    write_captr_raw <= '1' when (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
+--                    else '0';
                    
 
 -------------------------------------------------------------------------------------------------
 --                       Wishbone interface  -  3 further commads for slave to handle 
 ------------------------------------------------------------------------------------------------
    
-   -- a read back of the data mode may be required for debug....
-   read_data_mode <= '1' when (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
-                   else '0';
+--    -- a read back of the data mode may be required for debug....
+--    read_data_mode <= '1' when (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
+--                    else '0';
     
-   -- this would only ocurr as a error but slave needs to acknowledge or system will hang
-   write_ret_data   <= '1' when (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
-                   else '0';
+--    -- this would only ocurr as a error but slave needs to acknowledge or system will hang
+--    write_ret_data   <= '1' when (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
+--                    else '0';
 
-   -- again this should never be requested as data is meaningless.  However, slave must ack to prevent system hang
-   read_captr_raw <= '1' when (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
-                   else '0';
+--    -- again this should never be requested as data is meaningless.  However, slave must ack to prevent system hang
+--    read_captr_raw <= '1' when (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
+--                    else '0';
    
    
-   ack_o           <= instr_done or (dat_rdy and read_ret_data);     -- acknowledge when an instrunction is done or when data is ready (and master not inserted wait state)
- 
+    ack_o           <= instr_done or (dat_rdy and read_ret_data);     -- acknowledge when an instrunction is done or when data is ready (and master not inserted wait state)
+      
 -------------------------------------------------------------------------------------------------
 --                       Flux Loop Cntr  -  request/acknowledge signals 
 ------------------------------------------------------------------------------------------------  
@@ -400,34 +407,41 @@ begin
    
    -----------------------------------------------------------------------------------------
    nextstate_fsm: process (current_state, raw_ack, data_mode_reg, pix_addr_cnt, raw_addr_cnt, 
-                           write_data_mode, read_ret_data,  write_captr_raw,
-                           read_data_mode,  write_ret_data, read_captr_raw)
+                           addr_i, stb_i, cyc_i, we_i)
    ------------------------------------------------------------------------------------------
    begin
       case current_state is
-      
+
+
+       
       when IDLE =>
-         if write_data_mode = '1' then 
+         next_state <= IDLE;
+
+         -- note the if statements are exclusive
+         
+         --if write_data_mode = '1' then
+         if (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') then
             next_state <= SET_MODE;
+         end if;
          
-         elsif read_ret_data = '1' then
+         --if read_ret_data = '1' then
+         if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') then
             next_state <= WSS1;
-                              
-         elsif write_captr_raw = '1' then
-            next_state <= START_RAW;
-             
-         elsif read_data_mode = '1' then 
-            next_state <= READ_MODE;
+         end if;
          
-         elsif write_ret_data = '1' then
+         --if write_captr_raw = '1' then
+         if (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') then
+            next_state <= START_RAW;
+         end if;
+         
+         --if read_data_mode = '1' then
+         if (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') then
+            next_state <= READ_MODE;
+         end if;
+         
+         --if write_ret_data = '1' or read_captr_raw = '1' then
+         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') or (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')) then
             next_state <=  FINISH;
-                              
-         elsif read_captr_raw = '1' then
-            next_state <=  FINISH;
-                
-         else
-            next_state <= IDLE;
-        
          end if;
                         
                      
@@ -439,48 +453,61 @@ begin
        
       when READ_DATA =>
          
-         if read_ret_data = '1' then 
+        
+         --if (read_ret_data = '1' and data_mode_reg = MODE4_RAW and (raw_addr_cnt < RAW_ADDR_MAX+1)) then 
+         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg = MODE4_RAW and (raw_addr_cnt < RAW_ADDR_MAX+1)) then
+           next_state <= READ_DATA;
+         end if;
+
+         --if (read_ret_data='1' and data_mode_reg = MODE4_RAW and (raw_addr_cnt >= RAW_ADDR_MAX+1))  then
+         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg = MODE4_RAW and (raw_addr_cnt >= RAW_ADDR_MAX+1))then
+           next_state <= done;
+         end if;
+
+         --if (read_ret_data = '1' and data_mode_reg /= MODE4_RAW and (pix_addr_cnt < PIXEL_ADDR_MAX+1)) then
+         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg /= MODE4_RAW and (pix_addr_cnt < PIXEL_ADDR_MAX+1)) then
+           next_state <= READ_DATA;
+         end if;
+
+         --if (read_ret_data = '1' and data_mode_reg /= MODE4_RAW and (pix_addr_cnt >= PIXEL_ADDR_MAX+1)) then
+         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg /= MODE4_RAW and (pix_addr_cnt >= PIXEL_ADDR_MAX+1)) then
+           next_state <= done;
+         end if;
          
-            if data_mode_reg = MODE4_RAW then 
-               if raw_addr_cnt < RAW_ADDR_MAX+1 then  
-                  next_state <= READ_DATA;
-               else
-                  next_state <= DONE;  
-               end if;
-            else 
-               if pix_addr_cnt < PIXEL_ADDR_MAX+1 then 
-                  next_state <= READ_DATA;
-               else              
-                  next_state <= DONE; 
-               end if;
-            end if;
-         else 
-             next_state <= WSM1;     -- if stb has been ds-asserted go to wishbone master wait state  
-         end if;                     -- will also go here when a set of 328 raw data has been read
-                                     -- but not yet at RAW_ADDR_MAX
+         --if read_ret_data = '0' then
+         if not(addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') then
+           next_state <= WSM1;     -- if stb has been ds-asserted go to wishbone master wait state  
+                                   -- will also go here when a set of 328 raw data has been read
+                                   -- but not yet at RAW_ADDR_MAX
+         end if;
+         
       when WSM1 =>
          next_state <= WSM2;
       
       when WSM2 => 
-         
-         if    (write_data_mode = '1' ) or ( write_captr_raw = '1' ) then 
-         
+        next_state <= WSM2;             -- default to same state
+
+         -- exclusive if statements
+         --if    (write_data_mode = '1' ) or ( write_captr_raw = '1' ) then 
+         if ((addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') or (addr_i = CAPTR_RAW_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')) then
                                             -- if wishbone write instruction arrives then....
             next_state <= IDLE;             -- go to idle to reset address counters and process instruction 
                                             -- this should only occur when waiting to read next 328 raw data block and want to change mode
                                             -- or reset raw data.... 
-            
-         elsif (read_ret_data = '1' ) then  -- if master de-asseterts wait state - or reading next 328  block of raw data
-            next_state <= WSS1;             -- go to wait state slave to start addressing cycle again
-         else 
-            next_state <= WSM2;             -- else wait here
          end if;
+         
+        --if (read_ret_data = '1' ) then  
+        if (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') then
+            next_state <= WSS1;  -- if master de-asseterts wait state - or reading next 328  block of raw data
+                                 -- go to wait state slave to start addressing cycle again
+        end if;
                  
       
       when READ_MODE => 
            next_state <= DONE;                      
      
-      when START_RAW  => 
+      when START_RAW  =>
+        
         if raw_ack = '1' then 
            next_state <= FINISH;
         else
@@ -510,7 +537,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0'; 
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '1';   
+         rst_addr_ena	   <= '1';   
          raw_req           <= '0';
                       
       when SET_MODE =>
@@ -520,7 +547,7 @@ begin
          data_mode_mux_sel <= '1';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';
 
                 
@@ -536,7 +563,7 @@ begin
          -- SO there is a total of 3 clock cycles until the next data word is ready to be read by the wishbone master.
          -- Consequently, 1st time in READ_DATA state we will be reading address 0, then next time address1 etc...
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';          
                            
       when WSS2 =>
@@ -546,7 +573,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '1';
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';
 
       when WSM1 =>
@@ -558,7 +585,7 @@ begin
          
          -- need to count address back down so it's sync'ed with data when reads resume
          dec_addr_ena      <= '1';     
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';
          
       when WSM2 =>
@@ -568,7 +595,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';   
 
       when READ_DATA =>
@@ -578,7 +605,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '1';    
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';
              
       when START_RAW =>
@@ -588,7 +615,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '1';
          
       when READ_MODE =>
@@ -598,7 +625,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';   
          
       when FINISH =>   
@@ -608,7 +635,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';   
                     
       when DONE =>
@@ -618,7 +645,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena		    <= '0';
+         rst_addr_ena	   <= '0';
          raw_req           <= '0';
          
       end case;
@@ -654,22 +681,29 @@ begin
          raw_addr_cnt   <= 0 ;
       elsif (clk_i'EVENT AND clk_i = '1') then
          
+         -- note that rst_addr_ena, inc_addr_ena, and dec_addr_ena are exclusive!
+
          if rst_addr_ena = '1' then                 -- synchronous reset 
             pix_addr_cnt   <= 0 ;
             raw_addr_cnt   <= 0 ;
-         elsif inc_addr_ena = '1' then
-            if data_mode_reg = MODE4_RAW then       -- synchronous increment by 1
-               raw_addr_cnt <= raw_addr_cnt + 1;
-            else 
-               pix_addr_cnt <= pix_addr_cnt + 1;
-            end if;
-         elsif dec_addr_ena = '1' then              -- synchronous decrement by 3
-            if data_mode_reg = MODE4_RAW then 
-               raw_addr_cnt <= raw_addr_cnt - 3;
-            else 
-               pix_addr_cnt <= pix_addr_cnt - 3;
-            end if;
          end if;
+
+          if inc_addr_ena = '1' and data_mode_reg = MODE4_RAW then
+           raw_addr_cnt <= raw_addr_cnt+1;  -- synchronous increment by 1
+         end if;
+
+         if inc_addr_ena = '1' and data_mode_reg /= MODE4_RAW then
+           pix_addr_cnt <= pix_addr_cnt +1; -- synchronous increment by 1
+         end if;
+
+         if dec_addr_ena = '1' and data_mode_reg = MODE4_RAW then
+           raw_addr_cnt <= raw_addr_cnt -3;  -- synchronous decrement by 3
+         end if;
+         
+         if dec_addr_ena = '1' and data_mode_reg /= MODE4_RAW then
+           pix_addr_cnt <= pix_addr_cnt -3;  -- synchronous decrement by 3
+         end if;
+
      end if;
   end process address_counter;
    
