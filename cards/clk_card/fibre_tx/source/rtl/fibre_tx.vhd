@@ -27,9 +27,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/08/31 12:58:30 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/29 14:26:18 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.2  2004/09/29 14:26:18  dca
+-- various signals removed from entity port
+--
 -- Revision 1.1  2004/08/31 12:58:30  dca
 -- Initial Version
 --
@@ -40,7 +43,6 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.issue_reply_pack.all;
-use work.fibre_tx_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -75,8 +77,6 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.issue_reply_pack.all;
-use work.fibre_tx_pack.all;
-
 
 architecture behav of fibre_tx is 
 
