@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.5 2004/05/18 00:26:57 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.6 2004/05/19 18:35:08 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,12 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/05/18 00:26:57 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/05/19 18:35:08 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.6  2004/05/19 18:35:08  mandana
+-- deleted nclr pin on DACs, it is tied to FPGA status
+-- added ramp test
+--
 -- Revision 1.5  2004/05/18 00:26:57  erniel
 -- replaced hard-coded address with predefined constant
 --
@@ -126,7 +130,7 @@ begin
 
 -- instantiate a counter for idac to go through all 32 DACs
    dac_count: counter
-   generic map(MAX => 16)
+   generic map(MAX => 16 , STEPSIZE => 1)
    port map(clk_i   => dac_count_clk,
             rst_i   => idac_rst,
             ena_i   => '1',
@@ -282,6 +286,9 @@ begin
             
          when DONE =>     
             next_state <= IDLE;
+            
+         when others =>     
+            next_state <= IDLE;
                  
       end case;
    end process state_NS;
@@ -431,7 +438,18 @@ begin
 	    stb_o     <= '0';
 	    cyc_o     <= '0';                          
 	    done_o    <= '1';
-                          
+
+	 when others =>    
+            idac_rst  <= '1';
+            ramp_rst  <= '1';
+            addr_o    <= (others => '0');
+	    tga_o     <= (others => '0');
+	    dat_o     <= (others => '0');
+	    we_o      <= '0';
+	    stb_o     <= '0';
+	    cyc_o     <= '0';                          
+	    done_o    <= '0';
+	                              
       end case;
    end process state_out;
    

@@ -33,8 +33,11 @@
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/05/14 20:27:13 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/19 18:27:49 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.13  2004/05/19 18:27:49  mandana
+-- deleted nclr pin on DACs, it is tied to FPGA status line
+--
 -- Revision 1.12  2004/05/14 20:27:13  mandana
 -- changed frame_timing values to integer(Bias_count)
 --
@@ -259,6 +262,9 @@ dac_ncs_o <= dac_ncs;
             
          when OUT_SYNC_CMD =>
             next_state <= IDLE; 
+
+         when others =>
+            next_state <= IDLE; 
                        
       end case;
    end process state_NS;
@@ -270,7 +276,7 @@ dac_ncs_o <= dac_ncs;
          when IDLE  =>       
             idac_rst    <= '1';
             idac_clk    <= '0';
-            write_buf   <= (others => 'Z');  
+            write_buf   <= (others => '0');  
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
@@ -288,7 +294,7 @@ dac_ncs_o <= dac_ncs;
             idac_rst    <= '0';         
             idac_clk    <= '0';
             -- use the previously-set idac value
-            write_buf   <= (others => 'Z'); 
+            write_buf   <= (others => '0'); 
             read_lsb_en <= '1';
             read_msb_en <= '1';            
             rst_nxt_sync<= '0';            
@@ -313,7 +319,7 @@ dac_ncs_o <= dac_ncs;
          when WR_DAC32_NXT =>
             idac_rst    <= '0';
             idac_clk    <= '1';
-            write_buf   <= (others => 'Z');
+            write_buf   <= (others => '0');
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
@@ -321,7 +327,7 @@ dac_ncs_o <= dac_ncs;
          when WR_DAC32_DONE => 
             idac_rst    <= '0';
             idac_clk    <= '0';         
-            write_buf   <= (others => 'Z');
+            write_buf   <= (others => '0');
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
@@ -337,7 +343,7 @@ dac_ncs_o <= dac_ncs;
          when DAC_LVDS_STORE =>
             idac_rst    <= '0';
             idac_clk    <= '0';                  
-            write_buf   <= (others => 'Z'); 
+            write_buf   <= (others => '0'); 
             read_lsb_en <= '1';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
@@ -354,7 +360,7 @@ dac_ncs_o <= dac_ncs;
          when WR_DAC_LVDS_DONE =>
             idac_rst    <= '1';
             idac_clk    <= '0';         
-            write_buf   <= (others => 'Z');
+            write_buf   <= (others => '0');
             read_lsb_en <= '0';                                
             read_msb_en <= '0';
             rst_nxt_sync<= '0';            
@@ -363,7 +369,7 @@ dac_ncs_o <= dac_ncs;
             -- reset counter on next sync pulse
             idac_rst    <= '1';
             idac_clk    <= '0';         
-            write_buf   <= (others => 'Z');
+            write_buf   <= (others => '0');
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '1';            
@@ -371,10 +377,18 @@ dac_ncs_o <= dac_ncs;
          when OUT_SYNC_CMD =>
             idac_rst    <= '1';
             idac_clk    <= '0';         
-            write_buf   <= (others => 'Z');
+            write_buf   <= (others => '0');
             read_lsb_en <= '0';
             read_msb_en <= '0';
             rst_nxt_sync<= '0';
+            
+         when others =>
+            idac_rst    <= '1';
+            idac_clk    <= '0';
+            write_buf   <= (others => '0');  
+            read_lsb_en <= '0';
+            read_msb_en <= '0';
+            rst_nxt_sync<= '0';                     
 
       end case;
    end process state_out;
