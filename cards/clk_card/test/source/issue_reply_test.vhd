@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.12 2004/10/13 20:48:10 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.13 2004/10/21 17:42:09 bench2 Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/13 20:48:10 $> -     <text>      - <initials $Author: bench2 $>
+-- <date $Date: 2004/10/21 17:42:09 $> -     <text>      - <initials $Author: bench2 $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.13  2004/10/21 17:42:09  bench2
+-- Greg: Check-in for a routine update.
+--
 -- Revision 1.12  2004/10/13 20:48:10  bench2
 -- Bryce:  added lvds_clk and lvds_cmd to the issue_reply_test top level
 --
@@ -118,6 +121,15 @@ port(
       fibre_rx_status    : in std_logic;                      -- rso_i
       fibre_rx_sc_nd     : in std_logic;                      -- rsc_nRd_i
       fibre_rx_ckr       : in std_logic;                      -- fibre_clkr_i
+
+
+
+    -- interface to hotlink transmitter
+
+     fibre_tx_data           : out std_logic_vector (7 downto 0);
+     fibre_tx_ena            : out std_logic;  
+     fibre_tx_sc_nd          : out std_logic;
+
 
       -- outputs to the bus backplane
       lvds_cmd           : out std_logic;
@@ -225,6 +237,17 @@ port(
       rsc_nRd_i         : in     std_logic;        
  
       cksum_err_o       : out    std_logic;
+
+  -- interface to fibre transmitter
+      tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+      tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
+      nFena_o      : out    std_logic;                           -- hotlink tx enable
+
+      -- 25MHz clock for fibre_tx_control
+      fibre_clkw_i : in     std_logic;                          -- in phase with 25MHz hotlink clock
+
+
+
       sync_pulse_i      : in     std_logic;
       sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
       
@@ -319,6 +342,16 @@ begin
             rsc_nRd_i         => fibre_rx_sc_nd,  
 
             cksum_err_o       => cksum_err,
+
+
+            tx_data_o         => fibre_tx_data,
+            tsc_nTd_o         => fibre_tx_sc_nd, 
+            nFena_o           => fibre_tx_ena, 
+
+             -- 25MHz clock for fibre_tx_control
+            fibre_clkw_i      => inclk,
+
+
             sync_pulse_i      => sync_pulse,
             sync_number_i     => sync_number,
 
