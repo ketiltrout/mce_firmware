@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: rc_test_pack.vhd,v $
+-- Revision 1.4  2004/06/19 03:35:08  erniel
+-- added new dac commands
+--
 -- Revision 1.3  2004/06/11 21:15:02  erniel
 -- initial version
 --
@@ -137,39 +140,7 @@ package rc_test_pack is
    ------------------------------------------------------------------
    -- async modules
    
-   component async_rx
-      port(
-         rx_i    : in std_logic;   -- receiver input pin
-         valid_o  : out std_logic;  -- receiver data ready flag
-         error_o : out std_logic;  -- receiver error flag
-   
-         -- Wishbone signals
-         clk_i   : in std_logic;   -- 8x receive bit rate
-         rst_i   : in std_logic;
-         dat_o   : out std_logic_vector (7 downto 0);
-         we_i    : in std_logic;
-         stb_i   : in std_logic;
-         ack_o   : out std_logic;
-         cyc_i   : in std_logic
-      );
-   end component;
 
-   component async_tx
-      port(
-         tx_o    : out std_logic;  -- transmitter output pin
-         busy_o  : out std_logic;  -- transmitter busy flag
-   
-         -- Wishbone signals
-         clk_i   : in std_logic;   -- 8x transmit bit rate
-         rst_i   : in std_logic;
-         dat_i   : in std_logic_vector (7 downto 0);
-         we_i    : in std_logic;
-         stb_i   : in std_logic;
-         ack_o   : out std_logic;
-         cyc_i   : in std_logic
-      );
-   end component;
-   
    ------------------------------------------------------------------
    -- LVDS transmit
    
@@ -220,5 +191,54 @@ package rc_test_pack is
            tx_we_o   : out std_logic;
            tx_stb_o  : out std_logic);
   end component;
+  
+  ------------------------------------------------------------------
+  -- RC Serial DACs
+    
+  component rc_serial_dac_test_wrapper
+     port (
+        -- basic signals
+          rst_i     : in std_logic;    -- reset input
+          clk_i     : in std_logic;    -- clock input
+          en_i      : in std_logic;    -- enable signal
+          mode      : in std_logic_vector (1 downto 0);
+          done_o    : out std_logic;   -- done ouput signal
+          
+          -- transmitter signals removed!
+          
+          -- extended signals
+          dac_clk_o : out std_logic_vector (7 downto 0);
+          dac_dat_o : out std_logic_vector (7 downto 0); 
+          dac_ncs_o : out std_logic_vector (7 downto 0)                    
+          );   
+  end component;  
+      
+  ------------------------------------------------------------------
+  -- RC Parallel DACs
+  
+  component rc_parallel_dac_test_wrapper is
+     port (
+        -- basic signals
+        rst_i     : in std_logic;    -- reset input
+        clk_i     : in std_logic;    -- clock input
+        en_i      : in std_logic;    -- enable signal
+        mode      : in std_logic_vector (1 downto 0);
+        done_o    : out std_logic;   -- done ouput signal      
+        -- transmitter signals removed!
+  
+        -- extended signals
+        dac0_dat_o  : out std_logic_vector(13 downto 0);
+        dac1_dat_o  : out std_logic_vector(13 downto 0);
+        dac2_dat_o  : out std_logic_vector(13 downto 0);
+        dac3_dat_o  : out std_logic_vector(13 downto 0);
+        dac4_dat_o  : out std_logic_vector(13 downto 0);
+        dac5_dat_o  : out std_logic_vector(13 downto 0);
+        dac6_dat_o  : out std_logic_vector(13 downto 0);
+        dac7_dat_o  : out std_logic_vector(13 downto 0);
+  
+        dac_clk_o   : out std_logic_vector (7 downto 0) 
+     );   
+  end component;  
+
 
 end rc_test_pack;
