@@ -22,12 +22,15 @@
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
--- $Id: flux_loop.vhd,v 1.1 2004/08/25 23:07:10 bburger Exp $
+-- $Id: flux_loop.vhd,v 1.2 2004/08/26 21:46:00 bburger Exp $
 -- Description:
 -- Readout Card flux loop
 --
 -- Revision history:
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.2  2004/08/26 21:46:00  bburger
+-- Bryce:  in progress
+--
 -- Revision 1.1  2004/08/25 23:07:10  bburger
 -- Bryce:  new
 --
@@ -50,36 +53,72 @@ library components;
 
 entity flux_loop is
    port(
-      -- ADC Interface ???
-      adc_clk_o     : out std_logic;
-      adc_ovr_o     : out std_logic;
-      adc_rdy_o     : out std_logic;
-      adc_clk_i     : in std_logic;
+      ----------------------------------------------------------------
+      -- ADC Interface
+      ----------------------------------------------------------------      
+      -- adc_enc_o tells the ADC when to sample data.
+      -- This is a differential signal, and needs to be routed to the ADC with an inverted duplicate
+      adc_enc_o     : out std_logic;    
+      
+      -- adc_ovr_o is the over-range bit.
+      -- It signifies whether the ADC has been saturdated or not.
+      -- It will be added as bit 15 to the acd_dat_i.
+      adc_ovr_i     : in std_logic;
+      
+      -- adc_rdy_o is an inverted, delayed and single-ended version of adc_enc_o.
+      -- It indicates when the adc conversion is valid.
+      adc_rdy_i     : in std_logic;
+      
+      -- adc_dat_i is the data output for the ADC
+      -- At 50 MHz, the latency of the data-output is on the order of several clock cycles.
       adc_dat_i     : in w14_array11;
       
+      ----------------------------------------------------------------
       -- DAC interface
+      ----------------------------------------------------------------      
       dac_data_o    : out w14_array11;
       dac_clk_o     : out std_logic;
       
-      -- Wishbone interface
-      clk_i         : in std_logic;
-      rst_i         : in std_logic;      
-      dat_i         : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-      addr_i        : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-      tga_i         : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i          : in std_logic;
-      stb_i         : in std_logic;
-      cyc_i         : in std_logic;
-      dat_o         : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-      rty_o         : out std_logic;
-      ack_o         : out std_logic;
+      ----------------------------------------------------------------
+      -- Wishbone interface a:  data readout
+      ----------------------------------------------------------------
+      wba_clk_i     : in std_logic;
+      wba_rst_i     : in std_logic;      
+      wba_dat_i     : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      wba_addr_i    : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+      wba_tga_i     : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+      wba_we_i      : in std_logic;
+      wba_stb_i     : in std_logic;
+      wba_cyc_i     : in std_logic;
+      wba_dat_o     : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      wba_rty_o     : out std_logic;
+      wba_ack_o     : out std_logic;
       
+      ----------------------------------------------------------------
+      -- Wishbone interface b:  parameter control
+      ----------------------------------------------------------------
+      wbb_clk_i     : in std_logic;
+      wbb_rst_i     : in std_logic;      
+      wbb_dat_i     : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      wbb_addr_i    : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+      wbb_tga_i     : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+      wbb_we_i      : in std_logic;
+      wbb_stb_i     : in std_logic;
+      wbb_cyc_i     : in std_logic;
+      wbb_dat_o     : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      wbb_rty_o     : out std_logic;
+      wbb_ack_o     : out std_logic;
+
+      ----------------------------------------------------------------
       -- Clocks/resets
+      ----------------------------------------------------------------
       clk_i         : in std_logic; -- Advances the state machines
       clk_200mhz_i  : in std_logic; -- Clocks the RAMs
       rst_i         : in std_logic  -- Resets all FSMs    
 
+      ----------------------------------------------------------------
       -- Timing signals received from the frame_timing block
+      ----------------------------------------------------------------
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
    );
@@ -305,7 +344,6 @@ begin
          qb          => raw_qb 
       );   
 
-
    -- P, I, D, Z coefficient queue
    pidz_queue: pidz_coeff_queue
       port map(
@@ -319,12 +357,16 @@ begin
          qb          => pidz_qb 
       );   
       
-------------------------------------------------------------------------
+----------------------------------------------------------------
 -- adc_sample FSM:  for co-adding and logging raw data
------------------------------------------------------------------------- 
+--
+-- This FSM will need to take into account the latency of the 
+-- assetion of data on the adc_dat_o pins from the time the analog
+-- inputs are sampled
+----------------------------------------------------------------
 
-   -- Feed the 50 MHz clock to the adc
-   adc_clk_o <= clk_i;
+   -- Feed the 50 MHz clock to the adc sampling pin
+   adc_enc_o <= clk_i;
 
    adc_sample_state_FF: process(clk_i, rst_i)
    begin
@@ -359,17 +401,17 @@ begin
       end case;
    end process;
    
-------------------------------------------------------------------------
+----------------------------------------------------------------
 -- wishbone FSM:  for communication with the dispatch block
------------------------------------------------------------------------- 
-------------------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
 -- fsfb_calc FSM:  for calculating the first-stage feedback
------------------------------------------------------------------------- 
-------------------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
 -- fsfb_ctrl FSM:  for outputting the first-stage feedback to DAC
------------------------------------------------------------------------- 
-------------------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
 -- filter FSM:  for filtering first-stage feedback values
------------------------------------------------------------------------- 
+----------------------------------------------------------------
 
 end behav;
