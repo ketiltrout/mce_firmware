@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.3 2004/07/20 16:00:02 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.4 2004/08/03 20:01:57 jjacob Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	       Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:         Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/20 16:00:02 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/03 20:01:57 $> -     <text>      - <initials $Author: jjacob $>
 --
 -- $Log: tb_cmd_translator.vhd,v $
+-- Revision 1.4  2004/08/03 20:01:57  jjacob
+-- added: use sys_param.command_pack.all
+--
 -- Revision 1.3  2004/07/20 16:00:02  jjacob
 -- changed from fixed declarations to parameterized
 --
@@ -65,7 +68,7 @@ use IEEE.std_logic_1164.all;
 
 library work;
 use work.issue_reply_pack.all;
-use work.fibre_rx_pack.all;
+use work.sync_gen_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -84,38 +87,37 @@ end tb_cmd_translator;
 
 architecture BEH of tb_cmd_translator is
 
-
    component CMD_TRANSLATOR
       port(RST_I            : in std_logic ;
            CLK_I            : in std_logic ;
-           CARD_ID_I        : in std_logic_vector (CARD_ADDR_BUS_WIDTH - 1 downto 0 );
-           CMD_CODE_I       : in std_logic_vector ( 15 downto 0 );
-           CMD_DATA_I       : in std_logic_vector (DATA_BUS_WIDTH - 1 downto 0 );
+           CARD_ID_I        : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH - 1 downto 0 );
+           CMD_CODE_I       : in std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0 );
+           CMD_DATA_I       : in std_logic_vector (PACKET_WORD_WIDTH - 1 downto 0 );
            CMD_RDY_I        : in std_logic ;
            DATA_CLK_I       : in std_logic ;
-           NUM_DATA_I       : in std_logic_vector (DATA_SIZE_BUS_WIDTH - 1 downto 0 );
-           PARAM_ID_I       : in std_logic_vector (PAR_ID_BUS_WIDTH - 1 downto 0 );
+           NUM_DATA_I       : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH - 1 downto 0 );
+           PARAM_ID_I       : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH - 1 downto 0 );
            SYNC_PULSE_I     : in std_logic ;
-           sync_number_i    : in std_logic_vector (7 downto 0);
+           sync_number_i    : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
            ack_o        : out std_logic ;
-           CARD_ADDR_O      : out std_logic_vector ( CARD_ADDR_BUS_WIDTH - 1 downto 0 );
-           PARAMETER_ID_O   : out std_logic_vector ( PAR_ID_BUS_WIDTH - 1 downto 0 );
-           DATA_SIZE_O      : out std_logic_vector ( DATA_SIZE_BUS_WIDTH - 1 downto 0 );
-           DATA_O           : out std_logic_vector ( DATA_BUS_WIDTH - 1 downto 0 );
+           CARD_ADDR_O      : out std_logic_vector ( FIBRE_CARD_ADDRESS_WIDTH - 1 downto 0 );
+           PARAMETER_ID_O   : out std_logic_vector ( FIBRE_PARAMETER_ID_WIDTH - 1 downto 0 );
+           DATA_SIZE_O      : out std_logic_vector ( FIBRE_DATA_SIZE_WIDTH - 1 downto 0 );
+           DATA_O           : out std_logic_vector ( PACKET_WORD_WIDTH - 1 downto 0 );
            data_clk_o       :  out std_logic;
            macro_instr_rdy_o :  out std_logic;
            
            -- outputs to the micro instruction sequence generator
-           m_op_seq_num_o        : out std_logic_vector ( 7 downto 0);
-           frame_seq_num_o       : out std_logic_vector (31 downto 0);
-           frame_sync_num_o        : out std_logic_vector (7 downto 0);
+           m_op_seq_num_o        : out std_logic_vector ( BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+           frame_seq_num_o       : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+           frame_sync_num_o        : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
  
 
            reply_cmd_ack_o         : out std_logic;                                          -- for commands that require an acknowledge before the command executes
-           reply_card_addr_o       : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-           reply_parameter_id_o    : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
-           reply_data_size_o       : out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-           reply_data_o            : out std_logic_vector ( DATA_BUS_WIDTH - 1 downto 0 );
+           reply_card_addr_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+           reply_parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
+           reply_data_size_o       : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+           reply_data_o            : out std_logic_vector (PACKET_WORD_WIDTH - 1 downto 0 );
            
            ack_i             : in std_logic
            );
@@ -128,36 +130,36 @@ architecture BEH of tb_cmd_translator is
 
    signal W_RST_I            : std_logic ;
    signal W_CLK_I            : std_logic := '0';
-   signal W_CARD_ID_I        : std_logic_vector ( CARD_ADDR_BUS_WIDTH - 1 downto 0 );
-   signal W_CMD_CODE_I       : std_logic_vector ( 15 downto 0 );
-   signal W_CMD_DATA_I       : std_logic_vector ( DATA_BUS_WIDTH - 1 downto 0 );
+   signal W_CARD_ID_I        : std_logic_vector ( FIBRE_CARD_ADDRESS_WIDTH - 1 downto 0 );
+   signal W_CMD_CODE_I       : std_logic_vector ( FIBRE_CMD_CODE_WIDTH-1 downto 0 );
+   signal W_CMD_DATA_I       : std_logic_vector ( PACKET_WORD_WIDTH - 1 downto 0 );
    signal W_CMD_RDY_I        : std_logic ;
    signal W_DATA_CLK_I       : std_logic ;
-   signal W_NUM_DATA_I       : std_logic_vector ( DATA_SIZE_BUS_WIDTH - 1 downto 0 );
-   signal W_PARAM_ID_I       : std_logic_vector ( PAR_ID_BUS_WIDTH - 1 downto 0 );
+   signal W_NUM_DATA_I       : std_logic_vector ( FIBRE_DATA_SIZE_WIDTH - 1 downto 0 );
+   signal W_PARAM_ID_I       : std_logic_vector ( FIBRE_PARAMETER_ID_WIDTH - 1 downto 0 );
    signal W_SYNC_PULSE_I     : std_logic ;
-   signal w_sync_number_i    : std_logic_vector (7 downto 0);
+   signal w_sync_number_i    : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
    signal W_ACK_O            : std_logic ;
-   signal W_CARD_ADDR_O      : std_logic_vector ( CARD_ADDR_BUS_WIDTH - 1 downto 0 );
-   signal W_PARAMETER_ID_O   : std_logic_vector ( PAR_ID_BUS_WIDTH - 1 downto 0 );
-   signal W_DATA_SIZE_O      : std_logic_vector ( DATA_SIZE_BUS_WIDTH - 1 downto 0 );
-   signal W_DATA_O           : std_logic_vector ( DATA_BUS_WIDTH - 1 downto 0 ) ;
+   signal W_CARD_ADDR_O      : std_logic_vector ( FIBRE_CARD_ADDRESS_WIDTH - 1 downto 0 );
+   signal W_PARAMETER_ID_O   : std_logic_vector ( FIBRE_PARAMETER_ID_WIDTH - 1 downto 0 );
+   signal W_DATA_SIZE_O      : std_logic_vector ( FIBRE_DATA_SIZE_WIDTH - 1 downto 0 );
+   signal W_DATA_O           : std_logic_vector ( PACKET_WORD_WIDTH - 1 downto 0 ) ;
    signal w_data_clk_o       : std_logic;
    signal w_macro_instr_rdy_o :  std_logic;
    signal w_reply_cmd_ack_o       : std_logic ;
-   signal w_reply_card_addr_o     : std_logic_vector ( CARD_ADDR_BUS_WIDTH - 1 downto 0 );
-   signal w_reply_parameter_id_o  : std_logic_vector ( PAR_ID_BUS_WIDTH - 1 downto 0 );
-   signal w_reply_data_size_o     : std_logic_vector ( DATA_SIZE_BUS_WIDTH - 1 downto 0 );
-   signal w_reply_data_o          : std_logic_vector ( DATA_BUS_WIDTH - 1 downto 0 ) ;
+   signal w_reply_card_addr_o     : std_logic_vector ( FIBRE_CARD_ADDRESS_WIDTH - 1 downto 0 );
+   signal w_reply_parameter_id_o  : std_logic_vector ( FIBRE_PARAMETER_ID_WIDTH - 1 downto 0 );
+   signal w_reply_data_size_o     : std_logic_vector ( FIBRE_DATA_SIZE_WIDTH - 1 downto 0 );
+   signal w_reply_data_o          : std_logic_vector ( PACKET_WORD_WIDTH - 1 downto 0 ) ;
    --signal w_m_op_seq_num_o          : std_logic_vector (7 downto 0);
-   signal w_ret_dat_frame_seq_num_o : std_logic_vector (31 downto 0);
-   signal w_ret_dat_frame_sync_num_o: std_logic_vector (7 downto 0);
+   signal w_ret_dat_frame_seq_num_o : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal w_ret_dat_frame_sync_num_o: std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
    signal w_ack_i             : std_logic;
    --signal w_ack_o             : std_logic;
    
-   signal w_m_op_seq_num_o        : std_logic_vector ( 7 downto 0);
-   signal w_frame_seq_num_o       : std_logic_vector (31 downto 0);
-   signal w_frame_sync_num_o      : std_logic_vector (7 downto 0);
+   signal w_m_op_seq_num_o        : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+   signal w_frame_seq_num_o       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+   signal w_frame_sync_num_o      : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
    
    signal self_check_flag    : boolean ;
    
@@ -168,7 +170,8 @@ begin
 -- instantiate command translator
 --
 ------------------------------------------------------------------------
-   DUT : CMD_TRANSLATOR
+  
+  DUT : CMD_TRANSLATOR
       port map(RST_I            => W_RST_I,
                CLK_I            => W_CLK_I,
                CARD_ID_I      => w_card_id_i,

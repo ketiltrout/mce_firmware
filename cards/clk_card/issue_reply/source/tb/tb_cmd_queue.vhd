@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.18 2004/09/10 01:21:01 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.19 2004/09/25 01:23:49 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.19  2004/09/25 01:23:49  bburger
+-- Bryce:  Added command-code, last-frame and stop-frame interfaces
+--
 -- Revision 1.18  2004/09/10 01:21:01  bburger
 -- Bryce:  Hardware testing, bug fixing
 --
@@ -121,16 +124,16 @@ architecture BEH of TB_CMD_QUEUE is
    signal uop_o         : std_logic_vector(QUEUE_WIDTH-1 downto 0) := (others => '0'); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
    -- cmd_translator interface
-   signal card_addr_i   : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0) := (others => '0'); -- The card address of the m-op
-   signal par_id_i      : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0) := (others => '0'); -- The parameter id of the m-op
-   signal data_size_i   : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0) := (others => '0'); -- The number of bytes of data in the m-op
-   signal data_i        : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := (others => '0');  -- Data belonging to a m-op
+   signal card_addr_i   : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0) := (others => '0'); -- The card address of the m-op
+   signal par_id_i      : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0) := (others => '0'); -- The parameter id of the m-op
+   signal data_size_i   : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0) := (others => '0'); -- The number of bytes of data in the m-op
+   signal data_i        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := (others => '0');  -- Data belonging to a m-op
    signal data_clk_i    : std_logic := '0'; -- Clocks in 32-bit wide data
-   signal mop_i         : std_logic_vector (MOP_BUS_WIDTH-1 downto 0) := (others => '0'); -- M-op sequence number
-   signal issue_sync_i  : std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0) := (others => '0');
+   signal mop_i         : std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0) := (others => '0'); -- M-op sequence number
+   signal issue_sync_i  : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0) := (others => '0');
    signal mop_rdy_i     : std_logic := '0'; -- Tells cmd_queue when a m-op is ready
    signal mop_ack_o     : std_logic := '0'; -- Tells the cmd_translator when cmd_queue has taken the m-op
-   signal cmd_type_i    : std_logic_vector (CMD_TYPE_WIDTH-1 downto 0) := "000";       -- this is a re-mapping of the cmd_code into a 3-bit number
+   signal cmd_type_i    : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";       -- this is a re-mapping of the cmd_code into a 3-bit number
    signal cmd_stop_i    : std_logic := '0';                                          -- indicates a STOP command was recieved
    signal last_frame_i  : std_logic := '0';                                          -- indicates the last frame of data for a ret_dat command
 
@@ -140,7 +143,7 @@ architecture BEH of TB_CMD_QUEUE is
 
    -- Clock lines
    signal sync_i        : std_logic := '1'; -- The sync pulse determines when and when not to issue u-ops
-   signal sync_num_i    : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0) := (others => '0');
+   signal sync_num_i    : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0) := (others => '0');
    signal clk_i         : std_logic := '1'; -- Advances the state machines
    --signal clk_400mhz_i  : std_logic := '1';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
    signal rst_i         : std_logic := '0';  -- Resets all FSMs
@@ -252,13 +255,13 @@ begin
 
    procedure do_ret_dat_cmd is
    begin
-      card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
+      card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) <= ALL_CARDS;
       par_id_i      <= x"00" & RET_DAT_ADDR;
       data_size_i   <= (others => '0');
       data_i        <= (others => '0');
       data_clk_i    <= '0';
       mop_i         <= "00000001"; -- m-op #1
-      issue_sync_i  <= "00000001"; -- Sync pulse 1
+      issue_sync_i  <= "0000000000000001"; -- Sync pulse 1
       
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
@@ -272,13 +275,13 @@ begin
 
    procedure do_rst_wtchdg_cmd is
    begin
-      card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
+      card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) <= ALL_CARDS;
       par_id_i      <= x"00" & RST_WTCHDG_ADDR;
       data_size_i   <= (others => '0');
       data_i        <= (others => '0');
       data_clk_i    <= '0';
       mop_i         <= "00000010"; -- m-op #2
-      issue_sync_i  <= "00000010"; -- Sync pulse 2
+      issue_sync_i  <= "0000000000000010"; -- Sync pulse 2
       
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
@@ -292,12 +295,12 @@ begin
 
    procedure do_strt_mux_cmd is
    begin
-      card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
+      card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) <= ALL_CARDS;
       par_id_i      <= x"00" & STRT_MUX_ADDR;
       data_size_i   <= x"00000001";
       data_clk_i    <= '0';
       mop_i         <= "00000011"; -- m-op #3
-      issue_sync_i  <= "00000011"; -- Sync pulse 3
+      issue_sync_i  <= "0000000000000011"; -- Sync pulse 3
       
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
@@ -318,11 +321,11 @@ begin
 
    procedure do_on_bias_cmd is
    begin
-      card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= AC;
+      card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) <= ADDRESS_CARD;
       par_id_i      <= x"00" & ON_BIAS_ADDR;
       data_size_i   <= x"00000003";
       mop_i         <= "00000100"; -- m-op #4
-      issue_sync_i  <= "00000100"; -- Sync pulse 4
+      issue_sync_i  <= "0000000000000100"; -- Sync pulse 4
       data_clk_i    <= '0';
       
       L1: while mop_ack_o = '0' loop

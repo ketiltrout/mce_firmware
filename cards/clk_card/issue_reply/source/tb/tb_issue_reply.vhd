@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.10 2004/09/01 17:13:24 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.11 2004/09/25 01:23:49 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/09/01 17:13:24 $> - <text> - <initials $Author: jjacob $>
+-- <date $Date: 2004/09/25 01:23:49 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -38,9 +38,9 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
 library work;
-use work.fibre_rx_pack.all;
 use work.issue_reply_pack.all;
 use work.async_pack.all;
+use work.sync_gen_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -71,8 +71,8 @@ architecture tb of tb_issue_reply is
     signal t_rx_rdy        : std_logic;
     signal t_rx_ack        : std_logic;    
 
---    signal  t_cksum_err_o : std_logic;
---      
+    signal  t_cksum_err_o : std_logic;
+      
 --      -- outputs to the micro-instruction sequence generator
 --      -- these signals will be absorbed when the issue_reply block's boundary extends
 --      -- to include u-op sequence generator.
@@ -113,7 +113,7 @@ architecture tb of tb_issue_reply is
    signal ret_dat_s_start    : std_logic_vector (31 downto 0)  := X"00000002";
    signal ret_dat_s_stop     : std_logic_vector (31 downto 0)  := X"00000008";
    
-   constant ret_dat_cmd        : std_logic_vector (31 downto 0) := X"00040030";  -- card id=4, ret_dat command
+   constant ret_dat_cmd        : std_logic_vector (31 downto 0) := X"000D0030";  -- card id=4, ret_dat command
    
    constant flux_fdbck_cmd         : std_logic_vector (31 downto 0) := x"00070020"; -- bias card 1, flux feedback command
    constant sram1_strt_cmd     : std_logic_vector (31 downto 0) := x"0002005C"; -- clock card, sram1_start command
@@ -141,14 +141,14 @@ architecture tb of tb_issue_reply is
       signal sync_count           : integer;
       signal count_rst            : std_logic;
       signal sync_number_mux_sel  : std_logic;
-      signal sync_number_mux      : std_logic_vector(7 downto 0);
+      signal sync_number_mux      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       
       type state is               (IDLE, COUNTING, INCREMENT);
       signal current_state, next_state : state;
       constant SYNC_PERIOD        : integer := 53; -- time in micro-seconds
       
     signal sync_pulse    : std_logic;
-    signal sync_number   : std_logic_vector(7 downto 0);
+    signal sync_number   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
     
  
    
@@ -193,7 +193,7 @@ port(
       tx_o           : out std_logic;  -- transmitter output pin
       clk_200mhz_i   : in std_logic;  -- PLL locked 25MHz input clock for the
       sync_pulse_i   : in std_logic;
-      sync_number_i  : in std_logic_vector (7 downto 0)
+      sync_number_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
 
 
    ); 
