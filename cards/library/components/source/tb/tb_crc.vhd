@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_crc.vhd,v $
+-- Revision 1.2  2004/07/16 23:24:04  erniel
+-- new serial interface
+--
 --
 -----------------------------------------------------------------------------
 
@@ -50,14 +53,15 @@ architecture BEH of TB_CRC is
       generic(POLY_WIDTH    : integer  := 8 ;
               DATA_LENGTH   : integer  := 64 );
 
-      port(CLK       : in std_logic ;
-           RST       : in std_logic ;
-           CLR_I     : in std_logic ;
-           ENA_I     : in std_logic ;
-           DATA_I    : in std_logic ;
-           POLY_I    : in std_logic_vector ( POLY_WIDTH downto 1 );
-           DONE_O    : out std_logic ;
-           VALID_O   : out std_logic );
+      port(CLK          : in std_logic ;
+           RST          : in std_logic ;
+           CLR_I        : in std_logic ;
+           ENA_I        : in std_logic ;
+           DATA_I       : in std_logic ;
+           POLY_I       : in std_logic_vector ( POLY_WIDTH downto 1 );
+           DONE_O       : out std_logic ;
+           VALID_O      : out std_logic ;
+           CHECKSUM_O   : out std_logic_vector ( POLY_WIDTH downto 1 ) );
 
    end component;
 
@@ -65,14 +69,15 @@ architecture BEH of TB_CRC is
    constant PERIOD : time := 20 ns;
    constant POLY_WIDTH : integer := 32;
    
-   signal W_CLK       : std_logic  := '1';
-   signal W_RST       : std_logic ;
-   signal W_CLR_I     : std_logic ;
-   signal W_ENA_I     : std_logic ;
-   signal W_DATA_I    : std_logic ;
-   signal W_POLY_I    : std_logic_vector ( POLY_WIDTH downto 1 );
-   signal W_DONE_O    : std_logic ;
-   signal W_VALID_O   : std_logic ;
+   signal W_CLK          : std_logic  := '1';
+   signal W_RST          : std_logic ;
+   signal W_CLR_I        : std_logic ;
+   signal W_ENA_I        : std_logic ;
+   signal W_DATA_I       : std_logic ;
+   signal W_POLY_I       : std_logic_vector ( POLY_WIDTH downto 1 );
+   signal W_DONE_O       : std_logic ;
+   signal W_VALID_O      : std_logic ;
+   signal W_CHECKSUM_O   : std_logic_vector ( POLY_WIDTH downto 1 ) ;
 
 begin
 
@@ -81,14 +86,15 @@ begin
       generic map(POLY_WIDTH    => 32 ,
                   DATA_LENGTH   => 64 )
 
-      port map(CLK       => W_CLK,
-               RST       => W_RST,
-               CLR_I     => W_CLR_I,
-               ENA_I     => W_ENA_I,
-               DATA_I    => W_DATA_I,
-               POLY_I    => W_POLY_I,
-               DONE_O    => W_DONE_O,
-               VALID_O   => W_VALID_O);
+      port map(CLK          => W_CLK,
+               RST          => W_RST,
+               CLR_I        => W_CLR_I,
+               ENA_I        => W_ENA_I,
+               DATA_I       => W_DATA_I,
+               POLY_I       => W_POLY_I,
+               DONE_O       => W_DONE_O,
+               VALID_O      => W_VALID_O,
+               CHECKSUM_O   => W_CHECKSUM_O);
 
    W_CLK <= not W_CLK after PERIOD/2;
 

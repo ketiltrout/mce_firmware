@@ -30,7 +30,12 @@
 --
 -- Revision history:
 --
--- $Log$
+-- $Log: crc.vhd,v $
+-- Revision 1.2  2004/07/16 23:02:34  erniel
+-- conversion to serial data interface
+-- modified to allow arbitrary CRC polynomial
+-- modified to allow arbitrary data lengths
+--
 --
 -- Jan. 31 2004  - Added control logic  - EL
 -- Jan. 29 2004  - Modified interface   - EL
@@ -62,12 +67,12 @@ port(clk    : in std_logic;
      rst    : in std_logic;
      clr_i  : in std_logic;
      ena_i  : in std_logic;
-     
      data_i : in std_logic;
      poly_i : in std_logic_vector(POLY_WIDTH downto 1);
      
-     done_o  : out std_logic;
-     valid_o : out std_logic);
+     done_o     : out std_logic;
+     valid_o    : out std_logic;
+     checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
 end crc;
 	
 architecture behav of crc is
@@ -128,5 +133,7 @@ begin
    end process reg_update;
    
    done_o <= '1' when bit_count = DATA_LENGTH else '0';
+   
+   checksum_o <= crc_reg when bit_count = DATA_LENGTH else (others => '0');
    
 end behav;
