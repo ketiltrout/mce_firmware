@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.11 2004/09/25 01:23:49 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.12 2004/09/27 23:34:33 erniel Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.12  2004/09/27 23:34:33  erniel
+-- using new command_pack constants
+--
 -- Revision 1.11  2004/09/25 01:23:49  bburger
 -- Bryce:  Added command-code, last-frame and stop-frame interfaces
 --
@@ -70,18 +73,12 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.command_pack.all;
-use sys_param.wishbone_pack.all;
 
 library work;
-use work.issue_reply_pack.all;
+use work.sync_gen_pack.all;
 use work.cmd_queue_ram40_pack.all;
 
 package cmd_queue_pack is
-
-   constant SYNC_NUM_BUS_WIDTH     : integer := 8;
-   
-   constant ISSUE_SYNC_BUS_WIDTH   : integer := SYNC_NUM_BUS_WIDTH;
-   constant TIMEOUT_SYNC_BUS_WIDTH : integer := SYNC_NUM_BUS_WIDTH;
    
    component cmd_queue
       port(
@@ -103,7 +100,7 @@ package cmd_queue_pack is
          data_i        : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- Data belonging to a m-op
          data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
          mop_i         : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
-         issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
+         issue_sync_i  : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
          mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
          mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
          cmd_type_i    : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
@@ -116,7 +113,7 @@ package cmd_queue_pack is
 
          -- Clock lines
          sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
-         sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+         sync_num_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
          clk_i         : in std_logic; -- Advances the state machines
          rst_i         : in std_logic  -- Resets all FSMs
       );

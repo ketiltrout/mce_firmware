@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.53 2004/09/10 01:21:01 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.54 2004/09/25 01:23:49 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.54  2004/09/25 01:23:49  bburger
+-- Bryce:  Added command-code, last-frame and stop-frame interfaces
+--
 -- Revision 1.53  2004/09/10 01:21:01  bburger
 -- Bryce:  Hardware testing, bug fixing
 --
@@ -53,8 +56,8 @@ library components;
 use components.component_pack.all;
 
 library work;
-use work.issue_reply_pack.all;
 use work.cmd_queue_ram40_pack.all;
+use work.sync_gen_pack.all;
 use work.async_pack.all;
 
 entity cmd_queue is
@@ -71,16 +74,16 @@ entity cmd_queue is
       uop_o         : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
       -- cmd_translator interface
-      card_addr_i   : in std_logic_vector(CARD_ADDR_BUS_WIDTH-1 downto 0); -- The card address of the m-op
-      par_id_i      : in std_logic_vector(PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
-      data_size_i   : in std_logic_vector(DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of 32-bit words of data in the m-op
-      data_i        : in std_logic_vector(DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
+      card_addr_i   : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
+      par_id_i      : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
+      data_size_i   : in std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0); -- The number of 32-bit words of data in the m-op
+      data_i        : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- Data belonging to a m-op
       data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
-      mop_i         : in std_logic_vector(MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
-      issue_sync_i  : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0); -- The issuing sync-pulse sequence number
+      mop_i         : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
+      issue_sync_i  : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0); -- The issuing sync-pulse sequence number
       mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
       mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op and is ready to receive data
-      cmd_type_i    : in std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_type_i    : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_i    : in std_logic;                                          -- indicates a STOP command was recieved
       last_frame_i  : in std_logic;                                          -- indicates the last frame of data for a ret_dat command
       
@@ -90,7 +93,7 @@ entity cmd_queue is
 
       -- Clock lines
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
-      sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
+      sync_num_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       clk_i         : in std_logic; -- Advances the state machines
       rst_i         : in std_logic  -- Resets all FSMs
       
@@ -101,7 +104,7 @@ architecture behav of cmd_queue is
 
 constant ADDR_ZERO          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0) := (others => '0');
 constant ADDR_FULL_SCALE    : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0) := (others => '1');
-constant TIMEOUT_LEN        : std_logic_vector(TIMEOUT_SYNC_BUS_WIDTH-1 downto 0) := "00000001";  -- The number of sync pulses after which an instruction will expire
+constant TIMEOUT_LEN        : std_logic_vector(TIMEOUT_SYNC_WIDTH-1 downto 0) := "00000001";  -- The number of sync pulses after which an instruction will expire
 constant MAX_SYNC_COUNT     : integer := 255;
 --constant MAX_BIT_COUNT      : integer := 32;
 
@@ -118,7 +121,7 @@ signal nfast_clk            : std_logic;
 signal n_clk                : std_logic;
 
 -- Indicates the number u-ops contained in the command queue
---signal uop_counter          : std_logic_vector(UOP_BUS_WIDTH - 1 downto 0);
+--signal uop_counter          : std_logic_vector(BB_MICRO_OP_SEQ_WIDTH - 1 downto 0);
 
 -- Sync-pulse counter inputs/outputs.  These are used to determine when u-ops have expired.
 signal sync_count_slv       : std_logic_vector(7 downto 0);
@@ -145,9 +148,9 @@ signal free_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 type insert_states is (IDLE, INSERT_HDR1, INSERT_HDR2, INSERT_DATA, INSERT_MORE_DATA, DONE, RESET, DATA_STROBE_DETECT, LATCHED_DATA);
 signal present_insert_state : insert_states;
 signal next_insert_state    : insert_states;
-signal data_count           : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal data_count           : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal insert_uop_ack       : std_logic; --tells the generate FSM when the insert FSM is ready to insert the next u-op
-signal num_uops_inserted_slv: std_logic_vector(UOP_BUS_WIDTH-1 downto 0);
+signal num_uops_inserted_slv: std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
 type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, EJECT, NEXT_FLUSH, FLUSH_STATUS, RESET);
@@ -166,10 +169,10 @@ signal present_gen_state    : gen_uop_states;
 signal next_gen_state       : gen_uop_states;
 signal mop_rdy              : std_logic; --In from the previous block in the chain  
 signal insert_uop_rdy       : std_logic; --Out, to insertion fsm, tells the insert FSM when a new u-op is available
-signal new_card_addr        : std_logic_vector(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0); --out, to insertion fsm
-signal new_par_id           : std_logic_vector(CQ_PAR_ID_BUS_WIDTH-1 downto 0) := x"00"; --out, to insertion fsm.  This is a hack.
-signal data_size_reg        : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
-signal data_size_mux        : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal new_card_addr        : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); --out, to insertion fsm
+signal new_par_id           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); --out, to insertion fsm.  This is a hack.
+signal data_size_reg        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+signal data_size_mux        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_size_mux_sel    : std_logic;
 
 -- Send FSM:  sends u-ops over the bus backplane
@@ -180,11 +183,11 @@ signal previous_send_state  : send_states;
 signal update_prev_state    : std_logic;
 signal freeze_send          : std_logic;  --In, freezes the send pointer when flushing out invalidated u-ops
 signal uop_send_expired     : std_logic;
-signal issue_sync           : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
-signal timeout_sync         : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
-signal uop_data_size        : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal issue_sync           : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+signal timeout_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+signal uop_data_size        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal uop_data_size_int    : integer;
-signal uop_data_count       : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal uop_data_count       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal send_state           : std_logic_vector(3 downto 0);
 signal prev_send_state      : std_logic_vector(3 downto 0); 
 
@@ -202,13 +205,13 @@ signal crc_data             : std_logic;
 signal crc_num_bits         : integer;
 signal crc_done             : std_logic;
 signal crc_valid            : std_logic;
-signal crc_checksum         : std_logic_vector(CHECKSUM_BUS_WIDTH-1 downto 0);
-signal crc_reg              : std_logic_vector(CHECKSUM_BUS_WIDTH-1 downto 0);
+signal crc_checksum         : std_logic_vector(CHECKSUM_WORD_WIDTH-1 downto 0);
+signal crc_reg              : std_logic_vector(CHECKSUM_WORD_WIDTH-1 downto 0);
 
 -- Shift Register signals:
 signal sh_reg_serial_o      : std_logic;
-signal sh_reg_parallel_i    : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-signal sh_reg_parallel_o    : std_logic_vector(DATA_BUS_WIDTH-1 downto 0); --Dummy signal
+signal sh_reg_parallel_i    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal sh_reg_parallel_o    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); --Dummy signal
 
 -- Bit Counter signals
 signal bit_ctr_count        : integer;
@@ -229,7 +232,7 @@ signal data_sig_mux         : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal data_sig2            : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal data_sig_mux_sel     : std_logic_vector(1 downto 0);
 
-signal data_count_mux       : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0); 
+signal data_count_mux       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); 
 signal data_count_mux_sel   : std_logic_vector(1 downto 0);
 
 signal free_ptr_mux         : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
@@ -243,11 +246,11 @@ signal retire_ptr_mux_sel   : std_logic_vector(2 downto 0);
 signal flush_ptr_mux        : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal flush_ptr_mux_sel    : std_logic_vector(1 downto 0);
 
-signal current_par_id      : std_logic_vector(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
+signal current_par_id      : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
-signal new_par_id_mux           : std_logic_vector(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
-signal new_par_id_reg           : std_logic_vector(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
-signal new_par_id_mux_sel           : std_logic_vector(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
+signal new_par_id_mux           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+signal new_par_id_reg           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
+signal new_par_id_mux_sel           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
 constant PAR_ID             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"EE";
 constant RECIRC             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"EF";
@@ -277,11 +280,11 @@ signal send_ptr_reg           : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal send_ptr_mux_sel       : std_logic_vector(1 downto 0);
 
 signal uop_data_count_mux_sel : std_logic_vector(1 downto 0);
-signal uop_data_count_reg     : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal uop_data_count_reg     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal uop_data_size_mux_sel  : std_logic_vector(1 downto 0);
-signal uop_data_size_reg      : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
-signal uop_data_size2         : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
+signal uop_data_size_reg      : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+signal uop_data_size2         : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal sh_reg_parallel_mux_sel: std_logic_vector(1 downto 0);
 
@@ -345,7 +348,7 @@ begin
   
    cmd_crc: crc
       generic map(
-         POLY_WIDTH  => CHECKSUM_BUS_WIDTH
+         POLY_WIDTH  => CHECKSUM_WORD_WIDTH
       )
       port map(
          clk_i      => clk_i,
@@ -362,7 +365,7 @@ begin
       
    sh_reg: shift_reg
       generic map(
-         WIDTH      => DATA_BUS_WIDTH
+         WIDTH      => PACKET_WORD_WIDTH
       )   
       port map(
          clk_i      => clk_i,
@@ -412,7 +415,7 @@ begin
    
    uop_data_size_r_int <= conv_integer(qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END));
    queue_space_mux <= queue_space     when queue_space_mux_sel = "00" else
-                      queue_space + BB_PACKET_HEADER_SIZE + uop_data_size_r_int when queue_space_mux_sel = "01" else
+                      queue_space + BB_NUM_CMD_HEADER_WORDS + uop_data_size_r_int when queue_space_mux_sel = "01" else
                       queue_space - 1 when queue_space_mux_sel = "10" else
                       QUEUE_LEN;   -- when queue_space_mux_sel = "11";
                         
@@ -470,7 +473,7 @@ begin
          when INSERT_HDR1 =>
             next_insert_state <= INSERT_HDR2;
          when INSERT_HDR2 =>
-            if(data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) = x"0000") then
+            if(data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0) = x"0000") then
                next_insert_state <= DONE;
             else
                next_insert_state <= DATA_STROBE_DETECT;
@@ -482,7 +485,7 @@ begin
                next_insert_state <= DATA_STROBE_DETECT;
             end if;
          when LATCHED_DATA =>
-            if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
+            if(data_count < data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0)) then
                next_insert_state <= DATA_STROBE_DETECT;
             else
                next_insert_state <= DONE;
@@ -493,13 +496,13 @@ begin
 -- The data strobe seems to be asserted for only one clock cycle, after which it is deasserted for two before being reasserted with new data
 --         when INSERT_DATA =>
 --            -- INSERT_DATA state has to loop without any others in between to make sure that it records all data from the cmd_translator block
---            if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
+--            if(data_count < data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0)) then
 --               next_insert_state <= INSERT_MORE_DATA;
 --            else
 --               next_insert_state <= DONE;
 --            end if;
 --         when INSERT_MORE_DATA =>
---            if(data_count < data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0)) then
+--            if(data_count < data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0)) then
 --               next_insert_state <= INSERT_DATA;
 --            else
 --               next_insert_state <= DONE;
@@ -523,8 +526,8 @@ begin
          when "00" => data_sig_mux <=(others=>'0');
          -- ***The three zero-bits below are space holders for the command code
          when "01" => data_sig_mux <=(issue_sync_i & (issue_sync_i + TIMEOUT_LEN) & 
-         --"000" & 
-         data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0));
+         "000" & 
+         data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0));
          when "10" => data_sig_mux <=(new_card_addr & new_par_id & mop_i & num_uops_inserted_slv);
          when others => data_sig_mux <= data_i;
       end case;
@@ -547,7 +550,7 @@ begin
                       free_ptr_reg + 1   when free_ptr_mux_sel = "01" else
                       ADDR_ZERO;      --when free_ptr_mux_sel = "11";
                       
-   data_size_mux  <= data_size_reg when data_size_mux_sel = '0' else data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);   
+   data_size_mux  <= data_size_reg when data_size_mux_sel = '0' else data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0);   
                       
 
    process(clk_i, rst_i)
@@ -739,8 +742,8 @@ begin
       -- This signal is to be used to determine when there is a u-op to retire.  
    -- This signal should not be asserted until the entire u-op pointed to by retire_ptr has been issued.
    uop_to_retire <= '1' when
-      ((retire_ptr < send_ptr) and (send_ptr > retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END))) or
-      ((retire_ptr > send_ptr) and (send_ptr > QUEUE_LEN - retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END)))
+      ((retire_ptr < send_ptr) and (send_ptr > retire_ptr + BB_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END))) or
+      ((retire_ptr > send_ptr) and (send_ptr > QUEUE_LEN - retire_ptr + BB_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END)))
       else '0';
    
    retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire)--, uop_timed_out)
@@ -907,13 +910,13 @@ begin
 
    retire_ptr_mux <= retire_ptr when retire_ptr_mux_sel = "000" else
                      ADDR_ZERO  when retire_ptr_mux_sel = "001" else
-                     retire_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when retire_ptr_mux_sel = "010" else
+                     retire_ptr + BB_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when retire_ptr_mux_sel = "010" else
                      flush_ptr when retire_ptr_mux_sel = "011" else
-                     flush_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END); --when retire_ptr_mux_sel = "100" else
+                     flush_ptr + BB_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END); --when retire_ptr_mux_sel = "100" else
    
    flush_ptr_mux <=  flush_ptr when flush_ptr_mux_sel  = "00" else
                      ADDR_ZERO when flush_ptr_mux_sel  = "01" else
-                     flush_ptr + BB_PACKET_HEADER_SIZE + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END); -- when "10"
+                     flush_ptr + BB_NUM_CMD_HEADER_WORDS + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END); -- when "10"
                      
                      
    process(rst_i, clk_i)                
@@ -999,12 +1002,12 @@ begin
       end case;
    end process;
 
-   with card_addr_i(CARD_ADDR_WIDTH-1 downto 0) select
+   with card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) select
       cards_addressed <=
          0 when NO_CARDS,
-         1 when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC,
-         3 when BCS,
-         4 when RCS,
+         1 when POWER_SUPPLY_CARD | CLOCK_CARD | READOUT_CARD_1 | READOUT_CARD_2 | READOUT_CARD_3 | READOUT_CARD_4 | BIAS_CARD_1 | BIAS_CARD_2 | BIAS_CARD_3 | ADDRESS_CARD,
+         3 when ALL_BIAS_CARDS,
+         4 when ALL_READOUT_CARDS,
          9 when ALL_FPGA_CARDS,
          10 when ALL_CARDS,
          0 when others; -- invalid card address
@@ -1021,11 +1024,11 @@ begin
 
    num_uops      <= uops_generated; --* cards_addressed;
    data_size_int <= conv_integer(data_size_i);
-   size_uops     <= num_uops * (BB_PACKET_HEADER_SIZE + data_size_int);
+   size_uops     <= num_uops * (BB_NUM_CMD_HEADER_WORDS + data_size_int);
 
    mop_rdy <= mop_rdy_i;
 
-   new_card_addr     <= card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0);
+   new_card_addr     <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 
 
    -- state sequencer to keep track of first time entering a state for incrementing
@@ -1111,8 +1114,8 @@ begin
          when CLEANUP =>
             insert_uop_rdy               <= '0';
 
-           if(par_id_i(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = RET_DAT_ADDR) then
-               case current_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) is
+           if(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
+               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
                   when NULL_ADDR       => new_par_id_mux_sel <= RET_DAT_ADDR;
                   when RET_DAT_ADDR    => new_par_id_mux_sel <= PSC_STATUS_ADDR;
                   when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
@@ -1123,8 +1126,8 @@ begin
                   when others          => new_par_id_mux_sel <= RECIRC;
                end case;
                
-            elsif(par_id_i(CQ_PAR_ID_BUS_WIDTH-1 downto 0) = STATUS_ADDR) then
-               case current_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) is
+            elsif(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = STATUS_ADDR) then
+               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
                   when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
                   when BIT_STATUS_ADDR => new_par_id_mux_sel <= FPGA_TEMP_ADDR;
                   when FPGA_TEMP_ADDR  => new_par_id_mux_sel <= CARD_TEMP_ADDR;
@@ -1156,11 +1159,11 @@ begin
    process(rst_i, clk_i)
    begin
       if rst_i = '1' then
-         current_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= NULL_ADDR;
+         current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) <= NULL_ADDR;
          num_uops_inserted_reg                          <= 0;
 
       elsif clk_i'event and clk_i = '1' then
-         current_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0) <= new_par_id(CQ_PAR_ID_BUS_WIDTH-1 downto 0);
+         current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) <= new_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0);
          num_uops_inserted_reg                          <= num_uops_inserted;
 
       end if;
@@ -1181,7 +1184,7 @@ begin
          FPGA_TEMP_ADDR                                  when FPGA_TEMP_ADDR,
          CARD_TEMP_ADDR                                  when CARD_TEMP_ADDR,
          CYC_OO_SYC_ADDR                                 when CYC_OO_SYC_ADDR,
-         par_id_i(CQ_PAR_ID_BUS_WIDTH-1 downto 0)        when PAR_ID, --0xEE
+         par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0)        when PAR_ID, --0xEE
          current_par_id                                  when RECIRC, --0xEF
          current_par_id                                  when others;
 
@@ -1408,7 +1411,7 @@ begin
             bit_ctr_load             <= '1';
             
             crc_num_bits_mux_sel     <= "01";
-            --crc_num_bits             <= (BB_PACKET_HEADER_SIZE + uop_data_size_int)*QUEUE_WIDTH;
+            --crc_num_bits             <= (BB_NUM_CMD_HEADER_WORDS + uop_data_size_int)*QUEUE_WIDTH;
             
             uop_data_count_mux_sel   <= "11";  -- (others => '0')
             --uop_data_count           <= (others => '0');
@@ -1606,7 +1609,7 @@ begin
             
             -- The send_ptr should be incremented to the next u-op if this one has expired
             send_ptr_mux_sel         <= "10"; -- skips entire u-op
-            --send_ptr                 <= send_ptr + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            --send_ptr                 <= send_ptr + BB_NUM_CMD_HEADER_WORDS + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          
          when others =>
             -- Debug
@@ -1688,7 +1691,7 @@ begin
       send_ptr <=
       send_ptr_reg                                             when "00",
       send_ptr_reg + 1                                         when "01",
-      send_ptr_reg + BB_PACKET_HEADER_SIZE + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "10",
+      send_ptr_reg + BB_NUM_CMD_HEADER_WORDS + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END) when "10",
       ADDR_ZERO                                                when others; --"11",
 
 
@@ -1696,7 +1699,7 @@ begin
    with crc_num_bits_mux_sel select
       crc_num_bits <=
       crc_num_bits_reg                                          when "00",
-      ((BB_PACKET_HEADER_SIZE + uop_data_size_int)*QUEUE_WIDTH) when "01",
+      ((BB_NUM_CMD_HEADER_WORDS + uop_data_size_int)*QUEUE_WIDTH) when "01",
       0                                                         when others;
       
    with cmd_tx_dat_mux_sel select
@@ -1762,8 +1765,8 @@ end behav;
 --x the generate FSM cycles over two u-ops during a u-op transition
 --  Done
 
---x uop_counter wraps at 31.  UOP_BUS_WIDTH is only bit bits wide.
---  UOP_BUS_WIDTH and MOP_BUS_WIDTH have been widened to 8 bits each.
+--x uop_counter wraps at 31.  BB_MICRO_OP_SEQ_WIDTH is only bit bits wide.
+--  BB_MICRO_OP_SEQ_WIDTH and BB_MACRO_OP_SEQ_WIDTH have been widened to 8 bits each.
 
 --x I need to widen the RAM lines to 64 bits.
 --  Done.
