@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_crc.vhd,v $
+-- Revision 1.3  2004/07/17 00:58:37  erniel
+-- added checksum output port
+--
 -- Revision 1.2  2004/07/16 23:24:04  erniel
 -- new serial interface
 --
@@ -50,14 +53,14 @@ architecture BEH of TB_CRC is
 
    component CRC
 
-      generic(POLY_WIDTH    : integer  := 8 ;
-              DATA_LENGTH   : integer  := 64 );
+      generic(POLY_WIDTH    : integer  := 8 );
 
       port(CLK          : in std_logic ;
            RST          : in std_logic ;
            CLR_I        : in std_logic ;
            ENA_I        : in std_logic ;
            DATA_I       : in std_logic ;
+           NUM_BITS_I   : in integer;
            POLY_I       : in std_logic_vector ( POLY_WIDTH downto 1 );
            DONE_O       : out std_logic ;
            VALID_O      : out std_logic ;
@@ -74,6 +77,7 @@ architecture BEH of TB_CRC is
    signal W_CLR_I        : std_logic ;
    signal W_ENA_I        : std_logic ;
    signal W_DATA_I       : std_logic ;
+   signal W_NUM_BITS_I   : integer;
    signal W_POLY_I       : std_logic_vector ( POLY_WIDTH downto 1 );
    signal W_DONE_O       : std_logic ;
    signal W_VALID_O      : std_logic ;
@@ -83,14 +87,14 @@ begin
 
    DUT : CRC
 
-      generic map(POLY_WIDTH    => 32 ,
-                  DATA_LENGTH   => 64 )
+      generic map(POLY_WIDTH    => 32 )
 
       port map(CLK          => W_CLK,
                RST          => W_RST,
                CLR_I        => W_CLR_I,
                ENA_I        => W_ENA_I,
                DATA_I       => W_DATA_I,
+               NUM_BITS_I   => W_NUM_BITS_I,
                POLY_I       => W_POLY_I,
                DONE_O       => W_DONE_O,
                VALID_O      => W_VALID_O,
@@ -101,11 +105,12 @@ begin
    STIMULI : process
    procedure do_reset is
    begin
-      W_RST       <= '1';
-      W_CLR_I     <= '0';
-      W_ENA_I     <= '1';
-      W_DATA_I    <= '0';
-      W_POLY_I    <= (others => '0');
+      W_RST        <= '1';
+      W_CLR_I      <= '0';
+      W_ENA_I      <= '1';
+      W_DATA_I     <= '0';
+      W_NUM_BITS_I <= 0;
+      W_POLY_I     <= (others => '0');
       
       wait for PERIOD;
       
@@ -116,20 +121,21 @@ begin
    
    procedure do_calculate(data : in std_logic_vector(63 downto 0)) is
    begin
-      W_CLR_I     <= '0'; 
---      W_POLY_I    <= "00110001";                          -- Maxim CRC polynomial
-      W_POLY_I    <= "00000100110000010001110110110111";  -- CRC-32 polynomial
-         
+      W_CLR_I      <= '0'; 
+--      W_POLY_I     <= "00110001";                          -- Maxim CRC polynomial
+      W_POLY_I     <= "00000100110000010001110110110111";  -- CRC-32 polynomial
+      W_NUM_BITS_I <= 64;
+                  
       for i in 0 to 63 loop
          W_DATA_I <= data(i);
-         
          wait for PERIOD;
       end loop;
    end do_calculate;
    
    procedure do_clear is
    begin
-      W_CLR_I     <= '1';
+      W_CLR_I      <= '1';
+      W_NUM_BITS_I <= 0;
       
       wait for PERIOD;
    end do_clear;
