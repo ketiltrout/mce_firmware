@@ -18,17 +18,20 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.11 2004/08/04 17:12:55 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.12 2004/08/04 17:26:30 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
 -- Organisation:  UBC
 --
 -- Description:
--- Pack file for cmd_queue
+-- TB file for cmd_queue
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.12  2004/08/04 17:26:30  bburger
+-- Bryce:  In progress
+--
 -- Revision 1.11  2004/08/04 17:12:55  bburger
 -- Bryce:  In progress
 --
@@ -110,13 +113,13 @@ architecture BEH of TB_CMD_QUEUE is
 
    -- lvds_tx interface
    signal tx_o          : std_logic := '0';  -- transmitter output pin
-   signal clk_200mhz_i   : std_logic := '0';  -- PLL locked 25MHz input clock for the
+   signal clk_200mhz_i  : std_logic := '0';  -- PLL locked 25MHz input clock for the
 
    -- Clock lines
-   signal sync_i        : std_logic := '0'; -- The sync pulse determines when and when not to issue u-ops
-   signal sync_num_i    : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
-   signal clk_i         : std_logic := '0'; -- Advances the state machines
-   signal clk_400mhz_i  : std_logic := '0';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
+   signal sync_i        : std_logic := '1'; -- The sync pulse determines when and when not to issue u-ops
+   signal sync_num_i    : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0) := (others => '0');
+   signal clk_i         : std_logic := '1'; -- Advances the state machines
+   signal clk_400mhz_i  : std_logic := '1';  -- Fast clock used for doing multi-cycle operations (inserting and deleting u-ops from the command queue) in a single clk_i cycle.  fast_clk_i must be at least 2x as fast as clk_i
    signal rst_i         : std_logic := '0';  -- Resets all FSMs
 
    signal count_value   : integer := 0;
@@ -177,7 +180,7 @@ begin
       );
 
    -- Continuous assignements (clocks, etc.)
-   sync_i <= not sync_i after CLOCK_PERIOD*(END_OF_FRAME+2)/2; -- The sync frequency is actually ~19 kHz.
+   sync_i <= not sync_i after CLOCK_PERIOD*(END_OF_FRAME+1)/2; -- The sync frequency is actually ~19 kHz.
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
    clk_200mhz_i <= not clk_200mhz_i after CLOCK_PERIOD/8;
    rx_ack <= rx_rdy;
@@ -307,7 +310,7 @@ begin
    begin
       do_nop;
       -- This delay is to synchronize the inputs controlled by this TB with the state transitions of the cmd_queue FSMs
-      wait for CLOCK_PERIOD/2;
+      --wait for CLOCK_PERIOD/2;
       do_init;
       do_nop;
       do_ret_dat_cmd;

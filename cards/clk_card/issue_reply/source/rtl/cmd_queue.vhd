@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.32 2004/08/04 17:12:44 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.33 2004/08/04 17:26:43 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.33  2004/08/04 17:26:43  bburger
+-- Bryce:  In progress
+--
 -- Revision 1.32  2004/08/04 17:12:44  bburger
 -- Bryce:  In progress
 --
@@ -86,7 +89,7 @@ entity cmd_queue is
       
       -- lvds_tx interface
       tx_o          : out std_logic;  -- transmitter output pin
-      clk_200mhz_i  : in std_logic;  -- PLL locked 25MHz input clock for the
+      clk_200mhz_i  : in std_logic;  -- PLL locked 25MHz input clock for the LVDS tranceivers 
 
       -- Clock lines
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
