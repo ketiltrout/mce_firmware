@@ -94,8 +94,8 @@ architecture rtl of ac_dac_ctrl_test is
 type states is (IDLE, PUSH_DATA, CLKNOW, DONE); 
 signal present_state         : states;
 signal next_state            : states;
-type   w_array5 is array (5 downto 0) of word14; 
-signal data     : w_array5;
+type   array_of_5_word14 is array (5 downto 0) of word14; 
+signal data     : array_of_12_word5;
 signal idat     : integer;
 signal idac     : integer;
 signal ibus     : integer;
@@ -119,13 +119,15 @@ begin
             down_i  => logic0,
             count_i => zero ,
             count_o => idat);
-
-   data (0) <= "00000000000000";--0000
-   data (1) <= "01000001010101";--1055
-   data (2) <= "11110000001100";--3c0c
-   data (3) <= "11101110111011";--3bbb
-   data (4) <= "10111111111111";--2fff
-   data (5) <= "11111111111111";--3fff full scale
+            
+   -- test DACs for fixed values, single bit on LSBs and full scale
+   -- If you add new values, make sure you adjust the MAX for data_count counter and array size for data!
+   data (0) <= "00000000000000";--x0000
+   data (1) <= "00000000000001";--x0001
+   data (2) <= "00000000000010";--x0002
+   data (3) <= "00000000000100";--x0004
+   data (4) <= "00000000001000";--x0008
+   data (5) <= "11111111111111";--x3fff full scale
 
   -- state register:
    state_FF: process(clk_i, rst_i)
