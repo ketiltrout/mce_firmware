@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.4 2004/05/05 03:58:16 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.5 2004/05/05 21:24:17 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.5  2004/05/05 21:24:17  erniel
+-- added hex2ascii
+--
 -- Revision 1.4  2004/05/05 03:58:16  erniel
 -- added rs232 data transmit controller
 --
@@ -174,7 +177,8 @@ package component_pack is
 ------------------------------------------------------------ 
 
    component counter 
-      generic(MAX : integer := 255);
+      generic(MAX     : integer := 255;
+              STEPSIZE: integer := 1  );
       port(clk_i   : in std_logic;
            rst_i   : in std_logic;
            ena_i   : in std_logic;
