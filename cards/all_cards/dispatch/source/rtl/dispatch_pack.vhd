@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.3  2004/08/28 03:10:01  erniel
+-- renamed some constants
+--
 -- Revision 1.2  2004/08/25 20:19:56  erniel
 -- added packet field declarations
 -- added buffer declarations
@@ -44,39 +47,82 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+library sys_param;
+use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
+
 package dispatch_pack is
 
-   -- header field range declarations:
-   constant PREAMBLE     : std_logic_vector(31 downto 16) := "1010101010101010";  -- = sys_param.command_pack.BB_PREAMBLE
-   constant COMMAND_TYPE : std_logic_vector(15 downto 13) := "000";
-   constant DATA_SIZE    : std_logic_vector(12 downto 0)  := "0000000000000";
-   constant CARD_ADDRESS : std_logic_vector(31 downto 24) := "00000000";
-   constant PARAMETER_ID : std_logic_vector(23 downto 16) := "00000000";
-   constant MACRO_OP_SEQ : std_logic_vector(15 downto 8)  := "00000000";
-   constant MICRO_OP_SEQ : std_logic_vector(7 downto 0)   := "00000000";
-   constant PASS_FAIL    : std_logic_vector(31 downto 24) := "00000000";
-   
-   -- header field width declarations:
-   constant PACKET_WORD_WIDTH  : integer := 32;
-   
-   constant PREAMBLE_WIDTH     : integer := 16;  -- = sys_param.command_pack.PREAMBLE_BUS_WIDTH
-   constant COMMAND_TYPE_WIDTH : integer := 3;   -- = sys_param.wishbone_pack.CMD_TYPE_WIDTH
-   constant DATA_SIZE_WIDTH    : integer := 13;  -- = sys_param.command_pack.CQ_DATA_SIZE_BUS_WIDTH
-   constant CARD_ADDRESS_WIDTH : integer := 8;   -- = sys_param.command_pack.CQ_CARD_ADDR_BUS_WIDTH
-   constant PARAMETER_ID_WIDTH : integer := 8;   -- = sys_param.command_pack.CQ_PAR_ID_BUS_WIDTH
-   constant MACRO_OP_SEQ_WIDTH : integer := 8;   -- = sys_param.command_pack.MOP_BUS_WIDTH
-   constant MICRO_OP_SEQ_WIDTH : integer := 8;   -- = sys_param.command_pack.UOP_BUS_WIDTH
-   constant PASS_FAIL_WIDTH    : integer := 8;
-   
    -- CRC polynomial:
    constant CRC32 : std_logic_vector(31 downto 0) := "00000100110000010001110110110111";
    
-   -- miscellaneous declarations:
-   constant MAX_CMD_HEADER_WORDS   : integer := 2;  -- = sys_param.command_pack.BB_PACKET_HEADER_SIZE
-   constant MAX_REPLY_HEADER_WORDS : integer := 3;
-   constant MAX_DATA_WORDS         : integer := (2**DATA_SIZE_WIDTH);
-   
+   -- buffer declarations:
+   constant MAX_DATA_WORDS : integer := (2**BB_DATA_SIZE_WIDTH);
    constant BUF_DATA_WIDTH : integer := PACKET_WORD_WIDTH;
    constant BUF_ADDR_WIDTH : integer := 6;   
+   
+   -- component declarations:
+   component dispatch_cmd_receive
+   generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := READOUT_CARD_1);
+   port(clk_i      : in std_logic;
+        comm_clk_i : in std_logic;
+        rst_i      : in std_logic;		
+        lvds_cmd_i : in std_logic;
+        cmd_rdy_o  : out std_logic; 
+        cmd_err_o  : out std_logic; 
+        header0_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+        header1_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+        buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
+        buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+        buf_wren_o : out std_logic);
+   end component;
+   
+   component dispatch_wishbone
+   port(clk_i            : in std_logic;
+        rst_i            : in std_logic;
+        cmd_rdy_i        : in std_logic;
+        data_size_i      : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+        cmd_type_i       : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);     
+        param_id_i       : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
+        cmd_buf_data_i   : in std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
+        cmd_buf_addr_o   : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+        reply_rdy_o      : out std_logic;
+        reply_buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
+        reply_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+        reply_buf_wren_o : out std_logic;
+        wait_i           : in std_logic;
+        dat_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        addr_o           : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+        tga_o            : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_o             : out std_logic;
+        stb_o            : out std_logic;
+        cyc_o            : out std_logic;
+        dat_i           	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        ack_i            : in std_logic;
+        wdt_rst_o        : out std_logic);
+   end component;
+   
+   component dispatch_reply_transmit
+   port(clk_i       : in std_logic;
+        comm_clk_i  : in std_logic;
+        rst_i       : in std_logic;		
+        lvds_tx_o   : out std_logic;
+        reply_rdy_i : in std_logic;
+        reply_ack_o : out std_logic; 
+        header0_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+        header1_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+        header2_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+        buf_data_i  : in std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
+        buf_addr_o  : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0));
+   end component;
+   
+   component dispatch_data_buf
+   port(data      : in std_logic_vector (BUF_DATA_WIDTH-1 downto 0);
+        wren      : in std_logic;
+        wraddress : in std_logic_vector (BUF_ADDR_WIDTH-1 downto 0);
+        rdaddress : in std_logic_vector (BUF_ADDR_WIDTH-1 downto 0);
+        clock     : in std_logic;
+        q         : out std_logic_vector (BUF_DATA_WIDTH-1 downto 0));
+   end component;
    
 end dispatch_pack;
