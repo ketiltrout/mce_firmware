@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: watchdog_pack.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: watchdog_pack.vhd,v 1.2 2004/03/09 22:55:44 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,7 +30,8 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/09 22:55:44 $>	-		<text>		- <initials $Author: bburger $>
+-- $Log$
 --
 ------------------------------------------------------------------------
 
@@ -42,20 +43,14 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 package watchdog_pack is
-
-   --constant WDT_BITS : integer := 1;
-   constant WATCHDOG_KICK : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := 
-                         (0 => '1', others => '0');
   
    component watchdog
       generic (
-         SLAVE_SEL : std_logic_vector(WB_ADDR_WIDTH - 1 downto 0) := (others => '0');
          ADDR_WIDTH : integer := WB_ADDR_WIDTH;
          DATA_WIDTH : integer := WB_DATA_WIDTH;
          TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH
       );
       port (      
-         -- wishbone signals
          clk_i   : in std_logic;
          rst_i   : in std_logic;		
          dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
@@ -68,11 +63,7 @@ package watchdog_pack is
          rty_o   : out std_logic;
          ack_o   : out std_logic;         
 
-         -- WATCHDOG outputs
          you_kick_my_dog : out std_logic
---         wdt_reached_lim : out integer;
---         wshbn_notreached_lim : out integer;
---         wshbn_mach_state : out std_logic_vector(1 downto 0)
       );
    end component;      
    
