@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_eeprom_ctrl.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Feb. 3 2004   - Initial version      - JJ
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------
@@ -54,31 +54,6 @@ end TB_EEPROM_CTRL;
 
 architecture BEH of TB_EEPROM_CTRL is
 
-   component EEPROM_CTRL
-
-      generic(EEPROM_CTRL_DATA_WIDTH   : integer  := EEPROM_CTRL_DATA_WIDTH ;
-              EEPROM_CTRL_ADDR_WIDTH   : integer  := EEPROM_CTRL_ADDR_WIDTH ;
-              EEPROM_CTRL_ADDR         : std_logic_vector ( ADDR_LENGTH - 1 downto 0 )  := EEPROM_CTRL_ADDR );
-
-      port(N_EEPROM_CS_O     : out std_logic ;
-           N_EEPROM_HOLD_O   : out std_logic ;
-           N_EEPROM_WP_O     : out std_logic ;
-           EEPROM_SI_O       : out std_logic ;
-           EEPROM_CLK_O      : out std_logic ;
-           EEPROM_SO_I       : in std_logic ;
-           CLK_5MHZ_I        : in std_logic ;
-           CLK_I             : in std_logic ;
-           RST_I             : in std_logic ;
-           ADDR_I            : in std_logic_vector ( EEPROM_CTRL_ADDR_WIDTH - 1 downto 0 );
-           DAT_I             : in std_logic_vector ( EEPROM_CTRL_DATA_WIDTH - 1 downto 0 );
-           DAT_O             : out std_logic_vector ( EEPROM_CTRL_DATA_WIDTH - 1 downto 0 );
-           WE_I              : in std_logic ;
-           STB_I             : in std_logic ;
-           ACK_O             : out std_logic ;
-           CYC_I             : in std_logic );
-
-   end component;
-
 
    constant PERIOD : time := 20 ns;
 
@@ -88,20 +63,26 @@ architecture BEH of TB_EEPROM_CTRL is
    signal W_EEPROM_SI_O       : std_logic ;
    signal W_EEPROM_CLK_O      : std_logic ;
    signal W_EEPROM_SO_I       : std_logic ;
-   signal W_CLK_5MHZ_I        : std_logic := '0';
    signal W_CLK_I             : std_logic := '0';
    signal W_RST_I             : std_logic ;
-   signal W_ADDR_I            : std_logic_vector ( EEPROM_CTRL_ADDR_WIDTH - 1 downto 0 );
-   signal W_DAT_I             : std_logic_vector ( EEPROM_CTRL_DATA_WIDTH - 1 downto 0 );
-   signal W_DAT_O             : std_logic_vector ( EEPROM_CTRL_DATA_WIDTH - 1 downto 0 );
+   signal W_ADDR_I            : std_logic_vector ( WB_ADDR_WIDTH - 1 downto 0 );
+   signal W_DAT_I             : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
+   signal W_DAT_O             : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
+   signal W_TGA_I             : std_logic_vector ( WB_TAG_ADDR_WIDTH - 1 downto 0 );
    signal W_WE_I              : std_logic ;
    signal W_STB_I             : std_logic ;
    signal W_ACK_O             : std_logic ;
    signal W_CYC_I             : std_logic ;
+   signal W_RTY_O             : std_logic ;
    
-   
-   signal bit_count           : integer := 31;
+   signal bit_count           : integer := 32;
    signal sample_data         : std_logic_vector (31 downto 0) := "11001010111111101011101010111110"; --0xCAFEBABE
+   signal instr               : std_logic_vector (7 downto 0);
+   signal instr_count         : integer := 8;
+   
+   signal byte_addr           : std_logic_vector (7 downto 0);
+   signal byte_addr_count     : integer := 8;
+   signal wb_data             : std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
    
 begin
 
@@ -111,28 +92,38 @@ begin
 --
 ------------------------------------------------------------------------
 
-   DUT : EEPROM_CTRL
+DUT : EEPROM_CTRL
+   
+generic map
+    (EEPROM_CTRL_ADDR => EEPROM_ADDR  )
 
-      generic map(EEPROM_CTRL_DATA_WIDTH   => EEPROM_CTRL_DATA_WIDTH ,
-                  EEPROM_CTRL_ADDR_WIDTH   => EEPROM_CTRL_ADDR_WIDTH ,
-                  EEPROM_CTRL_ADDR         => EEPROM_CTRL_ADDR )
+port map(
 
-      port map(N_EEPROM_CS_O     => W_N_EEPROM_CS_O,
-               N_EEPROM_HOLD_O   => W_N_EEPROM_HOLD_O,
-               N_EEPROM_WP_O     => W_N_EEPROM_WP_O,
-               EEPROM_SI_O       => W_EEPROM_SI_O,
-               EEPROM_CLK_O      => W_EEPROM_CLK_O,
-               EEPROM_SO_I       => W_EEPROM_SO_I,
-               CLK_5MHZ_I        => W_CLK_5MHZ_I,
-               CLK_I             => W_CLK_I,
-               RST_I             => W_RST_I,
-               ADDR_I            => W_ADDR_I,
-               DAT_I             => W_DAT_I,
-               DAT_O             => W_DAT_O,
-               WE_I              => W_WE_I,
-               STB_I             => W_STB_I,
-               ACK_O             => W_ACK_O,
-               CYC_I             => W_CYC_I);
+     -- EEPROM interface:
+     
+     -- outputs to the EEPROM
+     n_eeprom_cs_o   => W_N_EEPROM_CS_O,
+     n_eeprom_hold_o => W_N_EEPROM_HOLD_O,
+     n_eeprom_wp_o   => W_N_EEPROM_WP_O,
+     eeprom_si_o     => W_EEPROM_SI_O,
+     eeprom_clk_o    => W_EEPROM_CLK_O,
+     
+     -- inputs from the EEPROM
+     eeprom_so_i     => W_EEPROM_SO_I,
+     
+     -- Wishbone interface:
+     clk_i   => W_CLK_I,
+     rst_i   => W_RST_I,
+     addr_i  => W_ADDR_I,
+     tga_i   => W_TGA_I,
+     dat_i 	 => W_DAT_I,
+     dat_o   => W_DAT_O,
+     we_i    => W_WE_I,
+     stb_i   => W_STB_I,
+     ack_o   => W_ACK_O,
+     rty_o   => W_RTY_O,
+     cyc_i   => W_CYC_I); 
+     
 
 ------------------------------------------------------------------------
 --
@@ -168,9 +159,10 @@ begin
          W_WE_I                <= '0';
          W_STB_I               <= '0';
          W_CYC_I               <= '0';
-         
+         W_TGA_I               <= (others => '0');
+
          -- data from the EEPROM
-         W_EEPROM_SO_I         <= '0';
+         W_EEPROM_SO_I         <= 'Z';
       
          wait for PERIOD;
          
@@ -190,9 +182,10 @@ begin
          W_WE_I                <= '0';
          W_STB_I               <= '0';
          W_CYC_I               <= '0';
-         
+         W_TGA_I               <= (others => '0');
+                  
          -- data from the EEPROM
-         W_EEPROM_SO_I         <= '0';
+         W_EEPROM_SO_I         <= 'Z';
       
          wait for PERIOD*3;
          
@@ -203,9 +196,10 @@ begin
          W_WE_I                <= '0';
          W_STB_I               <= '0';
          W_CYC_I               <= '0';
-         
+         W_TGA_I               <= (others => '0');
+                  
          -- data from the EEPROM
-         W_EEPROM_SO_I         <= '0';
+         W_EEPROM_SO_I         <= 'Z';
          
          wait for PERIOD;        
          
@@ -213,34 +207,145 @@ begin
       end do_reset ;
 
 
-      procedure do_read is
+      procedure do_rx_read_cmd is
+      begin
+      
+         -- data from the master's side wishbone bus
+         W_RST_I               <= '0';
+         W_ADDR_I              <= EEPROM_ADDR;
+         W_DAT_I               <= (others => '0');
+         W_WE_I                <= '0';  -- indicates a read
+         W_STB_I               <= '1';
+         W_CYC_I               <= '1';
+         W_TGA_I               <= "00000000000000000000000010111110"; --0x000000BE -- address is arbitary since I'm providing the data
+         
+         
+         -- emulating the eeprom here
+         wait until W_N_EEPROM_CS_O <= '0';
+         
+         -- eeprom is reading the 8-bit instruction code
+         wait until W_EEPROM_CLK_O <= '1' ;
+         while instr_count > 0 loop
+            --wait until W_EEPROM_CLK_O <= '1' ;--and W_EEPROM_CLK_O'event );
+            instr(instr_count-1) <= W_EEPROM_SI_O;
+       
+            assert false report " EEPROM Controller is writing the 8-bit READ command to the EEPROM." severity NOTE;
+            wait for 40 ns;
+            instr_count <= instr_count - 1;
+            wait for 200 ns;
+            
+         end loop;
+         
+ 
+      end do_rx_read_cmd;
+
+
+      procedure do_rx_byte_addr is
+      begin
+      
+         -- data from the master's side wishbone bus
+         W_RST_I               <= '0';
+         W_ADDR_I              <= EEPROM_ADDR;
+         W_DAT_I               <= (others => '0');
+         W_WE_I                <= '0';  -- indicates a read
+         W_STB_I               <= '1';
+         W_CYC_I               <= '1';
+         W_TGA_I               <= "00000000000000000000000010111110"; --0x000000BE -- address is arbitary since I'm providing the data
+          
+          
+         wait until W_EEPROM_CLK_O <= '1' ;     
+         -- eeprom is reading the 8-bit byte addr
+         while byte_addr_count > 0 loop
+            
+            byte_addr(byte_addr_count-1) <= W_EEPROM_SI_O;
+       
+            assert false report " EEPROM Controller is writing the 8-bit byte address to the EEPROM." severity NOTE;
+            wait for 40 ns;
+            byte_addr_count <= byte_addr_count - 1;
+            wait for 200 ns;
+            
+         end loop;
+         
+ 
+      end do_rx_byte_addr;
+
+
+
+
+
+      procedure do_tx_eeprom_data is
+      begin
+
+        --emulating 32 bits coming out of the EEPROM @ 1 bit per "slow" clock cycle
+         --data is 0xCAFEBABE
+         while bit_count > 1 loop
+            --wait until (W_EEPROM_CLK_O'event and W_EEPROM_CLK_O <= '1');
+            W_EEPROM_SO_I         <= sample_data(bit_count-1);     
+            bit_count <= bit_count - 1;
+            assert false report " Reading data from the EEPROM." severity NOTE;
+
+            wait for 240 ns;
+    
+         end loop;
+         
+ 
+            W_EEPROM_SO_I         <= sample_data(bit_count-1);     
+            bit_count <= bit_count - 1;
+            assert false report " Reading data from the EEPROM." severity NOTE;
+
+         
+         
+         
+      end do_tx_eeprom_data;
+         
+      procedure do_rx_wb_data is
+      begin
+
+        --emulating wb master here receiving the data from the slave
+         --data is 0xCAFEBABE
+            wait until W_ACK_O <= '1';
+            wb_data <= W_DAT_O;
+
+            assert false report " MASTER is reading data from the EEPROM CONTROLLER SLAVE." severity NOTE;
+            
+            -- end the wishbone cycle
+            wait for PERIOD;
+         W_RST_I               <= '0';
+         W_ADDR_I              <= (others => '0');
+         W_DAT_I               <= (others => '0');
+         W_WE_I                <= '0';
+         W_STB_I               <= '0';
+         W_CYC_I               <= '0';
+         W_TGA_I               <= (others => '0');
+
+         -- data from the EEPROM
+         W_EEPROM_SO_I         <= 'Z';            
+
+         
+      end do_rx_wb_data;
+         
+
+
+
+      procedure do_finish is
       begin
       
          -- data from the wishbone bus
          W_RST_I               <= '0';
-         W_ADDR_I(31 downto 8) <= (others => '0');
-         W_ADDR_I(7 downto 0)  <= EEPROM_CTRL_ADDR;
+         W_ADDR_I              <= (others => '0');
          W_DAT_I               <= (others => '0');
          W_WE_I                <= '0';
-         W_STB_I               <= '1';
-         W_CYC_I               <= '1';
-         
-         --wait until eeprom ready to start outputting data
-         wait for PERIOD*8;
-         
-         --emulate 32 bits coming out @ 1 bit per clock cycle
-         --data is 0xCAFEBABE
-         while bit_count >= 0 loop
-         
-            W_EEPROM_SO_I         <= sample_data(bit_count);
-            wait for PERIOD;
-            bit_count <= bit_count - 1;
-            assert false report " Reading data from the EEPROM." severity NOTE;
-         end loop;
-         
-      end do_read;
+         W_STB_I               <= '0';
+         W_CYC_I               <= '0';
+         W_TGA_I               <= (others => '0');
 
+         -- data from the EEPROM
+         W_EEPROM_SO_I         <= 'Z';
+      
+         wait for 300ns;
          
+         assert false report " Finishing up." severity NOTE;
+      end do_finish ;         
          
       
 
@@ -256,10 +361,18 @@ begin
       
       do_reset;  
       
-      do_read;
+      do_rx_read_cmd;
+      
+      do_rx_byte_addr;
+      
       
  
-     -- do_finish;
+      
+      do_tx_eeprom_data;
+      
+      do_rx_wb_data;
+      
+      do_finish;
       
       assert false report " Simulation done." severity FAILURE;
 
