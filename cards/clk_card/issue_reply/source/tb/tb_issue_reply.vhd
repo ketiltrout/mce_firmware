@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.4 2004/07/06 22:40:47 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.5 2004/08/03 20:01:20 jjacob Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/07/06 22:40:47 $> - <text> - <initials $Author: jjacob $>
+-- <date $Date: 2004/08/03 20:01:20 $> - <text> - <initials $Author: jjacob $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -61,35 +61,33 @@ architecture tb of tb_issue_reply is
     signal  t_rvs_i       : std_logic;
     signal  t_rso_i       : std_logic;
     signal  t_rsc_nRd_i   : std_logic;        
---    signal  t_nTrp_i      : std_logic;
---    signal  t_ft_clkw_i   : std_logic; 
-        
-      -- outputs to the fibre
---    signal  t_tx_data_o   : std_logic_vector (7 DOWNTO 0);      
---    signal  t_tsc_nTd_o   : std_logic;
---    signal  t_nFena_o     : std_logic;
-    signal  t_cksum_err_o : std_logic;
-      
-      -- outputs to the micro-instruction sequence generator
-      -- these signals will be absorbed when the issue_reply block's boundary extends
-      -- to include u-op sequence generator.
-    signal  t_card_addr_o       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
-    signal  t_parameter_id_o    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
-    signal  t_data_size_o       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
-    signal  t_data_o            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
-    signal  t_data_clk_o        : std_logic;
-    signal  t_macro_instr_rdy_o : std_logic;
-      
-    signal  t_m_op_seq_num_o    : std_logic_vector(7 downto 0);
-    signal  t_frame_seq_num_o   : std_logic_vector(31 downto 0);
-    signal  t_frame_sync_num_o  : std_logic_vector(7 downto 0);
-      
-      -- input from the micro-op sequence generator
-    signal  t_ack_i             : std_logic; 
+
+--    signal  t_cksum_err_o : std_logic;
+--      
+--      -- outputs to the micro-instruction sequence generator
+--      -- these signals will be absorbed when the issue_reply block's boundary extends
+--      -- to include u-op sequence generator.
+--    signal  t_card_addr_o       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
+--    signal  t_parameter_id_o    : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
+--    signal  t_data_size_o       : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
+--    signal  t_data_o            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
+--    signal  t_data_clk_o        : std_logic;
+--    signal  t_macro_instr_rdy_o : std_logic;
+--      
+--    signal  t_m_op_seq_num_o    : std_logic_vector(7 downto 0);
+--    signal  t_frame_seq_num_o   : std_logic_vector(31 downto 0);
+--    signal  t_frame_sync_num_o  : std_logic_vector(7 downto 0);
+--      
+--      -- input from the micro-op sequence generator
+--    signal  t_ack_i             : std_logic; 
+    
+   signal t_tx                  : std_logic; -- transmitter output pin
+   signal t_clk_200mhz_i        : std_logic := '0';
 
 
  
-   constant clk_prd      : TIME := 20 ns;    -- 50Mhz clock
+   constant clk_prd             : TIME := 20 ns;    -- 50Mhz clock
+   constant clk_prd_200mhz      : TIME := 5 ns;    -- 200Mhz clock
    constant preamble1    : std_logic_vector (7 downto 0)  := X"A5";
    constant preamble2    : std_logic_vector (7 downto 0)  := X"5A";
    constant pre_fail     : std_logic_vector (7 downto 0)  := X"55";
@@ -97,7 +95,7 @@ architecture tb of tb_issue_reply is
 
    constant command_go   : std_logic_vector (31 downto 0) := X"2020474F";
    --constant address_id   : std_logic_vector (31 downto 0) := X"0002015C";
-   signal address_id   : std_logic_vector (31 downto 0) := X"0002015C";
+   signal address_id   : std_logic_vector (31 downto 0) := X"00000000";--X"0002015C";
    
    constant ret_dat_s_cmd      : std_logic_vector (31 downto 0) := X"00000034";  -- card id=0, ret_dat_s command
    constant ret_dat_s_num_data : std_logic_vector (31 downto 0) := X"00000002";  -- 2 data words, start and stop frame #
@@ -107,6 +105,7 @@ architecture tb of tb_issue_reply is
    constant ret_dat_cmd        : std_logic_vector (31 downto 0) := X"00040030";  -- card id=4, ret_dat command
    
    constant simple_cmd         : std_logic_vector (31 downto 0) := x"00070020"; -- bias card 1, flux feedback command
+   constant sram1_strt_cmd     : std_logic_vector (31 downto 0) := x"0002005C"; -- clock card, sram1_start command
    
    constant no_std_data  : std_logic_vector (31 downto 0) := X"00000001";
    constant data_block   : positive := 58;
@@ -130,6 +129,7 @@ port(
       -- global signals
       rst_i        : in     std_logic;
       clk_i        : in     std_logic;
+     
       
       
       -- inputs from the fibre
@@ -138,31 +138,31 @@ port(
       rvs_i       : in     std_logic;
       rso_i       : in     std_logic;
       rsc_nRd_i   : in     std_logic;        
---      nTrp_i      : in     std_logic;
---      ft_clkw_i   : in     std_logic; 
---      
---      -- outputs to the fibre
---      tx_data_o   : out    std_logic_vector (7 DOWNTO 0);      
---      tsc_nTd_o   : out    std_logic;
---      nFena_o     : out    std_logic;
+
       cksum_err_o : out    std_logic;
       
       -- outputs to the micro-instruction sequence generator
       -- these signals will be absorbed when the issue_reply block's boundary extends
       -- to include u-op sequence generator.
-      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
-      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
-      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
-      data_clk_o        :  out std_logic;
-      macro_instr_rdy_o :  out std_logic;
+--      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
+--      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
+--      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
+--      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
+--      data_clk_o        :  out std_logic;
+--      macro_instr_rdy_o :  out std_logic;
+--      
+--      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
+--      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
+--      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
+--      
+--      -- input from the micro-op sequence generator
+--      ack_i             : in std_logic     
       
-      m_op_seq_num_o    :  out std_logic_vector(7 downto 0);
-      frame_seq_num_o   :  out std_logic_vector(31 downto 0);
-      frame_sync_num_o  :  out std_logic_vector(7 downto 0);
       
-      -- input from the micro-op sequence generator
-      ack_i             : in std_logic     
+      -- lvds_tx interface
+      tx_o          : out std_logic;  -- transmitter output pin
+      clk_200mhz_i   : in std_logic  -- PLL locked 25MHz input clock for the
+
 
    ); 
      
@@ -189,31 +189,30 @@ port map(
       rvs_i       => t_rvs_i,
       rso_i       => t_rso_i,
       rsc_nRd_i   => t_rsc_nrd_i,
---      nTrp_i      => t_ntrp_i,
---      ft_clkw_i   => t_ft_clkw_i,
+
+--      cksum_err_o => t_cksum_err_o,
 --      
---      -- outputs to the fibre
---      tx_data_o   => t_tx_data_o,
---      tsc_nTd_o   => t_tsc_ntd_o,
---      nFena_o     => t_nfena_o,
-      cksum_err_o => t_cksum_err_o,
+--      -- outputs to the micro-instruction sequence generator
+--      -- these signals will be absorbed when the issue_reply block's boundary extends
+--      -- to include u-op sequence generator.
+--      card_addr_o       => t_card_addr_o,        -- specifies which card the command is targetting
+--      parameter_id_o    => t_parameter_id_o,     -- comes from param_id_i, indicates which device(s) the command is targetting
+--      data_size_o       => t_data_size_o,        -- num_data_i, indicates number of 16-bit words of data
+--      data_o            => t_data_o,             -- data will be passed straight thru
+--      data_clk_o        => t_data_clk_o,
+--      macro_instr_rdy_o => t_macro_instr_rdy_o,
+--      
+--      m_op_seq_num_o    => t_m_op_seq_num_o,
+--      frame_seq_num_o   => t_frame_seq_num_o,
+--      frame_sync_num_o  => t_frame_sync_num_o,
+--      
+--      -- input from the micro-op sequence generator
+--      ack_i             => t_ack_i
       
-      -- outputs to the micro-instruction sequence generator
-      -- these signals will be absorbed when the issue_reply block's boundary extends
-      -- to include u-op sequence generator.
-      card_addr_o       => t_card_addr_o,        -- specifies which card the command is targetting
-      parameter_id_o    => t_parameter_id_o,     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o       => t_data_size_o,        -- num_data_i, indicates number of 16-bit words of data
-      data_o            => t_data_o,             -- data will be passed straight thru
-      data_clk_o        => t_data_clk_o,
-      macro_instr_rdy_o => t_macro_instr_rdy_o,
-      
-      m_op_seq_num_o    => t_m_op_seq_num_o,
-      frame_seq_num_o   => t_frame_seq_num_o,
-      frame_sync_num_o  => t_frame_sync_num_o,
-      
-      -- input from the micro-op sequence generator
-      ack_i             => t_ack_i
+      -- lvds_tx interface
+      tx_o          => t_tx,  -- transmitter output pin
+      clk_200mhz_i   => t_clk_200mhz_i  -- PLL locked 25MHz input clock for the
+
 
    ); 
      
@@ -229,7 +228,8 @@ port map(
 -- Create test bench clock
 -------------------------------------------------
   
-   t_clk_i <= not t_clk_i after clk_prd/2;
+   t_clk_i        <= not t_clk_i        after clk_prd/2;
+   t_clk_200mhz_i <= not t_clk_200mhz_i after clk_prd_200mhz/2;
 
 ------------------------------------------------
 -- Create test bench stimuli
@@ -514,156 +514,160 @@ stimuli : process
       do_reset; 
       
       command <= command_wb;
-      data_valid <= X"00000028";
-      t_ack_i <= '0';
+      
+      address_id <= sram1_strt_cmd;
+      data_valid <= X"00000003";--X"00000028";
+      data       <= X"0000000A";
+--      t_ack_i <= '0';
       load_preamble;
       load_command;
       load_checksum;
       
-      --wait until cmd_rdy = '1';
-      --wait for clk_prd;
-      wait until t_macro_instr_rdy_o = '1';
-      wait for clk_prd;
-      t_ack_i <= '1'; 
-      assert false report "Command Acknowledged....." severity NOTE;
-      wait until t_macro_instr_rdy_o = '0';
-      t_ack_i <= '0';
-      
-      -- load a wb command with checksum error
-      
---      command <= command_wb;
+--      --wait until cmd_rdy = '1';
+--      --wait for clk_prd;
+--      wait until t_macro_instr_rdy_o = '1';
+--      wait for clk_prd;
+--      t_ack_i <= '1'; 
+--      assert false report "Command Acknowledged....." severity NOTE;
+--      wait until t_macro_instr_rdy_o = '0';
+--      t_ack_i <= '0';
+--      
+--      -- load a wb command with checksum error
+--      
+----      command <= command_wb;
+----      load_preamble;
+----      load_command;
+----      checksum <= check_err;
+----      wait for 100 ns;
+----      load_checksum;
+----      wait until t_cksum_err_o = '1';
+----      wait until t_cksum_err_o = '0';
+----      assert false report "command 2 finished with check err detected" severity NOTE;
+----      
+--      --wait until cmd_data = X"28282828";      
+--      --wait for clk_prd*10;
+--      
+--      -- do a return data setup command
+--      address_id <= ret_dat_s_cmd;
+--      data_valid <= ret_dat_s_num_data;
+--      data <= ret_dat_s_start;
+--      t_ack_i <= '0';
 --      load_preamble;
 --      load_command;
---      checksum <= check_err;
---      wait for 100 ns;
 --      load_checksum;
---      wait until t_cksum_err_o = '1';
---      wait until t_cksum_err_o = '0';
---      assert false report "command 2 finished with check err detected" severity NOTE;
 --      
-      --wait until cmd_data = X"28282828";      
-      --wait for clk_prd*10;
+--      --wait until cmd_rdy = '1';
+--      --wait for clk_prd;
+--      --wait until t_macro_instr_rdy_o = '1';
+--      wait for 10*clk_prd;
+--      --t_ack_i <= '1'; 
+--      assert false report "Performed the RET_DAT_S command....." severity NOTE;
+--      --wait until t_macro_instr_rdy_o = '0';
+--      --t_ack_i <= '0';      
+--      wait for 1500 ns;
+-- 
+-- 
+--      -- do a return data using the start and stop frames from the setup command
+--      command <= command_go;
+--      address_id <= ret_dat_cmd;
+--      data_valid <= no_std_data;
+--      data <= (others=>'0');
+--      t_ack_i <= '0';
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      --wait until cmd_rdy = '1';
+--      --wait for clk_prd;
+--      count <= 0;
+--      for J in (To_integer((Unsigned(ret_dat_s_start)))) to (To_integer((Unsigned(ret_dat_s_stop)))) loop
+--     
+--         wait until t_macro_instr_rdy_o = '1';
+--         wait for 10*clk_prd;
+--         t_ack_i <= '1'; 
+--         assert false report "Performed the RET_DAT command....." severity NOTE;
+--         count <= count + 1;
+--         wait until t_macro_instr_rdy_o = '0';
+--         t_ack_i <= '0';      
+--
+--      end loop;
+--      assert false report "Done the RET_DAT command....." severity NOTE;
+--      wait for 100*clk_prd;
+--
+--
+--      -- perform another ret_dat command, but this one gets interrupted by a simple command
+--      count <= 0;
+--      
+--      command <= command_go;
+--      address_id <= ret_dat_cmd;
+--      data_valid <= no_std_data;
+--      data <= (others=>'0');
+--      t_ack_i <= '0';
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      
+--      for J in (To_integer((Unsigned(ret_dat_s_start)))) to (To_integer((Unsigned(ret_dat_s_stop-51)))) loop
+--     
+--         wait until t_macro_instr_rdy_o = '1';
+--         wait for 10*clk_prd;
+--         t_ack_i <= '1'; 
+--         assert false report "Performed the second RET_DAT command....." severity NOTE;
+--         count <= count + 1;
+--         wait until t_macro_instr_rdy_o = '0';
+--         t_ack_i <= '0';      
+--
+--      end loop;
+--      
+--      wait until t_macro_instr_rdy_o = '1';
+--      wait for 10*clk_prd;
+--      
+--      -- the 'simple command' inturrupting the ret_dat
+--      assert false report "The simple command is loading and interrupting the second RET_DAT command....." severity NOTE;
+--      command <= command_wb;
+--      address_id <= simple_cmd;
+--      data_valid <= X"00000028";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 3000 ns;  
+--      -- finish off the current ret_dat command (ret_dat_s_stop-50)
+--      t_ack_i <= '1'; 
+--      assert false report "Finishing off current RET_DAT command....." severity NOTE;
+--      count <= count + 1;
+--      wait until t_macro_instr_rdy_o = '0';
+--      t_ack_i <= '0';    
+--      
+--      -- back to the simple command
+--      --wait for 1500 ns;
+--      wait until t_macro_instr_rdy_o = '1';
+--      wait for clk_prd;
+--      t_ack_i <= '1'; 
+--      assert false report "Simple Command Acknowledged....." severity NOTE;
+--      wait until t_macro_instr_rdy_o = '0';
+--      t_ack_i <= '0';
+--      
+--      -- this is to allow the data to be clocked out
+--      -- to the cmd_translator
+--      --wait for 1500 ns;      
+--      
+--      --resume with the remainder of the ret_dat commands
+--      for J in (To_integer((Unsigned(ret_dat_s_stop-49)))) to (To_integer((Unsigned(ret_dat_s_stop)))) loop
+--     
+--         wait until t_macro_instr_rdy_o = '1';
+--         wait for 10*clk_prd;
+--         t_ack_i <= '1'; 
+--         assert false report "Performed the second RET_DAT command....." severity NOTE;
+--         count <= count + 1;
+--         wait until t_macro_instr_rdy_o = '0';
+--         t_ack_i <= '0';      
+--
+--      end loop;      
       
-      -- do a return data setup command
-      address_id <= ret_dat_s_cmd;
-      data_valid <= ret_dat_s_num_data;
-      data <= ret_dat_s_start;
-      t_ack_i <= '0';
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      --wait until cmd_rdy = '1';
-      --wait for clk_prd;
-      --wait until t_macro_instr_rdy_o = '1';
-      wait for 10*clk_prd;
-      --t_ack_i <= '1'; 
-      assert false report "Performed the RET_DAT_S command....." severity NOTE;
-      --wait until t_macro_instr_rdy_o = '0';
-      --t_ack_i <= '0';      
-      wait for 1500 ns;
- 
- 
-      -- do a return data using the start and stop frames from the setup command
-      command <= command_go;
-      address_id <= ret_dat_cmd;
-      data_valid <= no_std_data;
-      data <= (others=>'0');
-      t_ack_i <= '0';
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      --wait until cmd_rdy = '1';
-      --wait for clk_prd;
-      count <= 0;
-      for J in (To_integer((Unsigned(ret_dat_s_start)))) to (To_integer((Unsigned(ret_dat_s_stop)))) loop
-     
-         wait until t_macro_instr_rdy_o = '1';
-         wait for 10*clk_prd;
-         t_ack_i <= '1'; 
-         assert false report "Performed the RET_DAT command....." severity NOTE;
-         count <= count + 1;
-         wait until t_macro_instr_rdy_o = '0';
-         t_ack_i <= '0';      
-
-      end loop;
-      assert false report "Done the RET_DAT command....." severity NOTE;
       wait for 100*clk_prd;
-
-
-      -- perform another ret_dat command, but this one gets interrupted by a simple command
-      count <= 0;
-      
-      command <= command_go;
-      address_id <= ret_dat_cmd;
-      data_valid <= no_std_data;
-      data <= (others=>'0');
-      t_ack_i <= '0';
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      
-      for J in (To_integer((Unsigned(ret_dat_s_start)))) to (To_integer((Unsigned(ret_dat_s_stop-51)))) loop
-     
-         wait until t_macro_instr_rdy_o = '1';
-         wait for 10*clk_prd;
-         t_ack_i <= '1'; 
-         assert false report "Performed the second RET_DAT command....." severity NOTE;
-         count <= count + 1;
-         wait until t_macro_instr_rdy_o = '0';
-         t_ack_i <= '0';      
-
-      end loop;
-      
-      wait until t_macro_instr_rdy_o = '1';
-      wait for 10*clk_prd;
-      
-      -- the 'simple command' inturrupting the ret_dat
-      assert false report "The simple command is loading and interrupting the second RET_DAT command....." severity NOTE;
-      command <= command_wb;
-      address_id <= simple_cmd;
-      data_valid <= X"00000028";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
       wait for 3000 ns;  
-      -- finish off the current ret_dat command (ret_dat_s_stop-50)
-      t_ack_i <= '1'; 
-      assert false report "Finishing off current RET_DAT command....." severity NOTE;
-      count <= count + 1;
-      wait until t_macro_instr_rdy_o = '0';
-      t_ack_i <= '0';    
-      
-      -- back to the simple command
-      --wait for 1500 ns;
-      wait until t_macro_instr_rdy_o = '1';
-      wait for clk_prd;
-      t_ack_i <= '1'; 
-      assert false report "Simple Command Acknowledged....." severity NOTE;
-      wait until t_macro_instr_rdy_o = '0';
-      t_ack_i <= '0';
-      
-      -- this is to allow the data to be clocked out
-      -- to the cmd_translator
-      --wait for 1500 ns;      
-      
-      --resume with the remainder of the ret_dat commands
-      for J in (To_integer((Unsigned(ret_dat_s_stop-49)))) to (To_integer((Unsigned(ret_dat_s_stop)))) loop
-     
-         wait until t_macro_instr_rdy_o = '1';
-         wait for 10*clk_prd;
-         t_ack_i <= '1'; 
-         assert false report "Performed the second RET_DAT command....." severity NOTE;
-         count <= count + 1;
-         wait until t_macro_instr_rdy_o = '0';
-         t_ack_i <= '0';      
-
-      end loop;      
-      
-      wait for 100*clk_prd;
       
       assert false report "Simulation done." severity FAILURE;
  
