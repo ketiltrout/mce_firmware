@@ -12,8 +12,11 @@
 # Modified for the bias card by Mandana Amiri, Apr. 28, 04
 #
 # Revision history:
-# <date $Date: 2004/04/29 22:59:04 $>	- <initials $Author: mandana $>
+# <date $Date: 2004/05/12 19:02:16 $>	- <initials $Author: mandana $>
 # $Log: bc_stratix_pin_assign.tcl,v $
+# Revision 1.5  2004/05/12 19:02:16  mandana
+# modified signal names to match FPGA names, not the board
+#
 # Revision 1.2  2004/04/29 22:59:04  mandana
 # LVDS pins only need positive end to be assigned
 #
@@ -31,26 +34,32 @@
 ###############################################################################
 
 
-################ Open a Project if one does not yet exist ####################
-set project_name bc_test
-set top_name bc_test
 
-if { ![project exists ./$project_name] } {
-	project create ./$project_name
-}
-project open ./$project_name
+# print welcome message
+puts "\n\nBias Card Pin Assignment Script v1.0"
+puts "-------------------------------------"
 
-set cmp_settings_group $top_name
-if { ![project cmp_exists $cmp_settings_group] } {
-        project create_cmp $top_name
-}
-project set_active_cmp $top_name
 
-cmp add_assignment $top_name "" "" DEVICE EPS10F780A
+# include Quartus Tcl API
+package require ::quartus::project
+package require ::quartus::flow
+
+
+# get entity name
+set top_name [get_project_settings -cmp]
+puts "\nInfo: Top-level entity is $top_name."
+
+
+# assign device parameters
+cmp add_assignment $top_name "" "" DEVICE EP1S10F780C5
+cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET ON
+puts "   Assigned: EP1S30 device parameters."
+
+puts "\nInfo: Assigning pins:"
 
 ################################################
 #### Set the pin location variables
-
 
 ### DAC PINS
 ##  the order is dac0, dac1,...., dac31 
@@ -152,6 +161,8 @@ foreach {a} $dac_dat {
 }
 cmp add_assignment $top_name "" dac_nclr LOCATION "Pin_$dac_nclr"
 
+puts "   Assigned: DAC pins."
+
 ################################################
 #### Make LVDS DAC signal assignments
 cmp add_assignment $top_name "" lvds_dac_clk LOCATION "Pin_$lvds_dac_clk"
@@ -162,6 +173,7 @@ cmp add_assignment $top_name "" lvds_dac_dat LOCATION "Pin_$lvds_dac_dat"
 ##cmp add_assignment $top_name "" lvds_ncs_n LOCATION "Pin_$lvds_ncs_n"
 ##cmp add_assignment $top_name "" lvds_data_n LOCATION "Pin_$lvds_data_n"
 
+puts "   Assigned: LVDS DAC pins."
 
 ################################################
 #### Make Card ID signal assignments
@@ -175,6 +187,7 @@ foreach {a} $slot_id {
 	cmp add_assignment $top_name "" "slot_id\[$i\]" LOCATION "Pin_$a"
 	set i [expr $i+1]
 }
+puts "   Assigned: ID pins."
 
 ################################################
 #### Make the LVDS signal assignments
@@ -184,18 +197,21 @@ cmp add_assignment $top_name "" lvds_sync LOCATION "Pin_$lvds_sync"
 cmp add_assignment $top_name "" lvds_spare LOCATION "Pin_$lvds_spare"
 cmp add_assignment $top_name "" lvds_txa LOCATION "Pin_$lvds_txa"
 cmp add_assignment $top_name "" lvds_txb LOCATION "Pin_$lvds_txb"
+puts "   Assigned: LVDS pins."
 
 
 ################################################
 #### Make the DIP switch signal assignments
 cmp add_assignment $top_name "" dip_sw3 LOCATION "Pin_$dip_sw3"
 cmp add_assignment $top_name "" dip_sw4 LOCATION "Pin_$dip_sw4"
+puts "   Assigned: DIP switch pins."
 
 ################################################
 #### Make the LED signal assignments
 cmp add_assignment $top_name "" red_led LOCATION "Pin_$red_led"
 cmp add_assignment $top_name "" ylw_led LOCATION "Pin_$ylw_led"
 cmp add_assignment $top_name "" grn_led LOCATION "Pin_$grn_led"
+puts "   Assigned: LED pins."
 
 
 ################################################
@@ -223,3 +239,19 @@ cmp add_assignment $top_name "" tx3en LOCATION "Pin_$tx3en"
 ################################################
 #### Make the Watchdog signal assignments
 cmp add_assignment $top_name "" wdog LOCATION "Pin_$wdog"
+puts "   Assigned: Watchdog pin."
+
+################################################
+#### Make the Test Header signal assignments
+set i 0
+foreach {a} $test_header {
+	cmp add_assignment $top_name "" "test_header\[$i\]" LOCATION "Pin_$a"
+	set i [expr $i+1]
+}
+puts "   Assigned: 16-pin Test Header pins."
+
+# recompile to commit
+puts "\nInfo: Recompiling to commit assignments..."
+execute_flow -compile
+
+puts "\nInfo: Process completed."
