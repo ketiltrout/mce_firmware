@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.15 2005/02/20 00:50:25 erniel Exp $
+-- $Id: reply_queue_pack.vhd,v 1.16 2005/02/20 02:00:29 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.16  2005/02/20 02:00:29  bburger
+-- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
+--
 -- Revision 1.15  2005/02/20 00:50:25  erniel
 -- updated reply_queue declaration
 --
@@ -106,7 +109,7 @@ constant PACKET_BUFFER_DEPTH  : integer := 9;
 constant PACKET_STORAGE_DEPTH : integer := 11;
 
 -- reply_queue timeout limit (in microseconds):
-constant TIMEOUT_LIMIT : integer := 50;
+constant TIMEOUT_LIMIT : integer := 700;
 
 -- condensed header field range declarations:
 constant RQ_STATUS    : std_logic_vector(31 downto 26) := "000000";

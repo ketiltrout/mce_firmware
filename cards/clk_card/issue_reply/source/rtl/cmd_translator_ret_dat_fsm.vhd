@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.17 2004/11/14 22:33:29 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.18 2005/03/04 03:45:58 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/14 22:33:29 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/03/04 03:45:58 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.18  2005/03/04 03:45:58  bburger
+-- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
+--
 -- Revision 1.17  2004/11/14 22:33:29  bburger
 -- Jonathan : modified cmd_type_o to output the "STOP" command code on the last frame of data when a "STOP" command is received.
 --
@@ -142,9 +145,7 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    type sync_state is                     (IDLE, SET_SEQ_NUM_1, SET_SEQ_NUM_2, RETURN_DATA_WAIT);
    signal sync_next_state, sync_current_state : sync_state;
    
-   type state is                          (RETURN_DATA_IDLE, RETURN_DATA_1ST, RETURN_DATA_PAUSE,
-                                           RETURN_DATA, RETURN_DATA_LAST_PAUSE, RETURN_DATA_LAST);
-                                             --RETURN_DATA_STOP, RETURN_DATA_DONE,
+   type state is                          (RETURN_DATA_IDLE, RETURN_DATA_1ST, RETURN_DATA_PAUSE, RETURN_DATA, RETURN_DATA_LAST_PAUSE, RETURN_DATA_LAST, RETURN_DATA_SINGLE_FRAME, RETURN_DATA_SINGLE_FRAME_PAUSE1, RETURN_DATA_SINGLE_FRAME_PAUSE2);
    signal next_state, current_state : state;
 
 
@@ -190,21 +191,41 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, ret_dat_start, ret_dat_stop_i, current_seq_num, stop_seq_num_i, ack_i)
+   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i)
    begin
+     next_state <= current_state;
      --[JJ] quick fix
      ret_dat_stop_mux_sel <= "00"; -- hold value;
    
       case current_state is
 
          when RETURN_DATA_IDLE =>
-            if ret_dat_start = '1' then
+            if(ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) then
                next_state <= RETURN_DATA_1ST;
+            elsif(ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) then
+               next_state <= RETURN_DATA_SINGLE_FRAME;
             else
                next_state <= RETURN_DATA_IDLE;
             end if;
             ret_dat_stop_mux_sel <= "11"; -- reset value
-      
+
+         when RETURN_DATA_SINGLE_FRAME =>
+            next_state <= RETURN_DATA_SINGLE_FRAME_PAUSE1;
+            
+         when RETURN_DATA_SINGLE_FRAME_PAUSE1 =>
+            if ack_i = '1' then
+               next_state <= RETURN_DATA_SINGLE_FRAME_PAUSE2;
+            else
+               next_state <= RETURN_DATA_SINGLE_FRAME_PAUSE1;
+            end if;
+
+         when RETURN_DATA_SINGLE_FRAME_PAUSE2 =>
+            if ret_dat_start_i = '0' then
+               next_state <= RETURN_DATA_IDLE;
+            else
+               next_state <= RETURN_DATA_SINGLE_FRAME_PAUSE2;
+            end if;
+         
          when RETURN_DATA_1ST =>
             if ack_i = '1' and ret_dat_stop_i = '0' then
                next_state <= RETURN_DATA_PAUSE;
@@ -315,7 +336,7 @@ begin
    
    ack_o <= ret_dat_stop_ack or ret_dat_start_ack;
             
-   process(current_state, ack_i, ret_dat_start)
+   process(current_state, ack_i, ret_dat_start, ret_dat_start_i)
    begin
    
       -- default assignments
@@ -332,6 +353,29 @@ begin
             if ret_dat_start = '1' then
                ret_dat_cmd_valid       <= '1';
                macro_instr_rdy_o       <= '1';
+               ret_dat_fsm_working     <= '1';
+            end if;
+
+         when RETURN_DATA_SINGLE_FRAME =>
+            ret_dat_cmd_valid          <= '1';
+            macro_instr_rdy_o          <= '1';
+            ret_dat_fsm_working        <= '1';
+
+         when RETURN_DATA_SINGLE_FRAME_PAUSE1 =>
+            ret_dat_cmd_valid          <= '1';
+            macro_instr_rdy_o          <= '1';
+            ret_dat_fsm_working        <= '1';
+            ack_mux                    <= '1';
+
+         when RETURN_DATA_SINGLE_FRAME_PAUSE2 =>
+           if ret_dat_start_i = '0' then
+               ret_dat_cmd_valid       <= '1';
+--               macro_instr_rdy_o       <= '1';
+               ret_dat_done            <= '1';
+               ret_dat_fsm_working     <= '1';               
+            else
+               ret_dat_cmd_valid       <= '1';
+--               macro_instr_rdy_o       <= '1';
                ret_dat_fsm_working     <= '1';
             end if;
 
@@ -352,16 +396,14 @@ begin
          when RETURN_DATA_LAST_PAUSE =>
 --            ret_dat_cmd_valid          <= '1';
 --            macro_instr_rdy_o          <= '1';
-            ret_dat_fsm_working        <= '1';              
-
+            ret_dat_fsm_working        <= '1';
             
          when RETURN_DATA_LAST =>
            if ack_i = '1' then
                ret_dat_cmd_valid       <= '1';
                macro_instr_rdy_o       <= '1';
                ret_dat_done            <= '1';
-               ret_dat_fsm_working     <= '1';
-               
+               ret_dat_fsm_working     <= '1';               
             else
                ret_dat_cmd_valid       <= '1';
                macro_instr_rdy_o       <= '1';
@@ -426,7 +468,8 @@ begin
 
    ret_dat_stop_ack        <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i    = '1' else '0';   
    cmd_stop                <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg  = '1' else '0';   
-   last_frame_o            <= '1' when current_state = RETURN_DATA_LAST and (ret_dat_stop_reg = '1' or current_seq_num >= stop_seq_num_i) else '0';
+   last_frame_o            <= '1' when (current_state = RETURN_DATA_LAST and (ret_dat_stop_reg = '1' or current_seq_num >= stop_seq_num_i)) 
+                                       or (current_state = RETURN_DATA_SINGLE_FRAME or current_state = RETURN_DATA_SINGLE_FRAME_PAUSE1) else '0';
 
 ------------------------------------------------------------------------
 --
