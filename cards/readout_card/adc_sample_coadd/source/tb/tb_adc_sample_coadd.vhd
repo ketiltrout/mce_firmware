@@ -52,7 +52,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_adc_sample_coadd.vhd,v $
+-- Revision 1.1  2004/10/22 00:16:16  mohsen
+-- Created
+--
 --
 ------------------------------------------------------------------------
 
@@ -422,7 +425,7 @@ begin  -- beh
        adc_dat_i <= (others => '0');
      elsif clk_50_i'event and clk_50_i = '0' then
        avalue <= avalue + 7;
-       if (avalue >14000) then
+       if (avalue >4000) then
          avalue <=0;
        end if;
        adc_dat_i <= conv_std_logic_vector(avalue, adc_dat_i'length);
