@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.19 2004/07/28 23:36:57 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.20 2004/08/02 14:44:10 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,10 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.20  2004/08/02 14:44:10  erniel
+-- updated crc component
+-- (added _i and _o to port names to match naming conventions)
+--
 -- Revision 1.19  2004/07/28 23:36:57  erniel
 -- updated shift_reg component
 -- updated lfsr component
@@ -486,7 +490,7 @@ end component;
 ------------------------------------------------------------
 
 component lfsr
-generic(WIDTH : in integer range 3 to 64 := 8);
+generic(WIDTH : in integer range 3 to 168 := 8);
 port(clk_i  : in std_logic;
      rst_i  : in std_logic;
      ena_i  : in std_logic;
