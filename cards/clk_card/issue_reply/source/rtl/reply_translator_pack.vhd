@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: reply_translator_pack.vhd,v 1.1 2004/11/24 01:15:52 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -28,7 +28,10 @@
 -- Declares a few constants used as parameters in the reply_translator block
 --
 -- Revision history:
--- $Log$
+-- $Log: reply_translator_pack.vhd,v $
+-- Revision 1.1  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 --
 --
 ------------------------------------------------------------------------
@@ -65,6 +68,7 @@ port(
      m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1    downto 0);    -- command code vector - indicates if data or reply (and which command)
      m_op_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);      -- m_op parameter id passed from reply_queue
      m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);      -- m_op card id passed from reply_queue
+     internal_cmd_i          : in  std_logic;                                                 -- asserted if m_op is an internal command
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  integer ;                                                  -- indicate number of packet words to be read from reply queue
      fibre_word_ack_o        : out std_logic;                                                 -- asserted to requeset next fibre word
