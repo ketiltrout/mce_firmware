@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.2  2004/11/12 19:45:57  erniel
+-- added nack_i (negative ack) port
+-- implemented discard current packet on nack_i
+--
 -- Revision 1.1  2004/11/08 19:56:47  erniel
 -- initial version
 --
@@ -61,7 +65,6 @@ port(clk_i      : in std_logic;
      
      data_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
      header_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     status_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
      
      rdy_o  : out std_logic;
      ack_i  : in std_logic;
@@ -105,7 +108,7 @@ signal crc_rdy   : std_logic;
 --------------------------------------------------
 -- FIFO write control:
 
-type write_ctrl_states is (WRITE_INIT, GET_HEADER, WRITE_HEADER, WRITE_DATA, WRITE_STATUS, WRITE_DONE);
+type write_ctrl_states is (WRITE_INIT, GET_HEADERS, WRITE_HEADER, WRITE_DATA, WRITE_STATUS, WRITE_DONE);
 signal wr_pres_state : write_ctrl_states;
 signal wr_next_state : write_ctrl_states;
 
@@ -144,7 +147,7 @@ signal rd_count : integer;
 signal data_err : std_logic;
 
 signal temp_header : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal temp_status : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal temp_status : std_logic_vector(BB_STATUS_WIDTH-1 downto 0);
 
 signal packets : integer;
 
@@ -356,23 +359,6 @@ begin
    
    header_o <= cur_header;
    
-   -- stores calculated checksum after packet is received
-   status_fifo : fifo
-      generic map(DATA_WIDTH => PACKET_WORD_WIDTH,
-                  ADDR_WIDTH => 5)
-      port map(clk_i     => clk_i,
-               mem_clk_i => mem_clk_i,
-               rst_i     => rst_i,
-               data_i    => temp_status,
-               data_o    => status_o,
-               read_i    => status_rd,
-               write_i   => status_wr,
-               clear_i   => '0',
-               empty_o   => open,
-               full_o    => open,
-               error_o   => open,
-               used_o    => open);
-
    write_word_counter : counter
       generic map(MAX => 1024)
       port map(clk_i   => clk_i,
@@ -391,7 +377,13 @@ begin
                count_i => 0,
                count_o => rd_count);
                                           
-   -- this process extracts the useful parts of the incoming headers and recombines them into a single word
+   -- this process extracts the useful parts of the incoming headers and recombines them into a single word:
+   --
+   -- header contains: 1. size of incoming packet
+   --                  2. macro/micro op number
+   --                  3. dispatch wishbone error (slave not existent)
+   --                  4. receive data fifo error (data incomplete)
+   --
    header_assemble: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -404,28 +396,13 @@ begin
          elsif(header1_ld = '1') then
             temp_header(31 downto 16) <= crc_data_out(BB_MACRO_OP_SEQ'range) & crc_data_out(BB_MICRO_OP_SEQ'range);
          elsif(header2_ld = '1') then
-            temp_header(15 downto 13) <= crc_data_out(31 downto 29);
+            temp_header(15) <= crc_data_out(31);   -- dispatch error flag
+         elsif(data_err = '1') then
+            temp_header(14) <= '1';                -- receive data fifo error flag
          end if;
       end if;
    end process header_assemble;
    
-   -- this process assembles the status word
-   status_assemble: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         temp_status <= (others => '0');
-      elsif(clk_i'event and clk_i = '1') then
-         if(status_clr = '1') then
-            temp_status <= (others => '0');
-         elsif(crc_valid = '0') then
-            temp_status(0) <= crc_valid;
-         elsif(data_err = '1') then
-            temp_status(1) <= '1';
-         end if;  
-         temp_status(31 downto 2) <= (others => '0');
-      end if;
-   end process status_assemble;
-         
    -- this process counts the number of packets waiting in the FIFO
    packet_count: process(clk_i, rst_i)
    begin
@@ -454,31 +431,25 @@ begin
       end if;
    end process write_stateFF;
    
-   write_stateNS: process(wr_pres_state, wr_count, num_data_words, crc_rdy)
+   write_stateNS: process(wr_pres_state, wr_count, num_data_words)
    begin
       case wr_pres_state is
-         when WRITE_INIT =>   wr_next_state <= GET_HEADER;
+         when WRITE_INIT =>   wr_next_state <= GET_HEADERS;
          
-         when GET_HEADER =>   if(wr_count = BB_NUM_REPLY_HEADER_WORDS) then
-                                 wr_next_state <= WRITE_HEADER;
+         when GET_HEADERS =>  if(wr_count = BB_NUM_REPLY_HEADER_WORDS) then
+                                 wr_next_state <= WRITE_DATA;
                               else
-                                 wr_next_state <= GET_HEADER;
+                                 wr_next_state <= GET_HEADERS;
                               end if;
-                                  
-         when WRITE_HEADER => wr_next_state <= WRITE_DATA;
-         
+                                           
          when WRITE_DATA =>   if(wr_count = num_data_words) then
-                                 wr_next_state <= WRITE_STATUS;
+                                 wr_next_state <= WRITE_HEADER;
                               else
                                  wr_next_state <= WRITE_DATA;
                               end if;
          
-         when WRITE_STATUS => if(crc_rdy = '1') then
-                                 wr_next_state <= WRITE_DONE;
-                              else
-                                 wr_next_state <= WRITE_STATUS;
-                              end if;
-         
+         when WRITE_HEADER => wr_next_state <= WRITE_DONE;
+                                       
          when WRITE_DONE =>   wr_next_state <= WRITE_INIT;
                                   
          when others =>       wr_next_state <= WRITE_INIT;
@@ -489,23 +460,20 @@ begin
    begin
       data_wr      <= '0';
       header_wr    <= '0';
-      status_wr    <= '0';
       header_clr   <= '0';
       header0_ld   <= '0';
       header1_ld   <= '0';
       header2_ld   <= '0';
-      status_clr   <= '0';
       wr_done      <= '0';
       wr_count_ena <= '0';
       wr_count_clr <= '0';
       
       case wr_pres_state is
          when WRITE_INIT =>   header_clr       <= '1';
-                              status_clr       <= '1';
                               wr_count_ena     <= '1';
                               wr_count_clr     <= '1';
                
-         when GET_HEADER =>   if(crc_rdy = '1') then
+         when GET_HEADERS =>  if(crc_rdy = '1') then
                                  if(wr_count = 0) then    
                                     header0_ld <= '1';
                                  elsif(wr_count = 1) then 
@@ -515,19 +483,18 @@ begin
                                  end if;
                                  wr_count_ena  <= '1';
                               end if;
-         
-         when WRITE_HEADER => header_wr        <= '1';
-                              wr_count_ena     <= '1';
-                              wr_count_clr     <= '1';
+                              
+                              if(wr_count = BB_NUM_REPLY_HEADER_WORDS) then
+                                 wr_count_ena <= '1';
+                                 wr_count_clr <= '1';
+                              end if;
                                      
          when WRITE_DATA =>   if(crc_rdy = '1') then
                                  data_wr       <= '1';
                                  wr_count_ena  <= '1';
                               end if;
-                            
-         when WRITE_STATUS => if(crc_rdy = '1') then
-                                 status_wr     <= '1';
-                              end if;
+
+         when WRITE_HEADER => header_wr        <= '1';
 
          when WRITE_DONE =>   wr_done          <= '1';
          
