@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.6 2004/06/22 17:21:53 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.7 2004/06/22 18:39:02 bench2 Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/06/22 17:21:53 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/06/22 18:39:02 $>	- <initials $Author: bench2 $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.7  2004/06/22 18:39:02  bench2
+-- added more fixed values up to 0x0040
+--
 -- Revision 1.6  2004/06/22 17:21:53  mandana
 -- added more fixed values
 --
@@ -85,7 +88,8 @@ entity bc_dac_ctrl_test_wrapper is
       lvds_dac_ncs_o: out std_logic;
       lvds_dac_clk_o: out std_logic;
       
-      spi_start_o: out std_logic      
+      spi_start_o     : out std_logic;
+      lvds_spi_start_o: out std_logic      
    );   
 end;  
 
@@ -128,6 +132,7 @@ begin
    zero <= 0;
 
    spi_start_o <= send_dac32_start;
+   lvds_spi_start_o <= send_dac_LVDS_start;
    
 -- instantiate a counter to divide the clock by 2
    clk_div_2: counter

@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.7  2004/06/21 18:32:28  bench2
+-- renamed all_test_idle to bc_test_idle
+--
 -- Revision 1.6  2004/06/08 19:04:23  mandana
 -- added the cross-talk test
 --
@@ -212,7 +215,8 @@ package bc_test_pack is
           lvds_dac_dat_o : out std_logic;
           lvds_dac_ncs_o : out std_logic;
           lvds_dac_clk_o : out std_logic;
-          spi_start_o    : out std_logic
+          spi_start_o    : out std_logic;
+          lvds_spi_start_o: out std_logic
           );   
   end component;  
   
