@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.2 2004/06/28 10:41:18 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.1 2004/06/28 11:09:42 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/28 10:41:18 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 11:09:42 $>	-		<text>		- <initials $Author: dca $>
 -- <$log$>
 -----------------------------------------------------------------------------
 library ieee;
@@ -209,7 +209,7 @@ signal data_out      : std_logic_vector(31 downto 0); -- current data word read 
 signal write_mem     : std_logic;                     -- write current data word to memory
 signal read_mem      : std_logic;                     -- read current data word from memory
 signal reset_mem     : std_logic; 
-signal write_ena     : std_logic;
+
 
 
 -- clocks to latch command code bytes
@@ -641,7 +641,7 @@ begin
    ----------------------------------------------------------------------------
    output : process (
       current_state,
-      rxd_i,
+    --  rxd_i,
       data_out
    )
    ----------------------------------------------------------------------------
@@ -688,6 +688,7 @@ begin
          when IDLE =>
             reset_mem <= '1';
             check_reset <= '1';  
+            cmd_data_o <= (others => '1');
 
          when LD_CMD0 =>
             cmd_clk0 <= '1';
@@ -1116,7 +1117,9 @@ begin
 
 
   ------------------------------------------------------------------------------
-  checksum_calculator: process(check_update, check_reset, cksum_in)
+  checksum_calculator: process(check_update, check_reset
+  --, cksum_in
+  )
   ----------------------------------------------------------------------------
   -- process to update calculated checksum
   ----------------------------------------------------------------------------
@@ -1156,6 +1159,7 @@ begin
  begin
      if (reset_mem = '1') then
         read_pointer <= 0;
+        data_out <= (others => '1');
      elsif (read_mem'EVENT AND read_mem = '1') then
         data_out <= memory(read_pointer); 
         read_pointer <= read_pointer + 1;
