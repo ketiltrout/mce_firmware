@@ -1,3 +1,39 @@
+-- Copyright (c) 2003 SCUBA-2 Project
+--                  All Rights Reserved
+
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+--  The copyright notice above does not evidence any
+--  actual or intended publication of such source code.
+
+--  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+--  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+--  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+--  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+--  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+
+-- tb_sram_ctrl.vhd
+--
+-- <revision control keyword substitutions e.g. $Id$>
+--
+-- Project:	      SCUBA-2
+-- Author:	       Ernie Lin
+-- Organisation:  UBC
+--
+-- Description:
+-- Testbench for SRAM controller
+--
+-- Revision history:
+-- <date $Date$>	-		<text>		- <initials $Author$>
+
+--
+-----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -130,7 +166,9 @@ begin
       
    end system_reset;
    
-   procedure write_0 is
+
+   
+   procedure write_single is
    begin
       W_RST_I     <= '0';
       W_DAT_I     <= DATA_IN_0;
@@ -140,18 +178,28 @@ begin
       W_STB_I     <= '1';
       W_CYC_I     <= '1';
       
-      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
-
-      wait until W_ADDR_O = "00000000000000000000";      
+      wait until (W_ADDR_O = "00000000000000000000" and W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0');
+         
       sram(0) <= W_DATA_BI;
       
-      wait until W_ADDR_O = "00000000000000000001";
+      wait until W_ADDR_O'event;
+      
+      -- we know ACK is high here, this is last byte of data in this transaction
       sram(1) <= W_DATA_BI;
       
-   end write_0;
+      -- emulating the master's perspective
+      wait until W_ACK_O = '0';
+      
+      W_STB_I <= '0';
+      W_CYC_I <= '0';
+      W_WE_I  <= '0';
+      
+   end write_single;
    
-   procedure write_1 is
+   
+   procedure write_multiple is
    begin
+      -- cycle 1:
       W_RST_I     <= '0';
       W_DAT_I     <= DATA_IN_1;
       W_ADDR_I    <= SRAM_ADDR;
@@ -160,17 +208,9 @@ begin
       W_STB_I     <= '1';
       W_CYC_I     <= '1';
       
-      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
-
-      wait until W_ADDR_O = "00000000000000000010";      
-      sram(2) <= W_DATA_BI;
+      wait until W_ACK_O = '1';
       
-      wait until W_ADDR_O = "00000000000000000011";
-      sram(3) <= W_DATA_BI;
-   end write_1;
-   
-   procedure write_2 is
-   begin
+      -- cycle 2:
       W_RST_I     <= '0';
       W_DAT_I     <= DATA_IN_2;
       W_ADDR_I    <= SRAM_ADDR;
@@ -179,17 +219,9 @@ begin
       W_STB_I     <= '1';
       W_CYC_I     <= '1';
       
-      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
-
-      wait until W_ADDR_O = "00000000000000000100";      
-      sram(4) <= W_DATA_BI;
+      wait until W_ACK_O = '1';
       
-      wait until W_ADDR_O = "00000000000000000101";
-      sram(5) <= W_DATA_BI;
-   end write_2;
-   
-   procedure write_3 is
-   begin
+      -- cycle 3:
       W_RST_I     <= '0';
       W_DAT_I     <= DATA_IN_3;
       W_ADDR_I    <= SRAM_ADDR;
@@ -198,14 +230,15 @@ begin
       W_STB_I     <= '1';
       W_CYC_I     <= '1';
       
-      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
-
-      wait until W_ADDR_O = "00000000000000000110";      
-      sram(6) <= W_DATA_BI;
+      wait until W_ACK_O = '1';
       
-      wait until W_ADDR_O = "00000000000000000111";
-      sram(7) <= W_DATA_BI;
-   end write_3;
+      -- end cycle:
+      W_STB_I <= '0';
+      W_CYC_I <= '0';
+      W_WE_I  <= '0';
+      
+   end write_multiple;
+   
    
    procedure read_0 is
    begin
@@ -245,58 +278,30 @@ begin
       W_DATA_BI <= sram(3);
    end read_1;
    
-   procedure read_2 is
-   begin
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
-      W_TGA_I     <= ADDRESS_2;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '1' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
-
-      wait until W_ADDR_O = "00000000000000000100";      
-      W_DATA_BI <= sram(4);
-      
-      wait until W_ADDR_O = "00000000000000000101";
-      W_DATA_BI <= sram(5);
-   end read_2;
    
-   procedure read_3 is
-   begin
-      W_RST_I     <= '0';
-      W_DAT_I     <= (others => '0');
-      W_ADDR_I    <= SRAM_ADDR;
-      W_TGA_I     <= ADDRESS_3;
-      W_WE_I      <= '0';
-      W_STB_I     <= '1';
-      W_CYC_I     <= '1';
-      
-      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '1' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
-
-      wait until W_ADDR_O = "00000000000000000110";      
-      W_DATA_BI <= sram(6);
-      
-      wait until W_ADDR_O = "00000000000000000111";
-      W_DATA_BI <= sram(7);
-   end read_3;
-  
  
    begin
       W_DATA_BI   <= (others =>'Z');
    
-      write_0;
-      write_1;
-      read_2;
-      read_3;
-      write_2;
-      write_3;
-      read_0;
-      read_1;
-      read_2;
-      read_3;
+      system_reset;
+      
+      wait for CLOCK_PERIOD*2;
+      
+      write_single;
+      
+      wait for CLOCK_PERIOD*2;
+      
+      write_multiple;
+
+--      write_1;
+--      read_2;
+--      read_3;
+--      write_2;
+--      write_3;
+--      read_0;
+--      read_1;
+--      read_2;
+--      read_3;
       
       wait for CLOCK_PERIOD;
       wait;

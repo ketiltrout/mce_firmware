@@ -1,3 +1,39 @@
+-- Copyright (c) 2003 SCUBA-2 Project
+--                  All Rights Reserved
+
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+--  The copyright notice above does not evidence any
+--  actual or intended publication of such source code.
+
+--  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+--  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+--  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+--  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+--  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+
+-- sram_ctrl.vhd
+--
+-- <revision control keyword substitutions e.g. $Id$>
+--
+-- Project:	      SCUBA-2
+-- Author:	       Ernie Lin
+-- Organisation:  UBC
+--
+-- Description:
+-- Wishbone to asynch. SRAM chip interface
+--
+-- Revision history:
+-- <date $Date$>	-		<text>		- <initials $Author$>
+
+--
+-----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -29,7 +65,7 @@ port(-- SRAM signals:
      clk_i   : in std_logic;
      rst_i   : in std_logic;		
      dat_i 	 : in std_logic_vector (DATA_WIDTH-1 downto 0);
-     addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0); --define addr_width in pack file
+     addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
      tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
      we_i    : in std_logic;
      stb_i   : in std_logic;
@@ -55,35 +91,36 @@ constant READ_DONE  : std_logic_vector(2 downto 0) := "111";
 signal present_state : std_logic_vector(2 downto 0);
 signal next_state    : std_logic_vector(2 downto 0);
 
--- SRAM control:
+-- SRAM controls:
 signal ce_ctrl : std_logic;
 signal wr_ctrl : std_logic;
 
--- SRAM data out buffer:
+-- SRAM data out buffer & controls:
 signal read_buf     : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal read_buf_ena : std_logic_vector(1 downto 0);  -- enables for each part of the data word.
+signal read_lsb_ena : std_logic;
+signal read_msb_ena : std_logic;
 
--- wishbone status:
+-- decoded wishbone status signals:
 signal read_cycle  : std_logic;
 signal write_cycle : std_logic;
 
 begin
    
-   -- SRAM is permanently enabled (but still controlled by CE)
+   -- SRAM is ultimately controlled by nCE1/CE2, other enables are tied to ground:
    n_ble_o <= '0';
    n_bhe_o <= '0';
    n_oe_o  <= '0';
-   n_we_o  <= sram_wr_ctrl;
-   n_ce1_o <= not sram_ce_ctrl;
-   ce2_o   <= sram_ce_ctrl;
-        
-      
+   n_we_o  <= not wr_ctrl;
+   n_ce1_o <= not ce_ctrl;
+   ce2_o   <= ce_ctrl;
+
+            
    -- buffer SRAM data out:
    read_data_lsb: reg
       generic map(WIDTH => 16)
       port map(clk_i  => clk_i,
                rst_i  => rst_i,
-               ena_i  => read_buf_ena(0),
+               ena_i  => read_lsb_ena,
                reg_i  => data_bi,
                reg_o  => read_buf(15 downto 0));
    
@@ -91,17 +128,17 @@ begin
       generic map(WIDTH => 16)
       port map(clk_i  => clk_i,
                rst_i  => rst_i,
-               ena_i  => read_buf_ena(1),
+               ena_i  => read_msb_ena,
                reg_i  => data_bi,
                reg_o  => read_buf(31 downto 16));
       
    
-   -- state machine for writing to two SRAM locations for each WB transaction:
+   -- state machine for writing to SRAM:
    state_FF: process(clk_i)
    begin
       if(rst_i = '1') then
          present_state <= idle;
-      else
+      elsif(clk_i'event and clk_i = '1') then
          present_state <= next_state;
       end if;
    end process state_FF;
@@ -146,61 +183,65 @@ begin
    state_out: process(present_state)
    begin
       case present_state is
-         when IDLE =>       ce_ctrl <= '0';
-                            wr_ctrl <= '0';
-                            read_buf_ena <= "00";
-                            addr_o  <= (others => '0');
-                            data_bi <= (others => 'Z');
-                            
-         when WRITE_LSB =>  ce_ctrl <= '1';
-                            wr_ctrl <= '1';
-                            read_buf_ena <= "00";
-                            addr_o  <= tga_i(18 downto 0) & '0';
-                            data_bi <= dat_i(15 downto 0);
+         when IDLE | WRITE_DONE | READ_DONE | SEND_DATA =>       
+                            ce_ctrl      <= '0';
+                            wr_ctrl      <= '0';
+                            addr_o       <= (others => '0');
+                            data_bi      <= (others => 'Z');
+                            read_lsb_ena <= '0';
+                            read_msb_ena <= '0';
                                                         
-         when WRITE_MSB =>  ce_ctrl <= '1';
-                            wr_ctrl <= '1';
-                            read_buf_ena <= "00";
-                            addr_o <= tga_i(18 downto 0) & '1';
-                            data_bi <= dat_i(31 downto 16);
+         when WRITE_LSB =>  ce_ctrl      <= '1';
+                            wr_ctrl      <= '1';
+                            addr_o       <= tga_i(18 downto 0) & '0';
+                            data_bi      <= dat_i(15 downto 0);
+                            read_lsb_ena <= '0';
+                            read_msb_ena <= '0';                            
                                                         
-         when WRITE_DONE => ce_ctrl <= '0';
-                            m_wr_ctrl <= '0';
-                            read_buf_ena <= "00";
-                            addr_o <= (others => '0');
+         when WRITE_MSB =>  ce_ctrl      <= '1';
+                            wr_ctrl      <= '1';
+                            addr_o       <= tga_i(18 downto 0) & '1';
+                            data_bi      <= dat_i(31 downto 16);
+                            read_lsb_ena <= '0';
+                            read_msb_ena <= '0';
                                                         
-         when READ_LSB =>   sram_ce_ctrl <= '1';
-                            sram_wr_ctrl <= '0';
-                            read_buf_ena <= "01";
-                            addr_o <= tga_i(18 downto 0) & '0';
+         when READ_LSB =>   ce_ctrl      <= '1';
+                            wr_ctrl      <= '0';
+                            addr_o       <= tga_i(18 downto 0) & '0';
+                            data_bi      <= (others => 'Z');
+                            read_lsb_ena <= '1';
+                            read_msb_ena <= '0';
                                                         
-         when READ_MSB =>   sram_ce_ctrl <= '1';
-                            sram_wr_ctrl <= '0';
-                            read_buf_ena <= "10";
-                            addr_o <= tga_i(18 downto 0) & '1';
-                                                        
-         when SEND_DATA =>  sram_ce_ctrl <= '0';
-                            sram_wr_ctrl <= '0';
-                            read_buf_ena <= "00";
-                            addr_o <= (others => '0');
-                                                        
-         when READ_DONE =>  sram_ce_ctrl <= '0';
-                            sram_wr_ctrl <= '0';
-                            read_buf_ena <= "00";
-                            addr_o <= (others => '0');
-                                                        
-         when others =>     sram_ce_ctrl <= '0';
-                            sram_wr_ctrl <= '0';
-                            read_buf_ena <= "00";
-                            addr_o <= (others => '0');                            
+         when READ_MSB =>   ce_ctrl      <= '1';
+                            wr_ctrl      <= '0';
+                            addr_o       <= tga_i(18 downto 0) & '1';
+                            data_bi      <= (others => 'Z');
+                            read_lsb_ena <= '0';
+                            read_msb_ena <= '1';
+ 
+         when others =>     ce_ctrl      <= '0';
+                            wr_ctrl      <= '0';
+                            addr_o       <= (others => '0');
+                            data_bi      <= (others => 'Z');
+                            read_lsb_ena <= '0';
+                            read_msb_ena <= '0';                            
       end case;
    end process state_out;
    
-   -- wishbone interface status signals
+   
+------------------------------------------------------------
+--
+--  Wishbone section
+--
+------------------------------------------------------------
+   
+   -- slave -> master signals:
    ack_o <= '1' when (present_state = WRITE_MSB or present_state = SEND_DATA) else '0';
    rty_o <= '0';  -- never retry
-   dat_o <= read_buf;
+   dat_o <= read_buf when (present_state = SEND_DATA) else (others => 'Z');
    
+   
+   -- decoded signals:
    read_cycle  <= '1' when (addr_i = SRAM_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    write_cycle <= '1' when (addr_i = SRAM_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0'; 
    
