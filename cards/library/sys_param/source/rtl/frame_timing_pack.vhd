@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.5 2004/05/14 21:10:06 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.6 2004/05/14 22:55:59 mandana Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/05/14 21:10:06 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2004/05/14 22:55:59 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.6  2004/05/14 22:55:59  mandana
+-- UPDATE_BIAS was declared twice
+--
 -- Revision 1.5  2004/05/14 21:10:06  mandana
 -- changed frame_timing values to integer(Bias_count)
 --
@@ -88,7 +91,14 @@ package frame_timing_pack is
    -- required commands for normal operaiton.  However, START_OF_BLACKOUT may come
    -- into consideration if a corrupted reply was received by the reply_queue and
    -- the cmd_queue needs to reissued the corresponding u-op
-   constant START_OF_BLACKOUT : integer := END_OF_FRAME - 5*MUX_LINE_PERIOD;
+   -- 800 clock cycles is about the time required to issue all the u-ops necessary
+   -- during science mode, and to receive all their replies.  The cmd_queue will not
+   -- restart the transmission of all u-ops pertaining to a m-op that expires at
+   -- START_OF_BLACKOUT, if the blackout period has begun.  On the other hand, if the
+   -- blackout period begins midway through the issue of u-ops from a single m-op, the
+   -- command queue will finish issuing them.  In other words, all u-ops generated from
+   -- a single m-op are treated as an atomic unit.
+   constant START_OF_BLACKOUT : integer := END_OF_FRAME - 800;
 
    -- RETIRE_TIMEOUT indicates at what point in a frame all the commands that were
    -- in that frame must be retired.
@@ -102,14 +112,14 @@ package frame_timing_pack is
    ------------------------------------------------------------------------------------
    -- Address Card frame structure
    constant SEL_ROW : w_array41:= (
-    0*MUX_LINE_PERIOD,1*MUX_LINE_PERIOD, 2*MUX_LINE_PERIOD, 3*MUX_LINE_PERIOD, 4*MUX_LINE_PERIOD, 
+    0*MUX_LINE_PERIOD,1*MUX_LINE_PERIOD, 2*MUX_LINE_PERIOD, 3*MUX_LINE_PERIOD, 4*MUX_LINE_PERIOD,
     5*MUX_LINE_PERIOD, 6*MUX_LINE_PERIOD, 7*MUX_LINE_PERIOD, 8*MUX_LINE_PERIOD, 9*MUX_LINE_PERIOD,
     10*MUX_LINE_PERIOD,11*MUX_LINE_PERIOD,12*MUX_LINE_PERIOD,13*MUX_LINE_PERIOD,14*MUX_LINE_PERIOD,
     15*MUX_LINE_PERIOD,16*MUX_LINE_PERIOD,17*MUX_LINE_PERIOD,18*MUX_LINE_PERIOD,19*MUX_LINE_PERIOD,
     20*MUX_LINE_PERIOD,21*MUX_LINE_PERIOD,22*MUX_LINE_PERIOD,23*MUX_LINE_PERIOD,24*MUX_LINE_PERIOD,
     25*MUX_LINE_PERIOD,26*MUX_LINE_PERIOD,27*MUX_LINE_PERIOD,28*MUX_LINE_PERIOD,29*MUX_LINE_PERIOD,
     30*MUX_LINE_PERIOD,31*MUX_LINE_PERIOD,32*MUX_LINE_PERIOD,33*MUX_LINE_PERIOD,34*MUX_LINE_PERIOD,
-    35*MUX_LINE_PERIOD,36*MUX_LINE_PERIOD,37*MUX_LINE_PERIOD,38*MUX_LINE_PERIOD,39*MUX_LINE_PERIOD, 
+    35*MUX_LINE_PERIOD,36*MUX_LINE_PERIOD,37*MUX_LINE_PERIOD,38*MUX_LINE_PERIOD,39*MUX_LINE_PERIOD,
     40*MUX_LINE_PERIOD);
 
    ------------------------------------------------------------------------------------
