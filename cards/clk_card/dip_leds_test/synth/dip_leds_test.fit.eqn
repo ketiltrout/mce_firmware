@@ -1,67 +1,31 @@
---lvds_cmd is lvds_cmd at Pin_V23
---operation mode is input
-
-lvds_cmd = INPUT();
-
-
---lvds_sync is lvds_sync at Pin_AA28
---operation mode is input
-
-lvds_sync = INPUT();
-
-
---lvds_spr is lvds_spr at Pin_V24
---operation mode is input
-
-lvds_spr = INPUT();
-
-
---dip3 is dip3 at Pin_M2
+--dip3 is dip3 at Pin_A8
 --operation mode is input
 
 dip3 = INPUT();
 
 
---dip4 is dip4 at Pin_N1
+--dip4 is dip4 at Pin_A9
 --operation mode is input
 
 dip4 = INPUT();
 
 
---lvds_clk is lvds_clk at Pin_AA27
---operation mode is input
-
-lvds_clk = INPUT();
-
-
---nfault_led is nfault_led at Pin_V27
+--nfault_led is nfault_led at Pin_AB22
 --operation mode is output
 
 nfault_led = OUTPUT(VCC);
 
 
---status_led is status_led at Pin_T24
+--status_led is status_led at Pin_AC24
 --operation mode is output
 
 status_led = OUTPUT(dip3);
 
 
---pow_ok_led is pow_ok_led at Pin_T23
+--pow_ok_led is pow_ok_led at Pin_AC23
 --operation mode is output
 
 pow_ok_led = OUTPUT(dip4);
-
-
---lvds_txa is lvds_txa at Pin_V19
---operation mode is output
-
-lvds_txa = OUTPUT(lvds_clk);
-
-
---lvds_txb is lvds_txb at Pin_V20
---operation mode is output
-
-lvds_txb = OUTPUT(lvds_clk);
 
 
 

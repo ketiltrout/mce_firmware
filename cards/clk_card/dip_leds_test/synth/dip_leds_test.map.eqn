@@ -1,21 +1,3 @@
---lvds_cmd is lvds_cmd
---operation mode is input
-
-lvds_cmd = INPUT();
-
-
---lvds_sync is lvds_sync
---operation mode is input
-
-lvds_sync = INPUT();
-
-
---lvds_spr is lvds_spr
---operation mode is input
-
-lvds_spr = INPUT();
-
-
 --dip3 is dip3
 --operation mode is input
 
@@ -26,12 +8,6 @@ dip3 = INPUT();
 --operation mode is input
 
 dip4 = INPUT();
-
-
---lvds_clk is lvds_clk
---operation mode is input
-
-lvds_clk = INPUT();
 
 
 --nfault_led is nfault_led
@@ -50,17 +26,5 @@ status_led = OUTPUT(dip3);
 --operation mode is output
 
 pow_ok_led = OUTPUT(dip4);
-
-
---lvds_txa is lvds_txa
---operation mode is output
-
-lvds_txa = OUTPUT(lvds_clk);
-
-
---lvds_txb is lvds_txb
---operation mode is output
-
-lvds_txb = OUTPUT(lvds_clk);
 
 

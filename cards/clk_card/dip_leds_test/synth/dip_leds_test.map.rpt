@@ -1,6 +1,6 @@
 Analysis & Synthesis report for dip_leds_test compilation.
-Tue Apr 13 12:44:15 2004
-Version 3.0 Build 199 06/26/2003 SJ Full Version
+Tue Apr 13 16:07:17 2004
+Version 3.0 Build 245 10/09/2003 Service Pack 2 SJ Full Version
 
 Command: quartus_map --import_settings_files=on --export_settings_files=off dip_leds_test -c dip_leds_test
 
@@ -49,13 +49,13 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Tue Apr 13 12:44:15 2004 ;
+; Flow Status              ; Successful - Tue Apr 13 16:07:17 2004 ;
 ; Compiler Setting Name    ; dip_leds_test                         ;
 ; Top-level Entity Name    ; dip_leds_test                         ;
 ; Family                   ; Stratix                               ;
-; Device                   ; EP1S10F780C5                          ;
+; Device                   ; EP1S30F780C5                          ;
 ; Total logic elements     ; 0                                     ;
-; Total pins               ; 11                                    ;
+; Total pins               ; 5                                     ;
 ; Total memory bits        ; 0                                     ;
 ; DSP block 9-bit elements ; 0                                     ;
 ; Total PLLs               ; 0                                     ;
@@ -68,7 +68,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 04/13/2004 12:44:13 ;
+; Start date & time     ; 04/13/2004 16:07:16 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; dip_leds_test       ;
 -----------------------------------------------
@@ -87,12 +87,12 @@ party's intellectual property, are provided herein.
 -----------------------------------------------------------------------
 ; Analysis & Synthesis Summary                                        ;
 -----------------------------------------------------------------------
-; Analysis & Synthesis Status ; Successful - Tue Apr 13 12:44:15 2004 ;
+; Analysis & Synthesis Status ; Successful - Tue Apr 13 16:07:17 2004 ;
 ; Compiler Setting Name       ; dip_leds_test                         ;
 ; Top-level Entity Name       ; dip_leds_test                         ;
 ; Family                      ; Stratix                               ;
 ; Total logic elements        ; 0                                     ;
-; Total pins                  ; 11                                    ;
+; Total pins                  ; 5                                     ;
 ; Total memory bits           ; 0                                     ;
 ; DSP block 9-bit elements    ; 0                                     ;
 ; Total PLLs                  ; 0                                     ;
@@ -130,14 +130,14 @@ Hierarchy
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ; Compilation Hierarchy Node ; Logic Cells ; Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Full Hierarchy Name ;
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-; |dip_leds_test             ; 0 (0)       ; 0         ; 0           ; 0            ; 0       ; 0         ; 0         ; 11   ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; |dip_leds_test      ;
+; |dip_leds_test             ; 0 (0)       ; 0         ; 0           ; 0            ; 0       ; 0         ; 0         ; 5    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; |dip_leds_test      ;
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 -----------------------------------
 ; Analysis & Synthesis Equations  ;
 -----------------------------------
-The equations can be found in C:\scuba2_repository\cards\addr_card\dip_leds_test\synth\dip_leds_test.map.eqn.
+The equations can be found in C:\scuba2_repository\cards\clk_card\dip_leds_test\synth\dip_leds_test.map.eqn.
 
 
 ----------------------------------
@@ -145,25 +145,21 @@ The equations can be found in C:\scuba2_repository\cards\addr_card\dip_leds_test
 ----------------------------------
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
-  Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Tue Apr 13 12:44:13 2004
+  Info: Version 3.0 Build 245 10/09/2003 Service Pack 2 SJ Full Version
+  Info: Processing started: Tue Apr 13 16:07:16 2004
 Info: Command: quartus_map --import_settings_files=on --export_settings_files=off dip_leds_test -c dip_leds_test
-Info: Found 2 design units and 1 entities in source file C:\scuba2_repository\cards\addr_card\dip_leds_test\source\rtl\dip_leds_test.vhd
+Info: Found 2 design units and 1 entities in source file C:\scuba2_repository\cards\clk_card\dip_leds_test\source\rtl\dip_leds_test.vhd
   Info: Found design unit 1: dip_leds_test-beh
   Info: Found entity 1: dip_leds_test
 Info: Inferred 0 megafunctions from design logic
 Warning: Output pins are stuck at VCC or GND
   Warning: Pin nfault_led stuck at VCC
-Warning: Design contains 3 input pin(s) that do not drive logic
-  Warning: No output dependent on input pin lvds_cmd
-  Warning: No output dependent on input pin lvds_sync
-  Warning: No output dependent on input pin lvds_spr
-Info: Implemented 11 device resources after synthesis - the final resource count might be different
-  Info: Implemented 6 input pins
-  Info: Implemented 5 output pins
-Info: Quartus II Analysis & Synthesis was successful. 0 errors, 6 warnings
-  Info: Processing ended: Tue Apr 13 12:44:15 2004
-  Info: Elapsed time: 00:00:02
+Info: Implemented 5 device resources after synthesis - the final resource count might be different
+  Info: Implemented 2 input pins
+  Info: Implemented 3 output pins
+Info: Quartus II Analysis & Synthesis was successful. 0 errors, 2 warnings
+  Info: Processing ended: Tue Apr 13 16:07:17 2004
+  Info: Elapsed time: 00:00:01
 Info: Writing report file dip_leds_test.map.rpt
 
 

@@ -59,6 +59,7 @@ COMPILER_SETTINGS
 	LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT = OFF;
 	SIGNALPROBE_ALLOW_OVERUSE = OFF;
 	FOCUS_ENTITY_NAME = |dip_leds_test;
+	DISABLE_PLL_COMPENSATION_DELAY_CHANGE_WARNING = OFF;
 }
 DEFAULT_DEVICE_OPTIONS
 {
@@ -147,7 +148,7 @@ AUTO_SLD_HUB_ENTITY
 }
 CHIP(dip_leds_test)
 {
-	DEVICE = EP1S10F780C5;
+	DEVICE = EP1S30F780C5;
 	DEVICE_FILTER_PACKAGE = FBGA;
 	DEVICE_FILTER_PIN_COUNT = 780;
 	DEVICE_FILTER_SPEED_GRADE = 5;
@@ -227,46 +228,16 @@ CHIP(dip_leds_test)
 	RESERVE_DATA0_AFTER_CONFIGURATION = "AS INPUT TRI-STATED";
 	RESERVE_NCEO_AFTER_CONFIGURATION = "USE AS REGULAR IO";
 	RESERVE_ASDO_AFTER_CONFIGURATION = "USE AS REGULAR IO";
-	dip[0] : LOCATION = Pin_M2;
 	dip[0] : IO_STANDARD = LVTTL;
-	dip[1] : LOCATION = Pin_N1;
 	dip[1] : IO_STANDARD = LVTTL;
-	led[0] : LOCATION = Pin_T24;
-	led[0] : IO_STANDARD = LVTTL;
-	led[1] : LOCATION = Pin_T23;
-	led[1] : IO_STANDARD = LVTTL;
-	lvds_clk : LOCATION = Pin_AA27;
-	lvds_clk : IO_STANDARD = LVTTL;
-	lvds_txa : LOCATION = Pin_V19;
-	lvds_txa : IO_STANDARD = LVTTL;
-	lvds_txb : LOCATION = Pin_V20;
-	lvds_txb : IO_STANDARD = LVTTL;
-	lvds_cmd : LOCATION = Pin_V23;
-	lvds_sync : LOCATION = Pin_AA28;
-	lvds_spr : LOCATION = Pin_V24;
-	dip3 : LOCATION = Pin_M2;
-	dip4 : LOCATION = Pin_N1;
-	nfault_led : LOCATION = Pin_V27;
-	status_led : LOCATION = Pin_T24;
-	pow_ok_led : LOCATION = Pin_T23;
-	nextnd : LOCATION = Pin_U27;
-	wdi : LOCATION = Pin_T28;
-	n7v_ok : LOCATION = Pin_T22;
-	sil_id : LOCATION = Pin_T21;
-	nsid00 : LOCATION = Pin_V25;
-	nsid01 : LOCATION = Pin_V26;
-	nsid02 : LOCATION = Pin_T25;
-	nsid03 : LOCATION = Pin_T26;
-	nrx3 : LOCATION = Pin_W28;
-	nrx2 : LOCATION = Pin_U20;
-	nrx1 : LOCATION = Pin_U19;
-	tx1 : LOCATION = Pin_Y26;
-	tx_en1 : LOCATION = Pin_Y25;
-	tx2 : LOCATION = Pin_U21;
-	tx_en2 : LOCATION = Pin_U22;
-	tx3 : LOCATION = Pin_Y28;
-	tx_en3 : LOCATION = Pin_Y27;
-	smb_clk : LOCATION = Pin_U23;
-	smb_data : LOCATION = Pin_W26;
-	nalert : LOCATION = Pin_W25;
+	dip3 : LOCATION = Pin_A8;
+	dip4 : LOCATION = Pin_A9;
+	nfault_led : LOCATION = Pin_AB22;
+	status_led : LOCATION = Pin_AC24;
+	pow_ok_led : LOCATION = Pin_AC23;
+	dip3 : IO_STANDARD = LVTTL;
+	dip4 : IO_STANDARD = LVTTL;
+	pow_ok_led : IO_STANDARD = LVTTL;
+	status_led : IO_STANDARD = LVTTL;
+	nfault_led : IO_STANDARD = LVTTL;
 }

@@ -1,6 +1,6 @@
 Fitter report for dip_leds_test compilation.
-Tue Apr 13 12:44:53 2004
-Version 3.0 Build 199 06/26/2003 SJ Full Version
+Tue Apr 13 16:08:35 2004
+Version 3.0 Build 245 10/09/2003 Service Pack 2 SJ Full Version
 
 Command: quartus_fit --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test
 
@@ -60,16 +60,16 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Tue Apr 13 12:44:53 2004 ;
+; Flow Status              ; Successful - Tue Apr 13 16:08:35 2004 ;
 ; Compiler Setting Name    ; dip_leds_test                         ;
 ; Top-level Entity Name    ; dip_leds_test                         ;
 ; Family                   ; Stratix                               ;
-; Device                   ; EP1S10F780C5                          ;
-; Total logic elements     ; 0 / 10,570 ( 0 % )                    ;
-; Total pins               ; 11 / 426 ( 2 % )                      ;
-; Total memory bits        ; 0 / 920,448 ( 0 % )                   ;
-; DSP block 9-bit elements ; 0 / 48 ( 0 % )                        ;
-; Total PLLs               ; 0 / 6 ( 0 % )                         ;
+; Device                   ; EP1S30F780C5                          ;
+; Total logic elements     ; 0 / 32,470 ( 0 % )                    ;
+; Total pins               ; 5 / 597 ( < 1 % )                     ;
+; Total memory bits        ; 0 / 3,317,184 ( 0 % )                 ;
+; DSP block 9-bit elements ; 0 / 96 ( 0 % )                        ;
+; Total PLLs               ; 0 / 10 ( 0 % )                        ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                         ;
 --------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 04/13/2004 12:44:13 ;
+; Start date & time     ; 04/13/2004 16:07:16 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; dip_leds_test       ;
 -----------------------------------------------
@@ -91,24 +91,24 @@ party's intellectual property, are provided herein.
 ; Module Name          ; Elapsed Time ;
 ---------------------------------------
 ; Analysis & Synthesis ; 00:00:02     ;
-; Fitter               ; 00:00:36     ;
-; Total                ; 00:00:38     ;
+; Fitter               ; 00:01:16     ;
+; Total                ; 00:01:18     ;
 ---------------------------------------
 
 
 --------------------------------------------------------------------
 ; Fitter Summary                                                   ;
 --------------------------------------------------------------------
-; Fitter Status            ; Successful - Tue Apr 13 12:44:53 2004 ;
+; Fitter Status            ; Successful - Tue Apr 13 16:08:35 2004 ;
 ; Compiler Setting Name    ; dip_leds_test                         ;
 ; Top-level Entity Name    ; dip_leds_test                         ;
 ; Family                   ; Stratix                               ;
-; Device                   ; EP1S10F780C5                          ;
-; Total logic elements     ; 0 / 10,570 ( 0 % )                    ;
-; Total pins               ; 11 / 426 ( 2 % )                      ;
-; Total memory bits        ; 0 / 920,448 ( 0 % )                   ;
-; DSP block 9-bit elements ; 0 / 48 ( 0 % )                        ;
-; Total PLLs               ; 0 / 6 ( 0 % )                         ;
+; Device                   ; EP1S30F780C5                          ;
+; Total logic elements     ; 0 / 32,470 ( 0 % )                    ;
+; Total pins               ; 5 / 597 ( < 1 % )                     ;
+; Total memory bits        ; 0 / 3,317,184 ( 0 % )                 ;
+; DSP block 9-bit elements ; 0 / 96 ( 0 % )                        ;
+; Total PLLs               ; 0 / 10 ( 0 % )                        ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                         ;
 --------------------------------------------------------------------
 
@@ -118,7 +118,7 @@ party's intellectual property, are provided herein.
 -------------------------------------------------------------------
 ; Option                                     ; Setting            ;
 -------------------------------------------------------------------
-; Device                                     ; EP1S10F780C5       ;
+; Device                                     ; EP1S30F780C5       ;
 ; Fast Fit compilation                       ; Off                ;
 ; Optimize IOC register placement for timing ; On                 ;
 ; Optimize timing                            ; Normal Compilation ;
@@ -144,7 +144,7 @@ party's intellectual property, are provided herein.
 ---------------------
 ; Fitter Equations  ;
 ---------------------
-The equations can be found in C:\scuba2_repository\cards\addr_card\dip_leds_test\synth\dip_leds_test.fit.eqn.
+The equations can be found in C:\scuba2_repository\cards\clk_card\dip_leds_test\synth\dip_leds_test.fit.eqn.
 
 
 -------------------
@@ -157,51 +157,47 @@ Please use Quartus II to view the floorplan report data.
 -----------------
 ; Pin-Out File  ;
 -----------------
-The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_test\synth\dip_leds_test.pin.
+The pin-out file can be found in C:\scuba2_repository\cards\clk_card\dip_leds_test\synth\dip_leds_test.pin.
 
 
-----------------------------------------------------
-; Resource Usage Summary                           ;
-----------------------------------------------------
-; Resource                   ; Usage               ;
-----------------------------------------------------
-; Logic cells                ; 0 / 10,570 ( 0 % )  ;
-; Registers                  ; 0 / 13,046 ( 0 % )  ;
-; User inserted logic cells  ; 0                   ;
-; I/O pins                   ; 11 / 426 ( 2 % )    ;
-;     -- Clock pins          ; 0 / 16 ( 0 % )      ;
-; Global signals             ; 0                   ;
-; M512s                      ; 0 / 94 ( 0 % )      ;
-; M4Ks                       ; 0 / 60 ( 0 % )      ;
-; M-RAMs                     ; 0 / 1 ( 0 % )       ;
-; Total memory bits          ; 0 / 920,448 ( 0 % ) ;
-; Total RAM block bits       ; 0 / 920,448 ( 0 % ) ;
-; DSP block 9-bit elements   ; 0 / 48 ( 0 % )      ;
-; Global clocks              ; 0 / 16 ( 0 % )      ;
-; Regional clocks            ; 0 / 16 ( 0 % )      ;
-; Fast regional clocks       ; 0 / 8 ( 0 % )       ;
-; DIFFIOCLKs                 ; 0 / 16 ( 0 % )      ;
-; SERDES transmitters        ; 0 / 44 ( 0 % )      ;
-; SERDES receivers           ; 0 / 44 ( 0 % )      ;
-; Maximum fan-out node       ; lvds_clk            ;
-; Maximum fan-out            ; 2                   ;
-; Total fan-out              ; 4                   ;
-; Average fan-out            ; 0.33                ;
-----------------------------------------------------
+------------------------------------------------------
+; Resource Usage Summary                             ;
+------------------------------------------------------
+; Resource                   ; Usage                 ;
+------------------------------------------------------
+; Logic cells                ; 0 / 32,470 ( 0 % )    ;
+; Registers                  ; 0 / 35,972 ( 0 % )    ;
+; User inserted logic cells  ; 0                     ;
+; I/O pins                   ; 5 / 597 ( < 1 % )     ;
+;     -- Clock pins          ; 0 / 16 ( 0 % )        ;
+; Global signals             ; 0                     ;
+; M512s                      ; 0 / 295 ( 0 % )       ;
+; M4Ks                       ; 0 / 171 ( 0 % )       ;
+; M-RAMs                     ; 0 / 4 ( 0 % )         ;
+; Total memory bits          ; 0 / 3,317,184 ( 0 % ) ;
+; Total RAM block bits       ; 0 / 3,317,184 ( 0 % ) ;
+; DSP block 9-bit elements   ; 0 / 96 ( 0 % )        ;
+; Global clocks              ; 0 / 16 ( 0 % )        ;
+; Regional clocks            ; 0 / 16 ( 0 % )        ;
+; Fast regional clocks       ; 0 / 32 ( 0 % )        ;
+; DIFFIOCLKs                 ; 0 / 32 ( 0 % )        ;
+; SERDES transmitters        ; 0 / 82 ( 0 % )        ;
+; SERDES receivers           ; 0 / 82 ( 0 % )        ;
+; Maximum fan-out node       ; dip3                  ;
+; Maximum fan-out            ; 1                     ;
+; Total fan-out              ; 2                     ;
+; Average fan-out            ; 0.33                  ;
+------------------------------------------------------
 
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-; Input Pins                                                                                                                                                                                                                                                      ;
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-; Name      ; Pin # ; I/O Bank ; X coordinate ; Y coordinate ; Cell number ; Combinational Fan-Out ; Registered Fan-Out ; Global ; Input Register ; Power Up High ; PCI I/O Enabled ; Bus Hold ; Weak Pull Up ; I/O Standard ; Termination ; Location assigned by ;
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-; dip3      ; M2    ; 5        ; 53           ; 20           ; 3           ; 1                     ; 0                  ; no     ; no             ; no            ; no              ; no       ; Off          ; LVTTL        ; Off         ; User                 ;
-; dip4      ; N1    ; 5        ; 53           ; 20           ; 2           ; 1                     ; 0                  ; no     ; no             ; no            ; no              ; no       ; Off          ; LVTTL        ; Off         ; User                 ;
-; lvds_clk  ; AA27  ; 1        ; 0            ; 3            ; 3           ; 2                     ; 0                  ; no     ; no             ; no            ; no              ; no       ; Off          ; LVTTL        ; Off         ; User                 ;
-; lvds_cmd  ; V23   ; 1        ; 0            ; 3            ; 1           ; 0                     ; 0                  ; no     ; no             ; no            ; no              ; no       ; Off          ; LVTTL        ; Off         ; User                 ;
-; lvds_spr  ; V24   ; 1        ; 0            ; 3            ; 0           ; 0                     ; 0                  ; no     ; no             ; no            ; no              ; no       ; Off          ; LVTTL        ; Off         ; User                 ;
-; lvds_sync ; AA28  ; 1        ; 0            ; 3            ; 2           ; 0                     ; 0                  ; no     ; no             ; no            ; no              ; no       ; Off          ; LVTTL        ; Off         ; User                 ;
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; Input Pins                                                                                                                                                                                                                                                 ;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; Name ; Pin # ; I/O Bank ; X coordinate ; Y coordinate ; Cell number ; Combinational Fan-Out ; Registered Fan-Out ; Global ; Input Register ; Power Up High ; PCI I/O Enabled ; Bus Hold ; Weak Pull Up ; I/O Standard ; Termination ; Location assigned by ;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; dip3 ; A8    ; 4        ; 68           ; 58           ; 1           ; 1                     ; 0                  ; no     ; no             ; no            ; no              ; no       ; Off          ; LVTTL        ; Off         ; User                 ;
+; dip4 ; A9    ; 4        ; 66           ; 58           ; 2           ; 1                     ; 0                  ; no     ; no             ; no            ; no              ; no       ; Off          ; LVTTL        ; Off         ; User                 ;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -209,32 +205,30 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ; Name       ; Pin # ; I/O Bank ; X coordinate ; Y coordinate ; Cell number ; Output Register ; Output Enable Register ; Power Up High ; Slow Slew Rate ; PCI I/O Enabled ; Open Drain ; Bus Hold ; Weak Pull Up ; Turbo Bit ; I/O Standard ; Current Strength ; Termination ; Location assigned by ;
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-; lvds_txa   ; V19   ; 1        ; 0            ; 4            ; 0           ; no              ; no                     ; no            ; no             ; no              ; no         ; no       ; Off          ; no        ; LVTTL        ; 24mA             ; Off         ; User                 ;
-; lvds_txb   ; V20   ; 1        ; 0            ; 4            ; 1           ; no              ; no                     ; no            ; no             ; no              ; no         ; no       ; Off          ; no        ; LVTTL        ; 24mA             ; Off         ; User                 ;
-; nfault_led ; V27   ; 1        ; 0            ; 9            ; 2           ; no              ; no                     ; no            ; no             ; no              ; no         ; no       ; Off          ; no        ; LVTTL        ; 24mA             ; Off         ; User                 ;
-; pow_ok_led ; T23   ; 1        ; 0            ; 9            ; 0           ; no              ; no                     ; no            ; no             ; no              ; no         ; no       ; Off          ; no        ; LVTTL        ; 24mA             ; Off         ; User                 ;
-; status_led ; T24   ; 1        ; 0            ; 9            ; 1           ; no              ; no                     ; no            ; no             ; no              ; no         ; no       ; Off          ; no        ; LVTTL        ; 24mA             ; Off         ; User                 ;
+; nfault_led ; AB22  ; 8        ; 3            ; 0            ; 1           ; no              ; no                     ; no            ; no             ; no              ; no         ; no       ; Off          ; no        ; LVTTL        ; 24mA             ; Off         ; User                 ;
+; pow_ok_led ; AC23  ; 8        ; 1            ; 0            ; 3           ; no              ; no                     ; no            ; no             ; no              ; no         ; no       ; Off          ; no        ; LVTTL        ; 24mA             ; Off         ; User                 ;
+; status_led ; AC24  ; 8        ; 1            ; 0            ; 1           ; no              ; no                     ; no            ; no             ; no              ; no         ; no       ; Off          ; no        ; LVTTL        ; 24mA             ; Off         ; User                 ;
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-------------------------------
-; I/O Bank Usage             ;
-------------------------------
-; I/O Bank ; Usage           ;
-------------------------------
-; 1        ; 9 / 48 ( 18 % ) ;
-; 2        ; 0 / 48 ( 0 % )  ;
-; 3        ; 0 / 52 ( 0 % )  ;
-; 4        ; 1 / 55 ( 1 % )  ;
-; 5        ; 2 / 48 ( 4 % )  ;
-; 6        ; 0 / 48 ( 0 % )  ;
-; 7        ; 0 / 55 ( 0 % )  ;
-; 8        ; 0 / 52 ( 0 % )  ;
-; 9        ; 0 / 6 ( 0 % )   ;
-; 10       ; 0 / 4 ( 0 % )   ;
-; 11       ; 0 / 6 ( 0 % )   ;
-; 12       ; 0 / 4 ( 0 % )   ;
-------------------------------
+-----------------------------
+; I/O Bank Usage            ;
+-----------------------------
+; I/O Bank ; Usage          ;
+-----------------------------
+; 1        ; 0 / 70 ( 0 % ) ;
+; 2        ; 0 / 74 ( 0 % ) ;
+; 3        ; 0 / 70 ( 0 % ) ;
+; 4        ; 3 / 74 ( 4 % ) ;
+; 5        ; 0 / 74 ( 0 % ) ;
+; 6        ; 0 / 70 ( 0 % ) ;
+; 7        ; 0 / 74 ( 0 % ) ;
+; 8        ; 3 / 71 ( 4 % ) ;
+; 9        ; 0 / 6 ( 0 % )  ;
+; 10       ; 0 / 4 ( 0 % )  ;
+; 11       ; 0 / 6 ( 0 % )  ;
+; 12       ; 0 / 4 ( 0 % )  ;
+-----------------------------
 
 
 --------------------------------------------------------------------------------------------
@@ -248,15 +242,15 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; A5       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; A6       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; A7       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; A8       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; A9       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; A8       ; 4        ; dip3           ; LVTTL        ;         ; Column I/O ; Off         ;
+; A9       ; 4        ; dip4           ; LVTTL        ;         ; Column I/O ; Off         ;
 ; A10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; A11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; A12      ; 4        ; VCCIO4         ;              ; 3.3V    ; --         ; --          ;
-; A13      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; A13      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; A14      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; A15      ; 1        ; GND            ;              ;         ; --         ; --          ;
-; A16      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; A16      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; A17      ; 3        ; VCCIO3         ;              ; 3.3V    ; --         ; --          ;
 ; A18      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; A19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -272,12 +266,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AA2      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AA3      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AA4      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; AA5      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AA6      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AA7      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AA8      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AA9      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AA10     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AA5      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AA6      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AA7      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AA8      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AA9      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AA10     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AA11     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AA12     ; 7        ; ^VCCSEL        ;              ;         ; --         ; --          ;
 ; AA13     ; 1        ; VCCG_PLL6      ;              ; 1.5V    ; --         ; --          ;
@@ -288,26 +282,26 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AA18     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AA19     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AA20     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AA21     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AA22     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AA23     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AA24     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AA21     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AA22     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AA23     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AA24     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AA25     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AA26     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; AA27     ; 1        ; lvds_clk       ; LVTTL        ;         ; Row I/O    ; Off         ;
-; AA28     ; 1        ; lvds_sync      ; LVTTL        ;         ; Row I/O    ; Off         ;
+; AA27     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AA28     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AB1      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AB2      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; AB3      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB4      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB5      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB6      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AB3      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AB4      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AB5      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AB6      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AB7      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AB8      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB9      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AB8      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AB9      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AB10     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AB11     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AB12     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AB12     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AB13     ; 7        ; ^nCE           ;              ;         ; --         ; --          ;
 ; AB14     ; 1        ; GNDG_PLL6      ;              ;         ; --         ; --          ;
 ; AB15     ; 8        ; ^MSEL2         ;              ;         ; --         ; --          ;
@@ -315,22 +309,22 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AB17     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AB18     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AB19     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AB20     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB21     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB22     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB23     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB24     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB25     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AB26     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AB20     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AB21     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AB22     ; 8        ; nfault_led     ; LVTTL        ;         ; Column I/O ; Off         ;
+; AB23     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AB24     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AB25     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AB26     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AB27     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AB28     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; AC1      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AC2      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AC1      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AC2      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AC3      ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; AC4      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AC5      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AC6      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AC7      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AC5      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AC6      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AC7      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AC8      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AC9      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AC10     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -343,45 +337,45 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AC17     ; 8        ; GND+           ;              ;         ; Column I/O ; --          ;
 ; AC18     ; 8        ; PLL_ENA        ;              ;         ; --         ; --          ;
 ; AC19     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AC20     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AC20     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AC21     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AC22     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AC23     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AC24     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AC22     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AC23     ; 8        ; pow_ok_led     ; LVTTL        ;         ; Column I/O ; Off         ;
+; AC24     ; 8        ; status_led     ; LVTTL        ;         ; Column I/O ; Off         ;
 ; AC25     ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; AC26     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AC27     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AC28     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AD1      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AD2      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AC27     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AC28     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AD1      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AD2      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AD3      ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; AD4      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AD5      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AD5      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD6      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AD7      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AD7      ; 7        ; GND            ;              ;         ; --         ; --          ;
 ; AD8      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD9      ; 7        ; GND            ;              ;         ; --         ; --          ;
 ; AD10     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD11     ; 7        ; GND            ;              ;         ; --         ; --          ;
-; AD12     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AD13     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AD12     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AD13     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD14     ; 7        ; GND+           ;              ;         ; Column I/O ; --          ;
 ; AD15     ; 11       ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AD16     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AD17     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AD16     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AD17     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD18     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD19     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD20     ; 8        ; GND            ;              ;         ; --         ; --          ;
 ; AD21     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD22     ; 8        ; GND            ;              ;         ; --         ; --          ;
 ; AD23     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AD24     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AD24     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AD25     ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; AD26     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AD27     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AD28     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AE1      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AE2      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AD27     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AD28     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AE1      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AE2      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AE3      ; 6        ; GND            ;              ;         ; --         ; --          ;
 ; AE4      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE5      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -391,12 +385,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AE9      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE10     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE11     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AE12     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AE13     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AE12     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AE13     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE14     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE15     ; 11       ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AE16     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AE17     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AE16     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AE17     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE18     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE19     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE20     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -404,12 +398,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AE22     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE23     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AE24     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AE25     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AE26     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AE27     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AE28     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AF1      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AF2      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AE25     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AE26     ; 1        ; GND            ;              ;         ; --         ; --          ;
+; AE27     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AE28     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AF1      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AF2      ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AF3      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; AF4      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF5      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -419,12 +413,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AF9      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF10     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF11     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AF12     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AF13     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AF12     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AF13     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF14     ; 1        ; GNDA_PLL6      ;              ;         ; --         ; --          ;
 ; AF15     ; 12       ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AF16     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AF17     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AF16     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AF17     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF18     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF19     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF20     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -434,8 +428,8 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AF24     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF25     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AF26     ; 1        ; GND            ;              ;         ; --         ; --          ;
-; AF27     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AF28     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AF27     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; AF28     ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; AG1      ; 6        ; VCCIO6         ;              ; 3.3V    ; --         ; --          ;
 ; AG2      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; AG3      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -447,12 +441,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AG9      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AG10     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AG11     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AG12     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AG13     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AG12     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AG13     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AG14     ; 1        ; VCCA_PLL6      ;              ; 1.5V    ; --         ; --          ;
 ; AG15     ; 12       ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; AG16     ; 1        ; NC             ;              ;         ; --         ; --          ;
-; AG17     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AG16     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; AG17     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AG18     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AG19     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AG20     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -475,12 +469,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; AH10     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AH11     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AH12     ; 7        ; VCCIO7         ;              ; 3.3V    ; --         ; --          ;
-; AH13     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AH13     ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AH14     ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; AH15     ; 1        ; GND            ;              ;         ; --         ; --          ;
-; AH16     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AH16     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AH17     ; 8        ; VCCIO8         ;              ; 3.3V    ; --         ; --          ;
-; AH18     ; 1        ; NC             ;              ;         ; --         ; --          ;
+; AH18     ; 8        ; GND            ;              ;         ; --         ; --          ;
 ; AH19     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AH20     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; AH21     ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -501,12 +495,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; B9       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; B10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; B11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; B12      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; B13      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; B12      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; B13      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; B14      ; 1        ; DIODEH         ;              ;         ; --         ; --          ;
 ; B15      ; 10       ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; B16      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; B17      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; B16      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; B17      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; B18      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; B19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; B20      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -518,8 +512,8 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; B26      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; B27      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; B28      ; 2        ; VCCIO2         ;              ; 3.3V    ; --         ; --          ;
-; C1       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; C2       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; C1       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; C2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; C3       ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; C4       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C5       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -529,12 +523,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; C9       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; C12      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; C13      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; C12      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; C13      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C14      ; 1        ; DIODEL         ;              ;         ; --         ; --          ;
 ; C15      ; 10       ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; C16      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; C17      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; C16      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; C17      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C18      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C20      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -544,10 +538,10 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; C24      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C25      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; C26      ; 1        ; GND            ;              ;         ; --         ; --          ;
-; C27      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; C28      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; D1       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; D2       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; C27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; C28      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; D1       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; D2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; D3       ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; D4       ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; D5       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -557,12 +551,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; D9       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; D10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; D11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; D12      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; D13      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; D12      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; D13      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; D14      ; 1        ; VCCG_PLL5      ;              ; 1.5V    ; --         ; --          ;
 ; D15      ; 9        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; D16      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; D17      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; D16      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; D17      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; D18      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; D19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; D20      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -572,76 +566,76 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; D24      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; D25      ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; D26      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; D27      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; D28      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; E1       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; E2       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; D27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; D28      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; E1       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; E2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; E3       ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; E4       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; E5       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; E5       ; 5        ; GND            ;              ;         ; --         ; --          ;
 ; E6       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; E7       ; 4        ; GND            ;              ;         ; --         ; --          ;
 ; E8       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; E9       ; 4        ; GND            ;              ;         ; --         ; --          ;
 ; E10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; E11      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; E12      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; E13      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; E11      ; 4        ; GND            ;              ;         ; --         ; --          ;
+; E12      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; E13      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; E14      ; 1        ; GNDG_PLL5      ;              ;         ; --         ; --          ;
 ; E15      ; 9        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; E16      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; E17      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; E16      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; E17      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; E18      ; 3        ; GND            ;              ;         ; --         ; --          ;
 ; E19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; E20      ; 3        ; GND            ;              ;         ; --         ; --          ;
 ; E21      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; E22      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; E22      ; 3        ; GND            ;              ;         ; --         ; --          ;
 ; E23      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; E24      ; 2        ; GND            ;              ;         ; --         ; --          ;
 ; E25      ; 1        ; NC             ;              ;         ; --         ; --          ;
 ; E26      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; E27      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; E28      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F1       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F2       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F3       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F4       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F5       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F6       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F7       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; E27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; E28      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F1       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F3       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F4       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F5       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F6       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F7       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; F8       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; F9       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; F9       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; F10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; F11      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; F11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; F12      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; F13      ; 4        ; #TMS           ;              ;         ; --         ; --          ;
 ; F14      ; 1        ; VCCA_PLL5      ;              ; 1.5V    ; --         ; --          ;
 ; F15      ; 9        ; VCC_PLL5_OUTA  ;              ; 3.3V    ; --         ; --          ;
 ; F16      ; 3        ; ^DCLK          ;              ;         ; --         ; --          ;
 ; F17      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; F18      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; F18      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; F19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; F20      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F21      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F22      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F23      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F24      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F25      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F26      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F27      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; F28      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; F20      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; F21      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; F22      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; F23      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F24      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F25      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F26      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; F28      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; G1       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; G2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; G3       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G4       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G5       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G6       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; G3       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; G4       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; G5       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; G6       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; G7       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; G8       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G9       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; G8       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; G9       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; G10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; G11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; G12      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; G12      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; G13      ; 4        ; #TDI           ;              ;         ; --         ; --          ;
 ; G14      ; 1        ; GNDA_PLL5      ;              ;         ; --         ; --          ;
 ; G15      ; 1        ; GND            ;              ;         ; --         ; --          ;
@@ -650,24 +644,24 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; G18      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; G19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; G20      ; 1        ; GND            ;              ;         ; --         ; --          ;
-; G21      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G22      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G23      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G24      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G25      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; G26      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; G21      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; G22      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; G23      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; G24      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; G25      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; G26      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; G27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; G28      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; H1       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; H2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; H3       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; H4       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; H5       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H6       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H7       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H8       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H9       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H10      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; H5       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; H6       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; H7       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; H8       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; H9       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; H10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; H11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; H12      ; 4        ; +~DATA0~       ; LVTTL        ;         ; Column I/O ; Off         ;
 ; H13      ; 4        ; #TDO           ;              ;         ; --         ; --          ;
@@ -676,12 +670,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; H16      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; H17      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; H18      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; H19      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H20      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H21      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H22      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H23      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; H24      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; H19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; H20      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; H21      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; H22      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; H23      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; H24      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; H25      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; H26      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; H27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
@@ -690,12 +684,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; J2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; J3       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; J4       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; J5       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; J6       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; J7       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; J8       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; J5       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; J6       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; J7       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; J8       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; J9       ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; J10      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; J10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; J11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; J12      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; J13      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -705,11 +699,11 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; J17      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; J18      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; J19      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; J20      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; J21      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; J22      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; J23      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; J24      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; J20      ; 3        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; J21      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; J22      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; J23      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; J24      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; J25      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; J26      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; J27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
@@ -718,12 +712,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; K2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K3       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K4       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; K5       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; K6       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; K5       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; K6       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K7       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K8       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K9       ; 5        ; GND            ;              ;         ; --         ; --          ;
-; K10      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; K10      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; K11      ; 4        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; K12      ; 4        ; #TCK           ;              ;         ; --         ; --          ;
 ; K13      ; 4        ; GND+           ;              ;         ; Column I/O ; --          ;
@@ -736,8 +730,8 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; K20      ; 2        ; GND            ;              ;         ; --         ; --          ;
 ; K21      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K22      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; K23      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; K24      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; K23      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; K24      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K25      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K26      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; K27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
@@ -771,7 +765,7 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; L27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; L28      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; M1       ; 5        ; VCCIO5         ;              ; 3.3V    ; --         ; --          ;
-; M2       ; 5        ; dip3           ; LVTTL        ;         ; Row I/O    ; Off         ;
+; M2       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; M3       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; M4       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; M5       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
@@ -798,7 +792,7 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; M26      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; M27      ; 2        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; M28      ; 2        ; VCCIO2         ;              ; 3.3V    ; --         ; --          ;
-; N1       ; 5        ; dip4           ; LVTTL        ;         ; Row I/O    ; Off         ;
+; N1       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; N2       ; 5        ; GND+           ;              ;         ; Row I/O    ; --          ;
 ; N3       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; N4       ; 5        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
@@ -844,7 +838,7 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; P16      ;          ; VCCINT         ;              ; 1.5V    ; --         ; --          ;
 ; P17      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; P18      ; 1        ; GND            ;              ;         ; --         ; --          ;
-; P19      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; P19      ; 2        ; GND            ;              ;         ; --         ; --          ;
 ; P20      ; 2        ; VCCIO2         ;              ; 3.3V    ; --         ; --          ;
 ; P21      ; 1        ; VCCG_PLL1      ;              ; 1.5V    ; --         ; --          ;
 ; P22      ; 1        ; GNDG_PLL1      ;              ;         ; --         ; --          ;
@@ -863,7 +857,7 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; R7       ; 1        ; GNDG_PLL3      ;              ;         ; --         ; --          ;
 ; R8       ; 1        ; VCCG_PLL3      ;              ; 1.5V    ; --         ; --          ;
 ; R9       ; 6        ; VCCIO6         ;              ; 3.3V    ; --         ; --          ;
-; R10      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; R10      ; 6        ; GND            ;              ;         ; --         ; --          ;
 ; R11      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; R12      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; R13      ;          ; VCCINT         ;              ; 1.5V    ; --         ; --          ;
@@ -904,8 +898,8 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; T20      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; T21      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; T22      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; T23      ; 1        ; pow_ok_led     ; LVTTL        ;         ; Row I/O    ; Off         ;
-; T24      ; 1        ; status_led     ; LVTTL        ;         ; Row I/O    ; Off         ;
+; T23      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; T24      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; T25      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; T26      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; T27      ; 1        ; GND+           ;              ;         ; Row I/O    ; --          ;
@@ -956,15 +950,15 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; V16      ;          ; VCCINT         ;              ; 1.5V    ; --         ; --          ;
 ; V17      ; 1        ; GND            ;              ;         ; --         ; --          ;
 ; V18      ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; V19      ; 1        ; lvds_txa       ; LVTTL        ;         ; Row I/O    ; Off         ;
-; V20      ; 1        ; lvds_txb       ; LVTTL        ;         ; Row I/O    ; Off         ;
+; V19      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; V20      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; V21      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; V22      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; V23      ; 1        ; lvds_cmd       ; LVTTL        ;         ; Row I/O    ; Off         ;
-; V24      ; 1        ; lvds_spr       ; LVTTL        ;         ; Row I/O    ; Off         ;
+; V23      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; V24      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; V25      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; V26      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; V27      ; 1        ; nfault_led     ; LVTTL        ;         ; Row I/O    ; Off         ;
+; V27      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; V28      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; W1       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; W2       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
@@ -972,8 +966,8 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; W4       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; W5       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; W6       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; W7       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; W8       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; W7       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; W8       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; W9       ; 6        ; GND            ;              ;         ; --         ; --          ;
 ; W10      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; W11      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -986,8 +980,8 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; W18      ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; W19      ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; W20      ; 1        ; GND            ;              ;         ; --         ; --          ;
-; W21      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; W22      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; W21      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; W22      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; W23      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; W24      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; W25      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
@@ -998,12 +992,12 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; Y2       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; Y3       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; Y4       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
-; Y5       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; Y6       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; Y7       ; 1        ; NC             ;              ;         ; --         ; --          ;
-; Y8       ; 1        ; NC             ;              ;         ; --         ; --          ;
+; Y5       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; Y6       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; Y7       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; Y8       ; 6        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; Y9       ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; Y10      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; Y10      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; Y11      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; Y12      ; 7        ; ^nIO_PULLUP    ;              ;         ; --         ; --          ;
 ; Y13      ; 7        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
@@ -1013,11 +1007,11 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 ; Y17      ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; Y18      ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
 ; Y19      ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
-; Y20      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; Y21      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; Y22      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; Y23      ; 1        ; NC             ;              ;         ; --         ; --          ;
-; Y24      ; 1        ; NC             ;              ;         ; --         ; --          ;
+; Y20      ; 8        ; RESERVED_INPUT ;              ;         ; Column I/O ; --          ;
+; Y21      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; Y22      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; Y23      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
+; Y24      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; Y25      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; Y26      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
 ; Y27      ; 1        ; RESERVED_INPUT ;              ;         ; Row I/O    ; --          ;
@@ -1066,7 +1060,7 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ; Compilation Hierarchy Node ; Logic Cells ; Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Full Hierarchy Name ;
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-; |dip_leds_test             ; 0 (0)       ; 0         ; 0           ; 0            ; 0       ; 0         ; 0         ; 11   ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; |dip_leds_test      ;
+; |dip_leds_test             ; 0 (0)       ; 0         ; 0           ; 0            ; 0       ; 0         ; 0         ; 5    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; |dip_leds_test      ;
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -1077,52 +1071,46 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ; dip3       ; Input    ; OFF           ; OFF           ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
 ; dip4       ; Input    ; OFF           ; OFF           ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
-; lvds_clk   ; Input    ; OFF           ; OFF           ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
-; lvds_cmd   ; Input    ; ON            ; ON            ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
-; lvds_spr   ; Input    ; ON            ; ON            ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
-; lvds_sync  ; Input    ; ON            ; ON            ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
-; lvds_txa   ; Output   ; OFF           ; OFF           ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
-; lvds_txb   ; Output   ; OFF           ; OFF           ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
 ; nfault_led ; Output   ; OFF           ; OFF           ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
 ; pow_ok_led ; Output   ; OFF           ; OFF           ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
 ; status_led ; Output   ; OFF           ; OFF           ; OFF                   ; OFF                     ; OFF                                    ; OFF                             ; OFF                            ; OFF ; OFF  ; OFF                        ;
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-----------------------
+------------------
 ; Non-Global High Fan-Out Signals ;
-----------------------
-; Name     ; Fan-Out ;
-----------------------
-; lvds_clk ; 2       ;
-; dip4     ; 1       ;
-; dip3     ; 1       ;
-----------------------
+------------------
+; Name ; Fan-Out ;
+------------------
+; dip4 ; 1       ;
+; dip3 ; 1       ;
+------------------
 
 
-------------------------------------------------------
-; Interconnect Usage Summary                         ;
-------------------------------------------------------
-; Interconnect Resource Type  ; Usage                ;
-------------------------------------------------------
-; C16 interconnects           ; 0 / 2,286 ( 0 % )    ;
-; C4 interconnects            ; 1 / 31,320 ( < 1 % ) ;
-; C8 interconnects            ; 0 / 7,272 ( 0 % )    ;
-; DIFFIOCLKs                  ; 0 / 16 ( 0 % )       ;
-; DQS bus muxes               ; 0 / 56 ( 0 % )       ;
-; DQS-32 I/O buses            ; 0 / 4 ( 0 % )        ;
-; DQS-8 I/O buses             ; 0 / 16 ( 0 % )       ;
-; Direct links                ; 0 / 44,740 ( 0 % )   ;
-; Fast regional clocks        ; 0 / 8 ( 0 % )        ;
-; Global clocks               ; 0 / 16 ( 0 % )       ;
-; I/O buses                   ; 2 / 208 ( < 1 % )    ;
-; LUT chains                  ; 0 / 9,513 ( 0 % )    ;
-; Local routing interconnects ; 0 / 10,570 ( 0 % )   ;
-; R24 interconnects           ; 6 / 2,280 ( < 1 % )  ;
-; R4 interconnects            ; 0 / 62,520 ( 0 % )   ;
-; R8 interconnects            ; 0 / 10,410 ( 0 % )   ;
-; Regional clocks             ; 0 / 16 ( 0 % )       ;
-------------------------------------------------------
+-----------------------------------------------------
+; Interconnect Usage Summary                        ;
+-----------------------------------------------------
+; Interconnect Resource Type  ; Usage               ;
+-----------------------------------------------------
+; C16 interconnects           ; 8 / 5,872 ( < 1 % ) ;
+; C4 interconnects            ; 0 / 89,120 ( 0 % )  ;
+; C8 interconnects            ; 0 / 19,904 ( 0 % )  ;
+; DIFFIOCLKs                  ; 0 / 32 ( 0 % )      ;
+; DQS bus muxes               ; 0 / 102 ( 0 % )     ;
+; DQS-16 I/O buses            ; 0 / 8 ( 0 % )       ;
+; DQS-32 I/O buses            ; 0 / 4 ( 0 % )       ;
+; DQS-8 I/O buses             ; 0 / 20 ( 0 % )      ;
+; Direct links                ; 0 / 131,860 ( 0 % ) ;
+; Fast regional clocks        ; 0 / 32 ( 0 % )      ;
+; Global clocks               ; 0 / 16 ( 0 % )      ;
+; I/O buses                   ; 2 / 364 ( < 1 % )   ;
+; LUT chains                  ; 0 / 29,223 ( 0 % )  ;
+; Local routing interconnects ; 0 / 32,470 ( 0 % )  ;
+; R24 interconnects           ; 2 / 6,156 ( < 1 % ) ;
+; R4 interconnects            ; 0 / 181,920 ( 0 % ) ;
+; R8 interconnects            ; 0 / 29,904 ( 0 % )  ;
+; Regional clocks             ; 0 / 16 ( 0 % )      ;
+-----------------------------------------------------
 
 
 --------------------
@@ -1130,15 +1118,15 @@ The pin-out file can be found in C:\scuba2_repository\cards\addr_card\dip_leds_t
 --------------------
 Info: *******************************************************************
 Info: Running Quartus II Fitter
-  Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Tue Apr 13 12:44:17 2004
+  Info: Version 3.0 Build 245 10/09/2003 Service Pack 2 SJ Full Version
+  Info: Processing started: Tue Apr 13 16:07:18 2004
 Info: Command: quartus_fit --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test
-Info: Selected device EP1S10F780C5 for design dip_leds_test
+Info: Selected device EP1S30F780C5 for design dip_leds_test
 Info: Device migration not selected. If you intend to use device migration later, you may need to change the pin assignments as they may compatible with other devices. 
+  Info: Device EP1S10F780C5 is compatible
   Info: Device EP1S10F780C5ES is compatible
   Info: Device EP1S20F780C5 is compatible
   Info: Device EP1S25F780C5 is compatible
-  Info: Device EP1S30F780C5 is compatible
   Info: Device EP1S30F780C5_HARDCOPY_FPGA_PROTOTYPE is compatible
   Info: Device EP1S40F780C5 is compatible
   Info: Device EP1S40F780C5_HARDCOPY_FPGA_PROTOTYPE is compatible
@@ -1156,37 +1144,12 @@ Info: Moving registers into I/Os, LUTs, DSP and RAM blocks to improve timing and
 Info: Finished moving registers into I/Os, LUTs, DSP and RAM blocks
 Info: Finished register packing
 Info: Completed I/O Pin Placement Operation
-Warning: Following nodes are assigned to locations or regions, but do not exist in design
-  Warning: Node dip[0] is assigned to location or region, but does not exist in design
-  Warning: Node dip[1] is assigned to location or region, but does not exist in design
-  Warning: Node led[0] is assigned to location or region, but does not exist in design
-  Warning: Node led[1] is assigned to location or region, but does not exist in design
-  Warning: Node n7v_ok is assigned to location or region, but does not exist in design
-  Warning: Node nalert is assigned to location or region, but does not exist in design
-  Warning: Node nextnd is assigned to location or region, but does not exist in design
-  Warning: Node nrx1 is assigned to location or region, but does not exist in design
-  Warning: Node nrx2 is assigned to location or region, but does not exist in design
-  Warning: Node nrx3 is assigned to location or region, but does not exist in design
-  Warning: Node nsid00 is assigned to location or region, but does not exist in design
-  Warning: Node nsid01 is assigned to location or region, but does not exist in design
-  Warning: Node nsid02 is assigned to location or region, but does not exist in design
-  Warning: Node nsid03 is assigned to location or region, but does not exist in design
-  Warning: Node sil_id is assigned to location or region, but does not exist in design
-  Warning: Node smb_clk is assigned to location or region, but does not exist in design
-  Warning: Node smb_data is assigned to location or region, but does not exist in design
-  Warning: Node tx1 is assigned to location or region, but does not exist in design
-  Warning: Node tx2 is assigned to location or region, but does not exist in design
-  Warning: Node tx3 is assigned to location or region, but does not exist in design
-  Warning: Node tx_en1 is assigned to location or region, but does not exist in design
-  Warning: Node tx_en2 is assigned to location or region, but does not exist in design
-  Warning: Node tx_en3 is assigned to location or region, but does not exist in design
-  Warning: Node wdi is assigned to location or region, but does not exist in design
 Info: Fitter placement was successful
 Info: Completed Fixed Delay Chain Operation
 Info: Completed Auto Delay Chain Operation
-Info: Quartus II Fitter was successful. 0 errors, 25 warnings
-  Info: Processing ended: Tue Apr 13 12:44:53 2004
-  Info: Elapsed time: 00:00:35
+Info: Quartus II Fitter was successful. 0 errors, 0 warnings
+  Info: Processing ended: Tue Apr 13 16:08:35 2004
+  Info: Elapsed time: 00:01:16
 Info: Writing report file dip_leds_test.fit.rpt
 
 

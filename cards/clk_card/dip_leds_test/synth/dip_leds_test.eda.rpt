@@ -1,6 +1,6 @@
 EDA Netlist Writer report for dip_leds_test compilation.
-Tue Apr 13 12:45:01 2004
-Version 3.0 Build 199 06/26/2003 SJ Full Version
+Tue Apr 13 16:08:48 2004
+Version 3.0 Build 245 10/09/2003 Service Pack 2 SJ Full Version
 
 Command: quartus_eda --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test
 
@@ -47,16 +47,16 @@ party's intellectual property, are provided herein.
 --------------------------------------------------------------------
 ; Flow Summary                                                     ;
 --------------------------------------------------------------------
-; Flow Status              ; Successful - Tue Apr 13 12:45:01 2004 ;
+; Flow Status              ; Successful - Tue Apr 13 16:08:48 2004 ;
 ; Compiler Setting Name    ; dip_leds_test                         ;
 ; Top-level Entity Name    ; dip_leds_test                         ;
 ; Family                   ; Stratix                               ;
-; Device                   ; EP1S10F780C5                          ;
-; Total logic elements     ; 0 / 10,570 ( 0 % )                    ;
-; Total pins               ; 11 / 426 ( 2 % )                      ;
-; Total memory bits        ; 0 / 920,448 ( 0 % )                   ;
-; DSP block 9-bit elements ; 0 / 48 ( 0 % )                        ;
-; Total PLLs               ; 0 / 6 ( 0 % )                         ;
+; Device                   ; EP1S30F780C5                          ;
+; Total logic elements     ; 0 / 32,470 ( 0 % )                    ;
+; Total pins               ; 5 / 597 ( < 1 % )                     ;
+; Total memory bits        ; 0 / 3,317,184 ( 0 % )                 ;
+; DSP block 9-bit elements ; 0 / 96 ( 0 % )                        ;
+; Total PLLs               ; 0 / 10 ( 0 % )                        ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                         ;
 --------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ party's intellectual property, are provided herein.
 -----------------------------------------------
 ; Option                ; Setting             ;
 -----------------------------------------------
-; Start date & time     ; 04/13/2004 12:44:13 ;
+; Start date & time     ; 04/13/2004 16:07:16 ;
 ; Main task             ; Compilation         ;
 ; Compiler Setting Name ; dip_leds_test       ;
 -----------------------------------------------
@@ -78,18 +78,18 @@ party's intellectual property, are provided herein.
 ; Module Name          ; Elapsed Time ;
 ---------------------------------------
 ; Analysis & Synthesis ; 00:00:02     ;
-; Fitter               ; 00:00:36     ;
-; Assembler            ; 00:00:03     ;
+; Fitter               ; 00:01:16     ;
+; Assembler            ; 00:00:07     ;
 ; Timing Analyzer      ; 00:00:00     ;
 ; EDA Netlist Writer   ; 00:00:01     ;
-; Total                ; 00:00:42     ;
+; Total                ; 00:01:26     ;
 ---------------------------------------
 
 
 ---------------------------------------------------------------------
 ; EDA Netlist Writer Summary                                        ;
 ---------------------------------------------------------------------
-; EDA Netlist Writer Status ; Successful - Tue Apr 13 12:45:01 2004 ;
+; EDA Netlist Writer Status ; Successful - Tue Apr 13 16:08:48 2004 ;
 ; Compiler Setting Name     ; dip_leds_test                         ;
 ; Top-level Entity Name     ; dip_leds_test                         ;
 ; Family                    ; Stratix                               ;
@@ -115,14 +115,14 @@ party's intellectual property, are provided herein.
 -------------------------------------------------------------------------------------------------
 
 
-----------------------------------------------------------------------------------------------------
-; Simulation Tool Generated Files                                                                  ;
-----------------------------------------------------------------------------------------------------
-; Generated Files                                                                                  ;
-----------------------------------------------------------------------------------------------------
-; \scuba2_repository\cards\addr_card\dip_leds_test\synth\simulation\modelsim\dip_leds_test.vho     ;
-; \scuba2_repository\cards\addr_card\dip_leds_test\synth\simulation\modelsim\dip_leds_test_vhd.sdo ;
-----------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+; Simulation Tool Generated Files                                                                 ;
+---------------------------------------------------------------------------------------------------
+; Generated Files                                                                                 ;
+---------------------------------------------------------------------------------------------------
+; \scuba2_repository\cards\clk_card\dip_leds_test\synth\simulation\modelsim\dip_leds_test.vho     ;
+; \scuba2_repository\cards\clk_card\dip_leds_test\synth\simulation\modelsim\dip_leds_test_vhd.sdo ;
+---------------------------------------------------------------------------------------------------
 
 
 --------------------------------
@@ -130,12 +130,12 @@ party's intellectual property, are provided herein.
 --------------------------------
 Info: *******************************************************************
 Info: Running Quartus II EDA Netlist Writer
-  Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
-  Info: Processing started: Tue Apr 13 12:45:00 2004
+  Info: Version 3.0 Build 245 10/09/2003 Service Pack 2 SJ Full Version
+  Info: Processing started: Tue Apr 13 16:08:47 2004
 Info: Command: quartus_eda --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test
-Info: Generated files dip_leds_test.vho and dip_leds_test_vhd.sdo in directory \scuba2_repository\cards\addr_card\dip_leds_test\synth\simulation\modelsim\ for EDA simulation tool
+Info: Generated files dip_leds_test.vho and dip_leds_test_vhd.sdo in directory \scuba2_repository\cards\clk_card\dip_leds_test\synth\simulation\modelsim\ for EDA simulation tool
 Info: Quartus II EDA Netlist Writer was successful. 0 errors, 0 warnings
-  Info: Processing ended: Tue Apr 13 12:45:01 2004
+  Info: Processing ended: Tue Apr 13 16:08:48 2004
   Info: Elapsed time: 00:00:01
 Info: Writing report file dip_leds_test.eda.rpt
 
