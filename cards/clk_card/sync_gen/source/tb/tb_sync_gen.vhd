@@ -23,8 +23,8 @@ architecture beh of tb_sync_gen is
    signal sync                      : std_logic;
    signal sync_num_o                : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    
-   signal clk_count_o               : integer;
-   signal clk_error_o               : std_logic_vector(31 downto 0);
+--   signal clk_count_o               : integer;
+--   signal clk_error_o               : std_logic_vector(31 downto 0);
    
    -- frame_timing
    signal init_window_req           : std_logic := '0';
