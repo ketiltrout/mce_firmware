@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.21 2004/10/14 00:38:43 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.22 2004/11/25 01:32:37 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/10/14 00:38:43 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/11/25 01:32:37 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.22  2004/11/25 01:32:37  bburger
+-- Bryce:
+-- - Changed to cmd_code over the bus backplane to read/write only
+-- - Added interface signals for internal commands
+-- - RB command data-sizes are correctly handled
+--
 -- Revision 1.21  2004/10/14 00:38:43  bburger
 -- Bryce:  cleaning up un-used signals
 --
@@ -171,7 +177,8 @@ port(
       macro_instr_rdy_o :  out std_logic;
       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
-      last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
+      last_frame_o      :  out std_logic;           -- indicates the last frame of data for a ret_dat command
+      internal_cmd_o    :  out std_logic;                                       
       
       -- input from the cmd_queue (micro-op sequence generator)
       ack_i                 : in std_logic;                    -- acknowledge signal from the micro-instruction sequence generator
@@ -235,12 +242,24 @@ architecture rtl of cmd_translator is
    signal simple_cmd_data_clk        : std_logic;
    signal simple_cmd_macro_instr_rdy : std_logic;
    signal simple_cmd_type            : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+
+   signal internal_cmd_start           : std_logic;  
+   signal internal_cmd_card_addr       : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal internal_cmd_parameter_id    : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+   signal internal_cmd_data_size       : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+   signal internal_cmd_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
+   signal internal_cmd_data_clk        : std_logic; 
+   signal internal_cmd_macro_instr_rdy : std_logic; 
+   signal internal_cmd_type            : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
+   signal internal_cmd_ack             : std_logic;
    
    signal macro_instr_rdy            : std_logic;
    signal cmd_code                   : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);
    signal ret_dat_cmd_stop           : std_logic;
    signal ret_dat_last_frame         : std_logic;
 
+   signal timer_rst                  : std_logic;
+   signal time                       : integer;
 
    constant START_CMD                : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0) := x"474F";
    constant STOP_CMD                 : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0) := x"5354";
@@ -465,7 +484,42 @@ begin
 --   
 --   arbiter_ack <= ret_dat_s_ack & ret_dat_ack & simple_cmd_ack;
 
+
+------------------------------------------------------------------------
+--
+-- logic for issuing internal commands
+--
+------------------------------------------------------------------------   
+ 
+   -- reset logic for micro-second timer and activation logic for state machine
+   -- responsible for issuing internal commands
+   process(rst_i, clk_i) --cmd_rdy_i, macro_instr_rdy, )
+   begin
+   if rst_i = '1' then--or cmd_rdy_i = '1' or macro_instr_rdy = '1' then
+      timer_rst               <= '1';
+      internal_cmd_start      <= '0';  
+   elsif clk_i'event and clk_i = '1' then
+      if time >= 300 then --1000000 then  -- 1x10^6 us = 1s
+         timer_rst            <= '1';
+         internal_cmd_start   <= '1';      
+      else
+         timer_rst            <= '0';
+         internal_cmd_start   <= '0';      
+      end if;
+   end if;
+   end process;
+   
+  -- micro-second timer
+  timer : us_timer
+  port map(
+     clk           => clk_i,
+     timer_reset_i => timer_rst,
+     timer_count_o => time );
+
+
+   -- acknowledge signal back to fibre_rx indicating receipt of command
    ack_o <= ret_dat_s_ack or ret_dat_ack or simple_cmd_ack; --ret_dat_stop_ack or 
+
 
 ------------------------------------------------------------------------
 --
@@ -561,6 +615,38 @@ port map(
    );  
  
 
+
+internal_cmd : cmd_translator_internal_cmd_fsm
+
+port map(
+
+     -- global inputs
+
+      rst_i             => rst_i,
+      clk_i             => clk_i,
+
+      -- inputs from cmd_translator top level
+      
+      internal_cmd_start_i => internal_cmd_start,
+
+      -- outputs to the macro-instruction arbiter
+      card_addr_o       => internal_cmd_card_addr,
+      parameter_id_o    => internal_cmd_parameter_id, 
+      data_size_o       => internal_cmd_data_size,
+      data_o            => internal_cmd_data,
+      data_clk_o        => internal_cmd_data_clk,
+      macro_instr_rdy_o => internal_cmd_macro_instr_rdy,
+      cmd_type_o        => internal_cmd_type,
+      
+      -- input from the macro-instruction arbiter
+      ack_i             => internal_cmd_ack
+
+   ); 
+
+
+
+
+
 arbiter : cmd_translator_arbiter
 
 port map(
@@ -598,6 +684,19 @@ port map(
       
       -- output to simple cmd fsm
       simple_cmd_ack_o              => simple_cmd_ack, 
+      
+      -- inputs from the internal commands state machine
+      internal_cmd_card_addr_i       => internal_cmd_card_addr,
+      internal_cmd_parameter_id_i    => internal_cmd_parameter_id,
+      internal_cmd_data_size_i       => internal_cmd_data_size,
+      internal_cmd_data_i            => internal_cmd_data,
+      internal_cmd_data_clk_i        => internal_cmd_data_clk,
+      internal_cmd_macro_instr_rdy_i => internal_cmd_macro_instr_rdy,
+      internal_cmd_type_i            => internal_cmd_type,
+      
+      -- output to the internal command state machine
+      internal_cmd_ack_o             => internal_cmd_ack,
+ 
       sync_number_i                 => sync_number_i,
 
       -- outputs to the micro instruction sequence generator
@@ -610,7 +709,7 @@ port map(
       parameter_id_o                => parameter_id,            -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o                   => data_size_o,             -- num_data_i, indicates number of 16-bit words of data
       data_o                        => data_o,                  -- data will be passed straight thru in 16-bit words
-      data_clk_o                     => data_clk_o ,             -- for clocking out the data
+      data_clk_o                    => data_clk_o ,             -- for clocking out the data
       macro_instr_rdy_o             => macro_instr_rdy,         -- ='1' when the data is valid, else it's '0'
       cmd_type_o                    => cmd_type_o,
       cmd_stop_o                    => cmd_stop_o,                    
@@ -631,6 +730,10 @@ port map(
    macro_instr_rdy_o   <= macro_instr_rdy;
    card_addr_o         <= card_addr;
    parameter_id_o      <= parameter_id;
+
+
+   -- output to cmd_queue   
+   internal_cmd_o <= internal_cmd_macro_instr_rdy;
    
 ------------------------------------------------------------------------
 --
