@@ -1,7 +1,7 @@
 FILES
 {
+	VHDL_FILE = ..\source\pll_in25m_out400m200m25m.vhd;
 	VHDL_FILE = ..\source\counter1.vhd;
-	VHDL_FILE = ..\source\pll.vhd;
 	VHDL_FILE = ..\source\ac_core_power_ripple.vhd;
 }
 COMPILER_SETTINGS_LIST
