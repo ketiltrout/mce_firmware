@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/21 16:52:16 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/21 19:59:59 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl_pack.vhd,v $
+-- Revision 1.4  2004/04/21 19:59:59  mandana
+-- edited the log header
+--
 -- Revision 1.3  2004/04/21 16:52:16  mandana
 -- change DAC_CTRL_ADDR to DAC32_CTRL_ADDR
 --
@@ -65,6 +68,7 @@ component dac_ctrl
         dac_data_o  : out std_logic_vector(32 downto 0);   
         dac_ncs_o   : out std_logic_vector(32 downto 0);
         dac_clk_o   : out std_logic_vector(32 downto 0);
+        dac_nclr_o  : out std_logic;
         -- wishbone signals:
         clk_i   : in  std_logic;
         rst_i   : in  std_logic;		

@@ -33,8 +33,11 @@
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/21 20:56:37 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/22 23:49:28 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.10  2004/04/22 23:49:28  mandana
+-- changed idac to count by instantiating a counter
+--
 -- Revision 1.9  2004/04/21 20:56:37  mandana
 -- change cmd names to match new wishbone pack
 --
@@ -89,6 +92,7 @@ port(--  dac_ctrl:
      dac_data_o  : out std_logic_vector(32 downto 0);   
      dac_ncs_o   : out std_logic_vector(32 downto 0);
      dac_clk_o   : out std_logic_vector(32 downto 0);
+     dac_nclr_o  : out std_logic;
      -- wishbone signals:
      clk_i       : in std_logic;
      rst_i       : in std_logic;		
@@ -187,8 +191,10 @@ dac_ncs_o <= dac_ncs;
    begin
       if(rst_i = '1') then
          current_state <= IDLE;
+         dac_nclr_o <= '0';
       elsif(clk_i'event and clk_i = '1') then
          current_state <= next_state;
+         dac_nclr_o <= '1';
       end if;
    end process state_FF;
 
