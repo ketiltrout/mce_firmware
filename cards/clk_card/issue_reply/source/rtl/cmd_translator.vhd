@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.1 2004/05/28 15:53:25 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.2 2004/06/03 23:39:39 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/05/28 15:53:25 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/03 23:39:39 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.2  2004/06/03 23:39:39  jjacob
+-- safety checkin
+--
 -- Revision 1.1  2004/05/28 15:53:25  jjacob
 -- first version
 --
@@ -167,6 +170,7 @@ architecture rtl of cmd_translator is
    signal simple_cmd_data_size       :  std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
    signal simple_cmd_data            :  std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
    signal simple_cmd_data_clk        :  std_logic;
+   signal simple_cmd_macro_instr_rdy :  std_logic;
 
    signal m_op_seq_num               :  std_logic_vector( 7 downto 0);
 
@@ -790,7 +794,7 @@ port map(
       data_size_o         => simple_cmd_data_size,       -- data_size_i, indicates number of 16-bit words of data
       data_o              => simple_cmd_data,            -- data will be passed straight thru in 16-bit words
       data_clk_o          => simple_cmd_data_clk,        -- for clocking out the data
-      macro_instr_rdy_o   => simple_cmd_ack, -- ='1' when the data is valid, else it's '0'
+      macro_instr_rdy_o   => simple_cmd_macro_instr_rdy, -- ='1' when the data is valid, else it's '0'
       
 
  
@@ -838,10 +842,10 @@ port map(
       simple_cmd_data_size_i        => simple_cmd_data_size,-- data_size_i, indicates number of 16-bit words of data
       simple_cmd_data_i             =>   simple_cmd_data, -- data will be passed straight thru in 16-bit words
       simple_cmd_data_clk_i        	=>				simple_cmd_data_clk,                                   -- for clocking out the data
-      simple_cmd_macro_instr_rdy_i   =>       simple_cmd_ack,                              -- ='1' when the data is valid, else it's '0'
+      simple_cmd_macro_instr_rdy_i   =>       simple_cmd_macro_instr_rdy,                              -- ='1' when the data is valid, else it's '0'
       
  
-      -- input from the macro-instruction arbiter
+      -- output to simple cmd fsm
       simple_cmd_ack_o              =>simple_cmd_ack,
 
 

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.7 2004/05/06 18:16:43 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.1 2004/05/28 15:53:10 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/05/06 18:16:43 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/05/28 15:53:10 $>	-		<text>		- <initials $Author: jjacob $>
 --
--- $Log$
+-- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.1  2004/05/28 15:53:10  jjacob
+-- first version
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -234,6 +237,45 @@ begin
 --   end process;
 --
 
+--   macro_instr_rdy_o  <= '1';
+
+   process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
+           data_i, data_clk_i)
+   begin
+      case cmd_start_i is
+         when '1' =>
+            card_addr_o        <= card_addr_i;
+            parameter_id_o     <= parameter_id_i;
+            data_size_o        <= data_size_i;
+            data_o             <= data_i;
+            data_clk_o         <= data_clk_i;
+            macro_instr_rdy_o  <= '1';
+            
+         when '0' =>
+         
+            card_addr_o        <= (others => '0');
+            parameter_id_o     <= (others => '0');
+            data_size_o        <= (others => '0');
+            data_o             <= (others => '0');
+            data_clk_o         <= '0';
+            macro_instr_rdy_o  <= '0';
+            
+         when others =>
+         
+            card_addr_o        <= (others => '0');
+            parameter_id_o     <= (others => '0');
+            data_size_o        <= (others => '0');
+            data_o             <= (others => '0');
+            data_clk_o         <= '0';
+            macro_instr_rdy_o  <= '0';
+         
+      end case;
+   
+   
+   end process;
+
+
+
 
 ------------------------------------------------------------------------
 --
@@ -241,76 +283,92 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
-           data_i, data_clk_i, word_count) -- maybe include word_count, but may cause delta-cycle issue
-   begin
-      case current_state is
-         when IDLE =>
-         
-            if cmd_start_i = '1' then
-            
-               card_addr_o        <= card_addr_i;
-               parameter_id_o     <= parameter_id_i;
-               data_size_o        <= data_size_i;
-               data_o             <= data_i;
-               data_clk_o         <= data_clk_i;
-               macro_instr_rdy_o  <= '1';
-            
-               --word_count         <= word_count + 1;
-               
-               current_state <= ISSUE_CMD;
-
-            else
-
-               card_addr_o        <= (others => '0');
-               parameter_id_o     <= (others => '0');
-               data_size_o        <= (others => '0');
-               data_o             <= (others => '0');
-               data_clk_o         <= '0';
-               macro_instr_rdy_o  <= '0';
-            
-               --word_count         <= (others => '0');
-               current_state <= IDLE;
-
-            end if;
-         
-         when ISSUE_CMD =>
-         
-            if word_count > data_size_i then
-            
-               card_addr_o        <= (others => '0');
-               parameter_id_o     <= (others => '0');
-               data_size_o        <= (others => '0');
-               data_o             <= (others => '0');
-               data_clk_o         <= '0';
-               macro_instr_rdy_o  <= '0';
-            
-               --word_count         <= (others => '0');
-               
-               current_state <= IDLE;
-
-            else            
-               -- outputs to the macro-instruction arbiter
-               card_addr_o        <= card_addr_i;
-               parameter_id_o     <= parameter_id_i;
-               data_size_o        <= data_size_i;
-               data_o             <= data_i;
-               data_clk_o         <= data_clk_i;
-               macro_instr_rdy_o  <= '1';
-            
-               --word_count         <= word_count + 1;
-               current_state <= ISSUE_CMD;
-               
-            end if;
-         
-
-            
---         when ISSUE_CMD_DONE =>
-       
-      end case;
-   
-   end process;
- 
+--   process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
+--           data_i, data_clk_i, word_count) -- maybe include word_count, but may cause delta-cycle issue
+--   begin
+--      case current_state is
+--      
+-- 
+--         when IDLE =>
+--         
+--            if cmd_start_i = '1' then
+--            
+--               card_addr_o        <= card_addr_i;
+--               parameter_id_o     <= parameter_id_i;
+--               data_size_o        <= data_size_i;
+--               data_o             <= data_i;
+--               data_clk_o         <= data_clk_i;
+--               macro_instr_rdy_o  <= '1';
+--            
+--               --word_count         <= word_count + 1;
+--               
+--               current_state <= ISSUE_CMD;
+--
+--            else
+--
+--               card_addr_o        <= (others => '0');
+--               parameter_id_o     <= (others => '0');
+--               data_size_o        <= (others => '0');
+--               data_o             <= (others => '0');
+--               data_clk_o         <= '0';
+--               macro_instr_rdy_o  <= '0';
+--            
+--               --word_count         <= (others => '0');
+--               current_state <= IDLE;
+--
+--            end if;
+--            
+--
+--                        
+--         when ISSUE_CMD =>
+--         
+--            if word_count > data_size_i then
+--            
+--               card_addr_o        <= (others => '0');
+--               parameter_id_o     <= (others => '0');
+--               data_size_o        <= (others => '0');
+--               data_o             <= (others => '0');
+--               data_clk_o         <= '0';
+--               macro_instr_rdy_o  <= '0';
+--            
+--               --word_count         <= (others => '0');
+--               
+--               current_state <= IDLE;
+--
+--            else            
+--               -- outputs to the macro-instruction arbiter
+--               card_addr_o        <= card_addr_i;
+--               parameter_id_o     <= parameter_id_i;
+--               data_size_o        <= data_size_i;
+--               data_o             <= data_i;
+--               data_clk_o         <= data_clk_i;
+--               macro_instr_rdy_o  <= '1';
+--            
+--               --word_count         <= word_count + 1;
+--               current_state <= ISSUE_CMD;
+--               
+--            end if;
+--            
+--         when others =>
+--         
+--            card_addr_o        <= (others => '0');
+--            parameter_id_o     <= (others => '0');
+--            data_size_o        <= (others => '0');
+--            data_o             <= (others => '0');
+--            data_clk_o         <= '0';
+--            macro_instr_rdy_o  <= '0';
+--            
+--               --word_count         <= (others => '0');
+--            current_state <= IDLE;
+--         
+--
+--            
+----         when ISSUE_CMD_DONE =>
+--       
+--      end case;
+--   
+--   end process;
+-- 
  
  
  
@@ -323,19 +381,19 @@ begin
 --
 ------------------------------------------------------------------------ 
 -- write a counter based on data_clk
-   process (current_state, data_clk_i)
-   begin
-      case current_state is
-         when IDLE =>
-            word_count <= (others => '0');
-         when ISSUE_CMD =>
-            if data_clk_i'event and data_clk_i='1' then
-               word_count <= word_count + 1;
-            end if;
-         when others =>
-            word_count <= (others => '0');
-      end case;
-   end process;
+--   process (current_state, data_clk_i)
+--   begin
+--      case current_state is
+--         when IDLE =>
+--            word_count <= (others => '0');
+--         when ISSUE_CMD =>
+--            if data_clk_i'event and data_clk_i='1' then
+--               word_count <= word_count + 1;
+--            end if;
+--         when others =>
+--            word_count <= (others => '0');
+--      end case;
+--   end process;
    
       
 end rtl;
