@@ -32,6 +32,11 @@
 # Revision history:
 #
 # $Log: rc_pin_assign.tcl,v $
+# Revision 1.8  2004/12/06 07:22:35  bburger
+# Bryce:
+# Created pack files for the card top-levels.
+# Added some simulation signals to the top-levels (i.e. clocks)
+#
 # Revision 1.7  2004/07/26 20:06:46  mandana
 # renamed mictor pins
 #
@@ -133,10 +138,10 @@ puts "   Assigned: Spare TTL pins."
 # PLL5 out[2] 
 # PLL5 out[3] 
 cmp add_assignment $top_name "" inclk LOCATION "Pin_K17"
-cmp add_assignment $top_name "" "pll5_out\[0]" LOCATION "Pin_E15"
-cmp add_assignment $top_name "" "pll5_out\[1]" LOCATION "Pin_K14"
-cmp add_assignment $top_name "" "pll5_out\[2]" LOCATION "Pin_C15"
-cmp add_assignment $top_name "" "pll5_out\[3]" LOCATION "Pin_K16"
+cmp add_assignment $top_name "" "pll5_out\[0\]" LOCATION "Pin_E15"
+cmp add_assignment $top_name "" "pll5_out\[1\]" LOCATION "Pin_K14"
+cmp add_assignment $top_name "" "pll5_out\[2\]" LOCATION "Pin_C15"
+cmp add_assignment $top_name "" "pll5_out\[3\]" LOCATION "Pin_K16"
 cmp add_assignment $top_name "" "pll6_in" LOCATION "Pin_AC17"
 cmp add_assignment $top_name "" "pll6_out\[0\]" LOCATION "Pin_AD15"
 cmp add_assignment $top_name "" "pll6_out\[1\]" LOCATION "Pin_W14"
@@ -284,7 +289,7 @@ cmp add_assignment $top_name "" "bias_dac_ncs\[4\]" LOCATION "Pin_AH16"
 cmp add_assignment $top_name "" "bias_dac_ncs\[5\]" LOCATION "Pin_AC24"
 cmp add_assignment $top_name "" "bias_dac_ncs\[6\]" LOCATION "Pin_AD24"
 cmp add_assignment $top_name "" "bias_dac_ncs\[7\]" LOCATION "Pin_AC22"
-cmp add_assignment $top_name "" "offset_dac_ncs\[1\]" LOCATION "Pin_AE7"
+cmp add_assignment $top_name "" "offset_dac_ncs\[0\]" LOCATION "Pin_AE7"
 cmp add_assignment $top_name "" "offset_dac_ncs\[1\]" LOCATION "Pin_Y9"
 cmp add_assignment $top_name "" "offset_dac_ncs\[2\]" LOCATION "Pin_AA10"
 cmp add_assignment $top_name "" "offset_dac_ncs\[3\]" LOCATION "Pin_AB12"
