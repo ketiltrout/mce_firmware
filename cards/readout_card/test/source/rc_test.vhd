@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/07/16 18:56:32 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/17 00:00:00 $>	- <initials $Author: mandana $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.11  2004/07/17 00:00:00  mandana
+-- adding SRAM test, v02 now
+--
 -- Revision 1.10  2004/07/16 18:56:32  mandana
 -- adding SRAM test, v02 now
 --
@@ -534,23 +537,22 @@ begin
                   
                elsif(cmd1 = CMD_SERIALDAC) then
                    if (cmd2 = CMD_DAC_FIXED) then
---                      if (dac_test_mode = "00") then
                          dac_test_mode <= "00";
 	                 sel <= SEL_SDAC;
---                      end if;                      
                    elsif (cmd2 = CMD_DAC_RAMP) then
                       dac_test_mode <= "01";
                       sel <= SEL_SDAC;               
                    end if;   
                elsif(cmd1 = CMD_PARALLELDAC) then
                    if (cmd2 = CMD_DAC_FIXED) then
---                      if (dac_test_mode = "00") then
                          dac_test_mode <= "00";
 	                 sel <= SEL_PDAC;
---                      end if;                      
                    elsif (cmd2 = CMD_DAC_RAMP) then
                       dac_test_mode <= "01";
-                      sel <= SEL_PDAC;               
+                      sel <= SEL_PDAC;             
+                   elsif (cmd2 = CMD_DAC_SQUARE) then
+                      dac_test_mode <= "10";
+                      sel <= SEL_PDAC;                                   
                    end if;                     
                else
                   -- must not be implemented yet!

@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: rc_test_idle.vhd,v $
+-- Revision 1.4  2004/07/16 18:48:08  mandana
+-- adding SRAM test
+--
 -- Revision 1.3  2004/07/14 21:26:43  bench1
 -- Mandana: added else rx_newdata_clr <= 0 for 2nd and 3rd character
 --
@@ -232,7 +235,8 @@ begin
                      rx_data_i = CMD_RX_SYNC or
                      rx_data_i = CMD_RX_SPARE or 
                      rx_data_i = CMD_DAC_RAMP or
-                     rx_data_i = CMD_DAC_FIXED) then
+                     rx_data_i = CMD_DAC_FIXED or
+                     rx_data_i = CMD_DAC_SQUARE) then
                      rx_state <= RX_DONE;
 
                   elsif(rx_data_i = CMD_DAC_CROSS) then

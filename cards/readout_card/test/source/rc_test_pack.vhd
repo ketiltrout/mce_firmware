@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: rc_test_pack.vhd,v $
+-- Revision 1.7  2004/07/16 23:34:10  bench1
+-- Mandana: added SRAM
+--
 -- Revision 1.6  2004/07/16 18:49:20  mandana
 -- adding SRAM test
 --
@@ -86,6 +89,7 @@ package rc_test_pack is
    
    constant CMD_DAC_RAMP    : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);  -- r
    constant CMD_DAC_FIXED   : std_logic_vector(7 downto 0) := conv_std_logic_vector(102,8);  -- f
+   constant CMD_DAC_SQUARE  : std_logic_vector(7 downto 0) := conv_std_logic_vector(115,8);  -- s
    constant CMD_DAC_CROSS   : std_logic_vector(7 downto 0) := conv_std_logic_vector(99,8);   -- c
    
    constant CMD_DAC_EVEN    : std_logic_vector(7 downto 0) := conv_std_logic_vector(101,8);  -- e

@@ -27,14 +27,17 @@
 --
 -- Description:
 -- rc_parallel_dac_test file: It tests the serial DACs, 
--- if mode = 0, cycles through fixed values on the outputs
--- if mode = 1, then it puts a ramp on the ouputs of the DACs
--- if mode = 2, then it performs the cross-talk test.
+-- if mode = 00, cycles through fixed values on the outputs
+-- if mode = 01, then it puts a ramp on the ouputs of the DACs
+-- if mode = 10, then it performs the square wave test.
 --
 --
 -- Revision history:
--- <date $Date: 2004/06/22 20:52:35 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/16 18:05:54 $>	- <initials $Author: bench1 $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.3  2004/07/16 18:05:54  bench1
+-- Mandana: more fixed values
+--
 -- Revision 1.2  2004/06/22 20:52:35  mandana
 -- fixed synthesis errors
 --
@@ -89,27 +92,25 @@ type states is (IDLE, PUSH_DATA, CLKNOW, DONE);
 signal present_state         : states;
 signal next_state            : states;
 type   array_of_8_word14 is array (7 downto 0) of word14; 
-signal data_fix     : array_of_8_word14;
+signal fix     : array_of_8_word14;
 
-signal data_ramp: word14;
 signal idat     : integer;
 signal idac     : integer;
 signal clkcount : std_logic;
 signal nclk     : std_logic;
 signal idata    : integer;
 signal ramp     : std_logic;
+signal square   : std_logic;
 
-signal dac0_dat_fix, dac0_dat_ramp: word14;
-signal dac1_dat_fix, dac1_dat_ramp: word14;
-signal dac2_dat_fix, dac2_dat_ramp: word14;
-signal dac3_dat_fix, dac3_dat_ramp: word14;
-signal dac4_dat_fix, dac4_dat_ramp: word14;
-signal dac5_dat_fix, dac5_dat_ramp: word14;
-signal dac6_dat_fix, dac6_dat_ramp: word14;
-signal dac7_dat_fix, dac7_dat_ramp: word14;
-signal dac_clk_fix,  dac_clk_ramp: word8;
-signal en_fix,   en_ramp    : std_logic;
-signal done_fix, done_ramp  : std_logic;
+signal data_fix : word14;
+signal data_ramp: word14;
+signal data_square: word14;
+signal dac_clk_fix,  dac_clk_ramp, dac_clk_square: word8;
+signal en_fix, en_ramp, en_square : std_logic;
+signal done_fix, done_ramp, done_square  : std_logic;
+
+signal clk_2    : std_logic;
+signal clk_count: std_logic_vector(10 downto 0);
 
 signal logic0 : std_logic;
 signal logic1 : std_logic;
@@ -120,17 +121,51 @@ begin
    logic1 <= '1';
    zero <= 0;
    
-   en_fix  <= en_i when mode = "00" else '0';
-   en_ramp <= en_i when mode = "01" else '0';
+   en_fix    <= en_i when mode = "00" else '0';
+   en_ramp   <= en_i when mode = "01" else '0';
+   en_square <= en_i when mode = "10" else '0';
    
-   dac0_dat_o <= dac0_dat_fix when mode = "00" else dac0_dat_ramp;
-   dac1_dat_o <= dac1_dat_fix when mode = "00" else dac1_dat_ramp;
-   dac2_dat_o <= dac2_dat_fix when mode = "00" else dac2_dat_ramp;
-   dac3_dat_o <= dac3_dat_fix when mode = "00" else dac3_dat_ramp;
-   dac4_dat_o <= dac4_dat_fix when mode = "00" else dac4_dat_ramp;
-   dac5_dat_o <= dac5_dat_fix when mode = "00" else dac5_dat_ramp;
-   dac6_dat_o <= dac6_dat_fix when mode = "00" else dac6_dat_ramp;
-   dac7_dat_o <= dac7_dat_fix when mode = "00" else dac7_dat_ramp;
+   with mode select
+      dac0_dat_o <= data_ramp   when "01", 
+                    data_square when "10",
+                    data_fix    when others;
+   with mode select
+      dac1_dat_o <= data_ramp   when "01", 
+                    data_square when "10",
+                    data_fix    when others;
+   with mode select
+      dac2_dat_o <= data_ramp   when "01", 
+                    data_square when "10",
+                    data_fix    when others;
+   with mode select
+      dac3_dat_o <= data_ramp   when "01", 
+                    data_square when "10",
+                    data_fix    when others;
+   with mode select
+      dac4_dat_o <= data_ramp   when "01", 
+                    data_square when "10",
+                    data_fix    when others;
+   with mode select
+      dac5_dat_o <= data_ramp   when "01", 
+                    data_square when "10",
+                    data_fix    when others;
+   with mode select
+      dac6_dat_o <= data_ramp   when "01", 
+                    data_square when "10",
+                    data_fix    when others;
+   with mode select
+      dac7_dat_o <= data_ramp   when "01", 
+                    data_square when "10",
+                    data_fix    when others;
+                 
+   with mode select
+      dac_clk_o <=  dac_clk_ramp   when "01", 
+                    dac_clk_square when "10",
+                    dac_clk_fix    when others;
+   with mode select
+      done_o   <=   done_ramp   when "01", 
+                    done_square when "10",
+                    done_fix    when others;
 
    dac_clk_o <= dac_clk_fix when mode = "00" else dac_clk_ramp;
    
@@ -149,21 +184,9 @@ begin
    clkcount <= clk_i when ramp = '1' else '0';
    nclk <= not (clkcount);
    
-   gen1: for idac in 0 to 7 generate
-      dac_clk_ramp(idac) <= nclk;
-   end generate gen1;
-   
+   dac_clk_ramp <= (others => nclk);
    data_ramp <= conv_std_logic_vector(idata,14);
    
-   dac0_dat_ramp <= data_ramp;
-   dac1_dat_ramp <= data_ramp;
-   dac2_dat_ramp <= data_ramp;
-   dac3_dat_ramp <= data_ramp;
-   dac4_dat_ramp <= data_ramp;
-   dac5_dat_ramp <= data_ramp;
-   dac6_dat_ramp <= data_ramp;
-   dac7_dat_ramp <= data_ramp;
-
    process(en_ramp)
    begin
       if(en_ramp = '1') then
@@ -171,8 +194,28 @@ begin
       end if;
    end process;
  
+   -------------------------------------------------------
+   process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         clk_count <= (others =>'0');
+      elsif(clk_i'event and clk_i = '1') then
+         clk_count <= clk_count + 1;
+      end if;
+   end process;
 
- fix_data_count: counter
+   clk_2 <= clk_count(9);
+   
+   process(en_square)
+   begin
+      if(en_square = '1') then
+         square <= not(square);
+      end if;
+   end process;
+   data_square <= (others => clk_2) when square = '1' else (others => '0');
+   dac_clk_square <= (others => nclk);
+-----------------------------------------------------------
+   fix_data_count: counter
    generic map(MAX => 7)
    port map(clk_i   => en_i,
             rst_i   => rst_i,
@@ -184,14 +227,14 @@ begin
             
    -- test DACs for fixed values, single bit on LSBs and full scale
    -- If you add new values, make sure you adjust the MAX for data_count counter and array size for data!
-   data_fix (0) <= "00000000000000";--x0000
-   data_fix (1) <= "00000000000001";--x0001
-   data_fix (2) <= "00000000000010";--x0002
-   data_fix (3) <= "00000000000100";--x0004
-   data_fix (4) <= "00000000001000";--x0008
-   data_fix (5) <= "00000000010000";--x0010
-   data_fix (6) <= "00000000100000";--x0020
-   data_fix (7) <= "11111111111111";--x3fff full scale
+   fix (0) <= "00000000000000";--x0000
+   fix (1) <= "00000000000001";--x0001
+   fix (2) <= "00000000000010";--x0002
+   fix (3) <= "00000000000100";--x0004
+   fix (4) <= "00000000001000";--x0008
+   fix (5) <= "00000000010000";--x0010
+   fix (6) <= "00000000100000";--x0020
+   fix (7) <= "11111111111111";--x3fff full scale
 
   -- state register:
    state_FF: process(clk_i, rst_i)
@@ -201,6 +244,7 @@ begin
       elsif(clk_i'event and clk_i = '1') then
          present_state <= next_state;
          done_ramp <= en_ramp;
+         done_square <= en_square;
       end if;
    end process state_FF;
 ---------------------------------------------------------------   
@@ -230,63 +274,23 @@ begin
    begin
       case present_state is
          when IDLE =>        
-            dac0_dat_fix <= "00000000000000";
-            dac1_dat_fix <= "00000000000000";
-            dac2_dat_fix <= "00000000000000";
-            dac3_dat_fix <= "00000000000000";
-            dac4_dat_fix <= "00000000000000";
-            dac5_dat_fix <= "00000000000000";
-            dac6_dat_fix <= "00000000000000";
-            dac7_dat_fix <= "00000000000000";
-   
-            for idac in 0 to 7 loop
-               dac_clk_fix(idac) <= '0';
-            end loop;
+            data_fix <= "00000000000000";   
+            dac_clk_fix <= (others => '0');
 	    done_fix    <= '0';
          
          when PUSH_DATA =>    
-            dac0_dat_fix <= data_fix(idat);
-            dac1_dat_fix <= data_fix(idat);
-            dac2_dat_fix <= data_fix(idat);
-            dac3_dat_fix <= data_fix(idat);
-            dac4_dat_fix <= data_fix(idat);
-            dac5_dat_fix <= data_fix(idat);
-            dac6_dat_fix <= data_fix(idat);
-            dac7_dat_fix <= data_fix(idat);
-            
-            for idac in 0 to 7 loop
-               dac_clk_fix(idac) <= '0';
-            end loop;
+            data_fix <= fix(idat);           
+            dac_clk_fix <= (others => '0');
 	    done_fix    <= '0';
                           
          when CLKNOW =>    
-            dac0_dat_fix <= data_fix(idat);
-            dac1_dat_fix <= data_fix(idat);
-            dac2_dat_fix <= data_fix(idat);
-            dac3_dat_fix <= data_fix(idat);
-            dac4_dat_fix <= data_fix(idat);
-            dac5_dat_fix <= data_fix(idat);
-            dac6_dat_fix <= data_fix(idat);
-            dac7_dat_fix <= data_fix(idat);
-            
-            for idac in 0 to 7 loop
-               dac_clk_fix(idac) <= '1';
-            end loop;
+            data_fix <= fix(idat);
+            dac_clk_fix <= (others => '1');
 	    done_fix    <= '0';
 
           when DONE =>    
-            dac0_dat_fix <= "00000000000000";
-            dac1_dat_fix <= "00000000000000";
-            dac2_dat_fix <= "00000000000000";
-            dac3_dat_fix <= "00000000000000";
-            dac4_dat_fix <= "00000000000000";
-            dac5_dat_fix <= "00000000000000";
-            dac6_dat_fix <= "00000000000000";
-            dac7_dat_fix <= "00000000000000";
-            
-            for idac in 0 to 7 loop
-               dac_clk_fix(idac) <= '0';
-            end loop;
+            data_fix <= "00000000000000";
+            dac_clk_fix <= (others => '0');
 	    done_fix    <= '1';
 	                              
       end case;
