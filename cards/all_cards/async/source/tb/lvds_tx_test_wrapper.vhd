@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.3  2004/05/29 00:45:42  erniel
+-- modified square wave logic
+-- modified counter enable logic
+--
 -- Revision 1.2  2004/05/28 20:14:02  erniel
 -- added extra transmit patterns
 --
@@ -81,6 +85,8 @@ architecture behaviour of lvds_tx_test_wrapper is
    signal present_state : states;
    signal next_state    : states;
    
+   signal timer : std_logic_vector(27 downto 0);
+
 begin
 
    -- our LVDS transmitter
@@ -157,14 +163,20 @@ begin
 --      end if;
 --   end process lvds_strobe;
    
-   
+   process(clk_i)
+   begin
+      if(clk_i'event and clk_i = '1') then
+         timer <= timer + 1;
+      end if;
+   end process;
+
    
    state_FF: process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
          present_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
-         if(en_i = '1') then
+         if(timer = "1111111111111111111111111111") then
             present_state <= next_state;
          end if;
       end if;
