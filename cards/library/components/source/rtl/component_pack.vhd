@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.15 2004/07/17 00:57:15 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.16 2004/07/19 21:26:59 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.16  2004/07/19 21:26:59  erniel
+-- updated crc component
+--
 -- Revision 1.15  2004/07/17 00:57:15  erniel
 -- updated crc component
 --
@@ -226,16 +229,17 @@ package component_pack is
 --
 ------------------------------------------------------------ 
 
-   component counter 
-      generic(MAX     : integer := 255;
-              STEPSIZE: integer := 1  );
-      port(clk_i   : in std_logic;
-           rst_i   : in std_logic;
-           ena_i   : in std_logic;
-           load_i  : in std_logic;
-           down_i  : in std_logic;
-           count_i : in integer;
-           count_o : out integer);
+   component counter
+   generic(MAX         : integer := 255;
+           STEP_SIZE   : integer := 1;
+           WRAP_AROUND : std_logic := '0';
+           UP_COUNTER  : std_logic := '1');
+   port(clk_i   : in std_logic;
+        rst_i   : in std_logic;
+        ena_i   : in std_logic;
+        load_i  : in std_logic;
+        count_i : in integer;
+        count_o : out integer);
    end component;
 
 ------------------------------------------------------------
