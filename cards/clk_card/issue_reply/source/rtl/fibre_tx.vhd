@@ -27,9 +27,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/29 14:56:41 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/05 12:22:40 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.1  2004/10/05 12:22:40  dca
+-- moved from fibre_tx directory.
+--
 -- Revision 1.3  2004/09/29 14:56:41  dca
 -- components declarations now in issue_reply_pack not fibre_tx_pack.
 --
@@ -54,6 +57,7 @@ use sys_param.command_pack.all;
 entity fibre_tx is
       port(       
       -- global inputs
+         clk_i        : in     std_logic;
          rst_i        : in     std_logic;                         -- global reset
          
       -- interface to reply_translator
@@ -63,8 +67,7 @@ entity fibre_tx is
          tx_ff_o      : out    std_logic;                         -- FIFO full flag
       
       -- interface to HOTLINK transmitter
-         ft_clkw_i    : in     std_logic;                          -- 25MHz hotlink clock
-         nTrp_i       : in     std_logic;                          -- hotlink tx read pulse (active low)
+         fibre_clkw_i : in     std_logic;                          -- 25MHz hotlink clock
          tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
          tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
          nFena_o      : out    std_logic                           -- hotlink tx enable
@@ -92,29 +95,27 @@ architecture behav of fibre_tx is
    begin
  
    -- Instance port mappings.
-   I0 : fibre_tx_fifo
-      generic map (
-         addr_size => TX_FIFO_ADDR_SIZE              -- fifo size = 2**addr_size
-      )
-      port map (
-         rst_i       => rst_i,
-         tx_fr_i     => tx_fr,
-         tx_fw_i     => tx_fw_i,
-         txd_i       => txd_i,
-         tx_fe_o     => tx_fe,
-         tx_ff_o     => tx_ff_o,
-         tx_data_o   => tx_data_o
+   fibre_tx_fifo_inst : fibre_tx_fifo
+   port map (
+      clk_i        => clk_i,
+      rst_i        => rst_i,
+      fibre_clkw_i => fibre_clkw_i,
+      tx_fr_i      => tx_fr,
+      tx_fw_i      => tx_fw_i,
+      txd_i        => txd_i,
+      tx_fe_o      => tx_fe,
+      tx_ff_o      => tx_ff_o,
+      tx_data_o    => tx_data_o
    );
-   
+  
  
-   I1: fibre_tx_control 
+   fibre_tx_control_inst : fibre_tx_control 
       port map ( 
-         ft_clkw_i   =>   ft_clkw_i,
-         nTrp_i      =>   nTrp_i,
-         tx_fe_i     =>   tx_fe,
-         tsc_nTd_o   =>   tsc_nTd_o,
-         nFena_o     =>   nFena_o,
-         tx_fr_o     =>   tx_fr
+         fibre_clkw_i   =>   fibre_clkw_i,
+         tx_fe_i        =>   tx_fe,
+         tsc_nTd_o      =>   tsc_nTd_o,
+         nFena_o        =>   nFena_o,
+         tx_fr_o        =>   tx_fr
    );
    
  
