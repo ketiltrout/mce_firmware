@@ -31,7 +31,10 @@
 #
 # Revision history:
 #
-# $Log$
+# $Log: rc_pin_assign.tcl,v $
+# Revision 1.3  2004/06/19 03:06:41  erniel
+# unrolled foreach loops
+#
 #
 #
 #############################################################################
@@ -131,9 +134,17 @@ puts "   Assigned: SMB interface pins."
 
 
 # assign EEPROM pins
-cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_F20"
+
+# The eeprom debug header is also used for rs232 communication
+#cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_F20"
+cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_F20"
+
 cmp add_assignment $top_name "" eeprom_so LOCATION "Pin_F18"
-cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_F21"
+
+
+#cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_F21"
+cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_F21"
+
 cmp add_assignment $top_name "" eeprom_cs LOCATION "Pin_F22"
 puts "   Assigned: EEPROM pins."
 
