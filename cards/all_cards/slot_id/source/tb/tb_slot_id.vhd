@@ -1,6 +1,6 @@
 -- tb_slot_id.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_slot_id.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA 2
 -- Author:		jjacob
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Slot ID
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -44,7 +44,9 @@ architecture BEH of TB_SLOT_ID is
    signal W_STB_I       : std_logic ;
    signal W_ACK_O       : std_logic ;
    signal W_CYC_I       : std_logic ;
-
+   signal W_RTY_I       : std_logic ;
+   signal W_TGA_I       : std_logic_vector ( WB_TAG_ADDR_WIDTH-1 downto 0) ;
+   
 ------------------------------------------------------------------------
 --
 -- Signals for the random number generator
@@ -67,24 +69,21 @@ begin
 
    DUT : SLOT_ID
    
-      generic map(
-               SLOT_ID_ADDR  => SLOT_ID_ADDR,
-               SLOT_ID_ADDR_WIDTH => WB_ADDR_WIDTH,
-               SLOT_ID_DATA_WIDTH => WB_DATA_WIDTH)
+   port map(   
+      slot_id_i => W_SLOT_ID_I,
+      -- wishbone signals
+      clk_i     => W_CLK_I,
+      rst_i   	 => W_RST_I,
+      dat_i 	   => W_DAT_I,
+      addr_i    => W_ADDR_I,
+      tga_i     => W_TGA_I,
+      we_i      => W_WE_I,
+      stb_i     => W_STB_I,
+      cyc_i     => W_CYC_I,
+      dat_o     => W_DAT_O,
+      rty_o     => W_RTY_I,
+      ack_o     => W_ACK_O);
 
-      port map(SLOT_ID_I   => W_SLOT_ID_I,
-               CLK_I       => W_CLK_I,
-               RST_I       => W_RST_I,
-               DAT_I       => W_DAT_I,
-               DAT_O       => W_DAT_O,
-               ADDR_I      => W_ADDR_I,
-               WE_I        => W_WE_I,
-               STB_I       => W_STB_I,
-               ACK_O       => W_ACK_O,
-               CYC_I       => W_CYC_I);
-
-
- 
 ------------------------------------------------------------------------
 --
 -- Create a test clock
@@ -121,6 +120,7 @@ begin
 
    STIMULI : process
  
+
 ------------------------------------------------------------------------
 --
 -- Procdures for creating stimulus
@@ -311,7 +311,10 @@ begin
 ------------------------------------------------------------------------
  
    begin
-   
+
+      W_TGA_I <= (others => '0');
+      W_RTY_I <= '0';   
+      
       do_nop;
       do_reset;   
       do_nop;      
@@ -323,14 +326,3 @@ begin
    end process STIMULI;
 
 end BEH;
-
-------------------------------------------------------------------------
---
--- Configuration
---
------------------------------------------------------------------------- 
-
-configuration TB_SLOT_ID_CONF of TB_SLOT_ID is
-   for BEH
-   end for;
-end TB_SLOT_ID_CONF;
