@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.4 2004/05/12 18:02:46 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: dac_ctrl_test_wrapper.vhd,v 1.5 2004/05/18 00:26:57 erniel Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -35,8 +35,11 @@
 -- 5 different set of values are loaded.
 --
 -- Revision history:
--- <date $Date: 2004/05/12 18:02:46 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/18 00:26:57 $>	- <initials $Author: erniel $>
 -- $Log: dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.5  2004/05/18 00:26:57  erniel
+-- replaced hard-coded address with predefined constant
+--
 -- Revision 1.4  2004/05/12 18:02:46  mandana
 -- seperated the lvds_dac signals on the wrapper
 --
@@ -78,9 +81,7 @@ entity dac_ctrl_test_wrapper is
       dac_dat_o : out std_logic_vector (31 downto 0); 
       dac_ncs_o : out std_logic_vector (31 downto 0); 
       dac_clk_o : out std_logic_vector (31 downto 0);
-
-      dac_nclr_o: out std_logic;
-      
+     
       lvds_dac_dat_o: out std_logic;
       lvds_dac_ncs_o: out std_logic;
       lvds_dac_clk_o: out std_logic
@@ -93,7 +94,7 @@ end;
 architecture rtl of dac_ctrl_test_wrapper is
 
    -- state definitions
-   type states is (IDLE, DAC32, DAC32_NXT, LVDS_DAC, LVDS_DONE, DONE);
+   type states is (IDLE, DAC32, DAC32_NXT, LVDS_DAC, LVDS_DONE, RESYNC, RESYNC_DONE, GO_RAMP, GO_RAMP_NXT, RESYNC2, RESYNC2_DONE, DONE);
    signal present_state  : states;
    signal next_state     : states;
 
@@ -111,12 +112,16 @@ architecture rtl of dac_ctrl_test_wrapper is
    signal sync_i   : std_logic;
    signal idac     : integer;
    signal idx      : integer;
-   type   w_array4 is array (4 downto 0) of word32; 
-   signal data     : w_array4;
+   type   array_of_5_word32 is array (4 downto 0) of word32; 
+   signal data     : array_of_5_word32; --Ernie asked for more descriptive data type names
    signal val_clk  : std_logic;
    signal dac_count_clk: std_logic;
    signal idac_rst : std_logic;
-     
+   signal idata    : integer;
+   signal ramp_clk  : std_logic;
+   signal ramp_data : word32;
+   signal ramp_rst  : std_logic;
+   
 begin
 
 -- instantiate a counter for idac to go through all 32 DACs
@@ -132,7 +137,7 @@ begin
    
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 4)
+   generic map(MAX => 5)
    port map(clk_i   => val_clk,
             rst_i   => rst_i,
             ena_i   => '1',
@@ -140,7 +145,21 @@ begin
             down_i  => '0',
             count_i =>  0,
             count_o => idx);
-
+            
+-- instantiate a counter for idac to go through all 32 DACs
+   data_count: counter
+   generic map(MAX => 16#3fff#)
+   port map(clk_i   => ramp_clk,
+            rst_i   => ramp_rst,
+            ena_i   => '1',
+            load_i  => '0',
+            down_i  => '0',
+            count_i => 0 ,
+            count_o => idata);
+  
+   ramp_clk  <= '1' when present_state = RESYNC2_DONE else '0';
+   ramp_data <= conv_std_logic_vector(idata, 32);
+   
 ------------------------------------------------------------------------
 --
 -- instantiate the dac_ctrl
@@ -159,7 +178,6 @@ begin
                dac_clk_o (31 downto 0)  => dac_clk_o (31 downto 0),
                dac_clk_o (32)           => lvds_dac_clk_o,
                
-               dac_nclr_o   => dac_nclr_o,
                clk_i        => clk_i,
                rst_i        => rst_i,
                dat_i        => dat_o,
@@ -172,12 +190,13 @@ begin
                rty_o        => rty_i,
                ack_o        => ack_i,
                sync_i       => sync_i);
-                               
-   data (0) <= "00000000000000000000000000000000";--00000000
-   data (1) <= "01010101010101010101010100000101";--55555055
-   data (2) <= "11110000001100110100000000000101";--f0334005
-   data (3) <= "11101110111011101110111011101110";--eeeeeeee
-   data (4) <= "11111111111111111111111111111111";--ffffffff
+               
+   -- values tried on DAC Tests with fixed values                               
+   data (0) <= "01010101010101010101010101010101";--x55555555     alternating 0,1
+   data (1) <= "00000000000000000000000000000000";--x00000000
+   data (2) <= "11110000001100110100000000000101";--xf0334005     asymmetric nibbles
+   data (3) <= "11111111111111111111111111111111";--xffffffff     full scale
+   data (4) <= "11111111111111111111111111111111";--xffffffff -- this entry wouldn't be tried
 
    -- state register:
    state_FF: process(clk_i, rst_i)
@@ -194,7 +213,11 @@ begin
       case present_state is
          when IDLE =>     
             if(en_i = '1') then
-               next_state <= DAC32;
+               if idx = 5 then
+                  next_state <= GO_RAMP;
+               else
+                  next_state <= DAC32;
+               end if;   
             else
                next_state <= IDLE;
             end if;
@@ -221,8 +244,42 @@ begin
             end if;
             
          when LVDS_DONE =>              
+            next_state <= RESYNC;
+
+         when RESYNC =>     
+            if (ack_i = '0') then
+               next_state <= RESYNC;
+            else   
+               next_state <= RESYNC_DONE;
+            end if;
+            
+         when RESYNC_DONE =>              
             next_state <= DONE;
-             
+            
+         when GO_RAMP =>              
+            if (ack_i = '0') then
+               next_state <= GO_RAMP;
+            else   
+               next_state <= GO_RAMP_NXT;
+            end if;
+
+         when GO_RAMP_NXT =>  
+            next_state <= RESYNC2;
+
+         when RESYNC2 =>     
+            if (ack_i = '0') then
+               next_state <= RESYNC2;
+            else   
+               next_state <= RESYNC2_DONE;
+            end if;
+            
+         when RESYNC2_DONE =>              
+            if en_i = '1' then
+               next_state <= DONE;
+            else   
+               next_state <= GO_RAMP;
+            end if;
+            
          when DONE =>     
             next_state <= IDLE;
                  
@@ -234,19 +291,18 @@ begin
       case present_state is
          when IDLE =>     
             idac_rst  <= '1';
+            ramp_rst  <= '1';
             addr_o    <= (others => '0');
 	    tga_o     <= (others => '0');
 	    dat_o     <= (others => '0');
 	    we_o      <= '0';
 	    stb_o     <= '0';
 	    cyc_o     <= '0';                          
---	    tx_data_o <= (others => '0');
---	    tx_we_o   <= '0';
---	    tx_stb_o  <= '0';
 	    done_o    <= '0';
          
          when DAC32 =>    
             idac_rst  <= '0';
+            ramp_rst  <= '1';
             addr_o    <= FLUX_FB_ADDR;
 	    tga_o     <= (others => '0');
 	    dat_o     <= data(idx);
@@ -257,6 +313,7 @@ begin
                           
          when DAC32_NXT =>    
             idac_rst  <= '0';
+            ramp_rst  <= '1';
 	    tga_o     <= (others => '0');
 	    dat_o     <= (others => '0');
 	    if (idac = 16) then
@@ -274,6 +331,7 @@ begin
                                                     
          when LVDS_DAC =>
             idac_rst  <= '1';
+            ramp_rst  <= '1';
             addr_o    <= BIAS_ADDR;
 	    tga_o     <= (others => '0');
 	    dat_o     <= data(idx);
@@ -284,16 +342,88 @@ begin
          
          when LVDS_DONE =>
             idac_rst  <= '1';
-            addr_o    <= BIAS_ADDR;
+            ramp_rst  <= '1';
+           addr_o    <= BIAS_ADDR;
 	    tga_o     <= (others => '0');
 	    dat_o     <= data(idx);
 	    we_o      <= '0';
 	    stb_o     <= '0';
 	    cyc_o     <= '0';                          
 	    done_o    <= '0';
-                  
-         when DONE =>     
+
+         when RESYNC =>
             idac_rst  <= '1';
+            ramp_rst  <= '1';
+           addr_o    <= RESYNC_ADDR;
+	    tga_o     <= (others => '0');
+	    dat_o     <= (others => '0');
+	    we_o      <= '1';
+	    stb_o     <= '1';
+	    cyc_o     <= '1';                          
+	    done_o    <= '0';
+
+         when RESYNC_DONE =>
+            idac_rst  <= '1';
+            ramp_rst  <= '1';
+           addr_o    <= RESYNC_ADDR;
+	    tga_o     <= (others => '0');
+	    dat_o     <= (others => '0');
+	    we_o      <= '0';
+	    stb_o     <= '0';
+	    cyc_o     <= '0';                          
+	    done_o    <= '0';
+	                      
+         when GO_RAMP =>
+            idac_rst  <= '0';
+            ramp_rst  <= '0';
+            addr_o    <= FLUX_FB_ADDR;
+	    tga_o     <= (others => '0');
+	    dat_o     <= ramp_data;
+	    we_o      <= '1';
+	    stb_o     <= '1';
+	    cyc_o     <= '1';                          
+	    done_o    <= '0';
+
+         when GO_RAMP_NXT =>
+            idac_rst  <= '0';
+            ramp_rst  <= '0';
+            addr_o    <= FLUX_FB_ADDR;
+	    tga_o     <= (others => '0');
+	    dat_o     <= ramp_data;
+	    we_o      <= '1';
+	    stb_o     <= '0';
+	    cyc_o     <= '1';                          
+	    done_o    <= '0';
+
+         when RESYNC2 =>
+            idac_rst  <= '0';
+            ramp_rst  <= '0';
+            addr_o    <= RESYNC_ADDR;
+	    tga_o     <= (others => '0');
+	    dat_o     <= (others => '0');
+	    we_o      <= '1';
+	    stb_o     <= '1';
+	    cyc_o     <= '1';                          
+	    if en_i = '1' then
+	       done_o <= '1';
+	    else
+	       done_o <= '0';
+            end if;
+            
+         when RESYNC2_DONE =>
+            idac_rst  <= '0';
+            ramp_rst  <= '0';
+            addr_o    <= RESYNC_ADDR;
+	    tga_o     <= (others => '0');
+	    dat_o     <= (others => '0');
+	    we_o      <= '0';
+	    stb_o     <= '0';
+	    cyc_o     <= '0';                          
+	    done_o    <= '0';
+
+         when DONE =>     
+            idac_rst  <= '0';
+            ramp_rst  <= '1';
             addr_o    <= (others => '0');
 	    tga_o     <= (others => '0');
 	    dat_o     <= (others => '0');
@@ -304,6 +434,10 @@ begin
                           
       end case;
    end process state_out;
-   val_clk <= '1' when idac = 16 and addr_o = FLUX_FB_ADDR else '0';
+   
+   -- clock and prepare the next array value into the DACs when not in ramp mode
+   --val_clk <= '1' when (idac = 16 and addr_o = x"20" and ramp_rst = '1') else '0'; 
+   val_clk       <= '1' when (present_state = RESYNC_DONE and ramp_rst = '1') else '0'; 
    dac_count_clk <= '1' when ack_i = '1' else '0';
+   sync_i  <= '1' when (present_state = RESYNC_DONE or present_state = RESYNC2_DONE) else '0';
  end;

@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/23 00:53:26 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/29 20:53:59 $>	- <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl_test_wrapper.vhd,v $
+-- Revision 1.4  2004/04/29 20:53:59  mandana
+-- added dac_nclr signal and removed tx signals from wrapper
+--
 -- Revision 1.3  2004/04/23 00:53:26  mandana
 -- Sends enable signal 4 times(i.e. 4 DAC values examined)
 --
@@ -56,10 +59,13 @@ architecture BEH of TB_DAC_CTRL_TEST_WRAPPER is
            CLK_I       : in std_logic ;
            EN_I        : in std_logic ;
            DONE_O      : out std_logic ;
-           DAC_DAT_O   : out std_logic_vector ( 32 downto 0 );
-           DAC_NCS_O   : out std_logic_vector ( 32 downto 0 );
-           DAC_CLK_O   : out std_logic_vector ( 32 downto 0 );
-           DAC_NCLR_O  : out std_logic );
+           DAC_DAT_O   : out std_logic_vector ( 31 downto 0 );
+           DAC_NCS_O   : out std_logic_vector ( 31 downto 0 );
+           DAC_CLK_O   : out std_logic_vector ( 31 downto 0 );
+           lvds_dac_dat_o: out std_logic;
+           lvds_dac_ncs_o: out std_logic;
+           lvds_dac_clk_o: out std_logic
+      );
 
    end component;
 
@@ -70,10 +76,13 @@ architecture BEH of TB_DAC_CTRL_TEST_WRAPPER is
    signal W_CLK_I       : std_logic := '0';
    signal W_EN_I        : std_logic ;
    signal W_DONE_O      : std_logic ;
-   signal W_DAC_DAT_O   : std_logic_vector ( 32 downto 0 );
-   signal W_DAC_NCS_O   : std_logic_vector ( 32 downto 0 );
-   signal W_DAC_CLK_O   : std_logic_vector ( 32 downto 0 ) ;
-   signal W_DAC_NCLR_O  : std_logic;
+   signal W_DAC_DAT_O   : std_logic_vector ( 31 downto 0 );
+   signal W_DAC_NCS_O   : std_logic_vector ( 31 downto 0 );
+   signal W_DAC_CLK_O   : std_logic_vector ( 31 downto 0 ) ;
+   signal W_LVDS_DAC_DAT_O  : std_logic;
+   signal W_LVDS_DAC_NCS_O  : std_logic;
+   signal W_LVDS_DAC_CLK_O  : std_logic;
+   
    signal zero          : std_logic := '0';
 
 begin
@@ -86,7 +95,11 @@ begin
                DAC_DAT_O   => W_DAC_DAT_O,
                DAC_NCS_O   => W_DAC_NCS_O,
                DAC_CLK_O   => W_DAC_CLK_O,
-               DAC_NCLR_O  => W_DAC_NCLR_O);
+               lvds_dac_dat_o => W_LVDS_DAC_DAT_O,
+	       lvds_dac_ncs_o => W_LVDS_DAC_NCS_O,
+	       lvds_dac_clk_o => W_LVDS_DAC_CLK_O
+
+               );
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
 
@@ -116,7 +129,37 @@ begin
       W_EN_I        <= '0';
       WAIT for PERIOD*200;
 
-      -- set all the DACs to the forth value      
+      -- set all the DACs to the fourth value      
+      W_EN_I        <= '1';
+      wait until W_DONE_O = '1';
+      W_EN_I        <= '0';
+      WAIT for PERIOD*200;
+
+      -- set LVDS DAC
+      W_EN_I        <= '1';
+      wait until W_DONE_O = '1';
+      W_EN_I        <= '0';
+      WAIT for PERIOD*200;
+
+      -- RAMP Test
+      W_EN_I        <= '1';
+      wait until W_DONE_O = '1';
+      W_EN_I        <= '0';
+      WAIT for PERIOD*200;
+
+      -- RAMP Test
+      W_EN_I        <= '1';
+      wait until W_DONE_O = '1';
+      W_EN_I        <= '0';
+      WAIT for PERIOD*200;
+
+      -- RAMP Test
+      W_EN_I        <= '1';
+      wait until W_DONE_O = '1';
+      W_EN_I        <= '0';
+      WAIT for PERIOD*200;
+
+      -- RAMP Test
       W_EN_I        <= '1';
       wait until W_DONE_O = '1';
       W_EN_I        <= '0';
