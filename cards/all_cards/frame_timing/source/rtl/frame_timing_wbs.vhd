@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_wbs.vhd,v 1.3 2005/01/06 01:34:52 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.4 2005/01/13 03:14:51 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.4  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.3  2005/01/06 01:34:52  bburger
 -- Bryce:  mem_clk_i is no longer used to clock internal registers
 --
@@ -141,22 +146,8 @@ begin
    feedback_delay_o   <= conv_integer(feedback_delay_data);  
    address_on_delay_o <= conv_integer(address_on_delay_data);
    resync_req_o       <= '0' when resync_req_data      = x"00000000" else '1';      
-   init_window_req_o  <= '0' when init_window_req_data = x"00000000" else '1'; 
+   init_window_req_o  <= '0' when init_window_req_data = x"00000000" else '1';   
    
-   init_window_rst    <= init_window_ack_i or rst_i;
-   
---   row_length_reg : reg
---      generic map(
---         WIDTH             => PACKET_WORD_WIDTH
---      )
---      port map(
---         clk_i             => clk_i,
---         rst_i             => rst_i,
---         ena_i             => row_length_wren,
---         reg_i             => dat_i,
---         reg_o             => row_length_data
---      );
-
    -- Custom register that gets set to MUX_LINE_PERIOD upon reset
    row_len_reg: process(clk_i, rst_i)
    begin
@@ -168,18 +159,6 @@ begin
          end if;
       end if;
    end process row_len_reg;
-
---   num_rows_reg : reg
---      generic map(
---         WIDTH             => PACKET_WORD_WIDTH
---      )
---      port map(
---         clk_i             => clk_i,
---         rst_i             => rst_i,
---         ena_i             => num_rows_wren,
---         reg_i             => dat_i,
---         reg_o             => num_rows_data
---      );
 
    -- Custom register that gets set to NUM_OF_ROWS upon reset
    num_rows_reg: process(clk_i, rst_i)
@@ -253,18 +232,20 @@ begin
          reg_o             => resync_req_data
       );
 
-   init_window_req_reg : reg
-      generic map(
-         WIDTH             => PACKET_WORD_WIDTH
-      )
-      port map(
-         clk_i             => clk_i,
-         rst_i             => init_window_rst,
-         ena_i             => init_window_req_wren,
-         reg_i             => dat_i,
-         reg_o             => init_window_req_data
-      );
-
+   -- Custom register
+   init_window_req_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         init_window_req_data <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(init_window_ack_i = '1') then
+            init_window_req_data <= (others => '0');
+         end if;
+         if(init_window_ack_i /= '1' and init_window_req_wren = '1') then
+            init_window_req_data <= dat_i;
+         end if;
+      end if;
+   end process init_window_req_reg;
 
 ------------------------------------------------------------
 --  WB FSM
