@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.4  2004/11/30 03:08:24  erniel
+-- deleted remaining status fifo-related signals
+--
 -- Revision 1.3  2004/11/30 03:01:36  erniel
 -- eliminated separate status fifo (combined with header fifo)
 -- eliminated WRITE_STATUS state
@@ -135,7 +138,7 @@ signal status_clr : std_logic;
 --------------------------------------------------
 -- FIFO read control:
 
-type read_ctrl_states is (READ_IDLE, READY_NO_DATA, READY_WITH_DATA, DISCARD_DATA, DISCARD_HEADER, READ_DONE);
+type read_ctrl_states is (READ_IDLE, DATA_READY, DATA_EMPTY, DISCARD_DATA, READ_DONE);
 signal rd_pres_state : read_ctrl_states;
 signal rd_next_state : read_ctrl_states;
 
@@ -522,38 +525,34 @@ begin
       case rd_pres_state is
          when READ_IDLE =>       if(packets > 0) then
                                     if(cur_header(12 downto 0) = 0) then
-                                       rd_next_state <= READY_NO_DATA;
+                                       rd_next_state <= DATA_EMPTY;
                                     else
-                                       rd_next_state <= READY_WITH_DATA;
+                                       rd_next_state <= DATA_READY;
                                     end if;
                                  else
                                     rd_next_state <= READ_IDLE;
                                  end if;
          
-         when READY_NO_DATA =>   if(ack_i = '1') then
-                                    rd_next_state <= READ_DONE;
-                                 elsif(nack_i = '1') then
-                                    rd_next_state <= DISCARD_HEADER;
-                                 else
-                                    rd_next_state <= READY_NO_DATA;
-                                 end if;                                              
-                  
-         when READY_WITH_DATA => if(rd_count = cur_header(12 downto 0)-1 and ack_i = '1') then
-                                    rd_next_state <= READ_DONE;
+         when DATA_READY =>      if(rd_count = cur_header(12 downto 0)-1 and ack_i = '1') then
+                                    rd_next_state <= DATA_EMPTY;
                                  elsif(nack_i = '1') then
                                     rd_next_state <= DISCARD_DATA;
                                  else
-                                    rd_next_state <= READY_WITH_DATA;
+                                    rd_next_state <= DATA_READY;
                                  end if;
-                  
+         
+         when DATA_EMPTY =>      if(ack_i = '1' or nack_i = '1') then
+                                    rd_next_state <= READ_DONE;
+                                 else
+                                    rd_next_state <= DATA_EMPTY;
+                                 end if;
+                                 
          when DISCARD_DATA =>    if(rd_count = cur_header(12 downto 0)-1) then
-                                    rd_next_state <= DISCARD_HEADER;
+                                    rd_next_state <= READ_DONE;
                                  else
                                     rd_next_state <= DISCARD_DATA;
                                  end if;
-                  
-         when DISCARD_HEADER =>  rd_next_state <= READ_IDLE;
-                                   
+                                                     
          when READ_DONE =>       rd_next_state <= READ_IDLE;
           
          when others =>          rd_next_state <= READ_IDLE;
@@ -571,29 +570,21 @@ begin
       done_o       <= '0';
       
       case rd_pres_state is
-         when READ_IDLE =>       null;
-         
-         when READY_NO_DATA =>   rdy_o           <= '1';
-                                                    
-         when READY_WITH_DATA => rdy_o           <= '1';
+         when DATA_READY =>      rdy_o           <= '1';
                                  if(ack_i = '1') then
                                     data_rd      <= '1';
                                     rd_count_ena <= '1';
                                  end if;
          
+         when DATA_EMPTY =>      done_o <= '1';
+         
          when DISCARD_DATA =>    data_rd         <= '1';
-                                 rd_count_ena    <= '1';         
-
-         when DISCARD_HEADER =>  header_rd       <= '1';
                                  rd_count_ena    <= '1';
-                                 rd_count_clr    <= '1';
-                                 rd_done         <= '1';
                                
          when READ_DONE =>       header_rd       <= '1';
                                  rd_count_ena    <= '1';
                                  rd_count_clr    <= '1';
                                  rd_done         <= '1';
-                                 done_o          <= '1';
          
          when others =>          null;
       end case;
