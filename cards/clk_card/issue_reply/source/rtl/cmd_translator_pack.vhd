@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: cmd_translator_pack.vhd,v 1.1 2004/11/24 01:15:52 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -28,7 +28,10 @@
 -- Declares a few constants used as parameters in the cmd_translator block
 --
 -- Revision history:
--- $Log$
+-- $Log: cmd_translator_pack.vhd,v $
+-- Revision 1.1  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 --
 --
 ------------------------------------------------------------------------
@@ -85,6 +88,7 @@ port(
       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
       last_frame_o      :  out std_logic;  
+      internal_cmd_o    :  out std_logic;
        
       -- input from the micro-op sequence generator
       ack_i                 : in std_logic;                    -- acknowledge signal from the micro-instruction sequence generator
@@ -243,6 +247,18 @@ port(
       -- input from the macro-instruction arbiter
       simple_cmd_ack_o             : out std_logic ;
       
+      -- inputs from the internal commands state machine
+      internal_cmd_card_addr_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      internal_cmd_parameter_id_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      internal_cmd_data_size_i       : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);     -- data_size_i, indicates number of 16-bit words of data
+      internal_cmd_data_i            : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- data will be passed straight thru in 16-bit words
+      internal_cmd_data_clk_i        : in std_logic;							                                        -- for clocking in the data
+      internal_cmd_macro_instr_rdy_i : in std_logic;                                               -- ='1' when the data is valid, else it's '0'
+      internal_cmd_type_i            : in std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);     -- this is a re-mapping of the cmd_code into a 3-bit number
+      
+      -- output to the internal command state machine
+      internal_cmd_ack_o             : out std_logic ;  
+          
       -- input for sync_number for simple commands
       sync_number_i                : in  std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
 
@@ -268,6 +284,40 @@ port(
    );
 
 end component;
+
+
+
+component cmd_translator_internal_cmd_fsm
+
+port(
+
+     -- global inputs
+
+      rst_i             : in     std_logic;
+      clk_i             : in     std_logic;
+
+      -- inputs from cmd_translator top level
+      
+      internal_cmd_start_i : in std_logic;
+      --internal_cmd_stop_i  : in std_logic;   
+  
+      -- outputs to the macro-instruction arbiter
+      card_addr_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_o       : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);     -- data_size_i, indicates number of 16-bit words of data
+      data_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- data will be passed straight thru in 16-bit words
+      data_clk_o        : out std_logic;							                               -- for clocking out the data
+      macro_instr_rdy_o : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
+      cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);     -- this is a re-mapping of the cmd_code into a 3-bit number
+      
+      -- input from the macro-instruction arbiter
+      ack_i             : in std_logic                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
+      							 -- not currently used
+
+   ); 
+     
+end component;
+
 
 component cmd_translator_m_op_table 
 
