@@ -30,7 +30,11 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: dispatch.vhd,v $
+-- Revision 1.2  2004/10/13 04:02:35  erniel
+-- added registers for command and reply packet headers
+-- modified reply packet data size logic
+--
 --
 -----------------------------------------------------------------------------
 
@@ -67,24 +71,29 @@ port(clk_i      : in std_logic;
      cyc_o  : out std_logic;
      dat_i 	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i  : in std_logic;
+     err_i  : in std_logic;
      
      -- watchdog reset interface
      wdt_rst_o : out std_logic);
 end dispatch;
 
 architecture rtl of dispatch is
-type dispatch_states is (FETCH, EXECUTE, REPLY);
+type dispatch_states is (INITIALIZE, FETCH, EXECUTE, REPLY);
 signal pres_state : dispatch_states;
 signal next_state : dispatch_states;
 
 signal cmd_rdy      : std_logic;
 signal cmd_err      : std_logic;
 signal wb_cmd_rdy   : std_logic;
-signal wb_reply_rdy : std_logic;
+signal wb_rdy       : std_logic;
+signal wb_err       : std_logic;
 signal reply_rdy    : std_logic;
 signal reply_ack    : std_logic;
 
 signal uop_status_ld : std_logic;
+
+signal status_clr : std_logic;
+signal status_reg : std_logic_vector(1 downto 0);
 
 signal reply_data_size : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
@@ -145,7 +154,7 @@ begin
             ena_i => cmd_hdr_ld,
             reg_i => cmd_hdr1,
             reg_o => cmd_header1);
-            
+
    receive_buf : dispatch_data_buf
    port map(data      => cmd_buf_wrdata,
             wren      => cmd_buf_wren,
@@ -163,7 +172,8 @@ begin
             param_id_i       => cmd_header1(BB_PARAMETER_ID'range),
             cmd_buf_data_i   => cmd_buf_rddata,
             cmd_buf_addr_o   => cmd_buf_rdaddr,
-            reply_rdy_o      => wb_reply_rdy,
+            wb_rdy_o         => wb_rdy,
+            wb_err_o         => wb_err,
             reply_buf_data_o => reply_buf_wrdata,
             reply_buf_addr_o => reply_buf_wraddr,
             reply_buf_wren_o => reply_buf_wren,
@@ -176,6 +186,7 @@ begin
             cyc_o            => cyc_o,
             dat_i           	=> dat_i,
             ack_i            => ack_i,
+            err_i            => err_i,
             wdt_rst_o        => wdt_rst_o);
    
    transmitter : dispatch_reply_transmit
@@ -190,17 +201,14 @@ begin
             header2_i   => reply_header2,
             buf_data_i  => reply_buf_rddata,
             buf_addr_o  => reply_buf_rdaddr);
-
-   reply_data_size <= cmd_header0(BB_DATA_SIZE'range) when (cmd_header0(BB_COMMAND_TYPE'range) = READ_BLOCK or 
-                                                            cmd_header0(BB_COMMAND_TYPE'range) = DATA) 
-                                                      else (others => '0');
+   
+   -- reply data size = 0 for WRITE commands, data size field otherwise         
+   reply_data_size <= (others => '0') when cmd_header0(BB_COMMAND_TYPE'range) = WRITE_CMD else cmd_header0(BB_DATA_SIZE'range);
    
    reply_hdr0 <= cmd_header0(BB_PREAMBLE'range) & cmd_header0(BB_COMMAND_TYPE'range) & reply_data_size;
    reply_hdr1 <= cmd_header1;
-   reply_hdr2 <= (SUCCESS & "000000000000000000000000") when (cmd_rdy = '1') else
-                 (FAIL    & "000000000000000000000000") when (cmd_err = '1') else
-                 (others => '0');
-                                                      
+   reply_hdr2 <= status_reg & "000000000000000000000000000000";
+                                        
    reply0 : reg
    generic map(WIDTH => PACKET_WORD_WIDTH)
    port map(clk_i => clk_i,
@@ -221,7 +229,7 @@ begin
    generic map(WIDTH => PACKET_WORD_WIDTH)
    port map(clk_i => clk_i,
             rst_i => rst_i,
-            ena_i => uop_status_ld,
+            ena_i => '1',
             reg_i => reply_hdr2,
             reg_o => reply_header2);
                  
@@ -233,7 +241,31 @@ begin
             clock     => mem_clk_i,
             q         => reply_buf_rddata);            
             
-            
+   
+   ---------------------------------------------------------
+   -- Status Register
+   ---------------------------------------------------------
+                    
+   status : process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         status_reg <= (others => '0');
+      elsif(clk_i = '1' and clk_i'event) then
+         if(status_clr = '1') then
+            status_reg <= (others => '0');
+         elsif(cmd_err = '1') then
+            status_reg(0) <= '1';
+         elsif(wb_err = '1') then
+            status_reg(1) <= '1';
+         end if;
+      end if;
+   end process status;
+   
+   -- Error scenarios:
+   --
+   -- 1. CRC receive error     -> Send back error packet with CRC error flag.
+   -- 2. WB slave non-existent -> WB intercon will allow bus cycle to complete, and assert err_i.  Send back full packet with WB error flag.
+   
    ---------------------------------------------------------
    -- Dispatch Control FSM
    ---------------------------------------------------------
@@ -247,49 +279,56 @@ begin
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, cmd_rdy, cmd_err, wb_reply_rdy, reply_ack)
+   stateNS: process(pres_state, cmd_rdy, cmd_err, wb_rdy, reply_ack)
    begin
       case pres_state is
-         when FETCH =>   if(cmd_rdy = '1') then
-                            next_state <= EXECUTE;
-                         elsif(cmd_err = '1') then
-                            next_state <= REPLY;
-                         else
-                            next_state <= FETCH;
-                         end if;
-                         
-         when EXECUTE => if(wb_reply_rdy = '1') then
-                            next_state <= REPLY;
-                         else
-                            next_state <= EXECUTE;
-                         end if;
-                         
-         when REPLY =>   if(reply_ack = '1') then
-                            next_state <= FETCH;
-                         else
-                            next_state <= REPLY;
-                         end if;
+         when INITIALIZE => next_state <= FETCH;
          
-         when others =>  next_state <= FETCH;
+         when FETCH =>      if(cmd_rdy = '1') then
+                               if(cmd_err = '1') then          -- if CRC error in command, reply immediately with error packet
+                                  next_state <= REPLY;
+                               else                            -- otherwise, process command
+                                  next_state <= EXECUTE;
+                               end if;
+                            else
+                               next_state <= FETCH;
+                            end if;
+                         
+         when EXECUTE =>    if(wb_rdy = '1') then
+                               next_state <= REPLY;
+                            else
+                               next_state <= EXECUTE;
+                            end if;
+                         
+         when REPLY =>      if(reply_ack = '1') then
+                               next_state <= INITIALIZE;
+                            else
+                               next_state <= REPLY;
+                            end if;
+         
+         when others =>     next_state <= INITIALIZE;
       end case;
    end process stateNS;
    
    stateOut: process(pres_state)
    begin
+      status_clr    <= '0';
       cmd_hdr_ld    <= '0';
       uop_status_ld <= '0';      
       wb_cmd_rdy    <= '0';
       reply_rdy     <= '0';
       
       case pres_state is
-         when FETCH =>   cmd_hdr_ld    <= '1';                         
-                         uop_status_ld <= '1';
+         when INITIALIZE => status_clr <= '1';
          
-         when EXECUTE => wb_cmd_rdy <= '1';
+         when FETCH =>      cmd_hdr_ld    <= '1';                         
+                            uop_status_ld <= '1';
          
-         when REPLY =>   reply_rdy <= '1';
+         when EXECUTE =>    wb_cmd_rdy <= '1';
          
-         when others =>  null;
+         when REPLY =>      reply_rdy <= '1';
+         
+         when others =>     null;
       end case;
    end process stateOut;
 end rtl;
