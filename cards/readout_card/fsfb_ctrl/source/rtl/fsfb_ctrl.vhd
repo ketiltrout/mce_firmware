@@ -21,7 +21,7 @@
 --
 -- fsfb_ctrl.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -69,6 +69,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.3  2004/12/04 03:11:14  mohsen
+-- Corrected error in not using the sign
+--
 -- Revision 1.2  2004/11/26 18:27:02  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -246,8 +249,6 @@ begin  -- rtl
       case dac_clk is
         when '0' =>
           dac_clk <= (dac_dat_en_i and rdy_to_clk_dac);
-        when '1' =>
-          dac_clk <= '0';
         when others =>
           dac_clk <= '0';
       end case;
