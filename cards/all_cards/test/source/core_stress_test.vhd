@@ -30,30 +30,61 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: core_stress_test.vhd,v $
+-- Revision 1.1  2004/07/09 19:43:08  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
    
 library ieee;
 use ieee.std_logic_1164.all;
 
+-----------------------------------------------------------------------------
+-- How to use core_stress_test:
+--
+-- 1. For 95% LE usage, NUM_COUNTER = 475 for EP1S30, 155 for EP1S10. 
+--
+-- 2. For AC, BC, CC cards, use "data" output.  For RC card, use "data2".
+--    (Changes in entity declaration and output_gen generate block required)
+-- 
+-- 3. Use Altera Megawizard to modify core_stress_test_pll c0 clock frequency
+--    inclk0 = input clock to PLL 5
+--    c0 = internal clock (clocks LFSRs)
+--    e3 = external clock (can use to verify PLL is working)
+--
+-- 4. Pin assignments:
+--    inclk    = K17      outclk    = K16
+--    data[0]  = AD19     data2[0]  = E13
+--    data[1]  = AD18     data2[1]  = D13
+--    data[2]  = AE19     data2[2]  = C13
+--    data[3]  = AE18     data2[3]  = E12
+--    data[4]  = AF19     data2[4]  = B13
+--    data[5]  = AG18     data2[5]  = D12
+--    data[6]  = AE20     data2[6]  = C12
+--    data[7]  = AH19     data2[7]  = B12
+--    data[8]  = AG19     data2[8]  = B11
+--    data[9]  = AH20     data2[9]  = D11
+--    data[10] = AF20     data2[10] = C11
+--    data[11] = AH21     data2[11] = A11
+--    data[12] = AG21     data2[12] = B10
+--    data[13] = AF21     data2[13] = C10
+--    data[14] = AE21     data2[14] = A10
+--    data[15] = AH26     data2[15] = E10
+-----------------------------------------------------------------------------
+
 entity core_stress_test is
 generic(NUM_COUNTER : integer range 3 to 512 := 475;
         NUM_OUTPUT  : integer range 1 to 32  := 16);
 port(inclk  : in std_logic;
      outclk : out std_logic;
-
--- use either data or data2 (depending on which card you're compiling for)
--- use data  for AC, BC, CC
--- use data2 for RC
-
 --     data   : out std_logic_vector(NUM_OUTPUT-1 downto 0));
      data2  : out std_logic_vector(NUM_OUTPUT-1 downto 0));
 end core_stress_test;
 
 architecture behav of core_stress_test is
 
-component pll
+component core_stress_test_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      e3 : out std_logic);
@@ -87,7 +118,7 @@ begin
    load <= '0';
    clr  <= '0';
 
-   clk_gen: pll
+   clk_gen: core_stress_test_pll
       port map(inclk0 => inclk,
                c0 => clk,
                e3 => outclk);
