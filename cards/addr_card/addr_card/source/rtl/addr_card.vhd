@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.12  2005/02/21 22:27:08  mandana
+-- added firmware revision AC_REVISION (fw_rev)
+--
 -- Revision 1.11  2005/01/26 01:28:13  mandana
 -- removed mem_clk_i from ac_dac_ctrl, frame_timing still uses mem_clk_i
 --
@@ -157,7 +160,7 @@ architecture top of addr_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010001";
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010002";
 
 -- clocks
 signal clk      : std_logic;
