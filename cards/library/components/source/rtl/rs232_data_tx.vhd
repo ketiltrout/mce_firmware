@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: rs232_data_tx.vhd,v $
+-- Revision 1.1  2004/05/05 03:51:26  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -39,7 +42,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 entity rs232_data_tx is
-generic(WIDTH : in integer range 1 to 1024 := 8);  -- number of bits to transmit
+generic(WIDTH : in integer range 4 to 1024 := 8);  -- number of bits to transmit
 port(clk_i   : in std_logic;
      rst_i   : in std_logic;
      data_i  : in std_logic_vector(WIDTH-1 downto 0);
