@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.13  2005/01/31 19:19:22  mandana
+-- Ernie: fixed packet resync logic
+--
 -- Revision 1.12  2005/01/12 23:23:41  erniel
 -- updated lvds_rx component
 --
@@ -110,7 +113,7 @@ end dispatch_cmd_receive;
 
 architecture rtl of dispatch_cmd_receive is
 
-type receiver_states is (RX_HDR, RX_DATA, RX_CRC, INCR_HDR, INCR_DATA, INCR_SKIP, PARSE_HDR, WRITE_BUF, SKIP_CMD, LATCH_HDR, DONE, ERROR);
+type receiver_states is (RX_HDR, RX_DATA, RX_CRC, INCR_HDR, INCR_DATA, INCR_SKIP, PARSE_HDR, WRITE_BUF, SKIP_CMD, DONE, ERROR);
 signal rx_pres_state : receiver_states;
 signal rx_next_state : receiver_states;
 
