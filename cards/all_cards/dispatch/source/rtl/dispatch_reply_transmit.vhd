@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.2  2004/09/11 00:56:52  erniel
+-- added comments
+--
 -- Revision 1.1  2004/09/10 16:40:46  erniel
 -- initial version
 --
@@ -44,6 +47,9 @@ use ieee.std_logic_unsigned.all;
 
 library components;
 use components.component_pack.all;
+
+library sys_param;
+use sys_param.command_pack.all;
 
 library work;
 use work.async_pack.all;
@@ -83,7 +89,7 @@ signal word_count_ena : std_logic;
 signal word_count_clr : std_logic;
 signal word_count     : integer;
 
-signal reply_size    : std_logic_vector(DATA_SIZE_WIDTH-1 downto 0);
+signal reply_size    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal reply_size_ld : std_logic;
 
 signal reply_num_words : integer;
@@ -125,11 +131,11 @@ begin
    ---------------------------------------------------------
    
    data_size_reg : reg
-   generic map(WIDTH => DATA_SIZE_WIDTH)
+   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
    port map(clk_i => clk_i,
             rst_i => rst_i,
             ena_i => reply_size_ld,
-            reg_i => header0_i(DATA_SIZE'range),
+            reg_i => header0_i(BB_DATA_SIZE'range),
             reg_o => reply_size);
             
    -- number of bits to be processed by CRC is (# of data words + 2 header words + 1 pass/fail word) * 32

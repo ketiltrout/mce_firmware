@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.5  2004/09/11 00:58:08  erniel
+-- added watchdog timer functionality
+--
 -- Revision 1.4  2004/09/10 16:42:12  erniel
 -- added reply acknowledge signal
 --
@@ -55,10 +58,8 @@ library components;
 use components.component_pack.all;
 
 library sys_param;
-use sys_param.general_pack.all;
-use sys_param.data_types_pack.all;
-use sys_param.wishbone_pack.all;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 library work;
 use work.dispatch_pack.all;
@@ -70,16 +71,15 @@ port(clk_i : in std_logic;
      -- Command interface:
      cmd_rdy_i : in std_logic;
      
-     data_size_i : in integer range 0 to MAX_DATA_WORDS-1;
-     cmd_type_i  : in std_logic_vector(COMMAND_TYPE_WIDTH-1 downto 0);     
-     param_id_i  : in std_logic_vector(PARAMETER_ID_WIDTH-1 downto 0); 
+     data_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+     cmd_type_i  : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);     
+     param_id_i  : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
        
      cmd_buf_data_i : in std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
      cmd_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
      
      -- Reply interface:
      reply_rdy_o : out std_logic;
-     reply_ack_i : in std_logic;
                
      reply_buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
      reply_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
@@ -98,7 +98,7 @@ port(clk_i : in std_logic;
      dat_i 	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i  : in std_logic;
      
-     -- Watchdog interface:
+     -- Watchdog reset interface:
      wdt_rst_o : out std_logic);
 end dispatch_wishbone;
 
@@ -185,11 +185,7 @@ begin
                              next_state <= WB_CYCLE;
                           end if;
                                                       
-         when DONE =>     if(reply_ack_i = '1') then
-                             next_state <= IDLE;
-                          else
-                             next_state <= DONE;
-                          end if;
+         when DONE =>     next_state <= IDLE;
       end case;
    end process stateNS;
    
