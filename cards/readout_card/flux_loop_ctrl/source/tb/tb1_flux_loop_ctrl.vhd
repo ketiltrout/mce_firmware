@@ -77,6 +77,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop_ctrl.vhd,v $
+-- Revision 1.3  2004/11/19 23:20:18  anthonyk
+-- Added various sa_bias/offset ctrl related changes
+--
 -- Revision 1.2  2004/11/08 23:56:22  mohsen
 -- Sorted out parameters.  Also, incorporated fsfb_ctrl in the testbench and done self check.
 --
@@ -175,8 +178,13 @@ architecture beh of tb1_flux_loop_ctrl is
     z_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     sa_bias_dat_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_i              : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff_addr_o       : out std_logic_vector(2 downto 0);
-    filter_coeff_dat_i        : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff0_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff1_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff2_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff3_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff4_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff5_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff6_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
     -- DAC Interface
     dac_dat_o                 : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
@@ -241,8 +249,13 @@ architecture beh of tb1_flux_loop_ctrl is
     signal z_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     signal sa_bias_dat_i             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     signal offset_dat_i              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal filter_coeff_addr_o       : std_logic_vector(2 downto 0);
-    signal filter_coeff_dat_i        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    signal filter_coeff0_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    signal filter_coeff1_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    signal filter_coeff2_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    signal filter_coeff3_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    signal filter_coeff4_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    signal filter_coeff5_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    signal filter_coeff6_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     signal dac_dat_o                 : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
     signal dac_clk_o                 : std_logic;
     signal sa_bias_dac_spi_o         : std_logic_vector(2 downto 0);
@@ -511,8 +524,13 @@ begin  -- beh
     z_dat_i                   => z_dat_i,
     sa_bias_dat_i             => sa_bias_dat_i,
     offset_dat_i              => offset_dat_i,
-    filter_coeff_addr_o       => filter_coeff_addr_o,
-    filter_coeff_dat_i        => filter_coeff_dat_i,
+    filter_coeff0_i           => filter_coeff0_i,
+    filter_coeff1_i           => filter_coeff1_i,
+    filter_coeff2_i           => filter_coeff2_i,
+    filter_coeff3_i           => filter_coeff3_i,
+    filter_coeff4_i           => filter_coeff4_i,
+    filter_coeff5_i           => filter_coeff5_i,
+    filter_coeff6_i           => filter_coeff6_i,
     dac_dat_o                 => dac_dat_o,
     dac_clk_o                 => dac_clk_o,
     sa_bias_dac_spi_o         => sa_bias_dac_spi_o,

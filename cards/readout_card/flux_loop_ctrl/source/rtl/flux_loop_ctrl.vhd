@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.3  2004/11/17 01:02:18  anthonyk
+-- Added sa_bias/offset ctrl component blocks
+--
 -- Revision 1.2  2004/11/08 23:58:33  mohsen
 -- Sorted out parameters.  Also, added fsfb_ctrl.
 --
@@ -133,8 +136,13 @@ entity flux_loop_ctrl is
     z_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     sa_bias_dat_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_i              : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff_addr_o       : out std_logic_vector(2 downto 0);
-    filter_coeff_dat_i        : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff0_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff1_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff2_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff3_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff4_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff5_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    filter_coeff6_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     
     -- DAC Interface
     dac_dat_o                 : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
