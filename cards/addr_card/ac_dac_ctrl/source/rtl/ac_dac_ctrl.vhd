@@ -27,8 +27,8 @@
 -- Description:
 -- Wishbone to parallel 14-bit 165MS/s DAC (AD9744) interface 
 -- AC_DAC_CTRL slave processes the following commands issued by Command_FSM(Wishbone Master) on address card:
---              ON_BIAS_ADDR     : to read/write a 14b ON current bias value to each of the DACs in consecutive words.
---              OFF_BIAS_ADDR    : to read/write a 14b OFF current bias value to each of the DACs
+--              ON_BIAS_ADDR     : to read/write a 14b ON-current bias value to each of the DACs in consecutive words.
+--              OFF_BIAS_ADDR    : to read/write a 14b OFF-current bias value to each of the DACs
 --              ROW_MAP_ADDR     : to read/write the channel to row address mapping with consecutive bytes                 
 --              STRT_MUX_ADDR    : to read/write whether the mux is enabled or disabled       :
 --              ROW_ORDER_ADDR   : to read/write row addressing order
@@ -37,8 +37,11 @@
 --              CYC_OO_SYC_ADDR  : to send the number of cycles out of sync to the master (cmd_fsm) 
 --              RESYNC_ADDR      : to resync with the next sync pulse
 -- Revision history:
--- <date $Date: 2004/07/14 00:04:10 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/07/21 22:30:15 $>	- <initials $Author: erniel $>
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.3  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.2  2004/07/14 00:04:10  mandana
 -- added cvs log header
 --   
@@ -55,6 +58,7 @@ use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
 use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
+use sys_param.ac_dac_ctrl_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -136,17 +140,15 @@ signal read_count      : word32;
 
 -- row number when cycling through different rows.
 signal row             : integer range 0 to NUM_OF_ROWS;
-signal cur_on_val      : word16;
-signal cur_off_val     : word16;
+signal row_clk         : std_logic;
 
 signal k               : integer;
 signal active_row      : integer;
 signal prev_row        : integer;
 signal reg_clk         : std_logic_vector (NUM_OF_ROWS downto 0);
 signal dac_data        : w14_array11;
+signal dac_clk         : std_logic;
 
--- A dual-port ram is instantiated, port A is used to read/write values requested by WB commands
--- and port B is used to read values
 component ram_dp_16x256 IS
 	PORT
 	(
@@ -177,7 +179,10 @@ END component;
 
 begin
 
--- instantiations
+-- instantiate an Altera Dual-port RAM to store the ON/OFF bias values, row order, etc.
+-- port A is used to read/write values communicated through WB commands
+-- and port B is used to read values during row scanning.
+--
    ram_dp_16x256_inst : ram_dp_16x256 PORT MAP (
          data_a	   => mem_dat_a,
          wren_a	   => mem_wren_a,
@@ -192,13 +197,14 @@ begin
          q_a       => mem_q_a,
          q_b	   => mem_q_b
 	);
-	
+   -- adder to caluculate memory address	
    adder8_inst : adder8 PORT MAP (
 		dataa	 => base,
 		datab	 => idx_sig,
-		result	 => mem_addr
+		result	 => mem_addr_a
 	);
 
+   -- index counter. The memory index counter which is in fact the row number
    idx_counter: counter 
    generic map(MAX => NUM_OF_ROWS,
                STEP_SIZE => 1,
@@ -211,23 +217,28 @@ begin
             count_i => 0,
             count_o => idx);
             
+   -- counter to advance the row number for row selection FSM           
    row_counter: counter 
    generic map(MAX => NUM_OF_ROWS,
                STEP_SIZE => 1,
                WRAP_AROUND => '1',
                UP_COUNTER => '1')
    port map(clk_i   => row_clk,
-            rst_i   => start_mux,
+            rst_i   => rst_i, -- start_mux,
             ena_i   => '1',
             load_i  => '0',
             count_i => 0,
             count_o => row);
-   
+            
+   -- activ_row keeps track of the row that is currently on
    active_row <= ROW_ORDER(row);
+   
+   -- prev_row keeps track of the row number that was on and just turned off
    prev_row   <= ROW_ORDER(row - 1);
    
    -- generate registers for all the DAC data outputs
-   for k in 0 to NUM_OF_ROWS_ generate
+   gen_dac_data_reg: 
+      for k in 0 to NUM_OF_ROWS generate
    dac_data_reg: reg
       generic map(WIDTH => 16)
       port map(clk_i  => reg_clk(k),
@@ -238,10 +249,12 @@ begin
    end generate gen_dac_data_reg;
                                     
    idx_sig <= conv_std_logic_vector(idx, 8);                                    
+   
+   -- memory is accessed on the falling edge of the clock and state changes happen on the positive edge.
    mem_clk_a  <= not(clk_i);
    mem_clk_b  <= not(clk_i);
      
--- CLOCKED FSMs
+   -- clocked FSMs, advance the state for both FSMs
    state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -255,7 +268,7 @@ begin
 
 ------------------------------------------------------------
 --
---  DAC controller FSM
+--  DAC controller FSM (handles WB commands)
 --
 ------------------------------------------------------------   
 
@@ -271,7 +284,7 @@ begin
             end if;                  
             
          when WR =>     
-            if (addr_i = ON_BI AS_ADDR  or addr_i = OFF_BIAS_ADDR or 
+            if (addr_i = ON_BIAS_ADDR  or addr_i = OFF_BIAS_ADDR or 
                 addr_i = STRT_MUX_ADDR or addr_i = ROW_ORDER_ADDR) then
                next_state <= WR_ACK;
             elsif addr_i = RESYNC_ADDR then
@@ -483,46 +496,88 @@ begin
             end if;
                                      
          when CLKDAC =>
+            row_next_state <= DONE;
             
          when DONE =>
-                  
+            row_next_state <= MEM_FETCH_ON_VAL;
+         
+         when others =>
+            row_next_state <= IDLE;
+            
       end case;
    end process row_state_NS;   
 
-   -- output states for row selection FSM   
+   -- output states for row selection FSM
+   -- In every scan instance, the current row has to be turned on and the previous row has to be turned off
+   -- Therefore only 2 DACs are clocked. 
+   -- Note that memories are accessed on the negative edge of the clock or at the end of the state, therefore
+   -- we can register the on/off values read from the memory in the previous state!!
    row_state_out: process(row_current_state)
    begin
       case row_current_state is
          when IDLE =>
+            row_clk      <= '0';
             mem_dat_b    <= (others => '0');
             mem_wren_b   <= '0';
             mem_clken_b  <= '0';
             mem_addr_b   <= (others => '0');
+            for k in 0 to NUM_OF_ROWS loop
+               reg_clk(k) <= '0';
+               dac_clk_o(k) <= '0';
+            end loop;
            
-         when MEM_FETCH_ON_VAL =>
+         when MEM_FETCH_ON_VAL => 
             row_clk      <= 0;
             mem_addr_b   <= ON_VAL_BASE + ROW_ORDER(row);
             mem_clken_b  <= '1';
             dac_data(ROW_ORDER(row))<= mem_dat_o;
-            
+            for k in 0 to NUM_OF_ROWS loop
+               reg_clk(k) <= '0';
+               dac_clk_o(k) <= '0';
+            end loop;
+                  
          when MEM_FETCH_OFF_VAL =>   
             row_clk      <= 0;
-            mem_addr_b   <= ON_VAL_BASE + ROW_ORDER[row - 1];
+            mem_addr_b   <= OFF_VAL_BASE + ROW_ORDER[row - 1];
             mem_clken_b  <= '1';
-            dac_data(row - 1)<= mem_dat_o;
-            
+            dac_data(ROW_ORDER(row - 1))<= mem_dat_o;
+            reg_clk(row)  <= '1'; -- remember, the row-1 mem address is accessed only at the end of the state.
+            for k in 0 to NUM_OF_ROWS loop
+            --   reg_clk(k) <= '0';            
+               dac_clk_o(k) <= '0';
+            end loop;
+         
          when WAIT_FOR_SYNC =>
+            row_clk      <= '0';
             mem_dat_b    <= (others => '0');
-            mem_wren_b   <= '0';
-            mem_clken_b  <= '0';
-            
+            mem_wren_b   <= '0'; 
+            mem_clken_b  <= '1';
+            reg_clk(row -1) <= '1';
+            for k in 0 to NUM_OF_ROWS loop
+            --   reg_clk(k) <= '1';            
+               dac_clk_o(k) <= '0';
+            end loop;
+         
          when CLKDAC =>
+            row_clk      <= '1'; -- increment the current row number
             mem_dat_b    <= (others => '0');
             mem_wren_b   <= '0';
             mem_clken_b  <= '0';
+            for k in 0 to NUM_OF_ROWS loop
+               reg_clk(k) <= '0';
+               dac_clk_o(k) <= '1';
+            end loop;
             
          when DONE =>
-         
+            row_clk      <= '0';
+            mem_dat_b    <= (others => '0');
+            mem_wren_b   <= '0';
+            mem_clken_b  <= '0';
+            mem_addr_b   <= (others => '0');
+            for k in 0 to NUM_OF_ROWS loop
+               reg_clk(k) <= '0';
+               dac_clk_o(k) <= '0';         
+            end loop;   
       end case;
    end process row_state_out;   
      
