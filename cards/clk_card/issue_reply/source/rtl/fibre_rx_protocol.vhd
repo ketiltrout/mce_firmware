@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.6 2005/02/14 23:39:43 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.7 2005/02/15 03:15:44 erniel Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        David Atkinson
@@ -67,6 +67,9 @@
 -- Revision history:
 --
 -- $Log: fibre_rx_protocol.vhd,v $
+-- Revision 1.7  2005/02/15 03:15:44  erniel
+-- minor formatting and cleaning up
+--
 -- Revision 1.6  2005/02/14 23:39:43  mandana
 -- Ernie/Mandana: changed memory to Altera altsyncram memory
 -- optimized the FSM to keep track of number of bytes and words
@@ -75,7 +78,7 @@
 --
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2005/02/14 23:39:43 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2005/02/15 03:15:44 $> -     <text>      - <initials $Author: erniel $>
 --
 -- Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------
@@ -124,7 +127,7 @@ architecture rtl of fibre_rx_protocol is
 
 
 -- FSM's states defined
-type states is (IDLE, RQ_BYTE, LD_BYTE, WR_WORD, TEST_CKSM, CKSM_PASS, CKSM_FAIL, DATA_READ, DATA_SETL, DATA_TX);
+type states is (IDLE, RQ_BYTE, LD_BYTE, CKSM_CALC, WR_WORD, TEST_CKSM, CKSM_PASS, CKSM_FAIL, DATA_READ, DATA_SETL, DATA_TX);
 signal current_state : states;
 signal next_state    : states;
 
@@ -137,13 +140,8 @@ signal cksum_calc_clr : std_logic;
 
 -- signals mapped to output ports
 signal cmd_code  : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);     -- command code  
-signal id        : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
 signal num_data  : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of valid 32-bit data words
-signal cmd_data  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);        -- 32-bit valid data word
-signal cksum_err : std_logic;                                              -- checksum error flag
-signal cmd_rdy   : std_logic;                                              -- command ready flag (checksum passed)
-signal data_clk  : std_logic;                                              -- data clock
-signal rx_fr     : std_logic;                                              -- receive fifo read request
+
 
 constant BLOCK_SIZE : integer := 58;                                       -- total number of data words in a write_block
 signal number_data  : integer;                                             -- this will be a value between 1 and 58
@@ -172,7 +170,7 @@ signal byte_count_ena : std_logic;
 signal byte_count_clr : std_logic;
 
 -- word counter for the incoming packet
-signal word_count     : integer range 0 to 256;
+signal word_count     : integer range 0 to 64;
 signal word_count_ena : std_logic;
 signal word_count_clr : std_logic;
 
@@ -180,27 +178,11 @@ signal word_count_clr : std_logic;
 signal n_clk : std_logic;
 
 begin
-
-   -- output assignments
-
-   cmd_code_o      <= cmd_code  ;  
-   card_id_o       <= id(31 downto 16);
-   param_id_o      <= id(15 downto 0);
-   num_data_o      <= num_data  ;    
-   cmd_data_o      <= cmd_data  ;
-   cksum_err_o     <= cksum_err ;
-   cmd_rdy_o       <= cmd_rdy   ;   
-   data_clk_o      <= data_clk  ;
-   rx_fr_o         <= rx_fr     ;
- 
-
-   -- concurrent statement - integer value of number of data.
-
-   number_data <= conv_integer(num_data);
-   
   
-   -- counters to keep track of which byte/word we are currently loading:
-    
+   ----------------------------------------------------------------------------
+   -- byte and word counters
+   ----------------------------------------------------------------------------    
+  
    byte_counter: counter
    generic map(MAX => 4)
    port map(clk_i   => clk_i,
@@ -211,7 +193,7 @@ begin
             count_o => byte_count);
             
    word_counter: counter
-   generic map(MAX => 256)
+   generic map(MAX => 64)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
             ena_i   => word_count_ena,
@@ -220,7 +202,9 @@ begin
             count_o => word_count);
             
             
-   -- state machine:
+   ----------------------------------------------------------------------------
+   -- state machine
+   ----------------------------------------------------------------------------
 
    FSM_state : process(clk_i, rst_i)
    begin
@@ -246,9 +230,9 @@ begin
          
          when LD_BYTE =>   if(rx_fe_i = '0') then
                               if((word_count = 0 and rxd_i /= FIBRE_PREAMBLE1) or (word_count = 1 and rxd_i /= FIBRE_PREAMBLE2)) then
-                                 next_state <= IDLE;                     
-                              elsif(byte_count = 3 and word_count > 4 and word_count < BLOCK_SIZE+5) then
-                                 next_state <= WR_WORD;
+                                 next_state <= IDLE;
+                              elsif(byte_count = 3 and word_count > 1 and word_count < BLOCK_SIZE+5) then
+                                 next_state <= CKSM_CALC;
                               else
                                  next_state <= RQ_BYTE;
                               end if;
@@ -256,6 +240,12 @@ begin
                               next_state <= TEST_CKSM;
                            else
                               next_state <= LD_BYTE;
+                           end if;                           
+                           
+         when CKSM_CALC => if(word_count > 5 and word_count < BLOCK_SIZE+6) then
+                              next_state <= WR_WORD;
+                           else
+                              next_state <= RQ_BYTE;
                            end if;
          
          when WR_WORD =>   if(rx_fe_i = '0') then
@@ -316,10 +306,10 @@ begin
       write_mem      <= '0';
       cksum_calc_ena <= '0';
       cksum_calc_clr <= '0';
-      cksum_err      <= '0';
-      cmd_rdy        <= '0';
-      rx_fr          <= '0';
-      data_clk       <= '0';
+      cksum_err_o    <= '0';
+      cmd_rdy_o      <= '0';
+      rx_fr_o        <= '0';
+      data_clk_o     <= '0';
    
       case current_state is
          when IDLE =>      byte_count_ena <= '1';
@@ -329,7 +319,7 @@ begin
                            reset_mem      <= '1';
                            cksum_calc_clr <= '1';
          
-         when RQ_BYTE =>   rx_fr <= '1';
+         when RQ_BYTE =>   rx_fr_o <= '1';
          
          when LD_BYTE =>   case word_count is
                               when 0 => null;
@@ -338,30 +328,18 @@ begin
                                  
                               when 2 => ld_cmd <= '1';
                                         ld_cksum_in <= '1';
-                                        if(byte_count = 3) then
-                                           cksum_calc_ena <= '1';
-                                        end if;
                                          
                               when 3 => ld_id <= '1';
                                         ld_cksum_in <= '1';
-                                        if(byte_count = 3) then
-                                           cksum_calc_ena <= '1';
-                                        end if;
                                            
                               when 4 => ld_nda <= '1';
                                         ld_cksum_in <= '1';
-                                        if(byte_count = 3) then
-                                           cksum_calc_ena <= '1';
-                                        end if;
                                          
                               when 63 => ld_cksum_rcvd <= '1';
                               
                               -- this covers cases 5 to 62:
                               when others => ld_data <= '1';
                                              ld_cksum_in <= '1';
-                                             if(byte_count = 3) then
-                                                cksum_calc_ena <= '1';
-                                             end if;
                            end case;
 
                            if(rx_fe_i = '0') then  
@@ -371,23 +349,29 @@ begin
                                  word_count_ena <= '1';
                               end if;
                            end if;
-                         
+         
+         when CKSM_CALC => case word_count is
+                              when 0 => null;
+                              when 1 => null;
+                              when others => cksum_calc_ena <= '1';
+                           end case;
+                           
          when WR_WORD =>   if(rx_fe_i = '0') then
                               write_mem <= '1';
                            end if;
          
-         when CKSM_PASS => cmd_rdy <= '1';
+         when CKSM_PASS => cmd_rdy_o <= '1';
          
-         when CKSM_FAIL => cksum_err <= '1';
+         when CKSM_FAIL => cksum_err_o <= '1';
          
          when DATA_READ => read_mem    <= '1'; 
-                           cmd_rdy     <= '1';
+                           cmd_rdy_o     <= '1';
                            ld_cmd_data <= '1';
 
-         when DATA_SETL => cmd_rdy <= '1';
+         when DATA_SETL => cmd_rdy_o <= '1';
             
-         when DATA_TX =>   cmd_rdy  <= '1' ;
-                           data_clk <= '1' ;
+         when DATA_TX =>   cmd_rdy_o  <= '1' ;
+                           data_clk_o <= '1' ;
          
          when others =>    null;
       end case;
@@ -395,12 +379,12 @@ begin
       
   
   ----------------------------------------------------------------------------
-  -- process to register cmd_code
+  -- cmd_code register
   ----------------------------------------------------------------------------
   dff_cmd: process(clk_i, rst_i)
   begin
      if (rst_i = '1') then 
-        cmd_code(15 downto 0) <= (others => '0');
+        cmd_code <= (others => '0');
      elsif (clk_i'EVENT and clk_i = '1') then
         if(ld_cmd = '1') then
            case byte_count is
@@ -412,21 +396,24 @@ begin
      end if;
   end process dff_cmd;
   
+  cmd_code_o <= cmd_code;
+  
       
   ----------------------------------------------------------------------------
-  -- process to register id
+  -- param_id and card_id registers
   ----------------------------------------------------------------------------
   dff_id: process(clk_i, rst_i)
   begin
      if (rst_i = '1') then 
-        id(31 downto 0) <= (others => '0');
+        param_id_o <= (others => '0');
+        card_id_o <= (others => '0');
      elsif (clk_i'EVENT and clk_i = '1') then
         if(ld_id = '1') then
            case byte_count is
-              when 0 =>      id(7 downto 0)   <= rxd_i;
-              when 1 =>      id(15 downto 8)  <= rxd_i;
-              when 2 =>      id(23 downto 16) <= rxd_i;
-              when others => id(31 downto 24) <= rxd_i;
+              when 0 =>      param_id_o(7 downto 0)  <= rxd_i;
+              when 1 =>      param_id_o(15 downto 8) <= rxd_i;
+              when 2 =>      card_id_o(7 downto 0) <= rxd_i;
+              when others => card_id_o(15 downto 8) <= rxd_i;
            end case;
         end if;
      end if;
@@ -434,12 +421,12 @@ begin
   
     
   ----------------------------------------------------------------------------
-  -- process to register nda
+  -- num_data register
   ----------------------------------------------------------------------------
   dff_nda: process(clk_i, rst_i)
   begin
      if (rst_i = '1') then 
-        num_data(31 downto 0) <= (others => '0');
+        num_data <= (others => '0');
      elsif (clk_i'EVENT and clk_i = '1') then
         if(ld_nda = '1') then
            case byte_count is
@@ -452,14 +439,17 @@ begin
      end if;
   end process dff_nda;
   
+  num_data_o <= num_data;
+  number_data <= conv_integer(num_data);
+  
   
   ----------------------------------------------------------------------------
-  -- process to register cksum_in
+  -- checksum in register (holds most recently acquired word)
   ----------------------------------------------------------------------------
   dff_ckin: process(clk_i, rst_i)
   begin
      if (rst_i = '1') then 
-        cksum_in(31 downto 0) <= (others => '0');
+        cksum_in <= (others => '0');
      elsif (clk_i'EVENT and clk_i = '1') then
         if(ld_cksum_in = '1') then
            case byte_count is
@@ -474,12 +464,12 @@ begin
          
 
   ----------------------------------------------------------------------------
-  -- process to register cksum_rcvd
+  -- checksum received register (holds checksum in fibre packet)
   ----------------------------------------------------------------------------
   dff_ckrx: process(clk_i, rst_i)
   begin
      if (rst_i = '1') then 
-        cksum_rcvd(31 downto 0) <= (others => '0');
+        cksum_rcvd <= (others => '0');
      elsif (clk_i'EVENT and clk_i = '1') then
         if(ld_cksum_rcvd = '1') then
            case byte_count is
@@ -494,42 +484,7 @@ begin
          
 
   ----------------------------------------------------------------------------
-  -- process to register data
-  ----------------------------------------------------------------------------
-  dff_data: process(clk_i, rst_i)
-  begin
-     if (rst_i = '1') then 
-        data_in (31 downto 0) <= (others => '0');
-     elsif (clk_i'EVENT and clk_i = '1') then
-        if(ld_data = '1') then
-           case byte_count is
-              when 0 =>      data_in(7 downto 0)   <= rxd_i;
-              when 1 =>      data_in(15 downto 8)  <= rxd_i;
-              when 2 =>      data_in(23 downto 16) <= rxd_i;
-              when others => data_in(31 downto 24) <= rxd_i;
-           end case;
-        end if;  
-     end if;
-  end process dff_data;
-
-
-  ----------------------------------------------------------------------------
-  -- process to register cmd data word
-  ----------------------------------------------------------------------------
-  dff_cmd_data: process(clk_i, rst_i)
-  begin
-     if (rst_i = '1') then 
-        cmd_data (31 downto 0) <= (others => '0');
-     elsif (clk_i'EVENT and clk_i = '1') then
-        if(ld_cmd_data = '1') then
-           cmd_data <= data_out;
-        end if;
-     end if;
-  end process dff_cmd_data;
-
-
-  ----------------------------------------------------------------------------
-  -- process to store calculated checksum
+  -- calculated checksum register (holds chceksum calculated so far)
   ----------------------------------------------------------------------------
   checksum_calc : process(clk_i, rst_i)
    begin
@@ -546,7 +501,7 @@ begin
    
    
   ----------------------------------------------------------------------------
-  -- process to perform memory read/write 
+  -- memory pointer management
   ----------------------------------------------------------------------------
   read_write_memory: process(reset_mem, clk_i)
   begin
@@ -563,6 +518,41 @@ begin
      end if;   
 
   end process read_write_memory;
+
+
+  ----------------------------------------------------------------------------
+  -- memory data in register
+  ----------------------------------------------------------------------------
+  dff_data: process(clk_i, rst_i)
+  begin
+     if (rst_i = '1') then 
+        data_in <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        if(ld_data = '1') then
+           case byte_count is
+              when 0 =>      data_in(7 downto 0)   <= rxd_i;
+              when 1 =>      data_in(15 downto 8)  <= rxd_i;
+              when 2 =>      data_in(23 downto 16) <= rxd_i;
+              when others => data_in(31 downto 24) <= rxd_i;
+           end case;
+        end if;  
+     end if;
+  end process dff_data;
+
+
+  ----------------------------------------------------------------------------
+  -- memory data out register
+  ----------------------------------------------------------------------------
+  dff_cmd_data: process(clk_i, rst_i)
+  begin
+     if (rst_i = '1') then 
+        cmd_data_o <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        if(ld_cmd_data = '1') then
+           cmd_data_o <= data_out;
+        end if;
+     end if;
+  end process dff_cmd_data;
 
 
   ----------------------------------------------------------------------------
