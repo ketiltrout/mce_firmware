@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.6  2004/12/16 18:21:08  erniel
+-- fixed small bug in counter
+--
 -- Revision 1.5  2004/12/15 01:55:48  erniel
 -- removed clock divider logic (moved to async_rx)
 -- modified buffering to allow word to persist until next word ready
@@ -72,168 +75,167 @@ end lvds_rx;
 
 architecture rtl of lvds_rx is
 
-component async_rx
-generic(CLK_DIV_FACTOR : integer := 2);
-port(comm_clk_i : in std_logic;
-     rst_i      : in std_logic;
-     
-     dat_o : out std_logic_vector (7 downto 0);
-     rdy_o : out std_logic;
-     ack_i : in std_logic;
+signal sample_count     : integer range 0 to 272;
+signal sample_count_ena : std_logic;
+signal sample_count_clr : std_logic;
 
-     rx_i : in std_logic);
-end component;
+signal sample_buf     : std_logic_vector(2 downto 0);
+signal sample_buf_ena : std_logic;
+signal sample_buf_clr : std_logic;
 
-signal rx_data : std_logic_vector(7 downto 0);
-signal rx_rdy  : std_logic;
-signal rx_ack  : std_logic;
+signal rx_bit     : std_logic;
+signal rx_buf     : std_logic_vector(33 downto 0);
+signal rx_buf_ena : std_logic;
+signal rx_buf_clr : std_logic;
 
-signal byte_count     : integer range 0 to 3;
-signal byte_count_ena : std_logic;
-signal byte_count_clr : std_logic;
+signal data_ld  : std_logic;
+signal data_rdy : std_logic;
 
-signal temp_data     : std_logic_vector(23 downto 0);
-signal temp_byte0_ld : std_logic;
-signal temp_byte1_ld : std_logic;
-signal temp_byte2_ld : std_logic;
-
-signal data_out    : std_logic_vector(31 downto 0);
-signal data_out_ld : std_logic;
-
-type states is (IDLE, RECV, LATCH, ACK, READY, DONE);
+type states is (IDLE, RECV, READY);
 signal pres_state : states;
 signal next_state : states;
 
 begin
-
-   receive: async_rx
-   generic map(CLK_DIV_FACTOR => 2)
-   port map(comm_clk_i => comm_clk_i,  
-            rst_i      => rst_i,
-            dat_o      => rx_data,
-            rdy_o      => rx_rdy,
-            ack_i      => rx_ack,
-            rx_i       => lvds_i);
     
-   byte_counter: counter
-   generic map(MAX => 3,
+   sample_counter: counter
+   generic map(MAX => 271,
                WRAP_AROUND => '0')
-   port map(clk_i   => clk_i,
+   port map(clk_i   => comm_clk_i,
             rst_i   => rst_i,
-            ena_i   => byte_count_ena,
-            load_i  => byte_count_clr,
+            ena_i   => sample_count_ena,
+            load_i  => sample_count_clr,
             count_i => 0,
-            count_o => byte_count);
+            count_o => sample_count);
             
-   temp_byte0: reg
-   generic map(WIDTH => 8)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => temp_byte0_ld,
- 
-            reg_i  => rx_data,
-            reg_o  => temp_data(7 downto 0));
-
-   temp_byte1: reg
-   generic map(WIDTH => 8)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => temp_byte1_ld,
- 
-            reg_i  => rx_data,
-            reg_o  => temp_data(15 downto 8));
+   rx_sample: shift_reg
+   generic map(WIDTH => 3)
+   port map(clk_i      => comm_clk_i,
+            rst_i      => rst_i,
+            ena_i      => sample_buf_ena,
+            load_i     => '0',
+            clr_i      => sample_buf_clr,
+            shr_i      => '1',
+            serial_i   => lvds_i,
+            serial_o   => open,
+            parallel_i => (others => '0'),
+            parallel_o => sample_buf);
             
-   temp_byte2: reg
-   generic map(WIDTH => 8)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => temp_byte2_ld,
- 
-            reg_i  => rx_data,
-            reg_o  => temp_data(23 downto 16));
-            
-   rx_buffer: reg
-   generic map(WIDTH => 32)
-   port map(clk_i  => clk_i,
-            rst_i  => rst_i,
-            ena_i  => data_out_ld,
- 
-            reg_i  => data_out,
-            reg_o  => dat_o);
-            
-   data_out <= rx_data & temp_data;
+   -- received bit is majority function of sample buffer
+   rx_bit <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
    
-   stateFF: process(rst_i, clk_i)
+   rx_buffer: shift_reg
+   generic map(WIDTH => 34)
+   port map(clk_i      => comm_clk_i,
+            rst_i      => rst_i,
+            ena_i      => rx_buf_ena,
+            load_i     => '0',
+            clr_i      => rx_buf_clr,
+            shr_i      => '1',
+            serial_i   => rx_bit,
+            serial_o   => open,
+            parallel_i => (others => '0'),
+            parallel_o => rx_buf);
+            
+   data_buffer: reg
+   generic map(WIDTH => 32)
+   port map(clk_i  => comm_clk_i,
+            rst_i  => rst_i,
+            ena_i  => data_ld,
+ 
+            reg_i  => rx_buf(32 downto 1),
+            reg_o  => dat_o);
+
+
+------------------------------------------------------------
+--
+--  Receive FSM : Controls the receiver datapath
+--
+------------------------------------------------------------
+
+   stateFF: process(rst_i, comm_clk_i)
    begin
       if(rst_i = '1') then
          pres_state <= IDLE;
-      elsif(clk_i'event and clk_i = '1') then
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
          pres_state <= next_state;
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, rx_rdy, ack_i, byte_count)
+   stateNS: process(pres_state, lvds_i, sample_count)
    begin
       case pres_state is
-         when IDLE =>   next_state <= RECV;
-                        
-         when RECV =>   if(rx_rdy = '1') then
-                           next_state <= LATCH;
-                        else
-                           next_state <= RECV;
-                        end if;
-         
-         when LATCH =>  next_state <= ACK;
-                             
-         when ACK =>    if(byte_count = 3) then
-                           next_state <= READY;       
-                        else
-                           next_state <= RECV;
-                        end if;
-                        
-         when READY =>  if(ack_i = '1') then
-                           next_state <= DONE;
-                        else
-                           next_state <= READY;
-                        end if;
-                        
-         when DONE =>   if(rx_rdy = '0') then          
-                           next_state <= IDLE;
-                        else
-                           next_state <= DONE;
-                        end if;
+         when IDLE => if(lvds_i = '0') then
+                         next_state <= RECV;
+                      else
+                         next_state <= IDLE;
+                      end if;
+                      
+         when RECV => if(sample_count = 271) then
+                         next_state <= READY;
+                      else
+                         next_state <= RECV;
+                      end if;
+                      
+         when READY => next_state <= IDLE;
       end case;
    end process stateNS;
    
-   stateOut: process(pres_state, byte_count)
+   stateOut: process(pres_state, sample_count)
    begin
-      rx_ack         <= '0';
-      temp_byte0_ld  <= '0';
-      temp_byte1_ld  <= '0';
-      temp_byte2_ld  <= '0';
-      data_out_ld    <= '0';
-      byte_count_ena <= '0';
-      byte_count_clr <= '0';
-      rdy_o          <= '0';
+      sample_count_ena <= '0';
+      sample_count_clr <= '0';
+      sample_buf_ena   <= '0';
+      sample_buf_clr   <= '0';
+      rx_buf_ena       <= '0';
+      rx_buf_clr       <= '0';
+      data_ld          <= '0';
+      data_rdy         <= '0';
       
       case pres_state is
-         when IDLE =>   byte_count_ena <= '1';
-                        byte_count_clr <= '1';
-                        
-         when LATCH =>  case byte_count is
-                           when 0 => temp_byte0_ld <= '1';
-                           when 1 => temp_byte1_ld <= '1';
-                           when 2 => temp_byte2_ld <= '1';
-                           when others => data_out_ld <= '1';
-                        end case;
-         
-         when ACK =>    rx_ack <= '1';
-                        byte_count_ena <= '1';
-         
-         when READY =>  rdy_o <= '1';
-                        
-         when others => null;
+         when IDLE =>  sample_count_ena <= '1';
+                       sample_count_clr <= '1';
+                       sample_buf_ena   <= '1';
+                       sample_buf_clr   <= '1';
+                       rx_buf_ena       <= '1';
+                       rx_buf_clr       <= '1';
+                       
+         when RECV =>  sample_count_ena <= '1';
+                       sample_buf_ena   <= '1';
+                       if(sample_count = 5   or sample_count = 13  or sample_count = 21  or sample_count = 29  or sample_count = 37  or
+                          sample_count = 45  or sample_count = 53  or sample_count = 61  or sample_count = 69  or sample_count = 77  or
+                          sample_count = 85  or sample_count = 93  or sample_count = 101 or sample_count = 109 or sample_count = 117 or
+                          sample_count = 125 or sample_count = 133 or sample_count = 141 or sample_count = 149 or sample_count = 157 or
+                          sample_count = 165 or sample_count = 173 or sample_count = 181 or sample_count = 189 or sample_count = 197 or
+                          sample_count = 205 or sample_count = 213 or sample_count = 221 or sample_count = 229 or sample_count = 237 or
+                          sample_count = 245 or sample_count = 253 or sample_count = 261 or sample_count = 269) then rx_buf_ena <= '1';
+                       end if;
+                       if(sample_count = 271) then 
+                          data_ld       <= '1';
+                       end if;
+                       
+         when READY => data_rdy         <= '1';
       end case;
    end process stateOut;
 
+
+------------------------------------------------------------
+--
+--  This process controls rdy_o & synchronizes it to clk_i
+--
+------------------------------------------------------------
+
+   -- FF with asynch set, asynch reset, and synch clear:
+   process(data_rdy, rst_i, clk_i)
+   begin
+      if(data_rdy = '1') then
+         rdy_o <= '1';
+      elsif(rst_i = '1') then
+         rdy_o <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if(ack_i = '1') then
+            rdy_o <= '0';
+         end if;
+      end if;
+   end process;
+                      
 end rtl;
