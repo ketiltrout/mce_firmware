@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.9  2004/12/06 20:30:31  erniel
+-- fixed handling of READ commands by receive FSM
+--
 -- Revision 1.8  2004/11/26 01:38:47  erniel
 -- fixed handling of READ commands by CRC subblock
 --
@@ -118,11 +121,11 @@ signal cmd_type      : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 signal cmd_valid     : std_logic;
 
 signal hdr_word_count_ena : std_logic;
-signal hdr_word_count     : integer;
+signal hdr_word_count     : integer range 0 to BB_NUM_CMD_HEADER_WORDS-1;
 
 signal data_word_count_ena : std_logic;
 signal data_word_count_clr : std_logic;
-signal data_word_count     : integer;
+signal data_word_count     : integer range 0 to MAX_DATA_WORDS-1;
 
 
 -- signals used in CRC datapath:
@@ -141,7 +144,7 @@ signal crc_cur_bit    : std_logic;
 signal crc_word_out   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
 signal crc_bit_count_clr : std_logic;
-signal crc_bit_count     : integer;
+signal crc_bit_count     : integer range 0 to PACKET_WORD_WIDTH;
 
 signal crc_ena   : std_logic;
 signal crc_clr   : std_logic;
