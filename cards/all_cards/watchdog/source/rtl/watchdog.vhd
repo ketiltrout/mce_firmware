@@ -20,17 +20,18 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.2 2004/03/09 22:55:57 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: watchdog.vhd,v 1.3 2004/04/01 18:10:08 bburger Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
 -- Organisation:	UBC
 --
 -- Description:
--- This file implements the Array ID functionality
+-- This file implements the watchbone reset functionality
 --
 -- Revision history:
--- <date $Date: 2004/03/09 22:55:57 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2004/04/01 18:10:08 $>	-		<text>		- <initials $Author: bburger $>
+-- $Log$
 --
 ------------------------------------------------------------------------
 
@@ -38,19 +39,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-library work;
-use work.watchdog_pack.all;
-
 library sys_param;
 use sys_param.wishbone_pack.all;
 
-library components;
 -- contains slave_ctrl, us_timer and counter
+library components;
 use components.component_pack.all;
+
 
 entity watchdog is
    generic (
-      SLAVE_SEL : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := WATCHDOG_ADDR;
       ADDR_WIDTH : integer := WB_ADDR_WIDTH;
       DATA_WIDTH : integer := WB_DATA_WIDTH;
       TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH
@@ -59,7 +57,7 @@ entity watchdog is
       -- Wishbone signals
       clk_i   : in std_logic;
       rst_i   : in std_logic;		
-      dat_i 	 : in std_logic_vector (DATA_WIDTH-1 downto 0); -- not used since not writing to array ID
+      dat_i 	 : in std_logic_vector (DATA_WIDTH-1 downto 0); 
       addr_i  : in std_logic_vector (ADDR_WIDTH-1 downto 0);
       tga_i   : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
       we_i    : in std_logic;
@@ -69,175 +67,62 @@ entity watchdog is
       rty_o   : out std_logic;
       ack_o   : out std_logic;
       
-      -- WATCHDOG outputs
       you_kick_my_dog : out std_logic
---      wdt_reached_lim : out integer;
---      wshbn_notreached_lim : out integer;
---      wshbn_mach_state : out std_logic_vector(1 downto 0)
    );
 end watchdog;
 
 architecture rtl of watchdog is
 
--- internal signals
-signal wshbn_timer_rst_state : std_logic_vector(1 downto 0);
-signal wshbn_timer_rst_next_state : std_logic_vector(1 downto 0);
-signal wshbn_timer_count_sig : integer;
-signal wshbn_timer_has_not_reached_limit : std_logic;
-signal wshbn_timer_state_mach_sig : std_logic;
-signal wshbn_timer_rst_sig : std_logic;
+signal wb_timer      : integer;
+signal wdt_timer     : integer;
+signal wb_timer_rst  : std_logic;
+signal wdt_timer_rst : std_logic;
 
-signal wdt_timer_count_sig : integer;
-signal wdt_timer_has_reached_limit : std_logic;
-signal wdt_timer_rst_sig : std_logic;
-
--- need to initialize dat_o_watchdog to zero for all time.  No reading done from the WDT
-signal dat_o_watchdog : std_logic_vector(DATA_WIDTH-1 downto 0);
-
-signal dat_i_watchdog : std_logic_vector(DATA_WIDTH-1 downto 0);
-signal slave_wr_ready_sig : std_logic;
-signal slave_rd_data_valid_sig : std_logic;
-
--- what is this signal for?
-signal slave_wr_data_valid_sig : std_logic;
-
-signal slave_retry : std_logic;
-
--- states for the Wishbone FSM
-constant IDLE      : std_logic_vector(1 downto 0) := "00";
-constant RESET     : std_logic_vector(1 downto 0) := "01";
-constant NO_RESET  : std_logic_vector(1 downto 0) := "10";
-
-constant WDT_TIMER_LIMIT : integer := 180000; -- u-seconds, the wdt timeout is about 200000 us.
-
--- This is the time after which the watchdog_block will not allow the WDT_Timer to kick the WDT
--- In other words, the watchdog_block must receive a '1' dat_i_watchdog(0) line every 5 s.
-constant WSHBN_TIMER_LIMIT : integer := 5000000; -- u-seconds
+constant WB_TIMER_LIMIT  : integer := 5000000; -- us, after 5 s, do not allow watchdog to be reset
+constant WDT_TIMER_LIMIT : integer := 180000;  -- us, reset watchdog every 180 ms (watchdog times out at 200 ms).
 
 begin
-
-------------------------------------------------------------------------
---
---  Wishbone Reset State Machine
---
-------------------------------------------------------------------------
-
-   process (wshbn_timer_rst_state, slave_wr_data_valid_sig, dat_i_watchdog)
-   begin
-      case wshbn_timer_rst_state is
-
-      when IDLE =>
-         wshbn_timer_state_mach_sig <= '0';
-         if slave_wr_data_valid_sig = '1' then
-            if dat_i_watchdog = WATCHDOG_KICK then
-               wshbn_timer_rst_next_state <= RESET;
-            end if;
-         end if;
-      
-      when RESET =>
-         wshbn_timer_state_mach_sig <= '1';
-         wshbn_timer_rst_next_state <= NO_RESET;
-      
-      when NO_RESET =>
-         wshbn_timer_state_mach_sig <= '0';
-         if slave_wr_data_valid_sig = '1' then
-            if dat_i_watchdog = WATCHDOG_KICK then
-               wshbn_timer_rst_next_state <= NO_RESET;
-            else
-               wshbn_timer_rst_next_state <= IDLE;
-            end if;
-         else
-            wshbn_timer_rst_next_state <= IDLE;
-         end if;
-        
-      when others => 
-         wshbn_timer_rst_next_state <= IDLE;
-      end case;
-   end process;
-
-------------------------------------------------------------------------
---
--- State Sequencer
---
-------------------------------------------------------------------------
-
-   process (clk_i, rst_i)
-   begin
-      if rst_i = '1' then
-         wshbn_timer_rst_state <= IDLE;
-      elsif (clk_i'event and clk_i = '1') then
-         wshbn_timer_rst_state <= wshbn_timer_rst_next_state;
-      end if;
-   end process;
-
-------------------------------------------------------------------------
---
--- Watchdog Reset
---
-------------------------------------------------------------------------
      
-   wshbn_timer_rst_sig <= rst_i or wshbn_timer_state_mach_sig;
-   wdt_timer_rst_sig <= rst_i or wdt_timer_has_reached_limit;
-   wdt_timer_has_reached_limit <= '1' when wdt_timer_count_sig = WDT_TIMER_LIMIT else '0';
-   wshbn_timer_has_not_reached_limit <= '1' when wshbn_timer_count_sig < WSHBN_TIMER_LIMIT else '0';
-   you_kick_my_dog <= wshbn_timer_has_not_reached_limit and wdt_timer_has_reached_limit;
-   
---   wdt_reached_lim <= wdt_timer_count_sig;
---   wshbn_notreached_lim <= wshbn_timer_count_sig;
---   wshbn_mach_state <= wshbn_timer_rst_state;
-   
-   -- Watchdog is always ready to be written to
-   slave_wr_ready_sig <= '1';
-   -- Watchdog doesn't have a data register which can be read 
-   slave_rd_data_valid_sig <= '0'; 
-   -- Watchdog always ready to be kicked
-   slave_retry <= '0';
+------------------------------------------------------------
+--
+-- Instantiate timers
+--
+------------------------------------------------------------
 
-   wshbn_timer : us_timer
+   wishbone_timer : us_timer
    port map (
       clk => clk_i,
-      timer_reset_i => wshbn_timer_rst_sig,
-      timer_count_o => wshbn_timer_count_sig  
+      timer_reset_i => wb_timer_rst,
+      timer_count_o => wb_timer  
    );
    
-   wdt_timer : us_timer
+   watchdog_timer : us_timer
    port map (
       clk => clk_i,
-      timer_reset_i => wdt_timer_rst_sig,
-      timer_count_o => wdt_timer_count_sig  
+      timer_reset_i => wdt_timer_rst,
+      timer_count_o => wdt_timer  
    );
    
-------------------------------------------------------------------------
+   
+------------------------------------------------------------
 --
--- Wishbone
+-- Timer reset and output logic
 --
------------------------------------------------------------------------- 
+------------------------------------------------------------
 
-   watchdog_slave_ctrl : slave_ctrl
-   generic map (
-      SLAVE_SEL  => WATCHDOG_ADDR,
-      ADDR_WIDTH => WB_ADDR_WIDTH,
-      DATA_WIDTH => WB_DATA_WIDTH,
-      TAG_ADDR_WIDTH => TAG_ADDR_WIDTH
-   )
-   port map (
-      slave_wr_ready        => slave_wr_ready_sig,
-      slave_rd_data_valid   => slave_rd_data_valid_sig,
-      slave_retry           => slave_retry,
-      master_wr_data_valid  => slave_wr_data_valid_sig,
-      slave_ctrl_dat_i      => dat_o_watchdog,
-      slave_ctrl_dat_o      => dat_i_watchdog,
-      clk_i                 => clk_i,
-      rst_i                 => rst_i,
-      dat_i                 => dat_i,
-      addr_i                => addr_i,
-      tga_i                 => tga_i,
-      we_i                  => we_i,
-      stb_i                 => stb_i,
-      cyc_i                 => cyc_i,
-      dat_o                 => dat_o,
-      rty_o                 => rty_o,
-      ack_o                 => ack_o
-   );
+   wb_timer_rst  <= '1' when (rst_i = '1' or (addr_i = WATCHDOG_ADDR and stb_i = '1' and cyc_i = '1')) else '0';
+   wdt_timer_rst <= '1' when (rst_i = '1' or (wdt_timer = WDT_TIMER_LIMIT)) else '0';
+   
+   you_kick_my_dog <= '1' when (wdt_timer = WDT_TIMER_LIMIT and wb_timer < WB_TIMER_LIMIT) else '0';
+   
+      
+------------------------------------------------------------
+--
+-- Wishbone section
+--
+------------------------------------------------------------
+  
+   rty_o <= '0';
+   ack_o <= '1' when (addr_i = WATCHDOG_ADDR and stb_i = '1' and cyc_i = '1') else '0';
 
 end rtl;
