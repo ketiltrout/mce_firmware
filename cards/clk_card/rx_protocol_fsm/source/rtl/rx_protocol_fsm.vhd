@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: rx_protocol_fsm.vhd,v 1.9 2004/05/20 15:43:59 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -39,11 +39,12 @@
 --
 -- If the checksum is correct then the various words of the command
 -- are made available at the block's output the and command ready
--- line (cmd_rdy_o) is asserted.   
+-- line (cmd_rdy_o) is asserted. 
+--  
 --
--- The data words associated with the command are clocked out
--- sequentially (cmd_data_o) on the rising 
--- edge of the clock "data_clk_o", while cmd_rdy_o is asserted.  
+-- Once the cmd_ack_i line goes high, the data words associated with the command 
+-- are clocked out sequentially (cmd_data_o) on the rising 
+-- edge of the clock "data_clk_o".  cmd_rdy_o is asserted during this entire time.  
 --
 --  see rx_protocol_fsm.doc for more details
 --
@@ -66,8 +67,8 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
--- $log$
+-- <date $Date: 2004/05/20 15:43:59 $>	-		<text>		- <initials $Author: dca $>
+-- <$log$>
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -75,19 +76,21 @@ use ieee.numeric_std.all;
 
 entity rx_protocol_fsm is
    port( 
-      Brst        : IN     std_logic;
-      clk         : IN     std_logic;
-      rx_fe_i     : IN     std_logic;
-      rxd_i       : IN     std_logic_vector (7 DOWNTO 0);
-      card_addr_o : OUT    std_logic_vector (7 DOWNTO 0);
-      cmd_code_o  : OUT    std_logic_vector (15 DOWNTO 0);
-      cmd_data_o  : OUT    std_logic_vector (15 DOWNTO 0);
-      cksum_err_o : OUT    std_logic;
-      cmd_rdy_o   : OUT    std_logic;
-      data_clk_o  : OUT    std_logic;
-      num_data_o  : OUT    std_logic_vector (7 downto 0);
-      reg_addr_o  : OUT    std_logic_vector (23 DOWNTO 0);
-      rx_fr_o     : OUT    std_logic
+      rst_i       : in     std_logic;                          -- reset
+      clk_i       : in     std_logic;                          -- clock 
+      rx_fe_i     : in     std_logic;                          -- receive fifo empty flag
+      rxd_i       : in     std_logic_vector (7 downto 0);      -- receive data byte 
+      cmd_ack_i   : in     std_logic;                          -- command acknowledge
+
+      cmd_code_o  : out    std_logic_vector (15 downto 0);     -- command code  
+      card_id_o   : out    std_logic_vector (15 downto 0);     -- card id
+      param_id_o  : out    std_logic_vector (15 downto 0);     -- parameter id
+      num_data_o  : out    std_logic_vector (7 downto 0);      -- number of valid 32 bit data words
+      cmd_data_o  : out    std_logic_vector (15 downto 0);     -- 32bit valid data word
+      cksum_err_o : out    std_logic;                          -- checksum error flag
+      cmd_rdy_o   : out    std_logic;                          -- command ready flag (checksum passed)
+      data_clk_o  : out    std_logic;                          -- data clock
+      rx_fr_o     : out    std_logic                           -- receive fifo read request
    );
 
 end rx_protocol_fsm ;
@@ -131,14 +134,14 @@ constant LD_CMD2     : std_logic_vector(5 downto 0) := "010110";
 constant RQ_CMD3     : std_logic_vector(5 downto 0) := "010111";
 constant LD_CMD3     : std_logic_vector(5 downto 0) := "011000";
 
-constant RQ_ADDR0    : std_logic_vector(5 downto 0) := "011001";
-constant LD_ADDR0    : std_logic_vector(5 downto 0) := "011010";
-constant RQ_ADDR1    : std_logic_vector(5 downto 0) := "011011";
-constant LD_ADDR1    : std_logic_vector(5 downto 0) := "011100";
-constant RQ_ADDR2    : std_logic_vector(5 downto 0) := "011101";
-constant LD_ADDR2    : std_logic_vector(5 downto 0) := "011110";
-constant RQ_ADDR3    : std_logic_vector(5 downto 0) := "011111";
-constant LD_ADDR3    : std_logic_vector(5 downto 0) := "100000";
+constant RQ_ID0      : std_logic_vector(5 downto 0) := "011001";
+constant LD_ID0      : std_logic_vector(5 downto 0) := "011010";
+constant RQ_ID1      : std_logic_vector(5 downto 0) := "011011";
+constant LD_ID1      : std_logic_vector(5 downto 0) := "011100";
+constant RQ_ID2      : std_logic_vector(5 downto 0) := "011101";
+constant LD_ID2      : std_logic_vector(5 downto 0) := "011110";
+constant RQ_ID3      : std_logic_vector(5 downto 0) := "011111";
+constant LD_ID3      : std_logic_vector(5 downto 0) := "100000";
 
 constant RQ_CKSM0    : std_logic_vector(5 downto 0) := "100001";
 constant LD_CKSM0    : std_logic_vector(5 downto 0) := "100010";
@@ -167,22 +170,22 @@ constant LD_BLK2     : std_logic_vector(5 downto 0) := "110110";
 constant RQ_BLK3     : std_logic_vector(5 downto 0) := "110111";
 constant LD_BLK3     : std_logic_vector(5 downto 0) := "111000";
 
-constant CKSM_FAIL   : std_logic_vector(5 downto 0) := "111001";
-constant READ_DATA   : std_logic_vector(5 downto 0) := "111010";
-constant TX_DATA     : std_logic_vector(5 downto 0) := "111011";
-constant TEST_CKSM   : std_logic_vector(5 downto 0) := "111100";
+constant TEST_CKSM   : std_logic_vector(5 downto 0) := "111001";
+constant CKSM_FAIL   : std_logic_vector(5 downto 0) := "111010";
+constant CKSM_PASS   : std_logic_vector(5 downto 0) := "111011";
+constant READ_DATA   : std_logic_vector(5 downto 0) := "111100";
+constant TX_DATA     : std_logic_vector(5 downto 0) := "111101";
+
 
 -- controller state variables:
-signal current_state  : std_logic_vector(5 downto 0) := "000000";
-signal next_state     : std_logic_vector(5 downto 0) := "000000";
+signal current_state  : std_logic_vector(5 downto 0);
+signal next_state     : std_logic_vector(5 downto 0);
 
 
 -- Architecture Declarations
-constant preamble1 : std_logic_vector(7 downto 0) := "10100101";
-constant preamble2 : std_logic_vector(7 downto 0) := "01011010";
-constant write_block : std_logic_vector (15 downto 0) := X"5742"; 
+constant preamble1 : std_logic_vector(7 downto 0) := X"A5";
+constant preamble2 : std_logic_vector(7 downto 0) := X"5A";
 
---signal command: std_logic_vector (15 downto 0);
 signal cksum_calc : std_logic_vector(31 downto 0);
 signal cksum_in : std_logic_vector(31 downto 0);
 signal cksum_rcvd : std_logic_vector(31 downto 0);
@@ -205,31 +208,37 @@ signal write_mem     : std_logic;
 signal read_mem      : std_logic;
 signal reset_mem     : std_logic; 
 
-
+-- clocks to latch command code bytes
 signal cmd_clk0      : std_logic;
 signal cmd_clk1      : std_logic;
 
-signal addr_clk0     : std_logic;
-signal addr_clk1     : std_logic;
-signal addr_clk2     : std_logic;
-signal addr_clk3     : std_logic;
+-- clocks to latch id bytes
+signal id_clk0       : std_logic;
+signal id_clk1       : std_logic;
+signal id_clk2       : std_logic;
+signal id_clk3       : std_logic;
 
+-- clock to latch number of data byte
 signal nda_clk0      : std_logic;
 
+-- clocks to latch current 32bit command word to checksum calculator
 signal ckin_clk0     : std_logic;
 signal ckin_clk1     : std_logic;
 signal ckin_clk2     : std_logic;
 signal ckin_clk3     : std_logic;
 
+-- clocks to latch received checksum bytes
 signal ckrx_clk0     : std_logic;
 signal ckrx_clk1     : std_logic;
 signal ckrx_clk2     : std_logic;
 signal ckrx_clk3     : std_logic;
 
+-- clocks to latch command data word to local memory buffer
 signal data_clk0     : std_logic;
 signal data_clk1     : std_logic;
 
 
+-- local memory buffer declaration
 subtype word is std_logic_vector(15 downto 0);
 type mem is array (0 to mem_size-1) of word;
 signal memory: mem;
@@ -239,15 +248,15 @@ begin
 
    ----------------------------------------------------------------------------
    clocked : process(
-      clk,
-      Brst
+      clk_i,
+      rst_i
    )
    ----------------------------------------------------------------------------
    begin
          
-      IF (Brst = '1') then
+      if (rst_i = '1') then
          current_state <= IDLE;
-      elsif (clk'EVENT AND clk = '1') then
+      elsif (clk_i'EVENT AND clk_i = '1') then
          current_state <= next_state;
       end if;
 
@@ -258,6 +267,7 @@ begin
       current_state,
       rx_fe_i,
       rxd_i,
+      cmd_ack_i,
       cksum_calc,
       cksum_rcvd,
       write_pointer,
@@ -267,8 +277,7 @@ begin
    ----------------------------------------------------------------------------
    begin
      
-      case current_state IS
-
+      case current_state is
 
 
       when IDLE =>
@@ -423,48 +432,47 @@ begin
          end if;
       when LD_CMD3 =>
          if (rx_fe_i = '0') then
-            next_state <= RQ_ADDR0;
+            next_state <= RQ_ID0;
          else
             next_state <= LD_CMD3;
          end if;
    ---------------------------------------------------------
-   --- address word states
+   --- card id and param id states
 
-      when RQ_ADDR0 =>
-            next_state <= LD_ADDR0;
-      when RQ_ADDR1 =>
-            next_state <= LD_ADDR1;
-      when RQ_ADDR2 =>
-            next_state <= LD_ADDR2;
-      when RQ_ADDR3 =>
-            next_state <= LD_ADDR3;
+      when RQ_ID0 =>
+            next_state <= LD_ID0;
+      when RQ_ID1 =>
+            next_state <= LD_ID1;
+      when RQ_ID2 =>
+            next_state <= LD_ID2;
+      when RQ_ID3 =>
+            next_state <= LD_ID3;
  
 
-
-      when LD_ADDR0 =>
+      when LD_ID0 =>
          if (rx_fe_i = '0') then
-            next_state <= RQ_ADDR1;
+            next_state <= RQ_ID1;
          else
-            next_state <= LD_ADDR0;
+            next_state <= LD_ID0;
          end if;
-      when LD_ADDR1 =>
+      when LD_ID1 =>
          if (rx_fe_i = '0') then
-            next_state <= RQ_ADDR2;
+            next_state <= RQ_ID2;
          else
-            next_state <= LD_ADDR1;
+            next_state <= LD_ID1;
          end if;
-      when LD_ADDR2 =>
+      when LD_ID2 =>
          if (rx_fe_i = '0') then
-            next_state <= RQ_ADDR3;
+            next_state <= RQ_ID3;
          else
-            next_state <= LD_ADDR2;
+            next_state <= LD_ID2;
          end if;        
 
-      when LD_ADDR3 =>
+      when LD_ID3 =>
          if (rx_fe_i = '0') then
             next_state <= RQ_NDA0;
          else
-            next_state <= LD_ADDR3;
+            next_state <= LD_ID3;
          end if; 
 
 -------------------------------------------------------------
@@ -506,7 +514,7 @@ begin
 
 
 -----------------------------------------------
-   --- store data states
+--- data word states
 
       when RQ_BLK0 =>
             next_state <= LD_BLK0;    
@@ -581,14 +589,23 @@ begin
          end if;
       when LD_CKSM3 =>
            next_state <= TEST_CKSM;
-      
+  
       when TEST_CKSM =>
-         if (cksum_calc = cksum_rcvd) then
-            next_state <= READ_DATA;
+         if (cmd_ack_i = '1') then
+            next_state <= TEST_CKSM;
+         elsif (cksum_calc = cksum_rcvd) then
+            next_state <= CKSM_PASS;
          else
             next_state <= CKSM_FAIL;
          end if;
-            
+      
+      when CKSM_PASS =>
+         if (cmd_ack_i = '1') then
+            next_state <= READ_DATA;
+         else
+            next_state <= CKSM_PASS;
+         end if;
+      
       when CKSM_FAIL =>
             next_state <= IDLE;
 
@@ -607,16 +624,16 @@ begin
          next_state <= IDLE;
       end case;
 
-   end PROCESS nextstate;
+   end process nextstate;
 
    ----------------------------------------------------------------------------
-   output : PROCESS (
+   output : process (
       current_state,
       rxd_i,
       data_out
    )
    ----------------------------------------------------------------------------
-   BEGIN
+   begin
       -- Default Assignment
       cksum_err_o <= '0';
       cmd_rdy_o <= '0';
@@ -629,15 +646,15 @@ begin
       check_update <= '0';
       check_reset <= '0';
       
-      cmd_clk0 <= '0';
-      cmd_clk1 <= '0';
+      cmd_clk0  <= '0';
+      cmd_clk1  <= '0';
             
-      addr_clk0 <= '0';
-      addr_clk1 <= '0';
-      addr_clk2 <= '0';
-      addr_clk3 <= '0';
+      id_clk0   <= '0';
+      id_clk1   <= '0';
+      id_clk2   <= '0';
+      id_clk3   <= '0';
       
-      nda_clk0 <= '0';
+      nda_clk0  <= '0';
       
       ckin_clk0 <= '0';
       ckin_clk1 <= '0';
@@ -669,17 +686,17 @@ begin
          when LD_CMD3 =>
             ckin_clk3 <= '1';
             
-         when LD_ADDR0 =>
-            addr_clk0 <= '1';
+         when LD_ID0 =>
+            id_clk0   <= '1';
             ckin_clk0 <= '1';  
-         when LD_ADDR1 =>
-            addr_clk1 <= '1';
+         when LD_ID1 =>
+            id_clk1   <= '1';
             ckin_clk1 <= '1';   
-         when LD_ADDR2 =>
-            addr_clk2 <= '1'; 
+         when LD_ID2 =>
+            id_clk2   <= '1'; 
             ckin_clk2 <= '1';
-         when LD_ADDR3 =>
-            addr_clk3 <= '1';
+         when LD_ID3 =>
+            id_clk3   <= '1';
             ckin_clk3 <= '1';
             
          when LD_NDA0 =>
@@ -741,13 +758,13 @@ begin
          when RQ_CMD0 =>
             rx_fr_o <= '1' ;
 
-         when RQ_ADDR3 =>
+         when RQ_ID3 =>
             rx_fr_o <= '1' ;
-         when RQ_ADDR2 =>
+         when RQ_ID2 =>
             rx_fr_o <= '1' ;
-         when RQ_ADDR1 =>
+         when RQ_ID1 =>
             rx_fr_o <= '1' ;
-         when RQ_ADDR0 =>
+         when RQ_ID0 =>
             rx_fr_o <= '1' ;
             check_update <= '1';
 
@@ -784,6 +801,9 @@ begin
          
          when CKSM_FAIL =>
             cksum_err_o <= '1' ;
+            
+         when CKSM_PASS =>
+            cmd_rdy_o <= '1';
 
          when READ_DATA =>
             read_mem <= '1'; 
@@ -803,12 +823,12 @@ begin
    
 
   ------------------------------------------------------------------------------
-  latch_cmd0: process(cmd_clk0, Brst)
+  latch_cmd0: process(cmd_clk0, rst_i)
   ----------------------------------------------------------------------------
   -- process to output cmd_code0 byte
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cmd_code_o(7 downto 0) <= x"00";
      elsif (cmd_clk0'EVENT and cmd_clk0 = '1') then
         cmd_code_o(7 downto 0) <= rxd_i(7 downto 0);
@@ -817,12 +837,12 @@ begin
   
   
   ------------------------------------------------------------------------------
-  latch_cmd1: process(cmd_clk1, Brst)
+  latch_cmd1: process(cmd_clk1, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cmd_code1 byte
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cmd_code_o(15 downto 8) <= x"00";
      elsif (cmd_clk1'EVENT and cmd_clk1 = '1') then
         cmd_code_o(15 downto 8) <= rxd_i(7 downto 0);
@@ -833,69 +853,69 @@ begin
      
   
   ------------------------------------------------------------------------------
-  latch_addr0: process(addr_clk0, Brst)
+  latch_id0: process(id_clk0, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch addr0 byte
+  -- process to latch id0 byte
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
-        reg_addr_o(7 downto 0) <= x"00";
-     elsif (addr_clk0'EVENT and addr_clk0 = '1') then
-        reg_addr_o(7 downto 0) <= rxd_i(7 downto 0);
+     if (rst_i = '1') then 
+        param_id_o(7 downto 0) <= x"00";
+     elsif (id_clk0'EVENT and id_clk0 = '1') then
+        param_id_o(7 downto 0) <= rxd_i(7 downto 0);
      end if;
-  end process latch_addr0;
+  end process latch_id0;
   
   
   ------------------------------------------------------------------------------
-  latch_addr1: process(addr_clk1, Brst)
+  latch_id1: process(id_clk1, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch addr1 byte
+  -- process to latch id1 byte
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
-        reg_addr_o(15 downto 8) <= x"00";
-     elsif (addr_clk1'EVENT and addr_clk1 = '1') then
-        reg_addr_o(15 downto 8) <= rxd_i(7 downto 0);
+     if (rst_i = '1') then 
+        param_id_o(15 downto 8) <= x"00";
+     elsif (id_clk1'EVENT and id_clk1 = '1') then
+        param_id_o(15 downto 8) <= rxd_i(7 downto 0);
      end if;
-  end process latch_addr1;
+  end process latch_id1;
   
   
   ------------------------------------------------------------------------------
-  latch_addr2: process(addr_clk2, Brst)
+  latch_id2: process(id_clk2, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch addr2 byte
+  -- process to latch id2 byte
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
-        reg_addr_o(23 downto 16) <= x"00";
-     elsif (addr_clk2'EVENT and addr_clk2 = '1') then
-        reg_addr_o(23 downto 16) <= rxd_i(7 downto 0);
+     if (rst_i = '1') then 
+        card_id_o(7 downto 0) <= x"00";
+     elsif (id_clk2'EVENT and id_clk2 = '1') then
+        card_id_o(7 downto 0) <= rxd_i(7 downto 0);
      end if;
-  end process latch_addr2;
+  end process latch_id2;
   
   
   ------------------------------------------------------------------------------
-  latch_addr3: process(addr_clk3, Brst)
+  latch_id3: process(id_clk3, rst_i)
   ----------------------------------------------------------------------------
-  -- process to latch addr3 byte
+  -- process to latch id3 byte
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
-        card_addr_o(7 downto 0) <= x"00";
-     elsif (addr_clk3'EVENT and addr_clk3 = '1') then
-        card_addr_o(7 downto 0) <= rxd_i(7 downto 0);
+     if (rst_i = '1') then 
+        card_id_o(15 downto 8) <= x"00";
+     elsif (id_clk3'EVENT and id_clk3 = '1') then
+        card_id_o(15 downto 8) <= rxd_i(7 downto 0);
      end if;
-  end process latch_addr3;
+  end process latch_id3;
   
   
   
   ------------------------------------------------------------------------------
-  latch_nda0: process(nda_clk0, Brst)
+  latch_nda0: process(nda_clk0, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch nda0 byte
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         num_data_o(7 downto 0) <= x"00";
         number_data <= 1;
      elsif (nda_clk0'EVENT and nda_clk0 = '1') then
@@ -907,12 +927,12 @@ begin
         
   
   ------------------------------------------------------------------------------
-  latch_ckin0: process(ckin_clk0, Brst)
+  latch_ckin0: process(ckin_clk0, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cksum_in byte0
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cksum_in(7 downto 0) <= x"00";
      elsif (ckin_clk0'EVENT and ckin_clk0 = '1') then
         cksum_in(7 downto 0) <= rxd_i(7 downto 0);
@@ -920,12 +940,12 @@ begin
   end process latch_ckin0;
          
   ------------------------------------------------------------------------------
-  latch_ckin1: process(ckin_clk1, Brst)
+  latch_ckin1: process(ckin_clk1, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cksum_in byte1
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cksum_in(15 downto 8) <= x"00";
      elsif (ckin_clk1'EVENT and ckin_clk1 = '1') then
         cksum_in(15 downto 8) <= rxd_i(7 downto 0);
@@ -934,12 +954,12 @@ begin
                 
         
   ------------------------------------------------------------------------------
-  latch_ckin2: process(ckin_clk2, Brst)
+  latch_ckin2: process(ckin_clk2, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cksum_in byte2
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cksum_in(23 downto 16) <= x"00";
      elsif (ckin_clk2'EVENT and ckin_clk2 = '1') then
         cksum_in(23 downto 16) <= rxd_i(7 downto 0);
@@ -948,12 +968,12 @@ begin
  
  
    ------------------------------------------------------------------------------
-  latch_ckin3: process(ckin_clk3, Brst)
+  latch_ckin3: process(ckin_clk3, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cksum_in byte3
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cksum_in(31 downto 24) <= x"00";
      elsif (ckin_clk3'EVENT and ckin_clk3 = '1') then
         cksum_in(31 downto 24) <= rxd_i(7 downto 0);
@@ -962,12 +982,12 @@ begin
  
  
   ------------------------------------------------------------------------------
-  latch_ckrx0: process(ckrx_clk0, Brst)
+  latch_ckrx0: process(ckrx_clk0, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cksum_rcvd byte0
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cksum_rcvd(7 downto 0) <= x"00";
      elsif (ckrx_clk0'EVENT and ckrx_clk0 = '1') then
         cksum_rcvd(7 downto 0) <= rxd_i(7 downto 0);
@@ -975,12 +995,12 @@ begin
   end process latch_ckrx0;
          
   ------------------------------------------------------------------------------
-  latch_ckrx1: process(ckrx_clk1, Brst)
+  latch_ckrx1: process(ckrx_clk1, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cksum_rcvd byte1
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cksum_rcvd(15 downto 8) <= x"00";
      elsif (ckrx_clk1'EVENT and ckrx_clk1 = '1') then
         cksum_rcvd(15 downto 8) <= rxd_i(7 downto 0);
@@ -989,12 +1009,12 @@ begin
                 
         
   ------------------------------------------------------------------------------
-  latch_ckrx2: process(ckrx_clk2, Brst)
+  latch_ckrx2: process(ckrx_clk2, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cksum_rcvd byte2
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cksum_rcvd(23 downto 16) <= x"00";
      elsif (ckrx_clk2'EVENT and ckrx_clk2 = '1') then
         cksum_rcvd(23 downto 16) <= rxd_i(7 downto 0);
@@ -1003,12 +1023,12 @@ begin
  
  
    ------------------------------------------------------------------------------
-  latch_ckrx3: process(ckrx_clk3, Brst)
+  latch_ckrx3: process(ckrx_clk3, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch cksum_rcvd byte3
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         cksum_rcvd(31 downto 24) <= x"00";
      elsif (ckrx_clk3'EVENT and ckrx_clk3 = '1') then
         cksum_rcvd(31 downto 24) <= rxd_i(7 downto 0);
@@ -1017,12 +1037,12 @@ begin
 
 
   ------------------------------------------------------------------------------
-  latch_data0: process(data_clk0, Brst)
+  latch_data0: process(data_clk0, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch data byte0
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         data_in (7 downto 0) <= x"00";
      elsif (data_clk0'EVENT and data_clk0 = '1') then
         data_in (7 downto 0) <= rxd_i(7 downto 0);
@@ -1031,12 +1051,12 @@ begin
 
 
   ------------------------------------------------------------------------------
-  latch_data1: process(data_clk1, Brst)
+  latch_data1: process(data_clk1, rst_i)
   ----------------------------------------------------------------------------
   -- process to latch data byte1
   ----------------------------------------------------------------------------
   begin
-     if (Brst = '1') then 
+     if (rst_i = '1') then 
         data_in (15 downto 8) <= x"00";
      elsif (data_clk1'EVENT and data_clk1 = '1') then
         data_in (15 downto 8) <= rxd_i(7 downto 0);
