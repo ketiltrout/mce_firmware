@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.18 2004/07/22 23:09:02 bench2 Exp $
+-- $Id: issue_reply_pack.vhd,v 1.19 2004/08/05 18:16:30 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.19  2004/08/05 18:16:30  jjacob
+-- changed frame_sync_num_o to use the parameter
+-- SYNC_NUM_BUS_WIDTH
+--
 -- Revision 1.18  2004/07/22 23:09:02  bench2
 -- Bryce: moved system-level constants to command_pack
 --
@@ -286,6 +290,9 @@ port(
 
       -- input from the macro-instruction arbiter
       simple_cmd_ack_o             : out std_logic ;
+      
+      -- input for sync_number for simple commands
+      sync_number_i                : in    std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0);
 
       -- outputs to the micro instruction sequence generator
       m_op_seq_num_o               : out std_logic_vector (MOP_BUS_WIDTH-1 downto 0);--( 7 downto 0);
