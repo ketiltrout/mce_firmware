@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.8  2005/01/19 23:39:06  bburger
+-- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
+--
 -- Revision 1.7  2005/01/18 22:20:47  bburger
 -- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
 --
@@ -202,7 +205,7 @@ signal dispatch_we_out         : std_logic;
 signal dispatch_stb_out        : std_logic;
 signal dispatch_cyc_out        : std_logic;
 signal dispatch_err_in         : std_logic;
-
+signal dispatch_lvds_txa       : std_logic;
 
 -- WBS MUX output siganls
 signal dispatch_dat_in         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -217,8 +220,6 @@ signal restart_frame_aligned   : std_logic;
 signal restart_frame_1row_post : std_logic;
 signal initialize_window       : std_logic;
 signal row_switch              : std_logic;
-signal row_en                  : std_logic;
-signal update_bias             : std_logic;
 signal dat_ft                  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal ack_ft                  : std_logic;
 
@@ -257,10 +258,12 @@ begin
 
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
-   ttl_dir1 <= '1';
+  -- ttl_dir1 <= '1';
    -- The ttl_in1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
-   rst <= (not rst_n) or (ttl_in1);
-   
+   --rst <= (not rst_n) or (ttl_in1);
+
+  rst <= not rst_n;
+         
    ----------------------------------------------------------------------------
    -- PLL Instantiation
    ----------------------------------------------------------------------------
@@ -285,7 +288,7 @@ begin
          comm_clk_i   => comm_clk,
          rst_i        => rst,
          lvds_cmd_i   => lvds_cmd,
-         lvds_reply_o => lvds_txa,
+         lvds_reply_o => dispatch_lvds_txa,
          dat_o        => dispatch_dat_out,
          addr_o       => dispatch_addr_out,
          tga_o        => dispatch_tga_out,
@@ -299,6 +302,8 @@ begin
          slot_i       => slot_id);
 
 
+  lvds_txa <= dispatch_lvds_txa;
+  
   -----------------------------------------------------------------------------
   -- Output MUX to Dispatch:
   -- 
@@ -391,8 +396,8 @@ begin
          restart_frame_1row_post_o => restart_frame_1row_post,
          initialize_window_o       => initialize_window,
          row_switch_o              => row_switch,
-         row_en_o                  => row_en,
-         update_bias_o             => update_bias,
+         row_en_o                  => open,
+         update_bias_o             => open,
          dat_i                     => dispatch_dat_out,
          addr_i                    => dispatch_addr_out,
          tga_i                     => dispatch_tga_out,
@@ -634,6 +639,43 @@ begin
          power  => grn_led,
          status => ylw_led,
          fault  => red_led);
+
+
+   ----------------------------------------------------------------------------
+   -- Mictor Connection
+   ----------------------------------------------------------------------------
+   
+   mictor(0)  <= clk;
+   mictor(1)  <= dac_dat_en;
+   mictor(2)  <= adc_coadd_en;
+   mictor(3)  <= restart_frame_1row_prev;
+   mictor(4)  <= restart_frame_aligned;
+   mictor(5)  <= restart_frame_1row_post;
+   mictor(6)  <= row_switch;
+   mictor(7)  <= initialize_window;
+   mictor(8)  <= lvds_sync;
+   mictor(9)  <= lvds_cmd;
+   mictor(10) <= dispatch_lvds_txa;
+   mictor(11) <= dispatch_err_in;
+   mictor(12) <= dispatch_tga_out(0);
+   mictor(13) <= dispatch_tga_out(1);
+   mictor(14) <= dispatch_tga_out(2);
+   mictor(15) <= dispatch_we_out;
+   mictor(16) <= dispatch_stb_out;
+   mictor(17) <= dispatch_cyc_out;
+   mictor(18) <= dispatch_addr_out(0);
+   mictor(19) <= dispatch_addr_out(1);
+   mictor(20) <= dispatch_addr_out(2);
+   mictor(21) <= dispatch_addr_out(3);
+   mictor(22) <= dispatch_addr_out(4);
+   mictor(23) <= dispatch_addr_out(5);
+   mictor(24) <= dispatch_addr_out(6);
+   mictor(25) <= dispatch_addr_out(7);
+   mictor(26) <= ack_fb;
+   mictor(27) <= ack_frame;
+   mictor(28) <= ack_ft;
+   mictor(29) <= ack_led;
+
 
 
    
