@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.8  2005/01/19 23:39:06  bburger
+-- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
+--
 -- Revision 1.7  2005/01/18 22:20:47  bburger
 -- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
 --
@@ -75,6 +78,7 @@ use work.readout_card_pack.all;
 -- file.  See the readout_card_pack file!
 use work.dispatch_pack.all;
 use work.leds_pack.all;
+use work.fw_rev_pack.all;
 use work.frame_timing_pack.all;
 
 
@@ -185,6 +189,11 @@ end readout_card;
 
 architecture top of readout_card is
 
+-- The REVISION format is RRrrBBBB where 
+--               RR is the major revision number
+--               rr is the minor revision number
+--               BBBB is the build number
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010001";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
@@ -250,6 +259,8 @@ signal offset_dac_spi_ch7      : std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto
 -- LED output signals
 signal ack_led                 : std_logic;
 signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal fw_rev_data             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal fw_rev_ack              : std_logic;
 
 
 
@@ -336,12 +347,14 @@ begin
      dat_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                             RESYNC_ADDR | FLX_LP_INIT_ADDR,
+     fw_rev_data     when   FW_REV_ADDR,     
+                            
     
      (others => '0') when others;        -- default to zero
 
 
    
-   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft;
+   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or fw_rev_ack;
 
  
 
@@ -370,6 +383,7 @@ begin
                             ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                             RESYNC_ADDR | FLX_LP_INIT_ADDR,
+                            FW_REV_ADDR,
     
      '1'             when others;        
 
@@ -634,7 +648,25 @@ begin
          power  => grn_led,
          status => ylw_led,
          fault  => red_led);
+   ----------------------------------------------------------------------------
+   -- Firmware Revision Instantition
+   ----------------------------------------------------------------------------
 
+   fw_rev_slave: fw_rev
+      generic map( REVISION => RC_REVISION)
+      port map(
+         clk_i  => clk,
+         rst_i  => rst,
+
+         dat_i  => dispatch_dat_out,,
+         addr_i => dispatch_addr_out,,
+         tga_i  => dispatch_tga_out,
+         we_i   => dispatch_we_out,
+         stb_i  => dispatch_stb_out,
+         cyc_i  => dispatch_cyc_out,
+         dat_o  => fw_rev_data,
+         ack_o  => fw_rev_ack
+    );
 
    
 end top;
