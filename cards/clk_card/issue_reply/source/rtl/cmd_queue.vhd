@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.9 2004/05/25 21:25:08 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.10 2004/05/26 18:04:47 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.10  2004/05/26 18:04:47  bburger
+-- in progress
+--
 -- Revision 1.9  2004/05/25 21:25:08  bburger
 -- in progress
 --
@@ -63,6 +66,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -81,8 +85,8 @@ port (
    --mop_retire_o : out std_logic_vector(MOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next m-op that the cmd_queue wants to retire
    --uop_retire_o : out std_logic_vector(UOP_BUS_WIDTH-1 downto 0); -- Tells the reply_queue the next u-op that the cmd_queue wants to retire
    uop_status_i  : in std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0); -- Tells the cmd_queue whether a reply was successful or erroneous
-   uop_rdy_o     : in std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
-   uop_ack_i     : out std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
+   uop_rdy_o     : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
+   uop_ack_i     : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
    uop_discard_o : out std_logic; -- Tells the reply_queue whether or not to discard the reply to the current u-op reply when uop_rdy_i goes low.  uop_rdy_o can only go low after rq_ack_o has been received.
    uop_timedout_o: out std_logic; -- Tells that reply_queue that it should generated a timed-out reply based on the the par_id, card_addr, etc of the u-op being retired.
    uop_o         : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
@@ -92,8 +96,9 @@ port (
    par_id_i      : in std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); -- The parameter id of the m-op
    cmd_size_i    : in std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
    data_i        : in std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- Data belonging to a m-op
+   data_clk_i    : in std_logic; -- Clocks in 32-bit wide data
    mop_i         : in std_logic_vector (MOP_BUS_WIDTH-1 downto 0); -- M-op sequence number
-   issue_sync_i  : in std_logic_vector (; -- Bit will be toggled with each new m-op that belongs to a different sync period
+   issue_sync_i  : in std_logic_vector (SYNC_NUM_BUS_WIDTH-1 downto 0); -- The issuing sync-pulse sequence number
    mop_rdy_i     : in std_logic; -- Tells cmd_queue when a m-op is ready
    mop_ack_o     : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
 
@@ -147,12 +152,11 @@ signal qa_sig          : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal qb_sig          : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 
 -- Output that indicates the number u-ops contained in the command queue
-variable uop_counter : std_logic_vector(UOP_BUS_WIDTH - 1 downto 0);
+signal uop_counter : std_logic_vector(UOP_BUS_WIDTH - 1 downto 0);
 
 -- Signals from/to the Sync-pulse counter.  This is used to determine when u-ops have expired.
 signal sync_count_slv : std_logic_vector(7 downto 0);
 signal sync_count_int : integer;
-signal sync_tog : std_logic;
 signal frame_rst : std_logic;
 signal clk_count : integer;
 signal clk_error : std_logic_vector(31 downto 0);
@@ -180,6 +184,7 @@ type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, EJECT, NEXT_FLUSH,
 signal present_retire_state : retire_states;
 signal next_retire_state    : retire_states;
 signal retired : std_logic; --Out, to the u-op counter fsm
+signal uop_timed_out : std_logic;
 
 -- Generate FSM:  translates M-ops into u-ops
 type gen_uop_states is (IDLE, PARSE, INSERT, RET_DAT, PSC_STATUS, BIT_STATUS, FPGA_TEMP, CARD_TEMP, CYC_OO_SYC, SINGLE, CLEANUP, RESET);
@@ -198,12 +203,18 @@ signal tx_uop_rdy : std_logic;  --Out, to bus backplane packetization fsm
 signal uop_pending : std_logic;  --In
 signal uop_expired : std_logic;  --In
 signal freeze_send : std_logic;  --In, freezes the send pointer when flushing out invalidated u-ops
+signal uop_send_expired : std_logic;
 
 -- Bus Backplane Packetization FSM:  packetizes u-ops contained in the command queue into Bus Backplane instruction format
 type packet_states is (IDLE, STRT_CMD1, STRT_CMD2, SZ_CMD1, SZ_CMD2, CARD_ADDR, PAR_ID, DATA, CHECKSUM1, CHECKSUM2, DONE);
 signal present_packet_state : packet_states;
 signal next_packet_state : packet_states;
 signal tx_uop_ack : std_logic;  --Out, to send fsm
+
+-- Constants that can be removed when the sync_counter and frame_timer are moved out of this block
+constant HIGH : std_logic := '1';
+constant LOW : std_logic := '0';
+constant INT_ZERO : integer := 0;
 
 begin
    -- Command queue (FIFO)
@@ -256,22 +267,9 @@ begin
       end if;
    end process;
 
-   -- FSM for tracking sync periods
-   sync_peroid: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         sync_tog <= '0';
-      elsif(clk_i'event and clk_i = '1' and clk_count = 0) then
-         if(sync_tog = '0') then
-            sync_tog <= '1';
-         else
-            sync_tog <= '0';
-         end if;
-      end if;
-   end process;
-
    -- FSM for inserting u-ops into the u-op queue
-   insert_state_FF: process(clk_i, fast_clk_i, rst_i)
+   -- Assumes that fast_clk_i is in phase with clk_i
+   insert_state_FF: process(fast_clk_i, rst_i)
    begin
       if(rst_i = '1') then
          present_insert_state <= RESET;
@@ -302,7 +300,7 @@ begin
       end case;
    end process;
 
-   insert_state_out: process(present_insert_state)
+   insert_state_out: process(present_insert_state, mop_i, uop_counter, issue_sync_i, new_card_addr, new_par_id, free_ptr)
    begin
       case present_insert_state is
          when RESET =>
@@ -315,19 +313,20 @@ begin
             data_sig(UOP_END - 1 downto ISSUE_SYNC_END)          <= issue_sync_i;
             data_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) <= issue_sync_i + TIMEOUT_LEN;
             data_sig(TIMEOUT_SYNC_END - 1 downto CARD_ADDR_END)  <= new_card_addr;
-            data_sig(CARD_ADDR_END - 1 downto 0)                 <= new_par_id;
+            data_sig(CARD_ADDR_END - 1 downto 0)                 <= new_par_id(7 downto 0);
             wraddress_sig                                        <= free_ptr;
             wren_sig                                             <= '1';
          when DONE =>
             -- After adding a new u-op:
             if(free_ptr = H0XFF) then
                free_ptr <= H0X00;
-            else then
+            else
                free_ptr <= free_ptr + 1;
             end if;
             wren_sig <= '0';
          when others =>
             wren_sig <= '0';
+      end case;
    end process;
 
    -- Retire FSM:
@@ -340,16 +339,16 @@ begin
       end if;
    end process retire_state_FF;
 
-   retire_state_NS: process(present_retire_state)
+   uop_timed_out <= '1' when (sync_count_slv > qb_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) or
+                             (sync_count_slv < qb_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) and MAX_SYNC_COUNT - qb_sig(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) + sync_count_slv > TIMEOUT_LEN)) else '0';
+
+   retire_state_NS: process(present_retire_state, retire_ptr, send_ptr, uop_ack_i, uop_status_i, uop_timed_out)
    begin
-      uop_timed_out    <= '1' when (sync_count_slv > qb(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) or
-                                   (sync_count_slv < qb(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) and
-                                   (MAX_SYNC_COUNT - qb(ISSUE_SYNC_END - 1 downto TIMEOUT_SYNC_END) + sync_count_slv > TIMEOUT_LEN)) else '0';
       case present_retire_state is
          when RESET =>
             next_retire_state <= IDLE;
          when IDLE =>
-            if(retire_ptr != send_ptr)
+            if(retire_ptr /= send_ptr) then
                next_retire_state <= NEXT_UOP;
             else
                next_retire_state <= IDLE;
@@ -357,24 +356,24 @@ begin
          when NEXT_UOP =>
             next_retire_state <= STATUS;
          when STATUS =>
-            if(uop_ack_i = '1')
-               if(uop_status_i = SUCCESS)
+            if(uop_ack_i = '1') then
+               if(uop_status_i = SUCCESS) then
                   next_retire_state <= RETIRE;
-               elsif(uop_status_i = FAILURE)
+               elsif(uop_status_i = FAIL) then
                   next_retire_state <= FLUSH;
                --Instruction timed out
-               elsif(uop_timed_out = '1')
+               elsif(uop_timed_out = '1') then
                   next_retire_state <= EJECT;
                end if;
-            else if (uop_ack_i = '0')
+            elsif (uop_ack_i = '0') then
                next_retire_state <= STATUS;
             end if;
          when RETIRE =>
             next_retire_state <= IDLE;
          when FLUSH =>
-            if(retire_ptr != send_ptr)
+            if(retire_ptr /= send_ptr) then
                next_retire_state <= NEXT_FLUSH;
-            elsif(retire_ptr = send_ptr)
+            elsif(retire_ptr = send_ptr) then
                next_retire_state <= IDLE;
             end if;
          when EJECT =>
@@ -382,9 +381,9 @@ begin
          when NEXT_FLUSH =>
             next_retire_state <= FLUSH_STATUS;
          when FLUSH_STATUS =>
-            if(uop_ack_i = '0')
+            if(uop_ack_i = '0') then
                next_retire_state <= FLUSH_STATUS;
-            elsif(uop_ack_i = '1')
+            elsif(uop_ack_i = '1') then
                next_retire_state <= FLUSH;
             end if;
 --         when FLUSH_DONE =>
@@ -394,12 +393,11 @@ begin
       end case;
    end process;
 
-   retire_state_out: process(present_retire_state)
+   rdaddress_b_sig <= retire_ptr;
+   uop_o <= qb_sig;
+
+   retire_state_out: process(present_retire_state, retire_ptr, flush_ptr)
    begin
-      rdaddress_b_sig <= retire_ptr;
-      --mop_retire_o <= qb_sig(QUEUE_WIDTH-1 downto MOP_END);
-      --uop_retire_o <= qb_sig(MOP_END-1 downto UOP_END);
-      uop_o <= qb;
       case present_retire_state is
          when RESET =>
             uop_rdy_o      <= '0';
@@ -433,12 +431,12 @@ begin
             uop_timedout_o <= '0';
             uop_discard_o  <= '0';
             retired        <= '1';
-            if(retire_ptr >= QUEUE_LEN - 1)
+            if(retire_ptr >= QUEUE_LEN - 1) then
                retire_ptr  <= H0X00;
             else
                retire_ptr  <= retire_ptr + 1;
             end if;
-            if(flush_ptr >= QUEUE_LEN - 1)
+            if(flush_ptr >= QUEUE_LEN - 1) then
                flush_ptr  <= H0X00;
             else
                flush_ptr  <= flush_ptr + 1;
@@ -455,12 +453,12 @@ begin
             uop_timedout_o <= '1';
             uop_discard_o  <= '1';
             retired        <= '1';
-            if(retire_ptr >= QUEUE_LEN - 1)
+            if(retire_ptr >= QUEUE_LEN - 1) then
                retire_ptr  <= H0X00;
             else
                retire_ptr  <= retire_ptr + 1;
             end if;
-            if(flush_ptr >= QUEUE_LEN - 1)
+            if(flush_ptr >= QUEUE_LEN - 1) then
                flush_ptr  <= H0X00;
             else
                flush_ptr  <= flush_ptr + 1;
@@ -471,7 +469,7 @@ begin
             uop_timedout_o <= '0';
             uop_discard_o  <= '1';
             retired        <= '0';
-            if(flush_ptr >= QUEUE_LEN - 1)
+            if(flush_ptr >= QUEUE_LEN - 1) then
                flush_ptr   <= H0X00;
             else
                flush_ptr   <= flush_ptr + 1;
@@ -501,7 +499,7 @@ begin
       end if;
    end process;
 
-   gen_state_NS: process(present_gen_state, mop_rdy, queue_space, num_uops, par_id_i, card_addr_i)
+   gen_state_NS: process(present_gen_state, mop_rdy, queue_space, num_uops, par_id_i, card_addr_i, new_card_addr)
    begin
       case present_gen_state is
          when RESET =>
@@ -519,9 +517,9 @@ begin
                next_gen_state <= INSERT;
             end if;
          when INSERT =>
-            if(par_id_i = RET_DATA_ADDR);
-               next_gen_state <= RET_DATA;
-            elsif(par_id_i = STATUS_ADDR);
+            if(par_id_i(7 downto 0) = RET_DAT_ADDR) then
+               next_gen_state <= RET_DAT;
+            elsif(par_id_i(7 downto 0) = STATUS_ADDR) then
                next_gen_state <= PSC_STATUS;
             else
                next_gen_state <= SINGLE;
@@ -531,17 +529,17 @@ begin
                when NO_CARDS =>
                   next_gen_state <= CLEANUP;
                when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC =>
-                  if(present_gen_state = RET_DAT)
+                  if(present_gen_state = RET_DAT) then
                      next_gen_state <= PSC_STATUS;
-                  elsif(present_gen_state = PSC_STATUS)
+                  elsif(present_gen_state = PSC_STATUS) then
                      next_gen_state <= BIT_STATUS;
-                  elsif(present_gen_state = BIT_STATUS)
+                  elsif(present_gen_state = BIT_STATUS) then
                      next_gen_state <= FPGA_TEMP;
-                  elsif(present_gen_state = FPGA_TEMP;
+                  elsif(present_gen_state = FPGA_TEMP) then
                      next_gen_state <= CARD_TEMP;
-                  elsif(present_gen_state = CARD_TEMP;
+                  elsif(present_gen_state = CARD_TEMP) then
                      next_gen_state <= CYC_OO_SYC;
-                  elsif(present_gen_state = CYC_OO_SYC;
+                  elsif(present_gen_state = CYC_OO_SYC) then
                      next_gen_state <= CLEANUP;
                   end if;
                when BCS | RCS | ALL_FBGA_CARDS | ALL_CARDS =>
@@ -550,18 +548,18 @@ begin
                   if((card_addr_i = BCS and new_card_addr = BC3) or
                      (card_addr_i = RCS and new_card_addr = RC4) or
                      (card_addr_i = ALL_FBGA_CARDS and new_card_addr = AC) or
-                     (card_addr_i = ALL_CARDS and new_card_addr = AC))
-                     if(present_gen_state = RET_DAT)
+                     (card_addr_i = ALL_CARDS and new_card_addr = AC)) then
+                     if(present_gen_state = RET_DAT) then
                         next_gen_state <= PSC_STATUS;
-                     elsif(present_gen_state = PSC_STATUS)
+                     elsif(present_gen_state = PSC_STATUS) then
                         next_gen_state <= BIT_STATUS;
-                     elsif(present_gen_state = BIT_STATUS)
+                     elsif(present_gen_state = BIT_STATUS) then
                         next_gen_state <= FPGA_TEMP;
-                     elsif(present_gen_state = FPGA_TEMP;
+                     elsif(present_gen_state = FPGA_TEMP) then
                         next_gen_state <= CARD_TEMP;
-                     elsif(present_gen_state = CARD_TEMP;
+                     elsif(present_gen_state = CARD_TEMP) then
                         next_gen_state <= CYC_OO_SYC;
-                     elsif(present_gen_state = CYC_OO_SYC;
+                     elsif(present_gen_state = CYC_OO_SYC) then
                         next_gen_state <= CLEANUP;
                      end if;
                   end if;
@@ -576,30 +574,31 @@ begin
       end case;
    end process;
 
-   gen_state_out: process(present_gen_state, card_addr_i)
+   with card_addr_i(CARD_ADDR_WIDTH-1 downto 0) select
+      cards_addressed <=
+         0 when NO_CARDS,
+         1 when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC,
+         3 when BCS,
+         4 when RCS,
+         9 when ALL_FBGA_CARDS,
+         10 when ALL_CARDS,
+         0 when others; -- invalid card address
+
+   -- The par_id checking is done in the cmd_translator block.
+   -- Thus, here I can use the 'when others' case for something other than
+   -- error checking, because the par_id that cmd_translator issues to cmd_queue
+   -- is always valid.
+   with par_id_i(7 downto 0) select
+      uops_generated <=
+         6 when RET_DAT_ADDR,
+         5 when STATUS_ADDR,
+         1 when others; -- all other m-ops generate one u-op
+
+   num_uops <= uops_generated * cards_addressed;
+   mop_rdy <= mop_rdy_i;
+
+   gen_state_out: process(present_gen_state, card_addr_i, new_card_addr, uop_counter)
       begin
-      with card_addr_i(CARD_ADDR_WIDTH-1 downto 0) select
-         cards_addressed <=
-            0 when NO_CARDS,
-            1 when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC,
-            3 when BCS,
-            4 when RCS,
-            9 when ALL_FBGA_CARDS,
-            10 when ALL_CARDS,
-            0 when others; -- invalid card address
-
-      -- The par_id checking is done in the cmd_translator block.
-      -- Thus, here I can use the 'when others' case for something other than
-      -- error checking, because the par_id that cmd_translator issues to cmd_queue
-      -- is always valid.
-      with par_id_i select
-         uops_generated <=
-            6 when RET_DAT_ADDR,
-            5 when STATUS_ADDR,
-            1 when others; -- all other m-ops generate one u-op
-
-      num_uops <= uops_generated * cards_addressed;
-      mop_rdy <= mop_rdy_i;
 
       -- Note that inserted and insert_uop_rdy follow each other exactly
       case present_gen_state is
@@ -626,81 +625,82 @@ begin
             uop_counter    <= (others => '0');
             new_card_addr  <= card_addr_i;
          when RET_DAT | PSC_STATUS | BIT_STATUS | FPGA_TEMP | CARD_TEMP | CYC_OO_SYC =>
-            if   (present_gen_state = RET_DATA)   new_par_id <= RET_DAT_ADDR;
-            elsif(present_gen_state = PSC_STATUS) new_par_id <= PSC_STATUS_ADDR;
-            elsif(present_gen_state = BIT_STATUS) new_par_id <= BIT_STATUS_ADDR;
-            elsif(present_gen_state = FPGA_TEMP)  new_par_id <= FPGA_TEMP_ADDR;
-            elsif(present_gen_state = CARD_TEMP)  new_par_id <= CARD_TEMP_ADDR;
-            elsif(present_gen_state = CYC_OO_SYC) new_par_id <= CYC_OO_SYC_ADDR;
+            if   (present_gen_state = RET_DAT)    then new_par_id(7 downto 0) <= RET_DAT_ADDR;
+            elsif(present_gen_state = PSC_STATUS) then new_par_id(7 downto 0) <= PSC_STATUS_ADDR;
+            elsif(present_gen_state = BIT_STATUS) then new_par_id(7 downto 0) <= BIT_STATUS_ADDR;
+            elsif(present_gen_state = FPGA_TEMP)  then new_par_id(7 downto 0) <= FPGA_TEMP_ADDR;
+            elsif(present_gen_state = CARD_TEMP)  then new_par_id(7 downto 0) <= CARD_TEMP_ADDR;
+            elsif(present_gen_state = CYC_OO_SYC) then new_par_id(7 downto 0) <= CYC_OO_SYC_ADDR;
             end if;
             case card_addr_i is
-               when NO_CARDS;
                when PSC | CC | RC1 | RC2 | RC3 | RC4 | BC1 | BC2 | BC3 | AC | BCS | RCS | ALL_FBGA_CARDS | ALL_CARDS =>
                   uop_counter <= uop_counter + 1;
                   insert_uop_rdy <= '1';
                   inserted       <= '1';
-                  if(card_addr_i = BCS)
-                     if(new_card_addr = BCS)
+                  if(card_addr_i = BCS) then
+                     if(new_card_addr = BCS) then
                         new_card_addr <= BC1;
-                     elsif(new_card_addr = BC1)
+                     elsif(new_card_addr = BC1) then
                         new_card_addr <= BC2;
-                     elsif(new_card_addr = BC2)
+                     elsif(new_card_addr = BC2) then
                         new_card_addr <= BC3;
                      end if;
-                  elsif(card_addr_i = RCS)
-                     if(new_card_addr = RCS)
+                  elsif(card_addr_i = RCS) then
+                     if(new_card_addr = RCS) then
                         new_card_addr <= RC1;
-                     elsif(new_card_addr = RC1)
+                     elsif(new_card_addr = RC1) then
                         new_card_addr <= RC2;
-                     elsif(new_card_addr = RC2)
+                     elsif(new_card_addr = RC2) then
                         new_card_addr <= RC3;
-                     elsif(new_card_addr = RC3)
+                     elsif(new_card_addr = RC3) then
                         new_card_addr <= RC3;
                      end if;
-                  elsif(card_addr_i = ALL_FBGA_CARDS)
-                     if(new_card_addr = ALL_CARDS)
+                  elsif(card_addr_i = ALL_FBGA_CARDS) then
+                     if(new_card_addr = ALL_CARDS) then
                         new_card_addr <= CC;
-                     elsif(new_card_addr = CC)
+                     elsif(new_card_addr = CC) then
                         new_card_addr <= RC1;
-                     elsif(new_card_addr = RC1)
+                     elsif(new_card_addr = RC1) then
                         new_card_addr <= RC2;
-                     elsif(new_card_addr = RC2)
+                     elsif(new_card_addr = RC2) then
                         new_card_addr <= RC3;
-                     elsif(new_card_addr = RC3)
+                     elsif(new_card_addr = RC3) then
                         new_card_addr <= RC4;
-                     elsif(new_card_addr = RC4)
+                     elsif(new_card_addr = RC4) then
                         new_card_addr <= BC1;
-                     elsif(new_card_addr = BC1)
+                     elsif(new_card_addr = BC1) then
                         new_card_addr <= BC2;
-                     elsif(new_card_addr = BC2)
+                     elsif(new_card_addr = BC2) then
                         new_card_addr <= BC3;
-                     elsif(new_card_addr = BC3)
+                     elsif(new_card_addr = BC3) then
                         new_card_addr <= AC;
                      end if;
-                  elsif(card_addr_i = ALL_CARDS)
-                     if(new_card_addr = ALL_CARDS)
+                  elsif(card_addr_i = ALL_CARDS) then
+                     if(new_card_addr = ALL_CARDS) then
                         new_card_addr <= PSC;
-                     elsif(new_card_addr = PSC)
+                     elsif(new_card_addr = PSC) then
                         new_card_addr <= CC;
-                     elsif(new_card_addr = CC)
+                     elsif(new_card_addr = CC) then
                         new_card_addr <= RC1;
-                     elsif(new_card_addr = RC1)
+                     elsif(new_card_addr = RC1) then
                         new_card_addr <= RC2;
-                     elsif(new_card_addr = RC2)
+                     elsif(new_card_addr = RC2) then
                         new_card_addr <= RC3;
-                     elsif(new_card_addr = RC3)
+                     elsif(new_card_addr = RC3) then
                         new_card_addr <= RC4;
-                     elsif(new_card_addr = RC4)
+                     elsif(new_card_addr = RC4) then
                         new_card_addr <= BC1;
-                     elsif(new_card_addr = BC1)
+                     elsif(new_card_addr = BC1) then
                         new_card_addr <= BC2;
-                     elsif(new_card_addr = BC2)
+                     elsif(new_card_addr = BC2) then
                         new_card_addr <= BC3;
-                     elsif(new_card_addr = BC3)
+                     elsif(new_card_addr = BC3) then
                         new_card_addr <= AC;
                      end if;
                   end if;
-               when others; -- Invalid card address
+               when others => -- Invalid card address
+                  insert_uop_rdy <= '0';
+                  inserted       <= '0';
             end case;
          when SINGLE =>
             uop_counter    <= uop_counter + 1;
@@ -731,29 +731,29 @@ begin
       end if;
    end process send_state_FF;
 
-   send_state_NS: process(present_send_state, send_ptr, free_ptr, sync_tog, qa, uop_pending, clk_count)
+   send_state_NS: process(present_send_state, send_ptr, free_ptr, qa_sig, clk_count, uop_send_expired, issue_sync_i, tx_uop_ack)
    begin
       case present_send_state is
          when RESET =>
             next_send_state <= IDLE;
          when IDLE =>
             -- If there is a u-op waiting to be issued, load it.  If not, idle
-            if(send_ptr != free_ptr)
+            if(send_ptr /= free_ptr) then
                next_send_state <= LOAD;
-            elsif(send_ptr = free_ptr)
+            elsif(send_ptr = free_ptr) then
                next_send_state <= IDLE;
             end if;
          when LOAD =>
             -- Assert the data address, and retrieve the next u-op
             next_send_state <= VERIFY;
          when VERIFY =>
-            if(uop_send_expired = '1')
+            if(uop_send_expired = '1') then
                -- If the u-op has expired, it should be skipped
                next_send_state <= SKIP;
-            elsif(qa(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count > START_OF_BLACKOUT)
+            elsif(qa_sig(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count > START_OF_BLACKOUT) then
                -- The black out period has started - even though the command was for this sync period, it has expired.
                next_send_state <= SKIP;
-            elsif(qa(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count < START_OF_BLACKOUT)
+            elsif(qa_sig(UOP_END-1 downto ISSUE_SYNC_END) = issue_sync_i and clk_count < START_OF_BLACKOUT) then
                -- If the u-op can be issued during this sync period, and if the remaining cycle time is sufficient to send the instruction, issue.
                next_send_state <= ISSUE;
             else
@@ -764,9 +764,9 @@ begin
             next_send_state <= WAIT_FOR_ACK;
             -- Clock the instruction out over the LVDS lines.
          when WAIT_FOR_ACK =>
-            if(tx_uop_ack = '1')
+            if(tx_uop_ack = '1') then
                next_send_state <= SKIP;
-            elsif(tx_uop_ack = '0')
+            elsif(tx_uop_ack = '0') then
                next_send_state <= WAIT_FOR_ACK;
             end if;
          when SKIP =>
@@ -777,12 +777,13 @@ begin
       end case;
    end process;
 
-   send_state_out: process(present_send_state)
+   uop_send_expired <= '1' when (sync_count_slv > qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) or
+                                (sync_count_slv < qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) and
+                                 MAX_SYNC_COUNT - qa_sig(UOP_END - 1 downto ISSUE_SYNC_END) + sync_count_slv > TIMEOUT_LEN)) else '0';
+   rdaddress_a_sig <= send_ptr;
+
+   send_state_out: process(present_send_state, send_ptr)
    begin
-      uop_send_expired <= '1' when (sync_count_slv > qa(UOP_END        - 1 downto ISSUE_SYNC_END  ) or
-                                   (sync_count_slv < qa(UOP_END        - 1 downto ISSUE_SYNC_END  ) and
-                                   (MAX_SYNC_COUNT - qa(UOP_END        - 1 downto ISSUE_SYNC_END  ) + sync_count_slv > TIMEOUT_LEN)) else '0';
-      rdaddress_a_sig <= send_ptr;
       case present_send_state is
          when RESET =>
             send_ptr <= H0X00;
@@ -799,7 +800,7 @@ begin
             tx_uop_rdy <= '0';
          when SKIP =>
             tx_uop_rdy <= '0';
-            if(send_ptr >= QUEUE_LEN-1)
+            if(send_ptr >= QUEUE_LEN-1) then
                send_ptr <= H0X00;
             else
                send_ptr <= send_ptr + 1;
@@ -819,41 +820,41 @@ begin
       end if;
    end process;
 
-   packet_state_NS: process()
-   begin
-      case present_packet_state is
-         when IDLE =>
-         when STRT_CMD1 =>
-         when STRT_CMD2 =>
-         when SZ_CMD1 =>
-         when SZ_CMD2 =>
-         when CARD_ADDR =>
-         when PAR_ID =>
-         when DATA =>
-         when CHECKSUM1 =>
-         when CHECKSUM2 =>
-         when DONE =>
-         when others
-      end case;
-   end process;
-
-   packet_state_out: process()
-   begin
-      case present_packet_state is
-         when IDLE =>
-         when STRT_CMD1 =>
-         when STRT_CMD2 =>
-         when SZ_CMD1 =>
-         when SZ_CMD2 =>
-         when CARD_ADDR =>
-         when PAR_ID =>
-         when DATA =>
-         when CHECKSUM1 =>
-         when CHECKSUM2 =>
-         when DONE =>
-         when others
-      end case;
-   end process;
+--   packet_state_NS: process()
+--   begin
+--      case present_packet_state is
+--         when IDLE =>
+--         when STRT_CMD1 =>
+--         when STRT_CMD2 =>
+--         when SZ_CMD1 =>
+--         when SZ_CMD2 =>
+--         when CARD_ADDR =>
+--         when PAR_ID =>
+--         when DATA =>
+--         when CHECKSUM1 =>
+--         when CHECKSUM2 =>
+--         when DONE =>
+--         when others
+--      end case;
+--   end process;
+--
+--   packet_state_out: process()
+--   begin
+--      case present_packet_state is
+--         when IDLE =>
+--         when STRT_CMD1 =>
+--         when STRT_CMD2 =>
+--         when SZ_CMD1 =>
+--         when SZ_CMD2 =>
+--         when CARD_ADDR =>
+--         when PAR_ID =>
+--         when DATA =>
+--         when CHECKSUM1 =>
+--         when CHECKSUM2 =>
+--         when DONE =>
+--         when others
+--      end case;
+--   end process;
 
    sync_count_slv <= conv_std_logic_vector(sync_count_int, 8);
 
