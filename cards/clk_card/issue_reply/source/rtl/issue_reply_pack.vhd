@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.23 2004/09/29 13:14:14 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.24 2004/09/29 14:25:14 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.24  2004/09/29 14:25:14  dca
+-- component 'fibre_tx' port map corrected
+--
 -- Revision 1.23  2004/09/29 13:14:14  dca
 -- Component declarations added for fibre_tx and reply_translator.
 --
@@ -380,8 +383,9 @@ port(
 end component;
 
 
+---------------------------
 component fibre_tx 
-
+----------------------------
       port(       
       -- global inputs
          rst_i        : in     std_logic;                         -- global reset
@@ -402,9 +406,10 @@ component fibre_tx
 
 end component;
 
-
+ 
+-------------------------------
 component reply_translator
-
+-------------------------------
 port(
 
    -- global inputs 
@@ -438,6 +443,119 @@ port(
 end component;
 
 
+constant TX_FIFO_DATA_WIDTH   : integer := 8;                              -- size of data words in fibre transmit FIFO
+constant TX_FIFO_ADDR_SIZE    : integer := 10;                             -- size of address bus in fibre transmit FIFO 
+
+------------------------------
+component fibre_tx_fifo 
+------------------------------   
+generic(addr_size : Positive);                                             -- read/write address size
+port(                                                                      -- note: fifo size is 2**addr_size
+   
+   rst_i     : in     std_logic;                                           -- global reset
+   tx_fr_i   : in     std_logic;                                           -- fifo read request
+   tx_fw_i   : in     std_logic;                                           -- fifo write request
+   txd_i     : in     std_logic_vector (TX_FIFO_DATA_WIDTH-1 DOWNTO 0);    -- data input
+   tx_fe_o   : out    std_logic;                                           -- fifo empty flag
+   tx_ff_o   : out    std_logic;                                           -- fifo full flag
+   tx_data_o : out    std_logic_vector (TX_FIFO_DATA_WIDTH-1 DOWNTO 0)     -- data output
+   );
+
+   end component;
+
+-----------------------------  
+component fibre_tx_control
+----------------------------- 
+port( 
+   ft_clkw_i    : in     std_logic;
+   nTrp_i       : in     std_logic;
+   tx_fe_i      : in     std_logic;
+   tsc_nTd_o    : out    std_logic;
+   nFena_o      : out    std_logic;
+   tx_fr_o      : out    std_logic
+   );
+
+end component;
+
+constant RX_FIFO_DATA_WIDTH   : integer := 8;                               -- size of data words in fibre receive FIFO
+constant RX_FIFO_ADDR_SIZE    : integer := 8;                               -- size of address bus in fibre receive FIFO 
+---------------------------
+component fibre_rx_fifo 
+---------------------------
+
+generic(addr_size : Positive);                                             -- read/write address size
+port(                                                                      -- note: fifo size is 2**addr_size
+   rst_i     : in     std_logic;                                           -- global reset
+   rx_fr_i   : in     std_logic;                                           -- fifo read request
+   rx_fw_i   : in     std_logic;                                           -- fifo write request
+   rx_data_i : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 DOWNTO 0);    -- data input
+   rx_fe_o   : out    std_logic;                                           -- fifo empty flag
+   rx_ff_o   : out    std_logic;                                           -- fifo full flag
+   rxd_o     : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 DOWNTO 0)     -- data output
+   );
+end component;
+
+
+---------------------------
+component fibre_rx_protocol
+--------------------------- 
+port( 
+   rst_i       : in     std_logic;                                             -- reset
+   clk_i       : in     std_logic;                                             -- clock 
+   rx_fe_i     : in     std_logic;                                             -- receive fifo empty flag
+   rxd_i       : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);      -- receive data byte 
+   cmd_ack_i   : in     std_logic;                                             -- command acknowledge
+
+   cmd_code_o  : out    std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);      -- command code  
+   card_id_o   : out    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);     -- card id
+   param_id_o  : out    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);        -- parameter id
+   num_data_o  : out    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);     -- number of valid 32 bit data words
+   cmd_data_o  : out    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);          -- 32bit valid data word
+   cksum_err_o : out    std_logic;                                             -- checksum error flag
+   cmd_rdy_o   : out    std_logic;                                             -- command ready flag (checksum passed)
+   data_clk_o  : out    std_logic;                                             -- data clock
+   rx_fr_o     : out    std_logic                                              -- receive fifo read request
+);
+end component;
+
+---------------------------
+component fibre_rx_control
+---------------------------
+port( 
+   nRx_rdy_i : in     std_logic;
+   rsc_nRd_i : in     std_logic;
+   rso_i     : in     std_logic;
+   rvs_i     : in     std_logic;
+   rx_ff_i   : in     std_logic;
+   rx_fw_o   : out    std_logic
+   );
+end component;
+
+
+---------------------------
+component fibre_rx 
+---------------------------
+port( 
+   rst_i       : in     std_logic;
+   clk_i       : in     std_logic;
+      
+   nrx_rdy_i   : in     std_logic;
+   rvs_i       : in     std_logic;
+   rso_i       : in     std_logic;
+   rsc_nrd_i   : in     std_logic;  
+   rx_data_i   : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);
+   cmd_ack_i   : in     std_logic;                                           -- command acknowledge
+   
+   cmd_code_o  : out    std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);    -- command code  
+   card_id_o   : out    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- card id
+   param_id_o  : out    std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- parameter id
+   num_data_o  : out    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- number of valid 32 bit data words
+   cmd_data_o  : out    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- 32bit valid data word
+   cksum_err_o : out    std_logic;                                           -- checksum error flag
+   cmd_rdy_o   : out    std_logic;                                           -- command ready flag (checksum passed)
+   data_clk_o  : out    std_logic                                            -- data clock
+   );
+end component;
 
 
 end issue_reply_pack;
