@@ -39,6 +39,7 @@ FILES
 	VHDL_FILE = ..\..\..\issue_reply\source\rtl\issue_reply.vhd;
 	VHDL_FILE = ..\..\source\issue_reply_test_pll.vhd;
 	VHDL_FILE = ..\..\source\issue_reply_test.vhd;
+	TCL_SCRIPT_FILE = ..\..\..\..\..\scripts\quartus\cc_pin_assign.tcl;
 }
 COMPILER_SETTINGS_LIST
 {
