@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.2 2004/03/10 07:00:49 ngruending Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -42,7 +42,7 @@
 -- Feb. 3  2004  - Added 1-wire modules - EL
 
 -- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/03/10 07:00:49 $>	-		<text>		- <initials $Author: ngruending $>
 --
 ------------------------------------------------------------------------
 
@@ -263,6 +263,7 @@ component prand
    port (
       clr_i : in std_logic;   -- asynchoronous clear input
       clk_i : in std_logic;   -- calculation clock
+      en_i : in std_logic;    -- calculation enable line
       out_o : out std_logic_vector (size - 1 downto 0)   -- random output
    );
 end component;

@@ -35,6 +35,7 @@ entity prand is
    port (
       clr_i : in std_logic;   -- asynchoronous clear input
       clk_i : in std_logic;   -- calculation clock
+      en_i : in std_logic;    -- calculation enable
       out_o : out std_logic_vector (size - 1 downto 0)   -- random output
    );
 end;
@@ -66,7 +67,11 @@ begin
       if (clr_i = '1') then
          out_reg <= (others => '0');
       elsif Rising_Edge(clk_i) then
-         out_reg <= out_reg(size - 2 downto 0) & feedback;
+         if (en_i = '1') then
+            out_reg <= out_reg(size - 2 downto 0) & feedback;
+         else
+            out_reg <= out_reg;
+         end if;
       end if;
    end process;
    out_o <= out_reg;
