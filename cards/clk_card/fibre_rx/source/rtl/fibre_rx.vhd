@@ -96,7 +96,7 @@ architecture behav of fibre_rx is
          fifo_size => 512
       )
       port map (
-         Brst        => rst_i,
+         rst_i        => rst_i,
          rx_fr_i     => rx_fr,
          rx_fw_i     => rx_fw,
          rx_data_i   => rx_data_i,
