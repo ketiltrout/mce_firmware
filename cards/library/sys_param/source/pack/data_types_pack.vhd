@@ -29,28 +29,31 @@
 -- data types
 --
 -- Revision history:
--- <date $Date: 2004/04/07 19:00:48 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/07 20:51:36 $>	- <initials $Author: mandana $>
 -- $Log: data_types_pack.vhd,v $
+-- Revision 1.2  2004/04/07 20:51:36  mandana
+-- fixed syntax
+--
 -- Revision 1.1  2004/04/07 19:00:48  mandana
 -- Initial release
 --   <--- this is new
 
 --
 -----------------------------------------------------------------------------
-library IEEE;
-use IEEE.Std_Logic_1164.all;
+library ieee;
+use ieee.std_logic_1164.all;
 
 package data_types_pack is
-   -----------------------------------------------------------------------------
-   -- Generic data types, leftmost bit, number 0, is the most significant
-   -----------------------------------------------------------------------------
-   subtype word4          is std_logic_vector(0 downto  3);
-   subtype word8          is std_logic_vector(0 downto  7);
-   subtype word16         is std_logic_vector(0 downto 15);
-   subtype word24         is std_logic_vector(0 downto 23);
-   subtype word32         is std_logic_vector(0 downto 31);
-   subtype word40         is std_logic_vector(0 downto 39);
-   subtype word48         is std_logic_vector(0 downto 47);
-   subtype word64         is std_logic_vector(0 downto 63);
-
+   ---------------------.
+   -- Generic data types
+   ---------------------
+   subtype word4          is std_logic_vector(3 downto  0);
+   subtype word8          is std_logic_vector(7 downto  0);
+   subtype word16         is std_logic_vector(15 downto 0);
+   subtype word24         is std_logic_vector(23 downto 0);
+   subtype word32         is std_logic_vector(31 downto 0);
+   subtype word40         is std_logic_vector(39 downto 0);
+   subtype word48         is std_logic_vector(47 downto 0);
+   subtype word64         is std_logic_vector(63 downto 0);
+   
 end data_types_pack;
