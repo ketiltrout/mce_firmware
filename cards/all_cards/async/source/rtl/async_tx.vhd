@@ -22,6 +22,10 @@
 -- Revision History:
 --
 -- $Log: async_tx.vhd,v $
+-- Revision 1.4  2004/08/06 20:36:24  erniel
+-- replaced some processes with rtl-blocks
+-- added setup state
+--
 -- Revision 1.3  2004/06/10 19:36:05  erniel
 -- changed interface to non-wishbone
 -- reworked code body (made it RTL description)
@@ -39,73 +43,97 @@ use components.component_pack.all;
 ---------------------------------------------------------------------
 
 entity async_tx is
-port(tx_clk_i : in std_logic;   -- 25 MHz for LVDS, 115.2 kHz for RS232
-     rst_i    : in std_logic;
+generic(CLK_DIV_FACTOR : in integer := 1736); 
+port(comm_clk_i : in std_logic;
+     rst_i      : in std_logic;
 
-     dat_i    : in std_logic_vector (7 downto 0);
-     stb_i    : in std_logic;
-     tx_o     : out std_logic;
-     busy_o   : out std_logic);
+     dat_i  : in std_logic_vector (7 downto 0);
+     rdy_i  : in std_logic;
+     busy_o : out std_logic;
+
+     tx_o   : out std_logic);
 end async_tx ;
 
 ---------------------------------------------------------------------
 
 architecture behaviour of async_tx is
 
-   type states is (IDLE, SETUP, TRANSMIT);
-   signal pres_state : states;
-   signal next_state : states;
+signal clk_div_count : integer range 0 to CLK_DIV_FACTOR-1;
+signal tx_clk        : std_logic;
 
-   signal count : integer;
+signal count     : integer range 0 to 10;
+signal count_clr : std_logic;
 
-   signal count_clr : std_logic;
-   signal shreg_ena : std_logic;
-   signal shreg_ld  : std_logic;
+signal buf_ena  : std_logic;
+signal buf_ld   : std_logic;   
+signal buf_data : std_logic_vector(9 downto 0);
+signal tx_data  : std_logic;
    
-   signal shreg_data : std_logic_vector(9 downto 0);
-   signal debug_data : std_logic_vector(9 downto 0);
-   signal tx_data    : std_logic;
-   
+type states is (IDLE, SETUP, TRANSMIT);
+signal pres_state : states;
+signal next_state : states;
+
 begin
 
-   tx_counter : counter
-      generic map(MAX         => 10,
-                  WRAP_AROUND => '0')
-      port map(clk_i   => tx_clk_i,
-               rst_i   => rst_i,
-               ena_i   => '1',
-               load_i  => count_clr,
-               count_i => 0,
-               count_o => count);
-               
-   tx_databuf : shift_reg
-      generic map(WIDTH => 10)
-      port map(clk_i      => tx_clk_i,
-               rst_i      => rst_i,
-               ena_i      => shreg_ena,
-               load_i     => shreg_ld,
-               clr_i      => '0',
-               shr_i      => '1',
-               serial_i   => '0',
-               serial_o   => tx_data,
-               parallel_i => shreg_data,
-               parallel_o => debug_data);
+   clk_divide: counter
+   generic map(MAX => CLK_DIV_FACTOR-1)
+   port map(clk_i => comm_clk_i,
+            rst_i => rst_i,
+            ena_i => '1',
+            load_i => '0',
+            count_i => 0,
+            count_o => clk_div_count);
 
-   shreg_data <= '1' & dat_i & '0';
+   -- register clock divider output (to eliminate glitches from combinational compare)
+   process(comm_clk_i)
+   begin
+      if(comm_clk_i'event and comm_clk_i = '1') then
+         if(clk_div_count = CLK_DIV_FACTOR-1) then
+            tx_clk <= '1';
+         else
+            tx_clk <= '0';
+         end if;
+      end if;
+   end process;
+
+   tx_counter : counter
+   generic map(MAX         => 10,
+               WRAP_AROUND => '0')
+   port map(clk_i   => tx_clk,
+            rst_i   => rst_i,
+            ena_i   => '1',
+            load_i  => count_clr,
+            count_i => 0,
+            count_o => count);
+               
+   tx_buffer : shift_reg
+   generic map(WIDTH => 10)
+   port map(clk_i      => tx_clk,
+            rst_i      => rst_i,
+            ena_i      => buf_ena,
+            load_i     => buf_ld,
+            clr_i      => '0',
+            shr_i      => '1',
+            serial_i   => '0',
+            serial_o   => tx_data,
+            parallel_i => buf_data,
+            parallel_o => open);
+
+   buf_data <= '1' & dat_i & '0';
      
-   stateFF: process(rst_i, tx_clk_i)
+   stateFF: process(rst_i, tx_clk)
    begin
       if(rst_i = '1') then   
          pres_state <= IDLE;
-      elsif(tx_clk_i'event and tx_clk_i = '1') then
+      elsif(tx_clk'event and tx_clk = '1') then
          pres_state <= next_state;
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, stb_i, count)
+   stateNS: process(pres_state, rdy_i, count)
    begin
       case pres_state is
-         when IDLE =>     if(stb_i = '1') then
+         when IDLE =>     if(rdy_i = '1') then
                              next_state <= SETUP;
                           else
                              next_state <= IDLE;
@@ -124,17 +152,17 @@ begin
    stateOut: process(pres_state, tx_data)
    begin
       count_clr <= '1';
-      shreg_ena <= '0';
-      shreg_ld  <= '0';
+      buf_ena   <= '0';
+      buf_ld    <= '0';
       busy_o    <= '0';
       tx_o      <= '1';
       
       case pres_state is 
-         when SETUP =>    shreg_ena <= '1';
-                          shreg_ld  <= '1';
+         when SETUP =>    buf_ena <= '1';
+                          buf_ld  <= '1';
                           
          when TRANSMIT => count_clr <= '0';
-                          shreg_ena <= '1';
+                          buf_ena   <= '1';
                           busy_o    <= '1';
                           tx_o      <= tx_data;
                           
