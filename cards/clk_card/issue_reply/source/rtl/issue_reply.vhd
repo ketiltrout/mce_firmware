@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.20 2004/11/15 19:30:58 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.21 2004/11/15 20:03:41 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/15 19:30:58 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/11/15 20:03:41 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.21  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.20  2004/11/15 19:30:58  bburger
 -- Bryce : Modified the line "uop_ack_i       => uop_rdy_stg5" to emulate the reply_queue's response until the reply_queue is integrated.
 --
@@ -287,7 +290,7 @@ architecture rtl of issue_reply is
       signal   m_op_param_id       : std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  
       signal   m_op_card_id        : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  
       signal   fibre_word          : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0); 
-      signal   num_fibre_words     : std_logic_vector (BB_DATA_SIZE_WIDTH-1       downto 0);    
+      signal   num_fibre_words     : integer;    
       signal   fibre_word_req      : std_logic;
       signal   fibre_word_rdy      : std_logic;
       signal   m_op_ack            : std_logic;   
