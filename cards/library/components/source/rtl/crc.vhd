@@ -31,6 +31,10 @@
 -- Revision history:
 --
 -- $Log: crc.vhd,v $
+-- Revision 1.4  2004/07/19 21:25:34  erniel
+-- added num_bits input port
+-- removed DATA_LENGTH generic
+--
 -- Revision 1.3  2004/07/17 00:57:34  erniel
 -- added checksum output port
 --
@@ -65,16 +69,14 @@ use ieee.std_logic_1164.all;
 
 entity crc is
 generic(POLY_WIDTH : integer := 8);
-port(clk    : in std_logic;
-     rst    : in std_logic;
+port(clk_i  : in std_logic;
+     rst_i  : in std_logic;
      clr_i  : in std_logic;
      ena_i  : in std_logic;
      
+     poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
      data_i     : in std_logic;
      num_bits_i : in integer;
-     
-     poly_i : in std_logic_vector(POLY_WIDTH downto 1);
-     
      done_o     : out std_logic;
      valid_o    : out std_logic;
      checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
@@ -119,12 +121,12 @@ begin
    end generate;
    
    
-   reg_update: process(clk, rst)
+   reg_update: process(clk_i, rst_i)
    begin
-      if(rst = '1') then
+      if(rst_i = '1') then
          crc_reg <= (others => '0');
          bit_count <= 0;
-      elsif(clk'event and clk = '1') then
+      elsif(clk_i'event and clk_i = '1') then
          if(ena_i = '1') then
             if(clr_i = '1') then
                crc_reg <= (others => '0');
