@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.3 2004/06/24 08:39:26 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.4 2004/06/28 11:03:56 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -33,7 +33,7 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2004/06/24 08:39:26 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/06/28 11:03:56 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 
 
@@ -91,7 +91,7 @@ architecture behav of fibre_rx is
    -- Instance port mappings.
    I0 : fibre_rx_fifo
       generic map (
-         fifo_size => 512
+         addr_size => 9              -- fifo size = 2**addr_size
       )
       port map (
          rst_i       => rst_i,
