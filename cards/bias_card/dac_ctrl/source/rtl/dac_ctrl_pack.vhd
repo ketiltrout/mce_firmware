@@ -21,8 +21,8 @@
 -- dac_ctrl_pack.vhd
 --
 
--- Project:	      SCUBA-2
--- Author:	      Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:        Mandana Amiri
 -- Organisation:  UBC
 --
 -- Description:
@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/04/29 20:51:03 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/19 18:27:41 $> - <initials $Author: mandana $>
 -- $Log: dac_ctrl_pack.vhd,v $
+-- Revision 1.6  2004/05/19 18:27:41  mandana
+-- deleted nclr pin on DACs, it is tied to FPGA status line
+--
 -- Revision 1.5  2004/04/29 20:51:03  mandana
 -- added dac_nclr signal
 --
@@ -73,8 +76,8 @@ component dac_ctrl
         dac_clk_o   : out std_logic_vector(32 downto 0);
         -- wishbone signals:
         clk_i   : in  std_logic;
-        rst_i   : in  std_logic;		
-        dat_i 	: in  std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        rst_i   : in  std_logic;    
+        dat_i  : in  std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         addr_i  : in  std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
         tga_i   : in  std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in  std_logic;
@@ -83,7 +86,9 @@ component dac_ctrl
         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         rty_o   : out std_logic;
         ack_o   : out std_logic;
-        sync_i  : in  std_logic
+        -- frame_timing signals
+        --sync_i  : in  std_logic
+        update_bias_i : in std_logic
    );     
    end component;
 end dac_ctrl_pack;

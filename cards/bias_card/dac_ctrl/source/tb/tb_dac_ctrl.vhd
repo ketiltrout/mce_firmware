@@ -20,18 +20,21 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.5 2004/04/21 20:01:32 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_dac_ctrl.vhd,v 1.6 2004/04/29 20:53:59 mandana Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	      Mandana Amiri
+-- Project:       SCUBA-2
+-- Author:        Mandana Amiri
 -- Organisation:      UBC
 --
 -- Description:
 -- Testbench to test dac_ctrl module for bias card
 --
 -- Revision history:
--- <date $Date: 2004/04/21 20:01:32 $>	- <initials $Author: bburger $>
+-- <date $Date: 2004/04/29 20:53:59 $> - <initials $Author: mandana $>
 -- $Log: tb_dac_ctrl.vhd,v $
+-- Revision 1.6  2004/04/29 20:53:59  mandana
+-- added dac_nclr signal and removed tx signals from wrapper
+--
 -- Revision 1.5  2004/04/21 20:01:32  bburger
 -- Changed address moniker
 --
@@ -49,10 +52,11 @@
 -- 
 --
 -----------------------------------------------------------------------------
-library ieee, sys_param, components;
+library ieee, work, sys_param, components;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+use work.sync_gen_pack.all;
 use sys_param.wishbone_pack.all;
 use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
@@ -68,22 +72,24 @@ architecture BEH of TB_DAC_CTRL is
       generic(DAC32_CTRL_ADDR      : std_logic_vector ( WB_ADDR_WIDTH - 1 downto 0 )  := FLUX_FB_ADDR ;
               DAC_LVDS_CTRL_ADDR   : std_logic_vector ( WB_ADDR_WIDTH - 1 downto 0 )  := BIAS_ADDR );
 
-      port(dac_data_o   : out std_logic_vector ( 32 downto 0 );
-           dac_ncs_o    : out std_logic_vector ( 32 downto 0 );
-           dac_clk_o    : out std_logic_vector ( 32 downto 0 );
-           dac_nclr_o   : out std_logic;
-           clk_i        : in std_logic ;
-           rst_i        : in std_logic ;
-           dat_i        : in std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
-           addr_i       : in std_logic_vector ( WB_ADDR_WIDTH - 1 downto 0 );
-           tga_i        : in std_logic_vector ( WB_TAG_ADDR_WIDTH - 1 downto 0 );
-           we_i         : in std_logic ;
-           stb_i        : in std_logic ;
-           cyc_i        : in std_logic ;
-           dat_o        : out std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
-           rty_o        : out std_logic ;
-           ack_o        : out std_logic ;
-           sync_i       : in std_logic );
+      port(dac_data_o    : out std_logic_vector ( 32 downto 0 );
+           dac_ncs_o     : out std_logic_vector ( 32 downto 0 );
+           dac_clk_o     : out std_logic_vector ( 32 downto 0 );
+--           dac_nclr_o    : out std_logic;
+           clk_i         : in std_logic ;
+           rst_i         : in std_logic ;
+           dat_i         : in std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
+           addr_i        : in std_logic_vector ( WB_ADDR_WIDTH - 1 downto 0 );
+           tga_i         : in std_logic_vector ( WB_TAG_ADDR_WIDTH - 1 downto 0 );
+           we_i          : in std_logic ;
+           stb_i         : in std_logic ;
+           cyc_i         : in std_logic ;
+           dat_o         : out std_logic_vector ( WB_DATA_WIDTH - 1 downto 0 );
+           rty_o         : out std_logic ;
+           ack_o         : out std_logic ;
+           update_bias_i : in std_logic
+           --sync_i       : in std_logic 
+           );
 
    end component;
 
@@ -106,6 +112,27 @@ architecture BEH of TB_DAC_CTRL is
    signal W_RTY_O        : std_logic ;
    signal W_ACK_O        : std_logic ;
    signal W_SYNC_I       : std_logic := '0';
+   signal W_UPDATE_BIAS_I : std_logic;
+   
+   -- sync_gen
+   signal dv_i                      : std_logic := '0';
+   signal dv_en_i                   : std_logic := '0';
+   signal sync                      : std_logic;
+   signal sync_num_o                : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+
+   -- frame_timing
+   signal init_window_req           : std_logic := '0';
+   signal sample_num                : integer := 42;
+   signal sample_delay              : integer := 5;
+   signal feedback_delay            : integer := 3;
+   signal dac_dat_en                : std_logic;
+   signal adc_coadd_en              : std_logic;
+   signal restart_frame_1row_prev   : std_logic;
+   signal restart_frame_aligned     : std_logic;
+   signal restart_frame_1row_post   : std_logic;
+   signal row_switch                : std_logic;
+   signal initialize_window         : std_logic;
+   
    
    type   w_array16 is array (15 downto 0) of word32; 
    signal data           : w_array16;
@@ -120,7 +147,7 @@ begin
       port map(dac_data_o   => W_DAC_DATA_O,
                dac_ncs_o    => W_DAC_NCS_O,
                dac_clk_o    => W_DAC_CLK_O,
-               dac_nclr_o   => W_DAC_NCLR_O,
+--               dac_nclr_o   => W_DAC_NCLR_O,
                clk_i        => W_CLK_I,
                rst_i        => W_RST_I,
                dat_i        => W_DAT_I,
@@ -132,7 +159,42 @@ begin
                dat_o        => W_DAT_O,
                rty_o        => W_RTY_O,
                ack_o        => W_ACK_O,
-               sync_i       => W_SYNC_I);
+               update_bias_i => W_UPDATE_BIAS_I
+               --sync_i       => W_SYNC_I
+               );
+               
+   sg_inst : sync_gen
+      port map(
+         clk_i      => W_CLK_I,
+         rst_i      => W_RST_I,
+         dv_i       => dv_i,
+         dv_en_i    => dv_en_i,
+         sync_o     => sync,
+         sync_num_o => sync_num_o
+      );
+      
+   ft_inst : frame_timing
+      port map(
+         clk_i                      => W_CLK_I,
+         rst_i                      => W_RST_I,
+         sync_i                     => sync,
+         frame_rst_i                => W_RST_I,      
+         init_window_req_i          => init_window_req,
+                                    
+         sample_num_i               => sample_num,
+         sample_delay_i             => sample_delay,
+         feedback_delay_i           => feedback_delay,
+ 
+         update_bias_o              => W_UPDATE_BIAS_I,
+         dac_dat_en_o               => dac_dat_en,
+         adc_coadd_en_o             => adc_coadd_en,
+         restart_frame_1row_prev_o  => restart_frame_1row_prev,
+         restart_frame_aligned_o    => restart_frame_aligned,
+         restart_frame_1row_post_o  => restart_frame_1row_post,
+         row_switch_o               => row_switch,
+         initialize_window_o        => initialize_window
+      );
+   
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
    W_SYNC_I <= not W_SYNC_I after PERIOD*10;
