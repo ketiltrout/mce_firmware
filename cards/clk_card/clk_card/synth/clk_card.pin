@@ -60,7 +60,7 @@
  -- RESERVED_INPUT    : Pin is tri-stated and should be connected to the board.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 4.1 Build 181 06/29/2004 SJ Full Version
+Quartus II Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
 CHIP  "clk_card"  ASSIGNED TO AN: EP1S30F780C5
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -437,7 +437,7 @@ RESERVED_INPUT               : F9        :        :                   :         
 RESERVED_INPUT               : F10       :        :                   :         : 4         :                
 RESERVED_INPUT               : F11       :        :                   :         : 4         :                
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
-altera_reserved_tms          : F13       : input  : LVTTL             :         : 4         : N              
+TMS                          : F13       : input  :                   :         : 4         :                
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    : 1         :                
 VCC_PLL5_OUTA                : F15       : power  :                   : 3.3V    : 9         :                
 DCLK                         : F16       :        :                   :         : 3         :                
@@ -465,7 +465,7 @@ RESERVED_INPUT               : G9        :        :                   :         
 RESERVED_INPUT               : G10       :        :                   :         : 4         :                
 RESERVED_INPUT               : G11       :        :                   :         : 4         :                
 RESERVED_INPUT               : G12       :        :                   :         : 4         :                
-altera_reserved_tdi          : G13       : input  : LVTTL             :         : 4         : N              
+TDI                          : G13       : input  :                   :         : 4         :                
 GNDA_PLL5                    : G14       : gnd    :                   :         : 1         :                
 GND                          : G15       : gnd    :                   :         : 1         :                
 VCC_PLL5_OUTB                : G16       : power  :                   : 3.3V    : 10        :                
@@ -493,7 +493,7 @@ RESERVED_INPUT               : H9        :        :                   :         
 RESERVED_INPUT               : H10       :        :                   :         : 4         :                
 RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : LVTTL             :         : 4         : N              
-altera_reserved_tdo          : H13       : output : LVTTL             :         : 4         : N              
+TDO                          : H13       : output :                   :         : 4         :                
 RESERVED_INPUT               : H14       :        :                   :         : 9         :                
 RESERVED_INPUT               : H15       :        :                   :         : 9         :                
 GND                          : H16       : gnd    :                   :         : 1         :                
@@ -548,7 +548,7 @@ RESERVED_INPUT               : K8        :        :                   :         
 GND                          : K9        :        :                   :         : 5         :                
 RESERVED_INPUT               : K10       :        :                   :         : 4         :                
 RESERVED_INPUT               : K11       :        :                   :         : 4         :                
-altera_reserved_tck          : K12       : input  : LVTTL             :         : 4         : N              
+TCK                          : K12       : input  :                   :         : 4         :                
 GND+                         : K13       :        :                   :         : 4         :                
 fibre_tx_clk                 : K14       : output : LVTTL             :         : 9         : Y              
 RESERVED_INPUT               : K15       :        :                   :         : 9         :                
@@ -576,7 +576,7 @@ RESERVED_INPUT               : L8        :        :                   :         
 RESERVED_INPUT               : L9        :        :                   :         : 5         :                
 RESERVED_INPUT               : L10       :        :                   :         : 5         :                
 RESERVED_INPUT               : L11       :        :                   :         : 4         :                
-altera_reserved_ntrst        : L12       : input  : LVTTL             :         : 4         : N              
+TRST                         : L12       : input  :                   :         : 4         :                
 RESERVED_INPUT               : L13       :        :                   :         : 4         :                
 GND                          : L14       : gnd    :                   :         : 1         :                
 GND                          : L15       : gnd    :                   :         : 1         :                

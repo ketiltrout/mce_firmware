@@ -1,6 +1,6 @@
 Assembler report for clk_card
-Mon Dec 13 22:17:02 2004
-Version 4.1 Build 181 06/29/2004 SJ Full Version
+Tue Jan 11 12:58:36 2005
+Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
 
 
 ---------------------
@@ -44,7 +44,7 @@ party's intellectual property, are provided herein.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Mon Dec 13 22:17:02 2004 ;
+; Assembler Status      ; Successful - Tue Jan 11 12:58:36 2005 ;
 ; Revision Name         ; clk_card                              ;
 ; Top-level Entity Name ; clk_card                              ;
 ; Family                ; Stratix                               ;
@@ -105,7 +105,7 @@ party's intellectual property, are provided herein.
 +----------------+--------------------------------------------------------------------------+
 ; Device         ; EP1S30F780C5                                                             ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                               ;
-; Checksum       ; 0x00DC8301                                                               ;
+; Checksum       ; 0x00D3AFA6                                                               ;
 +----------------+--------------------------------------------------------------------------+
 
 
@@ -116,7 +116,7 @@ party's intellectual property, are provided herein.
 +----------------+--------------------------------------------------------------------------+
 ; Device         ; EPC8                                                                     ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                               ;
-; Checksum       ; 0x09C1607D                                                               ;
+; Checksum       ; 0x09B98161                                                               ;
 +----------------+--------------------------------------------------------------------------+
 
 
@@ -125,11 +125,11 @@ party's intellectual property, are provided herein.
 +--------------------+
 Info: *******************************************************************
 Info: Running Quartus II Assembler
-    Info: Version 4.1 Build 181 06/29/2004 SJ Full Version
-    Info: Processing started: Mon Dec 13 22:16:49 2004
+    Info: Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
+    Info: Processing started: Tue Jan 11 12:58:22 2005
 Info: Command: quartus_asm --import_settings_files=off --export_settings_files=off clk_card -c clk_card
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-    Info: Processing ended: Mon Dec 13 22:17:02 2004
+    Info: Processing ended: Tue Jan 11 12:58:36 2005
     Info: Elapsed time: 00:00:13
 
 
