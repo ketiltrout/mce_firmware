@@ -1,0 +1,59 @@
+FILES
+{
+	VHDL_FILE = ..\..\..\library\sys_param\source\rtl\command_pack.vhd;
+	VHDL_FILE = ..\..\..\library\sys_param\source\rtl\data_types_pack.vhd;
+	VHDL_FILE = ..\..\..\library\sys_param\source\rtl\frame_timing_pack.vhd;
+	VHDL_FILE = ..\..\..\library\sys_param\source\rtl\general_pack.vhd;
+	VHDL_FILE = ..\..\..\library\sys_param\source\rtl\wishbone_pack.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\hex2ascii.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\component_pack.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\counter.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\counter_xstep.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\crc.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\frame_timing.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\ns_timer.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\prand.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\reg.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\rs232_data_tx.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\shift_reg.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\slave_ctrl.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\tri_state_buf.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\tri_state_buf_vec.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\us_timer.vhd;
+	VHDL_FILE = ..\..\watchdog\source\rtl\watchdog_pack.vhd;
+	VHDL_FILE = ..\..\watchdog\source\rtl\watchdog.vhd;
+	VHDL_FILE = ..\..\watchdog\source\tb\watchdog_test_wrapper.vhd;
+	VHDL_FILE = ..\..\slot_id\source\rtl\slot_id_pack.vhd;
+	VHDL_FILE = ..\..\slot_id\source\rtl\slot_id.vhd;
+	VHDL_FILE = ..\..\slot_id\source\tb\slot_id_test_wrapper.vhd;
+	VHDL_FILE = ..\..\io_led\source\rtl\io_pack.vhd;
+	VHDL_FILE = ..\..\io_led\source\rtl\io_led.vhd;
+	VHDL_FILE = ..\..\io_led\source\tb\led_test_wrapper.vhd;
+	VHDL_FILE = ..\..\dip_switch\source\rtl\dip_switch_pack.vhd;
+	VHDL_FILE = ..\..\dip_switch\source\rtl\dip_switch.vhd;
+	VHDL_FILE = ..\..\dip_switch\source\tb\dip_switch_test_wrapper.vhd;
+	VHDL_FILE = ..\..\async\source\rtl\rs232_rx.vhd;
+	VHDL_FILE = ..\..\async\source\rtl\rs232_tx.vhd;
+	VHDL_FILE = ..\..\async\source\rtl\async_rx.vhd;
+	VHDL_FILE = ..\..\async\source\rtl\async_tx.vhd;
+	VHDL_FILE = ..\..\async\source\rtl\async_clk.vhd;
+	VHDL_FILE = ..\..\async\source\rtl\async_pack.vhd;
+	VHDL_FILE = ..\source\all_test_pll.vhd;
+	VHDL_FILE = ..\source\all_test_pack.vhd;
+	VHDL_FILE = ..\source\all_test_idle.vhd;
+	VHDL_FILE = ..\source\all_test_reset.vhd;
+	VHDL_FILE = ..\source\all_test.vhd;
+}
+COMPILER_SETTINGS_LIST
+{
+	COMPILER_SETTINGS = all_test;
+}
+SIMULATOR_SETTINGS_LIST
+{
+	SIMULATOR_SETTINGS = all_test;
+}
+SOFTWARE_SETTINGS_LIST
+{
+	SOFTWARE_SETTINGS = Debug;
+	SOFTWARE_SETTINGS = Release;
+}
