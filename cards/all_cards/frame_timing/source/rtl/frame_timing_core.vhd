@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: frame_timing_core.vhd,v 1.1 2004/11/19 20:00:05 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,7 +28,10 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- $Log$
+-- $Log: frame_timing_core.vhd,v $
+-- Revision 1.1  2004/11/19 20:00:05  bburger
+-- Bryce :  updated frame_timing and sync_gen interfaces
+--
 --
 --
 ------------------------------------------------------------------------
@@ -118,6 +121,9 @@ architecture beh of frame_timing_core is
    
    begin
    
+   -- Temporary
+   resync_ack_o <= '0';
+   
    frame_period_cntr : counter
       generic map(
          MAX         => END_OF_FRAME, 
@@ -143,6 +149,7 @@ architecture beh of frame_timing_core is
       )
       port map(
          clk_i       => clk_i,
+         -- change this
          rst_i       => counter_rst,
          ena_i       => '1',
          load_i      => '0',
@@ -221,21 +228,28 @@ architecture beh of frame_timing_core is
       end case;
    end process init_win_state_NS;
    
-   init_win_state_out: process(current_init_win_state)
+   init_win_state_out: process(current_init_win_state, init_window_req_i)
    begin
+      initialize_window_o <= '0';
+      init_window_ack_o   <= '0';
+      
       case current_init_win_state is
          when SET =>
-            initialize_window_o <= '0';
+
          when SET_HOLD =>
-            initialize_window_o <= '0';
+
          when INIT_ON =>
             initialize_window_o <= '1';
+            if(init_window_req_i = '1') then
+               init_window_ack_o <= '1';
+            end if;
+
          when INIT_HOLD =>
             initialize_window_o <= '1';
+
          when INIT_OFF =>
-            initialize_window_o <= '0';
+
          when others =>
-            initialize_window_o <= '0';
       end case;
    end process init_win_state_out;
    

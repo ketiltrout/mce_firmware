@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.3 2004/11/18 05:21:56 bburger Exp $
+-- $Id: frame_timing.vhd,v 1.4 2004/11/19 20:00:05 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.4  2004/11/19 20:00:05  bburger
+-- Bryce :  updated frame_timing and sync_gen interfaces
+--
 -- Revision 1.3  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -94,16 +97,6 @@ end frame_timing;
 
 architecture beh of frame_timing is
    
-   signal clk_error             : std_logic_vector(31 downto 0);
-   signal counter_rst           : std_logic;
-   signal count                 : std_logic_vector(31 downto 0);
-   signal frame_count_int       : integer;
-   signal row_count_int         : integer;
-   signal wait_for_sync         : std_logic;
-   signal latch_error           : std_logic;
-   signal restart_frame_aligned : std_logic;
-   signal frame_rst             : std_logic;
-   
    signal row_len               : integer; -- not used yet
    signal num_rows              : integer; -- not used yet
    signal sample_delay          : integer;
@@ -125,10 +118,10 @@ begin
          sample_num_o       => sample_num,      
          feedback_delay_o   => feedback_delay,  
          address_on_delay_o => address_on_delay,
-         resync_ack_i       => resync_req,      
-         resync_req_o       => resync_ack,      
-         init_window_ack_i  => init_window_req, 
-         init_window_req_o  => init_window_ack, 
+         resync_ack_i       => resync_ack,      
+         resync_req_o       => resync_req,      
+         init_window_ack_i  => init_window_ack, 
+         init_window_req_o  => init_window_req, 
                             
          dat_i              => dat_i, 
          addr_i             => addr_i,

@@ -52,6 +52,17 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package wishbone_pack
 -- Compiling package card_id_pack
 
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package sync_gen_pack
+-- Compiling package cmd_queue_ram40_pack
+
 } {} {}} C:/scuba2_repository/cards/bias_card/bias_card/source/rtl/bias_card.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/bias_card/bias_card/source/rtl/bias_card.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
@@ -90,17 +101,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package ac_dac_ctrl_wbs_pack
 -- Loading package frame_timing_pack
 -- Compiling package ac_dac_ctrl_pack
-
-} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package sync_gen_pack
--- Compiling package cmd_queue_ram40_pack
 
 } {} {}} C:/scuba2_repository/cards/all_cards/async/source/rtl/async_rx.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/async/source/rtl/async_rx.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -227,7 +227,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture tb of tb_clk_card
 -- Loading package leds_pack
 -- Loading entity clk_card
--- Loading entity addr_card
 
 } {} {}} C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -786,20 +785,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
 -- Compiling package raw_data_queue_pack
-
-} {} {}} C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package general_pack
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package component_pack
--- Compiling entity frame_timing_wbs
--- Compiling architecture rtl of frame_timing_wbs
--- Loading entity reg
 
 } {} {}} C:/scuba2_repository/cards/library/components/source/tb/tb_async_fifo.vhd {1 {vcom -work work -93 -explicit C:/scuba2_repository/cards/library/components/source/tb/tb_async_fifo.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -1997,12 +1982,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity tb_rc_noise1000_test
 -- Loading architecture beh of tb_rc_noise1000_test
 
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/sync_fifo_rx_inst.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/sync_fifo_rx_inst.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/sync_fifo_rx_inst.vhd(1): near "sync_fifo_rx_inst": syntax error
-
-} {4.0 5.0} {}} C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd
+} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2098,7 +2078,13 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading entity rs232_data_tx
 ** Error: C:/scuba2_repository/cards/all_cards/async/source/tb/lvds_rx_test_wrapper.vhd(353): VHDL Compiler exiting
 
-} {14.0 16.0 17.0 18.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx.vhd
+} {14.0 16.0 17.0 18.0} {}} C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_pack.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Compiling package addr_card_pack
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_tx.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2255,7 +2241,33 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Compiling architecture beh of tb_sram
 WARNING[1]: C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram.vhd(83): No default binding for component: "sram". (No entity named "sram" was found)
 
-} {7.0 8.0} {}} C:/scuba2_repository/cards/clk_card/fo_transceiver/rtl/simple_reply_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/fo_transceiver/rtl/simple_reply_fsm.vhd
+} {7.0 8.0} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package std_logic_unsigned
+-- Loading package command_pack
+-- Loading package wishbone_pack
+-- Loading package general_pack
+-- Loading package component_pack
+-- Loading package sync_gen_pack
+-- Loading package cmd_queue_ram40_pack
+-- Loading package async_pack
+-- Loading package cmd_queue_pack
+-- Loading package data_types_pack
+-- Loading package frame_timing_pack
+-- Compiling entity cmd_queue
+-- Compiling architecture behav of cmd_queue
+-- Loading package altera_mf_components
+-- Loading entity cmd_queue_tpram
+-- Loading entity lvds_tx
+-- Loading entity crc
+-- Loading entity shift_reg
+-- Loading entity counter
+-- Loading entity reg
+
+} {} {}} C:/scuba2_repository/cards/clk_card/fo_transceiver/rtl/simple_reply_fsm.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/fo_transceiver/rtl/simple_reply_fsm.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2286,24 +2298,6 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package std_logic_arith
 -- Loading package std_logic_unsigned
 -- Compiling package command_pack
-
-} {} {}} C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_core.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/all_cards/frame_timing/source/rtl/frame_timing_core.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
--- Loading package std_logic_1164
--- Loading package std_logic_arith
--- Loading package std_logic_unsigned
--- Loading package command_pack
--- Loading package wishbone_pack
--- Loading package data_types_pack
--- Loading package frame_timing_core_pack
--- Loading package frame_timing_pack
--- Loading package general_pack
--- Loading package component_pack
--- Compiling entity frame_timing_core
--- Compiling architecture beh of frame_timing_core
--- Loading entity counter
--- Loading entity reg
 
 } {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/fibre_rx_protocol.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
@@ -2441,12 +2435,7 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package slot_id_pack
 -- Compiling package all_test_pack
 
-} {} {}} C:/scuba2_repository/cards/library/components/source/rtl/sync_fifo_tx_inst.vhd {0 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/library/components/source/rtl/sync_fifo_tx_inst.vhd
-Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
--- Loading package standard
-** Error: C:/scuba2_repository/cards/library/components/source/rtl/sync_fifo_tx_inst.vhd(1): near "sync_fifo_tx_inst": syntax error
-
-} {4.0 5.0} {}} C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_pass.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_pass.vhd
+} {} {}} C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_pass.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_pass.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2593,10 +2582,9 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package issue_reply_pack
 -- Compiling architecture bench of tb_reply_translator
 -- Loading entity reply_translator
-WARNING[1]: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_reply_translator.vhd(243): Port "internal_cmd_i" is on entity "reply_translator" used for default binding, but is not on the component declaration.
-WARNING[1]: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_reply_translator.vhd(243): A use of this default binding for this component instantiation will result in an elaboration error.
+WARNING[1]: C:/scuba2_repository/cards/clk_card/issue_reply/source/tb/tb_reply_translator.vhd(243): No default binding for component: "reply_translator". (Port "m_op_rdy_i" is not on the entity)
 
-} {14.0 16.0} {}} C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd
+} {14.0 15.0} {}} C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/addr_card/ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package standard
 -- Loading package std_logic_1164
@@ -2756,6 +2744,19 @@ Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
 -- Loading package sync_gen_pack
 -- Loading package cmd_queue_ram40_pack
 -- Compiling package reply_queue_pack
+
+} {} {}} C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_tpram.vhd {1 {vcom -work work -87 -explicit C:/scuba2_repository/cards/clk_card/issue_reply/source/rtl/cmd_queue_tpram.vhd
+Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003
+-- Loading package standard
+-- Loading package std_logic_1164
+-- Loading package altera_mf_components
+-- Compiling entity cmd_queue_tpram
+-- Compiling architecture syn of cmd_queue_tpram
+-- Loading package std_logic_arith
+-- Loading package textio
+-- Loading package altera_device_families
+-- Loading package altera_common_conversion
+-- Loading entity alt3pram
 
 } {} {}} C:/scuba2_repository/cards/clk_card/pll/source/rtl/pll.vhd {1 {vcom -work work -93 -explicit -check_synthesis C:/scuba2_repository/cards/clk_card/pll/source/rtl/pll.vhd
 Model Technology ModelSim SE vcom 5.7f Compiler 2003.09 Sep 15 2003

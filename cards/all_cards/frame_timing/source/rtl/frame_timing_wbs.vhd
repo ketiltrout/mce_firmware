@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_ac_dac_ctrl.vhd,v 1.6 2004/11/08 23:40:29 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with wbs_ac_dac_ctrl
 --
 -- Revision history:
--- $Log: wbs_ac_dac_ctrl.vhd,v $
+-- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.1  2004/11/18 05:21:56  bburger
+-- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
+--
 -- Revision 1.6  2004/11/08 23:40:29  bburger
 -- Bryce:  small modifications
 --
@@ -54,9 +57,6 @@ use components.component_pack.all;
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
-
---library work;
---use work.frame_timing_wbs_pack.all;
 
 entity frame_timing_wbs is        
    port
@@ -114,7 +114,9 @@ architecture rtl of frame_timing_wbs is
    signal resync_req_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal init_window_req_wren  : std_logic;
    signal init_window_req_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
- 
+   
+   signal init_window_rst       : std_logic;
+   
    -- WBS states:
    type states is (IDLE, WR, RD); 
    signal current_state    : states;
@@ -122,6 +124,17 @@ architecture rtl of frame_timing_wbs is
    
 begin
 
+   row_len_o          <= conv_integer(row_length_data);      
+   num_rows_o         <= conv_integer(num_rows_data);        
+   sample_delay_o     <= conv_integer(sample_delay_data);    
+   sample_num_o       <= conv_integer(sample_num_data);      
+   feedback_delay_o   <= conv_integer(feedback_delay_data);  
+   address_on_delay_o <= conv_integer(address_on_delay_data);
+   resync_req_o       <= '0' when resync_req_data      = x"00000000" else '1';      
+   init_window_req_o  <= '0' when init_window_req_data = x"00000000" else '1'; 
+   
+   init_window_rst    <= init_window_ack_i or rst_i;
+   
    row_length_reg : reg
       generic map(
          WIDTH             => PACKET_WORD_WIDTH
@@ -212,7 +225,7 @@ begin
       )
       port map(
          clk_i             => mem_clk_i,
-         rst_i             => rst_i,
+         rst_i             => init_window_rst,
          ena_i             => init_window_req_wren,
          reg_i             => dat_i,
          reg_o             => init_window_req_data

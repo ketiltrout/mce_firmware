@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_clk_card.vhd,v 1.3 2004/12/06 07:22:34 bburger Exp $
+-- $Id: tb_clk_card.vhd,v 1.4 2004/12/08 22:15:12 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_clk_card.vhd,v $
+-- Revision 1.4  2004/12/08 22:15:12  bburger
+-- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
+--
 -- Revision 1.3  2004/12/06 07:22:34  bburger
 -- Bryce:
 -- Created pack files for the card top-levels.
@@ -75,23 +78,17 @@ end tb_clk_card;
 
 architecture tb of tb_clk_card is 
  
---   signal rst_i                : std_logic := '0';
-   
    -- simulation signals
    signal clk          : std_logic := '0';
    signal mem_clk      : std_logic := '0';
    signal comm_clk     : std_logic := '0';      
    signal fibre_clk    : std_logic := '0';
---   signal fibre_tx_clk : std_logic := '0';
---   signal fibre_rx_clk : std_logic := '0';
    signal lvds_clk_i   : std_logic := '0'; 
+
    constant clk_period          : TIME := 20 ns;    -- 50Mhz clock
    constant comm_clk_period     : TIME := 5 ns;
    constant mem_clk_period      : TIME := 5 ns;
    constant fibre_clk_period    : TIME := 40 ns;
---   constant fibre_tx_clk_period : TIME := 40 ns;  
---   constant fibre_rx_clk_period : TIME := 40 ns;  
---   constant lvds_clk_period     : TIME := 40 ns;
      
    constant pci_dsp_dly         : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI 
    constant fibre_clkr_prd      : TIME := 40 ns;   -- 25MHz clock
@@ -120,8 +117,14 @@ architecture tb of tb_clk_card is
    constant row_order_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ROW_ORDER_ADDR;
    constant enbl_mux_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ENBL_MUX_ADDR;
    constant use_dv_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & USE_DV_ADDR;
-  
-   constant data_block         : positive := 58;
+   constant row_len_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & ROW_LEN_ADDR;    
+   constant num_rows_cmd       : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & NUM_ROWS_ADDR;   
+   constant sample_delay_cmd   : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & SAMPLE_DLY_ADDR; 
+   constant sample_num_cmd     : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & SAMPLE_NUM_ADDR; 
+   constant fb_dly_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & FB_DLY_ADDR;     
+   constant flx_lp_init_cmd    : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & FLX_LP_INIT_ADDR;
+                                                                                                     
+   constant data_block         : positive := 58;                                                       
    
    signal checksum             : std_logic_vector(31 downto 0) := X"00000000";
    signal command              : std_logic_vector(31 downto 0);   
@@ -326,65 +329,60 @@ begin
          fibre_tx_sc_nd   => fibre_tx_sc_nd  
       );
    
-   i_addr_card : addr_card
-      port map(
-         -- simulation signals
---         clk              => clk,         
---         mem_clk          => mem_clk,     
---         comm_clk         => comm_clk,       
-   
-         -- PLL input:
-         inclk            => inclk,
-         rst_n            => rst_n,
-         
-         -- LVDS interface:
-         lvds_cmd         => lvds_cmd,  
-         lvds_sync        => lvds_sync, 
-         lvds_spare       => lvds_spare,
-         lvds_txa         => lvds_reply_ac_a, 
-         lvds_txb         => lvds_reply_ac_b, 
-         
-         -- TTL interface:
-         ttl_nrx          => ttl_nrx,  
-         ttl_tx           => ttl_tx,   
-         ttl_txena        => ttl_txena,
-         
-         -- eeprom interface:
-         eeprom_si        => ac_eeprom_si, 
-         eeprom_so        => ac_eeprom_so, 
-         eeprom_sck       => ac_eeprom_sck,
-         eeprom_cs        => ac_eeprom_cs, 
-         
-         -- dac interface:
-         dac_data0        => dac_data0,  
-         dac_data1        => dac_data1,  
-         dac_data2        => dac_data2,  
-         dac_data3        => dac_data3,  
-         dac_data4        => dac_data4,  
-         dac_data5        => dac_data5,  
-         dac_data6        => dac_data6,  
-         dac_data7        => dac_data7,  
-         dac_data8        => dac_data8,  
-         dac_data9        => dac_data9,  
-         dac_data10       => dac_data10, 
-         dac_clk          => dac_clk,    
-         
-         -- miscellaneous ports:
-         red_led          => ac_red_led, 
-         ylw_led          => ac_ylw_led, 
-         grn_led          => ac_grn_led, 
-         dip_sw3          => ac_dip_sw3, 
-         dip_sw4          => ac_dip_sw4, 
-         wdog             => ac_wdog,    
-         slot_id          => ac_slot_id, 
-         
-         -- debug ports:
-         test             => test,       
-         mictor           => mictor,     
-         mictorclk        => mictorclk,  
-         rs232_rx         => ac_rs232_rx,
-         rs232_tx         => ac_rs232_tx
-   );
+--   i_addr_card : addr_card
+--      port map(
+--         -- PLL input:
+--         inclk            => inclk,
+--         rst_n            => rst_n,
+--         
+--         -- LVDS interface:
+--         lvds_cmd         => lvds_cmd,  
+--         lvds_sync        => lvds_sync, 
+--         lvds_spare       => lvds_spare,
+--         lvds_txa         => lvds_reply_ac_a, 
+--         lvds_txb         => lvds_reply_ac_b, 
+--         
+--         -- TTL interface:
+--         ttl_nrx          => ttl_nrx,  
+--         ttl_tx           => ttl_tx,   
+--         ttl_txena        => ttl_txena,
+--         
+--         -- eeprom interface:
+--         eeprom_si        => ac_eeprom_si, 
+--         eeprom_so        => ac_eeprom_so, 
+--         eeprom_sck       => ac_eeprom_sck,
+--         eeprom_cs        => ac_eeprom_cs, 
+--         
+--         -- dac interface:
+--         dac_data0        => dac_data0,  
+--         dac_data1        => dac_data1,  
+--         dac_data2        => dac_data2,  
+--         dac_data3        => dac_data3,  
+--         dac_data4        => dac_data4,  
+--         dac_data5        => dac_data5,  
+--         dac_data6        => dac_data6,  
+--         dac_data7        => dac_data7,  
+--         dac_data8        => dac_data8,  
+--         dac_data9        => dac_data9,  
+--         dac_data10       => dac_data10, 
+--         dac_clk          => dac_clk,    
+--         
+--         -- miscellaneous ports:
+--         red_led          => ac_red_led, 
+--         ylw_led          => ac_ylw_led, 
+--         grn_led          => ac_grn_led, 
+--         dip_sw3          => ac_dip_sw3, 
+--         dip_sw4          => ac_dip_sw4, 
+--         wdog             => ac_wdog,    
+--         slot_id          => ac_slot_id, 
+--         
+--         -- debug ports:
+--         test             => test,       
+--         mictor           => mictor,     
+--         mictorclk        => mictorclk,  
+--         rs232_rx         => ac_rs232_rx,
+--         rs232_tx         => ac_rs232_tx
+--   );
    
    -- set up hotlink receiver signals 
    fibre_rx_rvs    <= '0';  -- no violation
@@ -670,55 +668,118 @@ begin
       do_reset;    
       
       command <= command_wb;
-      address_id <= use_dv_cmd;
+      address_id <= row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000040"; -- 64 clock cycles
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000029"; -- 41 rows
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= sample_delay_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000006";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= sample_num_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000032";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= fb_dly_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000003";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= flx_lp_init_cmd;
       data_valid <= X"00000001";
       data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
       
-      wait for 160 us;
-      
-      command <= command_rb;
-      address_id <= use_dv_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 160 us;
-      
-      command <= command_go;
-      address_id <= use_dv_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 160 us;
+      wait for 150 us;
 
-      command <= command_st;
-      address_id <= use_dv_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 160 us;
-      
-      command <= command_rs;
-      address_id <= use_dv_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 160 us;
---------------------------------------------------------
+----------------------------------------------------------
+-- wb, rb, go, st, rs commands
+------------------------------------------------------      
+--      command <= command_wb;
+--      address_id <= use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--      
+--      command <= command_rb;
+--      address_id <= use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--      
+--      command <= command_go;
+--      address_id <= use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      command <= command_st;
+--      address_id <= use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--      
+--      command <= command_rs;
+--      address_id <= use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+------------------------------------------------------
 -- bc_dac_ctrl commands
 ------------------------------------------------------      
 --      command <= command_wb;
@@ -739,24 +800,21 @@ begin
 --      load_command;
 --      load_checksum;
 --      
---      wait for 240 us;
-
-   
---------------------------------------------------------
+--      wait for 240 us;   
+------------------------------------------------------
 -- ac_dac_ctrl commands
-------------------------------------------------------      
-      
-     -- This is a 'WB ac on_bias 0 1 2 .. 40' command
-     -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
-     command <= command_wb;
-     address_id <= on_bias_cmd;
-     data_valid <= X"00000029"; --41 values
-     data       <= X"00000000";
-     load_preamble;
-     load_command;
-     load_checksum;
-     
-     wait for 300 us;
+------------------------------------------------------     
+--     -- This is a 'WB ac on_bias 0 1 2 .. 40' command
+--     -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+--     command <= command_wb;
+--     address_id <= on_bias_cmd;
+--     data_valid <= X"00000029"; --41 values
+--     data       <= X"00000000";
+--     load_preamble;
+--     load_command;
+--     load_checksum;
+--     
+--     wait for 300 us;
 --
 --      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
 --      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
