@@ -20,7 +20,7 @@
 
 -- us_counter.vhd
 --
--- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.4 2004/04/06 22:04:57 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.5 2004/10/13 02:10:49 erniel Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,11 +31,19 @@
 --
 -- Revision history:
 --
--- $Log$
+-- $Log: us_timer.vhd,v $
+-- Revision 1.5  2004/10/13 02:10:49  erniel
+-- simplified counter logic
+-- removed requirement for 50% duty in generated clock
+--
 --
 -- Jan. 15 2004		- Initial version      - EL
--- <date $Date: 2004/04/06 22:04:57 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/10/13 02:10:49 $>	-		<text>		- <initials $Author: erniel $>
 -- $Log: us_timer.vhd,v $
+-- Revision 1.5  2004/10/13 02:10:49  erniel
+-- simplified counter logic
+-- removed requirement for 50% duty in generated clock
+--
 -- Revision 1.4  2004/04/06 22:04:57  erniel
 -- Removed obsolete code
 --
@@ -65,35 +73,27 @@ end us_timer;
 
 architecture behav of us_timer is
 
-signal us_count  : integer;
-signal clk_count : integer;
-signal slow_clk  : std_logic;
+signal us_count  : integer range 0 to 999999999;
 
 begin
 
-   -- fast counter runs at system clock rate and generates a pulse every 1 us
-   fast_counter: process(clk)
+   timer: process(clk)
+   variable clk_count : integer range 0 to (1000/CLOCK_PERIOD_NS)-1;
    begin
       if(clk'event and clk = '1') then 
-         if((clk_count >= (1000/CLOCK_PERIOD_NS)-1) or (timer_reset_i = '1')) then
-            slow_clk <= '1';
-            clk_count <= 0;
+         if(timer_reset_i = '1') then
+            us_count <= 0;
+            clk_count := 0;
+         end if;
+         
+         if(clk_count = (1000/CLOCK_PERIOD_NS)-1) then
+            us_count <= us_count + 1;
+            clk_count := 0;
          else
-            slow_clk <= '0';
-            clk_count <= clk_count + 1;
+            clk_count := clk_count + 1;
          end if;
       end if;
-   end process fast_counter;
-   
-   -- slow counter counts out the elapsed microseconds
-   slow_counter: process(slow_clk, timer_reset_i)
-   begin
-      if(timer_reset_i = '1') then
-         us_count <= 0;
-      elsif(slow_clk'event and slow_clk = '1') then
-         us_count <= us_count + 1;
-      end if;
-   end process slow_counter; 
+   end process timer;
    
    timer_count_o <= us_count;
    
