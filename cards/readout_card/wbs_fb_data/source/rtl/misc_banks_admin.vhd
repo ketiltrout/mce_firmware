@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.3  2004/12/04 03:12:19  mohsen
+-- Corrected error in tga index
+--
 -- Revision 1.2  2004/11/26 18:28:35  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -310,7 +313,17 @@ begin  -- rtl
      
     case addr_i is
       when FILT_COEF_ADDR =>
-        wren(FILTER_INDEX_OFFSET+conv_integer(unsigned(tga_i(MAX_BIT_TAG-1 downto 0)))) <= we_i;
+        case tga_i(MAX_BIT_TAG-1 downto 0) is
+          when "000" => wren(FILTER_INDEX_OFFSET+0) <= we_i;
+          when "001" => wren(FILTER_INDEX_OFFSET+1) <= we_i;
+          when "010" => wren(FILTER_INDEX_OFFSET+2) <= we_i;
+          when "011" => wren(FILTER_INDEX_OFFSET+3) <= we_i;
+          when "100" => wren(FILTER_INDEX_OFFSET+4) <= we_i;
+          when "101" => wren(FILTER_INDEX_OFFSET+5) <= we_i;
+          when "110" => wren(FILTER_INDEX_OFFSET+6) <= we_i;
+          when others => null;
+        end case;
+
       when SERVO_MODE_ADDR =>
         wren(SERVO_INDEX_OFFSET) <= we_i;
       when RAMP_STEP_ADDR =>
@@ -321,11 +334,34 @@ begin  -- rtl
         wren(CONST_VAL_INDEX_OFFSET) <= we_i;
       when RAMP_DLY_ADDR =>
         wren(NUM_RAM_INDEX_OFFSET) <= we_i;
+
       when SA_BIAS_ADDR =>
-        wren(SA_BIAS_INDEX_OFFSET+conv_integer(unsigned(tga_i(MAX_BIT_TAG-1 downto 0)))) <= we_i;
+        case tga_i(MAX_BIT_TAG-1 downto 0) is
+          when "000" => wren(SA_BIAS_INDEX_OFFSET+0) <= we_i;
+          when "001" => wren(SA_BIAS_INDEX_OFFSET+1) <= we_i;
+          when "010" => wren(SA_BIAS_INDEX_OFFSET+2) <= we_i;
+          when "011" => wren(SA_BIAS_INDEX_OFFSET+3) <= we_i;
+          when "100" => wren(SA_BIAS_INDEX_OFFSET+4) <= we_i;
+          when "101" => wren(SA_BIAS_INDEX_OFFSET+5) <= we_i;
+          when "110" => wren(SA_BIAS_INDEX_OFFSET+6) <= we_i;
+          when "111" => wren(SA_BIAS_INDEX_OFFSET+7) <= we_i;
+          when others => null;
+        end case;
+        
       when OFFSET_ADDR =>
-        wren(OFFSET_DAT_INDEX_OFFSET+conv_integer(unsigned(tga_i(MAX_BIT_TAG-1 downto 0)))) <= we_i;
+        case tga_i(MAX_BIT_TAG-1 downto 0) is
+          when "000" => wren(OFFSET_DAT_INDEX_OFFSET+0) <= we_i;
+          when "001" => wren(OFFSET_DAT_INDEX_OFFSET+1) <= we_i;
+          when "010" => wren(OFFSET_DAT_INDEX_OFFSET+2) <= we_i;
+          when "011" => wren(OFFSET_DAT_INDEX_OFFSET+3) <= we_i;
+          when "100" => wren(OFFSET_DAT_INDEX_OFFSET+4) <= we_i;
+          when "101" => wren(OFFSET_DAT_INDEX_OFFSET+5) <= we_i;
+          when "110" => wren(OFFSET_DAT_INDEX_OFFSET+6) <= we_i;
+          when "111" => wren(OFFSET_DAT_INDEX_OFFSET+7) <= we_i;
+          when others => null;
+        end case;
       when others => null;
+                     
     end case;
   end process i_gen_wren_signals;
 
@@ -403,7 +439,7 @@ begin  -- rtl
     reg(NUM_RAM_INDEX_OFFSET)     when RAMP_DLY_ADDR,
     sa_bias                       when SA_BIAS_ADDR,
     offset_dat                    when OFFSET_ADDR,
-    filter_coeff                  when others;           -- defulat to first value in bank
+    filter_coeff                  when others;           -- default to first value in bank
   
 
   -----------------------------------------------------------------------------
