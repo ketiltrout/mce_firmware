@@ -33,7 +33,7 @@
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION 4.1
+set_global_assignment -name LAST_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
@@ -528,14 +528,16 @@ set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
 
 # Analysis & Synthesis Assignments
 # ================================
+set_global_assignment -name TOP_LEVEL_ENTITY readout_card
 set_global_assignment -name MUX_RESTRUCTURE OFF
 set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF SMART
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
 set_global_assignment -name FAMILY Stratix
+set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
+set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
 set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP OFF
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME OFF
-set_global_assignment -name TOP_LEVEL_ENTITY readout_card
 set_global_assignment -name AUTO_ENABLE_SMART_COMPILE on
 
 # Fitter Assignments
@@ -548,7 +550,8 @@ set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
 set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 2ns
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD LVTTL
 set_instance_assignment -name IO_STANDARD LVDS -to adc1_clk
@@ -563,7 +566,7 @@ set_instance_assignment -name IO_STANDARD LVDS -to adc8_clk
 
 # Timing Analysis Assignments
 # ===========================
-set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 4000
+set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 500
 
 # Assembler Assignments
 # =====================
@@ -588,27 +591,13 @@ set_global_assignment -name USE_SIGNALTAP_FILE readout_card.stp
 # ============================
 set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 
-# ----------------
-# start CLOCK(clk)
-
-	# Timing Assignments
-	# ==================
-	set_global_assignment -name BASED_ON_CLOCK_SETTINGS inclk -section_id clk
-	set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 2 -section_id clk
-
-# end CLOCK(clk)
-# --------------
-
 # ------------------
 # start CLOCK(inclk)
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
-	set_global_assignment -name INVERT_BASE_CLOCK OFF -section_id inclk
-	set_global_assignment -name MULTIPLY_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
-	set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
+	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
@@ -905,6 +894,185 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 # end TIMEGROUP("DAC clk Output")
 # -------------------------------
 
+# -------------------------------------
+# start TIMEGROUP("DAC clk output reg")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_clk" -section_id "DAC clk output reg"
+
+# end TIMEGROUP("DAC clk output reg")
+# -----------------------------------
+
+# --------------------------------------
+# start TIMEGROUP("DAC data output reg")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[0\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[1\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[2\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[3\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[4\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[5\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[6\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[7\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[8\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[9\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[10\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[11\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[12\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[13\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[0\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[1\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[2\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[3\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[4\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[5\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[6\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[7\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[8\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[9\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[10\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[11\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[12\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[13\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[0\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[1\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[2\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[3\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[4\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[5\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[6\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[7\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[8\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[9\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[10\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[11\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[12\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[13\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[0\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[1\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[2\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[3\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[4\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[5\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[6\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[7\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[8\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[9\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[10\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[11\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[12\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[13\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[0\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[1\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[2\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[3\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[4\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[5\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[6\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[7\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[8\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[9\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[10\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[11\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[12\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[13\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[0\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[1\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[2\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[3\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[4\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[5\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[6\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[7\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[8\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[9\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[10\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[11\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[12\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[13\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[0\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[1\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[2\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[3\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[4\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[5\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[6\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[7\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[8\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[9\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[10\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[11\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[12\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[13\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[0\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[1\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[2\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[3\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[4\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[5\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[6\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[7\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[8\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[9\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[10\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[11\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[12\]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|fsfb_ctrl:i_fsfb_ctrl\|dac_dat_o\[13\]~reg0" -section_id "DAC data output reg"
+
+# end TIMEGROUP("DAC data output reg")
+# ------------------------------------
+
+# ------------------------------------------
+# start TIMEGROUP("Serial DA data & CS reg")
+
+	# Timing Group Assignments
+	# ========================
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch1\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch2\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch3\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch4\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch5\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch6\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|offset_ctrl:i_offset_ctrl\|offset_spi_if:i_offset_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch7\|sa_bias_ctrl:i_sa_bias_ctrl\|sa_bias_spi_if:i_sa_bias_spi_if\|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+
+# end TIMEGROUP("Serial DA data & CS reg")
+# ----------------------------------------
+
 # ---------------------------------
 # start TIMEGROUP("serial DAC clk")
 
@@ -958,30 +1126,43 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 # --------------------------
 # start ENTITY(readout_card)
 
+	# Pin & Location Assignments
+	# ==========================
+	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
+
 	# Timing Assignments
 	# ==================
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
-	set_instance_assignment -name INPUT_MAX_DELAY 15ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
-	set_instance_assignment -name OUTPUT_MAX_DELAY 25ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk3" -to "serial DAC data&cs"
-	set_instance_assignment -name OUTPUT_MIN_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk3" -to "serial DAC data&cs"
-	set_instance_assignment -name OUTPUT_MAX_DELAY 40ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk3" -to "serial DAC clk"
-	set_instance_assignment -name OUTPUT_MIN_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk3" -to "serial DAC clk"
-	set_instance_assignment -name OUTPUT_MIN_DELAY "-20ns" -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Outputs"
 	set_instance_assignment -name OUTPUT_MAX_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Outputs"
-	set_instance_assignment -name INPUT_MIN_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
-	set_instance_assignment -name OUTPUT_MAX_DELAY 16ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "DAC Data Output"
-	set_instance_assignment -name OUTPUT_MIN_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "DAC Data Output"
-	set_instance_assignment -name OUTPUT_MAX_DELAY 16.5ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "DAC clk Output"
-	set_instance_assignment -name OUTPUT_MIN_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "DAC clk Output"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*" -to "flux_loop:i_flux_loop\|*"
 	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*" -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|altsyncram:altsyncram_component\|*" -to "flux_loop:i_flux_loop\|wbs_fb_data:i_wbs_fb_data\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|altsyncram:altsyncram_component\|*" -to "flux_loop:i_flux_loop\|wbs_frame_data:i_wbs_frame_data\|*"
-	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|altsyncram:altsyncram_component\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|shift_reg:crc_data_reg\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "flux_loop:i_flux_loop\|wbs_fb_data:i_wbs_fb_data\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "flux_loop:i_flux_loop\|wbs_frame_data:i_wbs_frame_data\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|shift_reg:crc_data_reg\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "leds:i_LED\|led_data*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|pres_state*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|crc:crc_calc\|*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|fifo:tx_buffer\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|reg:data_size_reg\|reg_o*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|fifo:tx_buffer\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|tx_pres_state*" -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|fifo:tx_buffer\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|counter:addr_gen\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|reg:cmd0\|reg_o*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|reg:cmd1\|reg_o*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "flux_loop:i_flux_loop\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "leds:i_LED\|led_data*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*" -to "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "frame_timing:i_frame_timing\|frame_timing_wbs:wbi\|reg*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|counter:word_counter\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "leds:i_LED\|pres_state*" -to "dispatch:i_dispatch\|dispatch_data_buf:transmit_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|shift_reg:crc_data_reg\|*" -to "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*"
+	set_instance_assignment -name SETUP_RELATIONSHIP 10ns -from "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|rx_pres_state*" -to "dispatch:i_dispatch\|dispatch_data_buf:receive_buf\|*"
+	set_instance_assignment -name INPUT_MAX_DELAY 11.7ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
+	set_instance_assignment -name INPUT_MIN_DELAY 3.7ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
+	set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7ns" -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Outputs"
 
 	# Analysis & Synthesis Assignments
 	# ================================
 	set_instance_assignment -name MAX_FANOUT 100 -to *
+	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
 
 # end ENTITY(readout_card)
 # ------------------------
