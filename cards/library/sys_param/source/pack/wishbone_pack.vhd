@@ -1,3 +1,37 @@
+-- 2003 SCUBA-2 Project
+--                  All Rights Reserved
+
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+--  The copyright notice above does not evidence any
+--  actual or intended publication of such source code.
+
+--  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+--  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+--  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+--  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+--  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+
+-- wishbone_pack.vhd
+--
+-- Project:	      SCUBA-2
+-- Author:	      
+-- Organisation:      UBC
+--
+-- Description:
+-- 
+-- 
+-- Revision history:
+-- <date $Date$>	- <initials $Author$>
+-- $Log$  
+--
+--
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -9,10 +43,14 @@ package wishbone_pack is
    constant WB_TAG_ADDR_WIDTH : integer := 32;
 
    -- Wishbone addresses
+   constant FLUX_FB_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "00100000"; -- 0x20 
+   constant BIAS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "00100001"; -- 0x21 
+   constant SLOT_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000000"; -- 0x40 
    constant TEMPERATURE_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000010"; -- 0x42
    constant CARD_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000011"; -- 0x43
    constant LEDS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000101"; -- 0x45
-   constant SLOT_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000111"; -- 0x47
+   constant CYC_OUT_SYNC_ADDR: std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000111"; -- 0x47
+   constant RESYNC_NXT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001000"; -- 0x48
    constant ARRAY_ID_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001001"; -- 0x49
    constant DIP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001100"; -- 0x4C
    constant WATCHDOG_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001101"; -- 0x4D
