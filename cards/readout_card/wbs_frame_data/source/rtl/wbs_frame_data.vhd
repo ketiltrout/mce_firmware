@@ -26,12 +26,33 @@
 -- Organisation: 			UKATC
 --
 -- Description:
--- <description text>
+-- 
+-- This block is a wishbone slave.  It responds to 3 commands:
+-- ------------------------
+--  wbs_frame_data commands:
+-- ------------------------
+-- ret_dat   :    ParId="0x30" 
+-- data_mode :    ParId="0x31" 
+-- captr_raw :    ParId="0x1F" 
+--
+-- It's main function is to collect data from the flux loop control blocks
+-- to be read by the wishbone master (dispatch)
+--
+-- There are 4 data mode formats:
+--
+-- data mode 1: Filtered Feedback data
+-- data mode 2: Unfiltered Feedback data
+-- data mode 3: combined 16-bit/16-bit error and feedback data
+-- data mode 4: Raw sampled data.
+--
 --
 -- Revision history:
--- <date $Date: 2004/10/13 13:53:19 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/13 14:14:55 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.2  2004/10/13 14:14:55  dca
+-- more signals added to entity declaration
+--
 -- Revision 1.1  2004/10/13 13:53:19  dca
 -- Initial Version
 --
@@ -154,18 +175,7 @@ port(
      cyc_i                     : in std_logic;
      
      dat_o 	                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     ack_o                     : out std_logic;
-
-     -- signals from frame_timing
-  
-   --  dac_dat_en_i              : in std_logic;
-   --  adc_coadd_en_i            : in std_logic;
-     restart_frame_1row_prev_i : in std_logic;
-     restart_frame_aliged_i    : in std_logic;
-  --   restart_frame_1row_post_i : in std_logic;
-     row_switch_i              : in std_logic
-  --   initialze_window_i        : in std_logic;
-     
+     ack_o                     : out std_logic
      );      
 end wbs_frame_data;
 
@@ -180,8 +190,132 @@ use sys_param.wishbone_pack.all;
 
 architecture rtl of wbs_frame_data is
 
+signal write_data_mode     : std_logic;                        
+signal read_ret_data       : std_logic;
+signal data_mode_reg       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal data_mode           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal data_mode_mux_sel   : std_logic ;
+
+-- slave controller FSM
+
+type state is (IDLE, MODE, RET, RAW, DONE);                           
+
+signal current_state: state;
+signal next_state:    state;
+
 
 begin
 
+
+-------------------------------------------------------------------------------------------------
+--                                  Wishbone interface 
+------------------------------------------------------------------------------------------------
+
+   write_data_mode <= '1' when (addr_i = DATA_MODE_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1')
+                   else '0';
+    
+   read_ret_data   <= '1' when (addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0')
+                   else '0';
+
+   --read/write_capt_raw   <= '1' when
+   
+   
+   
+-------------------------------------------------------------------------------------------------
+--                                  Wishbone slave controller FSM
+------------------------------------------------------------------------------------------------
+   
+   ----------------------------------
+   clock_fsm : process(clk_i, rst_i )
+   ----------------------------------
+   begin
+         
+      if (rst_i = '1') then
+         current_state <= IDLE;
+      elsif (clk_i'EVENT AND clk_i = '1') then
+         current_state <= next_state;
+      end if;
+
+   end process clock_fsm;
+   
+   ---------------------------------------------------------------------
+   nextstate_fsm: process (current_state, write_data_mode, read_ret_data) --,_captr_raw)
+   ---------------------------------------------------------------------
+   begin
+      case current_state is
+      
+      when IDLE =>
+         if write_data_mode = '1' then 
+            next_state <= MODE;
+         
+         elsif read_ret_data = '1' then
+            next_state <= RET;
+         
+       --  elsif -cpar_raw = '1' then
+       --    next_state <= RAW
+         
+         else
+            next_state <= IDLE;
+         end if;
+              
+      when MODE | RET | RAW =>
+         next_state <= DONE;
+      
+      when DONE =>
+         next_state <= IDLE;
+      end case;
+    end process nextstate_fsm;
+    
+   ---------------------------------- 
+   output_fsm: process (current_state)
+   ----------------------------------
+   begin
+      case current_state is
+      
+      when IDLE =>
+      
+         ack_o             <= '0';
+         dat_o             <= (others => '0');
+         data_mode_mux_sel <= '0';
+             
+      when MODE =>
+         ack_o             <= '1';
+         dat_o             <= (others => '0');
+         data_mode_mux_sel <= '1';
+      
+      when RET =>
+         ack_o             <= '0';
+         dat_o             <= (others => '0');
+         data_mode_mux_sel <= '0';
+         
+      when RAW =>
+         ack_o             <= '0';
+         dat_o             <= (others => '0');
+         data_mode_mux_sel <= '0';
+         
+      when DONE =>
+         ack_o             <= '0';
+         dat_o             <= (others => '0');
+         data_mode_mux_sel <= '0';
+      
+      end case;
+    end process output_fsm;       
+         
+              
+-------------------------------------------------------------------------------------------------
+--                                  Data Mode Recirculation MUX
+------------------------------------------------------------------------------------------------
+
+  data_mode  <= data_mode_reg when data_mode_mux_sel = '0' else dat_i;
+   
+  dff_data_mode: process(clk_i, rst_i)
+  begin
+     if (rst_i = '1') then 
+        data_mode_reg <= (others => '0');
+     elsif (clk_i'EVENT and clk_i = '1') then
+        data_mode_reg <= data_mode;
+     end if;
+  end process dff_data_mode;
+------------------------------------------------------------------------------------------------           
            
 end rtl;
