@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.4  2004/12/16 01:46:47  erniel
+-- added mem_clk port to disaptch_reply_transmit
+--
 -- Revision 1.3  2004/11/26 01:41:38  erniel
 -- added support for status/error bits
 --
@@ -53,9 +56,9 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.dispatch_pack.all;
+use work.slot_id_pack.all;
 
 entity dispatch is
-generic(CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := CLOCK_CARD);
 port(clk_i      : in std_logic;
      mem_clk_i  : in std_logic;
      comm_clk_i : in std_logic;
@@ -76,8 +79,9 @@ port(clk_i      : in std_logic;
      ack_i  : in std_logic;
      err_i  : in std_logic;
      
-     -- watchdog reset interface
-     wdt_rst_o : out std_logic);
+     -- misc. external interface
+     wdt_rst_o : out std_logic;
+     slot_i    : in std_logic_vector(SLOT_ID_BITS-1 downto 0));
 end dispatch;
 
 architecture rtl of dispatch is
@@ -126,14 +130,16 @@ signal reply_buf_wraddr : std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
 signal reply_buf_rddata : std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
 signal reply_buf_rdaddr : std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
 
+signal card : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+
 begin
    
    receiver : dispatch_cmd_receive
-   generic map(CARD => CARD)
    port map(clk_i      => clk_i,
             comm_clk_i => comm_clk_i,
             rst_i      => rst_i,
             lvds_cmd_i => lvds_cmd_i,
+            card_i     => card,
             cmd_rdy_o  => cmd_rdy,
             cmd_err_o  => cmd_err,
             header0_o  => cmd_hdr0,
@@ -141,6 +147,19 @@ begin
             buf_data_o => cmd_buf_wrdata,
             buf_addr_o => cmd_buf_wraddr,
             buf_wren_o => cmd_buf_wren);
+            
+   with slot_i select
+      card <= ADDRESS_CARD      when "1111",
+              BIAS_CARD_1       when "1110",
+              BIAS_CARD_2       when "1101",
+              BIAS_CARD_3       when "1100",
+              READOUT_CARD_1    when "1011",
+              READOUT_CARD_2    when "1010",
+              READOUT_CARD_3    when "0110",
+              READOUT_CARD_4    when "0111",
+              CLOCK_CARD        when "1000",
+              POWER_SUPPLY_CARD when "1001",
+              (others => '1')   when others;
    
    cmd0 : reg
    generic map(WIDTH => PACKET_WORD_WIDTH)
@@ -194,8 +213,6 @@ begin
    
    transmitter : dispatch_reply_transmit
    port map(clk_i       => clk_i,
-            mem_clk_i   => mem_clk_i,
-            comm_clk_i  => comm_clk_i,
             rst_i       => rst_i,
             lvds_tx_o   => lvds_reply_o,
             reply_rdy_i => reply_rdy,
