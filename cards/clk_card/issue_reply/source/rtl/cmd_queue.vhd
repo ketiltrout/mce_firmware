@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.75 2005/01/11 22:58:23 erniel Exp $
+-- $Id: cmd_queue.vhd,v 1.76 2005/02/17 22:59:02 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.76  2005/02/17 22:59:02  bburger
+-- Bryce:  fixed certain timing problems in cmd_queue
+--
 -- Revision 1.75  2005/01/11 22:58:23  erniel
 -- updated lvds_tx component
 -- removed comm_clk_i from ports
@@ -112,6 +115,7 @@ entity cmd_queue is
       -- reply_queue interface
       uop_rdy_o       : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
       uop_ack_i       : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
+      uop_timeout_i   : in std_logic; -- Tells the cmd_queue that the reply_queue has not received  a reply in the alloted period of time.
       uop_o           : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
       -- cmd_translator interface
@@ -134,7 +138,7 @@ entity cmd_queue is
       tx_o            : out std_logic;  -- transmitter output pin
 
       -- frame_timing interface
-      sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
+--      sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- Clock lines
@@ -764,7 +768,7 @@ begin
          reg_o      => retire_cmd_code
       );
 
-   retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire, send_ptr, retire_ptr, retire_cmd_code)
+   retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire, send_ptr, retire_ptr, retire_cmd_code, uop_timeout_i)
    begin
       next_retire_state <= present_retire_state;
       case present_retire_state is
@@ -792,7 +796,7 @@ begin
             next_retire_state <= STATUS;
          
          when STATUS =>
-            if(uop_ack_i = '1') then
+            if(uop_ack_i = '1' or uop_timeout_i = '1') then
                   next_retire_state <= RETIRE;
             elsif (uop_ack_i = '0') then
                next_retire_state <= STATUS;
@@ -891,20 +895,20 @@ begin
             if(mop_rdy = '0') then
                next_gen_state <= IDLE;
             else
-               next_gen_state <= PROPAGATION_DELAY;
---               if(queue_space >= size_uops and num_uops_contained < MAX_NUM_UOPS) then
---                  next_gen_state <= CLEANUP;                  
---               else
---                  next_gen_state <= IDLE;
---               end if;            
+--               next_gen_state <= PROPAGATION_DELAY;
+               if(queue_space >= size_uops and num_uops_contained < MAX_NUM_UOPS) then
+                  next_gen_state <= CLEANUP;                  
+               else
+                  next_gen_state <= IDLE;
+               end if;            
             end if;
          
-         when PROPAGATION_DELAY =>
-            if(queue_space >= size_uops and num_uops_contained < MAX_NUM_UOPS) then
-               next_gen_state <= CLEANUP;                  
-            else
-               next_gen_state <= PROPAGATION_DELAY;
-            end if;            
+--         when PROPAGATION_DELAY =>
+--            if(queue_space >= size_uops and num_uops_contained < MAX_NUM_UOPS) then
+--               next_gen_state <= CLEANUP;                  
+--            else
+--               next_gen_state <= PROPAGATION_DELAY;
+--            end if;            
 
          when INSERT =>
             if(insert_uop_ack = '1') then
@@ -1166,7 +1170,8 @@ begin
 
    send_state_NS: process(present_send_state, send_ptr, free_ptr, uop_send_expired, 
                           issue_sync, timeout_sync, sync_count_slv, previous_send_state, 
-                          send_data_size, uop_data_count, lvds_tx_busy, send_cmd_code, send_data_size_int, bit_ctr_count)
+                          send_data_size, uop_data_count, lvds_tx_busy, send_cmd_code, 
+                          send_data_size_int, bit_ctr_count)
    begin
       next_send_state <= present_send_state;
       case present_send_state is
@@ -1176,6 +1181,7 @@ begin
             if(send_ptr /= free_ptr) then
                if(uop_send_expired = '1') then
                   -- If the u-op has expired, it is still issued.  This may have to change
+                  -- uops typically will not expire while waiting in the cmd_queue, because the the command queue can issue uops faster than mops will be received from the cmd_translator (assuming the internal commanding rate is reasonable).
                   --next_send_state <= NEXT_UOP;
                   next_send_state <= BUFFER_CMD_PARAM;
                elsif(issue_sync < timeout_sync) then

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.18 2004/12/16 22:05:40 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.19 2005/01/12 22:04:35 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.19  2005/01/12 22:04:35  mandana
+-- remove comm_clk_i port
+--
 -- Revision 1.18  2004/12/16 22:05:40  bburger
 -- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
 --
@@ -141,6 +144,7 @@ component cmd_queue
       -- reply_queue interface
       uop_rdy_o       : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
       uop_ack_i       : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
+      uop_timeout_i   : in std_logic; -- Tells the cmd_queue that the reply_queue has not received  a reply in the alloted period of time.
       uop_o           : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
 
       -- cmd_translator interface
@@ -163,7 +167,7 @@ component cmd_queue
       tx_o            : out std_logic;  -- transmitter output pin
 
       -- frame_timing interface
-      sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
+--      sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- Clock lines

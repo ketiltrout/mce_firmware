@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.33 2005/01/12 21:52:17 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.34 2005/01/12 22:11:25 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/01/12 21:52:17 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2005/01/12 22:11:25 $> -     <text>      - <initials $Author: mandana $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.34  2005/01/12 22:11:25  mandana
+-- remove mem_clk_i from reply_queue interface
+--
 -- Revision 1.33  2005/01/12 21:52:17  mandana
 -- update cmd_queue interface by deleting comm_clk_i
 --
@@ -161,7 +164,7 @@ architecture rtl of issue_reply is
    
    signal uop_ack             : std_logic;
    signal uop_discard         : std_logic;
-   signal uop_timedout        : std_logic;
+   signal uop_timeout         : std_logic := '0';
    signal uop                 : std_logic_vector(QUEUE_WIDTH-1 downto 0);  
  
    -- cmd_translator to cmd_queue interface
@@ -368,6 +371,7 @@ begin
         -- reply_queue interface
         uop_rdy_o       => uop_rdy,
         uop_ack_i       => uop_ack,  --uop_rdy_stg5
+        uop_timeout_i   => uop_timeout,
         uop_o           => uop,
         
         -- cmd_translator interface
@@ -390,7 +394,7 @@ begin
         tx_o            => lvds_cmd_o,
 
         -- frame_timing interface
-        sync_i          => sync_pulse_i,
+--        sync_i          => sync_pulse_i,
         sync_num_i      => sync_number_i,
 
         -- Clock lines
@@ -407,6 +411,7 @@ begin
          -- cmd_queue interface
          cmd_to_retire_i  => uop_rdy,
          cmd_sent_o       => uop_ack,
+--         cmd_timeout      => uop_timeout,
          cmd_i            => uop,
          
          -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
