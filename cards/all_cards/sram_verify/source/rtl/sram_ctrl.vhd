@@ -20,7 +20,7 @@
 
 -- sram_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: sram_ctrl.vhd,v 1.4 2004/03/08 21:52:38 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- Wishbone to asynch. SRAM chip interface
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/08 21:52:38 $>	-		<text>		- <initials $Author: erniel $>
 
 --
 -----------------------------------------------------------------------------
@@ -78,18 +78,11 @@ end sram_ctrl;
 architecture behav of sram_ctrl is
 
 -- state encodings:
-constant IDLE       : std_logic_vector(2 downto 0) := "000";
-constant WRITE_LSB  : std_logic_vector(2 downto 0) := "001";
-constant WRITE_MSB  : std_logic_vector(2 downto 0) := "010";
-constant WRITE_DONE : std_logic_vector(2 downto 0) := "011";
-constant READ_LSB   : std_logic_vector(2 downto 0) := "100";
-constant READ_MSB   : std_logic_vector(2 downto 0) := "101";
-constant SEND_DATA  : std_logic_vector(2 downto 0) := "110";
-constant READ_DONE  : std_logic_vector(2 downto 0) := "111";
+type states is (IDLE, WRITE_LSB, WRITE_MSB, WRITE_DONE, READ_LSB, READ_MSB, SEND_DATA, READ_DONE);
 
 -- state variables:
-signal present_state : std_logic_vector(2 downto 0);
-signal next_state    : std_logic_vector(2 downto 0);
+signal present_state : states;
+signal next_state    : states;
 
 -- SRAM controls:
 signal ce_ctrl : std_logic;
@@ -101,15 +94,18 @@ signal read_lsb_ena : std_logic;
 signal read_msb_ena : std_logic;
 
 -- decoded wishbone status signals:
-signal read_cycle  : std_logic;
-signal write_cycle : std_logic;
+signal wait_state  : std_logic;       -- active during master-initiated wait state
+signal read_cycle  : std_logic;       -- active during read cycle
+signal write_cycle : std_logic;       -- active during write cycle
 
 begin
    
-   -- SRAM is ultimately controlled by nCE1/CE2, other enables are tied to ground:
+   -- SRAM output is always enabled (nOE = 0)
+   -- SRAM access is always 16 bits (nBHE = nBLE = 0)
    n_ble_o <= '0';
    n_bhe_o <= '0';
    n_oe_o  <= '0';
+   
    n_we_o  <= not wr_ctrl;
    n_ce1_o <= not ce_ctrl;
    ce2_o   <= ce_ctrl;
@@ -131,7 +127,7 @@ begin
                ena_i  => read_msb_ena,
                reg_i  => data_bi,
                reg_o  => read_buf(31 downto 16));
-      
+   
    
    -- state machine for writing to SRAM:
    state_FF: process(clk_i)
@@ -160,6 +156,8 @@ begin
          
          when WRITE_DONE => if(write_cycle = '1') then
                                next_state <= WRITE_LSB;
+                            elsif(wait_state = '1') then
+                               next_state <= WRITE_DONE;
                             else
                                next_state <= IDLE;
                             end if;
@@ -172,6 +170,8 @@ begin
          
          when READ_DONE =>  if(read_cycle = '1') then
                                next_state <= READ_LSB;
+                            elsif(wait_state = '1') then
+                               next_state <= READ_DONE;
                             else
                                next_state <= IDLE;
                             end if;
@@ -186,7 +186,7 @@ begin
          when IDLE | WRITE_DONE | READ_DONE | SEND_DATA =>       
                             ce_ctrl      <= '0';
                             wr_ctrl      <= '0';
-                            addr_o       <= (others => '0');
+                            addr_o       <= (others => 'Z');
                             data_bi      <= (others => 'Z');
                             read_lsb_ena <= '0';
                             read_msb_ena <= '0';
@@ -240,8 +240,8 @@ begin
    rty_o <= '0';  -- never retry
    dat_o <= read_buf when (present_state = SEND_DATA) else (others => 'Z');
    
-   
    -- decoded signals:
+   wait_state  <= '1' when (addr_i = SRAM_ADDR and stb_i = '0' and cyc_i = '1') else '0';
    read_cycle  <= '1' when (addr_i = SRAM_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    write_cycle <= '1' when (addr_i = SRAM_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0'; 
    
