@@ -20,7 +20,7 @@
 
 -- tb_sram.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_sram.vhd,v 1.1 2004/03/08 21:52:20 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- Testbench for SRAM model
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/08 21:52:20 $>	-		<text>		- <initials $Author: erniel $>
 
 --
 -----------------------------------------------------------------------------
@@ -51,7 +51,8 @@ architecture BEH of TB_SRAM is
            N_OE      : in std_logic ;
            N_WE      : in std_logic ;
            N_CE1     : in std_logic ;
-           CE2       : in std_logic );
+           CE2       : in std_logic ;
+           RESET     : in std_logic);
 
    end component;
 
@@ -59,13 +60,14 @@ architecture BEH of TB_SRAM is
    constant PERIOD : time := 10 ns;
 
    signal W_ADDRESS   : std_logic_vector ( 19 downto 0 );
-   signal W_DATA      : std_logic_vector ( 15 downto 0 );
+   signal W_DATA      : std_logic_vector ( 15 downto 0 ) := (others => '0');
    signal W_N_BHE     : std_logic ;
    signal W_N_BLE     : std_logic ;
    signal W_N_OE      : std_logic ;
    signal W_N_WE      : std_logic ;
    signal W_N_CE1     : std_logic ;
    signal W_CE2       : std_logic ;
+   signal W_RESET     : std_logic ;
 
 begin
 
@@ -77,10 +79,27 @@ begin
                N_OE      => W_N_OE,
                N_WE      => W_N_WE,
                N_CE1     => W_N_CE1,
-               CE2       => W_CE2);
+               CE2       => W_CE2,
+               RESET     => W_RESET);
 
    STIMULI : process
+   procedure write is
    begin
+   
+   
+   end write;
+   
+   procedure read is
+   begin
+   
+   end read;
+   
+   begin
+      W_RESET     <= '1';
+      
+      wait for 20 ns;
+      
+      W_RESET     <= '0';
    
       W_N_BHE     <= '0';
       W_N_BLE     <= '0';
@@ -141,8 +160,8 @@ begin
       ------------------------------------------------------      
       -- write to empty location:
       
-      W_ADDRESS   <= "00000000000000000000";
-      W_DATA      <= "1100000011011110";
+      W_ADDRESS   <= "00000000000000000011";
+      W_DATA      <= "1101111010101101";
       W_N_WE      <= '0';
       
       wait for 20 ns;

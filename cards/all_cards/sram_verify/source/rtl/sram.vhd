@@ -20,7 +20,7 @@
 
 -- sram.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: sram.vhd,v 1.1 2004/03/08 21:52:26 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,7 +30,7 @@
 -- VHDL model of asynch. SRAM chip
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/08 21:52:26 $>	-		<text>		- <initials $Author: erniel $>
 
 --
 -----------------------------------------------------------------------------
@@ -48,30 +48,36 @@ port(address : in std_logic_vector(19 downto 0);
      n_oe    : in std_logic;
      n_we    : in std_logic;
      n_ce1   : in std_logic;
-     ce2     : in std_logic);
+     ce2     : in std_logic;
+     reset   : in std_logic);
 end sram;
 
 architecture behav of sram is
-type mem is array(1048575 downto 0) of std_logic_vector(15 downto 0);
+type mem is array(7 downto 0) of std_logic_vector(15 downto 0);
 signal sram_mem : mem;
+signal location : integer;
 begin
 
-   process(address, data, n_bhe, n_ble, n_oe, n_we, n_ce1, ce2)
+   location <= conv_integer(address(2 downto 0));
+   
+   process(reset, location, data)
+--   process(reset, location, data, n_bhe, n_ble, n_oe, n_we, n_ce1, ce2)
    begin
-      if(ce2 = '1' and n_ce1 = '0') then
-         if(n_we = '1') then
-            if(n_bhe = '0' and n_ble = '0') then
-               data <= sram_mem(conv_integer(address));
-            else
-               data <= (others => 'Z');
-            end if;
-         else
-            if(n_oe = '0') then
-               if(n_bhe = '0' and n_ble = '0') then
-                  sram_mem(conv_integer(address)) <= data;
-               end if;
-            end if;
-         end if;
+      if(reset = '1') then
+         sram_mem(0) <= (others => '0');
+         sram_mem(1) <= (others => '0');
+         sram_mem(2) <= (others => '0');
+         sram_mem(3) <= (others => '0');
+         sram_mem(4) <= (others => '0');
+         sram_mem(5) <= (others => '0');
+         sram_mem(6) <= (others => '0');
+         sram_mem(7) <= (others => '0');
+      elsif(ce2 = '1' and n_ce1 = '0' and n_we = '1' and n_oe = '0' and n_bhe = '0' and n_ble = '0') then
+         data <= sram_mem(location);
+      elsif(ce2 = '1' and n_ce1 = '0' and n_we = '0' and n_oe = '0' and n_bhe = '0' and n_ble = '0') then
+         sram_mem(location) <= data;
+      else
+         data <= (others => 'Z');
       end if;
    end process;
    
