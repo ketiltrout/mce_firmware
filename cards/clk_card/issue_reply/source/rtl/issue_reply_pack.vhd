@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.13 2004/07/07 10:52:03 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.14 2004/07/09 10:19:15 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.14  2004/07/09 10:19:15  dca
+-- Ports "retiring_busy_o", and "clk_i" added to
+-- cmd_translator_m_op_table entity.
+--
 -- Revision 1.13  2004/07/07 10:52:03  dca
 -- CMD_CODE_BUS_WIDTH parameter added
 --
@@ -93,6 +97,7 @@ package issue_reply_pack is
    constant TIMEOUT_SYNC_BUS_WIDTH : integer := SYNC_NUM_BUS_WIDTH;  -- The width of the data field for the absolute sync count at which an instruction expires
    constant CQ_CARD_ADDR_BUS_WIDTH : integer := 8;
    constant CQ_PAR_ID_BUS_WIDTH    : integer := 8;
+   constant CQ_DATA_SIZE_BUS_WIDTH : integer := 16;
 
 ------------------------------------------------------------------------
 --

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.18 2004/06/30 23:10:53 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.19 2004/07/07 00:35:23 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.19  2004/07/07 00:35:23  bburger
+-- in progress
+--
 -- Revision 1.18  2004/06/30 23:10:53  bburger
 -- in progress
 --
@@ -125,6 +128,8 @@ signal clk_error            : std_logic_vector(31 downto 0);
 signal uops_generated       : integer;
 signal cards_addressed      : integer;
 signal num_uops             : integer;
+signal data_size_int        : integer;
+signal size_uops            : integer;
 -- num_uops_inserted used to determine when to stop inserting u-ops
 signal num_uops_inserted    : integer;
 signal queue_space          : integer := QUEUE_LEN;
@@ -482,8 +487,8 @@ begin
             uop_timedout_o <= '0';
             uop_discard_o  <= '0';
             retired        <= '1';
-            retire_ptr     <= retire_ptr + 2 + qb_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
-            flush_ptr      <= flush_ptr + 2 + qb_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
+            retire_ptr     <= retire_ptr + 2 + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            flush_ptr      <= flush_ptr + 2 + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when FLUSH =>
             uop_rdy_o      <= '0';
             freeze_send    <= '1';
@@ -496,15 +501,15 @@ begin
             uop_timedout_o <= '1';
             uop_discard_o  <= '1';
             retired        <= '1';
-            retire_ptr     <= retire_ptr + 2 + qb_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
-            flush_ptr      <= flush_ptr + 2 + qb_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
+            retire_ptr     <= retire_ptr + 2 + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
+            flush_ptr      <= flush_ptr + 2 + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when NEXT_FLUSH =>
             uop_rdy_o      <= '1';
             freeze_send    <= '1';
             uop_timedout_o <= '0';
             uop_discard_o  <= '1';
             retired        <= '0';
-            flush_ptr      <= flush_ptr + 2 + qb_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
+            flush_ptr      <= flush_ptr + 2 + qb_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when FLUSH_STATUS =>
             uop_rdy_o      <= '1';
             freeze_send    <= '1';
@@ -530,7 +535,7 @@ begin
       end if;
    end process;
 
-   gen_state_NS: process(present_gen_state, mop_rdy, queue_space, num_uops, par_id_i, card_addr_i, new_par_id)
+   gen_state_NS: process(present_gen_state, mop_rdy, queue_space, num_uops, par_id_i, card_addr_i, new_par_id, size_uops)
    begin
       case present_gen_state is
          when RESET =>
@@ -539,9 +544,9 @@ begin
             if(mop_rdy = '0') then
                next_gen_state <= IDLE;
             elsif(mop_rdy = '1') then
-               if(queue_space < num_uops) then
+               if(queue_space < size_uops) then
                   next_gen_state <= IDLE;
-               elsif(queue_space >= num_uops) then
+               elsif(queue_space >= size_uops) then
                   next_gen_state <= INSERT;
                end if;
             end if;
@@ -708,6 +713,9 @@ begin
          1 when others; -- all other m-ops generate one u-op
 
    num_uops <= uops_generated * cards_addressed;
+   data_size_int <= conv_integer(data_size_i);
+   size_uops <= num_uops * (2 + data_size_int);
+
    mop_rdy <= mop_rdy_i;
 
    gen_state_out: process(present_gen_state, par_id_i, card_addr_i) -- had new_card_addr_i
@@ -890,7 +898,7 @@ begin
          when NEXT_UOP =>
             tx_uop_rdy <= '0';
             -- The send_ptr should be incremented in all situations, whether the u-op has expired or has been sent.
-            send_ptr   <= send_ptr + 2 + qa_sig(TIMEOUT_SYNC_END-1 downto DATA_SIZE_END);
+            send_ptr   <= send_ptr + 2 + qa_sig(DATA_SIZE_END+QUEUE_ADDR_WIDTH-1 downto DATA_SIZE_END);
          when others =>
             tx_uop_rdy <= '0';
       end case;
@@ -984,7 +992,7 @@ begin
    end process;
 
    nfast_clk <= not clk_400mhz_i;
-   sync_count_slv <= conv_std_logic_vector(sync_count_int, 8);
+   sync_count_slv <= std_logic_vector(conv_unsigned(sync_count_int, 8));
 
 end behav;
 
