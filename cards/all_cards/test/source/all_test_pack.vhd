@@ -31,6 +31,10 @@
 -- Revision History:
 --
 -- $Log: all_test_pack.vhd,v $
+-- Revision 1.5  2004/06/29 22:22:10  erniel
+-- uses new rs232 interface
+-- added BER test modules
+--
 -- Revision 1.4  2004/05/17 00:57:04  erniel
 -- removed LVDS test modules
 --
@@ -88,6 +92,13 @@ package all_test_pack is
    --
    ------------------------------------------------------------------
    
+component all_test_pll
+port(inclk0 : in std_logic;
+     c0 : out std_logic;
+     c1 : out std_logic;
+     e0 : out std_logic);
+end component;
+
    ------------------------------------------------------------------
    -- reset state
    component all_test_reset

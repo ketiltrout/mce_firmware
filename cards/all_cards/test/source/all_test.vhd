@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: all_test.vhd,v $
+-- Revision 1.5  2004/06/29 22:24:56  erniel
+-- uses new rs232 interface
+-- reset state enabled only
+--
 -- Revision 1.4  2004/05/17 00:57:04  erniel
 -- removed LVDS test modules
 --
@@ -69,6 +73,8 @@ entity all_test is
       debug_tx : out std_logic;
       debug_rx : in std_logic;
       
+      test : out std_logic_vector(38 downto 11);
+
       -- led interface
       grn_led : out std_logic;
       ylw_led : out std_logic;
@@ -211,10 +217,11 @@ architecture behaviour of all_test is
    signal test_data : std_logic_vector(39 downto 0);
    
 begin
---   clk_gen : pll
---      port map(inclk0 => inclk,
---               c0 => clk,
---               e0 => outclk);
+   clk_gen : all_test_pll
+      port map(inclk0 => inclk,
+               c0 => clk,
+               c1 => comm_clk,
+               e0 => outclk);
 
    -- RS232 interface start
    receiver : rs232_rx
@@ -517,4 +524,7 @@ begin
          end case;
       end if;
    end process cmd_proc;
+
+   test(15 downto 11) <= sel(4 downto 0); -- sel(reset) to test pin 11
+
 end behaviour;
