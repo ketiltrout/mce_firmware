@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.1 2004/06/23 16:34:50 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.2 2004/07/05 23:41:22 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/23 16:34:50 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/05 23:41:22 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: tb_cmd_translator.vhd,v $
+-- Revision 1.2  2004/07/05 23:41:22  jjacob
+-- updating
+--
 -- Revision 1.1  2004/06/23 16:34:50  jjacob
 -- I moved the tb_issue_reply testbench into this file.
 --
@@ -59,6 +62,7 @@ use IEEE.std_logic_1164.all;
 
 library work;
 use work.issue_reply_pack.all;
+use work.fibre_rx_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -122,11 +126,11 @@ architecture BEH of tb_cmd_translator is
    signal W_CLK_I            : std_logic := '0';
    signal W_CARD_ID_I        : std_logic_vector ( CARD_ADDR_BUS_WIDTH - 1 downto 0 );
    signal W_CMD_CODE_I       : std_logic_vector ( 15 downto 0 );
-   signal W_CMD_DATA_I       : std_logic_vector ( 31 downto 0 );
+   signal W_CMD_DATA_I       : std_logic_vector ( DATA_BUS_WIDTH - 1 downto 0 );
    signal W_CMD_RDY_I        : std_logic ;
    signal W_DATA_CLK_I       : std_logic ;
-   signal W_NUM_DATA_I       : std_logic_vector ( 7 downto 0 );
-   signal W_PARAM_ID_I       : std_logic_vector ( 15 downto 0 );
+   signal W_NUM_DATA_I       : std_logic_vector ( DATA_SIZE_BUS_WIDTH - 1 downto 0 );
+   signal W_PARAM_ID_I       : std_logic_vector ( PAR_ID_BUS_WIDTH - 1 downto 0 );
    signal W_SYNC_PULSE_I     : std_logic ;
    signal w_sync_number_i    : std_logic_vector (7 downto 0);
    signal W_ACK_O            : std_logic ;
@@ -313,7 +317,7 @@ begin
          W_CMD_DATA_I       <= x"FFFFFFFF";         -- first word of data;
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
-         W_NUM_DATA_I       <= "00000100";      -- std_logic_vector ( 7 downto 0 );
+         W_NUM_DATA_I       <= (others => '0');      -- std_logic_vector ( 7 downto 0 );
          W_PARAM_ID_I(15 downto 8)      <= (others => '0'); -- bits(23 downto 8)
          W_PARAM_ID_I(7 downto 0)       <= FST_ST_FB_ADDR;  -- bits(7 downto 0)
          
@@ -448,7 +452,8 @@ begin
          W_CMD_DATA_I       <= x"0000000A";     -- first word of data;
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
-         W_NUM_DATA_I       <= "00000010";      -- std_logic_vector ( 7 downto 0 );
+         W_NUM_DATA_I(7 downto 0)       <= "00000010";      -- std_logic_vector ( 7 downto 0 );
+         W_NUM_DATA_I(DATA_SIZE_BUS_WIDTH - 1 downto 8)<= (others => '0');
          W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
          W_PARAM_ID_I(7 downto 0)                         <= RET_DAT_S_ADDR;  -- bits(7 downto 0)
          
@@ -545,7 +550,7 @@ begin
          W_CMD_DATA_I       <= (others => '0');
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
-         W_NUM_DATA_I       <= "00000000";      -- std_logic_vector ( 7 downto 0 );
+         W_NUM_DATA_I       <= (others=>'0');      -- std_logic_vector ( 7 downto 0 );
          W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
          W_PARAM_ID_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
          
@@ -657,7 +662,7 @@ begin
          W_CMD_DATA_I       <= (others => '0');
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
-         W_NUM_DATA_I       <= "00000000";      -- std_logic_vector ( 7 downto 0 );
+         W_NUM_DATA_I       <= (others => '0');      -- std_logic_vector ( 7 downto 0 );
          W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
          W_PARAM_ID_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
          
@@ -760,7 +765,7 @@ begin
          W_CMD_DATA_I       <= (others => '0');
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
-         W_NUM_DATA_I       <= "00000000";      -- std_logic_vector ( 7 downto 0 );
+         W_NUM_DATA_I       <= (others => '0');      -- std_logic_vector ( 7 downto 0 );
          W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
          W_PARAM_ID_I(7 downto 0)       <= RET_DAT_ADDR;  -- bits(7 downto 0)
          
@@ -806,7 +811,8 @@ begin
          W_CMD_DATA_I       <= x"FFFFFFFF";         -- first word of data;
          W_CMD_RDY_I        <= '0';
          W_DATA_CLK_I       <= '0';
-         W_NUM_DATA_I       <= "00000101";      -- std_logic_vector ( 7 downto 0 );
+         W_NUM_DATA_I(7 downto 0)       <= "00000101";      -- std_logic_vector ( 7 downto 0 );
+         W_NUM_DATA_I(DATA_SIZE_BUS_WIDTH - 1 downto 8) <= (others => '0');
          W_PARAM_ID_I(PAR_ID_BUS_WIDTH - 1 downto 8)      <= (others => '0'); -- bits(23 downto 8)
          W_PARAM_ID_I(7 downto 0)       <= FST_ST_FB_ADDR;  -- bits(7 downto 0)
          
