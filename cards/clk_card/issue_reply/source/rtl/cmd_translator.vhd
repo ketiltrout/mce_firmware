@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.26 2005/02/19 22:40:17 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.27 2005/03/04 03:45:58 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/02/19 22:40:17 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2005/03/04 03:45:58 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.27  2005/03/04 03:45:58  bburger
+-- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
+--
 -- Revision 1.26  2005/02/19 22:40:17  mandana
 -- jjacob: registered all outputs going to cmd_queue
 --
@@ -535,13 +538,13 @@ begin
       internal_cmd_start      <= '0';  
    elsif clk_i'event and clk_i = '1' then   
    -- in order to disable internal commands, start commenting from here
-      if time >= 1000000 then --1000000 then  -- 1x10^6 us = 1s
-         timer_rst            <= '1';
-         internal_cmd_start   <= '1';      
-      else
-         timer_rst            <= '0';
-         internal_cmd_start   <= '0';      
-      end if;
+--      if time >= 1000000 then --1000000 then  -- 1x10^6 us = 1s
+--         timer_rst            <= '1';
+--         internal_cmd_start   <= '1';      
+--      else
+--         timer_rst            <= '0';
+--         internal_cmd_start   <= '0';      
+--      end if;
    -- end of comments for disabling internal commands.
    end if;
    end process;
