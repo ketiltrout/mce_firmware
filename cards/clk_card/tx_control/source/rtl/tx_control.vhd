@@ -34,76 +34,43 @@
 -- 26th March 2004   - Initial version      - DA
 -- 
 -- <date $Date$>	-		<text>		- <initials $Author$>
---
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
+library ieee;
+use ieee.std_logic_1164.all;
 
-
-ENTITY tx_control IS
-   PORT( 
-      ft_clkw_i : IN     std_logic;
-      nTrp_i    : IN     std_logic;
-      tx_fe_i   : IN     std_logic;
-      tsc_nTd_o : OUT    std_logic;
-      nFena_o   : OUT    std_logic;
-      tx_fr_o   : OUT    std_logic
+entity tx_control is
+   port( 
+      ft_clkw_i : in     std_logic;
+      nTrp_i    : in     std_logic;
+      tx_fe_i   : in     std_logic;
+      tsc_nTd_o : out    std_logic;
+      nFena_o   : out    std_logic;
+      tx_fr_o   : out    std_logic
    );
 
-END tx_control ;
+end tx_control;
 
+library ieee;
+use ieee.std_logic_1164.all;
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
+architecture  rtl of tx_control is
 
-
-ARCHITECTURE rtl OF tx_control IS
-
-
-BEGIN
+begin
  
-   tsc_nTd_o <= '0';      -- always transmitting data
-                          -- this could have been grounded on PCB
-                          -- no special chars sent to PCI interface
+   tsc_nTd_o <= '0';         -- always transmitting data
+                             -- this could have been grounded on PCB
+                             -- no special chars sent to PCI interface
    
-   
-   ----------------------------------------------------------
-   fifo_read: PROCESS(nTrp_i)
-   ----------------------------------------------------------
-   
-   BEGIN 
-      
-       tx_fr_o <= NOT(nTrp_i);   -- read_pulse from CYPRESS
-                                 -- HOTLINK transmitter (active low)
-                                 -- mapped to tx_fifo read (active high)  
+   tx_fr_o <= not(nTrp_i);   -- read_pulse from CYPRESS
+                             -- HOTLINK transmitter (active low)
+                             -- mapped to tx_fifo read (active high)  
 
-   END PROCESS fifo_read;
-   
-   
-   ----------------------------------------------------------
-   clocked: PROCESS(ft_clkw_i)
-   ----------------------------------------------------------
-   
-   -- Note that "ft_clkw_i" is the same 25MHz clock that 
-   -- is routed to the CYPRESS HOTLINK transmitter chip   
-      
-   BEGIN
-      
-               
-      
-      IF (ft_clkw_i'EVENT AND ft_clkw_i = '1') THEN
-   
-         nFena_o <= tx_fe_i;    -- if there's anything in the tx_fifo
-                                -- enable parallel data transmission
-                                -- 
-                                -- if FIFO is not empty tx_fe_i = '0'
-                                -- a low on nfena enables data collection 
-                                -- and transmission
-   
-      END IF; 
-         
-   END PROCESS clocked;
-  
-   -----------------------------------------------------------
-
-END rtl;
+     
+     
+   nFena_o <= tx_fe_i;       -- if there's anything in the tx_fifo
+                             -- enable parallel data transmission
+                             -- 
+                             -- if FIFO is not empty tx_fe_i = '0'
+                             -- a low on nfena enables data collection 
+                             -- and transmission
+end rtl;
