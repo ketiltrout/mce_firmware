@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch.vhd,v $
+-- Revision 1.3  2004/11/26 01:44:15  erniel
+-- updated test cases to reflect new command_type encoding
+-- added test cases to exercise status/error bits
+--
 -- Revision 1.2  2004/10/18 20:50:14  erniel
 -- corrected typo in packet (was causing a CRC error)
 --
@@ -85,6 +89,7 @@ architecture BEH of TB_DISPATCH is
 
    component LVDS_TX
       port(CLK_I        : in std_logic ;
+           MEM_CLK_I    : in std_logic ;
            COMM_CLK_I   : in std_logic ;
            RST_I        : in std_logic ;
            DAT_I        : in std_logic_vector ( 31 downto 0 );
@@ -120,8 +125,9 @@ architecture BEH of TB_DISPATCH is
            fault   : out std_logic);
    end component;
         
-   constant PERIOD      : time := 40 ns;  
-   constant FAST_PERIOD : time := 10 ns;  
+   constant PERIOD      : time := 20000 ps;  
+   constant MEM_PERIOD  : time := 5000 ps;
+   constant COMM_PERIOD : time := 2500 ps;  
 
    signal W_CLK_I          : std_logic := '1';
    signal W_MEM_CLK_I      : std_logic := '1';
@@ -196,6 +202,7 @@ begin
 
    TX : LVDS_TX
       port map(CLK_I        => W_CLK_I,
+               MEM_CLK_I    => W_MEM_CLK_I,
                COMM_CLK_I   => W_COMM_CLK_I,
                RST_I        => W_RST_I,
                DAT_I        => W_LVDS_DAT_I,
@@ -213,8 +220,8 @@ begin
                LVDS_I       => W_LVDS_REPLY);
                
    W_CLK_I <= not W_CLK_I after PERIOD/2;
-   W_MEM_CLK_I <= not W_MEM_CLK_I after FAST_PERIOD/2;
-   W_COMM_CLK_I <= not W_COMM_CLK_I after FAST_PERIOD/2;
+   W_MEM_CLK_I <= not W_MEM_CLK_I after MEM_PERIOD/2;
+   W_COMM_CLK_I <= not W_COMM_CLK_I after COMM_PERIOD/2;
 
    -----------------------------------------------------------
    -- Wishbone slave model
@@ -366,9 +373,9 @@ begin
       W_LVDS_RDY_I     <= '0';      
       W_LVDS_DAT_I     <= (others => '0');
       
-      wait until W_LVDS_BUSY_O = '0';
+--      wait until W_LVDS_BUSY_O = '0';
 
-      wait for PERIOD*2;
+      wait for PERIOD;
    
    end transmit;
    
@@ -409,36 +416,40 @@ begin
       transmit("00000000000000000000000000000101");  -- turn on LED0 and LED2
       transmit("10011100001000111000000000110011");  -- CRC = 0x9C238033
       
-      pause(1000);
+      wait for 20 us;
       
+--      pause(1000);
+--      
       transmit("10101010101010100000000000000001");  -- read 1 data word
       transmit("00000111100110010000000000000000");  -- from LEDs
       transmit("01110000010111010001000111010001");  -- CRC = 0x705D11D1
       
-      pause(1000);
-      
-      -- error cases:
-      
-      -- 1. invalid slave only
-      transmit("10101010101010100000000000000001");  -- read 1 data word
-      transmit("00000111100101110000000000000000");  -- from an invalid slave
-      transmit("11101110110111100011110001011111");  -- CRC = 0xEEDE3C5F
-      
-      pause(1000);
-
-      -- 2. invalid slave and bad CRC
-      transmit("10101010101010100000000000000001");  -- read 1 data word
-      transmit("00000111100101110000000000000000");  -- from an invalid slave
-      transmit("11101110110111100011110001011110");  -- CRC = 0xEEDE3C5E (bad CRC)
-      
-      pause(1000);
-      
-      -- 3. bad CRC only
-      transmit("10101010101010100000000000000001");  -- read 1 data word
-      transmit("00000111100101110000000000000000");  -- from LEDs
-      transmit("11101110110111100011110001011110");  -- CRC = 0xEEDE3C5E
-      
-      pause(1000);
+      wait for 20 us;
+--      
+--      pause(1000);
+--      
+--      -- error cases:
+--      
+--      -- 1. invalid slave only
+--      transmit("10101010101010100000000000000001");  -- read 1 data word
+--      transmit("00000111100101110000000000000000");  -- from an invalid slave
+--      transmit("11101110110111100011110001011111");  -- CRC = 0xEEDE3C5F
+--      
+--      pause(1000);
+--
+--      -- 2. invalid slave and bad CRC
+--      transmit("10101010101010100000000000000001");  -- read 1 data word
+--      transmit("00000111100101110000000000000000");  -- from an invalid slave
+--      transmit("11101110110111100011110001011110");  -- CRC = 0xEEDE3C5E (bad CRC)
+--      
+--      pause(1000);
+--      
+--      -- 3. bad CRC only
+--      transmit("10101010101010100000000000000001");  -- read 1 data word
+--      transmit("00000111100101110000000000000000");  -- from LEDs
+--      transmit("11101110110111100011110001011110");  -- CRC = 0xEEDE3C5E
+--      
+--      pause(1000);
       
       assert FALSE report "End of Simulation." severity FAILURE;
       
