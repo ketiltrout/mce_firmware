@@ -29,8 +29,12 @@
 -- Package file for test module for Address card
 -- 
 -- Revision History:
--- <date $Date: 2004/05/13 17:44:06 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/17 00:49:52 $>	- <initials $Author: erniel $>
 -- $Log: ac_test_pack.vhd,v $
+-- Revision 1.4  2004/05/17 00:49:52  erniel
+-- changed LVDS tx test to two character command
+-- modified command encoding
+--
 -- Revision 1.3  2004/05/13 17:44:06  mandana
 -- modified all_test for ac_test
 --
@@ -182,7 +186,19 @@ package ac_test_pack is
            en_i        : in std_logic ;
            done_o      : out std_logic ;
            
-           dac_dat_o   : out w_array11; 
+--           dac_dat_o   : out w_array11; 
+           dac_dat0_o  : out std_logic_vector(13 downto 0);
+           dac_dat1_o  : out std_logic_vector(13 downto 0);
+           dac_dat2_o  : out std_logic_vector(13 downto 0);
+           dac_dat3_o  : out std_logic_vector(13 downto 0);
+           dac_dat4_o  : out std_logic_vector(13 downto 0);
+           dac_dat5_o  : out std_logic_vector(13 downto 0);
+           dac_dat6_o  : out std_logic_vector(13 downto 0);
+           dac_dat7_o  : out std_logic_vector(13 downto 0);
+           dac_dat8_o  : out std_logic_vector(13 downto 0);
+           dac_dat9_o  : out std_logic_vector(13 downto 0);
+           dac_dat10_o : out std_logic_vector(13 downto 0);
+      
            dac_clk_o   : out std_logic_vector (40 downto 0) );
    end component;
  
@@ -192,7 +208,19 @@ package ac_test_pack is
            en_i        : in std_logic ;
            done_o      : out std_logic ;
            
-           dac_dat_o   : out w_array11; 
+--           dac_dat_o   : out w_array11; 
+           dac_dat0_o  : out std_logic_vector(13 downto 0);
+           dac_dat1_o  : out std_logic_vector(13 downto 0);
+           dac_dat2_o  : out std_logic_vector(13 downto 0);
+           dac_dat3_o  : out std_logic_vector(13 downto 0);
+           dac_dat4_o  : out std_logic_vector(13 downto 0);
+           dac_dat5_o  : out std_logic_vector(13 downto 0);
+           dac_dat6_o  : out std_logic_vector(13 downto 0);
+           dac_dat7_o  : out std_logic_vector(13 downto 0);
+           dac_dat8_o  : out std_logic_vector(13 downto 0);
+           dac_dat9_o  : out std_logic_vector(13 downto 0);
+           dac_dat10_o : out std_logic_vector(13 downto 0);
+           
            dac_clk_o   : out std_logic_vector (40 downto 0) );
    end component;
   

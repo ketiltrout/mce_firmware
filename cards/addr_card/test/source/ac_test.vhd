@@ -29,8 +29,13 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2004/05/13 17:44:06 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/05/17 00:51:13 $>	- <initials $Author: erniel $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.4  2004/05/17 00:51:13  erniel
+-- added LVDS tx a & b modules
+-- removed LVDS rx clock module
+-- removed redundant test modules
+--
 -- Revision 1.3  2004/05/13 17:44:06  mandana
 -- modified all_test for ac_test
 --
@@ -191,6 +196,34 @@ architecture behaviour of ac_test is
    
    signal test_data : std_logic_vector(43 downto 0);
    
+   signal fix_dac_data0  : std_logic_vector(13 downto 0);
+   signal fix_dac_data1  : std_logic_vector(13 downto 0);
+   signal fix_dac_data2  : std_logic_vector(13 downto 0);
+   signal fix_dac_data3  : std_logic_vector(13 downto 0);
+   signal fix_dac_data4  : std_logic_vector(13 downto 0);
+   signal fix_dac_data5  : std_logic_vector(13 downto 0);
+   signal fix_dac_data6  : std_logic_vector(13 downto 0);
+   signal fix_dac_data7  : std_logic_vector(13 downto 0);
+   signal fix_dac_data8  : std_logic_vector(13 downto 0);
+   signal fix_dac_data9  : std_logic_vector(13 downto 0);
+   signal fix_dac_data10 : std_logic_vector(13 downto 0);
+   signal fix_dac_clk    : std_logic_vector(40 downto 0);
+   
+   signal ramp_dac_data0  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data1  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data2  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data3  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data4  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data5  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data6  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data7  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data8  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data9  : std_logic_vector(13 downto 0);
+   signal ramp_dac_data10 : std_logic_vector(13 downto 0);
+   signal ramp_dac_clk    : std_logic_vector(40 downto 0);
+   
+   signal ramp_ena : std_logic;
+   
 begin
 --   clk_gen : pll
 --      port map(inclk0 => inclk,
@@ -340,16 +373,38 @@ begin
                clk_i       => clk,
                en_i        => sel(INDEX_DAC_FIX),
                done_o      => done(INDEX_DAC_FIX),
-               dac_dat_o   => dac_dat,
-               dac_clk_o   => dac_clk);
+               
+               dac_dat0_o  => fix_dac_data0,
+               dac_dat1_o  => fix_dac_data1,
+               dac_dat2_o  => fix_dac_data2,
+               dac_dat3_o  => fix_dac_data3,
+               dac_dat4_o  => fix_dac_data4,
+               dac_dat5_o  => fix_dac_data5,
+               dac_dat6_o  => fix_dac_data6,
+               dac_dat7_o  => fix_dac_data7,
+               dac_dat8_o  => fix_dac_data8,
+               dac_dat9_o  => fix_dac_data9,
+               dac_dat10_o => fix_dac_data10,
+               dac_clk_o   => fix_dac_clk);
   
    ac_dac_ramp1 : ac_dac_ramp
       port map(rst_i       => rst,
                clk_i       => clk,
                en_i        => sel(INDEX_DAC_RAMP),
                done_o      => done(INDEX_DAC_RAMP),
-               dac_dat_o   => dac_dat,
-               dac_clk_o   => dac_clk);  
+               
+               dac_dat0_o  => ramp_dac_data0,
+               dac_dat1_o  => ramp_dac_data1,
+               dac_dat2_o  => ramp_dac_data2,
+               dac_dat3_o  => ramp_dac_data3,
+               dac_dat4_o  => ramp_dac_data4,
+               dac_dat5_o  => ramp_dac_data5,
+               dac_dat6_o  => ramp_dac_data6,
+               dac_dat7_o  => ramp_dac_data7,
+               dac_dat8_o  => ramp_dac_data8,
+               dac_dat9_o  => ramp_dac_data9,
+               dac_dat10_o => ramp_dac_data10,
+               dac_clk_o   => ramp_dac_clk);  
       
    zero <= '0';
    one <= '1';                         
@@ -385,6 +440,19 @@ begin
                  debug_stb     when SEL_DEBUG,
                  '0'           when others;
    
+   dac_data0  <= ramp_dac_data0  when ramp_ena = '1' else fix_dac_data0;
+   dac_data1  <= ramp_dac_data1  when ramp_ena = '1' else fix_dac_data1;
+   dac_data2  <= ramp_dac_data2  when ramp_ena = '1' else fix_dac_data2;
+   dac_data3  <= ramp_dac_data3  when ramp_ena = '1' else fix_dac_data3;
+   dac_data4  <= ramp_dac_data4  when ramp_ena = '1' else fix_dac_data4;
+   dac_data5  <= ramp_dac_data5  when ramp_ena = '1' else fix_dac_data5;
+   dac_data6  <= ramp_dac_data6  when ramp_ena = '1' else fix_dac_data6;
+   dac_data7  <= ramp_dac_data7  when ramp_ena = '1' else fix_dac_data7;
+   dac_data8  <= ramp_dac_data8  when ramp_ena = '1' else fix_dac_data8;
+   dac_data9  <= ramp_dac_data9  when ramp_ena = '1' else fix_dac_data9;
+   dac_data10 <= ramp_dac_data10 when ramp_ena = '1' else fix_dac_data10;
+   dac_clk    <= ramp_dac_clk    when ramp_ena = '1' else fix_dac_clk;
+      
    -- cmd_proc is our main processing state machine
    cmd_proc : process (rst, clk)
    begin
@@ -392,6 +460,7 @@ begin
          int_rst <= '0';
          sel <= SEL_RESET;
          cmd_state <= RESET;
+         ramp_ena <= '0';
       elsif Rising_Edge(clk) then
          case cmd_state is
             when RESET => 
@@ -433,9 +502,12 @@ begin
                   end if;
                   
                elsif(cmd1 = CMD_DAC_FIX) then
-                  sel <= SEL_DAC_FIX;
+                  if(ramp_ena = '0') then
+                     sel <= SEL_DAC_FIX;
+                  end if;
 
                elsif(cmd1 = CMD_DAC_RAMP) then
+                  ramp_ena <= not ramp_ena;
                   sel <= SEL_DAC_RAMP;
                   
                elsif(cmd1 = CMD_DEBUG) then
