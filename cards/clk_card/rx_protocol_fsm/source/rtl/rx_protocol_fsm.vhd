@@ -205,6 +205,12 @@ signal write_mem: std_logic;
 signal read_mem: std_logic;
 signal reset_mem: std_logic; 
 
+
+subtype word is std_logic_vector(15 downto 0);
+type mem is array (0 to mem_size-1) of word;
+signal memory: mem;
+
+
 begin
 
    ----------------------------------------------------------------------------
@@ -768,29 +774,35 @@ begin
   end process checksum_calculator;   
    
   ------------------------------------------------------------------------------
-  buffer_memory: process(reset_mem, write_mem, read_mem, data_in)
+  write_memory: process(reset_mem, write_mem)
   ----------------------------------------------------------------------------
-  -- process to load current data word into local memory
+  -- process to write data word into local memory
   ----------------------------------------------------------------------------
 
-     subtype word is std_logic_vector(15 downto 0);
-     type mem is array (0 to mem_size-1) of word;
-     variable memory: mem;
-  
-  begin
+ begin
      if (reset_mem = '1') then
         write_pointer <= 0;
-        read_pointer <= 0;
      elsif (write_mem'EVENT AND write_mem = '1') then
-        memory(write_pointer) := data_in; 
+        memory(write_pointer) <= data_in; 
         write_pointer <= write_pointer + 1;
-        
+     end if; 
+
+  end process write_memory;
+  
+ ------------------------------------------------------------------------------
+  read_memory: process(reset_mem, read_mem)
+  ----------------------------------------------------------------------------
+  -- process to read data word from local memory
+  ----------------------------------------------------------------------------
+
+ begin
+     if (reset_mem = '1') then
+        read_pointer <= 0;
      elsif (read_mem'EVENT AND read_mem = '1') then
         data_out <= memory(read_pointer); 
         read_pointer <= read_pointer + 1;
-        
      end if; 
 
-  end process buffer_memory;
+  end process read_memory;  
   
 end rtl;
