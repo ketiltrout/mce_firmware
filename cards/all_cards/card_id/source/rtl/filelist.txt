@@ -1,0 +1,1 @@
+H:\public_html\sc2mce\system\sys_fw\cards\all_cards\card_id\source\rtl\card_id.vhd

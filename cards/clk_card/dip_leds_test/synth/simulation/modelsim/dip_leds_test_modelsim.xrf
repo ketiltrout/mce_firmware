@@ -1,0 +1,13 @@
+vendor_name = ModelSim
+source_file = 1, ..\source\rtl\dip_leds_test.vhd
+design_name = dip_leds_test
+instance = net, dip_a1_a_apadio, dip[1], dip_leds_test, 1
+instance = net, dip_a0_a_apadio, dip[0], dip_leds_test, 1
+instance = net, led_a1_a_apadio, led[1], dip_leds_test, 1
+instance = net, led_a0_a_apadio, led[0], dip_leds_test, 1
+instance = net, dip_a1_a_acombout, dip[1], dip_leds_test, 1
+instance = net, dip_a0_a_acombout, dip[0], dip_leds_test, 1
+instance = comp, dip_a1_a_aI, dip[1], dip_leds_test, 1
+instance = comp, dip_a0_a_aI, dip[0], dip_leds_test, 1
+instance = comp, led_a1_a_aI, led[1], dip_leds_test, 1
+instance = comp, led_a0_a_aI, led[0], dip_leds_test, 1

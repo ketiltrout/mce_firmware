@@ -1,0 +1,20 @@
+Version 3.0 Build 199 06/26/2003 SJ Full Version
+32
+OFF
+# entity
+dip_leds_test
+# logic_option {
+AUTO_RAM_RECOGNITION
+ON
+}
+# case_insensitive
+# source_file
+..|source|rtl|dip_leds_test.vhd
+1078248454
+4
+# storage
+db|dip_leds_test(0).cnf
+db|dip_leds_test(0).cnf
+# end
+# complete
+

@@ -1,0 +1,122 @@
+Analysis & Synthesis report for dip_leds_test compilation.
+Fri Mar 05 12:44:31 2004
+Version 3.0 Build 199 06/26/2003 SJ Full Version
+
+Command: quartus_map --import_settings_files=on --export_settings_files=off dip_leds_test -c dip_leds_test
+
+
+
+---------------------
+; Table of Contents ;
+---------------------
+   1. Legal Notice
+   2. Flow Summary
+   3. Flow Settings
+   4. Flow Elapsed Time
+   5. Analysis & Synthesis Summary
+   6. Analysis & Synthesis Settings
+   7. Analysis & Synthesis Messages
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2003 Altera Corporation
+Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
+support information,  device programming or simulation file,  and any other
+associated  documentation or information  provided by  Altera  or a partner
+under  Altera's   Megafunction   Partnership   Program  may  be  used  only
+to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
+other  use  of such  megafunction  design,  netlist,  support  information,
+device programming or simulation file,  or any other  related documentation
+or information  is prohibited  for  any  other purpose,  including, but not
+limited to  modification,  reverse engineering,  de-compiling, or use  with
+any other  silicon devices,  unless such use is  explicitly  licensed under
+a separate agreement with  Altera  or a megafunction partner.  Title to the
+intellectual property,  including patents,  copyrights,  trademarks,  trade
+secrets,  or maskworks,  embodied in any such megafunction design, netlist,
+support  information,  device programming or simulation file,  or any other
+related documentation or information provided by  Altera  or a megafunction
+partner, remains with Altera, the megafunction partner, or their respective
+licensors. No other licenses, including any licenses needed under any third
+party's intellectual property, are provided herein.
+
+
+
+------------------------------------------------------------------
+; Flow Summary                                                   ;
+------------------------------------------------------------------
+; Flow Status           ; Flow Failed - Fri Mar 05 12:44:31 2004 ;
+; Compiler Setting Name ; dip_leds_test                          ;
+; Top-level Entity Name ; dip_leds_test                          ;
+; Family                ; Stratix                                ;
+; Device                ; EP1S30F780C5                           ;
+------------------------------------------------------------------
+
+
+-----------------------------------------------
+; Flow Settings                               ;
+-----------------------------------------------
+; Option                ; Setting             ;
+-----------------------------------------------
+; Start date & time     ; 03/05/2004 12:44:29 ;
+; Main task             ; Compilation         ;
+; Compiler Setting Name ; dip_leds_test       ;
+-----------------------------------------------
+
+
+---------------------------------------
+; Flow Elapsed Time                   ;
+---------------------------------------
+; Module Name          ; Elapsed Time ;
+---------------------------------------
+; Analysis & Synthesis ; 00:00:02     ;
+; Total                ; 00:00:02     ;
+---------------------------------------
+
+
+-------------------------------------------------------------------
+; Analysis & Synthesis Summary                                    ;
+-------------------------------------------------------------------
+; Analysis & Synthesis Status ; Failed - Fri Mar 05 12:44:31 2004 ;
+; Compiler Setting Name       ; dip_leds_test                     ;
+; Top-level Entity Name       ; dip_leds_test                     ;
+; Family                      ; Stratix                           ;
+-------------------------------------------------------------------
+
+
+------------------------------------------------------------------
+; Analysis & Synthesis Settings                                  ;
+------------------------------------------------------------------
+; Option                                        ; Setting        ;
+------------------------------------------------------------------
+; Use Generated Physical Constraints File       ; On             ;
+; Physical Synthesis Level for Resynthesis      ; Normal         ;
+; Resynthesis Optimization Effort               ; Normal         ;
+; Type of Retiming Performed During Resynthesis ; Full           ;
+; Perform gate-level register retiming          ; Off            ;
+; Perform WYSIWYG primitive resynthesis         ; Off            ;
+; Focus entity name                             ; |dip_leds_test ;
+; Family name                                   ; Stratix        ;
+; Preserve fewer node names                     ; On             ;
+; Disk space/compilation speed tradeoff         ; Smart          ;
+------------------------------------------------------------------
+
+
+----------------------------------
+; Analysis & Synthesis Messages  ;
+----------------------------------
+Info: *******************************************************************
+Info: Running Quartus II Analysis & Synthesis
+  Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
+  Info: Processing started: Fri Mar 05 12:44:29 2004
+Info: Command: quartus_map --import_settings_files=on --export_settings_files=off dip_leds_test -c dip_leds_test
+Info: Found 1 design units and 0 entities in source file H:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\source\pack\wishbone_pack.vhd
+  Info: Found design unit 1: wishbone_pack
+Error: Node instance  instantiates undefined entity dip_leds_test
+Error: Quartus II Analysis & Synthesis was unsuccessful. 1 error, 0 warnings
+  Error: Processing ended: Fri Mar 05 12:44:31 2004
+  Error: Elapsed time: 00:00:01
+Info: Writing report file dip_leds_test.map.rpt
+
+

@@ -1,0 +1,6 @@
+|lib_compile_test
+dip[1] => |lib_compile_test|led[1]
+dip[0] => |lib_compile_test|led[0]
+led[1] <= |lib_compile_test|dip[1]
+led[0] <= |lib_compile_test|dip[0]
+

@@ -1,0 +1,169 @@
+Analysis & Synthesis report for lib_compile_test compilation.
+Fri Mar 05 12:59:26 2004
+Version 3.0 Build 199 06/26/2003 SJ Full Version
+
+Command: quartus_map --import_settings_files=on --export_settings_files=off lib_compile_test -c lib_compile_test
+
+
+
+---------------------
+; Table of Contents ;
+---------------------
+   1. Legal Notice
+   2. Flow Summary
+   3. Flow Settings
+   4. Flow Elapsed Time
+   5. Analysis & Synthesis Summary
+   6. Analysis & Synthesis Settings
+   7. Hierarchy
+   8. Analysis & Synthesis Resource Utilization by Entity
+   9. Analysis & Synthesis Equations
+  10. Analysis & Synthesis Messages
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2003 Altera Corporation
+Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
+support information,  device programming or simulation file,  and any other
+associated  documentation or information  provided by  Altera  or a partner
+under  Altera's   Megafunction   Partnership   Program  may  be  used  only
+to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
+other  use  of such  megafunction  design,  netlist,  support  information,
+device programming or simulation file,  or any other  related documentation
+or information  is prohibited  for  any  other purpose,  including, but not
+limited to  modification,  reverse engineering,  de-compiling, or use  with
+any other  silicon devices,  unless such use is  explicitly  licensed under
+a separate agreement with  Altera  or a megafunction partner.  Title to the
+intellectual property,  including patents,  copyrights,  trademarks,  trade
+secrets,  or maskworks,  embodied in any such megafunction design, netlist,
+support  information,  device programming or simulation file,  or any other
+related documentation or information provided by  Altera  or a megafunction
+partner, remains with Altera, the megafunction partner, or their respective
+licensors. No other licenses, including any licenses needed under any third
+party's intellectual property, are provided herein.
+
+
+
+--------------------------------------------------------------------
+; Flow Summary                                                     ;
+--------------------------------------------------------------------
+; Flow Status              ; Successful - Fri Mar 05 12:59:26 2004 ;
+; Compiler Setting Name    ; lib_compile_test                      ;
+; Top-level Entity Name    ; lib_compile_test                      ;
+; Family                   ; Stratix                               ;
+; Device                   ; EP1S30F780C5                          ;
+; Total logic elements     ; 0                                     ;
+; Total pins               ; 4                                     ;
+; Total memory bits        ; 0                                     ;
+; DSP block 9-bit elements ; 0                                     ;
+; Total PLLs               ; 0                                     ;
+; Total DLLs               ; 0                                     ;
+--------------------------------------------------------------------
+
+
+-----------------------------------------------
+; Flow Settings                               ;
+-----------------------------------------------
+; Option                ; Setting             ;
+-----------------------------------------------
+; Start date & time     ; 03/05/2004 12:59:23 ;
+; Main task             ; Compilation         ;
+; Compiler Setting Name ; lib_compile_test    ;
+-----------------------------------------------
+
+
+---------------------------------------
+; Flow Elapsed Time                   ;
+---------------------------------------
+; Module Name          ; Elapsed Time ;
+---------------------------------------
+; Analysis & Synthesis ; 00:00:03     ;
+; Total                ; 00:00:03     ;
+---------------------------------------
+
+
+-----------------------------------------------------------------------
+; Analysis & Synthesis Summary                                        ;
+-----------------------------------------------------------------------
+; Analysis & Synthesis Status ; Successful - Fri Mar 05 12:59:26 2004 ;
+; Compiler Setting Name       ; lib_compile_test                      ;
+; Top-level Entity Name       ; lib_compile_test                      ;
+; Family                      ; Stratix                               ;
+; Total logic elements        ; 0                                     ;
+; Total pins                  ; 4                                     ;
+; Total memory bits           ; 0                                     ;
+; DSP block 9-bit elements    ; 0                                     ;
+; Total PLLs                  ; 0                                     ;
+; Total DLLs                  ; 0                                     ;
+-----------------------------------------------------------------------
+
+
+---------------------------------------------------------------------
+; Analysis & Synthesis Settings                                     ;
+---------------------------------------------------------------------
+; Option                                        ; Setting           ;
+---------------------------------------------------------------------
+; Use Generated Physical Constraints File       ; On                ;
+; Physical Synthesis Level for Resynthesis      ; Normal            ;
+; Resynthesis Optimization Effort               ; Normal            ;
+; Type of Retiming Performed During Resynthesis ; Full              ;
+; Perform gate-level register retiming          ; Off               ;
+; Perform WYSIWYG primitive resynthesis         ; Off               ;
+; Focus entity name                             ; |lib_compile_test ;
+; Family name                                   ; Stratix           ;
+; Preserve fewer node names                     ; On                ;
+; Disk space/compilation speed tradeoff         ; Normal            ;
+---------------------------------------------------------------------
+
+
+--------------
+; Hierarchy  ;
+--------------
+Hierarchy
+  lib_compile_test
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                                                   ;
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; Compilation Hierarchy Node ; Logic Cells ; Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Full Hierarchy Name ;
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; |lib_compile_test          ; 0 (0)       ; 0         ; 0           ; 0            ; 0       ; 0         ; 0         ; 4    ; 0            ; 0 (0)        ; 0 (0)             ; 0 (0)            ; |lib_compile_test   ;
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-----------------------------------
+; Analysis & Synthesis Equations  ;
+-----------------------------------
+The equations can be found in h:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\lib_compile_test.map.eqn.
+
+
+----------------------------------
+; Analysis & Synthesis Messages  ;
+----------------------------------
+Info: *******************************************************************
+Info: Running Quartus II Analysis & Synthesis
+  Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
+  Info: Processing started: Fri Mar 05 12:59:22 2004
+Info: Command: quartus_map --import_settings_files=on --export_settings_files=off lib_compile_test -c lib_compile_test
+Info: Found 1 design units and 0 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\source\pack\wishbone_pack.vhd
+  Info: Found design unit 1: wishbone_pack
+Info: Found 1 design units and 0 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\source\pack\command_pack.vhd
+  Info: Found design unit 1: command_pack
+Info: Found 1 design units and 0 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\source\pack\general_pack.vhd
+  Info: Found design unit 1: general_pack
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\source\rtl\lib_compile_test.vhd
+  Info: Found design unit 1: lib_compile_test-beh
+  Info: Found entity 1: lib_compile_test
+Info: Inferred 0 megafunctions from design logic
+Info: Implemented 4 device resources after synthesis - the final resource count might be different
+  Info: Implemented 2 input pins
+  Info: Implemented 2 output pins
+Info: Quartus II Analysis & Synthesis was successful. 0 errors, 0 warnings
+  Info: Processing ended: Fri Mar 05 12:59:26 2004
+  Info: Elapsed time: 00:00:03
+Info: Writing report file lib_compile_test.map.rpt
+
+

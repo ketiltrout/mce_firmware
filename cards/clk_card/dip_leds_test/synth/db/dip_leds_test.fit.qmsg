@@ -1,0 +1,24 @@
+{  "Info" "IQEXE_SEPARATOR" "" "Info: *******************************************************************" {  } {  } 0 }
+{  "Info" "IQEXE_START_BANNER_PRODUCT" "Fitter " "Info: Running Quartus II Fitter" { { "Info" "IQEXE_START_BANNER_VERSION" "Version 3.0 Build 199 06/26/2003 SJ Full Version " "Info: Version 3.0 Build 199 06/26/2003 SJ Full Version" {  } {  } 0} { "Info" "IQEXE_START_BANNER_TIME" "Tue Mar 02 11:54:06 2004 " "Info: Processing started: Tue Mar 02 11:54:06 2004" {  } {  } 0}  } {  } 0 }
+{  "Info" "IQEXE_START_BANNER_COMMANDLINE" "quartus_fit --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test " "Info: Command: quartus_fit --import_settings_files=off --export_settings_files=off dip_leds_test -c dip_leds_test" {  } {  } 0 }
+{  "Info" "IMPP_MPP_USER_DEVICE" "dip_leds_test EP1S30F780C5 " "Info: Selected device EP1S30F780C5 for design dip_leds_test" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_MIGRATION_NOT_SELECTED" "" "Info: Device migration not selected. If you intend to use device migration later, you may need to change the pin assignments as they may compatible with other devices. " { { "Info" "IFYGR_FYGR_MIGRATION_NOT_SELECTED_SUB" "EP1S10F780C5 " "Info: Device EP1S10F780C5 is compatible" {  } {  } 2} { "Info" "IFYGR_FYGR_MIGRATION_NOT_SELECTED_SUB" "EP1S10F780C5ES " "Info: Device EP1S10F780C5ES is compatible" {  } {  } 2} { "Info" "IFYGR_FYGR_MIGRATION_NOT_SELECTED_SUB" "EP1S20F780C5 " "Info: Device EP1S20F780C5 is compatible" {  } {  } 2} { "Info" "IFYGR_FYGR_MIGRATION_NOT_SELECTED_SUB" "EP1S25F780C5 " "Info: Device EP1S25F780C5 is compatible" {  } {  } 2} { "Info" "IFYGR_FYGR_MIGRATION_NOT_SELECTED_SUB" "EP1S30F780C5_HARDCOPY_FPGA_PROTOTYPE " "Info: Device EP1S30F780C5_HARDCOPY_FPGA_PROTOTYPE is compatible" {  } {  } 2} { "Info" "IFYGR_FYGR_MIGRATION_NOT_SELECTED_SUB" "EP1S40F780C5 " "Info: Device EP1S40F780C5 is compatible" {  } {  } 2} { "Info" "IFYGR_FYGR_MIGRATION_NOT_SELECTED_SUB" "EP1S40F780C5_HARDCOPY_FPGA_PROTOTYPE " "Info: Device EP1S40F780C5_HARDCOPY_FPGA_PROTOTYPE is compatible" {  } {  } 2}  } {  } 2 }
+{  "Info" "IFYGR_FYGR_OPINFO_COMPLETED_OP" "User Assigned Global Signals Promotion Operation " "Info: Completed User Assigned Global Signals Promotion Operation" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_OPINFO_COMPLETED_OP" "Auto Global Promotion Operation " "Info: Completed Auto Global Promotion Operation" {  } {  } 0 }
+{  "Info" "ITAN_NO_USER_LONG_PATH_CONSTRAINTS_FOUND" "" "Info: No timing requirements specified -- optimizing all clocks equally to maximize operation frequency" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_START_REG_LOCATION_PROCESSING" "" "Info: Packing registers due to location constraints" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_FINISH_REG_LOCATION_PROCESSING" "" "Info: Finished packing registers due to location constraints" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_REGISTER_PACKING_START_REGPACKING_INFO" "" "Info: Starting register packing" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_REGISTER_PACKING_BEGIN_FAST_REGISTER_INFO" "" "Info: Started Fast Input/Output/OE register processing" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_REGISTER_PACKING_FINISH_FAST_REGISTER_INFO" "" "Info: Finished Fast Input/Output/OE register processing" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_START_MAC_SCAN_CHAIN_INFERENCING" "" "Info: Start DSP Scan-chain Inferencing" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_FINISH_MAC_SCAN_CHAIN_INFERENCING" "" "Info: Completed DSP scan-chain inferencing" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_START_LUT_IO_MAC_RAM_PACKING" "" "Info: Moving registers into I/Os, LUTs, DSP and RAM blocks to improve timing and density" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_FINISH_LUT_IO_MAC_RAM_PACKING" "" "Info: Finished moving registers into I/Os, LUTs, DSP and RAM blocks" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_REGISTER_PACKING_FINISH_REGPACKING_INFO" "" "Info: Finished register packing" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_OPINFO_COMPLETED_OP" "I/O Pin Placement Operation " "Info: Completed I/O Pin Placement Operation" {  } {  } 0 }
+{  "Info" "IFITAPI_FITAPI_INFO_VPR_PLACEMENT_FINISH" "" "Info: Fitter placement was successful" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_OPINFO_COMPLETED_OP" "Fixed Delay Chain Operation " "Info: Completed Fixed Delay Chain Operation" {  } {  } 0 }
+{  "Info" "IFYGR_FYGR_OPINFO_COMPLETED_OP" "Auto Delay Chain Operation " "Info: Completed Auto Delay Chain Operation" {  } {  } 0 }
+{  "Info" "IQEXE_ERROR_COUNT" "Fitter 0 s 0 s " "Info: Quartus II Fitter was successful. 0 errors, 0 warnings" { { "Info" "IQEXE_END_BANNER_TIME" "Tue Mar 02 11:55:11 2004 " "Info: Processing ended: Tue Mar 02 11:55:11 2004" {  } {  } 0} { "Info" "IQEXE_ELAPSED_TIME" "00:01:05 " "Info: Elapsed time: 00:01:05" {  } {  } 0}  } {  } 0 }
+{  "Info" "IQCU_REPORT_WRITTEN_TO" "dip_leds_test.fit.rpt " "Info: Writing report file dip_leds_test.fit.rpt" {  } {  } 0 }

@@ -1,0 +1,25 @@
+--dip[1] is dip[1] at Pin_U10
+--operation mode is input
+
+dip[1] = INPUT();
+
+
+--dip[0] is dip[0] at Pin_T20
+--operation mode is input
+
+dip[0] = INPUT();
+
+
+--led[1] is led[1] at Pin_U9
+--operation mode is output
+
+led[1] = OUTPUT(dip[1]);
+
+
+--led[0] is led[0] at Pin_U25
+--operation mode is output
+
+led[0] = OUTPUT(dip[0]);
+
+
+

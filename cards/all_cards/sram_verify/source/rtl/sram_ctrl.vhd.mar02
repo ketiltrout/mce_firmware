@@ -1,0 +1,85 @@
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+
+library sys_param;
+use sys_param.wishbone_pack.all;
+
+
+entity sram_ctrl is
+port(clk : in std_logic;
+     rst : in std_logic;
+     
+     -- interface signals:
+     address_i : in std_logic_vector(18 downto 0);
+     data_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     data_o    : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     write_i   : in std_logic;
+     
+     busy_o    : out std_logic;
+          
+     -- SRAM signals:
+     sram_addr_o  : out std_logic_vector(19 downto 0);
+     sram_data_io : inout std_logic_vector(15 downto 0);
+     
+     sram_nBLE_o : out std_logic;
+     sram_nBHE_o : out std_logic;
+     sram_nOE_o  : out std_logic;
+     sram_nCE1_o : out std_logic;
+     sram_CE2_o  : out std_logic;
+     sram_nWE_o  : out std_logic);
+end sram_ctrl;
+
+architecture rtl of sram_ctrl is
+signal write_buffer : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal read_buffer  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+begin
+   -- SRAM is permanently enabled:
+   sram_nBLE_o <= '0';
+   sram_nBHE_o <= '0';
+   sram_nOE_o  <= '0';
+   sram_nCE1_o <= '0';
+   sram_CE2_o  <= '1';
+   sram_nWE_o  <= not write_i;
+   
+   -- buffer data in, data out, and address:
+   write_buf : process(clk, rst)
+   begin
+      if(rst = '1') then
+         write_buffer <= (others => '0');
+      elsif(clk'event and clk = '1') then
+         write_buffer <= data_i;
+      end if;
+   end process write_buf;
+   
+   read_buf : process(clk, rst)
+   begin
+      if(rst = '1') then
+         read_buffer <= (others => '0');
+      elsif(clk'event and clk = '1') then
+         read_buffer <= sram_data_io;
+      end if;
+   end process read_buf;
+   
+   addr_buf : process(clk, rst)
+   begin
+      if(rst = '1') then
+         address_buffer <= (others => '0');
+      elsif(clk'event and clk = '1')
+         address_buffer <= address_i;
+      end if;
+   end process addr_buf;
+   
+   -- state machine for writing to two SRAM locations for each WB transaction:
+   process(clk)
+   begin
+      if(rst = '1') then
+         present_state <= idle;
+      else
+         present_state <= next_state;
+      end if;
+   end process;
+   
+   process(
+   

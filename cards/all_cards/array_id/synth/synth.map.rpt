@@ -1,0 +1,173 @@
+Analysis & Synthesis report for synth compilation.
+Wed Mar 03 16:38:07 2004
+Version 3.0 Build 199 06/26/2003 SJ Full Version
+
+Command: quartus_map --import_settings_files=on --export_settings_files=off synth -c synth
+
+
+
+---------------------
+; Table of Contents ;
+---------------------
+   1. Legal Notice
+   2. Flow Summary
+   3. Flow Settings
+   4. Flow Elapsed Time
+   5. Analysis & Synthesis Summary
+   6. Analysis & Synthesis Settings
+   7. Analysis & Synthesis Messages
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2003 Altera Corporation
+Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
+support information,  device programming or simulation file,  and any other
+associated  documentation or information  provided by  Altera  or a partner
+under  Altera's   Megafunction   Partnership   Program  may  be  used  only
+to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
+other  use  of such  megafunction  design,  netlist,  support  information,
+device programming or simulation file,  or any other  related documentation
+or information  is prohibited  for  any  other purpose,  including, but not
+limited to  modification,  reverse engineering,  de-compiling, or use  with
+any other  silicon devices,  unless such use is  explicitly  licensed under
+a separate agreement with  Altera  or a megafunction partner.  Title to the
+intellectual property,  including patents,  copyrights,  trademarks,  trade
+secrets,  or maskworks,  embodied in any such megafunction design, netlist,
+support  information,  device programming or simulation file,  or any other
+related documentation or information provided by  Altera  or a megafunction
+partner, remains with Altera, the megafunction partner, or their respective
+licensors. No other licenses, including any licenses needed under any third
+party's intellectual property, are provided herein.
+
+
+
+------------------------------------------------------------------
+; Flow Summary                                                   ;
+------------------------------------------------------------------
+; Flow Status           ; Flow Failed - Wed Mar 03 16:38:07 2004 ;
+; Compiler Setting Name ; synth                                  ;
+; Top-level Entity Name ; synth                                  ;
+; Family                ; Stratix                                ;
+; Device                ; EP1S30F780C5                           ;
+------------------------------------------------------------------
+
+
+-----------------------------------------------
+; Flow Settings                               ;
+-----------------------------------------------
+; Option                ; Setting             ;
+-----------------------------------------------
+; Start date & time     ; 03/03/2004 16:38:04 ;
+; Main task             ; Compilation         ;
+; Compiler Setting Name ; synth               ;
+-----------------------------------------------
+
+
+---------------------------------------
+; Flow Elapsed Time                   ;
+---------------------------------------
+; Module Name          ; Elapsed Time ;
+---------------------------------------
+; Analysis & Synthesis ; 00:00:03     ;
+; Total                ; 00:00:03     ;
+---------------------------------------
+
+
+-------------------------------------------------------------------
+; Analysis & Synthesis Summary                                    ;
+-------------------------------------------------------------------
+; Analysis & Synthesis Status ; Failed - Wed Mar 03 16:38:07 2004 ;
+; Compiler Setting Name       ; synth                             ;
+; Top-level Entity Name       ; synth                             ;
+; Family                      ; Stratix                           ;
+-------------------------------------------------------------------
+
+
+-----------------------------------------------------------
+; Analysis & Synthesis Settings                           ;
+-----------------------------------------------------------
+; Option                                        ; Setting ;
+-----------------------------------------------------------
+; Use Generated Physical Constraints File       ; On      ;
+; Physical Synthesis Level for Resynthesis      ; Normal  ;
+; Resynthesis Optimization Effort               ; Normal  ;
+; Type of Retiming Performed During Resynthesis ; Full    ;
+; Perform gate-level register retiming          ; Off     ;
+; Perform WYSIWYG primitive resynthesis         ; Off     ;
+; Focus entity name                             ; |synth  ;
+; Family name                                   ; Stratix ;
+; Preserve fewer node names                     ; On      ;
+; Disk space/compilation speed tradeoff         ; Normal  ;
+-----------------------------------------------------------
+
+
+----------------------------------
+; Analysis & Synthesis Messages  ;
+----------------------------------
+Info: *******************************************************************
+Info: Running Quartus II Analysis & Synthesis
+  Info: Version 3.0 Build 199 06/26/2003 SJ Full Version
+  Info: Processing started: Wed Mar 03 16:38:04 2004
+Info: Command: quartus_map --import_settings_files=on --export_settings_files=off synth -c synth
+Info: Found 1 design units and 0 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\source\pack\wishbone_pack.vhd
+  Info: Found design unit 1: wishbone_pack
+Info: Found 1 design units and 0 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\source\pack\command_pack.vhd
+  Info: Found design unit 1: command_pack
+Info: Found 1 design units and 0 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\sys_param\source\pack\general_pack.vhd
+  Info: Found design unit 1: general_pack
+Info: Found 1 design units and 0 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\pack\component_pack.vhd
+  Info: Found design unit 1: component_pack
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\crc.vhd
+  Info: Found design unit 1: crc-behav
+  Info: Found entity 1: crc
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\init_1_wire.vhd
+  Info: Found design unit 1: init_1_wire-behav
+  Info: Found entity 1: init_1_wire
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\read_data_1_wire.vhd
+  Info: Found design unit 1: read_data_1_wire-behav
+  Info: Found entity 1: read_data_1_wire
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\read_serial_data.vhd
+  Info: Found design unit 1: read_serial_data-rtl
+  Info: Found entity 1: read_serial_data
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\reg.vhd
+  Info: Found design unit 1: reg-behav
+  Info: Found entity 1: reg
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\shift_reg.vhd
+  Info: Found design unit 1: shift_reg-behav
+  Info: Found entity 1: shift_reg
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\slave_ctrl.vhd
+  Info: Found design unit 1: slave_ctrl-rtl
+  Info: Found entity 1: slave_ctrl
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\tri_state_buf.vhd
+  Info: Found design unit 1: tri_state_buf-rtl
+  Info: Found entity 1: tri_state_buf
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\tri_state_buf_vec.vhd
+  Info: Found design unit 1: tri_state_buf_vec-rtl
+  Info: Found entity 1: tri_state_buf_vec
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\us_timer.vhd
+  Info: Found design unit 1: us_timer-behav
+  Info: Found entity 1: us_timer
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\write_data_1_wire.vhd
+  Info: Found design unit 1: write_data_1_wire-behav
+  Info: Found entity 1: write_data_1_wire
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\write_serial_data.vhd
+  Info: Found design unit 1: write_serial_data-rtl
+  Info: Found entity 1: write_serial_data
+Warning: Ignored duplicate design unit write_serial_data-rtl in file ..\..\..\library\components\source\rtl\write_serial_data.vhd
+Error: Duplicate entity write_serial_data found in file ..\..\..\library\components\source\rtl\write_serial_data.vhd colliding with the one found in file ..\..\..\library\components\source\rtl\write_spi.vhd
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\library\components\source\rtl\write_spi.vhd
+  Info: Found design unit 1: write_serial_data-rtl
+  Info: Found entity 1: write_serial_data
+Info: Found 1 design units and 0 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\all_cards\array_id\source\pack\array_id_pack.vhd
+  Info: Found design unit 1: array_id_pack
+Info: Found 2 design units and 1 entities in source file h:\public_html\sc2mce\system\sys_fw\cards\all_cards\array_id\source\rtl\array_id.vhd
+  Info: Found design unit 1: array_id-rtl
+  Info: Found entity 1: array_id
+Error: Quartus II Analysis & Synthesis was unsuccessful. 1 error, 1 warning
+  Error: Processing ended: Wed Mar 03 16:38:07 2004
+  Error: Elapsed time: 00:00:03
+Info: Writing report file synth.map.rpt
+
+
