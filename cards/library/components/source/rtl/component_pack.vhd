@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.5 2004/05/05 21:24:17 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.6 2004/05/20 17:19:40 mandana Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.6  2004/05/20 17:19:40  mandana
+-- updated counter with STEPSIZE
+--
 -- Revision 1.5  2004/05/05 21:24:17  erniel
 -- added hex2ascii
 --
@@ -82,6 +85,27 @@ use sys_param.general_pack.all;
 use sys_param.wishbone_pack.all;
 
 package component_pack is
+
+
+------------------------------------------------------------
+--
+-- async_fifo 
+--
+------------------------------------------------------------  
+
+component async_fifo
+      generic(fifo_size : Positive);
+      port( 
+         rst_i     : in     std_logic;
+         read_i    : in     std_logic;
+         write_i   : in     std_logic;
+         d_i       : in     std_logic_vector (7 DOWNTO 0);
+         empty_o   : out    std_logic;
+         full_o    : out    std_logic;
+         q_o       : out    std_logic_vector (7 DOWNTO 0)
+      );
+   end component;
+
 
 ------------------------------------------------------------
 --
