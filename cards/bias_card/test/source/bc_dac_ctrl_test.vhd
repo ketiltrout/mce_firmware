@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.4 2004/06/07 23:18:48 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.5 2004/06/08 19:04:02 mandana Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/06/07 23:18:48 $>	- <initials $Author: bench2 $>
+-- <date $Date: 2004/06/08 19:04:02 $>	- <initials $Author: mandana $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.5  2004/06/08 19:04:02  mandana
+-- clean up (from test signals)
+--
 -- Revision 1.4  2004/06/07 23:18:48  bench2
 -- Mandana: lvds added
 --
@@ -94,8 +97,8 @@ architecture rtl of bc_dac_ctrl_test_wrapper is
 type states is (IDLE, PUSH_DATA, SPI_START, DONE); 
 signal present_state         : states;
 signal next_state            : states;
-type   w_array8 is array (7 downto 0) of word16; 
-signal data     : w_array8;
+type   w_array10 is array (9 downto 0) of word16; 
+signal data     : w_array10;
 signal idac     : integer;
 signal ibus     : integer;
 
@@ -137,7 +140,7 @@ begin
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 6)
+   generic map(MAX => 8)
    port map(clk_i   => val_clk,
             rst_i   => logic0, -- '0' or rst_i? think!!!!!
             ena_i   => logic1,
@@ -202,6 +205,8 @@ begin
    data (5) <= "0000000000000100";--x0004 
    data (6) <= "0000000000001000";--x0008 
    data (7) <= "0000000000010000";--x0010 
+   data (8) <= "0000000000100000";--x0020
+   data (9) <= "0000000001000000";--x0040
 
   -- state register:
    state_FF: process(clk_2, rst_i)
