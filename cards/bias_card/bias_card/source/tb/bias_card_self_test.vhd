@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_self_test.vhd,v 1.1 2005/01/20 22:49:14 mandana Exp $
+-- $Id: bias_card_self_test.vhd,v 1.2 2005/01/27 00:21:01 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Mandana Amiri
@@ -29,8 +29,11 @@
 -- self-test blocks to create the packets and feed them in to bias card
 --
 -- Revision history:
--- <date $Date: 2005/01/20 22:49:14 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/01/27 00:21:01 $>    - <initials $Author: mandana $>
 -- $Log: bias_card_self_test.vhd,v $
+-- Revision 1.2  2005/01/27 00:21:01  mandana
+-- ttl_nrx, ttl_tx, ttl_txena type change from vector to std_logic
+--
 -- Revision 1.1  2005/01/20 22:49:14  mandana
 -- Inital Release: bias_card self-test with incoming packets pushed in from the RAM
 --   
@@ -41,14 +44,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-  
+
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
-use work.bias_card_pack.all;
 use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.frame_timing_pack.all;
@@ -117,12 +119,40 @@ end bias_card_self_test;
 
 architecture top of bias_card_self_test is
 
+signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
+
 -- clocks
 signal clk      : std_logic;
-signal mem_clk : std_logic;
+signal mem_clk  : std_logic;
 signal comm_clk : std_logic;
 
+signal rst      : std_logic;
 
+-- wishbone bus (from master)
+signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal addr : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+signal tga  : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+signal we   : std_logic;
+signal stb  : std_logic;
+signal cyc  : std_logic;
+
+-- wishbone bus (from slaves)
+signal slave_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal slave_ack         : std_logic;
+signal led_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal led_ack           : std_logic;
+signal bc_dac_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal bc_dac_ack        : std_logic;
+signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal frame_timing_ack  : std_logic;
+signal slave_err         : std_logic;
+
+-- frame_timing interface
+signal update_bias : std_logic; 
+
+signal debug       : std_logic_vector (31 downto 0);
 -- self-test signals
 signal state_shift       : std_logic;
 signal lvds_lvds_tx      : std_logic;
@@ -130,15 +160,7 @@ signal rdy_lvds_tx       : std_logic;
 signal busy_lvds_tx      : std_logic;
 signal rdaddress_packet_ram: std_logic_vector (5 downto 0);
 signal q_packet_ram      : std_logic_vector (31 downto 0);
-signal rst               : std_logic;
 signal i                 : integer range 0 to 509;
-
-component bc_pll
-port(inclk0 : in std_logic;
-     c0 : out std_logic;
-     c1 : out std_logic;
-     c2 : out std_logic);
-end component;
 
 component packet_ram
 	PORT
@@ -151,74 +173,157 @@ component packet_ram
 	);
 end component;
 
+component bc_pll
+port(inclk0 : in std_logic;
+     c0 : out std_logic;
+     c1 : out std_logic;
+     c2 : out std_logic);
+end component;
+
 begin
    
-   pll1: bc_pll
+   -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
+   -- The transmitter is disabled because the Clock Card is driving this line.
+   ttl_txena1 <= '1';
+   -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
+   rst <= (not rst_n) or (ttl_nrx1);
+   
+   mictor   <= debug;
+   test (4) <= dac_ncs_temp(0);
+   test (6) <= dac_data_temp(0);
+   test (8) <= dac_sclk_temp(0);
+      
+   dac_ncs <= dac_ncs_temp;
+   dac_data <= dac_data_temp;
+   dac_sclk <= dac_sclk_temp;
+   
+   pll0: bc_pll
    port map(inclk0 => inclk,
             c0 => clk,
             c1 => mem_clk,
             c2 => comm_clk);
+            
+   cmd0: dispatch
+      port map(
+         clk_i                      => clk,
+         comm_clk_i                 => comm_clk,
+         rst_i                      => rst,         
+         
+         lvds_cmd_i                 => lvds_lvds_tx, --lvds_cmd
+         lvds_reply_o               => lvds_txa,
+     
+         dat_o                      => data,
+         addr_o                     => addr,
+         tga_o                      => tga,
+         we_o                       => we,
+         stb_o                      => stb,
+         cyc_o                      => cyc,
+         dat_i                      => slave_data,
+         ack_i                      => slave_ack,
+         err_i                      => slave_err,      
+         wdt_rst_o                  => wdog,
+         slot_i                     => slot_id
+      );
+            
+   leds_slave: leds
+      port map(
+         clk_i                      => clk,
+         rst_i                      => rst,
 
-   i_bias_card: bias_card
-    port map(
+         dat_i                      => data,
+         addr_i                     => addr,
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
+         dat_o                      => led_data,
+         ack_o                      => led_ack,
+         
+         power                      => grn_led,
+         status                     => ylw_led,
+         fault                      => red_led
+      );
+            
+   bc_dac_ctrl_slave: bc_dac_ctrl
+      port map(
+         -- DAC hardware interface:
+         -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
+         flux_fb_data_o             => dac_data_temp,      
+         flux_fb_ncs_o              => dac_ncs_temp,     
+         flux_fb_clk_o              => dac_sclk_temp,     
+                                       
+         bias_data_o                => lvds_dac_data,
+         bias_ncs_o                 => lvds_dac_ncs,
+         bias_clk_o                 => lvds_dac_sclk,
+         
+         dac_nclr_o                 => dac_nclr,
+         
+         -- wishbone interface:
+         dat_i                      => data,
+         addr_i                     => addr,
+         tga_i                      => tga, 
+         we_i                       => we,  
+         stb_i                      => stb, 
+         cyc_i                      => cyc, 
+         dat_o                      => bc_dac_data,
+         ack_o                      => bc_dac_ack,
+         
+         -- frame_timing signals
+         update_bias_i              => update_bias,
+         
+         -- Global Signals      
+         clk_i                      => clk,
+         rst_i                      => rst,
+         debug                      => debug
+      );                         
+                                 
+   frame_timing_slave: frame_timing
+      port map(
+         dac_dat_en_o               => open,
+         adc_coadd_en_o             => open,
+         restart_frame_1row_prev_o  => open,
+         restart_frame_aligned_o    => open,
+         restart_frame_1row_post_o  => open,
+         initialize_window_o        => open,
+         
+         row_switch_o               => open,
+         row_en_o                   => open,
+            
+         update_bias_o              => update_bias,
+         
+         dat_i                      => data,
+         addr_i                     => addr,
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
+         dat_o                      => frame_timing_data,
+         ack_o                      => frame_timing_ack,
+         
+         clk_i                      => clk,
+         mem_clk_i                  => mem_clk,
+         rst_i                      => rst,
+         sync_i                     => lvds_sync
+      );
+   
+   with addr select
+      slave_data <= 
+         led_data          when LED_ADDR,
+         bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR,
+         frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         (others => '0')   when others;
 
-       -- PLL input:
-       inclk      => inclk,
-       rst_n      => rst_n,
-       
-       -- LVDS interface:
-       lvds_cmd   => lvds_lvds_tx, --lvds_cmd,  
-       lvds_sync  => lvds_sync, 
-       lvds_spare => lvds_spare,
-       lvds_txa   => lvds_txa, 
-       lvds_txb   => lvds_txb, 
-       
-       -- TTL interface:
-       ttl_nrx1    => ttl_nrx1,  
-       ttl_tx1     => ttl_tx1,   
-       ttl_txena1  => ttl_txena1,
-
-       ttl_nrx2    => ttl_nrx2,  
-       ttl_tx2     => ttl_tx2,   
-       ttl_txena2  => ttl_txena2,
-
-       ttl_nrx3    => ttl_nrx3,  
-       ttl_tx3     => ttl_tx3,   
-       ttl_txena3  => ttl_txena3,
-       
-       -- eeprom ice:nterface:
-       eeprom_si  => eeprom_si, 
-       eeprom_so  => eeprom_so, 
-       eeprom_sck => eeprom_sck,
-       eeprom_cs  => eeprom_cs, 
-       
-       -- dac interface:
-       dac_ncs    => dac_ncs,      
-       dac_sclk   => dac_sclk,     
-       dac_data   => dac_data,         
-       lvds_dac_ncs  => lvds_dac_ncs, 
-       lvds_dac_sclk => lvds_dac_sclk,
-       lvds_dac_data => lvds_dac_data,
-       dac_nclr      => dac_nclr,     
-       
-       -- miscellaneous ports:
-       red_led    => red_led, 
-       ylw_led    => ylw_led, 
-       grn_led    => grn_led, 
-       dip_sw3    => dip_sw3, 
-       dip_sw4    => dip_sw4, 
-       wdog       => wdog,    
-       slot_id    => slot_id, 
-       
-       -- debug ports:
-       test       => test,       
-       mictor     => mictor,     
-       mictorclk  => mictorclk,  
-       rs232_rx   => rs232_rx,
-       rs232_tx   => rs232_tx
-    );     
-    rst <= not rst_n;
-
+   with addr select
+      slave_ack <= 
+         led_ack          when LED_ADDR,
+         bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR,
+         frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when others;
+         
+   with addr select
+      slave_err <= 
+         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '1'              when others;        
 -------------------------------------------------------------------------------
 
 -- blocks to enable HW test without the clk card
@@ -252,7 +357,7 @@ begin
 -------------------------------------------------------------------------------
   i_fsm: process (clk, rst)
  
---    variable i : integer range 0 to 1000009;
+  --  variable i : integer range 0 to 1000009;
   begin  -- process i_fsm
     if rst = '1' then                   -- asynchronous reset
       state_shift <= '0';
@@ -275,7 +380,7 @@ begin
      
     elsif clk'event and clk = '1' then  -- rising clock edge
       if state_shift='1' then
-        if rdaddress_packet_ram <x"2e" then
+        if rdaddress_packet_ram <x"31" then
           rdaddress_packet_ram <= rdaddress_packet_ram + 1;
         else
           rdaddress_packet_ram <= (others => '0');
@@ -286,5 +391,6 @@ begin
 
 -------------------------------------------------------------------------------
 -- End of added blocks for HW test
--------------------------   
+-------------------------            
+   
 end top;
