@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.3 2004/11/08 23:40:29 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.4 2004/11/13 03:25:34 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.4  2004/11/13 03:25:34  bburger
+-- Bryce:  integration with ernie's side of reply_queue
+--
 -- Revision 1.3  2004/11/08 23:40:29  bburger
 -- Bryce:  small modifications
 --
@@ -117,7 +120,7 @@ begin
          m_op_done_i       => mop_done,       
          m_op_cmd_code_o   => m_op_cmd_code_o,   
          m_op_param_id_o   => m_op_param_id_o,   
-         m_op_card_id_o    => m_op_card_id_o,    
+         m_op_card_addr_o  => m_op_card_id_o,    
          m_op_ack_i        => m_op_ack_i,        
          cmd_stop_o        => cmd_stop_o,       
          last_frame_o      => last_frame_o,     
