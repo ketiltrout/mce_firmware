@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.5  2004/10/22 01:55:31  bburger
+-- Bryce:  adding timing signals for RC flux_loop
+--
 -- Revision 1.4  2004/10/06 19:48:35  erniel
 -- moved constants from commnad_pack to sync_gen_pack
 -- updated references to sync_gen_pack
@@ -75,8 +78,8 @@ entity sync_gen is
       dv_i        : in std_logic;
       dv_en_i     : in std_logic;
       sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      dv_o        : out std_logic
+      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
+--      dv_o        : out std_logic
    );
 end sync_gen;
 
@@ -129,12 +132,11 @@ architecture beh of sync_gen is
       new_frame_period  <= '1' when clk_count = END_OF_FRAME else '0';
       sync_o            <= new_frame_period;
       sync_num_o        <= sync_num;
---      sync_num_o        <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_WIDTH));
 
       sync_state_FF: process(clk_i, rst_i)
       begin
          if(rst_i = '1') then
-            current_state <= RESET;
+            current_state <= SYNC_HIGH;
             sync_num      <= (others=>'0');
          elsif(clk_i'event and clk_i = '1') then
             current_state <= next_state;
@@ -145,8 +147,8 @@ architecture beh of sync_gen is
       sync_state_NS: process(current_state, dv_en_i, dv_i, new_frame_period)
       begin
          case current_state is
-            when RESET =>
-               next_state <= SYNC_LOW;
+--            when RESET =>
+--               next_state <= SYNC_LOW;
             when SYNC_LOW =>
                if(dv_en_i = '1') then
                   if(dv_i = '1') then
@@ -177,8 +179,8 @@ architecture beh of sync_gen is
       sync_state_out: process(current_state)
       begin
          case current_state is
-            when RESET =>
-               sync_num_mux_sel <= '1';
+--            when RESET =>
+--               sync_num_mux_sel <= '1';
             when SYNC_LOW =>
                sync_num_mux_sel <= '0';
             when SYNC_HIGH =>

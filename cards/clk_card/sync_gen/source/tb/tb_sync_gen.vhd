@@ -15,14 +15,32 @@ end tb_sync_gen;
 
 architecture beh of tb_sync_gen is
 
-   signal clk_i      : std_logic := '1';   
-   signal rst_i      : std_logic;
-   signal dv_i       : std_logic;
-   signal dv_en_i    : std_logic;
-   signal sync_o     : std_logic;
-   signal sync_num_o : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   signal clk_count_o     : integer;
-   signal clk_error_o     : std_logic_vector(31 downto 0);
+   -- sync_gen
+   signal clk_i                     : std_logic := '1';   
+   signal rst_i                     : std_logic := '0';
+   signal dv_i                      : std_logic := '0';
+   signal dv_en_i                   : std_logic := '0';
+   signal sync                      : std_logic;
+   signal sync_num_o                : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   
+   signal clk_count_o               : integer;
+   signal clk_error_o               : std_logic_vector(31 downto 0);
+   
+   -- frame_timing
+   signal init_window_req           : std_logic := '0';
+
+   signal sample_num                : integer := 42;
+   signal sample_delay              : integer := 5;
+   signal feedback_delay            : integer := 3;
+
+   signal dac_dat_en                : std_logic;
+   signal adc_coadd_en              : std_logic;
+   signal restart_frame_1row_prev   : std_logic;
+   signal restart_frame_aligned     : std_logic;
+   signal restart_frame_1row_post   : std_logic;
+   signal row_switch                : std_logic;
+   signal initialize_window         : std_logic;
+   
 
 
 ------------------------------------------------------------------------
@@ -39,17 +57,29 @@ begin
          rst_i      => rst_i,
          dv_i       => dv_i,
          dv_en_i    => dv_en_i,
-         sync_o     => sync_o,
+         sync_o     => sync,
          sync_num_o => sync_num_o
       );
       
    dut2 : frame_timing
       port map(
-         clk_i => clk_i,
-         sync_i => sync_o,
-         frame_rst_i => rst_i,
-         clk_count_o => clk_count_o,
-         clk_error_o => clk_error_o
+         clk_i                      => clk_i,
+         rst_i                      => rst_i,
+         sync_i                     => sync,
+         frame_rst_i                => rst_i,      
+         init_window_req_i          => init_window_req,
+                                    
+         sample_num_i               => sample_num,
+         sample_delay_i             => sample_delay,
+         feedback_delay_i           => feedback_delay,
+ 
+         dac_dat_en_o               => dac_dat_en,
+         adc_coadd_en_o             => adc_coadd_en,
+         restart_frame_1row_prev_o  => restart_frame_1row_prev,
+         restart_frame_aligned_o    => restart_frame_aligned,
+         restart_frame_1row_post_o  => restart_frame_1row_post,
+         row_switch_o               => row_switch,
+         initialize_window_o        => initialize_window
       );
 
    -- Create a test clock
@@ -71,8 +101,8 @@ begin
    procedure do_nop is
    begin
       rst_i   <= '0';
-      dv_i    <= dv_i;
-      dv_en_i <= dv_en_i;      
+--      dv_i    <= dv_i;
+--      dv_en_i <= dv_en_i;      
       wait for CLOCK_PERIOD;
       assert false report " nop" severity NOTE;
    end do_nop;
@@ -92,17 +122,43 @@ begin
       dv_i    <= '0';
       dv_en_i <= '0';
       wait for CLOCK_PERIOD;
-      assert false report " sync" severity NOTE;
+      assert false report " reset" severity NOTE;
    end do_reset;
+
+   procedure do_init_window is
+   begin
+      init_window_req <= '1';
+      wait for CLOCK_PERIOD;
+      init_window_req <= '0';
+      assert false report " init window" severity NOTE;
+   end do_init_window;
 
    -- Start the test
    begin
       do_reset;
       do_no_dv;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_reset;
+      do_nop;
 
       L2: for count_value in 0 to 3*END_OF_FRAME loop
          do_nop;
       end loop L2;
+      
+      do_init_window;
+      
+      L3: for count_value in 0 to 3*END_OF_FRAME loop
+         do_nop;
+      end loop L3;
 
       assert false report " Simulation done." severity FAILURE;
    end process stimuli;

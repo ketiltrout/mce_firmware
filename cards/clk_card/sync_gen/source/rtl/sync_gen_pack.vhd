@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.4  2004/10/22 01:55:31  bburger
+-- Bryce:  adding timing signals for RC flux_loop
+--
 -- Revision 1.3  2004/10/08 19:45:26  bburger
 -- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
 --
@@ -59,11 +62,11 @@ package sync_gen_pack is
          dv_i        : in std_logic;
          dv_en_i     : in std_logic;
          sync_o      : out std_logic;
-         sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+         sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)
          
          -- This is the synchronous DV pulse issued to the cmd_translator.
          -- It is used by cmd_translator to determine when to send a ret_dat command.
-         dv_o        : out std_logic
+         --dv_o        : out std_logic
       );
    end component;
 end sync_gen_pack;

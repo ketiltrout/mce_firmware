@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.10 2004/08/20 23:59:00 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.11 2004/10/22 01:55:31 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/08/20 23:59:00 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/22 01:55:31 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.11  2004/10/22 01:55:31  bburger
+-- Bryce:  adding timing signals for RC flux_loop
+--
 -- Revision 1.10  2004/08/20 23:59:00  bburger
 -- Bryce:  now expects sync pulses on the last clock cycle in a frame, and restarts clk_count on the next cycle in a frame
 --
@@ -78,11 +81,12 @@ use components.component_pack.all;
 entity frame_timing is
    port(
       clk_i                      : in std_logic;
+      rst_i                      : in std_logic;
       sync_i                     : in std_logic;
       frame_rst_i                : in std_logic;
       
+      -- Where does this signal come from?  Is it a re-sync request?  Or does it come from the flux_loop?
       init_window_req_i          : in std_logic;
---      init_window_clear          : in std_logic;
       
       sample_num_i               : in integer;
       sample_delay_i             : in integer;
@@ -95,14 +99,12 @@ entity frame_timing is
       restart_frame_1row_post_o  : out std_logic;--
       row_switch_o               : out std_logic;--
       initialize_window_o        : out std_logic
-         
---      clk_count_o                : out integer;
---      clk_error_o                : out std_logic_vector(31 downto 0)
    );
 end frame_timing;
 
 architecture beh of frame_timing is
    
+   constant TWO_CYCLE_LATENCY : integer := 2;
    signal clk_error           : std_logic_vector(31 downto 0);
    signal counter_rst         : std_logic;
    signal count               : std_logic_vector(31 downto 0);
@@ -110,12 +112,13 @@ architecture beh of frame_timing is
    signal row_count_int       : integer;
    signal wait_for_sync       : std_logic;
    signal latch_error         : std_logic;
-   signal init_window_clear   : std_logic;
-   signal init_window_req     : std_logic_vector(1 downto 0);
-   signal frame_start         : std_logic;
+   signal restart_frame_aligned : std_logic;
 
    type states is (WAIT_FRM_RST, COUNT_UP, GOT_SYNC, WAIT_TO_LATCH_ERR);
    signal current_state, next_state : states;
+   
+   type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, SET, SET_HOLD);
+   signal current_init_win_state, next_init_win_state : init_win_states;
    
    begin
    frame_period_cntr : counter
@@ -162,32 +165,80 @@ architecture beh of frame_timing is
          reg_o => clk_error
       );
 
-   init_win_reg : reg
-      generic map(
-         WIDTH => 2
-      )
-      port map(
-         clk_i => clk_i,
-         rst_i => init_window_clear,
-         ena_i => init_window_req_i,
-         reg_i => "11",
-         reg_o => init_window_req
-      );
-
    count                      <= conv_std_logic_vector(frame_count_int, 32);
    counter_rst                <= '1' when wait_for_sync = '1' else '0';
 
    -- Frame-timing signals
+
+   -- The persistence of the last restart_frame signal is only for as long as the next one is not received.
+   -- So I can send initialize window signals whenever I want to!.
+   
+   -- There are two situations in which the intialize_window should be asserted:
+   -- 1- After a resync
+   -- 2- After changing flux_loop parameters   
+   
    restart_frame_1row_prev_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_PREV else '0';
-   restart_frame_aligned_o    <= '1' when frame_count_int = END_OF_FRAME else '0';
+   restart_frame_aligned_o    <= restart_frame_aligned;
    restart_frame_1row_post_o  <= '1' when frame_count_int = END_OF_FRAME_1ROW_POST else '0';
    row_switch_o               <= '1' when row_count_int = MUX_LINE_PERIOD-1 else '0';
    dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i else '0';
-   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i else '0';
-   frame_start                <= '1' when frame_count_int = 0 else '0';
+   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - TWO_CYCLE_LATENCY else '0';
+   restart_frame_aligned      <= '1' when frame_count_int = END_OF_FRAME else '0';
+   
+   init_win_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         current_init_win_state <= INIT_OFF;
+      elsif(clk_i'event and clk_i = '1') then
+         current_init_win_state <= next_init_win_state;
+      end if;
+   end process init_win_state_FF;
 
+   init_win_state_NS: process(current_init_win_state, restart_frame_aligned, init_window_req_i)
+   begin
+      case current_init_win_state is
+         when SET =>
+            next_init_win_state <= SET_HOLD;
+         when SET_HOLD =>
+            if(restart_frame_aligned = '1') then
+               next_init_win_state <= INIT_ON;
+            end if;
+         when INIT_ON =>
+            next_init_win_state <= INIT_HOLD;
+         when INIT_HOLD =>
+            if(restart_frame_aligned = '1') then
+               next_init_win_state <= INIT_OFF;
+            end if;               
+         when INIT_OFF =>
+            if(init_window_req_i = '1') then
+               if(restart_frame_aligned = '1') then
+                  next_init_win_state <= SET;
+               else
+                  next_init_win_state <= SET_HOLD;
+               end if;
+            end if;               
+         when others =>
+            next_init_win_state <= INIT_OFF;
+      end case;
+   end process init_win_state_NS;
    
-   
+   init_win_state_out: process(current_init_win_state)
+   begin
+      case current_init_win_state is
+         when SET =>
+            initialize_window_o <= '0';
+         when SET_HOLD =>
+            initialize_window_o <= '0';
+         when INIT_ON =>
+            initialize_window_o <= '1';
+         when INIT_HOLD =>
+            initialize_window_o <= '1';
+         when INIT_OFF =>
+            initialize_window_o <= '0';
+         when others =>
+            initialize_window_o <= '0';
+      end case;
+   end process init_win_state_out;
    
    -- If a frame_reset occurs, then during the next sync pulse, frame_count_int resets to zero and increments to 1 two cycles after the rising edge of the sync pulse
    -- Otherwise, frame_count_int should reset to zero at the time when it reaches END_OF_FRAME - and disregard sync altogether.

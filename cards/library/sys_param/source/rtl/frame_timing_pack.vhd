@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.12 2004/08/28 01:46:05 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.13 2004/10/22 01:55:31 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/08/28 01:46:05 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/22 01:55:31 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.13  2004/10/22 01:55:31  bburger
+-- Bryce:  adding timing signals for RC flux_loop
+--
 -- Revision 1.12  2004/08/28 01:46:05  bburger
 -- Bryce:  The end_of_frame parameter wasn't right
 --
@@ -154,9 +157,10 @@ package frame_timing_pack is
    component frame_timing is
    port(
          clk_i                      : in std_logic;
+         rst_i                      : in std_logic;
          sync_i                     : in std_logic;
          frame_rst_i                : in std_logic;
-         mode_flag_clr_i            : in std_logic;
+         init_window_req_i          : in std_logic;
 
          sample_num_i               : in integer;
          sample_delay_i             : in integer;

@@ -1,6 +1,6 @@
 -- tb_frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_frame_timing.vhd,v 1.3 2004/04/16 21:58:13 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_frame_timing.vhd,v 1.4 2004/08/20 23:59:22 bburger Exp $>
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -10,7 +10,7 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date: 2004/04/16 21:58:13 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/08/20 23:59:22 $> -     <text>      - <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -47,9 +47,9 @@ begin
       port map(
          clk_i => clk_i,
          sync_i => sync_i,
-         frame_rst_i => frame_rst_i,
-         clk_count_o => clk_count_o,
-         clk_error_o => clk_error_o
+         frame_rst_i => frame_rst_i
+--         clk_count_o => clk_count_o,
+--         clk_error_o => clk_error_o
       );
 
    -- Create a test clock
