@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.4 2005/01/04 19:19:47 bburger Exp $
+-- $Id: bias_card.vhd,v 1.5 2005/01/07 01:33:23 bench2 Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.5  2005/01/07 01:33:23  bench2
+-- Mandana: remove spi_clk from PLL, it is divided down by a counter in bc_dac_core module now.
+--
 -- Revision 1.4  2005/01/04 19:19:47  bburger
 -- Mandana: changed mictor assignment to 0 to 31 and swapped odd and even pods
 --
@@ -62,9 +65,6 @@ use work.frame_timing_pack.all;
 use work.bc_dac_ctrl_pack.all;
 
 entity bias_card is
-   generic(
-      CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := BIAS_CARD_1
-   );
    port(
  
       -- PLL input:
@@ -179,15 +179,11 @@ begin
             c2 => comm_clk);
             
    cmd0: dispatch
-      generic map(
-         CARD => CARD
-         )
       port map(
          clk_i                      => clk,
-         mem_clk_i                  => mem_clk,
          comm_clk_i                 => comm_clk,
-         rst_i                      => rst,
-        
+         rst_i                      => rst,         
+         
          lvds_cmd_i                 => lvds_cmd,
          lvds_reply_o               => lvds_txa,
      
@@ -199,9 +195,9 @@ begin
          cyc_o                      => cyc,
          dat_i                      => slave_data,
          ack_i                      => slave_ack,
-         err_i                      => slave_err, 
-     
-         wdt_rst_o                  => wdog
+         err_i                      => slave_err,      
+         wdt_rst_o                  => wdog,
+         slot_i                     => slot_id
       );
             
    leds_slave: leds

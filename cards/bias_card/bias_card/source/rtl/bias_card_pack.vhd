@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.1 2004/12/06 07:22:34 bburger Exp $
+-- $Id: bias_card_pack.vhd,v 1.2 2004/12/16 18:15:33 bench2 Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.2  2004/12/16 18:15:33  bench2
+-- Mandana: fixed the clocking
+--
 -- Revision 1.1  2004/12/06 07:22:34  bburger
 -- Bryce:
 -- Created pack files for the card top-levels.
@@ -49,9 +52,6 @@ use work.bc_dac_ctrl_pack.all;
 package bias_card_pack is
 
 component bias_card
-   generic(
-      CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := BIAS_CARD_1
-   );
    port(
 
       -- PLL input:
