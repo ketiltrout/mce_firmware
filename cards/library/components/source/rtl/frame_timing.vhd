@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.5 2004/04/16 21:58:05 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.6 2004/04/16 23:30:21 mandana Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/16 21:58:05 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/04/16 23:30:21 $> - <text> - <initials $Author: mandana $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.6  2004/04/16 23:30:21  mandana
+-- fixed frame_rst
+--
 -- Revision 1.5  2004/04/16 21:58:05  bburger
 -- bug fixes
 --
@@ -65,7 +68,7 @@ entity frame_timing is
       clk_i       : in std_logic;
       sync_i      : in std_logic;
       frame_rst_i : in std_logic;
-      clk_count_o : out std_logic_vector(31 downto 0);
+      clk_count_o : out integer;
       clk_error_o : out std_logic_vector(31 downto 0)
    );
 end frame_timing;
@@ -105,7 +108,7 @@ architecture beh of frame_timing is
    count <= conv_std_logic_vector(count_int, 32);
 
    -- Inputs/Outputs
-   clk_count_o <= count;
+   clk_count_o <= count_int;
    clk_error_o <= clk_error;
 
    frst : process (sync_i, frame_rst_i, count_int)
