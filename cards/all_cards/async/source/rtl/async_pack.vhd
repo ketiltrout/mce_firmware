@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_pack.vhd,v $
+-- Revision 1.5  2004/09/02 19:11:58  bburger
+-- Bryce:  updated the lvds_tx interface to match that in lvds_tx.vhd
+--
 -- Revision 1.4  2004/06/30 01:46:13  erniel
 -- removed async_tx declaration
 -- removed async_rx declaration
@@ -59,6 +62,7 @@ package async_pack is
    
    component lvds_tx
    port(clk_i      : in std_logic;
+        mem_clk_i  : in std_logic;
         comm_clk_i : in std_logic;
         rst_i      : in std_logic;
      
@@ -87,12 +91,13 @@ package async_pack is
    
    component rs232_tx
    port(clk_i      : in std_logic;
+        mem_clk_i  : in std_logic;
         comm_clk_i : in std_logic;
         rst_i      : in std_logic;
      
         dat_i      : in std_logic_vector(7 downto 0);
-        start_i    : in std_logic;
-        done_o     : out std_logic;
+        rdy_i    : in std_logic;
+        busy_o     : out std_logic;
      
         rs232_o    : out std_logic);
    end component;
