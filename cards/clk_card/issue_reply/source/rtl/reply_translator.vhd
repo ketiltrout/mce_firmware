@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.10 2004/09/02 12:38:24 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.11 2004/09/02 15:10:16 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/02 12:38:24 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/02 15:10:16 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.11  2004/09/02 15:10:16  dca
+-- moved the macro_op acknowledgement assertion in the FSM.
+--
 -- Revision 1.10  2004/09/02 12:38:24  dca
 -- 'reply_nData_i' signal replaced with 'm_op_cmd_code_i' vector
 --
@@ -260,7 +263,7 @@ signal wordN_3mux       : byte;
 -- fibre transmit FIFO (fibre_tx_fifo) 
 
 type fibre_state is           (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, REPLY_ER, 
-                               DATA_FRAME, REQ_Q_WORD , READ_Q_WORD, ST_ER_REPLY,    
+                               DATA_FRAME, REQ_Q_WORD , READ_Q_WORD, ST_ER_REPLY, NO_REPLY,    
                                                                       
                                LD_HEAD1_0, TX_HEAD1_0, LD_HEAD1_1, TX_HEAD1_1,
                                LD_HEAD1_2, TX_HEAD1_2, LD_HEAD1_3, TX_HEAD1_3,
@@ -334,8 +337,9 @@ signal reply_status          : std_logic_vector (15 downto 0);                --
 signal reply_data            : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- this word is the reply or data word read from cmd_queue
 signal packet_type           : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);  -- indicates reply or data packet - written to header word 3
 
-signal m_op_done_reply       : std_logic;                                     -- asserted high when processing reply m_op pacekt
-signal m_op_done_data        : std_logic;                                     -- asserted high when processing data m_op packet
+signal m_op_done_reply       : std_logic;                                     -- asserted high when a m_op is done and processing a reply packet
+signal m_op_done_data        : std_logic;                                     -- asserted high when a m_op is done and processing a data packet
+signal m_op_no_reply         : std_logic;                                     -- asserted high when a m_op is done but no packet to be generated
 
 signal rst_checksum          : std_logic;                                     -- signal asserted to reset packet checksum
 signal ena_checksum          : std_logic;                                     -- signal assertd to update packet checksum with checksum_in value
@@ -357,9 +361,20 @@ signal arb_fsm_ack           : std_logic    ;
 begin
 
 
--- m_op_done and m_op_cmd_code should hold true until m_op_ack_o asserted
-m_op_done_reply  <= m_op_done_i when m_op_cmd_code_i  /= DATA else '0';
-m_op_done_data   <= m_op_done_i when m_op_cmd_code_i   = DATA else '0';
+-- a reply packet should be generated if m_op_done_reply is asserted.
+
+m_op_done_reply  <= m_op_done_i when (m_op_cmd_code_i = WRITE_BLOCK or 
+                                      m_op_cmd_code_i = READ_BLOCK  or 
+                                      m_op_cmd_code_i = STOP)       
+                                      else '0';
+
+-- no reply should be generated if m_op_no_reply is asserted
+m_op_no_reply    <= m_op_done_i when (m_op_cmd_code_i = RESET or 
+                                      m_op_cmd_code_i = START)       
+                                      else '0';
+
+-- a data packet should be generated if m_op_done_data is asserted
+m_op_done_data   <= m_op_done_i when m_op_cmd_code_i = DATA else '0';
 
 
 tx_fw_o                     <= write_fifo;                                    -- map write_fifo signal to output tx_fw_o
@@ -502,8 +517,8 @@ txd_o              <= fibre_byte;
    -------------------------------------------------------------------------
    fibre_fsm_nextstate : process (
       fibre_current_state, cmd_rcvd_ok_i, cmd_rcvd_er_i, m_op_done_reply,
-      m_op_done_data, cmd_code_i, m_op_ok_nEr_i, tx_ff_i, num_fibre_words_i,
-      fibre_word_count, packet_header3_0, stop_err_rdy
+      m_op_no_reply, m_op_done_data, cmd_code_i, m_op_ok_nEr_i, tx_ff_i, 
+      num_fibre_words_i, fibre_word_count, packet_header3_0, stop_err_rdy
    )
    ----------------------------------------------------------------------------
    begin
@@ -530,6 +545,8 @@ txd_o              <= fibre_byte;
             fibre_next_state <= REPLY_OK;
          elsif (m_op_done_reply = '1' and m_op_ok_nEr_i = '0') then 
             fibre_next_state <= REPLY_ER; 
+         elsif (m_op_no_reply = '1') then 
+            fibre_next_state <= NO_REPLY;
          elsif (m_op_done_data = '1') then
             fibre_next_state <= DATA_FRAME;
          else
@@ -541,6 +558,13 @@ txd_o              <= fibre_byte;
           
             fibre_next_state <= LD_HEAD1_0;
           
+      when NO_REPLY =>
+         if (m_op_no_reply = '1') then               -- wait in this state until m_op_done deasserted... 
+            fibre_next_state <= NO_REPLY;
+         else
+            fibre_next_state <= FIBRE_IDLE;           -- once deasserted return to IDLE
+         end if;
+               
           
 -- transmit reply header states
        
@@ -1121,6 +1145,9 @@ txd_o              <= fibre_byte;
             packet_header4_1mux_sel    <= '1';               -- register packet header 4 byte 1
             packet_header4_2mux_sel    <= '1';               -- register packet header 4 byte 2
             packet_header4_3mux_sel    <= '1';               -- register packet header 4 byte 3
+       
+       when NO_REPLY       =>                                -- if no_reply is required just acknowledge the 
+            m_op_ack_o                 <= '1';               -- m_op done.
                         
        when DATA_FRAME     =>   
     
@@ -1450,11 +1477,7 @@ txd_o              <= fibre_byte;
           wordN_1mux_sel              <= '1';
           wordN_2mux_sel              <= '1';
           wordN_3mux_sel              <= '1';   
-           
-                   
-      when OTHERS => 
-             null;
-        
+      
       end case;
       
       
@@ -1559,6 +1582,8 @@ txd_o              <= fibre_byte;
    )
    ----------------------------------------------------------------------------
    begin
+      
+      stop_err_rdy <= '0' ;
      
       case arb_current_state is
 
@@ -1568,11 +1593,7 @@ txd_o              <= fibre_byte;
                     
       when ARB_ST_ERR => 
       
-         stop_err_rdy <= '1' ; 
-      
-      when others =>
-         
-         stop_err_rdy <= '0' ;
+         stop_err_rdy <= '1' ;
          
       end case;
       
