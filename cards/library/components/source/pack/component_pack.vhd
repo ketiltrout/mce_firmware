@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.4 2004/03/23 02:08:53 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.5 2004/03/24 00:16:24 jjacob Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -42,8 +42,11 @@
 -- Feb. 3  2004  - Added 1-wire modules - EL
 
 -- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date: 2004/03/23 02:08:53 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/03/24 00:16:24 $>	-		<text>		- <initials $Author: jjacob $>
 -- $Log: component_pack.vhd,v $
+-- Revision 1.5  2004/03/24 00:16:24  jjacob
+-- add the nanosecond timer
+--
 -- Revision 1.4  2004/03/23 02:08:53  erniel
 -- Added generic counter
 --
@@ -256,32 +259,45 @@ package component_pack is
    end component;
    
      
+------------------------------------------------------------
+--
+-- Serial Peripheral Interface (SPI) blocks
+--
+------------------------------------------------------------    
+
+   component read_spi
+   generic(DATA_LENGTH : integer := 32);
    
-component write_serial_data
-generic(DATA_LENGTH : integer := 8);
+   port(--inputs
+      spi_clk_i        : in std_logic;
+      rst_i            : in std_logic;
+      start_i          : in std_logic;
+      serial_rd_data_i : in std_logic;
+       
+      --outputs
+      spi_clk_o        : out std_logic;
+      done_o           : out std_logic;
+      parallel_data_o  : out std_logic_vector(DATA_LENGTH-1 downto 0)
+      );
+     
+   end component;
 
-port(clk           : in std_logic;
-     rst           : in std_logic;
-     write_start_i : in std_logic;
-     write_done_o  : out std_logic;
-     write_data_i  : in std_logic_vector(DATA_LENGTH-1 downto 0);
-     data_o        : out std_logic);
-end component;   
- 
- 
-   
-component read_serial_data
-generic(DATA_LENGTH : integer := 32);
 
-port(clk           : in std_logic;
-     rst           : in std_logic;
-     read_start_i  : in std_logic;
-     read_done_o   : out std_logic;
-     --read_data_i   : in std_logic_vector(DATA_LENGTH-1 downto 0);
-     read_data_i        : in std_logic; -- serial data from the eeprom
-     read_data_o        : out std_logic_vector(DATA_LENGTH-1 downto 0) ); -- serial data from the eeprom sent back to the eeprom controller state machine
-end component;   
+   component write_spi
+   generic(DATA_LENGTH : integer := 8);
 
+   port(--inputs
+      spi_clk_i        : in std_logic;
+      rst_i            : in std_logic;
+      start_i          : in std_logic;
+      parallel_data_i  : in std_logic_vector(DATA_LENGTH-1 downto 0);
+     
+      --outputs
+      spi_clk_o        : out std_logic;
+      done_o           : out std_logic;
+      serial_wr_data_o : out std_logic);
+     
+   end component;
 
 ------------------------------------------------------------
 --
