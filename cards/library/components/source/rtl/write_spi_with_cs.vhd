@@ -20,8 +20,8 @@
 
 -- write_spi_with_cs.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:         Jonathan Jacob
 -- Organisation:  UBC
 --
 -- Description:  This module implements writing to an SPI device and implements cs signal
@@ -29,8 +29,11 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2004/04/16 19:52:08 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/19 23:40:07 $> - <initials $Author: mandana $>
 -- $Log: write_spi_with_cs.vhd,v $
+-- Revision 1.3  2004/04/19 23:40:07  mandana
+-- fixed misallignment between data and clk
+--
 -- Revision 1.2  2004/04/16 19:52:08  mandana
 -- fixed data_length compare
 --
@@ -226,12 +229,12 @@ begin
    spi_shift : shift_reg
    
    generic map (WIDTH => DATA_LENGTH)
-   port map(clk      => n_spi_clk,
-        rst          => rst_i,
-        ena          => shift_reg_en,
-        load         => shift_reg_load,
-        clr          => shift_reg_clr,
-        shr          => shl, -- '0'
+   port map(clk_i      => n_spi_clk,
+        rst_i          => rst_i,
+        ena_i          => shift_reg_en,
+        load_i         => shift_reg_load,
+        clr_i          => shift_reg_clr,
+        shr_i          => shl, -- '0'
         serial_i     => zero,
         serial_o     => shift_reg_data,
         parallel_i   => parallel_data_i,
