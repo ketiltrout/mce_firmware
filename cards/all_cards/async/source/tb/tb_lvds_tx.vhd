@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_lvds_tx.vhd,v $
+-- Revision 1.2  2004/08/27 19:30:10  erniel
+-- replaced start/done with rdy/busy interface
+--
 -- Revision 1.1  2004/06/17 01:29:58  erniel
 -- initial version
 --
@@ -47,6 +50,7 @@ architecture BEH of TB_LVDS_TX is
 
    component LVDS_TX
       port(CLK_I        : in std_logic ;
+           MEM_CLK_I    : in std_logic ;
            COMM_CLK_I   : in std_logic ;
            RST_I        : in std_logic ;
            DAT_I        : in std_logic_vector ( 31 downto 0 );
@@ -57,10 +61,12 @@ architecture BEH of TB_LVDS_TX is
    end component;
 
 
-   constant PERIOD : time := 40 ns;
-   constant COMM_PERIOD : time := 10 ns;
+   constant PERIOD : time := 20000 ps;
+   constant MEM_PERIOD : time := 5000 ps;
+   constant COMM_PERIOD : time := 2500 ps;
 
    signal W_CLK_I        : std_logic := '1';
+   signal W_MEM_CLK_I    : std_logic := '1';
    signal W_COMM_CLK_I   : std_logic := '1';
    signal W_RST_I        : std_logic ;
    signal W_DAT_I        : std_logic_vector ( 31 downto 0 );
@@ -72,6 +78,7 @@ begin
 
    DUT : LVDS_TX
       port map(CLK_I        => W_CLK_I,
+               MEM_CLK_I    => W_MEM_CLK_I,
                COMM_CLK_I   => W_COMM_CLK_I,
                RST_I        => W_RST_I,
                DAT_I        => W_DAT_I,
@@ -80,6 +87,7 @@ begin
                LVDS_O       => W_LVDS_O);
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
+   W_MEM_CLK_I <= not W_MEM_CLK_I after MEM_PERIOD/2;
    W_COMM_CLK_I <= not W_COMM_CLK_I after COMM_PERIOD/2;
 
    STIMULI : process
@@ -107,12 +115,6 @@ begin
       
       wait for PERIOD;
       
-      W_RDY_I        <= '0';
-      
-      wait until W_BUSY_O = '0';
-      
-      wait for PERIOD;
-      
    end do_transmit;
       
    begin
@@ -122,8 +124,11 @@ begin
       do_transmit("11110000101001010000111100110011");
       
       do_transmit("10101010010101011100110000110011");
+      
+      W_DAT_I <= (others => '0');
+      W_RDY_I <= '0';
 
-      wait for PERIOD;
+      wait for PERIOD*225;
 
       assert FALSE report "End of Simulation." severity FAILURE;
       
