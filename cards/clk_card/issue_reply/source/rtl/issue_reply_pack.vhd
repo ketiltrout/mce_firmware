@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.27 2004/10/08 19:45:26 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.28 2004/10/11 13:32:07 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.28  2004/10/11 13:32:07  dca
+-- Changes due to fibre_rx_fifo becoming a synchronous FIFO megafunction.
+--
 -- Revision 1.27  2004/10/08 19:45:26  bburger
 -- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
 --
@@ -397,6 +400,7 @@ component fibre_tx
 ----------------------------
       port(       
       -- global inputs
+         clk_i        : in     std_logic;
          rst_i        : in     std_logic;                         -- global reset
          
       -- interface to reply_translator
@@ -406,8 +410,7 @@ component fibre_tx
          tx_ff_o      : out    std_logic;                         -- FIFO full flag
       
       -- interface to HOTLINK transmitter
-         ft_clkw_i    : in     std_logic;                          -- 25MHz hotlink clock
-         nTrp_i       : in     std_logic;                          -- hotlink tx read pulse (active low)
+         fibre_clkw_i : in     std_logic;                          -- 25MHz hotlink clock
          tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
          tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
          nFena_o      : out    std_logic                           -- hotlink tx enable
@@ -453,31 +456,29 @@ end component;
 
 
 constant TX_FIFO_DATA_WIDTH   : integer := 8;                              -- size of data words in fibre transmit FIFO
-constant TX_FIFO_ADDR_SIZE    : integer := 10;                             -- size of address bus in fibre transmit FIFO 
-
 ------------------------------
 component fibre_tx_fifo 
 ------------------------------   
-generic(addr_size : Positive);                                             -- read/write address size
-port(                                                                      -- note: fifo size is 2**addr_size
-   
-   rst_i     : in     std_logic;                                           -- global reset
-   tx_fr_i   : in     std_logic;                                           -- fifo read request
-   tx_fw_i   : in     std_logic;                                           -- fifo write request
-   txd_i     : in     std_logic_vector (TX_FIFO_DATA_WIDTH-1 DOWNTO 0);    -- data input
-   tx_fe_o   : out    std_logic;                                           -- fifo empty flag
-   tx_ff_o   : out    std_logic;                                           -- fifo full flag
-   tx_data_o : out    std_logic_vector (TX_FIFO_DATA_WIDTH-1 DOWNTO 0)     -- data output
-   );
 
-   end component;
+port( 
+   clk_i        : in     std_logic;
+   rst_i        : in     std_logic;
+   fibre_clkw_i : in     std_logic;
+   tx_fr_i      : in     std_logic;
+   tx_fw_i      : in     std_logic;
+   txd_i        : in     std_logic_vector (7 downto 0);
+   tx_fe_o      : out    std_logic;
+   tx_ff_o      : out    std_logic;
+   tx_data_o    : out    std_logic_vector (7 downto 0)
+   );
+end component;
+
 
 -----------------------------  
 component fibre_tx_control
 ----------------------------- 
 port( 
-   ft_clkw_i    : in     std_logic;
-   nTrp_i       : in     std_logic;
+   fibre_clkw_i : in     std_logic;
    tx_fe_i      : in     std_logic;
    tsc_nTd_o    : out    std_logic;
    nFena_o      : out    std_logic;
@@ -487,7 +488,6 @@ port(
 end component;
 
 constant RX_FIFO_DATA_WIDTH   : integer := 8;                               -- size of data words in fibre receive FIFO
-constant RX_FIFO_ADDR_SIZE    : integer := 8;                               -- size of address bus in fibre receive FIFO 
 ---------------------------
 component fibre_rx_fifo 
 ---------------------------
@@ -504,19 +504,7 @@ port(
    rxd_o        : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)    -- fifo data output
 );
     
----generic(addr_size : Positive);                                             -- read/write address size
----port(                                                                      -- note: fifo size is 2**addr_size
----   rst_i     : in     std_logic;                                           -- global reset
----   rx_fr_i   : in     std_logic;                                           -- fifo read request
----   rx_fw_i   : in     std_logic;                                           -- fifo write request
---   rx_data_i : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 DOWNTO 0);    -- data input
---   rx_fe_o   : out    std_logic;                                           -- fifo empty flag
---   rx_ff_o   : out    std_logic;                                           -- fifo full flag
---   rxd_o     : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 DOWNTO 0)     -- data output
---   );
 end component;
-
-
 
 ---------------------------
 component fibre_rx_protocol
