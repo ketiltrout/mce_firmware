@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_rx_protocol_fsm.vhd,v 1.2 2004/06/14 13:08:20 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx_protocol.vhd,v 1.1 2004/06/28 10:17:25 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,28 +32,25 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/14 13:08:20 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/28 10:17:25 $>	-		<text>		- <initials $Author: dca $>
 -- $log$
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
-library work;
-use work.rx_protocol_fsm_pack.all;
 
-
-ENTITY tb_rx_protocol_fsm IS
-END tb_rx_protocol_fsm ;
+entity tb_fibre_rx_protocol is
+end tb_fibre_rx_protocol ;
 
 
 library ieee;
 use ieee.std_logic_1164.all;
-USE ieee.NUMERIC_STD.all;
+use ieee.NUMERIC_STD.all;
 library work;
-use work.rx_protocol_fsm_pack.all;
+use work.fibre_rx_pack.all;
 
 
 
-architecture behav of tb_rx_protocol_fsm is
+architecture behav of tb_fibre_rx_protocol is
 
 
    signal dut_rst        : std_logic;
@@ -97,7 +94,7 @@ begin
 -- Instantiate DUT
 -------------------------------------------------
 
-   DUT :  rx_protocol_fsm
+   DUT :  fibre_rx_protocol
    
    port map ( 
       rst_i       => dut_rst,
