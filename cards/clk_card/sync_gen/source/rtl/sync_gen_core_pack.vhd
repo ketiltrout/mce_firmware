@@ -57,27 +57,20 @@ use ieee.std_logic_1164.all;
 library sys_param;
 use sys_param.wishbone_pack.all;
 
-package sync_gen_pack is
+library work;
+use work.sync_gen_pack.all;
 
-constant SYNC_NUM_WIDTH     : integer := 16;
-constant ISSUE_SYNC_WIDTH   : integer := SYNC_NUM_WIDTH;
+package sync_gen_core_pack is
 
-component sync_gen
+component sync_gen_core
    port(
+      -- Wishbone Interface
+      dv_en_i     : in integer;
+      
       -- Inputs/Outputs
       dv_i        : in std_logic;
       sync_o      : out std_logic;
       sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- Wishbone interface
-      dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i               : in std_logic;
-      stb_i              : in std_logic;
-      cyc_i              : in std_logic;
-      dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o              : out std_logic;
 
       -- Global Signals
       clk_i       : in std_logic;
@@ -86,4 +79,4 @@ component sync_gen
    );
 end component;
 
-end sync_gen_pack;
+end sync_gen_core_pack;

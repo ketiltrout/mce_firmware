@@ -15,10 +15,11 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.20 2004/11/06 03:12:01 bburger Exp $>
+-- $Id: tb_issue_reply.vhd,v 1.20 2004/11/06 03:12:01 bburger Exp $
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.21 2004/11/09 15:14:10 dca Exp $>
 --
--- Project: Scuba 2
--- Author: David Atkinson
+-- Project:      Scuba 2
+-- Author:       David Atkinson
 -- Organisation: UK ATC
 --
 -- Title
@@ -28,7 +29,8 @@
 -- Test bed for the issue_reply chain
 --
 -- Revision history:
--- <date $Date: 2004/11/06 03:12:01 $> - <text> - <initials $Author: bburger $>
+-- $Log$
+-- <date $Date: 2004/11/09 15:14:10 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -40,10 +42,15 @@ use ieee.std_logic_unsigned.all;
 library work;
 use work.issue_reply_pack.all;
 use work.async_pack.all;
+use work.sync_gen_core_pack.all;
 use work.sync_gen_pack.all;
 use work.dispatch_pack.all;
-use work.wbs_ac_dac_ctrl_pack.all;
+use work.ac_dac_ctrl_wbs_pack.all;
 use work.ac_dac_ctrl_pack.all;
+use work.wbs_bc_dac_ctrl_pack.all;
+use work.bc_dac_ctrl_pack.all;
+use work.frame_timing_core_pack.all;
+use work.frame_timing_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -51,7 +58,6 @@ use components.component_pack.all;
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
-use sys_param.frame_timing_pack.all;
 use sys_param.data_types_pack.all;
 
 entity tb_issue_reply is     
@@ -88,14 +94,25 @@ architecture tb of tb_issue_reply is
    signal t_fibre_clkw         : std_logic := '1';
    signal t_clk_200mhz_i       : std_logic := '0';
    signal comm_clk             : std_logic := '0';
-   constant pci_dsp_dly        : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI 
-   constant clk_prd            : TIME := 20 ns;    -- 50Mhz clock
-   constant clk_prd_200mhz     : TIME := 5 ns;    -- 200Mhz clock
-   constant fibre_clkr_prd     : TIME := 40 ns;   -- 25MHz clock   
-   constant fibre_clkw_prd     : TIME := 40 ns;   -- 25MHz clock   
-   constant comm_clk_period    : TIME := 40 ns;
-   constant mem_clk_period     : TIME := 5 ns;
-   constant clk_period         : TIME := 20 ns;
+
+   constant pci_dsp_dly        : TIME := 320 ns ;   -- delay between tranmission of 4byte packets from PCI 
+   constant clk_prd            : TIME := 40 ns;    -- 50Mhz clock
+   constant clk_prd_200mhz     : TIME := 10 ns;    -- 200Mhz clock
+   constant fibre_clkr_prd     : TIME := 80 ns;   -- 25MHz clock   
+   constant comm_clk_period    : TIME := 80 ns;
+   constant mem_clk_period     : TIME := 10 ns;
+   constant clk_period         : TIME := 40 ns;
+   
+   constant fibre_clkw_prd     : TIME := 80 ns;   -- 25MHz clock 
+   
+--   constant pci_dsp_dly        : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI 
+--   constant clk_prd            : TIME := 20 ns;    -- 50Mhz clock
+--   constant clk_prd_200mhz     : TIME := 5 ns;    -- 200Mhz clock
+--   constant fibre_clkr_prd     : TIME := 40 ns;   -- 25MHz clock   
+--   constant fibre_clkw_prd     : TIME := 40 ns;   -- 25MHz clock   
+--   constant comm_clk_period    : TIME := 40 ns;
+--   constant mem_clk_period     : TIME := 5 ns;
+--   constant clk_period         : TIME := 20 ns;
 
    constant preamble1          : std_logic_vector(7 downto 0)  := X"A5";
    constant preamble2          : std_logic_vector(7 downto 0)  := X"5A";
@@ -109,13 +126,14 @@ architecture tb of tb_issue_reply is
    constant ret_dat_s_num_data : std_logic_vector(31 downto 0) := X"00000002";  -- 2 data words, start and stop frame #
    signal ret_dat_s_start      : std_logic_vector(31 downto 0) := X"00000003";
    signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000011";   
-   constant ret_dat_num_data   : std_logic_vector(31 downto 0) := X"00000001";  -- 2 data words, start and stop frame #   
+   constant ret_dat_num_data   : std_logic_vector(31 downto 0) := X"00000001";  
    
    constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000B0030";  -- card id=4, ret_dat command
    constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00020034";  -- card id=0, ret_dat_s command
 --   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_READOUT_CARDS  & x"00" & RET_DAT_ADDR;
 --   constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & RET_DAT_S_ADDR;
    constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & FLUX_FB_ADDR;
+   constant bias_cmd           : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & BIAS_ADDR;
    constant sram1_strt_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & SRAM1_STRT_ADDR;
    constant on_bias_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ON_BIAS_ADDR;
    constant off_bias_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & OFF_BIAS_ADDR;
@@ -136,7 +154,7 @@ architecture tb of tb_issue_reply is
    signal count                : integer;
    
    signal dv_i                 : std_logic := '0';
-   signal dv_en_i              : std_logic := '0';
+   signal dv_en_i              : integer := 0;
    
    signal sync_pulse           : std_logic;
    signal sync_number          : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
@@ -153,12 +171,15 @@ architecture tb of tb_issue_reply is
    signal W_ACK_I                 : std_logic;
    signal W_WDT_RST_O             : std_logic;
    
+   -- frame_timing_core interface
    signal frame_rst               : std_logic := '0';
    signal init_window_req         : std_logic := '0';
    signal sample_num              : integer := 40;
    signal sample_delay            : integer := 10;
    signal feedback_delay          : integer := 6;
    signal address_on_delay        : integer := 3;
+   signal row_len                 : integer := 64;
+   signal num_rows                : integer := 41;
    signal update_bias             : std_logic;
    signal dac_dat_en              : std_logic;
    signal adc_coadd_en            : std_logic;
@@ -174,9 +195,23 @@ architecture tb of tb_issue_reply is
    signal off_data                : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
    signal mux_en                  : std_logic;
    signal dac_data                : w14_array11;   
-   signal dac_clks                : std_logic_vector(NUM_OF_ROWS downto 0);
+   signal dac_clks                : std_logic_vector(NUM_OF_ROWS-1 downto 0);
    
-   component issue_reply
+   signal flux_fb_addr            : std_logic_vector(COL_ADDR_WIDTH-1 downto 0);
+   signal flux_fb_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal bias_data               : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
+   signal flux_fb_changed         : std_logic;
+   signal bias_changed            : std_logic;
+   
+   signal spi_flux_fb_data        : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0); 
+   signal spi_flux_fb_ncs         : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+   signal spi_flux_fb_clk         : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+   signal spi_bias_data           : std_logic;
+   signal spi_bias_ncs            : std_logic;
+   signal spi_bias_clk            : std_logic;
+   signal spi_dac_nclr            : std_logic;
+
+   component issue_reply            
    port(
       -- global signals
       rst_i          : in std_logic;
@@ -236,21 +271,28 @@ begin
       sync_number_i              => sync_number
    ); 
    
-   i_sync_gen : sync_gen
+   i_sync_gen : sync_gen_core
    port map
    (
-      clk_i                      => t_clk_i,
-      rst_i                      => t_rst_i,
-      dv_i                       => dv_i,
+      -- Wishbone Interface
       dv_en_i                    => dv_en_i,
+      
+      -- Inputs/Outputs
+      dv_i                       => dv_i,
       sync_o                     => sync_pulse,
-      sync_num_o                 => sync_number      
+      sync_num_o                 => sync_number,
+
+      -- Global Signals
+      clk_i                      => t_clk_i,
+      mem_clk_i                  => t_clk_200mhz_i,
+      rst_i                      => t_rst_i
    );
    
    i_dispatch : DISPATCH
    generic map
    (
       CARD   => ADDRESS_CARD 
+--      CARD   => BIAS_CARD_1 
    )
    port map
    (
@@ -283,17 +325,96 @@ begin
       lvds_i                     => t_tx
    );
    
-   i_wbs_ac_dac_ctrl : wbs_ac_dac_ctrl
+   i_frame_timing : frame_timing_core
    port map
    (
-      on_off_addr_i              => on_off_addr,
-      dac_id_o                   => dac_id,
-      on_data_o                  => on_data,
-      off_data_o                 => off_data, 
-      mux_en_o                   => mux_en,
+      -- Readout Card interface
+      dac_dat_en_o               => dac_dat_en,             
+      adc_coadd_en_o             => adc_coadd_en,           
+      restart_frame_1row_prev_o  => restart_frame_1row_prev,
+      restart_frame_aligned_o    => restart_frame_aligned,  
+      restart_frame_1row_post_o  => restart_frame_1row_post,
+      initialize_window_o        => initialize_window,
+      
+      -- Address Card interface
+      row_switch_o               => row_switch,  
+      row_en_o                   => row_en,      
+         
+      -- Bias Card interface
+      update_bias_o              => update_bias, 
+      
+      -- Wishbone interface
+      row_len_i                  => row_len, 
+      num_rows_i                 => num_rows,
+      sample_delay_i             => sample_delay,   
+      sample_num_i               => sample_num,  
+      feedback_delay_i           => feedback_delay,
+      address_on_delay_i         => address_on_delay,
+      resync_req_i               => frame_rst,  
+      resync_ack_o               => open,
+      init_window_req_i          => init_window_req,
+      init_window_ack_o          => open,
+      
+      -- Global signals
       clk_i                      => t_clk_i,
       mem_clk_i                  => t_clk_200mhz_i,
-      rst_i                      => t_rst_i,      
+      rst_i                      => t_rst_i,
+      sync_i                     => sync_pulse
+   );                            
+
+--------------------------------------------------------
+-- WBS Slave declarations
+------------------------------------------------------      
+
+--   i_wbs_bc_dac_ctrl : wbs_bc_dac_ctrl
+--   port map
+--   (
+--      flux_fb_addr_i          => flux_fb_addr,   
+--      flux_fb_data_o          => flux_fb_data,   
+--      bias_data_o             => bias_data,      
+--      flux_fb_changed_o       => flux_fb_changed,
+--      bias_changed_o          => bias_changed,
+--      clk_i                   => t_clk_i,
+--      mem_clk_i               => t_clk_200mhz_i,
+--      rst_i                   => t_rst_i,      
+--      dat_i                   => W_DAT_O,
+--      addr_i                  => W_ADDR_O,
+--      tga_i                   => W_TGA_O,
+--      we_i                    => W_WE_O,
+--      stb_i                   => W_STB_O,
+--      cyc_i                   => W_CYC_O,
+--      dat_o                   => W_DAT_I,
+--      ack_o                   => W_ACK_I
+--   );
+--
+--   i_bc_dac_ctrl : bc_dac_ctrl
+--   port map
+--   (
+--      flux_fb_data_o          => spi_flux_fb_data,
+--      flux_fb_ncs_o           => spi_flux_fb_ncs,
+--      flux_fb_clk_o           => spi_flux_fb_clk, 
+--      bias_data_o             => spi_bias_data,   
+--      bias_ncs_o              => spi_bias_ncs,    
+--      bias_clk_o              => spi_bias_clk,    
+--      dac_nclr_o              => spi_dac_nclr,    
+--      flux_fb_addr_o          => flux_fb_addr,   
+--      flux_fb_data_i          => flux_fb_data,   
+--      bias_data_i             => bias_data,      
+--      flux_fb_changed_i       => flux_fb_changed,
+--      bias_changed_i          => bias_changed,
+--      update_bias_i           => update_bias,
+--      clk_i                   => t_clk_i,
+--      rst_i                   => t_rst_i
+--   );                        
+                             
+   i_ac_dac_ctrl : ac_dac_ctrl   
+   port map
+   (
+      -- DAC hardware interface:
+      dac_data_o                 => dac_data,
+      dac_clks_o                 => dac_clks,
+   
+      -- wishbone interface:
       dat_i                      => W_DAT_O,
       addr_i                     => W_ADDR_O,
       tga_i                      => W_TGA_O,
@@ -301,45 +422,14 @@ begin
       stb_i                      => W_STB_O,
       cyc_i                      => W_CYC_O,
       dat_o                      => W_DAT_I,
-      ack_o                      => W_ACK_I
-   );
-   
-   i_frame_timing : frame_timing
-   port map
-   (
-      clk_i                      => t_clk_i,
-      rst_i                      => t_rst_i,
-      sync_i                     => sync_pulse,
-      frame_rst_i                => frame_rst,                                              
-      init_window_req_i          => init_window_req,                                        
-      sample_num_i               => sample_num,             
-      sample_delay_i             => sample_delay,           
-      feedback_delay_i           => feedback_delay,         
-      address_on_delay_i         => address_on_delay,                                       
-      update_bias_o              => update_bias,            
-      dac_dat_en_o               => dac_dat_en,             
-      adc_coadd_en_o             => adc_coadd_en,           
-      restart_frame_1row_prev_o  => restart_frame_1row_prev,
-      restart_frame_aligned_o    => restart_frame_aligned,  
-      restart_frame_1row_post_o  => restart_frame_1row_post,
-      row_switch_o               => row_switch,             
-      row_en_o                   => row_en,                 
-      initialize_window_o        => initialize_window      
-   );                            
-                                 
-   i_ac_dac_ctrl : ac_dac_ctrl   
-   port map
-   (
-      dac_data_o                 => dac_data,
-      dac_clks_o                 => dac_clks,                                 
-      on_off_addr_o              => on_off_addr,
-      dac_id_i                   => dac_id,
-      on_data_i                  => on_data,
-      off_data_i                 => off_data,
-      mux_en_i                   => mux_en,     
+      ack_o                      => W_ACK_I,
+
+      -- frame_timing interfac
       row_switch_i               => row_switch,
-      restart_frame_aligned_i    => restart_frame_aligned,
-      row_en_i                   => row_en,                                
+      restart_frame_aligned_i    => restart_frame_aligned,    
+      row_en_i                   => row_en,
+      
+      -- Global Signals      
       clk_i                      => t_clk_i,
       mem_clk_i                  => t_clk_200mhz_i,
       rst_i                      => t_rst_i
@@ -622,27 +712,25 @@ begin
    end load_checksum;
        
   
- --------------------------------------------------------
- ---- BEGIN TEST
- ------------------------------------------------------      
+--------------------------------------------------------
+-- Begin Test
+------------------------------------------------------      
        
    begin
       
       do_reset;    
       
-      
-        -- Testing a go command to see if reply generated
-        -- by reply translator / fibre_tx
-        
-      command <= command_go;
-      address_id <= on_bias_cmd;
-      data_valid <= X"00000001"; -- 1 data value
-      data       <= X"12345678"; -- dummy data
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 80 us;
+--      -- Testing a go command to see if reply generated
+--      -- by reply translator / fibre_tx
+--      command <= command_go;
+--      address_id <= on_bias_cmd;
+--      data_valid <= X"00000001"; -- 1 data value
+--      data       <= X"12345678"; -- dummy data
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 80 us;
       
       
       
@@ -659,6 +747,34 @@ begin
 --      
 --      wait for 80 us;
 
+--------------------------------------------------------
+-- bc_dac_ctrl commands
+------------------------------------------------------      
+--      command <= command_wb;
+--      address_id <= flux_fdbck_cmd;
+--      data_valid <= X"00000020"; --32 values
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 160 us;
+--
+--      command <= command_wb;
+--      address_id <= bias_cmd;
+--      data_valid <= X"00000001"; --1 value
+--      data       <= X"00000021";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 240 us;
+
+   
+--------------------------------------------------------
+-- ac_dac_ctrl commands
+------------------------------------------------------      
+      
       -- This is a 'WB ac on_bias 0 1 2 .. 40' command
       -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
       command <= command_wb;
@@ -669,7 +785,7 @@ begin
       load_command;
       load_checksum;
       
-      wait for 80 us;
+      wait for 200 us;
 
       -- This is a 'WB ac on_bias 0 1 2 .. 40' command
       -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
@@ -681,7 +797,7 @@ begin
       load_command;
       load_checksum;
       
-      wait for 80 us;
+      wait for 200 us;
 
       -- This is a 'WB ac on_bias 0 1 2 .. 40' command
       -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
@@ -693,21 +809,21 @@ begin
       load_command;
       load_checksum;
       
-      wait for 80 us;
+      wait for 200 us;
 
       command <= command_wb;
       address_id <= enbl_mux_cmd;
-      data_valid <= X"00000001"; --41 values
+      data_valid <= X"00000001"; --1 value
       data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
       
-      wait for 240 us;
+      wait for 120 us;
 
       command <= command_wb;
       address_id <= enbl_mux_cmd;
-      data_valid <= X"00000001"; --41 values
+      data_valid <= X"00000001"; --1 value
       data       <= X"00000000";
       load_preamble;
       load_command;
@@ -717,18 +833,24 @@ begin
 
       command <= command_wb;
       address_id <= enbl_mux_cmd;
-      data_valid <= X"00000001"; --41 values
+      data_valid <= X"00000001"; --1 value
       data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
       
-      wait for 120 us;
-        
+      wait for 300 us;
+
+--------------------------------------------------------
+-- data return commands
+------------------------------------------------------      
+--        
 --      -- This sequence of two commands will be used to test the ability to stop the return of data frames in mid-sequence
---      ret_dat_s_start <= x"00000003";
---      ret_dat_s_stop  <= x"00000008";
 --      
+--      -- setup start and stop frame numbers
+--      ret_dat_s_start <= x"00000003";
+--      ret_dat_s_stop  <= x"00000088";
+--  
 --      command <= command_wb;
 --      address_id <= ret_dat_s_cmd;
 --      data_valid <= ret_dat_s_num_data;
@@ -737,29 +859,33 @@ begin
 --      load_command;
 --      load_checksum;
 --      
+--      -- wait for setup to finish
 --      wait for 100 us;
 --
+--      -- issue the "GO" command to start taking data frames
 --      command <= command_go;
 --      address_id <= ret_dat_cmd;
 --      data_valid <= ret_dat_num_data;
---      data <= (others=>'1');
+--      data <= (others=>'0');
 --      load_preamble;
 --      load_command;
 --      load_checksum;    
 --      
---      wait for 1 us;  
+--      wait for 10 us;  
 --
 --      -- This stop command seems to cause problems if it occurs after the ret_dat commands have already been issued to the cmd_queue
---      -- It currently doesn't work because the cmd_queue fills up faster than the the stop command can be processed.
-----      command <= command_st;
-----      address_id <= ret_dat_cmd;
-----      data_valid <= ret_dat_num_data;
-----      data <= (others=>'0');
-----      load_preamble;
-----      load_command;
-----      load_checksum;    
+--      -- It currently doesn't work because the cmd_queue fills up faster than the the stop command can be processed.   The cmd_queue
+--      -- fills up because the reply path currently doesn't work, therefore, commands are never retired.
+--      command <= command_st;
+--      address_id <= ret_dat_cmd;
+--      data_valid <= ret_dat_num_data;
+--      data <= (others=>'0');
+--      load_preamble;
+--      load_command;
+--      load_checksum;    
 --      
---      wait for 10*55 us;  
+--      wait for 55*115 us; 
+--      
 -----------------------------------------------------------------
 
 --        -- This is a 'WB bc1 flux_fdbck 8' command x"00070020"
