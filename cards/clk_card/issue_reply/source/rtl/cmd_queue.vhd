@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.68 2004/12/04 02:03:05 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.69 2004/12/06 07:23:04 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.69  2004/12/06 07:23:04  bburger
+-- Bryce:  Modified cmd_queue and reply_queue stop them from allowing start commands over the backplane
+--
 -- Revision 1.68  2004/12/04 02:03:05  bburger
 -- Bryce:  fixing some problems associated with integrating the reply_queue
 --
@@ -677,10 +680,22 @@ begin
          uop_to_retire <= '0';
       elsif(clk_i'event and clk_i = '1') then
          present_retire_state <= next_retire_state;
-         retire_ptr <= retire_ptr_mux;
+         
+         -- This logic determines the next value of the retire_ptr
+         if(retire_ptr_mux_sel = "001") then
+            retire_ptr <= ADDR_ZERO;
+         elsif(retire_ptr_mux_sel = "010") then
+            retire_ptr <= retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size;
+         elsif(retire_ptr_mux_sel = "101") then
+            retire_ptr <= retire_ptr + 1;
+         elsif(retire_ptr_mux_sel = "110") then
+            retire_ptr <= retire_ptr + 1 + retire_data_size;
+         else
+            retire_ptr <= retire_ptr;
+         end if;
 
          -- This signal is to be used to determine when there is a u-op to retire.  
-         -- This signal should not be asserted until the entire u-op pointed to by retire_ptr has been issued.   
+         -- This signal should not be asserted until the entire u-op pointed to by retire_ptr has been issued (not including the CRC).   
          if((retire_ptr < send_ptr) and (retire_cmd_code /= READ_BLOCK) and (send_ptr+1 > retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size)) then
             uop_to_retire <= '1';
          elsif((retire_ptr > send_ptr) and (retire_cmd_code /= READ_BLOCK) and (send_ptr+1 > QUEUE_LEN - retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size)) then
@@ -720,13 +735,6 @@ begin
          reg_o      => retire_cmd_code
       );
 
-   -- Re-circulation muxes
-   retire_ptr_mux <= retire_ptr when retire_ptr_mux_sel = "000" else
-                     ADDR_ZERO  when retire_ptr_mux_sel = "001" else
-                     retire_ptr + CQ_NUM_CMD_HEADER_WORDS + retire_data_size when retire_ptr_mux_sel = "010" else  -- Skip the u-op
-                     retire_ptr + 1 when retire_ptr_mux_sel = "101" else
-                     retire_ptr + 1 + retire_data_size when retire_ptr_mux_sel = "110";
-   
    retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire, send_ptr, retire_ptr, retire_cmd_code)
    begin
       next_retire_state <= present_retire_state;
