@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.6 2004/07/28 23:36:20 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.7 2004/08/27 16:50:40 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/07/28 23:36:20 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/08/27 16:50:40 $>	-		<text>		- <initials $Author: jjacob $>
 -- <$log$>
 -----------------------------------------------------------------------------
 library ieee;
@@ -208,7 +208,10 @@ signal check_update      : std_logic;                        -- control signal t
 signal check_reset       : std_logic;                        -- control signal to initiate a checksum reset
 
 signal cksum_calc_mux     : std_logic_vector(31 downto 0);
-signal cksum_calc_mux_sel : std_logic;
+signal cksum_calc_mux_sel : std_logic_vector(1 downto 0);
+
+signal cksum_calc2        : std_logic_vector(31 downto 0); 
+signal cksum_calc_reg     : std_logic_vector(31 downto 0); 
 
 -- signals mapped to output ports
 
@@ -769,8 +772,8 @@ begin
       write_mem          <= '0'; 
       read_mem           <= '0';
       reset_mem          <= '0';
-      --check_update       <= '0';
-      cksum_calc_mux_sel <= '0';
+      check_update       <= '0';
+      cksum_calc_mux_sel <= "00";
       check_reset        <= '0';
       
       cmd_mux_sel0       <= '0';
@@ -807,6 +810,7 @@ begin
       case current_state IS
          when IDLE =>
             reset_mem         <= '1';
+            cksum_calc_mux_sel <= "11";
             check_reset       <= '1';  
             data_out_mux_sel  <= '1';     -- set to '1' so that output is reset to data_out is reset to (others => '0')
       
@@ -901,8 +905,8 @@ begin
 
          when RQ_ID0 =>
             rx_fr             <= '1' ;
-            --check_update      <= '1';  -- update checksum with command code word
-            cksum_calc_mux_sel <= '1';
+            check_update      <= '1';  -- update checksum with command code word
+            cksum_calc_mux_sel <= "01";
          when RQ_ID1 =>
             rx_fr             <= '1' ;
          when RQ_ID2 =>
@@ -913,8 +917,8 @@ begin
 
          when RQ_NDA0 =>
             rx_fr             <= '1' ;
-            --check_update      <= '1'; -- update checksum with id word
-            cksum_calc_mux_sel <= '1';
+            check_update      <= '1'; -- update checksum with id word
+            cksum_calc_mux_sel <= "01";
          when RQ_NDA1 =>
             rx_fr             <= '1' ;
          when RQ_NDA2 =>
@@ -925,8 +929,8 @@ begin
         
          when RQ_BLK0 =>
             rx_fr             <= '1' ;    
-            --check_update      <= '1';  -- update checksum with previous data word (or NDA word 1st time round) 
-            cksum_calc_mux_sel <= '1';
+            check_update      <= '1';  -- update checksum with previous data word (or NDA word 1st time round) 
+            cksum_calc_mux_sel <= "01";
          when RQ_BLK1 =>
             rx_fr             <= '1' ;
          when RQ_BLK2 =>
@@ -940,8 +944,8 @@ begin
 
          when RQ_CKSM0 =>
             rx_fr             <= '1';
-            --check_update      <= '1';   -- update checksum with last data word
-            cksum_calc_mux_sel <= '1';
+            check_update      <= '1';   -- update checksum with last data word
+            cksum_calc_mux_sel <= "01";
          when RQ_CKSM1 =>
             rx_fr             <= '1';
          when RQ_CKSM2 =>
@@ -1307,19 +1311,19 @@ begin
 --  begin
 --     
 --    if (check_reset = '1') then
---       cksum_calc <= (others => '0');
+--       cksum_calc2 <= (others => '0');
 --    elsif (check_update'EVENT AND check_update = '1') then
---       cksum_calc <= cksum_calc XOR cksum_in;
+--       cksum_calc2 <= cksum_calc2 XOR cksum_in;
 --    end if;
 --     
 --  end process checksum_calculator;   
-  
+--  
   
   
   
   
   ------------------------------------------------------------------------------
-  checksum_calculator: process(rst_i, clk_i)
+  checksum_calculator2: process(rst_i, clk_i)
   ----------------------------------------------------------------------------
   -- process to update calculated checksum
   ----------------------------------------------------------------------------
@@ -1327,15 +1331,17 @@ begin
   begin
      
     if (rst_i = '1') then
-       cksum_calc <= (others => '0');
+       cksum_calc_reg <= (others => '0');
     elsif (clk_i'EVENT AND clk_i = '1') then
-       cksum_calc <= cksum_calc_mux; --cksum_calc XOR cksum_in;
+       cksum_calc_reg <= cksum_calc; --cksum_calc XOR cksum_in;
     end if;
      
-  end process checksum_calculator;   
+  end process checksum_calculator2;   
   
   -- mux
-  cksum_calc_mux <= cksum_calc when cksum_calc_mux_sel = '0' else (cksum_calc XOR cksum_in);
+  cksum_calc     <= cksum_calc_reg               when cksum_calc_mux_sel = "00" else 
+                    cksum_calc_reg XOR cksum_in  when cksum_calc_mux_sel = "01" else
+                    (others=>'0');
    
   ------------------------------------------------------------------------------
   write_memory: process(reset_mem, write_mem)
