@@ -54,32 +54,21 @@ library work;
 use work.ac_dac_ctrl_wbs_pack.all;
 use work.frame_timing_pack.all;
 
-package ac_dac_ctrl_pack is
+package ac_dac_ctrl_core_pack is
 
-   constant AC_NUM_BUSES : integer := 11;
-   constant AC_BUS_WIDTH : integer := 14;
-   constant ROW_COUNTER_MAX : integer := 63;
-   
-   -- The reset value is one less than the max value so that the counter does not stop, and hold reset high forever.
-   constant FRAME_RESTART_DELAY_MAX : integer := 2;
-   constant FRAME_RESTART_RESET : integer := 1;
-
-component ac_dac_ctrl is        
+component ac_dac_ctrl_core is        
    port
    (
       -- DAC hardware interface:
       dac_data_o              : out w14_array11;   
       dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
    
-      -- wishbone interface:
-      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                    : in std_logic;
-      stb_i                   : in std_logic;
-      cyc_i                   : in std_logic;
-      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                   : out std_logic;
+      -- Wishbone interface
+      on_off_addr_o           : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+      dac_id_i                : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      on_data_i               : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      off_data_i              : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      mux_en_wbs_i            : in std_logic;
 
       -- frame_timing interface:
       row_switch_i            : in std_logic;
@@ -94,4 +83,4 @@ component ac_dac_ctrl is
 end component;
 
 
-end ac_dac_ctrl_pack;
+end ac_dac_ctrl_core_pack;

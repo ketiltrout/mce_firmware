@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.2  2004/11/18 05:21:56  bburger
+-- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
+--
 -- Revision 1.1  2004/10/13 20:05:01  erniel
 -- initial version
 -- led module only
@@ -162,66 +165,66 @@ begin
          CARD => ADDRESS_CARD
          )
       port map(
-         clk_i      => clk,
-         mem_clk_i  => mem_clk,
-         comm_clk_i => comm_clk,
-         rst_i      => rst,
+         clk_i                      => clk,
+         mem_clk_i                  => mem_clk,
+         comm_clk_i                 => comm_clk,
+         rst_i                      => rst,
         
-         lvds_cmd_i   => lvds_cmd,
-         lvds_reply_o => lvds_txa,
+         lvds_cmd_i                 => lvds_cmd,
+         lvds_reply_o               => lvds_txa,
      
-         dat_o  => data,
-         addr_o => addr,
-         tga_o  => tga,
-         we_o   => we,
-         stb_o  => stb,
-         cyc_o  => cyc,
-         dat_i  => slave_data,
-         ack_i  => slave_ack,
+         dat_o                      => data,
+         addr_o                     => addr,
+         tga_o                      => tga,
+         we_o                       => we,
+         stb_o                      => stb,
+         cyc_o                      => cyc,
+         dat_i                      => slave_data,
+         ack_i                      => slave_ack,
      
-         wdt_rst_o => wdog
+         wdt_rst_o                  => wdog
       );
             
    leds_slave: leds
       port map(
-         clk_i  => clk,
-         rst_i  => rst,
+         clk_i                      => clk,
+         rst_i                      => rst,
 
-         dat_i  => data,
-         addr_i => addr,
-         tga_i  => tga,
-         we_i   => we,
-         stb_i  => stb,
-         cyc_i  => cyc,
-         dat_o  => led_data,
-         ack_o  => led_ack,
+         dat_i                      => data,
+         addr_i                     => addr,
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
+         dat_o                      => led_data,
+         ack_o                      => led_ack,
          
-         power  => grn_led,
-         status => ylw_led,
-         fault  => red_led
+         power                      => grn_led,
+         status                     => ylw_led,
+         fault                      => red_led
       );
             
    ac_dac_ctrl_slave: ac_dac_ctrl
       port map(
-         dac_data_o              => dac_data,
-         dac_clks_o              => dac_clk,
+         dac_data_o                 => dac_data,
+         dac_clks_o                 => dac_clk,
       
-         dat_i                   => data,
-         addr_i                  => addr,
-         tga_i                   => tga,
-         we_i                    => we,
-         stb_i                   => stb,
-         cyc_i                   => cyc,
-         dat_o                   => ac_dac_data,
-         ack_o                   => ac_dac_ack,
+         dat_i                      => data,
+         addr_i                     => addr,
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
+         dat_o                      => ac_dac_data,
+         ack_o                      => ac_dac_ack,
 
-         row_switch_i            => row_switch,
-         restart_frame_aligned_i => restart_frame_aligned,
-         row_en_i                => row_en,
-                                 
-         clk_i                   => clk,
-         mem_clk_i               => mem_clk,
-         rst_i                   => rst
+         row_switch_i               => row_switch,
+         restart_frame_aligned_i    => restart_frame_aligned,
+         row_en_i                   => row_en,
+                                    
+         clk_i                      => clk,
+         mem_clk_i                  => mem_clk,
+         rst_i                      => rst
       );                         
                                  
    frame_timing_slave: frame_timing
@@ -268,15 +271,16 @@ begin
    with addr select
       slave_data <= 
          led_data          when LED_ADDR,
-         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR,
+         ac_dac_data       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          (others => '0')   when others;
 
    with addr select
       slave_ack <= 
          led_ack          when LED_ADDR,
-         ac_dac_ack       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR | ROW_ORDER_ADDR,
+         ac_dac_ack       when ON_BIAS_ADDR | OFF_BIAS_ADDR | ENBL_MUX_ADDR   | ROW_ORDER_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
-         '0'              when others;
+         '0'              when "00000000",
+         '1'              when others;
    
 end top;
