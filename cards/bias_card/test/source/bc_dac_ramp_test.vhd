@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.1 2004/06/02 17:46:19 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.2 2004/06/04 21:00:26 bench2 Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -218,28 +218,32 @@ begin
    begin
       case present_state is
          when IDLE =>     
-           for idac in 0 to 31 loop
+           for idac in 0 to 32 loop
                dac_data_p(idac) <= "0000000000000000";
-            end loop;            
-            send_dac32_start <= '0';
+            end loop;       
+            send_dac32_start    <= '0';
+            send_dac_lvds_start <= '0';
          
          when PUSH_DATA =>    
-            for idac in 0 to 31 loop
+            for idac in 0 to 32 loop
                dac_data_p(idac) <= data;
             end loop;
             send_dac32_start <= '0';
+            send_dac_lvds_start <= '0';
                           
          when SPI_START =>     
-            for idac in 0 to 31 loop
+            for idac in 0 to 32 loop
                dac_data_p(idac) <= data;
             end loop;
             send_dac32_start <= '1';
+            send_dac_lvds_start <= '1';
 
           when DONE =>    
             for idac in 0 to 31 loop
                dac_data_p(idac) <= data;
             end loop;
             send_dac32_start <= '0';
+            send_dac_lvds_start <= '0';
 	                              
       end case;
    end process state_out;

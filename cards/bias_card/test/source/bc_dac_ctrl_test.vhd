@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.2 2004/05/29 19:12:55 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.3 2004/06/04 21:00:26 bench2 Exp $>
 
 --
 -- Project:	      SCUBA-2
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/05/29 19:12:55 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/06/04 21:00:26 $>	- <initials $Author: bench2 $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.3  2004/06/04 21:00:26  bench2
+-- Mandana: ramp test works now
+--
 -- Revision 1.2  2004/05/29 19:12:55  erniel
 -- synthesized,  fixed value test debugged
 --
@@ -92,9 +95,8 @@ architecture rtl of bc_dac_ctrl_test_wrapper is
 type states is (IDLE, PUSH_DATA, SPI_START, DONE); 
 signal present_state         : states;
 signal next_state            : states;
-type   w_array7 is array (6 downto 0) of word16; 
-signal data     : w_array7;
-signal idat     : integer;
+type   w_array8 is array (7 downto 0) of word16; 
+signal data     : w_array8;
 signal idac     : integer;
 signal ibus     : integer;
 
@@ -136,7 +138,7 @@ begin
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 5)
+   generic map(MAX => 6)
    port map(clk_i   => val_clk,
             rst_i   => logic0, -- '0' or rst_i? think!!!!!
             ena_i   => logic1,
@@ -192,17 +194,6 @@ begin
       serial_wr_data_o => lvds_dac_dat_o
    );
  
--- instantiate a counter to go through the data values
-   data_count: counter
-   generic map(MAX => 7)
-   port map(clk_i   => en_i,
-            rst_i   => rst_i,
-            ena_i   => logic1,
-            load_i  => logic0,
-            down_i  => logic0,
-            count_i => zero ,
-            count_o => idat);
-
   -- values tried on DAC Tests with fixed values                               
    data (0) <= "1111111111111111";--xffff     full scale
    data (1) <= "1000000000000000";--x8000     half range
@@ -211,6 +202,7 @@ begin
    data (4) <= "0000000000000010";--x0002 
    data (5) <= "0000000000000100";--x0004 
    data (6) <= "0000000000001000";--x0008 
+   data (7) <= "0000000000010000";--x0010 
 
   -- state register:
    state_FF: process(clk_2, rst_i)
@@ -248,28 +240,32 @@ begin
    begin
       case present_state is
          when IDLE =>     
-           for idac in 0 to 31 loop
+           for idac in 0 to 32 loop
                dac_data_p(idac) <= "0000000000000000";
             end loop;            
-            send_dac32_start <= '0';
+            send_dac32_start    <= '0';
+            send_dac_lvds_start <= '0';
             val_clk   <= '1';
             done_o    <= '0';
          
          when PUSH_DATA =>    
-            for idac in 0 to 31 loop
+            for idac in 0 to 32 loop
                dac_data_p(idac) <= data(idx);
             end loop;
-            send_dac32_start <= '0';
+            send_dac32_start    <= '0';
+            send_dac_lvds_start <= '0';
             val_clk   <= '0';
 	    done_o    <= '0';
                           
          when SPI_START =>     
-            send_dac32_start <= '1';
+            send_dac32_start    <= '1';
+            send_dac_lvds_start <= '1';
             val_clk   <= '0';
 	    done_o    <= '0';
 
           when DONE =>    
-            send_dac32_start <= '0';
+            send_dac32_start    <= '0';
+            send_dac_lvds_start <= '0';
             val_clk   <= '0';
 	    done_o    <= '1';
 	                              
