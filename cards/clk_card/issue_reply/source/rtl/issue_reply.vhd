@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.10 2004/09/10 01:21:01 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.11 2004/09/25 01:23:49 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/10 01:21:01 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/09/25 01:23:49 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.11  2004/09/25 01:23:49  bburger
+-- Bryce:  Added command-code, last-frame and stop-frame interfaces
+--
 -- Revision 1.10  2004/09/10 01:21:01  bburger
 -- Bryce:  Hardware testing, bug fixing
 --
@@ -53,8 +56,8 @@
 --       reply_cmd_rcvd_er_o         : out std_logic;
 --       reply_cmd_rcvd_ok_o         : out std_logic;
 --       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
---       reply_param_id_o            : out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
---       reply_card_id_o             : out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0)
+--       reply_param_id_o            : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+--       reply_card_id_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)
 --
 -- and also added an input for the checksum error to route to the reply_cmd_rcvd_er_
 --
@@ -84,7 +87,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-use ieee.numeric_std.all;
 
 library components;
 use components.component_pack.all;
@@ -94,10 +96,9 @@ use work.fibre_rx_pack.all;
 use work.issue_reply_pack.all;
 use work.cmd_queue_pack.all;
 use work.cmd_queue_ram40_pack.all;
+use work.sync_gen_pack.all;
 
 library sys_param;
-use sys_param.wishbone_pack.all;
-use sys_param.general_pack.all;
 use sys_param.command_pack.all;
 
 --use sys_param.frame_timing_pack.all;
@@ -144,10 +145,10 @@ port(
       -- this signals are temporarily here for testing, in order to route these signals to top level
       -- to be viewed on the logic analyzer
       
---      card_addr_o       :  out std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
-      parameter_id_o    :  out std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
---      data_size_o       :  out std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
-      data_o            :  out std_logic_vector (DATA_BUS_WIDTH-1 downto 0);        -- data will be passed straight thru
+--      card_addr_o       :  out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);   -- specifies which card the command is targetting
+      parameter_id_o    :  out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);      -- comes from param_id_i, indicates which device(s) the command is targetting
+--      data_size_o       :  out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);   -- num_data_i, indicates number of 16-bit words of data
+      data_o            :  out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);        -- data will be passed straight thru
       data_clk_o        :  out std_logic;
       macro_instr_rdy_o :  out std_logic;
 --      
@@ -176,31 +177,31 @@ end issue_reply;
 architecture rtl of issue_reply is
 
       -- inputs from fibre_rx 
-      signal card_id         :  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
+      signal card_id         :  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
       signal cmd_code        :  std_logic_vector (15 downto 0);                       -- the least significant 16-bits from the fibre packet
       signal cksum_err       :  std_logic;
-      signal cmd_data        :  std_logic_vector (DATA_BUS_WIDTH-1 downto 0);         -- the data 
+      signal cmd_data        :  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- the data 
       signal cmd_rdy         :  std_logic;                                            -- indicates the fibre_rx outputs are valid
       signal data_clk        :  std_logic;                                            -- used to clock the data out
-      signal num_data        :  std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
-      signal param_id        :  std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);       -- the parameter ID
-      signal cmd_type        :  std_logic_vector (CMD_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      signal num_data        :  std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
+      signal param_id        :  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+      signal cmd_type        :  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
       signal cmd_ack         :  std_logic;   -- acknowledge signal from cmd_translator to fibre_rx
       signal cmd_stop        :  std_logic;
       signal last_frame      :  std_logic;
  
       -- signals for the return path for quick responses, currently not implemented
 --      signal reply_cmd_ack_o      :  std_logic; 
---      signal reply_card_addr_o    :  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
---      signal reply_parameter_id_o :  std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
---      signal reply_data_size_o    :  std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0); 
---      signal reply_data_o         :  std_logic_vector (DATA_BUS_WIDTH-1 downto 0); 
+--      signal reply_card_addr_o    :  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+--      signal reply_parameter_id_o :  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+--      signal reply_data_size_o    :  std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0); 
+--      signal reply_data_o         :  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
       
       signal reply_cmd_rcvd_er    :  std_logic;
       signal reply_cmd_rcvd_ok  :  std_logic;
       signal reply_cmd_code     :  std_logic_vector (15 downto 0);
-      signal reply_param_id     :  std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); 
-      signal reply_card_id      :  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
+      signal reply_param_id     :  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0); 
+      signal reply_card_id      :  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
 
       signal sync_pulse           : std_logic;
       signal sync_number          : std_logic_vector (7 downto 0);
@@ -208,7 +209,7 @@ architecture rtl of issue_reply is
 
 
       -- reply_queue interface
-      signal uop_status : std_logic_vector(UOP_STATUS_BUS_WIDTH-1 downto 0);
+      signal uop_status : std_logic_vector(BB_STATUS_WIDTH-1 downto 0);
       signal uop_rdy : std_logic;
       signal uop_rdy_stg1 :std_logic;
       signal uop_rdy_stg2 :std_logic;
@@ -219,13 +220,13 @@ architecture rtl of issue_reply is
    
  
          -- cmd_translator to cmd_queue interface
-      signal card_addr :  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
-      signal parameter_id:  std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0); 
-      signal data_size:  std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
-      signal data :  std_logic_vector (DATA_BUS_WIDTH-1 downto 0);
+      signal card_addr :  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+      signal parameter_id:  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0); 
+      signal data_size:  std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);
+      signal data :  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       signal data_clk2 :  std_logic; 
-      signal m_op_seq_num : std_logic_vector(MOP_BUS_WIDTH-1 downto 0);--(7 downto 0);
-      signal frame_sync_num  : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);--(7 downto 0);
+      signal m_op_seq_num : std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);--(7 downto 0);
+      signal frame_sync_num  : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);--(7 downto 0);
       signal frame_seq_num   : std_logic_vector(31 downto 0);-- currently doesn't go anywhere.  Doesn't need to be an output from the cmd_translator
       signal macro_instr_rdy:  std_logic; 
       signal mop_ack :  std_logic; 
