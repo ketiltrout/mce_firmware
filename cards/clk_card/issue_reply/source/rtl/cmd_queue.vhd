@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.61 2004/10/26 23:59:16 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.62 2004/11/02 07:38:09 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.62  2004/11/02 07:38:09  bburger
+-- Bryce:  ac_dac_ctrl in progress
+--
 -- Revision 1.61  2004/10/26 23:59:16  bburger
 -- Bryce:  working out the bugs from the cmd_queue<->reply_queue interface
 --
@@ -143,7 +146,7 @@ signal num_uops_inserted_slv: std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0)
 signal one_more             : std_logic;
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
-type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, HEADER_A, HEADER_B, HEADER_C, HEADER_D);
+type retire_states is (FIRST_IDLE, IDLE, NEXT_UOP, STATUS, RETIRE, HEADER_A, HEADER_B, HEADER_C, HEADER_D);
 signal present_retire_state : retire_states;
 signal next_retire_state    : retire_states;
 signal retired              : std_logic; --Out, to the u-op counter fsm
@@ -645,7 +648,7 @@ begin
    retire_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_retire_state <= IDLE;
+         present_retire_state <= FIRST_IDLE;
          retire_ptr <= (others => '0');
          uop_to_retire <= '0';
       elsif(clk_i'event and clk_i = '1') then
@@ -684,91 +687,88 @@ begin
                      retire_ptr + 1 when retire_ptr_mux_sel = "101" else
                      retire_ptr + 1 + retire_data_size when retire_ptr_mux_sel = "110";
    
-   retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire)
+   retire_state_NS: process(present_retire_state, uop_ack_i, uop_to_retire, send_ptr, retire_ptr)
    begin
       next_retire_state <= present_retire_state;
       case present_retire_state is
+         when FIRST_IDLE =>
+            if(send_ptr /= retire_ptr) then
+               next_retire_state <= IDLE;
+            end if;
+         
          when IDLE =>
             if(uop_to_retire = '1') then
                next_retire_state <= HEADER_B;
--- This causes a glitch in the next_retire_state signal when it is in IDLE
---            else
---               next_retire_state <= IDLE;
             end if;
+         
          when HEADER_B =>
             next_retire_state <= HEADER_C;
+         
          when HEADER_C =>
             next_retire_state <= HEADER_D;
+         
          when HEADER_D =>
             next_retire_state <= STATUS;
+         
          when STATUS =>
             if(uop_ack_i = '1') then
                   next_retire_state <= RETIRE;
             elsif (uop_ack_i = '0') then
                next_retire_state <= STATUS;
             end if;
+         
          when RETIRE =>
-            next_retire_state <= IDLE;
+            next_retire_state <= FIRST_IDLE;
+         
          when others =>
-            next_retire_state <= IDLE;
+            next_retire_state <= FIRST_IDLE;
       end case;
    end process;
 
    rdaddress_b_sig <= retire_ptr;
    uop_o <= qb_sig;
 
-   retire_state_out: process(present_retire_state, next_retire_state)
+   retire_state_out: process(present_retire_state, next_retire_state, send_ptr, retire_ptr)
    begin
       -- defaults
+      uop_rdy_o      <= '0';
+      freeze_send    <= '0';
+      retired        <= '0';
       retire_ptr_mux_sel  <= "000"; -- hold value
       retire_data_size_en <= '0';
       one_less            <= '0';
    
       case present_retire_state is
+         when FIRST_IDLE =>
+            if(send_ptr /= retire_ptr) then
+               retire_data_size_en <= '1';
+            end if;
+         
          when IDLE =>
-            freeze_send    <= '0';
-            retired        <= '0';
             if(next_retire_state = HEADER_B) then
                retire_ptr_mux_sel <= "101";
-               retire_data_size_en <= '1';
+--               retire_data_size_en <= '1';
                uop_rdy_o      <= '1';
             else
                uop_rdy_o      <= '0';
             end if;
             
          when HEADER_B =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
-            retired        <= '0';
             retire_ptr_mux_sel <= "101"; 
             
          when HEADER_C => 
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
-            retired        <= '0';
             retire_ptr_mux_sel <= "101"; 
 
          when HEADER_D =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
-            retired        <= '0';
             retire_ptr_mux_sel <= "110"; 
             
          when STATUS =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
-            retired        <= '0';
             
          when RETIRE =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
             retired        <= '1';
             one_less       <= '1';
             
          when others =>
-            uop_rdy_o      <= '0';
-            freeze_send    <= '0';
-            retired        <= '0';
       end case;
    end process;
 
