@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.9  2004/11/26 01:34:31  erniel
+-- added support for wishbone err_i signal
+--
 -- Revision 1.8  2004/10/28 20:42:27  erniel
 -- fixed synthesis warning in process stateNS
 --
@@ -84,15 +87,15 @@ port(clk_i : in std_logic;
      cmd_type_i  : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);     
      param_id_i  : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
        
-     cmd_buf_data_i : in std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-     cmd_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+     cmd_buf_data_i : in std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
+     cmd_buf_addr_o : out std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
      
      -- Reply interface:
      wb_rdy_o : out std_logic;
      wb_err_o : out std_logic;
                
-     reply_buf_data_o : out std_logic_vector(BUF_DATA_WIDTH-1 downto 0);
-     reply_buf_addr_o : out std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
+     reply_buf_data_o : out std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
+     reply_buf_addr_o : out std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
      reply_buf_wren_o : out std_logic;
      
      -- Wishbone interface:
@@ -123,8 +126,9 @@ signal addr_ena : std_logic;
 signal addr_clr : std_logic;
 signal addr : integer;
 
-signal buf_addr : std_logic_vector(BUF_ADDR_WIDTH-1 downto 0);
-signal tga_addr : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+signal cmd_buf_addr   : std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
+signal reply_buf_addr : std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
+signal tga_addr       : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
 
 signal timer_rst : std_logic;
 signal timer     : integer;
@@ -146,8 +150,9 @@ begin
             
    addr_ena <= addr_clr or ack_i;  -- allow clear when addr_clr = '1' OR increment when ack_i = '1'
    
-   buf_addr <= conv_std_logic_vector(addr, BUF_ADDR_WIDTH);
-   tga_addr <= conv_std_logic_vector(addr, WB_TAG_ADDR_WIDTH);
+   cmd_buf_addr   <= conv_std_logic_vector(addr, CMD_BUF_ADDR_WIDTH);
+   reply_buf_addr <= conv_std_logic_vector(addr, REPLY_BUF_ADDR_WIDTH);
+   tga_addr       <= conv_std_logic_vector(addr, WB_TAG_ADDR_WIDTH);
    
    
    ---------------------------------------------------------
@@ -248,12 +253,12 @@ begin
    end process stateOut;
    
    -- command buffer used during WRITE_BLOCK commands:
-   cmd_buf_addr_o   <= buf_addr when cmd_type_i = WRITE_CMD else (others => '0');
+   cmd_buf_addr_o   <= cmd_buf_addr when cmd_type_i = WRITE_CMD else (others => '0');
    -- cmd_buf_data_i is wishbone dat_o
       
    -- reply buffer used during READ_BLOCK commands:
-   reply_buf_addr_o <= buf_addr when cmd_type_i = READ_CMD else (others => '0');
-   reply_buf_data_o <= dat_i    when cmd_type_i = READ_CMD else (others => '0');
-   reply_buf_wren_o <= '1'      when cmd_type_i = READ_CMD and pres_state = WB_CYCLE else '0';
+   reply_buf_addr_o <= reply_buf_addr when cmd_type_i = READ_CMD else (others => '0');
+   reply_buf_data_o <= dat_i          when cmd_type_i = READ_CMD else (others => '0');
+   reply_buf_wren_o <= '1'            when cmd_type_i = READ_CMD and pres_state = WB_CYCLE else '0';
    
 end rtl;
