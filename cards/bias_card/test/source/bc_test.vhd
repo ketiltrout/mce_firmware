@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.11  2004/06/21 18:32:15  bench2
+-- renamed all_test_idle to bc_test_idle
+--
 -- Revision 1.10  2004/06/12 00:49:20  bench2
 -- Mandana: xtalk test works now, but only a small sawtooth, has to be slowed down.
 --
@@ -125,7 +128,7 @@ architecture behaviour of bc_test is
    signal dac_test_ncs: std_logic_vector(31 downto 0);
    signal dac_test_sclk: std_logic_vector(31 downto 0);
    signal dac_test_data: std_logic_vector(31 downto 0);
-
+   
 
    -- transmitter signals
    signal tx_clock : std_logic;
@@ -236,7 +239,8 @@ architecture behaviour of bc_test is
    
    
    signal test_data : std_logic_vector(31 downto 0);
-   signal spi_start : std_logic;
+   signal lvds_spi_start : std_logic;
+   signal spi_start      : std_logic;
    signal fix_spi_start  : std_logic;   
    signal ramp_spi_start : std_logic;
    signal xtalk_spi_start: std_logic;
@@ -410,7 +414,8 @@ begin
                lvds_dac_ncs_o => fix_lvds_dac_ncs,
                lvds_dac_clk_o => fix_lvds_dac_sclk,
 
-               spi_start_o    => fix_spi_start
+               spi_start_o    => fix_spi_start,
+               lvds_spi_start_o => lvds_spi_start
                );   
 
    dac_ramp :  bc_dac_ramp_test_wrapper
@@ -474,17 +479,32 @@ begin
                        ramp_dac_ncs       when "01",
                        xtalk_dac_ncs      when "10",
                        xtalk_dac_ncs      when "11";
-
+---- lvds signals
+   with dac_test_mode select
+      lvds_dac_data <= fix_lvds_dac_data       when "00",
+                       ramp_lvds_dac_data      when "01",
+                       xtalk_lvds_dac_data     when "10",
+                       xtalk_lvds_dac_data     when "11";
+                       
+   with dac_test_mode select
+      lvds_dac_sclk <= fix_lvds_dac_sclk       when "00",
+                       ramp_lvds_dac_sclk      when "01",
+                       xtalk_lvds_dac_sclk     when "10",
+                       xtalk_lvds_dac_sclk     when "11";
+                       
+   with dac_test_mode select
+      lvds_dac_ncs  <= fix_lvds_dac_ncs        when "00",
+                       ramp_lvds_dac_ncs       when "01",
+                       xtalk_lvds_dac_ncs      when "10",
+                       xtalk_lvds_dac_ncs      when "11";
+                       
+-- for directing to test pin purpose only!
    with dac_test_mode select
       spi_start     <= fix_spi_start      when "00",
                        ramp_spi_start     when "01",
                        xtalk_spi_start    when "10",
                        xtalk_spi_start    when "11";
    
---   dac_test_ncs <= fix_dac_ncs;
---   dac_test_data <= fix_dac_data;
---   dac_test_sclk <= fix_dac_sclk;
-
    dac_ncs <= dac_test_ncs;
    dac_sclk <= dac_test_sclk;
    dac_data <= dac_test_data;
@@ -623,4 +643,5 @@ begin
    test(9) <= dac_test_data(0);
    test(10) <= dac_test_data(1);
    test(14) <= spi_start;
+   test(13) <= lvds_spi_start;
 end behaviour;
