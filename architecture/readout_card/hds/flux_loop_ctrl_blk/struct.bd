@@ -130,19 +130,19 @@ value "C:\\scuba2_repository\\architecture\\readout_card\\hds\\flux_loop_ctrl_bl
 )
 (vvPair
 variable "date"
-value "10/04/2004"
+value "10/13/2004"
 )
 (vvPair
 variable "day"
-value "Mon"
+value "Wed"
 )
 (vvPair
 variable "day_long"
-value "Monday"
+value "Wednesday"
 )
 (vvPair
 variable "dd"
-value "04"
+value "13"
 )
 (vvPair
 variable "entity_name"
@@ -202,7 +202,7 @@ value "C:\\scuba2_repository\\architecture\\readout_card\\hds\\flux_loop_ctrl_bl
 )
 (vvPair
 variable "project_name"
-value "readout_card"
+value "mce"
 )
 (vvPair
 variable "series"
@@ -234,7 +234,7 @@ value "<TBD>"
 )
 (vvPair
 variable "time"
-value "12:39:58"
+value "09:13:57"
 )
 (vvPair
 variable "unit"
@@ -5098,7 +5098,7 @@ fg "0,0,32768"
 xt "13200,2200,24300,4200"
 st "
 Mohsen working on this
-Oct 01, 2004: 20% Completed
+Oct 12, 2004: 70% Completed
 "
 tm "CommentText"
 wrapOption 3
@@ -9817,7 +9817,7 @@ viewArea "-31810,-12762,210311,140601"
 cachedDiagramExtent "-29000,-10000,212900,138000"
 hasePageBreakOrigin 1
 pageBreakOrigin "-78000,-51000"
-lastUid 6851,0
+lastUid 6861,0
 defaultCommentText (CommentText
 shape (Rectangle
 layer 0
