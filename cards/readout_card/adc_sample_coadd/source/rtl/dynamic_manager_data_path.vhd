@@ -100,6 +100,9 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.3  2004/11/26 18:25:54  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/10/29 01:54:30  mohsen
 -- Sorted out library use and use parameters
 --
@@ -195,10 +198,10 @@ begin  -- rtl
       shifted_initialize_window <= (others => '0');
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
-      shifted_initialize_window(0) <= initialize_window_i;
-      for i in 1 to MAX_SHIFT-1 loop
-        shifted_initialize_window(i) <= shifted_initialize_window(i-1);
-      end loop;  -- i
+
+      shifted_initialize_window(MAX_SHIFT-1 downto 1) <= shifted_initialize_window(MAX_SHIFT-2 downto 0);
+      shifted_initialize_window(0)                    <= initialize_window_i;
+
     end if;
   end process i_delay_initialize_window;
 

@@ -113,6 +113,9 @@
 -- Revision history:
 -- 
 -- $Log: coadd_manager_data_path.vhd,v $
+-- Revision 1.3  2004/11/26 18:25:54  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.2  2004/10/29 01:53:50  mohsen
 -- Sorted out library use and use parameters
 --
@@ -215,10 +218,10 @@ begin  -- beh
       shifted_adc_coadd_en <= (others => '0');
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
-      shifted_adc_coadd_en(0) <= adc_coadd_en_i;
-      for i in 1 to MAX_SHIFT-1 loop
-        shifted_adc_coadd_en(i) <= shifted_adc_coadd_en(i-1);
-      end loop;  -- i
+      
+      shifted_adc_coadd_en(MAX_SHIFT-1 downto 1) <= shifted_adc_coadd_en(MAX_SHIFT-2 downto 0);
+      shifted_adc_coadd_en(0)                    <= adc_coadd_en_i;
+
     end if;
   end process i_delay_adc_coadd_en;
 

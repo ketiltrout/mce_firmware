@@ -129,6 +129,9 @@
 -- Revision history:
 -- 
 -- $Log: coadd_dynamic_manager_ctrl.vhd,v $
+-- Revision 1.2  2004/10/29 01:52:12  mohsen
+-- Sorted out library use and use parameters
+--
 -- Revision 1.1  2004/10/22 00:14:37  mohsen
 -- Created
 --
@@ -235,10 +238,8 @@ begin  -- timing_beh
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
       
-      delayed_last_row(0) <= last_row;
-      for i in 1 to MAX_SHIFT-1 loop
-        delayed_last_row(i) <= delayed_last_row(i-1);
-      end loop;  -- i
+      delayed_last_row(MAX_SHIFT-1 downto 1) <= delayed_last_row(MAX_SHIFT-2 downto 0);
+      delayed_last_row(0)                    <= last_row;
       
     end if;
   end process i_shift_delay;
@@ -255,10 +256,8 @@ begin  -- timing_beh
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
 
-      delay_row_switch(0) <= row_switch_i;
-      for i in 1 to COADD_DONE_MAX_COUNT-1 loop
-        delay_row_switch(i) <= delay_row_switch(i-1);
-      end loop;  -- i
+      delay_row_switch(COADD_DONE_MAX_COUNT-1 downto 1) <= delay_row_switch(COADD_DONE_MAX_COUNT-2 downto 0);
+      delay_row_switch(0)                               <= row_switch_i;
       
     end if;
   end process i_shift_row_switch;
