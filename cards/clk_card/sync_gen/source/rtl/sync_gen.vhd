@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.10  2004/11/25 01:34:32  bburger
+-- Bryce:  changed signal dv_en interface from integer to std_logic
+--
 -- Revision 1.9  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
@@ -115,14 +118,9 @@ architecture beh of sync_gen is
    type states is (SYNC_LOW, SYNC_HIGH, DV_RECEIVED, RESET);   
    signal current_state, next_state : states;
    
-   signal new_frame_period : std_logic;   
    signal clk_count        : integer;
    signal sync_count       : integer;
-   signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal dv_en            : std_logic;
-   
-   signal sync_num_mux     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   signal sync_num_mux_sel : std_logic;
 
 begin      
    wbi: sync_gen_wbs        

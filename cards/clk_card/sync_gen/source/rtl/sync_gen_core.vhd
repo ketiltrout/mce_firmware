@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.3  2004/12/04 02:03:06  bburger
+-- Bryce:  fixing some problems associated with integrating the reply_queue
+--
 -- Revision 1.2  2004/11/25 01:34:32  bburger
 -- Bryce:  changed signal dv_en interface from integer to std_logic
 --
@@ -169,6 +172,7 @@ begin
 
    sync_state_NS: process(current_state, new_frame_period)--, dv_i, dv_en_i
    begin
+      next_state <= current_state;
       case current_state is
          when SYNC_LOW =>
 -- The functionality of being able to sync to the DV pulse is not implemented yet.
@@ -201,6 +205,7 @@ begin
    
    sync_state_out: process(current_state)
    begin
+      sync_num_mux_sel <= '0';
       case current_state is
          when SYNC_LOW =>
             sync_num_mux_sel <= '0';
