@@ -5,9 +5,9 @@ Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 18.102 ns
+Actual Time    : 16.944 ns
 From           : rst_n
-To             : issue_reply:issue_reply0|cmd_queue:i_cmd_queue|cmd_queue_ram40:cmd_queue_ram40_inst|alt3pram:alt3pram_component|altdpram:altdpram_component2|altsyncram:ram_block|altsyncram_akf1:auto_generated|ram_block1a23~porta_datain_reg11
+To             : issue_reply:issue_reply0|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_akf1:auto_generated|ram_block1a16~porta_datain_reg2
 From Clock     : 
 To Clock       : inclk
 Failed Paths   : 0
@@ -15,7 +15,7 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 10.157 ns
+Actual Time    : 12.525 ns
 From           : issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|async_tx:transmit|shift_reg:tx_databuf|reg[0]
 To             : lvds_cmd
 From Clock     : inclk
@@ -35,9 +35,9 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : 2.879 ns
+Actual Time    : 3.158 ns
 From           : altera_internal_jtag
-To             : sld_signaltap:auto_signaltap_0|bypass_reg_out
+To             : sld_hub:sld_hub_inst|sld_rom_sr:HUB_INFO_REG|WORD_SR[3]
 From Clock     : 
 To Clock       : altera_internal_jtag~TCKUTAP
 Failed Paths   : 0
@@ -62,95 +62,85 @@ From Clock     :
 To Clock       : 
 Failed Paths   : 0
 
-Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk2'
-Slack          : -12.595 ns
-Required Time  : 200.00 MHz ( period = 5.000 ns )
-Actual Time    : N/A
-From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|param_id[2]
-To             : issue_reply:issue_reply0|cmd_queue:i_cmd_queue|cmd_queue_ram40:cmd_queue_ram40_inst|alt3pram:alt3pram_component|altdpram:altdpram_component2|altsyncram:ram_block|altsyncram_akf1:auto_generated|ram_block1a23~porta_datain_reg11
-From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
-To Clock       : cc_pll:pll0|altpll:altpll_component|_clk2
-Failed Paths   : 6936
-
 Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : -11.727 ns
+Slack          : -12.099 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
 From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_receive:rx_ac|fifo:header_fifo|altsyncram:fifo_storage|altsyncram_q221:auto_generated|ram_block1a15~portb_address_reg4
-To             : issue_reply:issue_reply0|reply_translator:i_reply_translator|packet_header4_1[3]
+To             : issue_reply:issue_reply0|reply_translator:i_reply_translator|packet_header4_1[4]
 From Clock     : cc_pll:pll0|altpll:altpll_component|_clk1
 To Clock       : cc_pll:pll0|altpll:altpll_component|_clk0
-Failed Paths   : 8747
+Failed Paths   : 8773
 
-Type           : Clock Setup: 'inclk'
-Slack          : -7.740 ns
-Required Time  : 25.00 MHz ( period = 40.000 ns )
-Actual Time    : N/A
-From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|param_id[2]
-To             : sld_signaltap:auto_signaltap_0|acq_trigger_in_reg[65]
-From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
-To Clock       : inclk
-Failed Paths   : 3029
-
-Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk1'
-Slack          : -1.915 ns
+Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk2'
+Slack          : -10.077 ns
 Required Time  : 200.00 MHz ( period = 5.000 ns )
 Actual Time    : N/A
-From           : dispatch:cmd0|dispatch_wishbone:wishbone|pres_state~21
-To             : dispatch:cmd0|dispatch_data_buf:transmit_buf|altsyncram:altsyncram_component|altsyncram_64b1:auto_generated|ram_block1a24~porta_datain_reg31
+From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|param_id[1]
+To             : issue_reply:issue_reply0|cmd_queue:i_cmd_queue|cmd_queue_tpram:cmd_queue_ram40_inst|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_akf1:auto_generated|ram_block1a16~porta_datain_reg2
+From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
+To Clock       : cc_pll:pll0|altpll:altpll_component|_clk2
+Failed Paths   : 5012
+
+Type           : Clock Setup: 'inclk'
+Slack          : -6.217 ns
+Required Time  : 25.00 MHz ( period = 40.000 ns )
+Actual Time    : N/A
+From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|param_id[1]
+To             : sld_signaltap:auto_signaltap_0|acq_trigger_in_reg[60]
+From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
+To Clock       : inclk
+Failed Paths   : 3055
+
+Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk1'
+Slack          : -2.068 ns
+Required Time  : 200.00 MHz ( period = 5.000 ns )
+Actual Time    : N/A
+From           : dispatch:cmd0|dispatch_wishbone:wishbone|pres_state~27
+To             : dispatch:cmd0|dispatch_data_buf:transmit_buf|altsyncram:altsyncram_component|altsyncram_64b1:auto_generated|ram_block1a24~porta_datain_reg3
 From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
 To Clock       : cc_pll:pll0|altpll:altpll_component|_clk1
-Failed Paths   : 2609
+Failed Paths   : 3060
 
 Type           : Clock Setup: 'altera_internal_jtag~TCKUTAP'
-Slack          : 6.931 ns
+Slack          : 6.918 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 162.92 MHz ( period = 6.138 ns )
-From           : sld_hub:sld_hub_inst|sld_dffex:\GEN_IRF:1:IRF|Q[5]
+Actual Time    : 162.23 MHz ( period = 6.164 ns )
+From           : sld_signaltap:auto_signaltap_0|sld_rom_sr:crc_rom_sr|WORD_SR[0]
 To             : sld_hub:sld_hub_inst|HUB_TDO~reg0
 From Clock     : altera_internal_jtag~TCKUTAP
 To Clock       : altera_internal_jtag~TCKUTAP
 Failed Paths   : 0
 
 Type           : Clock Setup: 'fibre_rx_ckr'
-Slack          : 12.557 ns
+Slack          : 12.013 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 134.35 MHz ( period = 7.443 ns )
+Actual Time    : 125.20 MHz ( period = 7.987 ns )
 From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|cntr_c08:cntr2|safe_q[0]
-To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dpram_cor:dpram5|altsyncram_hic1:altsyncram14|ram_block15a7~porta_we_reg
+To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|cntr_c08:cntr2|safe_q[1]
 From Clock     : fibre_rx_ckr
 To Clock       : fibre_rx_ckr
 Failed Paths   : 0
 
 Type           : Clock Setup: 'cc_pll:pll0|altpll:altpll_component|_clk3'
-Slack          : 18.291 ns
+Slack          : 18.421 ns
 Required Time  : 25.00 MHz ( period = 40.000 ns )
 Actual Time    : N/A
-From           : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|fibre_tx_fifo:fibre_tx_fifo_inst|sync_fifo_tx:sync_fifo_tx_inst|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dffe8a[6]
-To             : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|fibre_tx_fifo:fibre_tx_fifo_inst|sync_fifo_tx:sync_fifo_tx_inst|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dffe9a[6]
+From           : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|fibre_tx_fifo:fibre_tx_fifo_inst|sync_fifo_tx:sync_fifo_tx_inst|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dffe8a[4]
+To             : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|fibre_tx_fifo:fibre_tx_fifo_inst|sync_fifo_tx:sync_fifo_tx_inst|dcfifo:dcfifo_component|dcfifo_k541:auto_generated|alt_sync_fifo_jkm:alt_sync_fifo1|dffe9a[4]
 From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
 To Clock       : cc_pll:pll0|altpll:altpll_component|_clk3
 Failed Paths   : 0
 
 Type           : Clock Hold: 'cc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : -6.102 ns
+Slack          : -6.378 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
-From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|data_in[13]
-To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|memory[18][13]
+From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|data_in[20]
+To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_protocol:I2|memory[31][20]
 From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
 To Clock       : cc_pll:pll0|altpll:altpll_component|_clk0
-Failed Paths   : 2145
-
-Type           : Clock Hold: 'cc_pll:pll0|altpll:altpll_component|_clk2'
-Slack          : -0.156 ns
-Required Time  : 200.00 MHz ( period = 5.000 ns )
-Actual Time    : N/A
-From           : dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|pres_state~21
-To             : dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|async_tx:transmit|pres_state~20
-From Clock     : cc_pll:pll0|altpll:altpll_component|_clk0
-To Clock       : cc_pll:pll0|altpll:altpll_component|_clk2
-Failed Paths   : 2
+Failed Paths   : 2146
 
 Type           : Total number of failed paths
 Slack          : 
@@ -160,7 +150,7 @@ From           :
 To             : 
 From Clock     : 
 To Clock       : 
-Failed Paths   : 2147
+Failed Paths   : 2146
 
 --------------------------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
 Flow report for clk_card
-Wed Dec 08 14:41:33 2004
+Mon Dec 13 22:17:24 2004
 Version 4.1 Build 181 06/29/2004 SJ Full Version
 
 
@@ -42,14 +42,14 @@ party's intellectual property, are provided herein.
 +---------------------------------------------------------------------+
 ; Flow Summary                                                        ;
 +--------------------------+------------------------------------------+
-; Flow Status              ; Successful - Wed Dec 08 14:41:11 2004    ;
+; Flow Status              ; Successful - Mon Dec 13 22:17:02 2004    ;
 ; Quartus II Version       ; 4.1 Build 181 06/29/2004 SJ Full Version ;
 ; Revision Name            ; clk_card                                 ;
 ; Top-level Entity Name    ; clk_card                                 ;
 ; Family                   ; Stratix                                  ;
 ; Device                   ; EP1S30F780C5                             ;
 ; Timing Models            ; Production                               ;
-; Total logic elements     ; 14,451 / 32,470 ( 44 % )                 ;
+; Total logic elements     ; 14,699 / 32,470 ( 45 % )                 ;
 ; Total pins               ; 97 / 598 ( 16 % )                        ;
 ; Total memory bits        ; 1,027,072 / 3,317,184 ( 30 % )           ;
 ; DSP block 9-bit elements ; 0 / 96 ( 0 % )                           ;
@@ -63,7 +63,7 @@ party's intellectual property, are provided herein.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 12/08/2004 14:20:21 ;
+; Start date & time ; 12/13/2004 21:56:51 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; clk_card            ;
 +-------------------+---------------------+
@@ -74,11 +74,11 @@ party's intellectual property, are provided herein.
 +----------------------+--------------+
 ; Module Name          ; Elapsed Time ;
 +----------------------+--------------+
-; Analysis & Synthesis ; 00:06:38     ;
-; Fitter               ; 00:13:52     ;
+; Analysis & Synthesis ; 00:07:10     ;
+; Fitter               ; 00:12:44     ;
 ; Assembler            ; 00:00:13     ;
-; Timing Analyzer      ; 00:00:19     ;
-; Total                ; 00:21:02     ;
+; Timing Analyzer      ; 00:00:18     ;
+; Total                ; 00:20:25     ;
 +----------------------+--------------+
 
 
