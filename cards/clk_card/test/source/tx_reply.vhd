@@ -29,9 +29,12 @@
 -- Integration of reply_translator and fibre_tx
 --
 -- Revision history:
--- <date $Date: 2004/09/03 13:55:46 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/08 14:10:46 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tx_reply.vhd,v $
+-- Revision 1.1  2004/10/08 14:10:46  dca
+-- Initial version
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -56,16 +59,16 @@ port(
      -- signals to/from cmd_translator    
      cmd_rcvd_er_i           : in  std_logic;                                            -- command received on fibre with checksum error
      cmd_rcvd_ok_i           : in  std_logic;                                            -- command received on fibre - no checksum error
-     cmd_code_i              : in  std_logic_vector (CMD_CODE_BUS_WIDTH-1  downto 0);    -- fibre command code
-     card_id_i               : in  std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);    -- fibre command card id
-     param_id_i              : in  std_logic_vector (PAR_ID_BUS_WIDTH-1    downto 0);    -- fibre command parameter id
+     cmd_code_i              : in  std_logic_vector (FIBRE_CMD_CODE_WIDTH-1  downto 0);    -- fibre command code
+     card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- fibre command card id
+     param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);    -- fibre command parameter id
          
      -- signals to/from reply queue 
      m_op_done_i             : in  std_logic;                                            -- macro op done
      m_op_ok_nEr_i           : in  std_logic;                                            -- macro op success ('1') or error ('0') 
-     m_op_cmd_code_i         : in  std_logic_vector (CMD_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
-     fibre_word_i            : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- packet word read from reply queue
-     num_fibre_words_i       : in  std_logic_vector (DATA_BUS_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
+     m_op_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1      downto 0);    -- command code vector - indicates if data or reply (and which command)
+     fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- packet word read from reply queue
+     num_fibre_words_i       : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- indicate number of packet words to be read from reply queue
      fibre_word_req_o        : out std_logic;                                            -- asserted to requeset next fibre word
      m_op_ack_o              : out std_logic;                                            -- asserted to indicate to reply queue the the packet has been processed
 
