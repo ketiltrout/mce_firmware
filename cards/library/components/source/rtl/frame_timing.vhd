@@ -20,7 +20,7 @@
 
 -- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.3 2004/04/14 00:25:37 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.4 2004/04/16 00:41:44 bburger Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -30,8 +30,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/14 00:25:37 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2004/04/16 00:41:44 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.4  2004/04/16 00:41:44  bburger
+-- renamed some signals
+--
 -- Revision 1.3  2004/04/14 00:25:37  mandana
 -- cleaned up extra signals
 --
@@ -66,60 +69,60 @@ end frame_timing;
 
 architecture beh of frame_timing is
 
-  signal frame_rst : std_logic;
-  signal clk_error : std_logic_vector(31 downto 0);  
-  signal counter_rst : std_logic;
-  signal counter_o : std_logic_vector(31 downto 0);
-  signal counter_o_int : integer;
-  signal reg_rst : std_logic;
-  
-begin
+   signal frame_rst : std_logic;
+   signal clk_error : std_logic_vector(31 downto 0);
+   signal counter_rst : std_logic;
+   signal count : std_logic_vector(31 downto 0);
+   signal count_int : integer;
+   signal reg_rst : std_logic;
 
-   cntr : counter 
+   begin
+   cntr : counter
       generic map(MAX => END_OF_FRAME)
       port map(
          clk_i => clk_i,
-         rst_i => counter_rst,   
+         rst_i => counter_rst,
          ena_i => '1',
          load_i => '0',
          down_i => '0',
          count_i => 0,
-         count_o => counter_o_int
+         count_o => count_int
       );
-      
+
    rstr : reg
       generic map(WIDTH => 32)
       port map(
          clk_i => clk_i,
          rst_i => reg_rst,
          ena_i => sync_i,
-         reg_i  => counter_o,
+         reg_i  => count,
          reg_o => clk_error
       );
-   
-   counter_o <= conv_std_logic_vector(counter_o_int, 32);
-         
-   -- Inputs/Outputs 
-   clk_count_o <= counter_o;
-   clk_error_o <= clk_error;   
 
-   rons : process (frame_rst_i, sync_i)
+   count <= conv_std_logic_vector(count_int, 32);
+   reg_rst <= '0';
+
+   -- Inputs/Outputs
+   clk_count_o <= count;
+   clk_error_o <= clk_error;
+
+   frst : process (sync_i, frame_rst_i, count_int)
    begin
-      if (frame_rst_i 'event and frame_rst_i = '1') then
-         frame_rst <= '1';
-      end if;
+--      frame_rst <= '0';
 
+      -- Re-sync to the true frame, counter wrap-around
       if (sync_i'event and sync_i = '1' and frame_rst = '1') then
          counter_rst <= '1';
          frame_rst <= '0';
-      elsif (counter_o_int = END_OF_FRAME) then
+      elsif (count_int = END_OF_FRAME) then
          counter_rst <= '1';
       else
-         counter_rst <= '0';         
+         counter_rst <= '0';
+      end if;
+
+      -- Detect a Frame Reset signal
+      if (frame_rst_i'event and frame_rst_i = '1') then
+         frame_rst <= '1';
       end if;
    end process;
-
-   -- Counter Wrap-around
-   counter_rst <= '1' when (counter_o_int = END_OF_FRAME) else '0';
-
 end beh;
