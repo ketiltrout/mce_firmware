@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: fifo.vhd,v $
+-- Revision 1.4  2004/12/24 21:06:44  erniel
+-- removed read enable from memory core (it didn't work)
+--
 -- Revision 1.3  2004/12/24 20:12:47  erniel
 -- changed memory core to operate in flow-through mode
 -- added read enable to memory core
@@ -197,11 +200,12 @@ begin
          num_items <= 0;
       elsif(clk_i'event and clk_i = '1') then
          if(clear_i = '1') then                                   -- if FIFO clear requested, clear item counter.
-            num_items <= 0;
-         elsif(read_i = '1' and num_items > 0) then               -- decrement on FIFO read when FIFO is not empty.
+            num_items <= 0;                     
+         elsif(read_i = '1' and write_i = '0' and num_items > 0) then               -- decrement on FIFO read when FIFO is not empty.
             num_items <= num_items - 1;
-         elsif(write_i = '1' and num_items < 2**ADDR_WIDTH) then  -- increment on FIFO write when FIFO is not full.
+         elsif(write_i = '1' and read_i = '0' and num_items < 2**ADDR_WIDTH) then  -- increment on FIFO write when FIFO is not full.
             num_items <= num_items + 1;
+            
          end if;
       end if;
    end process item_counter;
