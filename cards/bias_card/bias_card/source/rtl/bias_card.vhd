@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.10 2005/01/19 23:39:06 bburger Exp $
+-- $Id: bias_card.vhd,v 1.11 2005/02/21 22:25:58 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.11  2005/02/21 22:25:58  mandana
+-- added firmware revision (fw_rev)
+--
 -- Revision 1.10  2005/01/19 23:39:06  bburger
 -- Bryce:  Fixed a couple of errors with the special-character clear.  Always compile, simulate before comitting.
 --
@@ -147,7 +150,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01010001";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01010002";
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
