@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: frame_timing.vhd,v 1.16 2004/11/02 07:38:09 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,8 +28,11 @@
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/10/26 22:50:27 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/02 07:38:09 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.16  2004/11/02 07:38:09  bburger
+-- Bryce:  ac_dac_ctrl in progress
+--
 -- Revision 1.15  2004/10/26 22:50:27  bburger
 -- Bryce
 --
@@ -161,7 +164,7 @@ architecture beh of frame_timing is
    row_switch_o               <= '1' when row_count_int = MUX_LINE_PERIOD-1 and current_state /= WAIT_FRM_RST else '0';
    dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i and current_state /= WAIT_FRM_RST else '0';
    adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - TWO_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
-   row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
+   row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int <= MUX_LINE_PERIOD-1-ONE_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
       
    init_win_state_FF: process(clk_i, rst_i)
    begin

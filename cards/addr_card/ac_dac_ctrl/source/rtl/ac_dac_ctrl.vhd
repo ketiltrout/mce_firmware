@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: ac_dac_ctrl.vhd,v 1.5 2004/11/02 07:38:09 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block must be coupled with frame_timing and wbs_ac_dac_ctrl blocks to work properly
 --
 -- Revision history:
--- $Log$
+-- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.5  2004/11/02 07:38:09  bburger
+-- Bryce:  ac_dac_ctrl in progress
+--
 --   
 --
 -----------------------------------------------------------------------------
@@ -83,12 +86,10 @@ architecture rtl of ac_dac_ctrl is
 type row_states is (IDLE, LOAD_ON_VAL, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL);                
 signal row_current_state   : row_states;
 signal row_next_state      : row_states;
-signal row_num             : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
 signal row_num_int         : integer;
 
 -- DAC signals 
 signal k                   : integer;
-signal dac_clks            : std_logic_vector(NUM_OF_ROWS downto 0);
 signal dac_data            : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
 signal dac_id_int          : integer;
 
@@ -114,7 +115,7 @@ begin
    dac_id_int <= conv_integer(dac_id_i);
    
    -- Generate the registers for all the DAC data outputs
-   gen_dac_data_reg: for k in 0 to AC_NUM_BUSES generate
+   gen_dac_data_reg: for k in 0 to AC_NUM_BUSES-1 generate
       dac_data_reg: reg
       generic map
       (
@@ -161,10 +162,10 @@ begin
                row_next_state <= LATCH_OFF_VAL;
             end if;
          when LATCH_OFF_VAL =>
-            if(row_switch_i = '1') then
-               row_next_state <= LOAD_ON_VAL;
-            elsif(mux_en_i = '0') then
+            if(mux_en_i = '0') then
                row_next_state <= IDLE;
+            else
+               row_next_state <= LOAD_ON_VAL;
             end if;
          when others =>
             row_next_state <= IDLE;

@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/10/12 22:45:23 $> - <initials $Author: erniel $>
+-- <date $Date: 2004/10/15 16:03:43 $> - <initials $Author: dca $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.16  2004/10/15 16:03:43  dca
+-- CAPTR_RAW_ADDR definition added
+--
 -- Revision 1.15  2004/10/12 22:45:23  erniel
 -- added LED_ADDR
 --
@@ -114,7 +117,7 @@ package wishbone_pack is
    constant ROW_MAP_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"04";
    constant SWTCH_DLY_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"05";
    constant ACTV_ROW_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"06";
-   constant STRT_MUX_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
+   constant ENBL_MUX_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"07";
 
    -- Readout Card Specific
    constant FST_ST_FB_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"10";
@@ -122,7 +125,7 @@ package wishbone_pack is
    constant OFFSET_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"12";
    constant FILT_COEF_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"13";
    constant COL_MAP_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"14";
-   constant ENBL_SERVO_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"15";
+   constant SERVO_MODE_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"15";
    constant COL_ENBL_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
    constant SAMP_DLY_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"17";
    constant SAMP_NUM_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"18";

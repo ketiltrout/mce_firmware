@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: wbs_ac_dac_ctrl.vhd,v 1.3 2004/11/02 07:38:09 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with wbs_ac_dac_ctrl
 --
 -- Revision history:
--- $Log$
+-- $Log: wbs_ac_dac_ctrl.vhd,v $
+-- Revision 1.3  2004/11/02 07:38:09  bburger
+-- Bryce:  ac_dac_ctrl in progress
+--
 --
 -----------------------------------------------------------------------------
 library ieee;
@@ -90,7 +93,7 @@ architecture rtl of wbs_ac_dac_ctrl is
    signal logical_addr     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal mux_en_wren      : std_logic;
    signal mux_en_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal raw_addr_counter : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+--   signal raw_addr_counter : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
    signal on_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal off_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal row_order_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -107,9 +110,9 @@ begin
       (
          data              => dat_i,
          wren              => on_val_wren,
-         wraddress         => raw_addr_counter,
+         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
-         rdaddress_b       => raw_addr_counter,
+         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => mem_clk_i,
          qa                => on_data_o,
          qb                => on_data
@@ -120,9 +123,9 @@ begin
       (
          data              => dat_i,
          wren              => off_val_wren,
-         wraddress         => raw_addr_counter,
+         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          rdaddress_a       => logical_addr(ROW_ADDR_WIDTH-1 downto 0),
-         rdaddress_b       => raw_addr_counter,
+         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => mem_clk_i,
          qa                => off_data_o,
          qb                => off_data
@@ -134,9 +137,9 @@ begin
       (
          data              => dat_i,
          wren              => row_order_wren,
-         wraddress         => raw_addr_counter,         
+         wraddress         => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
          rdaddress_a       => on_off_addr_i,
-         rdaddress_b       => raw_addr_counter,
+         rdaddress_b       => tga_i(ROW_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
          clock             => mem_clk_i,
          qa                => logical_addr,
          qb                => row_order_data
@@ -170,20 +173,20 @@ begin
       end if;
    end process state_FF;
    
-   process(clk_i)
-   begin
-      if(clk_i'event and clk_i = '1') then      
-         case current_state is         
-            when IDLE  =>                   
-               raw_addr_counter <= (others => '0');
-            when WR =>     
-               raw_addr_counter <= raw_addr_counter + 1;
-            when RD =>
-               raw_addr_counter <= raw_addr_counter + 1;
-            when others =>
-         end case;
-      end if;
-   end process;   
+--   process(clk_i)
+--   begin
+--      if(clk_i'event and clk_i = '1') then      
+--         case current_state is         
+--            when IDLE  =>                   
+--               raw_addr_counter <= (others => '0');
+--            when WR =>     
+--               raw_addr_counter <= raw_addr_counter + 1;
+--            when RD =>
+--               raw_addr_counter <= raw_addr_counter + 1;
+--            when others =>
+--         end case;
+--      end if;
+--   end process;   
            
    -- Transition table for DAC controller
    state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
@@ -236,7 +239,7 @@ begin
                   on_val_wren <= '1';
                elsif(addr_i = OFF_BIAS_ADDR) then
                   off_val_wren <= '1';
-               elsif(addr_i = STRT_MUX_ADDR) then
+               elsif(addr_i = ENBL_MUX_ADDR) then
                   mux_en_wren <= '1';
                elsif(addr_i = ROW_ORDER_ADDR) then
                   row_order_wren <= '1';
@@ -256,20 +259,20 @@ begin
 ------------------------------------------------------------
    
    with addr_i select dat_o <=
-      on_data when ON_BIAS_ADDR,
-      off_data when OFF_BIAS_ADDR,
-      mux_en_data when STRT_MUX_ADDR,
-      row_order_data when ROW_ORDER_ADDR,
+      on_data         when ON_BIAS_ADDR,
+      off_data        when OFF_BIAS_ADDR,
+      mux_en_data     when ENBL_MUX_ADDR,
+      row_order_data  when ROW_ORDER_ADDR,
       (others => '0') when others;
    
    master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = ON_BIAS_ADDR or addr_i = OFF_BIAS_ADDR or addr_i = STRT_MUX_ADDR or addr_i = ROW_ORDER_ADDR) else '0'; 
+      (addr_i = ON_BIAS_ADDR or addr_i = OFF_BIAS_ADDR or addr_i = ENBL_MUX_ADDR or addr_i = ROW_ORDER_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = ON_BIAS_ADDR or addr_i = OFF_BIAS_ADDR or addr_i = STRT_MUX_ADDR or addr_i = ROW_ORDER_ADDR) else '0'; 
+      (addr_i = ON_BIAS_ADDR or addr_i = OFF_BIAS_ADDR or addr_i = ENBL_MUX_ADDR or addr_i = ROW_ORDER_ADDR) else '0'; 
       
 end rtl;
