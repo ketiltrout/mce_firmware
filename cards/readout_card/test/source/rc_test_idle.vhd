@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: rc_test_idle.vhd,v $
+-- Revision 1.2  2004/06/19 03:35:08  erniel
+-- added new dac commands
+--
 -- Revision 1.1  2004/06/11 20:52:42  erniel
 -- initial version
 --
@@ -237,8 +240,10 @@ begin
                   end if;
                   rx_newdata_clr <= '1';
                   cmd2 <= rx_data_i;
-               end if;
-               
+               else 
+                  rx_newdata_clr <= '0';
+               end if;   
+
             when RX_WAIT3 =>
                if(rx_newdata = '1') then   
                   if(rx_data_i = CMD_DAC_EVEN or
