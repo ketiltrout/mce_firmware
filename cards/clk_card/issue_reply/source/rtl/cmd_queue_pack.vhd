@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.19 2005/01/12 22:04:35 mandana Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.20 2005/02/20 00:13:59 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.20  2005/02/20 00:13:59  bburger
+-- Bryce:  added a uop_timeout signal to the interface that will tell the cmd_queue to skip a command if it times out in the reply_queue
+--
 -- Revision 1.19  2005/01/12 22:04:35  mandana
 -- remove comm_clk_i port
 --
@@ -104,7 +107,7 @@ use work.cmd_queue_ram40_pack.all;
 
 package cmd_queue_pack is
    
-constant MAX_NUM_UOPS     : integer :=   10;
+constant MAX_NUM_UOPS     : integer :=   1;
 
 -- Calculated constants for inputing data on the correct lines into/out-of the queue
 -- The following fields make up the first four lines of each u-op entry in the queue:
@@ -140,6 +143,7 @@ component cmd_queue
    port(
       -- for testing
       debug_o  : out std_logic_vector(31 downto 0);
+      timer_trigger_o : out std_logic;
 
       -- reply_queue interface
       uop_rdy_o       : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
@@ -172,7 +176,7 @@ component cmd_queue
 
       -- Clock lines
       clk_i           : in std_logic; -- Advances the state machines
-      mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
+--      mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
       rst_i           : in std_logic  -- Resets all FSMs
    );
 end component;

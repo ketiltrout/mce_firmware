@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.36 2005/02/20 02:00:29 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.37 2005/03/04 03:45:58 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/02/20 02:00:29 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/03/04 03:45:58 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.37  2005/03/04 03:45:58  bburger
+-- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
+--
 -- Revision 1.36  2005/02/20 02:00:29  bburger
 -- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
 --
@@ -96,7 +99,7 @@ entity issue_reply is
       rst_i             : in std_logic;
       clk_i             : in std_logic;
       comm_clk_i        : in std_logic;
-      mem_clk_i         : in std_logic;
+--      mem_clk_i         : in std_logic;
       
       -- inputs from the bus backplane
       lvds_reply_ac_a   : in std_logic;  
@@ -380,6 +383,7 @@ begin
      port map(
         -- for testing
         debug_o         => debug_o,
+        timer_trigger_o => open,
 
         -- reply_queue interface
         uop_rdy_o       => uop_rdy,
@@ -412,7 +416,7 @@ begin
 
         -- Clock lines
         clk_i           => clk_i,
-        mem_clk_i       => mem_clk_i,
+--        mem_clk_i       => mem_clk_i,
         rst_i           => rst_i
      );
 

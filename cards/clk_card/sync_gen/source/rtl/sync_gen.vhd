@@ -38,6 +38,11 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.12  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.11  2004/12/08 22:13:06  bburger
 -- Bryce:  Added default values for some signals at the top of processes
 --
@@ -111,7 +116,7 @@ entity sync_gen is
 
       -- Global Signals
       clk_i       : in std_logic;
-      mem_clk_i   : in std_logic;
+--      mem_clk_i   : in std_logic;
       rst_i       : in std_logic
    );
 end sync_gen;
@@ -144,7 +149,7 @@ begin
          ack_o       => ack_o, 
 
          clk_i       => clk_i,           
-         mem_clk_i   => mem_clk_i,       
+--         mem_clk_i   => mem_clk_i,       
          rst_i       => rst_i           
       );
    
@@ -162,7 +167,7 @@ begin
 
          -- Global Signals
          clk_i      => clk_i,    
-         mem_clk_i  => mem_clk_i,
+--         mem_clk_i  => mem_clk_i,
          rst_i      => rst_i     
       );            
       

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.11 2004/12/06 07:22:34 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.12 2005/02/20 02:00:29 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.12  2005/02/20 02:00:29  bburger
+-- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
+--
 -- Revision 1.11  2004/12/06 07:22:34  bburger
 -- Bryce:
 -- Created pack files for the card top-levels.
@@ -153,7 +156,7 @@ architecture behav of reply_queue_retire is
    signal header_d_en : std_logic;
 
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
-   type retire_states is (IDLE, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, WAIT_FOR_ACK);
+   type retire_states is (IDLE, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, WAIT_FOR_ACK);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;
 
@@ -254,10 +257,12 @@ begin
       case present_retire_state is
          when IDLE =>
             if (cmd_to_retire_i = '1') then
-               next_retire_state <= HEADERB;
+               next_retire_state <= HEADERA;
             else
                next_retire_state <= IDLE;
             end if;
+         when HEADERA =>
+            next_retire_state <= HEADERB;
          when HEADERB =>
             next_retire_state <= HEADERC;
          when HEADERC =>
@@ -281,7 +286,7 @@ begin
       end case;
    end process;
 
-   retire_state_out: process(present_retire_state, cmd_to_retire_i, cmd_sent_i, timeout_i)
+   retire_state_out: process(present_retire_state, cmd_sent_i, timeout_i)
    begin   
       -- Default values
       header_a_en  <= '0';
@@ -295,10 +300,13 @@ begin
 
       case present_retire_state is
          when IDLE =>
-            if(cmd_to_retire_i = '1') then
-               header_a_en <= '1';
-            end if;
+--            if(cmd_to_retire_i = '1') then
+--               header_a_en <= '1';
+--            end if;
          
+         when HEADERA =>
+            header_a_en  <= '1';
+
          when HEADERB =>
             header_b_en  <= '1';
 

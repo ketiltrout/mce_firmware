@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.79 2005/03/07 22:12:21 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.80 2005/03/12 02:19:00 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,70 +30,8 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
--- Revision 1.79  2005/03/07 22:12:21  bburger
--- Bryce:  Just an added comment
---
--- Revision 1.78  2005/03/04 03:45:58  bburger
--- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
---
--- Revision 1.77  2005/02/20 00:13:59  bburger
--- Bryce:  added a uop_timeout signal to the interface that will tell the cmd_queue to skip a command if it times out in the reply_queue
---
--- Revision 1.76  2005/02/17 22:59:02  bburger
--- Bryce:  fixed certain timing problems in cmd_queue
---
--- Revision 1.75  2005/01/11 22:58:23  erniel
--- updated lvds_tx component
--- removed comm_clk_i from ports
---
--- Revision 1.74  2004/12/16 22:05:40  bburger
--- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
---
--- Revision 1.73  2004/12/14 06:01:23  bburger
--- Bryce:  Fixed a bug in the cmd_queue retire FSM that didn't allow the pointer to wrap properly
---
--- Revision 1.72  2004/12/13 06:43:44  bburger
--- Bryce:  Changed the RAM memory management
---
--- Revision 1.71  2004/12/10 22:51:45  bburger
--- Bryce:  nothing, really..
---
--- Revision 1.70  2004/12/08 22:16:23  bburger
--- Bryce:  replaced a retire_ptr recirc-mux that was causing compilation problems in Quartus
---
--- Revision 1.69  2004/12/06 07:23:04  bburger
--- Bryce:  Modified cmd_queue and reply_queue stop them from allowing start commands over the backplane
---
--- Revision 1.68  2004/12/04 02:03:05  bburger
--- Bryce:  fixing some problems associated with integrating the reply_queue
---
--- Revision 1.67  2004/11/30 22:58:47  bburger
--- Bryce:  reply_queue integration
---
--- Revision 1.66  2004/11/25 01:32:37  bburger
--- Bryce:
--- - Changed to cmd_code over the bus backplane to read/write only
--- - Added interface signals for internal commands
--- - RB command data-sizes are correctly handled
---
--- Revision 1.65  2004/11/16 09:03:20  bburger
--- Bryce :  removed status_addr from ISA!
---
--- Revision 1.64  2004/11/15 20:03:41  bburger
--- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
---
--- Revision 1.63  2004/11/15 19:32:07  bburger
--- Bryce : fixed a bug that affected the uop_rdy_o signal
---
--- Revision 1.62  2004/11/02 07:38:09  bburger
--- Bryce:  ac_dac_ctrl in progress
---
--- Revision 1.61  2004/10/26 23:59:16  bburger
--- Bryce:  working out the bugs from the cmd_queue<->reply_queue interface
---
--- Revision 1.1  2004/05/11 02:17:31  bburger
--- new
---
+-- Revision 1.80  2005/03/12 02:19:00  bburger
+-- bryce:  bug fixes
 --
 ------------------------------------------------------------------------
 
@@ -120,6 +58,7 @@ entity cmd_queue is
    port(
       -- for testing
       debug_o  : out std_logic_vector(31 downto 0);
+      timer_trigger_o : out std_logic;
 
       -- reply_queue interface
       uop_rdy_o       : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
@@ -152,7 +91,7 @@ entity cmd_queue is
 
       -- Clock lines
       clk_i           : in std_logic; -- Advances the state machines
-      mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
+--      mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
       rst_i           : in std_logic  -- Resets all FSMs
    );
 end cmd_queue;
@@ -177,8 +116,6 @@ signal qb_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 signal sync_count_slv       : std_logic_vector(ISSUE_SYNC_WIDTH-1 downto 0);
 
 -- Command queue management variables
---signal uops_generated       : integer;
---signal cards_addressed      : integer;
 signal num_uops             : integer;
 signal data_size_int        : integer;
 signal size_uops            : integer;
@@ -227,7 +164,7 @@ signal data_size_mux        : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_size_mux_sel    : std_logic;
 
 -- Send FSM:  sends u-ops over the bus backplane
-type send_states is (LOAD, BUFFER_CMD_PARAM, ISSUE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, SOME_DATA, MORE_DATA, CHECKSUM, NEXT_UOP, PAUSE, BRANCH, LATCH_CRC);
+type send_states is (LOAD, WAIT_FOR_INSERT_FSM, BUFFER_CMD_PARAM, ISSUE, HEADER_A, HEADER_B, HEADER_C, HEADER_D, SOME_DATA, MORE_DATA, CHECKSUM, NEXT_UOP, PAUSE, BRANCH, LATCH_CRC);
 signal present_send_state   : send_states;
 signal next_send_state      : send_states;
 signal previous_send_state  : send_states;
@@ -285,13 +222,8 @@ signal data_count_mux       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal data_count_mux_sel   : std_logic_vector(1 downto 0);
 
 signal free_ptr_mux_sel     : std_logic_vector(1 downto 0);
---signal free_ptr_reg          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
 signal retire_ptr_mux_sel   : std_logic_vector(2 downto 0);
-
---signal current_par_id       : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
-
---signal new_par_id_mux_sel           : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
 
 constant PAR_ID             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"EE";
 constant RECIRC             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"EF";
@@ -308,19 +240,14 @@ signal first_time_uop_inc       : std_logic;
 
 signal crc_num_bits_mux_sel : std_logic_vector(1 downto 0);
 signal crc_num_bits_reg     : integer;
---signal crc_num_bits2        : integer;
 
 signal cmd_tx_dat_mux_sel   : std_logic_vector(2 downto 0);
 signal cmd_tx_dat_reg       : std_logic_vector(31 downto 0);
 
---signal send_ptr_reg           : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal send_ptr_mux_sel       : std_logic_vector(2 downto 0);
 
 signal uop_data_count_mux_sel : std_logic_vector(1 downto 0);
 signal uop_data_count_reg     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-
---signal uop_data_size_mux_sel  : std_logic_vector(1 downto 0);
---signal uop_data_size_reg      : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal sh_reg_parallel_mux_sel: std_logic_vector(1 downto 0);
 
@@ -328,7 +255,10 @@ type queue_state is           (INIT1, INIT2, DONE);
 signal queue_next_state, queue_cur_state : queue_state;
 signal queue_init_value_sel   : std_logic;
 
-
+-- For debugging a problem that we have with the cmd_queue where a command will freeze the queue
+signal timer_clr     : std_logic;
+signal timer_count   : integer;
+signal timer_trigger : std_logic;
 
 begin
 
@@ -339,9 +269,17 @@ begin
 ------------------------------------------------------------------------ 
 
    -- For hardware integration with the logic analyzer
-   --debug_o(31 downto 0)  <=  clk_i & "000000000" & lvds_tx_rdy & lvds_tx_busy & uop_data_size(3 downto 0) & prev_send_state & send_state & cmd_tx_dat(31 downto 24);
    debug_o(31 downto 0)  <=  cmd_tx_dat(31 downto 1) & lvds_tx_busy;
       
+   timer_clr       <= '1' when num_uops_contained = 0 else '0';
+   timer_trigger_o <= '1' when timer_count >= 85 else '0';
+   trigger_timer : us_timer
+      port map(
+         clk           => clk_i,
+         timer_reset_i => timer_clr,
+         timer_count_o => timer_count
+      );
+   
    -- Command queue (FIFO)
    cmd_queue_ram40_inst: cmd_queue_tpram
       port map(
@@ -350,7 +288,7 @@ begin
          rdaddress_a => rdaddress_a_sig,
          rdaddress_b => rdaddress_b_sig,
          wren        => wren_sig,
-         clock       => mem_clk_i,  
+         clock       => clk_i, --mem_clk_i,  
          qa          => qa_sig, -- qa_sig data are used by the send FSM         
          qb          => qb_sig -- qb_sig data are used by the retire FSM
       );
@@ -437,10 +375,10 @@ begin
    retire_data_size_int <= conv_integer(retire_data_size);
    
    num_uops_contained_mux <= 
-      num_uops_contained when one_more = '0' and one_less = '0' else
-      num_uops_contained+1 when one_more = '1' and one_less = '0' else
-      num_uops_contained-1 when one_more = '0' and one_less = '1' else
-      num_uops_contained when one_more = '1' and one_less = '1';
+      num_uops_contained     when one_more = '0' and one_less = '0' else
+      num_uops_contained + 1 when one_more = '1' and one_less = '0' else
+      num_uops_contained - 1 when one_more = '0' and one_less = '1' else
+      num_uops_contained     when one_more = '1' and one_less = '1';
       
    queue_space_mux <= queue_space when queue_space_mux_sel = "000" else
                       queue_space + CQ_NUM_CMD_HEADER_WORDS + retire_data_size_int when queue_space_mux_sel = "001" else
@@ -579,11 +517,9 @@ begin
    begin
       if rst_i = '1' then
          data_count     <= (others=>'0');
---         free_ptr_reg   <= (others=>'0');
          data_size_reg  <= (others => '0');
       elsif clk_i'event and clk_i = '1' then
          data_count     <= data_count_mux;
---         free_ptr_reg   <= free_ptr;
          data_size_reg  <= data_size_mux;
       end if;
    end process;
@@ -614,7 +550,7 @@ begin
             if(cmd_type_i = DATA) then
                data_sig_mux_sel    <= "101";
             else
-               data_sig_mux_sel       <= "001";
+               data_sig_mux_sel    <= "001";
             end if;
 
             free_ptr_mux_sel       <= "01";
@@ -652,7 +588,7 @@ begin
             end if;
             
             insert_uop_ack         <= '0';
-            data_sig_mux_sel    <= "100";
+            data_sig_mux_sel       <= "100";
             free_ptr_mux_sel       <= "01";
 
          when DATA_STROBE_DETECT =>
@@ -689,26 +625,20 @@ begin
             -- In this case, by delaying its assertion until DONE, we ensure that the cmd_translator doesn't try to insert the next m_op too soon.
             -- I think that I might have to register num_uops_inserted and num_uops to make sure that they are valid when I do this check
             if(num_uops_inserted = num_uops and (data_size_reg = x"0000" or cmd_type_i = READ_BLOCK or cmd_type_i = DATA)) then
-               mop_ack_o          <= '1';
+               mop_ack_o           <= '1';
             else
-               mop_ack_o          <= '0';
+               mop_ack_o           <= '0';
             end if;
 
             insert_uop_ack         <= '1';
             data_sig_mux_sel       <= "000";
 
--- I think that this is causing a bug            
-            -- After adding a new u-op:
---            if(free_ptr = ADDR_FULL_SCALE) then
---               free_ptr_mux_sel    <= "11";
---            else
-               free_ptr_mux_sel    <= "00";
---            end if;
+            free_ptr_mux_sel       <= "00";
             
          when others =>
             wren_sig               <= '0';
             data_count_mux_sel     <= "11";
-            mop_ack_o             <= '0';
+            mop_ack_o              <= '0';
             insert_uop_ack         <= '0';
             data_sig_mux_sel       <= "000";
             free_ptr_mux_sel       <= "00";
@@ -795,6 +725,7 @@ begin
          
          when IDLE =>
             if(uop_to_retire = '1') then
+               -- START and RESET commands are issued but not retired, because their replies should already have been issued by the reply_translator
                if(retire_cmd_code = START or retire_cmd_code = RESET) then
                   next_retire_state <= SKIP_UOP;
                else
@@ -919,13 +850,6 @@ begin
                end if;            
             end if;
          
---         when PROPAGATION_DELAY =>
---            if(queue_space >= size_uops and num_uops_contained < MAX_NUM_UOPS) then
---               next_gen_state <= CLEANUP;                  
---            else
---               next_gen_state <= PROPAGATION_DELAY;
---            end if;            
-
          when INSERT =>
             if(insert_uop_ack = '1') then
                next_gen_state <= CLEANUP;  -- Catch all invalid card_id's with this statement
@@ -951,21 +875,6 @@ begin
       end case;
    end process;
 
---   with card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0) select
---      cards_addressed <=
---         0 when NO_CARDS,
---         1 when POWER_SUPPLY_CARD | CLOCK_CARD | READOUT_CARD_1 | READOUT_CARD_2 | READOUT_CARD_3 | READOUT_CARD_4 | BIAS_CARD_1 | BIAS_CARD_2 | BIAS_CARD_3 | ADDRESS_CARD,
---         3 when ALL_BIAS_CARDS,
---         4 when ALL_READOUT_CARDS,
---         9 when ALL_FPGA_CARDS,
---         10 when ALL_CARDS,
---         0 when others; -- invalid card address
---
---   -- The par_id checking is done in the cmd_translator block.
---   -- Thus, here I can use the 'when others' case for something other than
---   -- error checking, because the par_id that cmd_translator issues to cmd_queue
---   -- is always valid.
-
 -- num_uops may well become an obsolete parameter if the number of uops generated from a mop is always the same, i.e. 1
    with par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) select
       num_uops <=
@@ -980,8 +889,8 @@ begin
 -- Given this, we have removed the num_uops factor in the equation below to remove timing errors that existed as a result of delays associated with multiplication
 --   size_uops     <= num_uops * (CQ_NUM_CMD_HEADER_WORDS + data_size_int);
    size_uops     <= (CQ_NUM_CMD_HEADER_WORDS + data_size_int);
-   mop_rdy <= mop_rdy_i;
-   new_card_addr     <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
+   mop_rdy       <= mop_rdy_i;
+   new_card_addr <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 
    -- state sequencer to keep track of first time entering a state for incrementing
    process(clk_i, rst_i)
@@ -1034,16 +943,14 @@ begin
       end case;
    end process;
 
-   gen_state_out: process(present_gen_state, first_time_uop_inc)--current_par_id, 
+   gen_state_out: process(present_gen_state, first_time_uop_inc) 
       begin      
       -- default
---      new_par_id_mux_sel                 <= RECIRC;
       num_uops_inserted_mux_sel          <= "00"; --recirculate, hold value
       
       case present_gen_state is
          when IDLE =>
             insert_uop_rdy               <= '0';
---            new_par_id_mux_sel           <= NULL_ADDR;
 
          when PROPAGATION_DELAY =>
             insert_uop_rdy               <= '0';
@@ -1061,32 +968,6 @@ begin
          when CLEANUP =>
             insert_uop_rdy               <= '0';
 
---           if(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
---               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
---                  when NULL_ADDR       => new_par_id_mux_sel <= RET_DAT_ADDR;
---                  when RET_DAT_ADDR    => new_par_id_mux_sel <= PSC_STATUS_ADDR;
---                  when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
---                  when BIT_STATUS_ADDR => new_par_id_mux_sel <= FPGA_TEMP_ADDR;
---                  when FPGA_TEMP_ADDR  => new_par_id_mux_sel <= CARD_TEMP_ADDR;
---                  when CARD_TEMP_ADDR  => new_par_id_mux_sel <= CYC_OO_SYC_ADDR;
---                  when CYC_OO_SYC_ADDR => new_par_id_mux_sel <= PAR_ID;
---                  when others          => new_par_id_mux_sel <= RECIRC;
---               end case;
---               
---            elsif(par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = STATUS_ADDR) then
---               case current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) is
---                  when PSC_STATUS_ADDR => new_par_id_mux_sel <= BIT_STATUS_ADDR;
---                  when BIT_STATUS_ADDR => new_par_id_mux_sel <= FPGA_TEMP_ADDR;
---                  when FPGA_TEMP_ADDR  => new_par_id_mux_sel <= CARD_TEMP_ADDR;
---                  when CARD_TEMP_ADDR  => new_par_id_mux_sel <= CYC_OO_SYC_ADDR;
---                  when CYC_OO_SYC_ADDR => new_par_id_mux_sel <= PAR_ID;
---                  when others          => new_par_id_mux_sel <= RECIRC;
---               end case;
---
---            else
---               new_par_id_mux_sel        <= PAR_ID;
---            end if;
-
          when DONE =>
             insert_uop_rdy               <= '0';
             -- uop_counter indicates the number of uops contained in the queue at any given time
@@ -1101,42 +982,23 @@ begin
       end case;
    end process;
 
-   process(rst_i, clk_i)
-   begin
-      if rst_i = '1' then
---         current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) <= NULL_ADDR;
-         num_uops_inserted_reg                          <= 0;
-      elsif clk_i'event and clk_i = '1' then
---         current_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0) <= new_par_id(BB_PARAMETER_ID_WIDTH-1 downto 0);
-         num_uops_inserted_reg                          <= num_uops_inserted;
-      end if;
-   end process;
-
    with num_uops_inserted_mux_sel select
       num_uops_inserted <=
          num_uops_inserted_reg     when "00",
          num_uops_inserted_reg + 1 when "01",
          0                         when others;
    
---   with new_par_id_mux_sel select
---      new_par_id <=
---         RET_DAT_ADDR                                    when RET_DAT_ADDR,
---         PSC_STATUS_ADDR                                 when PSC_STATUS_ADDR,
---         BIT_STATUS_ADDR                                 when BIT_STATUS_ADDR,
---         FPGA_TEMP_ADDR                                  when FPGA_TEMP_ADDR,
---         CARD_TEMP_ADDR                                  when CARD_TEMP_ADDR,
---         CYC_OO_SYC_ADDR                                 when CYC_OO_SYC_ADDR,
---         par_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0)      when PAR_ID, --0xEE
---         current_par_id                                  when RECIRC, --0xEF
---         current_par_id                                  when others;
-
    -- Send FSM:
    send_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         present_send_state <= LOAD;
-         send_ptr <= ADDR_ZERO;
+         
+         present_send_state    <= LOAD;
+         send_ptr              <= ADDR_ZERO;
+         num_uops_inserted_reg <= 0;
+         
       elsif(clk_i'event and clk_i = '1') then
+         
          present_send_state <= next_send_state;
          
          if(update_prev_state = '1') then
@@ -1157,6 +1019,8 @@ begin
             send_ptr <= send_ptr;
          end if;
          
+         num_uops_inserted_reg <= num_uops_inserted;
+
       end if;
    end process send_state_FF;
 
@@ -1195,32 +1059,35 @@ begin
          when LOAD =>
             -- If there is a u-op waiting to be issued and if this FSM has not been frozen by the retire FSM, then send it or skip it.
             if(send_ptr /= free_ptr) then
-               if(uop_send_expired = '1') then
-                  -- If the u-op has expired, it is still issued.  This may have to change
-                  -- uops typically will not expire while waiting in the cmd_queue, because the the command queue can issue uops faster than mops will be received from the cmd_translator (assuming the internal commanding rate is reasonable).
-                  --next_send_state <= NEXT_UOP;
-                  next_send_state <= BUFFER_CMD_PARAM;
-               elsif(issue_sync < timeout_sync) then
-                  -- Determine whether the current sync period is between the issue sync and the timeout sync.  If so, the u-op should be issued.
-                  if(sync_count_slv >= issue_sync and sync_count_slv < timeout_sync) then
-                     next_send_state <= BUFFER_CMD_PARAM;
-                  else
-                     next_send_state <= LOAD;
-                  end if;
-               -- The timeout_sync can have wrapped with respect to the issue_sync
-               elsif(issue_sync > timeout_sync) then
-                  if(sync_count_slv >= issue_sync or sync_count_slv < timeout_sync) then
-                     next_send_state <= BUFFER_CMD_PARAM;
-                  else
-                     next_send_state <= LOAD;
-                  end if;
-               else
-                  -- If the u-op is still good, but isn't supposed to be issued yet, stay in LOAD
-                  next_send_state <= LOAD;
-               end if;
+               next_send_state <= WAIT_FOR_INSERT_FSM;
             else
                next_send_state <= LOAD;
             end if;
+         
+         when WAIT_FOR_INSERT_FSM =>
+            if(uop_send_expired = '1') then
+               -- If the u-op has expired, it is still issued.  This may have to change
+               -- uops typically will not expire while waiting in the cmd_queue, because the the command queue can issue uops faster than mops will be received from the cmd_translator (assuming the internal commanding rate is reasonable).
+               --next_send_state <= NEXT_UOP;
+               next_send_state <= BUFFER_CMD_PARAM;
+            elsif(issue_sync < timeout_sync) then
+               -- Determine whether the current sync period is between the issue sync and the timeout sync.  If so, the u-op should be issued.
+               if(sync_count_slv >= issue_sync and sync_count_slv < timeout_sync) then
+                  next_send_state <= BUFFER_CMD_PARAM;
+               else
+                  next_send_state <= WAIT_FOR_INSERT_FSM;
+               end if;
+            -- The timeout_sync can have wrapped with respect to the issue_sync
+            elsif(issue_sync > timeout_sync) then
+               if(sync_count_slv >= issue_sync or sync_count_slv < timeout_sync) then
+                  next_send_state <= BUFFER_CMD_PARAM;
+               else
+                  next_send_state <= WAIT_FOR_INSERT_FSM;
+               end if;
+            else
+               -- If the u-op is still good, but isn't supposed to be issued yet, stay in LOAD
+               next_send_state <= WAIT_FOR_INSERT_FSM;
+            end if;         
          
          when BUFFER_CMD_PARAM =>
             next_send_state <= BRANCH;
@@ -1348,6 +1215,8 @@ begin
             cmd_tx_dat_mux_sel       <= "100";  
             update_prev_state        <= '1';
          
+         when WAIT_FOR_INSERT_FSM =>
+
          when BUFFER_CMD_PARAM =>
             send_cmd_code_en         <= '1';
             send_data_size_en        <= '1';
@@ -1408,7 +1277,11 @@ begin
             update_prev_state        <= '1';
          
          when PAUSE =>
-            bit_ctr_ena              <= '1';
+
+            if(bit_ctr_count < CHECKSUM_WORD_WIDTH) then
+               bit_ctr_ena           <= '1';
+            end if;
+
             update_prev_state        <= '0';
             
          when NEXT_UOP =>
@@ -1477,9 +1350,6 @@ begin
    end process;
 
    sync_count_slv    <= sync_num_i;
-   -- This line was used when the sync number was generate internally to this block.
-   -- Now it is generated externally, but I've kept this line to demonstrate the proper method for converting int=>std_logic_vector
-   --sync_count_slv    <= std_logic_vector(conv_unsigned(sync_count_int, 8));
    
    -- CRC logic
    crc_ena           <= '1' when bit_ctr_count < 32 or crc_clr = '1' else '0';   
@@ -1487,11 +1357,3 @@ begin
    crc_reg           <= crc_checksum when crc_done = '1' else crc_reg;
 
 end behav;
-
--- Think about using the free_ptr index to tag the u-op sequence number in the queue.
-
--- The send FSM needs a way of notifying the retire fsm wheter a u-op has been skipped or not
--- NEXT_UOP in send_states should tag the uop with a special code so that the retire fsm can recognize that it was skipped.
--- I need to insert a code either in the start sync, end sync or data size field.  
--- At this point, I think that I'll use the data size field, because there are definate limits to the size that a packet will be.
--- I can't add a new state in the send state machine that would alter the data field, because you can only read from the qa_sig data port.

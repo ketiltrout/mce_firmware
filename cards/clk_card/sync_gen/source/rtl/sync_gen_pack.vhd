@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.7  2004/11/19 20:00:05  bburger
+-- Bryce :  updated frame_timing and sync_gen interfaces
+--
 -- Revision 1.6  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -81,7 +84,7 @@ component sync_gen
 
       -- Global Signals
       clk_i       : in std_logic;
-      mem_clk_i   : in std_logic;
+--      mem_clk_i   : in std_logic;
       rst_i       : in std_logic
    );
 end component;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs.vhd,v 1.4 2005/02/15 00:55:24 bburger Exp $
+-- $Id: sync_gen_wbs.vhd,v 1.5 2005/02/17 22:42:12 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.5  2005/02/17 22:42:12  bburger
+-- Bryce:  changes to synchronization in the MCE in response to two problems
+-- - a rising edge on the sync line during configuration
+-- - an errant pulse on the restart_frame_1row_post_o from frame_timing block
+--
 -- Revision 1.4  2005/02/15 00:55:24  bburger
 -- Bryce:  removed a register that was associated with timing problems
 --
@@ -80,7 +85,7 @@ entity sync_gen_wbs is
 
       -- global interface
       clk_i               : in std_logic;
-      mem_clk_i           : in std_logic;
+--      mem_clk_i           : in std_logic;
       rst_i               : in std_logic 
    );     
 end sync_gen_wbs;

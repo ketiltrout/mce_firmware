@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core_pack.vhd,v $
+-- Revision 1.3  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.2  2004/11/25 01:34:32  bburger
 -- Bryce:  changed signal dv_en interface from integer to std_logic
 --
@@ -82,7 +87,7 @@ component sync_gen_core
 
       -- Global Signals
       clk_i       : in std_logic;
-      mem_clk_i   : in std_logic;
+--      mem_clk_i   : in std_logic;
       rst_i       : in std_logic
    );
 end component;

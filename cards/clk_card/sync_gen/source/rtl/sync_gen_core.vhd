@@ -38,6 +38,11 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.7  2005/02/17 22:42:12  bburger
+-- Bryce:  changes to synchronization in the MCE in response to two problems
+-- - a rising edge on the sync line during configuration
+-- - an errant pulse on the restart_frame_1row_post_o from frame_timing block
+--
 -- Revision 1.6  2005/02/15 00:55:24  bburger
 -- Bryce:  removed a register that was associated with timing problems
 --
@@ -116,7 +121,7 @@ entity sync_gen_core is
 
       -- Global Signals
       clk_i       : in std_logic;
-      mem_clk_i   : in std_logic;
+--      mem_clk_i   : in std_logic;
       rst_i       : in std_logic
    );
 end sync_gen_core;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.38 2005/01/12 22:18:24 mandana Exp $
+-- $Id: issue_reply_pack.vhd,v 1.39 2005/03/04 03:45:58 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.39  2005/03/04 03:45:58  bburger
+-- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
+--
 -- Revision 1.38  2005/01/12 22:18:24  mandana
 -- added comm_clk_i (shouldn't have removed it!)
 --
@@ -65,7 +68,7 @@ component issue_reply
       rst_i             : in std_logic;
       clk_i             : in std_logic;
       comm_clk_i        : in std_logic;
-      mem_clk_i         : in std_logic;
+--      mem_clk_i         : in std_logic;
       
       -- inputs from the bus backplane
       lvds_reply_ac_a   : in std_logic;  

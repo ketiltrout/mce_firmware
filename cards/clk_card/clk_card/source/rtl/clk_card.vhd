@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.19 2005/03/09 18:08:23 bburger Exp $
+-- $Id: clk_card.vhd,v 1.20 2005/03/14 21:30:20 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.20  2005/03/14 21:30:20  bburger
+-- bryce:  commital for a new tag:  cc_v01010003
+--
 -- Revision 1.19  2005/03/09 18:08:23  bburger
 -- mohsen:  registered and widened TTL reset pulse (BClr)
 --
@@ -156,7 +159,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"01010003";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"01010004";
 
 -- reset
 signal rst           : std_logic;
@@ -357,7 +360,7 @@ begin
       
          --  Global signals
          clk_i       => clk,
-         mem_clk_i   => mem_clk,
+--         mem_clk_i   => mem_clk,
          rst_i       => rst
       );
 
@@ -370,7 +373,7 @@ begin
          rst_i             => rst,
          clk_i             => clk,
          comm_clk_i        => comm_clk,
-         mem_clk_i         => mem_clk,
+--         mem_clk_i         => mem_clk,
          
          -- bus backplane interface
          lvds_reply_ac_a   => lvds_reply_ac_a,   
