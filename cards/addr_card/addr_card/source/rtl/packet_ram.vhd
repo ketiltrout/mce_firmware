@@ -102,7 +102,7 @@ BEGIN
 		address_aclr_a => "NONE",
 		outdata_aclr_a => "NONE",
 		width_byteena_a => 1,
-		init_file => "C:/scuba2_repository/cards/addr_card/addr_card/source/tb/addr_card_packets.hex",
+		init_file => "C:/scuba2_repository/cards/addr_card/addr_card/source/rtl/addr_card_packets.hex",
 		lpm_hint => "ENABLE_RUNTIME_MOD=NO",
 		lpm_type => "altsyncram"
 	)
