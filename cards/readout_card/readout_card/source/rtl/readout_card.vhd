@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.5  2004/12/21 22:06:51  bburger
+-- Bryce:  update
+--
 -- Revision 1.4  2004/12/10 20:23:40  mohsen
 -- Mohsen & Anthony: Added mem and comm clock
 -- Updated dispatch new interface, i.e., err_i
@@ -258,11 +261,9 @@ begin
    ----------------------------------------------------------------------------
 
    i_dispatch: dispatch
-     generic map (
-         CARD => CARD)
+     
      port map (
          clk_i        => clk,
-         mem_clk_i    => mem_clk,
          comm_clk_i   => comm_clk,
          rst_i        => rst,
          lvds_cmd_i   => lvds_cmd,
@@ -276,7 +277,8 @@ begin
          dat_i        => dispatch_dat_in,
          ack_i        => dispatch_ack_in,
          err_i        => dispatch_err_in,
-         wdt_rst_o    => wdog);
+         wdt_rst_o    => wdog,
+         slot_i       => slot_id);
 
 
   -----------------------------------------------------------------------------
