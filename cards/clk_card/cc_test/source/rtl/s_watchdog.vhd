@@ -45,7 +45,7 @@ entity s_watchdog is
       -- transmitter signals
       tx_busy_i : in std_logic;  -- transmit busy flag
       tx_ack_i : in std_logic;   -- transmit ack
-      tx_data_o : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);   -- transmit data
+      tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
       tx_we_o : out std_logic;   -- transmit write flag
       tx_stb_o : out std_logic;  -- transmit strobe flag
       
