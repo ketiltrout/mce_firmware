@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 
 -- 
--- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.4 2004/07/09 13:17:18 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator_m_op_table.vhd,v 1.5 2004/07/09 15:04:13 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,12 @@
 -- 
 -- Revision history:
 -- 
--- <date $Date: 2004/07/09 13:17:18 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/07/09 15:04:13 $>	-		<text>		- <initials $Author: dca $>
 --
 -- $Log: tb_cmd_translator_m_op_table.vhd,v $
+-- Revision 1.5  2004/07/09 15:04:13  dca
+-- 100% coverage now achieved.
+--
 -- Revision 1.4  2004/07/09 13:17:18  dca
 -- change to start value of clk.
 --
@@ -75,6 +78,8 @@ use ieee.numeric_std.all;
 library work;
 use work.issue_reply_pack.all;
 
+library sys_param;
+use sys_param.command_pack.all;
 
 architecture bench of tb_cmd_translator_m_op_table is
 
