@@ -58,6 +58,6 @@ package frame_timing_pack is
    constant SEL_ROW37 : integer := 37*MUX_LINE_PERIOD;
    constant SEL_ROW38 : integer := 38*MUX_LINE_PERIOD;
    constant SEL_ROW39 : integer := 39*MUX_LINE_PERIOD;
-   constant SEL_ROW_DARK : integer := 40*MUX_LINE_PERIOD;
+   constant SEL_ROWDARK : integer := 40*MUX_LINE_PERIOD;
    
 end frame_timing_pack;
