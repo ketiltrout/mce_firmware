@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.1 2004/11/24 01:15:52 bench2 Exp $
+-- $Id: clk_card.vhd,v 1.2 2004/11/25 01:09:12 bench2 Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.2  2004/11/25 01:09:12  bench2
+-- Greg: Changed issue_reply block instantiation and corresponding signals in the tcl file
+--
 -- Revision 1.1  2004/11/24 01:15:52  bench2
 -- Greg: Broke apart issue reply and created pack files for all of its sub-components
 --
@@ -162,25 +165,9 @@ signal sync_gen_ack        : std_logic;
 signal frame_timing_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack    : std_logic;
       
--- inputs from the fibre receiver 
-signal fibre_clkr_i      : std_logic;
-signal rx_data_i         : std_logic_vector (7 DOWNTO 0);
-signal nRx_rdy_i         : std_logic;
-signal rvs_i             : std_logic;
-signal rso_i             : std_logic;
-signal rsc_nRd_i         : std_logic;        
+signal clk_25mhz           : std_logic;
 
-signal cksum_err_o       : std_logic;
     
-
--- interface to fibre transmitter
-signal tx_data_o         : std_logic_vector (7 downto 0);      -- byte of data to be transmitted
-signal tsc_nTd_o         : std_logic;                          -- hotlink tx special char/ data sel
-signal nFena_o           : std_logic;                          -- hotlink tx enable
-
--- 25MHz clock for fibre_tx_control
-signal fibre_clkw_i      : std_logic;                          -- in phase with 25MHz hotlink clock
-
 -- lvds_tx interface
 signal sync_pulse        : std_logic;
 signal sync_number       : std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
@@ -359,7 +346,6 @@ begin
                rvs_i          => fibre_rx_rvs,
                rso_i          => fibre_rx_status,
                rsc_nRd_i      => fibre_rx_sc_nd,
-               cksum_err_o    => cksum_err_o,
     
                -- interface to fibre transmitter
                tx_data_o      => fibre_tx_data,     -- byte of data to be transmitted
@@ -368,11 +354,13 @@ begin
 
    
                -- 25MHz clock for fibre_tx_control
-               fibre_clkw_i      => fibre_tx_clk,
-               clk_200mhz_i        => mem_clk,
+               fibre_clkw_i   => clk_25mhz,
+               
+               
+               clk_200mhz_i   => mem_clk,
    
-               sync_pulse_i      => sync,
-               sync_number_i     => sync_num
+               sync_pulse_i   => sync,
+               sync_number_i  => sync_num
                );
   
 end top;
