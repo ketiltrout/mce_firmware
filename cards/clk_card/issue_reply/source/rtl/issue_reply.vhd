@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.8 2004/09/01 17:05:39 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.9 2004/09/02 01:14:52 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/01 17:05:39 $> -     <text>      - <initials $Author: jjacob $>
+-- <date $Date: 2004/09/02 01:14:52 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.9  2004/09/02 01:14:52  bburger
+-- Bryce:  Debugging - found that crc_ena must be asserted for crc_clear to function correctly
+--
 -- Revision 1.8  2004/09/01 17:05:39  jjacob
 -- updated version
 --
@@ -269,8 +272,8 @@ begin
     parameter_id_o <= parameter_id;
     data_o         <= data;
     data_clk_o     <= data_clk2;
-    macro_instr_rdy_o <= macro_instr_rdy;
-    macro_op_ack_o    <= mop_ack;
+    macro_instr_rdy_o <= cmd_rdy;
+    macro_op_ack_o    <= cmd_ack;
 
 
 --------------------------------------------------

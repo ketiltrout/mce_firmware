@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.16 2004/08/21 00:01:42 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.17 2004/09/03 00:39:25 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.17  2004/09/03 00:39:25  bburger
+-- Bryce:  modified the interface to include debug_o, and updated the lvds_tx interface to use bsy and rdy signals implemented in lvds_tx.vhd v1.6
+--
 -- Revision 1.16  2004/08/21 00:01:42  bburger
 -- Bryce
 --
@@ -232,6 +235,12 @@ begin
       assert false report " nop" severity NOTE;
    end do_nop;
 
+   procedure do_retire is
+   begin      
+      wait for CLOCK_PERIOD;
+      assert false report " retire" severity NOTE;
+   end do_retire;
+
    procedure do_ret_dat_cmd is
    begin
       card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
@@ -361,6 +370,19 @@ begin
       end loop L2;
       assert false report " Simulation done." severity FAILURE;
    end process STIMULI;
+   
+   uop_ack : process
+   begin
+      L2: while uop_rdy_o = '0' loop
+         uop_ack_i <= '0';         
+         wait for CLOCK_PERIOD;
+      end loop;
+
+      uop_ack_i <= '1';
+      wait for CLOCK_PERIOD;
+      uop_ack_i <= '0';         
+   end process uop_ack;
+   
 end BEH;
 
 ------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.51 2004/09/09 17:34:00 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.52 2004/09/09 21:14:39 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.52  2004/09/09 21:14:39  bburger
+-- Bryce:  debugging the retire fsm.  Added the uop_to_retire signal
+--
 -- Revision 1.51  2004/09/09 17:34:00  bburger
 -- Bryce:  testing in progress.
 --
@@ -378,7 +381,8 @@ begin
 ------------------------------------------------------------------------ 
 
    -- [JJ] For testing
-   debug_o(31 downto 0)  <=  clk_i & "000000000" & lvds_tx_rdy & lvds_tx_busy & uop_data_size(3 downto 0) & prev_send_state & send_state & cmd_tx_dat(31 downto 24);
+   --debug_o(31 downto 0)  <=  clk_i & "000000000" & lvds_tx_rdy & lvds_tx_busy & uop_data_size(3 downto 0) & prev_send_state & send_state & cmd_tx_dat(31 downto 24);
+   debug_o(31 downto 0)  <=  cmd_tx_dat(31 downto 1) & lvds_tx_busy;
       
    -- Command queue (FIFO)
    cmd_queue_ram40_inst: cmd_queue_ram40--_test
