@@ -20,7 +20,7 @@
 
 -- reg.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: reg.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Mar. 3 2004   - Initial version      - EL
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 ------------------------------------------------------------------------
@@ -41,7 +41,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 entity reg is
-generic(WIDTH : in integer range 2 to 512 := 8);
+generic(WIDTH : in integer range 1 to 512 := 8);
 port(clk_i  : in std_logic;
      rst_i  : in std_logic;
      ena_i  : in std_logic;
