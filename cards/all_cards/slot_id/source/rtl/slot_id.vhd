@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: slot_id.vhd,v $
+-- Revision 1.3  2005/01/06 03:03:13  erniel
+-- removed slave_ctrl submodule and associated signals
+-- removed obsolete signals, code, and comments
 --
 -- Revision 1.2  2004/03/16 18:57:00  jjacob
 -- ran HAL lint checker, cleaned up warnings and errors
@@ -72,13 +75,14 @@ signal padded_slot_id_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 begin
 
-
 ------------------------------------------------------------------------
 --
 -- Read slot ID
 --
 ------------------------------------------------------------------------
 
+   -- slot ID is continuously sampled
+   
    process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -98,7 +102,10 @@ begin
 --
 ------------------------------------------------------------------------ 
    
-   ack_o <= '1'                 when addr_i = SLOT_ID_ADDR and we_i = '1' and stb_i = '1' and cyc_i = '1' else '0';
-   dat_o <= padded_slot_id_data when addr_i = SLOT_ID_ADDR and we_i = '1' and stb_i = '1' and cyc_i = '1' else (others => '0');
+   -- assert ack and data when a read cycle to slot ID slave has begun
+   -- (wishbone cycle should last for only one clock period)
+   
+   ack_o <= '1'                 when addr_i = SLOT_ID_ADDR and we_i = '0' and stb_i = '1' and cyc_i = '1' else '0';
+   dat_o <= padded_slot_id_data when addr_i = SLOT_ID_ADDR and we_i = '0' and stb_i = '1' and cyc_i = '1' else (others => '0');
 
 end rtl;
