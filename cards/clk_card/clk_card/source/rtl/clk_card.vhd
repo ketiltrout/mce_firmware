@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.11 2005/01/14 12:26:12 dca Exp $
+-- $Id: clk_card.vhd,v 1.12 2005/01/18 22:20:47 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.12  2005/01/18 22:20:47  bburger
+-- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
+--
 -- Revision 1.11  2005/01/14 12:26:12  dca
 -- 'special character reset' firmware added to top level.
 --
@@ -84,13 +87,6 @@ use work.cc_reset_pack.all;
 
 entity clk_card is
    port(
-      -- simulation signals
---      clk          : in std_logic;
---      mem_clk      : in std_logic;
---      comm_clk     : in std_logic;      
---      fibre_clk    : in std_logic;
---      lvds_clk_i   : in std_logic; 
-      
       -- PLL input:
       inclk      : in std_logic;
       rst_n      : in std_logic;
@@ -235,7 +231,7 @@ begin
 
    -- This is an active-low enable signal for the TTL transmitter.  This line is used as a BClr.
    ttl_txena1 <= '0';
-   -- This is an active-low reset transmitted accross the bus backplane to clear FPGA registers (BClr)
+   -- ttl_tx1 is an active-low reset transmitted accross the bus backplane to clear FPGA registers (BClr)
    ttl_tx1    <= not sc_rst;
    
    rst        <= (not rst_n) or sc_rst;

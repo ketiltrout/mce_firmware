@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.2 2004/12/16 18:15:33 bench2 Exp $
+-- $Id: bias_card_pack.vhd,v 1.3 2005/01/12 22:37:11 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.3  2005/01/12 22:37:11  mandana
+-- added slot_id to dispatch interface
+-- removed mem_clk_i from dispatch interface
+--
 -- Revision 1.2  2004/12/16 18:15:33  bench2
 -- Mandana: fixed the clocking
 --
@@ -66,16 +70,24 @@ component bias_card
       lvds_txb   : out std_logic;
       
       -- TTL interface:
-      ttl_nrx    : in std_logic_vector(3 downto 1);
-      ttl_tx     : out std_logic_vector(3 downto 1);
-      ttl_txena  : out std_logic_vector(3 downto 1);
+      ttl_nrx1   : in std_logic;
+      ttl_tx1    : out std_logic;
+      ttl_txena1 : out std_logic;
       
+      ttl_nrx2   : in std_logic;
+      ttl_tx2    : out std_logic;
+      ttl_txena2 : out std_logic;
+      
+      ttl_nrx3   : in std_logic;
+      ttl_tx3    : out std_logic;
+      ttl_txena3 : out std_logic;
+
       -- eeprom interface:
       eeprom_si  : in std_logic;
       eeprom_so  : out std_logic;
       eeprom_sck : out std_logic;
       eeprom_cs  : out std_logic;
-      
+                  
       -- dac interface:
       dac_ncs       : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
       dac_sclk      : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -96,7 +108,7 @@ component bias_card
       
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
-      mictor     : out std_logic_vector(32 downto 1);
+      mictor     : out std_logic_vector(31 downto 0);
       mictorclk  : out std_logic_vector(2 downto 1);
       rs232_rx   : in std_logic;
       rs232_tx   : out std_logic

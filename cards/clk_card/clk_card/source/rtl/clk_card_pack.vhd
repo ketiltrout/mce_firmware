@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card_pack.vhd,v 1.1 2004/11/30 23:07:53 bburger Exp $
+-- $Id: clk_card_pack.vhd,v 1.2 2004/12/08 22:15:12 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card_pack.vhd,v $
+-- Revision 1.2  2004/12/08 22:15:12  bburger
+-- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
+--
 -- Revision 1.1  2004/11/30 23:07:53  bburger
 -- Bryce:  testing the Clock Card top-level
 --
@@ -42,13 +45,6 @@ package clk_card_pack is
 
 component clk_card
    port(
-      -- simulation signals
---      clk          : in std_logic;
---      mem_clk      : in std_logic;
---      comm_clk     : in std_logic;      
---      fibre_clk    : in std_logic;
---      lvds_clk_i   : in std_logic; 
-      
       -- PLL input:
       inclk      : in std_logic;
       rst_n      : in std_logic;
@@ -80,10 +76,18 @@ component clk_card
       dv_pulse_bnc    : in std_logic;
       
       -- TTL interface:
---     ttl_nrx    : in std_logic_vector(3 downto 1);
---     ttl_tx     : out std_logic_vector(3 downto 1);
---     ttl_txena  : out std_logic_vector(3 downto 1);
-     
+      ttl_nrx1   : in std_logic;
+      ttl_tx1    : out std_logic;
+      ttl_txena1 : out std_logic;
+      
+      ttl_nrx2   : in std_logic;
+      ttl_tx2    : out std_logic;
+      ttl_txena2 : out std_logic;
+
+      ttl_nrx3   : in std_logic;
+      ttl_tx3    : out std_logic;
+      ttl_txena3 : out std_logic;
+
       -- eeprom interface:
       eeprom_si  : in std_logic;
       eeprom_so  : out std_logic;

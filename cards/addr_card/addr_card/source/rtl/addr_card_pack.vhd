@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: addr_card_pack.vhd,v 1.1 2004/12/06 07:22:34 bburger Exp $
+-- $Id: addr_card_pack.vhd,v 1.2 2004/12/08 22:15:12 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: addr_card_pack.vhd,v $
+-- Revision 1.2  2004/12/08 22:15:12  bburger
+-- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
+--
 -- Revision 1.1  2004/12/06 07:22:34  bburger
 -- Bryce:
 -- Created pack files for the card top-levels.
@@ -44,11 +47,6 @@ package addr_card_pack is
 
 component addr_card
    port(
-      -- simulation signals
---      clk        : in std_logic;
---      mem_clk    : in std_logic;
---      comm_clk   : in std_logic;
-
       -- PLL input:
       inclk      : in std_logic;
       rst_n      : in std_logic;
@@ -61,9 +59,17 @@ component addr_card
       lvds_txb   : out std_logic;
       
       -- TTL interface:
-      ttl_nrx    : in std_logic_vector(3 downto 1);
-      ttl_tx     : out std_logic_vector(3 downto 1);
-      ttl_txena  : out std_logic_vector(3 downto 1);
+      ttl_nrx1   : in std_logic;
+      ttl_tx1    : out std_logic;
+      ttl_txena1 : out std_logic;
+      
+      ttl_nrx2   : in std_logic;
+      ttl_tx2    : out std_logic;
+      ttl_txena2 : out std_logic;
+      
+      ttl_nrx3   : in std_logic;
+      ttl_tx3    : out std_logic;
+      ttl_txena3 : out std_logic;
       
       -- eeprom interface:
       eeprom_si  : in std_logic;
@@ -99,7 +105,7 @@ component addr_card
       mictor     : out std_logic_vector(32 downto 1);
       mictorclk  : out std_logic_vector(2 downto 1);
       rs232_rx   : in std_logic;
-      rs232_tx   : out std_logic   
+      rs232_tx   : out std_logic    
    );     
 end component;
 

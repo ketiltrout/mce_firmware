@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_clk_card.vhd,v 1.6 2004/12/15 00:26:43 bburger Exp $
+-- $Id: tb_clk_card.vhd,v 1.7 2004/12/21 22:06:51 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_clk_card.vhd,v $
+-- Revision 1.7  2004/12/21 22:06:51  bburger
+-- Bryce:  update
+--
 -- Revision 1.6  2004/12/15 00:26:43  bburger
 -- Bryce:  for Mandana
 --
@@ -70,6 +73,7 @@ use work.frame_timing_pack.all;
 use work.issue_reply_pack.all;
 use work.clk_card_pack.all;
 use work.addr_card_pack.all;
+use work.cc_reset_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -101,6 +105,7 @@ architecture tb of tb_clk_card is
    
    constant preamble1          : std_logic_vector(7 downto 0)  := X"A5";
    constant preamble2          : std_logic_vector(7 downto 0)  := X"5A";
+   constant reset_char         : std_logic_vector(7 downto 0)  := X"0B";
    constant command_wb         : std_logic_vector(31 downto 0) := X"20205742";
    constant command_rb         : std_logic_vector(31 downto 0) := x"20205242";
    constant command_go         : std_logic_vector(31 downto 0) := X"2020474F";
@@ -124,12 +129,13 @@ architecture tb of tb_clk_card is
    constant row_order_cmd      : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ROW_ORDER_ADDR;
    constant enbl_mux_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ENBL_MUX_ADDR;
    constant use_dv_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & USE_DV_ADDR;
-   constant row_len_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & ROW_LEN_ADDR;    
-   constant num_rows_cmd       : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & NUM_ROWS_ADDR;   
-   constant sample_delay_cmd   : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & SAMPLE_DLY_ADDR; 
-   constant sample_num_cmd     : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & SAMPLE_NUM_ADDR; 
-   constant fb_dly_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & FB_DLY_ADDR;     
-   constant flx_lp_init_cmd    : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS     & x"00" & FLX_LP_INIT_ADDR;
+   constant row_len_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ROW_LEN_ADDR;    
+   constant num_rows_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & NUM_ROWS_ADDR;
+   constant sample_delay_cmd   : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & SAMPLE_DLY_ADDR; 
+   constant sample_num_cmd     : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & SAMPLE_NUM_ADDR; 
+   constant fb_dly_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & FB_DLY_ADDR;     
+   constant flx_lp_init_cmd    : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & FLX_LP_INIT_ADDR;
+   constant row_dly_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ROW_DLY_ADDR;
                                                                                                      
    constant data_block         : positive := 58;                                                       
    
@@ -171,6 +177,13 @@ architecture tb of tb_clk_card is
    signal dv_pulse_fibre  : std_logic := '0';
    signal dv_pulse_bnc    : std_logic := '0';
    
+   -- TTL interface:
+   signal cc_ttl_txena1 : std_logic := '0';
+   signal cc_ttl_txena2 : std_logic := '1';
+   signal cc_ttl_txena3 : std_logic := '1';
+   signal cc_ttl_nrx2   : std_logic := '0';
+   signal cc_ttl_nrx3   : std_logic := '0';
+   
    -- eeprom interface:
    signal eeprom_si  : std_logic := '0';
    signal eeprom_so  : std_logic;
@@ -184,7 +197,7 @@ architecture tb of tb_clk_card is
    signal dip_sw3    : std_logic := '0';
    signal dip_sw4    : std_logic := '0';
    signal wdog       : std_logic;
-   signal slot_id    : std_logic_vector(3 downto 0) := "1111";
+   signal slot_id    : std_logic_vector(3 downto 0) := "1000";
    
    -- debug ports:
    signal mictor_o    : std_logic_vector(15 downto 1);
@@ -212,9 +225,13 @@ architecture tb of tb_clk_card is
    -- Address Card Signals
    -------------------------------------------------
    -- TTL interface:
-   signal ttl_nrx    : std_logic_vector(3 downto 1);
-   signal ttl_tx     : std_logic_vector(3 downto 1);
-   signal ttl_txena  : std_logic_vector(3 downto 1);
+   signal bclr          : std_logic;
+   signal bclr_n        : std_logic;
+   signal ac_ttl_txena1 : std_logic := '1';
+   signal ac_ttl_txena2 : std_logic := '1';
+   signal ac_ttl_txena3 : std_logic := '1';
+   signal ac_ttl_nrx2   : std_logic := '0';
+   signal ac_ttl_nrx3   : std_logic := '0';
     
    -- eeprom interface:
    signal ac_eeprom_si  : std_logic;
@@ -243,7 +260,7 @@ architecture tb of tb_clk_card is
    signal ac_dip_sw3    : std_logic;
    signal ac_dip_sw4    : std_logic;
    signal ac_wdog       : std_logic;
-   signal ac_slot_id    : std_logic_vector(3 downto 0);
+   signal ac_slot_id    : std_logic_vector(3 downto 0) := "1111";
     
    -- debug ports:
    signal test       : std_logic_vector(16 downto 3);
@@ -254,19 +271,11 @@ architecture tb of tb_clk_card is
    
 begin
 --   rst_n <= not rst_i;
+   bclr_n <= not bclr;
    
    i_clk_card : clk_card
       port map
       (
-         -- simulation signals
---         clk              => clk,         
---         mem_clk          => mem_clk,     
---         comm_clk         => comm_clk,       
---         fibre_clk        => fibre_clk,   
---         fibre_tx_clk     => fibre_tx_clk,
---         fibre_rx_clk     => fibre_rx_clk,
---         lvds_clk_i       => lvds_clk_i,    
-         
          -- PLL input:
          inclk            => inclk,
          rst_n            => rst_n,
@@ -296,6 +305,19 @@ begin
          -- DV interface:
          dv_pulse_fibre   => dv_pulse_fibre,
          dv_pulse_bnc     => dv_pulse_bnc,  
+      
+         -- TTL interface:
+         ttl_nrx1         => bclr_n,
+         ttl_tx1          => bclr,
+         ttl_txena1       => cc_ttl_txena1,
+         
+         ttl_nrx2         => cc_ttl_nrx2,
+         ttl_tx2          => open,
+         ttl_txena2       => cc_ttl_txena2,
+
+         ttl_nrx3         => cc_ttl_nrx3,
+         ttl_tx3          => open,
+         ttl_txena3       => cc_ttl_txena3,
                           
          -- eeprom interface:
          eeprom_si        => eeprom_si,
@@ -348,11 +370,19 @@ begin
          lvds_spare       => lvds_spare,
          lvds_txa         => lvds_reply_ac_a, 
          lvds_txb         => lvds_reply_ac_b, 
-         
+      
          -- TTL interface:
-         ttl_nrx          => ttl_nrx,  
-         ttl_tx           => ttl_tx,   
-         ttl_txena        => ttl_txena,
+         ttl_nrx1         => bclr_n,
+         ttl_tx1          => open,
+         ttl_txena1       => ac_ttl_txena1,
+         
+         ttl_nrx2         => ac_ttl_nrx2,
+         ttl_tx2          => open,
+         ttl_txena2       => ac_ttl_txena2,
+         
+         ttl_nrx3         => ac_ttl_nrx3,
+         ttl_tx3          => open,
+         ttl_txena3       => ac_ttl_txena3,
          
          -- eeprom interface:
          eeprom_si        => ac_eeprom_si, 
@@ -391,22 +421,10 @@ begin
          rs232_tx         => ac_rs232_tx
    );
    
-   -- set up hotlink receiver signals 
-   fibre_rx_rvs    <= '0';  -- no violation
-   fibre_rx_status <= '1';  -- status ok
-   fibre_rx_sc_nd  <= '0';  -- data     
-          
    ------------------------------------------------
    -- Create test bench clock
    -------------------------------------------------
    inclk        <= not inclk        after clk_period/2;
---   clk          <= not clk          after clk_period/2;
---   comm_clk     <= not comm_clk     after comm_clk_period/2;
---   mem_clk      <= not mem_clk      after mem_clk_period/2;
---   fibre_clk    <= not fibre_clk    after fibre_clk_period/2;
---   fibre_tx_clk <= not fibre_tx_clk after fibre_tx_clk_period/2;
---   fibre_rx_clk <= not fibre_rx_clk after fibre_rx_clk_period/2;
---   lvds_clk_i   <= not lvds_clk_i   after lvds_clk_period/2;
    fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
    
    ------------------------------------------------
@@ -417,11 +435,33 @@ begin
 
    procedure do_reset is
    begin
-      rst_n <= '0';
-      wait for clk_period*5 ;
-      rst_n <= '1';
-      wait for clk_period*5 ;   
-      assert false report " Resetting the DUT." severity NOTE;
+      -- setup the hotlink receiver to received the special character
+      fibre_rx_sc_nd  <= '1';
+      fibre_rx_status <= '1';
+      fibre_rx_rvs    <= '0';
+
+      -- special case for the reset character
+      fibre_rx_rdy    <= '0';  -- data not ready (active low)
+      fibre_rx_data   <= SPEC_CHAR_RESET;
+      
+      wait for fibre_clkr_prd * 0.4;
+      
+      -- set up hotlink receiver signals 
+      fibre_rx_sc_nd  <= '0';
+      fibre_rx_status <= '1';
+      fibre_rx_rvs    <= '0';
+
+      -- set default values for input
+      fibre_rx_rdy    <= '0';  -- data not ready (active low)
+      fibre_rx_data   <= x"00";
+      
+      wait for fibre_clkr_prd * 0.6;
+
+--      rst_n <= '0';
+--      wait for clk_period*5 ;
+--      rst_n <= '1';
+--      wait for clk_period*5 ;   
+--      assert false report " Resetting the DUT." severity NOTE;
    end do_reset;
    --------------------------------------------------
   
@@ -674,31 +714,34 @@ begin
       
       do_reset;    
       
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007"; -- 64 clock cycles
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007"; -- 41 rows
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007"; -- 64 clock cycles
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007"; -- 41 rows
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
 ----------------------------------------------------------
--- setup commands fro the frame_timing block
+-- setup commands for the frame_timing block
 ------------------------------------------------------      
+----      wait for 150 us;
+--      
 --      command <= command_wb;
 --      address_id <= row_len_cmd;
 --      data_valid <= X"00000001";
+----      data       <= X"00000000";
 --      data       <= X"00000040"; -- 64 clock cycles
 --      load_preamble;
 --      load_command;
@@ -709,12 +752,24 @@ begin
 --      command <= command_wb;
 --      address_id <= num_rows_cmd;
 --      data_valid <= X"00000001";
+----      data       <= X"00000000";
 --      data       <= X"00000029"; -- 41 rows
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      
---      wait for 50 us;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= row_dly_cmd;
+      data_valid <= X"00000001";
+--      data       <= X"00000000";
+      data       <= X"00000004"; -- four clock cycles
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
 --
 --      command <= command_wb;
 --      address_id <= sample_delay_cmd;
@@ -833,41 +888,61 @@ begin
 ------------------------------------------------------
 -- ac_dac_ctrl commands
 ------------------------------------------------------     
---     -- This is a 'WB ac on_bias 0 1 2 .. 40' command
---     -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
---     command <= command_wb;
---     address_id <= on_bias_cmd;
---     data_valid <= X"00000029"; --41 values
---     data       <= X"00000000";
---     load_preamble;
---     load_command;
---     load_checksum;
---     
---     wait for 300 us;
---
---      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
---      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
---      command <= command_rb;
---      address_id <= on_bias_cmd;
---      data_valid <= X"00000029"; --41 values
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 400 us;
---
---      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
---      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+     -- This is a 'WB ac on_bias 0 1 2 .. 40' command
+     -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+     command <= command_wb;
+     address_id <= on_bias_cmd;
+     data_valid <= X"00000029"; --41 values
+     data       <= X"000000AA";
+     load_preamble;
+     load_command;
+     load_checksum;
+     
+     wait for 150 us;
+
+      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
+      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+      command <= command_rb;
+      address_id <= off_bias_cmd;
+      data_valid <= X"00000029"; --41 values
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 150 us;
+
+      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
+      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+      command <= command_wb;
+      address_id <= row_order_cmd;
+      data_valid <= X"00000029"; --41 values
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 150 us;
+
+      command <= command_wb;
+      address_id <= enbl_mux_cmd;
+      data_valid <= X"00000001"; --1 value
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+--  
 --      command <= command_wb;
---      address_id <= row_order_cmd;
---      data_valid <= X"00000029"; --41 values
+--      address_id <= enbl_mux_cmd;
+--      data_valid <= X"00000001"; --1 value
 --      data       <= X"00000000";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --      
---      wait for 200 us;
+--      wait for 50 us;
 --
 --      command <= command_wb;
 --      address_id <= enbl_mux_cmd;
@@ -876,28 +951,8 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      
---      wait for 120 us;
---
---      command <= command_wb;
---      address_id <= enbl_mux_cmd;
---      data_valid <= X"00000001"; --1 value
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 120 us;
---
---      command <= command_wb;
---      address_id <= enbl_mux_cmd;
---      data_valid <= X"00000001"; --1 value
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 400 us;
+      
+      wait for 150 us;
 
       assert false report "Simulation done." severity FAILURE;
    end process stimuli;   

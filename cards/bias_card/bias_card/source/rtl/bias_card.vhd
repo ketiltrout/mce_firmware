@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.8 2005/01/18 22:20:47 bburger Exp $
+-- $Id: bias_card.vhd,v 1.9 2005/01/19 02:42:19 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.9  2005/01/19 02:42:19  bburger
+-- Bryce:  Fixed a couple of errors.  Always compile, simulate before comitting.
+--
 -- Revision 1.8  2005/01/18 22:20:47  bburger
 -- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
 --
@@ -183,7 +186,8 @@ begin
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
    ttl_txena1 <= '1';
-   rst <= (not rst_n) or (not ttl_nrx1);
+   -- The ttl_nrx1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
+   rst <= (not rst_n) or (ttl_nrx1);
    
    mictor   <= debug;
    test (4) <= dac_ncs_temp(0);

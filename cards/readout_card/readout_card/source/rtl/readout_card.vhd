@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.7  2005/01/18 22:20:47  bburger
+-- Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
+--
 -- Revision 1.6  2005/01/13 22:38:54  mohsen
 -- Dispatch interface change
 --
@@ -255,7 +258,8 @@ begin
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
    -- The transmitter is disabled because the Clock Card is driving this line.
    ttl_dir1 <= '1';
-   rst <= (not rst_n) and (not ttl_in1);
+   -- The ttl_in1 signal is inverted on the Card, thus the FPGA sees an active-high signal.
+   rst <= (not rst_n) or (ttl_in1);
    
    ----------------------------------------------------------------------------
    -- PLL Instantiation
