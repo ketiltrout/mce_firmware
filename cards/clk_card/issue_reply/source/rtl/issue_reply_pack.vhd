@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.12 2004/07/06 11:09:47 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.13 2004/07/07 10:52:03 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.13  2004/07/07 10:52:03  dca
+-- CMD_CODE_BUS_WIDTH parameter added
+--
 -- Revision 1.12  2004/07/06 11:09:47  dca
 -- "cmd_translator_m_op_table" component declaration included.
 --
@@ -306,7 +309,8 @@ component cmd_translator_m_op_table
 
 port(
      -- global inputs
-     rst_i             : in     std_logic;
+     rst_i                   : in     std_logic;
+     clk_i                   : in     std_logic;
 
      -- inputs from cmd_translator (top level)     
      card_addr_store_i       : in std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
@@ -319,8 +323,9 @@ port(
      m_op_seq_num_retire_i    : in std_logic_vector (MOP_BUS_WIDTH-1       downto 0);
      macro_instr_done_i       : in std_logic;                                          --'1' when issued command ready to be retired from table  
       
-     table_empty_o            : out std_logic;                                         -- asserted if table full.  no more macro instructions should be retired.
-     table_full_o             : out std_logic                                          -- asserted if table full.  No more macro instructions should be issued.
+     retiring_busy_o          : out std_logic;                                         -- asserted high if retiring a command, during which no command should be issued.
+     table_empty_o            : out std_logic;                                         -- asserted high if table full.  no more macro instructions should be retired.
+     table_full_o             : out std_logic                                          -- asserted high  if table full.  No more macro instructions should be issued.
    ); 
      
 end component;
