@@ -19,17 +19,20 @@
 --        Vancouver BC, V6T 1Z1
 --
 --
--- Project:	      SCUBA-2
--- Author:	      David Atkinson
+-- Project:       SCUBA-2
+-- Author:        David Atkinson
 --               
 -- Organisation:  UK ATC
 --
 -- Description: package for cc_reset 
 -- 
 -- Revision history:
--- <date $Date: 2004/10/12 14:18:56 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2005/01/13 16:32:29 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: cc_reset_pack.vhd,v $
+-- Revision 1.1  2005/01/13 16:32:29  dca
+-- Initial Versions
+--
 --
 -----------------------------------------------------------------------------
 library ieee;
@@ -44,6 +47,8 @@ constant SPEC_CHAR_RESET : std_logic_vector (7 downto 0) := x"0B";
 component cc_reset
 ------------------ 
    port( 
+      clk_i      : in     std_logic;
+      rst_n_i    : in     std_logic;
       nRx_rdy_i  : in     std_logic;                       -- hotlink receiver data ready (active low)
       rsc_nRd_i  : in     std_logic;                       -- hotlink receiver special character/(not) Data 
       rso_i      : in     std_logic;                       -- hotlink receiver status out
