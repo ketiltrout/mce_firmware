@@ -56,8 +56,8 @@ signal present_state : std_logic_vector(2 downto 0);
 signal next_state    : std_logic_vector(2 downto 0);
 
 -- SRAM control:
-signal sram_ce_ctrl : std_logic;
-signal sram_wr_ctrl : std_logic;
+signal ce_ctrl : std_logic;
+signal wr_ctrl : std_logic;
 
 -- SRAM data out buffer:
 signal read_buf     : std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -146,23 +146,25 @@ begin
    state_out: process(present_state)
    begin
       case present_state is
-         when IDLE =>       sram_ce_ctrl <= '0';
-                            sram_wr_ctrl <= '0';
+         when IDLE =>       ce_ctrl <= '0';
+                            wr_ctrl <= '0';
                             read_buf_ena <= "00";
-                            addr_o <= (others => '0');
+                            addr_o  <= (others => '0');
+                            data_bi <= (others => 'Z');
                             
-         when WRITE_LSB =>  sram_ce_ctrl <= '1';
-                            sram_wr_ctrl <= '1';
+         when WRITE_LSB =>  ce_ctrl <= '1';
+                            wr_ctrl <= '1';
                             read_buf_ena <= "00";
-                            addr_o <= tga_i(18 downto 0) & '0';
+                            addr_o  <= tga_i(18 downto 0) & '0';
+                            data_bi <= dat_i(15 downto 0);
                                                         
-         when WRITE_MSB =>  sram_ce_ctrl <= '1';
-                            sram_wr_ctrl <= '1';
+         when WRITE_MSB =>  ce_ctrl <= '1';
+                            wr_ctrl <= '1';
                             read_buf_ena <= "00";
                             addr_o <= tga_i(18 downto 0) & '1';
                                                         
-         when WRITE_DONE => sram_ce_ctrl <= '0';
-                            sram_wr_ctrl <= '0';
+         when WRITE_DONE => ce_ctrl <= '0';
+                            m_wr_ctrl <= '0';
                             read_buf_ena <= "00";
                             addr_o <= (others => '0');
                                                         
@@ -196,6 +198,7 @@ begin
    -- wishbone interface status signals
    ack_o <= '1' when (present_state = WRITE_MSB or present_state = SEND_DATA) else '0';
    rty_o <= '0';  -- never retry
+   dat_o <= read_buf;
    
    read_cycle  <= '1' when (addr_i = SRAM_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    write_cycle <= '1' when (addr_i = SRAM_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0'; 

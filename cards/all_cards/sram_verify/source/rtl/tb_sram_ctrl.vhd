@@ -42,8 +42,18 @@ architecture BEH of TB_SRAM_CTRL is
    end component;
 
 
---   constant PERIOD : time := 10 ns;
+   -- SRAM address and data in
+   constant ADDRESS_0 : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
+   constant ADDRESS_1 : std_logic_vector(31 downto 0) := "00000000000000000000000000000001";
+   constant ADDRESS_2 : std_logic_vector(31 downto 0) := "00000000000000000000000000000010";
+   constant ADDRESS_3 : std_logic_vector(31 downto 0) := "00000000000000000000000000000011";
 
+   constant DATA_IN_0 : std_logic_vector(31 downto 0) := "00010010001101000101011001111000"; -- 0x12345678
+   constant DATA_IN_1 : std_logic_vector(31 downto 0) := "10011011101011011100101010110000"; -- 0x9BADCAB0
+   constant DATA_IN_2 : std_logic_vector(31 downto 0) := "11001010111111100000111110111100"; -- 0xCAFE0FBC
+   constant DATA_IN_3 : std_logic_vector(31 downto 0) := "11011110101011011011101010111110"; -- 0xDEADBABE
+           
+ 
    signal W_ADDR_O    : std_logic_vector ( 19 downto 0 );
    signal W_DATA_BI   : std_logic_vector ( 15 downto 0 );
    signal W_N_BLE_O   : std_logic ;
@@ -64,7 +74,7 @@ architecture BEH of TB_SRAM_CTRL is
    signal W_RTY_O     : std_logic ;
    signal W_ACK_O     : std_logic ;
 
-   type regarray is array (63 downto 0) of std_logic_vector(15 downto 0);
+   type regarray is array (7 downto 0) of std_logic_vector(15 downto 0);
    signal sram : regarray;
    
 begin
@@ -98,26 +108,196 @@ begin
    W_CLK_I <= not W_CLK_I after CLOCK_PERIOD/2;
 
    STIMULI : process
-   procedure sram_read is
-   begin
-      W_DATA_BI <= sram(conv_integer(W_ADDR_O(5 downto 0))) after 8 ns;   
-   end sram_read;
    
-   procedure sram_write is
+   procedure system_reset is
    begin
-      sram(conv_integer(W_ADDR_O(5 downto 0))) <= W_DATA_BI;
-   end sram_write;
-   
-      
-   begin
-      W_RST_I     <= '0';
+      W_RST_I     <= '1';
       W_DAT_I     <= (others => '0');
       W_ADDR_I    <= (others => '0');
       W_TGA_I     <= (others => '0');
       W_WE_I      <= '0';
       W_STB_I     <= '0';
       W_CYC_I     <= '0';
+      
+      sram(0) <= (others =>'0');
+      sram(1) <= (others =>'0');
+      sram(2) <= (others =>'0');
+      sram(3) <= (others =>'0');
+      sram(4) <= (others =>'0');
+      sram(5) <= (others =>'0');
+      sram(6) <= (others =>'0');
+      sram(7) <= (others =>'0');
+      
+   end system_reset;
+   
+   procedure write_0 is
+   begin
+      W_RST_I     <= '0';
+      W_DAT_I     <= DATA_IN_0;
+      W_ADDR_I    <= SRAM_ADDR;
+      W_TGA_I     <= ADDRESS_0;
+      W_WE_I      <= '1';
+      W_STB_I     <= '1';
+      W_CYC_I     <= '1';
+      
+      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
 
+      wait until W_ADDR_O = "00000000000000000000";      
+      sram(0) <= W_DATA_BI;
+      
+      wait until W_ADDR_O = "00000000000000000001";
+      sram(1) <= W_DATA_BI;
+      
+   end write_0;
+   
+   procedure write_1 is
+   begin
+      W_RST_I     <= '0';
+      W_DAT_I     <= DATA_IN_1;
+      W_ADDR_I    <= SRAM_ADDR;
+      W_TGA_I     <= ADDRESS_1;
+      W_WE_I      <= '1';
+      W_STB_I     <= '1';
+      W_CYC_I     <= '1';
+      
+      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
+
+      wait until W_ADDR_O = "00000000000000000010";      
+      sram(2) <= W_DATA_BI;
+      
+      wait until W_ADDR_O = "00000000000000000011";
+      sram(3) <= W_DATA_BI;
+   end write_1;
+   
+   procedure write_2 is
+   begin
+      W_RST_I     <= '0';
+      W_DAT_I     <= DATA_IN_2;
+      W_ADDR_I    <= SRAM_ADDR;
+      W_TGA_I     <= ADDRESS_2;
+      W_WE_I      <= '1';
+      W_STB_I     <= '1';
+      W_CYC_I     <= '1';
+      
+      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
+
+      wait until W_ADDR_O = "00000000000000000100";      
+      sram(4) <= W_DATA_BI;
+      
+      wait until W_ADDR_O = "00000000000000000101";
+      sram(5) <= W_DATA_BI;
+   end write_2;
+   
+   procedure write_3 is
+   begin
+      W_RST_I     <= '0';
+      W_DAT_I     <= DATA_IN_3;
+      W_ADDR_I    <= SRAM_ADDR;
+      W_TGA_I     <= ADDRESS_3;
+      W_WE_I      <= '1';
+      W_STB_I     <= '1';
+      W_CYC_I     <= '1';
+      
+      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '0' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
+
+      wait until W_ADDR_O = "00000000000000000110";      
+      sram(6) <= W_DATA_BI;
+      
+      wait until W_ADDR_O = "00000000000000000111";
+      sram(7) <= W_DATA_BI;
+   end write_3;
+   
+   procedure read_0 is
+   begin
+      W_RST_I     <= '0';
+      W_DAT_I     <= (others => '0');
+      W_ADDR_I    <= SRAM_ADDR;
+      W_TGA_I     <= ADDRESS_0;
+      W_WE_I      <= '0';
+      W_STB_I     <= '1';
+      W_CYC_I     <= '1';
+      
+      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '1' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
+
+      wait until W_ADDR_O = "00000000000000000000";      
+      W_DATA_BI <= sram(0);
+      
+      wait until W_ADDR_O = "00000000000000000001";
+      W_DATA_BI <= sram(1);
+   end read_0;
+   
+   procedure read_1 is
+   begin
+      W_RST_I     <= '0';
+      W_DAT_I     <= (others => '0');
+      W_ADDR_I    <= SRAM_ADDR;
+      W_TGA_I     <= ADDRESS_1;
+      W_WE_I      <= '0';
+      W_STB_I     <= '1';
+      W_CYC_I     <= '1';
+      
+      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '1' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
+
+      wait until W_ADDR_O = "00000000000000000010";      
+      W_DATA_BI <= sram(2);
+      
+      wait until W_ADDR_O = "00000000000000000011";
+      W_DATA_BI <= sram(3);
+   end read_1;
+   
+   procedure read_2 is
+   begin
+      W_RST_I     <= '0';
+      W_DAT_I     <= (others => '0');
+      W_ADDR_I    <= SRAM_ADDR;
+      W_TGA_I     <= ADDRESS_2;
+      W_WE_I      <= '0';
+      W_STB_I     <= '1';
+      W_CYC_I     <= '1';
+      
+      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '1' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
+
+      wait until W_ADDR_O = "00000000000000000100";      
+      W_DATA_BI <= sram(4);
+      
+      wait until W_ADDR_O = "00000000000000000101";
+      W_DATA_BI <= sram(5);
+   end read_2;
+   
+   procedure read_3 is
+   begin
+      W_RST_I     <= '0';
+      W_DAT_I     <= (others => '0');
+      W_ADDR_I    <= SRAM_ADDR;
+      W_TGA_I     <= ADDRESS_3;
+      W_WE_I      <= '0';
+      W_STB_I     <= '1';
+      W_CYC_I     <= '1';
+      
+      wait until W_CE2_O = '1' and W_N_CE1_O = '0' and W_N_WE_O = '1' and W_N_BLE_O = '0' and W_N_BHE_O = '0';
+
+      wait until W_ADDR_O = "00000000000000000110";      
+      W_DATA_BI <= sram(6);
+      
+      wait until W_ADDR_O = "00000000000000000111";
+      W_DATA_BI <= sram(7);
+   end read_3;
+  
+ 
+   begin
+      W_DATA_BI   <= (others =>'Z');
+   
+      write_0;
+      write_1;
+      read_2;
+      read_3;
+      write_2;
+      write_3;
+      read_0;
+      read_1;
+      read_2;
+      read_3;
+      
       wait for CLOCK_PERIOD;
       wait;
    end process STIMULI;

@@ -9,13 +9,14 @@ package wishbone_pack is
    constant WB_TAG_ADDR_WIDTH : integer := 32;
 
    -- Wishbone addresses
-   constant SLOT_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000111"; -- 0x47
-   constant ARRAY_ID_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001001"; -- 0x49
    constant TEMPERATURE_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000010"; -- 0x42
    constant CARD_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000011"; -- 0x43
    constant LEDS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000101"; -- 0x45
+   constant SLOT_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000111"; -- 0x47
+   constant ARRAY_ID_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001001"; -- 0x49
    constant DIP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001100"; -- 0x4C
    constant WATCHDOG_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001101"; -- 0x4D
+   constant SRAM_VERIFY_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01010000"; -- 0x50
    constant SRAM_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01010001"; -- 0x51
 
     
