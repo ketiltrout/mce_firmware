@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.6 2004/04/14 20:14:14 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.1 2004/04/14 21:56:40 jjacob Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/04/14 20:14:14 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/04/14 21:56:40 $> - <text> - <initials $Author: jjacob $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.1  2004/04/14 21:56:40  jjacob
+-- new directory structure
+--
 -- Revision 1.6  2004/04/14 20:14:14  bburger
 -- no message
 --
@@ -106,11 +109,11 @@ package frame_timing_pack is
    
    component frame_timing is
       port(
-         clk_i              : in std_logic;
-         sync_i             : in std_logic;
-         rst_on_next_sync_i : in std_logic;
-         cycle_count_o      : out std_logic_vector(31 downto 0);
-         cycle_error_o      : out std_logic_vector(31 downto 0)
+         clk_i       : in std_logic;
+         sync_i      : in std_logic;
+         frame_rst_i : in std_logic;
+         clk_count_o : out std_logic_vector(31 downto 0);
+         clk_error_o : out std_logic_vector(31 downto 0)
       );
    end component;
    
