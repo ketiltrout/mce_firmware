@@ -28,8 +28,11 @@
 -- fibre_tx file: just a port map, the wrapper should push the data in and assert enable.
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/05/31 00:44:33 $>	- <initials $Author: mandana $>
+-- $Log: fibre_tx.vhd,v $
+-- Revision 1.1  2004/05/31 00:44:33  mandana
+-- initial release
+--
 --
 -----------------------------------------------------------------------------
 
@@ -53,9 +56,9 @@ entity fibre_tx is
       -- fo_tx_enn is tied to vcc on board
       -- fo_tx_mode is tied to gnd on board
      );
-end fo_bist;
+end fibre_tx;
                      
-architecture rtl of fo_bist is
+architecture rtl of fibre_tx is
    
 begin
   
