@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.45 2004/08/25 22:15:01 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.46 2004/08/31 21:43:13 jjacob Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.46  2004/08/31 21:43:13  jjacob
+-- updating
+--
 -- Revision 1.45  2004/08/25 22:15:01  bburger
 -- Bryce:  added a recirc mux for data_size_reg
 --
@@ -134,7 +137,7 @@ entity cmd_queue is
       sync_i        : in std_logic; -- The sync pulse determines when and when not to issue u-ops
       sync_num_i    : in std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
       clk_i         : in std_logic; -- Advances the state machines
-      rst_i         : in std_logic;  -- Resets all FSMs
+      rst_i         : in std_logic  -- Resets all FSMs
       
       -- for testing
       --cmd_tx_dat_o  : out std_logic_vector(31 downto 0)
