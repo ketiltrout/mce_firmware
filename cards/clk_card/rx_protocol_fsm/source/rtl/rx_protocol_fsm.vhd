@@ -69,12 +69,12 @@
 -- <date $Date$>	-		<text>		- <initials $Author$>
 -- $log$
 -----------------------------------------------------------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numeric_std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ENTITY rx_protocol_fsm IS
-   PORT( 
+entity rx_protocol_fsm is
+   port( 
       Brst        : IN     std_logic;
       clk         : IN     std_logic;
       rx_fe_i     : IN     std_logic;
@@ -90,14 +90,14 @@ ENTITY rx_protocol_fsm IS
       rx_fr_o     : OUT    std_logic
    );
 
-END rx_protocol_fsm ;
+end rx_protocol_fsm ;
 
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numeric_std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ARCHITECTURE fsm OF rx_protocol_fsm IS
+architecture rtl of rx_protocol_fsm is
 
 
 -- FSM's states defined
@@ -205,26 +205,26 @@ signal write_mem: std_logic;
 signal read_mem: std_logic;
 signal reset_mem: std_logic; 
 
-BEGIN
+begin
 
    ----------------------------------------------------------------------------
-   clocked : PROCESS(
+   clocked : process(
       clk,
       Brst
    )
    ----------------------------------------------------------------------------
-   BEGIN
+   begin
          
-      IF (Brst = '1') THEN
+      IF (Brst = '1') then
          current_state <= IDLE;
-      ELSIF (clk'EVENT AND clk = '1') THEN
+      elsif (clk'EVENT AND clk = '1') then
          current_state <= next_state;
-      END IF;
+      end if;
 
-   END PROCESS clocked;
+   end process clocked;
 
    ----------------------------------------------------------------------------
-   nextstate : PROCESS (
+   nextstate : process (
       current_state,
       rx_fe_i,
       rxd_i,
@@ -232,346 +232,346 @@ BEGIN
       cksum_rcvd
    )
    ----------------------------------------------------------------------------
-   BEGIN
+   begin
      
-      CASE current_state IS
+      case current_state IS
 
 
 
-      WHEN IDLE =>
-         IF (rx_fe_i = '0') THEN
+      when IDLE =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_PRE0;
-         ELSE
+         else
             next_state <= IDLE;
-         END IF;
+         end if;
 
    ------------------------------------------------
    
    --preamble states
 
-      WHEN RQ_PRE0 =>
+      when RQ_PRE0 =>
          next_state <= CK_PRE0;
-      WHEN RQ_PRE1 =>
+      when RQ_PRE1 =>
          next_state <= CK_PRE1;
-      WHEN RQ_PRE2 =>
+      when RQ_PRE2 =>
          next_state <= CK_PRE2;
-      WHEN RQ_PRE3 =>
+      when RQ_PRE3 =>
          next_state <= CK_PRE3;
-      WHEN RQ_PRE4 =>
+      when RQ_PRE4 =>
          next_state <= CK_PRE4;
-      WHEN RQ_PRE5 =>
+      when RQ_PRE5 =>
          next_state <= CK_PRE5;
-      WHEN RQ_PRE6 =>
+      when RQ_PRE6 =>
          next_state <= CK_PRE6;
-      WHEN RQ_PRE7 =>
+      when RQ_PRE7 =>
          next_state <= CK_PRE7;
 
 
-      WHEN CK_PRE0 =>
-         IF (rxd_i(7 downto 0) /= preamble1) THEN
+      when CK_PRE0 =>
+         if (rxd_i(7 downto 0) /= preamble1) then
             next_state <= IDLE;
-         ELSE
-            IF (rx_fe_i = '0') THEN
+         else
+            if (rx_fe_i = '0') then
                next_state <= RQ_PRE1;
-            ELSE
+            else
                next_state <= CK_PRE0;
-            END IF; 
-         END IF;
+            end if; 
+         end if;
          
-      WHEN CK_PRE1 =>
-         IF (rxd_i(7 downto 0) /= preamble1) THEN
+      when CK_PRE1 =>
+         if (rxd_i(7 downto 0) /= preamble1) then
             next_state <= IDLE;
-         ELSE
-            IF (rx_fe_i = '0') THEN
+         else
+            if (rx_fe_i = '0') then
                next_state <= RQ_PRE2;
-            ELSE
+            else
                next_state <= CK_PRE1;
-            END IF; 
-         END IF;
+            end if; 
+         end if;
          
-      WHEN CK_PRE2 =>
-         IF (rxd_i(7 downto 0) /= preamble1) THEN
+      when CK_PRE2 =>
+         if (rxd_i(7 downto 0) /= preamble1) then
             next_state <= IDLE;
-         ELSE
-            IF (rx_fe_i = '0') THEN
+         else
+            if (rx_fe_i = '0') then
                next_state <= RQ_PRE3;
-            ELSE
+            else
                next_state <= CK_PRE2;
-            END IF; 
-         END IF;
+            end if; 
+         end if;
          
-      WHEN CK_PRE3 =>
-         IF (rxd_i(7 downto 0) /= preamble1) THEN
+      when CK_PRE3 =>
+         if (rxd_i(7 downto 0) /= preamble1) then
             next_state <= IDLE;
-         ELSE
-            IF (rx_fe_i = '0') THEN
+         else
+            if (rx_fe_i = '0') then
                next_state <= RQ_PRE4;
-            ELSE
+            else
                next_state <= CK_PRE3;
-            END IF; 
-         END IF;
+            end if; 
+         end if;
          
-      WHEN CK_PRE4 =>
-         IF (rxd_i(7 downto 0) /= preamble2) THEN
+      when CK_PRE4 =>
+         if (rxd_i(7 downto 0) /= preamble2) then
             next_state <= IDLE;
-         ELSE
-            IF (rx_fe_i = '0') THEN
+         else
+            if (rx_fe_i = '0') then
                next_state <= RQ_PRE5;
-            ELSE
+            else
                next_state <= CK_PRE4;
-            END IF; 
-         END IF;
+            end if; 
+         end if;
 
-      WHEN CK_PRE5 =>
-         IF (rxd_i(7 downto 0) /= preamble2) THEN
+      when CK_PRE5 =>
+         if (rxd_i(7 downto 0) /= preamble2) then
             next_state <= IDLE;
-         ELSE
-            IF (rx_fe_i = '0') THEN
+         else
+            if (rx_fe_i = '0') then
                next_state <= RQ_PRE6;
-            ELSE
+            else
                next_state <= CK_PRE5;
-            END IF; 
-         END IF;
+            end if; 
+         end if;
 
-      WHEN CK_PRE6 =>
-         IF (rxd_i(7 downto 0) /= preamble2) THEN
+      when CK_PRE6 =>
+         if (rxd_i(7 downto 0) /= preamble2) then
             next_state <= IDLE;
-         ELSE
-            IF (rx_fe_i = '0') THEN
+         else
+            if (rx_fe_i = '0') then
                next_state <= RQ_PRE7;
-            ELSE
+            else
                next_state <= CK_PRE6;
-            END IF; 
-         END IF;
+            end if; 
+         end if;
          
-      WHEN CK_PRE7 =>
-         IF (rxd_i(7 downto 0) /= preamble2) THEN
+      when CK_PRE7 =>
+         if (rxd_i(7 downto 0) /= preamble2) then
             next_state <= IDLE;
-         ELSE
-            IF (rx_fe_i = '0') THEN
+         else
+            if (rx_fe_i = '0') then
                next_state <= RQ_CMD0;
-            ELSE
+            else
                next_state <= CK_PRE7;
-            END IF; 
-         END IF;                           
+            end if; 
+         end if;                           
                                              
  
                   
    --------------------------------------------
    -- command word states
        
-      WHEN RQ_CMD0 =>
+      when RQ_CMD0 =>
             next_state <= LD_CMD0;
-      WHEN RQ_CMD1 =>
+      when RQ_CMD1 =>
             next_state <= LD_CMD1;
-      WHEN RQ_CMD2 =>
+      when RQ_CMD2 =>
             next_state <= LD_CMD2;
-      WHEN RQ_CMD3 =>
+      when RQ_CMD3 =>
             next_state <= LD_CMD3;
 
 
-      WHEN LD_CMD0 =>
-         IF (rx_fe_i = '0') THEN
+      when LD_CMD0 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_CMD1;
-         ELSE
+         else
             next_state <= LD_CMD0;
-         END IF;
-      WHEN LD_CMD1 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_CMD1 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_CMD2;
-         ELSE
+         else
             next_state <= LD_CMD1;
-         END IF;
-      WHEN LD_CMD2 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_CMD2 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_CMD3;
-         ELSE
+         else
             next_state <= LD_CMD2;
-         END IF;
-      WHEN LD_CMD3 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_CMD3 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_ADDR0;
-         ELSE
+         else
             next_state <= LD_CMD3;
-         END IF;
+         end if;
    ---------------------------------------------------------
    --- address word states
 
-      WHEN RQ_ADDR0 =>
+      when RQ_ADDR0 =>
             next_state <= LD_ADDR0;
-      WHEN RQ_ADDR1 =>
+      when RQ_ADDR1 =>
             next_state <= LD_ADDR1;
-      WHEN RQ_ADDR2 =>
+      when RQ_ADDR2 =>
             next_state <= LD_ADDR2;
-      WHEN RQ_ADDR3 =>
+      when RQ_ADDR3 =>
             next_state <= LD_ADDR3;
  
 
 
-      WHEN LD_ADDR0 =>
-         IF (rx_fe_i = '0') THEN
+      when LD_ADDR0 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_ADDR1;
-         ELSE
+         else
             next_state <= LD_ADDR0;
-         END IF;
-      WHEN LD_ADDR1 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_ADDR1 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_ADDR2;
-         ELSE
+         else
             next_state <= LD_ADDR1;
-         END IF;
-      WHEN LD_ADDR2 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_ADDR2 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_ADDR3;
-         ELSE
+         else
             next_state <= LD_ADDR2;
-         END IF;        
+         end if;        
 
-      WHEN LD_ADDR3 =>
-         IF (rx_fe_i = '0') THEN
+      when LD_ADDR3 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_NDA0;
-         ELSE
+         else
             next_state <= LD_ADDR3;
-         END IF; 
+         end if; 
 
 -------------------------------------------------------------
    -- number of data states
          
-      WHEN RQ_NDA0 =>
+      when RQ_NDA0 =>
             next_state <= LD_NDA0;    
-      WHEN RQ_NDA1 =>
+      when RQ_NDA1 =>
             next_state <= LD_NDA1;
-      WHEN RQ_NDA2 =>
+      when RQ_NDA2 =>
             next_state <= LD_NDA2;
-      WHEN RQ_NDA3 =>
+      when RQ_NDA3 =>
             next_state <= LD_NDA3;
            
-      WHEN LD_NDA0 =>
-         IF (rx_fe_i = '0') THEN
+      when LD_NDA0 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_NDA1;
-         ELSE
+         else
             next_state <= LD_NDA0;
-         END IF;        
-      WHEN LD_NDA1 =>
-         IF (rx_fe_i = '0') THEN
+         end if;        
+      when LD_NDA1 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_NDA2;
-         ELSE
+         else
             next_state <= LD_NDA1;
-         END IF;
-      WHEN LD_NDA2 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_NDA2 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_NDA3;
-         ELSE
+         else
             next_state <= LD_NDA2;
-         END IF;
-      WHEN LD_NDA3 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_NDA3 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_BLK0;
-         ELSE
+         else
             next_state <= LD_NDA3;
-         END IF;
+         end if;
 
 
 -----------------------------------------------
    --- store data states
 
-      WHEN RQ_BLK0 =>
+      when RQ_BLK0 =>
             next_state <= LD_BLK0;    
-      WHEN RQ_BLK1 =>
+      when RQ_BLK1 =>
             next_state <= LD_BLK1;              
-      WHEN RQ_BLK2 =>
+      when RQ_BLK2 =>
             next_state <= LD_BLK2;
-      WHEN RQ_BLK3 =>
+      when RQ_BLK3 =>
             next_state <= LD_BLK3;
 
 
-      WHEN LD_BLK0 =>
-         IF (rx_fe_i = '0') THEN
+      when LD_BLK0 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_BLK1;
-         ELSE
+         else
             next_state <= LD_BLK0;
-         END IF;
+         end if;
        
-      WHEN LD_BLK1 =>
-         IF (rx_fe_i = '0') THEN
+      when LD_BLK1 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_BLK2;
-         ELSE
+         else
             next_state <= LD_BLK1;
-         END IF;
-      WHEN LD_BLK2 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_BLK2 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_BLK3;
-         ELSE
+         else
             next_state <= LD_BLK2;
-         END IF;
-      WHEN LD_BLK3 =>
-         IF (rx_fe_i = '0') THEN
-           IF (write_pointer < block_size) THEN
+         end if;
+      when LD_BLK3 =>
+         if (rx_fe_i = '0') then
+           if (write_pointer < block_size) then
                next_state <= RQ_BLK0;
-            ELSE 
+            else 
                next_state <= RQ_CKSM0;
-            END IF;
-         ELSE      
+            end if;
+         else      
             next_state <= LD_BLK3;
-         END IF;        
+         end if;        
 
 
 ------------------------------------------------
    -- checksum states
 
-      WHEN RQ_CKSM0 =>
+      when RQ_CKSM0 =>
             next_state <= LD_CKSM0; 
-      WHEN RQ_CKSM1 =>
+      when RQ_CKSM1 =>
             next_state <= LD_CKSM1;            
-      WHEN RQ_CKSM2 =>
+      when RQ_CKSM2 =>
             next_state <= LD_CKSM2;            
-      WHEN RQ_CKSM3 =>
+      when RQ_CKSM3 =>
             next_state <= LD_CKSM3;
 
-      WHEN LD_CKSM0 =>
-         IF (rx_fe_i = '0') THEN
+      when LD_CKSM0 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_CKSM1;
-         ELSE
+         else
             next_state <= LD_CKSM0;
-         END IF;
-      WHEN LD_CKSM1 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_CKSM1 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_CKSM2;
-         ELSE
+         else
             next_state <= LD_CKSM1;
-         END IF;
-      WHEN LD_CKSM2 =>
-         IF (rx_fe_i = '0') THEN
+         end if;
+      when LD_CKSM2 =>
+         if (rx_fe_i = '0') then
             next_state <= RQ_CKSM3;
-         ELSE
+         else
             next_state <= LD_CKSM2;
-         END IF;
-      WHEN LD_CKSM3 =>
-         IF (cksum_calc = cksum_rcvd) THEN
+         end if;
+      when LD_CKSM3 =>
+         if (cksum_calc = cksum_rcvd) then
             next_state <= READ_DATA;
-         ELSE
+         else
             next_state <= CKSM_FAIL;
-         END IF;
+         end if;
             
-      WHEN CKSM_FAIL =>
+      when CKSM_FAIL =>
             next_state <= IDLE;
 
 -----------------------------------------------
             
-      WHEN READ_DATA =>
+      when READ_DATA =>
             next_state <= TX_DATA;
-      WHEN TX_DATA =>
-         IF (read_pointer < number_data) THEN   
+      when TX_DATA =>
+         if (read_pointer < number_data) then   
             next_state <= READ_DATA;
-         ELSE   
+         else   
             next_state <= IDLE;
-         END IF;               
+         end if;               
                    
-      WHEN OTHERS =>
+      when OTHERS =>
          next_state <= IDLE;
-      END CASE;
+      end case;
 
-   END PROCESS nextstate;
+   end PROCESS nextstate;
 
    ----------------------------------------------------------------------------
    output : PROCESS (
@@ -595,8 +595,8 @@ BEGIN
       -- Combined Actions
       
       
-      CASE current_state IS
-         WHEN IDLE =>
+      case current_state IS
+         when IDLE =>
             reset_mem <= '1';
             check_reset <= '1';  
             number_data <= 1;
@@ -604,171 +604,171 @@ BEGIN
             cksum_in <= X"00000000";
             
 
-         WHEN LD_CMD0 =>
+         when LD_CMD0 =>
             cmd_code_o(7 downto 0) <= rxd_i(7 downto 0);
             command(7 downto 0) <= rxd_i(7 downto 0);   
             cksum_in(7 downto 0) <= rxd_i(7 downto 0);
-         WHEN LD_CMD1 =>
+         when LD_CMD1 =>
             cmd_code_o(15 downto 8) <= rxd_i(7 downto 0);
             cksum_in(15 downto 8) <= rxd_i(7 downto 0);
             command(15 downto 8) <= rxd_i(7 downto 0); 
-         WHEN LD_CMD2 =>
+         when LD_CMD2 =>
             cksum_in(23 downto 16) <= rxd_i(7 downto 0);
-         WHEN LD_CMD3 =>
+         when LD_CMD3 =>
             cksum_in(31 downto 24) <= rxd_i(7 downto 0);
             check_update <= '1';
 
-         WHEN LD_ADDR0 =>
+         when LD_ADDR0 =>
             reg_addr_o(7 downto 0) <= rxd_i(7 downto 0);
             cksum_in(7 downto 0) <= rxd_i(7 downto 0);
-         WHEN LD_ADDR1 =>
+         when LD_ADDR1 =>
             reg_addr_o(15 downto 8) <= rxd_i(7 downto 0);
             cksum_in(15 downto 8) <= rxd_i(7 downto 0);
-         WHEN LD_ADDR2 =>
+         when LD_ADDR2 =>
             reg_addr_o(23 downto 16) <= rxd_i(7 downto 0);
             cksum_in(23 downto 16) <= rxd_i(7 downto 0);
-         WHEN LD_ADDR3 =>
+         when LD_ADDR3 =>
             card_addr_o(7 downto 0) <= rxd_i(7 downto 0);
             cksum_in(31 downto 24) <= rxd_i(7 downto 0);
             check_update <= '1';
 
-         WHEN LD_NDA0 =>
+         when LD_NDA0 =>
             num_data_o <= rxd_i(7 downto 0);
             cksum_in(7 downto 0) <= rxd_i(7 downto 0);
             number_data <= To_integer(Unsigned(rxd_i(7 downto 0)));
-         WHEN LD_NDA1 =>
+         when LD_NDA1 =>
             cksum_in(15 downto 8) <=  rxd_i(7 downto 0);
-         WHEN LD_NDA2 =>
+         when LD_NDA2 =>
             cksum_in(23 downto 16) <= rxd_i(7 downto 0);
-         WHEN LD_NDA3 =>
+         when LD_NDA3 =>
             cksum_in(31 downto 24) <= rxd_i(7 downto 0);
             check_update <= '1';
 
 
-         WHEN LD_BLK0 =>
+         when LD_BLK0 =>
             cksum_in(7 downto 0) <= rxd_i(7 downto 0);
             data_in (7 downto 0) <= rxd_i(7 downto 0);
-         WHEN LD_BLK1 =>
+         when LD_BLK1 =>
             cksum_in(15 downto 8) <= rxd_i(7 downto 0);
             data_in (15 downto 8) <= rxd_i(7 downto 0);
             write_mem <= '1';
-         WHEN LD_BLK2 =>
+         when LD_BLK2 =>
             cksum_in(23 downto 16) <= rxd_i(7 downto 0);
-         WHEN LD_BLK3 =>
+         when LD_BLK3 =>
             cksum_in(31 downto 24) <= rxd_i(7 downto 0);
             check_update <= '1';           
 
             
-         WHEN LD_CKSM0 =>
+         when LD_CKSM0 =>
             cksum_rcvd(7 downto 0) <= rxd_i(7 downto 0);  
-         WHEN LD_CKSM1 =>
+         when LD_CKSM1 =>
             cksum_rcvd(15 downto 8) <= rxd_i(7 downto 0);
-         WHEN LD_CKSM2 =>
+         when LD_CKSM2 =>
             cksum_rcvd(23 downto 16) <= rxd_i(7 downto 0);      
-         WHEN LD_CKSM3 =>
+         when LD_CKSM3 =>
             cksum_rcvd(31 downto 24) <= rxd_i(7 downto 0); 
 
   
-         WHEN RQ_PRE7 =>
+         when RQ_PRE7 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_PRE6 =>
+         when RQ_PRE6 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_PRE5 =>
+         when RQ_PRE5 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_PRE4 =>
+         when RQ_PRE4 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_PRE3 =>
+         when RQ_PRE3 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_PRE2 =>
+         when RQ_PRE2 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_PRE1 =>
+         when RQ_PRE1 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_PRE0 =>
+         when RQ_PRE0 =>
             rx_fr_o <= '1' ;
  
-         WHEN RQ_CMD3 =>
+         when RQ_CMD3 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_CMD2 =>
+         when RQ_CMD2 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_CMD1 =>
+         when RQ_CMD1 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_CMD0 =>
-            rx_fr_o <= '1' ;
-
-         WHEN RQ_ADDR3 =>
-            rx_fr_o <= '1' ;
-         WHEN RQ_ADDR2 =>
-            rx_fr_o <= '1' ;
-         WHEN RQ_ADDR1 =>
-            rx_fr_o <= '1' ;
-         WHEN RQ_ADDR0 =>
+         when RQ_CMD0 =>
             rx_fr_o <= '1' ;
 
-         WHEN RQ_NDA3 =>
+         when RQ_ADDR3 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_NDA2 =>
+         when RQ_ADDR2 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_NDA1 =>
+         when RQ_ADDR1 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_NDA0 =>
+         when RQ_ADDR0 =>
+            rx_fr_o <= '1' ;
+
+         when RQ_NDA3 =>
+            rx_fr_o <= '1' ;
+         when RQ_NDA2 =>
+            rx_fr_o <= '1' ;
+         when RQ_NDA1 =>
+            rx_fr_o <= '1' ;
+         when RQ_NDA0 =>
             rx_fr_o <= '1' ;
         
-         WHEN RQ_BLK3 =>
+         when RQ_BLK3 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_BLK2 =>
+         when RQ_BLK2 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_BLK1 =>
+         when RQ_BLK1 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_BLK0 =>
+         when RQ_BLK0 =>
             rx_fr_o <= '1' ;                  
 
-         WHEN RQ_CKSM3 =>
+         when RQ_CKSM3 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_CKSM2 =>
+         when RQ_CKSM2 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_CKSM1 =>
+         when RQ_CKSM1 =>
             rx_fr_o <= '1' ;
-         WHEN RQ_CKSM0 =>
+         when RQ_CKSM0 =>
             rx_fr_o <= '1' ;
          
-         WHEN CKSM_FAIL =>
+         when CKSM_FAIL =>
             cksum_err_o <= '1' ;
 
-         WHEN READ_DATA =>
+         when READ_DATA =>
             read_mem <= '1'; 
             cmd_rdy_o <= '1' ;
             data_clk_o <= '0' ;
-         WHEN TX_DATA =>
+         when TX_DATA =>
             cmd_data_o <= data_out ;
             cmd_rdy_o <= '1' ;
             data_clk_o <= '1' ;
 
-         WHEN OTHERS =>
-            NULL;
+         when others =>
+            null;
       
-      END CASE;
+      end case;
 
-   END PROCESS output;
+   end process output;
    
 
   ------------------------------------------------------------------------------
-  checksum_calculator: PROCESS(check_update, check_reset, cksum_in)
+  checksum_calculator: process(check_update, check_reset, cksum_in)
   ----------------------------------------------------------------------------
   -- process to update calculated checksum
   ----------------------------------------------------------------------------
   
-  BEGIN
+  begin
      
-    IF (check_reset = '1') then
+    if (check_reset = '1') then
        cksum_calc <= X"00000000";
-    ELSIF (check_update'EVENT AND check_update = '1') then
+    elsif (check_update'EVENT AND check_update = '1') then
        cksum_calc <= cksum_calc XOR cksum_in;
-    END IF;
+    end if;
      
-  END PROCESS checksum_calculator;   
+  end process checksum_calculator;   
    
   ------------------------------------------------------------------------------
-  buffer_memory: PROCESS(reset_mem, write_mem, read_mem, data_in)
+  buffer_memory: process(reset_mem, write_mem, read_mem, data_in)
   ----------------------------------------------------------------------------
   -- process to load current data word into local memory
   ----------------------------------------------------------------------------
@@ -777,20 +777,20 @@ BEGIN
      type mem is array (0 to mem_size-1) of word;
      variable memory: mem;
   
-  BEGIN
-     IF (reset_mem = '1') then
+  begin
+     if (reset_mem = '1') then
         write_pointer <= 0;
         read_pointer <= 0;
-     ELSIF (write_mem'EVENT AND write_mem = '1') then
+     elsif (write_mem'EVENT AND write_mem = '1') then
         memory(write_pointer) := data_in; 
         write_pointer <= write_pointer + 1;
         
-     ELSIF (read_mem'EVENT AND read_mem = '1') then
+     elsif (read_mem'EVENT AND read_mem = '1') then
         data_out <= memory(read_pointer); 
         read_pointer <= read_pointer + 1;
         
-     END IF; 
+     end if; 
 
-  END PROCESS buffer_memory;
+  end process buffer_memory;
   
-END fsm;
+end rtl;
