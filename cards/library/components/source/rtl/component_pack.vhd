@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.12 2004/07/07 19:43:19 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.13 2004/07/07 20:21:38 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.13  2004/07/07 20:21:38  erniel
+-- renamed lfsr data port (again) to lfsr_i/o
+--
 -- Revision 1.12  2004/07/07 19:43:19  erniel
 -- updated lfsr port declaration
 --
@@ -243,7 +246,28 @@ package component_pack is
            step_i  : in integer;
            count_o : out integer);
    end component;
- 
+
+------------------------------------------------------------
+--
+-- generic CRC generator (uses arbitrary CRC polynomial)
+--
+------------------------------------------------------------ 
+
+   component crc
+      generic(POLY_WIDTH : integer := 8;
+              DATA_LENGTH : integer := 64);
+      port(clk    : in std_logic;
+           rst    : in std_logic;
+           clr_i  : in std_logic;
+           ena_i  : in std_logic;
+     
+           data_i : in std_logic;
+           poly_i : in std_logic_vector(POLY_WIDTH downto 1);
+     
+           done_o  : out std_logic;
+           valid_o : out std_logic);
+      end component;
+   
 ------------------------------------------------------------
 --
 -- 1-wire signaling protocol components
@@ -258,18 +282,7 @@ package component_pack is
    constant WRITE_0_DELAY_US       : integer := 70;
    constant WRITE_1_DELAY_US       : integer := 10;
    constant READ_INITIATE_DELAY_US : integer := 2;
-   constant READ_VALID_DELAY_US    : integer := 13;
-   
-   component crc
-      generic(DATA_LENGTH : integer := 64);
-
-      port(clk         : in std_logic;
-           rst         : in std_logic;
-           crc_start_i : in std_logic;
-           crc_done_o  : out std_logic;
-           crc_data_i  : in std_logic_vector(DATA_LENGTH-1 downto 0);
-           valid_o     : out std_logic);
-   end component;  
+   constant READ_VALID_DELAY_US    : integer := 13; 
    
    component init_1_wire
       port(clk          : in std_logic;
