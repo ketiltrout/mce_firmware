@@ -345,17 +345,23 @@ begin
 
   i_fsm: process (clk, rst)
 
-    variable i : integer range 0 to 9000009;
+    variable i : integer range 0 to 99;
+    variable j : integer range 0 to 90000009;
   begin  -- process i_fsm
     if rst = '1' then                   -- asynchronous reset
       state_shift <= '0';
       i:=0;
+      j:=0;
     elsif clk'event and clk = '1' then  -- rising clock edge
       state_shift <= '0';
-      i:=i+1;
-      if i = 9000000 then
-        state_shift <= '1';
-        i:=0;
+      j:=j+1;
+      if j=90000000 then
+        j:=89999999;
+        i:=i+1;
+        if i = 90 then
+          state_shift <= '1';
+          i:=0;
+        end if;      
       end if;
     end if;
   end process i_fsm;
