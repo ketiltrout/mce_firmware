@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.2 2004/06/15 10:27:28 dca Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date$> - <text> - <initials $Author$>
+-- <date $Date: 2004/06/15 10:27:28 $> - <text> - <initials $Author: dca $>
 -- <log $log$>
 
 
@@ -52,6 +52,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.fibre_rx_pack.all;
+use work.issue_reply_pack.all;
 
 architecture bench of tb_fibre_rx is 
 
@@ -63,16 +64,16 @@ architecture bench of tb_fibre_rx is
    signal rvs          : std_logic;
    signal rso          : std_logic;
    signal rsc_nRd      : std_logic;
-   signal rx_data      : std_logic_vector(7 downto 0);
+   signal rx_data      : std_logic_vector(RX_FIFO_DATA_WIDTH-1 downto 0);
 
-   signal cmd_code     : std_logic_vector (15 downto 0);
-   signal card_id      : std_logic_vector (15 downto 0);
-   signal param_id     : std_logic_vector (15 downto 0);
-   signal cmd_data     : std_logic_vector (31 downto 0);
+   signal cmd_code     : std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);
+   signal card_id      : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);
+   signal param_id     : std_logic_vector (PAR_ID_BUS_WIDTH-1 downto 0);
+   signal cmd_data     : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);
    signal cksum_err    : std_logic;
    signal cmd_rdy      : std_logic;
    signal data_clk     : std_logic;
-   signal num_data     : std_logic_vector (7 downto 0);
+   signal num_data     : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
    signal cmd_ack      : std_logic;      
    
    
@@ -81,22 +82,22 @@ architecture bench of tb_fibre_rx is
   
   
    constant clk_prd      : TIME := 20 ns;    -- 50Mhz clock
-   constant preamble1    : std_logic_vector (7 downto 0)  := X"A5";
-   constant preamble2    : std_logic_vector (7 downto 0)  := X"5A";
-   constant pre_fail     : std_logic_vector (7 downto 0)  := X"55";
-   constant command_wb   : std_logic_vector (31 downto 0) := X"20205742";
-   constant command_go   : std_logic_vector (31 downto 0) := X"2020474F";
-   constant address_id   : std_logic_vector (31 downto 0) := X"0002015C";
-   constant data_valid   : std_logic_vector (31 downto 0) := X"00000028";
-   constant no_std_data  : std_logic_vector (31 downto 0) := X"00000001";
+   constant preamble1    : std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)  := X"A5";
+   constant preamble2    : std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)  := X"5A";
+   constant pre_fail     : std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)  := X"55";
+   constant command_wb   : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := X"20205742";
+   constant command_go   : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := X"2020474F";
+   constant address_id   : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := X"0002015C";
+   constant data_valid   : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := X"00000028";
+   constant no_std_data  : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := X"00000001";
    constant data_block   : positive := 58;
-   constant data_word1   : std_logic_vector (31 downto 0) := X"00001234";
-   constant data_word2   : std_logic_vector (31 downto 0) := X"00005678";
-   constant check_err    : std_logic_vector (31 downto 0) := X"fafafafa";
+   constant data_word1   : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := X"00001234";
+   constant data_word2   : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := X"00005678";
+   constant check_err    : std_logic_vector (DATA_BUS_WIDTH-1 downto 0) := X"fafafafa";
  
    signal   data         : integer := 1;
-   signal   checksum     : std_logic_vector(31 downto 0):= X"00000000";
-   signal   command      : std_logic_vector (31 downto 0);
+   signal   checksum     : std_logic_vector(DATA_BUS_WIDTH-1 downto 0):= (others => '0');
+   signal   command      : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);
   
             
 begin

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.2 2004/06/28 13:45:48 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.3 2004/06/30 10:56:25 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -36,7 +36,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/06/28 13:45:48 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/06/30 10:56:25 $>	-		<text>		- <initials $Author: dca $>
 --
 --
 -----------------------------------------------------------------------------
@@ -46,22 +46,24 @@ use ieee.numeric_std.all;
 
 library work;
 use work.component_pack.all;
+use work.fibre_rx_pack.all;
 
 entity fibre_rx_fifo is
    generic( 
-      addr_size : Positive                               -- read/write address size
-   );                                                    -- note that fifo size = 2**address size
+      addr_size : Positive                                                   -- read/write address size
+   );                                                                        -- note that fifo size = 2**address size
    port( 
-      rst_i     : in     std_logic;                       -- global reset
-      rx_fr_i   : in     std_logic;                       -- fifo read request
-      rx_fw_i   : in     std_logic;                       -- fifo write request
-      rx_data_i : in     std_logic_vector (7 downto 0);   -- fifo data input
-      rx_fe_o   : out    std_logic;                       -- fifo empty flag
-      rx_ff_o   : out    std_logic;                       -- fifo full flagg
-      rxd_o     : out    std_logic_vector (7 downto 0)    -- fifo data output
+      rst_i     : in     std_logic;                                          -- global reset
+      rx_fr_i   : in     std_logic;                                          -- fifo read request
+      rx_fw_i   : in     std_logic;                                          -- fifo write request
+      rx_data_i : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);   -- fifo data input
+      rx_fe_o   : out    std_logic;                                          -- fifo empty flag
+      rx_ff_o   : out    std_logic;                                          -- fifo full flagg
+      rxd_o     : out    std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0)    -- fifo data output
    );
 
 end fibre_rx_fifo ;
+
 
 architecture behav of fibre_rx_fifo is
    
