@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.18 2004/11/16 09:56:05 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.19 2004/11/18 16:17:59 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/16 09:56:05 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/18 16:17:59 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.19  2004/11/18 16:17:59  dca
+-- Change to FSM.  Reading of fibre_word_i from reply_queue altered.
+--
 -- Revision 1.18  2004/11/16 09:56:05  dca
 -- 'num_fibre_words_i' changed from std_logic_vector to integer
 --
@@ -148,7 +151,7 @@ port(
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- packet word read from reply queue
 --     num_fibre_words_i       : in  std_logic_vector (BB_DATA_SIZE_WIDTH-1     downto 0);    -- indicate number of packet words to be read from reply queue
      num_fibre_words_i       : in  integer ;                                                   -- indicate number of packet words to be read from reply queue
-     fibre_word_req_o        : out std_logic;                                               -- asserted to requeset next fibre word
+     fibre_word_ack_o        : out std_logic;                                               -- asserted to requeset next fibre word
      fibre_word_rdy_i        : in std_logic;
      m_op_ack_o              : out std_logic;                                               -- asserted to indicate to reply queue the the packet has been processed
 
@@ -1205,7 +1208,7 @@ txd_o              <= fibre_byte;
      
       fibre_fsm_busy           <= '1';  
       write_fifo               <= '0';  
-      fibre_word_req_o         <= '0';
+      fibre_word_ack_o         <= '0';
     
       rst_checksum             <= '0' ;
       ena_checksum             <= '0' ;
@@ -1783,10 +1786,10 @@ txd_o              <= fibre_byte;
                        
                        
        when WAIT_Q_WORD  =>
-           fibre_word_req_o            <= '0';
+           fibre_word_ack_o            <= '0';
 
        when ACK_Q_WORD =>
-          fibre_word_req_o             <= '1';    
+          fibre_word_ack_o             <= '1';    
     
       end case;
       

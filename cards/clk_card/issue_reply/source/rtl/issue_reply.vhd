@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.21 2004/11/15 20:03:41 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.22 2004/11/18 17:07:37 dca Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/15 20:03:41 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2004/11/18 17:07:37 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.22  2004/11/18 17:07:37  dca
+-- num_fibre_word changed to integer
+--
 -- Revision 1.21  2004/11/15 20:03:41  bburger
 -- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
 --
@@ -291,7 +294,7 @@ architecture rtl of issue_reply is
       signal   m_op_card_id        : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  
       signal   fibre_word          : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0); 
       signal   num_fibre_words     : integer;    
-      signal   fibre_word_req      : std_logic;
+      signal   fibre_word_ack      : std_logic;
       signal   fibre_word_rdy      : std_logic;
       signal   m_op_ack            : std_logic;   
       signal   reply_cmd_stop      : std_logic;
@@ -461,7 +464,7 @@ begin
    m_op_card_id_i          => m_op_card_id, 
    fibre_word_i            => fibre_word,
    num_fibre_words_i       => num_fibre_words,
-   fibre_word_req_o        => fibre_word_req,
+   fibre_word_ack_o        => fibre_word_ack,
    fibre_word_rdy_i        => fibre_word_rdy,
    m_op_ack_o              => m_op_ack,    
    

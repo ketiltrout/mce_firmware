@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.31 2004/11/11 17:04:18 dca Exp $
+-- $Id: issue_reply_pack.vhd,v 1.32 2004/11/16 09:55:41 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.32  2004/11/16 09:55:41  dca
+-- reply_translator: 'num_fibre_words_i' changed to integer
+--
 -- Revision 1.31  2004/11/11 17:04:18  dca
 -- change to reply_translator component declaration
 --
@@ -452,7 +455,7 @@ port(
      m_op_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);      -- m_op card id passed from reply_queue
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  integer ;                                                  -- indicate number of packet words to be read from reply queue
-     fibre_word_req_o        : out std_logic;                                                 -- asserted to requeset next fibre word
+     fibre_word_ack_o        : out std_logic;                                                 -- asserted to requeset next fibre word
      fibre_word_rdy_i        : in std_logic;
      m_op_ack_o              : out std_logic;                                                 -- asserted to indicate to reply queue the the packet has been processed
 
