@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.3 2004/03/17 07:19:30 ngruending Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.4 2004/03/23 02:08:53 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -42,8 +42,11 @@
 -- Feb. 3  2004  - Added 1-wire modules - EL
 
 -- Mar. 3  2004  - Added generic reg    - EL
--- <date $Date: 2004/03/17 07:19:30 $>	-		<text>		- <initials $Author: ngruending $>
--- $Log$
+-- <date $Date: 2004/03/23 02:08:53 $>	-		<text>		- <initials $Author: erniel $>
+-- $Log: component_pack.vhd,v $
+-- Revision 1.4  2004/03/23 02:08:53  erniel
+-- Added generic counter
+--
 ------------------------------------------------------------------------
 
 library ieee;
@@ -88,6 +91,19 @@ package component_pack is
            timer_count_o : out integer);
    end component;
    
+
+------------------------------------------------------------
+--
+-- nanosecond timer
+--
+------------------------------------------------------------  
+
+   component ns_timer
+      port(clk           : in std_logic;
+           timer_reset_i : in std_logic;
+           timer_count_o : out integer  );
+   end component;
+
 
 ------------------------------------------------------------
 --
