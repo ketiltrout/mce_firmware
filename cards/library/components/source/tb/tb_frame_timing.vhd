@@ -1,16 +1,16 @@
 -- tb_frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: tb_frame_timing.vhd,v 1.2 2004/04/03 01:03:59 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_frame_timing.vhd,v 1.3 2004/04/16 21:58:13 bburger Exp $>
 --
--- Project:		SCUBA2
--- Author:		Bryce Burger
--- Organisation:	UBC Physics and Astronomy
+-- Project:    SCUBA2
+-- Author:     Bryce Burger
+-- Organisation:  UBC Physics and Astronomy
 --
 -- Description:
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date: 2004/04/03 01:03:59 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2004/04/16 21:58:13 $> -     <text>      - <initials $Author: bburger $>
 --
 ------------------------------------------------------------------------
 
@@ -29,12 +29,11 @@ end TB_FRAME_TIMING;
 architecture BEH of TB_FRAME_TIMING is
 
 --   signal tb_clk_o : std_logic;
-   signal sync_i : std_logic;
-   signal frame_rst_i : std_logic;
-   signal clk_count_o : std_logic_vector(31 downto 0);
-   signal clk_error_o : std_logic_vector(31 downto 0);
-
-   signal clk_i : std_logic := '0';
+   signal sync_i          : std_logic;
+   signal frame_rst_i     : std_logic;
+   signal clk_count_o     : integer;
+   signal clk_error_o     : std_logic_vector(31 downto 0);
+   signal clk_i           : std_logic := '1';
 
 ------------------------------------------------------------------------
 --
@@ -107,6 +106,26 @@ begin
       do_init;
       do_reset;
       do_init;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+
+      do_nop;
+      do_nop;
+      do_sync;
+      do_init;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+
+      do_nop;
+      do_nop;
+      do_sync;
+      do_init;
+      do_nop;
       do_nop;
       do_nop;
       do_nop;

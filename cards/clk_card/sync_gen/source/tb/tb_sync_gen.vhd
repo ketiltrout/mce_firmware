@@ -21,7 +21,9 @@ architecture beh of tb_sync_gen is
    signal dv_en_i    : std_logic;
    signal sync_o     : std_logic;
    signal sync_num_o : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
-   
+   signal clk_count_o     : integer;
+   signal clk_error_o     : std_logic_vector(31 downto 0);
+
 
 ------------------------------------------------------------------------
 --
@@ -39,6 +41,15 @@ begin
          dv_en_i    => dv_en_i,
          sync_o     => sync_o,
          sync_num_o => sync_num_o
+      );
+      
+   dut2 : frame_timing
+      port map(
+         clk_i => clk_i,
+         sync_i => sync_o,
+         frame_rst_i => rst_i,
+         clk_count_o => clk_count_o,
+         clk_error_o => clk_error_o
       );
 
    -- Create a test clock
@@ -89,7 +100,7 @@ begin
       do_reset;
       do_no_dv;
 
-      L2: for count_value in 0 to 2*END_OF_FRAME loop
+      L2: for count_value in 0 to 3*END_OF_FRAME loop
          do_nop;
       end loop L2;
 

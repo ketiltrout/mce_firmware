@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.14 2004/08/05 21:21:24 bburger Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.15 2004/08/18 06:48:54 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.15  2004/08/18 06:48:54  bench2
+-- Bryce: removed unnecessary interface signals between the cmd_queue and the reply_queue.
+--
 -- Revision 1.14  2004/08/05 21:21:24  bburger
 -- Bryce:  Now works with the data-clocking format of fibre_rx
 --
@@ -146,11 +149,11 @@ begin
    DUT : cmd_queue
       port map(
          -- reply_queue interface
-         uop_status_i  => uop_status_i,
+--         uop_status_i  => uop_status_i,
          uop_rdy_o     => uop_rdy_o,
          uop_ack_i     => uop_ack_i,
-         uop_discard_o => uop_discard_o,
-         uop_timedout_o=> uop_timedout_o,
+--         uop_discard_o => uop_discard_o,
+--         uop_timedout_o=> uop_timedout_o,
          uop_o         => uop_o,
 
          -- cmd_translator
