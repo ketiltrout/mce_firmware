@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/06/21 22:42:25 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/06/22 17:42:40 $>	- <initials $Author: mandana $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.5  2004/06/22 17:42:40  mandana
+-- added mode to port map and cleaned syntax errors
+--
 -- Revision 1.4  2004/06/21 22:42:25  mandana
 -- Merging 1.2 and 1.3
 --
@@ -61,26 +64,27 @@ entity rc_test is
       rs232_rx : in std_logic;
             
       -- LVDS interfaces
-      lvds_txa  : out std_logic;
-      lvds_txb  : out std_logic;
-      lvds_cmd   : in std_logic;
-      lvds_sync  : in std_logic;
-      lvds_spare : in std_logic;
+      lvds_txa       : out std_logic;
+      lvds_txb       : out std_logic;
+      lvds_cmd       : in std_logic;
+      lvds_sync      : in std_logic;
+      lvds_spare     : in std_logic;
       
       -- rc serial dac interface
-      dac_data  : out std_logic_vector (7 downto 0); 
-      dac_ncs   : out std_logic_vector (7 downto 0); 
-      dac_sclk  : out std_logic_vector (7 downto 0);
+      dac_dat        : out std_logic_vector (7 downto 0); 
+      dac_sclk       : out std_logic_vector (7 downto 0);
+      bias_dac_ncs   : out std_logic_vector (7 downto 0); 
+      offset_dac_ncs : out std_logic_vector (7 downto 0); 
 
       -- rc serial dac interface
-      dac_FB1_data : out std_logic_vector (13 downto 0);
-      dac_FB2_data : out std_logic_vector (13 downto 0);
-      dac_FB3_data : out std_logic_vector (13 downto 0);
-      dac_FB4_data : out std_logic_vector (13 downto 0);
-      dac_FB5_data : out std_logic_vector (13 downto 0);
-      dac_FB6_data : out std_logic_vector (13 downto 0);
-      dac_FB7_data : out std_logic_vector (13 downto 0);
-      dac_FB8_data : out std_logic_vector (13 downto 0);
+      dac_FB1_dat    : out std_logic_vector (13 downto 0);
+      dac_FB2_dat    : out std_logic_vector (13 downto 0);
+      dac_FB3_dat    : out std_logic_vector (13 downto 0);
+      dac_FB4_dat    : out std_logic_vector (13 downto 0);
+      dac_FB5_dat    : out std_logic_vector (13 downto 0);
+      dac_FB6_dat    : out std_logic_vector (13 downto 0);
+      dac_FB7_dat    : out std_logic_vector (13 downto 0);
+      dac_FB8_dat    : out std_logic_vector (13 downto 0);
 
       dac_FB_clk   : out std_logic_vector (7 downto 0);      
       
@@ -337,7 +341,7 @@ begin
 
                
    debug_tx : rs232_data_tx
-      generic map(WIDTH => 40)
+      generic map(WIDTH => 32)
       port map(clk_i   => clk,
                rst_i   => rst,
                data_i  => test_data,
@@ -373,19 +377,20 @@ begin
                mode        => dac_test_mode,               
                done_o      => done(INDEX_PDAC),
                
-               dac0_dat_o  => dac_FB1_data,
-               dac1_dat_o  => dac_FB2_data,
-               dac2_dat_o  => dac_FB3_data,
-               dac3_dat_o  => dac_FB4_data,
-               dac4_dat_o  => dac_FB5_data,
-               dac5_dat_o  => dac_FB6_data,
-               dac6_dat_o  => dac_FB7_data,
-               dac7_dat_o  => dac_FB8_data,
+               dac0_dat_o  => dac_FB1_dat,
+               dac1_dat_o  => dac_FB2_dat,
+               dac2_dat_o  => dac_FB3_dat,
+               dac3_dat_o  => dac_FB4_dat,
+               dac4_dat_o  => dac_FB5_dat,
+               dac5_dat_o  => dac_FB6_dat,
+               dac6_dat_o  => dac_FB7_dat,
+               dac7_dat_o  => dac_FB8_dat,
                dac_clk_o   => dac_FB_clk);
                
-   dac_data <= test_dac_data;
-   dac_ncs  <= test_dac_ncs;
-   dac_sclk  <= test_dac_sclk;
+   dac_dat        <= test_dac_data;
+   dac_sclk       <= test_dac_sclk;
+   bias_dac_ncs   <= test_dac_ncs;
+   offset_dac_ncs <= test_dac_ncs;
    
    zero <= '0';
    one <= '1';                         
