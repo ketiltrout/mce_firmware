@@ -1,0 +1,32 @@
+FILES
+{
+	VHDL_FILE = ..\..\..\..\library\sys_param\source\rtl\general_pack.vhd;
+	VHDL_FILE = ..\..\..\..\library\sys_param\source\rtl\command_pack.vhd;
+	VHDL_FILE = ..\..\..\..\library\sys_param\source\rtl\wishbone_pack.vhd;
+	VHDL_FILE = ..\..\..\sync_gen\source\rtl\sync_gen_pack.vhd;
+	VHDL_FILE = ..\..\..\..\library\sys_param\source\rtl\data_types_pack.vhd;
+	VHDL_FILE = ..\..\..\..\library\sys_param\source\rtl\frame_timing_pack.vhd;
+	VHDL_FILE = ..\..\..\..\library\components\source\rtl\component_pack.vhd;
+	VHDL_FILE = ..\..\..\issue_reply\source\rtl\issue_reply_pack.vhd;
+	VHDL_FILE = ..\..\..\issue_reply\source\rtl\fibre_rx_control.vhd;
+	VHDL_FILE = ..\..\..\..\library\components\source\rtl\sync_fifo_rx.vhd;
+	VHDL_FILE = ..\..\..\issue_reply\source\rtl\fibre_rx_fifo.vhd;
+	VHDL_FILE = ..\..\..\issue_reply\source\rtl\fibre_rx_protocol.vhd;
+	VHDL_FILE = ..\..\..\issue_reply\source\rtl\fibre_rx.vhd;
+	VHDL_FILE = ..\..\source\fibre_rx_wrapper.vhd;
+	SIGNALTAP_FILE = fibre_rx_wrapper.stp;
+	SIGNALTAP_FILE = fibre_rx_wrapper.stp;
+}
+COMPILER_SETTINGS_LIST
+{
+	COMPILER_SETTINGS = fibre_rx_wrapper;
+}
+SIMULATOR_SETTINGS_LIST
+{
+	SIMULATOR_SETTINGS = fibre_rx_wrapper;
+}
+SOFTWARE_SETTINGS_LIST
+{
+	SOFTWARE_SETTINGS = Debug;
+	SOFTWARE_SETTINGS = Release;
+}
