@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.10.2.1  2005/03/23 19:12:00  mohsen
+-- single ch instantiation to help validate rc with clk card issues
+--
 -- Revision 1.10  2005/03/18 01:27:41  mohsen
 -- Fixed compilation errors and added mictor connection
 --
@@ -199,7 +202,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010002";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010003";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
