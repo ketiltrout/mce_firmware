@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.10  2005/03/18 01:27:41  mohsen
+-- Fixed compilation errors and added mictor connection
+--
 -- Revision 1.9  2005/02/21 22:29:26  mandana
 -- added firmware revision RC_REVISION (fw_rev)
 --
@@ -196,7 +199,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010001";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010004";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
