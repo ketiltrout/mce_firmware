@@ -1,6 +1,6 @@
 -- slave_ctrl.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: slave_ctrl.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA 2
 -- Author:		jjacob
@@ -10,7 +10,7 @@
 -- This code implements the Wishbone Slave state machine functionality
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ begin
 --
 ------------------------------------------------------------------------
    
-   dat_o <= slave_ctrl_dat_i when slave_selected = '1' and we_i = '0' else (others => 'Z');
+   dat_o <= slave_ctrl_dat_i when slave_selected = '1' and we_i = '0' else (others => '0');
    
    -- feedthrus
    slave_ctrl_dat_o <= dat_i;
