@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_crc.vhd,v $
+-- Revision 1.4  2004/07/19 21:27:14  erniel
+-- updated crc component
+--
 -- Revision 1.3  2004/07/17 00:58:37  erniel
 -- added checksum output port
 --
@@ -107,14 +110,14 @@ begin
    begin
       W_RST        <= '1';
       W_CLR_I      <= '0';
-      W_ENA_I      <= '1';
+      W_ENA_I      <= '0';
       W_DATA_I     <= '0';
       W_NUM_BITS_I <= 0;
       W_POLY_I     <= (others => '0');
       
       wait for PERIOD;
       
-      W_RST       <= '0';
+      W_RST        <= '0';
       
       wait for PERIOD;     
    end do_reset;
@@ -122,21 +125,39 @@ begin
    procedure do_calculate(data : in std_logic_vector(63 downto 0)) is
    begin
       W_CLR_I      <= '0'; 
+      W_ENA_I      <= '1';
+      W_NUM_BITS_I <= 64;   
 --      W_POLY_I     <= "00110001";                          -- Maxim CRC polynomial
       W_POLY_I     <= "00000100110000010001110110110111";  -- CRC-32 polynomial
-      W_NUM_BITS_I <= 64;
-                  
-      for i in 0 to 63 loop
+      for i in 0 to 31 loop
          W_DATA_I <= data(i);
          wait for PERIOD;
       end loop;
+      
+      -- pause for 20 clock periods
+      W_ENA_I      <= '0';
+      wait for PERIOD * 20;
+      
+      -- resume
+      W_ENA_I      <= '1';
+      for i in 0 to 31 loop
+         W_DATA_I <= data(i+32);
+         wait for PERIOD;
+      end loop;
+
+      W_ENA_I      <= '0';
+      wait for PERIOD * 20;
+            
    end do_calculate;
    
    procedure do_clear is
    begin
       W_CLR_I      <= '1';
+      W_ENA_I      <= '1';
+      W_DATA_I     <= '0';
       W_NUM_BITS_I <= 0;
-      
+      W_POLY_I     <= (others => '0');
+
       wait for PERIOD;
    end do_clear;
 
