@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.2 2004/06/23 16:30:55 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_cmd_translator.vhd,v 1.1 2004/06/23 16:34:50 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/06/23 16:30:55 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/06/23 16:34:50 $>	-		<text>		- <initials $Author: jjacob $>
 --
--- $Log: tb_issue_reply.vhd,v $
+-- $Log: tb_cmd_translator.vhd,v $
+-- Revision 1.1  2004/06/23 16:34:50  jjacob
+-- I moved the tb_issue_reply testbench into this file.
+--
 -- Revision 1.2  2004/06/23 16:30:55  jjacob
 -- modified for new interface, new bus widths
 --
@@ -61,7 +64,7 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 use sys_param.general_pack.all;
 
-entity tb_issue_reply is
+entity tb_cmd_translator is
 
 port(
 
@@ -69,9 +72,9 @@ port(
 
    ); 
    
-end tb_issue_reply;
+end tb_cmd_translator;
 
-architecture BEH of tb_issue_reply is
+architecture BEH of tb_cmd_translator is
 
 
    component CMD_TRANSLATOR
@@ -1027,7 +1030,8 @@ begin
       
       -- JJ ADD m_op_seq_num to SELF-CHECKING!!!
        
-      assert false report " Simulation done." severity FAILURE;
+      assert false report " Simulation done." severity NOTE;
+      assert false report " **** TEST PASSED ****" severity FAILURE;
 
    end process STIMULI;
 
