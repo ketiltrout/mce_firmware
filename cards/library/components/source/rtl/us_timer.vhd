@@ -20,7 +20,7 @@
 
 -- us_counter.vhd
 --
--- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.2 2004/03/16 18:59:10 jjacob Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,8 +31,8 @@
 --
 -- Revision history:
 -- Jan. 15 2004		- Initial version      - EL
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
-
+-- <date $Date: 2004/03/16 18:59:10 $>	-		<text>		- <initials $Author: jjacob $>
+-- $Log$
 --
 ------------------------------------------------------------------------
 
@@ -52,35 +52,81 @@ port(clk : in std_logic;
 end us_timer;
 
 architecture behav of us_timer is
-signal count_clk : integer;
-signal count_us : integer;
+--signal count_clk : integer;
+--signal count_us : integer;
+
+signal us_count      : integer;
+signal clk_count     : integer;
+signal clk_count_rst : std_logic;
+signal slow_clk      : std_logic;
+
 begin
 
-   -- this process counts clock pulses up to 1 us
-   period_count: process(clk)
+--   -- this process counts clock pulses up to 1 us
+--   period_count: process(clk)
+--   begin
+--      if(clk'event and clk = '1') then
+--         if(timer_reset_i = '1') then
+--            count_clk <= 0;
+--         elsif(count_clk >= 1000/CLOCK_PERIOD_NS) then
+--            count_clk <= 1;
+--         else
+--            count_clk <= count_clk + 1;
+--         end if;
+--      end if;
+--   end process period_count;
+--   
+--   -- this process counts the number of microseconds that have passed
+--   us_count: process(timer_reset_i, count_clk)
+--   begin
+--      if(timer_reset_i = '1') then
+--         count_us <= 0;
+--      elsif(count_clk >= 1000/CLOCK_PERIOD_NS) then
+--         -- count_clk is reset by previous process when >= 1000_ns/clock_period_ns, increments count_us
+--         count_us <= count_us + 1;
+--      end if;
+--   end process us_count;
+--   
+--   timer_count_o <= count_us;
+
+   -- fast counter runs at system clock rate and counts number of system clock periods
+   fast_counter: process(clk)
    begin
       if(clk'event and clk = '1') then
-         if(timer_reset_i = '1') then
-            count_clk <= 0;
-         elsif(count_clk >= 1000/CLOCK_PERIOD_NS) then
-            count_clk <= 1;
+         if(clk_count_rst = '1') then
+            clk_count <= 0;
          else
-            count_clk <= count_clk + 1;
+            clk_count <= clk_count + 1;
          end if;
       end if;
-   end process period_count;
+   end process fast_counter;
+
+   -- fast counter counts to (500 ns / clock_period) then resets.
+   -- ie. if clock_period = 20 ns, then every 500/20 = 25 clock periods, 500 ns = 0.5 us have passed.
+   clk_count_rst <= '1' when ((timer_reset_i = '1') or (clk_count >= (500/CLOCK_PERIOD_NS)-1)) else '0';
+      
    
-   -- this process counts the number of microseconds that have passed
-   us_count: process(timer_reset_i, count_clk)
+   -- slow clock generator generates 1 MHz clock (50% duty) for slow counter
+   slow_clk_gen: process(clk_count, timer_reset_i)
    begin
       if(timer_reset_i = '1') then
-         count_us <= 0;
-      elsif(count_clk >= 1000/CLOCK_PERIOD_NS) then
-         -- count_clk is reset by previous process when >= 1000_ns/clock_period_ns, increments count_us
-         count_us <= count_us + 1;
+         slow_clk <= '0';
+      elsif(clk_count >= (500/CLOCK_PERIOD_NS)-1) then
+         slow_clk <= not slow_clk;
       end if;
-   end process us_count;
+   end process slow_clk_gen;
    
-   timer_count_o <= count_us;
-
+   
+   -- slow counter runs at derived 1 MHz clock and counts elapsed microseconds until reset by user
+   slow_counter: process(slow_clk, timer_reset_i)
+   begin
+      if(timer_reset_i = '1') then
+         us_count <= 0;
+      elsif(slow_clk'event and slow_clk = '1') then
+         us_count <= us_count + 1;
+      end if;
+   end process slow_counter;
+   
+   timer_count_o <= us_count;
+   
 end behav;
