@@ -20,7 +20,7 @@
 
 -- us_counter.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: us_timer.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		 SCUBA-2
 -- Author:		 Ernie Lin
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Jan. 15 2004		- Initial version      - EL
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 ------------------------------------------------------------------------
@@ -71,7 +71,7 @@ begin
    end process period_count;
    
    -- this process counts the number of microseconds that have passed
-   us_count: process(count_clk)
+   us_count: process(timer_reset_i, count_clk)
    begin
       if(timer_reset_i = '1') then
          count_us <= 0;
