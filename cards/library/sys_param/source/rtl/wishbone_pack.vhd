@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/04/21 19:50:01 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/05/14 21:39:07 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.3  2004/05/14 21:39:07  bburger
+-- added card addresses
+--
 -- Revision 1.2  2004/04/21 19:50:01  bburger
 -- Added slave addresses for all current instructions
 --
@@ -58,6 +61,12 @@ package wishbone_pack is
    constant WB_ADDR_WIDTH     : integer := 8;
    constant WB_TAG_ADDR_WIDTH : integer := 32;
    constant CARD_ADDR_WIDTH   : integer := 8;
+
+   ---------------------------------------------------------------------------------
+   -- Status Fields
+   ---------------------------------------------------------------------------------
+   constant SUCCESS        : std_logic_vector(7 downto 0) := "11111111";
+   constant FAILURE        : std_logic_vector(7 downto 0) := "00000000";
 
    ---------------------------------------------------------------------------------
    -- Card Addresses
