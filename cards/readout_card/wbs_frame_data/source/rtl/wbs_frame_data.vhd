@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/12/09 12:58:34 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/12/14 19:57:55 $> - <text> - <initials $Author: erniel $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.16  2004/12/14 19:57:55  erniel
+-- attempted fix on inferred latches
+--
 -- Revision 1.15  2004/12/09 12:58:34  dca
 -- block now also acknowledges:
 -- read captr_raw
@@ -581,6 +584,7 @@ begin
          dat_o             <= (others => '0');
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
+         dec_addr_ena      <= '0';
          rst_addr_ena		    <= '0';
          raw_req           <= '1';
          
@@ -590,6 +594,7 @@ begin
          dat_o             <= data_mode_reg;
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
+         dec_addr_ena      <= '0';
          rst_addr_ena		    <= '0';
          raw_req           <= '0';   
          
