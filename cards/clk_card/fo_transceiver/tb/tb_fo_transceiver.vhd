@@ -38,7 +38,8 @@ architecture bench of tb_fo_transceiver is
    signal tsc_nTd      : std_logic                      := '0';  -- always return data
    signal nFena        : std_logic                      := '1';  -- disable tx data  
    
-   constant tb_clk_prd : time                           := 10 ns;  -- 100 MHz FPGA clock
+   -- constant tb_clk_prd : time                           := 10 ns;  -- 100 MHz FPGA clock
+   constant tb_clk_prd : time                           := 20 ns;  -- 50 MHz FPGA clock
    constant ft_clk_prd : time                           := 40 ns;  -- 25 MHz clock for hotlink chipset
    constant preamble1  : std_logic_vector (7 downto 0)  := x"A5";
    constant preamble2  : std_logic_vector (7 downto 0)  := x"5A";
@@ -60,6 +61,8 @@ architecture bench of tb_fo_transceiver is
    signal   command    : std_logic_vector(31 downto 0);
    signal   address    : std_logic_vector(31 downto 0);
    signal   data_valid : std_logic_vector(31 downto 0);
+   
+   signal   cmd_ack    : std_logic; 
         
 begin
 
@@ -70,8 +73,8 @@ begin
    DUT :  fo_transceiver
    
    port map( 
-      Brst        => dut_rst,
-      clk         => tb_clk,
+      rst_i        => dut_rst,
+      clk_i        => tb_clk,
       
       rx_data_i   => rx_data,
       nRx_rdy_i   => nRx_rdy,
@@ -81,6 +84,8 @@ begin
       
       nTrp_i      => nTrp,
       ft_clkw_i   => ft_clkw, 
+      
+      cmd_ack_i   => cmd_ack,
       
       tx_data_o   => tx_data,      
       tsc_nTd_o   => tsc_nTd,
@@ -367,6 +372,7 @@ begin
    do_reset;
    
    -- initialse a wb command with 41 valid data words
+   cmd_ack <= '0';
    
    command <= command_wb;
    address <= X"FFEEDDCC";
@@ -376,11 +382,17 @@ begin
    do_preamble;
    do_command;
    do_checksum;
+  
+   wait until tx_data = X"52";  -- R
+   wait until tx_data = X"45";  -- E
    
-   wait until tx_data = X"4B";  -- 'K'
-   wait until tx_data = X"4F";  -- 'O'
+   assert false report "reply word 'ER' received" severity NOTE;
    
-   assert false report "reply word 'OK' received" severity NOTE;
+    
+   --wait until tx_data = X"4B";  -- 'K'
+   --wait until tx_data = X"4F";  -- 'O'
+   
+  -- assert false report "reply word 'OK' received" severity NOTE;
    
    
    -- initialise a go command
@@ -397,6 +409,8 @@ begin
       
    checksum <= check_err;
    do_checksum;
+    
+   assert false report "DEBUG" severity NOTE;
     
    wait until tx_data = X"52";  -- R
    wait until tx_data = X"45";  -- E

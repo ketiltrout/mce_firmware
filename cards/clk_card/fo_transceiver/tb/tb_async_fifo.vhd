@@ -108,10 +108,12 @@ begin
  
    procedure do_reset is
       begin
-         dut_rst <= '1';
-         wait for clk_prd*5 ;
          dut_rst <= '0';
-         wait for clk_prd*5 ;
+         wait for clk_prd*2;
+         dut_rst <= '1';
+         wait for clk_prd*2;
+         dut_rst <= '0';
+         wait for clk_prd*2;
       
          assert false report " Resetting the DUT." severity NOTE;
       end do_reset;  
@@ -216,6 +218,9 @@ begin
  ------------------------------------------------------      
        
    begin
+   
+   read <= '0';
+   write <= '0';
    
    do_reset;
    do_fill_fifo;
