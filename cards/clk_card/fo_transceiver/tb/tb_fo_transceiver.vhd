@@ -376,6 +376,37 @@ begin
    do_preamble;
    do_command;
    do_checksum;
+   
+   wait until tx_data = X"4B";  -- 'K'
+   wait until tx_data = X"4F";  -- 'O'
+   
+   assert false report "reply word 'OK' received" severity NOTE;
+   
+   
+   -- initialise a go command
+   
+   command <= command_go;
+   address <= X"11223344";
+   data_valid <= X"00000001";
+   data <= 15;   -- integer which is incremented and converted to std_logic_vector
+
+   do_preamble;
+   do_command;
+    
+   -- give a checksum error 
+      
+   checksum <= check_err;
+   do_checksum;
+    
+   wait until tx_data = X"52";  -- R
+   wait until tx_data = X"45";  -- E
+   
+   assert false report "reply word 'ER' received" severity NOTE;
+   
+   wait until tx_data = X"00";   
+   wait for 1000 ns;
+   assert false report "end of simulation" severity FAILURE;   
+
    wait;
    
    end process stimuli;
