@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.5  2004/11/26 18:26:21  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.4  2004/11/24 23:34:00  mohsen
 -- Change in wbs_fb_data Interface
 --
@@ -302,12 +305,22 @@ begin  -- struct
   -- Instantiation of sa_bias_ctrl
   -----------------------------------------------------------------------------
 
+  -- NOTE: During the readout_card block development, it was found that the
+  -- data and the clock signals for offset_ctrl and sa_bias_ctrl DACs are tied
+  -- together.  Therfore, we need to ensure that the operation of offset_ctrl
+  -- and sa_bias_ctrl are mutually exclusive.  Here, we use a simple method to
+  -- achieve this mutually exclusive behaviour by using
+  -- restart_frame_1row_post_i in place of restart_frame_aligned_i in sa_bias_
+  -- ctrl. Since the operation of each of these blocks take 46 clk_50 period,
+  -- the minimum row dwell time need to satisfy this condition.  Otherwise,
+  -- other method is necessary.
+  
   i_sa_bias_ctrl : sa_bias_ctrl
      port map (
         rst_i                   => rst_i,
         clk_25_i                => clk_25_i,
         clk_50_i                => clk_50_i,
-        restart_frame_aligned_i => restart_frame_aligned_i,
+        restart_frame_aligned_i => restart_frame_1row_post_i,
         sa_bias_dat_i           => sa_bias_dat_i,
         sa_bias_dac_spi_o       => sa_bias_dac_spi_o
         ); 
