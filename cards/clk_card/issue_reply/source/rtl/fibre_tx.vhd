@@ -20,16 +20,19 @@
 -- fibre_tx.vhd
 --
 -- Project: Scuba 2
--- Author: David Atkinson	
+-- Author: David Atkinson  
 -- Organisation: UK ATC
 --
 -- Description:
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/10/05 12:22:40 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/12 14:19:59 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.2  2004/10/12 14:19:59  dca
+-- nTrp removed.  Various other changes due to fifo becoming synchronous.
+--
 -- Revision 1.1  2004/10/05 12:22:40  dca
 -- moved from fibre_tx directory.
 --
@@ -83,6 +86,7 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.issue_reply_pack.all;
+use work.fibre_tx_pack.all;
 
 architecture behav of fibre_tx is 
 

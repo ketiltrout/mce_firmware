@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.23 2004/11/19 16:21:02 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.24 2004/11/22 11:23:47 dca Exp $>
 --
 -- Project:       SCUBA-2
--- Author:         Jonathan Jacob
+-- Author:        Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/19 16:21:02 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/22 11:23:47 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.24  2004/11/22 11:23:47  dca
+-- reply_translator: m_op_done_i changed to m_op_rdy_i
+--
 -- Revision 1.23  2004/11/19 16:21:02  dca
 -- reply_translator: fibre_word_req_o changed to fibre_word_ack_o
 --
@@ -133,6 +136,10 @@ use work.issue_reply_pack.all;
 use work.cmd_queue_pack.all;
 use work.cmd_queue_ram40_pack.all;
 use work.sync_gen_pack.all;
+use work.fibre_rx_pack.all;
+use work.fibre_tx_pack.all;
+use work.reply_translator_pack.all;
+use work.cmd_translator_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;

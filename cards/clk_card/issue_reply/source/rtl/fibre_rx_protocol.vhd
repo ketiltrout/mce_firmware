@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.3 2004/11/18 09:47:50 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.4 2004/11/19 16:18:04 dca Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	      David Atkinson
+-- Project:       SCUBA-2
+-- Author:        David Atkinson
 --               
 -- Organisation:  UK ATC
 --
@@ -67,7 +67,7 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/11/18 09:47:50 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/11/19 16:18:04 $> -     <text>      - <initials $Author: dca $>
 --
 -- Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------
@@ -79,6 +79,7 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.issue_reply_pack.all;
+use work.fibre_rx_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -225,7 +226,7 @@ signal cmd_data          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);     
 signal cksum_err         : std_logic;                                          -- checksum error flag
 signal cmd_rdy           : std_logic;                                          -- command ready flag (checksum passed)
 signal data_clk          : std_logic;                                          -- data clock
-signal rx_fr             : std_logic;	                                         -- receive fifo read request
+signal rx_fr             : std_logic;                                           -- receive fifo read request
 
 -- mux outputs used to register command bytes
 

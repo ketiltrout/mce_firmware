@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.2 2004/10/06 21:50:52 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.3 2004/10/11 13:31:27 dca Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	      David Atkinson
+-- Project:       SCUBA-2
+-- Author:        David Atkinson
 --               
 -- Organisation:  UK ATC
 --
@@ -36,9 +36,12 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/10/06 21:50:52 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/10/11 13:31:27 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: fibre_rx_fifo.vhd,v $
+-- Revision 1.3  2004/10/11 13:31:27  dca
+-- Now instantiates synchronous FIFO megafunction
+--
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -46,6 +49,7 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.issue_reply_pack.all;
+use work.fibre_rx_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -94,15 +98,15 @@ begin
     
    SFIFO : sync_fifo_rx
    port map(
-      data		=> rx_data_i,
-      wrreq		=> rx_fw_i,
-      rdreq		=> rx_fr_i,
-      rdclk		=> clk_i, 
-      wrclk		=> fibre_clkr_i,
-      aclr		=> rst_i,    
-      q		=> rxd_o, 
-      rdempty		=> rx_fe_o, 
-      wrfull		=> rx_ff_o
+      data     => rx_data_i,
+      wrreq    => rx_fw_i,
+      rdreq    => rx_fr_i,
+      rdclk    => clk_i, 
+      wrclk    => fibre_clkr_i,
+      aclr     => rst_i,    
+      q     => rxd_o, 
+      rdempty     => rx_fe_o, 
+      wrfull      => rx_ff_o
       );  
   
 end rtl;

@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.9  2004/10/20 18:53:46  erniel
+# updated pins for revision AA
+#
 # Revision 1.8  2004/10/13 05:44:58  bench2
 # Bryce:  Added a new top-level signal to the clock card issue_reply_test block:  fibre_ckr aka fibre_clkr
 #
@@ -370,6 +373,10 @@ cmp add_assignment $top_name "" fibre_rx_rvs LOCATION "Pin_AD10"
 cmp add_assignment $top_name "" fibre_rx_ckr LOCATION "Pin_AE10"
 puts "   Assigned: Fibre receiver interface pins."
 
+#Data valid pulse
+cmp add_assignment $top_name "" dv_pulse_fibre LOCATION "Pin_AG12"
+cmp add_assignment $top_name "" dv_pulse_bnc LOCATION "Pin_AF12"
+puts "   Assigned: Data valid pulse interface pins."
 
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
