@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.3 2004/07/05 23:41:04 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.4 2004/07/06 22:40:47 jjacob Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/07/05 23:41:04 $> - <text> - <initials $Author: jjacob $>
+-- <date $Date: 2004/07/06 22:40:47 $> - <text> - <initials $Author: jjacob $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -41,6 +41,8 @@ library work;
 use work.fibre_rx_pack.all;
 use work.issue_reply_pack.all;
 
+library sys_param;
+use sys_param.command_pack.all;
 
 entity tb_issue_reply is     
 end tb_issue_reply;
