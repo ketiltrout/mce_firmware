@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: watchdog_pack.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA2
 -- Author:		Bryce Burger
@@ -30,7 +30,7 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -43,7 +43,9 @@ use sys_param.wishbone_pack.all;
 
 package watchdog_pack is
 
-   constant WDT_BITS : integer := 1;
+   --constant WDT_BITS : integer := 1;
+   constant WATCHDOG_KICK : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := 
+                         (0 => '1', others => '0');
   
    component watchdog
       generic (
