@@ -318,104 +318,104 @@ begin
 -------------------------------------------------------------------------------
 -- packet ram
 -------------------------------------------------------------------------------
-  i_packet_ram: packet_ram
-    port map (
-        data      => (others => '0'),
-        wren      => '0',
-        wraddress => (others => '0'),
-        rdaddress => rdaddress_packet_ram,
-        clock     => clk,
-        q         => q_packet_ram);
+--   i_packet_ram: packet_ram
+--     port map (
+--         data      => (others => '0'),
+--         wren      => '0',
+--         wraddress => (others => '0'),
+--         rdaddress => rdaddress_packet_ram,
+--         clock     => clk,
+--         q         => q_packet_ram);
 
   
 
 -------------------------------------------------------------------------------
 -- lvds_tx
--------------------------------------------------------------------------------
-  i_lvds_tx: lvds_tx
-    port map (
-        clk_i  => clk,
-        rst_i  => rst,
-        dat_i  => q_packet_ram,
-        rdy_i  => rdy_lvds_tx,
-        busy_o => busy_lvds_tx,
-        lvds_o => lvds_lvds_tx);
+-----------------------------------------------------------------------------
+--   i_lvds_tx: lvds_tx
+--     port map (
+--         clk_i  => clk,
+--         rst_i  => rst,
+--         dat_i  => q_packet_ram,
+--         rdy_i  => rdy_lvds_tx,
+--         busy_o => busy_lvds_tx,
+--         lvds_o => lvds_lvds_tx);
 
 
 -------------------------------------------------------------------------------
 -- our fsm 
 -------------------------------------------------------------------------------
 
-  i_fsm: process (clk, rst)
+--   i_fsm: process (clk, rst)
 
-    variable i : integer range 0 to 9000009;
-  begin  -- process i_fsm
-    if rst = '1' then                   -- asynchronous reset
-      state_shift <= '0';
-      i:=0;
-    elsif clk'event and clk = '1' then  -- rising clock edge
-      state_shift <= '0';
-      i:=i+1;
+--     variable i : integer range 0 to 9000009;
+--   begin  -- process i_fsm
+--     if rst = '1' then                   -- asynchronous reset
+--       state_shift <= '0';
+--       i:=0;
+--     elsif clk'event and clk = '1' then  -- rising clock edge
+--       state_shift <= '0';
+--       i:=i+1;
       
-      if i = 200 and need_long_wait = false then  -- wait for short time for
-                                                 -- ordinary packet to avoid
-                                                 -- buffer overflow in lvd_tx
-        state_shift <= '1';
-        i:=0;
-      end if;
+--       if i = 200 and need_long_wait = false then  -- wait for short time for
+--                                                  -- ordinary packet to avoid
+--                                                  -- buffer overflow in lvd_tx
+--         state_shift <= '1';
+--         i:=0;
+--       end if;
 
-      if i = 30000 and need_long_wait = true then  -- wait for long time for
-                                                   -- long packets
-        state_shift <= '1';
-        i:=0;
-      end if;
+--       if i = 30000 and need_long_wait = true then  -- wait for long time for
+--                                                    -- long packets
+--         state_shift <= '1';
+--         i:=0;
+--       end if;
       
-    end if;
-  end process i_fsm;
+--     end if;
+--   end process i_fsm;
 
-  rdy_lvds_tx <= state_shift;
+--   rdy_lvds_tx <= state_shift;
 
-  i_count_up: process (clk, rst)
-  begin  -- process i_count_up
-    if rst = '1' then                   -- asynchronous reset
-      rdaddress_packet_ram <= (others => '0');
-      need_long_wait <= false;
-      raw_read_count <= 0;
+--   i_count_up: process (clk, rst)
+--   begin  -- process i_count_up
+--     if rst = '1' then                   -- asynchronous reset
+--       rdaddress_packet_ram <= (others => '0');
+--       need_long_wait <= false;
+--       raw_read_count <= 0;
       
-    elsif clk'event and clk = '1' then  -- rising clock edge
-      if state_shift='1' then
-        need_long_wait <= false;
+--     elsif clk'event and clk = '1' then  -- rising clock edge
+--       if state_shift='1' then
+--         need_long_wait <= false;
         
-        if rdaddress_packet_ram <('1' & x"5A") then
-          rdaddress_packet_ram <= rdaddress_packet_ram+1;
+--         if rdaddress_packet_ram <('1' & x"5A") then
+--           rdaddress_packet_ram <= rdaddress_packet_ram+1;
 
-          -- long wait on preamble of a "long" instruction and the preamble of
-          -- the next instruction.  The first condition is used when need to
-          -- loop many times through the "long" instruction.
-          if (rdaddress_packet_ram = ('1' & x"53") or rdaddress_packet_ram = ('1' & x"56")) then
-            need_long_wait <= true;
-          end if;
+--           -- long wait on preamble of a "long" instruction and the preamble of
+--           -- the next instruction.  The first condition is used when need to
+--           -- loop many times through the "long" instruction.
+--           if (rdaddress_packet_ram = ('1' & x"53") or rdaddress_packet_ram = ('1' & x"56")) then
+--             need_long_wait <= true;
+--           end if;
 
-          -- loop at the crc of "long" instruction
-          if (rdaddress_packet_ram = ('1' & x"56")) then
-            raw_read_count <= raw_read_count +1;
-            if raw_read_count <127 then
-              rdaddress_packet_ram <= ('1' & x"54");  -- back to preamble of "
-                                                      -- long" instruction 
-            else
-              raw_read_count <= 0;
-            end if;
-          end if;
+--           -- loop at the crc of "long" instruction
+--           if (rdaddress_packet_ram = ('1' & x"56")) then
+--             raw_read_count <= raw_read_count +1;
+--             if raw_read_count <127 then
+--               rdaddress_packet_ram <= ('1' & x"54");  -- back to preamble of "
+--                                                       -- long" instruction 
+--             else
+--               raw_read_count <= 0;
+--             end if;
+--           end if;
 
 
           
-        else
-          rdaddress_packet_ram <= ('1' & x"50");
-        end if;
+--         else
+--           rdaddress_packet_ram <= ('1' & x"50");
+--         end if;
         
-      end if;
-    end if;
-  end process i_count_up;
+--       end if;
+--     end if;
+--   end process i_count_up;
 
   -----------------------------------------------------------------------------
   -- sync gen core
@@ -478,7 +478,8 @@ begin
          clk_i        => clk,
          comm_clk_i   => comm_clk,
          rst_i        => rst,
-         lvds_cmd_i   => lvds_lvds_tx,
+--         lvds_cmd_i   => lvds_lvds_tx,
+         lvds_cmd_i   => lvds_cmd,
          lvds_reply_o => lvds_txa,
          dat_o        => dispatch_dat_out,
          addr_o       => dispatch_addr_out,
@@ -630,8 +631,8 @@ begin
            ack_frame_o               => ack_frame,
            dat_fb_o                  => dat_fb,
            ack_fb_o                  => ack_fb,
---           adc_dat_ch0_i             => adc1_dat_hw_test,
            adc_dat_ch0_i             => adc1_dat,
+           --adc_dat_ch0_i             => adc1_dat_hw_test,
            adc_dat_ch1_i             => adc2_dat,
            adc_dat_ch2_i             => adc3_dat,
            adc_dat_ch3_i             => adc4_dat,
