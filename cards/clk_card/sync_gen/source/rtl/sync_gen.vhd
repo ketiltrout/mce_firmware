@@ -20,9 +20,9 @@
 
 -- sync_gen.vhd
 --
--- Project:		 SCUBA-2
--- Author:		 Bryce Burger
--- Organisation:	 UBC
+-- Project:     SCUBA-2
+-- Author:      Bryce Burger
+-- Organisation:   UBC
 --
 -- Description:
 -- This implements the sync pulse generation on the Clock Card.
@@ -37,7 +37,10 @@
 -- Even with DV asserted high for the duration of several frame cycles, only one sync pulse will be generated per frame
 --
 -- Revision history:
--- $Log$
+-- $Log: sync_gen.vhd,v $
+-- Revision 1.1  2004/08/05 00:19:33  bburger
+-- Bryce:  new
+--
 --
 ------------------------------------------------------------------------
 
@@ -69,11 +72,11 @@ architecture beh of sync_gen is
    signal current_state, next_state : states;
    
    signal new_frame_period : std_logic;   
-   signal clk_count : integer;
-   signal sync_count : integer;
+   signal clk_count        : integer;
+   signal sync_count       : integer;
+   signal sync_num         : std_logic_vector(SYNC_NUM_BUS_WIDTH-1 downto 0);
 
-   begin
-      
+   begin      
       clk_ctr: counter
          generic map(
             MAX         => END_OF_FRAME,
@@ -107,6 +110,8 @@ architecture beh of sync_gen is
          );
 
       new_frame_period  <= '1' when clk_count = END_OF_FRAME else '0';
+      sync_o            <= new_frame_period;
+      sync_num_o        <= sync_num;
 --      sync_num_o        <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
 
       sync_state_FF: process(clk_i, rst_i)
@@ -154,17 +159,20 @@ architecture beh of sync_gen is
       begin
          case current_state is
             when RESET =>
-               sync_o <= '0';
-               sync_num_o <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
+               --sync_o <= '0';
+               sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
             when SYNC_LOW =>
-               sync_o <= '0';
+               --sync_o <= '0';
+               sync_num <= sync_num;
             when SYNC_HIGH =>
-               sync_o     <= '1';
-               sync_num_o <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
+               --sync_o     <= '1';
+               sync_num <= std_logic_vector(conv_unsigned(sync_count, SYNC_NUM_BUS_WIDTH));
             when DV_RECEIVED =>
-               sync_o <= '0';
+               --sync_o <= '0';
+               sync_num <= sync_num;
             when others =>
-               sync_o <= '0';
+               --sync_o <= '0';
+               sync_num <= sync_num;
          end case;
       end process;
 
