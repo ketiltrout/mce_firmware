@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch_crc_test.vhd,v $
+-- Revision 1.3  2004/08/07 02:11:28  erniel
+-- added extra tests
+--
 -- Revision 1.2  2004/08/05 00:26:10  erniel
 -- entity renamed
 --
@@ -142,6 +145,15 @@ begin
       do_receive("00001100000011110001000000010001");  -- for all BCs
       do_receive("00000000000000001111101010110101");  -- 0x0000FAB5
       do_receive("00100101110000110110010000000100");  -- 0x25C36404
+      
+      wait for PERIOD * 20;
+      
+      -- this is an error packet:
+      
+      do_receive("10101010101010100000000000000000");  -- preamble + 0 data words
+      do_receive("00000000000000000000000000000000");  -- dummy data
+      do_receive("00000000000000000000000000000000");  -- fail
+      do_receive("11001111111100001001001001101010");  -- 0xCFF0926A
       
       wait for PERIOD * 20;
       
