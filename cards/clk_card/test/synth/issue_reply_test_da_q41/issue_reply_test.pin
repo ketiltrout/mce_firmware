@@ -79,7 +79,7 @@ VCCIO4                       : A12       : power  :                   : 3.3V    
 RESERVED_INPUT               : A13       :        :                   :         : 4         :                
 GND                          : A14       : gnd    :                   :         : 1         :                
 GND                          : A15       : gnd    :                   :         : 1         :                
-RESERVED_INPUT               : A16       :        :                   :         : 3         :                
+test[24]                     : A16       : output : LVTTL             :         : 3         : N              
 VCCIO3                       : A17       : power  :                   : 3.3V    : 3         :                
 RESERVED_INPUT               : A18       :        :                   :         : 3         :                
 RESERVED_INPUT               : A19       :        :                   :         : 3         :                
@@ -108,7 +108,7 @@ RESERVED_INPUT               : AA14      :        :                   :         
 RESERVED_INPUT               : AA15      :        :                   :         : 11        :                
 GND                          : AA16      : gnd    :                   :         : 1         :                
 GND+                         : AA17      :        :                   :         : 8         :                
-test[22]                     : AA18      : output : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : AA18      :        :                   :         : 8         :                
 RESERVED_INPUT               : AA19      :        :                   :         : 8         :                
 RESERVED_INPUT               : AA20      :        :                   :         : 8         :                
 RESERVED_INPUT               : AA21      :        :                   :         : 1         :                
@@ -135,7 +135,7 @@ nCE                          : AB13      :        :                   :         
 GNDG_PLL6                    : AB14      : gnd    :                   :         : 1         :                
 MSEL2                        : AB15      :        :                   :         : 8         :                
 VCC_PLL6_OUTB                : AB16      : power  :                   : 3.3V    : 12        :                
-test[20]                     : AB17      : output : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : AB17      :        :                   :         : 8         :                
 RESERVED_INPUT               : AB18      :        :                   :         : 8         :                
 RESERVED_INPUT               : AB19      :        :                   :         : 8         :                
 RESERVED_INPUT               : AB20      :        :                   :         : 8         :                
@@ -190,7 +190,7 @@ RESERVED_INPUT               : AD12      :        :                   :         
 RESERVED_INPUT               : AD13      :        :                   :         : 7         :                
 GND+                         : AD14      :        :                   :         : 7         :                
 RESERVED_INPUT               : AD15      :        :                   :         : 11        :                
-test[30]                     : AD16      : output : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : AD16      :        :                   :         : 8         :                
 RESERVED_INPUT               : AD17      :        :                   :         : 8         :                
 RESERVED_INPUT               : AD18      :        :                   :         : 8         :                
 RESERVED_INPUT               : AD19      :        :                   :         : 8         :                
@@ -213,12 +213,12 @@ RESERVED_INPUT               : AE7       :        :                   :         
 RESERVED_INPUT               : AE8       :        :                   :         : 7         :                
 fibre_rx_data[2]             : AE9       : input  : LVTTL             :         : 7         : Y              
 fibre_rx_ckr                 : AE10      : input  : LVTTL             :         : 7         : Y              
-RESERVED_INPUT               : AE11      :        :                   :         : 7         :                
+test[36]                     : AE11      : output : LVTTL             :         : 7         : N              
 RESERVED_INPUT               : AE12      :        :                   :         : 7         :                
 test[37]                     : AE13      : output : LVTTL             :         : 7         : N              
 fibre_rx_rdy                 : AE14      : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AE15      :        :                   :         : 11        :                
-test[19]                     : AE16      : output : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : AE16      :        :                   :         : 8         :                
 RESERVED_INPUT               : AE17      :        :                   :         : 8         :                
 RESERVED_INPUT               : AE18      :        :                   :         : 8         :                
 RESERVED_INPUT               : AE19      :        :                   :         : 8         :                
@@ -245,8 +245,8 @@ RESERVED_INPUT               : AF11      :        :                   :         
 RESERVED_INPUT               : AF12      :        :                   :         : 7         :                
 RESERVED_INPUT               : AF13      :        :                   :         : 7         :                
 GNDA_PLL6                    : AF14      : gnd    :                   :         : 1         :                
-test[15]                     : AF15      : output : LVTTL             :         : 12        : N              
-test[11]                     : AF16      : output : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : AF15      :        :                   :         : 12        :                
+RESERVED_INPUT               : AF16      :        :                   :         : 8         :                
 RESERVED_INPUT               : AF17      :        :                   :         : 8         :                
 RESERVED_INPUT               : AF18      :        :                   :         : 8         :                
 RESERVED_INPUT               : AF19      :        :                   :         : 8         :                
@@ -273,7 +273,7 @@ RESERVED_INPUT               : AG11      :        :                   :         
 RESERVED_INPUT               : AG12      :        :                   :         : 7         :                
 RESERVED_INPUT               : AG13      :        :                   :         : 7         :                
 VCCA_PLL6                    : AG14      : power  :                   : 1.5V    : 1         :                
-test[27]                     : AG15      : output : LVTTL             :         : 12        : N              
+RESERVED_INPUT               : AG15      :        :                   :         : 12        :                
 RESERVED_INPUT               : AG16      :        :                   :         : 8         :                
 RESERVED_INPUT               : AG17      :        :                   :         : 8         :                
 RESERVED_INPUT               : AG18      :        :                   :         : 8         :                
@@ -327,8 +327,8 @@ RESERVED_INPUT               : B11       :        :                   :         
 RESERVED_INPUT               : B12       :        :                   :         : 4         :                
 RESERVED_INPUT               : B13       :        :                   :         : 4         :                
 TEMPDIODEp                   : B14       :        :                   :         : 1         :                
-test[28]                     : B15       : output : LVTTL             :         : 10        : N              
-RESERVED_INPUT               : B16       :        :                   :         : 3         :                
+test[33]                     : B15       : output : LVTTL             :         : 10        : N              
+test[30]                     : B16       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : B17       :        :                   :         : 3         :                
 RESERVED_INPUT               : B18       :        :                   :         : 3         :                
 RESERVED_INPUT               : B19       :        :                   :         : 3         :                
@@ -356,7 +356,7 @@ RESERVED_INPUT               : C12       :        :                   :         
 RESERVED_INPUT               : C13       :        :                   :         : 4         :                
 TEMPDIODEn                   : C14       :        :                   :         : 1         :                
 fibre_rx_clk                 : C15       : output : LVTTL             :         : 10        : Y              
-RESERVED_INPUT               : C16       :        :                   :         : 3         :                
+test[32]                     : C16       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : C17       :        :                   :         : 3         :                
 RESERVED_INPUT               : C18       :        :                   :         : 3         :                
 RESERVED_INPUT               : C19       :        :                   :         : 3         :                
@@ -383,9 +383,9 @@ RESERVED_INPUT               : D11       :        :                   :         
 RESERVED_INPUT               : D12       :        :                   :         : 4         :                
 RESERVED_INPUT               : D13       :        :                   :         : 4         :                
 VCCG_PLL5                    : D14       : power  :                   : 1.5V    : 1         :                
-RESERVED_INPUT               : D15       :        :                   :         : 9         :                
-RESERVED_INPUT               : D16       :        :                   :         : 3         :                
-RESERVED_INPUT               : D17       :        :                   :         : 3         :                
+test[12]                     : D15       : output : LVTTL             :         : 9         : N              
+test[21]                     : D16       : output : LVTTL             :         : 3         : N              
+test[13]                     : D17       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : D18       :        :                   :         : 3         :                
 RESERVED_INPUT               : D19       :        :                   :         : 3         :                
 RESERVED_INPUT               : D20       :        :                   :         : 3         :                
@@ -412,8 +412,8 @@ RESERVED_INPUT               : E12       :        :                   :         
 RESERVED_INPUT               : E13       :        :                   :         : 4         :                
 GNDG_PLL5                    : E14       : gnd    :                   :         : 1         :                
 lvds_clk                     : E15       : output : LVTTL             :         : 9         : Y              
-RESERVED_INPUT               : E16       :        :                   :         : 3         :                
-RESERVED_INPUT               : E17       :        :                   :         : 3         :                
+test[20]                     : E16       : output : LVTTL             :         : 3         : N              
+test[34]                     : E17       : output : LVTTL             :         : 3         : N              
 GND                          : E18       :        :                   :         : 3         :                
 RESERVED_INPUT               : E19       :        :                   :         : 3         :                
 GND                          : E20       :        :                   :         : 3         :                
@@ -441,8 +441,8 @@ altera_reserved_tms          : F13       : input  : LVTTL             :         
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    : 1         :                
 VCC_PLL5_OUTA                : F15       : power  :                   : 3.3V    : 9         :                
 DCLK                         : F16       :        :                   :         : 3         :                
-RESERVED_INPUT               : F17       :        :                   :         : 3         :                
-RESERVED_INPUT               : F18       :        :                   :         : 3         :                
+test[16]                     : F17       : output : LVTTL             :         : 3         : N              
+test[11]                     : F18       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : F19       :        :                   :         : 3         :                
 RESERVED_INPUT               : F20       :        :                   :         : 3         :                
 RESERVED_INPUT               : F21       :        :                   :         : 3         :                
@@ -494,11 +494,11 @@ RESERVED_INPUT               : H10       :        :                   :         
 RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : LVTTL             :         : 4         : N              
 altera_reserved_tdo          : H13       : output : LVTTL             :         : 4         : N              
-test[13]                     : H14       : output : LVTTL             :         : 9         : N              
-RESERVED_INPUT               : H15       :        :                   :         : 9         :                
+test[15]                     : H14       : output : LVTTL             :         : 9         : N              
+test[31]                     : H15       : output : LVTTL             :         : 9         : N              
 GND                          : H16       : gnd    :                   :         : 1         :                
-test[23]                     : H17       : output : LVTTL             :         : 3         : N              
-RESERVED_INPUT               : H18       :        :                   :         : 3         :                
+test[29]                     : H17       : output : LVTTL             :         : 3         : N              
+test[22]                     : H18       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : H19       :        :                   :         : 3         :                
 RESERVED_INPUT               : H20       :        :                   :         : 3         :                
 RESERVED_INPUT               : H21       :        :                   :         : 2         :                
@@ -524,8 +524,8 @@ RESERVED_INPUT               : J12       :        :                   :         
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
 VCCIO4                       : J14       : power  :                   : 3.3V    : 4         :                
 VCCIO3                       : J15       : power  :                   : 3.3V    : 3         :                
-test[21]                     : J16       : output : LVTTL             :         : 10        : N              
-test[34]                     : J17       : output : LVTTL             :         : 3         : N              
+test[25]                     : J16       : output : LVTTL             :         : 10        : N              
+test[14]                     : J17       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : J18       :        :                   :         : 3         :                
 RESERVED_INPUT               : J19       :        :                   :         : 3         :                
 RESERVED_INPUT               : J20       :        :                   :         : 3         :                
@@ -534,7 +534,7 @@ RESERVED_INPUT               : J22       :        :                   :         
 RESERVED_INPUT               : J23       :        :                   :         : 2         :                
 RESERVED_INPUT               : J24       :        :                   :         : 2         :                
 RESERVED_INPUT               : J25       :        :                   :         : 2         :                
-RESERVED_INPUT               : J26       :        :                   :         : 2         :                
+test[28]                     : J26       : output : LVTTL             :         : 2         : N              
 RESERVED_INPUT               : J27       :        :                   :         : 2         :                
 RESERVED_INPUT               : J28       :        :                   :         : 2         :                
 RESERVED_INPUT               : K1        :        :                   :         : 5         :                
@@ -551,10 +551,10 @@ RESERVED_INPUT               : K11       :        :                   :         
 altera_reserved_tck          : K12       : input  : LVTTL             :         : 4         : N              
 GND+                         : K13       :        :                   :         : 4         :                
 fibre_tx_clk                 : K14       : output : LVTTL             :         : 9         : Y              
-RESERVED_INPUT               : K15       :        :                   :         : 9         :                
-test[12]                     : K16       : output : LVTTL             :         : 10        : N              
+test[23]                     : K15       : output : LVTTL             :         : 9         : N              
+test[17]                     : K16       : output : LVTTL             :         : 10        : N              
 inclk                        : K17       : input  : LVTTL             :         : 3         : Y              
-RESERVED_INPUT               : K18       :        :                   :         : 3         :                
+test[26]                     : K18       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : K19       :        :                   :         : 3         :                
 GND                          : K20       :        :                   :         : 2         :                
 RESERVED_INPUT               : K21       :        :                   :         : 2         :                
@@ -581,8 +581,8 @@ RESERVED_INPUT               : L13       :        :                   :         
 GND                          : L14       : gnd    :                   :         : 1         :                
 GND                          : L15       : gnd    :                   :         : 1         :                
 nCONFIG                      : L16       :        :                   :         : 3         :                
-test[29]                     : L17       : output : LVTTL             :         : 3         : N              
-test[33]                     : L18       : output : LVTTL             :         : 3         : N              
+test[18]                     : L17       : output : LVTTL             :         : 3         : N              
+test[19]                     : L18       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : L19       :        :                   :         : 2         :                
 RESERVED_INPUT               : L20       :        :                   :         : 2         :                
 RESERVED_INPUT               : L21       :        :                   :         : 2         :                
@@ -610,7 +610,7 @@ VCCINT                       : M14       : power  :                   : 1.5V    
 GND                          : M15       : gnd    :                   :         : 1         :                
 nSTATUS                      : M16       :        :                   :         : 3         :                
 GND+                         : M17       :        :                   :         : 3         :                
-test[25]                     : M18       : output : LVTTL             :         : 3         : N              
+test[27]                     : M18       : output : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : M19       :        :                   :         : 2         :                
 RESERVED_INPUT               : M20       :        :                   :         : 2         :                
 RESERVED_INPUT               : M21       :        :                   :         : 2         :                
@@ -674,7 +674,7 @@ GNDG_PLL1                    : P22       : gnd    :                   :         
 VCCA_PLL1                    : P23       : power  :                   : 1.5V    : 1         :                
 GNDA_PLL1                    : P24       : gnd    :                   :         : 1         :                
 GND+                         : P25       :        :                   :         : 2         :                
-test[17]                     : P26       : output : LVTTL             :         : 2         : N              
+RESERVED_INPUT               : P26       :        :                   :         : 2         :                
 GND+                         : P27       :        :                   :         : 2         :                
 GND                          : P28       : gnd    :                   :         : 1         :                
 GND                          : R1        : gnd    :                   :         : 1         :                
@@ -740,7 +740,7 @@ RESERVED_INPUT               : U4        :        :                   :         
 RESERVED_INPUT               : U5        :        :                   :         : 6         :                
 RESERVED_INPUT               : U6        :        :                   :         : 6         :                
 RESERVED_INPUT               : U7        :        :                   :         : 6         :                
-test[38]                     : U8        : output : LVTTL             :         : 6         : N              
+RESERVED_INPUT               : U8        :        :                   :         : 6         :                
 RESERVED_INPUT               : U9        :        :                   :         : 6         :                
 RESERVED_INPUT               : U10       :        :                   :         : 6         :                
 VCCINT                       : U11       : power  :                   : 1.5V    :           :                
@@ -771,14 +771,14 @@ RESERVED_INPUT               : V7        :        :                   :         
 RESERVED_INPUT               : V8        :        :                   :         : 6         :                
 RESERVED_INPUT               : V9        :        :                   :         : 6         :                
 RESERVED_INPUT               : V10       :        :                   :         : 6         :                
-test[36]                     : V11       : output : LVTTL             :         : 7         : N              
+RESERVED_INPUT               : V11       :        :                   :         : 7         :                
 VCCINT                       : V12       : power  :                   : 1.5V    :           :                
 GND                          : V13       : gnd    :                   :         : 1         :                
 GND                          : V14       : gnd    :                   :         : 1         :                
 GND                          : V15       : gnd    :                   :         : 1         :                
 VCCINT                       : V16       : power  :                   : 1.5V    :           :                
 GND                          : V17       : gnd    :                   :         : 1         :                
-test[26]                     : V18       : output : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : V18       :        :                   :         : 8         :                
 RESERVED_INPUT               : V19       :        :                   :         : 1         :                
 RESERVED_INPUT               : V20       :        :                   :         : 1         :                
 RESERVED_INPUT               : V21       :        :                   :         : 1         :                
@@ -800,13 +800,13 @@ RESERVED_INPUT               : W8        :        :                   :         
 GND                          : W9        :        :                   :         : 6         :                
 RESERVED_INPUT               : W10       :        :                   :         : 7         :                
 RESERVED_INPUT               : W11       :        :                   :         : 7         :                
-RESERVED_INPUT               : W12       :        :                   :         : 7         :                
+test[38]                     : W12       : output : LVTTL             :         : 7         : N              
 GND+                         : W13       :        :                   :         : 7         :                
-test[16]                     : W14       : output : LVTTL             :         : 11        : N              
+RESERVED_INPUT               : W14       :        :                   :         : 11        :                
 RESERVED_INPUT               : W15       :        :                   :         : 11        :                
-test[18]                     : W16       : output : LVTTL             :         : 12        : N              
+RESERVED_INPUT               : W16       :        :                   :         : 12        :                
 MSEL1                        : W17       :        :                   :         : 8         :                
-test[14]                     : W18       : output : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : W18       :        :                   :         : 8         :                
 RESERVED_INPUT               : W19       :        :                   :         : 8         :                
 GND                          : W20       :        :                   :         : 1         :                
 RESERVED_INPUT               : W21       :        :                   :         : 1         :                
@@ -832,9 +832,9 @@ nIO_PULLUP                   : Y12       :        :                   :         
 RESERVED_INPUT               : Y13       :        :                   :         : 7         :                
 VCCIO7                       : Y14       : power  :                   : 3.3V    : 7         :                
 VCCIO8                       : Y15       : power  :                   : 3.3V    : 8         :                
-test[24]                     : Y16       : output : LVTTL             :         : 12        : N              
-test[32]                     : Y17       : output : LVTTL             :         : 8         : N              
-test[31]                     : Y18       : output : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : Y16       :        :                   :         : 12        :                
+RESERVED_INPUT               : Y17       :        :                   :         : 8         :                
+RESERVED_INPUT               : Y18       :        :                   :         : 8         :                
 RESERVED_INPUT               : Y19       :        :                   :         : 8         :                
 RESERVED_INPUT               : Y20       :        :                   :         : 8         :                
 RESERVED_INPUT               : Y21       :        :                   :         : 1         :                
