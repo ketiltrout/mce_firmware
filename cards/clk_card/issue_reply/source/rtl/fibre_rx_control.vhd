@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_control.vhd,v 1.1 2004/10/05 12:23:05 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_control.vhd,v 1.2 2004/10/11 13:32:22 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -34,7 +34,7 @@
 -- Revision history:
 -- 22nd February 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/10/05 12:23:05 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/10/11 13:32:22 $>	-		<text>		- <initials $Author: dca $>
 --
 
 library ieee;
@@ -64,9 +64,9 @@ architecture rtl of fibre_rx_control is
 begin
 
 
-
-   rx_fw_o <= not(nRx_rdy_i) and not(rsc_nRd_i) and not(rvs_i) and not(rx_ff_i)
-              and rso_i;
+   rx_fw_o <= not(nRx_rdy_i) ;
+   
+   --and not(rsc_nRd_i) and not(rvs_i) and not(rx_ff_i) and rso_i;
 
 
 end rtl;
