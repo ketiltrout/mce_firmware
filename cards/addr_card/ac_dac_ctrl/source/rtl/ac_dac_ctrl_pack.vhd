@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_pack.vhd,v 1.5 2004/11/18 05:21:56 bburger Exp $
+-- $Id: ac_dac_ctrl_pack.vhd,v 1.6 2004/11/20 01:20:44 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.6  2004/11/20 01:20:44  bburger
+-- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
+--
 -- Revision 1.5  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -88,7 +91,6 @@ component ac_dac_ctrl is
       
       -- Global Signals      
       clk_i                   : in std_logic;
-      mem_clk_i               : in std_logic;
       rst_i                   : in std_logic     
    );     
 end component;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_wbs_pack.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
+-- $Id: ac_dac_ctrl_wbs_pack.vhd,v 1.2 2004/12/21 22:06:51 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_wbs_pack.vhd,v $
+-- Revision 1.2  2004/12/21 22:06:51  bburger
+-- Bryce:  update
+--
 -- Revision 1.1  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -64,7 +67,6 @@ component ac_dac_ctrl_wbs is
 
       -- global interface
       clk_i          : in std_logic;
-      mem_clk_i      : in std_logic;
       rst_i          : in std_logic; 
       
       -- wishbone interface:
@@ -78,18 +80,6 @@ component ac_dac_ctrl_wbs is
       ack_o          : out std_logic
    );     
 end component;
-
---component dpram_32bit_x_64 is
---   port
---   (
---      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
---      wren     : IN STD_LOGIC  := '1';
---      wraddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
---      rdaddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
---      clock    : IN STD_LOGIC ;
---      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
---   );
---end component;
 
 component tpram_32bit_x_64 is
    PORT
