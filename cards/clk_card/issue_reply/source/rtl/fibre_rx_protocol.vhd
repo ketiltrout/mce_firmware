@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.11 2004/09/29 15:05:36 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.1 2004/10/05 12:22:52 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -67,13 +67,15 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/09/29 15:05:36 $>	-		<text>		- <initials $Author: dca $>
+-- <date $Date: 2004/10/05 12:22:52 $>	-		<text>		- <initials $Author: dca $>
 --
 -- Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+--use ieee.numeric_std.all;
 
 library work;
 use work.issue_reply_pack.all;
@@ -89,11 +91,11 @@ entity fibre_rx_protocol is
       rxd_i       : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);   -- receive data byte 
       cmd_ack_i   : in     std_logic;                                          -- command acknowledge
 
-      cmd_code_o  : out    std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);   -- command code  
-      card_id_o   : out    std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- card id
-      param_id_o  : out    std_logic_vector (PAR_ID_BUS_WIDTH-1  downto 0);    -- parameter id
-      num_data_o  : out    std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- number of valid 32-bit data words
-      cmd_data_o  : out    std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- 32-bit valid data word
+      cmd_code_o  : out    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);   -- command code  
+      card_id_o   : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
+      param_id_o  : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1  downto 0);    -- parameter id
+      num_data_o  : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- number of valid 32-bit data words
+      cmd_data_o  : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- 32-bit valid data word
       cksum_err_o : out    std_logic;                                          -- checksum error flag
       cmd_rdy_o   : out    std_logic;                                          -- command ready flag (checksum passed)
       data_clk_o  : out    std_logic;                                          -- data clock
@@ -195,8 +197,8 @@ signal next_state        : std_logic_vector(5 downto 0);
 
 
 -- Architecture Declarations
-constant preamble1       : std_logic_vector(7 downto 0) := X"A5";
-constant preamble2       : std_logic_vector(7 downto 0) := X"5A";
+--constant preamble1       : std_logic_vector(7 downto 0) := X"A5";
+--constant preamble2       : std_logic_vector(7 downto 0) := X"5A";
 
 -- internal architecture signals 
 
@@ -215,11 +217,11 @@ signal cksum_calc_reg     : std_logic_vector(31 downto 0);
 
 -- signals mapped to output ports
 
-signal cmd_code          : std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);   -- command code  
-signal card_id           : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- card id
-signal param_id          : std_logic_vector (PAR_ID_BUS_WIDTH-1  downto 0);    -- parameter id
-signal num_data          : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- number of valid 32-bit data words
-signal cmd_data          : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- 32-bit valid data word
+signal cmd_code          : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);   -- command code  
+signal card_id           : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
+signal param_id          : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1  downto 0);    -- parameter id
+signal num_data          : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- number of valid 32-bit data words
+signal cmd_data          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- 32-bit valid data word
 signal cksum_err         : std_logic;                                          -- checksum error flag
 signal cmd_rdy           : std_logic;                                          -- command ready flag (checksum passed)
 signal data_clk          : std_logic;                                          -- data clock
@@ -227,16 +229,16 @@ signal rx_fr             : std_logic;	                                         -
 
 -- mux outputs used to register command bytes
 
-signal cmd_code_mux      : std_logic_vector (CMD_CODE_BUS_WIDTH-1 downto 0);   -- command code  
-signal card_id_mux       : std_logic_vector (CARD_ADDR_BUS_WIDTH-1 downto 0);  -- card id
-signal param_id_mux      : std_logic_vector (PAR_ID_BUS_WIDTH-1  downto 0);    -- parameter id
-signal num_data_mux      : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);  -- number of valid 32-bit data words
+signal cmd_code_mux      : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);   -- command code  
+signal card_id_mux       : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
+signal param_id_mux      : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1  downto 0);    -- parameter id
+signal num_data_mux      : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- number of valid 32-bit data words
 
 
 signal cksum_in_mux      : std_logic_vector(31 downto 0);                      -- checksum in value to be registered 
 signal cksum_rcvd_mux    : std_logic_vector(31 downto 0);                      -- checksum rcvd value to be registered
-signal data_in_mux       : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data word to be registered in memory buffer
-signal cmd_data_mux      : std_logic_vector (DATA_BUS_WIDTH-1 downto 0);       -- data word to be registered at output
+signal data_in_mux       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data word to be registered in memory buffer
+signal cmd_data_mux      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data word to be registered at output
 
 
 
@@ -255,8 +257,8 @@ signal read_pointer      : mem_deep;
 constant block_size      : mem_deep := 58;                                    -- total number of data words in a write_block
 
 signal number_data       : integer;                                           -- this will be a value between 1 and 58
-signal data_in           : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);       -- current data word written to memory 
-signal data_out          : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);       -- current data word read from memory
+signal data_in           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);       -- current data word written to memory 
+signal data_out          : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);       -- current data word read from memory
 signal write_mem         : std_logic;                                         -- write current data word to memory
 signal read_mem          : std_logic;                                         -- read current data word from memory
 signal reset_mem         : std_logic; 
@@ -361,7 +363,8 @@ begin
 -- concurrent statement - integer value of number of data.
 
 
-  number_data <= To_integer(Unsigned(num_data(7 downto 0)));
+  number_data <= conv_integer(num_data(7 downto 0));
+--  number_data <= To_integer(Unsigned(num_data(7 downto 0)));
    
    
 
@@ -432,7 +435,7 @@ begin
 
 
       when CK_PRE0 =>
-         if (rxd_i(7 downto 0) /= preamble1) then
+         if (rxd_i(7 downto 0) /= FIBRE_PREAMBLE1) then
             next_state <= IDLE;
          else
             if (rx_fe_i = '0') then
@@ -443,7 +446,7 @@ begin
          end if;
          
       when CK_PRE1 =>
-         if (rxd_i(7 downto 0) /= preamble1) then
+         if (rxd_i(7 downto 0) /= FIBRE_PREAMBLE1) then
             next_state <= IDLE;
          else
             if (rx_fe_i = '0') then
@@ -454,7 +457,7 @@ begin
          end if;
          
       when CK_PRE2 =>
-         if (rxd_i(7 downto 0) /= preamble1) then
+         if (rxd_i(7 downto 0) /= FIBRE_PREAMBLE1) then
             next_state <= IDLE;
          else
             if (rx_fe_i = '0') then
@@ -465,7 +468,7 @@ begin
          end if;
          
       when CK_PRE3 =>
-         if (rxd_i(7 downto 0) /= preamble1) then
+         if (rxd_i(7 downto 0) /= FIBRE_PREAMBLE1) then
             next_state <= IDLE;
          else
             if (rx_fe_i = '0') then
@@ -476,7 +479,7 @@ begin
          end if;
          
       when CK_PRE4 =>
-         if (rxd_i(7 downto 0) /= preamble2) then
+         if (rxd_i(7 downto 0) /= FIBRE_PREAMBLE2) then
             next_state <= IDLE;
          else
             if (rx_fe_i = '0') then
@@ -487,7 +490,7 @@ begin
          end if;
 
       when CK_PRE5 =>
-         if (rxd_i(7 downto 0) /= preamble2) then
+         if (rxd_i(7 downto 0) /= FIBRE_PREAMBLE2) then
             next_state <= IDLE;
          else
             if (rx_fe_i = '0') then
@@ -498,7 +501,7 @@ begin
          end if;
 
       when CK_PRE6 =>
-         if (rxd_i(7 downto 0) /= preamble2) then
+         if (rxd_i(7 downto 0) /= FIBRE_PREAMBLE2) then
             next_state <= IDLE;
          else
             if (rx_fe_i = '0') then
@@ -509,7 +512,7 @@ begin
          end if;
          
       when CK_PRE7 =>
-         if (rxd_i(7 downto 0) /= preamble2) then
+         if (rxd_i(7 downto 0) /= FIBRE_PREAMBLE2) then
             next_state <= IDLE;
          else
             if (rx_fe_i = '0') then
