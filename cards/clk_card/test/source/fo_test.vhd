@@ -32,8 +32,11 @@
 -- on the scope on the receiver side.
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/06/10 16:52:14 $>	- <initials $Author: mandana $>
+-- $Log: fo_test.vhd,v $
+-- Revision 1.1  2004/06/10 16:52:14  mandana
+-- initial release: stand-alone fibre test
+--
 -----------------------------------------------------------------------------
 
 library ieee, sys_param, components, work;
@@ -76,7 +79,7 @@ entity fo_test is
       dip_sw3      : in std_logic;
       
       --test pins
-      test : out std_logic_vector(38 downto 11));
+      mictor : out std_logic_vector(12 downto 1));
 end fo_test;
                      
 architecture rtl of fo_test is
@@ -108,16 +111,21 @@ begin
 --  fibre_rx_nbist <= '1';
  -- fibre_rx_rf  <= '1';
   fibre_tx_sc_nd <= '0';
-  test(19) <= '1'; --fibre_tx_nbist;
-  test(20) <= '1'; -- fibre_rx_nbist;
-  test(22) <= '1';
-  test(24) <= fibre_rx_rdy;
-  test(11) <= '1';
-  test(12) <= '1';
-  test(25) <= '1';
-  test(26) <= '1';
+--  test(19) <= '1'; --fibre_tx_nbist;
+--  test(20) <= '1'; -- fibre_rx_nbist;
+--  test(22) <= '1';
+--  test(24) <= fibre_rx_rdy;
+--  test(11) <= '1';
+--  test(12) <= '1';
+--  test(25) <= '1';
+--  test(26) <= '1';
 
-  
+   mictor(8 downto 1) <= fibre_rx_data;
+   mictor(9) <=  fibre_rx_rdy;
+   mictor(10) <= fibre_rx_status;
+   mictor(11) <= fibre_rx_sc_nd;
+   mictor(12) <= fibre_rx_rvs;
+
    state_FF: process(inclk, n_rst)
    begin
       if(n_rst = '1') then 
