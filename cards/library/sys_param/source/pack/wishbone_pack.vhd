@@ -17,7 +17,7 @@ package wishbone_pack is
    constant DIP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001100"; -- 0x4C
    constant WATCHDOG_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001101"; -- 0x4D
    constant SRAM_VERIFY_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01010000"; -- 0x50
-   constant SRAM_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01010001"; -- 0x51
+   constant SRAM_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01010110"; -- 0x56
 
     
 -- OBSOLETE from here....
