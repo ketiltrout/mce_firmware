@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.2  2004/10/25 18:02:15  anthonyk
+-- Changed input port name num_rows_sub1 to num_rows_sub1_i
+--
 -- Revision 1.1  2004/10/22 22:18:36  anthonyk
 -- Initial release
 --
@@ -61,13 +64,14 @@ use sys_param.wishbone_pack.all;
 
 entity fsfb_calc is
    generic (
-      start_val                 : integer := FSFB_QUEUE_INIT_VAL                                -- value read from the queue when initialize_window_i is asserted
+      start_val                 : integer := FSFB_QUEUE_INIT_VAL;                               -- value read from the queue when initialize_window_i is asserted
+      lock_dat_left             : integer := MOST_SIG_LOCK_POS                                  -- most significant bit position of lock mode data output
       );
 
    port ( 
       -- global signals
       rst_i                     : in     std_logic;                                             -- global reset
-      clk_50_i                  : in     std_logic;                                             -- gobal clock
+      clk_50_i                  : in     std_logic;                                             -- global clock
        
       -- control/interface signals from upstream coadd block
       coadd_done_i              : in     std_logic;                                             -- done signal issued by coadd block to indicate coadd data valid (one-clk period pulse)
@@ -109,7 +113,11 @@ entity fsfb_calc is
             
       -- first stage feedback queue (dedicated first stage feedback control interface)
       fsfb_ctrl_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue previous data ready
-      fsfb_ctrl_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)     -- fs feedback queue previous data
+      fsfb_ctrl_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data
+      
+      -- first stage feedback control lock data mode
+      fsfb_ctrl_lock_en_o       : out    std_logic                                              -- control lock data mode enable
+      
   );
 
 end fsfb_calc;
@@ -196,6 +204,9 @@ begin
    -- first stage feedback processor block
    -- this block contains the ALU circuitry including multipliers and adders
    i_fsfb_processor : fsfb_processor
+      generic map (
+         lock_dat_left                => lock_dat_left
+      )
       port map (
          rst_i                        => rst_i,
          clk_50_i                     => clk_50_i,
@@ -216,7 +227,8 @@ begin
          d_dat_i                      => d_dat_i,
          z_dat_i                      => z_dat_i,
          fsfb_proc_update_o           => fsfb_proc_update_o,
-         fsfb_proc_dat_o              => fsfb_proc_dat_o     
+         fsfb_proc_dat_o              => fsfb_proc_dat_o,
+         fsfb_proc_lock_en_o          => fsfb_ctrl_lock_en_o
       ); 
      
      
