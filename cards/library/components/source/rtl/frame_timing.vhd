@@ -1,75 +1,37 @@
 -- Copyright (c) 2003 SCUBA-2 Project
 --                  All Rights Reserved
-
+--
 --  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
 --  The copyright notice above does not evidence any
 --  actual or intended publication of such source code.
-
+--
 --  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
 --  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
 --  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
 --  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
 --  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
-
+--
 -- For the purposes of this code the SCUBA-2 Project consists of the
 -- following organisations.
-
+--
 -- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
-
--- frame_timing.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing.vhd,v 1.14 2004/10/26 22:25:20 bburger Exp $>
+-- $Id$
 --
--- Project:     SCUBA-2
--- Author:      Bryce Burger
+-- Project:       SCUBA2
+-- Author:        Bryce Burger
 -- Organisation:  UBC
 --
 -- Description:
 -- This implements the frame synchronization block for the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/10/26 22:25:20 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/26 22:50:27 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing.vhd,v $
--- Revision 1.14  2004/10/26 22:25:20  bburger
--- Bryce:  dac_dat_en, adc_coadd_en and row_switch are not asserted while the frame_timing block is waiting to resync itself after a hard reset
---
--- Revision 1.13  2004/10/26 18:59:39  bburger
--- Bryce:  More signals
---
--- Revision 1.12  2004/10/23 02:28:48  bburger
--- Bryce:  Work out a couple of bugs to do with the initialization window
---
--- Revision 1.11  2004/10/22 01:55:31  bburger
--- Bryce:  adding timing signals for RC flux_loop
---
--- Revision 1.10  2004/08/20 23:59:00  bburger
--- Bryce:  now expects sync pulses on the last clock cycle in a frame, and restarts clk_count on the next cycle in a frame
---
--- Revision 1.9  2004/07/21 22:30:15  erniel
--- updated counter component
---
--- Revision 1.8  2004/05/18 17:06:42  mandana
--- fixed synthesis errors
---
--- Revision 1.7  2004/05/17 22:33:06  mandana
--- changed counter output to integer
---
--- Revision 1.6  2004/04/16 23:30:21  mandana
--- fixed frame_rst
---
--- Revision 1.5  2004/04/16 21:58:05  bburger
--- bug fixes
---
--- Revision 1.4  2004/04/16 00:41:44  bburger
--- renamed some signals
---
--- Revision 1.3  2004/04/14 00:25:37  mandana
--- cleaned up extra signals
---
--- Revision 1.2  2004/04/03 01:05:37  bburger
--- Added a rst_on_next_sync_pulse register so that the master block doesn't have to assert that signal during the receipt of a sync, but anytime before
+-- Revision 1.15  2004/10/26 22:50:27  bburger
+-- Bryce
 --
 -- Revision 1.1  2004/04/02 01:13:13  bburger
 -- New
@@ -100,6 +62,7 @@ entity frame_timing is
       sample_num_i               : in integer;
       sample_delay_i             : in integer;
       feedback_delay_i           : in integer;
+      address_on_delay_i         : in integer;
          
       update_bias_o              : out std_logic;
       dac_dat_en_o               : out std_logic;
@@ -108,13 +71,16 @@ entity frame_timing is
       restart_frame_aligned_o    : out std_logic; 
       restart_frame_1row_post_o  : out std_logic;
       row_switch_o               : out std_logic;
+      row_en_o                   : out std_logic;
       initialize_window_o        : out std_logic
    );
 end frame_timing;
 
 architecture beh of frame_timing is
    
+   constant ONE_CYCLE_LATENCY : integer := 1;
    constant TWO_CYCLE_LATENCY : integer := 2;
+   
    signal clk_error           : std_logic_vector(31 downto 0);
    signal counter_rst         : std_logic;
    signal count               : std_logic_vector(31 downto 0);
@@ -195,7 +161,8 @@ architecture beh of frame_timing is
    row_switch_o               <= '1' when row_count_int = MUX_LINE_PERIOD-1 and current_state /= WAIT_FRM_RST else '0';
    dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i and current_state /= WAIT_FRM_RST else '0';
    adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - TWO_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
-   
+   row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
+      
    init_win_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then

@@ -1,6 +1,39 @@
+-- 2003 SCUBA-2 Project
+--                  All Rights Reserved
+--
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+--  The copyright notice above does not evidence any
+--  actual or intended publication of such source code.
+--
+--  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+--  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+--  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+--  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+--  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+--
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+--
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+--
+-- $Id$
+--
+-- Project:       SCUBA2
+-- Author:        Bryce Burger
+-- Organisation:  UBC
+--
+-- Description:
+-- Wishbone interface for a 14-bit 165MS/s DAC (AD9744) controller
+-- This block was written to be coupled with wbs_ac_dac_ctrl
+--
+-- Revision history:
+-- $Log$
+--
+-----------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
---use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library components;
@@ -17,25 +50,26 @@ entity wbs_ac_dac_ctrl is
    port
    (
       -- ac_dac_ctrl interface:
-      on_off_addr_i        : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-      on_data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      off_data_o           : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
-      mux_en_o             : out std_logic;
+      on_off_addr_i  : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+      dac_id_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      on_data_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      off_data_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
+      mux_en_o       : out std_logic;
 
       -- global interface
-      clk_i                : in std_logic;
-      mem_clk_i            : in std_logic;
-      rst_i                : in std_logic; 
+      clk_i          : in std_logic;
+      mem_clk_i      : in std_logic;
+      rst_i          : in std_logic; 
       
       -- wishbone interface:
-      dat_i                : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i               : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i                : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                 : in std_logic;
-      stb_i                : in std_logic;
-      cyc_i                : in std_logic;
-      dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                : out std_logic
+      dat_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i         : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i          : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i           : in std_logic;
+      stb_i          : in std_logic;
+      cyc_i          : in std_logic;
+      dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o          : out std_logic
    );     
 end wbs_ac_dac_ctrl;
 
@@ -94,6 +128,7 @@ begin
          qb                => off_data
       );
       
+   dac_id_o <= logical_addr;
    row_order_ram : tpram_32bit_x_64
       port map
       (
@@ -130,18 +165,26 @@ begin
    begin
       if(rst_i = '1') then
          current_state     <= IDLE;
-         raw_addr_counter  <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          current_state     <= next_state;
-         
-         if(current_state = IDLE) then
-            raw_addr_counter <= (others => '0');
-         elsif(stb_i = '1') then
-            raw_addr_counter <= raw_addr_counter + 1;
-         end if;
       end if;
    end process state_FF;
-
+   
+   process(clk_i)
+   begin
+      if(clk_i'event and clk_i = '1') then      
+         case current_state is         
+            when IDLE  =>                   
+               raw_addr_counter <= (others => '0');
+            when WR =>     
+               raw_addr_counter <= raw_addr_counter + 1;
+            when RD =>
+               raw_addr_counter <= raw_addr_counter + 1;
+            when others =>
+         end case;
+      end if;
+   end process;   
+           
    -- Transition table for DAC controller
    state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
    begin
@@ -153,7 +196,7 @@ begin
             if(wr_cmd = '1') then
                next_state <= WR;            
             elsif(rd_cmd = '1') then
-              next_state <= RD;
+               next_state <= RD;
             end if;                  
             
          when WR =>     
@@ -173,7 +216,7 @@ begin
    end process state_NS;
    
    -- Output states for DAC controller   
-   state_out: process(current_state, next_state, stb_i, addr_i)
+   state_out: process(current_state, stb_i, addr_i)
    begin
       -- Default assignments
       on_val_wren    <= '0';
@@ -182,46 +225,26 @@ begin
       row_order_wren <= '0';
       ack_o          <= '0';
       
-      case current_state is
-         
+      case current_state is         
          when IDLE  =>                   
-            if(next_state = WR) then
-               ack_o <= '1';
-               if(stb_i = '1') then
-                  if(addr_i = ON_BIAS_ADDR) then
-                     on_val_wren <= '1';
-                  elsif(addr_i = OFF_BIAS_ADDR) then
-                     off_val_wren <= '1';
-                  elsif(addr_i = STRT_MUX_ADDR) then
-                     mux_en_wren <= '1';
-                  elsif(addr_i = ROW_ORDER_ADDR) then
-                     row_order_wren <= '1';
-                  end if;
-               end if;
-            elsif(next_state = RD) then
-               ack_o <= '1';
-            end if;
+            ack_o <= '0';
             
          when WR =>
-            if(next_state = WR) then
-               ack_o <= '1';
-               if(stb_i = '1') then
-                  if(addr_i = ON_BIAS_ADDR) then
-                     on_val_wren <= '1';
-                  elsif(addr_i = OFF_BIAS_ADDR) then
-                     off_val_wren <= '1';
-                  elsif(addr_i = STRT_MUX_ADDR) then
-                     mux_en_wren <= '1';
-                  elsif(addr_i = ROW_ORDER_ADDR) then
-                     row_order_wren <= '1';
-                  end if;
+            ack_o <= '1';
+            if(stb_i = '1') then
+               if(addr_i = ON_BIAS_ADDR) then
+                  on_val_wren <= '1';
+               elsif(addr_i = OFF_BIAS_ADDR) then
+                  off_val_wren <= '1';
+               elsif(addr_i = STRT_MUX_ADDR) then
+                  mux_en_wren <= '1';
+               elsif(addr_i = ROW_ORDER_ADDR) then
+                  row_order_wren <= '1';
                end if;
             end if;
          
          when RD =>
-            if(next_state = RD) then
-               ack_o <= '1';
-            end if;
+            ack_o <= '1';
          
          when others =>
          

@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.14 2004/10/23 02:28:48 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.15 2004/10/26 18:59:24 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2004/10/23 02:28:48 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/26 18:59:24 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.15  2004/10/26 18:59:24  bburger
+-- Bryce:  More signals
+--
 -- Revision 1.14  2004/10/23 02:28:48  bburger
 -- Bryce:  Work out a couple of bugs to do with the initialization window
 --
@@ -102,12 +105,8 @@ package frame_timing_pack is
 
    constant MUX_LINE_PERIOD        : integer := 64; -- 64 50MHz cycles
    constant NUM_OF_ROWS            : integer := 41;
-   constant END_OF_FRAME           : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-1; --(41*MUX_LINE_PERIOD);
+   constant END_OF_FRAME           : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-1;
    
-   -- Timing constants for the Readout Card
-   constant END_OF_FRAME_1ROW_PREV : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-MUX_LINE_PERIOD-1;
-   constant END_OF_FRAME_1ROW_POST : integer := MUX_LINE_PERIOD-1;
-
    ------------------------------------------------------------------------------------
    -- Clock Card frame structure
 
@@ -136,48 +135,54 @@ package frame_timing_pack is
    constant RETIRE_TIMEOUT    : integer := END_OF_FRAME;
 
    ------------------------------------------------------------------------------------
+   -- Timing constants for the Readout Card
+   constant END_OF_FRAME_1ROW_PREV : integer := (NUM_OF_ROWS*MUX_LINE_PERIOD)-MUX_LINE_PERIOD-1;
+   constant END_OF_FRAME_1ROW_POST : integer := MUX_LINE_PERIOD-1;
+
+   ------------------------------------------------------------------------------------
    -- Bias Card begins updating its bias values on the second clock cycle of a frame
    constant UPDATE_BIAS : integer := 2;
    
    ------------------------------------------------------------------------------------
-   -- Address Card frame structure
-   constant SEL_ROW : int_array41:= (
-    0*MUX_LINE_PERIOD, 1*MUX_LINE_PERIOD, 2*MUX_LINE_PERIOD, 3*MUX_LINE_PERIOD, 4*MUX_LINE_PERIOD,
-    5*MUX_LINE_PERIOD, 6*MUX_LINE_PERIOD, 7*MUX_LINE_PERIOD, 8*MUX_LINE_PERIOD, 9*MUX_LINE_PERIOD,
-   10*MUX_LINE_PERIOD,11*MUX_LINE_PERIOD,12*MUX_LINE_PERIOD,13*MUX_LINE_PERIOD,14*MUX_LINE_PERIOD,
-   15*MUX_LINE_PERIOD,16*MUX_LINE_PERIOD,17*MUX_LINE_PERIOD,18*MUX_LINE_PERIOD,19*MUX_LINE_PERIOD,
-   20*MUX_LINE_PERIOD,21*MUX_LINE_PERIOD,22*MUX_LINE_PERIOD,23*MUX_LINE_PERIOD,24*MUX_LINE_PERIOD,
-   25*MUX_LINE_PERIOD,26*MUX_LINE_PERIOD,27*MUX_LINE_PERIOD,28*MUX_LINE_PERIOD,29*MUX_LINE_PERIOD,
-   30*MUX_LINE_PERIOD,31*MUX_LINE_PERIOD,32*MUX_LINE_PERIOD,33*MUX_LINE_PERIOD,34*MUX_LINE_PERIOD,
-   35*MUX_LINE_PERIOD,36*MUX_LINE_PERIOD,37*MUX_LINE_PERIOD,38*MUX_LINE_PERIOD,39*MUX_LINE_PERIOD,
-   40*MUX_LINE_PERIOD);
-    
+--   -- Address Card frame structure
+--   constant SEL_ROW : int_array41:= (
+--    0*MUX_LINE_PERIOD, 1*MUX_LINE_PERIOD, 2*MUX_LINE_PERIOD, 3*MUX_LINE_PERIOD, 4*MUX_LINE_PERIOD,
+--    5*MUX_LINE_PERIOD, 6*MUX_LINE_PERIOD, 7*MUX_LINE_PERIOD, 8*MUX_LINE_PERIOD, 9*MUX_LINE_PERIOD,
+--   10*MUX_LINE_PERIOD,11*MUX_LINE_PERIOD,12*MUX_LINE_PERIOD,13*MUX_LINE_PERIOD,14*MUX_LINE_PERIOD,
+--   15*MUX_LINE_PERIOD,16*MUX_LINE_PERIOD,17*MUX_LINE_PERIOD,18*MUX_LINE_PERIOD,19*MUX_LINE_PERIOD,
+--   20*MUX_LINE_PERIOD,21*MUX_LINE_PERIOD,22*MUX_LINE_PERIOD,23*MUX_LINE_PERIOD,24*MUX_LINE_PERIOD,
+--   25*MUX_LINE_PERIOD,26*MUX_LINE_PERIOD,27*MUX_LINE_PERIOD,28*MUX_LINE_PERIOD,29*MUX_LINE_PERIOD,
+--   30*MUX_LINE_PERIOD,31*MUX_LINE_PERIOD,32*MUX_LINE_PERIOD,33*MUX_LINE_PERIOD,34*MUX_LINE_PERIOD,
+--   35*MUX_LINE_PERIOD,36*MUX_LINE_PERIOD,37*MUX_LINE_PERIOD,38*MUX_LINE_PERIOD,39*MUX_LINE_PERIOD,
+--   40*MUX_LINE_PERIOD);
+--    
    ------------------------------------------------------------------------------------
    -- Frame Timing Interface
 
    component frame_timing is
    port(
-         clk_i                      : in std_logic;
-         rst_i                      : in std_logic;
-         sync_i                     : in std_logic;
-         frame_rst_i                : in std_logic;
-         init_window_req_i          : in std_logic;
-
-         sample_num_i               : in integer;
-         sample_delay_i             : in integer;
-         feedback_delay_i           : in integer;
-
-         update_bias_o              : out std_logic;
-         dac_dat_en_o               : out std_logic;
-         adc_coadd_en_o             : out std_logic;
-         restart_frame_1row_prev_o  : out std_logic;
-         restart_frame_aligned_o    : out std_logic;
-         restart_frame_1row_post_o  : out std_logic;
-         row_switch_o               : out std_logic;
-         initialize_window_o        : out std_logic
+      clk_i                      : in std_logic;
+      rst_i                      : in std_logic;
+      sync_i                     : in std_logic;
+      frame_rst_i                : in std_logic;
+      
+      -- Where does this signal come from?  Is it a re-sync request?  Or does it come from the flux_loop?
+      init_window_req_i          : in std_logic;
+      
+      sample_num_i               : in integer;
+      sample_delay_i             : in integer;
+      feedback_delay_i           : in integer;
+      address_on_delay_i         : in integer;
          
---         clk_count_o                : out integer;
---         clk_error_o                : out std_logic_vector(31 downto 0)
+      update_bias_o              : out std_logic;
+      dac_dat_en_o               : out std_logic;
+      adc_coadd_en_o             : out std_logic;
+      restart_frame_1row_prev_o  : out std_logic;
+      restart_frame_aligned_o    : out std_logic; 
+      restart_frame_1row_post_o  : out std_logic;
+      row_switch_o               : out std_logic;
+      row_en_o                   : out std_logic;
+      initialize_window_o        : out std_logic
       );
    end component;
 

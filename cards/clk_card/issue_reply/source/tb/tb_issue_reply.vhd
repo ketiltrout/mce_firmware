@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.16 2004/10/19 06:13:51 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.17 2004/10/29 23:09:22 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for the issue_reply chain
 --
 -- Revision history:
--- <date $Date: 2004/10/19 06:13:51 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/29 23:09:22 $> - <text> - <initials $Author: bburger $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -95,14 +95,16 @@ architecture tb of tb_issue_reply is
    constant command_st         : std_logic_vector(31 downto 0) := x"20205354";
    signal address_id           : std_logic_vector(31 downto 0) := X"00000000";--X"0002015C";
    
-   constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00000034";  -- card id=0, ret_dat_s command
    constant ret_dat_s_num_data : std_logic_vector(31 downto 0) := X"00000002";  -- 2 data words, start and stop frame #
    signal ret_dat_s_start      : std_logic_vector(31 downto 0) := X"00000003";
    signal ret_dat_s_stop       : std_logic_vector(31 downto 0) := X"00000011";   
-   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000D0030";  -- card id=4, ret_dat command
    constant ret_dat_num_data   : std_logic_vector(31 downto 0) := X"00000001";  -- 2 data words, start and stop frame #   
+   
+   constant ret_dat_cmd        : std_logic_vector(31 downto 0) := X"000D0030";  -- card id=4, ret_dat command
+   constant ret_dat_s_cmd      : std_logic_vector(31 downto 0) := X"00000034";  -- card id=0, ret_dat_s command
    constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00070020"; -- bias card 1, flux feedback command
    constant sram1_strt_cmd     : std_logic_vector(31 downto 0) := x"0002005C"; -- clock card, sram1_start command
+   constant on_bias_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD & x"00" & ON_BIAS_ADDR;
   
    constant no_std_data        : std_logic_vector(31 downto 0) := X"00000001";
    constant data_block         : positive := 58;
@@ -250,7 +252,17 @@ begin
       cyc_i         => W_CYC_O,
       dat_o         => W_DAT_I,
       ack_o         => W_ACK_I
-   );   
+   );
+   
+   i_frame_timing : frame_timing
+   port map
+   (
+   );
+   
+   i_ac_dac_ctrl : ac_dac_ctrl
+   port map
+   (
+   );
    
    -- set up hotlink receiver signals 
    t_rx_ack <= t_rx_rdy;
@@ -537,6 +549,7 @@ begin
       do_reset;    
       
       -- This is a 'WB cc sram1_start A B C' command
+      -- This command should not be parsed by the Address Card Wishbone Slave
       command <= command_wb;
       address_id <= sram1_strt_cmd;
       data_valid <= X"00000001";--X"00000028";
@@ -546,8 +559,58 @@ begin
       load_checksum;
       
       wait for 100 us;
+
+      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
+      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
+      command <= command_wb;
+      address_id <= on_bias_cmd;
+      data_valid <= X"00000029"; --41 values
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
       
-      -- This is a 'WB bc1 flux_fdbck 8' command x"00070020"
+      wait for 200 us;
+
+--      
+--      -- This sequence of two commands will be used to test the ability to stop the return of data frames in mid-sequence
+--      ret_dat_s_start <= x"00000003";
+--      ret_dat_s_stop  <= x"00000008";
+--      
+--      command <= command_wb;
+--      address_id <= ret_dat_s_cmd;
+--      data_valid <= ret_dat_s_num_data;
+--      data <= ret_dat_s_start; -- start is 0x2, end is 0x8
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_go;
+--      address_id <= ret_dat_cmd;
+--      data_valid <= ret_dat_num_data;
+--      data <= (others=>'1');
+--      load_preamble;
+--      load_command;
+--      load_checksum;    
+--      
+--      wait for 1 us;  
+--
+--      -- This stop command seems to cause problems if it occurs after the ret_dat commands have already been issued to the cmd_queue
+--      -- It currently doesn't work because the cmd_queue fills up faster than the the stop command can be processed.
+----      command <= command_st;
+----      address_id <= ret_dat_cmd;
+----      data_valid <= ret_dat_num_data;
+----      data <= (others=>'0');
+----      load_preamble;
+----      load_command;
+----      load_checksum;    
+--      
+--      wait for 10*55 us;  
+-----------------------------------------------------------------
+
+--        -- This is a 'WB bc1 flux_fdbck 8' command x"00070020"
 --      command <= command_wb;
 --      
 --      address_id <= flux_fdbck_cmd;
@@ -592,42 +655,7 @@ begin
 --      
 --      wait for 8*55 us;  
       
-      -- This sequence of two commands will be used to test the ability to stop the return of data frames in mid-sequence
-      ret_dat_s_start <= x"00000003";
-      ret_dat_s_stop  <= x"00000008";
-      
-      command <= command_wb;
-      address_id <= ret_dat_s_cmd;
-      data_valid <= ret_dat_s_num_data;
-      data <= ret_dat_s_start; -- start is 0x2, end is 0x8
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
 
-      command <= command_go;
-      address_id <= ret_dat_cmd;
-      data_valid <= ret_dat_num_data;
-      data <= (others=>'1');
-      load_preamble;
-      load_command;
-      load_checksum;    
-      
-      wait for 1 us;  
-
-      -- This stop command seems to cause problems if it occurs after the ret_dat commands have already been issued to the cmd_queue
-      -- It currently doesn't work because the cmd_queue fills up faster than the the stop command can be processed.
-      --command <= command_st;
-      --address_id <= ret_dat_cmd;
-      --data_valid <= ret_dat_num_data;
-      --data <= (others=>'0');
-      --load_preamble;
-      --load_command;
-      --load_checksum;    
-      
-      wait for 10*55 us;  
-      
 --      --wait until cmd_rdy = '1';
 --      --wait for clk_prd;
 --      wait until t_macro_instr_rdy_o = '1';

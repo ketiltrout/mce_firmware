@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.60 2004/10/22 01:54:38 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.61 2004/10/26 23:59:16 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,29 +30,8 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
--- Revision 1.60  2004/10/22 01:54:38  bburger
--- Bryce:  fixed bugs
---
--- Revision 1.59  2004/10/19 06:13:51  bburger
--- Bryce:  reply_queue development and simulation
---
--- Revision 1.58  2004/10/15 01:47:48  bburger
--- Bryce:  working on the retire functionality
---
--- Revision 1.57  2004/10/14 00:38:43  bburger
--- Bryce:  cleaning up un-used signals
---
--- Revision 1.56  2004/10/08 19:45:26  bburger
--- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
---
--- Revision 1.55  2004/09/30 21:59:40  erniel
--- using new command_pack constants
---
--- Revision 1.54  2004/09/25 01:23:49  bburger
--- Bryce:  Added command-code, last-frame and stop-frame interfaces
---
--- Revision 1.53  2004/09/10 01:21:01  bburger
--- Bryce:  Hardware testing, bug fixing
+-- Revision 1.61  2004/10/26 23:59:16  bburger
+-- Bryce:  working out the bugs from the cmd_queue<->reply_queue interface
 --
 -- Revision 1.1  2004/05/11 02:17:31  bburger
 -- new
