@@ -21,8 +21,8 @@
 --
 -- lvds_tx.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.3  2004/08/09 22:17:54  erniel
+-- fixed inverted clock bug
+--
 -- Revision 1.2  2004/08/06 20:38:29  erniel
 -- replaced some processes with rtl-blocks
 -- added setup state
@@ -90,6 +93,8 @@ signal byte_count_ena : std_logic;
 signal byte_count_clr : std_logic;
 signal bytes_sent     : integer range 0 to 4;
 
+signal int_zero : integer := 0;
+
 begin
 
    transmit: async_tx
@@ -127,7 +132,7 @@ begin
             rst_i   => rst_i,
             ena_i   => byte_count_ena,
             load_i  => byte_count_clr,
-            count_i => 0,
+            count_i => int_zero,
             count_o => bytes_sent);
             
    stateFF: process(rst_i, clk_i)

@@ -21,8 +21,8 @@
 --
 -- lvds_rx.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.2  2004/08/06 20:39:30  erniel
+-- replaced some processes with rtl-blocks
+-- added data buffer registers
+--
 -- Revision 1.1  2004/06/17 01:25:41  erniel
 -- initial version
 --
@@ -83,6 +87,8 @@ signal byte1_ld : std_logic;
 signal byte2_ld : std_logic;
 signal byte3_ld : std_logic;
 
+signal int_zero : integer := 0;
+
 type states is (IDLE, LATCH, RXDONE, RXWAIT, DONE);
 signal pres_state : states;
 signal next_state : states;
@@ -105,7 +111,7 @@ begin
             rst_i   => rst_i,
             ena_i   => byte_count_ena,
             load_i  => byte_count_clr,
-            count_i => 0,
+            count_i => int_zero,
             count_o => bytes_received);
             
    data_buf0: reg
