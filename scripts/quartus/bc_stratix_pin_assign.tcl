@@ -12,8 +12,11 @@
 # Modified for the bias card by Mandana Amiri, Apr. 28, 04
 #
 # Revision history:
-# <date $Date$>	- <initials $Author$>
-# $Log$
+# <date $Date: 2004/04/29 20:10:42 $>	- <initials $Author: mandana $>
+# $Log: bc_stratix_pin_assign.tcl,v $
+# Revision 1.1  2004/04/29 20:10:42  mandana
+# initial release
+#
 #
 # You can run this script from Quartus by observing the following steps:
 # 1. Place this TCL script in your project directory
@@ -47,18 +50,18 @@ cmp add_assignment $top_name "" "" DEVICE EPS10F780A
 
 
 ### DAC PINS
-##  the order is dac0, dac1,...., dac31 and the last one is the lvds dac
+##  the order is dac0, dac1,...., dac31 
 set dac_clk {L23 L24 H27 H28 L22 L21 H26 H25  A9  A8  B8  B9  D9  E8  C8  D8 B23 E23 C23 A23 D22 C22 A22 B22 L18 F17 C24 D23 D20 B18 G19 F19}
 set dac_ncs {N20 M27 N22 N24 L27 N26 L25 M20 K27 M24 M22 J27 L20 J25 L11 J13  A4  B3  B4  A5  E6  B7  A7  C6 B11 C11 B10 A10 B20 C20 B21 D21}
 set dac_data{N19 N28 N21 N23 L28 N25 L26 M19 K28 M23 M21 J28 L19 J26 M11 L13  A3  B5  C4  C5  A6  D6  D7  C7 D11 A11 C10 E10 A20 A21 C21 E21} 
 set dac_nclr {M16}
 
-### LVDS DAC pins
-set lvds_clk_n T6
+### LVDS DAC pins (or the last one in dac_clk, dac_ncs and dac_data array)
+#set lvds_clk_n T6
 set lvds_clk_p T5
-set lvds_ncs_n U9
+#set lvds_ncs_n U9
 set lvds_ncs_p U10
-set lvds_data_n U6
+#set lvds_data_n U6
 set lvds_data_p U5
 
 ### Card ID, Slot ID Pins
