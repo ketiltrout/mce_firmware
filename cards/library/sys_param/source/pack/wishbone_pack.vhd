@@ -28,8 +28,12 @@
 -- 
 -- 
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$  
+-- <date $Date: 2004/04/02 17:17:40 $>	- <initials $Author: mandana $>
+-- $Log: wishbone_pack.vhd,v $
+-- Revision 1.4  2004/04/02 17:17:40  mandana
+-- Added new wishbone addresses for Bias card/dac_ctrl
+-- Added header
+--  
 --
 --
 library ieee;
@@ -43,19 +47,19 @@ package wishbone_pack is
    constant WB_TAG_ADDR_WIDTH : integer := 32;
 
    -- Wishbone addresses
-   constant FLUX_FB_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "00100000"; -- 0x20 
-   constant BIAS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "00100001"; -- 0x21 
-   constant SLOT_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000000"; -- 0x40 
-   constant TEMPERATURE_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000010"; -- 0x42
-   constant CARD_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000011"; -- 0x43
-   constant LEDS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000101"; -- 0x45
-   constant CYC_OUT_SYNC_ADDR: std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01000111"; -- 0x47
-   constant RESYNC_NXT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001000"; -- 0x48
-   constant ARRAY_ID_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001001"; -- 0x49
-   constant DIP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001100"; -- 0x4C
-   constant WATCHDOG_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01001101"; -- 0x4D
-   constant SRAM_VERIFY_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01010000"; -- 0x50
-   constant SRAM_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := "01010110"; -- 0x56
+   constant FLUX_FB_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"20"; -- 0x20 
+   constant BIAS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"21"; -- 0x21 
+   constant SLOT_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"40"; -- 0x40 
+   constant TEMPERATURE_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"42"; -- 0x42
+   constant CARD_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"43"; -- 0x43
+   constant LEDS_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"45"; -- 0x45
+   constant CYC_OUT_SYNC_ADDR: std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"47"; -- 0x47
+   constant RESYNC_NXT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"48"; -- 0x48
+   constant ARRAY_ID_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"49"; -- 0x49
+   constant DIP_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"4C"; -- 0x4C
+   constant WATCHDOG_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"4D"; -- 0x4D
+   constant SRAM_VERIFY_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50"; -- 0x50
+   constant SRAM_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56"; -- 0x56
 
     
 -- OBSOLETE from here....
