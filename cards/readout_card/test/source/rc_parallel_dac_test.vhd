@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/21 22:29:29 $> - <initials $Author: erniel $>
+-- <date $Date: 2004/11/15 20:03:41 $> - <initials $Author: bburger $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.7  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.6  2004/07/21 22:29:29  erniel
 -- updated counter component
 --
@@ -67,7 +70,7 @@ use sys_param.data_types_pack.all;
 
 use components.component_pack.all;
 
-use work.frame_timing_pack.all;
+--use work.frame_timing_pack.all;
 
 -----------------------------------------------------------------------------
                      
