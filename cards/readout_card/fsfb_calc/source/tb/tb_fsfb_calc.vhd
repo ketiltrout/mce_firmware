@@ -35,6 +35,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.2  2004/10/25 18:03:12  anthonyk
+-- Changed input port name num_rows_sub1 to num_rows_sub1_i
+--
 -- Revision 1.1  2004/10/22 22:19:41  anthonyk
 -- Initial release
 --
@@ -147,6 +150,7 @@ architecture test of tb_fsfb_calc is
    -- downstream control interface
    signal calc_ctrl_dat_rdy_o          :     std_logic;
    signal calc_ctrl_dat_o              :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
+   signal calc_ctrl_lock_en_o          :     std_logic;
 
 
    -- data to be written to the queue for the write operation
@@ -156,7 +160,8 @@ architecture test of tb_fsfb_calc is
    -- fsfb calc (UUT) component declaration
    component fsfb_calc is
       generic (
-         start_val                 : integer := FSFB_QUEUE_INIT_VAL                                -- value read from the queue when initialize_window_i is asserted
+         start_val                 : integer := FSFB_QUEUE_INIT_VAL;                               -- value read from the queue when initialize_window_i is asserted
+         lock_dat_left             : integer := MOST_SIG_LOCK_POS                                  -- most significant bit position of lock mode data output
          );
          
       port (
@@ -189,7 +194,8 @@ architecture test of tb_fsfb_calc is
          fsfb_fltr_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue current data ready 
          fsfb_fltr_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
          fsfb_ctrl_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue previous data ready
-         fsfb_ctrl_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)     -- fs feedback queue previous data
+         fsfb_ctrl_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data
+         fsfb_ctrl_lock_en_o       : out    std_logic                                              -- control lock data mode enable
       );
    end component fsfb_calc;
   
@@ -433,7 +439,8 @@ begin
    -- unit under test:  first stage feedback calculator block
    UUT : fsfb_calc
       generic map (
-         start_val                 => 0
+         start_val                 => 0,
+         lock_dat_left             => 30
          )
       port map (
          rst_i                     => rst_i,
@@ -465,7 +472,8 @@ begin
          fsfb_fltr_dat_rdy_o       => calc_fltr_dat_rdy_o,
          fsfb_fltr_dat_o           => calc_fltr_dat_o,
          fsfb_ctrl_dat_rdy_o       => calc_ctrl_dat_rdy_o,
-         fsfb_ctrl_dat_o           => calc_ctrl_dat_o
+         fsfb_ctrl_dat_o           => calc_ctrl_dat_o,
+         fsfb_ctrl_lock_en_o       => calc_ctrl_lock_en_o
    );      
       
 
