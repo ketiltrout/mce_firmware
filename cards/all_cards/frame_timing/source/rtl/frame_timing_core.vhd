@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.3 2004/12/16 22:05:40 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.4 2005/01/13 03:14:51 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.4  2005/01/13 03:14:51  bburger
+-- Bryce:
+-- addr_card and clk_card:  added slot_id functionality, removed mem_clock
+-- sync_gen and frame_timing:  added custom counters and registers
+--
 -- Revision 1.3  2004/12/16 22:05:40  bburger
 -- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
 --
@@ -219,20 +224,25 @@ architecture beh of frame_timing_core is
    -- 1- After a resync
    -- 2- After changing flux_loop parameters   
    
-   update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS and current_state /= WAIT_FRM_RST else '0';
    restart_frame_aligned      <= '1' when frame_count_int = frame_end else '0';
    restart_frame_1row_prev_o  <= '1' when frame_count_int = end_of_frame_minus_1row and current_state /= WAIT_FRM_RST else '0';
    restart_frame_aligned_o    <= '1' when (restart_frame_aligned = '1' and current_state /= WAIT_FRM_RST) or (sync_i = '1' and current_state = WAIT_FRM_RST) else '0';
    restart_frame_1row_post_o  <= '1' when frame_count_int = end_of_frame_plus_1row and current_state /= WAIT_FRM_RST else '0';
    
+   -- The bias card DACs begin to be updated approximately 6 cycles after update_bias_o is asserted.
+   -- The length of time required to update all 32 flux_feedback values on the bias card is longer than one row dwell period.
+   update_bias_o              <= '1' when frame_count_int = UPDATE_BIAS and current_state /= WAIT_FRM_RST else '0';
+
    -- row_switch_o is pulsed on the last clock cycle of every 
-   row_switch_o               <= '1' when row_count_int = row_len_i-1 and current_state /= WAIT_FRM_RST else '0';
+   row_switch_o               <= '1' when row_count_int = row_len_i - 1 and current_state /= WAIT_FRM_RST else '0';
    
-   -- dac_dat_en_o has to be enabled on the same clock cycle that the feedback begins, and has to be disabled on the clock cycle when feedback ends
-   dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i and current_state /= WAIT_FRM_RST else '0';
+   -- dac_dat_en_o has to be enabled on the clock cycle before the feedback begins, and lasts until the end of the row for safety reasons
+   -- the dac_dat_en_o line is taken notice of after 6 clock cycle have elapsed on a new row.
+   dac_dat_en_o               <= '1' when row_count_int >= feedback_delay_i - 1 and current_state /= WAIT_FRM_RST else '0';
    
-   -- adc_coadd_en_o has to be enabled on the same clock cycle that sampling begins, and has to be disabled on the clock cycle prior to when sampling finishes
-   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - TWO_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
+   -- adc_coadd_en_o has to be enabled on the same clock cycle that sampling begins, and has to be disabled on the same clock cycle when sampling finishes.  
+   -- This is possible because of the 4-cycle latency in the ADCs
+   adc_coadd_en_o             <= '1' when row_count_int >= sample_delay_i and row_count_int <= sample_delay_i + sample_num_i - 1 and current_state /= WAIT_FRM_RST else '0';
    
    -- row_en_o has to be enabled on the clock cycle before the row is to be activated, and has to be disabled on the clock cycle before the row is to be deactivated
    row_en_o                   <= '1' when row_count_int >= address_on_delay_i-ONE_CYCLE_LATENCY and row_count_int <= row_len_i-1-ONE_CYCLE_LATENCY and current_state /= WAIT_FRM_RST else '0';
