@@ -47,9 +47,13 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/10/28 15:43:48 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/29 12:39:34 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.11  2004/10/29 12:39:34  dca
+-- read cycle changed to block read...
+-- Can now handle master wait states being inserted.
+--
 -- Revision 1.10  2004/10/28 15:43:48  dca
 -- ret_data wishbone reads changed to block reads.
 --
@@ -396,17 +400,24 @@ begin
             end if;
          else 
              next_state <= WSM1;     -- if stb has been ds-asserted go to wishbone master wait state  
-         end if;
-         
+         end if;                     -- will also go here when a set of 328 raw data has been read
+                                     -- but not yet at RAW_ADDR_MAX
       when WSM1 =>
          next_state <= WSM2;
       
       when WSM2 => 
          
-         if read_ret_data = '1' then  
-            next_state <= WSS1;      -- go to wait state slave to start addressing cycle again
+         if    (write_data_mode = '1' ) or ( write_captr_raw = '1' ) then 
+         
+                                            -- if wishbone write instruction arrives then....
+            next_state <= IDLE;             -- go to idle to reset address counters and process instruction 
+                                            -- this should only occur when waiting to read next 328 raw data block and want to change mode
+                                            -- or reset raw data.... 
+            
+         elsif (read_ret_data = '1' ) then  -- if master de-asseterts wait state - or reading next 328  block of raw data
+            next_state <= WSS1;             -- go to wait state slave to start addressing cycle again
          else 
-            next_state <= WSM2;
+            next_state <= WSM2;             -- else wait here
          end if;
                  
                             
