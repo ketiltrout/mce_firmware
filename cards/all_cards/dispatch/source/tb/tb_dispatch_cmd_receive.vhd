@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_dispatch_cmd_receive.vhd,v $
+-- Revision 1.2  2004/08/10 00:37:47  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -41,6 +44,9 @@ library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
+library work;
+use work.dispatch_pack.all;
+
 entity TB_DISPATCH_CMD_RECEIVE is
 end TB_DISPATCH_CMD_RECEIVE;
 
@@ -48,20 +54,19 @@ architecture BEH of TB_DISPATCH_CMD_RECEIVE is
 
    component DISPATCH_CMD_RECEIVE
 
-      generic(CARD   : std_logic_vector ( CQ_CARD_ADDR_BUS_WIDTH - 1 downto 0 )  := RC1 );
+      generic(CARD   : std_logic_vector ( CARD_ADDRESS_WIDTH - 1 downto 0 )  := RC1 );
 
-      port(CLK_I         : in std_logic ;
-           COMM_CLK_I    : in std_logic ;
-           RST_I         : in std_logic ;
-           LVDS_CMD_I    : in std_logic ;
-           DONE_O        : out std_logic ;
-           DATA_SIZE_O   : out std_logic_vector ( CQ_DATA_SIZE_BUS_WIDTH - 1 downto 0 );
-           PARAM_ID_O    : out std_logic_vector ( CQ_PAR_ID_BUS_WIDTH - 1 downto 0 );
-           MACRO_SEQ_O   : out std_logic_vector ( 7 downto 0 );
-           MICRO_SEQ_O   : out std_logic_vector ( 7 downto 0 );
-           BUF_DATA_O    : out std_logic_vector ( 31 downto 0 );
-           BUF_ADDR_O    : out std_logic_vector ( 5 downto 0 );
-           BUF_WREN_O    : out std_logic );
+      port(CLK_I        : in std_logic ;
+           COMM_CLK_I   : in std_logic ;
+           RST_I        : in std_logic ;
+           LVDS_CMD_I   : in std_logic ;
+           CMD_RDY_O    : out std_logic ;
+           CMD_ERR_O    : out std_logic ;
+           HEADER0_O    : out std_logic_vector ( CMD_WORD_WIDTH - 1 downto 0 );
+           HEADER1_O    : out std_logic_vector ( CMD_WORD_WIDTH - 1 downto 0 );
+           BUF_DATA_O   : out std_logic_vector ( BUF_DATA_WIDTH - 1 downto 0 );
+           BUF_ADDR_O   : out std_logic_vector ( BUF_ADDR_WIDTH - 1 downto 0 );
+           BUF_WREN_O   : out std_logic );
 
    end component;
 
@@ -83,14 +88,12 @@ architecture BEH of TB_DISPATCH_CMD_RECEIVE is
    signal W_CLK_I         : std_logic := '1';
    signal W_COMM_CLK_I    : std_logic := '1';
    signal W_RST_I         : std_logic ;
-   signal W_DONE_O        : std_logic ;
-   signal W_DATA_SIZE_O   : std_logic_vector ( CQ_DATA_SIZE_BUS_WIDTH - 1 downto 0 );
-   signal W_PARAM_ID_O    : std_logic_vector ( CQ_PAR_ID_BUS_WIDTH - 1 downto 0 );
-   signal W_MACRO_SEQ_O   : std_logic_vector ( 7 downto 0 );
-   signal W_MICRO_SEQ_O   : std_logic_vector ( 7 downto 0 );
-   signal W_CRC_VALID_O   : std_logic ;
-   signal W_BUF_DATA_O    : std_logic_vector ( 31 downto 0 );
-   signal W_BUF_ADDR_O    : std_logic_vector ( 5 downto 0 ) ;
+   signal W_CMD_RDY_O     : std_logic ;
+   signal W_CMD_ERR_O     : std_logic ;
+   signal W_HEADER0_O     : std_logic_vector ( CMD_WORD_WIDTH - 1 downto 0 );
+   signal W_HEADER1_O     : std_logic_vector ( CMD_WORD_WIDTH - 1 downto 0 );
+   signal W_BUF_DATA_O    : std_logic_vector ( BUF_DATA_WIDTH - 1 downto 0 );
+   signal W_BUF_ADDR_O    : std_logic_vector ( BUF_ADDR_WIDTH - 1 downto 0 );
    signal W_BUF_WREN_O    : std_logic ;
    signal W_DAT_I         : std_logic_vector ( 31 downto 0 );
    signal W_LVDS_START_I  : std_logic ;
@@ -101,20 +104,19 @@ begin
 
    DUT : DISPATCH_CMD_RECEIVE
 
-      generic map(CARD   => BC1)
+      generic map(CARD   => RC1 )
 
-      port map(CLK_I         => W_CLK_I,
-               COMM_CLK_I    => W_COMM_CLK_I,
-               RST_I         => W_RST_I,
-               LVDS_CMD_I    => W_LVDS_CMD,
-               DONE_O        => W_DONE_O,
-               DATA_SIZE_O   => W_DATA_SIZE_O,
-               PARAM_ID_O    => W_PARAM_ID_O,
-               MACRO_SEQ_O   => W_MACRO_SEQ_O,
-               MICRO_SEQ_O   => W_MICRO_SEQ_O,
-               BUF_DATA_O    => W_BUF_DATA_O,
-               BUF_ADDR_O    => W_BUF_ADDR_O,
-               BUF_WREN_O    => W_BUF_WREN_O);
+      port map(CLK_I        => W_CLK_I,
+               COMM_CLK_I   => W_COMM_CLK_I,
+               RST_I        => W_RST_I,
+               LVDS_CMD_I   => W_LVDS_CMD,
+               CMD_RDY_O    => W_CMD_RDY_O,
+               CMD_ERR_O    => W_CMD_ERR_O,
+               HEADER0_O    => W_HEADER0_O,
+               HEADER1_O    => W_HEADER1_O,
+               BUF_DATA_O   => W_BUF_DATA_O,
+               BUF_ADDR_O   => W_BUF_ADDR_O,
+               BUF_WREN_O   => W_BUF_WREN_O);
 
    TX : LVDS_TX
       port map(CLK_I        => W_CLK_I,
@@ -174,7 +176,7 @@ begin
       
       pause(100);
       
-      transmit("10101010101010100000000000000010");  -- 2 data words
+      transmit("10101010101010100000000000000011");  -- 3 data words  (simulates receiver out-of-sync)
       transmit("00000010010100110000000100000001");  -- for CC
       transmit("00001100000110100101010100011100");  -- 0x0C1A551C
       transmit("00000000000000001100000011011110");  -- 0x0000C0DE
@@ -182,6 +184,7 @@ begin
             
       pause(200);
       
+      -- this packet is skipped:
       transmit("10101010101010100000000000000011");  -- 3 data words
       transmit("00000111001000000000000000000000");  -- for BC1
       transmit("00000000000000000000000000001010");  -- 0x0000000A
