@@ -20,7 +20,7 @@
 
 -- write_data_1_wire.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: write_data_1_wire.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -31,8 +31,8 @@
 --
 -- Revision history:
 -- Jan. 31 2004  - Initial version      - EL
--- <date $Date$>	-		<text>		- <initials $Author$>
-
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
@@ -233,12 +233,14 @@ begin
    end process output_logic;
    
    
-   bit_counter : process(tx_count_incr, tx_count_reset)
+   bit_counter : process(clk, tx_count_reset)
    begin
       if(tx_count_reset = '1') then
          tx_count <= 0;
-      elsif(tx_count_incr = '1') then
-         tx_count <= tx_count + 1;
+      elsif(clk'event and clk = '1') then
+         if(tx_count_incr = '1') then
+            tx_count <= tx_count + 1;
+         end if;
       end if;
    end process bit_counter;
    
