@@ -26,19 +26,13 @@
 -- Organisation:  UBC
 --
 -- Description:
--- Package file for test module for common items
+-- Package file for test module for bias card
 -- 
 -- Revision History:
 --
--- $Log: all_test_pack.vhd,v $
--- Revision 1.3  2004/05/11 03:27:29  erniel
--- removed unused test commands
---
--- Revision 1.2  2004/05/03 02:59:56  erniel
--- added DIP commands
---
--- Revision 1.1  2004/04/28 20:16:13  erniel
--- initial version
+-- $Log: bc_test_pack.vhd,v $
+-- Revision 1.1  2004/05/11 23:04:40  mandana
+-- initial release - copied from all_test
 --
 ---------------------------------------------------------------------
 
@@ -46,12 +40,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-library work;
-use work.dip_switch_pack.all;
-use work.slot_id_pack.all;
-use work.array_id_pack.all;
-
-package all_test_pack is
+package bc_test_pack is
 
    ------------------------------------------------------------------
    --
@@ -62,23 +51,13 @@ package all_test_pack is
    -- One character commands ------------------------------------------
       
    constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc
-   constant CMD_DIP      : std_logic_vector(7 downto 0) := conv_std_logic_vector(100,8);   -- d                                 
-   constant CMD_WATCHDOG : std_logic_vector(7 downto 0) := conv_std_logic_vector(119,8);   -- w  
-   constant CMD_TX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t                                                     
-   constant CMD_SLOT_ID  : std_logic_vector(7 downto 0) := conv_std_logic_vector(115,8);   -- s        
-   constant CMD_CARD_ID  : std_logic_vector(7 downto 0) := conv_std_logic_vector(99,8);    -- c
+   constant CMD_TX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t  
    constant CMD_BC_DAC   : std_logic_vector(7 downto 0) := conv_std_logic_vector(98,8);    -- b
-   
    constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
    
                                                                                                               
    -- Two character commands ------------------------------------------
-                                 
-   constant CMD_LED      : std_logic_vector(7 downto 0) := conv_std_logic_vector(108,8);   -- l
-   constant CMD_LED_1    : std_logic_vector(7 downto 0) := conv_std_logic_vector(49,8);    -- 1
-   constant CMD_LED_2    : std_logic_vector(7 downto 0) := conv_std_logic_vector(50,8);    -- 2
-   constant CMD_LED_3    : std_logic_vector(7 downto 0) := conv_std_logic_vector(51,8);    -- 3
-   
+
    constant CMD_RX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r
    constant CMD_RX_CLK   : std_logic_vector(7 downto 0) := conv_std_logic_vector(49,8);    -- 1    
    constant CMD_RX_CMD   : std_logic_vector(7 downto 0) := conv_std_logic_vector(50,8);    -- 2
@@ -137,113 +116,7 @@ package all_test_pack is
          rx_data_i : in std_logic_vector(7 downto 0) -- receive data
       );
    end component;
-   
-   ------------------------------------------------------------------
-   -- LED
-   component led_test_wrapper
-      port (
-         -- basic signals
-         rst_i : in std_logic;   -- reset input
-         clk_i : in std_logic;   -- clock input
-         en_i : in std_logic;    -- enable signal
-         done_o : out std_logic; -- done output signal
-         
-         -- extended signals
-         led_o : out std_logic      -- physical LED pin
-      );
-   end component;
-    
-   ------------------------------------------------------------------
-   -- DIP switches
-   component dip_switch_test_wrapper
-      port(rst_i     : in std_logic;    -- reset input
-           clk_i     : in std_logic;    -- clock input
-           en_i      : in std_logic;    -- enable signal
-           done_o    : out std_logic;   -- done ouput signal
-      
-           -- transmitter signals
-           tx_busy_i : in std_logic;    -- transmit busy flag
-           tx_ack_i  : in std_logic;    -- transmit ack
-           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-           tx_we_o   : out std_logic;   -- transmit write flag
-           tx_stb_o  : out std_logic;   -- transmit strobe flag
-      
-           -- extended signals
-           dip_switch_i : in std_logic_vector (1 downto 0));
-   end component;
-   
-   ------------------------------------------------------------------
-   -- watchdog 
-   component watchdog_test_wrapper
-      port (
-         -- basic signals
-         rst_i : in std_logic;   -- reset input
-         clk_i : in std_logic;   -- clock input
-         en_i : in std_logic;    -- enable signal
-         done_o : out std_logic; -- done output signal
-         
-         -- extended signals
-         wdt_o : out std_logic      -- physical Watchdog pin
-      );
-   end component;
-   
-   ------------------------------------------------------------------
-   -- slot ID
-   component slot_id_test_wrapper
-      port(rst_i     : in std_logic;    -- reset input
-           clk_i     : in std_logic;    -- clock input
-           en_i      : in std_logic;    -- enable signal
-           done_o    : out std_logic;   -- done ouput signal
-      
-           -- transmitter signals
-           tx_busy_i : in std_logic;    -- transmit busy flag
-           tx_ack_i  : in std_logic;    -- transmit ack
-           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-           tx_we_o   : out std_logic;   -- transmit write flag
-           tx_stb_o  : out std_logic;   -- transmit strobe flag
-      
-           -- extended signals
-           slot_id_i : in std_logic_vector (SLOT_ID_BITS-1 downto 0));
-   end component;
-   
-   ------------------------------------------------------------------
-   -- card ID
-   component card_id_test_wrapper
-      port(rst_i     : in std_logic;    -- reset input
-           clk_i     : in std_logic;    -- clock input
-           en_i      : in std_logic;    -- enable signal
-           done_o    : out std_logic;   -- done ouput signal
-      
-           -- transmitter signals
-           tx_busy_i : in std_logic;    -- transmit busy flag
-           tx_ack_i  : in std_logic;    -- transmit ack
-           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-           tx_we_o   : out std_logic;   -- transmit write flag
-           tx_stb_o  : out std_logic;   -- transmit strobe flag
-      
-           -- extended signals
-           data_bi   : inout std_logic);
-   end component;
 
-   ------------------------------------------------------------------
-   -- array ID
-   component array_id_test_wrapper
-      port(rst_i     : in std_logic;    -- reset input
-           clk_i     : in std_logic;    -- clock input
-           en_i      : in std_logic;    -- enable signal
-           done_o    : out std_logic;   -- done ouput signal
-      
-           -- transmitter signals
-           tx_busy_i : in std_logic;    -- transmit busy flag
-           tx_ack_i  : in std_logic;    -- transmit ack
-           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-           tx_we_o   : out std_logic;   -- transmit write flag
-           tx_stb_o  : out std_logic;   -- transmit strobe flag
-      
-           -- extended signals
-           array_id_i : in std_logic_vector (ARRAY_ID_BITS-1 downto 0));
-   end component;
-   
    ------------------------------------------------------------------
    -- LVDS transmit
    
@@ -295,7 +168,7 @@ package all_test_pack is
   ------------------------------------------------------------------
    -- BC DAC CTRL
   
-  component dac_ctrl_test_wrapper is
+  component dac_ctrl_test_wrapper
      port (
         -- basic signals
           rst_i     : in std_logic;    -- reset input
@@ -313,4 +186,4 @@ package all_test_pack is
   end component;  
   
 
-end all_test_pack;
+end bc_test_pack;

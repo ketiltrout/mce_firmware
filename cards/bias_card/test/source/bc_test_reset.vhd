@@ -26,16 +26,13 @@
 -- Organisation:  UBC
 --
 -- Description:
--- Reset state for common test
+-- Reset state for bias card test
 -- 
 -- Revision History:
 --
--- $Log: all_test_reset.vhd,v $
--- Revision 1.2  2004/05/11 03:28:09  erniel
--- updated header information
---
--- Revision 1.1  2004/04/28 20:16:13  erniel
--- initial version
+-- $Log: bc_test_reset.vhd,v $
+-- Revision 1.1  2004/05/11 23:04:40  mandana
+-- initial release - copied from all_test
 --
 ---------------------------------------------------------------------
 
@@ -62,7 +59,7 @@ end all_test_reset;
 
 architecture behaviour of all_test_reset is
    type astring is array (natural range <>) of std_logic_vector(7 downto 0);
-   signal message : astring (0 to 16);
+   signal message : astring (0 to 15);
    
    signal done : std_logic;
    
@@ -73,21 +70,20 @@ begin
    -- character'pos always returns 0 in Quartus 2.2
    message(0) <= conv_std_logic_vector(10,8);  -- \r
    message(1) <= conv_std_logic_vector(13,8);  -- \n
-   message(2) <= conv_std_logic_vector(65,8);   -- A
-   message(3) <= conv_std_logic_vector(108,8);  -- l
-   message(4) <= conv_std_logic_vector(108,8);  -- l
-   message(5) <= conv_std_logic_vector(95,8);   -- _
-   message(6) <= conv_std_logic_vector(84,8);   -- T
-   message(7) <= conv_std_logic_vector(101,8);  -- e
-   message(8) <= conv_std_logic_vector(115,8);  -- s
-   message(9) <= conv_std_logic_vector(116,8);  -- t
-   message(10) <= conv_std_logic_vector(32,8);   -- 
-   message(11) <= conv_std_logic_vector(118,8); -- v
-   message(12) <= conv_std_logic_vector(48,8);  -- 0
-   message(13) <= conv_std_logic_vector(50,8);  -- 2
-   message(14) <= conv_std_logic_vector(46,8);  -- .
+   message(2) <= conv_std_logic_vector(66,8);   -- B
+   message(3) <= conv_std_logic_vector(67,8);   -- C
+   message(4) <= conv_std_logic_vector(95,8);   -- _
+   message(5) <= conv_std_logic_vector(84,8);   -- T
+   message(6) <= conv_std_logic_vector(101,8);  -- e
+   message(7) <= conv_std_logic_vector(115,8);  -- s
+   message(8) <= conv_std_logic_vector(116,8);  -- t
+   message(9) <= conv_std_logic_vector(32,8);   -- 
+   message(10) <= conv_std_logic_vector(118,8); -- v
+   message(11) <= conv_std_logic_vector(48,8);  -- 0
+   message(12) <= conv_std_logic_vector(49,8);  -- 1
+   message(13) <= conv_std_logic_vector(46,8);  -- .
+   message(14) <= conv_std_logic_vector(48,8);  -- 0
    message(15) <= conv_std_logic_vector(48,8);  -- 0
-   message(16) <= conv_std_logic_vector(48,8);  -- 0
    
    -- tx_word gets ready to transmit the next word
    tx_word : process (rst_i, en_i, tx_busy_i, message)

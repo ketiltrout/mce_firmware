@@ -26,23 +26,13 @@
 -- Organisation:  UBC
 --
 -- Description:
--- Test module for common items
+-- Test module for bias card
 --
 -- Revision history:
 -- 
--- $Log: all_test.vhd,v $
--- Revision 1.3  2004/05/11 03:24:11  erniel
--- added LVDS rx test wrappers
--- added dip switch test wrapper
--- changed state machine state names
--- added rs232_data_tx sanity test
---
--- Revision 1.2  2004/05/03 02:38:05  erniel
--- implemented reset command
---
--- Revision 1.1  2004/04/28 20:16:13  erniel
--- initial version
---
+-- $Log: bc_test.vhd,v $
+-- Revision 1.1  2004/05/11 23:04:40  mandana
+-- initial release - copied from all_test
 --
 -----------------------------------------------------------------------------
 
@@ -52,7 +42,7 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.async_pack.all;
-use work.all_test_pack.all;
+use work.bc_test_pack.all;
 
 entity all_test is
    port(
@@ -65,18 +55,6 @@ entity all_test is
       -- RS232 interface
       rs232_tx : out std_logic;
       rs232_rx : in std_logic;
-      
-      -- led interface
-      grn_led : out std_logic;
-      ylw_led : out std_logic;
-      red_led : out std_logic;
-            
-      -- dip switch interface
-      dip_sw3 : in std_logic;
-      dip_sw4 : in std_logic;
-      
-      -- watchdog timer interface                      
-      wdog : out std_logic;
             
       -- LVDS interfaces
       lvds_tx    : out std_logic;
@@ -85,16 +63,15 @@ entity all_test is
       lvds_sync  : in std_logic;
       lvds_spare : in std_logic;
       
-      -- id interfaces
-      slot_id : in std_logic_vector (3 downto 0);
-      card_id : inout std_logic;
-      
       -- bc dac interface
-      dac_dat  : out std_logic_vector (32 downto 0); 
-      dac_ncs  : out std_logic_vector (32 downto 0); 
-      dac_clk  : out std_logic_vector (32 downto 0);
-      dac_nclr : out std_logic
-      );
+      dac_dat  : out std_logic_vector (31 downto 0); 
+      dac_ncs  : out std_logic_vector (31 downto 0); 
+      dac_clk  : out std_logic_vector (31 downto 0);
+      dac_nclr : out std_logic;
+      
+      lvds_dac_dat : out std_logic;
+      lvds_dac_ncs : out std_logic;
+      lvds_dac_clk : out std_logic);
 end all_test;
 
 architecture behaviour of all_test is
@@ -133,57 +110,36 @@ architecture behaviour of all_test is
    signal rx_ack   : std_logic;
    
    -- state constants
-   constant MAX_STATES : integer := 16;
+   constant MAX_STATES : integer := 9;
 
    constant INDEX_RESET      : integer := 0;
    constant INDEX_IDLE       : integer := 1;
-   constant INDEX_LED_POWER  : integer := 2;
-   constant INDEX_LED_STATUS : integer := 3;
-   constant INDEX_LED_FAULT  : integer := 4;
-   constant INDEX_DIP        : integer := 5;      
-   constant INDEX_WATCHDOG   : integer := 6;
-   constant INDEX_TX         : integer := 7;
-   constant INDEX_RX_CLK     : integer := 8;
-   constant INDEX_RX_CMD     : integer := 9;
-   constant INDEX_RX_SYNC    : integer := 10;
-   constant INDEX_RX_SPARE   : integer := 11;   
-   constant INDEX_SLOT_ID    : integer := 12; 
-   constant INDEX_CARD_ID    : integer := 13;   
-   constant INDEX_DEBUG      : integer := 14;
-   constant INDEX_BC_DAC_CTRL: integer := 15;
+   constant INDEX_TX         : integer := 2;
+   constant INDEX_RX_CLK     : integer := 3;
+   constant INDEX_RX_CMD     : integer := 4;
+   constant INDEX_RX_SYNC    : integer := 5;
+   constant INDEX_RX_SPARE   : integer := 6;     
+   constant INDEX_DEBUG      : integer := 7;
+   constant INDEX_BC_DAC_CTRL: integer := 8;
       
    constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
-   constant SEL_LED_POWER  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_POWER => '1', others => '0');
-   constant SEL_LED_STATUS : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
-   constant SEL_LED_FAULT  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
-   constant SEL_DIP        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DIP => '1', others => '0');
-   constant SEL_WATCHDOG   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
    constant SEL_TX         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX => '1', others => '0');
    constant SEL_RX_CLK     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CLK => '1', others => '0');
    constant SEL_RX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CMD => '1', others => '0');
    constant SEL_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
    constant SEL_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0');         
-   constant SEL_SLOT_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
-   constant SEL_CARD_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
    constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    constant SEL_BC_DAC_CTRL: std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    
    constant DONE_NULL       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
    constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
    constant DONE_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
-   constant DONE_LED_POWER  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_POWER => '1', others => '0');
-   constant DONE_LED_STATUS : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_STATUS => '1', others => '0');
-   constant DONE_LED_FAULT  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_LED_FAULT => '1', others => '0');
-   constant DONE_DIP        : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DIP => '1', others => '0');
-   constant DONE_WATCHDOG   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_WATCHDOG => '1', others => '0');
    constant DONE_TX         : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX => '1', others => '0');
    constant DONE_RX_CLK     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CLK => '1', others => '0');
    constant DONE_RX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CMD => '1', others => '0');
    constant DONE_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
    constant DONE_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0'); 
-   constant DONE_SLOT_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SLOT_ID => '1', others => '0');
-   constant DONE_CARD_ID    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_CARD_ID => '1', others => '0');
    constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
    constant DONE_BC_DAC_CTRL: std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
 
@@ -200,35 +156,26 @@ architecture behaviour of all_test is
    -- device return signals:
    signal reset_data    : std_logic_vector(7 downto 0);
    signal idle_data     : std_logic_vector(7 downto 0);
-   signal dip_data      : std_logic_vector(7 downto 0);
    signal rx_clk_data   : std_logic_vector(7 downto 0);
    signal rx_cmd_data   : std_logic_vector(7 downto 0);
    signal rx_sync_data  : std_logic_vector(7 downto 0);
    signal rx_spare_data : std_logic_vector(7 downto 0);      
-   signal slot_id_data  : std_logic_vector(7 downto 0);
-   signal card_id_data  : std_logic_vector(7 downto 0);
    signal debug_data    : std_logic_vector(7 downto 0);
    
    signal reset_we      : std_logic;
    signal idle_we       : std_logic;
-   signal dip_we        : std_logic;
    signal rx_clk_we     : std_logic;
    signal rx_cmd_we     : std_logic;
    signal rx_sync_we    : std_logic;
    signal rx_spare_we   : std_logic;      
-   signal slot_id_we    : std_logic;
-   signal card_id_we    : std_logic;
    signal debug_we      : std_logic;
    
    signal reset_stb     : std_logic;
    signal idle_stb      : std_logic;
-   signal dip_stb       : std_logic;
    signal rx_clk_stb    : std_logic;
    signal rx_cmd_stb    : std_logic;
    signal rx_sync_stb   : std_logic;
    signal rx_spare_stb  : std_logic;   
-   signal slot_id_stb   : std_logic;
-   signal card_id_stb   : std_logic;
    signal debug_stb     : std_logic;
    
    signal test_data : std_logic_vector(31 downto 0);
@@ -306,39 +253,7 @@ begin
                cmd1_o => cmd1,
                cmd2_o => cmd2);
       
-   -- power led
-   led_power : led_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_LED_POWER),
-               done_o    => done(INDEX_LED_POWER),
-               led_o     => grn_led);
-   
-   -- status led
-   led_status : led_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_LED_STATUS),
-               done_o    => done(INDEX_LED_STATUS),
-               led_o     => ylw_led);
-   
-   -- fault led
-   led_fault : led_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_LED_FAULT),
-               done_o    => done(INDEX_LED_FAULT),
-               led_o     => red_led);
-      
-   -- watchdog timer
-   watchdog_timer : watchdog_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_WATCHDOG),
-               done_o    => done(INDEX_WATCHDOG),
-               wdt_o     => wdog);
-         
-   -- LVDS transmitter
+
    tx : lvds_tx_test_wrapper
       port map(rst_i     => rst,
                clk_i     => clk,
@@ -398,47 +313,7 @@ begin
                tx_data_o => rx_spare_data,
                tx_we_o   => rx_spare_we,
                tx_stb_o  => rx_spare_stb);
-      
-   -- DIP switches
-   dip <= dip_sw3 & dip_sw4;
-   dip_sw : dip_switch_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_DIP),
-               done_o    => done(INDEX_DIP),
-               dip_switch_i => dip,
 
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => dip_data,
-               tx_we_o   => dip_we,
-               tx_stb_o  => dip_stb);
-     
-   slotid : slot_id_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_SLOT_ID),
-               done_o    => done(INDEX_SLOT_ID),
-               slot_id_i => slot_id,
-               
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => slot_id_data,
-               tx_we_o   => slot_id_we,
-               tx_stb_o  => slot_id_stb);
-               
-   cardid : card_id_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_CARD_ID),
-               done_o    => done(INDEX_CARD_ID),
-               data_bi   => card_id,
-               
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => card_id_data,
-               tx_we_o   => card_id_we,
-               tx_stb_o  => card_id_stb);    
                
    debug_tx : rs232_data_tx
       generic map(WIDTH => 32)
@@ -453,6 +328,7 @@ begin
                tx_data_o => debug_data,
                tx_we_o   => debug_we,
                tx_stb_o  => debug_stb); 
+               
    dac_ctrl : dac_ctrl_test_wrapper
       port map(
                -- basic signals
@@ -481,39 +357,30 @@ begin
    with sel select
       tx_data <= reset_data    when SEL_RESET,
                  idle_data     when SEL_IDLE,
-                 dip_data      when SEL_DIP,
                  rx_clk_data   when SEL_RX_CLK,
                  rx_cmd_data   when SEL_RX_CMD,
                  rx_sync_data  when SEL_RX_SYNC,
                  rx_spare_data when SEL_RX_SPARE,
-                 slot_id_data  when SEL_SLOT_ID,
-                 card_id_data  when SEL_CARD_ID,
                  debug_data    when SEL_DEBUG,
                  "00000000"    when others;
    
    with sel select
       tx_we   <= reset_we      when SEL_RESET,
                  idle_we       when SEL_IDLE,
-                 dip_we        when SEL_DIP,
                  rx_clk_we     when SEL_RX_CLK,
                  rx_cmd_we     when SEL_RX_CMD,
                  rx_sync_we    when SEL_RX_SYNC,
                  rx_spare_we   when SEL_RX_SPARE,
-                 slot_id_we    when SEL_SLOT_ID,
-                 card_id_we    when SEL_CARD_ID,
                  debug_we      when SEL_DEBUG,
                  '0'           when others; 
    
    with sel select
       tx_stb  <= reset_stb     when SEL_RESET,
                  idle_stb      when SEL_IDLE,
-                 dip_stb       when SEL_DIP,
                  rx_clk_stb    when SEL_RX_CLK,
                  rx_cmd_stb    when SEL_RX_CMD,
                  rx_sync_stb   when SEL_RX_SYNC,
                  rx_spare_stb  when SEL_RX_SPARE,
-                 slot_id_stb   when SEL_SLOT_ID,
-                 card_id_stb   when SEL_CARD_ID,
                  debug_stb     when SEL_DEBUG,
                  '0'           when others;
    
@@ -547,25 +414,7 @@ begin
             when DECODE =>
                -- activate the appropiate test module
                cmd_state <= EXECUTE;
-               if(cmd1 = CMD_LED) then
-                  -- toggle a LED
-                  if (cmd2 = CMD_LED_1) then
-                     sel <= SEL_LED_POWER;
-                  elsif (cmd2 = CMD_LED_2) then
-                     sel <= SEL_LED_STATUS;
-                  else
-                     sel <= SEL_LED_FAULT;
-                  end if;
-                     
-               elsif(cmd1 = CMD_WATCHDOG) then
-                  -- kick watchdog
-                  sel <= SEL_WATCHDOG;
-                  
-               elsif(cmd1 = CMD_DIP) then
-                  -- read DIP switch
-                  sel <= SEL_DIP;
-
-               elsif(cmd1 = CMD_TX) then
+               if(cmd1 = CMD_TX) then
                   -- random number tx test
                   sel <= SEL_TX;
                
@@ -580,12 +429,6 @@ begin
                      sel <= SEL_RX_SPARE;
                   end if;
                   
-               elsif(cmd1 = CMD_SLOT_ID) then
-                  sel <= SEL_SLOT_ID;
-               
-               elsif(cmd1 = CMD_CARD_ID) then
-                  sel <= SEL_CARD_ID;
-
                elsif(cmd1 = CMD_DEBUG) then
                   sel <= SEL_DEBUG;
                   

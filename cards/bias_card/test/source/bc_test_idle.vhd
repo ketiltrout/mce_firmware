@@ -26,19 +26,13 @@
 -- Organisation:  UBC
 --
 -- Description:
--- Idle state for common items test
+-- Idle state for bias card test
 --
 -- Revision history:
 --
--- $Log: all_test_idle.vhd,v $
--- Revision 1.3  2004/05/11 03:26:31  erniel
--- added LVDS rx test commands
---
--- Revision 1.2  2004/05/03 02:36:52  erniel
--- reduced receiver state machine complexity
---
--- Revision 1.1  2004/04/28 20:16:13  erniel
--- initial version
+-- $Log: bc_test_idle.vhd,v $
+-- Revision 1.1  2004/05/11 23:04:40  mandana
+-- initial release - copied from all_test
 --
 ---------------------------------------------------------------------
 
@@ -47,7 +41,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
-use work.all_test_pack.all;
+use work.bc_test_pack.all;
 
 entity all_test_idle is
    port (
@@ -203,18 +197,13 @@ begin
             when RX_WAIT1 =>
                if (rx_newdata = '1') then
                   if(rx_data_i = CMD_RESET or  
-                     rx_data_i = CMD_WATCHDOG or
-                     rx_data_i = CMD_CARD_ID or
-                     rx_data_i = CMD_SLOT_ID or
-                     rx_data_i = CMD_DIP or
                      rx_data_i = CMD_TX or
                      rx_data_i = CMD_DEBUG or
                      rx_data_i = CMD_BC_DAC) then
                      -- got a single character command - we're done
                      rx_state <= RX_DONE;
 
-                  elsif(rx_data_i = CMD_LED or
-                        rx_data_i = CMD_RX) then
+                  elsif(rx_data_i = CMD_RX) then
                      rx_state <= RX_WAIT2;
 
                   else
@@ -227,10 +216,7 @@ begin
             
             when RX_WAIT2 =>
                if(rx_newdata = '1') then   
-                  if(rx_data_i = CMD_LED_1 or
-                     rx_data_i = CMD_LED_2 or
-                     rx_data_i = CMD_LED_3 or
-                     rx_data_i = CMD_RX_CLK or
+                  if(rx_data_i = CMD_RX_CLK or
                      rx_data_i = CMD_RX_CMD or
                      rx_data_i = CMD_RX_SYNC or
                      rx_data_i = CMD_RX_SPARE) then
