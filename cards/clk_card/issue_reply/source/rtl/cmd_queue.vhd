@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.69 2004/12/06 07:23:04 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.70 2004/12/08 22:16:23 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.70  2004/12/08 22:16:23  bburger
+-- Bryce:  replaced a retire_ptr recirc-mux that was causing compilation problems in Quartus
+--
 -- Revision 1.69  2004/12/06 07:23:04  bburger
 -- Bryce:  Modified cmd_queue and reply_queue stop them from allowing start commands over the backplane
 --
@@ -156,7 +159,6 @@ signal num_uops_contained_mux : integer;
 
 -- Command queue address pointers.  Each one of these are managed by a different FSM.
 signal retire_ptr           : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
---signal flush_ptr            : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal send_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 signal free_ptr             : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0);
 
@@ -315,7 +317,7 @@ begin
    debug_o(31 downto 0)  <=  cmd_tx_dat(31 downto 1) & lvds_tx_busy;
       
    -- Command queue (FIFO)
-   cmd_queue_ram40_inst: cmd_queue_ram40--_test
+   cmd_queue_ram40_inst: cmd_queue_ram40
       port map(
          data        => data_sig,
          wraddress   => wraddress_sig,
@@ -804,7 +806,6 @@ begin
          when IDLE =>
             if(next_retire_state = HEADER_B) then
                retire_ptr_mux_sel <= "101";
---               retire_data_size_en <= '1';
                uop_rdy_o      <= '1';
             else
                uop_rdy_o      <= '0';
