@@ -44,7 +44,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.fo_transceiver_pack.all;
+use work.async_fifo_pack.all;
 
 entity tx_fifo is
    generic( 
