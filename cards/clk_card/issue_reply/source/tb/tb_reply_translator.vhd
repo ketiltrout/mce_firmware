@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.12 2004/11/11 17:15:02 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_reply_translator.vhd,v 1.13 2004/11/16 09:56:16 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/11/11 17:15:02 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/16 09:56:16 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_reply_translator.vhd,v $
+-- Revision 1.13  2004/11/16 09:56:16  dca
+-- 'num_fibre_words_i' changed from std_logic_vector to integer
+--
 -- Revision 1.12  2004/11/11 17:15:02  dca
 -- *** empty log message ***
 --
@@ -587,6 +590,8 @@ begin
       m_op_error_code         <= (others => '0' );
       num_fibre_words         <= 16; 
       
+      fibre_word_rdy          <= '1';
+      
       
               
       wait until txd = FIBRE_PREAMBLE1;
@@ -603,21 +608,21 @@ begin
       
       
       for i in 1 to (num_fibre_words) loop 
-      
+         
+         fibre_word_rdy          <= '1';
          fibre_byte <= conv_std_logic_vector(i,8);
-         wait until fibre_word_req = '1';
-         wait for clk_prd*2;
-         fibre_word_rdy <= '1';
          fibre_word ( 7 downto  0) <= fibre_byte;
          fibre_word (15 downto  8) <= fibre_byte;
          fibre_word (23 downto 16) <= fibre_byte;
          fibre_word (31 downto 24) <= fibre_byte;
-         wait for clk_prd;
-         fibre_word_rdy <= '0';
+         
+         wait until fibre_word_req = '1';
          assert false report "test 6: next fibre word txmitted" severity NOTE;
          
+         wait for clk_prd;
       end loop;
          
+         fibre_word_rdy <= '0';
     
       wait until m_op_ack      = '1'; 
       wait for clk_prd;
@@ -730,19 +735,13 @@ begin
 
     --  for i in 1 to (to_integer(unsigned(num_fibre_words))) loop 
       for i in 1 to (num_fibre_words) loop 
+         
+         fibre_word_rdy          <= '1';
          frame_data <= (i * 32) + 1; 
-         
-         
-         wait until fibre_word_req = '1';
-         wait for clk_prd * 2;
-         
-         fibre_word_rdy <= '1';
          fibre_word <= conv_std_logic_vector(frame_data,32);
-         wait for clk_prd;
-         fibre_word_rdy <= '0';
-         
-          
+         wait until fibre_word_req = '1';
          assert false report "test 8: next fibre word txmitted" severity NOTE;
+         wait for clk_prd;
          
          -- a ST command with checksum error arrives during readout....
          if i = 3 then
@@ -757,9 +756,10 @@ begin
       
          end if; 
          
-      end loop; 
-                 
-    
+      end loop;
+         
+      fibre_word_rdy <= '0';
+     
       wait until m_op_ack      = '1'; 
       wait for clk_prd;
        
