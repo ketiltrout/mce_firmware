@@ -1,0 +1,5 @@
+vsim -coverage tb_watchdog(beh)
+add wave -hex /*
+add list -hex /*
+run -all
+view signals list wave

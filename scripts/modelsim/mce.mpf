@@ -1,0 +1,498 @@
+;
+; Copyright Model Technology, a Mentor Graphics Corporation company 2003,
+; All rights reserved.
+;   
+[Library]
+std = $MODEL_TECH/../std
+ieee = $MODEL_TECH/../ieee
+verilog = $MODEL_TECH/../verilog
+vital2000 = $MODEL_TECH/../vital2000
+std_developerskit = $MODEL_TECH/../std_developerskit
+synopsys = $MODEL_TECH/../synopsys
+modelsim_lib = $MODEL_TECH/../modelsim_lib
+
+work = ../../objects/modelsim/work
+components = ../../objects/modelsim/components
+sys_param = ../../objects/modelsim/sys_param
+[vcom]
+; Turn on VHDL-1993 as the default. Default is off (VHDL-1987).
+; VHDL93 = 1
+
+; Show source line containing error. Default is off.
+; Show_source = 1
+
+; Turn off unbound-component warnings. Default is on.
+; Show_Warning1 = 0
+
+; Turn off process-without-a-wait-statement warnings. Default is on.
+; Show_Warning2 = 0
+
+; Turn off null-range warnings. Default is on.
+; Show_Warning3 = 0
+
+; Turn off no-space-in-time-literal warnings. Default is on.
+; Show_Warning4 = 0
+
+; Turn off multiple-drivers-on-unresolved-signal warnings. Default is on.
+; Show_Warning5 = 0
+
+; Turn off optimization for IEEE std_logic_1164 package. Default is on.
+; Optimize_1164 = 0
+
+; Turn on resolving of ambiguous function overloading in favor of the
+; "explicit" function declaration (not the one automatically created by
+; the compiler for each type declaration). Default is off.
+; The .ini file has Explict enabled so that std_logic_signed/unsigned
+; will match the behavior of synthesis tools.
+Explicit = 1
+
+; Turn off acceleration of the VITAL packages. Default is to accelerate.
+; NoVital = 1
+
+; Turn off VITAL compliance checking. Default is checking on.
+; NoVitalCheck = 1
+
+; Ignore VITAL compliance checking errors. Default is to not ignore.
+; IgnoreVitalErrors = 1
+
+; Turn off VITAL compliance checking warnings. Default is to show warnings.
+; Show_VitalChecksWarnings = false
+
+; Keep silent about case statement static warnings.
+; Default is to give a warning.
+; NoCaseStaticError = 1
+
+; Keep silent about warnings caused by aggregates that are not locally static.
+; Default is to give a warning.
+; NoOthersStaticError = 1
+
+; Treat as errors:
+;   case statement static warnings
+;   warnings caused by aggregates that are not locally static
+; Overrides NoCaseStaticError, NoOthersStaticError settings.
+; PedanticErrors = 1
+
+; Turn off inclusion of debugging info within design units.
+; Default is to include debugging info.
+; NoDebug = 1
+
+; Turn off "Loading..." messages. Default is messages on.
+; Quiet = 1
+
+; Turn on some limited synthesis rule compliance checking. Checks only:
+;    -- signals used (read) by a process must be in the sensitivity list
+; CheckSynthesis = 1
+
+; Activate optimizations on expressions that do not involve signals,
+; waits, or function/procedure/task invocations. Default is off.
+; ScalarOpts = 1
+
+; Require the user to specify a configuration for all bindings,
+; and do not generate a compile time default binding for the
+; component. This will result in an elaboration error of
+; 'component not bound' if the user fails to do so. Avoids the rare
+; issue of a false dependency upon the unused default binding.
+; RequireConfigForAllDefaultBinding = 1 
+
+; Inhibit range checking on subscripts of arrays. Range checking on
+; scalars defined with subtypes is inhibited by default.
+; NoIndexCheck = 1
+
+; Inhibit range checks on all (implicit and explicit) assignments to
+; scalar objects defined with subtypes.
+; NoRangeCheck = 1
+
+[vlog]
+
+; Turn off inclusion of debugging info within design units.
+; Default is to include debugging info.
+; NoDebug = 1
+
+; Turn on `protect compiler directive processing.
+; Default is to ignore `protect directives.
+; Protect = 1
+
+; Turn off "Loading..." messages. Default is messages on.
+; Quiet = 1
+
+; Turn on Verilog hazard checking (order-dependent accessing of global vars).
+; Default is off.
+; Hazard = 1
+
+; Turn on converting regular Verilog identifiers to uppercase. Allows case
+; insensitivity for module names. Default is no conversion.
+; UpCase = 1
+
+; Turn on incremental compilation of modules. Default is off.
+; Incremental = 1
+
+; Activate optimizations on expressions that do not involve signals,
+; waits, or function/procedure/task invocations. Default is off.
+; ScalarOpts = 1
+
+; Turns on lint-style checking.
+; Show_Lint = 1
+
+; Show source line containing error. Default is off.
+; Show_source = 1
+
+; Turn on bad option warning. Default is off.
+; Show_BadOptionWarning = 1
+
+[vsim]
+; Simulator resolution
+; Set to fs, ps, ns, us, ms, or sec with optional prefix of 1, 10, or 100.
+resolution = 1ns
+
+; User time unit for run commands
+; Set to default, fs, ps, ns, us, ms, or sec. The default is to use the
+; unit specified for Resolution. For example, if Resolution is 100ps,
+; then UserTimeUnit defaults to ps.
+; Should generally be set to default.
+UserTimeUnit = ns
+
+; Default run length
+RunLength = 100 ns
+
+; Maximum iterations that can be run without advancing simulation time
+IterationLimit = 5000
+
+; Directives to license manager can be set either as single value or as
+; space separated multi-values:
+; vhdl          Immediately reserve a VHDL license
+; vlog          Immediately reserve a Verilog license
+; plus          Immediately reserve a VHDL and Verilog license
+; nomgc         Do not look for Mentor Graphics Licenses
+; nomti         Do not look for Model Technology Licenses
+; noqueue       Do not wait in the license queue when a license is not available
+; viewsim       Try for viewer license but accept simulator license(s) instead
+;               of queuing for viewer license (PE ONLY)
+; Single value: 
+; License = plus
+; Multi-value: 
+; License = noqueue plus
+
+; Stop the simulator after an assertion message
+; 0 = Note  1 = Warning  2 = Error  3 = Failure  4 = Fatal
+BreakOnAssertion = 3
+
+; Assertion Message Format
+; %S - Severity Level 
+; %R - Report Message
+; %T - Time of assertion
+; %D - Delta
+; %I - Instance or Region pathname (if available)
+; %i - Instance pathname with process
+; %O - Process name
+; %K - Kind of object path is to return: Instance, Signal, Process or Unknown
+; %P - Instance or Region path without leaf process
+; %F - File
+; %L - Line number of assertion or, if assertion is in a subprogram, line
+;      from which the call is made
+; %% - Print '%' character
+; If specific format for assertion level is defined, use its format.
+; If specific format is not define for assertion level, use AssertionFormatBreak
+; if assertion triggers a breakpoint (controlled by BreakOnAssertion level),
+; otherwise use AssertionFormat.
+;
+; AssertionFormat = "** %S: %R\n   Time: %T  Iteration: %D%I\n"
+; AssertionFormatBreak   = "** %S: %R\n   Time: %T  Iteration: %D  %K: %i File: %F\n"
+; AssertionFormatNote    = "** %S: %R\n   Time: %T  Iteration: %D%I\n"
+; AssertionFormatWarning = "** %S: %R\n   Time: %T  Iteration: %D%I\n"
+; AssertionFormatError   = "** %S: %R\n   Time: %T  Iteration: %D  %K: %i File: %F\n"
+; AssertionFormatFail    = "** %S: %R\n   Time: %T  Iteration: %D  %K: %i File: %F\n"
+; AssertionFormatFatal  = "** %S: %R\n   Time: %T  Iteration: %D  %K: %i File: %F\n"
+
+; Assertion File - alternate file for storing assertion messages
+; AssertFile = assert.log
+
+; Default radix for all windows and commands.
+; Set to symbolic, ascii, binary, octal, decimal, hex, unsigned
+DefaultRadix = symbolic
+
+; VSIM Startup command
+; Startup = do startup.do
+
+; File for saving command transcript
+TranscriptFile = transcript
+
+; File for saving command history 
+; CommandHistory = cmdhist.log
+
+; Specify whether paths in simulator commands should be described 
+; in VHDL or Verilog format.
+; For VHDL, PathSeparator = /
+; For Verilog, PathSeparator = .
+; Must not be the same character as DatasetSeparator.
+PathSeparator = /
+
+; Specify the dataset separator for fully rooted contexts.
+; The default is ':'. For example: sim:/top
+; Must not be the same character as PathSeparator.
+DatasetSeparator = :
+
+; Disable assertion messages
+; IgnoreNote = 1
+; IgnoreWarning = 1
+; IgnoreError = 1
+; IgnoreFailure = 1
+
+; Default force kind. May be freeze, drive, or deposit 
+; or in other terms, fixed, wired, or charged.
+; DefaultForceKind = freeze
+
+; If zero, open files when elaborated; otherwise, open files on
+; first read or write.  Default is 0.
+; DelayFileOpen = 1
+
+; Control VHDL files opened for write
+;   0 = Buffered, 1 = Unbuffered
+UnbufferedOutput = 0
+
+; Control number of VHDL files open concurrently
+;   This number should always be less than the
+;   current ulimit setting for max file descriptors.
+;   0 = unlimited
+ConcurrentFileLimit = 40
+
+; Control the number of hierarchical regions displayed as
+; part of a signal name shown in the waveform window.
+; A value of zero tells VSIM to display the full name.
+; The default is 0.
+; WaveSignalNameWidth = 0
+
+; Turn off warnings from the std_logic_arith, std_logic_unsigned
+; and std_logic_signed packages.
+; StdArithNoWarnings = 1
+
+; Turn off warnings from the IEEE numeric_std and numeric_bit packages.
+; NumericStdNoWarnings = 1
+
+; Control the format of a generate statement label. Do not quote it.
+; GenerateFormat = %s__%d
+
+; Specify whether checkpoint files should be compressed.
+; The default is 1 (compressed).
+; CheckpointCompressMode = 0
+
+; List of dynamically loaded objects for Verilog PLI applications
+; Veriuser = veriuser.sl
+
+; Specify default options for the restart command. Options can be one
+; or more of: -force -nobreakpoint -nolist -nolog -nowave
+; DefaultRestartOptions = -force
+
+; HP-UX 10.20 ONLY - Enable memory locking to speed up large designs
+; (> 500 megabyte memory footprint). Default is disabled.
+; Specify number of megabytes to lock.
+; LockedMemory = 1000
+
+; Turn on (1) or off (0) WLF file compression.
+; The default is 1 (compress WLF file).
+; WLFCompress = 0
+
+; Specify whether to save all design hierarchy (1) in the WLF file
+; or only regions containing logged signals (0).
+; The default is 0 (log only regions with logged signals).
+; WLFSaveAllRegions = 1
+
+; WLF file time limit.  Limit WLF file by time, as closely as possible,
+; to the specified amount of simulation time.  When the limit is exceeded
+; the earliest times get truncated from the file.
+; If both time and size limits are specified the most restrictive is used.
+; UserTimeUnits are used if time units are not specified.
+; The default is 0 (no limit).  Example: WLFTimeLimit = {100 ms}
+; WLFTimeLimit = 0
+
+; WLF file size limit.  Limit WLF file size, as closely as possible,
+; to the specified number of megabytes.  If both time and size limits
+; are specified then the most restrictive is used.
+; The default is 0 (no limit).
+; WLFSizeLimit = 1000
+
+; Specify whether or not a WLF file should be deleted when the 
+; simulation ends.  A value of 1 will cause the WLF file to be deleted.
+; The default is 0 (do not delete WLF file when simulation ends).
+; WLFDeleteOnQuit = 1
+
+[lmc]
+; ModelSim's interface to Logic Modeling's SmartModel SWIFT software
+libsm = $MODEL_TECH/libsm.sl
+; ModelSim's interface to Logic Modeling's SmartModel SWIFT software (Windows NT)
+; libsm = $MODEL_TECH/libsm.dll
+;  Logic Modeling's SmartModel SWIFT software (HP 9000 Series 700)
+; libswift = $LMC_HOME/lib/hp700.lib/libswift.sl
+;  Logic Modeling's SmartModel SWIFT software (IBM RISC System/6000)
+; libswift = $LMC_HOME/lib/ibmrs.lib/swift.o
+;  Logic Modeling's SmartModel SWIFT software (Sun4 Solaris)
+; libswift = $LMC_HOME/lib/sun4Solaris.lib/libswift.so
+;  Logic Modeling's SmartModel SWIFT software (Windows NT)
+; libswift = $LMC_HOME/lib/pcnt.lib/libswift.dll
+;  Logic Modeling's SmartModel SWIFT software (Linux)
+; libswift = $LMC_HOME/lib/x86_linux.lib/libswift.so
+
+; ModelSim's interface to Logic Modeling's hardware modeler SFI software
+libhm = $MODEL_TECH/libhm.sl
+; ModelSim's interface to Logic Modeling's hardware modeler SFI software (Windows NT)
+; libhm = $MODEL_TECH/libhm.dll
+;  Logic Modeling's hardware modeler SFI software (HP 9000 Series 700)
+; libsfi = <sfi_dir>/lib/hp700/libsfi.sl
+;  Logic Modeling's hardware modeler SFI software (IBM RISC System/6000)
+; libsfi = <sfi_dir>/lib/rs6000/libsfi.a
+;  Logic Modeling's hardware modeler SFI software (Sun4 Solaris)
+; libsfi = <sfi_dir>/lib/sun4.solaris/libsfi.so
+;  Logic Modeling's hardware modeler SFI software (Windows NT)
+; libsfi = <sfi_dir>/lib/pcnt/lm_sfi.dll
+;  Logic Modeling's hardware modeler SFI software (Linux)
+; libsfi = <sfi_dir>/lib/linux/libsfi.so
+[Project]
+Project_Version = 5
+Project_DefaultLib = work
+Project_SortMethod = unused
+Project_Files_Count = 60
+Project_File_0 = C:/scuba2_repository/scripts/modelsim/runsim_watchdog
+Project_File_P_0 = vhdl_novitalcheck 0 file_type text group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder scripts last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order -1 dont_compile 1 vhdl_use93 1
+Project_File_1 = C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram.vhd
+Project_File_P_1 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder clock_card last_compile 1079492944 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 41 dont_compile 0 vhdl_use93 0
+Project_File_2 = C:/scuba2_repository/cards/library/components/source/rtl/write_data_1_wire.vhd
+Project_File_P_2 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 36 dont_compile 0 vhdl_use93 1
+Project_File_3 = C:/scuba2_repository/cards/library/sys_param/source/pack/command_pack.vhd
+Project_File_P_3 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to sys_param compile_order 37 dont_compile 0 vhdl_use93 1
+Project_File_4 = C:/scuba2_repository/cards/all_cards/array_id/source/pack/array_id_pack.vhd
+Project_File_P_4 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 4 dont_compile 0 vhdl_use93 1
+Project_File_5 = C:/scuba2_repository/cards/library/components/source/rtl/read_serial_data.vhd
+Project_File_P_5 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 35 dont_compile 0 vhdl_use93 1
+Project_File_6 = C:/scuba2_repository/cards/all_cards/async/source/rtl/async_rx.vhd
+Project_File_P_6 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078530714 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 8 dont_compile 0 vhdl_use93 1
+Project_File_7 = C:/scuba2_repository/cards/all_cards/async/source/rtl/async_mux.vhd
+Project_File_P_7 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078530714 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 11 dont_compile 0 vhdl_use93 1
+Project_File_8 = C:/scuba2_repository/cards/library/components/source/rtl/us_timer.vhd
+Project_File_P_8 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1080063992 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 19 dont_compile 0 vhdl_use93 1
+Project_File_9 = C:/scuba2_repository/cards/library/components/source/rtl/crc.vhd
+Project_File_P_9 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 20 dont_compile 0 vhdl_use93 1
+Project_File_10 = C:/scuba2_repository/cards/all_cards/async/source/pack/async_pack.vhd
+Project_File_P_10 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078530714 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 9 dont_compile 0 vhdl_use93 1
+Project_File_11 = C:/scuba2_repository/cards/all_cards/io_led/source/pack/io_pack.vhd
+Project_File_P_11 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder all_cards last_compile 1078535701 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 47 dont_compile 0 vhdl_use93 0
+Project_File_12 = C:/scuba2_repository/cards/all_cards/card_id/source/tb/tb_card_id_top.vhd
+Project_File_P_12 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1079637332 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 24 dont_compile 0 vhdl_use93 1
+Project_File_13 = C:/scuba2_repository/cards/library/components/source/rtl/write_serial_data.vhd
+Project_File_P_13 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 31 dont_compile 0 vhdl_use93 1
+Project_File_14 = C:/scuba2_repository/cards/all_cards/slot_id/source/rtl/slot_id.vhd
+Project_File_P_14 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1080088227 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 26 dont_compile 0 vhdl_use93 1
+Project_File_15 = C:/scuba2_repository/cards/all_cards/card_id/source/rtl/card_id.vhd
+Project_File_P_15 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1080088227 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 25 dont_compile 0 vhdl_use93 1
+Project_File_16 = C:/scuba2_repository/cards/library/components/source/pack/component_pack.vhd
+Project_File_P_16 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1080064004 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 16 dont_compile 0 vhdl_use93 1
+Project_File_17 = C:/scuba2_repository/cards/all_cards/watchdog/source/pack/watchdog_pack.vhd
+Project_File_P_17 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1080088228 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 13 dont_compile 0 vhdl_use93 1
+Project_File_18 = C:/scuba2_repository/cards/all_cards/async/source/tb/async_tb.vhd
+Project_File_P_18 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078530714 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 10 dont_compile 0 vhdl_use93 1
+Project_File_19 = C:/scuba2_repository/cards/library/components/source/rtl/slave_ctrl.vhd
+Project_File_P_19 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1080063992 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 17 dont_compile 0 vhdl_use93 1
+Project_File_20 = C:/scuba2_repository/cards/library/components/source/rtl/counter.vhd
+Project_File_P_20 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder library last_compile 1080007242 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 38 dont_compile 0 vhdl_use93 0
+Project_File_21 = C:/scuba2_repository/cards/library/components/source/rtl/tri_state_buf.vhd
+Project_File_P_21 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 22 dont_compile 0 vhdl_use93 1
+Project_File_22 = C:/scuba2_repository/cards/all_cards/watchdog/source/rtl/watchdog.vhd
+Project_File_P_22 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1080088228 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 29 dont_compile 0 vhdl_use93 1
+Project_File_23 = C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/pack/eeprom_ctrl_pack.vhd
+Project_File_P_23 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder all_cards last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order 52 dont_compile 0 vhdl_use93 0
+Project_File_24 = C:/scuba2_repository/cards/all_cards/watchdog/source/tb/tb_watchdog.vhd
+Project_File_P_24 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1079053091 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 15 dont_compile 0 vhdl_use93 1
+Project_File_25 = C:/scuba2_repository/cards/library/components/source/rtl/reg.vhd
+Project_File_P_25 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 21 dont_compile 0 vhdl_use93 1
+Project_File_26 = C:/scuba2_repository/cards/all_cards/slot_id/source/tb/tb_slot_id.vhd
+Project_File_P_26 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1080090431 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 50 dont_compile 0 vhdl_use93 1
+Project_File_27 = C:/scuba2_repository/scripts/modelsim/runsim_leds
+Project_File_P_27 = vhdl_novitalcheck 0 file_type text group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder scripts last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order -1 dont_compile 1 vhdl_use93 1
+Project_File_28 = C:/scuba2_repository/cards/all_cards/array_id/source/rtl/array_id.vhd
+Project_File_P_28 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078865726 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 27 dont_compile 0 vhdl_use93 1
+Project_File_29 = C:/scuba2_repository/cards/all_cards/async/source/rtl/async_tx.vhd
+Project_File_P_29 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078530714 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 6 dont_compile 0 vhdl_use93 1
+Project_File_30 = C:/scuba2_repository/cards/all_cards/slot_id/source/pack/slot_id_pack.vhd
+Project_File_P_30 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1080088227 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 3 dont_compile 0 vhdl_use93 1
+Project_File_31 = C:/scuba2_repository/cards/all_cards/card_id/source/pack/card_id_pack.vhd
+Project_File_P_31 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 2 dont_compile 0 vhdl_use93 1
+Project_File_32 = C:/scuba2_repository/cards/all_cards/eeprom_ctrl/source/rtl/eeprom_ctrl.vhd
+Project_File_P_32 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder all_cards last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order 53 dont_compile 0 vhdl_use93 0
+Project_File_33 = C:/scuba2_repository/scripts/modelsim/runsim_card_id
+Project_File_P_33 = vhdl_novitalcheck 0 file_type text group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder scripts last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order -1 dont_compile 1 vhdl_use93 1
+Project_File_34 = C:/scuba2_repository/scripts/modelsim/runsim_slot_id
+Project_File_P_34 = vhdl_novitalcheck 0 file_type text group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder scripts last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order -1 dont_compile 1 vhdl_use93 1
+Project_File_35 = C:/scuba2_repository/cards/all_cards/dip_switch/source/rtl/dip_switch.vhd
+Project_File_P_35 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder all_cards last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order 51 dont_compile 0 vhdl_use93 0
+Project_File_36 = C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_ctrl.vhd
+Project_File_P_36 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder clock_card last_compile 1079736282 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 42 dont_compile 0 vhdl_use93 0
+Project_File_37 = C:/scuba2_repository/cards/library/components/source/rtl/write_spi.vhd
+Project_File_P_37 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 30 dont_compile 0 vhdl_use93 1
+Project_File_38 = C:/scuba2_repository/scripts/modelsim/runsim_sram_ctrl
+Project_File_P_38 = vhdl_novitalcheck 0 file_type text group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder scripts last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order -1 dont_compile 1 vhdl_use93 1
+Project_File_39 = C:/scuba2_repository/cards/library/components/source/rtl/tri_state_buf_vec.vhd
+Project_File_P_39 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 23 dont_compile 0 vhdl_use93 1
+Project_File_40 = C:/scuba2_repository/cards/all_cards/dip_switch/source/pack/dip_switch_pack.vhd
+Project_File_P_40 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder all_cards last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order 46 dont_compile 0 vhdl_use93 0
+Project_File_41 = C:/scuba2_repository/cards/all_cards/leds/source/rtl/leds.vhd
+Project_File_P_41 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078535667 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 28 dont_compile 0 vhdl_use93 1
+Project_File_42 = C:/scuba2_repository/scripts/modelsim/runsim_array_id
+Project_File_P_42 = vhdl_novitalcheck 0 file_type text group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder scripts last_compile 0 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 1 vhdl_warn5 1 compile_to work compile_order -1 dont_compile 1 vhdl_use93 1
+Project_File_43 = C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram.vhd
+Project_File_P_43 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder clock_card last_compile 1080072475 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 45 dont_compile 0 vhdl_use93 0
+Project_File_44 = C:/scuba2_repository/cards/all_cards/leds/source/pack/leds_pack.vhd
+Project_File_P_44 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078535677 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 12 dont_compile 0 vhdl_use93 1
+Project_File_45 = C:/scuba2_repository/cards/clk_card/sram_ctrl/source/tb/tb_sram_ctrl.vhd
+Project_File_P_45 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder clock_card last_compile 1080072480 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 44 dont_compile 0 vhdl_use93 0
+Project_File_46 = C:/scuba2_repository/cards/library/components/source/rtl/init_1_wire.vhd
+Project_File_P_46 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 33 dont_compile 0 vhdl_use93 1
+Project_File_47 = C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_pass.vhd
+Project_File_P_47 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder clock_card last_compile 1080072782 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 40 dont_compile 0 vhdl_use93 0
+Project_File_48 = C:/scuba2_repository/cards/clk_card/sram_ctrl/source/pack/sram_ctrl_pack.vhd
+Project_File_P_48 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder clock_card last_compile 1079493064 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 39 dont_compile 0 vhdl_use93 0
+Project_File_49 = C:/scuba2_repository/cards/library/sys_param/source/pack/general_pack.vhd
+Project_File_P_49 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to sys_param compile_order 1 dont_compile 0 vhdl_use93 1
+Project_File_50 = C:/scuba2_repository/cards/library/sys_param/source/pack/wishbone_pack.vhd
+Project_File_P_50 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1080064339 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to sys_param compile_order 0 dont_compile 0 vhdl_use93 1
+Project_File_51 = C:/scuba2_repository/cards/all_cards/leds/source/tb/tb_leds.vhd
+Project_File_P_51 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1079390250 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 14 dont_compile 0 vhdl_use93 1
+Project_File_52 = C:/scuba2_repository/cards/clk_card/sram_ctrl/source/rtl/sram_fail.vhd
+Project_File_P_52 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder clock_card last_compile 1080072787 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 43 dont_compile 0 vhdl_use93 0
+Project_File_53 = C:/scuba2_repository/cards/library/components/source/rtl/prand.vhd
+Project_File_P_53 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1080063992 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 34 dont_compile 0 vhdl_use93 1
+Project_File_54 = C:/scuba2_repository/cards/all_cards/array_id/source/tb/tb_array_id.vhd
+Project_File_P_54 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1080067533 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 5 dont_compile 0 vhdl_use93 1
+Project_File_55 = C:/scuba2_repository/cards/all_cards/io_led/source/rtl/io_led.vhd
+Project_File_P_55 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder all_cards last_compile 1078535690 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 48 dont_compile 0 vhdl_use93 0
+Project_File_56 = C:/scuba2_repository/cards/library/components/source/rtl/shift_reg.vhd
+Project_File_P_56 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 18 dont_compile 0 vhdl_use93 1
+Project_File_57 = C:/scuba2_repository/cards/library/components/source/rtl/read_data_1_wire.vhd
+Project_File_P_57 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder library last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to components compile_order 32 dont_compile 0 vhdl_use93 1
+Project_File_58 = C:/scuba2_repository/cards/all_cards/dip_switch/source/tb/tb_dip_switch.vhd
+Project_File_P_58 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 0 folder all_cards last_compile 1078526315 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 49 dont_compile 0 vhdl_use93 0
+Project_File_59 = C:/scuba2_repository/cards/all_cards/async/source/rtl/async_clk.vhd
+Project_File_P_59 = vhdl_novitalcheck 0 file_type VHDL group_id 0 vhdl_nodebug 0 vhdl_1164 1 vhdl_noload 0 vhdl_synth 1 folder all_cards last_compile 1078530714 vhdl_disableopt 0 vhdl_vital 0 vhdl_warn1 1 vhdl_explicit 1 vhdl_showsource 0 vhdl_warn2 1 vhdl_warn3 1 vhdl_warn4 1 ood 0 vhdl_warn5 1 compile_to work compile_order 7 dont_compile 0 vhdl_use93 1
+Project_Sim_Count = 6
+Project_Sim_0 = Simulation1_array_id
+Project_Sim_P_0 = Generics {} timing default -std_output {} +notimingchecks 0 -L {} selected_du {} -hazards 0 -sdf {} +acc {} ok 1 folder simulations -absentisempty 0 +pulse_r {} OtherArgs {} -multisource_delay {} +pulse_e {} -coverage 1 -sdfnoerror 0 +plusarg {} -vital2.2b 0 -t default additional_dus work.tb_array_id(beh) -nofileshare 0 -noglitch 0 -wlf {} +no_pulse_msg 0 -assertfile {} -sdfnowarn 0 -Lf {} -std_input {}
+Project_Sim_1 = Simulation2_card_id
+Project_Sim_P_1 = Generics {} timing default -std_output {} +notimingchecks 0 -L {} selected_du {} -hazards 0 -sdf {} +acc {} ok 1 folder simulations -absentisempty 0 +pulse_r {} OtherArgs {} -multisource_delay {} +pulse_e {} -coverage 1 -sdfnoerror 0 +plusarg {} -vital2.2b 0 -t default additional_dus work.tb_card_id_top(beh) -nofileshare 0 -noglitch 0 -wlf {} +no_pulse_msg 0 -assertfile {} -sdfnowarn 0 -Lf {} -std_input {}
+Project_Sim_2 = Simulation6_sram_ctrl
+Project_Sim_P_2 = Generics {} timing default -std_output {} +notimingchecks 0 -L {} selected_du {} -hazards 0 -sdf {} +acc {} ok 1 folder simulations +pulse_r {} -absentisempty 0 -multisource_delay {} OtherArgs {} +pulse_e {} -t default -vital2.2b 0 +plusarg {} -sdfnoerror 0 -coverage 1 additional_dus work.tb_sram_ctrl(beh) -noglitch 0 -nofileshare 0 +no_pulse_msg 0 -wlf {} -std_input {} -Lf {} -sdfnowarn 0 -assertfile {}
+Project_Sim_3 = Simulation4_slot_id
+Project_Sim_P_3 = Generics {} timing default -std_output {} +notimingchecks 0 -L {} selected_du {} -hazards 0 -sdf {} +acc {} ok 1 folder simulations -absentisempty 0 +pulse_r {} OtherArgs {} -multisource_delay {} +pulse_e {} -coverage 0 -sdfnoerror 0 +plusarg {} -vital2.2b 0 -t default additional_dus work.tb_slot_id(beh) -nofileshare 0 -noglitch 0 -wlf {} +no_pulse_msg 0 -assertfile {} -sdfnowarn 0 -Lf {} -std_input {}
+Project_Sim_4 = Simulation5_watchdog
+Project_Sim_P_4 = Generics {} timing default -std_output {} +notimingchecks 0 -L {} selected_du {} -hazards 0 -sdf {} +acc {} ok 1 folder simulations -absentisempty 0 +pulse_r {} OtherArgs {} -multisource_delay {} +pulse_e {} -coverage 1 -sdfnoerror 0 +plusarg {} -vital2.2b 0 -t default additional_dus work.tb_watchdog(beh) -nofileshare 0 -noglitch 0 -wlf {} +no_pulse_msg 0 -assertfile {} -sdfnowarn 0 -Lf {} -std_input {}
+Project_Sim_5 = Simulation3_leds
+Project_Sim_P_5 = Generics {} timing default -std_output {} +notimingchecks 0 -L {} selected_du {} -hazards 0 -sdf {} +acc {} ok 1 folder simulations -absentisempty 0 +pulse_r {} OtherArgs {} -multisource_delay {} +pulse_e {} -coverage 1 -sdfnoerror 0 +plusarg {} -vital2.2b 0 -t default additional_dus work.tb_leds(beh) -nofileshare 0 -noglitch 0 -wlf {} +no_pulse_msg 0 -assertfile {} -sdfnowarn 0 -Lf {} -std_input {}
+Project_Folder_Count = 6
+Project_Folder_0 = scripts
+Project_Folder_P_0 = folder {Top Level}
+Project_Folder_1 = simulations
+Project_Folder_P_1 = folder {Top Level}
+Project_Folder_2 = clock_card
+Project_Folder_P_2 = folder cards
+Project_Folder_3 = cards
+Project_Folder_P_3 = folder {Top Level}
+Project_Folder_4 = library
+Project_Folder_P_4 = folder {Top Level}
+Project_Folder_5 = all_cards
+Project_Folder_P_5 = folder cards
