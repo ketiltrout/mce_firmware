@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_lvds_tx.vhd,v $
+-- Revision 1.3  2004/12/23 20:51:14  erniel
+-- updated lvds_tx component
+--
 -- Revision 1.2  2004/08/27 19:30:10  erniel
 -- replaced start/done with rdy/busy interface
 --
@@ -50,8 +53,8 @@ architecture BEH of TB_LVDS_TX is
 
    component LVDS_TX
       port(CLK_I        : in std_logic ;
-           MEM_CLK_I    : in std_logic ;
-           COMM_CLK_I   : in std_logic ;
+--           MEM_CLK_I    : in std_logic ;
+--           COMM_CLK_I   : in std_logic ;
            RST_I        : in std_logic ;
            DAT_I        : in std_logic_vector ( 31 downto 0 );
            RDY_I        : in std_logic ;
@@ -78,8 +81,8 @@ begin
 
    DUT : LVDS_TX
       port map(CLK_I        => W_CLK_I,
-               MEM_CLK_I    => W_MEM_CLK_I,
-               COMM_CLK_I   => W_COMM_CLK_I,
+--               MEM_CLK_I    => W_MEM_CLK_I,
+--               COMM_CLK_I   => W_COMM_CLK_I,
                RST_I        => W_RST_I,
                DAT_I        => W_DAT_I,
                RDY_I        => W_RDY_I,
@@ -87,8 +90,8 @@ begin
                LVDS_O       => W_LVDS_O);
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
-   W_MEM_CLK_I <= not W_MEM_CLK_I after MEM_PERIOD/2;
-   W_COMM_CLK_I <= not W_COMM_CLK_I after COMM_PERIOD/2;
+--   W_MEM_CLK_I <= not W_MEM_CLK_I after MEM_PERIOD/2;
+--   W_COMM_CLK_I <= not W_COMM_CLK_I after COMM_PERIOD/2;
 
    STIMULI : process
    procedure do_reset is
