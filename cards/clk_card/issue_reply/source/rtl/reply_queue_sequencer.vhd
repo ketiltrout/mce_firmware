@@ -32,6 +32,10 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.3  2004/11/30 03:02:52  erniel
+-- deleted done_o port
+-- deleted status_i ports
+--
 -- Revision 1.2  2004/11/12 19:42:03  erniel
 -- added INSPECT_HEADER state
 -- modified receiver FIFO interface
@@ -119,10 +123,11 @@ port(clk_i : in std_logic;
      cc_done_i    : in std_logic;
      
      -- fibre interface:
-     size_o : out integer;
-     data_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     rdy_o  : out std_logic;
-     ack_i  : in std_logic;
+     size_o  : out integer;
+     error_o : out std_logic_vector(26 downto 0);
+     data_o  : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+     rdy_o   : out std_logic;
+     ack_i   : in std_logic;
      
      -- cmd_queue interface:
      macro_op_i  : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
@@ -183,6 +188,10 @@ begin
                                                                (rc4_header_i(31 downto 16) = seq_num) and
                                                                (cc_header_i(31 downto 16)  = seq_num))) else '0';   
 
+   error_o <= ac_header_i(15 downto 13)  & bc1_header_i(15 downto 13) & bc2_header_i(15 downto 13) & bc3_header_i(15 downto 13) &
+              rc1_header_i(15 downto 13) & rc2_header_i(15 downto 13) & rc3_header_i(15 downto 13) & rc4_header_i(15 downto 13) &
+              cc_header_i(15 downto 13);
+              
    state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then 
