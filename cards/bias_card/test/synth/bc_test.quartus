@@ -37,6 +37,7 @@ FILES
 	VHDL_FILE = ..\..\dac_ctrl\source\rtl\dac_ctrl.vhd;
 	VHDL_FILE = ..\..\dac_ctrl\source\tb\dac_ctrl_test_wrapper.vhd;
 	VHDL_FILE = ..\source\bc_dac_ramp_test.vhd;
+	VHDL_FILE = ..\source\bc_dac_xtalk_test.vhd;
 	VHDL_FILE = ..\source\bc_dac_ctrl_test.vhd;
 	VHDL_FILE = ..\source\bc_test_pack.vhd;
 	VHDL_FILE = ..\source\bc_test_idle.vhd;
