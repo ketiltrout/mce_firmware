@@ -30,8 +30,11 @@
 --
 -- 
 -- Revision history:
--- <date $Date: 2004/05/19 18:27:41 $> - <initials $Author: mandana $>
+-- <date $Date: 2004/10/26 23:58:17 $> - <initials $Author: bburger $>
 -- $Log: dac_ctrl_pack.vhd,v $
+-- Revision 1.7  2004/10/26 23:58:17  bburger
+-- Bryce:  dac_ctrl logic now works with the new frame_timing block
+--
 -- Revision 1.6  2004/05/19 18:27:41  mandana
 -- deleted nclr pin on DACs, it is tied to FPGA status line
 --
@@ -66,6 +69,12 @@ use sys_param.wishbone_pack.all;
 
 package dac_ctrl_pack is
 
+   -- max and min allowable DAC settings on Bias card
+   constant MAX_FLUX_FB      : std_logic_vector (15 downto 0) := x"FFFF";
+   constant MIN_FLUX_FB      : std_logic_vector (15 downto 0) := x"0000";
+   constant MAX_BIAS         : std_logic_vector (15 downto 0) := x"FFFF";
+   constant MIN_BIAS         : std_logic_vector (15 downto 0) := x"0000";
+   
 component dac_ctrl
    generic(DAC32_CTRL_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := FLUX_FB_ADDR;
            DAC_LVDS_CTRL_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := BIAS_ADDR);
