@@ -22,6 +22,12 @@
 -- Revision History:
 --
 -- $Log: async_rx.vhd,v $
+-- Revision 1.8  2004/12/14 23:04:27  erniel
+-- changed CLK_DIV_FACTOR default value to LVDS
+-- removed err_o signal
+-- added ack_i signal
+-- updated state transitions to handle ack_i
+--
 -- Revision 1.7  2004/12/10 01:34:44  erniel
 -- added generic clock divide factor and clock division logic
 -- changed sampling interval to centre of received bit
@@ -91,27 +97,29 @@ signal next_state : states;
    
 begin
 
-   clk_divide: counter
-   generic map(MAX => CLK_DIV_FACTOR-1)
-   port map(clk_i => comm_clk_i,
-            rst_i => rst_i,
-            ena_i => '1',
-            load_i => '0',
-            count_i => 0,
-            count_o => clk_div_count);
+--   clk_divide: counter
+--   generic map(MAX => CLK_DIV_FACTOR-1)
+--   port map(clk_i => comm_clk_i,
+--            rst_i => rst_i,
+--            ena_i => '1',
+--            load_i => '0',
+--            count_i => 0,
+--            count_o => clk_div_count);
+--
+--   -- register clock divider output (to eliminate glitches from combinational compare)
+--   process(comm_clk_i)
+--   begin
+--      if(comm_clk_i'event and comm_clk_i = '1') then
+--         if(clk_div_count = CLK_DIV_FACTOR-1) then
+--            rx_clk <= '1';
+--         else
+--            rx_clk <= '0';
+--         end if;
+--      end if;
+--   end process;
 
-   -- register clock divider output (to eliminate glitches from combinational compare)
-   process(comm_clk_i)
-   begin
-      if(comm_clk_i'event and comm_clk_i = '1') then
-         if(clk_div_count = CLK_DIV_FACTOR-1) then
-            rx_clk <= '1';
-         else
-            rx_clk <= '0';
-         end if;
-      end if;
-   end process;
-
+   rx_clk <= comm_clk_i;
+   
    rx_sample: shift_reg
    generic map(WIDTH => 3)
    port map(clk_i      => rx_clk,

@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: async_tx.vhd,v $
+-- Revision 1.6  2004/12/14 23:05:01  erniel
+-- changed CLK_DIV_FACTOR default value to LVDS
+--
 -- Revision 1.5  2004/12/10 01:36:58  erniel
 -- added generic clock divide factor and clock division logic
 -- changed some signal names
@@ -47,7 +50,7 @@ use components.component_pack.all;
 ---------------------------------------------------------------------
 
 entity async_tx is
-generic(CLK_DIV_FACTOR : in integer := 16); 
+generic(CLK_DIV_FACTOR : in integer := 8); 
 port(comm_clk_i : in std_logic;
      rst_i      : in std_logic;
 

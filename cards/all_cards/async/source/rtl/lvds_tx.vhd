@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_tx.vhd,v $
+-- Revision 1.10  2004/12/16 18:21:08  erniel
+-- fixed small bug in counter
+--
 -- Revision 1.9  2004/12/16 18:09:32  erniel
 -- fixed small bug in counter
 --
@@ -119,7 +122,7 @@ signal next_state : states;
 begin
 
    transmit: async_tx
-   generic map(CLK_DIV_FACTOR => 16)
+   generic map(CLK_DIV_FACTOR => 8)
    port map(comm_clk_i => comm_clk_i,
             rst_i      => rst_i,
             dat_i      => tx_data,
