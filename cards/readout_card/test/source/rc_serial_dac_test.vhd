@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/07/21 22:26:24 $> - <initials $Author: erniel $>
+-- <date $Date: 2004/11/15 20:03:41 $> - <initials $Author: bburger $>
 -- $Log: rc_serial_dac_test.vhd,v $
+-- Revision 1.7  2004/11/15 20:03:41  bburger
+-- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
+--
 -- Revision 1.6  2004/07/21 22:26:24  erniel
 -- updated counter component
 --
@@ -68,7 +71,7 @@ use sys_param.data_types_pack.all;
 
 use components.component_pack.all;
 
-use work.frame_timing_pack.all;
+--use work.frame_timing_pack.all;
 
 -----------------------------------------------------------------------------
                      
@@ -167,7 +170,7 @@ begin
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 3,
+   generic map(MAX => 2,
                STEP_SIZE => 1,
                WRAP_AROUND => '1',
                UP_COUNTER => '1')
@@ -184,10 +187,11 @@ begin
 -- and therefore they are all fired at once.
 --
 ------------------------------------------------------------------------
-  -- values tried on DAC Tests with fixed values                               
-   data (0) <= "1111111111111111";--xffff     full scale
+  -- values tried on DAC Tests with fixed values          
+-- comment out full-range to run with rc_test_ssr and generate a square wave
+--   data (2) <= "1111111111111111";--xffff     full scale
    data (1) <= "1000000000000000";--x8000     half range
-   data (2) <= "0000000000000000";--x0000     0
+   data (0) <= "0000000000000000";--x0000     0
 -- data (3) <= "0000000000000001";--x0001 
 -- data (4) <= "0000000000000010";--x0002 
 -- data (5) <= "0000000000000100";--x0004 
