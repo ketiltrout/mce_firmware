@@ -73,7 +73,7 @@ value "C:\\scuba2_repository\\architecture\\readout_card\\hds\\wbs_frame_data"
 )
 (vvPair
 variable "date"
-value "10/13/2004"
+value "11/10/2004"
 )
 (vvPair
 variable "day"
@@ -85,7 +85,7 @@ value "Wednesday"
 )
 (vvPair
 variable "dd"
-value "13"
+value "10"
 )
 (vvPair
 variable "entity_name"
@@ -121,7 +121,7 @@ value "readout_card"
 )
 (vvPair
 variable "mm"
-value "10"
+value "11"
 )
 (vvPair
 variable "module_name"
@@ -129,11 +129,11 @@ value "wbs_frame_data"
 )
 (vvPair
 variable "month"
-value "Oct"
+value "Nov"
 )
 (vvPair
 variable "month_long"
-value "October"
+value "November"
 )
 (vvPair
 variable "p"
@@ -177,7 +177,7 @@ value "<TBD>"
 )
 (vvPair
 variable "time"
-value "09:15:56"
+value "16:42:21"
 )
 (vvPair
 variable "unit"
@@ -3074,7 +3074,7 @@ uid 462,0
 va (VaSet
 )
 xt "60000,78500,67400,79500"
-st "filtered_addr_ch8_o"
+st "filtered_addr_ch0_o"
 blo "60000,79300"
 tm "WireNameMgr"
 )
@@ -3208,7 +3208,7 @@ uid 480,0
 va (VaSet
 )
 xt "59000,80500,65700,81500"
-st "filtered_dat_ch8_i"
+st "filtered_dat_ch0_i"
 blo "59000,81300"
 tm "WireNameMgr"
 )
@@ -3252,7 +3252,7 @@ uid 486,0
 va (VaSet
 )
 xt "60000,82500,66300,83500"
-st "fsfb_addr_ch8_o"
+st "fsfb_addr_ch0_o"
 blo "60000,83300"
 tm "WireNameMgr"
 )
@@ -3386,7 +3386,7 @@ uid 504,0
 va (VaSet
 )
 xt "59000,84500,64600,85500"
-st "fsfb_dat_ch8_i"
+st "fsfb_dat_ch0_i"
 blo "59000,85300"
 tm "WireNameMgr"
 )
@@ -3475,7 +3475,7 @@ uid 516,0
 va (VaSet
 )
 xt "60000,86500,67900,87500"
-st "coadded_addr_ch8_o"
+st "coadded_addr_ch0_o"
 blo "60000,87300"
 tm "WireNameMgr"
 )
@@ -3519,7 +3519,7 @@ uid 522,0
 va (VaSet
 )
 xt "59000,88500,66200,89500"
-st "coadded_dat_ch8_i"
+st "coadded_dat_ch0_i"
 blo "59000,89300"
 tm "WireNameMgr"
 )
@@ -3608,7 +3608,7 @@ uid 534,0
 va (VaSet
 )
 xt "60000,90500,66300,91500"
-st "raw_addr_ch8_o"
+st "raw_addr_ch0_o"
 blo "60000,91300"
 tm "WireNameMgr"
 )
@@ -3697,7 +3697,7 @@ uid 546,0
 va (VaSet
 )
 xt "59000,92500,64600,93500"
-st "raw_dat_ch8_i"
+st "raw_dat_ch0_i"
 blo "59000,93300"
 tm "WireNameMgr"
 )
@@ -3786,7 +3786,7 @@ uid 558,0
 va (VaSet
 )
 xt "60000,94500,66000,95500"
-st "raw_req_ch8_o"
+st "raw_req_ch0_o"
 blo "60000,95300"
 tm "WireNameMgr"
 )
@@ -3875,7 +3875,7 @@ uid 570,0
 va (VaSet
 )
 xt "59000,96500,64700,97500"
-st "raw_ack_ch8_i"
+st "raw_ack_ch0_i"
 blo "59000,97300"
 tm "WireNameMgr"
 )
@@ -4545,38 +4545,6 @@ st "raw_ack_ch7_i       : std_logic"
 )
 )
 *129 (Net
-uid 1135,0
-name "filtered_addr_ch8_o"
-type "std_logic_vector"
-bounds "(5 DOWNTO 0)"
-orderNo 43
-declText (MLText
-uid 1136,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,46000,49000,46800"
-st "filtered_addr_ch8_o : std_logic_vector(5 DOWNTO 0)"
-)
-)
-*130 (Net
-uid 1137,0
-name "fsfb_addr_ch8_o"
-type "std_logic_vector"
-bounds "(5 DOWNTO 0)"
-orderNo 44
-declText (MLText
-uid 1138,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,52400,49000,53200"
-st "fsfb_addr_ch8_o     : std_logic_vector(5 DOWNTO 0)"
-)
-)
-*131 (Net
 uid 1139,0
 name "raw_dat_ch7_i"
 type "std_logic_vector"
@@ -4592,23 +4560,7 @@ xt "22000,32400,49500,33200"
 st "raw_dat_ch7_i       : std_logic_vector(13 DOWNTO 0)"
 )
 )
-*132 (Net
-uid 1141,0
-name "filtered_dat_ch8_i"
-type "std_logic_vector"
-bounds "(31 DOWNTO 0)"
-orderNo 46
-declText (MLText
-uid 1142,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,14000,49500,14800"
-st "filtered_dat_ch8_i  : std_logic_vector(31 DOWNTO 0)"
-)
-)
-*133 (Net
+*130 (Net
 uid 1143,0
 name "raw_req_ch7_o"
 type "std_logic"
@@ -4623,7 +4575,7 @@ xt "22000,64400,39000,65200"
 st "raw_req_ch7_o       : std_logic"
 )
 )
-*134 (Net
+*131 (Net
 uid 1145,0
 name "filtered_addr_ch7_o"
 type "std_logic_vector"
@@ -4639,7 +4591,7 @@ xt "22000,45200,49000,46000"
 st "filtered_addr_ch7_o : std_logic_vector(5 DOWNTO 0)"
 )
 )
-*135 (Net
+*132 (Net
 uid 1147,0
 name "filtered_dat_ch7_i"
 type "std_logic_vector"
@@ -4655,7 +4607,7 @@ xt "22000,13200,49500,14000"
 st "filtered_dat_ch7_i  : std_logic_vector(31 DOWNTO 0)"
 )
 )
-*136 (Net
+*133 (Net
 uid 1149,0
 name "coadded_addr_ch7_o"
 type "std_logic_vector"
@@ -4671,7 +4623,7 @@ xt "22000,38800,49000,39600"
 st "coadded_addr_ch7_o  : std_logic_vector(5 DOWNTO 0)"
 )
 )
-*137 (Net
+*134 (Net
 uid 1151,0
 name "coadded_dat_ch7_i"
 type "std_logic_vector"
@@ -4687,7 +4639,7 @@ xt "22000,6800,49500,7600"
 st "coadded_dat_ch7_i   : std_logic_vector(31 DOWNTO 0)"
 )
 )
-*138 (Net
+*135 (Net
 uid 1153,0
 name "fsfb_dat_ch7_i"
 type "std_logic_vector"
@@ -4703,23 +4655,7 @@ xt "22000,19600,49500,20400"
 st "fsfb_dat_ch7_i      : std_logic_vector(31 DOWNTO 0)"
 )
 )
-*139 (Net
-uid 1155,0
-name "coadded_addr_ch8_o"
-type "std_logic_vector"
-bounds "(5 DOWNTO 0)"
-orderNo 53
-declText (MLText
-uid 1156,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,39600,49000,40400"
-st "coadded_addr_ch8_o  : std_logic_vector(5 DOWNTO 0)"
-)
-)
-*140 (Net
+*136 (Net
 uid 1157,0
 name "raw_addr_ch7_o"
 type "std_logic_vector"
@@ -4735,101 +4671,7 @@ xt "22000,58000,49500,58800"
 st "raw_addr_ch7_o      : std_logic_vector(12 DOWNTO 0)"
 )
 )
-*141 (Net
-uid 1159,0
-name "raw_req_ch8_o"
-type "std_logic"
-orderNo 55
-declText (MLText
-uid 1160,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,65200,39000,66000"
-st "raw_req_ch8_o       : std_logic"
-)
-)
-*142 (Net
-uid 1161,0
-name "fsfb_dat_ch8_i"
-type "std_logic_vector"
-bounds "(31 DOWNTO 0)"
-orderNo 56
-declText (MLText
-uid 1162,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,20400,49500,21200"
-st "fsfb_dat_ch8_i      : std_logic_vector(31 DOWNTO 0)"
-)
-)
-*143 (Net
-uid 1163,0
-name "coadded_dat_ch8_i"
-type "std_logic_vector"
-bounds "(31 DOWNTO 0)"
-orderNo 57
-declText (MLText
-uid 1164,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,7600,49500,8400"
-st "coadded_dat_ch8_i   : std_logic_vector(31 DOWNTO 0)"
-)
-)
-*144 (Net
-uid 1165,0
-name "raw_dat_ch8_i"
-type "std_logic_vector"
-bounds "(13 DOWNTO 0)"
-orderNo 58
-declText (MLText
-uid 1166,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,33200,49500,34000"
-st "raw_dat_ch8_i       : std_logic_vector(13 DOWNTO 0)"
-)
-)
-*145 (Net
-uid 1167,0
-name "raw_addr_ch8_o"
-type "std_logic_vector"
-bounds "(12 DOWNTO 0)"
-orderNo 59
-declText (MLText
-uid 1168,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,58800,49500,59600"
-st "raw_addr_ch8_o      : std_logic_vector(12 DOWNTO 0)"
-)
-)
-*146 (Net
-uid 1169,0
-name "raw_ack_ch8_i"
-type "std_logic"
-orderNo 60
-declText (MLText
-uid 1170,0
-va (VaSet
-isHidden 1
-font "Courier New,8,0"
-)
-xt "22000,26800,39000,27600"
-st "raw_ack_ch8_i       : std_logic"
-)
-)
-*147 (Net
+*137 (Net
 uid 1171,0
 name "fsfb_addr_ch3_o"
 type "std_logic_vector"
@@ -4845,7 +4687,7 @@ xt "22000,48400,49000,49200"
 st "fsfb_addr_ch3_o     : std_logic_vector(5 DOWNTO 0)"
 )
 )
-*148 (Net
+*138 (Net
 uid 1173,0
 name "filtered_dat_ch3_i"
 type "std_logic_vector"
@@ -4861,7 +4703,7 @@ xt "22000,10000,49500,10800"
 st "filtered_dat_ch3_i  : std_logic_vector(31 DOWNTO 0)"
 )
 )
-*149 (Net
+*139 (Net
 uid 1175,0
 name "coadded_dat_ch2_i"
 type "std_logic_vector"
@@ -4877,7 +4719,7 @@ xt "22000,2800,49500,3600"
 st "coadded_dat_ch2_i   : std_logic_vector(31 DOWNTO 0)"
 )
 )
-*150 (Net
+*140 (Net
 uid 1177,0
 name "raw_addr_ch3_o"
 type "std_logic_vector"
@@ -4893,7 +4735,7 @@ xt "22000,54800,49500,55600"
 st "raw_addr_ch3_o      : std_logic_vector(12 DOWNTO 0)"
 )
 )
-*151 (Net
+*141 (Net
 uid 1179,0
 name "raw_dat_ch3_i"
 type "std_logic_vector"
@@ -4909,7 +4751,7 @@ xt "22000,29200,49500,30000"
 st "raw_dat_ch3_i       : std_logic_vector(13 DOWNTO 0)"
 )
 )
-*152 (Net
+*142 (Net
 uid 1181,0
 name "filtered_addr_ch3_o"
 type "std_logic_vector"
@@ -4925,7 +4767,7 @@ xt "22000,42000,49000,42800"
 st "filtered_addr_ch3_o : std_logic_vector(5 DOWNTO 0)"
 )
 )
-*153 (Net
+*143 (Net
 uid 1183,0
 name "coadded_addr_ch2_o"
 type "std_logic_vector"
@@ -4941,7 +4783,7 @@ xt "22000,34800,49000,35600"
 st "coadded_addr_ch2_o  : std_logic_vector(5 DOWNTO 0)"
 )
 )
-*154 (Net
+*144 (Net
 uid 1185,0
 name "fsfb_addr_ch2_o"
 type "std_logic_vector"
@@ -4957,7 +4799,7 @@ xt "22000,47600,49000,48400"
 st "fsfb_addr_ch2_o     : std_logic_vector(5 DOWNTO 0)"
 )
 )
-*155 (Net
+*145 (Net
 uid 1187,0
 name "raw_dat_ch2_i"
 type "std_logic_vector"
@@ -4973,7 +4815,7 @@ xt "22000,28400,49500,29200"
 st "raw_dat_ch2_i       : std_logic_vector(13 DOWNTO 0)"
 )
 )
-*156 (Net
+*146 (Net
 uid 1189,0
 name "filtered_addr_ch2_o"
 type "std_logic_vector"
@@ -4989,7 +4831,7 @@ xt "22000,41200,49000,42000"
 st "filtered_addr_ch2_o : std_logic_vector(5 DOWNTO 0)"
 )
 )
-*157 (Net
+*147 (Net
 uid 1191,0
 name "raw_req_ch2_o"
 type "std_logic"
@@ -5004,7 +4846,7 @@ xt "22000,60400,39000,61200"
 st "raw_req_ch2_o       : std_logic"
 )
 )
-*158 (Net
+*148 (Net
 uid 1193,0
 name "raw_req_ch3_o"
 type "std_logic"
@@ -5019,7 +4861,7 @@ xt "22000,61200,39000,62000"
 st "raw_req_ch3_o       : std_logic"
 )
 )
-*159 (Net
+*149 (Net
 uid 1195,0
 name "coadded_addr_ch3_o"
 type "std_logic_vector"
@@ -5035,7 +4877,7 @@ xt "22000,35600,49000,36400"
 st "coadded_addr_ch3_o  : std_logic_vector(5 DOWNTO 0)"
 )
 )
-*160 (Net
+*150 (Net
 uid 1197,0
 name "filtered_dat_ch2_i"
 type "std_logic_vector"
@@ -5051,7 +4893,7 @@ xt "22000,9200,49500,10000"
 st "filtered_dat_ch2_i  : std_logic_vector(31 DOWNTO 0)"
 )
 )
-*161 (Net
+*151 (Net
 uid 1199,0
 name "raw_ack_ch1_i"
 type "std_logic"
@@ -5066,7 +4908,7 @@ xt "22000,21200,39000,22000"
 st "raw_ack_ch1_i       : std_logic"
 )
 )
-*162 (Net
+*152 (Net
 uid 1201,0
 name "coadded_dat_ch1_i"
 type "std_logic_vector"
@@ -5082,7 +4924,7 @@ xt "22000,2000,49500,2800"
 st "coadded_dat_ch1_i   : std_logic_vector(31 DOWNTO 0)"
 )
 )
-*163 (Net
+*153 (Net
 uid 1203,0
 name "raw_dat_ch1_i"
 type "std_logic_vector"
@@ -5098,7 +4940,7 @@ xt "22000,27600,49500,28400"
 st "raw_dat_ch1_i       : std_logic_vector(13 DOWNTO 0)"
 )
 )
-*164 (Net
+*154 (Net
 uid 1205,0
 name "raw_addr_ch2_o"
 type "std_logic_vector"
@@ -5114,7 +4956,7 @@ xt "22000,54000,49500,54800"
 st "raw_addr_ch2_o      : std_logic_vector(12 DOWNTO 0)"
 )
 )
-*165 (Net
+*155 (Net
 uid 1207,0
 name "fsfb_dat_ch2_i"
 type "std_logic_vector"
@@ -5130,7 +4972,7 @@ xt "22000,15600,49500,16400"
 st "fsfb_dat_ch2_i      : std_logic_vector(31 DOWNTO 0)"
 )
 )
-*166 (Net
+*156 (Net
 uid 1209,0
 name "raw_ack_ch2_i"
 type "std_logic"
@@ -5145,10 +4987,10 @@ xt "22000,22000,39000,22800"
 st "raw_ack_ch2_i       : std_logic"
 )
 )
-*167 (Grouping
+*157 (Grouping
 uid 1531,0
 optionalChildren [
-*168 (CommentGraphic
+*158 (CommentGraphic
 uid 1533,0
 shape (ZoomableIcon
 uid 1534,0
@@ -5163,7 +5005,7 @@ iconName "C:\\scuba2_repository\\architecture\\logos\\ubc.jpg"
 )
 oxt "269480,230900,273000,236000"
 )
-*169 (CommentGraphic
+*159 (CommentGraphic
 uid 1535,0
 shape (PolyLine2D
 pts [
@@ -5182,7 +5024,7 @@ xt "59000,100000,59000,107000"
 )
 oxt "255000,230000,255000,237000"
 )
-*170 (CommentGraphic
+*160 (CommentGraphic
 uid 1537,0
 shape (PolyLine2D
 pts [
@@ -5201,7 +5043,7 @@ xt "99000,100000,99000,107000"
 )
 oxt "295000,230000,295000,237000"
 )
-*171 (CommentGraphic
+*161 (CommentGraphic
 uid 1539,0
 shape (PolyLine2D
 pts [
@@ -5220,7 +5062,7 @@ xt "59000,100000,99000,100000"
 )
 oxt "255000,230000,295000,230000"
 )
-*172 (CommentText
+*162 (CommentText
 uid 1541,0
 shape (Rectangle
 uid 1542,0
@@ -5250,7 +5092,7 @@ visibleWidth 20000
 )
 position 4
 )
-*173 (CommentText
+*163 (CommentText
 uid 1544,0
 shape (Rectangle
 uid 1545,0
@@ -5268,7 +5110,7 @@ va (VaSet
 fg "0,0,32768"
 bg "0,0,32768"
 )
-xt "64200,111500,74600,112500"
+xt "64200,111500,74500,112500"
 st "
 by %user on %dd %month %year
 "
@@ -5279,7 +5121,7 @@ visibleWidth 15000
 )
 position 1
 )
-*174 (CommentText
+*164 (CommentText
 uid 1547,0
 shape (Rectangle
 uid 1548,0
@@ -5314,7 +5156,7 @@ visibleWidth 20000
 )
 position 1
 )
-*175 (CommentText
+*165 (CommentText
 uid 1550,0
 shape (Rectangle
 uid 1551,0
@@ -5343,7 +5185,7 @@ visibleWidth 5000
 )
 position 1
 )
-*176 (CommentText
+*166 (CommentText
 uid 1553,0
 shape (Rectangle
 uid 1554,0
@@ -5372,7 +5214,7 @@ visibleWidth 8000
 )
 position 1
 )
-*177 (CommentText
+*167 (CommentText
 uid 1556,0
 shape (Rectangle
 uid 1557,0
@@ -5402,7 +5244,7 @@ visibleWidth 8000
 )
 position 1
 )
-*178 (CommentText
+*168 (CommentText
 uid 1559,0
 shape (Rectangle
 uid 1560,0
@@ -5431,7 +5273,7 @@ visibleWidth 5000
 )
 position 1
 )
-*179 (CommentText
+*169 (CommentText
 uid 1562,0
 shape (Rectangle
 uid 1563,0
@@ -5461,7 +5303,7 @@ visibleWidth 15000
 )
 position 1
 )
-*180 (CommentText
+*170 (CommentText
 uid 1565,0
 shape (Rectangle
 uid 1566,0
@@ -5491,7 +5333,7 @@ visibleWidth 8000
 )
 position 1
 )
-*181 (CommentGraphic
+*171 (CommentGraphic
 uid 1568,0
 shape (ZoomableIcon
 uid 1569,0
@@ -5506,7 +5348,7 @@ iconName "C:\\scuba2_repository\\architecture\\logos\\ATC.jpg"
 )
 oxt "257000,231112,267000,236000"
 )
-*182 (CommentText
+*172 (CommentText
 uid 1570,0
 shape (Rectangle
 uid 1571,0
@@ -5535,7 +5377,7 @@ visibleWidth 5000
 )
 position 1
 )
-*183 (CommentText
+*173 (CommentText
 uid 1573,0
 shape (Rectangle
 uid 1574,0
@@ -5565,7 +5407,7 @@ visibleWidth 15000
 )
 position 1
 )
-*184 (CommentText
+*174 (CommentText
 uid 1576,0
 shape (Rectangle
 uid 1577,0
@@ -5595,7 +5437,7 @@ visibleWidth 12000
 )
 position 1
 )
-*185 (CommentText
+*175 (CommentText
 uid 1579,0
 shape (Rectangle
 uid 1580,0
@@ -5625,7 +5467,7 @@ visibleWidth 12000
 )
 position 1
 )
-*186 (CommentText
+*176 (CommentText
 uid 1582,0
 shape (Rectangle
 uid 1583,0
@@ -5668,7 +5510,7 @@ xt "59000,100000,99000,113000"
 )
 oxt "255000,230000,295000,243000"
 )
-*187 (CommentGraphic
+*177 (CommentGraphic
 uid 1585,0
 shape (ZoomableIcon
 uid 1586,0
@@ -5681,7 +5523,7 @@ xt "4080,1240,15000,9000"
 iconName "C:\\scuba2_repository\\architecture\\logos\\scuba2_small.bmp"
 )
 )
-*188 (CommentText
+*178 (CommentText
 uid 1747,0
 shape (Rectangle
 uid 1748,0
@@ -5707,6 +5549,144 @@ tm "CommentText"
 wrapOption 3
 visibleHeight 1600
 visibleWidth 9600
+)
+)
+*179 (Net
+uid 1910,0
+name "filtered_addr_ch0_o"
+type "std_logic_vector"
+bounds "(5 DOWNTO 0)"
+orderNo 43
+declText (MLText
+uid 1911,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*180 (Net
+uid 1912,0
+name "filtered_dat_ch0_i"
+type "std_logic_vector"
+bounds "(31 DOWNTO 0)"
+orderNo 46
+declText (MLText
+uid 1913,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*181 (Net
+uid 1914,0
+name "fsfb_addr_ch0_o"
+type "std_logic_vector"
+bounds "(5 DOWNTO 0)"
+orderNo 44
+declText (MLText
+uid 1915,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*182 (Net
+uid 1916,0
+name "fsfb_dat_ch0_i"
+type "std_logic_vector"
+bounds "(31 DOWNTO 0)"
+orderNo 56
+declText (MLText
+uid 1917,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*183 (Net
+uid 1918,0
+name "coadded_addr_ch0_o"
+type "std_logic_vector"
+bounds "(5 DOWNTO 0)"
+orderNo 53
+declText (MLText
+uid 1919,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*184 (Net
+uid 1920,0
+name "coadded_dat_ch0_i"
+type "std_logic_vector"
+bounds "(31 DOWNTO 0)"
+orderNo 57
+declText (MLText
+uid 1921,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*185 (Net
+uid 1922,0
+name "raw_addr_ch0_o"
+type "std_logic_vector"
+bounds "(12 DOWNTO 0)"
+orderNo 59
+declText (MLText
+uid 1923,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*186 (Net
+uid 1924,0
+name "raw_dat_ch0_i"
+type "std_logic_vector"
+bounds "(13 DOWNTO 0)"
+orderNo 58
+declText (MLText
+uid 1925,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*187 (Net
+uid 1926,0
+name "raw_req_ch0_o"
+type "std_logic"
+orderNo 55
+declText (MLText
+uid 1927,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
+)
+)
+*188 (Net
+uid 1928,0
+name "raw_ack_ch0_i"
+type "std_logic"
+orderNo 60
+declText (MLText
+uid 1929,0
+va (VaSet
+isHidden 1
+font "Courier New,8,0"
+)
 )
 )
 *189 (Wire
@@ -7404,12 +7384,12 @@ va (VaSet
 isHidden 1
 )
 xt "64500,78000,71900,79000"
-st "filtered_addr_ch8_o"
+st "filtered_addr_ch0_o"
 blo "64500,78800"
 tm "WireNameMgr"
 )
 )
-on &129
+on &179
 )
 *232 (Wire
 uid 829,0
@@ -7444,12 +7424,12 @@ va (VaSet
 isHidden 1
 )
 xt "66500,82000,72800,83000"
-st "fsfb_addr_ch8_o"
+st "fsfb_addr_ch0_o"
 blo "66500,82800"
 tm "WireNameMgr"
 )
 )
-on &130
+on &181
 )
 *233 (Wire
 uid 835,0
@@ -7484,12 +7464,12 @@ va (VaSet
 isHidden 1
 )
 xt "61000,80000,67700,81000"
-st "filtered_dat_ch8_i"
+st "filtered_dat_ch0_i"
 blo "61000,80800"
 tm "WireNameMgr"
 )
 )
-on &132
+on &180
 )
 *234 (Wire
 uid 841,0
@@ -7529,7 +7509,7 @@ blo "61000,58800"
 tm "WireNameMgr"
 )
 )
-on &135
+on &132
 )
 *235 (Wire
 uid 847,0
@@ -7567,7 +7547,7 @@ blo "71000,72800"
 tm "WireNameMgr"
 )
 )
-on &133
+on &130
 )
 *236 (Wire
 uid 853,0
@@ -7607,7 +7587,7 @@ blo "66000,64800"
 tm "WireNameMgr"
 )
 )
-on &136
+on &133
 )
 *237 (Wire
 uid 859,0
@@ -7647,7 +7627,7 @@ blo "61000,66800"
 tm "WireNameMgr"
 )
 )
-on &137
+on &134
 )
 *238 (Wire
 uid 865,0
@@ -7687,7 +7667,7 @@ blo "61000,62800"
 tm "WireNameMgr"
 )
 )
-on &138
+on &135
 )
 *239 (Wire
 uid 871,0
@@ -7722,12 +7702,12 @@ va (VaSet
 isHidden 1
 )
 xt "66000,86000,73900,87000"
-st "coadded_addr_ch8_o"
+st "coadded_addr_ch0_o"
 blo "66000,86800"
 tm "WireNameMgr"
 )
 )
-on &139
+on &183
 )
 *240 (Wire
 uid 877,0
@@ -7767,7 +7747,7 @@ blo "61000,70800"
 tm "WireNameMgr"
 )
 )
-on &131
+on &129
 )
 *241 (Wire
 uid 883,0
@@ -7807,7 +7787,7 @@ blo "67000,68800"
 tm "WireNameMgr"
 )
 )
-on &140
+on &136
 )
 *242 (Wire
 uid 889,0
@@ -7840,12 +7820,12 @@ va (VaSet
 isHidden 1
 )
 xt "71000,94000,77000,95000"
-st "raw_req_ch8_o"
+st "raw_req_ch0_o"
 blo "71000,94800"
 tm "WireNameMgr"
 )
 )
-on &141
+on &187
 )
 *243 (Wire
 uid 895,0
@@ -7885,7 +7865,7 @@ blo "64500,56800"
 tm "WireNameMgr"
 )
 )
-on &134
+on &131
 )
 *244 (Wire
 uid 901,0
@@ -7920,12 +7900,12 @@ va (VaSet
 isHidden 1
 )
 xt "61000,84000,66600,85000"
-st "fsfb_dat_ch8_i"
+st "fsfb_dat_ch0_i"
 blo "61000,84800"
 tm "WireNameMgr"
 )
 )
-on &142
+on &182
 )
 *245 (Wire
 uid 907,0
@@ -7960,12 +7940,12 @@ va (VaSet
 isHidden 1
 )
 xt "61000,88000,68200,89000"
-st "coadded_dat_ch8_i"
+st "coadded_dat_ch0_i"
 blo "61000,88800"
 tm "WireNameMgr"
 )
 )
-on &143
+on &184
 )
 *246 (Wire
 uid 913,0
@@ -8000,12 +7980,12 @@ va (VaSet
 isHidden 1
 )
 xt "61000,92000,66600,93000"
-st "raw_dat_ch8_i"
+st "raw_dat_ch0_i"
 blo "61000,92800"
 tm "WireNameMgr"
 )
 )
-on &144
+on &186
 )
 *247 (Wire
 uid 919,0
@@ -8038,12 +8018,12 @@ va (VaSet
 isHidden 1
 )
 xt "61000,96000,66700,97000"
-st "raw_ack_ch8_i"
+st "raw_ack_ch0_i"
 blo "61000,96800"
 tm "WireNameMgr"
 )
 )
-on &146
+on &188
 )
 *248 (Wire
 uid 925,0
@@ -8078,12 +8058,12 @@ va (VaSet
 isHidden 1
 )
 xt "67000,90000,73300,91000"
-st "raw_addr_ch8_o"
+st "raw_addr_ch0_o"
 blo "67000,90800"
 tm "WireNameMgr"
 )
 )
-on &145
+on &185
 )
 *249 (Wire
 uid 931,0
@@ -8123,7 +8103,7 @@ blo "43500,59800"
 tm "WireNameMgr"
 )
 )
-on &147
+on &137
 )
 *250 (Wire
 uid 937,0
@@ -8163,7 +8143,7 @@ blo "36000,57800"
 tm "WireNameMgr"
 )
 )
-on &148
+on &138
 )
 *251 (Wire
 uid 943,0
@@ -8203,7 +8183,7 @@ blo "36000,43800"
 tm "WireNameMgr"
 )
 )
-on &149
+on &139
 )
 *252 (Wire
 uid 949,0
@@ -8243,7 +8223,7 @@ blo "44000,67800"
 tm "WireNameMgr"
 )
 )
-on &150
+on &140
 )
 *253 (Wire
 uid 955,0
@@ -8283,7 +8263,7 @@ blo "36000,69800"
 tm "WireNameMgr"
 )
 )
-on &151
+on &141
 )
 *254 (Wire
 uid 961,0
@@ -8323,7 +8303,7 @@ blo "41500,55800"
 tm "WireNameMgr"
 )
 )
-on &152
+on &142
 )
 *255 (Wire
 uid 967,0
@@ -8363,7 +8343,7 @@ blo "43000,41800"
 tm "WireNameMgr"
 )
 )
-on &153
+on &143
 )
 *256 (Wire
 uid 973,0
@@ -8403,7 +8383,7 @@ blo "43500,37800"
 tm "WireNameMgr"
 )
 )
-on &154
+on &144
 )
 *257 (Wire
 uid 979,0
@@ -8443,7 +8423,7 @@ blo "36000,47800"
 tm "WireNameMgr"
 )
 )
-on &155
+on &145
 )
 *258 (Wire
 uid 985,0
@@ -8483,7 +8463,7 @@ blo "41500,33800"
 tm "WireNameMgr"
 )
 )
-on &156
+on &146
 )
 *259 (Wire
 uid 991,0
@@ -8521,7 +8501,7 @@ blo "48000,49800"
 tm "WireNameMgr"
 )
 )
-on &157
+on &147
 )
 *260 (Wire
 uid 997,0
@@ -8559,7 +8539,7 @@ blo "48000,71800"
 tm "WireNameMgr"
 )
 )
-on &158
+on &148
 )
 *261 (Wire
 uid 1003,0
@@ -8599,7 +8579,7 @@ blo "43000,63800"
 tm "WireNameMgr"
 )
 )
-on &159
+on &149
 )
 *262 (Wire
 uid 1009,0
@@ -8639,7 +8619,7 @@ blo "36000,35800"
 tm "WireNameMgr"
 )
 )
-on &160
+on &150
 )
 *263 (Wire
 uid 1015,0
@@ -8677,7 +8657,7 @@ blo "36000,30800"
 tm "WireNameMgr"
 )
 )
-on &161
+on &151
 )
 *264 (Wire
 uid 1021,0
@@ -8717,7 +8697,7 @@ blo "36000,22800"
 tm "WireNameMgr"
 )
 )
-on &162
+on &152
 )
 *265 (Wire
 uid 1027,0
@@ -8757,7 +8737,7 @@ blo "44000,45800"
 tm "WireNameMgr"
 )
 )
-on &164
+on &154
 )
 *266 (Wire
 uid 1033,0
@@ -8797,7 +8777,7 @@ blo "36000,39800"
 tm "WireNameMgr"
 )
 )
-on &165
+on &155
 )
 *267 (Wire
 uid 1039,0
@@ -8835,7 +8815,7 @@ blo "36000,51800"
 tm "WireNameMgr"
 )
 )
-on &166
+on &156
 )
 *268 (Wire
 uid 1045,0
@@ -8875,7 +8855,7 @@ blo "36000,26800"
 tm "WireNameMgr"
 )
 )
-on &163
+on &153
 )
 ]
 LanguageMgr "VhdlLangMgr"
@@ -8991,11 +8971,11 @@ tm "BdCompilerDirectivesTextMgr"
 associable 1
 )
 windowSize "-4,-4,1277,994"
-viewArea "-6626,3747,94426,67755"
+viewArea "-6600,42076,94506,106118"
 cachedDiagramExtent "0,-3000,102000,114000"
 hasePageBreakOrigin 1
 pageBreakOrigin "0,-51000"
-lastUid 1749,0
+lastUid 1929,0
 defaultCommentText (CommentText
 shape (Rectangle
 layer 0
