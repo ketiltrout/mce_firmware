@@ -41,7 +41,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: sa_bias_ctrl.vhd,v $
+-- Revision 1.1  2004/11/13 01:22:37  anthonyk
+-- Initial release
+--
 --
 --
 
@@ -70,7 +73,8 @@ entity sa_bias_ctrl is
       sa_bias_dat_i             : in     std_logic_vector(WB_DATA_WIDTH-1 downto 0);    -- parallel sa bias data input value from wishbone feedback data
       
       -- SPI interface to MAX 5443 DAC
-      sa_bias_dac_spi_o         : out    std_logic_vector(SPI_DATA_WIDTH-1 downto 0)    -- serial sa bias data output value, clock and chip select
+      sa_bias_dac_spi_o         : out    std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0) 
+                                                                                        -- serial sa bias data output value, clock and chip select
           
    );   
 end sa_bias_ctrl;
