@@ -28,8 +28,11 @@
 -- Description:
 -- taken from 
 -- Revision history:
--- <date $Date: 2004/12/16 18:17:06 $>    - <initials $Author: bench2 $>
+-- <date $Date: 2004/12/16 23:29:24 $>    - <initials $Author: bench2 $>
 -- $Log: tb_clk_bias_card.vhd,v $
+-- Revision 1.2  2004/12/16 23:29:24  bench2
+-- Mandana: added led tests for bias card
+--
 -- Revision 1.1  2004/12/16 18:17:06  bench2
 -- Mandana: testbench to test bias_card through clk_card
 --   
@@ -169,7 +172,7 @@ architecture tb of tb_clk_bias_card is
    signal dip_sw3    : std_logic := '0';
    signal dip_sw4    : std_logic := '0';
    signal wdog       : std_logic;
-   signal slot_id    : std_logic_vector(3 downto 0) := "1111";
+   signal cc_slot_id    : std_logic_vector(3 downto 0) := "1000";
    
    -- debug ports:
    signal mictor_o    : std_logic_vector(15 downto 1);
@@ -261,7 +264,7 @@ architecture tb of tb_clk_bias_card is
    signal bc_dip_sw3    : std_logic;
    signal bc_dip_sw4    : std_logic;
    signal bc_wdog       : std_logic;
-   signal bc_slot_id    : std_logic_vector(3 downto 0);
+   signal bc_slot_id    : std_logic_vector(3 downto 0) := "1110";
     
    -- debug ports:
 --   signal test       : std_logic_vector(16 downto 3);
@@ -321,7 +324,7 @@ begin
          dip_sw3          => dip_sw3,
          dip_sw4          => dip_sw4,
          wdog             => wdog,  
-         slot_id          => slot_id,
+         slot_id          => cc_slot_id,
                           
          -- debug ports:  
          mictor_o         => mictor_o,   
@@ -461,7 +464,8 @@ begin
    fibre_rx_rvs    <= '0';  -- no violation
    fibre_rx_status <= '1';  -- status ok
    fibre_rx_sc_nd  <= '0';  -- data     
-          
+   bc_slot_id      <= "1110";
+   cc_slot_id      <= "1000";
    ------------------------------------------------
    -- Create test bench clock
    -------------------------------------------------
@@ -793,37 +797,48 @@ begin
 -- bc_dac_ctrl commands
 ------------------------------------------------------      
       -- turn LEDs off
-      command <= command_wb;
-      address_id <= led_cmd;
-      data_valid <= X"00000001"; --1 values
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
-      
-      -- turn LEDs on
-      command <= command_wb;
-      address_id <= led_cmd;
-      data_valid <= X"00000001"; --1 values
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
---      wait for 50 us;
-      
-      -- load values to 32 flux DACs
 --      command <= command_wb;
---      address_id <= flux_fdbck_cmd;
---      data_valid <= X"00000020"; --32 values
---      data       <= X"55AA55AA";
+--      address_id <= led_cmd;
+--      data_valid <= X"00000001"; --1 values
+--      data       <= X"00000000";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
       
 --      wait for 50 us;
+--      
+--      -- turn LEDs on
+--      command <= command_wb;
+--      address_id <= led_cmd;
+--      data_valid <= X"00000001"; --1 values
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--      
+--      -- load values to 32 flux DACs
+      command <= command_wb;
+      address_id <= flux_fdbck_cmd;
+      data_valid <= X"00000020"; --32 values
+      data       <= X"55AA55AA";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+
+     -- read back 32 flux DACs values
+     command <= command_rb;
+     address_id <= flux_fdbck_cmd;
+     data_valid <= X"00000020";
+     data       <= X"00000000";
+     load_preamble;
+     load_command;
+     load_checksum;
+     
+--     wait for 50 us;
 
       --load values to the single Bias DAC
 --      command <= command_wb;
