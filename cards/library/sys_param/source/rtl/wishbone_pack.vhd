@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/11/16 08:54:04 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/11/17 01:57:32 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.19  2004/11/17 01:57:32  bburger
+-- Bryce :  updating the interface signal order
+--
 -- Revision 1.18  2004/11/16 08:54:04  bburger
 -- Bryce :  updated to match the mce1_1.xml file
 --
@@ -193,6 +196,7 @@ package wishbone_pack is
    constant ROW_DLY_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"35";
    constant RESYNC_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"36";
    constant FLX_LP_INIT_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"37";
+   constant FMWR_VSN_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"38";
 
    -- Any FPGA Card
    constant RST_WTCHDG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"41";
