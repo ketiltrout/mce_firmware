@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.7 2004/05/06 18:16:43 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.1 2004/05/28 15:52:27 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/05/06 18:16:43 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/05/28 15:52:27 $>	-		<text>		- <initials $Author: jjacob $>
 --
--- $Log$
+-- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.1  2004/05/28 15:52:27  jjacob
+-- first version
+--
 --
 -- 
 -----------------------------------------------------------------------------
@@ -114,9 +117,9 @@ architecture rtl of cmd_translator_ret_dat_fsm is
 
 
    -- signals to ret_dat state machine
-   signal ret_dat_start : std_logic;
-   signal ret_dat_stop  : std_logic;
-   signal ret_dat_ack   : std_logic;
+   --signal ret_dat_start : std_logic;
+   --signal ret_dat_stop  : std_logic;
+   --signal ret_dat_ack   : std_logic;
 
    signal ret_dat_done  : std_logic;
    
@@ -140,10 +143,11 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    
    signal word_count     : std_logic_vector (DATA_SIZE_BUS_WIDTH-1 downto 0);
    
-   type state is (IDLE, SET_SEQ_NUM, RETURN_DATA, RETURN_DATA_STOP, RETURN_DATA_DONE, RETURN_DATA_ASYNC_WAIT, 
-                  RETURN_DATA_WAIT, RETURN_DATA_PAUSE);--, SEQ_START_NUM, SEQ_STOP_NUM);   
-   signal async_state, next_state, current_state : state;
-
+   type a_state is (IDLE, SET_SEQ_NUM, RETURN_DATA_ASYNC_WAIT);  --asychronous states  
+   signal async_state : a_state;
+   
+   type state is (RETURN_DATA_IDLE, RETURN_DATA_STOP, RETURN_DATA_DONE, RETURN_DATA_PAUSE, RETURN_DATA); --synchronous states
+   signal next_state, current_state : state;
 
 
 begin
@@ -171,7 +175,7 @@ begin
    
    
       ret_dat_s_done_o        <= '0';
-      ret_dat_cmd_valid_o     <= '0';
+      --ret_dat_cmd_valid_o     <= '0';
    
       case async_state is
          when IDLE =>
@@ -280,7 +284,7 @@ begin
    process(rst_i, clk_i)
    begin
       if rst_i = '1' then
-         current_state <= RETURN_DATA_WAIT;
+         current_state <= RETURN_DATA_IDLE;
       elsif clk_i'event and clk_i = '1' then
          current_state <= next_state;
       end if;
@@ -292,43 +296,54 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, ret_dat_start_i, ret_dat_stop_i, current_seq_num, ret_dat_s_seq_stop_num)
+   process(current_state, ret_dat_start_i, ret_dat_stop_i, current_seq_num, ret_dat_s_seq_stop_num, ack_i)
    begin
       case current_state is
       
-         when RETURN_DATA_WAIT =>
+         when RETURN_DATA_IDLE =>
          
             if ret_dat_start_i = '1' then
                next_state <= RETURN_DATA;
                
             else
-               next_state <= RETURN_DATA_WAIT;
+               next_state <= RETURN_DATA_IDLE;
             end if;
       
          when RETURN_DATA =>
         
-            if ret_dat_stop_i = '1' then
-               next_state <= RETURN_DATA_STOP;
-            elsif current_seq_num = ret_dat_s_seq_stop_num then
-               next_state <= RETURN_DATA_DONE;
-            else
+            if ack_i = '1' then
+--               next_state <= RETURN_DATA_STOP;
+--            elsif current_seq_num > ret_dat_s_seq_stop_num then
+--               next_state <= RETURN_DATA_DONE;
+--            else
                next_state <= RETURN_DATA_PAUSE;
+            else
+               next_state <= RETURN_DATA;
             end if;
             
+--         when RETURN_DATA_WAIT =>
+         
+            
          when RETURN_DATA_PAUSE =>
-            next_state <= RETURN_DATA;
+            if ret_dat_stop_i = '1' then
+               next_state <= RETURN_DATA_STOP;
+            elsif current_seq_num >= ret_dat_s_seq_stop_num then
+               next_state <= RETURN_DATA_DONE;
+            else
+               next_state <= RETURN_DATA;
+            end if;
                     
          when RETURN_DATA_STOP =>
          
-            next_state <= RETURN_DATA_WAIT;
+            next_state <= RETURN_DATA_IDLE;
             
          when RETURN_DATA_DONE =>
             
-            next_state <= RETURN_DATA_WAIT;
+            next_state <= RETURN_DATA_IDLE;
             
          when others =>
          
-            next_state <= RETURN_DATA_WAIT;
+            next_state <= RETURN_DATA_IDLE;
             
       end case;
    end process;
@@ -346,54 +361,87 @@ begin
 --
 ------------------------------------------------------------------------
 
-   process(current_state, current_seq_num, sync_number_i, card_addr_i, parameter_id_i, data_size_i, data_i,
-           ret_dat_s_seq_start_num)
+   process(current_state, sync_number_i, card_addr_i, parameter_id_i, data_size_i, data_i,
+           ret_dat_s_seq_start_num, ret_dat_start_i)
    begin
       case current_state is
       
-         when RETURN_DATA_WAIT =>
+         when RETURN_DATA_IDLE =>
          
-            current_sync_num        <= sync_number_i;
-            current_seq_num         <= ret_dat_s_seq_start_num;
-            card_addr               <= card_addr_i;              -- capture and hold the card_addr
-            parameter_id            <= parameter_id_i;           -- capture and hold the parameter_id
-            data_size               <= data_size_i;              -- capture and hold the data_size
-            data                    <= data_i;                   -- capture and hold the data
+            if ret_dat_start_i = '1' then
             
-            ret_dat_cmd_valid_o     <= '0';
-            ret_dat_cmd_valid       <= '0';
-            macro_instr_rdy_o       <= '0';               -- ='1' when the data is valid, else it's '0'
-            ret_dat_done            <= '0';
-            
-            ret_dat_fsm_working     <= '0';
-    
-         when RETURN_DATA =>
-         
-            current_sync_num        <= current_sync_num + 1;   -- each new ret_dat command must corresponding to the next sync pulse
-            current_seq_num         <= current_seq_num + 1;    -- this keeps track of what frame number we are on in the sequence of frames
-            ret_dat_cmd_valid_o     <= '0';
-            ret_dat_cmd_valid       <= '0';
-            
-            macro_instr_rdy_o       <= '0';
-            ret_dat_done            <= '0';
-            
-            ret_dat_fsm_working     <= '1';
-         
-         when RETURN_DATA_PAUSE =>
-         
-            current_seq_num         <= current_seq_num;
-            ret_dat_cmd_valid_o     <= '1';
+            current_sync_num        <= current_sync_num; --+ 1;   -- each new ret_dat command must corresponding to the next sync pulse
+            current_seq_num         <= current_seq_num; --+ 1;    -- this keeps track of what frame number we are on in the sequence of frames
+            --ret_dat_cmd_valid_o     <= '1'; 
             ret_dat_cmd_valid       <= '1';
             
             macro_instr_rdy_o       <= '1';
             ret_dat_done            <= '0';
             
             ret_dat_fsm_working     <= '1';
+               
+            else
+
+            current_sync_num        <= sync_number_i;-- - 1;
+            current_seq_num         <= ret_dat_s_seq_start_num;-- - 1;
+            card_addr               <= card_addr_i;              -- capture and hold the card_addr
+            parameter_id            <= parameter_id_i;           -- capture and hold the parameter_id
+            data_size               <= data_size_i;              -- capture and hold the data_size
+            data                    <= data_i;                   -- capture and hold the data
+            
+            --ret_dat_cmd_valid_o     <= '0';
+            ret_dat_cmd_valid       <= '0';
+            macro_instr_rdy_o       <= '0';               -- ='1' when the data is valid, else it's '0'
+            ret_dat_done            <= '0';
+            
+            ret_dat_fsm_working     <= '0';
+
+            end if;
+         
+    
+         when RETURN_DATA =>
+         
+
+         
+            current_sync_num        <= current_sync_num; --+ 1;   -- each new ret_dat command must corresponding to the next sync pulse
+            current_seq_num         <= current_seq_num; --+ 1;    -- this keeps track of what frame number we are on in the sequence of frames
+            --ret_dat_cmd_valid_o     <= '1'; 
+            ret_dat_cmd_valid       <= '1';
+            
+            macro_instr_rdy_o       <= '1';
+            ret_dat_done            <= '0';
+            
+            ret_dat_fsm_working     <= '1';
+
+         
+--            current_sync_num        <= current_sync_num + 1;   -- each new ret_dat command must corresponding to the next sync pulse
+--            current_seq_num         <= current_seq_num + 1;    -- this keeps track of what frame number we are on in the sequence of frames
+--            --ret_dat_cmd_valid_o     <= '1'; 
+--            ret_dat_cmd_valid       <= '1';
+--            
+--            macro_instr_rdy_o       <= '1';
+--            ret_dat_done            <= '0';
+--            
+--            ret_dat_fsm_working     <= '1';
+--            
+            
+         
+         when RETURN_DATA_PAUSE =>
+         
+            current_sync_num        <= current_sync_num + 1;
+            current_seq_num         <= current_seq_num + 1;
+            --ret_dat_cmd_valid_o     <= '0';
+            ret_dat_cmd_valid       <= '0';
+            
+            macro_instr_rdy_o       <= '0';
+            ret_dat_done            <= '0';
+            
+            ret_dat_fsm_working     <= '1';
                   
-         when RETURN_DATA_STOP =>
+         when RETURN_DATA_STOP =>  -- JJ Need to take some action, like send response back to Linux machine
          
             current_seq_num         <= current_seq_num;
-            ret_dat_cmd_valid_o     <= '0';
+            --ret_dat_cmd_valid_o     <= '0';
             ret_dat_cmd_valid       <= '0';
             
             macro_instr_rdy_o       <= '0';
@@ -401,10 +449,10 @@ begin
             
             ret_dat_fsm_working     <= '1';
    
-         when RETURN_DATA_DONE =>
+         when RETURN_DATA_DONE =>  -- JJ Need to take some action, like send response back to Linux machine
          
             current_seq_num         <= current_seq_num;
-            ret_dat_cmd_valid_o     <= '0';
+            --ret_dat_cmd_valid_o     <= '0';
             ret_dat_cmd_valid       <= '0';
             
             macro_instr_rdy_o       <= '0';
@@ -422,7 +470,7 @@ begin
             data_size               <= (others => '0');
             data                    <= (others => '0');
          
-            ret_dat_cmd_valid_o     <= '0';
+            --ret_dat_cmd_valid_o     <= '0';
             ret_dat_cmd_valid       <= '0';
             
             macro_instr_rdy_o       <= '0';               -- ='1' when the data is valid, else it's '0'
@@ -433,6 +481,9 @@ begin
       end case;
    end process;
    
+
+   ret_dat_cmd_valid_o     <=    ret_dat_cmd_valid;
+
  
 ------------------------------------------------------------------------
 --
@@ -441,7 +492,7 @@ begin
 ------------------------------------------------------------------------  
    
    process(ret_dat_s_start_i, ret_dat_fsm_working, card_addr_i, parameter_id_i, data_size_i, data_i,
-           current_seq_num, current_sync_num, card_addr, parameter_id, data_size, data, data_clk_i, ret_dat_cmd_valid)
+           current_seq_num, current_sync_num, card_addr, parameter_id, data_size, data, data_clk_i)
    begin
       if ret_dat_s_start_i = '1' then
       
@@ -465,7 +516,7 @@ begin
          data_size_o      <= data_size;
          data_o           <= data;
          
-         data_clk_o       <= ret_dat_cmd_valid;
+         data_clk_o       <= '0';  -- not passing any data, so keep the data clock inactive
          
       else
       
@@ -476,6 +527,8 @@ begin
          parameter_id_o   <= (others => '0');
          data_size_o      <= (others => '0');
          data_o           <= (others => '0');
+         
+         data_clk_o       <= '0';
          
       end if; 
       
