@@ -19,7 +19,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.14 2004/11/09 15:31:49 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.15 2004/11/19 14:55:06 dca Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/11/09 15:31:49 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/19 14:55:06 $> -     <text>      - <initials $Author: dca $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.15  2004/11/19 14:55:06  dca
+-- added 25Mhz internal clock
+--
 -- Revision 1.14  2004/11/09 15:31:49  dca
 -- fibre transmitter signals added to issue_reply_test entitiy declaration
 --
@@ -101,6 +104,7 @@ library work;
 use work.issue_reply_pack.all;
 use work.async_pack.all;
 use work.sync_gen_pack.all;
+use work.sync_gen_core_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -430,14 +434,20 @@ pll : issue_reply_test_pll
 --
 ------------------------------------------------------------------------
 
-   i_sync_gen : sync_gen
+   i_sync_gen : sync_gen_core
       port map(
-         clk_i       => pll_clk,
-         rst_i       => zero,
-         dv_i        => zero,
+         -- Wishbone Interface
          dv_en_i     => zero,
+         
+         -- Inputs/Outputs
+         dv_i        => zero,
          sync_o      => sync_pulse,
-         sync_num_o  => sync_number
+         sync_num_o  => sync_number,
+
+         -- Global Signals
+         clk_i       => pll_clk,
+         mem_clk_i   => clk_200mhz,
+         rst_i       => zero
       );
 
 end rtl; 

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: sync_gen_wbs.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,7 +28,10 @@
 -- Wishbone interface for sync_gen
 --
 -- Revision history:
--- $Log$
+-- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.1  2004/11/18 05:21:56  bburger
+-- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
+--
 --
 --
 -----------------------------------------------------------------------------
@@ -49,7 +52,7 @@ use sys_param.wishbone_pack.all;
 entity sync_gen_wbs is        
    port(
       -- sync_gen interface:
-      dv_en_o            : out integer;
+      dv_en_o            : out std_logic;
 
       -- wishbone interface:
       dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -68,7 +71,7 @@ entity sync_gen_wbs is
    );     
 end sync_gen_wbs;
 
-architecture rtl of frame_timing_wbs is
+architecture rtl of sync_gen_wbs is
 
    -- FSM inputs
    signal wr_cmd         : std_logic;
@@ -97,6 +100,9 @@ begin
          reg_i             => dat_i,
          reg_o             => dv_en_data
       );
+
+
+   dv_en_o <= '0' when (dv_en_data = x"00000000") else '1';
 
 ------------------------------------------------------------
 --  WB FSM

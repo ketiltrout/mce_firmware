@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.9  2004/11/19 20:00:05  bburger
+-- Bryce :  updated frame_timing and sync_gen interfaces
+--
 -- Revision 1.8  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -116,7 +119,7 @@ architecture beh of sync_gen is
    signal clk_count        : integer;
    signal sync_count       : integer;
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   signal dv_en            : integer;
+   signal dv_en            : std_logic;
    
    signal sync_num_mux     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal sync_num_mux_sel : std_logic;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: sync_gen_wbs_pack.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,7 +28,10 @@
 -- Wishbone interface for sync_gen
 --
 -- Revision history:
--- $Log$
+-- $Log: sync_gen_wbs_pack.vhd,v $
+-- Revision 1.1  2004/11/18 05:21:56  bburger
+-- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
+--
 --
 -----------------------------------------------------------------------------
 library ieee;
@@ -43,7 +46,7 @@ package sync_gen_wbs_pack is
 component sync_gen_wbs is        
    port(
       -- sync_gen interface:
-      dv_en_o            : out integer;
+      dv_en_o            : out std_logic;
 
       -- wishbone interface:
       dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);

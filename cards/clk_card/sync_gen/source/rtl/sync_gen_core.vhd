@@ -37,7 +37,10 @@
 -- Even with DV asserted high for the duration of several frame cycles, only one sync pulse will be generated per frame
 --
 -- Revision history:
--- $Log: sync_gen.vhd,v $
+-- $Log: sync_gen_core.vhd,v $
+-- Revision 1.1  2004/11/19 20:00:05  bburger
+-- Bryce :  updated frame_timing and sync_gen interfaces
+--
 -- Revision 1.8  2004/11/18 05:21:56  bburger
 -- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
 --
@@ -85,7 +88,7 @@ use work.sync_gen_core_pack.all;
 entity sync_gen_core is
    port(
       -- Wishbone Interface
-      dv_en_i     : in integer;
+      dv_en_i     : in std_logic;
       
       -- Inputs/Outputs
       dv_i        : in std_logic;
@@ -167,7 +170,7 @@ begin
 --         when RESET =>
 --            next_state <= SYNC_LOW;
          when SYNC_LOW =>
-            if(dv_en_i >= 1) then
+            if(dv_en_i = '1') then
                if(dv_i = '1') then
                   next_state <= DV_RECEIVED;
                else
