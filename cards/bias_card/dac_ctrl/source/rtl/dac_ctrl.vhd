@@ -33,8 +33,11 @@
 --              RESYNC_NXT_ADDR  : to resync with the next sync pulse
 -- 
 -- Revision history:
--- <date $Date: 2004/04/16 23:30:58 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/04/19 23:41:05 $>	- <initials $Author: mandana $>
 -- $Log: dac_ctrl.vhd,v $
+-- Revision 1.5  2004/04/19 23:41:05  mandana
+-- added range settings for DACs
+--
 -- Revision 1.4  2004/04/16 23:30:58  mandana
 -- completed out_sync_cmd and resync_cmd
 --
@@ -402,7 +405,7 @@ dac_ncs_o <= dac_ncs;
       end if;
    end process snd_dac32_state_FF;
    
-   snd_dac32_state_NS: process (snd_dac32_current_state, send_dac_lvds,read_count)
+   snd_dac32_state_NS: process (snd_dac32_current_state, read_count)
    begin 
       case snd_dac32_current_state is 
          when SND_DAC32_IDLE => 
