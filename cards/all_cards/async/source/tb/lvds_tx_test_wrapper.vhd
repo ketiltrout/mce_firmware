@@ -22,6 +22,9 @@
 -- Revision History:
 --
 -- $Log: lvds_tx_test_wrapper.vhd,v $
+-- Revision 1.6  2004/05/30 01:57:15  erniel
+-- tweaked state transitions
+--
 -- Revision 1.5  2004/05/29 21:32:24  erniel
 -- added test enable/disable logic
 --
@@ -76,10 +79,7 @@ architecture behaviour of lvds_tx_test_wrapper is
    signal busy : std_logic;
    signal stb : std_logic;
    
-   -- internal signals
-   signal enabled : std_logic;
-   signal timer : std_logic_vector(28 downto 0);
-      
+   -- internal signals      
    signal random_ena : std_logic;
    signal random_dat : std_logic_vector(7 downto 0);
    
@@ -106,7 +106,10 @@ begin
          ack_o =>  ack,
          cyc_i =>  cyc
       );
-      
+            
+   -- we don't use the cyc signal
+   cyc <= '1';
+   
    -- our random number generator
    lfsr : prand
       generic map (size => 8)
@@ -116,9 +119,6 @@ begin
          en_i =>  random_ena,
          out_o => random_dat
       );
-      
-   -- we don't use the cyc signal
-   cyc <= '1';
    
    -- counter
    counter: process(rst_i, clk_i)
@@ -132,65 +132,14 @@ begin
       end if;
    end process counter;
    
---   -- test controls the state of the test
---   test : process (rst_i, en_i)
---   begin
---      if (rst_i = '1') then
---         enabled <= '0';
---      elsif Rising_Edge(en_i) then
---         enabled <= enabled xor '1';
---      end if;
---   end process test;
-   
-   process(rst_i, en_i)
-   begin
-      if(rst_i = '1') then
-         enabled <= '0';
-      elsif(en_i'event and en_i = '1') then
-         enabled <= not enabled;
-      end if;
-   end process;
-   
---   -- done_flag controls the done output
---   done_flag : process (rst_i, clk_i)
---   begin
---      if (rst_i = '1') then
---         done_o <= '0';
---      elsif Rising_Edge(clk_i) then
---         done_o <= en_i;
---      end if;
---   end process done_flag;
-   
    done_o <= en_i;
    
---   -- lvds_strobe controls the lvds strobe lines
---   lvds_strobe : process (rst_i, clk_i)
---   begin
---      if (rst_i = '1') then
---         lvds_we <= '0';
---         lvds_stb <= '0';
---      elsif Rising_Edge(clk_i) then
---         lvds_we <= not(lvds_ack or lvds_busy) and enabled;
---         lvds_stb <= not(lvds_ack or lvds_busy) and enabled;
---      end if;
---   end process lvds_strobe;
-   
-   process(clk_i)
+   state_FF: process(rst_i, en_i)
    begin
-      if(clk_i'event and clk_i = '1') then
-         timer <= timer + 1;
-      end if;
-   end process;
-
-   
-   state_FF: process(rst_i, clk_i)
-   begin
-      if(rst_i = '1' or enabled = '0') then
+      if(rst_i = '1') then
          present_state <= IDLE;
-      elsif(clk_i'event and clk_i = '1') then
-         if(present_state = IDLE or timer = "11111111111111111111111111111") then
-            present_state <= next_state;
-         end if;
+      elsif(en_i'event and en_i = '1') then
+         present_state <= next_state;
       end if;
    end process state_FF;
    
@@ -211,33 +160,10 @@ begin
              "00011100" when SQUARE,
              "00000000" when others;
    
-   state_out: process(present_state, ack, busy)
-   begin
-      case present_state is
-         when IDLE =>   count_ena  <= '0';
-                        random_ena <= '0';
-                        stb        <= '0';
-                        we         <= '0';
-                        
-         when RANDOM => count_ena  <= '0';
-                        random_ena <= ack;
-                        stb        <= not ack and not busy;
-                        we         <= not ack and not busy;
-                        
-         when COUNT =>  count_ena  <= ack;
-                        random_ena <= '0';
-                        stb        <= not ack and not busy;
-                        we         <= not ack and not busy;
-                        
-         when SQUARE => count_ena  <= '0';
-                        random_ena <= '0';
-                        stb        <= not ack and not busy;
-                        we         <= not ack and not busy;
-                        
-         when others => count_ena  <= '0';
-                        random_ena <= '0';
-                        stb        <= '0';
-                        we         <= '0';
-      end case;
-   end process state_out;      
-end;
+   stb <= (not ack and not busy) when (present_state = RANDOM or present_state = COUNT or present_state = SQUARE) else '0';
+   we  <= (not ack and not busy) when (present_state = RANDOM or present_state = COUNT or present_state = SQUARE) else '0';
+
+   random_ena <= ack when present_state = RANDOM else '0';
+   count_ena  <= ack when present_state = COUNT  else '0';
+     
+end behaviour;
