@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/06/12 01:03:07 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/06/22 20:52:45 $>	- <initials $Author: mandana $>
 -- $Log: rc_serial_dac_test.vhd,v $
+-- Revision 1.2  2004/06/22 20:52:45  mandana
+-- fixed synthesis errors
+--
 -- Revision 1.1  2004/06/12 01:03:07  mandana
 -- Initial release
 --
@@ -89,7 +92,7 @@ signal clk_count: integer;
 signal val_clk  : std_logic;
 signal idx      : integer;
 signal send_dac_start: std_logic;
-signal dac_done : std_logic_vector (32 downto 0);
+signal dac_done : std_logic_vector (7 downto 0);
 signal en_fix   : std_logic;
 signal en_ramp  : std_logic;
 signal ramp     : std_logic;
@@ -104,9 +107,7 @@ signal done_fix : std_logic;
 signal done_ramp: std_logic;
 
 -- parallel data signals for DAC
--- subtype word is std_logic_vector (15 downto 0); 
-type   w_array32 is array (32 downto 0) of word16; 
-signal dac_data_p      : w_array32;
+signal dac_data_p      : w_array8;
 
 begin
    logic0 <= '0';
@@ -211,10 +212,10 @@ begin
             end if;
                
          when PUSH_DATA_FIX =>  
-            next_state  <= SPI_START; -- 2ns settling time for data (ts)
+            next_state  <= DONE;--SPI_START; -- 2ns settling time for data (ts)
             
          when PUSH_DATA_RAMP =>  
-            next_state  <= SPI_START; -- 2ns settling time for data (ts)
+            next_state  <= DONE; --SPI_START; -- 2ns settling time for data (ts)
 
          when SPI_START =>
             next_state  <= DONE;
@@ -240,7 +241,7 @@ begin
             for idac in 0 to 7 loop
                dac_data_p(idac) <= data(idx);
             end loop;
-            send_dac_start    <= '0';
+            send_dac_start    <= '1';
             val_clk           <= '0';
 	    done_fix          <= '0';
                           
@@ -248,16 +249,20 @@ begin
             for idac in 0 to 7 loop
                dac_data_p(idac) <= ramp_data;
             end loop;
-            send_dac_start   <= '0';
+            send_dac_start   <= '1';
 
-         when SPI_START =>     -- we may need to hold ramp data in this state         
+         when SPI_START =>     -- we may need to hold ramp data in this state        
+                     for idac in 0 to 7 loop
+	                dac_data_p(idac) <= data(idx);
+	             end loop;
+
             send_dac_start    <= '1';
-        --    val_clk   <= '0';
+            val_clk   <= '0';
 	--    done_o    <= '0';
 
           when DONE =>        -- we may need to hold ramp data in this state 
             send_dac_start    <= '0';
-        --    val_clk   <= '0';
+            val_clk   <= '0';
             if en_fix = '1' then   
 	       done_fix      <= '1';
 	    end if;   
