@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: crc.vhd,v $
+-- Revision 1.3  2004/07/17 00:57:34  erniel
+-- added checksum output port
+--
 -- Revision 1.2  2004/07/16 23:02:34  erniel
 -- conversion to serial data interface
 -- modified to allow arbitrary CRC polynomial
@@ -61,13 +64,15 @@ use ieee.std_logic_1164.all;
 ------------------------------------------------------------------------
 
 entity crc is
-generic(POLY_WIDTH : integer := 8;
-        DATA_LENGTH : integer := 64);
+generic(POLY_WIDTH : integer := 8);
 port(clk    : in std_logic;
      rst    : in std_logic;
      clr_i  : in std_logic;
      ena_i  : in std_logic;
-     data_i : in std_logic;
+     
+     data_i     : in std_logic;
+     num_bits_i : in integer;
+     
      poly_i : in std_logic_vector(POLY_WIDTH downto 1);
      
      done_o     : out std_logic;
@@ -124,7 +129,7 @@ begin
             if(clr_i = '1') then
                crc_reg <= (others => '0');
                bit_count <= 0;
-            else
+            else               
                crc_reg <= crc_temp;
                bit_count <= bit_count + 1;
             end if;
@@ -132,8 +137,8 @@ begin
       end if;
    end process reg_update;
    
-   done_o <= '1' when bit_count = DATA_LENGTH else '0';
+   done_o <= '1' when bit_count = num_bits_i else '0';
    
-   checksum_o <= crc_reg when bit_count = DATA_LENGTH else (others => '0');
+   checksum_o <= crc_reg when bit_count = num_bits_i else (others => '0');
    
 end behav;
