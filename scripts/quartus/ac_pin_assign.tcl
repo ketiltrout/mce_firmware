@@ -12,6 +12,9 @@
 #
 # Revision History:
 # $Log: ac_pin_assign.tcl,v $
+# Revision 1.3  2004/04/28 18:03:31  bburger
+# Regrouped bus and clock signals into standard logic vectors
+#
 # Revision 1.2  2004/04/14 19:22:01  jjacob
 # added DAC buses, DAC clock signals and mictor and test headers
 #
@@ -110,7 +113,7 @@ set nalert W25
 
 # DAC bus signals
 # for the DACs, the leftmost pin on each line is the LSB (bit 0), the rightmost pin is MSB (bit 13)
-# the first line corresponds to bus 0, the last line corresponds to bus 10
+# the first line lists pins for bus 0, the last line list pins for bus 10
 set bus_0_10 {N19 N20 L21 N21 N22 L23 N23 N24 H25 L25 L26 H27 L27 M27 
               M21 L22 M22 H26 J25 J26 H28 J27 J28 K27 K28 L24 M23 M24 
               L10 L9  M6  M7  L7  K4  H1  J2  G1  H2  J3  G2  H3  H4  
