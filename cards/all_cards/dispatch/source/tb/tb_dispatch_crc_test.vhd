@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch_crc_test.vhd,v $
+-- Revision 1.2  2004/08/05 00:26:10  erniel
+-- entity renamed
+--
 -- Revision 1.1  2004/08/04 19:43:19  erniel
 -- initial version
 --
@@ -111,17 +114,36 @@ begin
 
       do_reset;
       
-      do_receive("10101010101010100000000000000001");  -- starting word
+      do_receive("10101010101010100000000000000001");  -- start word
       do_receive("00000000000000000000000000000000");  -- command parameters
       do_receive("00000000000000000000000000000000");  -- data word
-      do_receive("01010100010101011101111000000101");  -- checksum word (0x5455DE05 for this sequence)
+      do_receive("01010100010101011101111000000101");  -- checksum word (0x5455DE05 for this packet)
 
       wait for PERIOD * 20;
       
-      do_receive("10101010101010100000000000000001");  
-      do_receive("00000000000000000000000000000000");  
-      do_receive("00000000000000000000000000000000");  
-      do_receive("01010100010101011101111000000101");  -- checksum word (0x5455DE05 for this sequence)
+      do_receive("10101010101010100000000000000011");  -- start word
+      do_receive("00000111001000000000000000000000");  -- command parameters
+      do_receive("00000000000000000000000000001010");  -- 0x0000000A
+      do_receive("00000000000000001101111010101111");  -- 0x0000DEAF
+      do_receive("00000000110010101011101100011110");  -- 0x00CABB1E
+      do_receive("01110010011010111110010111111111");  -- checksum word (0x726BE5FF for this packet)
+      
+      wait for PERIOD * 20;
+      
+      do_receive("10101010101010100000000000000010");  -- start word
+      do_receive("00000010010100110000000100000001");  -- command parameters
+      do_receive("00001100000110100101010100011100");  -- 0x0C1A551C
+      do_receive("00000000000000001100000011011110");  -- 0x0000C0DE
+      do_receive("01111110010101011001000000000110");  -- checksum word (0x7E559006 for this packet)
+            
+      wait for PERIOD * 20;
+      
+      do_receive("10101010101010100000000000000001");  -- 1 data word
+      do_receive("00001100000011110001000000010001");  -- for all BCs
+      do_receive("00000000000000001111101010110101");  -- 0x0000FAB5
+      do_receive("00100101110000110110010000000100");  -- 0x25C36404
+      
+      wait for PERIOD * 20;
       
       assert false report "End of Simulation." severity FAILURE;
       
