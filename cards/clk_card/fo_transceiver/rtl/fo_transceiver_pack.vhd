@@ -20,7 +20,7 @@
 --
 -- <Title> 
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: fo_transceiver_pack.vhd,v 1.2 2004/04/28 12:17:08 dca Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:	      David Atkinson
@@ -32,7 +32,7 @@
 --
 -- Revision history:
 -- 
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/04/28 12:17:08 $>	-		<text>		- <initials $Author: dca $>
 -- <$log$>
 --
 -----------------------------------------------------------------------------
@@ -68,6 +68,31 @@ package fo_transceiver_pack is
 
 
 
+--------------------------------------
+-- rx_fibre
+---------------------------------------
+
+   component rx_fibre is
+   port( 
+      Brst        : in     std_logic;
+      clk         : in     std_logic;
+      
+      rx_data_i   : in     std_logic_vector (7 DOWNTO 0);
+      nRx_rdy_i   : in     std_logic;
+      rvs_i       : in     std_logic;
+      rso_i       : in     std_logic;
+      rsc_nRd_i   : in     std_logic;  
+     
+      card_addr_o : out    std_logic_vector (7 DOWNTO 0);
+      cmd_code_o  : out    std_logic_vector (15 DOWNTO 0);
+      cmd_data_o  : out    std_logic_vector (15 DOWNTO 0);
+      cksum_err_o : out    std_logic;
+      cmd_rdy_o   : out    std_logic;
+      data_clk_o  : out    std_logic;
+      num_data_o  : out    std_logic_vector (7 downto 0);
+      reg_addr_o  : out    std_logic_vector (23 DOWNTO 0)
+    );
+    end component;
 
 
 
