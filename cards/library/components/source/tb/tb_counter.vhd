@@ -20,7 +20,7 @@
 
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: tb_counter.vhd,v 1.1 2004/03/23 03:15:45 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,8 +30,11 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date$>	- <initials $Author$>
--- $Log$
+-- <date $Date: 2004/03/23 03:15:45 $>	- <initials $Author: erniel $>
+-- $Log: tb_counter.vhd,v $
+-- Revision 1.1  2004/03/23 03:15:45  erniel
+-- Initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -45,13 +48,15 @@ architecture BEH of TB_COUNTER is
 
    component COUNTER
 
-      generic(MAX   : integer  := 255 );
+      generic(MAX         : integer := 255;
+              STEP_SIZE   : integer := 1;
+              WRAP_AROUND : std_logic := '0';
+              UP_COUNTER  : std_logic := '1');
 
       port(CLK_I     : in std_logic ;
            RST_I     : in std_logic ;
            ENA_I     : in std_logic ;
            LOAD_I    : in std_logic ;
-           DOWN_I    : in std_logic ;
            COUNT_I   : in integer ;
            COUNT_O   : out integer );
 
@@ -64,7 +69,6 @@ architecture BEH of TB_COUNTER is
    signal W_RST_I     : std_logic ;
    signal W_ENA_I     : std_logic ;
    signal W_LOAD_I    : std_logic ;
-   signal W_DOWN_I    : std_logic ;
    signal W_COUNT_I   : integer ;
    signal W_COUNT_O   : integer ;
 
@@ -72,100 +76,88 @@ begin
 
    DUT : COUNTER
 
-      generic map(MAX   => 255 )
+      generic map(MAX   => 255,
+                  STEP_SIZE => 2,
+                  WRAP_AROUND => '0',
+                  UP_COUNTER => '1')
 
       port map(CLK_I     => W_CLK_I,
                RST_I     => W_RST_I,
                ENA_I     => W_ENA_I,
                LOAD_I    => W_LOAD_I,
-               DOWN_I    => W_DOWN_I,
                COUNT_I   => W_COUNT_I,
                COUNT_O   => W_COUNT_O);
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
 
    STIMULI : process
+      procedure do_reset is
+      begin
+         W_RST_I     <= '1';
+         W_ENA_I     <= '1';
+         W_LOAD_I    <= '0';
+         W_COUNT_I   <= 0;
+         wait for PERIOD;
+         
+      end do_reset;
+      
+      procedure do_load(value : in integer) is
+      begin
+         W_RST_I     <= '0';
+         W_ENA_I     <= '1';
+         W_LOAD_I    <= '1';
+         W_COUNT_I   <= value;
+         wait for PERIOD;
+      
+      end do_load;
+            
+      procedure do_count is
+      begin
+         W_RST_I     <= '0';
+         W_ENA_I     <= '1';
+         W_LOAD_I    <= '0';
+         W_COUNT_I   <= 0;
+         wait for PERIOD;
+         
+      end do_count;
+      
+      procedure do_disable is
+      begin
+         W_RST_I     <= '0';
+         W_ENA_I     <= '0';
+         W_LOAD_I    <= '0';
+         W_COUNT_I   <= 0;
+         wait for PERIOD;
+       
+       end do_disable;
+                       
    begin
-
-      -- reset, count up for 10 clocks:
-      W_RST_I     <= '1';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '0';
-      W_COUNT_I   <= 0;
-      wait for PERIOD;
-      W_RST_I     <= '0';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '0';
-      W_COUNT_I   <= 0;
-      wait for PERIOD*10;
+   
+      do_reset;
       
-      -- reset, count down for 10 clocks:
-      W_RST_I     <= '1';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '1';
-      W_COUNT_I   <= 0;
-      wait for PERIOD;
-      W_RST_I     <= '0';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '1';
-      W_COUNT_I   <= 0;
-      wait for PERIOD*10;
+      do_count;
       
-      -- don't reset, just synchronously load new value and count down for 10 clocks:
-      W_RST_I     <= '0';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '1';
-      W_DOWN_I    <= '1';
-      W_COUNT_I   <= 43;
-      wait for PERIOD;
-      W_RST_I     <= '0';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '1';
-      W_COUNT_I   <= 0;
-      wait for PERIOD*10;
+      wait for PERIOD * 10;
       
-      -- disable counter:
-      W_RST_I     <= '0';
-      W_ENA_I     <= '0';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '1';
-      W_COUNT_I   <= 0;
-      wait for PERIOD*5;
+      do_disable;
       
-      -- enable counter, count up again:
-      W_RST_I     <= '0';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '0';
-      W_COUNT_I   <= 0;
-      wait for PERIOD*10;
+      wait for PERIOD * 10;
       
-      -- reset, count past upper limit:
-      W_RST_I     <= '1';
-      W_ENA_I     <= '0';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '1';
-      W_COUNT_I   <= 0;
-      wait for PERIOD;
-      W_RST_I     <= '0';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '0';
-      W_COUNT_I   <= 0;
-      wait for PERIOD*2;
+      do_load(64);
       
-      -- count down past lower limit:
-      W_RST_I     <= '0';
-      W_ENA_I     <= '1';
-      W_LOAD_I    <= '0';
-      W_DOWN_I    <= '1';
-      W_COUNT_I   <= 0;
-      wait for PERIOD*3;
+      do_count;
+      
+      wait for PERIOD * 10;
+      
+      do_load(5);
+      
+      do_count;
+      
+      wait for PERIOD * 10;
+      
+      
+      assert false report "End of Simulation." severity FAILURE;
+      
       wait;
    end process STIMULI;
 
