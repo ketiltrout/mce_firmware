@@ -35,7 +35,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_fsfb_processor.vhd,v $
+-- Revision 1.1  2004/10/22 22:19:41  anthonyk
+-- Initial release
+--
 --
 --
 --
@@ -66,6 +69,7 @@ architecture test of tb_fsfb_processor is
    constant num_row_frame            :     integer   := 3;       -- number of rows per frame
    constant coadd_done_cyc           :     integer   := 5;       -- cycle number at which coadd_done occurs
    constant num_ramp_frame_cycles    :     integer   := 2;       -- num of frame_cycles for fixed ramp output
+   constant lock_dat_msb_pos         :     integer   := 30;      -- most significant bit position of lock mode data output 
     
      
    shared variable endsim            :     boolean   := false;   -- simulation window
@@ -111,6 +115,7 @@ architecture test of tb_fsfb_processor is
    -- outputs from the processor
    signal processor_update_o         :     std_logic;
    signal processor_dat_o            :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
+   signal processor_lock_en_o        :     std_logic;
       
       
    -- procedure for coefficient configuration
@@ -324,6 +329,9 @@ begin
    -- 2) first stage feedback processor (ramp mode)
    
    UUT : fsfb_processor
+      generic map (
+         lock_dat_left            => lock_dat_msb_pos        
+      )
       port map (
          rst_i                    => rst,
    	 clk_50_i                 => processor_clk_i,
@@ -344,7 +352,8 @@ begin
    	 d_dat_i                  => ws_d_dat_i,
    	 z_dat_i                  => ws_z_dat_i,
          fsfb_proc_update_o       => processor_update_o,
-         fsfb_proc_dat_o          => processor_dat_o
+         fsfb_proc_dat_o          => processor_dat_o,
+         fsfb_proc_lock_en_o      => processor_lock_en_o
       );  
  
  
