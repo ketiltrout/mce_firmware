@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.12 2004/10/08 19:41:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.13 2004/10/13 05:44:58 bench2 Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/10/08 19:41:22 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2004/10/13 05:44:58 $> - <text> - <initials $Author: bench2 $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -57,7 +57,8 @@ architecture tb of tb_issue_reply is
  
     signal   t_rst_i       : std_logic;
     signal   t_clk_i       : std_logic := '0';
-      
+     
+    signal   t_fibre_clkr    : std_logic := '0'; 
       
       -- inputs from the fibre
     signal  t_rx_data_i   : std_logic_vector (7 DOWNTO 0);
@@ -93,10 +94,14 @@ architecture tb of tb_issue_reply is
    signal t_tx                  : std_logic; -- transmitter output pin
    signal t_clk_200mhz_i        : std_logic := '0';
 
-
+   constant pci_dsp_dly         : TIME := 160 ns ;   -- delay between tranmission of 4byte packets from PCI
  
    constant clk_prd             : TIME := 20 ns;    -- 50Mhz clock
    constant clk_prd_200mhz      : TIME := 5 ns;    -- 200Mhz clock
+
+   constant fibre_clkr_prd      : TIME := 40 ns ;   -- 25MHz clock
+
+
    constant preamble1    : std_logic_vector (7 downto 0)  := X"A5";
    constant preamble2    : std_logic_vector (7 downto 0)  := X"5A";
    constant pre_fail     : std_logic_vector (7 downto 0)  := X"55";
@@ -164,11 +169,11 @@ port(
       
       -- inputs from the fibre
       fibre_clkr_i : in    std_logic;
-      rx_data_i   : in     std_logic_vector (7 DOWNTO 0);
-      nRx_rdy_i   : in     std_logic;
-      rvs_i       : in     std_logic;
-      rso_i       : in     std_logic;
-      rsc_nRd_i   : in     std_logic;        
+      rx_data_i    : in     std_logic_vector (7 DOWNTO 0);
+      nRx_rdy_i    : in     std_logic;
+      rvs_i        : in     std_logic;
+      rso_i        : in     std_logic;
+      rsc_nRd_i    : in     std_logic;        
 
       
       
@@ -217,7 +222,7 @@ port map(
       
       
       -- inputs from the fibre
-      fibre_clkr_i => t_clk_i,
+      fibre_clkr_i => t_fibre_clkr,
       rx_data_i   => t_rx_data_i,
       nRx_rdy_i   => t_nrx_rdy_i,
       rvs_i       => t_rvs_i,
@@ -278,7 +283,9 @@ port map(
   
    t_clk_i        <= not t_clk_i        after clk_prd/2;
    t_clk_200mhz_i <= not t_clk_200mhz_i after clk_prd_200mhz/2;
-
+   
+   t_fibre_clkr   <= not t_fibre_clkr   after fibre_clkr_prd/2;  
+    
 ------------------------------------------------
 -- Create test bench stimuli
 -------------------------------------------------
@@ -306,18 +313,23 @@ stimuli : process
    for I in 0 to 3 loop
       t_nrx_rdy_i    <= '1';  -- data not ready (active low)
       t_rx_data_i  <= preamble1;
-      wait for 10 NS;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i    <= '0';
-      wait for 30 NS;
+      wait for fibre_clkr_prd * 0.6;
    end loop;   
    
    for I in 0 to 3 loop
       t_nrx_rdy_i    <= '1';  -- data not ready (active low)
       t_rx_data_i  <= preamble2;
-      wait for 10 NS;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i    <= '0';
-      wait for 30 NS;
-   end loop;   
+      wait for fibre_clkr_prd * 0.6;
+   end loop;  
+   
+   
+   t_nrx_rdy_i <= '1';
+   wait for pci_dsp_dly; 
+    
     
    assert false report "preamble OK" severity NOTE;
    end load_preamble;
@@ -331,31 +343,32 @@ stimuli : process
     
       t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= command(7 downto 0);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= command(15 downto 8);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= command(23 downto 16);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= command(31 downto 24);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
     
       assert false report "command code loaded" severity NOTE;
-      wait for 160 ns;   
+      t_nrx_rdy_i <= '1';
+      wait for pci_dsp_dly;   
      
   -- load up address_id
 
@@ -363,30 +376,31 @@ stimuli : process
      
        t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= address_id(7 downto 0);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= address_id(15 downto 8);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= address_id(23 downto 16);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i   <= address_id(31 downto 24);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
      
      assert false report "address id loaded" severity NOTE;
-     wait for 160 ns ;
+     t_nrx_rdy_i <= '1';
+     wait for pci_dsp_dly; 
      
     -- load up data valid 
    
@@ -395,38 +409,37 @@ stimuli : process
   
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= data_valid(7 downto 0);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= data_valid(15 downto 8);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= data_valid(23 downto 16);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= data_valid(31 downto 24);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
      assert false report "data valid loaded" severity NOTE;
-     wait for 160 ns ;
+     t_nrx_rdy_i <= '1';
+     wait for pci_dsp_dly; 
       
       
   
   -- load up data block
   
-      wait for 160 ns;
-
-  
+   
   -- first load valid data
       
       for I in 0 to (To_integer((Unsigned(data_valid)))-1) loop
@@ -438,9 +451,9 @@ stimuli : process
       
       t_rx_data_i <= data(7 downto 0);
       checksum (7 downto 0) <= checksum (7 downto 0) XOR data(7 downto 0);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
 --      t_rx_data_i <= std_logic_vector(To_unsigned(data,8));
@@ -448,9 +461,9 @@ stimuli : process
       
       t_rx_data_i <= data(15 downto 8);
       checksum (15 downto 8) <= checksum (15 downto 8) XOR data(15 downto 8);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
 --      t_rx_data_i <= std_logic_vector(To_unsigned(data,8));
@@ -458,9 +471,9 @@ stimuli : process
 
       t_rx_data_i <= data(23 downto 16);
       checksum (23 downto 16) <= checksum (23 downto 16) XOR data(23 downto 16);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
 --      t_rx_data_i <= std_logic_vector(To_unsigned(data,8));
@@ -468,7 +481,7 @@ stimuli : process
       
       t_rx_data_i <= data(31 downto 24);
       checksum (31 downto 24) <= checksum (31 downto 24) XOR data(31 downto 24);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
       
       case address_id is
@@ -477,41 +490,47 @@ stimuli : process
          when others        => data <= data + 1;
       end case;
       
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
+      
+      t_nrx_rdy_i <= '1';
+      wait for pci_dsp_dly; 
       
     end loop;
+ 
     
     for J in (To_integer((Unsigned(data_valid)))) to data_block-1 loop
      
         
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= X"00";
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= X"00";
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= X"00";
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= X"00";
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
          
-  
+      t_nrx_rdy_i <= '1';
+      wait for pci_dsp_dly; 
+   
     end loop;
-
-       assert false report "data words loaded to memory...." severity NOTE;
+      
+    assert false report "data words loaded to memory...." severity NOTE;
 
     end load_command;
     
@@ -519,37 +538,37 @@ stimuli : process
 
    procedure load_checksum is
     
-      begin
-   
-      
+      begin 
          
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= checksum(7 downto 0);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= checksum(15 downto 8);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= checksum(23 downto 16);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
+      wait for fibre_clkr_prd * 0.6;
       
       t_nrx_rdy_i   <= '1';
       t_rx_data_i <= checksum(31 downto 24);
-      wait for 10 ns;
+      wait for fibre_clkr_prd * 0.4;
       t_nrx_rdy_i   <= '0';
-      wait for 30 ns;
-      
-      
+      wait for fibre_clkr_prd * 0.6;
+         
       assert false report "checksum loaded...." severity NOTE;  
-      
+       
+      t_nrx_rdy_i <= '1';
+      wait for pci_dsp_dly; 
+   
    end load_checksum;
        
   
