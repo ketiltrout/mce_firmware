@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: rc_test_pack.vhd,v $
+-- Revision 1.6  2004/07/16 18:49:20  mandana
+-- adding SRAM test
+--
 -- Revision 1.5  2004/06/22 17:39:00  mandana
 -- added dac_test components and removed async components
 --
@@ -196,6 +199,29 @@ package rc_test_pack is
            tx_we_o   : out std_logic;
            tx_stb_o  : out std_logic);
   end component;
+------------------------------------------------------------------
+   -- SRAM
+   component sram_test_wrapper
+   port( 
+        rst_i  : in std_logic;    
+        clk_i  : in std_logic;    
+        en_i   : in std_logic;    
+        done_o : out std_logic;   
+         
+        -- RS232 signals
+         
+        -- physical pins
+        addr_o  : out std_logic_vector(19 downto 0);
+        data_bi : inout std_logic_vector(15 downto 0); 
+        n_ble_o : out std_logic;
+        n_bhe_o : out std_logic;
+        n_oe_o  : out std_logic;
+        n_ce1_o : out std_logic;
+        ce2_o   : out std_logic;
+        n_we_o  : out std_logic;
+        pass    : out std_logic;
+        fail    : out std_logic);
+   end component;
   
   ------------------------------------------------------------------
   -- RC Serial DACs
