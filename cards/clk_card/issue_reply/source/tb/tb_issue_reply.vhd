@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.7 2004/08/05 20:53:36 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_issue_reply.vhd,v 1.8 2004/08/06 00:14:53 jjacob Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/08/05 20:53:36 $> - <text> - <initials $Author: jjacob $>
+-- <date $Date: 2004/08/06 00:14:53 $> - <text> - <initials $Author: jjacob $>
 -- <log $log$>
 -------------------------------------------------------
 
@@ -145,7 +145,7 @@ port(
       rso_i       : in     std_logic;
       rsc_nRd_i   : in     std_logic;        
 
-      cksum_err_o : out    std_logic;
+      
       
       -- outputs to the micro-instruction sequence generator
       -- these signals will be absorbed when the issue_reply block's boundary extends
