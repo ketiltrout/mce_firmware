@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.27 2004/07/27 22:42:02 bench2 Exp $
+-- $Id: cmd_queue.vhd,v 1.28 2004/07/29 00:40:19 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.28  2004/07/29 00:40:19  bench2
+-- Bryce: in progress
+--
 -- Revision 1.27  2004/07/27 22:42:02  bench2
 -- Bryce: in progress
 --
@@ -150,7 +153,6 @@ signal present_insert_state : insert_states;
 signal next_insert_state    : insert_states;
 signal data_count           : std_logic_vector(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0);
 signal insert_uop_ack       : std_logic; --tells the generate FSM when the insert FSM is ready to insert the next u-op
---signal inserting            : std_logic; --used to keep track of how much space there is in the queue.  It is asserted until the insert FSM asserts finishes inserting a u-op
 
 -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
 type retire_states is (IDLE, NEXT_UOP, STATUS, RETIRE, FLUSH, EJECT, NEXT_FLUSH, FLUSH_STATUS, RESET);
@@ -165,7 +167,6 @@ type gen_uop_states is (IDLE, INSERT,
                         CLEANUP, RESET, DONE);
 signal present_gen_state    : gen_uop_states;
 signal next_gen_state       : gen_uop_states;
---signal new_insert_state     : gen_uop_states;
 signal mop_rdy              : std_logic; --In from the previous block in the chain  
 signal insert_uop_rdy       : std_logic; --Out, to insertion fsm, tells the insert FSM when a new u-op is available
 signal new_card_addr        : std_logic_vector(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0); --out, to insertion fsm
@@ -192,7 +193,6 @@ signal cmd_tx_done          : std_logic;
 -- CRC signals:
 signal crc_clr              : std_logic;
 signal crc_ena              : std_logic;
---signal crc_num_bits         : integer;
 signal crc_data             : std_logic;
 signal crc_num_bits         : integer;
 signal crc_done             : std_logic;
@@ -294,7 +294,7 @@ begin
          ena        => HIGH, --Always enabled      
          load       => crc_start,      
          clr        => LOW, --Never clear      
-         shr        => LOW, --Shift left       
+         shr        => HIGH, --Shift right: because the lvds_tx block shits out the least significant bit first       
          serial_i   => LOW, --Shift in low bits
          serial_o   => sh_reg_serial_o,  
          parallel_i => sh_reg_parallel_i,
@@ -359,6 +359,7 @@ begin
             next_insert_state <= INSERT_HDR2;
          when INSERT_HDR2 =>
             if(data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) = x"0000") then
+--            if(data_size_int = 0) then
                next_insert_state <= DONE;
             else
                next_insert_state <= INSERT_DATA;
@@ -388,7 +389,6 @@ begin
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
---            inserting      <= '0';
             data_sig       <= (others => '0');
             free_ptr       <= ADDR_ZERO;
          when IDLE =>
@@ -396,14 +396,12 @@ begin
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
---            inserting      <= '0';
             data_sig       <= (others => '0');
          when INSERT_HDR1 =>
             wren_sig       <= '1';
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
---            inserting      <= '1';
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             data_sig(QUEUE_WIDTH-1      downto ISSUE_SYNC_END)   <= issue_sync_i;
@@ -418,12 +416,11 @@ begin
             -- In this implememtation, data are not replicated for other u-ops, if the m-op generates several u-ops.
             -- This means that all m-ops with data can only generate a single u-op..for now.
             -- If a m-op is issued with data and generated several u-ops, only the last one will have data.
-            if(num_uops_inserted = num_uops) then
+            if(num_uops_inserted = num_uops) then --and data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) /= x"0000") then
                mop_ack_o   <= '1';
             end if;
             
             insert_uop_ack <= '0';
---            inserting      <= '1';
             
             -- Queue data:  see cmd_queue_ram40_pack for details on the fields embedded in a RAM line
             data_sig(QUEUE_WIDTH-1      downto CARD_ADDR_END)    <= new_card_addr;
@@ -442,7 +439,6 @@ begin
             data_count     <= data_count + 1;
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
---            inserting      <= '1';
             data_sig       <= data_i;
 
             -- After adding new u-op header2 info, or data:  (will this work?)
@@ -454,9 +450,16 @@ begin
          when DONE =>
             wren_sig       <= '0';
             data_count     <= (others => '0');
+
+            -- If there is no data with the m-op, then asserting mop_ack_o in the INSERT_HDR2 state would be too soon
+            -- In this case, by delaying its assertion until DONE, we ensure that the cmd_translator doesn't try to insert the next m_op too soon.
+            -- I think that I might have to register num_uops_inserted and num_uops to make sure that they are valid when I do this check
             mop_ack_o      <= '0';
+--            if(num_uops_inserted = num_uops and data_size_i(CQ_DATA_SIZE_BUS_WIDTH-1 downto 0) = x"0000") then
+--               mop_ack_o   <= '1';
+--            end if;
+
             insert_uop_ack <= '1';
---            inserting      <= '0';
             data_sig       <= (others => '0');
             
             -- After adding a new u-op:
@@ -470,7 +473,6 @@ begin
             data_count     <= (others => '0');
             mop_ack_o      <= '0';
             insert_uop_ack <= '0';
---            inserting      <= '0';
             data_sig       <= (others => '0');
       end case;
    end process;
@@ -645,6 +647,7 @@ begin
                if(queue_space < size_uops) then
                   next_gen_state <= IDLE;
                elsif(queue_space >= size_uops) then
+                  -- We go into CLEANUP because in this state, we set new_par_id up appropriately for insertion
                   next_gen_state <= CLEANUP;
                end if;
             end if;
@@ -774,8 +777,8 @@ begin
       end if;
    end process send_state_FF;
 
---   issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
---   timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
+   issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
+   timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
    -- There should be enough time in the sync period following the timeout_sync of a m-op to get rid of all it's u-ops and still have time to issue the u-ops that need to be issued during that period
    -- That is why we don't check for a range here - just for the sync period that is the timeout
    -- This second conditions checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
@@ -901,8 +904,8 @@ begin
             
             previous_send_state      <= LOAD;
             
-            issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
-            timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
+--            issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
+--            timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
          
          when HEADER_A =>
             cmd_tx_start             <= '1';
@@ -920,8 +923,8 @@ begin
             previous_send_state      <= HEADER_A;
 --            send_ptr                 <= send_ptr + 1; -- The pointer has to be incremented for the next memory location right away
          
-            issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
-            timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
+--            issue_sync       <= qa_sig(QUEUE_WIDTH-1 downto ISSUE_SYNC_END);
+--            timeout_sync     <= qa_sig(ISSUE_SYNC_END-1 downto TIMEOUT_SYNC_END);
 
          when HEADER_B =>
             cmd_tx_start             <= '1';
@@ -1145,3 +1148,8 @@ end behav;
 
 -- Check out clk_error, and figure out why it is so out of whack.  
 -- It might be something to do with having a faulty period for the sync pulse in the TB.
+
+-- issue_sync and timeout_sync don't seem to be getting valid values
+
+-- mop_ack_o needs to be asserted in the DONE state if there is no data included with the m_op
+-- This will allow the FSM to recover before cmd_translator can issued the next m-op, as soon as 2 clock cycles after mop_ack_o is asserted

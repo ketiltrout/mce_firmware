@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: tb_cmd_queue.vhd,v 1.6 2004/07/22 23:43:42 bench2 Exp $
+-- $Id: tb_cmd_queue.vhd,v 1.7 2004/07/27 22:54:51 bench2 Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: tb_cmd_queue.vhd,v $
+-- Revision 1.7  2004/07/27 22:54:51  bench2
+-- Bryce: in progress
+--
 -- Revision 1.6  2004/07/22 23:43:42  bench2
 -- Bryce: in progress
 --
@@ -158,7 +161,7 @@ begin
       );
 
    -- Create a test clock
-   sync_i <= not sync_i after CLOCK_PERIOD*41*64/2; -- The sync frequency is actually 200Hz.
+   sync_i <= not sync_i after CLOCK_PERIOD*25*64/2; -- The sync frequency is actually 200Hz.
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
    clk_200mhz_i <= not clk_200mhz_i after CLOCK_PERIOD/8;
    rx_ack <= rx_rdy;
@@ -184,41 +187,89 @@ begin
       assert false report " nop" severity NOTE;
    end do_nop;
 
-   procedure do_data_cmd is
+   procedure do_ret_dat_cmd is
    begin
-      card_addr_i(7 downto 0) <= ALL_CARDS;
-      par_id_i      <= x"0030"; --RET_DAT_ADDR;
+      card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
+      par_id_i      <= x"00" & RET_DAT_ADDR;
       data_size_i   <= (others => '0');
       data_i        <= (others => '0');
       data_clk_i    <= '0';
       mop_i         <= "00000001"; -- m-op #1
       issue_sync_i  <= "00000001"; -- Sync pulse 1
-
+      
       L1: while mop_ack_o = '0' loop
          mop_rdy_i     <= '1';
          wait for CLOCK_PERIOD;
       end loop;
+      
       mop_rdy_i     <= '0';
-
-
-      assert false report " get data" severity NOTE;
-   end do_data_cmd;
-
-   procedure do_status_cmd is
-   begin
+      assert false report " return data" severity NOTE;
       wait for CLOCK_PERIOD;
-      assert false report " get status" severity NOTE;
-   end do_status_cmd;
+   end do_ret_dat_cmd;
+
+   procedure do_rst_wtchdg_cmd is
+   begin
+      card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
+      par_id_i      <= x"00" & RST_WTCHDG_ADDR;
+      data_size_i   <= (others => '0');
+      data_i        <= (others => '0');
+      data_clk_i    <= '0';
+      mop_i         <= "00000010"; -- m-op #2
+      issue_sync_i  <= "00000010"; -- Sync pulse 2
+      
+      L1: while mop_ack_o = '0' loop
+         mop_rdy_i     <= '1';
+         wait for CLOCK_PERIOD;
+      end loop;
+      
+      mop_rdy_i     <= '0';
+      assert false report " reset watchdog" severity NOTE;
+      wait for CLOCK_PERIOD;
+   end do_rst_wtchdg_cmd;
+
+   procedure do_strt_mux_cmd is
+   begin
+      card_addr_i(CQ_CARD_ADDR_BUS_WIDTH-1 downto 0) <= ALL_CARDS;
+      par_id_i      <= x"00" & STRT_MUX_ADDR;
+      data_size_i   <= x"00000001";
+      data_i        <= x"0000FFFF";
+      data_clk_i    <= '0';
+      mop_i         <= "00000011"; -- m-op #3
+      issue_sync_i  <= "00000011"; -- Sync pulse 3
+      
+      L1: while mop_ack_o = '0' loop
+         mop_rdy_i     <= '1';
+         wait for CLOCK_PERIOD;
+      end loop;
+      
+      data_clk_i    <= '1';
+      wait for CLOCK_PERIOD;
+      
+      data_clk_i    <= '0';
+      mop_rdy_i     <= '0';
+      assert false report " start MUX" severity NOTE;
+      wait for CLOCK_PERIOD;
+   end do_strt_mux_cmd;
 
    -- Start the test
    begin
       do_nop;
       do_init;
---      L1: for count_value in 0 to 255 loop
-         do_nop;
---      end loop L1;
-      do_data_cmd;
-      L2: for count_value in 0 to 4000 loop
+      do_nop;
+      do_ret_dat_cmd;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_rst_wtchdg_cmd;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_strt_mux_cmd;
+      do_nop;
+      do_nop;
+      do_nop;
+      
+      L2: for count_value in 0 to 5000 loop
          do_nop;
       end loop L2;
       assert false report " Simulation done." severity FAILURE;
