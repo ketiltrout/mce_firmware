@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.4 2004/07/14 23:30:48 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply_test.vhd,v 1.5 2004/07/30 23:32:00 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      Jonathan Jacob
@@ -34,9 +34,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/07/14 23:30:48 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/07/30 23:32:00 $>	-		<text>		- <initials $Author: jjacob $>
 --
 -- $Log: issue_reply_test.vhd,v $
+-- Revision 1.5  2004/07/30 23:32:00  jjacob
+-- safety checkin for the long weekend
+--
 -- Revision 1.4  2004/07/14 23:30:48  jjacob
 -- safety checkin
 --
@@ -203,18 +206,20 @@ begin
    --test(11)           <= pll_clk;
 
    test(15 downto 12) <= card_addr(3 downto 0);
+   --test(15 downto 12) <= data_size(3 downto 0);
 
-   --test(23 downto 16) <= parameter_id(7 downto 0);
+   test(23 downto 16) <= parameter_id(7 downto 0);
    --test(23 downto 16) <= m_op_seq_num(7 downto 0);
-   test(23 downto 16) <= frame_sync_num(7 downto 0);
+   --test(23 downto 16) <= frame_sync_num(7 downto 0);
 
-   --test(31 downto 24) <= data(7 downto 0);
+   test(31 downto 24) <= data(7 downto 0);
    --test(31 downto 24) <= frame_seq_num(7 downto 0);
-   test(31 downto 24) <= m_op_seq_num(7 downto 0);
+   --test(31 downto 24) <= m_op_seq_num(7 downto 0);
    --test(31 downto 24) <= frame_sync_num(7 downto 0);
    --test(31 downto 24) <= parameter_id(7 downto 0);
 
    test(32)           <= data_clk;
+   --test(32)           <= macro_instr_rdy;
 
    test(33)           <= macro_instr_rdy;
 
