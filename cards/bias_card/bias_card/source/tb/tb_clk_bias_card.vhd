@@ -28,8 +28,11 @@
 -- Description:
 -- taken from 
 -- Revision history:
--- <date $Date: 2004/12/16 23:29:24 $>    - <initials $Author: bench2 $>
+-- <date $Date: 2005/01/17 23:04:23 $>    - <initials $Author: mandana $>
 -- $Log: tb_clk_bias_card.vhd,v $
+-- Revision 1.3  2005/01/17 23:04:23  mandana
+-- added slot_id
+--
 -- Revision 1.2  2004/12/16 23:29:24  bench2
 -- Mandana: added led tests for bias card
 --
@@ -199,9 +202,17 @@ architecture tb of tb_clk_bias_card is
    -- Address Card Signals
    -------------------------------------------------
    -- TTL interface:
-   signal ttl_nrx    : std_logic_vector(3 downto 1);
-   signal ttl_tx     : std_logic_vector(3 downto 1);
-   signal ttl_txena  : std_logic_vector(3 downto 1);
+   signal ttl_nrx1    : std_logic;
+   signal ttl_tx1     : std_logic;
+   signal ttl_txena1  : std_logic;
+
+   signal ttl_nrx2    : std_logic;
+   signal ttl_tx2     : std_logic;
+   signal ttl_txena2  : std_logic;
+   
+   signal ttl_nrx3    : std_logic;
+   signal ttl_tx3     : std_logic;
+   signal ttl_txena3  : std_logic;
     
    -- eeprom interface:
    signal ac_eeprom_si  : std_logic;
@@ -364,9 +375,17 @@ begin
          lvds_txb   => lvds_reply_bc1_b, 
          
          -- TTL interface:
-         ttl_nrx    => ttl_nrx,  
-         ttl_tx     => ttl_tx,   
-         ttl_txena  => ttl_txena,
+         ttl_nrx1    => ttl_nrx1,  
+         ttl_tx1     => ttl_tx1,   
+         ttl_txena1  => ttl_txena1,
+
+         ttl_nrx2    => ttl_nrx2,  
+         ttl_tx2     => ttl_tx2,   
+         ttl_txena2  => ttl_txena2,
+
+         ttl_nrx3    => ttl_nrx3,  
+         ttl_tx3     => ttl_tx3,   
+         ttl_txena3  => ttl_txena3,
          
          -- eeprom ice:nterface:
          eeprom_si  => bc_eeprom_si, 

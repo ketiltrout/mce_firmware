@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.6 2005/01/12 22:37:11 mandana Exp $
+-- $Id: bias_card_self_test.vhd,v 1.1 2005/01/20 22:49:14 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Mandana Amiri
@@ -29,8 +29,11 @@
 -- self-test blocks to create the packets and feed them in to bias card
 --
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$   
+-- <date $Date: 2005/01/20 22:49:14 $>    - <initials $Author: mandana $>
+-- $Log: bias_card_self_test.vhd,v $
+-- Revision 1.1  2005/01/20 22:49:14  mandana
+-- Inital Release: bias_card self-test with incoming packets pushed in from the RAM
+--   
 --
 -----------------------------------------------------------------------------
 
@@ -38,7 +41,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-
+  
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
@@ -67,9 +70,17 @@ entity bias_card_self_test is
       lvds_txb   : out std_logic;
       
       -- TTL interface:
-      ttl_nrx    : in std_logic_vector(3 downto 1);
-      ttl_tx     : out std_logic_vector(3 downto 1);
-      ttl_txena  : out std_logic_vector(3 downto 1);
+      ttl_nrx1   : in std_logic;
+      ttl_tx1    : out std_logic;
+      ttl_txena1 : out std_logic;
+      
+      ttl_nrx2   : in std_logic;
+      ttl_tx2    : out std_logic;
+      ttl_txena2 : out std_logic;
+      
+      ttl_nrx3   : in std_logic;
+      ttl_tx3    : out std_logic;
+      ttl_txena3 : out std_logic;
 
       -- eeprom interface:
       eeprom_si  : in std_logic;
@@ -163,9 +174,17 @@ begin
        lvds_txb   => lvds_txb, 
        
        -- TTL interface:
-       ttl_nrx    => ttl_nrx,  
-       ttl_tx     => ttl_tx,   
-       ttl_txena  => ttl_txena,
+       ttl_nrx1    => ttl_nrx1,  
+       ttl_tx1     => ttl_tx1,   
+       ttl_txena1  => ttl_txena1,
+
+       ttl_nrx2    => ttl_nrx2,  
+       ttl_tx2     => ttl_tx2,   
+       ttl_txena2  => ttl_txena2,
+
+       ttl_nrx3    => ttl_nrx3,  
+       ttl_tx3     => ttl_tx3,   
+       ttl_txena3  => ttl_txena3,
        
        -- eeprom ice:nterface:
        eeprom_si  => eeprom_si, 
