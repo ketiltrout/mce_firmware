@@ -1,50 +1,41 @@
 ###############################################################################
-# pin_assign.tcl
+# bc_pin_assign.tcl
 #
-# This script allows you to make pin assignments to the Nios tutorial design
+# This script allows you to make pin assignments for the bias card
 #
-#
-# Written by: Jeremy Fox
-# Rev 1.0
-# 10/25/00
-#
-# Modified for the clock card by Neil Gruending, Mar 4, 2004
-# Modified for the bias card by Mandana Amiri, Apr. 28, 04
 #
 # Revision history:
-# <date $Date: 2004/04/29 22:59:04 $>	- <initials $Author: mandana $>
-# $Log: bc_stratix_pin_assign.tcl,v $
+# <date $Date: 2004/05/06 17:58:43 $>	- <initials $Author: erniel $>
+# $Log: bc_pin_assign.tcl,v $
+# Revision 1.1  2004/05/06 17:58:43  erniel
+# *** empty log message ***
+#
 # Revision 1.2  2004/04/29 22:59:04  mandana
 # LVDS pins only need positive end to be assigned
 #
 # Revision 1.1  2004/04/29 20:10:42  mandana
 # initial release
 #
-#
-# You can run this script from Quartus by observing the following steps:
-# 1. Place this TCL script in your project directory
-# 2. Open your project
-# 3. Go to the View Menu and Auxilary Windows -> TCL console
-# 4. In the TCL console type:
-#						source pin_assign.tcl
-# 5. The script will assign pins and return an "assignment made" message.
 ###############################################################################
 
 
 ################ Open a Project if one does not yet exist ####################
-set project_name bc_test
+#set project_name bc_test
+
 set top_name bc_test
 
-if { ![project exists ./$project_name] } {
-	project create ./$project_name
-}
-project open ./$project_name
-
-set cmp_settings_group $top_name
-if { ![project cmp_exists $cmp_settings_group] } {
-        project create_cmp $top_name
-}
-project set_active_cmp $top_name
+#
+#if { ![project exists ./$project_name] } {
+#	project create ./$project_name
+#}
+#project open ./$project_name
+#
+#set cmp_settings_group $top_name
+#if { ![project cmp_exists $cmp_settings_group] } {
+#        project create_cmp $top_name
+#}
+#project set_active_cmp $top_name
+#
 
 cmp add_assignment $top_name "" "" DEVICE EPS10F780A
 
@@ -54,18 +45,19 @@ cmp add_assignment $top_name "" "" DEVICE EPS10F780A
 
 ### DAC PINS
 ##  the order is dac0, dac1,...., dac31 
-set dac_clk {L23 L24 H27 H28 L22 L21 H26 H25  A9  A8  B8  B9  D9  E8  C8  D8 B23 E23 C23 A23 D22 C22 A22 B22 L18 F17 C24 D23 D20 B18 G19 F19}
-set dac_ncs {N20 M27 N22 N24 L27 N26 L25 M20 K27 M24 M22 J27 L20 J25 L11 J13  A4  B3  B4  A5  E6  B7  A7  C6 B11 C11 B10 A10 B20 C20 B21 D21}
-set dac_data{N19 N28 N21 N23 L28 N25 L26 M19 K28 M23 M21 J28 L19 J26 M11 L13  A3  B5  C4  C5  A6  D6  D7  C7 D11 A11 C10 E10 A20 A21 C21 E21} 
-set dac_nclr {M16}
+set dac_clk  {L23 L24 H27 H28 L22 L21 H26 H25  A9  A8  B8  B9  D9  E8  C8  D8 B23 E23 C23 A23 D22 C22 A22 B22 L18 F17 C24 D23 D20 B18 G19 F19}
+set dac_ncs  {N20 M27 N22 N24 L27 N26 L25 M20 K27 M24 M22 J27 L20 J25 L11 J13  A4  B3  B4  A5  E6  B7  A7  C6 B11 C11 B10 A10 B20 C20 B21 D21}
+set dac_data {N19 N28 N21 N23 L28 N25 L26 M19 K28 M23 M21 J28 L19 J26 M11 L13  A3  B5  C4  C5  A6  D6  D7  C7 D11 A11 C10 E10 A20 A21 C21 E21} 
+set dac_nclr M16
 
 ### LVDS DAC pins (or the last one in dac_clk, dac_ncs and dac_data array)
-#set lvds_clk_n T6
+
 set lvds_clk_p T5
-#set lvds_ncs_n U9
 set lvds_ncs_p U10
-#set lvds_data_n U6
 set lvds_data_p U5
+#set lvds_clk_n T6
+#set lvds_ncs_n U9
+#set lvds_data_n U6
 
 ### Card ID, Slot ID Pins
 set card_id T21
