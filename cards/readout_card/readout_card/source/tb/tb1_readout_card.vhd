@@ -33,7 +33,10 @@
 -- then issued.
 -- 
 -- Revision history:
--- $Log$
+-- $Log: tb1_readout_card.vhd,v $
+-- Revision 1.1  2004/12/10 18:53:29  mohsen
+-- Initial Release
+--
 --
 --
 -------------------------------------------------------
@@ -223,9 +226,9 @@ architecture tb1 of tb1_readout_card is
    signal eeprom_cs  : std_logic;
    
    -- miscellaneous ports:
-   signal red_led    : std_logic;
-   signal ylw_led    : std_logic;
-   signal grn_led    : std_logic;
+--    signal red_led    : std_logic;
+--    signal ylw_led    : std_logic;
+--    signal grn_led    : std_logic;
    signal dip_sw3    : std_logic := '0';
    signal dip_sw4    : std_logic := '0';
    signal wdog       : std_logic;
@@ -327,78 +330,78 @@ begin
   -- Instantiate clk_card
   -----------------------------------------------------------------------------
    
-   i_clk_card : clk_card
-      port map
-      (
+--    i_clk_card : clk_card
+--       port map
+--       (
          
-         -- PLL input:
-         inclk            => inclk,
-         rst_n            => rst_n,
+--          -- PLL input:
+--          inclk            => inclk,
+--          rst_n            => rst_n,
                           
-         -- LVDS interface:
-         lvds_cmd         => lvds_cmd,  
-         lvds_sync        => lvds_sync, 
-         lvds_spare       => lvds_spare,
-         lvds_clk         => lvds_clk,  
-         lvds_reply_ac_a  => lvds_reply_ac_a, 
-         lvds_reply_ac_b  => lvds_reply_ac_b, 
-         lvds_reply_bc1_a => lvds_reply_bc1_a,
-         lvds_reply_bc1_b => lvds_reply_bc1_b,
-         lvds_reply_bc2_a => lvds_reply_bc2_a,
-         lvds_reply_bc2_b => lvds_reply_bc2_b,
-         lvds_reply_bc3_a => lvds_reply_bc3_a,
-         lvds_reply_bc3_b => lvds_reply_bc3_b,
-         lvds_reply_rc1_a => lvds_reply_rc1_a,
-         lvds_reply_rc1_b => lvds_reply_rc1_b,
-         lvds_reply_rc2_a => lvds_reply_rc2_a,
-         lvds_reply_rc2_b => lvds_reply_rc2_b,
-         lvds_reply_rc3_a => lvds_reply_rc3_a,
-         lvds_reply_rc3_b => lvds_reply_rc3_b,
-         lvds_reply_rc4_a => lvds_reply_rc4_a,
-         lvds_reply_rc4_b => lvds_reply_rc4_b,
+--          -- LVDS interface:
+--          lvds_cmd         => lvds_cmd,  
+--          lvds_sync        => lvds_sync, 
+--          lvds_spare       => lvds_spare,
+--          lvds_clk         => lvds_clk,  
+--          lvds_reply_ac_a  => lvds_reply_ac_a, 
+--          lvds_reply_ac_b  => lvds_reply_ac_b, 
+--          lvds_reply_bc1_a => lvds_reply_bc1_a,
+--          lvds_reply_bc1_b => lvds_reply_bc1_b,
+--          lvds_reply_bc2_a => lvds_reply_bc2_a,
+--          lvds_reply_bc2_b => lvds_reply_bc2_b,
+--          lvds_reply_bc3_a => lvds_reply_bc3_a,
+--          lvds_reply_bc3_b => lvds_reply_bc3_b,
+--          lvds_reply_rc1_a => lvds_reply_rc1_a,
+--          lvds_reply_rc1_b => lvds_reply_rc1_b,
+--          lvds_reply_rc2_a => lvds_reply_rc2_a,
+--          lvds_reply_rc2_b => lvds_reply_rc2_b,
+--          lvds_reply_rc3_a => lvds_reply_rc3_a,
+--          lvds_reply_rc3_b => lvds_reply_rc3_b,
+--          lvds_reply_rc4_a => lvds_reply_rc4_a,
+--          lvds_reply_rc4_b => lvds_reply_rc4_b,
                           
-         -- DV interface:
-         dv_pulse_fibre   => dv_pulse_fibre,
-         dv_pulse_bnc     => dv_pulse_bnc,  
+--          -- DV interface:
+--          dv_pulse_fibre   => dv_pulse_fibre,
+--          dv_pulse_bnc     => dv_pulse_bnc,  
                           
-         -- eeprom interface:
-         eeprom_si        => eeprom_si,
-         eeprom_so        => eeprom_so, 
-         eeprom_sck       => eeprom_sck,
-         eeprom_cs        => eeprom_cs, 
+--          -- eeprom interface:
+--          eeprom_si        => eeprom_si,
+--          eeprom_so        => eeprom_so, 
+--          eeprom_sck       => eeprom_sck,
+--          eeprom_cs        => eeprom_cs, 
                           
-         -- miscellaneous ports:
-         red_led          => red_led,
-         ylw_led          => ylw_led,
-         grn_led          => grn_led,
-         dip_sw3          => dip_sw3,
-         dip_sw4          => dip_sw4,
-         wdog             => wdog,  
-         slot_id          => slot_id,
+--          -- miscellaneous ports:
+--          red_led          => red_led,
+--          ylw_led          => ylw_led,
+--          grn_led          => grn_led,
+--          dip_sw3          => dip_sw3,
+--          dip_sw4          => dip_sw4,
+--          wdog             => wdog,  
+--          slot_id          => slot_id,
                           
-         -- debug ports:  
-         mictor_o         => mictor_o,   
-         mictorclk_o      => mictorclk_o,
-         mictor_e         => mictor_e,   
-         mictorclk_e      => mictorclk_e,
-         rs232_rx         => rs232_rx,
-         rs232_tx         => rs232_tx,
+--          -- debug ports:  
+--          mictor_o         => mictor_o,   
+--          mictorclk_o      => mictorclk_o,
+--          mictor_e         => mictor_e,   
+--          mictorclk_e      => mictorclk_e,
+--          rs232_rx         => rs232_rx,
+--          rs232_tx         => rs232_tx,
          
-         -- interface to HOTLINK fibre receiver         
-         fibre_rx_clk     => open,
-         fibre_rx_data    => fibre_rx_data,   
-         fibre_rx_rdy     => fibre_rx_rdy,    
-         fibre_rx_rvs     => fibre_rx_rvs,    
-         fibre_rx_status  => fibre_rx_status, 
-         fibre_rx_sc_nd   => fibre_rx_sc_nd,  
-         fibre_rx_ckr     => fibre_rx_ckr,    
+--          -- interface to HOTLINK fibre receiver         
+--          fibre_rx_clk     => open,
+--          fibre_rx_data    => fibre_rx_data,   
+--          fibre_rx_rdy     => fibre_rx_rdy,    
+--          fibre_rx_rvs     => fibre_rx_rvs,    
+--          fibre_rx_status  => fibre_rx_status, 
+--          fibre_rx_sc_nd   => fibre_rx_sc_nd,  
+--          fibre_rx_ckr     => fibre_rx_ckr,    
          
-         -- interface to hotlink fibre transmitter         
-         fibre_tx_clk     => open,
-         fibre_tx_data    => fibre_tx_data,   
-         fibre_tx_ena     => fibre_tx_ena,    
-         fibre_tx_sc_nd   => fibre_tx_sc_nd  
-      );
+--          -- interface to hotlink fibre transmitter         
+--          fibre_tx_clk     => open,
+--          fibre_tx_data    => fibre_tx_data,   
+--          fibre_tx_ena     => fibre_tx_ena,    
+--          fibre_tx_sc_nd   => fibre_tx_sc_nd  
+--       );
    
 
    ----------------------------------------------------------------------------
@@ -471,334 +474,360 @@ begin
            card_id        => card_id_rc,
            mictor         => mictor_rc);
    
-     lvds_reply_rc1_a <= lvds_txa_rc;
-     lvds_reply_rc1_b <= lvds_txb_rc;
+--      lvds_reply_rc1_a <= lvds_txa_rc;
+--      lvds_reply_rc1_b <= lvds_txb_rc;
    
    
-   -- set up hotlink receiver signals 
-   fibre_rx_rvs    <= '0';  -- no violation
-   fibre_rx_status <= '1';  -- status ok
-   fibre_rx_sc_nd  <= '0';  -- data     
+--    -- set up hotlink receiver signals 
+--    fibre_rx_rvs    <= '0';  -- no violation
+--    fibre_rx_status <= '1';  -- status ok
+--    fibre_rx_sc_nd  <= '0';  -- data     
           
    ------------------------------------------------
    -- Create test bench clock
    -------------------------------------------------
-   inclk        <= not inclk        after clk_period/2;
-   fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
+--    lvds_clk        <= not inclk        after clk_period/2;
+
+     process
+     begin  -- process
+       lvds_clk <= '0';
+       wait for 20 ns;
+       lvds_clk <= '1';
+       wait for 20 ns;
+                   
+     end process;
+
+
+     process
+     begin  -- process
+       rst_n <= '0';
+       wait for 875 ns;
+       rst_n <= '1';
+       wait;
+     end process;
+
+     
+--    fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
    
+
    ------------------------------------------------
    -- Create test bench stimuli
    -------------------------------------------------
    
-   stimuli : process
+--    stimuli : process
 
-   procedure do_reset is
-   begin
-      rst_n <= '0';
-      wait for clk_period*50 ;
-      rst_n <= '1';
+--    procedure do_reset is
+--    begin
+--       rst_n <= '0';
+--       wait for clk_period*50+7 ;
+--       rst_n <= '1';
        
-      assert false report " Resetting the DUT." severity NOTE;
-   end do_reset;
+--       assert false report " Resetting the DUT." severity NOTE;
+--    end do_reset;
    --------------------------------------------------
-  
-   procedure load_preamble is
-   begin
+
+     
+--    procedure load_preamble is
+--    begin
    
-   for I in 0 to 3 loop
-      fibre_rx_rdy    <= '1';  -- data not ready (active low)
-      fibre_rx_data  <= preamble1;
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy    <= '0';
-      wait for fibre_clkr_prd * 0.6;
-   end loop;   
+--    for I in 0 to 3 loop
+--       fibre_rx_rdy    <= '1';  -- data not ready (active low)
+--       fibre_rx_data  <= preamble1;
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy    <= '0';
+--       wait for fibre_clkr_prd * 0.6;
+--    end loop;   
    
-   for I in 0 to 3 loop
-      fibre_rx_rdy    <= '1';  -- data not ready (active low)
-      fibre_rx_data  <= preamble2;
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy    <= '0';
-      wait for fibre_clkr_prd * 0.6;
-   end loop;     
+--    for I in 0 to 3 loop
+--       fibre_rx_rdy    <= '1';  -- data not ready (active low)
+--       fibre_rx_data  <= preamble2;
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy    <= '0';
+--       wait for fibre_clkr_prd * 0.6;
+--    end loop;     
    
-   fibre_rx_rdy <= '1';
-   wait for pci_dsp_dly;     
+--    fibre_rx_rdy <= '1';
+--    wait for pci_dsp_dly;     
     
-   assert false report "preamble OK" severity NOTE;
-   end load_preamble;
+--    assert false report "preamble OK" severity NOTE;
+--    end load_preamble;
    
-   ---------------------------------------------------------    
+--    ---------------------------------------------------------    
  
-   procedure load_command is 
-   begin   
-      checksum  <= command;
+--    procedure load_command is 
+--    begin   
+--       checksum  <= command;
     
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data   <= command(7 downto 0);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data   <= command(7 downto 0);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data   <= command(15 downto 8);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data   <= command(15 downto 8);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data   <= command(23 downto 16);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data   <= command(23 downto 16);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data   <= command(31 downto 24);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data   <= command(31 downto 24);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
     
-      assert false report "command code loaded" severity NOTE;
-      fibre_rx_rdy <= '1';
-      wait for pci_dsp_dly;   
+--       assert false report "command code loaded" severity NOTE;
+--       fibre_rx_rdy <= '1';
+--       wait for pci_dsp_dly;   
      
-      -- load up address_id
-      checksum <= checksum XOR address_id;
+--       -- load up address_id
+--       checksum <= checksum XOR address_id;
      
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data   <= address_id(7 downto 0);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data   <= address_id(7 downto 0);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data   <= address_id(15 downto 8);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data   <= address_id(15 downto 8);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data   <= address_id(23 downto 16);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data   <= address_id(23 downto 16);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data   <= address_id(31 downto 24);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data   <= address_id(31 downto 24);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
      
-      assert false report "address id loaded" severity NOTE;
-      fibre_rx_rdy <= '1';
-      wait for pci_dsp_dly; 
+--       assert false report "address id loaded" severity NOTE;
+--       fibre_rx_rdy <= '1';
+--       wait for pci_dsp_dly; 
      
-      -- load up data valid       
-      checksum <= checksum XOR data_valid;
+--       -- load up data valid       
+--       checksum <= checksum XOR data_valid;
   
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= data_valid(7 downto 0);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data <= data_valid(7 downto 0);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= data_valid(15 downto 8);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data <= data_valid(15 downto 8);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= data_valid(23 downto 16);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data <= data_valid(23 downto 16);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= data_valid(31 downto 24);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data <= data_valid(31 downto 24);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      assert false report "data valid loaded" severity NOTE;
-      fibre_rx_rdy <= '1';
-      wait for pci_dsp_dly; 
+--       assert false report "data valid loaded" severity NOTE;
+--       fibre_rx_rdy <= '1';
+--       wait for pci_dsp_dly; 
       
-      -- load up data block
-      -- first load valid data
-      for I in 0 to (To_integer((Unsigned(data_valid)))-1) loop
-      --for I in 0 to (data_valid-1) loop
+--       -- load up data block
+--       -- first load valid data
+--       for I in 0 to (To_integer((Unsigned(data_valid)))-1) loop
+--       --for I in 0 to (data_valid-1) loop
          
-         fibre_rx_rdy   <= '1';
+--          fibre_rx_rdy   <= '1';
          
-         fibre_rx_data <= data(7 downto 0);
-         checksum (7 downto 0) <= checksum (7 downto 0) XOR data(7 downto 0);
-         wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
-         wait for fibre_clkr_prd * 0.6;
+--          fibre_rx_data <= data(7 downto 0);
+--          checksum (7 downto 0) <= checksum (7 downto 0) XOR data(7 downto 0);
+--          wait for fibre_clkr_prd * 0.4;
+--          fibre_rx_rdy   <= '0';
+--          wait for fibre_clkr_prd * 0.6;
          
-         fibre_rx_rdy   <= '1';
+--          fibre_rx_rdy   <= '1';
          
-         fibre_rx_data <= data(15 downto 8);
-         checksum (15 downto 8) <= checksum (15 downto 8) XOR data(15 downto 8);
-         wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
-         wait for fibre_clkr_prd * 0.6;
+--          fibre_rx_data <= data(15 downto 8);
+--          checksum (15 downto 8) <= checksum (15 downto 8) XOR data(15 downto 8);
+--          wait for fibre_clkr_prd * 0.4;
+--          fibre_rx_rdy   <= '0';
+--          wait for fibre_clkr_prd * 0.6;
          
-         fibre_rx_rdy   <= '1';
+--          fibre_rx_rdy   <= '1';
 
-         fibre_rx_data <= data(23 downto 16);
-         checksum (23 downto 16) <= checksum (23 downto 16) XOR data(23 downto 16);
-         wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
-         wait for fibre_clkr_prd * 0.6;
+--          fibre_rx_data <= data(23 downto 16);
+--          checksum (23 downto 16) <= checksum (23 downto 16) XOR data(23 downto 16);
+--          wait for fibre_clkr_prd * 0.4;
+--          fibre_rx_rdy   <= '0';
+--          wait for fibre_clkr_prd * 0.6;
          
-         fibre_rx_rdy   <= '1';
+--          fibre_rx_rdy   <= '1';
          
-         fibre_rx_data <= data(31 downto 24);
-         checksum (31 downto 24) <= checksum (31 downto 24) XOR data(31 downto 24);
-         wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
+--          fibre_rx_data <= data(31 downto 24);
+--          checksum (31 downto 24) <= checksum (31 downto 24) XOR data(31 downto 24);
+--          wait for fibre_clkr_prd * 0.4;
+--          fibre_rx_rdy   <= '0';
          
-         case address_id is
-            when ret_dat_s_cmd => data <= ret_dat_s_stop;
-            when ret_dat_cmd   => data <= (others => '0');
-            when others        => data <= data + 1;
-         end case;
+--          case address_id is
+--             when ret_dat_s_cmd => data <= ret_dat_s_stop;
+--             when ret_dat_cmd   => data <= (others => '0');
+--             when others        => data <= data + 1;
+--          end case;
          
-         wait for fibre_clkr_prd * 0.6;
+--          wait for fibre_clkr_prd * 0.6;
          
-         fibre_rx_rdy <= '1';
-         wait for pci_dsp_dly;        
-      end loop;
+--          fibre_rx_rdy <= '1';
+--          wait for pci_dsp_dly;        
+--       end loop;
     
-      for J in (To_integer((Unsigned(data_valid)))) to data_block-1 loop
-         fibre_rx_rdy   <= '1';
-         fibre_rx_data <= X"00";
-         wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
-         wait for fibre_clkr_prd * 0.6;
+--       for J in (To_integer((Unsigned(data_valid)))) to data_block-1 loop
+--          fibre_rx_rdy   <= '1';
+--          fibre_rx_data <= X"00";
+--          wait for fibre_clkr_prd * 0.4;
+--          fibre_rx_rdy   <= '0';
+--          wait for fibre_clkr_prd * 0.6;
          
-         fibre_rx_rdy   <= '1';
-         fibre_rx_data <= X"00";
-         wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
-         wait for fibre_clkr_prd * 0.6;
+--          fibre_rx_rdy   <= '1';
+--          fibre_rx_data <= X"00";
+--          wait for fibre_clkr_prd * 0.4;
+--          fibre_rx_rdy   <= '0';
+--          wait for fibre_clkr_prd * 0.6;
          
-         fibre_rx_rdy   <= '1';
-         fibre_rx_data <= X"00";
-         wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
-         wait for fibre_clkr_prd * 0.6;
+--          fibre_rx_rdy   <= '1';
+--          fibre_rx_data <= X"00";
+--          wait for fibre_clkr_prd * 0.4;
+--          fibre_rx_rdy   <= '0';
+--          wait for fibre_clkr_prd * 0.6;
          
-         fibre_rx_rdy   <= '1';
-         fibre_rx_data <= X"00";
-         wait for fibre_clkr_prd * 0.4;
-         fibre_rx_rdy   <= '0';
-         wait for fibre_clkr_prd * 0.6;
+--          fibre_rx_rdy   <= '1';
+--          fibre_rx_data <= X"00";
+--          wait for fibre_clkr_prd * 0.4;
+--          fibre_rx_rdy   <= '0';
+--          wait for fibre_clkr_prd * 0.6;
             
-         fibre_rx_rdy <= '1';
-         wait for pci_dsp_dly; 
-      end loop;
+--          fibre_rx_rdy <= '1';
+--          wait for pci_dsp_dly; 
+--       end loop;
         
-      assert false report "data words loaded to memory...." severity NOTE;
+--       assert false report "data words loaded to memory...." severity NOTE;
 
-   end load_command;
+--    end load_command;
     
-   ------------------------------------------------------
+--    ------------------------------------------------------
 
-   procedure load_checksum is
+--    procedure load_checksum is
     
-      begin 
+--       begin 
          
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= checksum(7 downto 0);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data <= checksum(7 downto 0);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= checksum(15 downto 8);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data <= checksum(15 downto 8);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= checksum(23 downto 16);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data <= checksum(23 downto 16);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
       
-      fibre_rx_rdy   <= '1';
-      fibre_rx_data <= checksum(31 downto 24);
-      wait for fibre_clkr_prd * 0.4;
-      fibre_rx_rdy   <= '0';
-      wait for fibre_clkr_prd * 0.6;
+--       fibre_rx_rdy   <= '1';
+--       fibre_rx_data <= checksum(31 downto 24);
+--       wait for fibre_clkr_prd * 0.4;
+--       fibre_rx_rdy   <= '0';
+--       wait for fibre_clkr_prd * 0.6;
          
-      assert false report "checksum loaded...." severity NOTE;  
+--       assert false report "checksum loaded...." severity NOTE;  
        
-      fibre_rx_rdy <= '1';
-      wait for pci_dsp_dly; 
+--       fibre_rx_rdy <= '1';
+--       wait for pci_dsp_dly; 
    
-   end load_checksum;
+--    end load_checksum;
        
   
 --------------------------------------------------------
 -- Begin Test
 ------------------------------------------------------      
        
-   begin
+--    begin
       
-      do_reset;    
+--       do_reset;    
 
-       command <= command_wb;
-       address_id <= gainp0_cmd;
-       data_valid <= X"00000029";        -- number of data to write
-       data       <= X"00000007";
-       load_preamble;
-       load_command;
-       load_checksum;
-      report "End of writing gainp0 command";
+--        command <= command_wb;
+--        address_id <= gainp0_cmd;
+--        data_valid <= X"00000029";        -- number of data to write
+--        data       <= X"00000007";
+--        load_preamble;
+--        load_command;
+--        load_checksum;
+--       report "End of writing gainp0 command";
       
-      wait for 160 us;
+--       wait for 160 us;
 
 
-       command <= command_rb;
-        address_id <= gainp0_cmd;
-        data_valid <= X"00000029";
-        data       <= X"00000000";
-        load_preamble;
-        load_command;
-        load_checksum;
-      report "End of reading gainp0 command";
+--        command <= command_rb;
+--         address_id <= gainp0_cmd;
+--         data_valid <= X"00000029";
+--         data       <= X"00000000";
+--         load_preamble;
+--         load_command;
+--         load_checksum;
+--       report "End of reading gainp0 command";
 
-      wait for 160 us;
+--       wait for 160 us;
 
       
-       command <= command_wb;
-       address_id <= sa_bias_cmd;
-       data_valid <= X"00000008";        -- number of data to write
-       data       <= X"00000011";
-       load_preamble;
-       load_command;
-       load_checksum;
-      report "End of writing sa_bias command";
+--        command <= command_wb;
+--        address_id <= sa_bias_cmd;
+--        data_valid <= X"00000008";        -- number of data to write
+--        data       <= X"00000011";
+--        load_preamble;
+--        load_command;
+--        load_checksum;
+--       report "End of writing sa_bias command";
       
-      wait for 160 us;
+--       wait for 160 us;
       
-       command <= command_wb;
-       address_id <= servo_mode_cmd;
-       data_valid <= X"00000001";        -- number of data to write
-       data       <= X"00000032";
-       load_preamble;
-       load_command;
-       load_checksum;
-      report "End of writing servo_mode command";
+--        command <= command_wb;
+--        address_id <= servo_mode_cmd;
+--        data_valid <= X"00000001";        -- number of data to write
+--        data       <= X"00000032";
+--        load_preamble;
+--        load_command;
+--        load_checksum;
+--       report "End of writing servo_mode command";
       
-       wait for 160 us;
+--        wait for 160 us;
 
 
-      assert false report "Simulation done." severity FAILURE;
-   end process stimuli;
+--       assert false report "Simulation done." severity FAILURE;
+
+--       wait;
+
+      
+--    end process stimuli;
    
 end tb1;
