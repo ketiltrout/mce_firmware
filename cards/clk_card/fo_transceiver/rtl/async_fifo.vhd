@@ -79,7 +79,20 @@ architecture rtl of async_fifo is
    signal fifo_count    : fifo_fill;
    signal empty         : std_logic;
    signal full          : std_logic;
+   
+   signal last_count    : fifo_deep;   -- used to determine if FIFO full or empty.
 
+
+---------------------------------------------------------
+-- [procedure to initialise FIFO memory 
+
+   procedure init_mem(signal memory_cell : inout mem ) is
+   begin
+     for i in 0 to fifo_size-1 loop
+        memory_cell(i) <= (others => '0');
+     end loop;
+   end init_mem;
+---------------------------------------------------------
 
 begin
 
@@ -95,6 +108,7 @@ begin
    begin
       if (rst_i = '1') then
          write_pointer <= 0;
+         init_mem(memory);
       elsif (write_i'EVENT and write_i = '1') then
          memory(write_pointer) <= d_i; 
             if (write_pointer = fifo_size-1) then
@@ -114,6 +128,7 @@ begin
    begin
       if (rst_i = '1') then
          read_pointer <= 0;
+         q_o <= (others => '1');
       elsif (read_i'EVENT and read_i = '1') then
          q_o <=  memory(read_pointer);
          if (read_pointer = fifo_size-1) then
@@ -130,8 +145,8 @@ begin
    -- process to establish how many words are currently in the fifo
    ----------------------------------------------------------------------------
    
-   begin
-   
+   begin  
+      last_count <= fifo_count;            -- save last count
       if write_pointer < read_pointer then 
          fifo_count <= fifo_size + write_pointer - read_pointer;
       else 
@@ -142,20 +157,22 @@ begin
    ----------------------------------------------------------------------------
    flag_fifo : process(fifo_count)
    ----------------------------------------------------------------------------
-   -- process which sets the full and empty flags depending on # words in fifo
+   -- process which sets the full and empty flags depending on fifo_count
+   -- when write_pointer and read_pointer are equal (fifo_count = 0) then the 
+   -- fifo is either full or empty.  Value of last_count determines which.
    ----------------------------------------------------------------------------
       begin
-         if fifo_count = 0 then
-            empty <= '1';
-            full <= '0';
-         elsif fifo_count = fifo_size-1 then      -- this actually full - 1
-            full <= '1';                          -- will update later 
-            empty <= '0';
+         if (fifo_count = 0) then
+            if (last_count = fifo_size - 1) then 
+               empty <= '0';
+               full <= '1';
+            else 
+               empty <= '1';
+               full <= '0';
+            end if;
          else
             empty <= '0';
             full <= '0';
          end if;
       end process flag_fifo;
-
-
 end rtl;
