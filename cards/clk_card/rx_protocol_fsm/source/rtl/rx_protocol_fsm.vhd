@@ -259,7 +259,10 @@ begin
       rx_fe_i,
       rxd_i,
       cksum_calc,
-      cksum_rcvd
+      cksum_rcvd,
+      write_pointer,
+      read_pointer,
+      number_data
    )
    ----------------------------------------------------------------------------
    begin
