@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.7 2004/11/30 22:58:47 bburger Exp $
+-- $Id: clk_card.vhd,v 1.8 2004/12/08 22:15:12 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.8  2004/12/08 22:15:12  bburger
+-- Bryce:  changed the usage of PLLs in the top levels of clk and addr cards
+--
 -- Revision 1.7  2004/11/30 22:58:47  bburger
 -- Bryce:  reply_queue integration
 --
@@ -250,16 +253,12 @@ begin
             
    lvds_cmd <= cmd;
    cmd0: dispatch
-      generic map(
-         CARD => CLOCK_CARD
-      )
       port map(
          lvds_cmd_i   => cmd,
          lvds_reply_o => lvds_reply_cc_a,
          
          --  Global signals
          clk_i      => clk,
-         mem_clk_i  => mem_clk,
          comm_clk_i => comm_clk,
          rst_i      => rst,
             
@@ -274,7 +273,8 @@ begin
          ack_i  => slave_ack,
          err_i  => slave_err, 
      
-         wdt_rst_o => wdog
+         wdt_rst_o => wdog,
+         slot_i    => slot_id
       );
             
    led0: leds
