@@ -60,15 +60,17 @@ architecture behav of tb_rx_protocol_fsm is
    signal tb_clk         : std_logic := '0';
    signal rx_fe          : std_logic;
    signal rxd            : std_logic_vector(7 downto 0);
-   signal card_addr      : std_logic_vector(7 downto 0);
+   signal card_id        : std_logic_vector(15 downto 0);
    signal cmd_code       : std_logic_vector(15 downto 0);
-   signal cmd_data       : std_logic_vector(15 downto 0);
+   signal cmd_data       : std_logic_vector(31 downto 0);
    signal cksum_err      : std_logic;
    signal cmd_rdy        : std_logic;
    signal data_clk       : std_logic;
    signal num_data       : std_logic_vector(7 downto 0);
-   signal reg_addr       : std_logic_vector(23 downto 0);
+   signal param_id       : std_logic_vector(15 downto 0);
    signal rx_fr          : std_logic;
+   signal cmd_ack  	     : std_logic;
+
 
    constant clk_prd      : TIME := 10 ns;    -- 100Mhz clock
    constant preamble1    : std_logic_vector (7 downto 0)  := X"A5";
@@ -76,17 +78,18 @@ architecture behav of tb_rx_protocol_fsm is
    constant pre_fail     : std_logic_vector (7 downto 0)  := X"55";
    constant command_wb   : std_logic_vector (31 downto 0) := X"20205742";
    constant command_go   : std_logic_vector (31 downto 0) := X"2020474F";
-   constant address      : std_logic_vector (31 downto 0) := X"FFEEDDCC";
-   constant data_valid   : std_logic_vector (31 downto 0) := X"00000029";
+   constant address_id   : std_logic_vector (31 downto 0) := X"0002015C";
+   constant data_valid   : std_logic_vector (31 downto 0) := X"00000028";
    constant no_std_data  : std_logic_vector (31 downto 0) := X"00000001";
    constant data_block   : positive := 58;
    constant data_word1   : std_logic_vector (31 downto 0) := X"00001234";
    constant data_word2   : std_logic_vector (31 downto 0) := X"00005678";
    constant check_err    : std_logic_vector (31 downto 0) := X"fafafafa";
  
-   signal   data         : integer := 0;
+   signal   data         : integer := 1;
    signal   checksum     : std_logic_vector(31 downto 0):= X"00000000";
    signal   command      : std_logic_vector (31 downto 0);
+   
    
 begin
 
@@ -97,20 +100,24 @@ begin
    DUT :  rx_protocol_fsm
    
    port map ( 
-      Brst        => dut_rst,
-      clk         => tb_clk,
+      rst_i       => dut_rst,
+      clk_i       => tb_clk,
       rx_fe_i     => rx_fe,
       rxd_i       => rxd,
-      card_addr_o => card_addr,
+      cmd_ack_i   => cmd_ack,
+      
       cmd_code_o  => cmd_code,
+      card_id_o   => card_id,
+      param_id_o  => param_id,
+      num_data_o  => num_data,
       cmd_data_o  => cmd_data,
       cksum_err_o => cksum_err,
       cmd_rdy_o   => cmd_rdy,
       data_clk_o  => data_clk,
-      num_data_o  => num_data,
-      reg_addr_o  => reg_addr,
       rx_fr_o     => rx_fr
    );
+   
+      
    
 ------------------------------------------------
 -- Create test bench clock
@@ -367,50 +374,79 @@ assert false report "tested preamble1 waits" severity NOTE;
                   
       wait UNTIL rx_fr <= '1';
       rxd   <= command(7 downto 0);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
+      
+      wait for clk_prd;
+      rx_fe <= '0';
+        
       
       wait UNTIL rx_fr <= '1';
       rxd   <= command(15 downto 8);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
+       
       
+      wait for clk_prd;
+      rx_fe <= '0';
+            
+             
       wait UNTIL rx_fr <= '1';
       rxd   <= command(23 downto 16);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
       
+      wait for clk_prd;
+      rx_fe <= '0';
+           
+       
       wait UNTIL rx_fr <= '1';
       rxd   <= command(31 downto 24);
       wait UNTIL rx_fr <= '0';
-      
+     
       rx_fe <= '1';
       assert false report "WB command loaded" severity NOTE;
      
-  -- load up address
+  -- load up address_id
 
-      checksum <= checksum XOR address;
+      checksum <= checksum XOR address_id;
       wait for clk_prd*5;
       rx_fe <= '0';
       
          
       wait UNTIL rx_fr <= '1';
-      rxd <= address(7 downto 0);
+      rxd <= address_id(7 downto 0);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
+      
+      wait for clk_prd;
+      rx_fe <= '0';
  
       wait UNTIL rx_fr <= '1';
-      rxd <= address(15 downto 8);
+      rxd <= address_id(15 downto 8);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
      
+      wait for clk_prd;
+      rx_fe <= '0';
+      
       wait UNTIL rx_fr <= '1';
-      rxd <= address(23 downto 16);
+      rxd <= address_id(23 downto 16);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
      
+      wait for clk_prd;
+      rx_fe <= '0';
+      
       wait UNTIL rx_fr <= '1';
-      rxd <= address(31 downto 24);
+      rxd <= address_id(31 downto 24);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
       
       rx_fe <= '1';
-      assert false report "WB address loaded" severity NOTE;
+      assert false report "WB address_id loaded" severity NOTE;
  
-   -- load up data valid = 41
+   -- load up data valid 
    
        
        checksum <= checksum XOR data_valid;
@@ -419,15 +455,27 @@ assert false report "tested preamble1 waits" severity NOTE;
        
        wait UNTIL rx_fr <= '1';
        rxd <= data_valid(7 downto 0);
+       rx_fe <= '1';
        wait UNTIL rx_fr <= '0';
+       
+       wait for clk_prd;
+       rx_fe <= '0';
        
        wait UNTIL rx_fr <= '1'; 
        rxd <= data_valid(15 downto 8);
+       rx_fe <= '1';
        wait UNTIL rx_fr <= '0';
        
+       wait for clk_prd;
+       rx_fe <= '0';
+      
        wait UNTIL rx_fr <= '1';
        rxd <= data_valid(23 downto 16);
+       rx_fe <= '1';
        wait UNTIL rx_fr <= '0';
+       
+       wait for clk_prd;
+       rx_fe <= '0';
        
        wait UNTIL rx_fr <= '1';
        rxd <= data_valid(31 downto 24);
@@ -447,22 +495,38 @@ assert false report "tested preamble1 waits" severity NOTE;
       
          wait UNTIL rx_fr <= '1';
          rxd <= std_logic_vector(To_unsigned(data,8));
+         rx_fe <= '1';
          checksum (7 downto 0) <= checksum (7 downto 0) XOR std_logic_vector(To_unsigned(data,8));
          wait UNTIL rx_fr <= '0';
+         wait for clk_prd;
+         rx_fe <= '0';
          
-         data <= data + 1;
-         
+                 
          wait UNTIL rx_fr <= '1';
-         rxd <= "00000000";
+         rxd <= std_logic_vector(To_unsigned(data,8));
+         rx_fe <= '1';
+         checksum (15 downto 8) <= checksum (15 downto 8) XOR std_logic_vector(To_unsigned(data,8));
          wait UNTIL rx_fr <= '0';
+         wait for clk_prd;
+         rx_fe <= '0';
+       
            
          wait UNTIL rx_fr <= '1';
-         rxd <= "00000000";
+         rxd <= std_logic_vector(To_unsigned(data,8));
+         rx_fe <= '1';
+         checksum (23 downto 16) <= checksum (23 downto 16) XOR std_logic_vector(To_unsigned(data,8));
          wait UNTIL rx_fr <= '0';
+         wait for clk_prd;
+         rx_fe <= '0';
          
          wait UNTIL rx_fr <= '1';      
-         rxd <= "00000000";
+         rxd <= std_logic_vector(To_unsigned(data,8));
+         rx_fe <= '1';
+         checksum (31 downto 24) <= checksum (31 downto 24) XOR std_logic_vector(To_unsigned(data,8));
          wait UNTIL rx_fr <= '0';
+            data <= data + 1;
+         wait for clk_prd;
+         rx_fe <= '0';
          
      end loop;
     
@@ -503,18 +567,28 @@ assert false report "tested preamble1 waits" severity NOTE;
       
       wait UNTIL rx_fr <= '1';
       rxd <= checksum(7 downto 0);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
-      
+      wait for clk_prd;
+      rx_fe <= '0';
+         
       wait UNTIL rx_fr <= '1';
       rxd <= checksum(15 downto 8);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
+      wait for clk_prd;
+      rx_fe <= '0';
       
       wait UNTIL rx_fr <= '1';
       rxd <= checksum(23 downto 16);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
+      wait for clk_prd;
+      rx_fe <= '0';
        
       wait UNTIL rx_fr <= '1';
       rxd <= checksum(31 downto 24);
+      rx_fe <= '1';
       wait UNTIL rx_fr <= '0';
       
       rx_fe <= '1';     
@@ -537,15 +611,26 @@ assert false report "tested preamble1 waits" severity NOTE;
       
       
       -- load a valid wb command
-      
+      cmd_ack <= '0';
+             
       command <= command_wb;
       load_preamble;
       load_command;
+      
+      cmd_ack <= '1'; -- put cmd_ack in high state
+                      -- to test if next block isn't ready for this command
       load_checksum;
+      wait for clk_prd*5;
+      cmd_ack <= '0'; -- cmd_ack goes low permitting fsm to inform subsequent block
+                      -- that another command is ready. 
+       
       wait until cmd_rdy <= '1';
       assert false report "command 1 ready" severity NOTE;
+      wait for clk_prd ;
+      cmd_ack <= '1' ; -- acknowledgement of command 
       wait until cmd_rdy <= '0';
       assert false report "command 1 finished" severity NOTE;
+      cmd_ack <= '0';
       
       -- load a wb command with checksum error
       
