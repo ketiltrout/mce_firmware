@@ -1,0 +1,64 @@
+FILES
+{
+	VHDL_FILE = ..\..\..\library\sys_param\source\pack\wishbone_pack.vhd;
+	VHDL_FILE = ..\..\..\library\sys_param\source\pack\general_pack.vhd;
+	VHDL_FILE = ..\..\..\library\sys_param\source\pack\command_pack.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\pack\component_pack.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\ns_timer.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\read_spi.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\counter.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\write_spi.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\init_1_wire.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\prand.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\read_data_1_wire.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\reg.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\shift_reg.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\slave_ctrl.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\tri_state_buf.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\tri_state_buf_vec.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\us_timer.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\write_data_1_wire.vhd;
+	VHDL_FILE = ..\..\..\library\components\source\rtl\crc.vhd;
+	VHDL_FILE = ..\..\..\all_cards\card_id\source\pack\card_id_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\card_id\source\rtl\card_id.vhd;
+	VHDL_FILE = ..\..\..\all_cards\slot_id\source\pack\slot_id_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\slot_id\source\rtl\slot_id.vhd;
+	VHDL_FILE = ..\..\..\all_cards\array_id\source\pack\array_id_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\array_id\source\rtl\array_id.vhd;
+	VHDL_FILE = ..\..\..\all_cards\watchdog\source\pack\watchdog_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\watchdog\source\rtl\watchdog.vhd;
+	VHDL_FILE = ..\..\..\all_cards\io_led\source\pack\io_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\io_led\source\rtl\io_led.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\pack\async_pack.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\rtl\async_tx.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\rtl\async_mux.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\rtl\async_rx.vhd;
+	VHDL_FILE = ..\..\..\all_cards\async\source\rtl\async_clk.vhd;
+	VHDL_FILE = ..\..\sram_ctrl\source\pack\sram_ctrl_pack.vhd;
+	VHDL_FILE = ..\..\sram_ctrl\source\rtl\sram_ctrl.vhd;
+	VHDL_FILE = ..\source\rtl\hex2ascii.vhd;
+	VHDL_FILE = ..\source\rtl\s_pack.vhd;
+	VHDL_FILE = ..\source\rtl\s_idle.vhd;
+	VHDL_FILE = ..\source\rtl\s_led.vhd;
+	VHDL_FILE = ..\source\rtl\s_reset.vhd;
+	VHDL_FILE = ..\source\rtl\cc_test.vhd;
+	VHDL_FILE = ..\source\rtl\s_array_id.vhd;
+	VHDL_FILE = ..\source\rtl\slot_id_test_wrapper.vhd;
+	VHDL_FILE = ..\source\rtl\card_id_test_wrapper.vhd;
+	VHDL_FILE = ..\source\rtl\s_watchdog.vhd;
+	VHDL_FILE = ..\source\rtl\s_lvds_tx.vhd;
+	VHDL_FILE = ..\source\rtl\sram_test_wrapper.vhd;
+}
+COMPILER_SETTINGS_LIST
+{
+	COMPILER_SETTINGS = cc_test;
+}
+SIMULATOR_SETTINGS_LIST
+{
+	SIMULATOR_SETTINGS = cc_test;
+}
+SOFTWARE_SETTINGS_LIST
+{
+	SOFTWARE_SETTINGS = Debug;
+	SOFTWARE_SETTINGS = Release;
+}
