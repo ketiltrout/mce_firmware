@@ -30,9 +30,12 @@
 -- test bed for wbs_frame_data.vhd
 --
 -- Revision history:
--- <date $Date: 2004/10/26 16:14:12 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/27 13:11:06 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_wbs_frame_data.vhd,v $
+-- Revision 1.2  2004/10/27 13:11:06  dca
+-- some minor changes
+--
 -- Revision 1.1  2004/10/26 16:14:12  dca
 -- Initial Version
 --
@@ -604,34 +607,7 @@ begin
       end do_req_raw_data;
    --------------------------
       
-      
-     ----------------------------    
-   procedure do_read_data is
-   -----------------------------
-      begin
-
-         wbm_addr_o <= RET_DAT_ADDR;
-         wbm_stb_o  <= '1';
-         wbm_cyc_o  <= '1';
-         wbm_we_o   <= '0';
-                  
-         wait until wbm_ack_i = '1';
-         wait for clk_prd;
-         
-         wbm_addr_o <= (others => '0'); 
-         wbm_stb_o  <= '0';
-         wbm_cyc_o  <= '0';
-         wbm_we_o   <= '0';   
-         wbm_dat_o  <= (others => '0') ;      
-         
-                
-    --     assert false report " Got data Word ..........." severity NOTE;
-         wait for clk_prd;
-         
-      
-      end do_read_data;
-   --------------------------
-        
+          
 --------------------------------------------------
 
    begin
@@ -651,26 +627,60 @@ begin
    wbm_dat_o <= MODE3_FB_ERROR;
    do_set_data_mode;
    
-   for i in 1 to (41*8) loop
-      do_read_data;
-   end loop;
+   wait for clk_prd;
    
-     assert (wbm_dat_reg = x"17282728" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
-     assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
-     assert (conv_integer(coadded_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
+   wbm_addr_o <= RET_DAT_ADDR;
+   wbm_stb_o  <= '1';
+   wbm_cyc_o  <= '1';
+   wbm_we_o   <= '0';
+                  
+   wait until wbm_ack_i = '1';
+   
+   for i in 1 to (41*8) loop
+      wait for clk_prd;
+   end loop;
+            
+   wbm_addr_o <= (others => '0'); 
+   wbm_stb_o  <= '0';
+   wbm_cyc_o  <= '0';
+   wbm_we_o   <= '0';   
+   wbm_dat_o  <= (others => '0') ;      
+   
+   wait  for clk_prd;
+   
+   assert (wbm_dat_reg = x"17282728" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+   assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
+   assert (conv_integer(coadded_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
    assert false report "A Frame of FEEDBACK/ERROR data has been read....." severity NOTE;
    
-   
+  
    
    -- Get MODE 2 unfilterd data
    ------------------------------
    wbm_dat_o <= MODE2_UNFILTERED;
    do_set_data_mode;
    
+   wait for clk_prd;
+   
+   wbm_addr_o <= RET_DAT_ADDR;
+   wbm_stb_o  <= '1';
+   wbm_cyc_o  <= '1';
+   wbm_we_o   <= '0';
+                  
+   wait until wbm_ack_i = '1';
+   
    for i in 1 to (41*8) loop
-      do_read_data;
+      wait for clk_prd;
    end loop;
+            
+   wbm_addr_o <= (others => '0'); 
+   wbm_stb_o  <= '0';
+   wbm_cyc_o  <= '0';
+   wbm_we_o   <= '0';   
+   wbm_dat_o  <= (others => '0') ;      
+   
+   wait  for clk_prd;
    
    assert false report "A Frame of UNFILTEREDdata has been read....." severity NOTE;
    
@@ -687,17 +697,34 @@ begin
    wbm_dat_o <= MODE1_FILTERED;
    do_set_data_mode;
    
+   wait for clk_prd;
+   
+   wbm_addr_o <= RET_DAT_ADDR;
+   wbm_stb_o  <= '1';
+   wbm_cyc_o  <= '1';
+   wbm_we_o   <= '0';
+                  
+   wait until wbm_ack_i = '1';
+   
    for i in 1 to (41*8) loop
-      do_read_data;
+      wait for clk_prd;
    end loop;
+            
+   wbm_addr_o <= (others => '0'); 
+   wbm_stb_o  <= '0';
+   wbm_cyc_o  <= '0';
+   wbm_we_o   <= '0';   
+   wbm_dat_o  <= (others => '0') ;      
+   
+   wait  for clk_prd;
       
    assert false report "A Frame of FILTERED data has been read....." severity NOTE;
    
      assert (wbm_dat_reg = x"0728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
      assert (conv_integer(filtered_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
-   
-   
+   -- wait for clk_prd * 20;
+   -- assert false report "END OF SIMULATION....." severity FAILURE;
 
 
  
@@ -706,11 +733,28 @@ begin
    wbm_dat_o <= MODE4_RAW;
    do_set_data_mode;
    
-   for i in 1 to (2*64*41*8) loop
-      do_read_data;
-   end loop;
+    wait for clk_prd;
    
-      
+   wbm_addr_o <= RET_DAT_ADDR;
+   wbm_stb_o  <= '1';
+   wbm_cyc_o  <= '1';
+   wbm_we_o   <= '0';
+                  
+   wait until wbm_ack_i = '1';
+   
+   for i in 1 to (2*64*41*8) loop
+      wait for clk_prd;
+   end loop;
+            
+   wbm_addr_o <= (others => '0'); 
+   wbm_stb_o  <= '0';
+   wbm_cyc_o  <= '0';
+   wbm_we_o   <= '0';   
+   wbm_dat_o  <= (others => '0') ;      
+   
+   wait  for clk_prd;
+   
+        
    assert (wbm_dat_reg = x"00003751" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
    assert (conv_integer(raw_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
@@ -721,7 +765,6 @@ begin
 
 
    wait for clk_prd*20;
-   
    assert false report "END OF SIMULATION....." severity FAILURE;
    
    wait;
