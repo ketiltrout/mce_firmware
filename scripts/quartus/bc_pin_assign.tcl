@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.6  2004/05/17 00:12:57  erniel
+# renamed PLL 5 input pin to inclk
+#
 # Revision 1.5  2004/05/15 02:13:32  erniel
 # unrolled foreach loops
 #
@@ -339,11 +342,6 @@ cmp add_assignment $top_name "" "dac_data\[29\]" LOCATION "Pin_A21"
 cmp add_assignment $top_name "" "dac_data\[30\]" LOCATION "Pin_C21"
 cmp add_assignment $top_name "" "dac_data\[31\]" LOCATION "Pin_E21"
 puts "   Assigned: DAC data pins."
-
-
-# assign DAC clear
-cmp add_assignment $top_name "" dac_nclr LOCATION "Pin_M16"
-puts "   Assigned: DAC clear pin."
 
 
 # recompile to commit
