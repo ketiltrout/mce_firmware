@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: eeprom_ctrl_pack.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jonathan Jacob
@@ -32,7 +32,7 @@
 -- Revision history:
 -- 
 --
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 --
 ------------------------------------------------------------------------
 
@@ -45,11 +45,6 @@ use sys_param.wishbone_pack.all;
 
 package eeprom_ctrl_pack is
 
--- move this stuff to the wishbone pack when I'm done
-constant EEPROM_CTRL_DATA_WIDTH : integer := DEF_WB_DATA_WIDTH;
-constant EEPROM_CTRL_ADDR_WIDTH : integer := DEF_WB_ADDR_WIDTH;
-constant EEPROM_CTRL_ADDR       : std_logic_vector(ADDR_LENGTH-1 downto 0) := "01001011"; -- 0x4B
-
 ------------------------------------------------------------
 --
 -- component for the EEPROM Controller
@@ -58,9 +53,7 @@ constant EEPROM_CTRL_ADDR       : std_logic_vector(ADDR_LENGTH-1 downto 0) := "0
 
 component eeprom_ctrl
 
-generic(EEPROM_CTRL_DATA_WIDTH         : integer := EEPROM_CTRL_DATA_WIDTH;
-        EEPROM_CTRL_ADDR_WIDTH         : integer := EEPROM_CTRL_ADDR_WIDTH;   
-        EEPROM_CTRL_ADDR               : std_logic_vector(ADDR_LENGTH-1 downto 0) := EEPROM_CTRL_ADDR  );
+generic(EEPROM_CTRL_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := EEPROM_ADDR  );
 
 port(
 
@@ -75,17 +68,20 @@ port(
      
      -- inputs from the EEPROM
      eeprom_so_i     : in std_logic;  -- serial output data from the eeprom
-
+     
      -- Wishbone interface:
      clk_i   : in std_logic;
      rst_i   : in std_logic;		
-     addr_i  : in std_logic_vector (EEPROM_CTRL_ADDR_WIDTH-1 downto 0);
-     dat_i 	 : in std_logic_vector (EEPROM_CTRL_DATA_WIDTH-1 downto 0);
-     dat_o   : out std_logic_vector (EEPROM_CTRL_DATA_WIDTH-1 downto 0);
+     addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+     tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+     dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+     dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
      we_i    : in std_logic;
      stb_i   : in std_logic;
-     ack_o   : out std_logic; 
+     ack_o   : out std_logic;
+     rty_o   : out std_logic;
      cyc_i   : in std_logic ); 
-end component;   
+     
+end component;
 
 end eeprom_ctrl_pack;
