@@ -57,6 +57,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop.vhd,v $
+-- Revision 1.2  2004/12/10 00:01:24  mohsen
+-- Added comments
+--
 -- Revision 1.1  2004/12/07 19:48:19  mohsen
 -- Anthony & Mohsen: Initial release
 --
@@ -102,7 +105,6 @@ end tb1_flux_loop;
 
 architecture beh of tb1_flux_loop is
 
-  signal hi : boolean := false;
   
   -- DUT component declaration
   component flux_loop
@@ -306,6 +308,7 @@ architecture beh of tb1_flux_loop is
 
    -- the following is used to store the PIDZ and ADC offset values read from the wbs_fb_data
    type block_array is array (0 to 41*8-1) of std_logic_vector(31 downto 0);
+   type block_array2 is array (0 to 2*41*8*64-1) of std_logic_vector(31 downto 0);
 
   
    -- Offset/Sa Bias Control Value 
@@ -325,7 +328,7 @@ architecture beh of tb1_flux_loop is
    signal OFFSET_CH0   : block_array := (others => (others => '0'));
    signal UNFILTER_CH0 : block_array := (others => (others => '0'));
    signal FB_ERROR_CH0 : block_array := (others => (others => '0'));
-   signal RAW_CH0      : block_array := (others => (others => '0'));
+   signal RAW_CH0      : block_array2 := (others => (others => '0'));
   
    -- CHANNEL 1
    --signal P_CH1        : block_array := (others => (others => '0'));
@@ -550,7 +553,7 @@ architecture beh of tb1_flux_loop is
 
     
   -- Procedure for reading data from wbs_fb_data
-  -- Maximum size of read data block is 41 words
+  -- Maximum size of read data block is 41*8 words
   procedure read_wbs_data (
     signal clk_i     : in std_logic;
     signal ack_i     : in std_logic;
@@ -610,6 +613,66 @@ architecture beh of tb1_flux_loop is
 
   end procedure read_wbs_data; 
   
+  -- Procedure for reading RAW data from wbs_fb_data
+  -- Maximum size of read data block is 2*41*8*64 words
+  procedure read_for_raw_wbs_data (
+    signal clk_i               : in std_logic;
+    signal ack_i               : in std_logic;
+    signal dat_rd_i            : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    constant address_to_read_i : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+    constant num_dat_word_i    : in integer;
+    constant master_wait_flg_i : in boolean;  -- should the master wait?
+    constant master_wait_cyc_i : in integer;  -- where in cycles to wait?
+    signal dat_rd_o            : out block_array2;
+    signal addr_o              : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+    signal tga_o               : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+    signal we_o                : out std_logic;
+    signal stb_o               : out std_logic;
+    signal cyc_o               : out std_logic) is
+
+    variable tga      : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0) := (others =>'0');
+
+  begin
+    tga_o <= (others => '0') after EDGE_DEPENDENCY;
+    tga   := (others => '0');
+      
+    wait until rising_edge(clk_i);
+    addr_o <= address_to_read_i after EDGE_DEPENDENCY;
+    stb_o  <= '1' after EDGE_DEPENDENCY;
+    cyc_o  <= '1' after EDGE_DEPENDENCY;
+    we_o   <= '0' after EDGE_DEPENDENCY;
+   
+    for i in 1 to num_dat_word_i loop   
+      wait for PERIOD;
+
+      while ack_i='0' loop
+        wait for PERIOD;                 
+      end loop;
+        
+      dat_rd_o(i-1) <= dat_rd_i after EDGE_DEPENDENCY;
+                 
+      -- assert a wait cycle by master
+      if master_wait_flg_i then
+        if i=master_wait_cyc_i then
+          stb_o <= '0' after EDGE_DEPENDENCY;
+          wait for 29*PERIOD;
+          stb_o <= '1' after EDGE_DEPENDENCY;
+        end if;
+      end if;
+
+      -- avoid incrementing for the last value
+      if i< num_dat_word_i then
+        tga := tga+1;
+      end if;
+        
+      tga_o <= tga after EDGE_DEPENDENCY;
+      
+    end loop;  -- i
+      
+    stb_o <= '0' after EDGE_DEPENDENCY;
+    cyc_o <= '0' after EDGE_DEPENDENCY;
+
+  end procedure read_for_raw_wbs_data; 
  
 begin  -- beh
 
@@ -953,12 +1016,17 @@ begin  -- beh
       write_wbs_data(clk_50_i, ack_frame_o, DATA_MODE_ADDR, x"00000001", 1,
                         false, 0, dat_frame_i, addr_frame_i, tga_frame_i,
                         we_frame_i, stb_frame_i, cyc_frame_i);
+      report "I am done with selecting UNFILTER Mode" severity NOTE;
 
       wait for FREE_RUN;
 
+      -- read UNFILTER data
       read_wbs_data(clk_50_i, ack_frame_o, dat_frame_o, RET_DAT_ADDR, 41*8, 
                        true, 28, UNFILTER_CH0, addr_frame_i, tga_frame_i,
                        we_frame_i, stb_frame_i, cyc_frame_i);
+      report "I am done reading UNFILTER data" severity NOTE;
+
+      wait for FREE_RUN;
 
       -- Self Check for UNFILTER
       case current_bank_fltr is
@@ -996,6 +1064,8 @@ begin  -- beh
 
          when others => null;
       end case;
+      report "I am done with self checking UNFILTER data" severity NOTE;
+      
 
       wait for FREE_RUN;
 
@@ -1003,13 +1073,17 @@ begin  -- beh
       write_wbs_data(clk_50_i, ack_frame_o, DATA_MODE_ADDR, x"00000002", 1,
                         false, 0, dat_frame_i, addr_frame_i, tga_frame_i,
                         we_frame_i, stb_frame_i, cyc_frame_i);
+      report "I am done with selecting FB_ERROR mode" severity NOTE;
+
 
       wait for FREE_RUN;
 
       read_wbs_data(clk_50_i, ack_frame_o, dat_frame_o, RET_DAT_ADDR, 41*8, 
                        true, 28, FB_ERROR_CH0, addr_frame_i, tga_frame_i,
                        we_frame_i, stb_frame_i, cyc_frame_i);
+      report "I am done with reading FB_ERROR data" severity NOTE;
 
+      wait for FREE_RUN;
       -- Self Check for FB_ERROR
       case current_bank_fltr is
         when '0' =>
@@ -1046,6 +1120,7 @@ begin  -- beh
 
          when others => null;
       end case;
+      report "I am done with self checking FB_ERROR data" severity NOTE;
 
 
       
@@ -1056,6 +1131,7 @@ begin  -- beh
       write_wbs_data(clk_50_i, ack_frame_o, CAPTR_RAW_ADDR, x"0000000F", 1,
                         false, 0, dat_frame_i, addr_frame_i, tga_frame_i,
                         we_frame_i, stb_frame_i, cyc_frame_i);
+      report "I am done with writing into CAPTR_RAW_ADDR" severity NOTE;
 
       wait for FREE_RUN;
       
@@ -1063,37 +1139,46 @@ begin  -- beh
       write_wbs_data(clk_50_i, ack_frame_o, DATA_MODE_ADDR, x"00000003", 1,
                         false, 0, dat_frame_i, addr_frame_i, tga_frame_i,
                         we_frame_i, stb_frame_i, cyc_frame_i);
+      report "I am done with selecting RAW mode" severity NOTE;
 
       wait for FREE_RUN;
 
-      read_wbs_data(clk_50_i, ack_frame_o, dat_frame_o, RET_DAT_ADDR, 41*8, 
+      -- read from ret_dat_addr with raw mode selected.
+      read_for_raw_wbs_data(clk_50_i, ack_frame_o, dat_frame_o, RET_DAT_ADDR, 2*41*8*64, 
                        true, 28, RAW_CH0, addr_frame_i, tga_frame_i,
                        we_frame_i, stb_frame_i, cyc_frame_i);
-
+      report "I am done with raw data read" severity NOTE;
 
       wait for FREE_RUN;
 
 
+      -- perform a read from DATA_MODE_ADDR
+      read_wbs_data(clk_50_i, ack_frame_o, dat_frame_o, DATA_MODE_ADDR, 1, 
+                        false, 0, INVALID_READ, addr_frame_i, tga_frame_i,
+                        we_frame_i, stb_frame_i, cyc_frame_i);
+      report "I am done with doing a read from DATA_MODE_ADDR" severity NOTE;
 
-      
-      -- The following three cases forces a hang in the system as there is no
-      -- acknowldge issued by the wbs_frame_data
---       read_wbs_data(clk_50_i, ack_frame_o, dat_frame_o, DATA_MODE_ADDR, 1, 
---                        false, 0, INVALID_READ, addr_frame_i, tga_frame_i,
---                        we_frame_i, stb_frame_i, cyc_frame_i);
---                        
---       read_wbs_data(clk_50_i, ack_frame_o, dat_frame_o, CAPTR_RAW_ADDR, 1, 
---                        false, 0, INVALID_READ, addr_frame_i, tga_frame_i,
---                        we_frame_i, stb_frame_i, cyc_frame_i);                    
+      wait for FREE_RUN;
 
---         write_wbs_data(clk_50_i, ack_frame_o, RET_DAT_ADDR, x"00000001", 1,
---                          false, 0, dat_frame_i, addr_frame_i, tga_frame_i,
---                          we_frame_i, stb_frame_i, cyc_frame_i);
+      -- perform a read from CAPTR_RAW_ADDR
+      read_wbs_data(clk_50_i, ack_frame_o, dat_frame_o, CAPTR_RAW_ADDR, 1, 
+                        false, 0, INVALID_READ, addr_frame_i, tga_frame_i,
+                        we_frame_i, stb_frame_i, cyc_frame_i);                    
+      report "I am done with doing a read from CAPTR_RAW_ADDR" severity NOTE;
+
+      wait for FREE_RUN;
+
+      -- illegarl write into RET_DAT_ADDR
+      -- Nothing should happen.  wbs_frame_data only acknowledges this to
+      -- prevent system hang.
+      write_wbs_data(clk_50_i, ack_frame_o, RET_DAT_ADDR, x"00000001", 1,
+                          false, 0, dat_frame_i, addr_frame_i, tga_frame_i,
+                          we_frame_i, stb_frame_i, cyc_frame_i);
+      report "I am done with doing a write into RET_DAT_ADDR.  I did nothing except to ack" severity NOTE;
      
       wait for FREE_RUN;
-      
-      hi <= not hi;
-     
+
+  
     end loop;
 
     wait for PERIOD;
