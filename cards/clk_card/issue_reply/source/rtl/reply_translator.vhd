@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.11 2004/09/02 15:10:16 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.12 2004/09/03 13:12:48 dca Exp $>
 --
 -- Project: 			Scuba 2
 -- Author:  			David Atkinson
@@ -30,9 +30,15 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/09/02 15:10:16 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/09/03 13:12:48 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.12  2004/09/03 13:12:48  dca
+-- 'NO_REPLY' state added to fibre FSM.
+-- This state is entered if a completed m_op
+-- should not generate a fibre packet.
+-- (determined by value on m_op_cmd_code_i)
+--
 -- Revision 1.11  2004/09/02 15:10:16  dca
 -- moved the macro_op acknowledgement assertion in the FSM.
 --
@@ -258,7 +264,9 @@ signal wordN_3mux       : byte;
 
 -- Finite State Machines defined here:
 
--- FIBRE PACKET FSM
+----------------------------------------------------------------------------------------------------------------
+--                             FIBRE PACKET FSM
+----------------------------------------------------------------------------------------------------------------
 -- handles the writting off all packets (replies and data) to the
 -- fibre transmit FIFO (fibre_tx_fifo) 
 
@@ -290,21 +298,24 @@ type fibre_state is           (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, R
 signal   fibre_current_state       : fibre_state;
 signal   fibre_next_state          : fibre_state;
       
+----------------------------------------------------------------------------------------------------------------
+--                                  Local FSM
+----------------------------------------------------------------------------------------------------------------
 
 -- LOCAL COMMAND FSM
 -- handles local commands 
 -- currently doesn't do anything!
 
 -- Local command FSM                              
-type local_state is            (LOCAL_IDLE, LOCAL_TEST);
+-- type local_state is            (LOCAL_IDLE, LOCAL_TEST);
+
+-- signal   local_current_state        : local_state;
+-- signal   local_next_state           : local_state;
 
 
-signal   local_current_state        : local_state;
-signal   local_next_state           : local_state;
-
-
-
--- Arbitration FSM
+----------------------------------------------------------------------------------------------------------------
+--                                  Arbitration FSM
+----------------------------------------------------------------------------------------------------------------
 -- Consider that an application is running  (i.e. data frames are being generated)
 -- During this time the only fibre command which can arrive is the ST command.  
 -- In the event that the ST command arrives with a checksum error 
@@ -1483,54 +1494,40 @@ txd_o              <= fibre_byte;
       
    end process reply_fsm_output;
  
-  
-  
-  ---------------------------------------------------------------------------
+   
+   ---------------------------------------------------------------------------
    -- LOCAL COMMAND FSM 
    ----------------------------------------------------------------------------
-   local_fsm_clocked : process(
-      clk_i,
-      rst_i
-   )
+   -- local_fsm_clocked : process(
+   --   clk_i,
+   --   rst_i
+   -- )
    ----------------------------------------------------------------------------
-   begin
-         
-      if (rst_i = '1') then
-         local_current_state <= LOCAL_IDLE;
-      elsif (clk_i'EVENT AND clk_i = '1') then
-         local_current_state <= local_next_state;
-      end if;
-
-   end process local_fsm_clocked; 
+   -- begin         
+   --   if (rst_i = '1') then
+   --      local_current_state <= LOCAL_IDLE;
+   --   elsif (clk_i'EVENT AND clk_i = '1') then
+   --     local_current_state <= local_next_state;
+   --   end if;
+   -- end process local_fsm_clocked; 
              
-  -------------------------------------------------------------------------
-   local_fsm_nextstate : process (
-      local_current_state 
-   )
+   -------------------------------------------------------------------------
+   -- local_fsm_nextstate : process (
+   --    local_current_state 
+   --  )
    ----------------------------------------------------------------------------
-   begin
-     
-      case local_current_state is
-
-
-      when LOCAL_IDLE =>
- 
-         local_next_state <= LOCAL_TEST;
-           
-      when LOCAL_TEST => 
-          
-         local_next_state <= LOCAL_IDLE;
+   --  begin
+   --     case local_current_state is
+   --     when LOCAL_IDLE =>
+   --        local_next_state <= LOCAL_TEST;
+   --     when LOCAL_TEST => 
+   --        local_next_state <= LOCAL_IDLE;  
+   --     when others =>
+   --        local_next_state <= LOCAL_IDLE;   
+   --     end case;     
+   --  end process local_fsm_nextstate;            
   
-      when others =>
-         local_next_state <= LOCAL_IDLE;   
-         
-      end case;
-      
-   end process local_fsm_nextstate;            
-   
-
-
-  ---------------------------------------------------------------------------
+   ---------------------------------------------------------------------------
    -- ARBITRATION FSM 
    ----------------------------------------------------------------------------
    arb_fsm_clocked : process(
