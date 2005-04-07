@@ -50,13 +50,14 @@ IMAGE_BUFFER	EQU	0	; location in y memory of image buffer....
 
 ;Status bits
 
-APPLICATION_LOADED	EQU	0
-SEND_TO_HOST		EQU	1
-ERROR_HF		EQU	2
-FO_WRD_RCV		EQU	3
-INTA_FLAG		EQU	4
-BYTE_SWAP		EQU	5
-PREAMBLE_ERROR		EQU	6
+APPLICATION_LOADED	EQU	0   ; set if PCI application to run
+SEND_TO_HOST		EQU	1   ; set in HST ISR when host ready for packet 
+ERROR_HF		EQU	2   ; - not used
+FO_WRD_RCV		EQU	3   ; set when packet detected in FIFO - stays set till packet processed
+INTA_FLAG		EQU	4   ; used for interupt handshaking with host
+BYTE_SWAP		EQU	5   ; flag to show byte swapping enabled
+PREAMBLE_ERROR		EQU	6   ; set if preamble error detected
+DATA_DLY		EQU	7   ; set in CON ISR if MCE command is 'GO'.  USed to add delay to first returned data packet 
 
 
 ; Various addressing control registers

@@ -114,16 +114,27 @@ PACKET_INFO                                            ; packet preamble valid
 		MOVE    X:<DATA_WD,A		; $4441
 		CMP	X0,A
 		JNE	MCE_PACKET              ; if not - then must be a command reply
-INC_FRAME_COUNT					; if frame then inc count (which host PC can interrogate/clear)
 
-; increment frame count
 
+; we have a data pakcet - check if it's the first packet after the GO command has been issued...
+
+                JCLR  	#DATA_DLY,X:STATUS,INC_FRAME_COUNT        ; do we need to add a delay since first frame?
+
+; yes first frame after GO reply packet so add a delay.
+PACKET_DELAY 
+		MOVE	X:DATA_DLY_VAL,X0
+		DO	X0,*+3			; 10ns x DATA_DLY_VAL
+		NOP
+                NOP
+                BCLR 	#DATA_DLY,X:STATUS	; clear so delay isn't added next time.
+
+
+INC_FRAME_COUNT					; increment frame count 
 		CLR	A
 		MOVE	X:<FRAME_COUNT,A0
 		INC	A
 		NOP
 		MOVE	A0,X:<FRAME_COUNT
-
 
 ; *********************************************************************
 ; *********************** IT'S A PAKCET FROM MCE ***********************
@@ -627,8 +638,8 @@ SEND_PACKET_TO_CONTROLLER
 ; word 1 = command = 'CON'
 ; word 2 = host high address
 ; word 3 = host low address
-; word 4 = '0' --> normal command
-;	 = '1' --> 'block command'
+; word 4 = '0' --> when MCE command is RS,WB,RB,ST
+;	 = '1' --> when MCE command is GO  
 ; all MCE commands are now 'block commands'
 ; i.e. 64 words long.
 
@@ -647,71 +658,14 @@ SEND_PACKET_TO_CONTROLLER
 	MOVE	X:<DRXR_WD3,B0		; LS 16bits of address
 	INSERT	#$010010,X0,B		; convert to 32 bits and put in B
 
-	MOVE	X:<DRXR_WD4,A		; read word 4 - block command?
+	MOVE	X:<DRXR_WD4,A		; read word 4 - GO command?
 	MOVE	X:ZERO,X0
 	CMP	X0,A
-	JNE	BLOCK_CON
- 
+	JEQ	BLOCK_CON
 
-; PCI address incremented in Sub routine
-; get 32bit word as 2 x 16 bit words
-
-; preamble
-	JSR	<READ_FROM_PCI		; get a 32 bit word from HOST
-	MOVE	X0,X:<PCI_WD1_1		; read word 1 from host memory
-	MOVE	X1,X:<PCI_WD1_2			
-; preamble
-	JSR	<READ_FROM_PCI		; get a 32 bit word from HOST
-	MOVE	X0,X:<PCI_WD2_1		; read word 2 from host memory
-	MOVE	X1,X:<PCI_WD2_2
-; command
-	JSR	<READ_FROM_PCI		; get a 32 bit word from HOST
-	MOVE	X0,X:<PCI_WD3_1		; read word 3 from host memory
-	MOVE	X1,X:<PCI_WD3_2	
-;arg1
-	JSR	<READ_FROM_PCI		; get a 32 bit word from HOST
-	MOVE	X0,X:<PCI_WD4_1		; read word 4 from host memory
-	MOVE	X1,X:<PCI_WD4_2	
-;arg2
-	JSR	<READ_FROM_PCI		; get a 32 bit word from HOST
-	MOVE	X0,X:<PCI_WD5_1		; read word 5 from host memory
-	MOVE	X1,X:<PCI_WD5_2	
-;checksum
-	JSR	<READ_FROM_PCI		; get a 32 bit word from HOST
-	MOVE	X0,X:<PCI_WD6_1		; read word 6 from host memory
-	MOVE	X1,X:<PCI_WD6_2	
-
-
-; when we reach this stage then we have successfully read a 3 word packet from
-; the host which has to be send onwards to the Timing board
-; the routine which transmits to the fibre expects the word to be in register A1
-
-; preamble
-	MOVE	X:<PCI_WD1_1,A1		; put 1st word (1) in A1 to transmit
-	MOVE	X:<PCI_WD1_2,A0		; put 1st word (2) in A1 to transmit
-	JSR	<XMT_WD_FIBRE		; off it goes
-;preamble
-	MOVE	X:<PCI_WD2_1,A1		; put 2nd word (1) in A1 to transmit
-	MOVE	X:<PCI_WD2_2,A0		; put 2nd word (2) in A1 to transmit
-	JSR	<XMT_WD_FIBRE		; off it goes
-; command
-	MOVE	X:<PCI_WD3_1,A1		; put 3rd word (1) in A1 to transmit
-	MOVE	X:<PCI_WD3_2,A0		; put 3rd word (2) in A1 to transmit
-	JSR	<XMT_WD_FIBRE		; off it goes
-; arg1
-	MOVE	X:<PCI_WD4_1,A1		; put 4th word (1) in A1 to transmit
-	MOVE	X:<PCI_WD4_2,A0		; put 4th word (2)in A1 to transmit
-	JSR	<XMT_WD_FIBRE		; off it goes
-; arg2
-	MOVE	X:<PCI_WD5_1,A1		; put 5th word (1) in A1 to transmit
-	MOVE	X:<PCI_WD5_2,A0		; put 5th word (2) in A1 to transmit
-	JSR	<XMT_WD_FIBRE		; off it goes
-; check sum
-	MOVE	X:<PCI_WD6_1,A1		; put 6th word (1) in A1 to transmit
-	MOVE	X:<PCI_WD6_2,A0		; put 6th word (2) in A1 to transmit
-	JSR	<XMT_WD_FIBRE		; off it goes
-	JMP	<FINISH_CON		; finished
-
+SET_PACKET_DELAY
+	BSET	#DATA_DLY,X:STATUS      ; set data delay so that next data packet after go reply
+                                        ; experiences a delay before host notify.
 BLOCK_CON
 	DO	#64,END_BLOCK_CON	; block size = 32bit x 64 (256 bytes)
 	JSR	<READ_FROM_PCI		; get next 32 bit word from HOST
@@ -725,13 +679,10 @@ END_BLOCK_CON
 
 ; DMA block CON
 ; note maximum block size is 64 (burst limit - since six bits in DPMC define length)
-
 ;BLOCK_CON
 ; set up clock size in x0, address in B
-
 ;	MOVE	X:WBLK_SIZE,X0
 ;	JSR	<READ_WBLOCK		; DMA read block --> Y memory	
-
 ;XMT_WBLOCK				; send to BAC
 ;	MOVE	X:ZERO,R3
 ;	MOVE	X:WBLK_SIZE,X0		;
@@ -1570,6 +1521,8 @@ LEFT_TO_READ		DC	0	; number of words (16 bit) left to read after last 512 buffer
 LEFT_TO_WRITE		DC	0	; number of woreds (32 bit) to write to host i.e. half of those left over read
 NUM_LEFTOVER_BLOCKS	DC	0	; small block DMA burst transfer
 
+
+DATA_DLY_VAL		DC	0	; data delay value..  Delay added to first frame received after GO command 
 
 
 	IF	@SCP("DOWNLOAD","ROM")	; Boot ROM code
