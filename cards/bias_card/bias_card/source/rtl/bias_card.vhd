@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.13 2005/03/24 19:23:32 mandana Exp $
+-- $Id: bias_card.vhd,v 1.14 2005/03/31 18:32:28 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.14  2005/03/31 18:32:28  mandana
+-- Build revision 0004
+--
 -- Revision 1.13  2005/03/24 19:23:32  mandana
 -- build revision changed to 0003
 --
@@ -156,7 +159,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01010004";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01010005";
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
