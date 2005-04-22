@@ -214,31 +214,33 @@ begin
    procedure do_corr_a is
    begin
       flux_quanta0_i          <= x"00000800"; -- (1/4)*(2**13)
-      flux_quanta1_i          <= x"00000800"; 
-      flux_quanta2_i          <= x"00000800"; 
-      flux_quanta3_i          <= x"00000800"; 
-      flux_quanta4_i          <= x"00000800"; 
-      flux_quanta5_i          <= x"00000800"; 
-      flux_quanta6_i          <= x"00000800"; 
-      flux_quanta7_i          <= x"00000800"; 
+      flux_quanta1_i          <= x"00000801"; 
+      flux_quanta2_i          <= x"00000802"; 
+      flux_quanta3_i          <= x"00000803"; 
+      flux_quanta4_i          <= x"00000804"; 
+      flux_quanta5_i          <= x"00000805"; 
+      flux_quanta6_i          <= x"00000806"; 
+      flux_quanta7_i          <= x"00000807"; 
       
+--      num_flux_quanta_prev0_i <= "1111111100"; -- -3
       num_flux_quanta_prev0_i <= "0000000100"; -- -3
       num_flux_quanta_prev1_i <= "0000000100"; -- -2
       num_flux_quanta_prev2_i <= "0000000100"; -- -1
-      num_flux_quanta_prev3_i <= "0000000100"; --  0
+      num_flux_quanta_prev3_i <= "1111111100"; --  0
       num_flux_quanta_prev4_i <= "0000000100"; --  1
       num_flux_quanta_prev5_i <= "0000000100"; --  2
       num_flux_quanta_prev6_i <= "0000000100"; --  3
       num_flux_quanta_prev7_i <= "0000000100"; --  4
       
-      fsfb_ctrl_dat0_i        <= x"00002000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat1_i        <= x"00002000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat2_i        <= x"00002000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat3_i        <= x"00002000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat4_i        <= x"00002000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat5_i        <= x"00002000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat6_i        <= x"00002000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat7_i        <= x"00002000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev   
+--      fsfb_ctrl_dat0_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+      fsfb_ctrl_dat0_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+      fsfb_ctrl_dat1_i        <= x"00004001"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+      fsfb_ctrl_dat2_i        <= x"00004002"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+      fsfb_ctrl_dat3_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+      fsfb_ctrl_dat4_i        <= x"00004004"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+      fsfb_ctrl_dat5_i        <= x"00004005"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+      fsfb_ctrl_dat6_i        <= x"00004006"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+      fsfb_ctrl_dat7_i        <= x"00004007"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev    
       
       wait for CLOCK_PERIOD;
 

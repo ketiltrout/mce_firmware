@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.1.2.3 2005/04/22 00:25:42 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.2 2005/04/22 00:41:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.2  2005/04/22 00:41:56  bburger
+-- Bryce:  New.
+--
 -- Revision 1.1.2.3  2005/04/22 00:25:42  bburger
 -- Bryce:  New.
 --
@@ -142,6 +145,7 @@ constant DATA_PATH1 : std_logic := '1';
 signal start_corr            : std_logic;
 signal rdy_clr               : std_logic;
 signal column_switch         : std_logic_vector(2 downto 0);
+signal column_switch2        : std_logic_vector(2 downto 0);
 signal result_switch         : std_logic;
 signal pid_corr_rdy          : std_logic;
 signal m_pres_rdy            : std_logic;
@@ -150,43 +154,51 @@ signal m_pres_rdy            : std_logic;
 signal flux_quanta           : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
 
 signal m_prev                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_prev_b              : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_pres                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_mltcnd              : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_new                 : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal m_mltcnd_sign_xtnd    : std_logic_vector(MULT_WIDTH-1 downto 0);
 signal pid_prev_sign_xtnd    : std_logic_vector(SUB_WIDTH-1 downto 0);
+signal m_new0                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new1                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new2                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new3                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new4                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new5                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new6                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new7                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 
 signal pid_prev              : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
 signal mult_res              : std_logic_vector(PROD_WIDTH-1 downto 0);
 signal sub_res               : std_logic_vector(SUB_WIDTH-1 downto 0);
 
 -- Registers for inputs
-signal flux_quanta0          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
-signal flux_quanta1          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
-signal flux_quanta2          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
-signal flux_quanta3          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
-signal flux_quanta4          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
-signal flux_quanta5          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
-signal flux_quanta6          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
-signal flux_quanta7          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+signal flux_quanta0          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
+signal flux_quanta1          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
+signal flux_quanta2          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
+signal flux_quanta3          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
+signal flux_quanta4          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
+signal flux_quanta5          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
+signal flux_quanta6          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
+signal flux_quanta7          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); 
 
-signal m_prev0               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_prev
-signal m_prev1               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_prev
-signal m_prev2               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_prev
-signal m_prev3               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_prev
-signal m_prev4               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_prev
-signal m_prev5               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_prev
-signal m_prev6               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_prev
-signal m_prev7               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_prev
+signal m_prev0               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+signal m_prev1               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+signal m_prev2               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+signal m_prev3               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+signal m_prev4               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+signal m_prev5               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+signal m_prev6               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+signal m_prev7               : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 
-signal pid_prev0             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
-signal pid_prev1             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
-signal pid_prev2             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
-signal pid_prev3             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
-signal pid_prev4             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
-signal pid_prev5             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
-signal pid_prev6             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
-signal pid_prev7             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+signal pid_prev0             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
+signal pid_prev1             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
+signal pid_prev2             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
+signal pid_prev3             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
+signal pid_prev4             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
+signal pid_prev5             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
+signal pid_prev6             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
+signal pid_prev7             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); 
 
 signal fsfb_ctrl_dat_rdy0    : std_logic;
 signal fsfb_ctrl_dat_rdy1    : std_logic;
@@ -197,34 +209,15 @@ signal fsfb_ctrl_dat_rdy5    : std_logic;
 signal fsfb_ctrl_dat_rdy6    : std_logic;
 signal fsfb_ctrl_dat_rdy7    : std_logic;
 
--- Registers for corrected fsfb output
---signal pid_corr_prev0        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev1        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev2        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev3        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev4        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev5        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev6        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev7        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---
---signal pid_corr_prev_en0     : std_logic;
---signal pid_corr_prev_en1     : std_logic;
---signal pid_corr_prev_en2     : std_logic;
---signal pid_corr_prev_en3     : std_logic;
---signal pid_corr_prev_en4     : std_logic;
---signal pid_corr_prev_en5     : std_logic;
---signal pid_corr_prev_en6     : std_logic;
---signal pid_corr_prev_en7     : std_logic;
-
 -- Registers for arithmetic outputs
-signal res_a0                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_a1                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_a2                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_a3                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_a4                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_a5                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_a6                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_a7                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
+signal res_a0                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_a1                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_a2                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_a3                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_a4                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_a5                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_a6                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_a7                : std_logic_vector(SUB_WIDTH-1 downto 0); 
 
 signal res_a_en0             : std_logic; 
 signal res_a_en1             : std_logic; 
@@ -235,14 +228,14 @@ signal res_a_en5             : std_logic;
 signal res_a_en6             : std_logic; 
 signal res_a_en7             : std_logic; 
 
-signal res_b0                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_b1                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_b2                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_b3                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_b4                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_b5                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_b6                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
-signal res_b7                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
+signal res_b0                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b1                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b2                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b3                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b4                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b5                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b6                : std_logic_vector(SUB_WIDTH-1 downto 0); 
+signal res_b7                : std_logic_vector(SUB_WIDTH-1 downto 0); 
 
 signal res_b_en0             : std_logic; 
 signal res_b_en1             : std_logic; 
@@ -253,14 +246,14 @@ signal res_b_en5             : std_logic;
 signal res_b_en6             : std_logic; 
 signal res_b_en7             : std_logic; 
 
-signal m_new0                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_new1                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_new2                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_new3                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_new4                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_new5                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_new6                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-signal m_new7                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new_reg0                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new_reg1                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new_reg2                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new_reg3                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new_reg4                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new_reg5                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new_reg6                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+signal m_new_reg7                : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 
 signal m_new_en0             : std_logic;
 signal m_new_en1             : std_logic;
@@ -352,6 +345,7 @@ begin
       --defaults
       rdy_clr           <= '0';
       column_switch     <= COL0;
+      column_switch2    <= COL0;
       result_switch     <= '0';
       pid_corr_rdy      <= '0'; 
       m_pres_rdy        <= '0';      
@@ -392,84 +386,107 @@ begin
       
       case present_state is
          when IDLE =>
-            column_switch <= COL0;
-            result_switch <= DATA_PATH0;
          when CALCA0 =>
-            rdy_clr       <= '1';
-            column_switch <= COL1;
-            result_switch <= DATA_PATH0;
-            res_a_en0     <= '1';
+            column_switch  <= COL0;
+            column_switch2 <= COL0;
+            result_switch  <= DATA_PATH0;
+            res_a_en0      <= '1';
          when CALCA1 =>
-            column_switch <= COL2;
-            result_switch <= DATA_PATH0;
-            res_a_en1     <= '1';
-            m_new_en0     <= '1';
+            rdy_clr        <= '1';
+            column_switch  <= COL1;
+            column_switch2 <= COL0;
+            result_switch  <= DATA_PATH0;
+            res_a_en1      <= '1';
+            m_new_en0      <= '1';
          when CALCA2 =>
-            column_switch <= COL3;
-            result_switch <= DATA_PATH0;
-            res_a_en2     <= '1';
-            m_new_en1     <= '1';
+            column_switch  <= COL2;
+            column_switch2 <= COL1;
+            result_switch  <= DATA_PATH0;
+            res_a_en2      <= '1';
+            m_new_en1      <= '1';
          when CALCA3 =>
-            column_switch <= COL4;
-            result_switch <= DATA_PATH0;
-            res_a_en3     <= '1';
-            m_new_en2     <= '1';
+            column_switch  <= COL3;
+            column_switch2 <= COL2;
+            result_switch  <= DATA_PATH0;
+            res_a_en3      <= '1';
+            m_new_en2      <= '1';
          when CALCA4 =>
-            column_switch <= COL5;
-            result_switch <= DATA_PATH0;
-            res_a_en4     <= '1';
-            m_new_en3     <= '1';
-         when CALCA5 =>
-            column_switch <= COL6;
-            result_switch <= DATA_PATH0;
-            res_a_en5     <= '1';
-            m_new_en4     <= '1';
+            column_switch  <= COL4;
+            column_switch2 <= COL3;
+            result_switch  <= DATA_PATH0;
+            res_a_en4      <= '1';
+            m_new_en3      <= '1';
+         when CALCA5 => 
+            column_switch  <= COL5;
+            column_switch2 <= COL4;
+            result_switch  <= DATA_PATH0;
+            res_a_en5      <= '1';
+            m_new_en4      <= '1';
          when CALCA6 =>
-            column_switch <= COL7;
-            result_switch <= DATA_PATH0;
-            res_a_en6     <= '1';
-            m_new_en5     <= '1';
+            column_switch  <= COL6;
+            column_switch2 <= COL5;
+            result_switch  <= DATA_PATH0;
+            res_a_en6      <= '1';
+            m_new_en5      <= '1';
          when CALCA7 =>
-            column_switch <= COL0;
-            result_switch <= DATA_PATH0;
-            res_a_en7     <= '1';
-            m_new_en6     <= '1';
+            column_switch  <= COL7;
+            column_switch2 <= COL6;
+            result_switch  <= DATA_PATH0;
+            res_a_en7      <= '1';
+            m_new_en6      <= '1';
          when PAUSE1 =>
-            m_new_en7     <= '1';
+            column_switch  <= COL7;
+            column_switch2 <= COL7;
+            result_switch  <= DATA_PATH0;
+            m_new_en7      <= '1';
          when PAUSE2 =>
+            column_switch  <= COL7;
+            column_switch2 <= COL7;
+            m_pres_rdy     <= '1';
          when CALCB0 =>
-            column_switch <= COL1;
-            result_switch <= DATA_PATH1;
-            res_b_en0     <= '1';
+            column_switch  <= COL0;
+            column_switch2  <= COL0;
+            result_switch  <= DATA_PATH1;
+            res_b_en0      <= '1';
          when CALCB1 =>
-            m_pres_rdy    <= '1';
-            column_switch <= COL2;
-            result_switch <= DATA_PATH1;
-            res_b_en1     <= '1';
+            column_switch  <= COL1;
+            column_switch2  <= COL1;
+            result_switch  <= DATA_PATH1;
+            res_b_en1      <= '1';
          when CALCB2 =>
-            column_switch <= COL3;
-            result_switch <= DATA_PATH1;
-            res_b_en2     <= '1';
+            column_switch  <= COL2;
+            column_switch2  <= COL2;
+            result_switch  <= DATA_PATH1;
+            res_b_en2      <= '1';
          when CALCB3 =>
-            column_switch <= COL4;
-            result_switch <= DATA_PATH1;
-            res_b_en3     <= '1';
+            column_switch  <= COL3;
+            column_switch2  <= COL3;
+            result_switch  <= DATA_PATH1;
+            res_b_en3      <= '1';
          when CALCB4 =>
-            column_switch <= COL5;
-            result_switch <= DATA_PATH1;
-            res_b_en4     <= '1';
+            column_switch  <= COL4;
+            column_switch2  <= COL4;
+            result_switch  <= DATA_PATH1;
+            res_b_en4      <= '1';
          when CALCB5 =>
-            column_switch <= COL6;
-            result_switch <= DATA_PATH1;
-            res_b_en5     <= '1';
+            column_switch  <= COL5;
+            column_switch2  <= COL5;
+            result_switch  <= DATA_PATH1;
+            res_b_en5      <= '1';
          when CALCB6 =>
-            column_switch <= COL7;
-            result_switch <= DATA_PATH1;
-            res_b_en6     <= '1';
+            column_switch  <= COL6;
+            column_switch2  <= COL6;
+            result_switch  <= DATA_PATH1;
+            res_b_en6      <= '1';
          when CALCB7 =>
-            res_b_en7     <= '1';
-         when CLEANUP =>
-            pid_corr_rdy  <= '1';
+            column_switch  <= COL7;
+            column_switch2  <= COL7;
+            result_switch  <= DATA_PATH1;
+            res_b_en7      <= '1';
+         when CLEANUP => 
+            column_switch  <= COL7;
+            column_switch2  <= COL7;
+            pid_corr_rdy   <= '1';
          when others =>
       end case;
    end process;
@@ -490,45 +507,6 @@ begin
          datab  => mult_res(SUB_WIDTH-1 downto 0),
          result => sub_res
       );
-
-   -------------------------------
-   -- Registered corrected fsfb
-   -------------------------------
---signal pid_corr_prev0        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev1        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev2        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev3        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev4        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev5        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev6        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---signal pid_corr_prev7        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
---
---signal pid_corr_prev_en0     : std_logic;
---signal pid_corr_prev_en1     : std_logic;
---signal pid_corr_prev_en2     : std_logic;
---signal pid_corr_prev_en3     : std_logic;
---signal pid_corr_prev_en4     : std_logic;
---signal pid_corr_prev_en5     : std_logic;
---signal pid_corr_prev_en6     : std_logic;
---signal pid_corr_prev_en7     : std_logic;
---
---   register_result: process(clk_i, rst_i)
---   begin
---      
---      if(rst_i = '1') then
---         
---         pid_corr_prev0 <= (others => '0');    
---
---      elsif(clk_i'event and clk_i = '1') then
---
---         if(pid_corr_prev_en0 = '1') then
---            pid_corr_prev0 <= sub_res(); 
---         end if;
---         
---      end if;
---   end process;
-
-
 
    -------------------------------
    -- Registered aritmetic outputs
@@ -556,90 +534,90 @@ begin
          res_b6 <= (others => '0'); 
          res_b7 <= (others => '0');
       
-         m_new0 <= (others => '0');   
-         m_new1 <= (others => '0');    
-         m_new2 <= (others => '0');    
-         m_new3 <= (others => '0');    
-         m_new4 <= (others => '0');    
-         m_new5 <= (others => '0');    
-         m_new6 <= (others => '0');    
-         m_new7 <= (others => '0');    
+         m_new_reg0 <= (others => '0');   
+         m_new_reg1 <= (others => '0');    
+         m_new_reg2 <= (others => '0');    
+         m_new_reg3 <= (others => '0');    
+         m_new_reg4 <= (others => '0');    
+         m_new_reg5 <= (others => '0');     
+         m_new_reg6 <= (others => '0');    
+         m_new_reg7 <= (others => '0');    
 
       elsif(clk_i'event and clk_i = '1') then
          
          if(res_a_en0 = '1') then
-            res_a0 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_a0 <= sub_res; 
          end if;
          if(res_a_en1 = '1') then
-            res_a1 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_a1 <= sub_res; 
          end if;
          if(res_a_en2 = '1') then
-            res_a2 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_a2 <= sub_res; 
          end if;
          if(res_a_en3 = '1') then
-            res_a3 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_a3 <= sub_res; 
          end if;
          if(res_a_en4 = '1') then
-            res_a4 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_a4 <= sub_res; 
          end if;
          if(res_a_en5 = '1') then
-            res_a5 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_a5 <= sub_res; 
          end if;
          if(res_a_en6 = '1') then
-            res_a6 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_a6 <= sub_res; 
          end if;
          if(res_a_en7 = '1') then
-            res_a7 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_a7 <= sub_res; 
          end if;
 
          if(res_b_en0 = '1') then
-            res_b0 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_b0 <= sub_res; 
          end if;
          if(res_b_en1 = '1') then
-            res_b1 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_b1 <= sub_res; 
          end if;
          if(res_b_en2 = '1') then
-            res_b2 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_b2 <= sub_res; 
          end if;
          if(res_b_en3 = '1') then
-            res_b3 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_b3 <= sub_res; 
          end if;
          if(res_b_en4 = '1') then
-            res_b4 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_b4 <= sub_res; 
          end if;
          if(res_b_en5 = '1') then
-            res_b5 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_b5 <= sub_res; 
          end if;
          if(res_b_en6 = '1') then
-            res_b6 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_b6 <= sub_res; 
          end if;
          if(res_b_en7 = '1') then
-            res_b7 <= sub_res(DAC_DAT_WIDTH-1 downto 0); 
+            res_b7 <= sub_res; 
          end if;
          
          if(m_new_en0 = '1') then
-            m_new0 <= m_new; 
+            m_new_reg0 <= m_new0; 
          end if;
          if(m_new_en1 = '1') then
-            m_new1 <= m_new; 
+            m_new_reg1 <= m_new1; 
          end if;
          if(m_new_en2 = '1') then
-            m_new2 <= m_new; 
+            m_new_reg2 <= m_new2; 
          end if;
          if(m_new_en3 = '1') then
-            m_new3 <= m_new; 
+            m_new_reg3 <= m_new3; 
          end if;
          if(m_new_en4 = '1') then
-            m_new4 <= m_new; 
+            m_new_reg4 <= m_new4; 
          end if;
          if(m_new_en5 = '1') then
-            m_new5 <= m_new; 
+            m_new_reg5 <= m_new5; 
          end if;
          if(m_new_en6 = '1') then
-            m_new6 <= m_new; 
+            m_new_reg6 <= m_new6; 
          end if;
          if(m_new_en7 = '1') then
-            m_new7 <= m_new; 
+            m_new_reg7 <= m_new7; 
          end if;
          
       end if;
@@ -802,25 +780,35 @@ begin
       pid_prev6 when column_switch = COL6 else
       pid_prev7 when column_switch = COL7;
       
-   num_flux_quanta_pres0_o <= m_new0;
-   num_flux_quanta_pres1_o <= m_new1;
-   num_flux_quanta_pres2_o <= m_new2;
-   num_flux_quanta_pres3_o <= m_new3;
-   num_flux_quanta_pres4_o <= m_new4;
-   num_flux_quanta_pres5_o <= m_new5;
-   num_flux_quanta_pres6_o <= m_new6;
-   num_flux_quanta_pres7_o <= m_new7;
-   num_flux_quanta_pres_rdy_o <= pid_corr_rdy;
+   num_flux_quanta_pres0_o <= m_new_reg0;
+   num_flux_quanta_pres1_o <= m_new_reg1;
+   num_flux_quanta_pres2_o <= m_new_reg2;
+   num_flux_quanta_pres3_o <= m_new_reg3;
+   num_flux_quanta_pres4_o <= m_new_reg4;
+   num_flux_quanta_pres5_o <= m_new_reg5;
+   num_flux_quanta_pres6_o <= m_new_reg6;
+   num_flux_quanta_pres7_o <= m_new_reg7;
+   num_flux_quanta_pres_rdy_o <= m_pres_rdy;
    
+   m_prev_b <=
+      m_prev0 when column_switch2 = COL0 else
+      m_prev1 when column_switch2 = COL1 else
+      m_prev2 when column_switch2 = COL2 else
+      m_prev3 when column_switch2 = COL3 else
+      m_prev4 when column_switch2 = COL4 else
+      m_prev5 when column_switch2 = COL5 else
+      m_prev6 when column_switch2 = COL6 else
+      m_prev7 when column_switch2 = COL7;
+
    m_pres <=
-      m_new0 when column_switch = COL0 else
-      m_new1 when column_switch = COL1 else
-      m_new2 when column_switch = COL2 else
-      m_new3 when column_switch = COL3 else
-      m_new4 when column_switch = COL4 else
-      m_new5 when column_switch = COL5 else
-      m_new6 when column_switch = COL6 else
-      m_new7 when column_switch = COL7;
+      m_new_reg0 when column_switch2 = COL0 else
+      m_new_reg1 when column_switch2 = COL1 else
+      m_new_reg2 when column_switch2 = COL2 else
+      m_new_reg3 when column_switch2 = COL3 else
+      m_new_reg4 when column_switch2 = COL4 else
+      m_new_reg5 when column_switch2 = COL5 else
+      m_new_reg6 when column_switch2 = COL6 else
+      m_new_reg7 when column_switch2 = COL7;
       
    start_corr <= 
       fsfb_ctrl_dat_rdy0 and
@@ -841,33 +829,67 @@ begin
       
    fsfb_ctrl_dat0_o <=
       pid_prev0(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      res_b0;        
+      res_b0(DAC_DAT_WIDTH-1 downto 0);        
    fsfb_ctrl_dat1_o <=
       pid_prev1(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      res_b1;
+      res_b1(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat2_o <=
       pid_prev2(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      res_b2;
+      res_b2(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat3_o <=
       pid_prev3(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      res_b3;
+      res_b3(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat4_o <=
       pid_prev4(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      res_b4;
+      res_b4(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat5_o <=
       pid_prev5(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      res_b5;
+      res_b5(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat6_o <=
       pid_prev6(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      res_b6;
+      res_b6(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat7_o <=
       pid_prev7(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      res_b7;
+      res_b7(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
 
-   m_new <=
-      m_prev + 1 when sub_res < FSFB_MIN else
-      m_prev - 1 when sub_res > FSFB_MAX else
-      m_prev;
+   m_new0 <=
+      m_prev_b + 1 when res_a0 < FSFB_MIN else
+      m_prev_b - 1 when res_a0 > FSFB_MAX else
+      m_prev_b;
 
+   m_new1 <=
+      m_prev_b + 1 when res_a1 < FSFB_MIN else
+      m_prev_b - 1 when res_a1 > FSFB_MAX else
+      m_prev_b;
+
+   m_new2 <=
+      m_prev_b + 1 when res_a2 < FSFB_MIN else
+      m_prev_b - 1 when res_a2 > FSFB_MAX else
+      m_prev_b;
+
+   m_new3 <=
+      m_prev_b + 1 when res_a3 < FSFB_MIN else
+      m_prev_b - 1 when res_a3 > FSFB_MAX else
+      m_prev_b;
+
+   m_new4 <=
+      m_prev_b + 1 when res_a4 < FSFB_MIN else
+      m_prev_b - 1 when res_a4 > FSFB_MAX else
+      m_prev_b;
+
+   m_new5 <=
+      m_prev_b + 1 when res_a5 < FSFB_MIN else
+      m_prev_b - 1 when res_a5 > FSFB_MAX else
+      m_prev_b;
+
+   m_new6 <=
+      m_prev_b + 1 when res_a6 < FSFB_MIN else
+      m_prev_b - 1 when res_a6 > FSFB_MAX else
+      m_prev_b;
+
+   m_new7 <=
+      m_prev_b + 1 when res_a7 < FSFB_MIN else
+      m_prev_b - 1 when res_a7 > FSFB_MAX else
+      m_prev_b;
 end rtl;
