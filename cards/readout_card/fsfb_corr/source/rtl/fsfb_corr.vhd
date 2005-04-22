@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.1.2.1 2005/04/20 00:18:43 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.1.2.2 2005/04/21 00:27:18 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.1.2.2  2005/04/21 00:27:18  bburger
+-- Bryce:  Code update.  All files compile now.
+--
 -- Revision 1.1.2.1  2005/04/20 00:18:43  bburger
 -- Bryce:  new
 --
@@ -192,23 +195,23 @@ signal fsfb_ctrl_dat_rdy6    : std_logic;
 signal fsfb_ctrl_dat_rdy7    : std_logic;
 
 -- Registers for corrected fsfb output
-signal pid_corr_prev0        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-signal pid_corr_prev1        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-signal pid_corr_prev2        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-signal pid_corr_prev3        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-signal pid_corr_prev4        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-signal pid_corr_prev5        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-signal pid_corr_prev6        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-signal pid_corr_prev7        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-
-signal pid_corr_prev_en0     : std_logic;
-signal pid_corr_prev_en1     : std_logic;
-signal pid_corr_prev_en2     : std_logic;
-signal pid_corr_prev_en3     : std_logic;
-signal pid_corr_prev_en4     : std_logic;
-signal pid_corr_prev_en5     : std_logic;
-signal pid_corr_prev_en6     : std_logic;
-signal pid_corr_prev_en7     : std_logic;
+--signal pid_corr_prev0        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev1        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev2        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev3        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev4        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev5        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev6        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev7        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--
+--signal pid_corr_prev_en0     : std_logic;
+--signal pid_corr_prev_en1     : std_logic;
+--signal pid_corr_prev_en2     : std_logic;
+--signal pid_corr_prev_en3     : std_logic;
+--signal pid_corr_prev_en4     : std_logic;
+--signal pid_corr_prev_en5     : std_logic;
+--signal pid_corr_prev_en6     : std_logic;
+--signal pid_corr_prev_en7     : std_logic;
 
 -- Registers for arithmetic outputs
 signal res_a0                : std_logic_vector(DAC_DAT_WIDTH-1 downto 0); 
@@ -268,7 +271,8 @@ signal m_new_en7             : std_logic;
 type states is 
 (
    IDLE, 
-   CALCA0, CALCA1, CALCA2, CALCA3, CALCA4, CALCA5, CALCA6, CALCA7, 
+   CALCA0, CALCA1, CALCA2, CALCA3, CALCA4, CALCA5, CALCA6, CALCA7,
+   PAUSE1, PAUSE2,
    CALCB0, CALCB1, CALCB2, CALCB3, CALCB4, CALCB5, CALCB6, CALCB7, 
    CLEANUP
 );                
@@ -312,6 +316,10 @@ begin
          when CALCA6 =>
             next_state <= CALCA7;
          when CALCA7 =>
+            next_state <= PAUSE1;
+         when PAUSE1 =>
+            next_state <= PAUSE2;
+         when PAUSE2 =>
             next_state <= CALCB0;
          when CALCB0 =>
             next_state <= CALCB1;
@@ -342,7 +350,7 @@ begin
       rdy_clr           <= '0';
       column_switch     <= COL0;
       result_switch     <= '0';
-      pid_corr_rdy      <= '0';
+      pid_corr_rdy      <= '0'; 
       m_pres_rdy        <= '0';      
       
       res_a_en0         <= '0'; 
@@ -363,15 +371,6 @@ begin
       res_b_en6         <= '0'; 
       res_b_en7         <= '0'; 
 
-      pid_corr_prev_en0 <= '0';
-      pid_corr_prev_en1 <= '0';
-      pid_corr_prev_en2 <= '0';
-      pid_corr_prev_en3 <= '0';
-      pid_corr_prev_en4 <= '0';
-      pid_corr_prev_en5 <= '0';
-      pid_corr_prev_en6 <= '0';
-      pid_corr_prev_en7 <= '0';
-                    
       m_new_en0         <= '0'; 
       m_new_en1         <= '0'; 
       m_new_en2         <= '0'; 
@@ -381,11 +380,12 @@ begin
       m_new_en6         <= '0'; 
       m_new_en7         <= '0'; 
 
-      -- Data latency through the pipeline is four cycles:
+      -- Data latency through the pipeline is  cycles:
       -- 1. Operand asserted at multiplier
-      -- 2. Multiplier result registered
+      -- 2. Multiplier result registered (res_a)
       -- 3. Result addition, comparison, m_pres registered
-      -- 4. m_pres_rdy asserted
+      -- 4. m_pres_rdy asserted at multiplier
+      -- 5. Multiplier result registered (res_b)
       
       case present_state is
          when IDLE =>
@@ -395,49 +395,76 @@ begin
             rdy_clr       <= '1';
             column_switch <= COL1;
             result_switch <= DATA_PATH0;
+            res_a_en0     <= '1';
          when CALCA1 =>
             column_switch <= COL2;
             result_switch <= DATA_PATH0;
+            res_a_en1     <= '1';
+            m_new_en0     <= '1';
          when CALCA2 =>
             column_switch <= COL3;
             result_switch <= DATA_PATH0;
+            res_a_en2     <= '1';
+            m_new_en1     <= '1';
          when CALCA3 =>
             column_switch <= COL4;
             result_switch <= DATA_PATH0;
+            res_a_en3     <= '1';
+            m_new_en2     <= '1';
          when CALCA4 =>
             column_switch <= COL5;
             result_switch <= DATA_PATH0;
+            res_a_en4     <= '1';
+            m_new_en3     <= '1';
          when CALCA5 =>
             column_switch <= COL6;
             result_switch <= DATA_PATH0;
+            res_a_en5     <= '1';
+            m_new_en4     <= '1';
          when CALCA6 =>
             column_switch <= COL7;
             result_switch <= DATA_PATH0;
+            res_a_en6     <= '1';
+            m_new_en5     <= '1';
          when CALCA7 =>
             column_switch <= COL0;
-            result_switch <= DATA_PATH1;
+            result_switch <= DATA_PATH0;
+            res_a_en7     <= '1';
+            m_new_en6     <= '1';
+         when PAUSE1 =>
+            m_new_en7     <= '1';
+         when PAUSE2 =>
          when CALCB0 =>
             column_switch <= COL1;
             result_switch <= DATA_PATH1;
+            res_b_en0     <= '1';
          when CALCB1 =>
+            m_pres_rdy    <= '1';
             column_switch <= COL2;
             result_switch <= DATA_PATH1;
+            res_b_en1     <= '1';
          when CALCB2 =>
             column_switch <= COL3;
             result_switch <= DATA_PATH1;
+            res_b_en2     <= '1';
          when CALCB3 =>
             column_switch <= COL4;
             result_switch <= DATA_PATH1;
+            res_b_en3     <= '1';
          when CALCB4 =>
             column_switch <= COL5;
             result_switch <= DATA_PATH1;
+            res_b_en4     <= '1';
          when CALCB5 =>
             column_switch <= COL6;
             result_switch <= DATA_PATH1;
+            res_b_en5     <= '1';
          when CALCB6 =>
             column_switch <= COL7;
             result_switch <= DATA_PATH1;
+            res_b_en6     <= '1';
          when CALCB7 =>
+            res_b_en7     <= '1';
          when CLEANUP =>
             pid_corr_rdy  <= '1';
          when others =>
@@ -460,6 +487,45 @@ begin
          datab  => mult_res(SUB_WIDTH-1 downto 0),
          result => sub_res
       );
+
+   -------------------------------
+   -- Registered corrected fsfb
+   -------------------------------
+--signal pid_corr_prev0        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev1        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev2        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev3        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev4        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev5        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev6        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--signal pid_corr_prev7        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+--
+--signal pid_corr_prev_en0     : std_logic;
+--signal pid_corr_prev_en1     : std_logic;
+--signal pid_corr_prev_en2     : std_logic;
+--signal pid_corr_prev_en3     : std_logic;
+--signal pid_corr_prev_en4     : std_logic;
+--signal pid_corr_prev_en5     : std_logic;
+--signal pid_corr_prev_en6     : std_logic;
+--signal pid_corr_prev_en7     : std_logic;
+--
+--   register_result: process(clk_i, rst_i)
+--   begin
+--      
+--      if(rst_i = '1') then
+--         
+--         pid_corr_prev0 <= (others => '0');    
+--
+--      elsif(clk_i'event and clk_i = '1') then
+--
+--         if(pid_corr_prev_en0 = '1') then
+--            pid_corr_prev0 <= sub_res(); 
+--         end if;
+--         
+--      end if;
+--   end process;
+
+
 
    -------------------------------
    -- Registered aritmetic outputs
@@ -772,28 +838,29 @@ begin
       
    fsfb_ctrl_dat0_o <=
       pid_prev0(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      pid_corr_prev0;        
-   fsfb_ctrl_dat0_o <=
+      res_b0;        
+   fsfb_ctrl_dat1_o <=
       pid_prev1(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      pid_corr_prev1;
-   fsfb_ctrl_dat0_o <=
+      res_b1;
+   fsfb_ctrl_dat2_o <=
       pid_prev2(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      pid_corr_prev2;
-   fsfb_ctrl_dat0_o <=
+      res_b2;
+   fsfb_ctrl_dat3_o <=
       pid_prev3(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      pid_corr_prev3;
-   fsfb_ctrl_dat0_o <=
+      res_b3;
+   fsfb_ctrl_dat4_o <=
       pid_prev4(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      pid_corr_prev4;
-   fsfb_ctrl_dat0_o <=
+      res_b4;
+   fsfb_ctrl_dat5_o <=
       pid_prev5(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      pid_corr_prev5;
-   fsfb_ctrl_dat0_o <=
+      res_b5;
+   fsfb_ctrl_dat6_o <=
       pid_prev6(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      pid_corr_prev6;
-   fsfb_ctrl_dat0_o <=
+      res_b6;
+   fsfb_ctrl_dat7_o <=
       pid_prev7(DAC_DAT_WIDTH-1 downto 0) when fsfb_ctrl_lock_en_i = '0' else
-      pid_corr_prev7;
+      res_b7;
+   fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
 
    m_new <=
       m_prev + 1 when sub_res < FSFB_MIN else
