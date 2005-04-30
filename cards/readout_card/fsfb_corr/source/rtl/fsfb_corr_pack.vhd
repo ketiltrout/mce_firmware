@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr_pack.vhd,v 1.2 2005/04/22 00:41:56 bburger Exp $
+-- $Id: fsfb_corr_pack.vhd,v 1.3 2005/04/22 23:22:46 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr_pack.vhd,v $
+-- Revision 1.3  2005/04/22 23:22:46  bburger
+-- Bryce:  Fixed some bugs.  Now in working order.
+--
 -- Revision 1.2  2005/04/22 00:41:56  bburger
 -- Bryce:  New.
 --
@@ -50,7 +53,7 @@ use work.readout_card_pack.all;
 
 package fsfb_corr_pack is
 
-   constant SUB_WIDTH              : integer := 48;
+   constant SUB_WIDTH              : integer := 64;
    constant MULT_WIDTH             : integer := 32;
    constant PROD_WIDTH             : integer := 64;
 
