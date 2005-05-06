@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.10.2.2  2005/03/24 22:00:56  mohsen
+-- new rev number for lvds_rx synchronizer
+--
 -- Revision 1.10.2.1  2005/03/23 19:12:00  mohsen
 -- single ch instantiation to help validate rc with clk card issues
 --
@@ -202,7 +205,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010003";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010006";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
@@ -210,6 +213,7 @@ signal mem_clk                 : std_logic;  -- memory clk
 signal comm_clk                : std_logic;  -- communication clk
 signal spi_clk                 : std_logic;  -- spi clk
 signal rst                     : std_logic;
+signal clk_n                   : std_logic;
 
 
 -- dispatch interface signals 
@@ -291,7 +295,8 @@ begin
          c0     => clk,
          c1     => mem_clk,
          c2     => comm_clk,
-         c3     => spi_clk);
+         c3     => spi_clk,
+         c4     => clk_n);
 
    
    ----------------------------------------------------------------------------
@@ -426,7 +431,7 @@ begin
           dat_o                     => dat_ft,
           ack_o                     => ack_ft,
           clk_i                     => clk,
-          mem_clk_i                 => mem_clk,
+          clk_n_i                   => clk_n,
           rst_i                     => rst,
           sync_i                    => lvds_sync);
    
