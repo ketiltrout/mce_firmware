@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.3 2005/04/22 23:22:46 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.4 2005/04/30 01:37:42 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.4  2005/04/30 01:37:42  bburger
+-- Bryce:  Added a second multplier and subtractor to the fsfb_corr pipeline to reduce the time required for the flux-jumping calculation.
+--
 -- Revision 1.3  2005/04/22 23:22:46  bburger
 -- Bryce:  Fixed some bugs.  Now in working order.
 --
@@ -130,6 +133,9 @@ entity fsfb_corr is
 end fsfb_corr;
 
 architecture rtl of fsfb_corr is
+
+signal max : integer;
+signal min : integer;
 
 -- MUX control constants
 constant COL0 : std_logic_vector(2 downto 0) := "000";
@@ -276,6 +282,8 @@ signal next_state    : states;
 
 begin
 
+   max <= FSFB_MAX;
+   min <= FSFB_MIN;
    -------------------------------
    -- Instantiations
    -------------------------------
@@ -551,28 +559,60 @@ begin
          end if;
          
          if(m_pres_en0 = '1') then
-            m_pres_reg0 <= m_pres0; 
+            if(fsfb_ctrl_lock_en_i = '1') then
+               m_pres_reg0 <= m_pres0; 
+            else
+               m_pres_reg0 <= (others => '0'); 
+            end if;
          end if;
          if(m_pres_en1 = '1') then
-            m_pres_reg1 <= m_pres1; 
+            if(fsfb_ctrl_lock_en_i = '1') then
+               m_pres_reg1 <= m_pres1; 
+            else
+               m_pres_reg0 <= (others => '0'); 
+            end if;
          end if;
          if(m_pres_en2 = '1') then
-            m_pres_reg2 <= m_pres2; 
+            if(fsfb_ctrl_lock_en_i = '1') then
+               m_pres_reg2 <= m_pres2; 
+            else
+               m_pres_reg0 <= (others => '0'); 
+            end if;
          end if;
          if(m_pres_en3 = '1') then
-            m_pres_reg3 <= m_pres3; 
+            if(fsfb_ctrl_lock_en_i = '1') then
+               m_pres_reg3 <= m_pres3; 
+            else
+               m_pres_reg0 <= (others => '0'); 
+            end if;
          end if;
          if(m_pres_en4 = '1') then
-            m_pres_reg4 <= m_pres4; 
+            if(fsfb_ctrl_lock_en_i = '1') then
+               m_pres_reg4 <= m_pres4; 
+            else
+               m_pres_reg0 <= (others => '0'); 
+            end if;
          end if;
          if(m_pres_en5 = '1') then
-            m_pres_reg5 <= m_pres5; 
+            if(fsfb_ctrl_lock_en_i = '1') then
+               m_pres_reg5 <= m_pres5; 
+            else
+               m_pres_reg0 <= (others => '0'); 
+            end if;
          end if;
          if(m_pres_en6 = '1') then
-            m_pres_reg6 <= m_pres6; 
+            if(fsfb_ctrl_lock_en_i = '1') then
+               m_pres_reg6 <= m_pres6; 
+            else
+               m_pres_reg0 <= (others => '0'); 
+            end if;
          end if;
          if(m_pres_en7 = '1') then
-            m_pres_reg7 <= m_pres7; 
+            if(fsfb_ctrl_lock_en_i = '1') then
+               m_pres_reg7 <= m_pres7; 
+            else
+               m_pres_reg0 <= (others => '0'); 
+            end if;
          end if;
          
       end if;
@@ -819,43 +859,43 @@ begin
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
 
    m_pres0 <=
-      m_prev_reg0 + 1 when res_a_reg0 < FSFB_MIN else
-      m_prev_reg0 - 1 when res_a_reg0 > FSFB_MAX else
+      m_prev_reg0 - 1 when conv_integer(signed(res_a_reg0(31 downto 0))) < FSFB_MIN else
+      m_prev_reg0 + 1 when conv_integer(signed(res_a_reg0(31 downto 0))) > FSFB_MAX else
       m_prev_reg0;
 
    m_pres1 <=
-      m_prev_reg1 + 1 when res_a_reg1 < FSFB_MIN else
-      m_prev_reg1 - 1 when res_a_reg1 > FSFB_MAX else
+      m_prev_reg1 - 1 when conv_integer(signed(res_a_reg1(31 downto 0))) < FSFB_MIN else
+      m_prev_reg1 + 1 when conv_integer(signed(res_a_reg1(31 downto 0))) > FSFB_MAX else
       m_prev_reg1;
 
    m_pres2 <=
-      m_prev_reg2 + 1 when res_a_reg2 < FSFB_MIN else
-      m_prev_reg2 - 1 when res_a_reg2 > FSFB_MAX else
+      m_prev_reg2 - 1 when conv_integer(signed(res_a_reg2(31 downto 0))) < FSFB_MIN else
+      m_prev_reg2 + 1 when conv_integer(signed(res_a_reg2(31 downto 0))) > FSFB_MAX else
       m_prev_reg2;
 
    m_pres3 <=
-      m_prev_reg3 + 1 when res_a_reg3 < FSFB_MIN else
-      m_prev_reg3 - 1 when res_a_reg3 > FSFB_MAX else
+      m_prev_reg3 - 1 when conv_integer(signed(res_a_reg3(31 downto 0))) < FSFB_MIN else
+      m_prev_reg3 + 1 when conv_integer(signed(res_a_reg3(31 downto 0))) > FSFB_MAX else
       m_prev_reg3;
 
    m_pres4 <=
-      m_prev_reg4 + 1 when res_a_reg4 < FSFB_MIN else
-      m_prev_reg4 - 1 when res_a_reg4 > FSFB_MAX else
+      m_prev_reg4 - 1 when conv_integer(signed(res_a_reg4(31 downto 0))) < FSFB_MIN else
+      m_prev_reg4 + 1 when conv_integer(signed(res_a_reg4(31 downto 0))) > FSFB_MAX else
       m_prev_reg4;
 
    m_pres5 <=
-      m_prev_reg5 + 1 when res_a_reg5 < FSFB_MIN else
-      m_prev_reg5 - 1 when res_a_reg5 > FSFB_MAX else
+      m_prev_reg5 - 1 when conv_integer(signed(res_a_reg5(31 downto 0))) < FSFB_MIN else
+      m_prev_reg5 + 1 when conv_integer(signed(res_a_reg5(31 downto 0))) > FSFB_MAX else
       m_prev_reg5;
 
    m_pres6 <=
-      m_prev_reg6 + 1 when res_a_reg6 < FSFB_MIN else
-      m_prev_reg6 - 1 when res_a_reg6 > FSFB_MAX else
+      m_prev_reg6 - 1 when conv_integer(signed(res_a_reg6(31 downto 0))) < FSFB_MIN else
+      m_prev_reg6 + 1 when conv_integer(signed(res_a_reg6(31 downto 0))) > FSFB_MAX else
       m_prev_reg6;
 
    m_pres7 <=
-      m_prev_reg7 + 1 when res_a_reg7 < FSFB_MIN else
-      m_prev_reg7 - 1 when res_a_reg7 > FSFB_MAX else
+      m_prev_reg7 - 1 when conv_integer(signed(res_a_reg7(31 downto 0))) < FSFB_MIN else
+      m_prev_reg7 + 1 when conv_integer(signed(res_a_reg7(31 downto 0))) > FSFB_MAX else
       m_prev_reg7;
       
 end rtl;

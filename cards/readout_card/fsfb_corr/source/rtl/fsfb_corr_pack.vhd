@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr_pack.vhd,v 1.3 2005/04/22 23:22:46 bburger Exp $
+-- $Id: fsfb_corr_pack.vhd,v 1.4 2005/04/30 01:37:42 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr_pack.vhd,v $
+-- Revision 1.4  2005/04/30 01:37:42  bburger
+-- Bryce:  Added a second multplier and subtractor to the fsfb_corr pipeline to reduce the time required for the flux-jumping calculation.
+--
 -- Revision 1.3  2005/04/22 23:22:46  bburger
 -- Bryce:  Fixed some bugs.  Now in working order.
 --
@@ -57,8 +60,9 @@ package fsfb_corr_pack is
    constant MULT_WIDTH             : integer := 32;
    constant PROD_WIDTH             : integer := 64;
 
-   constant FSFB_MAX               : std_logic_vector(DAC_DAT_WIDTH-1 downto 0) := "01100000000000"; --(3/4)*(2**13);
-   constant FSFB_MIN               : std_logic_vector(DAC_DAT_WIDTH-1 downto 0) := "10100000000000"; -- -(3/4)*(2**13);
+   constant FSFB_MAX               : integer :=  ((3)*(2**13))/4;
+   constant FSFB_MIN               : integer := -((3)*(2**13))/4;
+   
    constant SIGN_XTND_M_POS        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');
    constant SIGN_XTND_M_NEG        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '1');
    constant SIGN_XTND_PID_PREV_POS : std_logic_vector(SUB_WIDTH-FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');
