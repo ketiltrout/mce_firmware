@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.4 2004/11/19 20:00:05 bburger Exp $
+-- $Id: frame_timing.vhd,v 1.5 2004/12/14 20:17:38 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.5  2004/12/14 20:17:38  bburger
+-- Bryce:  Repaired some problems with frame_timing and added a list of frame_timing-initialization commands to clk_card
+--
 -- Revision 1.4  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
@@ -89,7 +92,7 @@ entity frame_timing is
       
       -- Global signals
       clk_i                      : in std_logic;
-      mem_clk_i                  : in std_logic;
+      clk_n_i                    : in std_logic;
       rst_i                      : in std_logic;
       sync_i                     : in std_logic
    );
@@ -133,7 +136,6 @@ begin
          ack_o              => ack_o, 
                             
          clk_i              => clk_i,
-         mem_clk_i          => mem_clk_i,
          rst_i              => rst_i
       );                    
    
@@ -168,7 +170,7 @@ begin
                                  
          -- Global signals       
          clk_i                     => clk_i,
-         mem_clk_i                 => mem_clk_i,
+         clk_n_i                   => clk_n_i, 
          rst_i                     => rst_i,
          sync_i                    => sync_i
                                    

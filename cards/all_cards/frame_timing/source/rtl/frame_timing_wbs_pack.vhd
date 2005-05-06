@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: wbs_ac_dac_ctrl_pack.vhd,v 1.4 2004/11/06 03:12:01 bburger Exp $
+-- $Id: frame_timing_wbs_pack.vhd,v 1.1 2004/11/18 05:21:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,7 +29,10 @@
 -- This block was written to be coupled with wbs_ac_dac_ctrl
 --
 -- Revision history:
--- $Log: wbs_ac_dac_ctrl_pack.vhd,v $
+-- $Log: frame_timing_wbs_pack.vhd,v $
+-- Revision 1.1  2004/11/18 05:21:56  bburger
+-- Bryce :  modified addr_card top level.  Added ac_dac_ctrl and frame_timing
+--
 -- Revision 1.4  2004/11/06 03:12:01  bburger
 -- Bryce:  debugging
 --
@@ -74,7 +77,6 @@ component frame_timing_wbs is
 
       -- global interface
       clk_i              : in std_logic;
-      mem_clk_i          : in std_logic;
       rst_i              : in std_logic 
    );     
 end component;

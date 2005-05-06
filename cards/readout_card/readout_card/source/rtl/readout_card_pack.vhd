@@ -21,7 +21,7 @@
 --
 -- readout_card_pack.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi & Anthony Ko
 -- Organisation:  UBC
 --
@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.2  2005/03/18 01:28:19  mohsen
+-- Added comments for fv_rev blk component.
+--
 -- Revision 1.1  2004/12/07 20:22:21  mohsen
 -- Anthony & Mohsen: Initial release
 --
@@ -196,7 +199,8 @@ package readout_card_pack is
       c0     : OUT STD_LOGIC;
       c1     : OUT STD_LOGIC;
       c2     : OUT STD_LOGIC;
-      c3     : OUT STD_LOGIC);
+      c3     : OUT STD_LOGIC;
+      c4     : OUT STD_LOGIC);
   end component;
   
 

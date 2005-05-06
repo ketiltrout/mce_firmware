@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.14  2005/03/31 01:12:15  bburger
+-- Bryce:  committing for a new tag
+--
 -- Revision 1.13  2005/03/24 21:42:31  mandana
 -- build revision 0002
 --
@@ -163,12 +166,13 @@ architecture top of addr_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010004";
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010005";
 
 -- clocks
 signal clk      : std_logic;
 signal mem_clk  : std_logic;
 signal comm_clk : std_logic;
+signal clk_n    : std_logic;
 
 signal rst      : std_logic;
 
@@ -205,7 +209,8 @@ component ac_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
-     c2 : out std_logic);
+     c2 : out std_logic;
+     c3 : out std_logic);
 end component;
 
 begin
@@ -220,7 +225,8 @@ begin
    port map(inclk0 => inclk,
             c0 => clk,
             c1 => mem_clk,
-            c2 => comm_clk);
+            c2 => comm_clk,
+            c3 => clk_n);
             
    cmd0: dispatch
       port map(
@@ -326,7 +332,7 @@ begin
          ack_o                      => frame_timing_ack,
          
          clk_i                      => clk,
-         mem_clk_i                  => mem_clk,
+         clk_n_i                    => clk_n,
          rst_i                      => rst,
          sync_i                     => lvds_sync
       );

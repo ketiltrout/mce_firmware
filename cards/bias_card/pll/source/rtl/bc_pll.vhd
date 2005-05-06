@@ -138,7 +138,7 @@ BEGIN
 		clk1_phase_shift => "0",
 		clk0_duty_cycle => 50,
 		lpm_type => "altpll",
-		clk3_multiply_by => 1,
+		clk3_multiply_by => 2,
 		clk0_multiply_by => 2,
 		inclk0_input_frequency => 40000,
 		clk3_divide_by => 1,
@@ -155,7 +155,7 @@ BEGIN
 		operation_mode => "NORMAL",
 		clk2_duty_cycle => 50,
 		compensate_clock => "CLK0",
-		clk3_phase_shift => "0",
+		clk3_phase_shift => "10000",
 		clk1_time_delay => "0",
 		clk0_phase_shift => "0",
 		clk2_multiply_by => 8
@@ -210,7 +210,7 @@ END SYN;
 -- Retrieval info: PRIVATE: BANDWIDTH_USE_CUSTOM STRING "0"
 -- Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "Any"
 -- Retrieval info: PRIVATE: MIRROR_CLK3 STRING "0"
--- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT3 STRING "ps"
+-- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT3 STRING "deg"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT3 STRING "MHz"
 -- Retrieval info: PRIVATE: DUTY_CYCLE2 STRING "50.00000000"
 -- Retrieval info: PRIVATE: PHASE_SHIFT2 STRING "0.00000000"
@@ -224,7 +224,7 @@ END SYN;
 -- Retrieval info: PRIVATE: PLL_ENHPLL_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE_DIRTY NUMERIC "0"
 -- Retrieval info: PRIVATE: DUTY_CYCLE3 STRING "50.00000000"
--- Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "0.00000000"
+-- Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "180.00000000"
 -- Retrieval info: PRIVATE: MULT_FACTOR3 NUMERIC "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE3 STRING "1"
 -- Retrieval info: PRIVATE: TIME_SHIFT2 STRING "0.00000000"
@@ -281,7 +281,7 @@ END SYN;
 -- Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "200.000"
 -- Retrieval info: PRIVATE: USE_CLKENA0 STRING "0"
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT0 STRING "ps"
--- Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "25.000"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "50.000"
 -- Retrieval info: PRIVATE: USE_CLKENA1 STRING "0"
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT1 STRING "ps"
 -- Retrieval info: PRIVATE: CLKBAD_SWITCHOVER_CHECK STRING "0"
@@ -296,7 +296,7 @@ END SYN;
 -- Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
--- Retrieval info: CONSTANT: CLK3_MULTIPLY_BY NUMERIC "1"
+-- Retrieval info: CONSTANT: CLK3_MULTIPLY_BY NUMERIC "2"
 -- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "2"
 -- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "40000"
 -- Retrieval info: CONSTANT: CLK3_DIVIDE_BY NUMERIC "1"
@@ -313,7 +313,7 @@ END SYN;
 -- Retrieval info: CONSTANT: OPERATION_MODE STRING "NORMAL"
 -- Retrieval info: CONSTANT: CLK2_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK0"
--- Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "0"
+-- Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "10000"
 -- Retrieval info: CONSTANT: CLK1_TIME_DELAY STRING "0"
 -- Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "8"

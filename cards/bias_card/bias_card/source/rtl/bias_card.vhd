@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.14 2005/03/31 18:32:28 mandana Exp $
+-- $Id: bias_card.vhd,v 1.15 2005/04/20 20:54:51 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.15  2005/04/20 20:54:51  mandana
+-- build revision 0005, frame_timing updated
+--
 -- Revision 1.14  2005/03/31 18:32:28  mandana
 -- Build revision 0004
 --
@@ -169,6 +172,7 @@ signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal clk      : std_logic;
 signal mem_clk  : std_logic;
 signal comm_clk : std_logic;
+signal clk_n    : std_logic;
 
 signal rst      : std_logic;
 
@@ -202,7 +206,8 @@ component bc_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
-     c2 : out std_logic);
+     c2 : out std_logic;
+     c3 : out std_logic);
 end component;
 
 begin
@@ -226,7 +231,8 @@ begin
    port map(inclk0 => inclk,
             c0 => clk,
             c1 => mem_clk,
-            c2 => comm_clk);
+            c2 => comm_clk,
+            c3 => clk_n);
             
    cmd0: dispatch
       port map(
@@ -342,7 +348,7 @@ begin
          ack_o                      => frame_timing_ack,
          
          clk_i                      => clk,
-         mem_clk_i                  => mem_clk,
+         clk_n_i                    => clk_n,
          rst_i                      => rst,
          sync_i                     => lvds_sync
       );

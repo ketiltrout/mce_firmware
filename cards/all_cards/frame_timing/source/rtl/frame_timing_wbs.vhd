@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_wbs.vhd,v 1.4 2005/01/13 03:14:51 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.5 2005/01/13 23:57:23 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.5  2005/01/13 23:57:23  bburger
+-- Bryce:  init_window_req_reg has been replaced with a custom register to get rid of a non-standard usaged of the rst_i line
+--
 -- Revision 1.4  2005/01/13 03:14:51  bburger
 -- Bryce:
 -- addr_card and clk_card:  added slot_id functionality, removed mem_clock
@@ -100,7 +103,6 @@ entity frame_timing_wbs is
 
       -- global interface
       clk_i              : in std_logic;
-      mem_clk_i          : in std_logic;
       rst_i              : in std_logic 
    );     
 end frame_timing_wbs;
@@ -145,6 +147,8 @@ begin
    sample_num_o       <= conv_integer(sample_num_data);      
    feedback_delay_o   <= conv_integer(feedback_delay_data);  
    address_on_delay_o <= conv_integer(address_on_delay_data);
+   
+   -- register the wren and use that to write to these registers
    resync_req_o       <= '0' when resync_req_data      = x"00000000" else '1';      
    init_window_req_o  <= '0' when init_window_req_data = x"00000000" else '1';   
    

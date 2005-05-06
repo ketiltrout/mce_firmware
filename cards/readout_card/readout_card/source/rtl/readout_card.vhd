@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.12  2005/03/31 18:18:45  mohsen
+-- new rev number. This rev number is exactly the same as 01010004 except for lvds_rx synchronizer bug fix.
+-- Thus, the revision is the normal readout card firmware with the exception of having data_mode 0 in
+-- wbs_frame_data connected to co-added values rather than the filter values.  This is needed for cold test.
+--
 -- Revision 1.11  2005/03/30 18:30:16  mohsen
 -- new rev number for 8-channel firmware validation
 --
@@ -210,7 +215,7 @@ signal mem_clk                 : std_logic;  -- memory clk
 signal comm_clk                : std_logic;  -- communication clk
 signal spi_clk                 : std_logic;  -- spi clk
 signal rst                     : std_logic;
-
+signal clk_n                   : std_logic;
 
 -- dispatch interface signals 
 signal dispatch_dat_out        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -291,7 +296,8 @@ begin
          c0     => clk,
          c1     => mem_clk,
          c2     => comm_clk,
-         c3     => spi_clk);
+         c3     => spi_clk,
+         c4     => clk_n);
 
    
    ----------------------------------------------------------------------------
@@ -426,7 +432,7 @@ begin
           dat_o                     => dat_ft,
           ack_o                     => ack_ft,
           clk_i                     => clk,
-          mem_clk_i                 => mem_clk,
+          clk_n_i                   => clk_n,
           rst_i                     => rst,
           sync_i                    => lvds_sync);
    

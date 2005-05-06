@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.6 2005/02/17 22:42:12 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.7 2005/04/19 19:11:41 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.7  2005/04/19 19:11:41  bburger
+-- Bryce:  added syncronizer to the sync_i to remove the possibility of metastbility in the fsm
+--
 -- Revision 1.6  2005/02/17 22:42:12  bburger
 -- Bryce:  changes to synchronization in the MCE in response to two problems
 -- - a rising edge on the sync line during configuration
@@ -100,7 +103,7 @@ entity frame_timing_core is
       
       -- Global signals
       clk_i                      : in std_logic;
-      mem_clk_i                  : in std_logic;
+      clk_n_i                    : in std_logic;
       rst_i                      : in std_logic;
       sync_i                     : in std_logic
    );
@@ -272,19 +275,20 @@ begin
    -- According to simulations, when I register clk_error_o, it takes the value of clk_count_o from the previous clock cycle.
    -- That seems wonky to me, and in practice, we will probably have to test this.
    -- If the second clock cycle delay is not needed in hardware, then just remove the WAIT_TO_LATCH_ERR state from the FSM.
-   state_FF: process(clk_i, resync_req_i)
+   state_FF: process(clk_i, rst_i)
    begin
-      if(resync_req_i = '1') then
+      if(rst_i = '1') then
          current_state <= IDLE;
          enable_counters <= '0';
          
       elsif(clk_i'event and clk_i = '1') then
          current_state <= next_state;
          
-         if(enable_counters = '0') then
-            if(sync_received = '1') then
-               enable_counters <= '1';
-            end if;
+         if(resync_req_i = '1') then
+            current_state <= IDLE;
+            enable_counters <= '0';
+         elsif(sync_received = '1') then
+            enable_counters <= '1';
          end if;
          
       end if;
@@ -341,17 +345,23 @@ begin
    end process state_out;
    
    -- double synchronizer for sync_i:
-   process(rst_i, clk_i)
+   process(rst_i, clk_n_i)
    begin
       if(rst_i = '1') then
          sync_temp  <= '0';
-         sync       <= '0';      
-      elsif(clk_i'event and clk_i = '1') then
+      elsif(clk_n_i'event and clk_n_i = '1') then
          sync_temp  <= sync_i;
-         sync       <= sync_temp;
       end if;
    end process;
    
+   process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         sync       <= '0';      
+      elsif(clk_i'event and clk_i = '1') then
+         sync       <= sync_temp;
+      end if;
+   end process;
    
    
 

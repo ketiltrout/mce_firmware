@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.6 2005/02/17 22:42:12 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.7 2005/02/19 01:21:44 mohsen Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,11 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2005/02/17 22:42:12 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2005/02/19 01:21:44 $> - <text> - <initials $Author: mohsen $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.7  2005/02/19 01:21:44  mohsen
+-- Changed encoding to 1000 to match with previous version that uses single pulse of 1.
+--
 -- Revision 1.6  2005/02/17 22:42:12  bburger
 -- Bryce:  changes to synchronization in the MCE in response to two problems
 -- - a rising edge on the sync line during configuration
@@ -152,7 +155,7 @@ package frame_timing_pack is
       
       -- Global signals
       clk_i                      : in std_logic;
-      mem_clk_i                  : in std_logic;
+      clk_n_i                    : in std_logic;
       rst_i                      : in std_logic;
       sync_i                     : in std_logic
    );

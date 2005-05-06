@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- $Id$
+-- $Id: frame_timing_core_pack.vhd,v 1.1 2004/11/19 20:00:05 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -31,7 +31,10 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- $Log$
+-- $Log: frame_timing_core_pack.vhd,v $
+-- Revision 1.1  2004/11/19 20:00:05  bburger
+-- Bryce :  updated frame_timing and sync_gen interfaces
+--
 --
 ------------------------------------------------------------------------
 
@@ -83,7 +86,7 @@ package frame_timing_core_pack is
       
       -- Global signals
       clk_i                      : in std_logic;
-      mem_clk_i                  : in std_logic;
+      clk_n_i                    : in std_logic;
       rst_i                      : in std_logic;
       sync_i                     : in std_logic
    );
