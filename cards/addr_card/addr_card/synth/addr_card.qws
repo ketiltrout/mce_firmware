@@ -6,5 +6,6 @@ ptn_Child3=ActionPoints
 ptn_Child1=ChildFrames
 [ProjectWorkspace.Frames.ChildFrames]
 ptn_Child1=Document-0
+ptn_Child2=Document-1
 [ProjectWorkspace.Workmode]
 CurrentWorkmode=0

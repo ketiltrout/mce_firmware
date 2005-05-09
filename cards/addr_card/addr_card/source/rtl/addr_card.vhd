@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.15  2005/05/06 20:02:31  bburger
+-- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
+-- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
+--
 -- Revision 1.14  2005/03/31 01:12:15  bburger
 -- Bryce:  committing for a new tag
 --
@@ -166,7 +170,7 @@ architecture top of addr_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010005";
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010006";
 
 -- clocks
 signal clk      : std_logic;
