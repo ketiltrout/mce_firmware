@@ -115,7 +115,8 @@ set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/misc_banks_ad
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.vhd
 set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
-set_global_assignment -name SIGNALTAP_FILE rc_v01010002_21mar2005.stp
+set_global_assignment -name SIGNALTAP_FILE rc_v01010006_03may2005_single_ch_ac_sync_check.stp
+set_global_assignment -name SIGNALTAP_FILE ro_card.stp
 
 # Pin & Location Assignments
 # ==========================
@@ -594,8 +595,8 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP on
-set_global_assignment -name USE_SIGNALTAP_FILE rc_v01010002_21mar2005.stp
+set_global_assignment -name ENABLE_SIGNALTAP On
+set_global_assignment -name USE_SIGNALTAP_FILE ro_card.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -607,10 +608,10 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	# Timing Assignments
 	# ==================
 	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
-	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 	set_global_assignment -name INVERT_BASE_CLOCK OFF -section_id inclk
 	set_global_assignment -name MULTIPLY_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
 	set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
+	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
@@ -624,6 +625,12 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=AUTO" -section_id auto_signaltap_0
 	set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=402681344" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[0\] -to adc1_dat\[0\] -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[1\] -to adc1_dat\[10\] -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[2\] -to adc1_dat\[11\] -section_id auto_signaltap_0
@@ -638,71 +645,54 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[11\] -to adc1_dat\[7\] -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[12\] -to adc1_dat\[8\] -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[13\] -to adc1_dat\[9\] -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[14\] -to "dispatch:i_dispatch\|dat_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[15\] -to "dispatch:i_dispatch\|dat_o\[10\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[16\] -to "dispatch:i_dispatch\|dat_o\[11\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[17\] -to "dispatch:i_dispatch\|dat_o\[12\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[18\] -to "dispatch:i_dispatch\|dat_o\[13\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[19\] -to "dispatch:i_dispatch\|dat_o\[14\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[20\] -to "dispatch:i_dispatch\|dat_o\[15\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[21\] -to "dispatch:i_dispatch\|dat_o\[16\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[22\] -to "dispatch:i_dispatch\|dat_o\[17\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[23\] -to "dispatch:i_dispatch\|dat_o\[18\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[24\] -to "dispatch:i_dispatch\|dat_o\[19\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[25\] -to "dispatch:i_dispatch\|dat_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[26\] -to "dispatch:i_dispatch\|dat_o\[20\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[27\] -to "dispatch:i_dispatch\|dat_o\[21\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[28\] -to "dispatch:i_dispatch\|dat_o\[22\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[29\] -to "dispatch:i_dispatch\|dat_o\[23\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[30\] -to "dispatch:i_dispatch\|dat_o\[24\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[31\] -to "dispatch:i_dispatch\|dat_o\[25\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[32\] -to "dispatch:i_dispatch\|dat_o\[26\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[33\] -to "dispatch:i_dispatch\|dat_o\[27\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[34\] -to "dispatch:i_dispatch\|dat_o\[28\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[35\] -to "dispatch:i_dispatch\|dat_o\[29\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[36\] -to "dispatch:i_dispatch\|dat_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[37\] -to "dispatch:i_dispatch\|dat_o\[30\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[38\] -to "dispatch:i_dispatch\|dat_o\[31\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[39\] -to "dispatch:i_dispatch\|dat_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[40\] -to "dispatch:i_dispatch\|dat_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[41\] -to "dispatch:i_dispatch\|dat_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[42\] -to "dispatch:i_dispatch\|dat_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[43\] -to "dispatch:i_dispatch\|dat_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[44\] -to "dispatch:i_dispatch\|dat_o\[8\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[45\] -to "dispatch:i_dispatch\|dat_o\[9\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[46\] -to "flux_loop:i_flux_loop\|ack_frame_o" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[47\] -to "flux_loop:i_flux_loop\|dat_frame_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[48\] -to "flux_loop:i_flux_loop\|dat_frame_o\[10\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[49\] -to "flux_loop:i_flux_loop\|dat_frame_o\[11\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[50\] -to "flux_loop:i_flux_loop\|dat_frame_o\[12\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[51\] -to "flux_loop:i_flux_loop\|dat_frame_o\[13\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[52\] -to "flux_loop:i_flux_loop\|dat_frame_o\[14\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[53\] -to "flux_loop:i_flux_loop\|dat_frame_o\[15\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[54\] -to "flux_loop:i_flux_loop\|dat_frame_o\[16\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[55\] -to "flux_loop:i_flux_loop\|dat_frame_o\[17\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[56\] -to "flux_loop:i_flux_loop\|dat_frame_o\[18\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[57\] -to "flux_loop:i_flux_loop\|dat_frame_o\[19\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[58\] -to "flux_loop:i_flux_loop\|dat_frame_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[59\] -to "flux_loop:i_flux_loop\|dat_frame_o\[20\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[60\] -to "flux_loop:i_flux_loop\|dat_frame_o\[21\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[61\] -to "flux_loop:i_flux_loop\|dat_frame_o\[22\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[62\] -to "flux_loop:i_flux_loop\|dat_frame_o\[23\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[63\] -to "flux_loop:i_flux_loop\|dat_frame_o\[24\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[64\] -to "flux_loop:i_flux_loop\|dat_frame_o\[25\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[65\] -to "flux_loop:i_flux_loop\|dat_frame_o\[26\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[66\] -to "flux_loop:i_flux_loop\|dat_frame_o\[27\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[67\] -to "flux_loop:i_flux_loop\|dat_frame_o\[28\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[68\] -to "flux_loop:i_flux_loop\|dat_frame_o\[29\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[69\] -to "flux_loop:i_flux_loop\|dat_frame_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[70\] -to "flux_loop:i_flux_loop\|dat_frame_o\[30\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[71\] -to "flux_loop:i_flux_loop\|dat_frame_o\[31\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[72\] -to "flux_loop:i_flux_loop\|dat_frame_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[73\] -to "flux_loop:i_flux_loop\|dat_frame_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[74\] -to "flux_loop:i_flux_loop\|dat_frame_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[75\] -to "flux_loop:i_flux_loop\|dat_frame_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[76\] -to "flux_loop:i_flux_loop\|dat_frame_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[77\] -to "flux_loop:i_flux_loop\|dat_frame_o\[8\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[78\] -to "flux_loop:i_flux_loop\|dat_frame_o\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[14\] -to dac_FB1_dat\[0\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[15\] -to dac_FB1_dat\[10\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[16\] -to dac_FB1_dat\[11\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[17\] -to dac_FB1_dat\[12\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[18\] -to dac_FB1_dat\[13\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[19\] -to dac_FB1_dat\[1\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[20\] -to dac_FB1_dat\[2\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[21\] -to dac_FB1_dat\[3\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[22\] -to dac_FB1_dat\[4\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[23\] -to dac_FB1_dat\[5\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[24\] -to dac_FB1_dat\[6\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[25\] -to dac_FB1_dat\[7\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[26\] -to dac_FB1_dat\[8\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[27\] -to dac_FB1_dat\[9\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[28\] -to dac_FB_clk\[0\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[29\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[0\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[30\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[10\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[31\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[11\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[32\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[12\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[33\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[13\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[34\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[14\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[35\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[15\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[36\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[16\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[37\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[17\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[38\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[18\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[39\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[19\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[40\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[1\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[41\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[20\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[42\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[21\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[43\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[22\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[44\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[23\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[45\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[24\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[46\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[25\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[47\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[26\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[48\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[27\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[49\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[28\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[50\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[29\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[51\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[2\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[52\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[30\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[53\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[31\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[54\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[3\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[55\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[4\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[56\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[5\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[57\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[6\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[58\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[7\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[59\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[8\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[60\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[61\] -to "frame_timing:i_frame_timing\|adc_coadd_en_o" -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[0\] -to adc1_dat\[0\] -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[1\] -to adc1_dat\[10\] -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[2\] -to adc1_dat\[11\] -section_id auto_signaltap_0
@@ -717,84 +707,165 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[11\] -to adc1_dat\[7\] -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[12\] -to adc1_dat\[8\] -section_id auto_signaltap_0
 	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[13\] -to adc1_dat\[9\] -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[14\] -to "dispatch:i_dispatch\|dat_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[15\] -to "dispatch:i_dispatch\|dat_o\[10\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[16\] -to "dispatch:i_dispatch\|dat_o\[11\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[17\] -to "dispatch:i_dispatch\|dat_o\[12\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[18\] -to "dispatch:i_dispatch\|dat_o\[13\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[19\] -to "dispatch:i_dispatch\|dat_o\[14\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[20\] -to "dispatch:i_dispatch\|dat_o\[15\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[21\] -to "dispatch:i_dispatch\|dat_o\[16\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[22\] -to "dispatch:i_dispatch\|dat_o\[17\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[23\] -to "dispatch:i_dispatch\|dat_o\[18\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[24\] -to "dispatch:i_dispatch\|dat_o\[19\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[25\] -to "dispatch:i_dispatch\|dat_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[26\] -to "dispatch:i_dispatch\|dat_o\[20\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[27\] -to "dispatch:i_dispatch\|dat_o\[21\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[28\] -to "dispatch:i_dispatch\|dat_o\[22\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[29\] -to "dispatch:i_dispatch\|dat_o\[23\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[30\] -to "dispatch:i_dispatch\|dat_o\[24\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[31\] -to "dispatch:i_dispatch\|dat_o\[25\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[32\] -to "dispatch:i_dispatch\|dat_o\[26\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[33\] -to "dispatch:i_dispatch\|dat_o\[27\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[34\] -to "dispatch:i_dispatch\|dat_o\[28\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[35\] -to "dispatch:i_dispatch\|dat_o\[29\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[36\] -to "dispatch:i_dispatch\|dat_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[37\] -to "dispatch:i_dispatch\|dat_o\[30\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[38\] -to "dispatch:i_dispatch\|dat_o\[31\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[39\] -to "dispatch:i_dispatch\|dat_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[40\] -to "dispatch:i_dispatch\|dat_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[41\] -to "dispatch:i_dispatch\|dat_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[42\] -to "dispatch:i_dispatch\|dat_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[43\] -to "dispatch:i_dispatch\|dat_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[44\] -to "dispatch:i_dispatch\|dat_o\[8\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[45\] -to "dispatch:i_dispatch\|dat_o\[9\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[46\] -to "flux_loop:i_flux_loop\|ack_frame_o" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[47\] -to "flux_loop:i_flux_loop\|dat_frame_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[48\] -to "flux_loop:i_flux_loop\|dat_frame_o\[10\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[49\] -to "flux_loop:i_flux_loop\|dat_frame_o\[11\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[50\] -to "flux_loop:i_flux_loop\|dat_frame_o\[12\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[51\] -to "flux_loop:i_flux_loop\|dat_frame_o\[13\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[52\] -to "flux_loop:i_flux_loop\|dat_frame_o\[14\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[53\] -to "flux_loop:i_flux_loop\|dat_frame_o\[15\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[54\] -to "flux_loop:i_flux_loop\|dat_frame_o\[16\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[55\] -to "flux_loop:i_flux_loop\|dat_frame_o\[17\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[56\] -to "flux_loop:i_flux_loop\|dat_frame_o\[18\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[57\] -to "flux_loop:i_flux_loop\|dat_frame_o\[19\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[58\] -to "flux_loop:i_flux_loop\|dat_frame_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[59\] -to "flux_loop:i_flux_loop\|dat_frame_o\[20\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[60\] -to "flux_loop:i_flux_loop\|dat_frame_o\[21\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[61\] -to "flux_loop:i_flux_loop\|dat_frame_o\[22\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[62\] -to "flux_loop:i_flux_loop\|dat_frame_o\[23\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[63\] -to "flux_loop:i_flux_loop\|dat_frame_o\[24\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[64\] -to "flux_loop:i_flux_loop\|dat_frame_o\[25\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[65\] -to "flux_loop:i_flux_loop\|dat_frame_o\[26\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[66\] -to "flux_loop:i_flux_loop\|dat_frame_o\[27\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[67\] -to "flux_loop:i_flux_loop\|dat_frame_o\[28\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[68\] -to "flux_loop:i_flux_loop\|dat_frame_o\[29\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[69\] -to "flux_loop:i_flux_loop\|dat_frame_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[70\] -to "flux_loop:i_flux_loop\|dat_frame_o\[30\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[71\] -to "flux_loop:i_flux_loop\|dat_frame_o\[31\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[72\] -to "flux_loop:i_flux_loop\|dat_frame_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[73\] -to "flux_loop:i_flux_loop\|dat_frame_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[74\] -to "flux_loop:i_flux_loop\|dat_frame_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[75\] -to "flux_loop:i_flux_loop\|dat_frame_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[76\] -to "flux_loop:i_flux_loop\|dat_frame_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[77\] -to "flux_loop:i_flux_loop\|dat_frame_o\[8\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[78\] -to "flux_loop:i_flux_loop\|dat_frame_o\[9\]" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=79" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=79" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=402681344" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=192" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[14\] -to dac_FB1_dat\[0\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[15\] -to dac_FB1_dat\[10\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[16\] -to dac_FB1_dat\[11\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[17\] -to dac_FB1_dat\[12\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[18\] -to dac_FB1_dat\[13\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[19\] -to dac_FB1_dat\[1\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[20\] -to dac_FB1_dat\[2\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[21\] -to dac_FB1_dat\[3\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[22\] -to dac_FB1_dat\[4\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[23\] -to dac_FB1_dat\[5\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[24\] -to dac_FB1_dat\[6\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[25\] -to dac_FB1_dat\[7\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[26\] -to dac_FB1_dat\[8\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[27\] -to dac_FB1_dat\[9\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[28\] -to dac_FB_clk\[0\] -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[29\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[0\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[30\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[10\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[31\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[11\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[32\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[12\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[33\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[13\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[34\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[14\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[35\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[15\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[36\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[16\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[37\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[17\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[38\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[18\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[39\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[19\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[40\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[1\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[41\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[20\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[42\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[21\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[43\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[22\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[44\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[23\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[45\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[24\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[46\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[25\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[47\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[26\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[48\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[27\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[49\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[28\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[50\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[29\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[51\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[2\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[52\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[30\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[53\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[31\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[54\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[3\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[55\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[4\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[56\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[5\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[57\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[6\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[58\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[7\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[59\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[8\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[60\] -to "flux_loop:i_flux_loop\|flux_loop_ctrl:i_flux_loop_ctrl_ch0\|coadded_dat_o\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[61\] -to "frame_timing:i_frame_timing\|adc_coadd_en_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[62\] -to "frame_timing:i_frame_timing\|dac_dat_en_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[63\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_init_win_state.init_hold" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[64\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_init_win_state.init_off" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[65\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_init_win_state.init_on" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[66\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_init_win_state.set" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[67\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_bit0" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[68\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_bit1" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[69\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_bit2" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[70\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_bit3" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[71\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_sync" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[72\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.idle" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[73\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.wait_frm_rst" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[74\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[0\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[75\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[10\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[76\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[11\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[77\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[12\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[78\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[13\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[79\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[14\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[80\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[15\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[81\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[16\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[82\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[17\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[83\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[18\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[84\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[19\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[85\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[1\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[86\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[20\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[87\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[21\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[88\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[22\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[89\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[23\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[90\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[24\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[91\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[25\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[92\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[26\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[93\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[27\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[94\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[28\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[95\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[29\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[96\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[2\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[97\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[30\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[98\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[31\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[99\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[3\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[100\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[4\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[101\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[5\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[102\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[6\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[103\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[7\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[104\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[8\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[105\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[106\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|sync_i" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[107\] -to "frame_timing:i_frame_timing\|initialize_window_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[108\] -to "frame_timing:i_frame_timing\|restart_frame_1row_post_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[109\] -to "frame_timing:i_frame_timing\|restart_frame_1row_prev_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[110\] -to "frame_timing:i_frame_timing\|restart_frame_aligned_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[111\] -to "frame_timing:i_frame_timing\|row_en_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[112\] -to "frame_timing:i_frame_timing\|row_switch_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[113\] -to "frame_timing:i_frame_timing\|update_bias_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[62\] -to "frame_timing:i_frame_timing\|dac_dat_en_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[63\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_init_win_state.init_hold" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[64\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_init_win_state.init_off" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[65\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_init_win_state.init_on" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[66\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_init_win_state.set" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[67\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_bit0" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[68\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_bit1" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[69\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_bit2" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[70\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_bit3" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[71\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.got_sync" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[72\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.idle" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[73\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|current_state.wait_frm_rst" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[74\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[0\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[75\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[10\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[76\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[11\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[77\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[12\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[78\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[13\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[79\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[14\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[80\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[15\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[81\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[16\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[82\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[17\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[83\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[18\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[84\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[19\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[85\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[1\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[86\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[20\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[87\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[21\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[88\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[22\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[89\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[23\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[90\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[24\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[91\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[25\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[92\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[26\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[93\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[27\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[94\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[28\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[95\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[29\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[96\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[2\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[97\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[30\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[98\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[31\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[99\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[3\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[100\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[4\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[101\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[5\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[102\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[6\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[103\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[7\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[104\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[8\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[105\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|frame_count_int\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[106\] -to "frame_timing:i_frame_timing\|frame_timing_core:ftc\|sync_i" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[107\] -to "frame_timing:i_frame_timing\|initialize_window_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[108\] -to "frame_timing:i_frame_timing\|restart_frame_1row_post_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[109\] -to "frame_timing:i_frame_timing\|restart_frame_1row_prev_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[110\] -to "frame_timing:i_frame_timing\|restart_frame_aligned_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[111\] -to "frame_timing:i_frame_timing\|row_en_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[112\] -to "frame_timing:i_frame_timing\|row_switch_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[113\] -to "frame_timing:i_frame_timing\|update_bias_o" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=114" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=114" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=581" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=47089" -section_id auto_signaltap_0
 	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BIT_CNTR_BITS=7" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=51151" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=16384" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_MEM_ADDRESS_BITS=14" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=8192" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_MEM_ADDRESS_BITS=13" -section_id auto_signaltap_0
 
 # end AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
 # -------------------------------------------------
