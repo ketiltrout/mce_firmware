@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.15 2005/04/20 20:54:51 mandana Exp $
+-- $Id: bias_card.vhd,v 1.16 2005/05/06 20:02:31 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.16  2005/05/06 20:02:31  bburger
+-- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
+-- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
+--
 -- Revision 1.15  2005/04/20 20:54:51  mandana
 -- build revision 0005, frame_timing updated
 --
@@ -162,7 +166,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01010005";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01010006";
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -170,7 +174,6 @@ signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 
 -- clocks
 signal clk      : std_logic;
-signal mem_clk  : std_logic;
 signal comm_clk : std_logic;
 signal clk_n    : std_logic;
 
@@ -206,8 +209,7 @@ component bc_pll
 port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
-     c2 : out std_logic;
-     c3 : out std_logic);
+     c2 : out std_logic);
 end component;
 
 begin
@@ -230,9 +232,8 @@ begin
    pll0: bc_pll
    port map(inclk0 => inclk,
             c0 => clk,
-            c1 => mem_clk,
-            c2 => comm_clk,
-            c3 => clk_n);
+            c1 => comm_clk,
+            c2 => clk_n);
             
    cmd0: dispatch
       port map(
