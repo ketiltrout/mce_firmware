@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.7 2005/04/19 19:11:41 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.8 2005/05/06 20:02:31 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.8  2005/05/06 20:02:31  bburger
+-- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
+-- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
+--
 -- Revision 1.7  2005/04/19 19:11:41  bburger
 -- Bryce:  added syncronizer to the sync_i to remove the possibility of metastbility in the fsm
 --
@@ -123,7 +127,7 @@ architecture beh of frame_timing_core is
    
    signal end_of_frame_minus_1row : integer;
    signal end_of_frame_plus_1row  : integer;
-   signal address_on_delay        : integer;
+--   signal address_on_delay        : integer;
    
    signal sync_temp               : std_logic;
    signal sync                    : std_logic;
