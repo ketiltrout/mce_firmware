@@ -21,7 +21,7 @@
 --
 -- raw_dat_manager_data_path.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -49,6 +49,9 @@
 -- Revision history:
 -- 
 -- $Log: raw_dat_manager_data_path.vhd,v $
+-- Revision 1.2  2004/10/29 01:56:53  mohsen
+-- Sorted out library use and use parameters
+--
 -- Revision 1.1  2004/10/22 00:14:37  mohsen
 -- Created
 --
@@ -77,7 +80,8 @@ end raw_dat_manager_data_path;
 
 architecture beh of raw_dat_manager_data_path is
 
-  signal count : std_logic_vector(ADDR_WIDTH-1 downto 0);
+  signal count       : std_logic_vector(ADDR_WIDTH-1 downto 0);
+  constant COUNT_MAX : std_logic_vector(ADDR_WIDTH-1 downto 0) := (others => '1');
 
 
 begin  -- beh
@@ -98,10 +102,11 @@ begin  -- beh
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
       if (clr_index_i = '1') then 
         count <= (others => '0');
+      elsif (count < COUNT_MAX) then
+        count <= count + 1;
       else
-        count <= count +1;
+        count <= count;
       end if;
-      
     end if;
   end process i_count_up;
 
