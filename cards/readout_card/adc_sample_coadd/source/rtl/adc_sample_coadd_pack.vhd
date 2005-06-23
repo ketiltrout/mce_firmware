@@ -21,7 +21,7 @@
 --
 -- adc_sample_coadd_pack.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd_pack.vhd,v $
+-- Revision 1.4  2004/12/13 21:03:01  mohsen
+-- Reduced the word size of RAW data storage from 16 to 8.  This is as the result of
+-- the memroy shortage in the Stratix EP1S30 with the current design of the readout card.
+--
 -- Revision 1.3  2004/11/26 18:25:54  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -70,7 +74,7 @@ package adc_sample_coadd_pack is
   constant FSFB_DONE_DLY             : integer := 6;
   constant NUMB_RAW_FRM_TO_GRAB      : integer := 2;                    -- =#of raw frames to grab
   constant USED_RAW_DAT_WIDTH        : integer := 8;                    -- Number of ADC output bits to be saved
-  constant RAW_DATA_POSITION_POINTER : integer := USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
+  constant RAW_DATA_POSITION_POINTER : integer := 14;--USED_RAW_DAT_WIDTH;   -- Selects the accuracy of the ADC inputs, as we only save 8 bits out of 14. Note max value is the default 
   
 
   
