@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.14  2005/05/09 23:48:51  mohsen
+-- Bryce - v01010006 of the 8-channel readout card with a fix that enables it to sample the sync line in the middle of a clock period.
+--
 -- Revision 1.13  2005/05/06 20:02:31  bburger
 -- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
 -- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
@@ -211,7 +214,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010006";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010007";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
