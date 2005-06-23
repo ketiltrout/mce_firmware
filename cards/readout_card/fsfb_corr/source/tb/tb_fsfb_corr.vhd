@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: tb_fsfb_corr.vhd,v 1.3 2005/04/22 23:22:57 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -27,7 +27,10 @@
 -- Description:
 --
 -- Revision History:
--- $Log$
+-- $Log: tb_fsfb_corr.vhd,v $
+-- Revision 1.3  2005/04/22 23:22:57  bburger
+-- Bryce:  Fixed some bugs.  Now in working order.
+--
 --
 ------------------------------------------------------------------------
 
@@ -113,6 +116,8 @@ architecture BEH of tb_fsfb_corr is
    -- Global Signals      
    signal clk_i                      : std_logic := '0';
    signal rst_i                      : std_logic := '0';
+   
+   
 
 ------------------------------------------------------------------------
 --
@@ -193,92 +198,252 @@ begin
    -- Continuous assignements (clocks, etc.)
    clk_i <= not clk_i after CLOCK_PERIOD/2; -- 50 MHz
 
+   -- Emulator
+   EMULATOR : process
+   begin
+      L9 : while 
+         fsfb_ctrl_dat_rdy0_i <= '0' and 
+         fsfb_ctrl_dat_rdy1_i <= '0' and 
+         fsfb_ctrl_dat_rdy2_i <= '0' and 
+         fsfb_ctrl_dat_rdy3_i <= '0' and 
+         fsfb_ctrl_dat_rdy4_i <= '0' and 
+         fsfb_ctrl_dat_rdy5_i <= '0' and 
+         fsfb_ctrl_dat_rdy6_i <= '0' and 
+         fsfb_ctrl_dat_rdy7_i <= '0'
+      loop
+         wait for CLOCK_PERIOD;
+      end loop;
+      
+      --if() then
+      
+      
+   
+   end process EMULATOR;
+   
    -- Create stimulus
    STIMULI : process
 
-   procedure do_init is
-   begin
-      rst_i         <= '1';
-      wait for CLOCK_PERIOD;
-      rst_i         <= '0';
-      wait for CLOCK_PERIOD;
-      assert false report " init" severity NOTE;
-   end do_init;
-
-   procedure do_nop is
-   begin
-      wait for CLOCK_PERIOD;
-      assert false report " nop" severity NOTE;
-   end do_nop;
-
-   procedure do_corr_a is
-   begin
-      flux_quanta0_i          <= x"00000800"; -- (1/4)*(2**13)
-      flux_quanta1_i          <= x"00000801"; 
-      flux_quanta2_i          <= x"00000802"; 
-      flux_quanta3_i          <= x"00000803"; 
-      flux_quanta4_i          <= x"00000804"; 
-      flux_quanta5_i          <= x"00000805"; 
-      flux_quanta6_i          <= x"00000806"; 
-      flux_quanta7_i          <= x"00000807"; 
-      
---      num_flux_quanta_prev0_i <= "1111111100"; -- -3
-      num_flux_quanta_prev0_i <= "0000000100"; -- -3
-      num_flux_quanta_prev1_i <= "0000000100"; -- -2
-      num_flux_quanta_prev2_i <= "0000000100"; -- -1
-      num_flux_quanta_prev3_i <= "1111111100"; --  0
-      num_flux_quanta_prev4_i <= "0000000100"; --  1
-      num_flux_quanta_prev5_i <= "0000000100"; --  2
-      num_flux_quanta_prev6_i <= "0000000100"; --  3
-      num_flux_quanta_prev7_i <= "0000000100"; --  4
-      
---      fsfb_ctrl_dat0_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat0_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat1_i        <= x"00004001"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat2_i        <= x"00004002"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat3_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat4_i        <= x"00004004"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat5_i        <= x"00004005"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat6_i        <= x"00004006"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
-      fsfb_ctrl_dat7_i        <= x"00004007"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev    
-      
-      wait for CLOCK_PERIOD;
-
-      fsfb_ctrl_dat_rdy0_i    <= '1'; --: std_logic := '0';
-
-      wait for CLOCK_PERIOD;
-      fsfb_ctrl_dat_rdy0_i    <= '0'; --: std_logic := '0';
-
-      fsfb_ctrl_dat_rdy1_i    <= '1'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy2_i    <= '1'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy3_i    <= '1'; --: std_logic := '0';
-      
-      wait for CLOCK_PERIOD;
-      fsfb_ctrl_dat_rdy1_i    <= '0'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy2_i    <= '0'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy3_i    <= '0'; --: std_logic := '0';
-
-      fsfb_ctrl_dat_rdy4_i    <= '1'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy5_i    <= '1'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy6_i    <= '1'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy7_i    <= '1'; --: std_logic := '0';
-      
-      wait for CLOCK_PERIOD;
-      fsfb_ctrl_dat_rdy4_i    <= '0'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy5_i    <= '0'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy6_i    <= '0'; --: std_logic := '0';
-      fsfb_ctrl_dat_rdy7_i    <= '0'; --: std_logic := '0';
-
-      L1: while num_flux_quanta_pres_rdy_o = '0' loop
+      procedure do_init is
+      begin
+         rst_i         <= '1';
          wait for CLOCK_PERIOD;
-      end loop;
-      
-      L2: while fsfb_ctrl_dat_rdy_o = '0' loop
+         rst_i         <= '0';
          wait for CLOCK_PERIOD;
-      end loop;
+         assert false report " init" severity NOTE;
+      end do_init;
 
-      assert false report " return data" severity NOTE;
-   end do_corr_a;
+      procedure do_nop is
+      begin
+         wait for CLOCK_PERIOD;
+         assert false report " nop" severity NOTE;
+      end do_nop;
+
+      procedure do_corr_a is
+      begin
+         flux_quanta0_i          <= x"00000800"; -- (1/4)*(2**13)
+         flux_quanta1_i          <= x"00000800"; 
+         flux_quanta2_i          <= x"00000800"; 
+         flux_quanta3_i          <= x"00000800"; 
+         flux_quanta4_i          <= x"00000800"; 
+         flux_quanta5_i          <= x"00000800"; 
+         flux_quanta6_i          <= x"00000800"; 
+         flux_quanta7_i          <= x"00000800"; 
+         
+         -- num_flux_quanta_prev0_i <= "1111111100"; -- -3
+         num_flux_quanta_prev0_i <= "0000000100"; -- -3
+         num_flux_quanta_prev1_i <= "0000000100"; -- -2
+         num_flux_quanta_prev2_i <= "0000000100"; -- -1
+         num_flux_quanta_prev3_i <= "1111111100"; --  0
+         num_flux_quanta_prev4_i <= "0000000100"; --  1
+         num_flux_quanta_prev5_i <= "0000000100"; --  2
+         num_flux_quanta_prev6_i <= "0000000100"; --  3
+         num_flux_quanta_prev7_i <= "0000000100"; --  4
+         
+         -- fsfb_ctrl_dat0_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat0_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat1_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat2_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat3_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat4_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat5_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat6_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat7_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev    
+         
+         wait for CLOCK_PERIOD;
+
+         fsfb_ctrl_dat_rdy0_i    <= '1'; --: std_logic := '0';
+
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy0_i    <= '0'; --: std_logic := '0';
+
+         fsfb_ctrl_dat_rdy1_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy2_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy3_i    <= '1'; --: std_logic := '0';
+         
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy1_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy2_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy3_i    <= '0'; --: std_logic := '0';
+
+         fsfb_ctrl_dat_rdy4_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy5_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy6_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy7_i    <= '1'; --: std_logic := '0';
+         
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy4_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy5_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy6_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy7_i    <= '0'; --: std_logic := '0';
+
+         L1: while num_flux_quanta_pres_rdy_o = '0' loop
+            wait for CLOCK_PERIOD;
+         end loop;
+         
+         L2: while fsfb_ctrl_dat_rdy_o = '0' loop
+            wait for CLOCK_PERIOD;
+         end loop;
+
+         assert false report " return data" severity NOTE;
+      end do_corr_a;
+
+      procedure do_corr_b is
+      begin
+         flux_quanta0_i          <= x"00000800"; -- (1/4)*(2**13)
+         flux_quanta1_i          <= x"00000800"; 
+         flux_quanta2_i          <= x"00000800"; 
+         flux_quanta3_i          <= x"00000800"; 
+         flux_quanta4_i          <= x"00000800"; 
+         flux_quanta5_i          <= x"00000800"; 
+         flux_quanta6_i          <= x"00000800"; 
+         flux_quanta7_i          <= x"00000800"; 
+         
+         -- num_flux_quanta_prev0_i <= "1111111100"; -- -3
+         num_flux_quanta_prev0_i <= "0000000101"; -- -3
+         num_flux_quanta_prev1_i <= "0000000101"; -- -2
+         num_flux_quanta_prev2_i <= "0000000101"; -- -1
+         num_flux_quanta_prev3_i <= "1111111011"; --  0
+         num_flux_quanta_prev4_i <= "0000000101"; --  1
+         num_flux_quanta_prev5_i <= "0000000101"; --  2
+         num_flux_quanta_prev6_i <= "0000000101"; --  3
+         num_flux_quanta_prev7_i <= "0000000101"; --  4
+         
+         -- fsfb_ctrl_dat0_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat0_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat1_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat2_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat3_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat4_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat5_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat6_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat7_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev    
+         
+         wait for CLOCK_PERIOD;
+
+         fsfb_ctrl_dat_rdy0_i    <= '1'; --: std_logic := '0';
+
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy0_i    <= '0'; --: std_logic := '0';
+
+         fsfb_ctrl_dat_rdy1_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy2_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy3_i    <= '1'; --: std_logic := '0';
+         
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy1_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy2_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy3_i    <= '0'; --: std_logic := '0';
+
+         fsfb_ctrl_dat_rdy4_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy5_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy6_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy7_i    <= '1'; --: std_logic := '0';
+         
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy4_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy5_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy6_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy7_i    <= '0'; --: std_logic := '0';
+
+         L1: while num_flux_quanta_pres_rdy_o = '0' loop
+            wait for CLOCK_PERIOD;
+         end loop;
+         
+         L2: while fsfb_ctrl_dat_rdy_o = '0' loop
+            wait for CLOCK_PERIOD;
+         end loop;
+
+         assert false report " return data" severity NOTE;
+      end do_corr_b;
+      
+      procedure do_corr_c is
+      begin
+         flux_quanta0_i          <= x"00000800"; -- (1/4)*(2**13)
+         flux_quanta1_i          <= x"00000800"; 
+         flux_quanta2_i          <= x"00000800"; 
+         flux_quanta3_i          <= x"00000800"; 
+         flux_quanta4_i          <= x"00000800"; 
+         flux_quanta5_i          <= x"00000800"; 
+         flux_quanta6_i          <= x"00000800"; 
+         flux_quanta7_i          <= x"00000800"; 
+         
+         -- num_flux_quanta_prev0_i <= "1111111100"; -- -3
+         num_flux_quanta_prev0_i <= "0000000101"; -- -3
+         num_flux_quanta_prev1_i <= "0000000101"; -- -2
+         num_flux_quanta_prev2_i <= "0000000101"; -- -1
+         num_flux_quanta_prev3_i <= "1111111011"; --  0
+         num_flux_quanta_prev4_i <= "0000000101"; --  1
+         num_flux_quanta_prev5_i <= "0000000101"; --  2
+         num_flux_quanta_prev6_i <= "0000000101"; --  3
+         num_flux_quanta_prev7_i <= "0000000101"; --  4
+         
+         -- fsfb_ctrl_dat0_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat0_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat1_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat2_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat3_i        <= x"FFFFC000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat4_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat5_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat6_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev
+         fsfb_ctrl_dat7_i        <= x"00004000"; --: std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0'); -- pid_prev    
+         
+         wait for CLOCK_PERIOD;
+
+         fsfb_ctrl_dat_rdy0_i    <= '1'; --: std_logic := '0';
+
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy0_i    <= '0'; --: std_logic := '0';
+
+         fsfb_ctrl_dat_rdy1_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy2_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy3_i    <= '1'; --: std_logic := '0';
+         
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy1_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy2_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy3_i    <= '0'; --: std_logic := '0';
+
+         fsfb_ctrl_dat_rdy4_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy5_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy6_i    <= '1'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy7_i    <= '1'; --: std_logic := '0';
+         
+         wait for CLOCK_PERIOD;
+         fsfb_ctrl_dat_rdy4_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy5_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy6_i    <= '0'; --: std_logic := '0';
+         fsfb_ctrl_dat_rdy7_i    <= '0'; --: std_logic := '0';
+
+         L1: while num_flux_quanta_pres_rdy_o = '0' loop
+            wait for CLOCK_PERIOD;
+         end loop;
+         
+         L2: while fsfb_ctrl_dat_rdy_o = '0' loop
+            wait for CLOCK_PERIOD;
+         end loop;
+
+         assert false report " return data" severity NOTE;
+      end do_corr_c;
 
    -- Start the test
    begin
@@ -288,6 +453,7 @@ begin
       do_init;
       do_nop;
       
+      fsfb_ctrl_lock_en_i <= '1';
       do_corr_a;
       
       do_nop;
@@ -296,6 +462,27 @@ begin
       do_nop;
       do_nop;
       do_nop;
+
+      fsfb_ctrl_lock_en_i <= '1';
+      do_corr_b;
+
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+
+      fsfb_ctrl_lock_en_i <= '1';
+      do_corr_c;
+
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+      do_nop;
+
       assert false report " Simulation done." severity FAILURE;
    end process STIMULI;
 end BEH;
