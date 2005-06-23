@@ -21,9 +21,9 @@
 -- wbs_frame_data.vhd
 --
 --
--- Project: 			Scuba 2
--- Author:  			David Atkinson
--- Organisation: 			UKATC
+-- Project:          Scuba 2
+-- Author:           David Atkinson
+-- Organisation:        UKATC
 --
 -- Description:
 -- 
@@ -47,9 +47,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/01/11 02:37:59 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2005/01/12 23:28:31 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.20  2005/01/12 23:28:31  mohsen
+-- Anthony & Mohse: Fixed latch inference problem from next state due to imcomplete condition coverage.
+--
 -- Revision 1.19  2005/01/11 02:37:59  mohsen
 -- Anthony & Mohse: Got rid multi level "if" statements to help resolve timing violation
 --
@@ -243,7 +246,7 @@ port(
      stb_i                     : in std_logic;                                        -- strobe 
      cyc_i                     : in std_logic;                                        -- cycle
                   
-     dat_o 	                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- data out
+     dat_o                     : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- data out
      ack_o                     : out std_logic                                         -- acknowledge out
      );      
 end wbs_frame_data;
@@ -463,7 +466,7 @@ begin
 --          end if;
 
          --if (read_ret_data='1' and data_mode_reg = MODE4_RAW and (raw_addr_cnt >= RAW_ADDR_MAX+1))  then
-         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg = MODE4_RAW and (raw_addr_cnt >= RAW_ADDR_MAX+1))then
+         if ((addr_i = RET_DAT_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') and data_mode_reg = MODE4_RAW and (raw_addr_cnt >= RAW_ADDR_MAX-1))then
            next_state <= done;
          end if;
 
@@ -540,7 +543,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0'; 
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '1';   
+         rst_addr_ena      <= '1';   
          raw_req           <= '0';
                       
       when SET_MODE =>
@@ -550,7 +553,7 @@ begin
          data_mode_mux_sel <= '1';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';
 
                 
@@ -566,7 +569,7 @@ begin
          -- SO there is a total of 3 clock cycles until the next data word is ready to be read by the wishbone master.
          -- Consequently, 1st time in READ_DATA state we will be reading address 0, then next time address1 etc...
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';          
                            
       when WSS2 =>
@@ -576,7 +579,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '1';
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';
 
       when WSM1 =>
@@ -588,7 +591,7 @@ begin
          
          -- need to count address back down so it's sync'ed with data when reads resume
          dec_addr_ena      <= '1';     
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';
          
       when WSM2 =>
@@ -598,7 +601,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';   
 
       when READ_DATA =>
@@ -608,7 +611,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '1';    
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';
              
       when START_RAW =>
@@ -618,7 +621,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '1';
          
       when READ_MODE =>
@@ -628,7 +631,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';   
          
       when FINISH =>   
@@ -638,7 +641,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';   
                     
       when DONE =>
@@ -648,7 +651,7 @@ begin
          data_mode_mux_sel <= '0';
          inc_addr_ena      <= '0';
          dec_addr_ena      <= '0';
-         rst_addr_ena	   <= '0';
+         rst_addr_ena      <= '0';
          raw_req           <= '0';
          
       end case;

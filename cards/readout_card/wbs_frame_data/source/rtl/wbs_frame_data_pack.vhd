@@ -21,17 +21,20 @@
 -- wbs_frame_data_pack.vhd
 --
 --
--- Project: 			Scuba 2
--- Author:  			David Atkinson
--- Organisation: 			UKATC
+-- Project:          Scuba 2
+-- Author:           David Atkinson
+-- Organisation:        UKATC
 --
 -- Description:
 -- 
 --
 -- Revision history:
--- <date $Date: 2004/11/26 18:29:08 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2004/12/07 19:37:46 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.6  2004/12/07 19:37:46  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.5  2004/11/26 18:29:08  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -56,8 +59,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
---library work;
---use work.flux_loop_pack.all;
+library work;
+use work.flux_loop_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -71,7 +74,10 @@ constant NO_CHANNELS       :  integer := 2**CH_MUX_SEL_WIDTH;
 constant NO_ROWS           :  integer := 41;
 
 constant PIXEL_ADDR_MAX    :  integer := NO_CHANNELS * NO_ROWS;
-constant RAW_ADDR_MAX      :  integer := 2 * NO_CHANNELS * NO_ROWS * 64 ;
+--constant PIXEL_ADDR_MAX    :  integer := (NO_CHANNELS * (2**ROW_ADDR_WIDTH)) - 1;
+
+--constant RAW_ADDR_MAX      :  integer := 2 * NO_CHANNELS * NO_ROWS * 64 ;
+constant RAW_ADDR_MAX      :  integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
 
 constant MODE1_FILTERED    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
 constant MODE2_UNFILTERED  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000001";
