@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.24 2004/10/25 19:00:58 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.25 2004/12/24 21:05:53 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.25  2004/12/24 21:05:53  erniel
+-- updated fifo component
+--
 -- Revision 1.24  2004/10/25 19:00:58  erniel
 -- added generic showahead fifo
 --
@@ -335,50 +338,30 @@ package component_pack is
    
 ------------------------------------------------------------
 --
--- 1-wire signaling protocol components
+-- 1-wire protocol components
 --
 ------------------------------------------------------------ 
 
-   -- 1-wire protocol R/W timing information:
-   constant RESET_DURATION_US      : integer := 500;
-   constant PRESENCE_DURATION_US   : integer := 500;
-   constant SAMPLING_DELAY_US      : integer := 60;
-   constant SLOT_DURATION_US       : integer := 90;
-   constant WRITE_0_DELAY_US       : integer := 70;
-   constant WRITE_1_DELAY_US       : integer := 10;
-   constant READ_INITIATE_DELAY_US : integer := 2;
-   constant READ_VALID_DELAY_US    : integer := 13; 
-   
-   component init_1_wire
-      port(clk          : in std_logic;
-           rst          : in std_logic;
-           init_start_i : in std_logic;
-           init_done_o  : out std_logic;
-           data_bi      : inout std_logic);
-   end component;
+   component one_wire_master
+   port(clk_i     : in std_logic;
+        rst_i     : in std_logic;
+     
+        -- host-side signals
+        data_i    : in std_logic_vector(7 downto 0);
+        data_o    : out std_logic_vector(7 downto 0);
 
-   component write_data_1_wire
-      generic(DATA_LENGTH : integer := 8);
+        init_i    : in std_logic;  -- initialization
+        read_i    : in std_logic;  -- read a byte
+        write_i   : in std_logic;  -- write a byte
 
-      port(clk           : in std_logic;
-           rst           : in std_logic;
-           write_start_i : in std_logic;
-           write_done_o  : out std_logic;
-           write_data_i  : in std_logic_vector(DATA_LENGTH-1 downto 0);
-           data_bi       : inout std_logic);
+        done_o    : out std_logic; -- operation completed
+        ready_o   : out std_logic; -- slave is ready
+        ndetect_o : out std_logic; -- slave is detected
+
+        -- slave-side signals
+        data_io : inout std_logic);
    end component;
    
-   component read_data_1_wire
-      generic(DATA_LENGTH : integer := 8);
-
-      port(clk           : in std_logic;
-           rst           : in std_logic;
-           read_start_i  : in std_logic;
-           read_done_o   : out std_logic;
-           read_data_o   : out std_logic_vector(DATA_LENGTH-1 downto 0);
-           data_bi       : inout std_logic);
-   end component;
-  
    
 ------------------------------------------------------------
 --
