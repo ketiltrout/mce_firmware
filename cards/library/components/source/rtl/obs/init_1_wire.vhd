@@ -20,7 +20,7 @@
 
 -- init_fsm.vhd
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: init_1_wire.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
 --
 -- Project:	     SCUBA-2
 -- Author:       Ernie Lin
@@ -31,7 +31,7 @@
 --
 -- Revision history:
 -- Jan 15. 2004  - Initial version      - EL
--- <date $Date$>	-		<text>		- <initials $Author$>
+-- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
 
 --
 -----------------------------------------------------------------------------
