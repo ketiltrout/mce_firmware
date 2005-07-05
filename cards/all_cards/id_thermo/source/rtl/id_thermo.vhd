@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: id_thermo.vhd,v $
+-- Revision 1.1  2005/07/05 16:45:39  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -42,25 +45,30 @@ use ieee.std_logic_arith.all;
 library components;
 use components.component_pack.all;
 
+library sys_param;
+use sys_param.wishbone_pack.all;
+
 entity id_thermo is
 port(clk_i : in std_logic;
-
-     data_io : inout std_logic;
- 
-     sw_i : in std_logic_vector(3 downto 0);
-     led_o : out std_logic_vector(7 downto 0));
+     rst_i : in std_logic;
+     
+     -- Wishbone signals
+     dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+     addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+     tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+     we_i    : in std_logic;
+     stb_i   : in std_logic;
+     cyc_i   : in std_logic;
+     dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+     ack_o   : out std_logic;
+        
+     -- silicon id/temperature chip signals
+     data_io : inout std_logic);
 end id_thermo;
 
 architecture behav of id_thermo is
 
-signal clk : std_logic;
-signal rst : std_logic;
-
-signal byte_count_ena : std_logic;
-signal byte_count_clr : std_logic;
-signal byte_count     : integer range 0 to 10;
-
-
+-- one-wire master interface:
 signal slave_cmd     : std_logic_vector(7 downto 0);
 signal slave_data    : std_logic_vector(7 downto 0);
 signal slave_init    : std_logic;
@@ -70,15 +78,29 @@ signal slave_done    : std_logic;
 signal slave_ready   : std_logic;
 signal slave_ndetect : std_logic;
 
+-- byte counter:
+signal byte_count_ena : std_logic;
+signal byte_count_clr : std_logic;
+signal byte_count     : integer range 0 to 10;
+
 -- controller FSM states:
-type states is (IDLE, 
+type states is (CTRL_IDLE, 
                 PHASE1_INIT, PHASE1_READ_ROM, GET_ID,
                 PHASE2_INIT, PHASE2_SKIP_ROM, PHASE2_CONVERT_T, GET_STATUS, 
                 PHASE3_INIT, PHASE3_SKIP_ROM, PHASE3_READ_SCRATCH, GET_TEMP,
                 SET_VALID_FLAG);
-signal pres_state : states;
-signal next_state : states;
+signal ctrl_ps : states;
+signal ctrl_ns : states;
 
+-- wishbone FSM states:
+type wb_states is (WB_IDLE, SEND_ID, SEND_TEMP);  -- only sending back 32-bits of 48-bit silicon id code (can be modified later)
+signal wb_ps : wb_states;
+signal wb_ns : wb_states;
+
+signal read_id_cmd   : std_logic;
+signal read_temp_cmd : std_logic;
+
+-- data registers:
 signal id         : std_logic_vector(47 downto 0);
 signal thermo     : std_logic_vector(15 downto 0);
 signal valid      : std_logic;
@@ -93,13 +115,11 @@ signal thermo0_ld : std_logic;
 signal thermo1_ld : std_logic;
 signal valid_ld   : std_logic;
 
-signal nsw : std_logic_vector(3 downto 0);
-
 begin
 
    master : one_wire_master
-   port map(clk_i     => clk,
-            rst_i     => rst,
+   port map(clk_i     => clk_i,
+            rst_i     => rst_i,
             data_i    => slave_cmd,
             data_o    => slave_data,
             init_i    => slave_init,
@@ -112,8 +132,8 @@ begin
 
    byte_counter : counter
    generic map(MAX => 9)
-   port map(clk_i   => clk,
-            rst_i   => rst,
+   port map(clk_i   => clk_i,
+            rst_i   => rst_i,
             ena_i   => byte_count_ena,
             load_i  => byte_count_clr,
             count_i => 0,
@@ -124,8 +144,8 @@ begin
 
    id_data0 : reg
    generic map(WIDTH => 8)
-   port map(clk_i => clk,
-            rst_i => rst,
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
             ena_i => id0_ld,
 
             reg_i => slave_data,
@@ -133,8 +153,8 @@ begin
 
    id_data1 : reg
    generic map(WIDTH => 8)
-   port map(clk_i => clk,
-            rst_i => rst,
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
             ena_i => id1_ld,
 
             reg_i => slave_data,
@@ -142,8 +162,8 @@ begin
 
    id_data2 : reg
    generic map(WIDTH => 8)
-   port map(clk_i => clk,
-            rst_i => rst,
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
             ena_i => id2_ld,
 
             reg_i => slave_data,
@@ -151,8 +171,8 @@ begin
 
    id_data3 : reg
    generic map(WIDTH => 8)
-   port map(clk_i => clk,
-            rst_i => rst,
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
             ena_i => id3_ld,
 
             reg_i => slave_data,
@@ -160,8 +180,8 @@ begin
 
    id_data4 : reg
    generic map(WIDTH => 8)
-   port map(clk_i => clk,
-            rst_i => rst,
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
             ena_i => id4_ld,
 
             reg_i => slave_data,
@@ -169,8 +189,8 @@ begin
 
    id_data5 : reg
    generic map(WIDTH => 8)
-   port map(clk_i => clk,
-            rst_i => rst,
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
             ena_i => id5_ld,
 
             reg_i => slave_data,
@@ -181,8 +201,8 @@ begin
 
    thermo_data0 : reg
    generic map(WIDTH => 8)
-   port map(clk_i => clk,
-            rst_i => rst,
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
             ena_i => thermo0_ld,
 
             reg_i => slave_data,
@@ -190,8 +210,8 @@ begin
 
    thermo_data1 : reg
    generic map(WIDTH => 8)
-   port map(clk_i => clk,
-            rst_i => rst,
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
             ena_i => thermo1_ld,
 
             reg_i => slave_data,
@@ -200,126 +220,121 @@ begin
 
    -- Valid flag
 
-   process(clk, rst)
+   valid_flag: process(clk_i, rst_i)
    begin
-      if(rst = '1') then
+      if(rst_i = '1') then
          valid <= '0';
-      elsif(clk'event and clk = '1') then
+      elsif(clk_i'event and clk_i = '1') then
          if(valid_ld = '1') then
             valid <= '1';
          end if;
       end if;
-   end process;
-
-
-   nsw <= not sw_i;
-
-   rst <= nsw(3);
+   end process valid_flag;
 
 
    -- Controller FSM
 
-   process(clk, rst)
+   control_FF: process(clk_i, rst_i)
    begin
-      if(rst = '1') then
-         pres_state <= IDLE;
-      elsif(clk'event and clk = '1') then
-         pres_state <= next_state;
+      if(rst_i = '1') then
+         ctrl_ps <= CTRL_IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         ctrl_ps <= ctrl_ns;
       end if;
-   end process;
+   end process control_FF;
 
-   process(pres_state, slave_done, slave_ready, slave_ndetect, byte_count)
+   control_NS: process(ctrl_ps, slave_done, slave_ready, slave_ndetect, byte_count)
    begin
-      case pres_state is
-         when IDLE =>                next_state <= PHASE1_INIT;
+      case ctrl_ps is
+         when CTRL_IDLE =>           ctrl_ns <= PHASE1_INIT;
 
          -- Phase 1: Read Silicon ID ----------------------------------------------------
 
          when PHASE1_INIT =>         if(slave_done = '1' and slave_ndetect = '1') then
-                                        next_state <= IDLE;
+                                        ctrl_ns <= CTRL_IDLE;
                                      elsif(slave_done = '1' and slave_ndetect = '0') then
-                                        next_state <= PHASE1_READ_ROM;
+                                        ctrl_ns <= PHASE1_READ_ROM;
                                      else
-                                        next_state <= PHASE1_INIT;
+                                        ctrl_ns <= PHASE1_INIT;
                                      end if;
 
          when PHASE1_READ_ROM =>     if(slave_done = '1') then
-                                        next_state <= GET_ID;
+                                        ctrl_ns <= GET_ID;
                                      else
-                                        next_state <= PHASE1_READ_ROM;
+                                        ctrl_ns <= PHASE1_READ_ROM;
                                      end if;
 
          when GET_ID =>              if(slave_done = '1' and byte_count = 6) then
-                                        next_state <= PHASE2_INIT;
+                                        ctrl_ns <= PHASE2_INIT;
                                      else
-                                        next_state <= GET_ID;
+                                        ctrl_ns <= GET_ID;
                                      end if;
 
          -- Phase 2: Measure Temperature ------------------------------------------------
 
          when PHASE2_INIT =>         if(slave_done = '1' and slave_ndetect = '1') then
-                                        next_state <= IDLE;
+                                        ctrl_ns <= CTRL_IDLE;
                                      elsif(slave_done = '1' and slave_ndetect = '0') then
-                                        next_state <= PHASE2_SKIP_ROM;
+                                        ctrl_ns <= PHASE2_SKIP_ROM;
                                      else
-                                        next_state <= PHASE2_INIT;
+                                        ctrl_ns <= PHASE2_INIT;
                                      end if;
 
          when PHASE2_SKIP_ROM =>     if(slave_done = '1') then
-                                        next_state <= PHASE2_CONVERT_T;
+                                        ctrl_ns <= PHASE2_CONVERT_T;
                                      else
-                                        next_state <= PHASE2_SKIP_ROM;
+                                        ctrl_ns <= PHASE2_SKIP_ROM;
                                      end if;
 
          when PHASE2_CONVERT_T =>    if(slave_done = '1') then
-                                        next_state <= GET_STATUS;
+                                        ctrl_ns <= GET_STATUS;
                                      else
-                                        next_state <= PHASE2_CONVERT_T;
+                                        ctrl_ns <= PHASE2_CONVERT_T;
                                      end if;
 
          when GET_STATUS =>          if(slave_done = '1' and slave_ready = '1') then
-                                        next_state <= PHASE3_INIT;
+                                        ctrl_ns <= PHASE3_INIT;
                                      else
-                                        next_state <= GET_STATUS;
+                                        ctrl_ns <= GET_STATUS;
                                      end if;
  
          -- Phase 3: Retrieve Temperature -----------------------------------------------
 
          when PHASE3_INIT =>         if(slave_done = '1' and slave_ndetect = '1') then
-                                        next_state <= IDLE;
+                                        ctrl_ns <= CTRL_IDLE;
                                      elsif(slave_done = '1' and slave_ndetect = '0') then
-                                        next_state <= PHASE3_SKIP_ROM;
+                                        ctrl_ns <= PHASE3_SKIP_ROM;
                                      else
-                                        next_state <= PHASE3_INIT;
+                                        ctrl_ns <= PHASE3_INIT;
                                      end if;
 
          when PHASE3_SKIP_ROM =>     if(slave_done = '1') then
-                                        next_state <= PHASE3_READ_SCRATCH;
+                                        ctrl_ns <= PHASE3_READ_SCRATCH;
                                      else
-                                        next_state <= PHASE3_SKIP_ROM;
+                                        ctrl_ns <= PHASE3_SKIP_ROM;
                                      end if;
 
          when PHASE3_READ_SCRATCH => if(slave_done = '1') then
-                                        next_state <= GET_TEMP;
+                                        ctrl_ns <= GET_TEMP;
                                      else
-                                        next_state <= PHASE3_READ_SCRATCH;
+                                        ctrl_ns <= PHASE3_READ_SCRATCH;
                                      end if;
 
          when GET_TEMP =>            if(slave_done = '1' and byte_count = 1) then
-                                        next_state <= SET_VALID_FLAG;
+                                        ctrl_ns <= SET_VALID_FLAG;
                                      else
-                                        next_state <= GET_TEMP;
+                                        ctrl_ns <= GET_TEMP;
                                      end if;
 
          --------------------------------------------------------------------------------
 
-         when SET_VALID_FLAG =>      next_state <= PHASE2_INIT;
+         when SET_VALID_FLAG =>      ctrl_ns <= PHASE2_INIT;
 
-         when others =>              next_state <= IDLE;
+         when others =>              ctrl_ns <= CTRL_IDLE;
       end case;
-   end process;
+   end process control_NS;
 
-   process(pres_state, slave_done, byte_count)
+   control_out: process(ctrl_ps, slave_done, byte_count)
    begin
       byte_count_ena <= '0';
       byte_count_clr <= '0';
@@ -339,7 +354,7 @@ begin
       thermo1_ld <= '0';
       valid_ld   <= '0';
 
-      case pres_state is
+      case ctrl_ps is
          when PHASE1_INIT | 
               PHASE2_INIT | 
               PHASE3_INIT =>         slave_init     <= '1';
@@ -387,17 +402,55 @@ begin
 
          when others =>              null;
       end case;
-   end process;
+   end process control_out;
 
 
-   with nsw(2 downto 0) select
-      led_o <= thermo(7 downto 0)  when "000",
-               thermo(15 downto 8) when "001",
-               id(7 downto 0)      when "010",
-               id(15 downto 8)     when "011",
-               id(23 downto 16)    when "100",
-               id(31 downto 24)    when "101",
-               id(39 downto 32)    when "110",
-               id(47 downto 40)    when others;
+   -- Wishbone FSM
+   
+   wishbone_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         wb_ps <= WB_IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         wb_ps <= wb_ns;
+      end if;
+   end process wishbone_FF;
+
+   wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd)
+   begin
+      case wb_ps is
+         when WB_IDLE =>   if(read_id_cmd = '1') then
+                              wb_ns <= SEND_ID;
+                           elsif(read_temp_cmd = '1') then
+                              wb_ns <= SEND_TEMP;
+                           else
+                              wb_ns <= WB_IDLE;
+                           end if;
+                     
+         when others =>    wb_ns <= WB_IDLE;
+      end case;
+   end process wishbone_NS;
+   
+   read_id_cmd <=   '1' when (addr_i = CARD_ID_ADDR   and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   read_temp_cmd <= '1' when (addr_i = CARD_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   
+   wishbone_out: process(wb_ps)
+   begin
+      ack_o <= '0';
+      dat_o <= (others => '0');
+      
+      case wb_ps is
+         when SEND_ID =>   ack_o <= '1';
+                           dat_o <= id(31 downto 0);
+         
+         when SEND_TEMP => ack_o <= '1';
+                           dat_o <= thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
+                                    thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
+                                    thermo(15 downto 0);  
+                                    -- sign extension to 32-bit since thermo is 16-bit and wishbone data is 32-bit
+         
+         when others =>    null;
+      end case;
+   end process wishbone_out;
 
 end behav;
