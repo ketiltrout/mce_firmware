@@ -61,6 +61,7 @@ set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/wb_slave.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_rx.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_tx.vhd
@@ -68,6 +69,7 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_r
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
