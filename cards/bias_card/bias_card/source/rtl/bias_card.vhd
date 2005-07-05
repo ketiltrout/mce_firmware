@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.17 2005/05/17 21:07:38 mandana Exp $
+-- $Id: bias_card.vhd,v 1.18 2005/06/03 20:36:25 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.18  2005/06/03 20:36:25  mandana
+-- build revision 01010007 updated the tcl script to reverse ch0 to ch16 pin assignment
+--
 -- Revision 1.17  2005/05/17 21:07:38  mandana
 -- v01010006 frame_timing fix
 --
@@ -97,6 +100,7 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
+use work.bias_card_pack.all;
 use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.fw_rev_pack.all;
@@ -153,6 +157,7 @@ entity bias_card is
       dip_sw4    : in std_logic;
       wdog       : out std_logic;
       slot_id    : in std_logic_vector(3 downto 0);
+      card_id    : inout std_logic;
       
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
@@ -169,7 +174,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01010007";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01020001";
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -200,8 +205,11 @@ signal bc_dac_ack        : std_logic;
 signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack  : std_logic;
 signal slave_err         : std_logic;
-signal fw_rev_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal fw_rev_ack           : std_logic;
+signal fw_rev_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal fw_rev_ack        : std_logic;
+signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal id_thermo_ack     : std_logic;
+
 
 -- frame_timing interface
 signal update_bias : std_logic; 
@@ -259,7 +267,26 @@ begin
          wdt_rst_o                  => wdog,
          slot_i                     => slot_id
       );
+   
+   id_thermo0: id_thermo
+      port map(
+         clk_i                      => clk,
+         rst_i                      => rst,  
+         
+         -- Wishbone signals
+         dat_i 	                    => data, 
+         addr_i  		    => addr,
+         tga_i   		    => tga,
+         we_i    		    => we,
+         stb_i   		    => stb,
+         cyc_i   		    => cyc,
+         dat_o   		    => id_thermo_data,
+         ack_o   		    => id_thermo_ack,
             
+         -- silicon id/temperature chip signals
+         data_io                    => card_id
+       );
+
    leds_slave: leds
       port map(
          clk_i                      => clk,
@@ -363,6 +390,7 @@ begin
          led_data          when LED_ADDR,
          bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          (others => '0')   when others;
 
    with addr select
@@ -371,11 +399,14 @@ begin
          led_ack          when LED_ADDR,
          bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          '0'              when others;
          
    with addr select
       slave_err <= 
-         '0'              when FW_REV_ADDR | LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when FW_REV_ADDR | LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | 
+                               SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | 
+                               CARD_ID_ADDR | CARD_TEMP_ADDR,
          '1'              when others;        
    
 end top;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.5 2005/01/27 00:12:09 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.6 2005/02/01 01:10:18 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.6  2005/02/01 01:10:18  mandana
+-- slot_id and ttl_nrx1 are now hard coded in the self_test module
+--
 -- Revision 1.5  2005/01/27 00:12:09  mandana
 -- added bias_card_self_test component
 --
@@ -55,6 +58,7 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 library work;
 use work.bc_dac_ctrl_pack.all;
@@ -181,5 +185,23 @@ component bias_card_self_test
    );
 end component;
 
+component id_thermo
+  port(clk_i : in std_logic;
+     rst_i : in std_logic;
+     
+     -- Wishbone signals
+     dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+     addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+     tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+     we_i    : in std_logic;
+     stb_i   : in std_logic;
+     cyc_i   : in std_logic;
+     dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+     ack_o   : out std_logic;
+        
+     -- silicon id/temperature chip signals
+     data_io : inout std_logic
+  );
+end component;
 
 end bias_card_pack;

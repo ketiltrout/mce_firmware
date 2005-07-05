@@ -1,5 +1,5 @@
 Assembler report for bias_card
-Mon Jun 13 11:40:41 2005
+Tue Jul 05 11:32:00 2005
 Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
 
 
@@ -44,7 +44,7 @@ party's intellectual property, are provided herein.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Mon Jun 13 11:40:41 2005 ;
+; Assembler Status      ; Successful - Tue Jul 05 11:32:00 2005 ;
 ; Revision Name         ; bias_card                             ;
 ; Top-level Entity Name ; bias_card                             ;
 ; Family                ; Stratix                               ;
@@ -105,7 +105,7 @@ party's intellectual property, are provided herein.
 +----------------+-----------------------------------------------------------------------------+
 ; Device         ; EP1S10F780C5                                                                ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                                  ;
-; Checksum       ; 0x002C43AB                                                                  ;
+; Checksum       ; 0x002CEFB7                                                                  ;
 +----------------+-----------------------------------------------------------------------------+
 
 
@@ -116,7 +116,7 @@ party's intellectual property, are provided herein.
 +----------------+-----------------------------------------------------------------------------+
 ; Device         ; EPC4                                                                        ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                                  ;
-; Checksum       ; 0x060E4BFD                                                                  ;
+; Checksum       ; 0x060DF21D                                                                  ;
 +----------------+-----------------------------------------------------------------------------+
 
 
@@ -126,10 +126,10 @@ party's intellectual property, are provided herein.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
     Info: Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
-    Info: Processing started: Mon Jun 13 11:40:36 2005
+    Info: Processing started: Tue Jul 05 11:31:51 2005
 Info: Command: quartus_asm --import_settings_files=off --export_settings_files=off bias_card -c bias_card
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-    Info: Processing ended: Mon Jun 13 11:40:41 2005
-    Info: Elapsed time: 00:00:04
+    Info: Processing ended: Tue Jul 05 11:32:00 2005
+    Info: Elapsed time: 00:00:09
 
 
