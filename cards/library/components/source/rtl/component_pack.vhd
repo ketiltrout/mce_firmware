@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.25 2004/12/24 21:05:53 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.26 2005/07/04 18:44:57 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,10 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.26  2005/07/04 18:44:57  erniel
+-- added one_wire_master
+-- removed obsolete 1-wire modules
+--
 -- Revision 1.25  2004/12/24 21:05:53  erniel
 -- updated fifo component
 --
@@ -146,6 +150,52 @@ use sys_param.wishbone_pack.all;
 
 package component_pack is
 
+------------------------------------------------------------
+--
+-- fast2slow_clk_domain_crosser
+--
+------------------------------------------------------------  
+
+   component fast2slow_clk_domain_crosser
+      generic (
+         NUM_TIMES_FASTER : integer := 2                                               -- divided ratio of fast clock to slow clock
+         );
+   
+      port ( 
+      
+         -- global signals
+         rst_i                     : in      std_logic;                                -- global reset
+         clk_slow                  : in      std_logic;                                -- global slow clock
+         clk_fast                  : in      std_logic;                                -- global fast clock
+         -- input/output 
+         input_fast                : in      std_logic;                                -- fast input
+         output_slow               : out     std_logic                                 -- slow output 
+      
+      );
+   end component;
+
+------------------------------------------------------------
+--
+-- slow2fast_clk_domain_crosser
+--
+------------------------------------------------------------  
+
+   component slow2fast_clk_domain_crosser
+      generic (
+         NUM_TIMES_FASTER : integer := 2                                               -- divided ratio of fast clock to slow clock
+         );
+   
+      port (       
+         -- global signals
+         rst_i                     : in      std_logic;                                -- global reset
+         clk_slow                  : in      std_logic;                                -- global slow clock
+         clk_fast                  : in      std_logic;                                -- global fast clock
+         -- input/output 
+         input_slow                : in      std_logic;                                -- slow input
+         output_fast               : out     std_logic                                 -- fast output 
+   
+      );
+   end component;
 
 ------------------------------------------------------------
 --
