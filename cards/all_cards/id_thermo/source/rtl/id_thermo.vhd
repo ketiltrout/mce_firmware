@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.2  2005/07/05 16:50:30  erniel
+-- added wishbone interface
+--
 -- Revision 1.1  2005/07/05 16:45:39  erniel
 -- initial version
 --
@@ -434,7 +437,7 @@ begin
    read_id_cmd <=   '1' when (addr_i = CARD_ID_ADDR   and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    read_temp_cmd <= '1' when (addr_i = CARD_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    
-   wishbone_out: process(wb_ps)
+   wishbone_out: process(wb_ps, id, thermo)
    begin
       ack_o <= '0';
       dat_o <= (others => '0');
