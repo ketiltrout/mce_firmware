@@ -41,8 +41,11 @@
 
 -- Revision history:
 -- Original Code: offset_spi_if.vhd by Anthony Ko
--- <date $Date$>    - <initials $Author$>
--- $Log$
+-- <date $Date: 2005/06/15 21:26:34 $>    - <initials $Author: mandana $>
+-- $Log: eeprom_spi_if.vhd,v $
+-- Revision 1.1  2005/06/15 21:26:34  mandana
+-- *** empty log message ***
+--
 --
 --
 
@@ -51,6 +54,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.eeprom_ctrl_pack.all;
 
 entity eeprom_spi_if is
    
@@ -67,24 +72,18 @@ entity eeprom_spi_if is
       spi_done_o                : out    std_logic;                                  -- SPI read/write done
       
       -- Parallel data
-      spi_wr_pdat_i             : in     std_logic_vector(7 downto 0);               -- SPI parallel write data
-      spi_rd_pdat_o             : out    std_logic_vector(7 downto 0);               -- SPI parallel read data
+      spi_wr_pdat_i             : in     std_logic_vector(EEPROM_DATA_WIDTH-1 downto 0);-- SPI parallel write data
+      spi_rd_pdat_o             : out    std_logic_vector(EEPROM_DATA_WIDTH-1 downto 0);-- SPI parallel read data
       
       -- SPI signals (chip interface)
       spi_csb_o                 : out    std_logic;                                  -- SPI chip select
       spi_sclk_o                : out    std_logic;                                  -- SPI serial write clock
       spi_sdat_o                : out    std_logic;                                  -- SPI serial write data
-      spi_sdat_i                : in     std_logic                                    -- SPI serial read data      
+      spi_sdat_i                : in     std_logic                                   -- SPI serial read data      
       
       );
         
 end eeprom_spi_if;
-
-
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-
 
 architecture rtl of eeprom_spi_if is
 
@@ -175,6 +174,7 @@ begin
    -- Hold it at low-level until SPI write data valid window is deasserted.
    -- The window is active for the whole duration of shifting out the parallel data
    -- bits over the serial interface
+   -- If spi_hold_cs_i is 1, then chip select stays low during the whole operation.
    
    spi_csb_proc : process (clk_i, rst_i)
    begin
