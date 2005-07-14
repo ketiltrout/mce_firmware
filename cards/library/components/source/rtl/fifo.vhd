@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: fifo.vhd,v $
+-- Revision 1.5  2005/01/13 01:50:16  mandana
+-- pointer management bug fixed for the simultaneous read/write case
+--
 -- Revision 1.4  2004/12/24 21:06:44  erniel
 -- removed read enable from memory core (it didn't work)
 --
@@ -62,11 +65,11 @@ use lpm.lpm_components.all;
 entity fifo is
 generic(DATA_WIDTH : integer := 32;
         ADDR_WIDTH : integer := 8);
-port(clk_i     : in std_logic;
-     rst_i     : in std_logic;
+port(clk_i   : in std_logic;
+     rst_i   : in std_logic;
 
-     data_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
-     data_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
+     data_i  : in std_logic_vector(DATA_WIDTH-1 downto 0);
+     data_o  : out std_logic_vector(DATA_WIDTH-1 downto 0);
 
      read_i  : in std_logic;
      write_i : in std_logic;
@@ -81,39 +84,39 @@ end fifo;
 architecture rtl of fifo is
 
 component altsyncram
-   generic(operation_mode         : string;
-           width_a                : natural; 
-           widthad_a              : natural;
-           width_b                : natural;
-           widthad_b              : natural;
-           lpm_type               : string;
-           width_byteena_a        : natural;
-           outdata_reg_b          : string;
-           indata_aclr_a          : string;
-           wrcontrol_aclr_a       : string;
-           address_aclr_a         : string;
-           address_reg_b          : string;
-           address_aclr_b         : string;
-           outdata_aclr_b         : string;
-           intended_device_family : string);
+   generic(OPERATION_MODE         : string;
+           WIDTH_A                : natural; 
+           WIDTHAD_A              : natural;
+           WIDTH_B                : natural;
+           WIDTHAD_B              : natural;
+           LPM_TYPE               : string;
+           WIDTH_BYTEENA_A        : natural;
+           OUTDATA_REG_B          : string;
+           INDATA_ACLR_A          : string;
+           WRCONTROL_ACLR_A       : string;
+           ADDRESS_ACLR_A         : string;
+           ADDRESS_REG_B          : string;
+           ADDRESS_ACLR_B         : string;
+           OUTDATA_ACLR_B         : string;
+           INTENDED_DEVICE_FAMILY : string);
    port(clock0    : in std_logic;
         clock1    : in std_logic;
         wren_a    : in std_logic;
-        address_a : in std_logic_vector(ADDR_WIDTH-1 downto 0);
-        data_a    : in std_logic_vector(DATA_WIDTH-1 downto 0);
-        address_b : in std_logic_vector(ADDR_WIDTH-1 downto 0);
-        q_b       : out std_logic_vector(DATA_WIDTH-1 downto 0));
+        address_a : in std_logic_vector(WIDTHAD_A-1 downto 0);
+        data_a    : in std_logic_vector(WIDTH_A-1 downto 0);
+        address_b : in std_logic_vector(WIDTHAD_B-1 downto 0);
+        q_b       : out std_logic_vector(WIDTH_B-1 downto 0));
 end component;
 
 component lpm_counter
-   generic(lpm_width     : NATURAL;
-           lpm_type      : STRING;
-           lpm_direction : STRING);
+   generic(LPM_WIDTH     : natural;
+           LPM_TYPE      : string;
+           LPM_DIRECTION : string);
    port(clock  : in std_logic;
         cnt_en : in std_logic;
         sclr   : in std_logic;
         aclr   : in std_logic;
-        q      : out std_logic_vector(ADDR_WIDTH-1 downto 0));
+        q      : out std_logic_vector(LPM_WIDTH-1 downto 0));
 end component;
 
 signal n_clk : std_logic;
@@ -125,22 +128,19 @@ signal data_out   : std_logic_vector(DATA_WIDTH-1 downto 0);
 signal write_ena  : std_logic;
 signal read_ena   : std_logic;
 
--- item counter:
-signal num_items : integer;
+-- item counter controls:
+signal items_ena : std_logic;
+signal items     : integer;
 
--- controller states:
-type states is (EMPTY, SOME, FULL);
-signal pres_state : states;
-signal next_state : states;
+-- FIFO flags:
+signal fifo_full   : std_logic;
+signal fifo_empty  : std_logic;
+signal write_nread : std_logic;
 
 begin
-   -------------------------------------------------
-   -- FIFO Datapath:
-   -------------------------------------------------
-
 
    -- NOTES: 1. On FIFO clear, RAM storage is not reinitialized.  Pointers are reset and 
-   --        item counter is reset and state machine assumes EMPTY.  You cannot read 
+   --        item counter is reset and the FIFO empty flag is asserted.  You cannot read 
    --        from an empty FIFO, so there is no danger of reading invalid data.
    --
    --        2. I am using the altsyncram in flow-through mode.  In this mode, the read
@@ -149,21 +149,21 @@ begin
    --        is asserted.  See Altera Stratix device handbook vol. 2, page 2-23.
    
    fifo_storage : altsyncram
-   generic map(operation_mode         => "DUAL_PORT",
-               width_a                => DATA_WIDTH,
-               widthad_a              => ADDR_WIDTH,
-               width_b                => DATA_WIDTH,
-               widthad_b              => ADDR_WIDTH,
-               lpm_type               => "altsyncram",
-               width_byteena_a        => 1,
-               outdata_reg_b          => "UNREGISTERED",
-               indata_aclr_a          => "NONE",
-               wrcontrol_aclr_a       => "NONE",
-               address_aclr_a         => "NONE",
-               address_reg_b          => "CLOCK1",               
-               address_aclr_b         => "NONE",
-               outdata_aclr_b         => "NONE",
-               intended_device_family => "Stratix")
+   generic map(OPERATION_MODE         => "DUAL_PORT",
+               WIDTH_A                => DATA_WIDTH,
+               WIDTHAD_A              => ADDR_WIDTH,
+               WIDTH_B                => DATA_WIDTH,
+               WIDTHAD_B              => ADDR_WIDTH,
+               LPM_TYPE               => "altsyncram",
+               WIDTH_BYTEENA_A        => 1,
+               OUTDATA_REG_B          => "UNREGISTERED",
+               INDATA_ACLR_A          => "NONE",
+               WRCONTROL_ACLR_A       => "NONE",
+               ADDRESS_ACLR_A         => "NONE",
+               ADDRESS_REG_B          => "CLOCK1",
+               ADDRESS_ACLR_B         => "NONE",
+               OUTDATA_ACLR_B         => "NONE",
+               INTENDED_DEVICE_FAMILY => "Stratix")
    port map(clock0    => clk_i,
             clock1    => n_clk,
             wren_a    => write_ena,
@@ -175,9 +175,9 @@ begin
    n_clk <= not clk_i;
    
    write_pointer: lpm_counter
-   generic map(lpm_width     => ADDR_WIDTH,
-               lpm_type      => "LPM_COUNTER",
-               lpm_direction => "UP")
+   generic map(LPM_WIDTH => ADDR_WIDTH,
+               LPM_TYPE  => "LPM_COUNTER",
+               LPM_DIRECTION => "UP")
    port map(clock  => clk_i,
             cnt_en => write_ena,
             sclr   => clear_i,                                    -- if FIFO clear requested, zero write pointer.
@@ -185,129 +185,79 @@ begin
             q      => write_addr);
 
    read_pointer: lpm_counter
-   generic map(lpm_width     => ADDR_WIDTH,
-               lpm_type      => "LPM_COUNTER",
-               lpm_direction => "UP")
+   generic map(LPM_WIDTH => ADDR_WIDTH,
+               LPM_TYPE  => "LPM_COUNTER",
+               LPM_DIRECTION => "UP")
    port map(clock  => clk_i,
             cnt_en => read_ena,
             sclr   => clear_i,                                    -- if FIFO clear requested, zero read pointer.
             aclr   => rst_i,
-            q      => read_addr);
+            q      => read_addr);     
 
+   write_ena <= write_i and not fifo_full;
+   
+   read_ena  <= read_i and not fifo_empty;
+   
+   
+   -- This process implements the item counter.
    item_counter: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         num_items <= 0;
+         items <= 0;
       elsif(clk_i'event and clk_i = '1') then
-         if(clear_i = '1') then                                   -- if FIFO clear requested, clear item counter.
-            num_items <= 0;                     
-         elsif(read_i = '1' and write_i = '0' and num_items > 0) then               -- decrement on FIFO read when FIFO is not empty.
-            num_items <= num_items - 1;
-         elsif(write_i = '1' and read_i = '0' and num_items < 2**ADDR_WIDTH) then  -- increment on FIFO write when FIFO is not full.
-            num_items <= num_items + 1;
-            
+         if(clear_i = '1') then
+            items <= 0;
+         elsif(items_ena = '1') then
+            if(write_ena = '1') then
+               items <= items + 1;
+            else
+               items <= items - 1;
+            end if;
          end if;
       end if;
-   end process item_counter;
+   end process;
+   
+   items_ena <= write_ena xor read_ena;
+   
 
-   used_o <= num_items;
-
-
-   -------------------------------------------------
-   -- FIFO Controller:
-   -------------------------------------------------
-
-   state_FF: process(clk_i, rst_i)
+   -- This flag indicates whether a write and no read has just occured.  The flag is used in
+   -- determining whether the FIFO is full or empty in the case where both pointers are equal. 
+   write_no_read_flag: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         pres_state <= EMPTY;
+         write_nread <= '0';
       elsif(clk_i'event and clk_i = '1') then
-         if(clear_i = '1') then                                   -- if FIFO clear requested, move to EMPTY state.
-            pres_state <= EMPTY;
-         else
-            pres_state <= next_state;
+         if(clear_i = '1') then
+            write_nread <= '0';
+         elsif(write_i = '1' or read_i = '1') then
+            write_nread <= write_i and not read_i;
          end if;
       end if;
-   end process state_FF;
+   end process write_no_read_flag;
 
-   state_NS: process(pres_state, write_i, read_i, num_items)
+   fifo_empty <= '1' when write_addr = read_addr and write_nread = '0' else '0';
+      
+   fifo_full  <= '1' when write_addr = read_addr and write_nread = '1' else '0';
+   
+   
+   -- This process implements a mux that controls the data output.  Data_o is "00...0" when 
+   -- the FIFO is empty, even though the data_out from the FIFO storage is not (since the 
+   -- memory is not cleared on assertion of clear_i).
+   data_output: process(data_out, fifo_empty)
    begin
-      -- in EMPTY state:
-      --    if FIFO write requested, move to SOME state.
+      if(fifo_empty = '1') then
+         data_o <= (others => '0');
+      else
+         data_o <= data_out;
+      end if;
+   end process data_output;      
       
-      -- in SOME state:
-      --    if FIFO read requested when FIFO is almost empty, move to EMPTY state.
-      --    if FIFO write requested when FIFO is almost full, move to FULL state.
+   empty_o <= fifo_empty;
       
-      -- in FULL state:
-      --    if FIFO read requested, move to SOME state.
-      
-      case pres_state is
-         when EMPTY =>  if(write_i = '1') then
-                           next_state <= SOME;
-                        else
-                           next_state <= EMPTY;
-                        end if;
-
-         when SOME =>   if(read_i = '1' and num_items = 1) then
-                           next_state <= EMPTY;
-                        elsif(write_i = '1' and num_items = 2**ADDR_WIDTH-1) then
-                           next_state <= FULL;
-                        else
-                           next_state <= SOME;
-                        end if;
-
-         when FULL =>   if(read_i = '1') then
-                           next_state <= SOME;
-                        else
-                           next_state <= FULL;
-                        end if;
-
-         when others => next_state <= EMPTY;
-      end case;
-   end process state_NS;
-
-   state_Out: process(pres_state, write_i, read_i, data_out)
-   begin
-      -- in EMPTY state:
-      --    1. enable FIFO write when requested, disable FIFO read.
-      --    2. assert empty flag.
-      --    3. if FIFO read requested, assert error.
-
-      -- in SOME state:
-      --    1. both FIFO read and write are enabled when requested.
-      --    2. output data at FIFO head.
-                        
-      -- in FULL state:
-      --    1. disable FIFO write, enable FIFO read when requested.
-      --    2. assert full flag.
-      --    3. if FIFO write requested, assert error.
-      --    4. output data at FIFO head.
-                          
-      case pres_state is
-         when EMPTY =>  write_ena <= write_i;
-                        read_ena  <= '0';
-                        empty_o   <= '1';
-                        full_o    <= '0';
-                        error_o   <= read_i;
-                        data_o    <= (others => '0');
-
-         when SOME =>   write_ena <= write_i;
-                        read_ena  <= read_i;
-                        empty_o   <= '0';
-                        full_o    <= '0';
-                        error_o   <= '0';
-                        data_o    <= data_out;
-
-         when FULL =>   write_ena <= '0';
-                        read_ena  <= read_i;
-                        empty_o   <= '0';
-                        full_o    <= '1';
-                        error_o   <= write_i;
-                        data_o    <= data_out;
-
-         when others => null;
-      end case;
-   end process state_Out;
+   full_o  <= fifo_full;
+   
+   error_o <= (read_i and fifo_empty) or (write_i and fifo_full);
+   
+   used_o  <= items;
 
 end rtl;
