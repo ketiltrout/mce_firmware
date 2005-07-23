@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.1 2005/03/05 01:31:36 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.2 2005/03/19 00:31:23 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.2  2005/03/19 00:31:23  bburger
+-- bryce:  Fixed several bugs.  Tagging cc_01010007.
+--
 -- Revision 1.1  2005/03/05 01:31:36  bburger
 -- Bryce:  New
 --
@@ -122,22 +125,42 @@ begin
          reg_o             => stop_data
       );
 
-   data_rate_o <= 
-      MAX_DATA_RATE(15 downto 0) when data_rate_data < MAX_DATA_RATE else 
-      MIN_DATA_RATE(15 downto 0) when data_rate_data > MIN_DATA_RATE else
-      data_rate_data(15 downto 0);
-
-   data_rate_reg : reg
-      generic map(
-         WIDTH             => WB_DATA_WIDTH
-      )
-      port map(
-         clk_i             => clk_i,
-         rst_i             => rst_i,
-         ena_i             => data_rate_wren,
-         reg_i             => dat_i,
-         reg_o             => data_rate_data
-      );
+--   data_rate_o <= 
+--      MAX_DATA_RATE(15 downto 0) when data_rate_data < MAX_DATA_RATE else 
+--      MIN_DATA_RATE(15 downto 0) when data_rate_data > MIN_DATA_RATE else
+--      data_rate_data(15 downto 0);
+--
+--   data_rate_reg : reg
+--      generic map(
+--         WIDTH             => WB_DATA_WIDTH
+--      )
+--      port map(
+--         clk_i             => clk_i,
+--         rst_i             => rst_i,
+--         ena_i             => data_rate_wren,
+--         reg_i             => dat_i,
+--         reg_o             => data_rate_data
+--      );
+      
+   -- Custom register that gets set to MAX_DATA_RATE upon reset
+   data_rate_o <= data_rate_data(15 downto 0);
+   data_rate_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         data_rate_data <= MAX_DATA_RATE;
+      elsif(clk_i'event and clk_i = '1') then
+         if(data_rate_wren = '1') then
+            if(dat_i < MAX_DATA_RATE) then
+               data_rate_data <= MAX_DATA_RATE;
+            elsif(dat_i > MIN_DATA_RATE) then
+               data_rate_data <= MIN_DATA_RATE;
+            else
+               data_rate_data <= dat_i;
+            end if;
+         end if;
+      end if;
+   end process data_rate_reg;
+      
 
 ------------------------------------------------------------
 --  WB FSM

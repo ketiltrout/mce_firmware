@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.26 2005/02/19 22:40:17 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.27 2005/03/04 03:45:58 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/02/19 22:40:17 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2005/03/04 03:45:58 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.27  2005/03/04 03:45:58  bburger
+-- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
+--
 -- Revision 1.26  2005/02/19 22:40:17  mandana
 -- jjacob: registered all outputs going to cmd_queue
 --
@@ -178,6 +181,7 @@ port(
       -- ret_dat_wbs interface:
       start_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       stop_seq_num_i    : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- other inputs 
       sync_pulse_i      : in    std_logic;
@@ -535,13 +539,13 @@ begin
       internal_cmd_start      <= '0';  
    elsif clk_i'event and clk_i = '1' then   
    -- in order to disable internal commands, start commenting from here
-      if time >= 1000000 then --1000000 then  -- 1x10^6 us = 1s
-         timer_rst            <= '1';
-         internal_cmd_start   <= '1';      
-      else
-         timer_rst            <= '0';
-         internal_cmd_start   <= '0';      
-      end if;
+--      if time >= 1000000 then --1000000 then  -- 1x10^6 us = 1s
+--         timer_rst            <= '1';
+--         internal_cmd_start   <= '1';      
+--      else
+--         timer_rst            <= '0';
+--         internal_cmd_start   <= '0';      
+--      end if;
    -- end of comments for disabling internal commands.
    end if;
    end process;
@@ -637,12 +641,13 @@ i_return_data_cmd : cmd_translator_ret_dat_fsm
       parameter_id_i         => param_id_i,     -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_i            => num_data_i,     -- data_size_i, indicates number of 16-bit words of data
       data_i                 => cmd_data_i,     -- data will be passed straight thru in 16-bit words
-      data_clk_i                 => data_clk_i,                          -- for clocking out the data
+      data_clk_i             => data_clk_i,                          -- for clocking out the data
       cmd_code_i             => cmd_code_i,
       
       -- ret_dat_wbs interface:
       start_seq_num_i        => start_seq_num_i,
       stop_seq_num_i         => stop_seq_num_i, 
+      data_rate_i            => data_rate_i,
 
       -- other inputs
       sync_pulse_i           => sync_pulse_i,
@@ -658,7 +663,7 @@ i_return_data_cmd : cmd_translator_ret_dat_fsm
       parameter_id_o         => ret_dat_cmd_parameter_id, -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o            => ret_dat_cmd_data_size,    -- num_data_i, indicates number of 16-bit words of data
       data_o                 => ret_dat_cmd_data,         -- data will be passed straight thru in 16-bit words
-      data_clk_o                   => ret_dat_cmd_data_clk,     -- for clocking out the data
+      data_clk_o             => ret_dat_cmd_data_clk,     -- for clocking out the data
       macro_instr_rdy_o      => ret_dat_cmd_ack,          -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_o  => ret_dat_fsm_working,    
       cmd_type_o             => ret_dat_cmd_type,         -- this is a re-mapping of the cmd_code into a 3-bit number
