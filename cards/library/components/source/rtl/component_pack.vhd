@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.26 2005/07/04 18:44:57 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.27 2005/07/12 20:31:21 mandana Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.27  2005/07/12 20:31:21  mandana
+-- added fast-to-slow and slow-to-fast clock-domain crosser components
+--
 -- Revision 1.26  2005/07/04 18:44:57  erniel
 -- added one_wire_master
 -- removed obsolete 1-wire modules
@@ -152,9 +155,23 @@ package component_pack is
 
 ------------------------------------------------------------
 --
--- fast2slow_clk_domain_crosser
+-- clock domain crossing modules
 --
 ------------------------------------------------------------  
+
+   component clock_domain_interface
+   generic(DATA_WIDTH : integer := 32);
+   port(rst_i : in std_logic;
+
+        src_clk_i : in std_logic;
+        src_dat_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        src_rdy_i : in std_logic;
+        src_ack_o : out std_logic;
+     
+        dst_clk_i : in std_logic;
+        dst_dat_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        dst_rdy_o : out std_logic);
+   end component;
 
    component fast2slow_clk_domain_crosser
       generic (
@@ -172,13 +189,7 @@ package component_pack is
          output_slow               : out     std_logic                                 -- slow output 
       
       );
-   end component;
-
-------------------------------------------------------------
---
--- slow2fast_clk_domain_crosser
---
-------------------------------------------------------------  
+   end component;  
 
    component slow2fast_clk_domain_crosser
       generic (
@@ -196,6 +207,7 @@ package component_pack is
    
       );
    end component;
+
 
 ------------------------------------------------------------
 --
