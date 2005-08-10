@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.27 2005/07/12 20:31:21 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.28 2005/08/05 21:08:26 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.28  2005/08/05 21:08:26  erniel
+-- added clock domain interface module
+--
 -- Revision 1.27  2005/07/12 20:31:21  mandana
 -- added fast-to-slow and slow-to-fast clock-domain crosser components
 --
@@ -170,7 +173,8 @@ package component_pack is
      
         dst_clk_i : in std_logic;
         dst_dat_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
-        dst_rdy_o : out std_logic);
+        dst_rdy_o : out std_logic;
+        dst_ack_i : in std_logic);
    end component;
 
    component fast2slow_clk_domain_crosser
