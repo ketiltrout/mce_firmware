@@ -36,7 +36,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: clock_domain_interface.vhd,v $
+-- Revision 1.1  2005/08/05 21:08:05  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -55,7 +58,8 @@ port(rst_i : in std_logic;
      
      dst_clk_i : in std_logic;
      dst_dat_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
-     dst_rdy_o : out std_logic);
+     dst_rdy_o : out std_logic;
+     dst_ack_i : in std_logic);
 end clock_domain_interface;
 
 architecture rtl of clock_domain_interface is
@@ -106,22 +110,21 @@ begin
 
    -- convert rdy event to dst_rdy pulse:
 
-   rdy_pulse <= rdy_temp xor rdy_sync2;
-   dst_rdy_o <= rdy_pulse;
+   dst_rdy_o <= rdy_temp xor rdy_sync2;
    
 
    ---------------------------------------------------------
    -- Data Acknowledge Signal Synchronization:
    ---------------------------------------------------------
       
-   -- convert rdy_pulse to ack event:
+   -- convert ack_pulse to ack event:
    
    process(dst_clk_i, rst_i)
    begin
       if(rst_i = '1') then
          ack <= '0';
       elsif(dst_clk_i'event and dst_clk_i = '1') then
-         ack <= (ack and not rdy_pulse) or (not ack and rdy_pulse);
+         ack <= (ack and not dst_ack_i) or (not ack and dst_ack_i);
       end if;
    end process;
    
