@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.28 2005/08/05 21:08:26 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.29 2005/08/10 23:34:21 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.29  2005/08/10 23:34:21  erniel
+-- updated clock_domain_interface component
+--
 -- Revision 1.28  2005/08/05 21:08:26  erniel
 -- added clock domain interface module
 --
@@ -322,7 +325,7 @@ package component_pack is
 
 ------------------------------------------------------------
 --
--- generic counter
+-- generic counters
 --
 ------------------------------------------------------------ 
 
@@ -338,6 +341,44 @@ package component_pack is
         count_i : in integer range 0 to MAX;
         count_o : out integer range 0 to MAX);
    end component;
+
+   component binary_counter
+   generic(WIDTH : integer range 2 to 64 := 8);
+   port(clk_i   : in std_logic;
+        rst_i   : in std_logic;
+        ena_i   : in std_logic;
+        up_i    : in std_logic;
+        load_i  : in std_logic;
+        clear_i : in std_logic;
+        count_i : in std_logic_vector(WIDTH-1 downto 0);
+        count_o : out std_logic_vector(WIDTH-1 downto 0));
+   end component;
+
+   component ring_counter
+   generic(WIDTH : integer range 2 to 64 := 8;
+           MODE  : std_logic := '1');
+   port(clk_i   : in std_logic;
+        rst_i   : in std_logic;
+        ena_i   : in std_logic;
+        up_i    : in std_logic;
+        load_i  : in std_logic;
+        clear_i : in std_logic;
+        count_i : in std_logic_vector(WIDTH-1 downto 0);
+        count_o : out std_logic_vector(WIDTH-1 downto 0));
+   end component;     
+   
+   component grey_counter
+   generic(WIDTH : integer range 2 to 64 := 8);
+   port(clk_i   : in std_logic;
+        rst_i   : in std_logic;
+        ena_i   : in std_logic;
+        up_i    : in std_logic;
+        load_i  : in std_logic;
+        clear_i : in std_logic;
+        count_i : in std_logic_vector(WIDTH-1 downto 0);
+        count_o : out std_logic_vector(WIDTH-1 downto 0));
+   end component;
+
 
 ------------------------------------------------------------
 --
