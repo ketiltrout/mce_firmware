@@ -22,7 +22,7 @@ architecture BEH of TB_CLOCK_DOMAIN_INTERFACE is
    end component;
 
 
-   constant SRC_PERIOD : time := 40 ns;
+   constant SRC_PERIOD : time := 5 ns;
    constant DST_PERIOD : time := 20 ns;
 
    signal W_RST_I       : std_logic ;
