@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.29 2005/08/10 23:34:21 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.30 2005/08/17 20:26:17 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,11 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.30  2005/08/17 20:26:17  erniel
+-- added binary counter
+-- added ring counter
+-- added grey counter
+--
 -- Revision 1.29  2005/08/10 23:34:21  erniel
 -- updated clock_domain_interface component
 --
@@ -397,11 +402,11 @@ package component_pack is
 
 ------------------------------------------------------------
 --
--- generic CRC generator (uses arbitrary CRC polynomial)
+-- generic CRC generators (uses arbitrary CRC polynomial)
 --
 ------------------------------------------------------------ 
 
-   component crc
+   component serial_crc
       generic(POLY_WIDTH : integer := 8);
       port(clk_i  : in std_logic;
            rst_i  : in std_logic;
@@ -410,6 +415,22 @@ package component_pack is
            
            poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
            data_i     : in std_logic;
+           num_bits_i : in integer;
+           done_o     : out std_logic;
+           valid_o    : out std_logic;
+           checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
+   end component;
+
+   component parallel_crc
+      generic(POLY_WIDTH : integer := 8;
+              DATA_WIDTH : integer := 8);
+      port(clk_i  : in std_logic;
+           rst_i  : in std_logic;
+           clr_i  : in std_logic;
+           ena_i  : in std_logic;
+           
+           poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
+           data_i     : in std_logic_vector(DATA_WIDTH downto 1);
            num_bits_i : in integer;
            done_o     : out std_logic;
            valid_o    : out std_logic;
