@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.8 2004/09/09 18:26:14 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.9 2004/09/30 22:34:44 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/09 18:26:14 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/09/30 22:34:44 $>	-		<text>		- <initials $Author: erniel $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.9  2004/09/30 22:34:44  erniel
+-- using new command_pack constants
+--
 -- Revision 1.8  2004/09/09 18:26:14  jjacob
 -- added 3 outputs:
 -- >       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
@@ -72,9 +75,7 @@
 --
 -- 
 -----------------------------------------------------------------------------
-
 -- maybe absorb this file into the top level, there's not much functionality here anymore
-
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -88,52 +89,43 @@ library sys_param;
 use sys_param.command_pack.all;
 
 entity cmd_translator_simple_cmd_fsm is
-
 port(
-
      -- global inputs
-
-      rst_i             : in     std_logic;
-      clk_i             : in     std_logic;
+      rst_i             : in  std_logic;
+      clk_i             : in  std_logic;
 
       -- inputs from cmd_translator top level      
-
-      card_addr_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_i       : in std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_i            : in std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_i        : in std_logic;							                         -- for clocking out the data
-      cmd_code_i        : in std_logic_vector (15 downto 0);
+      card_addr_i       : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_i    : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_i       : in  std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_i            : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
+      data_clk_i        : in  std_logic;							                               -- for clocking out the data
+      cmd_code_i        : in  std_logic_vector (                        15 downto 0);
       
       -- other inputs
-      sync_pulse_i      : in std_logic;
-      cmd_start_i       : in std_logic;
-      cmd_stop_i        : in std_logic;
+      sync_pulse_i      : in  std_logic;
+      cmd_start_i       : in  std_logic;
+      cmd_stop_i        : in  std_logic;
   
       -- outputs to the macro-instruction arbiter
       card_addr_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_o       : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- data will be passed straight thru in 16-bit words
-      data_clk_o        : out std_logic;							                          -- for clocking out the data
-      macro_instr_rdy_o : out std_logic;                                          -- ='1' when the data is valid, else it's '0'
-      cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_o       : out std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_o            : out std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
+      data_clk_o        : out std_logic;							                               -- for clocking out the data
+      macro_instr_rdy_o : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
+      cmd_type_o        : out std_logic_vector (   BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
       
       -- input from the macro-instruction arbiter
-      ack_i             : in std_logic                   -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
-      							 -- not currently used
-
+      ack_i             : in std_logic                                                 -- acknowledgment from the arbiter that it is ready and has grabbed the data
    ); 
      
 end cmd_translator_simple_cmd_fsm;
 
 architecture rtl of cmd_translator_simple_cmd_fsm is
-
 begin
 
-------------------------------------------------------------------------
---
--- 
+------------------------------------------------------------------------ 
 --
 ------------------------------------------------------------------------
 
@@ -154,40 +146,4 @@ begin
       RESET         when x"5253",
       (others=>'1') when others;  -- undefined cmd_type
    
-   
-   
---   process(cmd_start_i, data_size_i, card_addr_i, parameter_id_i,
---           data_i, data_clk_i)
---   begin
---      case cmd_start_i is
---         when '1' =>
---            card_addr_o        <= card_addr_i;
---            parameter_id_o     <= parameter_id_i;
---            data_size_o        <= data_size_i;
---            data_o             <= data_i;
---            data_clk_o         <= data_clk_i;
---            macro_instr_rdy_o  <= '1';
---            
---         when '0' =>
---         
---            card_addr_o        <= (others => '0');
---            parameter_id_o     <= (others => '0');
---            data_size_o        <= (others => '0');
---            data_o             <= (others => '0');
---            data_clk_o         <= '0';
---            macro_instr_rdy_o  <= '0';
---            
---         when others =>
---         
---            card_addr_o        <= (others => '0');
---            parameter_id_o     <= (others => '0');
---            data_size_o        <= (others => '0');
---            data_o             <= (others => '0');
---            data_clk_o         <= '0';
---            macro_instr_rdy_o  <= '0';
---         
---      end case;
---      
---   end process;
-      
 end rtl;
