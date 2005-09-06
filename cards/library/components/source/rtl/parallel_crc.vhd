@@ -30,14 +30,17 @@
 --
 -- Revision history:
 --
--- $Log$
+-- $Log: parallel_crc.vhd,v $
+-- Revision 1.1  2005/08/31 22:36:49  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- Some commonly used CRC polynomials:
 --
 -- poly_i = "00000111"                          CRC-8
@@ -49,7 +52,18 @@ use ieee.std_logic_1164.all;
 -- poly_i = "00000100110000010001110110110111"  CRC-32
 -- poly_i = "00110001"                          Custom (for Maxim DS18S20)
 --
-------------------------------------------------------------------------
+--
+-- A quick note about DATA_WIDTH:
+--
+-- The user can specify different data widths to balance circuit area and 
+-- parallelism.  However, when using different widths, care must be taken 
+-- to ensure that data are input in the correct order, as ordering will 
+-- affect the CRC calculation!  This is especially true if one user uses 
+-- one DATA_WIDTH and another user uses another DATA_WIDTH for the same data.  
+-- To avoid confusion, always input data words LSB first.  This guarantees 
+-- that the same CRC will be calculated regardless of the DATA_WIDTH value.
+--
+-----------------------------------------------------------------------------
 
 entity parallel_crc is
 generic(POLY_WIDTH : integer := 8;
