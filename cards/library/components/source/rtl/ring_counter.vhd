@@ -31,7 +31,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: ring_counter.vhd,v $
+-- Revision 1.1  2005/08/17 20:25:39  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -64,17 +67,17 @@ begin
          count(WIDTH-1) <= '1';
          count(WIDTH-2 downto 0) <= (others => '0');            -- reset counter to "000..01"
       elsif(clk_i'event and clk_i = '1') then
-         if(ena_i = '1') then
+         if(clear_i = '1') then
+            if(up_i = '1') then
+               count(0) <= '1';                                 -- clear the counter value to "000..01" when counting up...
+               count(WIDTH-1 downto 1) <= (others => '0');
+            else
+               count(WIDTH-1) <= '1';                           -- and "100..00" when counting down
+               count(WIDTH-2 downto 0) <= (others => '0');   
+            end if;            
+         elsif(ena_i = '1') then
             if(load_i = '1') then
                count <= count_i;                                -- load new counter value
-            elsif(clear_i = '1') then
-               if(up_i = '1') then
-                  count(0) <= '1';                              -- clear the counter value to "000..01" when counting up...
-                  count(WIDTH-1 downto 1) <= (others => '0');
-               else
-                  count(WIDTH-1) <= '1';                        -- and "100..00" when counting down
-                  count(WIDTH-2 downto 0) <= (others => '0');   
-               end if;
             elsif(up_i = '1') then
                count <= count(WIDTH-2 downto 0) & count_fb;     -- shift bits left when counting up...
             else

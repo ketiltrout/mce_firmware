@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: grey_counter.vhd,v $
+-- Revision 1.1  2005/08/17 20:25:39  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -67,19 +70,19 @@ begin
       if(rst_i = '1') then
          dummy <= '0';                              -- on counter reset, dummy bit to '0'
       elsif(clk_i'event and clk_i = '1') then
-         if(ena_i = '1') then
+         if(clear_i = '1') then
+            if(up_i = '1') then 
+               dummy <= '0';                        -- on counter clear, dummy bit is '0' when counting up...
+            else
+               dummy <= '1';                        -- and '1' when counting down
+            end if;            
+         elsif(ena_i = '1') then
             if(load_i = '1') then
                temp := count_i(0);                  -- on counter load, dummy bit is bitwise xor of input bits
                for i in 1 to WIDTH-1 loop
                   temp := temp xor count_i(i);
                end loop;
                dummy <= temp;
-            elsif(clear_i = '1') then
-               if(up_i = '1') then 
-                  dummy <= '0';                     -- on counter clear, dummy bit is '0' when counting up...
-               else
-                  dummy <= '1';                     -- and '1' when counting down
-               end if;
             else
                dummy <= not dummy;                  -- otherwise, invert dummy bit on each rising edge
             end if;
@@ -91,20 +94,20 @@ begin
    -- equations below handle counter load, counter clear, and counter up/down functionality:
    
    -- bit 0 (LSB):
-   count_d(0) <= not clear_i and ((not load_i and (count_q(0) xor up_i xor dummy)) or (load_i and count_i(0)));   
+   count_d(0) <= (not load_i and (count_q(0) xor up_i xor dummy)) or (load_i and count_i(0));   
    zero(0)    <= '1';
       
       
    -- bits 1 through WIDTH-2:
    bits: for i in 1 to WIDTH-2 generate
    begin
-      count_d(i) <= not clear_i and ((not load_i and (count_q(i) xor (count_q(i-1) and zero(i-1) and not (up_i xor dummy)))) or (load_i and count_i(i)));
+      count_d(i) <= (not load_i and (count_q(i) xor (count_q(i-1) and zero(i-1) and not (up_i xor dummy)))) or (load_i and count_i(i));
       zero(i)    <= zero(i-1) and not count_q(i-1);
    end generate bits;
    
    
    -- bit WIDTH-1 (MSB):
-   count_d(WIDTH-1) <= (not clear_i and ((not load_i and (count_q(WIDTH-1) xor (zero(WIDTH-2) and not (up_i xor dummy)))) or (load_i and count_i(WIDTH-1)))) or (clear_i and not up_i);
+   count_d(WIDTH-1) <= (not load_i and (count_q(WIDTH-1) xor (zero(WIDTH-2) and not (up_i xor dummy)))) or (load_i and count_i(WIDTH-1));
    
    
    -- counter register:
@@ -113,7 +116,14 @@ begin
       if(rst_i = '1') then
          count_q <= (others => '0');                -- reset counter to "000..00"
       elsif(clk_i'event and clk_i = '1') then
-         if(ena_i = '1') then 
+         if(clear_i = '1') then
+            if(up_i = '1') then
+               count_q <= (others => '0');
+            else
+               count_q(WIDTH-1) <= '1';
+               count_q(WIDTH-2 downto 0) <= (others => '0');
+            end if;
+         elsif(ena_i = '1') then 
             count_q <= count_d;                     -- if counter is enabled, update counter
          end if;
       end if;

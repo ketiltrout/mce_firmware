@@ -32,7 +32,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: binary_counter.vhd,v $
+-- Revision 1.1  2005/08/17 20:25:39  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -63,15 +66,15 @@ begin
       if(rst_i = '1') then
          count <= (others => '0');            -- reset counter to "000..00"
       elsif(clk_i'event and clk_i = '1') then
-         if(ena_i = '1') then
+         if(clear_i = '1') then
+            if(up_i = '1') then
+               count <= (others => '0');      -- clear the counter value to "000..00" when counting up...
+            else
+               count <= (others => '1');      -- and "111..11" when counting down
+            end if;
+         elsif(ena_i = '1') then
             if(load_i = '1') then
                count <= count_i;              -- load new counter value
-            elsif(clear_i = '1') then
-               if(up_i = '1') then
-                  count <= (others => '0');   -- clear the counter value to "000..00" when counting up...
-               else
-                  count <= (others => '1');   -- and "111..11" when counting down
-               end if;
             elsif(up_i = '1') then
                count <= count + 1;            -- add 1 to count value when counting up...
             else
