@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: parallel_crc.vhd,v $
+-- Revision 1.2  2005/09/06 21:21:53  erniel
+-- added a comment about DATA_WIDTH parameter
+--
 -- Revision 1.1  2005/08/31 22:36:49  erniel
 -- initial version
 --
@@ -170,14 +173,12 @@ begin
          crc_reg <= (others => '0');
          word_count <= 0;
       elsif(clk_i'event and clk_i = '1') then
-         if(ena_i = '1') then
-            if(clr_i = '1') then
-               crc_reg <= (others => '0');
-               word_count <= 0;
-            else               
-               crc_reg <= crc_temp(DATA_WIDTH);
-               word_count <= word_count + 1;
-            end if;
+         if(clr_i = '1') then
+            crc_reg <= (others => '0');
+            word_count <= 0;
+         elsif(ena_i = '1') then
+            crc_reg <= crc_temp(DATA_WIDTH);
+            word_count <= word_count + 1;
          end if;
       end if;
    end process reg_update;

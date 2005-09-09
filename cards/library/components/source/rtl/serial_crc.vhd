@@ -30,7 +30,10 @@
 --
 -- Revision history:
 --
--- $Log$
+-- $Log: serial_crc.vhd,v $
+-- Revision 1.1  2005/08/31 22:37:34  erniel
+-- renamed from previous version (used to be crc.vhd)
+--
 --
 -- Revision 1.6  2004/08/02 16:02:50  erniel
 -- added comments
@@ -158,14 +161,12 @@ begin
          crc_reg <= (others => '0');
          bit_count <= 0;
       elsif(clk_i'event and clk_i = '1') then
-         if(ena_i = '1') then
-            if(clr_i = '1') then
-               crc_reg <= (others => '0');
-               bit_count <= 0;
-            else               
-               crc_reg <= crc_temp;
-               bit_count <= bit_count + 1;
-            end if;
+         if(clr_i = '1') then
+            crc_reg <= (others => '0');
+            bit_count <= 0;
+         elsif(ena_i = '1') then
+            crc_reg <= crc_temp;
+            bit_count <= bit_count + 1;
          end if;
       end if;
    end process reg_update;
