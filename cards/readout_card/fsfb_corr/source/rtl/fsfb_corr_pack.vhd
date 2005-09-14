@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr_pack.vhd,v 1.4 2005/04/30 01:37:42 bburger Exp $
+-- $Id: fsfb_corr_pack.vhd,v 1.5 2005/05/06 20:06:07 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr_pack.vhd,v $
+-- Revision 1.5  2005/05/06 20:06:07  bburger
+-- Bryce:  Bug Fix.  The fb_max and fb_min constants weren't being initialized properly.  Any integer multiplied by a fraction is zero.
+--
 -- Revision 1.4  2005/04/30 01:37:42  bburger
 -- Bryce:  Added a second multplier and subtractor to the fsfb_corr pipeline to reduce the time required for the flux-jumping calculation.
 --
@@ -59,14 +62,24 @@ package fsfb_corr_pack is
    constant SUB_WIDTH              : integer := 64;
    constant MULT_WIDTH             : integer := 32;
    constant PROD_WIDTH             : integer := 64;
+   
+   -- This is the index of the least significant bit used in the flux-jumping algorithm
+   -- Using a window of this type is equivalent to dividing P, I and D by 2^15.
+   constant LSB_WINDOW_INDEX       : integer := 14;  
 
    constant FSFB_MAX               : integer :=  ((3)*(2**13))/4;
-   constant FSFB_MIN               : integer := -((3)*(2**13))/4;
+   constant FSFB_MIN               : integer := -(((3)*(2**13))/4);
    
-   constant SIGN_XTND_M_POS        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');
-   constant SIGN_XTND_M_NEG        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '1');
-   constant SIGN_XTND_PID_PREV_POS : std_logic_vector(SUB_WIDTH-FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');
-   constant SIGN_XTND_PID_PREV_NEG : std_logic_vector(SUB_WIDTH-FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '1');
+   constant M_MAX                  : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := "01111111";
+   constant M_MIN                  : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := "10000000";
+   
+   constant FSFB_CLAMP_MAX         : std_logic_vector(SUB_WIDTH-1 downto 0) := x"0000000000001FFF";  --  (2^13)-1
+   constant FSFB_CLAMP_MIN         : std_logic_vector(SUB_WIDTH-1 downto 0) := x"FFFFFFFFFFFF2000";  -- -(2^13)
+   
+   constant SIGN_XTND_M_POS        : std_logic_vector(MULT_WIDTH - FLUX_QUANTA_CNT_WIDTH - 1 downto 0) := (others => '0');
+   constant SIGN_XTND_M_NEG        : std_logic_vector(MULT_WIDTH - FLUX_QUANTA_CNT_WIDTH - 1 downto 0) := (others => '1');
+   constant SIGN_XTND_PID_PREV_POS : std_logic_vector(SUB_WIDTH  - FSFB_QUEUE_DATA_WIDTH + LSB_WINDOW_INDEX - 1 downto 0) := (others => '0');
+   constant SIGN_XTND_PID_PREV_NEG : std_logic_vector(SUB_WIDTH  - FSFB_QUEUE_DATA_WIDTH + LSB_WINDOW_INDEX - 1 downto 0) := (others => '1');
 
    component fsfb_corr_multiplier is
       port (
@@ -86,14 +99,14 @@ package fsfb_corr_pack is
 
    function sign_xtnd_m (input : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0)) return std_logic_vector;
 
-   function sign_xtnd_pid_prev (input : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)) return std_logic_vector;
+   function sign_xtnd_pid_prev (input : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0)) return std_logic_vector;
    
 end fsfb_corr_pack;
 
 package body fsfb_corr_pack is
 
    function sign_xtnd_m (input : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0)) return std_logic_vector is
-   variable result : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
+   variable result : std_logic_vector(MULT_WIDTH-1 downto 0);
    begin
       case input(FLUX_QUANTA_CNT_WIDTH-1) is
          when '0' =>    result := SIGN_XTND_M_POS & input;           
@@ -103,10 +116,10 @@ package body fsfb_corr_pack is
       return result;
    end function sign_xtnd_m;
 
-   function sign_xtnd_pid_prev (input : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)) return std_logic_vector is
+   function sign_xtnd_pid_prev (input : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0)) return std_logic_vector is
    variable result : std_logic_vector(SUB_WIDTH-1 downto 0);
    begin
-      case input(FSFB_QUEUE_DATA_WIDTH-1) is
+      case input(input'left) is
          when '0' =>    result := SIGN_XTND_PID_PREV_POS & input;           
          when '1' =>    result := SIGN_XTND_PID_PREV_NEG & input;
          when others => result := (others => '0');

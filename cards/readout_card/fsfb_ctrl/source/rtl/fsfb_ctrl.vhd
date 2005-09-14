@@ -69,6 +69,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.5  2005/02/07 20:46:34  mohsen
+-- Introduced a mux at the input to distinguish between lock mode and other modes.
+-- Only for lock mode we need to keep the sign.
+--
 -- Revision 1.4  2004/12/14 19:59:47  bench2
 -- Fix unused condition
 --
@@ -100,8 +104,8 @@ use work.readout_card_pack.all;
 entity fsfb_ctrl is
   
   generic (
-    CONVERSION_POLARITY_MODE : integer := 0;                 -- a 0 indicates straight polarity in ADC conversion, a 1 indicates reverse polarity
-    FSFB_ACCURACY_POSITION   : integer := DAC_DAT_WIDTH-1);  -- Indicates the position (with 0 the starting point) of MSB in the FSFB data that needs to be used for sending to DAC
+    CONVERSION_POLARITY_MODE : integer := 0);                -- a 0 indicates straight polarity in ADC conversion, a 1 indicates reverse polarity
+    --FSFB_ACCURACY_POSITION   : integer := DAC_DAT_WIDTH-1);  -- Indicates the position (with 0 the starting point) of MSB in the FSFB data that needs to be used for sending to DAC
 
   port (
     -- Global Signals
@@ -112,7 +116,7 @@ entity fsfb_ctrl is
     dac_dat_en_i        : in  std_logic;
 
     -- Upstream fsfb_calc interface
-    fsfb_ctrl_dat_i     : in  std_logic_vector(FSFB_DAT_WIDTH-1 downto 0);
+    fsfb_ctrl_dat_i     : in  std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
     fsfb_ctrl_dat_rdy_i : in  std_logic;
     fsfb_ctrl_lock_en_i : in  std_logic;
 
@@ -127,7 +131,7 @@ end fsfb_ctrl;
 architecture rtl of fsfb_ctrl is
 
   signal fsfb_ctrl_dat        : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-  signal fsfb_ctrl_mux_dat    : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+ -- signal fsfb_ctrl_mux_dat    : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   signal dac_dat              : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   signal fsfb_ctrl_dat_mapped : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   signal latch_dac_dat        : std_logic;
@@ -146,10 +150,10 @@ begin  -- rtl
   -- are interested in the lowest significant 14 bits.
   -----------------------------------------------------------------------------
 
-  with fsfb_ctrl_lock_en_i select
-    fsfb_ctrl_mux_dat <=
-    fsfb_ctrl_dat_i(FSFB_DAT_WIDTH-1) & fsfb_ctrl_dat_i (FSFB_ACCURACY_POSITION-1 downto (FSFB_ACCURACY_POSITION - DAC_DAT_WIDTH +1)) when '1',
-    fsfb_ctrl_dat_i (DAC_DAT_WIDTH-1 downto 0) when others;
+  --with fsfb_ctrl_lock_en_i select
+  --  fsfb_ctrl_mux_dat <=
+  --  fsfb_ctrl_dat_i (FSFB_DAT_WIDTH-1) & fsfb_ctrl_dat_i (FSFB_ACCURACY_POSITION-1 downto (FSFB_ACCURACY_POSITION - DAC_DAT_WIDTH +1)) when '1',
+  --  fsfb_ctrl_dat_i (DAC_DAT_WIDTH-1 downto 0) when others;
   
   i_latch_fsfb_dat: process (clk_50_i, rst_i)
   begin  -- process i_latch_fsfb_dat
@@ -158,7 +162,7 @@ begin  -- rtl
       
     elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
       if fsfb_ctrl_dat_rdy_i='1' then
-        fsfb_ctrl_dat <= fsfb_ctrl_mux_dat;
+        fsfb_ctrl_dat <= fsfb_ctrl_dat_i;
       else
         fsfb_ctrl_dat <= fsfb_ctrl_dat;
       end if;

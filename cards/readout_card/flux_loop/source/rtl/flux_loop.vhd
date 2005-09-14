@@ -21,7 +21,7 @@
 --
 -- flux_loop.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -35,7 +35,10 @@
 -- Revision history:
 --
 --
--- $Log$
+-- $Log: flux_loop.vhd,v $
+-- Revision 1.7  2004/12/04 03:08:24  mohsen
+-- Initial Release
+--
 --
 --
 ------------------------------------------------------------------------
@@ -88,7 +91,7 @@ entity flux_loop is
     cyc_i                   : in std_logic;                                        -- cycle
     dat_frame_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
     ack_frame_o             : out std_logic;                                       -- acknowledge out
-    dat_fb_o 	            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
+    dat_fb_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
     ack_fb_o                : out std_logic;                                       -- acknowledge out
  
     -- ADC interface signals
@@ -271,8 +274,8 @@ architecture struct of flux_loop is
   signal i_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal d_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal d_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal z_dat_ch0             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal z_addr_ch0            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+  signal flux_quanta_dat_ch0   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal flux_quanta_addr_ch0  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_dat_ch0       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch0        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal adc_offset_dat_ch1    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -283,8 +286,8 @@ architecture struct of flux_loop is
   signal i_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal d_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal d_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal z_dat_ch1             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal z_addr_ch1            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+  signal flux_quanta_dat_ch1   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal flux_quanta_addr_ch1  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_dat_ch1       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch1        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal adc_offset_dat_ch2    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -295,8 +298,8 @@ architecture struct of flux_loop is
   signal i_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal d_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal d_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal z_dat_ch2             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal z_addr_ch2            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+  signal flux_quanta_dat_ch2   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal flux_quanta_addr_ch2  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_dat_ch2       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch2        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal adc_offset_dat_ch3    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -307,8 +310,8 @@ architecture struct of flux_loop is
   signal i_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal d_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal d_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal z_dat_ch3             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal z_addr_ch3            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+  signal flux_quanta_dat_ch3   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal flux_quanta_addr_ch3  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_dat_ch3       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch3        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal adc_offset_dat_ch4    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -319,8 +322,8 @@ architecture struct of flux_loop is
   signal i_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal d_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal d_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal z_dat_ch4             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal z_addr_ch4            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+  signal flux_quanta_dat_ch4   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal flux_quanta_addr_ch4  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_dat_ch4       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch4        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal adc_offset_dat_ch5    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -331,8 +334,8 @@ architecture struct of flux_loop is
   signal i_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal d_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal d_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal z_dat_ch5             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal z_addr_ch5            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+  signal flux_quanta_dat_ch5   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal flux_quanta_addr_ch5  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_dat_ch5       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch5        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal adc_offset_dat_ch6    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -343,8 +346,8 @@ architecture struct of flux_loop is
   signal i_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal d_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal d_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal z_dat_ch6             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal z_addr_ch6            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+  signal flux_quanta_dat_ch6   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal flux_quanta_addr_ch6  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_dat_ch6       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch6        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal adc_offset_dat_ch7    : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -355,8 +358,8 @@ architecture struct of flux_loop is
   signal i_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal d_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal d_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
-  signal z_dat_ch7             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal z_addr_ch7            : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
+  signal flux_quanta_dat_ch7   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal flux_quanta_addr_ch7  : std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
   signal sa_bias_dat_ch7       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal offset_dat_ch7        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal filter_coeff0         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -373,6 +376,67 @@ architecture struct of flux_loop is
   signal num_ramp_frame_cycles : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
 
   
+  -- Signals Interface between fsfb_corr and flux_loop_ctrl
+  signal flux_jumping_en           : std_logic;    
+  signal fsfb_ctrl_lock_en         : std_logic;                                             
+  signal num_flux_quanta_pres_rdy  : std_logic;                                             
+  signal fsfb_ctrl_corr_rdy        : std_logic;                                                
+  
+  signal flux_quanta0              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat0            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat0_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr0           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta1              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat1            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat1_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr1           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta2              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat2            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat2_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr2           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta3              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat3            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat3_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr3           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta4              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat4            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat4_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr4           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta5              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat5            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat5_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr5           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta6              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat6            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat6_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr6           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta7              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat7            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat7_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
 
   
 begin  -- struct
@@ -384,8 +448,7 @@ begin  -- struct
   -----------------------------------------------------------------------------
 
   i_flux_loop_ctrl_ch0: flux_loop_ctrl
-
-    port map (
+     port map (
         adc_dat_i                 => adc_dat_ch0_i,
         adc_ovr_i                 => adc_ovr_ch0_i,
         adc_rdy_i                 => adc_rdy_ch0_i,
@@ -424,8 +487,8 @@ begin  -- struct
         i_dat_i                   => i_dat_ch0,
         d_addr_o                  => d_addr_ch0,
         d_dat_i                   => d_dat_ch0,
-        z_addr_o                  => z_addr_ch0,
-        z_dat_i                   => z_dat_ch0,
+        flux_quanta_addr_o        => flux_quanta_addr_ch0,
+        flux_quanta_dat_i         => flux_quanta_dat_ch0,
         sa_bias_dat_i             => sa_bias_dat_ch0,
         offset_dat_i              => offset_dat_ch0,
         filter_coeff0_i           => filter_coeff0,
@@ -441,8 +504,19 @@ begin  -- struct
         offset_dac_spi_o          => offset_dac_spi_ch0_o,
         fsfb_fltr_dat_rdy_o       => open,
         fsfb_fltr_dat_o           => open,
-        fsfb_ctrl_dat_rdy_o       => open,
-        fsfb_ctrl_dat_o           => open);
+        
+        --  fsfb_corr interface
+        flux_jumping_en_i           => flux_jumping_en,
+        fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en,   
+        flux_quanta_o               => flux_quanta0,   
+        fsfb_ctrl_dat_o             => fsfb_ctrl_dat0,   
+        fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat0_rdy,      
+        num_flux_quanta_prev_o      => num_flux_quanta_prev0,   
+        num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
+        num_flux_quanta_pres_i      => num_flux_quanta_pres0,   
+        fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
+        fsfb_ctrl_dat_i             => fsfb_ctrl_corr0         
+     );
 
   
   i_flux_loop_ctrl_ch1 : flux_loop_ctrl
@@ -485,8 +559,8 @@ begin  -- struct
         i_dat_i                   => i_dat_ch1,
         d_addr_o                  => d_addr_ch1,
         d_dat_i                   => d_dat_ch1,
-        z_addr_o                  => z_addr_ch1,
-        z_dat_i                   => z_dat_ch1,
+        flux_quanta_addr_o        => flux_quanta_addr_ch1,
+        flux_quanta_dat_i         => flux_quanta_dat_ch1,
         sa_bias_dat_i             => sa_bias_dat_ch1,
         offset_dat_i              => offset_dat_ch1,
         filter_coeff0_i           => filter_coeff0,
@@ -502,8 +576,19 @@ begin  -- struct
         offset_dac_spi_o          => offset_dac_spi_ch1_o,
         fsfb_fltr_dat_rdy_o       => open,
         fsfb_fltr_dat_o           => open,
-        fsfb_ctrl_dat_rdy_o       => open,
-        fsfb_ctrl_dat_o           => open);
+        
+        --  fsfb_corr interface
+        flux_jumping_en_i           => flux_jumping_en,
+        fsfb_ctrl_lock_en_o         => open,   
+        flux_quanta_o               => flux_quanta1,   
+        fsfb_ctrl_dat_o             => fsfb_ctrl_dat1,   
+        fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat1_rdy,      
+        num_flux_quanta_prev_o      => num_flux_quanta_prev1,   
+        num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
+        num_flux_quanta_pres_i      => num_flux_quanta_pres1,   
+        fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
+        fsfb_ctrl_dat_i             => fsfb_ctrl_corr1         
+     );
 
 
   i_flux_loop_ctrl_ch2 : flux_loop_ctrl
@@ -547,8 +632,8 @@ begin  -- struct
         i_dat_i                   => i_dat_ch2,
         d_addr_o                  => d_addr_ch2,
         d_dat_i                   => d_dat_ch2,
-        z_addr_o                  => z_addr_ch2,
-        z_dat_i                   => z_dat_ch2,
+        flux_quanta_addr_o        => flux_quanta_addr_ch2,
+        flux_quanta_dat_i         => flux_quanta_dat_ch2,
         sa_bias_dat_i             => sa_bias_dat_ch2,
         offset_dat_i              => offset_dat_ch2,
         filter_coeff0_i           => filter_coeff0,
@@ -564,8 +649,19 @@ begin  -- struct
         offset_dac_spi_o          => offset_dac_spi_ch2_o,
         fsfb_fltr_dat_rdy_o       => open,
         fsfb_fltr_dat_o           => open,
-        fsfb_ctrl_dat_rdy_o       => open,
-        fsfb_ctrl_dat_o           => open);
+        
+        --  fsfb_corr interface
+        flux_jumping_en_i           => flux_jumping_en,
+        fsfb_ctrl_lock_en_o         => open,   
+        flux_quanta_o               => flux_quanta2,   
+        fsfb_ctrl_dat_o             => fsfb_ctrl_dat2,   
+        fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat2_rdy,      
+        num_flux_quanta_prev_o      => num_flux_quanta_prev2,   
+        num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
+        num_flux_quanta_pres_i      => num_flux_quanta_pres2,   
+        fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
+        fsfb_ctrl_dat_i             => fsfb_ctrl_corr2         
+     );
 
   
   i_flux_loop_ctrl_ch3 : flux_loop_ctrl
@@ -609,8 +705,8 @@ begin  -- struct
         i_dat_i                   => i_dat_ch3,
         d_addr_o                  => d_addr_ch3,
         d_dat_i                   => d_dat_ch3,
-        z_addr_o                  => z_addr_ch3,
-        z_dat_i                   => z_dat_ch3,
+        flux_quanta_addr_o        => flux_quanta_addr_ch3,
+        flux_quanta_dat_i         => flux_quanta_dat_ch3,
         sa_bias_dat_i             => sa_bias_dat_ch3,
         offset_dat_i              => offset_dat_ch3,
         filter_coeff0_i           => filter_coeff0,
@@ -626,8 +722,19 @@ begin  -- struct
         offset_dac_spi_o          => offset_dac_spi_ch3_o,
         fsfb_fltr_dat_rdy_o       => open,
         fsfb_fltr_dat_o           => open,
-        fsfb_ctrl_dat_rdy_o       => open,
-        fsfb_ctrl_dat_o           => open);
+        
+        --  fsfb_corr interface
+        flux_jumping_en_i           => flux_jumping_en,
+        fsfb_ctrl_lock_en_o         => open,   
+        flux_quanta_o               => flux_quanta3,   
+        fsfb_ctrl_dat_o             => fsfb_ctrl_dat3,   
+        fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat3_rdy,      
+        num_flux_quanta_prev_o      => num_flux_quanta_prev3,   
+        num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
+        num_flux_quanta_pres_i      => num_flux_quanta_pres3,   
+        fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
+        fsfb_ctrl_dat_i             => fsfb_ctrl_corr3         
+     );
 
   
   i_flux_loop_ctrl_ch4 : flux_loop_ctrl
@@ -671,8 +778,8 @@ begin  -- struct
         i_dat_i                   => i_dat_ch4,
         d_addr_o                  => d_addr_ch4,
         d_dat_i                   => d_dat_ch4,
-        z_addr_o                  => z_addr_ch4,
-        z_dat_i                   => z_dat_ch4,
+        flux_quanta_addr_o        => flux_quanta_addr_ch4,
+        flux_quanta_dat_i         => flux_quanta_dat_ch4,
         sa_bias_dat_i             => sa_bias_dat_ch4,
         offset_dat_i              => offset_dat_ch4,
         filter_coeff0_i           => filter_coeff0,
@@ -688,8 +795,19 @@ begin  -- struct
         offset_dac_spi_o          => offset_dac_spi_ch4_o,
         fsfb_fltr_dat_rdy_o       => open,
         fsfb_fltr_dat_o           => open,
-        fsfb_ctrl_dat_rdy_o       => open,
-        fsfb_ctrl_dat_o           => open);
+        
+        --  fsfb_corr interface
+        flux_jumping_en_i           => flux_jumping_en,
+        fsfb_ctrl_lock_en_o         => open,   
+        flux_quanta_o               => flux_quanta4,   
+        fsfb_ctrl_dat_o             => fsfb_ctrl_dat4,   
+        fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat4_rdy,      
+        num_flux_quanta_prev_o      => num_flux_quanta_prev4,   
+        num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
+        num_flux_quanta_pres_i      => num_flux_quanta_pres4,   
+        fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
+        fsfb_ctrl_dat_i             => fsfb_ctrl_corr4         
+     );
 
   
   i_flux_loop_ctrl_ch5 : flux_loop_ctrl
@@ -733,8 +851,8 @@ begin  -- struct
         i_dat_i                   => i_dat_ch5,
         d_addr_o                  => d_addr_ch5,
         d_dat_i                   => d_dat_ch5,
-        z_addr_o                  => z_addr_ch5,
-        z_dat_i                   => z_dat_ch5,
+        flux_quanta_addr_o        => flux_quanta_addr_ch5,
+        flux_quanta_dat_i         => flux_quanta_dat_ch5,
         sa_bias_dat_i             => sa_bias_dat_ch5,
         offset_dat_i              => offset_dat_ch5,
         filter_coeff0_i           => filter_coeff0,
@@ -750,8 +868,19 @@ begin  -- struct
         offset_dac_spi_o          => offset_dac_spi_ch5_o,
         fsfb_fltr_dat_rdy_o       => open,
         fsfb_fltr_dat_o           => open,
-        fsfb_ctrl_dat_rdy_o       => open,
-        fsfb_ctrl_dat_o           => open);
+        
+        --  fsfb_corr interface
+        flux_jumping_en_i           => flux_jumping_en,
+        fsfb_ctrl_lock_en_o         => open,   
+        flux_quanta_o               => flux_quanta5,   
+        fsfb_ctrl_dat_o             => fsfb_ctrl_dat5,   
+        fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat5_rdy,      
+        num_flux_quanta_prev_o      => num_flux_quanta_prev5,   
+        num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
+        num_flux_quanta_pres_i      => num_flux_quanta_pres5,   
+        fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
+        fsfb_ctrl_dat_i             => fsfb_ctrl_corr5         
+     );
 
   
   i_flux_loop_ctrl_ch6 : flux_loop_ctrl
@@ -795,8 +924,8 @@ begin  -- struct
         i_dat_i                   => i_dat_ch6,
         d_addr_o                  => d_addr_ch6,
         d_dat_i                   => d_dat_ch6,
-        z_addr_o                  => z_addr_ch6,
-        z_dat_i                   => z_dat_ch6,
+        flux_quanta_addr_o        => flux_quanta_addr_ch6,
+        flux_quanta_dat_i         => flux_quanta_dat_ch6,
         sa_bias_dat_i             => sa_bias_dat_ch6,
         offset_dat_i              => offset_dat_ch6,
         filter_coeff0_i           => filter_coeff0,
@@ -812,8 +941,19 @@ begin  -- struct
         offset_dac_spi_o          => offset_dac_spi_ch6_o,
         fsfb_fltr_dat_rdy_o       => open,
         fsfb_fltr_dat_o           => open,
-        fsfb_ctrl_dat_rdy_o       => open,
-        fsfb_ctrl_dat_o           => open);
+        
+        --  fsfb_corr interface
+        flux_jumping_en_i           => flux_jumping_en,
+        fsfb_ctrl_lock_en_o         => open,   
+        flux_quanta_o               => flux_quanta6,   
+        fsfb_ctrl_dat_o             => fsfb_ctrl_dat6,   
+        fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat6_rdy,      
+        num_flux_quanta_prev_o      => num_flux_quanta_prev6,   
+        num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
+        num_flux_quanta_pres_i      => num_flux_quanta_pres6,   
+        fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
+        fsfb_ctrl_dat_i             => fsfb_ctrl_corr6         
+     );
 
   
   i_flux_loop_ctrl_ch7 : flux_loop_ctrl
@@ -857,8 +997,8 @@ begin  -- struct
         i_dat_i                   => i_dat_ch7,
         d_addr_o                  => d_addr_ch7,
         d_dat_i                   => d_dat_ch7,
-        z_addr_o                  => z_addr_ch7,
-        z_dat_i                   => z_dat_ch7,
+        flux_quanta_addr_o        => flux_quanta_addr_ch7,
+        flux_quanta_dat_i         => flux_quanta_dat_ch7,
         sa_bias_dat_i             => sa_bias_dat_ch7,
         offset_dat_i              => offset_dat_ch7,
         filter_coeff0_i           => filter_coeff0,
@@ -874,8 +1014,93 @@ begin  -- struct
         offset_dac_spi_o          => offset_dac_spi_ch7_o,
         fsfb_fltr_dat_rdy_o       => open,
         fsfb_fltr_dat_o           => open,
-        fsfb_ctrl_dat_rdy_o       => open,
-        fsfb_ctrl_dat_o           => open);
+        
+        --  fsfb_corr interface
+        flux_jumping_en_i           => flux_jumping_en,
+        fsfb_ctrl_lock_en_o         => open,   
+        flux_quanta_o               => flux_quanta7,   
+        fsfb_ctrl_dat_o             => fsfb_ctrl_dat7,   
+        fsfb_ctrl_dat_rdy_o         => fsfb_ctrl_dat7_rdy,      
+        num_flux_quanta_prev_o      => num_flux_quanta_prev7,   
+        num_flux_quanta_pres_rdy_i  => num_flux_quanta_pres_rdy,   
+        num_flux_quanta_pres_i      => num_flux_quanta_pres7,   
+        fsfb_ctrl_dat_rdy_i         => fsfb_ctrl_corr_rdy,   
+        fsfb_ctrl_dat_i             => fsfb_ctrl_corr7         
+     );
+
+
+  -----------------------------------------------------------------------------
+  -- Instantiation of fsfb_corr
+  -----------------------------------------------------------------------------
+  
+  i_fsfb_corr: fsfb_corr
+    port map (
+      -- fsfb_calc interface
+      flux_jumping_en_i          => flux_jumping_en,
+      fsfb_ctrl_lock_en_i        => fsfb_ctrl_lock_en,
+      
+      flux_quanta0_i             => flux_quanta0,
+      flux_quanta1_i             => flux_quanta1,
+      flux_quanta2_i             => flux_quanta2,
+      flux_quanta3_i             => flux_quanta3,
+      flux_quanta4_i             => flux_quanta4,
+      flux_quanta5_i             => flux_quanta5,
+      flux_quanta6_i             => flux_quanta6,
+      flux_quanta7_i             => flux_quanta7,
+      
+      num_flux_quanta_prev0_i    => num_flux_quanta_prev0,
+      num_flux_quanta_prev1_i    => num_flux_quanta_prev1,
+      num_flux_quanta_prev2_i    => num_flux_quanta_prev2,
+      num_flux_quanta_prev3_i    => num_flux_quanta_prev3,
+      num_flux_quanta_prev4_i    => num_flux_quanta_prev4,
+      num_flux_quanta_prev5_i    => num_flux_quanta_prev5,
+      num_flux_quanta_prev6_i    => num_flux_quanta_prev6,
+      num_flux_quanta_prev7_i    => num_flux_quanta_prev7,
+      
+      fsfb_ctrl_dat0_i           => fsfb_ctrl_dat0,
+      fsfb_ctrl_dat1_i           => fsfb_ctrl_dat1,
+      fsfb_ctrl_dat2_i           => fsfb_ctrl_dat2,
+      fsfb_ctrl_dat3_i           => fsfb_ctrl_dat3,
+      fsfb_ctrl_dat4_i           => fsfb_ctrl_dat4,
+      fsfb_ctrl_dat5_i           => fsfb_ctrl_dat5,
+      fsfb_ctrl_dat6_i           => fsfb_ctrl_dat6,
+      fsfb_ctrl_dat7_i           => fsfb_ctrl_dat7,
+      
+      fsfb_ctrl_dat_rdy0_i       => fsfb_ctrl_dat0_rdy,
+      fsfb_ctrl_dat_rdy1_i       => fsfb_ctrl_dat1_rdy,
+      fsfb_ctrl_dat_rdy2_i       => fsfb_ctrl_dat2_rdy,
+      fsfb_ctrl_dat_rdy3_i       => fsfb_ctrl_dat3_rdy,
+      fsfb_ctrl_dat_rdy4_i       => fsfb_ctrl_dat4_rdy,
+      fsfb_ctrl_dat_rdy5_i       => fsfb_ctrl_dat5_rdy,
+      fsfb_ctrl_dat_rdy6_i       => fsfb_ctrl_dat6_rdy,
+      fsfb_ctrl_dat_rdy7_i       => fsfb_ctrl_dat7_rdy,
+      
+      num_flux_quanta_pres0_o    => num_flux_quanta_pres0,
+      num_flux_quanta_pres1_o    => num_flux_quanta_pres1,
+      num_flux_quanta_pres2_o    => num_flux_quanta_pres2,
+      num_flux_quanta_pres3_o    => num_flux_quanta_pres3,
+      num_flux_quanta_pres4_o    => num_flux_quanta_pres4,
+      num_flux_quanta_pres5_o    => num_flux_quanta_pres5,
+      num_flux_quanta_pres6_o    => num_flux_quanta_pres6,
+      num_flux_quanta_pres7_o    => num_flux_quanta_pres7,
+      
+      num_flux_quanta_pres_rdy_o => num_flux_quanta_pres_rdy,
+      
+      -- fsfb_ctrl interface
+      fsfb_ctrl_dat0_o           => fsfb_ctrl_corr0,
+      fsfb_ctrl_dat1_o           => fsfb_ctrl_corr1,
+      fsfb_ctrl_dat2_o           => fsfb_ctrl_corr2,
+      fsfb_ctrl_dat3_o           => fsfb_ctrl_corr3,
+      fsfb_ctrl_dat4_o           => fsfb_ctrl_corr4,
+      fsfb_ctrl_dat5_o           => fsfb_ctrl_corr5,
+      fsfb_ctrl_dat6_o           => fsfb_ctrl_corr6,
+      fsfb_ctrl_dat7_o           => fsfb_ctrl_corr7,
+      fsfb_ctrl_dat_rdy_o        => fsfb_ctrl_corr_rdy,
+      
+      -- Global Signals      
+      clk_i                      => clk_50_i,
+      rst_i                      => rst_i
+    );
 
 
   -----------------------------------------------------------------------------
@@ -991,8 +1216,8 @@ begin  -- struct
         i_addr_ch0_i            => i_addr_ch0,
         d_dat_ch0_o             => d_dat_ch0,
         d_addr_ch0_i            => d_addr_ch0,
-        z_dat_ch0_o             => z_dat_ch0,
-        z_addr_ch0_i            => z_addr_ch0,
+        flux_quanta_dat_ch0_o   => flux_quanta_dat_ch0,
+        flux_quanta_addr_ch0_i  => flux_quanta_addr_ch0,
         sa_bias_ch0_o           => sa_bias_dat_ch0,
         offset_dat_ch0_o        => offset_dat_ch0,
         adc_offset_dat_ch1_o    => adc_offset_dat_ch1,
@@ -1003,8 +1228,8 @@ begin  -- struct
         i_addr_ch1_i            => i_addr_ch1,
         d_dat_ch1_o             => d_dat_ch1,
         d_addr_ch1_i            => d_addr_ch1,
-        z_dat_ch1_o             => z_dat_ch1,
-        z_addr_ch1_i            => z_addr_ch1,
+        flux_quanta_dat_ch1_o   => flux_quanta_dat_ch1,
+        flux_quanta_addr_ch1_i  => flux_quanta_addr_ch1,
         sa_bias_ch1_o           => sa_bias_dat_ch1,
         offset_dat_ch1_o        => offset_dat_ch1,
         adc_offset_dat_ch2_o    => adc_offset_dat_ch2,
@@ -1015,8 +1240,8 @@ begin  -- struct
         i_addr_ch2_i            => i_addr_ch2,
         d_dat_ch2_o             => d_dat_ch2,
         d_addr_ch2_i            => d_addr_ch2,
-        z_dat_ch2_o             => z_dat_ch2,
-        z_addr_ch2_i            => z_addr_ch2,
+        flux_quanta_dat_ch2_o   => flux_quanta_dat_ch2,
+        flux_quanta_addr_ch2_i  => flux_quanta_addr_ch2,
         sa_bias_ch2_o           => sa_bias_dat_ch2,
         offset_dat_ch2_o        => offset_dat_ch2,
         adc_offset_dat_ch3_o    => adc_offset_dat_ch3,
@@ -1027,8 +1252,8 @@ begin  -- struct
         i_addr_ch3_i            => i_addr_ch3,
         d_dat_ch3_o             => d_dat_ch3,
         d_addr_ch3_i            => d_addr_ch3,
-        z_dat_ch3_o             => z_dat_ch3,
-        z_addr_ch3_i            => z_addr_ch3,
+        flux_quanta_dat_ch3_o   => flux_quanta_dat_ch3,
+        flux_quanta_addr_ch3_i  => flux_quanta_addr_ch3,
         sa_bias_ch3_o           => sa_bias_dat_ch3,
         offset_dat_ch3_o        => offset_dat_ch3,
         adc_offset_dat_ch4_o    => adc_offset_dat_ch4,
@@ -1039,8 +1264,8 @@ begin  -- struct
         i_addr_ch4_i            => i_addr_ch4,
         d_dat_ch4_o             => d_dat_ch4,
         d_addr_ch4_i            => d_addr_ch4,
-        z_dat_ch4_o             => z_dat_ch4,
-        z_addr_ch4_i            => z_addr_ch4,
+        flux_quanta_dat_ch4_o   => flux_quanta_dat_ch4,
+        flux_quanta_addr_ch4_i  => flux_quanta_addr_ch4,
         sa_bias_ch4_o           => sa_bias_dat_ch4,
         offset_dat_ch4_o        => offset_dat_ch4,
         adc_offset_dat_ch5_o    => adc_offset_dat_ch5,
@@ -1051,8 +1276,8 @@ begin  -- struct
         i_addr_ch5_i            => i_addr_ch5,
         d_dat_ch5_o             => d_dat_ch5,
         d_addr_ch5_i            => d_addr_ch5,
-        z_dat_ch5_o             => z_dat_ch5,
-        z_addr_ch5_i            => z_addr_ch5,
+        flux_quanta_dat_ch5_o    => flux_quanta_dat_ch5,
+        flux_quanta_addr_ch5_i   => flux_quanta_addr_ch5,
         sa_bias_ch5_o           => sa_bias_dat_ch5,
         offset_dat_ch5_o        => offset_dat_ch5,
         adc_offset_dat_ch6_o    => adc_offset_dat_ch6,
@@ -1063,8 +1288,8 @@ begin  -- struct
         i_addr_ch6_i            => i_addr_ch6,
         d_dat_ch6_o             => d_dat_ch6,
         d_addr_ch6_i            => d_addr_ch6,
-        z_dat_ch6_o             => z_dat_ch6,
-        z_addr_ch6_i            => z_addr_ch6,
+        flux_quanta_dat_ch6_o   => flux_quanta_dat_ch6,
+        flux_quanta_addr_ch6_i  => flux_quanta_addr_ch6,
         sa_bias_ch6_o           => sa_bias_dat_ch6,
         offset_dat_ch6_o        => offset_dat_ch6,
         adc_offset_dat_ch7_o    => adc_offset_dat_ch7,
@@ -1075,8 +1300,8 @@ begin  -- struct
         i_addr_ch7_i            => i_addr_ch7,
         d_dat_ch7_o             => d_dat_ch7,
         d_addr_ch7_i            => d_addr_ch7,
-        z_dat_ch7_o             => z_dat_ch7,
-        z_addr_ch7_i            => z_addr_ch7,
+        flux_quanta_dat_ch7_o   => flux_quanta_dat_ch7,
+        flux_quanta_addr_ch7_i  => flux_quanta_addr_ch7,
         sa_bias_ch7_o           => sa_bias_dat_ch7,
         offset_dat_ch7_o        => offset_dat_ch7,
         filter_coeff0_o         => filter_coeff0,
@@ -1091,6 +1316,7 @@ begin  -- struct
         ramp_amp_o              => ramp_amp,
         const_val_o             => const_val,
         num_ramp_frame_cycles_o => num_ramp_frame_cycles,
+        flux_jumping_en_o       => flux_jumping_en,
         dat_i                   => dat_i,
         addr_i                  => addr_i,
         tga_i                   => tga_i,

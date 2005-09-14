@@ -21,7 +21,7 @@
 --
 -- misc_banks_admin.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.4  2005/01/11 01:49:35  mohsen
+-- Anthony & Mohse: Got rid of calculation in the wren to help solve timing violations
+--
 -- Revision 1.3  2004/12/04 03:12:19  mohsen
 -- Corrected error in tga index
 --
@@ -201,6 +204,7 @@ entity misc_banks_admin is
     ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           
     const_val_o             : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
+    flux_jumping_en_o       : out std_logic;
 
     
     -- signals to/from dispatch  (wishbone interface)
@@ -225,8 +229,8 @@ end misc_banks_admin;
 
 architecture rtl of misc_banks_admin is
 
-  constant MISC_BANK_MAX_RANGE     : integer := 28;   -- Maximum number of parameters in the Miscellanous bank
   constant FILTER_INDEX_OFFSET     : integer := 0;    -- Index of filter_coeff in array register
+  constant MAX_BIT_TAG             : integer := 3;    -- The number of bits used in tga_i to count up to the maximum number of values for each parameters
   constant SERVO_INDEX_OFFSET      : integer := 7;    -- Index of servo_mode in array register
   constant RAMP_STEP_INDEX_OFFSET  : integer := 8;    -- Index of ramp_step_size in array register
   constant RAMP_AMP_INDEX_OFFSET   : integer := 9;    -- Index of ramp_amp in array register
@@ -234,8 +238,10 @@ architecture rtl of misc_banks_admin is
   constant NUM_RAM_INDEX_OFFSET    : integer := 11;   -- Index of num_ramp_frame_cycles in array register
   constant SA_BIAS_INDEX_OFFSET    : integer := 12;   -- Index of sa_bias in array register
   constant OFFSET_DAT_INDEX_OFFSET : integer := 20;   -- Index of offset_dat in array register
-  constant MAX_BIT_TAG             : integer := 3;    -- The number of bits used in tga_i to count up to the maximum number of values for each parameters
+  constant EN_FB_JUMP_OFFSET       : integer := 28;   -- Index of enable flag for the flux-jumping block
+  constant MISC_BANK_MAX_RANGE     : integer := 29;   -- Maximum number of parameters in the Miscellanous bank
   
+  constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
 
   -----------------------------------------------------------------------------
   -- Registers for each value
@@ -280,7 +286,11 @@ begin  -- rtl
     i_reg: process (clk_50_i, rst_i)
     begin  -- process i_reg
       if rst_i = '1' then               -- asynchronous reset (active high)
-        reg(i) <= (others => '0');
+        if(i = EN_FB_JUMP_OFFSET) then
+          reg(i) <= (others => '1');
+        else
+          reg(i) <= (others => '0');
+        end if;
       elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
         if wren(i)='1' then
           reg(i) <= dat_i;
@@ -334,6 +344,8 @@ begin  -- rtl
         wren(CONST_VAL_INDEX_OFFSET) <= we_i;
       when RAMP_DLY_ADDR =>
         wren(NUM_RAM_INDEX_OFFSET) <= we_i;
+      when EN_FB_JUMP_ADDR =>
+        wren(EN_FB_JUMP_OFFSET) <= we_i;
 
       when SA_BIAS_ADDR =>
         case tga_i(MAX_BIT_TAG-1 downto 0) is
@@ -372,7 +384,7 @@ begin  -- rtl
     ack_read_misc_bank <=
     (stb_i and cyc_i) when FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                            RAMP_AMP_ADDR | FB_CONST_ADDR | RAMP_DLY_ADDR |
-                           SA_BIAS_ADDR |  OFFSET_ADDR,
+                           SA_BIAS_ADDR |  OFFSET_ADDR | EN_FB_JUMP_ADDR,
     '0'               when others;
 
   ack_write_misc_bank <= ack_read_misc_bank;
@@ -439,6 +451,7 @@ begin  -- rtl
     reg(NUM_RAM_INDEX_OFFSET)     when RAMP_DLY_ADDR,
     sa_bias                       when SA_BIAS_ADDR,
     offset_dat                    when OFFSET_ADDR,
+    reg(EN_FB_JUMP_OFFSET)        when EN_FB_JUMP_ADDR,
     filter_coeff                  when others;           -- default to first value in bank
   
 
@@ -474,6 +487,7 @@ begin  -- rtl
   offset_dat_ch5_o        <= reg(OFFSET_DAT_INDEX_OFFSET+5);
   offset_dat_ch6_o        <= reg(OFFSET_DAT_INDEX_OFFSET+6);
   offset_dat_ch7_o        <= reg(OFFSET_DAT_INDEX_OFFSET+7);
+  flux_jumping_en_o       <= '0' when reg(EN_FB_JUMP_OFFSET) = ZERO else '1';
 
 
 end rtl;

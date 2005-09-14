@@ -4,7 +4,7 @@
 -- MODULE: alt3pram 
 
 -- ============================================================
--- File Name: fsfb_queue.vhd
+-- File Name: pidz_queue.vhd
 -- Megafunction Name(s):
 -- 			alt3pram
 -- ============================================================
@@ -42,25 +42,25 @@ USE ieee.std_logic_1164.all;
 LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.all;
 
-ENTITY fsfb_queue IS
+ENTITY pidz_queue IS
 	PORT
 	(
-		data		: IN STD_LOGIC_VECTOR (24 DOWNTO 0);
+		data		: IN STD_LOGIC_VECTOR (32 DOWNTO 0);
 		wraddress		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
 		rdaddress_a		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
 		rdaddress_b		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
 		wren		: IN STD_LOGIC  := '1';
 		clock		: IN STD_LOGIC ;
-		qa		: OUT STD_LOGIC_VECTOR (24 DOWNTO 0);
-		qb		: OUT STD_LOGIC_VECTOR (24 DOWNTO 0)
+		qa		: OUT STD_LOGIC_VECTOR (32 DOWNTO 0);
+		qb		: OUT STD_LOGIC_VECTOR (32 DOWNTO 0)
 	);
-END fsfb_queue;
+END pidz_queue;
 
 
-ARCHITECTURE SYN OF fsfb_queue IS
+ARCHITECTURE SYN OF pidz_queue IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (24 DOWNTO 0);
-	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (24 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (32 DOWNTO 0);
+	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (32 DOWNTO 0);
 
 
 
@@ -89,12 +89,12 @@ ARCHITECTURE SYN OF fsfb_queue IS
 		lpm_hint		: STRING
 	);
 	PORT (
-			qa	: OUT STD_LOGIC_VECTOR (24 DOWNTO 0);
+			qa	: OUT STD_LOGIC_VECTOR (32 DOWNTO 0);
 			outclock	: IN STD_LOGIC ;
-			qb	: OUT STD_LOGIC_VECTOR (24 DOWNTO 0);
+			qb	: OUT STD_LOGIC_VECTOR (32 DOWNTO 0);
 			wren	: IN STD_LOGIC ;
 			inclock	: IN STD_LOGIC ;
-			data	: IN STD_LOGIC_VECTOR (24 DOWNTO 0);
+			data	: IN STD_LOGIC_VECTOR (32 DOWNTO 0);
 			rdaddress_a	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
 			wraddress	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
 			rdaddress_b	: IN STD_LOGIC_VECTOR (5 DOWNTO 0)
@@ -102,13 +102,13 @@ ARCHITECTURE SYN OF fsfb_queue IS
 	END COMPONENT;
 
 BEGIN
-	qa    <= sub_wire0(24 DOWNTO 0);
-	qb    <= sub_wire1(24 DOWNTO 0);
+	qa    <= sub_wire0(32 DOWNTO 0);
+	qb    <= sub_wire1(32 DOWNTO 0);
 
 	alt3pram_component : alt3pram
 	GENERIC MAP (
 		intended_device_family => "Stratix",
-		width => 25,
+		width => 33,
 		widthad => 6,
 		indata_reg => "INCLOCK",
 		write_reg => "INCLOCK",
@@ -148,7 +148,7 @@ END SYN;
 -- ============================================================
 -- CNX file retrieval info
 -- ============================================================
--- Retrieval info: PRIVATE: WidthData NUMERIC "25"
+-- Retrieval info: PRIVATE: WidthData NUMERIC "33"
 -- Retrieval info: PRIVATE: WidthAddr NUMERIC "6"
 -- Retrieval info: PRIVATE: Clock NUMERIC "0"
 -- Retrieval info: PRIVATE: rden_a NUMERIC "0"
@@ -180,7 +180,7 @@ END SYN;
 -- Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix"
--- Retrieval info: CONSTANT: WIDTH NUMERIC "25"
+-- Retrieval info: CONSTANT: WIDTH NUMERIC "33"
 -- Retrieval info: CONSTANT: WIDTHAD NUMERIC "6"
 -- Retrieval info: CONSTANT: INDATA_REG STRING "INCLOCK"
 -- Retrieval info: CONSTANT: WRITE_REG STRING "INCLOCK"
@@ -200,17 +200,17 @@ END SYN;
 -- Retrieval info: CONSTANT: OUTDATA_ACLR_B STRING "OFF"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "alt3pram"
 -- Retrieval info: CONSTANT: LPM_HINT STRING "USE_EAB=ON"
--- Retrieval info: USED_PORT: data 0 0 25 0 INPUT NODEFVAL data[24..0]
--- Retrieval info: USED_PORT: qa 0 0 25 0 OUTPUT NODEFVAL qa[24..0]
--- Retrieval info: USED_PORT: qb 0 0 25 0 OUTPUT NODEFVAL qb[24..0]
+-- Retrieval info: USED_PORT: data 0 0 33 0 INPUT NODEFVAL data[32..0]
+-- Retrieval info: USED_PORT: qa 0 0 33 0 OUTPUT NODEFVAL qa[32..0]
+-- Retrieval info: USED_PORT: qb 0 0 33 0 OUTPUT NODEFVAL qb[32..0]
 -- Retrieval info: USED_PORT: wraddress 0 0 6 0 INPUT NODEFVAL wraddress[5..0]
 -- Retrieval info: USED_PORT: rdaddress_a 0 0 6 0 INPUT NODEFVAL rdaddress_a[5..0]
 -- Retrieval info: USED_PORT: rdaddress_b 0 0 6 0 INPUT NODEFVAL rdaddress_b[5..0]
 -- Retrieval info: USED_PORT: wren 0 0 0 0 INPUT VCC wren
 -- Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
--- Retrieval info: CONNECT: @data 0 0 25 0 data 0 0 25 0
--- Retrieval info: CONNECT: qa 0 0 25 0 @qa 0 0 25 0
--- Retrieval info: CONNECT: qb 0 0 25 0 @qb 0 0 25 0
+-- Retrieval info: CONNECT: @data 0 0 33 0 data 0 0 33 0
+-- Retrieval info: CONNECT: qa 0 0 33 0 @qa 0 0 33 0
+-- Retrieval info: CONNECT: qb 0 0 33 0 @qb 0 0 33 0
 -- Retrieval info: CONNECT: @wraddress 0 0 6 0 wraddress 0 0 6 0
 -- Retrieval info: CONNECT: @rdaddress_a 0 0 6 0 rdaddress_a 0 0 6 0
 -- Retrieval info: CONNECT: @rdaddress_b 0 0 6 0 rdaddress_b 0 0 6 0
@@ -218,8 +218,8 @@ END SYN;
 -- Retrieval info: CONNECT: @inclock 0 0 0 0 clock 0 0 0 0
 -- Retrieval info: CONNECT: @outclock 0 0 0 0 clock 0 0 0 0
 -- Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
--- Retrieval info: GEN_FILE: TYPE_NORMAL fsfb_queue.vhd TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL fsfb_queue.inc FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL fsfb_queue.cmp FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL fsfb_queue.bsf FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL fsfb_queue_inst.vhd FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pidz_queue.vhd TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pidz_queue.inc FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pidz_queue.cmp FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pidz_queue.bsf FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pidz_queue_inst.vhd FALSE

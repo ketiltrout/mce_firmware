@@ -57,6 +57,12 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop.vhd,v $
+-- Revision 1.3  2004/12/10 23:57:25  mohsen
+-- Sorted out the size of RAW data read by creating new signal and read procedure.
+-- Completed read and write commands from wbs_frame_data that
+-- created a hang in the test bench to match the new version of
+-- wbs_frame_data that can handle those cases.
+--
 -- Revision 1.2  2004/12/10 00:01:24  mohsen
 -- Added comments
 --
@@ -1286,7 +1292,7 @@ begin  -- beh
 --     write_wbs_data(clk_50_i, ack_fb_o, GAIND0_ADDR, x"00000B00", 41,
 --                       true, 38, dat_fb_i, addr_fb_i, tga_fb_i, we_fb_i, stb_fb_i, cyc_fb_i);
 --     wait for FREE_RUN;
---     write_wbs_data(clk_50_i, ack_fb_o, ZERO0_ADDR, x"0000F000", 41,
+--     write_wbs_data(clk_50_i, ack_fb_o, FLX_QUANTA0_ADDR, x"0000F000", 41,
 --                       false, 0, dat_fb_i, addr_fb_i, tga_fb_i, we_fb_i, stb_fb_i, cyc_fb_i);
 --     wait for FREE_RUN;
 --     write_wbs_data(clk_50_i, ack_fb_o, ADC_OFFSET0_ADDR, x"00100000", 41,
@@ -1303,7 +1309,7 @@ begin  -- beh
 --     read_wbs_data(clk_50_i, ack_fb_o, dat_fb_o, GAIND0_ADDR, 41, 
 --                      false, 0, D_CH0, addr_fb_i, tga_fb_i, we_fb_i, stb_fb_i, cyc_fb_i);                    
 --     wait for FREE_RUN;
---     read_wbs_data(clk_50_i, ack_fb_o, dat_fb_o, ZERO0_ADDR, 41, 
+--     read_wbs_data(clk_50_i, ack_fb_o, dat_fb_o, FLX_QUANTA0_ADDR, 41, 
 --                      false, 0, Z_CH0, addr_fb_i, tga_fb_i, we_fb_i, stb_fb_i, cyc_fb_i);                    
                          
 --     wait for FREE_RUN;
@@ -1326,7 +1332,7 @@ begin  -- beh
     write_wbs_data(clk_50_i, ack_fb_o, GAIND7_ADDR, x"00000B07", 41,
                       true, 38, dat_fb_i, addr_fb_i, tga_fb_i, we_fb_i, stb_fb_i, cyc_fb_i);
     wait for FREE_RUN;
-    write_wbs_data(clk_50_i, ack_fb_o, ZERO7_ADDR, x"0000F007", 41,
+    write_wbs_data(clk_50_i, ack_fb_o, FLX_QUANTA7_ADDR, x"0000F007", 41,
                       false, 0, dat_fb_i, addr_fb_i, tga_fb_i, we_fb_i, stb_fb_i, cyc_fb_i);
     wait for FREE_RUN;
     write_wbs_data(clk_50_i, ack_fb_o, ADC_OFFSET7_ADDR, x"00100007", 41,
@@ -1343,7 +1349,7 @@ begin  -- beh
     read_wbs_data(clk_50_i, ack_fb_o, dat_fb_o, GAIND7_ADDR, 41, 
                      false, 0, D_CH0, addr_fb_i, tga_fb_i, we_fb_i, stb_fb_i, cyc_fb_i);                    
     wait for FREE_RUN;
-    read_wbs_data(clk_50_i, ack_fb_o, dat_fb_o, ZERO7_ADDR, 41, 
+    read_wbs_data(clk_50_i, ack_fb_o, dat_fb_o, FLX_QUANTA7_ADDR, 41, 
                      false, 0, Z_CH0, addr_fb_i, tga_fb_i, we_fb_i, stb_fb_i, cyc_fb_i);                    
                          
     wait for FREE_RUN;
@@ -1578,8 +1584,8 @@ begin  -- beh
           when '0' =>
                                   
             filter_bank0(address_index) <=  conv_std_logic_vector((signed(p_coeff)*signed(coadded_sum)),66) + 
-	                                    conv_std_logic_vector((signed(i_coeff)*signed(integral)), 66) + 
-	                                    conv_std_logic_vector((signed(d_coeff)*signed(difference)), 66) + z_coeff;
+                                       conv_std_logic_vector((signed(i_coeff)*signed(integral)), 66) + 
+                                       conv_std_logic_vector((signed(d_coeff)*signed(difference)), 66) + z_coeff;
  
           when '1' =>
             
@@ -1611,7 +1617,7 @@ begin  -- beh
         case current_bank_ctrl is
            
           when '0' => fltr_reference := filter_bank0(address_index_plus1);
-	  when '1' => fltr_reference := filter_bank1(address_index_plus1);        
+     when '1' => fltr_reference := filter_bank1(address_index_plus1);        
           
           when others => null;
           
@@ -1634,7 +1640,7 @@ begin  -- beh
           if CONVERSION_POLARITY_MODE = 0 then
            
             -- if straight polarity is used in instantiating the fsfb_ctrl and bit
-	    -- 13 down to 0 of input data is used
+       -- 13 down to 0 of input data is used
     
             if ((not dac_reference(13)) & dac_reference(12 downto 0)) /= dac_dat_ch7_o then
               found_dac_error <= true;

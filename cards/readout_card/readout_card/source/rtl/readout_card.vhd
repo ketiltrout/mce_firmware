@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.15  2005/06/23 17:19:32  mohsen
+-- Mandana: added COUNT_MAX to prevent raw_memory bank from wrapping, changed RAW_ADDR_MAX, RAW_DATA_POSITION_POINTER
+--
 -- Revision 1.14  2005/05/09 23:48:51  mohsen
 -- Bryce - v01010006 of the 8-channel readout card with a fix that enables it to sample the sync line in the middle of a clock period.
 --
@@ -197,7 +200,7 @@ port(
   dip_sw4         : in std_logic;
   wdog            : out std_logic;
   slot_id         : in std_logic_vector(3 downto 0);
-  card_id         : in std_logic;
+  card_id         : inout std_logic;
 
   -- Debug ports
   mictor          : out std_logic_vector(31 downto 0)
@@ -214,7 +217,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01010007";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01020001";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
@@ -238,7 +241,6 @@ signal dispatch_lvds_txa       : std_logic;
 signal dispatch_dat_in         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal dispatch_ack_in         : std_logic;
 
-
 -- frame_timing output signals
 signal dac_dat_en              : std_logic;
 signal adc_coadd_en            : std_logic;
@@ -250,14 +252,11 @@ signal row_switch              : std_logic;
 signal dat_ft                  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal ack_ft                  : std_logic;
 
-
-
 -- flux_loop output signals
 signal dat_frame               : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal dat_fb                  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal ack_frame               : std_logic;
 signal ack_fb                  : std_logic;
-
 signal sa_bias_dac_spi_ch0     : std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
 signal sa_bias_dac_spi_ch1     : std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
 signal sa_bias_dac_spi_ch2     : std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
@@ -283,6 +282,9 @@ signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fw_rev_data             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fw_rev_ack              : std_logic;
 
+-- Thermometer signals
+signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal id_thermo_ack     : std_logic;
 
 
 begin
@@ -357,28 +359,27 @@ begin
                              GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
                              GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
                              GAIND6_ADDR | GAIND7_ADDR |
-                             ZERO0_ADDR | ZERO1_ADDR | ZERO2_ADDR | ZERO3_ADDR |
-                             ZERO4_ADDR | ZERO5_ADDR | ZERO6_ADDR | ZERO7_ADDR |
+                             FLX_QUANTA0_ADDR | FLX_QUANTA1_ADDR | FLX_QUANTA2_ADDR | FLX_QUANTA3_ADDR |
+                             FLX_QUANTA4_ADDR | FLX_QUANTA5_ADDR | FLX_QUANTA6_ADDR | FLX_QUANTA7_ADDR |
                              ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
                              ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
                              ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
                              ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
                              FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                              RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                             SA_BIAS_ADDR   | OFFSET_ADDR,
+                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
       dat_frame       when   DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR,
       dat_led         when   LED_ADDR,
       dat_ft          when   ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                              SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
                              RESYNC_ADDR | FLX_LP_INIT_ADDR,
       fw_rev_data     when   FW_REV_ADDR,     
-                            
-    
-     (others => '0') when others;        -- default to zero
+      id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
+      (others => '0') when others;        -- default to zero
 
 
    
-   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or fw_rev_ack;
+   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or fw_rev_ack or id_thermo_ack;
 
  
 
@@ -393,20 +394,21 @@ begin
                             GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
                             GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
                             GAIND6_ADDR | GAIND7_ADDR |
-                            ZERO0_ADDR | ZERO1_ADDR | ZERO2_ADDR | ZERO3_ADDR |
-                            ZERO4_ADDR | ZERO5_ADDR | ZERO6_ADDR | ZERO7_ADDR |
+                            FLX_QUANTA0_ADDR | FLX_QUANTA1_ADDR | FLX_QUANTA2_ADDR | FLX_QUANTA3_ADDR |
+                            FLX_QUANTA4_ADDR | FLX_QUANTA5_ADDR | FLX_QUANTA6_ADDR | FLX_QUANTA7_ADDR |
                             ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
                             ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
                             ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
                             ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR |
                             FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                            SA_BIAS_ADDR   | OFFSET_ADDR |
+                            SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR |
                             DATA_MODE_ADDR | RET_DAT_ADDR | CAPTR_RAW_ADDR |
                             LED_ADDR |
                             ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FW_REV_ADDR,
+                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FW_REV_ADDR |
+                            CARD_ID_ADDR | CARD_TEMP_ADDR,
     
      '1'             when others;        
 
@@ -671,6 +673,7 @@ begin
          power  => grn_led,
          status => ylw_led,
          fault  => red_led);
+
    ----------------------------------------------------------------------------
    -- Firmware Revision Instantition
    ----------------------------------------------------------------------------
@@ -690,6 +693,31 @@ begin
           dat_o  => fw_rev_data,
           ack_o  => fw_rev_ack
      );
+   
+   ----------------------------------------------------------------------------
+   -- Thermometer Instantition
+   ----------------------------------------------------------------------------
+
+   id_thermo0: id_thermo
+      port map(
+         clk_i   => clk,
+         rst_i   => rst,  
+         
+         -- Wishbone signals
+         dat_i   => dispatch_dat_out, 
+         addr_i  => dispatch_addr_out,
+         tga_i   => dispatch_tga_out,
+         we_i    => dispatch_we_out,
+         stb_i   => dispatch_stb_out,
+         cyc_i   => dispatch_cyc_out,
+         dat_o   => id_thermo_data,
+         ack_o   => id_thermo_ack,
+            
+         -- silicon id/temperature chip signals
+         data_io => card_id
+      );
+   
+   
    ----------------------------------------------------------------------------
    -- Mictor Connection
    ----------------------------------------------------------------------------

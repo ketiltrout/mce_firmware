@@ -21,7 +21,7 @@
 --
 -- fsfb_processor.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Anthony Ko
 -- Organisation:  UBC
 --
@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.4  2005/03/18 01:25:58  mohsen
+-- Free up the constant mode from the need for adc_sample_coadd signal to be programmed.
+--
 -- Revision 1.3  2004/11/26 18:26:45  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -58,16 +61,18 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library work;
 use work.fsfb_calc_pack.all;
-
 use work.flux_loop_ctrl_pack.all;
 use work.flux_loop_pack.all;
+use work.fsfb_corr_pack.all;
 
 entity fsfb_processor is
    generic (
-      lock_dat_left           : integer := 30                                                 -- most significant bit position of lock mode data output
+      lock_dat_left           : integer := 30                                                 -- most significant bit position of lock mode data output, 
+                                                                                              -- valid range: min = FSFB_QUEUE_DATA_WIDTH-2, max = 2*COADD_QUEUE_DATA_WIDTH
       );
 
    port (
@@ -99,13 +104,14 @@ entity fsfb_processor is
       p_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- P,I,D,Z coefficients 
       i_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
       d_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-      z_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+      --flux_quanta_dat_i       : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
    
       -- First stage feedback queue interface (write operation to current queue)
       fsfb_proc_update_o      : out    std_logic;                                             -- update pulse to the current fsfb_queue
       fsfb_proc_dat_o         : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);      -- new data to be written to the current fsfb_queue
       
       -- First stage feedback control interface 
+      flux_jumping_en_i       : in     std_logic;
       fsfb_proc_lock_en_o     : out    std_logic                                              -- fsfb_ctrl lock data mode enable
   
       );
@@ -126,21 +132,26 @@ use work.flux_loop_pack.all;
 architecture rtl of fsfb_processor is
 
    -- constant declarations
-   constant ZEROES            : std_logic_vector := "0000000000000000";
+   constant ZEROES             : std_logic_vector   := "00000000000000000000000";
 
    -- internal signal declarations
-   signal const_mode_en       : std_logic;                                                    -- constant mode enable
-   signal ramp_mode_en        : std_logic;                                                    -- ramp mode enable
-   signal lock_mode_en        : std_logic;                                                    -- lock mode enable
+   signal const_mode_en        : std_logic;                                                    -- constant mode enable
+   signal ramp_mode_en         : std_logic;                                                    -- ramp mode enable
+   signal lock_mode_en         : std_logic;                                                    -- lock mode enable
    
-   signal pidz_update         : std_logic;                                                    -- PIDZ lock mode result update
-   signal pidz_sum            : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);        -- PIDZ sum
-   signal ramp_update         : std_logic;                                                    -- Ramp mode result update from ramp processor block
-   signal ramp_update_1d      : std_logic;                                                    -- Actual ramp mode result update from fsfb processor
-   signal ramp_dat            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Ramp mode processor result
-   signal ramp_dat_ltch       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Latched ramp mode processor result (fixed for configurable number of frame cycles)
-   signal const_dat_ltch      : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Latched constant mode result (to created consistent timing behaviour with ramp mode result)
- 
+   signal pidz_update          : std_logic;                                                    -- PIDZ lock mode result update
+   signal pidz_sum             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);        -- PIDZ sum
+   signal ramp_update          : std_logic;                                                    -- Ramp mode result update from ramp processor block
+   signal ramp_update_1d       : std_logic;                                                    -- Actual ramp mode result update from fsfb processor
+   signal ramp_dat             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Ramp mode processor result
+   signal ramp_dat_ltch        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Latched ramp mode processor result (fixed for configurable number of frame cycles)
+   signal const_dat_ltch       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);             -- Latched constant mode result (to created consistent timing behaviour with ramp mode result)
+
+   signal max_range_fsfb       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
+   signal min_range_fsfb       : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
+   signal pos_fsfb_clamp_value : std_logic_vector(FLUX_QUANTA_DATA_WIDTH+FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal neg_fsfb_clamp_value : std_logic_vector(FLUX_QUANTA_DATA_WIDTH+FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+
 begin
 
    -- Generate enable signals for different servo mode settings
@@ -200,9 +211,9 @@ begin
       end if;
    end process const_dat_ltch_proc;
        
-       
+
    -- Muxes for update control and data output to the current queue
-   fsfb_proc_mux : process (servo_mode_i, const_dat_ltch, ramp_dat_ltch, pidz_sum)
+   fsfb_proc_mux : process (servo_mode_i, const_dat_ltch, ramp_dat_ltch, pidz_sum)--, flux_jumping_en_i, max_range_fsfb, min_range_fsfb)
    begin
       -- The most significant bit of the FSFB_QUEUE will store the flag for
       -- the next operation (add/subtract) performed in RAMP mode.  All other modes
@@ -214,15 +225,12 @@ begin
          
          -- ramp mode setting
          when "10"   => fsfb_proc_dat_o <= ramp_dat_ltch;
-         
-         -- lock mode setting
-         
-         -- obtain sign bit from msb of pidz_sum and append it as bit 31 of result. 
-         -- Bit 32 always gets zero as it is ignored in lock mode.  Therefore, the
-         -- magnitude only covers bit 30 down to 0.
-         
-         when "11"   => fsfb_proc_dat_o <= '0' & pidz_sum(pidz_sum'left) & 
-                                           pidz_sum(lock_dat_left downto (lock_dat_left-(FSFB_QUEUE_DATA_WIDTH-2)));
+
+         -- lock mode setting         
+         -- obtain sign bit from msb of pidz_sum and append it as bit 39 of result. 
+         -- Bit 40 always gets zero as it is ignored in lock mode.  Therefore, the
+         -- magnitude only covers bit 38 down to 0.
+         when "11"   => fsfb_proc_dat_o <= '0' & pidz_sum(pidz_sum'left) & pidz_sum(lock_dat_left-1 downto 0);
          
          -- invalid setting
          when others => fsfb_proc_dat_o <= (others => '0');
@@ -246,7 +254,7 @@ begin
          p_dat_i                   => p_dat_i,  
          i_dat_i                   => i_dat_i,  
          d_dat_i                   => d_dat_i,  
-         z_dat_i                   => z_dat_i,  
+         z_dat_i                   => (others => '0'),  
          fsfb_proc_pidz_update_o   => pidz_update,                                            
          fsfb_proc_pidz_sum_o      => pidz_sum
       );   

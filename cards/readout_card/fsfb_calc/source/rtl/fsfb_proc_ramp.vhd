@@ -21,7 +21,7 @@
 --
 -- fsfb_proc_ramp.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Anthony Ko
 -- Organisation:  UBC
 --
@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_ramp.vhd,v $
+-- Revision 1.2  2004/11/26 18:26:45  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.1  2004/10/22 22:18:36  anthonyk
 -- Initial release
 --
@@ -91,7 +94,8 @@ use work.flux_loop_pack.all;
 architecture rtl of fsfb_proc_ramp is
 
    -- constant declarations
-   constant ZEROES             : std_logic_vector(15 downto 0) := "0000000000000000";
+   constant ZEROES             : std_logic_vector(22 downto 0) := "00000000000000000000000";
+   constant ZEROES16           : std_logic_vector(15 downto 0) := x"0000";
    
    -- internal signal declarations
    signal add_sub_n            : std_logic;                                                  -- add/subtract operation select
@@ -121,7 +125,7 @@ begin
          add_sub                 => add_sub_n,
          dataa                   => pre_fsfb_dat16,
          datab                   => ramp_step_size16, 
-      	 result                  => add_sub_result   	 
+          result                  => add_sub_result       
       );
 
       
@@ -161,8 +165,8 @@ begin
          -- Check lower bound >= 0
          if (add_sub_n = '0') then
             if (result_reg(result_reg'left) = '1' or 
-               result_reg = ZEROES) then
-               ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & ZEROES;                -- next operation flag is set to addition
+               result_reg = ZEROES16) then
+               ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & ZEROES16;              -- next operation flag is set to addition
                ramp_dat(ramp_dat'left)                    <= '0'; 
             else
                ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & result_reg;      

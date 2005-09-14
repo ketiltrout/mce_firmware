@@ -50,6 +50,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.9  2004/12/17 00:39:46  anthonyk
+-- Number of clock cycles per row requirement is now changed to accomodate the increased latency of the shared pidz multiplier scheme.
+--
 -- Revision 1.8  2004/12/07 19:44:57  mohsen
 -- Anthony & Mohsen: Miscellanous updates
 --
@@ -95,6 +98,9 @@ library work;
 -- used for PIDZ queue instantiation
 use work.fsfb_calc_pack.all;
 
+-- used for FSFB_MAX and FSFB_MIN
+use work.fsfb_corr_pack.all;
+
 
 -- DUT Library Call
 use work.flux_loop_ctrl_pack.all;
@@ -121,152 +127,315 @@ architecture beh of tb2_flux_loop_ctrl is
 
 
   component flux_loop_ctrl
-
   port (
+     -- ADC interface signals
+     adc_dat_i                  : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+     adc_ovr_i                  : in  std_logic;
+     adc_rdy_i                  : in  std_logic;
+     adc_clk_o                  : out std_logic;
+ 
+     -- Global signals 
+     clk_50_i                   : in  std_logic;
+     clk_25_i                   : in  std_logic;
+     rst_i                      : in  std_logic;
+  
+     -- Frame timing signals
+     adc_coadd_en_i             : in  std_logic;
+     restart_frame_1row_prev_i  : in  std_logic;
+     restart_frame_aligned_i    : in  std_logic;
+     restart_frame_1row_post_i  : in  std_logic;
+     row_switch_i               : in  std_logic;
+     initialize_window_i        : in  std_logic;
+     num_rows_sub1_i            : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
+     dac_dat_en_i               : in  std_logic;
+ 
+     -- Wishbone Slave (wbs) Frame Data signals
+     coadded_addr_i             : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
+     coadded_dat_o              : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+     raw_addr_i                 : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+     raw_dat_o                  : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+     raw_req_i                  : in  std_logic;
+     raw_ack_o                  : out std_logic;
+ 
+     fsfb_addr_i                : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
+     fsfb_dat_o                 : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
+     filtered_addr_i            : in  std_logic_vector(5 downto 0);
+     filtered_dat_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+ 
+     
+     -- Wishbove Slave (wbs) Feedback (fb) Data Signals
+     adc_offset_dat_i           : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+     adc_offset_adr_o           : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+ 
+     servo_mode_i               : in  std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
+     ramp_step_size_i           : in  std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
+     ramp_amp_i                 : in  std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           -- ramp peak amplitude
+     const_val_i                : in  std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          -- fs feedback constant value
+     num_ramp_frame_cycles_i    : in  std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);           -- number of frame cycle ramp remained level 
+     p_addr_o                   : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);   -- coefficient queue address/data inputs/outputs 
+     p_dat_i                    : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- read-only operations
+     i_addr_o                   : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+     i_dat_i                    : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+     d_addr_o                   : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+     d_dat_i                    : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+     flux_quanta_addr_o         : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+     flux_quanta_dat_i          : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+     sa_bias_dat_i              : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     offset_dat_i               : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     filter_coeff0_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     filter_coeff1_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     filter_coeff2_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     filter_coeff3_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     filter_coeff4_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     filter_coeff5_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     filter_coeff6_i            : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     
+     -- DAC Interface
+     dac_dat_o                  : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+     dac_clk_o                  : out std_logic;
+ 
+     -- spi DAC Interface
+     sa_bias_dac_spi_o          : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
+     offset_dac_spi_o           : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
+ 
+ 
+     -- INTERNAL
+     fsfb_fltr_dat_rdy_o        : out std_logic;                                             -- fs feedback queue current data ready 
+     fsfb_fltr_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
 
-
-    -- ADC interface signals
-    adc_dat_i                 : in  std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    adc_ovr_i                 : in  std_logic;
-    adc_rdy_i                 : in  std_logic;
-    adc_clk_o                 : out std_logic;
-
-    -- Global signals 
-    clk_50_i                  : in  std_logic;
-    clk_25_i                  : in  std_logic;
-    rst_i                     : in  std_logic;
-
-    -- Frame timing_core signals
-    adc_coadd_en_i            : in  std_logic;
-    restart_frame_1row_prev_i : in  std_logic;
-    restart_frame_aligned_i   : in  std_logic;
-    restart_frame_1row_post_i : in  std_logic;
-    row_switch_i              : in  std_logic;
-    initialize_window_i       : in  std_logic;
-    num_rows_sub1_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
-    dac_dat_en_i              : in  std_logic;
+     ---------------------------------------------------------------
+     -- First Stage Feedback Correction Interface (for Flux Jumping)
+     ---------------------------------------------------------------
+     -- to fsfb_calc block
+     flux_jumping_en_i          : in std_logic;
+     fsfb_ctrl_lock_en_o        : out std_logic;                                             -- fs feedback lock servo mode enable
+     flux_quanta_o              : out std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- flux quanta value (formerly known as coeff z)
+     -- FSFB_QUEUE_DATA_WIDTH is also reduced from 32 to 24 to accomodate the flux quanta
+     fsfb_ctrl_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data (uncorrected)
+     fsfb_ctrl_dat_rdy_o        : out std_logic;                                             -- fs feedback queue previous data ready (uncorrected).  The rdy pulse is also good for num_flux_quanta_prev    
+     num_flux_quanta_prev_o     : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count            
+     num_flux_quanta_pres_rdy_i : in  std_logic;                                             -- flux quanta present count ready
+     num_flux_quanta_pres_i     : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta present count    
+ 
+     -- to fsfb_ctrl block
+     fsfb_ctrl_dat_rdy_i        : in  std_logic;                                             -- fsfb control data ready (corrected)
+     fsfb_ctrl_dat_i            : in  std_logic_vector(DAC_DAT_WIDTH-1 downto 0)             -- fsfb control data (corrected)
     
-    -- Wishbone Slave (wbs) Frame Data signals
-    coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
-    coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
-    raw_req_i                 : in  std_logic;
-    raw_ack_o                 : out std_logic;
-
-    fsfb_addr_i               : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
-    fsfb_dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
-    filtered_addr_i           : in  std_logic_vector(5 downto 0);
-    filtered_dat_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
-    
-    -- Wishbove Slave (wbs) Feedback (fb) Data Signals
-    adc_offset_dat_i          : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-    adc_offset_adr_o          : out std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
-
-    servo_mode_i              : in  std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
-    ramp_step_size_i          : in  std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
-    ramp_amp_i                : in  std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           -- ramp peak amplitude
-    const_val_i               : in  std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          -- fs feedback constant value
-    num_ramp_frame_cycles_i   : in  std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);           -- number of frame cycle ramp remained level 
-    p_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);   -- coefficient queue address/data inputs/outputs 
-    p_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- read-only operations
-    i_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    i_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    d_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    d_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    z_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    z_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    sa_bias_dat_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    offset_dat_i              : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff0_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff1_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff2_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff3_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff4_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff5_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    filter_coeff6_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
-    -- DAC Interface
-    dac_dat_o                 : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    dac_clk_o                 : out std_logic;
-
-    -- spi DAC Interface
-    sa_bias_dac_spi_o         : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
-    offset_dac_spi_o          : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-
-    -- INTERNAL
-
-    fsfb_fltr_dat_rdy_o       : out std_logic;                                             -- fs feedback queue current data ready 
-    fsfb_fltr_dat_o           : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
-    fsfb_ctrl_dat_rdy_o       : out std_logic;                                             -- fs feedback queue previous data ready
-    fsfb_ctrl_dat_o           : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)     -- fs feedback queue previous data
-      );
-
+  );
   end component;
 
+  -----------------------------------------------------------------------------
+  -- First Stage Feedback Correction Block (for Flux Jumping)
+  -----------------------------------------------------------------------------
+
+  component fsfb_corr        
+  port (
+     -- fsfb_calc interface
+     flux_jumping_en_i          : in std_logic;
+     fsfb_ctrl_lock_en_i        : in std_logic;
+     
+     flux_quanta0_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+     flux_quanta1_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+     flux_quanta2_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+     flux_quanta3_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+     flux_quanta4_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+     flux_quanta5_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+     flux_quanta6_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+     flux_quanta7_i             : in std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0); -- Z
+     
+     num_flux_quanta_prev0_i    : in std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+     num_flux_quanta_prev1_i    : in std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+     num_flux_quanta_prev2_i    : in std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+     num_flux_quanta_prev3_i    : in std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+     num_flux_quanta_prev4_i    : in std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+     num_flux_quanta_prev5_i    : in std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+     num_flux_quanta_prev6_i    : in std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+     num_flux_quanta_prev7_i    : in std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+     
+     fsfb_ctrl_dat0_i           : in std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+     fsfb_ctrl_dat1_i           : in std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+     fsfb_ctrl_dat2_i           : in std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+     fsfb_ctrl_dat3_i           : in std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+     fsfb_ctrl_dat4_i           : in std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+     fsfb_ctrl_dat5_i           : in std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+     fsfb_ctrl_dat6_i           : in std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+     fsfb_ctrl_dat7_i           : in std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0); -- pid_prev
+     
+     fsfb_ctrl_dat_rdy0_i       : in std_logic;
+     fsfb_ctrl_dat_rdy1_i       : in std_logic;
+     fsfb_ctrl_dat_rdy2_i       : in std_logic;
+     fsfb_ctrl_dat_rdy3_i       : in std_logic;
+     fsfb_ctrl_dat_rdy4_i       : in std_logic;
+     fsfb_ctrl_dat_rdy5_i       : in std_logic;
+     fsfb_ctrl_dat_rdy6_i       : in std_logic;
+     fsfb_ctrl_dat_rdy7_i       : in std_logic;
+     
+     num_flux_quanta_pres0_o    : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_pres
+     num_flux_quanta_pres1_o    : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_pres
+     num_flux_quanta_pres2_o    : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_pres
+     num_flux_quanta_pres3_o    : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_pres
+     num_flux_quanta_pres4_o    : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_pres
+     num_flux_quanta_pres5_o    : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_pres
+     num_flux_quanta_pres6_o    : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_pres
+     num_flux_quanta_pres7_o    : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- m_pres
+     
+     num_flux_quanta_pres_rdy_o : out std_logic;
+     
+     -- fsfb_ctrl interface
+     fsfb_ctrl_dat0_o           : out  std_logic_vector(DAC_DAT_WIDTH-1 downto 0); -- pid_corr_prev
+     fsfb_ctrl_dat1_o           : out  std_logic_vector(DAC_DAT_WIDTH-1 downto 0); -- pid_corr_prev
+     fsfb_ctrl_dat2_o           : out  std_logic_vector(DAC_DAT_WIDTH-1 downto 0); -- pid_corr_prev
+     fsfb_ctrl_dat3_o           : out  std_logic_vector(DAC_DAT_WIDTH-1 downto 0); -- pid_corr_prev
+     fsfb_ctrl_dat4_o           : out  std_logic_vector(DAC_DAT_WIDTH-1 downto 0); -- pid_corr_prev
+     fsfb_ctrl_dat5_o           : out  std_logic_vector(DAC_DAT_WIDTH-1 downto 0); -- pid_corr_prev
+     fsfb_ctrl_dat6_o           : out  std_logic_vector(DAC_DAT_WIDTH-1 downto 0); -- pid_corr_prev
+     fsfb_ctrl_dat7_o           : out  std_logic_vector(DAC_DAT_WIDTH-1 downto 0); -- pid_corr_prev
+     fsfb_ctrl_dat_rdy_o        : out  std_logic;
+     
+     -- Global Signals      
+     clk_i                      : in std_logic;
+     rst_i                      : in std_logic);     
+  end component;
+
+   -- pidz queue component declaration
+   -- This is only a test component used by the testbench
+   --
+   component pidz_queue is
+      port (
+         data        : in    std_logic_vector(32 downto 0);    
+         wraddress   : in    std_logic_vector(5 downto 0);
+         rdaddress_a : in    std_logic_vector(5 downto 0);
+         rdaddress_b : in    std_logic_vector(5 downto 0);
+         wren        : in    std_logic;
+         clock       : in    std_logic;
+         qa          : out   std_logic_vector(32 downto 0);
+         qb          : out   std_logic_vector(32 downto 0)
+      );
+   end component pidz_queue;  
  
-    -- flux_loop_ctrl signals
-    signal adc_dat_i                 : std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
-    signal adc_ovr_i                 : std_logic;
-    signal adc_rdy_i                 : std_logic;
-    signal adc_clk_o                 : std_logic;
-    signal clk_50_i                  : std_logic;
-    signal clk_25_i                  : std_logic;
-    signal rst_i                     : std_logic :='1';
-    signal adc_coadd_en_i            : std_logic :='0';
-    signal restart_frame_1row_prev_i : std_logic;
-    signal restart_frame_aligned_i   : std_logic;
-    signal restart_frame_1row_post_i : std_logic;
-    signal row_switch_i              : std_logic;
-    signal initialize_window_i       : std_logic;
-    signal num_rows_sub1_i           : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
-    signal dac_dat_en_i              : std_logic :='0';
-    signal coadded_addr_i            : std_logic_vector (COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
-    signal coadded_dat_o             : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-    signal raw_addr_i                : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0) := "1010001111111";
-    signal raw_dat_o                 : std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
-    signal raw_req_i                 : std_logic :='0';
-    signal raw_ack_o                 : std_logic;
 
-    signal fsfb_ws_addr_i            : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
-    signal fsfb_ws_dat_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
-    signal filtered_addr_i           : std_logic_vector(5 downto 0);
-    signal filtered_dat_o            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);   
-    signal adc_offset_dat_i          : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
-    signal adc_offset_adr_o          : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+  -- flux_loop_ctrl signals
+  signal adc_dat_i                 : std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
+  signal adc_ovr_i                 : std_logic;
+  signal adc_rdy_i                 : std_logic;
+  signal adc_clk_o                 : std_logic;
+  signal clk_50_i                  : std_logic;
+  signal clk_50n_i                 : std_logic;
+  signal clk_25_i                  : std_logic;
+  signal rst_i                     : std_logic :='1';
+  signal adc_coadd_en_i            : std_logic :='0';
+  signal restart_frame_1row_prev_i : std_logic;
+  signal restart_frame_aligned_i   : std_logic;
+  signal restart_frame_1row_post_i : std_logic;
+  signal row_switch_i              : std_logic;
+  signal initialize_window_i       : std_logic;
+  signal num_rows_sub1_i           : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
+  signal dac_dat_en_i              : std_logic :='0';
+  signal coadded_addr_i            : std_logic_vector (COADD_ADDR_WIDTH-1 downto 0) := (others => '0');
+  signal coadded_dat_o             : std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+  signal raw_addr_i                : std_logic_vector (RAW_ADDR_WIDTH-1 downto 0) := "1010001111111";
+  signal raw_dat_o                 : std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+  signal raw_req_i                 : std_logic :='0';
+  signal raw_ack_o                 : std_logic;
 
-    signal servo_mode_i              : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
-    signal ramp_step_size_i          : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
-    signal ramp_amp_i                : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           -- ramp peak amplitude
-    signal const_val_i               : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          -- fs feedback constant value
-    signal num_ramp_frame_cycles_i   : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);           -- number of frame cycle ramp remained level 
-    signal p_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);   -- coefficient queue address/data inputs/outputs 
-    signal p_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- read-only operations
-    signal i_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    signal i_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    signal d_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    signal d_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    signal z_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    signal z_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    signal sa_bias_dat_i             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal offset_dat_i              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal filter_coeff0_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal filter_coeff1_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal filter_coeff2_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal filter_coeff3_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal filter_coeff4_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal filter_coeff5_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal filter_coeff6_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    signal dac_dat_o                 : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
-    signal dac_clk_o                 : std_logic;
-    signal sa_bias_dac_spi_o         : std_logic_vector(2 downto 0);
-    signal offset_dac_spi_o          : std_logic_vector(2 downto 0);
-    signal fsfb_fltr_dat_rdy_o       : std_logic;                                             -- fs feedback queue current data ready 
-    signal fsfb_fltr_dat_o           : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
-    signal fsfb_ctrl_dat_rdy_o       : std_logic;                                             -- fs feedback queue previous data ready
-    signal fsfb_ctrl_dat_o           : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data
-      
+  signal fsfb_ws_addr_i            : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
+  signal fsfb_ws_dat_o             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
+  signal filtered_addr_i           : std_logic_vector(5 downto 0);
+  signal filtered_dat_o            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);   
+  signal adc_offset_dat_i          : std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
+  signal adc_offset_adr_o          : std_logic_vector(ADC_OFFSET_ADDR_WIDTH-1 downto 0);
+
+  signal servo_mode_i              : std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
+  signal ramp_step_size_i          : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements
+  signal ramp_amp_i                : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           -- ramp peak amplitude
+  signal const_val_i               : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          -- fs feedback constant value
+  signal num_ramp_frame_cycles_i   : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);           -- number of frame cycle ramp remained level 
+  signal p_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);   -- coefficient queue address/data inputs/outputs 
+  signal p_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- read-only operations
+  signal i_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+  signal i_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+  signal d_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+  signal d_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+  signal z_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+  signal z_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+  signal sa_bias_dat_i             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal offset_dat_i              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal filter_coeff0_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal filter_coeff1_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal filter_coeff2_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal filter_coeff3_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal filter_coeff4_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal filter_coeff5_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal filter_coeff6_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal dac_dat_o                 : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
+  signal dac_clk_o                 : std_logic;
+  signal sa_bias_dac_spi_o         : std_logic_vector(2 downto 0);
+  signal offset_dac_spi_o          : std_logic_vector(2 downto 0);
+  signal fsfb_fltr_dat_rdy_o       : std_logic;                                             -- fs feedback queue current data ready 
+  signal fsfb_fltr_dat_o           : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+                                                                                            -- the rdy pulse is also good for num_flux_quanta_prev    
+
+  -- Signals Interface between fsfb_corr and flux_loop_ctrl
+  signal fsfb_ctrl_lock_en         : std_logic;   
+  signal flux_jumping_en           : std_logic := '1';
+  signal num_flux_quanta_pres_rdy  : std_logic;                                             
+  signal fsfb_ctrl_corr_rdy        : std_logic;                                                
+  
+  signal flux_quanta0              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+  signal fsfb_ctrl_dat0            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
+  signal num_flux_quanta_prev0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal num_flux_quanta_pres0     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat0_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr0           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta1              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');   
+  signal fsfb_ctrl_dat1            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_prev1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_pres1     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat1_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr1           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta2              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');   
+  signal fsfb_ctrl_dat2            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_prev2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_pres2     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat2_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr2           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta3              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');   
+  signal fsfb_ctrl_dat3            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_prev3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_pres3     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat3_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr3           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta4              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');   
+  signal fsfb_ctrl_dat4            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_prev4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_pres4     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat4_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr4           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta5              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');   
+  signal fsfb_ctrl_dat5            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_prev5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_pres5     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat5_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr5           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta6              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');   
+  signal fsfb_ctrl_dat6            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_prev6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_pres6     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat6_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr6           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
+
+  signal flux_quanta7              : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');   
+  signal fsfb_ctrl_dat7            : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_prev7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := (others => '0');    
+  signal num_flux_quanta_pres7     : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    
+  signal fsfb_ctrl_dat7_rdy        : std_logic;                                             
+  signal fsfb_ctrl_corr7           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);             
 
   -- tb2 signals
   constant PERIOD                  : time := 20 ns;
@@ -368,9 +537,7 @@ architecture beh of tb2_flux_loop_ctrl is
   signal address_index_plus1  : integer :=1;  -- points to row in memory
   signal addr_plus1_inc_ok    : boolean := true;  -- flags wrap around for address_index_plus1
   signal init_window_req_i    : std_logic :='0';
-  signal sample_num_i         : integer := 40;
-  signal sample_delay_i       : integer := 10;
-  signal feedback_delay_i     : integer := 6;
+  signal resync_req_i         : std_logic :='0';
   signal clk_200_i            : std_logic;
   signal sync                 : std_logic;
   
@@ -381,7 +548,16 @@ architecture beh of tb2_flux_loop_ctrl is
   signal sc_data2        : std_logic_vector(15 downto 0);                          -- serial captured data (Offset)
   signal pc_data1        : std_logic_vector(15 downto 0);                          -- parallel captured data (SA_Bias)
   signal pc_data2        : std_logic_vector(15 downto 0);                          -- parallel captured data (Offset)
-
+  
+  -- temporary integers
+  signal dac_clk1 : std_logic;
+  signal dac_clk2 : std_logic;
+  signal dac_clk3 : std_logic;
+  signal dac_clk4 : std_logic;
+  signal m_pres : integer;
+  signal corr_pid : integer;
+  signal corr_pid_slv : std_logic_vector(31 downto 0) := (others => '0');
+  signal corr_pid_slv_14 : std_logic_vector(13 downto 0) := (others => '0');
 
   -----------------------------------------------------------------------------
   -- Procedures
@@ -458,7 +634,7 @@ architecture beh of tb2_flux_loop_ctrl is
          -- lock mode setting and invalid
          when others => const_val_o         <= (others => 'X');
                         ramp_step_size_o    <= (others => 'X');
-              ramp_amp_o          <= (others => 'X');
+                        ramp_amp_o          <= (others => 'X');
                         ramp_frame_cycles_o <= (others => 'X');
       end case sel;
    end procedure cfg_test_mode;
@@ -492,65 +668,148 @@ begin  -- beh
   DUT : flux_loop_ctrl
 
     port map (
-    adc_dat_i                 => adc_dat_i,
-    adc_ovr_i                 => adc_ovr_i,
-    adc_rdy_i                 => adc_rdy_i,
-    adc_clk_o                 => adc_clk_o,
-    clk_50_i                  => clk_50_i,
-    clk_25_i                  => clk_25_i,
-    rst_i                     => rst_i,
-    adc_coadd_en_i            => adc_coadd_en_i,
-    restart_frame_1row_prev_i => restart_frame_1row_prev_i,
-    restart_frame_aligned_i   => restart_frame_aligned_i,
-    restart_frame_1row_post_i => restart_frame_1row_post_i,
-    row_switch_i              => row_switch_i,
-    initialize_window_i       => initialize_window_i,
-    num_rows_sub1_i           => num_rows_sub1_i,
-    dac_dat_en_i              => dac_dat_en_i,
-    coadded_addr_i            => coadded_addr_i,
-    coadded_dat_o             => coadded_dat_o,
-    raw_addr_i                => raw_addr_i,
-    raw_dat_o                 => raw_dat_o,
-    raw_req_i                 => raw_req_i,
-    raw_ack_o                 => raw_ack_o,
-    fsfb_addr_i               => fsfb_ws_addr_i,
-    fsfb_dat_o                => fsfb_ws_dat_o,
-    filtered_addr_i           => filtered_addr_i,
-    filtered_dat_o            => filtered_dat_o,
-    adc_offset_dat_i          => adc_offset_dat_i,
-    adc_offset_adr_o          => adc_offset_adr_o,
-    servo_mode_i              => servo_mode_i,
-    ramp_step_size_i          => ramp_step_size_i,
-    ramp_amp_i                => ramp_amp_i,
-    const_val_i               => const_val_i,
-    num_ramp_frame_cycles_i   => num_ramp_frame_cycles_i,
-    p_addr_o                  => p_addr_o,
-    p_dat_i                   => p_dat_i,
-    i_addr_o                  => i_addr_o,
-    i_dat_i                   => i_dat_i,
-    d_addr_o                  => d_addr_o,
-    d_dat_i                   => d_dat_i,
-    z_addr_o                  => z_addr_o,
-    z_dat_i                   => z_dat_i,
-    sa_bias_dat_i             => sa_bias_dat_i,
-    offset_dat_i              => offset_dat_i,
-    filter_coeff0_i           => filter_coeff0_i,
-    filter_coeff1_i           => filter_coeff1_i,
-    filter_coeff2_i           => filter_coeff2_i,
-    filter_coeff3_i           => filter_coeff3_i,
-    filter_coeff4_i           => filter_coeff4_i,
-    filter_coeff5_i           => filter_coeff5_i,
-    filter_coeff6_i           => filter_coeff6_i,
-    dac_dat_o                 => dac_dat_o,
-    dac_clk_o                 => dac_clk_o,
-    sa_bias_dac_spi_o         => sa_bias_dac_spi_o,
-    offset_dac_spi_o          => offset_dac_spi_o,
-    fsfb_fltr_dat_rdy_o       => fsfb_fltr_dat_rdy_o,
-    fsfb_fltr_dat_o           => fsfb_fltr_dat_o,
-    fsfb_ctrl_dat_rdy_o       => fsfb_ctrl_dat_rdy_o,
-    fsfb_ctrl_dat_o           => fsfb_ctrl_dat_o);
+    adc_dat_i                  => adc_dat_i,
+    adc_ovr_i                  => adc_ovr_i,
+    adc_rdy_i                  => adc_rdy_i,
+    adc_clk_o                  => adc_clk_o,
+    clk_50_i                   => clk_50_i,
+    clk_25_i                   => clk_25_i,
+    rst_i                      => rst_i,
+    adc_coadd_en_i             => adc_coadd_en_i,
+    restart_frame_1row_prev_i  => restart_frame_1row_prev_i,
+    restart_frame_aligned_i    => restart_frame_aligned_i,
+    restart_frame_1row_post_i  => restart_frame_1row_post_i,
+    row_switch_i               => row_switch_i,
+    initialize_window_i        => initialize_window_i,
+    num_rows_sub1_i            => num_rows_sub1_i,
+    dac_dat_en_i               => dac_dat_en_i,
+    coadded_addr_i             => coadded_addr_i,
+    coadded_dat_o              => coadded_dat_o,
+    raw_addr_i                 => raw_addr_i,
+    raw_dat_o                  => raw_dat_o,
+    raw_req_i                  => raw_req_i,
+    raw_ack_o                  => raw_ack_o,
+    fsfb_addr_i                => fsfb_ws_addr_i,
+    fsfb_dat_o                 => fsfb_ws_dat_o,
+    filtered_addr_i            => filtered_addr_i,
+    filtered_dat_o             => filtered_dat_o,
+    adc_offset_dat_i           => adc_offset_dat_i,
+    adc_offset_adr_o           => adc_offset_adr_o,
+    servo_mode_i               => servo_mode_i,
+    ramp_step_size_i           => ramp_step_size_i,
+    ramp_amp_i                 => ramp_amp_i,
+    const_val_i                => const_val_i,
+    num_ramp_frame_cycles_i    => num_ramp_frame_cycles_i,
+    p_addr_o                   => p_addr_o,
+    p_dat_i                    => p_dat_i,
+    i_addr_o                   => i_addr_o,
+    i_dat_i                    => i_dat_i,
+    d_addr_o                   => d_addr_o,
+    d_dat_i                    => d_dat_i,
+    flux_quanta_addr_o         => z_addr_o,
+    flux_quanta_dat_i          => z_dat_i,
+    sa_bias_dat_i              => sa_bias_dat_i,
+    offset_dat_i               => offset_dat_i,
+    filter_coeff0_i            => filter_coeff0_i,
+    filter_coeff1_i            => filter_coeff1_i,
+    filter_coeff2_i            => filter_coeff2_i,
+    filter_coeff3_i            => filter_coeff3_i,
+    filter_coeff4_i            => filter_coeff4_i,
+    filter_coeff5_i            => filter_coeff5_i,
+    filter_coeff6_i            => filter_coeff6_i,
+    dac_dat_o                  => dac_dat_o,
+    dac_clk_o                  => dac_clk_o,
+    sa_bias_dac_spi_o          => sa_bias_dac_spi_o,
+    offset_dac_spi_o           => offset_dac_spi_o,
+    fsfb_fltr_dat_rdy_o        => fsfb_fltr_dat_rdy_o,
+    fsfb_fltr_dat_o            => fsfb_fltr_dat_o,
+    num_flux_quanta_pres_rdy_i => num_flux_quanta_pres_rdy,
+    num_flux_quanta_pres_i     => num_flux_quanta_pres0,    
+    fsfb_ctrl_dat_rdy_i        => fsfb_ctrl_corr_rdy,
+    fsfb_ctrl_dat_i            => fsfb_ctrl_corr0,
+    fsfb_ctrl_dat_rdy_o        => fsfb_ctrl_dat0_rdy,
+    fsfb_ctrl_dat_o            => fsfb_ctrl_dat0,
+    num_flux_quanta_prev_o     => num_flux_quanta_prev0,
+    fsfb_ctrl_lock_en_o        => fsfb_ctrl_lock_en,
+    flux_jumping_en_i          => flux_jumping_en,
+    flux_quanta_o              => flux_quanta0);
 
   
+  -----------------------------------------------------------------------------
+  -- Instantiation of fsfb_corr
+  -----------------------------------------------------------------------------
+  
+  i_fsfb_corr: fsfb_corr
+    port map (
+      -- fsfb_calc interface
+      flux_jumping_en_i          => flux_jumping_en,
+      fsfb_ctrl_lock_en_i        => fsfb_ctrl_lock_en,
+      
+      flux_quanta0_i             => flux_quanta0,
+      flux_quanta1_i             => flux_quanta1,
+      flux_quanta2_i             => flux_quanta2,
+      flux_quanta3_i             => flux_quanta3,
+      flux_quanta4_i             => flux_quanta4,
+      flux_quanta5_i             => flux_quanta5,
+      flux_quanta6_i             => flux_quanta6,
+      flux_quanta7_i             => flux_quanta7,
+      
+      num_flux_quanta_prev0_i    => num_flux_quanta_prev0,
+      num_flux_quanta_prev1_i    => num_flux_quanta_prev1,
+      num_flux_quanta_prev2_i    => num_flux_quanta_prev2,
+      num_flux_quanta_prev3_i    => num_flux_quanta_prev3,
+      num_flux_quanta_prev4_i    => num_flux_quanta_prev4,
+      num_flux_quanta_prev5_i    => num_flux_quanta_prev5,
+      num_flux_quanta_prev6_i    => num_flux_quanta_prev6,
+      num_flux_quanta_prev7_i    => num_flux_quanta_prev7,
+      
+      fsfb_ctrl_dat0_i           => fsfb_ctrl_dat0,
+      fsfb_ctrl_dat1_i           => fsfb_ctrl_dat1,
+      fsfb_ctrl_dat2_i           => fsfb_ctrl_dat2,
+      fsfb_ctrl_dat3_i           => fsfb_ctrl_dat3,
+      fsfb_ctrl_dat4_i           => fsfb_ctrl_dat4,
+      fsfb_ctrl_dat5_i           => fsfb_ctrl_dat5,
+      fsfb_ctrl_dat6_i           => fsfb_ctrl_dat6,
+      fsfb_ctrl_dat7_i           => fsfb_ctrl_dat7,
+      
+      -- For now, we are testing a single channel
+      -- For fsfb_corr to start manipulating data, all rdy signals need to be asserted
+      fsfb_ctrl_dat_rdy0_i       => fsfb_ctrl_dat0_rdy,
+      fsfb_ctrl_dat_rdy1_i       => fsfb_ctrl_dat0_rdy,
+      fsfb_ctrl_dat_rdy2_i       => fsfb_ctrl_dat0_rdy,
+      fsfb_ctrl_dat_rdy3_i       => fsfb_ctrl_dat0_rdy,
+      fsfb_ctrl_dat_rdy4_i       => fsfb_ctrl_dat0_rdy,
+      fsfb_ctrl_dat_rdy5_i       => fsfb_ctrl_dat0_rdy,
+      fsfb_ctrl_dat_rdy6_i       => fsfb_ctrl_dat0_rdy,
+      fsfb_ctrl_dat_rdy7_i       => fsfb_ctrl_dat0_rdy,
+      
+      num_flux_quanta_pres0_o    => num_flux_quanta_pres0,
+      num_flux_quanta_pres1_o    => num_flux_quanta_pres1,
+      num_flux_quanta_pres2_o    => num_flux_quanta_pres2,
+      num_flux_quanta_pres3_o    => num_flux_quanta_pres3,
+      num_flux_quanta_pres4_o    => num_flux_quanta_pres4,
+      num_flux_quanta_pres5_o    => num_flux_quanta_pres5,
+      num_flux_quanta_pres6_o    => num_flux_quanta_pres6,
+      num_flux_quanta_pres7_o    => num_flux_quanta_pres7,
+      
+      num_flux_quanta_pres_rdy_o => num_flux_quanta_pres_rdy,
+      
+      -- fsfb_ctrl interface
+      fsfb_ctrl_dat0_o           => fsfb_ctrl_corr0,
+      fsfb_ctrl_dat1_o           => fsfb_ctrl_corr1,
+      fsfb_ctrl_dat2_o           => fsfb_ctrl_corr2,
+      fsfb_ctrl_dat3_o           => fsfb_ctrl_corr3,
+      fsfb_ctrl_dat4_o           => fsfb_ctrl_corr4,
+      fsfb_ctrl_dat5_o           => fsfb_ctrl_corr5,
+      fsfb_ctrl_dat6_o           => fsfb_ctrl_corr6,
+      fsfb_ctrl_dat7_o           => fsfb_ctrl_corr7,
+      fsfb_ctrl_dat_rdy_o        => fsfb_ctrl_corr_rdy,
+      
+      -- Global Signals      
+      clk_i                      => clk_50_i,
+      rst_i                      => rst_i
+    );
+
   -----------------------------------------------------------------------------
   -- Instantiate an LFSR to generate random numbers.  The LFSR is in Library of
   -- the project.
@@ -575,7 +834,7 @@ begin  -- beh
   -- Instantiate P coefficient queue
   -----------------------------------------------------------------------------
 
-   p_queue : fsfb_queue 
+   p_queue : pidz_queue 
       port map (
          data                     => pq_wrdata_i,
          wraddress                => pq_wraddr_i,
@@ -594,7 +853,7 @@ begin  -- beh
   -- Instantiate I coefficient queue
   -----------------------------------------------------------------------------
 
-   i_queue : fsfb_queue 
+   i_queue : pidz_queue 
       port map (
          data                     => iq_wrdata_i,
          wraddress                => iq_wraddr_i,
@@ -613,7 +872,7 @@ begin  -- beh
   -- Instantiate D coefficient queue
   -----------------------------------------------------------------------------
 
-   d_queue : fsfb_queue 
+   d_queue : pidz_queue 
       port map (
          data                     => dq_wrdata_i,
          wraddress                => dq_wraddr_i,
@@ -632,7 +891,7 @@ begin  -- beh
   -- Instantiate Z coefficient queue
   -----------------------------------------------------------------------------
 
-   z_queue : fsfb_queue 
+   z_queue : pidz_queue 
       port map (
          data                     => zq_wrdata_i,
          wraddress                => zq_wraddr_i,
@@ -664,21 +923,20 @@ begin  -- beh
     update_bias_o             => open,
     row_len_i                 => 64,
     num_rows_i                => 41,
-    sample_delay_i            => sample_delay_i,
-    sample_num_i              => sample_num_i,
-    feedback_delay_i          => feedback_delay_i,
-    address_on_delay_i        => 2,
-    resync_req_i              => '0',
+    sample_delay_i            => 10,
+    sample_num_i              => 40,
+    feedback_delay_i          => 6,
+    address_on_delay_i        => 4,
+    resync_req_i              => resync_req_i,
     resync_ack_o              => open,
     init_window_req_i         => init_window_req_i,
     init_window_ack_o         => open,
     clk_i                     => clk_50_i,
-    mem_clk_i                 => clk_200_i,
+    clk_n_i                   => clk_50n_i,
     rst_i                     => rst_i,
     sync_i                    => sync);
     
-
-
+ 
   -----------------------------------------------------------------------------
   -- Instantiate sync_gen_core
   -----------------------------------------------------------------------------
@@ -686,11 +944,12 @@ begin  -- beh
 
     port map (
     dv_en_i    => '0',
+    row_len_i  => 64,
+    num_rows_i => 41,
     dv_i       => '0',
     sync_o     => sync,
     sync_num_o => open,
     clk_i      => clk_50_i,
-    mem_clk_i  => clk_200_i,
     rst_i      => rst_i);
 
   
@@ -718,10 +977,12 @@ begin  -- beh
   begin  -- process clocking
 
     clk_50_i <= '1';
+    clk_50n_i <= '0';
     wait for PERIOD/2;
     
     while (not finish_tb2) loop
       clk_50_i <= not clk_50_i;
+      clk_50n_i <= not clk_50n_i;
       wait for PERIOD/2;
     end loop;
 
@@ -745,7 +1006,7 @@ begin  -- beh
   end process clocking_25;
   
   -----------------------------------------------------------------------------
-  -- Request for initialize window
+  -- Request for initialize window and resync_req (resync_req is temporary)
   -----------------------------------------------------------------------------
 
   i_initialize_window: process
@@ -753,12 +1014,14 @@ begin  -- beh
     wait for RESET_WINDOW + EDGE_DEPENDENCY;
     wait for FREE_RUN;
 
+    resync_req_i      <= '1',
+                         '0' after PERIOD;          
     
     while (not finish_test_flux_loop_ctrl) loop
       
       wait for CLOCKS_PER_ROW*PERIOD*3;
         init_window_req_i <= '1',
-                             '0' after PERIOD;
+                             '0' after PERIOD;                                                
       wait for CLOCKS_PER_ROW*PERIOD*5000;
         init_window_req_i <= '1',
                              '0' after PERIOD;
@@ -891,7 +1154,7 @@ begin  -- beh
                     num_ramp_frame_cycles_i, const_val_i);
 
              
-     cfg_pidz(calc_clk_i, 1,
+    cfg_pidz(calc_clk_i, 1,
                pq_wraddr_i, iq_wraddr_i, dq_wraddr_i, zq_wraddr_i,
                pq_wrdata_i, iq_wrdata_i, dq_wrdata_i, zq_wrdata_i,
                pq_wren_i, iq_wren_i, dq_wren_i, zq_wren_i);
@@ -928,6 +1191,9 @@ begin  -- beh
   -----------------------------------------------------------------------------
 
   i_check: process (clk_50_i, rst_i)
+  
+  variable test_filter : std_logic_vector(65 downto 0);
+  variable test_ctrl   : std_logic_vector(65 downto 0);
     
   begin  -- process i_check
     if rst_i = '1' then                 -- asynchronous reset (active high)
@@ -977,7 +1243,8 @@ begin  -- beh
             integral_bank0(address_index) <=  coadded_value +
                                               integral_bank1(address_index);
             diff_value <=  coadded_value - coadd_bank1(address_index);
-          else                          -- ignor previous values
+          else                          -- ignore previous values
+-- Bryce:  ***There may be a bug here.  I think that the running integral and diff values need to be cleared - instead of skipping a value.
             integral_bank0(address_index) <=  coadded_value + 0;
             diff_value <=  coadded_value - 0;
             
@@ -990,7 +1257,7 @@ begin  -- beh
             integral_bank1(address_index) <=  coadded_value +
                                               integral_bank0(address_index);
             diff_value <=  coadded_value - coadd_bank0(address_index);
-          else                          -- ingor previous values
+          else                          -- ingore previous values
           integral_bank1(address_index) <=  coadded_value + 0;
           diff_value <=  coadded_value - 0;
           end if;
@@ -1003,19 +1270,18 @@ begin  -- beh
 
       -- calculate pidz error value
       if adc_coadd_en_dly(5) = '1' then
+        -- Anthony is cheating a little bit here.  He only waits 14 cycles before switching the bank filter.  I guess this helps the simulation finish a little faster.
         case current_bank_fltr is
           when '0' =>
             if current_bank = '0' then  -- use proper bank for coadd/intgral
               filter_bank0(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank0(address_index))
                                              +(conv_integer(signed(i_value(31 downto 0)))*integral_bank0(address_index))
-                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
-                                             +(conv_integer(signed(z_value(31 downto 0))));
+                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value);
             end if;
             if current_bank ='1' then
               filter_bank0(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank1(address_index))
                                              +(conv_integer(signed(i_value(31 downto 0)))*integral_bank1(address_index))
-                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
-                                             +(conv_integer(signed(z_value(31 downto 0))));
+                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value);
               
             end if;
 
@@ -1023,76 +1289,37 @@ begin  -- beh
             if current_bank ='0' then
               filter_bank1(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank0(address_index))
                                              +(conv_integer(signed(i_value(31 downto 0)))*integral_bank0(address_index))
-                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
-                                             +(conv_integer(signed(z_value(31 downto 0))));
+                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value);
               
             end if;
             if current_bank = '1' then
               filter_bank1(address_index) <= (conv_integer(signed(p_value(31 downto 0)))*coadd_bank1(address_index))
                                              +(conv_integer(signed(i_value(31 downto 0)))*integral_bank1(address_index))
-                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value)
-                                             +(conv_integer(signed(z_value(31 downto 0))));
+                                             +(conv_integer(signed(d_value(31 downto 0)))*diff_value);
             
             end if;
             
           when others => null;
         end case;
-        
       end if;
-      
-
-
-      -- selfcheck
-      if finish_test_flux_loop_ctrl = false then
-
-        -- selfcheck filter
-        if fsfb_fltr_dat_rdy_o = '1' then
-          case current_bank_fltr is
-            when '0' =>
-              if conv_integer(signed(fsfb_fltr_dat_o)) /= filter_bank0(address_index) then
-                found_filter_error <= true;
-              end if;
-            when '1' =>
-              if conv_integer(signed(fsfb_fltr_dat_o)) /= filter_bank1(address_index) then
-                found_filter_error <= true;
-              end if;
-            when others => null;
-          end case;
-        end if;
-
-        -- selfcheck controller
-        if fsfb_ctrl_dat_rdy_o = '1' then
-          case current_bank_ctrl is
-            when '0' =>
-              if initialize_window_i = '0' then
-                if conv_integer(signed(fsfb_ctrl_dat_o)) /= filter_bank0(address_index_plus1) then             
-                  found_ctrl_error <= true;
-                end if;
-              end if;
-            when '1' =>
-              if initialize_window_i = '0' then
-                if conv_integer(signed(fsfb_ctrl_dat_o)) /= filter_bank1(address_index_plus1) then
-                  found_ctrl_error <= true;
-                end if;            
-              end if;            
-            when others => null;
-          end case;
-        
-        end if;
-
-      
-        assert (found_filter_error = false and found_ctrl_error = false)
-          report "FAILED" severity FAILURE;
-        
-      end if;
-
-      
-      
-        
     end if;
   end process i_check;
 
-
+  dac_clk_delay : process (clk_50_i, rst_i)
+  begin
+     if (rst_i = '1') then
+        dac_clk1 <= '0';
+        dac_clk2 <= '0';
+        dac_clk3 <= '0';
+        dac_clk4 <= '0';
+     elsif (clk_50_i'event and clk_50_i = '1') then
+        dac_clk4 <= dac_clk3;
+        dac_clk3 <= dac_clk2;
+        dac_clk2 <= dac_clk1;
+        dac_clk1 <= dac_clk_o;
+     end if;
+  end process dac_clk_delay;  
+  
   -----------------------------------------------------------------------------
   -- Self Check for fsfb_ctrl block
   -- WARNING: Based on the values used for the generic values in the fsfb_ctrl,
@@ -1100,39 +1327,42 @@ begin  -- beh
   -----------------------------------------------------------------------------
   i_check_fsfb_ctrl: process (clk_50_i)
   begin  -- process i_check_fsfb_ctrl
-    if dac_clk_o='1' then
-      if finish_test_flux_loop_ctrl=false then
-        
-        -----------------------------------------------------------------------
-        -- Modifiy acccording to polarity of the ADC and bit accuracy as shown
-        -- in the generic value in the fsfb_ctrl.  These values default to 0
-        -- and 13 respective, showing a straight polarity.
-        -- So, choose one of the next three group statements
-        -----------------------------------------------------------------------
+     if (clk_50_i'event and clk_50_i = '1') then
+        -- I think that the reason that dac_clk never goes high is because flux_loop_ctrl is not being fed a fsfb_ctrl_dat0_rdy signal.
+        -- Once I integrate the fsfb_corr block in this testbench, that will be taken care of.
+        if (finish_test_flux_loop_ctrl=false and fsfb_ctrl_lock_en = '1') then
+           
+           if (dac_clk_o = '1') then
+              if (conv_integer(signed(fsfb_ctrl_dat0(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX))) - (conv_integer(signed(num_flux_quanta_prev0)) * conv_integer(signed(flux_quanta0))) > FSFB_MAX) then
+                 m_pres <= conv_integer(signed(num_flux_quanta_prev0)) + 1;
+              elsif (conv_integer(signed(fsfb_ctrl_dat0(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX))) - (conv_integer(signed(num_flux_quanta_prev0)) * conv_integer(signed(flux_quanta0))) < FSFB_MIN) then
+                 m_pres <= conv_integer(signed(num_flux_quanta_prev0)) - 1;
+              else
+                 m_pres <= conv_integer(signed(num_flux_quanta_prev0));
+              end if;
+           
+           elsif (dac_clk1 = '1') then
+              corr_pid <= conv_integer(signed(fsfb_ctrl_dat0(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX))) - (m_pres * conv_integer(signed(flux_quanta0)));
+              
+           elsif (dac_clk2 = '1') then
+              corr_pid_slv <= std_logic_vector(conv_signed(corr_pid, 32));
 
-        
-        -- if straigh polarity is used in instantiating the fsfb_ctrl and bit
-        -- 13 down to 0 of input data is used
-        -- comment out if not in lock mode
-          if ((not fsfb_ctrl_dat_o(31))&fsfb_ctrl_dat_o(12 downto 0)) /= dac_dat_o then
-            found_dac_error <= true;
-          end if;
+           elsif (dac_clk3 = '1') then
+              -- This conversion is due to an obscure feature in the fsfb_ctrl block that switches the polarity of the 14-bit value depending on whether the feedback require positive feedback or negative feedback.  For now it is negative.
+              corr_pid_slv_14 <= not corr_pid_slv(13) & corr_pid_slv(12 downto 0);
 
-        -- if reverse polarity is used in instantiating the fsfb_ctrl
-        -- comment out if not in lock mode
---           if (fsfb_ctrl_dat_o(13) &(not fsfb_ctrl_dat_o(12 downto 0))) /= dac_dat_o then
---             found_dac_error <= true;
---           end if;
+           elsif (dac_clk4 = '1') then
+              --report "Doing FSFB Comparison";
+              if (corr_pid_slv_14 /= dac_dat_o) then
+                 found_dac_error <= true;
+              end if;
 
-        -- comment out if in lock mode
---         if fsfb_ctrl_dat_o(13 downto 0) /= dac_dat_o then
---           found_dac_error <= true;
---         end if;
-        
-      end if;
-      assert found_dac_error=false
-        report "FAILED at DAC" severity FAILURE;
-    end if;
+              assert found_dac_error=false report "FAILED at DAC" severity FAILURE;
+
+           end if;
+
+        end if;
+     end if;
   end process i_check_fsfb_ctrl;
   
   
@@ -1195,8 +1425,10 @@ begin  -- beh
         pc_data1 <= (others => '0');
         pc_data2 <= (others => '0');
      elsif (clk_50_i'event and clk_50_i = '1') then
-        if (restart_frame_aligned_i = '1') then
+        if (restart_frame_1row_post_i = '1') then
            pc_data1 <= pdata1;
+        end if;
+        if (restart_frame_1row_prev_i = '1') then
            pc_data2 <= pdata2;
         end if;
      end if;

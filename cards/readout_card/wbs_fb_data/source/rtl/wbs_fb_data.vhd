@@ -21,7 +21,7 @@
 --
 -- wbs_fb_data.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -81,6 +81,9 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.3  2004/12/07 19:39:29  mohsen
+-- Changed default datapath to zero rather than a ch0
+--
 -- Revision 1.2  2004/11/26 18:28:35  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -127,8 +130,8 @@ entity wbs_fb_data is
     i_addr_ch0_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
     d_dat_ch0_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     d_addr_ch0_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
-    z_dat_ch0_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    z_addr_ch0_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
+    flux_quanta_dat_ch0_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    flux_quanta_addr_ch0_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch0_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch0_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
@@ -141,8 +144,8 @@ entity wbs_fb_data is
     i_addr_ch1_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
     d_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     d_addr_ch1_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
-    z_dat_ch1_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    z_addr_ch1_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
+    flux_quanta_dat_ch1_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    flux_quanta_addr_ch1_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch1_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch1_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     
@@ -155,8 +158,8 @@ entity wbs_fb_data is
     i_addr_ch2_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
     d_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     d_addr_ch2_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
-    z_dat_ch2_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    z_addr_ch2_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
+    flux_quanta_dat_ch2_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    flux_quanta_addr_ch2_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch2_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch2_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
@@ -169,8 +172,8 @@ entity wbs_fb_data is
     i_addr_ch3_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
     d_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     d_addr_ch3_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
-    z_dat_ch3_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    z_addr_ch3_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
+    flux_quanta_dat_ch3_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    flux_quanta_addr_ch3_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch3_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch3_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     
@@ -183,8 +186,8 @@ entity wbs_fb_data is
     i_addr_ch4_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
     d_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     d_addr_ch4_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
-    z_dat_ch4_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    z_addr_ch4_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
+    flux_quanta_dat_ch4_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    flux_quanta_addr_ch4_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch4_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch4_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
@@ -197,8 +200,8 @@ entity wbs_fb_data is
     i_addr_ch5_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
     d_dat_ch5_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     d_addr_ch5_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
-    z_dat_ch5_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    z_addr_ch5_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
+    flux_quanta_dat_ch5_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    flux_quanta_addr_ch5_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch5_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch5_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
@@ -211,8 +214,8 @@ entity wbs_fb_data is
     i_addr_ch6_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
     d_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     d_addr_ch6_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
-    z_dat_ch6_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    z_addr_ch6_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
+    flux_quanta_dat_ch6_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    flux_quanta_addr_ch6_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch6_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch6_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     
@@ -225,8 +228,8 @@ entity wbs_fb_data is
     i_addr_ch7_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
     d_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     d_addr_ch7_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
-    z_dat_ch7_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-    z_addr_ch7_i            : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0); 
+    flux_quanta_dat_ch7_o   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+    flux_quanta_addr_ch7_i  : in  std_logic_vector(FLUX_QUANTA_ADDR_WIDTH-1 downto 0); 
     sa_bias_ch7_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_ch7_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
@@ -244,6 +247,7 @@ entity wbs_fb_data is
     ramp_amp_o              : out std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           
     const_val_o             : out std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          
     num_ramp_frame_cycles_o : out std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
+    flux_jumping_en_o       : out std_logic;
 
 
     -- signals to/from dispatch  (wishbone interface)
@@ -253,7 +257,7 @@ entity wbs_fb_data is
     we_i                    : in std_logic;                                        -- write//read enable
     stb_i                   : in std_logic;                                        -- strobe 
     cyc_i                   : in std_logic;                                        -- cycle
-    dat_o 	            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
+    dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);      -- data out
     ack_o                   : out std_logic);                                      -- acknowledge out
     
 
@@ -269,13 +273,13 @@ architecture struct of wbs_fb_data is
   signal qa_p_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal qa_i_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal qa_d_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_z_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal qa_flux_quanta_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal qa_adc_offset_bank   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal qa_misc_bank  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal ack_p_bank    : std_logic;
   signal ack_i_bank    : std_logic;
   signal ack_d_bank    : std_logic;
-  signal ack_z_bank    : std_logic;
+  signal ack_flux_quanta_bank    : std_logic;
   signal ack_adc_offset_bank  : std_logic;
   signal ack_misc_bank : std_logic;
 
@@ -304,34 +308,36 @@ begin  -- struct
   -----------------------------------------------------------------------------
   -- Instantiation of P Banks Admin
   -----------------------------------------------------------------------------
-  i_p_banks_admin : p_banks_admin
+  i_p_banks_admin : pid_ram_admin
+    generic map(
+       DATA_TYPE => P_COEFFICIENT)
     port map (
-    clk_50_i     => clk_50_i,
-    rst_i        => rst_i,
-    p_dat_ch0_o  => p_dat_ch0_o,
-    p_addr_ch0_i => p_addr_ch0_i,
-    p_dat_ch1_o  => p_dat_ch1_o,
-    p_addr_ch1_i => p_addr_ch1_i,
-    p_dat_ch2_o  => p_dat_ch2_o,
-    p_addr_ch2_i => p_addr_ch2_i,
-    p_dat_ch3_o  => p_dat_ch3_o,
-    p_addr_ch3_i => p_addr_ch3_i,
-    p_dat_ch4_o  => p_dat_ch4_o,
-    p_addr_ch4_i => p_addr_ch4_i,
-    p_dat_ch5_o  => p_dat_ch5_o,
-    p_addr_ch5_i => p_addr_ch5_i,
-    p_dat_ch6_o  => p_dat_ch6_o,
-    p_addr_ch6_i => p_addr_ch6_i,
-    p_dat_ch7_o  => p_dat_ch7_o,
-    p_addr_ch7_i => p_addr_ch7_i,
-    dat_i        => dat_i,
-    addr_i       => addr_i,
-    tga_i        => tga_i,
-    we_i         => we_i,
-    stb_i        => stb_i,
-    cyc_i        => cyc_i,
-    qa_p_bank_o  => qa_p_bank,
-    ack_p_bank_o => ack_p_bank);
+       clk_50_i     => clk_50_i,
+       rst_i        => rst_i,
+       dat_ch0_o    => p_dat_ch0_o,
+       addr_ch0_i   => p_addr_ch0_i,
+       dat_ch1_o    => p_dat_ch1_o,
+       addr_ch1_i   => p_addr_ch1_i,
+       dat_ch2_o    => p_dat_ch2_o,
+       addr_ch2_i   => p_addr_ch2_i,
+       dat_ch3_o    => p_dat_ch3_o,
+       addr_ch3_i   => p_addr_ch3_i,
+       dat_ch4_o    => p_dat_ch4_o,
+       addr_ch4_i   => p_addr_ch4_i,
+       dat_ch5_o    => p_dat_ch5_o,
+       addr_ch5_i   => p_addr_ch5_i,
+       dat_ch6_o    => p_dat_ch6_o,
+       addr_ch6_i   => p_addr_ch6_i,
+       dat_ch7_o    => p_dat_ch7_o,
+       addr_ch7_i   => p_addr_ch7_i,
+       dat_i        => dat_i,
+       addr_i       => addr_i,
+       tga_i        => tga_i,
+       we_i         => we_i,
+       stb_i        => stb_i,
+       cyc_i        => cyc_i,
+       qa_bank_o  => qa_p_bank,
+       ack_bank_o => ack_p_bank);
 
 
   
@@ -339,101 +345,105 @@ begin  -- struct
   -- Instantiation of I Banks Admin
   -----------------------------------------------------------------------------
 
-  i_i_banks_admin: i_banks_admin
+  i_i_banks_admin: pid_ram_admin
+    generic map(
+       DATA_TYPE => I_COEFFICIENT)
     port map (
-        clk_50_i     => clk_50_i,
-        rst_i        => rst_i,
-        i_dat_ch0_o  => i_dat_ch0_o,
-        i_addr_ch0_i => i_addr_ch0_i,
-        i_dat_ch1_o  => i_dat_ch1_o,
-        i_addr_ch1_i => i_addr_ch1_i,
-        i_dat_ch2_o  => i_dat_ch2_o,
-        i_addr_ch2_i => i_addr_ch2_i,
-        i_dat_ch3_o  => i_dat_ch3_o,
-        i_addr_ch3_i => i_addr_ch3_i,
-        i_dat_ch4_o  => i_dat_ch4_o,
-        i_addr_ch4_i => i_addr_ch4_i,
-        i_dat_ch5_o  => i_dat_ch5_o,
-        i_addr_ch5_i => i_addr_ch5_i,
-        i_dat_ch6_o  => i_dat_ch6_o,
-        i_addr_ch6_i => i_addr_ch6_i,
-        i_dat_ch7_o  => i_dat_ch7_o,
-        i_addr_ch7_i => i_addr_ch7_i,
-        dat_i        => dat_i,
-        addr_i       => addr_i,
-        tga_i        => tga_i,
-        we_i         => we_i,
-        stb_i        => stb_i,
-        cyc_i        => cyc_i,
-        qa_i_bank_o  => qa_i_bank,
-        ack_i_bank_o => ack_i_bank);
+       clk_50_i     => clk_50_i,
+       rst_i        => rst_i,
+       dat_ch0_o    => i_dat_ch0_o,
+       addr_ch0_i   => i_addr_ch0_i,
+       dat_ch1_o    => i_dat_ch1_o,
+       addr_ch1_i   => i_addr_ch1_i,
+       dat_ch2_o    => i_dat_ch2_o,
+       addr_ch2_i   => i_addr_ch2_i,
+       dat_ch3_o    => i_dat_ch3_o,
+       addr_ch3_i   => i_addr_ch3_i,
+       dat_ch4_o    => i_dat_ch4_o,
+       addr_ch4_i   => i_addr_ch4_i,
+       dat_ch5_o    => i_dat_ch5_o,
+       addr_ch5_i   => i_addr_ch5_i,
+       dat_ch6_o    => i_dat_ch6_o,
+       addr_ch6_i   => i_addr_ch6_i,
+       dat_ch7_o    => i_dat_ch7_o,
+       addr_ch7_i   => i_addr_ch7_i,
+       dat_i        => dat_i,
+       addr_i       => addr_i,
+       tga_i        => tga_i,
+       we_i         => we_i,
+       stb_i        => stb_i,
+       cyc_i        => cyc_i,
+       qa_bank_o  => qa_i_bank,
+       ack_bank_o => ack_i_bank);
   
   -----------------------------------------------------------------------------
   -- Instantiation of D Banks Admin
   -----------------------------------------------------------------------------
 
-  i_d_banks_admin: d_banks_admin
+  i_d_banks_admin: pid_ram_admin
+    generic map(
+       DATA_TYPE => D_COEFFICIENT)
     port map (
-        clk_50_i     => clk_50_i,
-        rst_i        => rst_i,
-        d_dat_ch0_o  => d_dat_ch0_o,
-        d_addr_ch0_i => d_addr_ch0_i,
-        d_dat_ch1_o  => d_dat_ch1_o,
-        d_addr_ch1_i => d_addr_ch1_i,
-        d_dat_ch2_o  => d_dat_ch2_o,
-        d_addr_ch2_i => d_addr_ch2_i,
-        d_dat_ch3_o  => d_dat_ch3_o,
-        d_addr_ch3_i => d_addr_ch3_i,
-        d_dat_ch4_o  => d_dat_ch4_o,
-        d_addr_ch4_i => d_addr_ch4_i,
-        d_dat_ch5_o  => d_dat_ch5_o,
-        d_addr_ch5_i => d_addr_ch5_i,
-        d_dat_ch6_o  => d_dat_ch6_o,
-        d_addr_ch6_i => d_addr_ch6_i,
-        d_dat_ch7_o  => d_dat_ch7_o,
-        d_addr_ch7_i => d_addr_ch7_i,
-        dat_i        => dat_i,
-        addr_i       => addr_i,
-        tga_i        => tga_i,
-        we_i         => we_i,
-        stb_i        => stb_i,
-        cyc_i        => cyc_i,
-        qa_d_bank_o  => qa_d_bank,
-        ack_d_bank_o => ack_d_bank);
+       clk_50_i     => clk_50_i,
+       rst_i        => rst_i,
+       dat_ch0_o    => d_dat_ch0_o,
+       addr_ch0_i   => d_addr_ch0_i,
+       dat_ch1_o    => d_dat_ch1_o,
+       addr_ch1_i   => d_addr_ch1_i,
+       dat_ch2_o    => d_dat_ch2_o,
+       addr_ch2_i   => d_addr_ch2_i,
+       dat_ch3_o    => d_dat_ch3_o,
+       addr_ch3_i   => d_addr_ch3_i,
+       dat_ch4_o    => d_dat_ch4_o,
+       addr_ch4_i   => d_addr_ch4_i,
+       dat_ch5_o    => d_dat_ch5_o,
+       addr_ch5_i   => d_addr_ch5_i,
+       dat_ch6_o    => d_dat_ch6_o,
+       addr_ch6_i   => d_addr_ch6_i,
+       dat_ch7_o    => d_dat_ch7_o,
+       addr_ch7_i   => d_addr_ch7_i,
+       dat_i        => dat_i,
+       addr_i       => addr_i,
+       tga_i        => tga_i,
+       we_i         => we_i,
+       stb_i        => stb_i,
+       cyc_i        => cyc_i,
+       qa_bank_o  => qa_d_bank,
+       ack_bank_o => ack_d_bank);
 
   
   -----------------------------------------------------------------------------
   -- Instantiation of Z Banks Admin
   -----------------------------------------------------------------------------
 
-  i_z_banks_admin: z_banks_admin
+  i_flux_quanta_banks_admin: flux_quanta_ram_admin
     port map (
-        clk_50_i     => clk_50_i,
-        rst_i        => rst_i,
-        z_dat_ch0_o  => z_dat_ch0_o,
-        z_addr_ch0_i => z_addr_ch0_i,
-        z_dat_ch1_o  => z_dat_ch1_o,
-        z_addr_ch1_i => z_addr_ch1_i,
-        z_dat_ch2_o  => z_dat_ch2_o,
-        z_addr_ch2_i => z_addr_ch2_i,
-        z_dat_ch3_o  => z_dat_ch3_o,
-        z_addr_ch3_i => z_addr_ch3_i,
-        z_dat_ch4_o  => z_dat_ch4_o,
-        z_addr_ch4_i => z_addr_ch4_i,
-        z_dat_ch5_o  => z_dat_ch5_o,
-        z_addr_ch5_i => z_addr_ch5_i,
-        z_dat_ch6_o  => z_dat_ch6_o,
-        z_addr_ch6_i => z_addr_ch6_i,
-        z_dat_ch7_o  => z_dat_ch7_o,
-        z_addr_ch7_i => z_addr_ch7_i,
-        dat_i        => dat_i,
-        addr_i       => addr_i,
-        tga_i        => tga_i,
-        we_i         => we_i,
-        stb_i        => stb_i,
-        cyc_i        => cyc_i,
-        qa_z_bank_o  => qa_z_bank,
-        ack_z_bank_o => ack_z_bank);
+        clk_50_i   => clk_50_i,
+        rst_i      => rst_i,
+        dat_ch0_o  => flux_quanta_dat_ch0_o,
+        addr_ch0_i => flux_quanta_addr_ch0_i,
+        dat_ch1_o  => flux_quanta_dat_ch1_o,
+        addr_ch1_i => flux_quanta_addr_ch1_i,
+        dat_ch2_o  => flux_quanta_dat_ch2_o,
+        addr_ch2_i => flux_quanta_addr_ch2_i,
+        dat_ch3_o  => flux_quanta_dat_ch3_o,
+        addr_ch3_i => flux_quanta_addr_ch3_i,
+        dat_ch4_o  => flux_quanta_dat_ch4_o,
+        addr_ch4_i => flux_quanta_addr_ch4_i,
+        dat_ch5_o  => flux_quanta_dat_ch5_o,
+        addr_ch5_i => flux_quanta_addr_ch5_i,
+        dat_ch6_o  => flux_quanta_dat_ch6_o,
+        addr_ch6_i => flux_quanta_addr_ch6_i,
+        dat_ch7_o  => flux_quanta_dat_ch7_o,
+        addr_ch7_i => flux_quanta_addr_ch7_i,
+        dat_i      => dat_i,
+        addr_i     => addr_i,
+        tga_i      => tga_i,
+        we_i       => we_i,
+        stb_i      => stb_i,
+        cyc_i      => cyc_i,
+        qa_bank_o  => qa_flux_quanta_bank,
+        ack_bank_o => ack_flux_quanta_bank);
 
 
   -----------------------------------------------------------------------------
@@ -505,6 +515,7 @@ begin  -- struct
         ramp_amp_o              => ramp_amp_o,
         const_val_o             => const_val_o,
         num_ramp_frame_cycles_o => num_ramp_frame_cycles_o,
+        flux_jumping_en_o       => flux_jumping_en_o,
         dat_i                   => dat_i,
         addr_i                  => addr_i,
         tga_i                   => tga_i,
@@ -523,32 +534,32 @@ begin  -- struct
   -- 2. Acknowlege is ORing of the acknowledge signals from all Admins.
   -----------------------------------------------------------------------------
 
-  ack_o <= ack_p_bank or ack_d_bank or ack_i_bank or ack_z_bank or
+  ack_o <= ack_p_bank or ack_d_bank or ack_i_bank or ack_flux_quanta_bank or
            ack_adc_offset_bank or ack_misc_bank;
   
 
   with addr_i select
     dat_o <=
-    qa_p_bank          when GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
-                            GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
-                            GAINP6_ADDR | GAINP7_ADDR,
-    qa_i_bank          when GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
-                            GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR |
-                            GAINI6_ADDR | GAINI7_ADDR,
-    qa_d_bank          when GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
-                            GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
-                            GAIND6_ADDR | GAIND7_ADDR,
-    qa_z_bank          when ZERO0_ADDR | ZERO1_ADDR | ZERO2_ADDR | ZERO3_ADDR |
-                            ZERO4_ADDR | ZERO5_ADDR | ZERO6_ADDR | ZERO7_ADDR,
-    qa_adc_offset_bank when ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
-                            ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
-                            ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
-                            ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR,
-    qa_misc_bank       when FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
-                            RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
-                            SA_BIAS_ADDR   | OFFSET_ADDR,
+    qa_p_bank           when GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
+                             GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
+                             GAINP6_ADDR | GAINP7_ADDR,
+    qa_i_bank           when GAINI0_ADDR | GAINI1_ADDR | GAINI2_ADDR |
+                             GAINI3_ADDR | GAINI4_ADDR | GAINI5_ADDR |
+                             GAINI6_ADDR | GAINI7_ADDR,
+    qa_d_bank           when GAIND0_ADDR | GAIND1_ADDR | GAIND2_ADDR |
+                             GAIND3_ADDR | GAIND4_ADDR | GAIND5_ADDR |
+                             GAIND6_ADDR | GAIND7_ADDR,
+    qa_flux_quanta_bank when FLX_QUANTA0_ADDR | FLX_QUANTA1_ADDR | FLX_QUANTA2_ADDR | FLX_QUANTA3_ADDR |
+                             FLX_QUANTA4_ADDR | FLX_QUANTA5_ADDR | FLX_QUANTA6_ADDR | FLX_QUANTA7_ADDR,
+    qa_adc_offset_bank  when ADC_OFFSET0_ADDR | ADC_OFFSET1_ADDR |
+                             ADC_OFFSET2_ADDR | ADC_OFFSET3_ADDR |
+                             ADC_OFFSET4_ADDR | ADC_OFFSET5_ADDR |
+                             ADC_OFFSET6_ADDR | ADC_OFFSET7_ADDR,
+    qa_misc_bank        when FILT_COEF_ADDR | SERVO_MODE_ADDR | RAMP_STEP_ADDR |
+                             RAMP_AMP_ADDR  | FB_CONST_ADDR   | RAMP_DLY_ADDR  |
+                             SA_BIAS_ADDR   | OFFSET_ADDR     | EN_FB_JUMP_ADDR,
     
-    (others => '0')    when others;        -- default to zero
+    (others => '0')     when others;        -- default to zero
 
   
   

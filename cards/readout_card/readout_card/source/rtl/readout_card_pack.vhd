@@ -32,6 +32,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.3  2005/05/06 20:02:31  bburger
+-- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
+-- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
+--
 -- Revision 1.2  2005/03/18 01:28:19  mohsen
 -- Added comments for fv_rev blk component.
 --
@@ -221,8 +225,27 @@ package readout_card_pack is
   
   
   -----------------------------------------------------------------------------
-  -- 
+  -- Thermometer Component
   -----------------------------------------------------------------------------
+  component id_thermo
+     port(
+        clk_i : in std_logic;
+        rst_i : in std_logic;
+        
+        -- Wishbone signals
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_i    : in std_logic;
+        stb_i   : in std_logic;
+        cyc_i   : in std_logic;
+        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+        ack_o   : out std_logic;
+           
+        -- silicon id/temperature chip signals
+        data_io : inout std_logic
+     );
+  end component;
   
   
 end readout_card_pack;

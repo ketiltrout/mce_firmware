@@ -21,7 +21,7 @@
 --
 -- p_banks_admin.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -68,6 +68,11 @@
 -- Revision history:
 -- 
 -- $Log: p_banks_admin.vhd,v $
+-- Revision 1.3  2004/12/17 00:41:37  mohsen
+-- To reduce memory requirements, the p/i/d/z and adc_offset values are not readable by the Dispatch.
+-- To limit changes, still using 3-port RAM but leave one output port open and ground the output to Dispatch.
+-- This synthesizes into one true dual port, similar to the ideal case of having a 2-port.
+--
 -- Revision 1.2  2004/11/26 18:28:35  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -148,15 +153,23 @@ architecture rtl of p_banks_admin is
   -----------------------------------------------------------------------------
   -- Signals from P Banks
   -----------------------------------------------------------------------------
-  signal qa_p_bank_ch0 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_p_bank_ch1 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_p_bank_ch2 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_p_bank_ch3 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_p_bank_ch4 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_p_bank_ch5 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_p_bank_ch6 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-  signal qa_p_bank_ch7 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal qa_p_bank_ch0 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
+  signal qa_p_bank_ch1 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
+  signal qa_p_bank_ch2 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
+  signal qa_p_bank_ch3 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
+  signal qa_p_bank_ch4 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
+  signal qa_p_bank_ch5 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
+  signal qa_p_bank_ch6 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
+  signal qa_p_bank_ch7 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
 
+  signal p_dat_ch0     : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
+  signal p_dat_ch1     : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
+  signal p_dat_ch2     : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
+  signal p_dat_ch3     : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
+  signal p_dat_ch4     : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
+  signal p_dat_ch5     : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
+  signal p_dat_ch6     : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
+  signal p_dat_ch7     : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
   
   -----------------------------------------------------------------------------
   -- Signals from P Controller
@@ -171,7 +184,8 @@ architecture rtl of p_banks_admin is
   signal wren_p_bank_ch7  : std_logic;
   signal ack_read_p_bank  : std_logic;
   signal ack_write_p_bank : std_logic;
-
+  
+  signal dat : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
 
   
 begin  -- rtl
@@ -181,137 +195,157 @@ begin  -- rtl
   -- Instantiation of P Banks
   -----------------------------------------------------------------------------
 
-  i_p_bank_ch0 : wbs_fb_storage
+  dat <= "100000000" when conv_integer(signed(dat_i)) < -256 else
+         "011111111" when conv_integer(signed(dat_i)) >  255 else dat_i(8 downto 0);
+  
+  p_dat_ch0_o <= sign_xtnd_to_32(p_dat_ch0); 
+  p_dat_ch1_o <= sign_xtnd_to_32(p_dat_ch1);
+  p_dat_ch2_o <= sign_xtnd_to_32(p_dat_ch2);
+  p_dat_ch3_o <= sign_xtnd_to_32(p_dat_ch3);
+  p_dat_ch4_o <= sign_xtnd_to_32(p_dat_ch4);
+  p_dat_ch5_o <= sign_xtnd_to_32(p_dat_ch5);
+  p_dat_ch6_o <= sign_xtnd_to_32(p_dat_ch6);
+  p_dat_ch7_o <= sign_xtnd_to_32(p_dat_ch7);
+  
+  i_p_bank_ch0 : pid_ram
     port map (
-    data        => dat_i,                             -- from dispatch
+    data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_a => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_b => p_addr_ch0_i,                      -- from flux_loop_ctrl ch0
     wren        => wren_p_bank_ch0,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => open,                              -- not used anymore
-    qb          => p_dat_ch0_o);                      -- to flux_loop_ctrl ch0
+    qa          => qa_p_bank_ch0,                              -- not used anymore
+--    qa          => open,                              -- not used anymore
+    qb          => p_dat_ch0);                        -- to flux_loop_ctrl ch0
 
-  qa_p_bank_ch0 <= (others => '0');     -- Decided not to have access through
+--  qa_p_bank_ch0 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
 
-  i_p_bank_ch1 : wbs_fb_storage
+  i_p_bank_ch1 : pid_ram
     port map (
-    data        => dat_i,                             -- from dispatch
+    data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_a => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_b => p_addr_ch1_i,                      -- from flux_loop_ctrl ch1
     wren        => wren_p_bank_ch1,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => open,                              -- not used anymore
-    qb          => p_dat_ch1_o);                      -- to flux_loop_ctrl ch1
+    qa          => qa_p_bank_ch1,                              -- not used anymore
+--    qa          => open,                              -- not used anymore
+    qb          => p_dat_ch1);                      -- to flux_loop_ctrl ch1
 
 
-  qa_p_bank_ch1 <= (others => '0');     -- Decided not to have access through
+--  qa_p_bank_ch1 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
   
-  i_p_bank_ch2 : wbs_fb_storage
+  i_p_bank_ch2 : pid_ram
     port map (
-    data        => dat_i,                             -- from dispatch
+    data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_a => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_b => p_addr_ch2_i,                      -- from flux_loop_ctrl ch2
     wren        => wren_p_bank_ch2,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => open,                              -- not used anymore
-    qb          => p_dat_ch2_o);                      -- to flux_loop_ctrl ch2
+    qa          => qa_p_bank_ch2,                              -- not used anymore
+--    qa          => open,                              -- not used anymore
+    qb          => p_dat_ch2);                      -- to flux_loop_ctrl ch2
 
 
-  qa_p_bank_ch2 <= (others => '0');     -- Decided not to have access through
+--  qa_p_bank_ch2 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
 
-  i_p_bank_ch3 : wbs_fb_storage
+  i_p_bank_ch3 : pid_ram
     port map (
-    data        => dat_i,                             -- from dispatch
+    data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_a => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_b => p_addr_ch3_i,                      -- from flux_loop_ctrl ch3
     wren        => wren_p_bank_ch3,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => open,                              -- not used anymore
-    qb          => p_dat_ch3_o);                      -- to flux_loop_ctrl ch3
+    qa          => qa_p_bank_ch3,                              -- not used anymore
+--    qa          => open,                              -- not used anymore
+    qb          => p_dat_ch3);                      -- to flux_loop_ctrl ch3
 
 
-  qa_p_bank_ch3 <= (others => '0');     -- Decided not to have access through
+--  qa_p_bank_ch3 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
 
-  i_p_bank_ch4 : wbs_fb_storage
+  i_p_bank_ch4 : pid_ram
     port map (
-    data        => dat_i,                             -- from dispatch
+    data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_a => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_b => p_addr_ch4_i,                      -- from flux_loop_ctrl ch4
     wren        => wren_p_bank_ch4,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => open,                              -- not used anymore
-    qb          => p_dat_ch4_o);                      -- to flux_loop_ctrl ch4
+    qa          => qa_p_bank_ch4,                              -- not used anymore
+--    qa          => open,                              -- not used anymore
+    qb          => p_dat_ch4);                      -- to flux_loop_ctrl ch4
 
 
-  qa_p_bank_ch4 <= (others => '0');     -- Decided not to have access through
+--  qa_p_bank_ch4 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
 
-  i_p_bank_ch5 : wbs_fb_storage
+  i_p_bank_ch5 : pid_ram
     port map (
-    data        => dat_i,                             -- from dispatch
+    data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_a => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_b => p_addr_ch5_i,                      -- from flux_loop_ctrl ch5
     wren        => wren_p_bank_ch5,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => open,                              -- not used anymore
-    qb          => p_dat_ch5_o);                      -- to flux_loop_ctrl ch5
-  
+    qa          => qa_p_bank_ch5,                              -- not used anymore
+--    qa          => open,                              -- not used anymore
+    qb          => p_dat_ch5);                      -- to flux_loop_ctrl ch5
+ 
 
-  qa_p_bank_ch5 <= (others => '0');     -- Decided not to have access through
+--  qa_p_bank_ch5 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
 
-  i_p_bank_ch6 : wbs_fb_storage
+  i_p_bank_ch6 : pid_ram
     port map (
-    data        => dat_i,                             -- from dispatch
+    data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_a => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_b => p_addr_ch6_i,                      -- from flux_loop_ctrl ch6
     wren        => wren_p_bank_ch6,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => open,                              -- not used anymore
-    qb          => p_dat_ch6_o);                      -- to flux_loop_ctrl ch6
+    qa          => qa_p_bank_ch6,                              -- not used anymore
+--    qa          => open,                              -- not used anymore
+    qb          => p_dat_ch6);                      -- to flux_loop_ctrl ch6
 
 
-  qa_p_bank_ch6 <= (others => '0');     -- Decided not to have access through
+--  qa_p_bank_ch6 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
 
-  i_p_bank_ch7 : wbs_fb_storage
+  i_p_bank_ch7 : pid_ram
     port map (
-    data        => dat_i,                             -- from dispatch
+    data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_a => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
     rdaddress_b => p_addr_ch7_i,                      -- from flux_loop_ctrl ch7
     wren        => wren_p_bank_ch7,                   -- from controller
     clock       => clk_50_i,                          -- global input
-    qa          => open,                              -- not used anymore
-    qb          => p_dat_ch7_o);                      -- to flux_loop_ctrl ch7
+    qa          => qa_p_bank_ch7,                              -- not used anymore
+--    qa          => open,                              -- not used anymore
+    qb          => p_dat_ch7);                      -- to flux_loop_ctrl ch7
 
 
-  qa_p_bank_ch7 <= (others => '0');     -- Decided not to have access through
+--  qa_p_bank_ch7 <= (others => '0');     -- Decided not to have access through
                                         -- dispatch. However, still use 3-port
                                         -- ram to limit changes.
 
@@ -458,15 +492,15 @@ begin  -- rtl
 
   with addr_i select
     qa_p_bank_o <=
-    qa_p_bank_ch0 when GAINP0_ADDR,
-    qa_p_bank_ch1 when GAINP1_ADDR,
-    qa_p_bank_ch2 when GAINP2_ADDR,
-    qa_p_bank_ch3 when GAINP3_ADDR,
-    qa_p_bank_ch4 when GAINP4_ADDR,
-    qa_p_bank_ch5 when GAINP5_ADDR,
-    qa_p_bank_ch6 when GAINP6_ADDR,
-    qa_p_bank_ch7 when GAINP7_ADDR,
-    qa_p_bank_ch0 when others;        -- default to ch0
+    sign_xtnd_to_32(qa_p_bank_ch0) when GAINP0_ADDR,
+    sign_xtnd_to_32(qa_p_bank_ch1) when GAINP1_ADDR,
+    sign_xtnd_to_32(qa_p_bank_ch2) when GAINP2_ADDR,
+    sign_xtnd_to_32(qa_p_bank_ch3) when GAINP3_ADDR,
+    sign_xtnd_to_32(qa_p_bank_ch4) when GAINP4_ADDR,
+    sign_xtnd_to_32(qa_p_bank_ch5) when GAINP5_ADDR,
+    sign_xtnd_to_32(qa_p_bank_ch6) when GAINP6_ADDR,
+    sign_xtnd_to_32(qa_p_bank_ch7) when GAINP7_ADDR,
+    sign_xtnd_to_32(qa_p_bank_ch0) when others;        -- default to ch0
 
   
   

@@ -21,7 +21,7 @@
 --
 -- tb_fsfb_processor.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Anthony Ko
 -- Organisation:  UBC
 --
@@ -36,6 +36,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_processor.vhd,v $
+-- Revision 1.4  2004/12/17 00:39:16  anthonyk
+-- Number of clock cycles per row requirement is now changed to accomodate the increased latency of the shared pidz multiplier scheme.
+--
 -- Revision 1.3  2004/11/26 18:26:45  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -342,26 +345,26 @@ begin
       )
       port map (
          rst_i                    => rst,
-   	 clk_50_i                 => processor_clk_i,
-   	 coadd_done_i             => adc_coadd_done_i,
-   	 current_coadd_dat_i      => adc_coadd_dat_i,
-   	 current_diff_dat_i       => adc_diff_dat_i,
-   	 current_integral_dat_i   => adc_integral_dat_i,
-   	 ramp_update_new_i        => io_ramp_update_new_i,
-   	 initialize_window_ext_i  => io_initialize_window_ext_i,
-   	 previous_fsfb_dat_rdy_i  => io_fsfb_dat_rdy_i,   
-   	 previous_fsfb_dat_i      => io_fsfb_dat_i,   
-   	 servo_mode_i             => ws_servo_mode_i,
-   	 ramp_step_size_i         => ws_ramp_step_size_i,
-   	 ramp_amp_i               => ws_ramp_amp_i,
-   	 const_val_i              => ws_const_val_i,
-   	 p_dat_i                  => ws_p_dat_i,
-   	 i_dat_i                  => ws_i_dat_i,
-   	 d_dat_i                  => ws_d_dat_i,
-   	 z_dat_i                  => ws_z_dat_i,
-         fsfb_proc_update_o       => processor_update_o,
-         fsfb_proc_dat_o          => processor_dat_o,
-         fsfb_proc_lock_en_o      => processor_lock_en_o
+       clk_50_i                 => processor_clk_i,
+       coadd_done_i             => adc_coadd_done_i,
+       current_coadd_dat_i      => adc_coadd_dat_i,
+       current_diff_dat_i       => adc_diff_dat_i,
+       current_integral_dat_i   => adc_integral_dat_i,
+       ramp_update_new_i        => io_ramp_update_new_i,
+       initialize_window_ext_i  => io_initialize_window_ext_i,
+       previous_fsfb_dat_rdy_i  => io_fsfb_dat_rdy_i,   
+       previous_fsfb_dat_i      => io_fsfb_dat_i,   
+       servo_mode_i             => ws_servo_mode_i,
+       ramp_step_size_i         => ws_ramp_step_size_i,
+       ramp_amp_i               => ws_ramp_amp_i,
+       const_val_i              => ws_const_val_i,
+       p_dat_i                  => ws_p_dat_i,
+       i_dat_i                  => ws_i_dat_i,
+       d_dat_i                  => ws_d_dat_i,
+--     z_dat_i                  => ws_z_dat_i,
+       fsfb_proc_update_o       => processor_update_o,
+       fsfb_proc_dat_o          => processor_dat_o,
+       fsfb_proc_lock_en_o      => processor_lock_en_o
       );  
  
  
