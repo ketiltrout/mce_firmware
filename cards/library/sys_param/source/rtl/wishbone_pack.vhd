@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/03/19 00:31:23 $> - <initials $Author: bburger $>
+-- <date $Date: 2005/03/31 01:08:19 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.24  2005/03/31 01:08:19  bburger
+-- Bryce:  removed the row_map command from the address card
+--
 -- Revision 1.23  2005/03/19 00:31:23  bburger
 -- bryce:  Fixed several bugs.  Tagging cc_01010007.
 --
@@ -158,14 +161,14 @@ package wishbone_pack is
    constant GAINI5_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"7D";
    constant GAINI6_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"7E";
    constant GAINI7_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"7F";
-   constant ZERO0_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"80";
-   constant ZERO1_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"81";
-   constant ZERO2_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"82";
-   constant ZERO3_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"83";
-   constant ZERO4_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"84";
-   constant ZERO5_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"85";
-   constant ZERO6_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"86";
-   constant ZERO7_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"87";
+   constant FLX_QUANTA0_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"80";
+   constant FLX_QUANTA1_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"81";
+   constant FLX_QUANTA2_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"82";
+   constant FLX_QUANTA3_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"83";
+   constant FLX_QUANTA4_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"84";
+   constant FLX_QUANTA5_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"85";
+   constant FLX_QUANTA6_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"86";
+   constant FLX_QUANTA7_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"87";
    constant GAIND0_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"88";
    constant GAIND1_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"89";
    constant GAIND2_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"8A";
@@ -184,6 +187,7 @@ package wishbone_pack is
    constant ADC_OFFSET7_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6F";
    
    -- All Readout Cards
+   constant EN_FB_JUMP_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"15";
    constant RET_DAT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
    constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"17";
    constant CAPTR_RAW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"18";
