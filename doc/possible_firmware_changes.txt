@@ -1,0 +1,188 @@
+Features of the firmware sent to Cardiff that may be changed in later versions of firmware. [comments as of June 20, 2005]
+
+1- Bryce Burger, Feb 12 2005 
+
+The data-packet headers contain some information, but not all that is expected in the final system.  Critical information
+(like the Address Card's row addressing order) are in the header, but most other things (like FPGA temperatures) will be
+added later.
+[In each frame header: 
+temperature for cc only at this time but perhaps later for all the cards, we can send the temperature as part of the status
+word in the data frame header and avoid sending internal commands to ask for the temperatures,
+timestamp (on-board real-time counter or vhdl-counter??),
+implementation of timestamp has more priority over temperature]
+
+2- Ernie Lin, Feb 12 2005 
+
+The reply_queue and dispatch blocks cannot recover from bit errors over the bus backplane.  For instance, when the
+reply_queue detects a CRC error, it discards the packet and the command eventually times out at the reply_queue-level.
+Error correcting codes (ECC) can be used to detect errors and fix them thus eliminating the need to discard packets.
+[Ernie: there are different scenarios, RTL should be informed of CRC failure and the whole recovery path should be
+reinvented]
+
+3- Bryce Burger, Feb 12 2005 (closed)
+
+Currently, the dispatch block on each card handles one instruction at a time.  The ability to queue up instructions in the
+dispatch block may be implemented later.
+[Not an issue anymore]
+
+4- Bryce Burger, Feb 12 2005 
+
+The frame_timing block currently does a very simple type of re-synchronization:  it readjusts immediately to a sync pulse
+that arrives out of phase from the previous sync pulse.  Sync-pulses are encoded over the bus backplane so that a simple
+glitch on the sync line should not cause the frame_timing block to reset.  At a later date, the frame_timing block may be
+implemented to resynchronize to the sync pulse only when commanded to do so.
+
+[Bryce: Define test cases to see if the current implementation workds and although it can not tolerate missing incoming 
+sync pulses can still handle lost sync pulse over backplane. 
+If it turns out that the current implementation is not enough, then each card should be capable of counting on its own 0 to
+41 and detect a missing sync pulse and reset in that case]
+
+5- Bryce Burger, Feb 12 2005 
+
+Currently the receipt of a DV pulse has no effect in the sync_gen block.  The sync_gen block eventually needs to trigger the
+issue of ret_dat commands in response to DV pulses.
+
+[Bryce: ]
+
+6- Mohsen Nahvi, Anthony Ko, Feb 12 2005 [No priority]
+
+Currently the way that pack files are used for readout card firmware differs from
+the way that they are used in the rest of the firmware.  A consistent approach for the use of pack files should be adopted.
+[cosmetic]
+
+7- Bryce Burger, Feb 12 2005 (Closed) 
+
+Currently, the 200 MHz mem_clock is still used in some parts of the MCE.  In general,
+the 200 MHz mem_clock should not be used, but instead of replacing it on a case-by-case basis, the firmware team should
+disscuss and agree on a standard approach to the clocking scheme.
+
+8- Ernie Lin, Bryce Burger, Feb 12 2005 
+
+Currently, if the reply_queue does not receive all of the data that it expects from all of the cards that should respond to
+a command, it scraps the whole response after timing out, and the Realtime Linux PC evetually times out (after a few
+seconds).  Eventually, we may want to implement the reply_queue so that it generates an error packet to return to the
+Realtime Linux PC.  This would reduce the time that the Realtime Linux PC would wait before it finds out that an error has
+occurred.  A better option would be to implement the reply_queue so that it inserts dummy data in reply packets where data
+words from cards that should have responded should have been.
+
+[Ernie: Grouped with Item 2, high priority]
+
+9- Bryce Burger, Feb 12 2005  
+
+In engineering mode, ret_dat commands are issued by the clock card at a hardcoded rate.  In the future, the rate may be
+commandable, so that the speed at which data frames are returned without a sync pulse can be changed with a command.
+
+[low priority]
+
+10- Bryce Burger, Feb 12 2005 
+
+On the readout card, the 8-bit window that is captured for each raw-data point is hardcoded at a certain position.  In the
+future, the capture-range of the 8-bit raw_data window may be commandable.  This feature may also be implemented for the
+flux_feedback, FB data and FB error.
+
+[Not a priority at this time]
+
+11- Mandana Amiri, Feb 12 2005 
+
+Currently, all ram bytes in the MCE are initialized to 0x00 upon reset.  In the future, hex files may be incorporated into
+the firmware to initialize RAM blocks to more appropriate values.
+
+[Not a priority: but double check what is stored in the RAM]
+
+12- Bryce Burger, Feb 12 2005 
+
+On the RC, in the fsfb_calc block, the feedback result is 65 bits plus a sign bit.  However, the feedback value to the DACs
+is only 13 bits which means that if the window of 13 bits that the DACs see from the fsfb_calc block wrap around
+(regularly), the DACs will have aliasing outputs.  An alternative approach would be to clamp the dac value at it’s max or
+min value of the window that the 14-bit dac uses to generate its output.  The clamping value would depend on where the 14
+bit window is located.
+
+[obsolete: taken care by FLUX jumping]
+
+13- Bryce Burger, Mandana Amiri, Feb 12 2005 
+
+The CVS directory structure should be discussed, and changes made to suit the repository as it continues to grow, if
+necessary.
+
+14- Bryce Burger, Mandana Amiri, Feb 12 2005 
+
+Currently, the functions of the LEDs are not defined.  The LEDs should all have clearly defined functions.
+
+[FYI: NIST uses LEDs to indicate locked pixel
+Sync lost
+over temperature
+CRC error
+]
+
+15- Mandana Amiri, Ernie Lin, Feb 12 2005 
+
+Several recirculation muxes currently exist in the firmware.  They should be removed and replaced by registers with enable.
+
+[cosmietic]
+
+16- Mandana Amiri, Feb 23 2005 
+
+Add debug ports to all firmware blocks, for easy use of the logic analyzer.  We may opt to use 'inout' ports.
+
+17- Bryce Burger, Ernie Lin, Feb 23 2005 Implement the JTAG controller.
+
+18- Ernie Lin, Mar 1 2005 Rethink and implement error code scheme in reply_queue.  Currently, error code is hardcoded to
+COMMAND_SUCCESS (errors not transmitted).
+
+19- Mandana Amiri, Mar 1 2005 
+
+REWRITE REPLY_TRANSLATOR
+
+[cosmetic]
+
+20- Mandana Amiri, Mar 1 2005 
+
+Bias card bc_dac_ctrl implementation should be modified to write to all SPI DACs in parallel. Currently, it writes to one
+DAC at a time which takes 24us to update all the DACs.
+
+21- Mandana Amiri, Mar 2 2005 
+
+Address card: unify all the RAM blocks in bc_dac_ctrl_wbs and change the base_address depending on which Command (on_bias,
+off_bias, row_order) is issued.
+
+22- Bryce Burger, Ernie Lin, Mar 3 2005 
+
+The cmd_translator seems a little bloated for the functionality that it actually is
+responsible for.  It may be possible to re-vamp it into a condition that is lean and mean.
+
+23- Bryce Burger, Mar 3 2005 
+
+GO commands are treated as RB commands by the cmd_queue, but the data size of all GO commands is hardwired to 328 pieces of
+data per readout card.  I wonder if there is a better way of treating GO commands in the electronics.  Perhaps a GO commands
+should set a register in a wishbone slave that causes the internal-command FSM to issue data commands, instead of being
+yanked out of the command chain by the cmd_translator.
+
+24- Bryce Burger, Mar 3 2005 
+
+The internal-command FSM only issues commands that do one thing in the MCE.  Eventually, it needs to be able to issue
+several different commands.
+
+25- Bryce Burger, Apr 7 2005 Implement a self-test mode that will allow us to detect missing codes in the ADCs, by rampling
+certain DACs up and down, and creating a histogram for all 2^14 codes, and another histogram for each of the 14 bits.
+
+26- Bryce Burger, Apr 13 2005 (closed) The frame_timing blocks will have synchronizers remove the rist of metastability
+during the receipt of sync-pulses
+
+27- Bryce Burger - in consultation with William Hue, Apr 15 2005 
+
+Currently the RC SABias and Feedback DACs are loaded with new values at regular intervals (every frame).  However, this
+control can cause transients on the outputs of the DACs, even if the value being loaded is the same from one frame to the
+next.  It would be preferrable if the SABias and Offset were only loaded when their values are changed over the wishbone
+interface, by command.
+
+28- Bryce Burger Change the encoding of the sync pulse so that it matches the clock rate over the lvds lines (25 MHz)
+
+29- Bryce Burger/MA readout card -raw capture mode: 
+
+The memory size for raw mode is 8192 (i.e. RAW_ADDR_WIDTH=13), the address counter for the memory wraps and overwrites the
+memory when row_len=128 or 256. It should be changed so that the addr_index doesn't wrap.
+
+30- Mark Halpern
+Change raw data mode to return full buffer and not limited by 41x128.
+
+[Mandana to investigate]
