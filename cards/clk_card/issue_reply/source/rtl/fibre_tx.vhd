@@ -31,6 +31,13 @@
 -- Revision history:
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.4  2005/09/16 23:08:50  erniel
+-- completely rewrote module:
+--      interface changed to support 32-bit data natively
+--      interface changed to support rdy/busy handshaking
+--      combined modules that were previously separate
+--      renamed entity ports
+--
 -- Revision 1.3  2004/11/24 01:15:52  bench2
 -- Greg: Broke apart issue reply and created pack files for all of its sub-components
 --
@@ -81,7 +88,7 @@ end fibre_tx;
 
 architecture rtl of fibre_tx is 
 
-type states is (IDLE, READ_BUF, SEND_BYTE0, SEND_BYTE1, SEND_BYTE2, SEND_BYTE3);
+type states is (IDLE, SEND_BYTE0, SEND_BYTE1, SEND_BYTE2, SEND_BYTE3);
 signal pres_state : states;
 signal next_state : states;
 
@@ -141,12 +148,10 @@ begin
    begin
       case pres_state is
          when IDLE =>       if(buf_empty = '0') then      -- if there is a word in the buffer, start sending
-                               next_state <= READ_BUF;
+                               next_state <= SEND_BYTE0;
                             else
                                next_state <= IDLE;
                             end if;
-         
-         when READ_BUF =>   next_state <= SEND_BYTE0;     -- fetch a word from the buffer
          
          when SEND_BYTE0 => next_state <= SEND_BYTE1;     -- send 4 bytes in 4 consecutive clock cycles
          
@@ -154,22 +159,26 @@ begin
          
          when SEND_BYTE2 => next_state <= SEND_BYTE3;
          
-         when SEND_BYTE3 => next_state <= IDLE;     
+         when SEND_BYTE3 => if(buf_empty = '0') then
+                               next_state <= SEND_BYTE0;
+                            else
+                               next_state <= IDLE;     
+                            end if;
          
          when others =>     next_state <= IDLE;
       end case;
    end process;
    
-   process(pres_state, buf_data) 
+   process(pres_state, buf_empty, buf_data) 
    begin
       buf_read     <= '0';
       fibre_data_o <= (others => '0');
       fibre_nena_o <= '1';
       
       case pres_state is
-         when IDLE =>       null;
-         
-         when READ_BUF =>   buf_read <= '1';
+         when IDLE =>       if(buf_empty = '0') then
+                               buf_read <= '1';
+                            end if;
          
          when SEND_BYTE0 => fibre_data_o <= buf_data(7 downto 0);
                             fibre_nena_o <= '0';
@@ -180,7 +189,11 @@ begin
          when SEND_BYTE2 => fibre_data_o <= buf_data(23 downto 16);
                             fibre_nena_o <= '0';
          
-         when SEND_BYTE3 => fibre_data_o <= buf_data(31 downto 24);
+         when SEND_BYTE3 => if(buf_empty = '0') then
+                               buf_read <= '1';
+                            end if;
+                            
+                            fibre_data_o <= buf_data(31 downto 24);
                             fibre_nena_o <= '0';
                             
          when others =>     null;
