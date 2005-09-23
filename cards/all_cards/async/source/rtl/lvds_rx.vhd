@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.12  2005/03/31 00:51:05  erniel
+-- fixed lvds synchronizer initial state
+--
 -- Revision 1.11  2005/03/23 23:23:46  erniel
 -- added synchronizer on lvds_i
 --
@@ -76,12 +79,17 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+library altera_mf;
+use altera_mf.altera_mf_components.all;
 
 library components;
 use components.component_pack.all;
 
 entity lvds_rx is
-port(comm_clk_i : in std_logic;
+port(clk_i      : in std_logic;
+     comm_clk_i : in std_logic;
      rst_i      : in std_logic;
      
      dat_o      : out std_logic_vector(31 downto 0);
@@ -96,7 +104,7 @@ architecture rtl of lvds_rx is
 signal lvds      : std_logic;
 signal lvds_temp : std_logic;
 
-signal sample_count     : integer range 0 to 272;
+signal sample_count     : std_logic_vector(8 downto 0);
 signal sample_count_ena : std_logic;
 signal sample_count_clr : std_logic;
 
@@ -109,27 +117,42 @@ signal rx_buf     : std_logic_vector(33 downto 0);
 signal rx_buf_ena : std_logic;
 signal rx_buf_clr : std_logic;
 
-signal data_ld : std_logic;
+signal data_buf_write : std_logic;
+signal data_buf_read  : std_logic;
+signal data_buf_full  : std_logic;
+signal data_buf_empty : std_logic;
 
-signal rdy : std_logic;
+type datapath_states is (IDLE, RECV);
+signal datapath_ps : datapath_states;
+signal datapath_ns : datapath_states;
 
-signal ack      : std_logic;
-signal ack_temp : std_logic;
-
-type states is (IDLE, RECV, READY);
-signal pres_state : states;
-signal next_state : states;
+type interface_states is (IDLE, READY);
+signal interface_ps : interface_states;
+signal interface_ns : interface_states;
 
 begin
+   
+   -- bring lvds_i into comm_clk domain from asynch domain using a synchronizer:
+   process(rst_i, comm_clk_i)
+   begin
+      if(rst_i = '1') then   
+         lvds_temp <= '1';   -- idle state of lvds line is high
+         lvds      <= '1';
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
+         lvds_temp <= lvds_i;
+         lvds      <= lvds_temp;
+      end if;
+   end process;
     
-   sample_counter: counter
-   generic map(MAX => 271,
-               WRAP_AROUND => '0')
+   sample_counter: binary_counter
+   generic map(WIDTH => 9)
    port map(clk_i   => comm_clk_i,
             rst_i   => rst_i,
             ena_i   => sample_count_ena,
-            load_i  => sample_count_clr,
-            count_i => 0,
+            up_i    => '1',
+            load_i  => '0',
+            clear_i => sample_count_clr,
+            count_i => (others => '0'),
             count_o => sample_count);
             
    rx_sample: shift_reg
@@ -161,53 +184,65 @@ begin
             parallel_i => (others => '0'),
             parallel_o => rx_buf);
             
-   data_buffer: reg
-   generic map(WIDTH => 32)
-   port map(clk_i  => comm_clk_i,
-            rst_i  => rst_i,
-            ena_i  => data_ld,
- 
-            reg_i  => rx_buf(32 downto 1),
-            reg_o  => dat_o);
+   data_buffer: dcfifo
+   generic map(intended_device_family  => "Stratix",
+               lpm_width               => 32,
+               lpm_numwords            => 16,
+               lpm_widthu              => 4,
+               clocks_are_synchronized => "TRUE",
+               lpm_type                => "dcfifo",
+               lpm_showahead           => "OFF",
+               overflow_checking       => "ON",
+               underflow_checking      => "ON",
+               use_eab                 => "ON",
+               add_ram_output_register => "OFF",
+               lpm_hint                => "RAM_BLOCK_TYPE=AUTO")
+   port map(wrclk   => comm_clk_i,
+            rdclk   => clk_i,
+            wrreq   => data_buf_write,
+            rdreq   => data_buf_read,
+            data    => rx_buf(32 downto 1),
+            q       => dat_o,
+            aclr    => rst_i,
+            wrfull  => data_buf_full,
+            rdempty => data_buf_empty); 
 
 
 ------------------------------------------------------------
 --
---  Receive FSM : Controls the receiver datapath
+--  Datapath FSM : Controls the receiver datapath
 --
 ------------------------------------------------------------
 
-   stateFF: process(rst_i, comm_clk_i)
+   dp_stateFF: process(rst_i, comm_clk_i)
    begin
       if(rst_i = '1') then
-         pres_state <= IDLE;
+         datapath_ps <= IDLE;
       elsif(comm_clk_i'event and comm_clk_i = '1') then
-         pres_state <= next_state;
+         datapath_ps <= datapath_ns;
       end if;
-   end process stateFF;
+   end process dp_stateFF;
    
-   stateNS: process(pres_state, lvds, sample_count)
+   dp_stateNS: process(datapath_ps, lvds, sample_count)
    begin
-      case pres_state is
+      case datapath_ps is
          when IDLE =>   if(lvds = '0') then
-                           next_state <= RECV;
+                           datapath_ns <= RECV;
                         else
-                           next_state <= IDLE;
+                           datapath_ns <= IDLE;
                         end if;
                       
          when RECV =>   if(sample_count = 271) then
-                           next_state <= READY;
+                           datapath_ns <= IDLE;
                         else
-                           next_state <= RECV;
+                           datapath_ns <= RECV;
                         end if;
-                      
-         when READY =>  next_state <= IDLE;
          
-         when others => next_state <= IDLE;
+         when others => datapath_ns <= IDLE;
       end case;
-   end process stateNS;
+   end process dp_stateNS;
    
-   stateOut: process(pres_state, sample_count)
+   dp_stateOut: process(datapath_ps, sample_count)
    begin
       sample_count_ena <= '0';
       sample_count_clr <= '0';
@@ -215,15 +250,11 @@ begin
       sample_buf_clr   <= '0';
       rx_buf_ena       <= '0';
       rx_buf_clr       <= '0';
-      data_ld          <= '0';
-      rdy              <= '0';
+      data_buf_write   <= '0';
       
-      case pres_state is
-         when IDLE =>   sample_count_ena <= '1';
-                        sample_count_clr <= '1';
-                        sample_buf_ena   <= '1';
+      case datapath_ps is
+         when IDLE =>   sample_count_clr <= '1';
                         sample_buf_clr   <= '1';
-                        rx_buf_ena       <= '1';
                         rx_buf_clr       <= '1';
                        
          when RECV =>   sample_count_ena <= '1';
@@ -236,45 +267,63 @@ begin
                            sample_count = 205 or sample_count = 213 or sample_count = 221 or sample_count = 229 or sample_count = 237 or
                            sample_count = 245 or sample_count = 253 or sample_count = 261 or sample_count = 269) then rx_buf_ena <= '1';
                         end if;
-                        if(sample_count = 271) then 
-                           data_ld       <= '1';
+                        if(sample_count = 271 and data_buf_full = '0') then 
+                           data_buf_write <= '1';
                         end if;
-                       
-         when READY =>  rdy              <= '1';
          
          when others => null;
       end case;
-   end process stateOut;
+   end process dp_stateOut;
 
 
-   -- double synchronizer for ack_i and lvds_i:
-   process(rst_i, comm_clk_i)
+------------------------------------------------------------
+--
+--  Interface FSM : Manages the rdy/ack handshaking
+--
+------------------------------------------------------------
+
+   if_stateFF: process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
-         ack_temp  <= '0';
-         ack       <= '0';      
-         lvds_temp <= '1';   -- idle state of lvds line is high
-         lvds      <= '1';
-      elsif(comm_clk_i'event and comm_clk_i = '1') then
-         ack_temp  <= ack_i;
-         ack       <= ack_temp;
-         lvds_temp <= lvds_i;
-         lvds      <= lvds_temp;
+         interface_ps <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         interface_ps <= interface_ns;
       end if;
-   end process;
+   end process if_stateFF; 
    
-
-   process(rst_i, comm_clk_i)
+   if_stateNS: process(interface_ps, data_buf_empty, ack_i)
    begin
-      if(rst_i = '1') then
-         rdy_o <= '0';
-      elsif(comm_clk_i'event and comm_clk_i = '1') then
-         if(rdy = '1') then
-            rdy_o <= '1';
-         elsif(ack = '1') then
-            rdy_o <= '0';
-         end if;
-      end if;
-   end process;
+      case interface_ps is
+         when IDLE =>   if(data_buf_empty = '0') then
+                           interface_ns <= READY;
+                        else
+                           interface_ns <= IDLE;
+                        end if;
                       
+         when READY =>  if(ack_i = '1') then
+                           interface_ns <= IDLE;
+                        else
+                           interface_ns <= READY;
+                        end if;
+         
+         when others => interface_ns <= IDLE;
+      end case;
+   end process if_stateNS;
+   
+   if_stateOut: process(interface_ps, data_buf_empty)
+   begin
+      data_buf_read <= '0';
+      rdy_o         <= '0';
+      
+      case interface_ps is
+         when IDLE =>   if(data_buf_empty = '0') then
+                           data_buf_read <= '1';
+                        end if;
+                       
+         when READY =>   rdy_o <= '1';
+         
+         when others => null;
+      end case;
+   end process if_stateOut;   
+             
 end rtl;
