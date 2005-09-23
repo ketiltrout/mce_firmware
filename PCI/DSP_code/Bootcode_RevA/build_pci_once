@@ -10,7 +10,6 @@ dsplnk -bPCI_SCUBA_BOOT_CODE_ONCE.cld -v PCI_SCUBA_build.cln
 
 cldlod PCI_SCUBA_BOOT_CODE_ONCE.cld > PCI_SCUBA_BOOT_CODE_ONCE.lod
 
-rm PCI_SCUBA_build.cln
-
+mv PCI_SCUBA_build.cln PCI_boot_download.cln
 
 exit 0

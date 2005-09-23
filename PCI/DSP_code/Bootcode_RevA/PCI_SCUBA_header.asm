@@ -20,12 +20,6 @@ Assembler directives:
 
 ; Equates to define the X: memory tables
 VAR_TBL		EQU	0	; Variables and constants table
-ARG_TBL		EQU	$30	; Command arguments and addresses
-TIM_TBL		EQU	ARG_TBL+$30	; Readout timing parameters
-TIM_LEN		EQU	$100	; Length of TIM_TBL = 256 bytes = 64 entries
-SC_TBL		EQU	$100	; Scatter/Gather table
-
-IM_DA_TBL	EQU	$800	; image data table in DRAM Y
 
 APPLICATION	EQU	$800	; application memory start location in P memory
 				; note applications should start with this address 
@@ -36,28 +30,44 @@ APPLICATION	EQU	$800	; application memory start location in P memory
 				; otherwise will run continusly until 'STP'
 				; command is sent
 
-BUSY		EQU	0	; if bit 0 =1 if current block is being read or written
-N_TABLE		EQU	255	; Number of entries in scatter/gather table
-;NRDFIFO		EQU	128	; Number of 512 pixel chunks in FIFO per 
-				;   image block
+APPL_PARAM	EQU	$200 	; application parameters in x memory start here.
 
-NO_BUFFERS	EQU	2048	; number of buffers (512 words) in a block, i.e. Modulus of circular buffer 
+
 HF_FIFO		EQU	512	; number of 16 bit words in a half full FIFO
-HF_FIFO_32BIT	EQU	256	; number of 32 bit words in a half full FIFO
 SMALL_BLK	EQU	32	; small block burst size for < 512 pixels
-
 IMAGE_BUFFER	EQU	0	; location in y memory of image buffer....
+
 
 ;Status bits
 
 APPLICATION_LOADED	EQU	0   ; set if PCI application to run
-SEND_TO_HOST		EQU	1   ; set in HST ISR when host ready for packet 
-ERROR_HF		EQU	2   ; - not used
+SEND_TO_HOST		EQU	1   ; set in HST ISR when host ready for packet (stays set until after HST reply)
+FATAL_ERROR		EQU	2   ; PCI message to host error detected by driver....
 FO_WRD_RCV		EQU	3   ; set when packet detected in FIFO - stays set till packet processed
+
 INTA_FLAG		EQU	4   ; used for interupt handshaking with host
 BYTE_SWAP		EQU	5   ; flag to show byte swapping enabled
 PREAMBLE_ERROR		EQU	6   ; set if preamble error detected
 DATA_DLY		EQU	7   ; set in CON ISR if MCE command is 'GO'.  USed to add delay to first returned data packet 
+
+PACKET_CHOKE		EQU	8   ;  don't let any packets from MCE through to host....
+HST_NFYD		EQU	9   ; set after host notified (NFY message) of packet (stays set until after HST reply)
+SB_SPARE1		EQU	10
+SB_SPARE2		EQU	11
+
+
+APPLICATION_RUNNING	EQU	12   ; can be set by an application to indicate its still running
+				     ; e.g. set by diagnostic application
+				     ; indicates in a 'self_test_mode'
+				     ; subsequnet GO commands (for MCE) will be handelled internally. 
+				     ; disable with PCI STOP_APPLICATION command.
+
+INTERNAL_GO		EQU	13   ; GO command received while diagnostic application still running 
+				     ; tests DMA bursts as bus master
+
+
+
+
 
 
 ; Various addressing control registers
@@ -172,5 +182,20 @@ RS	EQU	2		; FIFO reset signal, low true
 FSYNC	EQU	3		; High during image transmission
 AUX1	EQU	4		; enable/disable byte swapping
 WRFIFO	EQU	5		; Low true if FIFO is being written to
+
+
+; Errors - self test application
+
+Y_MEM_ER	EQU	0	; y memory corrupted
+X_MEM_ER	EQU	1	; x memory corrupted
+P_MEM_ER	EQU	2	; p memory corrupted
+FO_EMPTY	EQU	3	; no transmitted data in FIFO
+
+FO_OVER		EQU	4	; too much data received
+FO_UNDER	EQU	5 	; not enough data receiv
+FO_RX_ER	EQU	6	; received data in FIFO incorrect.
+DEBUG		EQU	7	; debug bit
+
+
 
 

@@ -132,7 +132,7 @@ INIT_PCI
 	BCLR	#INTA_FLAG,X:<STATUS		; $74/5 - Clear PCI interrupt
 	NOP					; needs to be fast addressing <
 
-	BCLR	#INTA,X:DCTR			; $76/7 - Clear PCI interrupt
+	BSET	#FATAL_ERROR,X:<STATUS		; $76/7 - driver informing us of PCI_MESSAGE_TO_HOST error 
 	NOP
 
 ; Interrupt locations for 7 available commands on PCI board
@@ -238,13 +238,6 @@ START	MOVEP	#>$000001,X:DPMC
 	NOP
 	MOVEP	#%011100,X:PDRD ; Data Register - Pulse RS* high
 
-; note.....in 50MHz bit 4 selected FO receive 'MODE' 
-; MODE = 1, 32 bit receive on FO
-; MODE = 0, 16 bit receive on FO
-; ultracam always used MODE = 0
-; however here bit 4 PD4 not connected so 32 bit or 16bit?
-
-
 
 ; Program the SCI port to benign values
 	MOVEP	#%000,X:PCRE	; Port Control Register = GPIO
@@ -277,34 +270,26 @@ START	MOVEP	#>$000001,X:DPMC
 	NOP
 	MOVEP	A,X:DPSR
 
+;--------------------------------------------------------------------
 ; Enable one interrupt only: software reset switch
 	MOVEP	#$0001C0,X:IPRC	; IRQB priority = 1 (FIFO half full HF*)
 				; IRQC priority = 2 (reset switch)
 	MOVE	#$200,SR	; Mask set up for reset switch only
 
 
-
-; bob leach 250MHz code
-; Establish interrupt priority levels IPL
-;	MOVEP	#$0001C0,X:IPRC	; IRQC priority IPL = 2 (reset switch, edge)
-;				; IRQB priority IPL = 2 or 0 
-;				;     (FIFO half full - HF*, level)
-;	MOVEP	#>2,X:IPRP	; Enable PCI Host interrupts, IPL = 1
-;	BSET	#HCIE,X:DCTR	; Enable host command interrupts
-;	MOVE	#0,SR		; Don't mask any interrupts
-
-
+;--------------------------------------------------------------------------
 ; Initialize the fiber optic serial transmitter to zero
 	JCLR	#TDE,X:SSISR0,*
 	MOVEP	#$000000,X:TX00
 
-; Clear out the PCI receiver and transmitter FIFOs
+;--------------------------------------------------------------------
 
-; clear DTXM - master transmitter 
+; clear DTXM - PCI master transmitter 
 	BSET	#CLRT,X:DPCR		; Clear the master transmitter DTXM
 	JSET	#CLRT,X:DPCR,*		; Wait for the clearing to be complete
 
-; clear DRXR - receiver
+;----------------------------------------------------------------------
+; clear DRXR - PCI receiver
 	
 CLR0	JCLR	#SRRQ,X:DSR,CLR1	; Wait for the receiver to be empty
 	MOVEP	X:DRXR,X0		; Read receiver to empty it
@@ -312,24 +297,7 @@ CLR0	JCLR	#SRRQ,X:DSR,CLR1	; Wait for the receiver to be empty
 	JMP	<CLR0
 CLR1
 
-; added code to initialise x table slots to zero
-
-	CLR	A
-	MOVE	#NO_BUFFERS,R0		; start address of table
-	REP	#NO_BUFFERS		; size of table
-	MOVE	A,X:(R0)+
-
-
-;  PCI address increment of 4 added here.
-; Y register not used in any other part of code
-; other than ISRs which restore this value.
-; using Y reg enables the +4 increment to be done in one cycle
-; rather than rep #4 inc commands
-
-		MOVE	#0,Y1			; initialise Y for PCI increment.
-		MOVE	X:<FOUR,Y0		
-
-
+;-----------------------------------------------------------------------------
 ; copy parameter table from P memory into X memory
 
 ; Move the table of constants from P: space to X: space
@@ -340,26 +308,50 @@ CLR1
 	MOVE	X0,X:(R0)+			; Write the constants to X:
 X_WRITE
 
+;-------------------------------------------------------------------------------
+; initialise some bits in STATUS
 
-; Her endth the initialisation code after power up only where the code has
-; been bootstrapped from the EEPROM - remember the code is not run if the 
-; reset button is pressed only if the HOST computer has been RESET.
+	BCLR	#APPLICATION_LOADED,X:<STATUS	  ; clear application loaded flag
+	BCLR	#APPLICATION_RUNNING,X:<STATUS    ; clear appliaction running flag 
+						  ; (e.g. not running diagnostic application 
+						  ;      in self_test_mode)	
 
+	BCLR	#FATAL_ERROR,X:<STATUS		; initialise fatal error flag.
+	BSET	#PACKET_CHOKE,X:<STATUS		; enable MCE packet choke
+						; HOST not informed of anything from MCE until 
+						; comms are opened by host with first CON command
 
-	BCLR	#APPLICATION_LOADED,X:<STATUS	; clear application flag
-
-
-
+	BCLR	#PREAMBLE_ERROR,X:<STATUS ; flag to let host know premable error 
+	
+;------------------------------------------------------------------------------
 ; disable FIFO HF* intererupt...not used anymore.
 
 	MOVEP	#$0001C0,X:IPRC		; Disable FIFO HF* interrupt
 	MOVEC	#$200,SR		; Mask level 1 interrupts
 
-; BYTE SWAPPING is ENABLED
+;----------------------------------------------------------------------------
+; Enable Byte swapin
 	BSET	#BYTE_SWAP,X:<STATUS	; flag to let host know byte swapping on
 	BSET	#AUX1,X:PDRC		; enable hardware
 
-	BCLR	#PREAMBLE_ERROR,X:<STATUS ; flag to let host know premable error 
-	
-; END of Scuba 2 initialisation code after power up
-; --------------------------------------------------------------------
+; ------------------------------------------------------------------------------
+; before starting main code 
+; Clear out any garbage in the receive FIFO....
+; keep clearing for 350ms then continue....
+
+	MOVE	#10000,X0		; Delay by about 350 milliseconds
+	DO	X0,RX_DELAY
+	DO	#1000,RX_RDFIFO
+	MOVEP	Y:RDFIFO,Y0		; Read the FIFO word to keep the
+	NOP				;   receiver empty
+RX_RDFIFO
+	NOP
+RX_DELAY
+	NOP	
+;-----------------------------------------------------------------------------
+; Here endth the initialisation code run after power up.
+; ----------------------------------------------------------------------------
+
+
+
+
