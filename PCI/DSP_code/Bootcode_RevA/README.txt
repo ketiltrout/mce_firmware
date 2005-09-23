@@ -1,11 +1,11 @@
 This folder contains all the required files to 
-generate SCUBA2's PCI bootcode release A (version 1.1)
+generate SCUBA2's PCI bootcode release A (version 1.3)
 
 
-updated 07/04/05
+updated 23/09/05
 ---------------------------------------
 When downloading via dataman to EEPROM
-Checksum = $7398D2
+Checksum = $73AF1D
 ---------------------------------------
 
 'build_pci_once' is run to generate .lod and .cld files which can be downloaded to the PCI DSP via the on-chip emulator OnCe.
@@ -13,12 +13,28 @@ Checksum = $7398D2
 'build_pci_rom' is run to generate a motorola .s file which is burned to E2PROM, from which the PCI code is bootstraped.
 
 
-DEBUG
------
-PCI code includes a frame count (X:2), and sets a status bit if 
-there is ever a preamble error.
+Change from RevA_1.2 --> RevA1.3
+--------------------------------
 
-Change from RevA1.0 --> RevA1.1
+various changes added post code review.   Including....
+
+1. PACKET_CHOKE bit added to status.  This bit is set in initialisation,
+   which results in anything on fibre from MCE being ignored.  
+   It stays set until the first command is issued to MCE (via PCI CON command).  
+   After that it remains clear unless PCI reset is issued (or 'fatal error' fast interrupt, 
+   which caused the initialisation code to be re-run).  This means that after start up the PCI card will 
+   ignore the MCE (even valid packets) until communications are opened by the host PC.
+
+2. FATAL_ERROR bit added to STATUS.   The driver may set this bit by issuing a fast interrupt.  
+   For example this would occur if there was a problem communicating an 'NFY' or 'REP' message.   
+   Ultimately it will result in the  initialisation code being re-run. 
+
+3. Applications can now be downloaded to PCI card. e.g. pci_diagnostic.lod.  
+   Applications reside at address $800 and can be downloaded using the command: "dwloadpci <filename>"
+
+
+
+Change from RevA_1.1 --> RevA1.2
 --------------------------------
 Word 4 of CON command changed (was used to indicate block con command - but since all commands are size 64words this is no longer needed).  Now used to indicate if the MCE command to be sent to the controller is a GO command. If it is a flag in status is set "DATA_DLY".  This flag enables a delay added to first data packet returned after go reply packet (delay is after packet arrives but before host notified).  By default the delay value is 0 (i.e. not used). 
 
