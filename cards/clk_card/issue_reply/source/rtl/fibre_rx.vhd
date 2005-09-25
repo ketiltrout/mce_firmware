@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.7  2005/09/23 00:28:38  erniel
+-- changed FSM to ignore any special/idle characters that occur mid-word
+--
 -- Revision 1.6  2005/09/16 23:06:49  erniel
 -- completely rewrote module:
 --      interface changed to support 32-bit data natively
@@ -85,21 +88,25 @@ architecture rtl of fibre_rx is
 
 constant HOTLINK_IDLE : std_logic_vector(8 downto 0) := "100000101";
 
-type states is (IDLE, CHECK_FRAME, LOAD_BYTE0, LOAD_BYTE1, LOAD_BYTE2, LOAD_BYTE3, READY);
+type states is (IDLE, CHECK_FRAME, LOAD_BYTES, READY);
 signal pres_state : states;
 signal next_state : states;
 
 signal buf_write    : std_logic; 
 signal buf_read     : std_logic;
-signal buf_full     : std_logic;  
+signal buf_full     : std_logic; 
+signal buf_empty    : std_logic; 
 signal buf_data_in  : std_logic_vector(8 downto 0); 
 signal buf_data_out : std_logic_vector(8 downto 0); 
-signal buf_used     : std_logic_vector(5 downto 0);
           
 signal byte0_ld : std_logic;
 signal byte1_ld : std_logic;
 signal byte2_ld : std_logic;
 signal byte3_ld : std_logic;
+
+signal byte_count_ena : std_logic;
+signal byte_count_clr : std_logic;
+signal byte_count     : std_logic_vector(1 downto 0);
 
 signal refclk : std_logic;
             
@@ -146,7 +153,7 @@ begin
             q       => buf_data_out,
             aclr    => rst_i,
             wrfull  => buf_full,
-            rdusedw => buf_used); 
+            rdempty => buf_empty); 
 		
    buf_write <= not buf_full and not fibre_nrdy_i and not fibre_rvs_i and fibre_rso_i;   
    
@@ -191,6 +198,22 @@ begin
              
    
    ---------------------------------------------------------
+   -- Byte Counter
+   ---------------------------------------------------------
+   
+   byte_counter : binary_counter
+   generic map(WIDTH => 2)
+   port map(clk_i   => clk_i,
+            rst_i   => rst_i,
+            ena_i   => byte_count_ena,
+            up_i    => '1',
+            load_i  => '0',
+            clear_i => byte_count_clr,
+            count_i => (others => '0'),
+            count_o => byte_count);
+            
+            
+   ---------------------------------------------------------
    -- Control FSM
    ---------------------------------------------------------
    
@@ -203,46 +226,32 @@ begin
       end if;
    end process;
    
-   process(pres_state, ack_i, buf_used, buf_data_out)
+   process(pres_state, ack_i, buf_empty, buf_data_out, byte_count)
    begin
       case pres_state is
-         when IDLE =>        if(buf_used >= 5) then                 -- wait until there are at least 5 bytes in buffer
+         when IDLE =>        if(buf_empty = '0') then                 -- wait until there is at least one byte
                                 next_state <= CHECK_FRAME;
                              else
                                 next_state <= IDLE;
                              end if;
          
-         when CHECK_FRAME => if(buf_data_out = HOTLINK_IDLE) then   -- check if first byte is Hotlink idle character:
-                                next_state <= LOAD_BYTE0;              -- if it is, proceed to clock out data bytes
+         when CHECK_FRAME => if(buf_data_out /= HOTLINK_IDLE) then    -- if first byte is not IDLE, return to idle state
+                                next_state <= IDLE;              
                              else
-                                next_state <= IDLE;                    -- otherwise, return to idle state (synch. error)
+                                if(buf_empty = '0') then              -- otherwise, if there is at least one byte, proceed
+                                   next_state <= LOAD_BYTES;
+                                else
+                                   next_state <= CHECK_FRAME;         -- otherwise, wait here until a byte is available
+                                end if;
                              end if; 
 
-         when LOAD_BYTE0 =>  if(buf_data_out(8) = '0') then         -- check if byte is a special character (idle included):
-                                next_state <= LOAD_BYTE1;              -- if not, copy the byte to register and move on
+         when LOAD_BYTES =>  if(buf_data_out(8) = '0' and byte_count = 3) then
+                                next_state <= READY;                  -- if byte is data and we're on last byte, goto ready
                              else
-                                next_state <= LOAD_BYTE0;              -- otherwise wait here until you get a data byte
+                                next_state <= LOAD_BYTES;             -- otherwise load more bytes
                              end if;
-                   
-         when LOAD_BYTE1 =>  if(buf_data_out(8) = '0') then
-                                next_state <= LOAD_BYTE2;
-                             else
-                                next_state <= LOAD_BYTE1;
-                             end if;
-                         
-         when LOAD_BYTE2 =>  if(buf_data_out(8) = '0') then
-                                next_state <= LOAD_BYTE3;
-                             else
-                                next_state <= LOAD_BYTE2;
-                             end if;
-         
-         when LOAD_BYTE3 =>  if(buf_data_out(8) = '0') then
-                                next_state <= READY;
-                             else
-                                next_state <= LOAD_BYTE3;
-                             end if;
-         
-         when READY =>       if(ack_i = '1') then                   -- assert ready until ack asserted
+      
+         when READY =>       if(ack_i = '1') then                     -- if ack asserted, return to idle
                                 next_state <= IDLE;
                              else
                                 next_state <= READY;
@@ -252,45 +261,42 @@ begin
       end case;
    end process;
    
-   process(pres_state, buf_used, buf_data_out)
+   process(pres_state, buf_empty, buf_data_out, byte_count)
    begin
-      buf_read <= '0';
-      byte0_ld <= '0';
-      byte1_ld <= '0';
-      byte2_ld <= '0';
-      byte3_ld <= '0';
-      rdy_o    <= '0';
+      buf_read       <= '0';
+      byte0_ld       <= '0';
+      byte1_ld       <= '0';
+      byte2_ld       <= '0';
+      byte3_ld       <= '0';
+      byte_count_ena <= '0';
+      byte_count_clr <= '0';
+      rdy_o          <= '0';
       
       case pres_state is
-         when IDLE =>        if(buf_used >= 5) then
-                                buf_read <= '1';
+         when IDLE =>        if(buf_empty = '0') then
+                                buf_read <= '1';                      -- read new byte when available
                              end if;
+                             byte_count_clr <= '1';                   -- reset byte counter
          
-         when CHECK_FRAME => if(buf_data_out = HOTLINK_IDLE) then
-                                buf_read <= '1';
+         when CHECK_FRAME => if(buf_data_out = HOTLINK_IDLE and buf_empty = '0') then
+                                buf_read <= '1';                      -- read new byte when available and current one is not IDLE
                              end if;
         
-         when LOAD_BYTE0 =>  buf_read <= '1';
-                             if(buf_data_out(8) = '0') then         -- if this byte is not a special char:
-                                byte0_ld <= '1';                       -- copy it to output register
+         when LOAD_BYTES =>  if((buf_empty = '0' and byte_count < 3) or buf_data_out(8) = '1') then
+                                buf_read <= '1';                      -- read new byte when available and not on last byte or current byte is special
                              end if;
-        
-         when LOAD_BYTE1 =>  buf_read <= '1';
-                             if(buf_data_out(8) = '0') then 
-                                byte1_ld <= '1';
+                             
+                             if(buf_empty = '0' and byte_count < 3) then
+                                byte_count_ena <= '1';                -- increment byte counter when there is a byte avaialble
                              end if;
-        
-         when LOAD_BYTE2 =>  buf_read <= '1';
-                             if(buf_data_out(8) = '0') then 
-                                byte2_ld <= '1';
-                             end if;
-         
-         when LOAD_BYTE3 =>  if(buf_data_out(8) = '0') then         -- if this byte is not a special char:
-                                byte3_ld <= '1';                       -- copy it to output register
-                             else
-                                buf_read <= '1';                       -- otherwise, flush it out of the FIFO
-                             end if;
-         
+                             
+                             case byte_count is
+                                   when "00"   => byte0_ld <= '1';  
+                                   when "01"   => byte1_ld <= '1';
+                                   when "10"   => byte2_ld <= '1';
+                                   when others => byte3_ld <= '1';
+                             end case; 
+                                      
          when READY =>       rdy_o    <= '1';
          
          when others =>      null;
