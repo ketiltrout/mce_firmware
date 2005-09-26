@@ -31,6 +31,12 @@
 -- Revision history:
 --
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.8  2005/09/25 00:47:39  erniel
+-- reduced number of FSM states (collapsed LOAD_BYTEx states into one state)
+-- added a byte counter
+-- fixed FIFO read timing w.r.t. flushing invalid bytes
+-- FSM no longer waits for a set number of bytes before starting FIFO read process
+--
 -- Revision 1.7  2005/09/23 00:28:38  erniel
 -- changed FSM to ignore any special/idle characters that occur mid-word
 --
@@ -282,20 +288,21 @@ begin
                                 buf_read <= '1';                      -- read new byte when available and current one is not IDLE
                              end if;
         
-         when LOAD_BYTES =>  if((buf_empty = '0' and byte_count < 3) or buf_data_out(8) = '1') then
-                                buf_read <= '1';                      -- read new byte when available and not on last byte or current byte is special
-                             end if;
+         when LOAD_BYTES =>  if(buf_data_out(8) = '1') then           
+                                buf_read <= '1';                      -- flush byte if it is a special character
+                             else
+                                if(buf_empty = '0' and byte_count < 3) then
+                                   buf_read       <= '1';             -- read new byte when available and not on last byte
+                                   byte_count_ena <= '1';             -- and increment byte counter
+                                end if;
                              
-                             if(buf_empty = '0' and byte_count < 3) then
-                                byte_count_ena <= '1';                -- increment byte counter when there is a byte avaialble
-                             end if;
-                             
-                             case byte_count is
+                                case byte_count is
                                    when "00"   => byte0_ld <= '1';  
                                    when "01"   => byte1_ld <= '1';
                                    when "10"   => byte2_ld <= '1';
                                    when others => byte3_ld <= '1';
-                             end case; 
+                                end case; 
+                             end if;
                                       
          when READY =>       rdy_o    <= '1';
          
