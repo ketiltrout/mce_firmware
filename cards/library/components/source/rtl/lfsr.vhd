@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lfsr.vhd,v $
+-- Revision 1.6  2004/08/02 17:40:32  erniel
+-- updated comments
+--
 -- Revision 1.5  2004/08/02 17:29:33  erniel
 -- added support for up to 168 bits wide
 --
@@ -267,10 +270,10 @@ begin
       if(rst_i = '1') then
          data <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
-         if(ena_i = '1') then
-            if(clr_i = '1') then
-               data <= (others => '0');
-            elsif(load_i = '1') then
+         if(clr_i = '1') then
+            data <= (others => '0');
+         elsif(ena_i = '1') then
+            if(load_i = '1') then
                data <= lfsr_i;
             else
                data <= fb & data(1 to WIDTH-1);
