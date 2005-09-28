@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.22 2005/03/04 03:45:58 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.23 2005/09/03 23:51:26 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/03/04 03:45:58 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/09/03 23:51:26 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.23  2005/09/03 23:51:26  bburger
+-- jjacob:
+-- removed recirculation muxes and replaced with register enables, and cleaned up formatting
+--
 -- Revision 1.22  2005/03/04 03:45:58  bburger
 -- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
 --
@@ -300,12 +304,13 @@ begin
    begin
       case current_state is
          when IDLE =>
-            if internal_cmd_macro_instr_rdy_i = '1' then
-               next_state <= INTRNL_CMD_RDY;
+            -- Priority is given to ret_dat commands
+            if ret_dat_macro_instr_rdy_i = '1' then
+               next_state <= RET_DAT_RDY;
             elsif simple_cmd_macro_instr_rdy_i = '1' then
                next_state <= SIMPLE_CMD_RDY;
-            elsif ret_dat_macro_instr_rdy_i = '1' then
-               next_state <= RET_DAT_RDY;
+            elsif internal_cmd_macro_instr_rdy_i = '1' then
+               next_state <= INTRNL_CMD_RDY;
             else
                next_state <= IDLE;
             end if;
@@ -436,10 +441,7 @@ begin
                               internal_cmd_parameter_id_i;
                                                        
    data_size               <= simple_cmd_data_size_i       when data_mux_sel = "00" else 
--- If a ret_dat command has been received, the data size from the arbiter must be 0 because the reply_translator mis-handles the reply otherwise.
--- Thus, the 328 words (0x00000148) will have to be hardcoded in cmd_queue 
---                           x"00000148"                  when data_mux_sel = "01" else -- fix this in fibre_rx! data_size should be '0', not '1' for ret_dat commands. ret_dat_data_size_i;
-                              (others=>'0')                when data_mux_sel = "01" else -- fix this in fibre_rx! data_size should be '0', not '1' for ret_dat commands. ret_dat_data_size_i;
+                              ret_dat_data_size_i          when data_mux_sel = "01" else -- fix this in fibre_rx! data_size should be '0', not '1' for ret_dat commands. ret_dat_data_size_i;
                               internal_cmd_data_size_i;
                                                         
    data                    <= simple_cmd_data_i            when data_mux_sel = "00" else 

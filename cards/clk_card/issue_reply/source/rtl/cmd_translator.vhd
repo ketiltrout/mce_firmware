@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.28 2005/07/23 01:39:25 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.29 2005/09/03 23:51:26 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/07/23 01:39:25 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/09/03 23:51:26 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.29  2005/09/03 23:51:26  bburger
+-- jjacob:
+-- removed recirculation muxes and replaced with register enables, and cleaned up formatting
+--
 -- Revision 1.28  2005/07/23 01:39:25  bburger
 -- Bryce:
 -- Added a wishbone-accessible register to change the data rate.  The register default is one frame of data every ten frames (maximum rate).
@@ -233,9 +237,9 @@ architecture rtl of cmd_translator is
    signal ret_dat_cmd_valid            : std_logic;
    signal ret_dat_ack                  : std_logic;
 --   signal ret_dat_stop_ack             : std_logic;
-   signal ret_dat_s_start              : std_logic;
+--   signal ret_dat_s_start              : std_logic;
 --   signal ret_dat_s_done               : std_logic;
-   signal ret_dat_s_ack                : std_logic;
+--   signal ret_dat_s_ack                : std_logic;
    signal ret_dat_cmd_stop             : std_logic;
    signal ret_dat_last_frame           : std_logic;
    
@@ -342,16 +346,16 @@ begin
                -- START command
                   ret_dat_start        <= '1';
                   ret_dat_stop         <= '0';
-                  ret_dat_s_start      <= '0';
-                  ret_dat_s_ack        <= '0';
+--                  ret_dat_s_start      <= '0';
+--                  ret_dat_s_ack        <= '0';
                   cmd_start            <= '0';
                   cmd_stop             <= '0';
                else 
                -- assume it's a STOP command
                   ret_dat_start        <= '0';
                   ret_dat_stop         <= '1';
-                  ret_dat_s_start      <= '0';
-                  ret_dat_s_ack        <= '0';
+--                  ret_dat_s_start      <= '0';
+--                  ret_dat_s_ack        <= '0';
                   cmd_start            <= '0';
                   cmd_stop             <= '0';
                end if;   
@@ -360,8 +364,8 @@ begin
             when others =>
                ret_dat_start           <= '0';
                ret_dat_stop            <= '0';
-               ret_dat_s_start         <= '0';
-               ret_dat_s_ack           <= '0';
+--               ret_dat_s_start         <= '0';
+--               ret_dat_s_ack           <= '0';
                cmd_start               <= '1';
                cmd_stop                <= '0';
 
@@ -371,8 +375,8 @@ begin
         -- no commands pending
          ret_dat_start         <= '0';
          ret_dat_stop          <= '0';
-         ret_dat_s_start       <= '0';
-         ret_dat_s_ack         <= '0';
+--         ret_dat_s_start       <= '0';
+--         ret_dat_s_ack         <= '0';
          cmd_start             <= '0';
          cmd_stop              <= '0';
  
@@ -425,7 +429,7 @@ begin
       -- inputs from fibre_rx      
       card_addr_i            => card_id_i,                   -- specifies which card the command is targetting
       parameter_id_i         => param_id_i,                  -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_i            => num_data_i,                  -- data_size_i, indicates number of 16-bit words of data
+--      data_size_i            => num_data_i,                  -- data_size_i, indicates number of 16-bit words of data
       data_i                 => cmd_data_i,                  -- data will be passed straight thru in 16-bit words
       data_clk_i             => data_clk_i,                  -- for clocking out the data
       cmd_code_i             => cmd_code_i,
@@ -441,7 +445,7 @@ begin
       ret_dat_start_i        => ret_dat_start,
       ret_dat_stop_i         => ret_dat_stop,
       ret_dat_cmd_valid_o    => ret_dat_cmd_valid,
-      ret_dat_s_start_i      => ret_dat_s_start,
+--      ret_dat_s_start_i      => ret_dat_s_start,
  
       -- outputs to arbiter
       card_addr_o            => ret_dat_cmd_card_addr,       -- specifies which card the command is targetting
@@ -640,7 +644,8 @@ begin
    reply_card_id_o                   <= card_id_i;   
  
    -- acknowledge signal back to fibre_rx indicating receipt of command
-   ack_o                             <= ret_dat_s_ack or ret_dat_ack or simple_cmd_ack;
+--   ack_o                             <= ret_dat_s_ack or ret_dat_ack or simple_cmd_ack;
+   ack_o                             <= ret_dat_ack or simple_cmd_ack;
 
    -- outputs to cmd_queue
    card_addr_o                       <= card_addr_reg;      
