@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.15 2005/02/20 02:00:29 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.16 2005/03/23 19:25:54 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,53 +30,8 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
--- Revision 1.15  2005/02/20 02:00:29  bburger
--- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
---
--- Revision 1.14  2005/02/20 00:49:35  erniel
--- added cmd_timeout_o
---
--- Revision 1.13  2005/02/09 20:41:10  erniel
--- updated reply_queue_sequencer component
--- updated reply_queue_receive component
---
--- Revision 1.12  2005/01/11 22:50:29  erniel
--- removed mem_clk_i from ports
---
--- Revision 1.11  2004/12/06 07:23:04  bburger
--- Bryce:  Modified cmd_queue and reply_queue stop them from allowing start commands over the backplane
---
--- Revision 1.10  2004/12/04 02:03:06  bburger
--- Bryce:  fixing some problems associated with integrating the reply_queue
---
--- Revision 1.9  2004/11/30 22:58:47  bburger
--- Bryce:  reply_queue integration
---
--- Revision 1.8  2004/11/30 05:12:30  erniel
--- fixed error code width in reply_queue_retire
--- added reply_queue_sequencer subblock
--- added reply_queue_receiver subblocks
---
--- Revision 1.7  2004/11/30 03:22:47  bburger
--- Bryce:  building reply_queue top-level interface and functionality
---
--- Revision 1.6  2004/11/25 01:32:37  bburger
--- Bryce:
--- - Changed to cmd_code over the bus backplane to read/write only
--- - Added interface signals for internal commands
--- - RB command data-sizes are correctly handled
---
--- Revision 1.5  2004/11/13 03:30:25  bburger
--- Bryce:  card_id renamed to card_addr
---
--- Revision 1.4  2004/11/13 03:25:34  bburger
--- Bryce:  integration with ernie's side of reply_queue
---
--- Revision 1.3  2004/11/08 23:40:29  bburger
--- Bryce:  small modifications
---
--- Revision 1.2  2004/10/22 01:54:38  bburger
--- Bryce:  fixed bugs
+-- Revision 1.16  2005/03/23 19:25:54  bburger
+-- Bryce:  Added a debugging trigger
 --
 -- Revision 1.1  2004/10/21 00:45:38  bburger
 -- Bryce:  new
@@ -90,8 +45,12 @@ use ieee.std_logic_1164.all;
 library sys_param;
 use sys_param.command_pack.all;
 
+library components;
+use components.component_pack.all;
+
 library work;
 use work.cmd_queue_ram40_pack.all;
+use work.cmd_queue_pack.all;
 use work.reply_queue_pack.all;
 
 entity reply_queue is
@@ -140,30 +99,16 @@ end reply_queue;
 
 architecture behav of reply_queue is
 
-   -- Internal interface signals to/from reply_queue_retire and reply_queue_sequencer
+   -- Internal signals
    signal mop_num            : std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
    signal uop_num            : std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
    signal card_addr          : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
-   signal cmd_code           : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
-   
-   -- cmd_queue signals for stop commands
-   signal cq_size            : integer;
-   signal cq_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal cq_rdy             : std_logic; -- word is valid
-   signal cq_ack             : std_logic;
-   signal cq_err             : std_logic_vector(29 downto 0);
+   signal matched            : std_logic;
+   signal timeout            : std_logic;
+   signal cmd_rdy            : std_logic;
+   signal cmd_code           : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
 
-   -- reply_queue signals for all other commands
-   signal rq_size            : integer;
-   signal rq_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal rq_rdy             : std_logic; -- word is valid
-   signal rq_ack             : std_logic;
-   signal rq_err             : std_logic_vector(29 downto 0);
-   signal rq_match           : std_logic;
-   signal rq_start           : std_logic;
-   signal rq_timeout         : std_logic;
-   
-   -- reply queue receiver interfaces
+   -- Reply_queue_receiver interfaces
    signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal ac_rdy             : std_logic;
    signal ac_ack             : std_logic;
@@ -208,58 +153,191 @@ architecture behav of reply_queue is
    signal cc_rdy             : std_logic;
    signal cc_ack             : std_logic;
    signal cc_discard         : std_logic;
-   
+ 
+   -- Signals for the registers that store the four cmd_queue words
+   signal header_a    : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+   signal header_b    : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+   signal header_c    : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+   signal header_d    : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+   signal header_a_en : std_logic;
+   signal header_b_en : std_logic;
+   signal header_c_en : std_logic;
+   signal header_d_en : std_logic;
+
+   -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
+   type retire_states is (IDLE, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, WAIT_FOR_ACK);
+   signal present_retire_state : retire_states;
+   signal next_retire_state    : retire_states;
+
+
 begin   
-   
-   cmd_code_o    <= cmd_code;
-   card_addr_o   <= card_addr;
-   size_o        <= cq_size when (cmd_code =  STOP or  cmd_code =  START) else rq_size;
-   data_o        <= cq_data when (cmd_code =  STOP or  cmd_code =  START) else rq_data;
-   rdy_o         <= cq_rdy  when (cmd_code =  STOP or  cmd_code =  START) else rq_rdy;   
-   error_code_o  <= cq_err  when (cmd_code =  STOP or  cmd_code =  START) else rq_err;
-   
-   cq_ack        <= ack_i   when (cmd_code =  STOP or  cmd_code =  START) else '0';
-   rq_ack        <= ack_i   when (cmd_code /= STOP and cmd_code /= START) else '0';   
-   
-   rqr : reply_queue_retire
+
+
+
+   ---------------------------------------------------------
+   -- Edge-sensitive registers
+   ---------------------------------------------------------
+   header_a_reg : reg
+      generic map(
+         WIDTH      => PACKET_WORD_WIDTH
+      )
       port map(
-         -- cmd_queue interface control
-         cmd_to_retire_i   => cmd_to_retire_i,
-         cmd_sent_o        => cmd_sent_o,
-         cmd_timeout_o     => cmd_timeout_o,
-         cmd_i             => cmd_i,
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => header_a_en,
+         reg_i      => cmd_i,
+         reg_o      => header_a
+      );
+
+   header_b_reg : reg
+      generic map(
+         WIDTH      => PACKET_WORD_WIDTH
+      )
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => header_b_en,
+         reg_i      => cmd_i,
+         reg_o      => header_b
+      );
+
+   header_c_reg : reg
+      generic map(
+         WIDTH      => PACKET_WORD_WIDTH
+      )
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => header_c_en,
+         reg_i      => cmd_i,
+         reg_o      => header_c
+      );
+
+   header_d_reg : reg
+      generic map(
+         WIDTH      => PACKET_WORD_WIDTH
+      )
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => header_d_en,
+         reg_i      => cmd_i,
+         reg_o      => header_d
+      );
+
+   -- Some of the outputs to reply_translator and lvds_rx fifo's
+   cmd_code_o        <= cmd_code;
+   card_addr_o       <= card_addr;   
+   cmd_code          <= header_a(ISSUE_SYNC_END-1 downto COMMAND_TYPE_END);      
+   card_addr         <= header_b(QUEUE_WIDTH-1 downto CARD_ADDR_END);
+   param_id_o        <= header_b(CARD_ADDR_END-1 downto PARAM_ID_END);   
+   last_frame_bit_o  <= header_c(0);   
+   stop_bit_o        <= header_c(1);  
+   internal_cmd_o    <= header_c(2);   
+   frame_seq_num_o   <= header_d;
+
+   -- Internal signal assignments to the lvds_rx fifo's
+   mop_num           <= header_b(PARAM_ID_END-1 downto MOP_END);
+   uop_num           <= header_b(MOP_END-1 downto UOP_END);
+   
+   ---------------------------------------------------------
+   -- Retire FSM:
+   ---------------------------------------------------------
+   retire_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         present_retire_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         present_retire_state <= next_retire_state;
+      end if;
+   end process retire_state_FF;
+
+   retire_state_NS: process(present_retire_state, cmd_to_retire_i, cmd_sent_i, matched, timeout)
+   begin
+      -- Default Values
+      next_retire_state <= present_retire_state;
+      
+      case present_retire_state is
+         when IDLE =>
+            if (cmd_to_retire_i = '1') then
+               next_retire_state <= HEADERA;
+            else
+               next_retire_state <= IDLE;
+            end if;
+         when HEADERA =>
+            next_retire_state <= HEADERB;
+         when HEADERB =>
+            next_retire_state <= HEADERC;
+         when HEADERC =>
+            next_retire_state <= HEADERD;
+         when HEADERD =>
+            next_retire_state <= RECEIVED;
+         when RECEIVED =>
+            next_retire_state <= WAIT_FOR_MATCH;
+         when WAIT_FOR_MATCH =>
+            if(matched = '1') then
+               next_retire_state <= WAIT_FOR_ACK;
+            elsif(timeout = '1') then
+               next_retire_state <= IDLE;
+            end if;
+         when WAIT_FOR_ACK =>
+            if(cmd_sent_i = '1') then
+               next_retire_state <= IDLE;
+            end if;
+         when others =>
+            next_retire_state <= IDLE;
+      end case;
+   end process;
+
+   retire_state_out: process(present_retire_state, cmd_sent_i, timeout)
+   begin   
+      -- Default values
+      header_a_en  <= '0';
+      header_b_en  <= '0';
+      header_c_en  <= '0';
+      header_d_en  <= '0';
+      cmd_sent_o   <= '0';
+      cmd_rdy      <= '0';
+      cmd_valid_o  <= '0';
+      cmd_timeout_o <= '0';
+
+      case present_retire_state is
+         when IDLE =>
+--            if(cmd_to_retire_i = '1') then
+--               header_a_en <= '1';
+--            end if;
          
-         -- reply_translator interface control
-         cmd_sent_i        => cmd_sent_i,
-         cmd_valid_o       => cmd_valid_o,         
-         rdy_o             => cq_rdy,
-         ack_i             => cq_ack,      
+         when HEADERA =>
+            header_a_en  <= '1';
 
-         cmd_code_o        => cmd_code,   
-         param_id_o        => param_id_o,   
-         stop_bit_o        => stop_bit_o,       
-         last_frame_bit_o  => last_frame_bit_o,     
-         frame_seq_num_o   => frame_seq_num_o,
-         internal_cmd_o    => internal_cmd_o,
+         when HEADERB =>
+            header_b_en  <= '1';
 
-         size_o            => cq_size,
-         data_o            => cq_data,
-         error_code_o      => cq_err,
-         
-         card_addr_o       => card_addr,
-         
-         -- reply_queue_sequencer interface control
-         matched_i         => rq_match,
-         timeout_i         => rq_timeout,
-         cmd_rdy_o         => rq_start,
+         when HEADERC =>
+            header_c_en  <= '1';
+            
+         when HEADERD => 
+            header_d_en  <= '1';
 
-         mop_num_o         => mop_num,
-         uop_num_o         => uop_num,
+         when RECEIVED =>
+            cmd_rdy      <= '1';
 
-         clk_i             => clk_i,     
-         comm_clk_i        => comm_clk_i,
-         rst_i             => rst_i   
-      );               
+         when WAIT_FOR_MATCH =>
+            cmd_rdy       <= '1';
+            cmd_timeout_o <= timeout;
+            
+         when WAIT_FOR_ACK =>
+            cmd_rdy      <= '1';
+            cmd_valid_o  <= '1';
+            if(cmd_sent_i = '1') then
+               cmd_sent_o <= '1';
+            end if;
+            
+         when others =>
+
+      end case;
+   end process;
+
 
    rq_seq : reply_queue_sequencer
       port map(
@@ -315,19 +393,19 @@ begin
          cc_discard_o  => cc_discard,
          
          -- fibre interface:
-         size_o       => rq_size,
-         error_o      => rq_err,
-         data_o       => rq_data,
-         rdy_o        => rq_rdy,
-         ack_i        => rq_ack,
+         size_o       => size_o,
+         error_o      => error_code_o,
+         data_o       => data_o,
+         rdy_o        => rdy_o,
+         ack_i        => ack_i,
         
          -- cmd_queue interface:
          macro_op_i   => mop_num,
          micro_op_i   => uop_num,
          card_addr_i  => card_addr,
-         cmd_valid_i  => rq_start,
-         matched_o    => rq_match,
-         timeout_o    => rq_timeout
+         cmd_valid_i  => cmd_rdy,
+         matched_o    => matched,
+         timeout_o    => timeout
      );
 
    rx_ac : reply_queue_receive

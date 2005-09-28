@@ -21,7 +21,7 @@
 --
 -- reply_queue_receiver.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.12  2005/02/16 03:16:44  erniel
+-- added integer range declaration to wr_count, rd_count
+-- modified read FSM next state and output logic
+-- removed extra state from CRC FSM
+--
 -- Revision 1.11  2005/02/10 03:04:11  erniel
 -- added data output register for pipelined performance
 --
@@ -264,7 +269,7 @@ begin
                count_i => 0,
                count_o => crc_bit_count);
 
-   crc_calc : crc
+   crc_calc : serial_crc
       generic map(POLY_WIDTH => PACKET_WORD_WIDTH)
       port map(clk_i      => clk_i,
                rst_i      => rst_i,

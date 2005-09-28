@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_retire.vhd,v 1.12 2005/02/20 02:00:29 bburger Exp $
+-- $Id: reply_queue_retire.vhd,v 1.13 2005/03/16 02:20:58 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_retire.vhd,v $
+-- Revision 1.13  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.12  2005/02/20 02:00:29  bburger
 -- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
 --
@@ -213,7 +216,10 @@ begin
          reg_o      => header_d
       );
 
+   -- If it is a GO or ST command, then it is 'matched' immediately, and we do not wait for a response from BB
    matched   <= cmd_rdy when (cmd_code =  STOP or  cmd_code =  START) else matched_i;
+   
+   -- Only assert cmd_rdy to the reply_queue_sequencer if we need to wait for a response
    cmd_rdy_o <= cmd_rdy when (cmd_code /= STOP and cmd_code /= START) else '0';
 
    -- Some of the outputs to reply_translator and lvds_rx fifo's

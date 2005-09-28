@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.83 2005/03/31 16:55:58 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.84 2005/09/28 23:32:26 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.84  2005/09/28 23:32:26  bburger
+-- Bryce:  removed functionality for START and STOP commands.  The cmd_translator does not issue these to the cmd_queue
+--
 -- Revision 1.83  2005/03/31 16:55:58  bburger
 -- Bryce:  added special logic analyzer trigger signals for debugging
 --
@@ -316,7 +319,7 @@ begin
          lvds_o     => tx_o
       );
   
-   cmd_crc: crc
+   cmd_crc: serial_crc
       generic map(
          POLY_WIDTH  => CHECKSUM_WORD_WIDTH
       )
