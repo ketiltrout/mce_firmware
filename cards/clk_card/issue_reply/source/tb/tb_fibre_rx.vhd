@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.3 2004/10/13 10:38:21 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: tb_fibre_rx.vhd,v 1.4 2005/09/16 23:19:53 erniel Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -28,7 +28,7 @@
 -- Test bed for fibre_rx
 --
 -- Revision history:
--- <date $Date: 2004/10/13 10:38:21 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2005/09/16 23:19:53 $> - <text> - <initials $Author: erniel $>
 
 -- $ Log: tb_fibre_rx.vhd,v $
 
@@ -137,6 +137,20 @@ begin
       W_FIBRE_SC_ND_I    <= '0';
       
       wait until W_FIBRE_CLKR_I = '1';
+      W_FIBRE_NRDY_I     <= '1';
+      W_FIBRE_DATA_I     <= x"05";
+      W_FIBRE_SC_ND_I    <= '1';
+      wait for FIBRE_CLK_PERIOD*2;
+      
+      wait until W_FIBRE_CLKR_I = '1';
+      wait for 6 ns;
+      W_FIBRE_NRDY_I     <= '1';
+      W_FIBRE_NRDY_I     <= '0' after 15 ns;
+      wait for 7 ns;
+      W_FIBRE_DATA_I     <= x"05";
+      W_FIBRE_SC_ND_I    <= '1';
+      
+      wait until W_FIBRE_CLKR_I = '1';
       wait for 6 ns;
       W_FIBRE_NRDY_I     <= '1';
       W_FIBRE_NRDY_I     <= '0' after 15 ns;
@@ -144,12 +158,12 @@ begin
       W_FIBRE_DATA_I     <= data(31 downto 24);
       W_FIBRE_SC_ND_I    <= '0';
    
-      wait until W_FIBRE_CLKR_I = '1';
-      wait for 6 ns;
-      W_FIBRE_NRDY_I     <= '1';
-      wait for 7 ns;
-      W_FIBRE_DATA_I     <= x"05";
-      W_FIBRE_SC_ND_I    <= '1';
+--      wait until W_FIBRE_CLKR_I = '1';
+--      wait for 6 ns;
+--      W_FIBRE_NRDY_I     <= '1';
+--      wait for 7 ns;
+--      W_FIBRE_DATA_I     <= x"05";
+--      W_FIBRE_SC_ND_I    <= '1';
       
 --      wait for FIBRE_CLK_PERIOD*1;
       
