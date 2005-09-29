@@ -33,18 +33,21 @@
 --
 --    mode_i        Mode Description
 --
---     000        1-way tester, transmitter mode
---     001        1-way tester, receiver mode
---     010        2-way tester, combination transmitter and receiver mode
---     011        2-way tester, loopback mode
---     100        noise generator 1
---     101        noise generator 2
---     110        noise generator 3
---     111        noise generator 4
+--     000        LVDS 1-way tester, transmitter mode
+--     001        LVDS 1-way tester, receiver mode
+--     010        LVDS 2-way tester, combination transmitter and receiver mode
+--     011        LVDS 2-way tester, loopback mode
+--     100        LVDS noise generator 1
+--     101        LVDS noise generator 2
+--     110        LVDS noise generator 3
+--     111        Fibre 2-way tester, combination transmitter and receiver mode
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: ber_test.vhd,v $
+-- Revision 1.1  2005/08/02 18:22:39  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -190,11 +193,28 @@ port(clk_i      : in std_logic;
      
      mode_i  : in std_logic_vector(2 downto 0);
 
+     -- LVDS ports:
      tx0_o   : out std_logic;   -- BER output   (noise/data, depending on mode)
      tx1_o   : out std_logic;   -- dummy output (noise only)
      tx2_o   : out std_logic;   -- dummy output (noise only)
      rx_i    : in std_logic;    -- BER input
 
+     -- Fibre transmit ports:
+     fibre_clkw_o   : out std_logic;
+     fibre_data_o   : out std_logic_vector(7 downto 0);
+     fibre_sc_nd_o  : out std_logic;
+     fibre_nena_o   : out std_logic;
+     
+     -- Fibre receive ports:
+     fibre_refclk_o : out std_logic;
+     fibre_clkr_i   : in std_logic;
+     fibre_data_i   : in std_logic_vector (7 downto 0);
+     fibre_nrdy_i   : in std_logic;
+     fibre_rvs_i    : in std_logic;
+     fibre_rso_i    : in std_logic;
+     fibre_sc_nd_i  : in std_logic;
+     
+     -- Indicator LEDs:
      nlock_o : out std_logic;   -- receiver is locked to transmitter
      ndata_o : out std_logic;   -- transmitter is sending data
      nrand_o : out std_logic;   -- transmitter is sending random noise
@@ -208,6 +228,7 @@ component ber_test_pll
 port(inclk0 : in std_logic;
      c0     : out std_logic;
      c1     : out std_logic;
+     c2     : out std_logic;
      e0     : out std_logic);
 end component;
 
@@ -223,7 +244,8 @@ port(clk_i      : in std_logic;
 end component;
 
 component lvds_rx
-port(comm_clk_i : in std_logic;
+port(clk_i      : in std_logic;
+     comm_clk_i : in std_logic;
      rst_i      : in std_logic;
      
      dat_o      : out std_logic_vector(31 downto 0);
@@ -231,6 +253,38 @@ port(comm_clk_i : in std_logic;
      ack_i      : in std_logic;
      
      lvds_i     : in std_logic);
+end component;
+
+component fibre_tx
+port(clk_i  : in std_logic;
+     rst_i  : in std_logic;
+     
+     dat_i  : in std_logic_vector(31 downto 0);
+     rdy_i  : in std_logic;
+     busy_o : out std_logic;    
+     
+     fibre_clk_i   : in std_logic;    
+     fibre_clkw_o  : out std_logic;
+     fibre_data_o  : out std_logic_vector(7 downto 0);
+     fibre_sc_nd_o : out std_logic;
+     fibre_nena_o  : out std_logic);
+end component;
+
+component fibre_rx
+port(clk_i : in std_logic; 
+     rst_i : in std_logic; 
+
+     dat_o : out std_logic_vector(31 downto 0);
+     rdy_o : out std_logic;
+     ack_i : in std_logic;
+     
+     fibre_refclk_o : out std_logic;
+     fibre_clkr_i   : in std_logic;
+     fibre_data_i   : in std_logic_vector (7 downto 0);
+     fibre_nrdy_i   : in std_logic;
+     fibre_rvs_i    : in std_logic;
+     fibre_rso_i    : in std_logic;
+     fibre_sc_nd_i  : in std_logic);
 end component;
 
 component ones_count
@@ -247,20 +301,28 @@ constant LOOPBACK : std_logic_vector(2 downto 0) := "011";
 constant NOISE_1  : std_logic_vector(2 downto 0) := "100";
 constant NOISE_2  : std_logic_vector(2 downto 0) := "101";
 constant NOISE_3  : std_logic_vector(2 downto 0) := "110";
-constant NOISE_4  : std_logic_vector(2 downto 0) := "111";
+constant FIBRE    : std_logic_vector(2 downto 0) := "111";
+
+-- number of (50 Mhz) clock cycles to wait between words:
+constant TRANSMIT_DELAY : integer := 72;
+
 
 signal clk : std_logic;
 signal comm_clk : std_logic;
+signal fibre_clk : std_logic;
 
 signal rst : std_logic;
 
-signal count : integer range 0 to 65535;
+signal init_count : std_logic_vector(15 downto 0);
 
-type tx_ctrl_states is (TX_IDLE, SEND, TX_INCR);
+signal wait_clear : std_logic;
+signal wait_count : std_logic_vector(15 downto 0);
+
+type tx_ctrl_states is (TX_INIT, TX_WAIT, SEND, TX_INCR);
 signal tx_ps : tx_ctrl_states;
 signal tx_ns : tx_ctrl_states;
 
-type rx_ctrl_states is (RX_IDLE, LATCH, COMPARE, ACCUMULATE, RX_INCR, WAITING);
+type rx_ctrl_states is (RX_IDLE, LATCH, COMPARE, ACCUMULATE, RX_INCR, RX_WAIT);
 signal rx_ps : rx_ctrl_states;
 signal rx_ns : rx_ctrl_states;
 
@@ -269,26 +331,23 @@ signal lvds_tx_rdy  : std_logic;
 signal lvds_tx_busy : std_logic;
 signal tx           : std_logic;
 
+signal spare0_tx_data : std_logic_vector(31 downto 0);
+signal spare1_tx_data : std_logic_vector(31 downto 0);
+
+signal fibre_tx_data : std_logic_vector(31 downto 0);
+signal fibre_tx_rdy  : std_logic;
+signal fibre_tx_busy : std_logic;
+
 signal data_incr : std_logic;
 signal data      : std_logic_vector(23 downto 0);
   
+type noise_array is array (1 to 18) of std_logic_vector(31 downto 0);
+signal noise      : noise_array;
 signal noise_init : std_logic;
-signal noise1     : std_logic_vector(31 downto 0);
-signal noise2     : std_logic_vector(31 downto 0);
-signal noise3     : std_logic_vector(31 downto 0);
-signal noise4     : std_logic_vector(31 downto 0);
-signal noise5     : std_logic_vector(31 downto 0);
-signal noise6     : std_logic_vector(31 downto 0);
-signal noise7     : std_logic_vector(31 downto 0);
 
-signal seed  : std_logic_vector(167 downto 0);
-signal seed1 : std_logic_vector(31 downto 0);
-signal seed2 : std_logic_vector(31 downto 0);
-signal seed3 : std_logic_vector(31 downto 0);
-signal seed4 : std_logic_vector(31 downto 0);
-signal seed5 : std_logic_vector(31 downto 0);
-signal seed6 : std_logic_vector(31 downto 0);
-signal seed7 : std_logic_vector(31 downto 0);
+type seed_array is array (1 to 18) of std_logic_vector(31 downto 0);
+signal seed        : seed_array;
+signal seed_mother : std_logic_vector(167 downto 0);
 
 signal sending : std_logic;
 signal locked  : std_logic;
@@ -297,11 +356,16 @@ signal lvds_rx_data : std_logic_vector(31 downto 0);
 signal lvds_rx_rdy  : std_logic;
 signal lvds_rx_ack  : std_logic;
 
+signal fibre_rx_data : std_logic_vector(31 downto 0);
+signal fibre_rx_rdy  : std_logic;
+signal fibre_rx_ack  : std_logic;
+
 signal orig_data     : std_logic_vector(23 downto 0);
 signal orig_data_ld  : std_logic;
 signal orig_data_clr : std_logic;
 
 signal rx_data    : std_logic_vector(31 downto 0);
+signal rx_data_in : std_logic_vector(31 downto 0);
 signal rx_data_ld : std_logic;
 
 signal diff : std_logic_vector(31 downto 0);
@@ -326,21 +390,38 @@ begin
    port map(inclk0 => clk_i,
             c0 => clk,
             c1 => comm_clk,
+            c2 => fibre_clk,
             e0 => lvds_clk_o);
 
    rst <= not rst_i;
 
-   -- this counter is used to delay transition from TX_IDLE state to SEND state.  
+   -- This counter is used to delay transition from reset state to transmitting state.  
    -- This gives the seed generator time to initialize after reset.
 
-   timer0 : counter
-   generic map(MAX => 65535)
+   timer0 : binary_counter
+   generic map(WIDTH => 16)
    port map(clk_i   => clk,
             rst_i   => rst,
             ena_i   => '1',
+            up_i    => '1',
             load_i  => '0',
-            count_i => 0,
-            count_o => count);
+            clear_i => '0',
+            count_i => (others => '0'),
+            count_o => init_count);
+            
+   -- This counter is used to slow down the transmission rate.  The (minimum) number of
+   -- clock cycles between transmitted words is defined by the constant TRANSMIT_DELAY.
+
+   timer1 : binary_counter
+   generic map(WIDTH => 16)
+   port map(clk_i   => clk,
+            rst_i   => rst,
+            ena_i   => '1',
+            up_i    => '1',
+            load_i  => '0',
+            clear_i => wait_clear,
+            count_i => (others => '0'),
+            count_o => wait_count);
    
 
    ---------------------------------------------------------------------------------------
@@ -349,7 +430,7 @@ begin
 
    -- random pattern generator as BER data generator:
    
-   rand0 : lfsr
+   txrand0 : lfsr
    generic map(WIDTH => 24)
    port map(clk_i  => clk,
             rst_i  => rst,
@@ -359,101 +440,56 @@ begin
             lfsr_i => (others => '0'),
             lfsr_o => data);
 
+   -- binary counter for debugging (note: there is a corresponding counter in the receiver datapath!)
+
+--   txrand1 : binary_counter
+--   generic map(WIDTH => 24)
+--   port map(clk_i   => clk,
+--            rst_i   => rst,
+--            ena_i   => data_incr,
+--            up_i    => '1',
+--            load_i  => '0',
+--            clear_i => '0',
+--            count_i => (others => '0'),
+--            count_o => data);
+            
 
    -- random pattern generator as seed generator (always enabled, only reset on POR):
    
    seed0 : lfsr
    generic map(WIDTH => 168)
    port map(clk_i  => clk,
-            rst_i  => rst,
+            rst_i  => '0',
             ena_i  => '1',
             load_i => '0',
             clr_i  => '0',
             lfsr_i => (others => '0'),
-            lfsr_o => seed);
+            lfsr_o => seed_mother);
   
-   -- generated seeds (trailing '0' guarantees can't put lfsr into deadlock state):
+   -- generated seeds (trailing '0' guarantees that we can't put lfsr into deadlock state):
 
-   seed1 <= seed(15  downto 0)  & seed(167 downto 153) & '0';     
-   seed2 <= seed(31  downto 16) & seed(152 downto 138) & '0';
-   seed3 <= seed(47  downto 32) & seed(137 downto 123) & '0';
-   seed4 <= seed(63  downto 48) & seed(122 downto 108) & '0';
-   seed5 <= seed(79  downto 64) & seed(107 downto 93)  & '0';
-   seed6 <= seed(95  downto 80) & seed(92  downto 78)  & '0';
-   seed7 <= seed(111 downto 96) & seed(77  downto 63)  & '0';
+   seedgen0: for i in 1 to 9 generate
+      seed(i) <= seed_mother(16*i-1 downto 16*i-16) & seed_mother(167-15*(i-1) downto 153-15*(i-1)) & '0';
+   end generate;
+   
+   seedgen1: for i in 10 to 18 generate
+      seed(i) <= not(seed(i-9)(31 downto 1)) & '0'; 
+   end generate;
    
    -- random pattern generators as noise generators:
 
-   rand1 : lfsr
-   generic map(WIDTH => 32)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => '1',
-            load_i => noise_init,
-            clr_i  => '0',
-            lfsr_i => seed1,
-            lfsr_o => noise1);
-      
-   rand2 : lfsr
-   generic map(WIDTH => 32)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => '1',
-            load_i => noise_init,
-            clr_i  => '0',
-            lfsr_i => seed2,
-            lfsr_o => noise2);
-
-   rand3 : lfsr
-   generic map(WIDTH => 32)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => '1',
-            load_i => noise_init,
-            clr_i  => '0',
-            lfsr_i => seed3,
-            lfsr_o => noise3);
-
-   rand4 : lfsr
-   generic map(WIDTH => 32)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => '1',
-            load_i => noise_init,
-            clr_i  => '0',
-            lfsr_i => seed4,
-            lfsr_o => noise4);
+   randgen0: for i in 1 to 18 generate       
+      randc: lfsr
+      generic map(WIDTH => 32)
+      port map(clk_i  => clk,
+               rst_i  => rst,
+               ena_i  => '1',
+               load_i => noise_init,
+               clr_i  => '0',
+               lfsr_i => seed(i),
+               lfsr_o => noise(i));
+   end generate;
    
-   rand5 : lfsr
-   generic map(WIDTH => 32)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => '1',
-            load_i => noise_init,
-            clr_i  => '0',
-            lfsr_i => seed5,
-            lfsr_o => noise5);
-
-   rand6 : lfsr
-   generic map(WIDTH => 32)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => '1',
-            load_i => noise_init,
-            clr_i  => '0',
-            lfsr_i => seed6,
-            lfsr_o => noise6);
-
-   rand7 : lfsr
-   generic map(WIDTH => 32)
-   port map(clk_i  => clk,
-            rst_i  => rst,
-            ena_i  => '1',
-            load_i => noise_init,
-            clr_i  => '0',
-            lfsr_i => seed7,
-            lfsr_o => noise7);
-
 
    ---------------------------------------------------------------------------------------
    -- Transmit Section            
@@ -487,11 +523,11 @@ begin
 
    with mode_i select
       lvds_tx_data <= data & data(7 downto 0) when TRANSMIT | COMBO,
-                      noise1                  when NOISE_1,
-                      noise2                  when NOISE_2,
-                      noise3                  when NOISE_3,
-                      noise4                  when NOISE_4,
-                      noise5                  when others;
+                      noise(1)                when RECEIVE,
+                      noise(2)                when NOISE_1,
+                      noise(3)                when NOISE_2,
+                      noise(4)                when NOISE_3,
+                      (others => '0')         when others;
    
    with mode_i select
       tx0_o <= rx_i when LOOPBACK,       -- receiver loopback
@@ -500,66 +536,118 @@ begin
    tx1 : lvds_tx
    port map(clk_i  => clk,
             rst_i  => rst,
-            dat_i  => noise6,
+            dat_i  => spare0_tx_data,
             rdy_i  => '1',
             busy_o => open,
             lvds_o => tx1_o);
+            
+   with mode_i select
+      spare0_tx_data <= noise(5)        when TRANSMIT,
+                        noise(6)        when RECEIVE,
+                        noise(7)        when COMBO,
+                        noise(8)        when LOOPBACK,
+                        noise(9)        when NOISE_1,
+                        noise(10)       when NOISE_2,
+                        noise(11)       when NOISE_3,
+                        (others => '0') when others;
 
    tx2 : lvds_tx
    port map(clk_i  => clk,
             rst_i  => rst,
-            dat_i  => noise7,
+            dat_i  => spare1_tx_data,
             rdy_i  => '1',
             busy_o => open,
             lvds_o => tx2_o);
 
-                     
+   with mode_i select
+      spare1_tx_data <= noise(12)       when TRANSMIT,
+                        noise(13)       when RECEIVE,
+                        noise(14)       when COMBO,
+                        noise(15)       when LOOPBACK,
+                        noise(16)       when NOISE_1,
+                        noise(17)       when NOISE_2,
+                        noise(18)       when NOISE_3,
+                        (others => '0') when others;
+                        
+   tx3 : fibre_tx
+   port map(clk_i  => clk,
+            rst_i  => rst,
+            dat_i  => fibre_tx_data,
+            rdy_i  => fibre_tx_rdy,
+            busy_o => fibre_tx_busy,
+            
+            fibre_clk_i   => fibre_clk,
+            fibre_clkw_o  => fibre_clkw_o,
+            fibre_data_o  => fibre_data_o,
+            fibre_sc_nd_o => fibre_sc_nd_o,
+            fibre_nena_o  => fibre_nena_o);
+   
+   with mode_i select      
+      fibre_tx_data <= data & data(7 downto 0) when FIBRE,
+                       (others => '0')         when others;
+    
+                             
    -- Transmit Control:
    
    tx_stateFF: process(clk, rst)
    begin
       if(rst = '1') then
-         tx_ps <= TX_IDLE;
+         tx_ps <= TX_INIT;
       elsif(clk'event and clk = '1') then
          tx_ps <= tx_ns;
       end if;
    end process tx_stateFF;
    
-   tx_stateNS: process(tx_ps, count, lvds_tx_busy)
+   tx_stateNS: process(tx_ps, init_count, wait_count, lvds_tx_busy, fibre_tx_busy, mode_i)
    begin
       case tx_ps is
-         when TX_IDLE => if(count = 2047) then
+         when TX_INIT => if(init_count = 16384) then
+                            tx_ns <= TX_WAIT;
+                         else
+                            tx_ns <= TX_INIT;
+                         end if;
+                         
+         when TX_WAIT => if(wait_count >= TRANSMIT_DELAY) then
                             tx_ns <= SEND;
                          else
-                            tx_ns <= TX_IDLE;
+                            tx_ns <= TX_WAIT;
                          end if;
                                                        
-         when SEND =>    if(lvds_tx_busy = '0') then
+         when SEND =>    if((mode_i = FIBRE and fibre_tx_busy = '0') or (mode_i /= FIBRE and lvds_tx_busy = '0')) then
                             tx_ns <= TX_INCR;
                          else
                             tx_ns <= SEND;
                          end if;
                               
-         when TX_INCR => tx_ns <= SEND;
+         when TX_INCR => tx_ns <= TX_WAIT;
          
-         when others =>  tx_ns <= TX_IDLE;
+         when others =>  tx_ns <= TX_INIT;
       end case;
    end process tx_stateNS;
    
-   tx_stateOut: process(tx_ps)
+   tx_stateOut: process(tx_ps, mode_i)
    begin
-      noise_init  <= '0';
-      lvds_tx_rdy <= '0';
-      data_incr   <= '0';
-      sending     <= '0';
+      noise_init   <= '0';
+      lvds_tx_rdy  <= '0';
+      fibre_tx_rdy <= '0';
+      data_incr    <= '0';
+      wait_clear   <= '0';
+      sending      <= '0';
       
       case tx_ps is
-         when TX_IDLE => noise_init  <= '1';
+         when TX_INIT => noise_init  <= '1';
+                         
+         when TX_WAIT => sending     <= '1';
          
-         when SEND =>    lvds_tx_rdy <= '1';
+         when SEND =>    if(mode_i = FIBRE) then
+                            fibre_tx_rdy <= '1';
+                         else
+                            lvds_tx_rdy  <= '1';
+                         end if;
                          sending     <= '1';
          
          when TX_INCR => data_incr   <= '1';
+                         wait_clear  <= '1';
                          sending     <= '1';
          
          when others =>  null;
@@ -574,22 +662,46 @@ begin
    -- Receive datapath:
 
    rx0 : lvds_rx
-   port map(comm_clk_i => comm_clk,
+   port map(clk_i      => clk,
+            comm_clk_i => comm_clk,
             rst_i      => rst,
             dat_o      => lvds_rx_data,
             rdy_o      => lvds_rx_rdy,
             ack_i      => lvds_rx_ack,
             lvds_i     => rx_i);
    
+   rx1 : fibre_rx
+   port map(clk_i => clk,
+            rst_i => rst,
+            dat_o => fibre_rx_data,
+            rdy_o => fibre_rx_rdy,
+            ack_i => fibre_rx_ack,
+     
+            fibre_refclk_o => fibre_refclk_o,
+            fibre_clkr_i   => fibre_clkr_i,
+            fibre_data_i   => fibre_data_i,
+            fibre_nrdy_i   => fibre_nrdy_i,
+            fibre_rvs_i    => fibre_rvs_i,
+            fibre_rso_i    => fibre_rso_i,
+            fibre_sc_nd_i  => fibre_sc_nd_i);
+     
    reg0 : reg
    generic map(WIDTH => 32)
    port map(clk_i  => clk,
             rst_i  => rst,
             ena_i  => rx_data_ld,
-            reg_i  => lvds_rx_data,
+            reg_i  => rx_data_in,
             reg_o  => rx_data);
+            
+   with mode_i select
+      rx_data_in <= lvds_rx_data    when RECEIVE | COMBO,
+                    fibre_rx_data   when FIBRE,
+                    (others => '0') when others;
+
+
+   -- random pattern generator that matches BER data generator:
          
-   rand8 : lfsr
+   rxrand0 : lfsr
    generic map(WIDTH => 24)
    port map(clk_i  => clk,
             rst_i  => rst,
@@ -599,6 +711,18 @@ begin
             lfsr_i => (others => '0'),
             lfsr_o => orig_data);
 
+   -- binary counter for debugging (note: there is a corresponding counter in the transmitter datapath!)
+
+--   rxrand1 : binary_counter
+--   generic map(WIDTH => 24)
+--   port map(clk_i   => clk,
+--            rst_i   => rst,
+--            ena_i   => orig_data_ld,
+--            up_i    => '1',
+--            load_i  => '0',
+--            clear_i => orig_data_clr,
+--            count_i => (others => '0'),
+--            count_o => orig_data);
 
    diff <= rx_data xor (orig_data & orig_data(7 downto 0));
 
@@ -650,11 +774,12 @@ begin
       end if;
    end process;
    
-   process(rx_ps, mode_i, lvds_rx_rdy, lvds_rx_data)
+   process(rx_ps, mode_i, lvds_rx_rdy, lvds_rx_data, fibre_rx_rdy, fibre_rx_data)
    begin
       case rx_ps is
-         when RX_IDLE =>    if((mode_i = RECEIVE and lvds_rx_rdy = '1' and lvds_rx_data = x"00000000") or
-                               (mode_i = COMBO   and lvds_rx_rdy = '1' and lvds_rx_data = x"00000000")) then
+         when RX_IDLE =>    if((mode_i = RECEIVE and lvds_rx_rdy  = '1' and lvds_rx_data  = x"00000000") or
+                               (mode_i = COMBO   and lvds_rx_rdy  = '1' and lvds_rx_data  = x"00000000") or
+                               (mode_i = FIBRE   and fibre_rx_rdy = '1' and fibre_rx_data = x"00000000")) then
                                rx_ns <= LATCH;
                             else
                                rx_ns <= RX_IDLE;
@@ -666,21 +791,24 @@ begin
          
          when ACCUMULATE => rx_ns <= RX_INCR;      
          
-         when RX_INCR =>    rx_ns <= WAITING;      
+         when RX_INCR =>    rx_ns <= RX_WAIT;      
          
-         when WAITING =>    if(lvds_rx_rdy = '1') then
+         when RX_WAIT =>    if((mode_i = RECEIVE and lvds_rx_rdy  = '1') or
+                               (mode_i = COMBO   and lvds_rx_rdy  = '1') or
+                               (mode_i = FIBRE   and fibre_rx_rdy = '1')) then
                                rx_ns <= LATCH;
                             else
-                               rx_ns <= WAITING;
+                               rx_ns <= RX_WAIT;
                             end if;
                                   
          when others =>     rx_ns <= RX_IDLE;
       end case;
    end process;
    
-   process(rx_ps, orig_data)
+   process(rx_ps, lvds_rx_rdy, lvds_rx_data, fibre_rx_rdy, fibre_rx_data, orig_data, mode_i)
    begin
       lvds_rx_ack    <= '0';
+      fibre_rx_ack   <= '0';
       orig_data_ld   <= '0';
       orig_data_clr  <= '0';
       rx_data_ld     <= '0';
@@ -689,15 +817,21 @@ begin
       locked         <= '0';
       
       case rx_ps is
-         when RX_IDLE =>    orig_data_ld   <= '1';
-                            orig_data_clr  <= '1';
+         when RX_IDLE =>    orig_data_clr  <= '1';
+                            if((mode_i = RECEIVE and lvds_rx_rdy  = '1' and lvds_rx_data  /= x"00000000") or
+                               (mode_i = COMBO   and lvds_rx_rdy  = '1' and lvds_rx_data  /= x"00000000") or
+                               (mode_i = FIBRE   and fibre_rx_rdy = '1' and fibre_rx_data /= x"00000000")) then
+                               fibre_rx_ack <= '1';
+                               lvds_rx_ack  <= '1';
+                            end if;
          
-         when LATCH =>      lvds_rx_ack    <= '1';
+         when LATCH =>      fibre_rx_ack   <= '1';
+                            lvds_rx_ack    <= '1';
                             rx_data_ld     <= '1';
                             locked         <= '1';
 
          when COMPARE | 
-              WAITING =>    locked         <= '1';
+              RX_WAIT =>    locked         <= '1';
 
          when ACCUMULATE => if(orig_data = x"00000000") then   -- pattern is cyclic, increment loop count when it restarts at 0
                                loop_count_ld <= '1';
@@ -717,9 +851,9 @@ begin
    -- Output Section            
    ---------------------------------------------------------------------------------------
 
-   nlock_o <= not locked  when mode_i = RECEIVE  or mode_i = COMBO else '1';
-   ndata_o <= not sending when mode_i = TRANSMIT or mode_i = COMBO else '1';
-   nrand_o <= not sending when mode_i = NOISE_1  or mode_i = NOISE_2 or mode_i = NOISE_3 or mode_i = NOISE_4 else '1';
+   nlock_o <= not locked  when mode_i = RECEIVE  or mode_i = COMBO   or mode_i = FIBRE   else '1';  -- green LED
+   nrand_o <= not sending when mode_i = NOISE_1  or mode_i = NOISE_2 or mode_i = NOISE_3 else '1';  -- yellow LED
+   ndata_o <= not sending when mode_i = TRANSMIT or mode_i = COMBO   or mode_i = FIBRE   else '1';  -- red LED
      
    process(clk, rst)
    begin
@@ -733,6 +867,7 @@ begin
    with output_sel select
       output_o <= total_bit_err when "00",
                   total_pkt_err when "01",
-                  total_loops when others;
+                  total_loops   when "10",
+                  total_loops   when others;
 
 end rtl;
