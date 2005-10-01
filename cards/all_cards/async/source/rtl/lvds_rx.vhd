@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.13  2005/09/23 00:18:55  erniel
+-- issue identified and resolved: data can change before assertion of ack_i
+-- added a dual-clock fifo for clock domain crossing:
+--      modified existing FSM to handle writing to FIFO in comm_clk domain
+--      added new FSM to handle read from FIFO in clk domain
+--
 -- Revision 1.12  2005/03/31 00:51:05  erniel
 -- fixed lvds synchronizer initial state
 --
@@ -242,7 +248,7 @@ begin
       end case;
    end process dp_stateNS;
    
-   dp_stateOut: process(datapath_ps, sample_count)
+   dp_stateOut: process(datapath_ps, sample_count, data_buf_full)
    begin
       sample_count_ena <= '0';
       sample_count_clr <= '0';
