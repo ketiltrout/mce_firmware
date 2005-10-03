@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.14  2005/10/01 00:59:12  erniel
+-- minor bug fix to datapath FSM
+--
 -- Revision 1.13  2005/09/23 00:18:55  erniel
 -- issue identified and resolved: data can change before assertion of ack_i
 -- added a dual-clock fifo for clock domain crossing:
@@ -265,15 +268,10 @@ begin
                        
          when RECV =>   sample_count_ena <= '1';
                         sample_buf_ena   <= '1';
-                        if(sample_count = 5   or sample_count = 13  or sample_count = 21  or sample_count = 29  or sample_count = 37  or
-                           sample_count = 45  or sample_count = 53  or sample_count = 61  or sample_count = 69  or sample_count = 77  or
-                           sample_count = 85  or sample_count = 93  or sample_count = 101 or sample_count = 109 or sample_count = 117 or
-                           sample_count = 125 or sample_count = 133 or sample_count = 141 or sample_count = 149 or sample_count = 157 or
-                           sample_count = 165 or sample_count = 173 or sample_count = 181 or sample_count = 189 or sample_count = 197 or
-                           sample_count = 205 or sample_count = 213 or sample_count = 221 or sample_count = 229 or sample_count = 237 or
-                           sample_count = 245 or sample_count = 253 or sample_count = 261 or sample_count = 269) then rx_buf_ena <= '1';
+                        if(sample_count(2 downto 0) = "101") then             -- enable rx_buf starting at sample_count = 5 and then every 8 thereafter
+                           rx_buf_ena <= '1';
                         end if;
-                        if(sample_count = 271 and data_buf_full = '0') then 
+                        if(sample_count = 271 and data_buf_full = '0') then   -- write to data buffer when sample_count = 271
                            data_buf_write <= '1';
                         end if;
          
