@@ -1,7 +1,20 @@
+Revision history:
+<date $Date$>    - <initials $Author$>
+$Log$
+
 [Updated and closed some of the open items as appropriate as of Sept. 15, 2005]
+
+N o t C a t e g o r i z e d    I T E M S
+---------------------------------------------------------------------------------------------------------------------
+
+MA, Oct. 5, 05
+change readout card firmware to clear parallel DACs on power up to resolve the initial high current-draw from +-7V supply.
+
+
+
+
 --------------------------------------------------------------------------------------------------------------------------
 C M D / R E P L Y     P A T H
-
 2- Ernie Lin, Feb 12 2005 
 
 The reply_queue and dispatch blocks cannot recover from bit errors over the bus backplane.  For instance, when the
