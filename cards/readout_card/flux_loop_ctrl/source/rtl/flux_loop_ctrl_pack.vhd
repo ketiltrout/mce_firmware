@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.5  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.4  2004/11/26 18:26:21  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -158,6 +162,7 @@ package flux_loop_ctrl_pack is
          flux_quanta_dat_i          : in    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          fsfb_ws_addr_i             : in    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
          fsfb_ws_dat_o              : out   std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
+         flux_cnt_ws_dat_o          : out   std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
          fsfb_fltr_dat_rdy_o        : out   std_logic;                                             -- fs feedback queue current data ready 
          fsfb_fltr_dat_o            : out   std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
          num_flux_quanta_pres_rdy_i : in    std_logic;                                             -- flux quanta present count ready

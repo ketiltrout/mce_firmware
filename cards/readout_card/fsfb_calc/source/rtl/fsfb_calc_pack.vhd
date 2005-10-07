@@ -34,6 +34,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.5  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.4  2004/12/07 19:41:42  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -94,6 +98,7 @@ package fsfb_calc_pack is
          fsfb_proc_dat_i                      : in           std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
          fsfb_ws_addr_i                       : in           std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
          fsfb_ws_dat_o                        : out          std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         flux_cnt_ws_dat_o                    : out          std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
          fsfb_fltr_dat_rdy_o                  : out          std_logic;
          fsfb_fltr_dat_o                      : out          std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
          fsfb_ctrl_dat_rdy_o                  : out          std_logic;

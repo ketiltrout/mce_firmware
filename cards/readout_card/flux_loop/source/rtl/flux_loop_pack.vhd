@@ -32,6 +32,10 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.4  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.3  2005/04/29 18:14:59  bburger
 -- Bryce:  added FLUX_QUANTA_CNT_WIDTH constant, and fsfb_corr component declaration
 --
@@ -131,6 +135,7 @@ package flux_loop_pack is
       raw_ack_o                   : out std_logic;
       fsfb_addr_i                 : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
       fsfb_dat_o                  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      flux_cnt_ws_dat_o           : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       filtered_addr_i             : in  std_logic_vector(5 downto 0);
       filtered_dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       adc_offset_dat_i            : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -265,6 +270,7 @@ package flux_loop_pack is
       filtered_dat_ch0_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch0_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       fsfb_dat_ch0_i      : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      flux_cnt_dat_ch0_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch0_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch0_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       raw_addr_ch0_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
@@ -275,6 +281,7 @@ package flux_loop_pack is
       filtered_dat_ch1_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch1_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       fsfb_dat_ch1_i      : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      flux_cnt_dat_ch1_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch1_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch1_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       raw_addr_ch1_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
@@ -285,6 +292,7 @@ package flux_loop_pack is
       filtered_dat_ch2_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch2_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       fsfb_dat_ch2_i      : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      flux_cnt_dat_ch2_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch2_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch2_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       raw_addr_ch2_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
@@ -295,6 +303,7 @@ package flux_loop_pack is
       filtered_dat_ch3_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch3_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       fsfb_dat_ch3_i      : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      flux_cnt_dat_ch3_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch3_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch3_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       raw_addr_ch3_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
@@ -305,6 +314,7 @@ package flux_loop_pack is
       filtered_dat_ch4_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch4_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       fsfb_dat_ch4_i      : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      flux_cnt_dat_ch4_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch4_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch4_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       raw_addr_ch4_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
@@ -315,6 +325,7 @@ package flux_loop_pack is
       filtered_dat_ch5_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch5_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       fsfb_dat_ch5_i      : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      flux_cnt_dat_ch5_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch5_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch5_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       raw_addr_ch5_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
@@ -325,6 +336,7 @@ package flux_loop_pack is
       filtered_dat_ch6_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch6_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       fsfb_dat_ch6_i      : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      flux_cnt_dat_ch6_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch6_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch6_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       raw_addr_ch6_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
@@ -335,6 +347,7 @@ package flux_loop_pack is
       filtered_dat_ch7_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch7_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       fsfb_dat_ch7_i      : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
+      flux_cnt_dat_ch7_i  : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       coadded_addr_ch7_o  : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       coadded_dat_ch7_i   : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       raw_addr_ch7_o      : out std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);

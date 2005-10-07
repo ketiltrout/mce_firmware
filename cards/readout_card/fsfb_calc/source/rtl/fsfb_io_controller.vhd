@@ -38,6 +38,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.4  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.3  2004/12/07 19:41:42  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -93,6 +97,7 @@ entity fsfb_io_controller is
       -- wishbone slave interface (dedicated read ports to fsfb_queue/fsfb_flux_cnt_queue)
       fsfb_ws_addr_i                      : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- wishbone slave address input
       fsfb_ws_dat_o                       : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);          -- wishbone slave data output
+      flux_cnt_ws_dat_o                   : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
       
       -- signals to first stage feedback filter block
       fsfb_fltr_dat_rdy_o                 : out    std_logic;                                           -- fs feedback queue current data ready to filter
@@ -198,6 +203,7 @@ architecture rtl of fsfb_io_controller is
    
    signal fsfb_ws_dat                 : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
 
+--   signal flux_cnt_ws_dat_o           : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 begin
    
    -- This window indicates when to latch the new ramp result from add/sub operation
@@ -344,17 +350,11 @@ begin
    
    --fsfb_ws_dat_o <= fsfb_ws_dat(WB_DATA_WIDTH-1 downto 0);
    
-   fsfb_ws_dat_o(WB_DATA_WIDTH-1 downto FLUX_QUANTA_CNT_WIDTH) 
-                 <= fsfb_queue_rd_dataa_bank1_i(31 downto FLUX_QUANTA_CNT_WIDTH) when even_odd_delayed = '1' else 
-                    fsfb_queue_rd_dataa_bank0_i(31 downto FLUX_QUANTA_CNT_WIDTH);
+   fsfb_ws_dat_o     <= fsfb_queue_rd_dataa_bank1_i(WB_DATA_WIDTH-1 downto 0) when even_odd_delayed = '1' else 
+                        fsfb_queue_rd_dataa_bank0_i(WB_DATA_WIDTH-1 downto 0);
    
-   fsfb_ws_dat_o(FLUX_QUANTA_CNT_WIDTH-1) 
-                 <= fsfb_flux_cnt_queue_rd_dataa_bank1_i(FLUX_QUANTA_CNT_WIDTH-1) when even_odd = '1' else
-                    fsfb_flux_cnt_queue_rd_dataa_bank0_i(FLUX_QUANTA_CNT_WIDTH-1);
-
-   fsfb_ws_dat_o(FLUX_QUANTA_CNT_WIDTH-2 downto 0) 
-                 <= fsfb_flux_cnt_queue_rd_dataa_bank1_i(FLUX_QUANTA_CNT_WIDTH-2 downto 0) when even_odd = '1' else
-                    fsfb_flux_cnt_queue_rd_dataa_bank0_i(FLUX_QUANTA_CNT_WIDTH-2 downto 0);
+   flux_cnt_ws_dat_o <= fsfb_flux_cnt_queue_rd_dataa_bank1_i when even_odd = '1' else
+                        fsfb_flux_cnt_queue_rd_dataa_bank0_i;
                     
    -- Read address control (bank 0 and 1, port b)
    -- Port b is dedicated to control and system read access 

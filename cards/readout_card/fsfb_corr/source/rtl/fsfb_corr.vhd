@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.5 2005/05/06 20:06:07 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.6 2005/09/14 23:48:39 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.6  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.5  2005/05/06 20:06:07  bburger
 -- Bryce:  Bug Fix.  The fb_max and fb_min constants weren't being initialized properly.  Any integer multiplied by a fraction is zero.
 --
@@ -617,56 +621,56 @@ begin
          
 ---------------------------------------------
          if(m_pres_en0 = '1') then
-            if(enable_feedthrough = '1') then
+            if(enable_feedthrough = '0') then
                m_pres_reg0 <= m_pres0; 
             else
                m_pres_reg0 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en1 = '1') then
-            if(enable_feedthrough = '1') then
+            if(enable_feedthrough = '0') then
                m_pres_reg1 <= m_pres1; 
             else
                m_pres_reg1 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en2 = '1') then
-            if(enable_feedthrough = '1') then
+            if(enable_feedthrough = '0') then
                m_pres_reg2 <= m_pres2; 
             else
                m_pres_reg2 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en3 = '1') then
-            if(enable_feedthrough = '1') then
+            if(enable_feedthrough = '0') then
                m_pres_reg3 <= m_pres3; 
             else
                m_pres_reg3 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en4 = '1') then
-            if(enable_feedthrough = '1') then
+            if(enable_feedthrough = '0') then
                m_pres_reg4 <= m_pres4; 
             else
                m_pres_reg4 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en5 = '1') then
-            if(enable_feedthrough = '1') then
+            if(enable_feedthrough = '0') then
                m_pres_reg5 <= m_pres5; 
             else
                m_pres_reg5 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en6 = '1') then
-            if(enable_feedthrough = '1') then
+            if(enable_feedthrough = '0') then
                m_pres_reg6 <= m_pres6; 
             else
                m_pres_reg6 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en7 = '1') then
-            if(enable_feedthrough = '1') then
+            if(enable_feedthrough = '0') then
                m_pres_reg7 <= m_pres7; 
             else
                m_pres_reg7 <= (others => '0'); 
@@ -730,7 +734,11 @@ begin
          elsif(fsfb_ctrl_dat_rdy0_i = '1') then
             flux_quanta_reg0      <= flux_quanta0_i;
             m_prev_reg0           <= num_flux_quanta_prev0_i;
-            pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            if(fsfb_ctrl_lock_en_i = '1') then
+               pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            else
+               pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+            end if;
             fsfb_ctrl_dat_rdy0    <= fsfb_ctrl_dat_rdy0_i;
          end if;
          
@@ -739,7 +747,11 @@ begin
          elsif(fsfb_ctrl_dat_rdy1_i = '1') then
             flux_quanta_reg1      <= flux_quanta1_i;
             m_prev_reg1           <= num_flux_quanta_prev1_i;
-            pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            if(fsfb_ctrl_lock_en_i = '1') then
+               pid_prev_reg1         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            else
+               pid_prev_reg1         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+            end if;
             fsfb_ctrl_dat_rdy1    <= fsfb_ctrl_dat_rdy1_i;
          end if;
 
@@ -748,7 +760,11 @@ begin
          elsif(fsfb_ctrl_dat_rdy2_i = '1') then
             flux_quanta_reg2      <= flux_quanta2_i;
             m_prev_reg2           <= num_flux_quanta_prev2_i;
-            pid_prev_reg2         <= fsfb_ctrl_dat2_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            if(fsfb_ctrl_lock_en_i = '1') then
+               pid_prev_reg2         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            else
+               pid_prev_reg2         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+            end if;
             fsfb_ctrl_dat_rdy2    <= fsfb_ctrl_dat_rdy2_i;
          end if;
 
@@ -757,7 +773,11 @@ begin
          elsif(fsfb_ctrl_dat_rdy3_i = '1') then
             flux_quanta_reg3      <= flux_quanta3_i;
             m_prev_reg3           <= num_flux_quanta_prev3_i;
-            pid_prev_reg3         <= fsfb_ctrl_dat3_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            if(fsfb_ctrl_lock_en_i = '1') then
+               pid_prev_reg3         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            else
+               pid_prev_reg3         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+            end if;
             fsfb_ctrl_dat_rdy3    <= fsfb_ctrl_dat_rdy3_i;
          end if;
 
@@ -766,7 +786,11 @@ begin
          elsif(fsfb_ctrl_dat_rdy4_i = '1') then
             flux_quanta_reg4      <= flux_quanta4_i;
             m_prev_reg4           <= num_flux_quanta_prev4_i;
-            pid_prev_reg4         <= fsfb_ctrl_dat4_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            if(fsfb_ctrl_lock_en_i = '1') then
+               pid_prev_reg4         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            else
+               pid_prev_reg4         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+            end if;
             fsfb_ctrl_dat_rdy4    <= fsfb_ctrl_dat_rdy4_i;
          end if;
 
@@ -775,7 +799,11 @@ begin
          elsif(fsfb_ctrl_dat_rdy5_i = '1') then
             flux_quanta_reg5      <= flux_quanta5_i;
             m_prev_reg5           <= num_flux_quanta_prev5_i;
-            pid_prev_reg5         <= fsfb_ctrl_dat5_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            if(fsfb_ctrl_lock_en_i = '1') then
+               pid_prev_reg5         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            else
+               pid_prev_reg5         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+            end if;
             fsfb_ctrl_dat_rdy5    <= fsfb_ctrl_dat_rdy5_i;
          end if;
 
@@ -784,7 +812,11 @@ begin
          elsif(fsfb_ctrl_dat_rdy6_i = '1') then
             flux_quanta_reg6      <= flux_quanta6_i;
             m_prev_reg6           <= num_flux_quanta_prev6_i;
-            pid_prev_reg6         <= fsfb_ctrl_dat6_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            if(fsfb_ctrl_lock_en_i = '1') then
+               pid_prev_reg6         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            else
+               pid_prev_reg6         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+            end if;
             fsfb_ctrl_dat_rdy6    <= fsfb_ctrl_dat_rdy6_i;
          end if;
 
@@ -793,7 +825,11 @@ begin
          elsif(fsfb_ctrl_dat_rdy7_i = '1') then
             flux_quanta_reg7      <= flux_quanta7_i;
             m_prev_reg7           <= num_flux_quanta_prev7_i;
-            pid_prev_reg7         <= fsfb_ctrl_dat7_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            if(fsfb_ctrl_lock_en_i = '1') then
+               pid_prev_reg7         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+            else
+               pid_prev_reg7         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+            end if;
             fsfb_ctrl_dat_rdy7    <= fsfb_ctrl_dat_rdy7_i;
          end if;
          
@@ -883,7 +919,7 @@ begin
       fsfb_ctrl_dat_rdy6 and
       fsfb_ctrl_dat_rdy7;
    
-   enable_feedthrough <= '1' when flux_jumping_en_i = '1' and fsfb_ctrl_lock_en_i = '1' else '0';
+   enable_feedthrough <= '1' when flux_jumping_en_i = '0' else '0'; --and fsfb_ctrl_lock_en_i = '1' 
       
    m_prev_sign_xtnd <= sign_xtnd_m(m_prev);
    m_pres_sign_xtnd <= sign_xtnd_m(m_pres);
@@ -892,28 +928,28 @@ begin
    pid_prev_sign_xtnd2 <= sign_xtnd_pid_prev(pid_prev2);
       
    fsfb_ctrl_dat0_o <=
-      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '0' else
+      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
       res_b_reg0(DAC_DAT_WIDTH-1 downto 0);        
    fsfb_ctrl_dat1_o <=
-      pid_prev_reg1(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '0' else
+      pid_prev_reg1(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
       res_b_reg1(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat2_o <=
-      pid_prev_reg2(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '0' else
+      pid_prev_reg2(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
       res_b_reg2(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat3_o <=
-      pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '0' else
+      pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
       res_b_reg3(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat4_o <=
-      pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '0' else
+      pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
       res_b_reg4(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat5_o <=
-      pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '0' else
+      pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
       res_b_reg5(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat6_o <=
-      pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '0' else
+      pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
       res_b_reg6(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat7_o <=
-      pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '0' else
+      pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
       res_b_reg7(DAC_DAT_WIDTH-1 downto 0);
    
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;

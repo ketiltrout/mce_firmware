@@ -44,6 +44,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.6  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.5  2004/12/07 19:41:42  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -121,7 +125,8 @@ entity fsfb_calc is
       -- first stage feedback queue (dedicated wishbone slave interface)
       fsfb_ws_addr_i             : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
       fsfb_ws_dat_o              : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
-       
+      flux_cnt_ws_dat_o          : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+ 
       -- first stage feedback queue (shared filter interface)
       fsfb_fltr_dat_rdy_o        : out    std_logic;                                             -- fs feedback queue current data ready 
       fsfb_fltr_dat_o            : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
@@ -202,6 +207,7 @@ begin
          fsfb_proc_dat_i                      => fsfb_proc_dat_o,
          fsfb_ws_addr_i                       => fsfb_ws_addr_i,
          fsfb_ws_dat_o                        => fsfb_ws_dat_o,
+         flux_cnt_ws_dat_o                    => flux_cnt_ws_dat_o,
          fsfb_fltr_dat_rdy_o                  => fsfb_fltr_dat_rdy_o,
          fsfb_fltr_dat_o                      => fsfb_fltr_dat_o,
          fsfb_ctrl_dat_rdy_o                  => fsfb_ctrl_dat_rdy_o,
