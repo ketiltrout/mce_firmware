@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.10  2005/03/18 23:09:09  erniel
+-- updated changed buffer addr & data bus size constants
+-- slight modification to buffer address generation due to different buffer sizes
+--
 -- Revision 1.9  2004/11/26 01:34:31  erniel
 -- added support for wishbone err_i signal
 --
@@ -117,14 +121,14 @@ port(clk_i : in std_logic;
 end dispatch_wishbone;
 
 architecture rtl of dispatch_wishbone is
-
+   
 type master_states is (IDLE, WB_CYCLE, DONE, ERROR);
 signal pres_state : master_states;
 signal next_state : master_states;
 
 signal addr_ena : std_logic;
 signal addr_clr : std_logic;
-signal addr : integer;
+signal addr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal cmd_buf_addr   : std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
 signal reply_buf_addr : std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
@@ -139,20 +143,20 @@ begin
    -- Address generator
    ---------------------------------------------------------
    
-   addr_gen : counter
-   generic map(MAX => MAX_DATA_WORDS-1)
+   addr_gen : binary_counter
+   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
-            ena_i   => addr_ena, 
-            load_i  => addr_clr,
-            count_i => 0,
+            ena_i   => ack_i,
+            up_i    => '1',
+            load_i  => '0',
+            clear_i => addr_clr,
+            count_i => (others => '0'),
             count_o => addr);
-            
-   addr_ena <= addr_clr or ack_i;  -- allow clear when addr_clr = '1' OR increment when ack_i = '1'
    
-   cmd_buf_addr   <= conv_std_logic_vector(addr, CMD_BUF_ADDR_WIDTH);
-   reply_buf_addr <= conv_std_logic_vector(addr, REPLY_BUF_ADDR_WIDTH);
-   tga_addr       <= conv_std_logic_vector(addr, WB_TAG_ADDR_WIDTH);
+   cmd_buf_addr   <= addr(CMD_BUF_ADDR_WIDTH-1 downto 0);
+   reply_buf_addr <= addr(REPLY_BUF_ADDR_WIDTH-1 downto 0);
+   tga_addr       <= "00000000000000000" & addr;
    
    
    ---------------------------------------------------------
@@ -169,7 +173,7 @@ begin
              timer_reset_i => timer_rst,
              timer_count_o => timer);
    
-   timer_rst <= '1' when timer = WATCHDOG_LIMIT or pres_state = WB_CYCLE or pres_state = DONE else '0';   
+   timer_rst <= '1' when timer = 180000 or pres_state = WB_CYCLE or pres_state = DONE else '0';   
    wdt_rst_o <= '1' when timer = 0 else '0';
          
    
@@ -225,7 +229,6 @@ begin
                             
       case pres_state is
          when IDLE =>     addr_clr <= '1';
-                          
          
          when WB_CYCLE => addr_o <= param_id_i;
                           dat_o  <= cmd_buf_data_i;
