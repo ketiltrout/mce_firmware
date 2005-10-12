@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.8  2005/03/18 23:08:43  erniel
+-- updated changed buffer addr & data bus size constants
+--
 -- Revision 1.7  2005/01/11 20:52:44  erniel
 -- updated lvds_tx component
 -- removed mem_clk_i port
@@ -69,10 +72,6 @@ use components.component_pack.all;
 library sys_param;
 use sys_param.command_pack.all;
 
-library work;
-use work.async_pack.all;
-use work.dispatch_pack.all;
-
 entity dispatch_reply_transmit is
 port(clk_i      : in std_logic;
      rst_i      : in std_logic;     
@@ -83,85 +82,45 @@ port(clk_i      : in std_logic;
      reply_ack_o : out std_logic;  -- reply sent, clear to send next
      
      -- Command header words:
-     header0_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     header1_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     header2_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- pass/fail word
+     header0_i : in std_logic_vector(31 downto 0);
+     header1_i : in std_logic_vector(31 downto 0);
      
      -- Buffer interface:
-     buf_data_i : in std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
-     buf_addr_o : out std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0));
+     buf_data_i : in std_logic_vector(31 downto 0);
+     buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0));
 end dispatch_reply_transmit;
 
 architecture rtl of dispatch_reply_transmit is
 
-type transmitter_states is (IDLE_TX, CALC_CRC, SEND_WORD, SEND_CRC, TX_DONE);
-signal tx_pres_state : transmitter_states;
-signal tx_next_state : transmitter_states;
+component lvds_tx
+port(clk_i      : in std_logic;
+     rst_i      : in std_logic;
+     dat_i      : in std_logic_vector(31 downto 0);
+     rdy_i      : in std_logic;
+     busy_o     : out std_logic;
+     lvds_o     : out std_logic);
+end component;
 
-signal lvds_tx_data : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+type transmitter_states is (IDLE, TX_HDR, TX_DATA, TX_CRC, DONE);
+signal pres_state : transmitter_states;
+signal next_state : transmitter_states;
+
+signal lvds_tx_data : std_logic_vector(31 downto 0);
 signal lvds_tx_rdy  : std_logic;
 signal lvds_tx_busy : std_logic;
 
 signal word_count_ena : std_logic;
 signal word_count_clr : std_logic;
-signal word_count     : integer;
+signal word_count     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
-signal reply_size    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-signal reply_size_ld : std_logic;
-
-signal reply_num_words : integer;
-
--- signals used in CRC datapath:
-
-type crc_states is (IDLE_CRC, INITIALIZE_CRC, CALCULATE_CRC, CRC_WORD_DONE, LOAD_NEXT_WORD, CRC_ALL_DONE);
-signal crc_pres_state : crc_states;
-signal crc_next_state : crc_states;
-
-signal data_shreg_ena : std_logic;
-signal data_shreg_ld  : std_logic;
-signal crc_cur_bit    : std_logic;
-signal crc_word_in    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal crc_word_out   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-
-signal crc_input_sel : std_logic_vector(1 downto 0);
-signal tx_input_sel  : std_logic;
-
-signal crc_bit_count_clr : std_logic;
-signal crc_bit_count     : integer;
-
-signal crc_ena      : std_logic;
-signal crc_clr      : std_logic;
-signal crc_done     : std_logic;
-signal crc_checksum : std_logic_vector(31 downto 0);
-
-signal crc_num_bits : integer;
-
-signal crc_start     : std_logic;
-signal crc_word_rdy  : std_logic;
-signal transmit_busy : std_logic;
-signal transmit_done : std_logic;
+signal crc_ena       : std_logic;
+signal crc_clr       : std_logic;
+signal crc_data      : std_logic_vector(31 downto 0);
+signal crc_checksum  : std_logic_vector(31 downto 0);
+signal crc_num_words : integer;
 
 begin
 
-   ---------------------------------------------------------               
-   -- Register for data size parameter
-   ---------------------------------------------------------
-   
-   data_size_reg : reg
-   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
-   port map(clk_i => clk_i,
-            rst_i => rst_i,
-            ena_i => reply_size_ld,
-            reg_i => header0_i(BB_DATA_SIZE'range),
-            reg_o => reply_size);
-            
-   -- number of bits to be processed by CRC is (# of data words + 2 header words + 1 pass/fail word) * 32
-   crc_num_bits <= conv_integer((reply_size + 3) & "00000");
-   
-   -- number of words in packet (not including CRC) is (# of data words + 2 header words + 1 pass/fail word)
-   reply_num_words <= conv_integer(reply_size + 3);
-   
-            
    ---------------------------------------------------------
    -- LVDS transmitter
    ---------------------------------------------------------
@@ -179,243 +138,134 @@ begin
    -- CRC calculation
    ---------------------------------------------------------
 
-   crc_data_reg : shift_reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
-      port map(clk_i      => clk_i,
-               rst_i      => rst_i,
-               ena_i      => data_shreg_ena,
-               load_i     => data_shreg_ld,
-               clr_i      => '0',
-               shr_i      => '1',
-               serial_i   => crc_cur_bit, 
-               serial_o   => crc_cur_bit,
-               parallel_i => crc_word_in,
-               parallel_o => crc_word_out);
-                  
-   crc_bit_counter : counter
-      generic map(MAX         => PACKET_WORD_WIDTH,
-                  STEP_SIZE   => 1,
-                  WRAP_AROUND => '0',
-                  UP_COUNTER  => '1')
-      port map(clk_i   => clk_i,
-               rst_i   => rst_i,
-               ena_i   => '1',
-               load_i  => crc_bit_count_clr,
-               count_i => 0,
-               count_o => crc_bit_count);
-
-   crc_calc : crc
-      generic map(POLY_WIDTH => 32)
-      port map(clk_i      => clk_i,
-               rst_i      => rst_i,
-               clr_i      => crc_clr,
-               ena_i      => crc_ena,
-               data_i     => crc_cur_bit,
-               num_bits_i => crc_num_bits,
-               poly_i     => CRC32,
-               done_o     => crc_done,
-               valid_o    => open,
-               checksum_o => crc_checksum);
-               
-   -- CRC control FSM
-   crc_stateFF: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         crc_pres_state <= IDLE_CRC;
-      elsif(clk_i'event and clk_i = '1') then
-         crc_pres_state <= crc_next_state;
-      end if;
-   end process crc_stateFF;
-   
-   crc_stateNS: process(crc_pres_state, crc_start, crc_bit_count, crc_done, lvds_tx_rdy)
-   begin
-      case crc_pres_state is
-         when IDLE_CRC =>       if(crc_start = '1') then
-                                   crc_next_state <= INITIALIZE_CRC;  
-                                else
-                                   crc_next_state <= IDLE_CRC;
-                                end if;
-                                   
-         when INITIALIZE_CRC => crc_next_state <= CALCULATE_CRC;
-                                
-         when CALCULATE_CRC =>  if(crc_bit_count = PACKET_WORD_WIDTH-1) then  -- when done processing all bits
-                                   crc_next_state <= CRC_WORD_DONE;
-                                else
-                                   crc_next_state <= CALCULATE_CRC;
-                                end if;
-                          
-         when CRC_WORD_DONE =>  if(lvds_tx_rdy = '1') then                    -- when done sending previous word, 
-                                   if(crc_done = '1') then                    -- if this is the last data word, hold checksum for tx
-                                      crc_next_state <= CRC_ALL_DONE;
-                                   else                                       -- else prepare next data word
-                                      crc_next_state <= LOAD_NEXT_WORD;
-                                   end if;
-                                else
-                                   crc_next_state <= CRC_WORD_DONE;
-                                end if;
-         
-         when LOAD_NEXT_WORD => crc_next_state <= CALCULATE_CRC;
-         
-         when CRC_ALL_DONE =>   if(lvds_tx_rdy = '1') then
-                                   crc_next_state <= IDLE_CRC;
-                                else
-                                   crc_next_state <= CRC_ALL_DONE;
-                                end if;
-                                         
-         when others =>         crc_next_state <= IDLE_CRC;
-      end case;
-   end process crc_stateNS;
-   
-   crc_stateOut: process(crc_pres_state)
-   begin 
-      data_shreg_ena    <= '0';
-      data_shreg_ld     <= '0';  
-      crc_bit_count_clr <= '0';
-      crc_ena           <= '0';
-      crc_clr           <= '0';
-      crc_word_rdy      <= '0';
-      
-      case crc_pres_state is
-         when INITIALIZE_CRC => data_shreg_ena    <= '1';
-                                data_shreg_ld     <= '1';
-                                crc_bit_count_clr <= '1';
-                                crc_ena           <= '1';
-                                crc_clr           <= '1';
-                           
-         when CALCULATE_CRC =>  data_shreg_ena    <= '1';
-                                crc_ena           <= '1';
-         
-         when CRC_WORD_DONE =>  crc_word_rdy      <= '1';
-         
-         when LOAD_NEXT_WORD => data_shreg_ena    <= '1';
-                                data_shreg_ld     <= '1';
-                                crc_bit_count_clr <= '1';
-                                
-         when others =>         null;
-      end case;
-   end process crc_stateOut;
+   crc_calc : parallel_crc
+      generic map(POLY_WIDTH => 32,
+                  DATA_WIDTH => 32)
+      port map(clk_i       => clk_i,
+               rst_i       => rst_i,
+               clr_i       => crc_clr,
+               ena_i       => crc_ena,
+               poly_i      => "00000100110000010001110110110111",    -- CRC-32 polynomial
+               data_i      => crc_data,
+               num_words_i => crc_num_words,
+               done_o      => open,
+               valid_o     => open,
+               checksum_o  => crc_checksum);
+    
+   crc_num_words <= conv_integer(header0_i(BB_DATA_SIZE'range) + 2);           
 
 
    ---------------------------------------------------------               
-   -- Counters for transmitted words
+   -- Counter for transmitted words
    ---------------------------------------------------------   
    
-   -- when word count = x, the x'th word is being transmitted (ie. header0 = word 1)
-   word_counter : counter
-   generic map(MAX => MAX_DATA_WORDS + 3)  -- there are 3 header words in addition to the data words
+   word_counter : binary_counter
+   generic map(WIDTH => BB_DATA_SIZE_WIDTH)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
             ena_i   => word_count_ena,
-            load_i  => word_count_clr,
-            count_i => 0,
+            up_i    => '1',
+            load_i  => '0',
+            clear_i => word_count_clr,
+            count_i => (others => '0'),
             count_o => word_count);
             
-   -- when word count = x, buffer addr x-3 is being accessed by CRC
-   buf_addr_o <= conv_std_logic_vector(word_count - 3, REPLY_BUF_ADDR_WIDTH);  
+   buf_addr_o <= word_count;
    
-   ---------------------------------------------------------               
-   -- Multiplexors for inputs to CRC and LVDS blocks
-   ---------------------------------------------------------
    
-   with crc_input_sel select
-      crc_word_in <= header0_i when "00",
-                     header1_i when "01",
-                     header2_i when "10",
-                     buf_data_i when others;
-   
-   with tx_input_sel select
-      lvds_tx_data <= crc_word_out when '0',
-                      crc_checksum when others;
-                      
-      
    ---------------------------------------------------------
    -- Transmit controller FSM
    ---------------------------------------------------------
    tx_stateFF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         tx_pres_state <= IDLE_TX;
+         pres_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
-         tx_pres_state <= tx_next_state;
+         pres_state <= next_state;
       end if;
    end process tx_stateFF;
    
-   tx_stateNS: process(tx_pres_state, reply_rdy_i, crc_word_rdy, lvds_tx_busy, word_count, reply_num_words)
+   tx_stateNS: process(pres_state, reply_rdy_i, lvds_tx_busy, word_count, header0_i)
    begin
-      case tx_pres_state is
-         when IDLE_TX =>   if(reply_rdy_i = '1') then
-                              tx_next_state <= CALC_CRC;
+      case pres_state is
+         when IDLE =>      if(reply_rdy_i = '1') then
+                              next_state <= TX_HDR;
                            else
-                              tx_next_state <= IDLE_TX;
-                           end if;
-                          
-         when CALC_CRC =>  if(crc_word_rdy = '1') then                           -- when crc done processing first word, start transmit
-                              tx_next_state <= SEND_WORD;
-                           else
-                              tx_next_state <= CALC_CRC;
+                              next_state <= IDLE;
                            end if;
          
-         when SEND_WORD => if(lvds_tx_busy = '0') then    -- when transmitter available and crc of next word is done,
-                              if(word_count = reply_num_words-1) then              -- if done transmitting last data word
-                                 tx_next_state <= SEND_CRC;
-                              else                                               -- else transmit next data word
-                                 tx_next_state <= CALC_CRC;
+         when TX_HDR =>    if(lvds_tx_busy = '0' and word_count = 1) then 
+                              if(header0_i(BB_DATA_SIZE'range) = 0) then
+                                 next_state <= TX_CRC;
+                              else
+                                 next_state <= TX_DATA;
                               end if;
                            else
-                              tx_next_state <= SEND_WORD;
+                              next_state <= TX_HDR;
                            end if;
- 
-         when SEND_CRC =>  if(lvds_tx_busy = '0') then                -- when transmit done, assert transmit_done
-                              tx_next_state <= TX_DONE;               -- (to allow crc to return to idle)
-                           else
-                              tx_next_state <= SEND_CRC;
-                           end if;
-                          
-         when TX_DONE =>   tx_next_state <= IDLE_TX;
          
-         when others =>    tx_next_state <= IDLE_TX;
+         when TX_DATA =>   if(lvds_tx_busy = '0' and word_count = header0_i(BB_DATA_SIZE'range)-1) then
+                              next_state <= TX_CRC;
+                           else
+                              next_state <= TX_DATA;
+                           end if;
+                           
+         when TX_CRC =>    if(lvds_tx_busy = '0') then
+                              next_state <= DONE;
+                           else
+                              next_state <= TX_CRC;
+                           end if;
+         
+         when others =>    next_state <= IDLE;
       end case;
    end process tx_stateNS;
    
-   tx_stateOut: process(tx_pres_state, word_count, lvds_tx_busy)
+   tx_stateOut: process(pres_state, word_count, lvds_tx_busy, header0_i, header1_i, buf_data_i, crc_checksum)
    begin
-      case word_count is
-         when 0 =>      crc_input_sel <= "00";
-         when 1 =>      crc_input_sel <= "01";
-         when 2 =>      crc_input_sel <= "10";
-         when others => crc_input_sel <= "11";
-      end case;
-                                            
-      -- default values:
-      tx_input_sel   <= '0';
-      reply_size_ld  <= '0';
       word_count_ena <= '0';
       word_count_clr <= '0';
+      crc_ena        <= '0';
+      crc_clr        <= '0';
+      crc_data       <= (others => '0');
       lvds_tx_rdy    <= '0';
-      crc_start      <= '0';
-      transmit_busy  <= '0';
-      transmit_done  <= '0';
+      lvds_tx_data   <= (others => '0');
       reply_ack_o    <= '0';
       
-      case tx_pres_state is
-         when IDLE_TX =>   reply_size_ld  <= '1';
-                           word_count_ena <= '1';
-                           word_count_clr <= '1';
-                                
-         when CALC_CRC =>  crc_start      <= '1';
+      case pres_state is
+         when IDLE =>    word_count_clr       <= '1';
+                         crc_clr              <= '1';
+                      
+         when TX_HDR =>  if(lvds_tx_busy = '0') then
+                            crc_ena           <= '1';
+                            lvds_tx_rdy       <= '1';
+                               
+                            if(word_count = 0) then
+                               word_count_ena <= '1';
+                               lvds_tx_data   <= header0_i;
+                               crc_data       <= header0_i;
+                            else
+                               word_count_clr <= '1';        -- in this state, word_count only reaches 1 before it gets reset
+                               lvds_tx_data   <= header1_i;
+                               crc_data       <= header1_i;
+                            end if;
+                         end if;
          
-         when SEND_WORD => if(lvds_tx_busy = '0') then
-                              tx_input_sel   <= '0';
-                              word_count_ena <= '1';
-                              lvds_tx_rdy    <= '1';
-                           end if;
-
-         when SEND_CRC =>  if(lvds_tx_busy = '0') then
-                              tx_input_sel   <= '1';
-                              lvds_tx_rdy    <= '1';
-                           end if;
-   
-         when TX_DONE =>   reply_ack_o    <= '1';
+         when TX_DATA => if(lvds_tx_busy = '0') then
+                            word_count_ena    <= '1';
+                            crc_ena           <= '1';
+                            crc_data          <= buf_data_i;
+                            lvds_tx_rdy       <= '1';
+                            lvds_tx_data      <= buf_data_i;
+                         end if;
+         
+         when TX_CRC =>  if(lvds_tx_busy = '0') then
+                            lvds_tx_rdy       <= '1';
+                            lvds_tx_data      <= crc_checksum;
+                         end if;
+         
+         when DONE =>    reply_ack_o          <= '1';
+         
+         when others =>  null;
       end case;
    end process tx_stateOut;
    
