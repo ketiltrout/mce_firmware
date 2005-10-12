@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.16  2005/10/07 21:56:00  erniel
+-- replaced serial CRC datapath and control with parallel CRC module
+-- simplified receiver FSM by converting to Mealy machine
+-- updated lvds_rx component
+-- replaced counters with binary counters
+--
 -- Revision 1.15  2005/03/18 23:09:34  erniel
 -- updated changed buffer addr & data bus size constants
 --
@@ -109,7 +115,7 @@ port(clk_i      : in std_logic;
      
      -- Buffer interface (stores data from command packet):
      buf_data_o : out std_logic_vector(31 downto 0);
-     buf_addr_o : out std_logic_vector(5 downto 0);
+     buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      buf_wren_o : out std_logic);
 end dispatch_cmd_receive;
 
@@ -142,9 +148,9 @@ signal header1_ld : std_logic;
 signal cmd_type      : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 signal cmd_valid     : std_logic;
 
-signal data_count_ena : std_logic;
-signal data_count_clr : std_logic;
-signal data_count     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+signal word_count_ena : std_logic;
+signal word_count_clr : std_logic;
+signal word_count     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal data_size      : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
@@ -229,16 +235,18 @@ begin
    -- Counter for received words
    ---------------------------------------------------------   
    
-   data_counter : binary_counter
+   word_counter : binary_counter
    generic map(WIDTH => BB_DATA_SIZE_WIDTH)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
-            ena_i   => data_count_ena,
+            ena_i   => word_count_ena,
             up_i    => '1',
             load_i  => '0',
-            clear_i => data_count_clr,
+            clear_i => word_count_clr,
             count_i => (others => '0'),
-            count_o => data_count);
+            count_o => word_count);
+
+   buf_addr_o <= word_count;
 
 
    ---------------------------------------------------------
@@ -253,7 +261,7 @@ begin
       end if;
    end process rx_stateFF;
      
-   rx_stateNS: process(pres_state, lvds_rx_rdy, lvds_rx_data, cmd_type, data_size, data_count)
+   rx_stateNS: process(pres_state, lvds_rx_rdy, lvds_rx_data, cmd_type, data_size, word_count)
    begin
       case pres_state is
          when IDLE =>      next_state <= RX_HDR0;
@@ -276,7 +284,7 @@ begin
                               next_state <= RX_CRC;            
                            end if;
                           
-         when RX_DATA =>   if(lvds_rx_rdy = '1' and data_count = data_size-1) then
+         when RX_DATA =>   if(lvds_rx_rdy = '1' and word_count = data_size-1) then
                               next_state <= RX_CRC;                                
                            else
                               next_state <= RX_DATA;
@@ -292,7 +300,7 @@ begin
       end case;
    end process rx_stateNS;
 
-   rx_stateOut: process(pres_state, lvds_rx_rdy, lvds_rx_data, header0, header1, data_count, cmd_valid, crc_valid)
+   rx_stateOut: process(pres_state, lvds_rx_rdy, lvds_rx_data, header0, header1, word_count, cmd_valid, crc_valid)
    begin
       -- default values:
       lvds_rx_ack    <= '0';
@@ -300,8 +308,8 @@ begin
       crc_clr        <= '0';
       header0_ld     <= '0';
       header1_ld     <= '0';
-      data_count_ena <= '0';
-      data_count_clr <= '0';
+      word_count_ena <= '0';
+      word_count_clr <= '0';
       buf_data_o     <= (others => '0');
       buf_addr_o     <= (others => '0');
       buf_wren_o     <= '0';
@@ -311,7 +319,7 @@ begin
       cmd_err_o      <= '0';
       
       case pres_state is
-         when IDLE =>      data_count_clr    <= '1';
+         when IDLE =>      word_count_clr    <= '1';
                            crc_clr           <= '1';
                                        
          when RX_HDR0 =>   if(lvds_rx_rdy = '1') then
@@ -331,9 +339,8 @@ begin
          when RX_DATA =>   if(lvds_rx_rdy = '1') then
                               lvds_rx_ack    <= '1';
                               crc_ena        <= '1';
-                              data_count_ena <= '1';
+                              word_count_ena <= '1';
                               buf_data_o     <= lvds_rx_data;
-                              buf_addr_o     <= data_count(5 downto 0);
                               buf_wren_o     <= '1';
                            end if;                            
          
@@ -349,7 +356,7 @@ begin
                                  header1_o   <= header1;
                               else
                                  header0_o   <= x"AAAA0000";      -- preamble with no data
-                                 header1_o   <= (others => '0');  -- null fields
+                                 header1_o   <= x"00000001";      -- null fields, status set to 1 for now
                                  cmd_err_o   <= '1';
                               end if;
                            end if;
