@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.13  2005/01/18 22:20:47  bburger
+# Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
+#
 # Revision 1.12  2004/12/06 07:22:35  bburger
 # Bryce:
 # Created pack files for the card top-levels.
@@ -386,12 +389,22 @@ cmp add_assignment $top_name "" fibre_rx_rdy LOCATION "Pin_AE14"
 cmp add_assignment $top_name "" fibre_rx_status LOCATION "Pin_AH10"
 cmp add_assignment $top_name "" fibre_rx_sc_nd LOCATION "Pin_AF10"
 cmp add_assignment $top_name "" fibre_rx_rvs LOCATION "Pin_AD10"
-cmp add_assignment $top_name "" fibre_rx_ckr LOCATION "Pin_AE10"
+# Changed from Rev AA to Rev B
+cmp add_assignment $top_name "" fibre_rx_ckr LOCATION "Pin_R2"
 puts "   Assigned: Fibre receiver interface pins."
+
+#fibre_rx_data
+cmp add_assignment $top_name "" ft_enn LOCATION "Pin_AD6"
+cmp add_assignment $top_name "" ft_bisten LOCATION "Pin_AF7"
+cmp add_assignment $top_name "" ft_foto LOCATION "Pin_AH7"
+cmp add_assignment $top_name "" fr_a_nb LOCATION "Pin_AF11"
+cmp add_assignment $top_name "" fr_bisten LOCATION "Pin_AE11"
+cmp add_assignment $top_name "" fr_rf LOCATION "Pin_AH11"
 
 #Data valid pulse
 cmp add_assignment $top_name "" dv_pulse_fibre LOCATION "Pin_AG12"
-cmp add_assignment $top_name "" dv_pulse_bnc LOCATION "Pin_AF12"
+# BNC connector removed from Rev. AA to Rev. B
+#cmp add_assignment $top_name "" dv_pulse_bnc LOCATION "Pin_AF12"
 puts "   Assigned: Data valid pulse interface pins."
 
 # recompile to commit
