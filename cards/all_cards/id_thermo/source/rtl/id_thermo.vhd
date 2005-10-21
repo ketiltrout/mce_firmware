@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.3  2005/07/12 23:58:41  erniel
+-- fixed synthesis warnings in process wishbone_out
+--
 -- Revision 1.2  2005/07/05 16:50:30  erniel
 -- added wishbone interface
 --
@@ -121,17 +124,19 @@ signal valid_ld   : std_logic;
 begin
 
    master : one_wire_master
-   port map(clk_i     => clk_i,
-            rst_i     => rst_i,
-            data_i    => slave_cmd,
-            data_o    => slave_data,
-            init_i    => slave_init,
-            read_i    => slave_read,
-            write_i   => slave_write,
-            done_o    => slave_done,
-            ready_o   => slave_ready,
-            ndetect_o => slave_ndetect,
-            data_io   => data_io);
+   port map(clk_i         => clk_i,
+            rst_i         => rst_i,
+            master_data_i => slave_cmd,
+            master_data_o => slave_data,
+            init_i        => slave_init,
+            read_i        => slave_read,
+            write_i       => slave_write,
+            done_o        => slave_done,
+            ready_o       => slave_ready,
+            ndetect_o     => slave_ndetect,
+            slave_data_io => data_io,
+            slave_data_o  => open,
+            slave_wren_o  => open);
 
    byte_counter : counter
    generic map(MAX => 9)
