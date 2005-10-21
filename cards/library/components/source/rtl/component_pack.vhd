@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.30 2005/08/17 20:26:17 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.31 2005/08/31 22:38:59 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.31  2005/08/31 22:38:59  erniel
+-- added parallel and serial CRC generators
+--
 -- Revision 1.30  2005/08/17 20:26:17  erniel
 -- added binary counter
 -- added ring counter
@@ -158,9 +161,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library sys_param;
-use sys_param.general_pack.all;
-use sys_param.wishbone_pack.all;
+--library sys_param;
+--use sys_param.general_pack.all;
+--use sys_param.wishbone_pack.all;
 
 package component_pack is
 
@@ -227,18 +230,18 @@ package component_pack is
 --
 ------------------------------------------------------------  
    
-   component async_fifo
-      generic(addr_size : Positive);
-      port( 
-         rst_i     : in     std_logic;
-         read_i    : in     std_logic;
-         write_i   : in     std_logic;
-         d_i       : in     std_logic_vector (7 DOWNTO 0);
-         empty_o   : out    std_logic;
-         full_o    : out    std_logic;
-         q_o       : out    std_logic_vector (7 DOWNTO 0)
-      );
-   end component;
+--   component async_fifo
+--      generic(addr_size : Positive);
+--      port( 
+--         rst_i     : in     std_logic;
+--         read_i    : in     std_logic;
+--         write_i   : in     std_logic;
+--         d_i       : in     std_logic_vector (7 DOWNTO 0);
+--         empty_o   : out    std_logic;
+--         full_o    : out    std_logic;
+--         q_o       : out    std_logic_vector (7 DOWNTO 0)
+--      );
+--   end component;
 
 
 ------------------------------------------------------------
@@ -247,19 +250,19 @@ package component_pack is
 --
 ------------------------------------------------------------  
    
-   component tri_state_buf
-      port(data_i  : in std_logic;
-           buf_en_i  : in std_logic;
-           data_o  : out std_logic);
-   end component; 
-   
-   component tri_state_buf_vec
-      generic(WIDTH : integer range 2 to 512 := 2);
-      
-      port(data_i  : in std_logic_vector(WIDTH-1 downto 0);
-           buf_en_i  : in std_logic;
-           data_o  : out std_logic_vector(WIDTH-1 downto 0));
-   end component; 
+--   component tri_state_buf
+--      port(data_i  : in std_logic;
+--           buf_en_i  : in std_logic;
+--           data_o  : out std_logic);
+--   end component; 
+--   
+--   component tri_state_buf_vec
+--      generic(WIDTH : integer range 2 to 512 := 2);
+--      
+--      port(data_i  : in std_logic_vector(WIDTH-1 downto 0);
+--           buf_en_i  : in std_logic;
+--           data_o  : out std_logic_vector(WIDTH-1 downto 0));
+--   end component; 
    
    
 ------------------------------------------------------------
@@ -429,12 +432,12 @@ package component_pack is
            clr_i  : in std_logic;
            ena_i  : in std_logic;
            
-           poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
-           data_i     : in std_logic_vector(DATA_WIDTH downto 1);
-           num_bits_i : in integer;
-           done_o     : out std_logic;
-           valid_o    : out std_logic;
-           checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
+           poly_i      : in std_logic_vector(POLY_WIDTH downto 1);
+           data_i      : in std_logic_vector(DATA_WIDTH downto 1);
+           num_words_i : in integer;
+           done_o      : out std_logic;
+           valid_o     : out std_logic;
+           checksum_o  : out std_logic_vector(POLY_WIDTH downto 1));
    end component;
 
 
@@ -471,59 +474,60 @@ package component_pack is
 ------------------------------------------------------------ 
 
    component one_wire_master
-   port(clk_i     : in std_logic;
-        rst_i     : in std_logic;
+   port(clk_i         : in std_logic;
+        rst_i         : in std_logic;
      
         -- host-side signals
-        data_i    : in std_logic_vector(7 downto 0);
-        data_o    : out std_logic_vector(7 downto 0);
+        master_data_i : in std_logic_vector(7 downto 0);
+        master_data_o : out std_logic_vector(7 downto 0);
 
-        init_i    : in std_logic;  -- initialization
-        read_i    : in std_logic;  -- read a byte
-        write_i   : in std_logic;  -- write a byte
+        init_i        : in std_logic;      -- initialization
+        read_i        : in std_logic;      -- read a byte
+        write_i       : in std_logic;      -- write a byte
 
-        done_o    : out std_logic; -- operation completed
-        ready_o   : out std_logic; -- slave is ready
-        ndetect_o : out std_logic; -- slave is detected
+        done_o        : out std_logic;     -- operation completed
+        ready_o       : out std_logic;     -- slave is ready
+        ndetect_o     : out std_logic;     -- slave is detected
 
         -- slave-side signals
-        data_io : inout std_logic);
+        slave_data_io : inout std_logic;   -- when using internal tristate, only connect slave_data_io, leave others open.
+        slave_data_o  : out std_logic;     -- when using external tristate, use slave_data_io as data input.
+        slave_wren_o  : out std_logic);
    end component;
-   
    
 ------------------------------------------------------------
 --
 -- Wishbone protocol components
 --
 ------------------------------------------------------------ 
-   
-   component slave_ctrl
-      generic(SLAVE_SEL      : std_logic_vector(WB_ADDR_WIDTH - 1 downto 0) := (others => '0');
-              ADDR_WIDTH     : integer := WB_ADDR_WIDTH;
-              DATA_WIDTH     : integer := WB_DATA_WIDTH;
-              TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH);
-      
-      port(slave_wr_ready           : in std_logic;
-           master_wr_data_valid     : out std_logic;
-           slave_rd_data_valid      : in std_logic;
-           slave_retry              : in std_logic;
-           slave_ctrl_dat_i         : in std_logic_vector (DATA_WIDTH-1 downto 0);
-           slave_ctrl_dat_o         : out std_logic_vector (DATA_WIDTH-1 downto 0);
-           slave_ctrl_tga_o         : out std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
-      
-           -- wishbone signals
-           clk_i  : in std_logic;
-           rst_i  : in std_logic;		
-           dat_i 	: in std_logic_vector (DATA_WIDTH-1 downto 0);
-           addr_i : in std_logic_vector (ADDR_WIDTH-1 downto 0);
-           tga_i  : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
-           we_i   : in std_logic;
-           stb_i  : in std_logic;
-           cyc_i  : in std_logic;
-           dat_o  : out std_logic_vector (DATA_WIDTH-1 downto 0);
-           rty_o  : out std_logic;
-           ack_o  : out std_logic);
-   end component;
+--   
+--   component slave_ctrl
+--      generic(SLAVE_SEL      : std_logic_vector(WB_ADDR_WIDTH - 1 downto 0) := (others => '0');
+--              ADDR_WIDTH     : integer := WB_ADDR_WIDTH;
+--              DATA_WIDTH     : integer := WB_DATA_WIDTH;
+--              TAG_ADDR_WIDTH : integer := WB_TAG_ADDR_WIDTH);
+--      
+--      port(slave_wr_ready           : in std_logic;
+--           master_wr_data_valid     : out std_logic;
+--           slave_rd_data_valid      : in std_logic;
+--           slave_retry              : in std_logic;
+--           slave_ctrl_dat_i         : in std_logic_vector (DATA_WIDTH-1 downto 0);
+--           slave_ctrl_dat_o         : out std_logic_vector (DATA_WIDTH-1 downto 0);
+--           slave_ctrl_tga_o         : out std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
+--      
+--           -- wishbone signals
+--           clk_i  : in std_logic;
+--           rst_i  : in std_logic;		
+--           dat_i 	: in std_logic_vector (DATA_WIDTH-1 downto 0);
+--           addr_i : in std_logic_vector (ADDR_WIDTH-1 downto 0);
+--           tga_i  : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
+--           we_i   : in std_logic;
+--           stb_i  : in std_logic;
+--           cyc_i  : in std_logic;
+--           dat_o  : out std_logic_vector (DATA_WIDTH-1 downto 0);
+--           rty_o  : out std_logic;
+--           ack_o  : out std_logic);
+--   end component;
    
      
 ------------------------------------------------------------
@@ -588,19 +592,19 @@ package component_pack is
 -- Pusedo random number generator
 --
 ------------------------------------------------------------ 
-
-component prand
-   generic (
-      size : integer := 8     -- how many output bits do we want
-                              -- (8, 16, 24 or 32)
-   );
-   port (
-      clr_i : in std_logic;   -- asynchoronous clear input
-      clk_i : in std_logic;   -- calculation clock
-      en_i : in std_logic;    -- calculation enable line
-      out_o : out std_logic_vector (size - 1 downto 0)   -- random output
-   );
-end component;
+--
+--component prand
+--   generic (
+--      size : integer := 8     -- how many output bits do we want
+--                              -- (8, 16, 24 or 32)
+--   );
+--   port (
+--      clr_i : in std_logic;   -- asynchoronous clear input
+--      clk_i : in std_logic;   -- calculation clock
+--      en_i : in std_logic;    -- calculation enable line
+--      out_o : out std_logic_vector (size - 1 downto 0)   -- random output
+--   );
+--end component;
 
 ------------------------------------------------------------
 --
@@ -608,20 +612,20 @@ end component;
 --
 ------------------------------------------------------------ 
 
-component rs232_data_tx
-generic(WIDTH : in integer range 1 to 1024 := 8);
-port(clk_i   : in std_logic;
-     rst_i   : in std_logic;
-     data_i  : in std_logic_vector(WIDTH-1 downto 0);
-     start_i : in std_logic;
-     done_o  : out std_logic;
-
-     tx_busy_i : in std_logic;
-     tx_ack_i  : in std_logic;
-     tx_data_o : out std_logic_vector(7 downto 0);
-     tx_we_o   : out std_logic;
-     tx_stb_o  : out std_logic);
-end component;
+--component rs232_data_tx
+--generic(WIDTH : in integer range 1 to 1024 := 8);
+--port(clk_i   : in std_logic;
+--     rst_i   : in std_logic;
+--     data_i  : in std_logic_vector(WIDTH-1 downto 0);
+--     start_i : in std_logic;
+--     done_o  : out std_logic;
+--
+--     tx_busy_i : in std_logic;
+--     tx_ack_i  : in std_logic;
+--     tx_data_o : out std_logic_vector(7 downto 0);
+--     tx_we_o   : out std_logic;
+--     tx_stb_o  : out std_logic);
+--end component;
 
 ------------------------------------------------------------
 --
@@ -657,18 +661,18 @@ end component;
 -- Synchronous FIFO for fibre_rx
 --
 ------------------------------------------------------------
-component sync_fifo_rx
-port(data		: in std_logic_vector (7 downto 0);      -- input data
-     wrreq		: in std_logic ;                         -- write request
-     rdreq		: in std_logic ;                         -- read request
-     rdclk		: in std_logic ;                         -- read clock
-     wrclk		: in std_logic ;                         -- write clock
-     aclr		: in std_logic ;                         -- asynchrouous clear
-     q		: out std_logic_vector (7 downto 0);     -- output data 
-     rdempty		: out std_logic ;                        -- empty flag (read)
-     wrfull		: out std_logic                          -- write flad (full)
-);
-end component;
+--component sync_fifo_rx
+--port(data		: in std_logic_vector (7 downto 0);      -- input data
+--     wrreq		: in std_logic ;                         -- write request
+--     rdreq		: in std_logic ;                         -- read request
+--     rdclk		: in std_logic ;                         -- read clock
+--     wrclk		: in std_logic ;                         -- write clock
+--     aclr		: in std_logic ;                         -- asynchrouous clear
+--     q		: out std_logic_vector (7 downto 0);     -- output data 
+--     rdempty		: out std_logic ;                        -- empty flag (read)
+--     wrfull		: out std_logic                          -- write flad (full)
+--);
+--end component;
 
 
 
@@ -678,18 +682,18 @@ end component;
 --
 -- rdreq acts are read acknowledge
 ------------------------------------------------------------
-component sync_fifo_tx
-port(data		: in std_logic_vector (7 downto 0);      -- input data
-     wrreq		: in std_logic ;                         -- write request
-     rdreq		: in std_logic ;                         -- read request (acknowledge)
-     rdclk		: in std_logic ;                         -- read clock
-     wrclk		: in std_logic ;                         -- write clock
-     aclr		: in std_logic ;                         -- asynchrouous clear
-     q	        : out std_logic_vector (7 downto 0);     -- output data 
-     rdempty	: out std_logic ;                        -- empty flag (read)
-     wrfull		: out std_logic                          -- write flad (full)
-);
-end component;
+--component sync_fifo_tx
+--port(data		: in std_logic_vector (7 downto 0);      -- input data
+--     wrreq		: in std_logic ;                         -- write request
+--     rdreq		: in std_logic ;                         -- read request (acknowledge)
+--     rdclk		: in std_logic ;                         -- read clock
+--     wrclk		: in std_logic ;                         -- write clock
+--     aclr		: in std_logic ;                         -- asynchrouous clear
+--     q	        : out std_logic_vector (7 downto 0);     -- output data 
+--     rdempty	: out std_logic ;                        -- empty flag (read)
+--     wrfull		: out std_logic                          -- write flad (full)
+--);
+--end component;
 
 
 
