@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: one_wire_master.vhd,v $
+-- Revision 1.1  2005/06/20 17:02:43  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -39,23 +42,25 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 entity one_wire_master is
-port(clk_i     : in std_logic;
-     rst_i     : in std_logic;
+port(clk_i         : in std_logic;
+     rst_i         : in std_logic;
      
      -- host-side signals
-     data_i    : in std_logic_vector(7 downto 0);
-     data_o    : out std_logic_vector(7 downto 0);
+     master_data_i : in std_logic_vector(7 downto 0);
+     master_data_o : out std_logic_vector(7 downto 0);
 
-     init_i    : in std_logic;  -- initialization
-     read_i    : in std_logic;  -- read a byte
-     write_i   : in std_logic;  -- write a byte
+     init_i        : in std_logic;      -- initialization
+     read_i        : in std_logic;      -- read a byte
+     write_i       : in std_logic;      -- write a byte
 
-     done_o    : out std_logic; -- operation completed
-     ready_o   : out std_logic; -- slave is ready
-     ndetect_o : out std_logic; -- slave is detected
+     done_o        : out std_logic;     -- operation completed
+     ready_o       : out std_logic;     -- slave is ready
+     ndetect_o     : out std_logic;     -- slave is detected
 
      -- slave-side signals
-     data_io : inout std_logic);
+     slave_data_io : inout std_logic;   -- when using internal tristate, only connect slave_data_io, leave others open.
+     slave_data_o  : out std_logic;     -- when using external tristate, use slave_data_io as data input.
+     slave_wren_o  : out std_logic);
 end one_wire_master;
 
 architecture behav of one_wire_master is
@@ -141,7 +146,7 @@ begin
             shr_i      => '1',
             serial_i   => '0',
             serial_o   => write_data,
-            parallel_i => data_i,
+            parallel_i => master_data_i,
             parallel_o => open);
 
    rx_data_reg : shift_reg
@@ -152,7 +157,7 @@ begin
             load_i     => '0',
             clr_i      => '0',
             shr_i      => '1',
-            serial_i   => data_io,
+            serial_i   => slave_data_io,
             serial_o   => open,
             parallel_i => (others => '0'),
             parallel_o => read_data);
@@ -232,7 +237,10 @@ begin
       ready_o       <= '0';
       ndetect_o     <= '1';
 
-      data_io       <= 'Z';
+      slave_data_o  <= '0';
+      slave_wren_o  <= '0';
+      
+      slave_data_io <= 'Z';
 
       write_reg_ena <= '0';
       write_reg_ld  <= '0';
@@ -250,7 +258,9 @@ begin
                             bit_count_clr <= '1';
                             timer_clr     <= '1';
 
-         when INIT_PULSE => data_io <= '0';
+         when INIT_PULSE => slave_data_o  <= '0';
+                            slave_wren_o  <= '1';
+                            slave_data_io <= '0';
                             if(timer = INIT_PHASE_1_LENGTH) then
                                timer_clr     <= '1';
                             end if;
@@ -265,7 +275,9 @@ begin
 
          when WRITE_SLOT => if((timer < WRITE_0_SLOT_DELAY and write_data = '0') or 
                                (timer < WRITE_1_SLOT_DELAY and write_data = '1')) then
-                               data_io <= '0';
+                               slave_data_o  <= '0';
+                               slave_wren_o  <= '1';
+                               slave_data_io <= '0';
                             end if;                                      
 
                             if(timer = SLOT_LENGTH) then
@@ -275,11 +287,13 @@ begin
                             end if;
 
          when READ_SLOT =>  if(timer < READ_SLOT_DELAY) then
-                               data_io <= '0';
+                               slave_data_o  <= '0';
+                               slave_wren_o  <= '1';
+                               slave_data_io <= '0';
                             end if;
 
                             if(timer = READ_SLOT_SAMPLE) then
-                               read_reg_ena <= '1';
+                               read_reg_ena  <= '1';
                             end if;
 
                             if(timer = SLOT_LENGTH) then
@@ -301,6 +315,6 @@ begin
       end case;
    end process stateOut;
 
-   data_o <= read_data;
+   master_data_o <= read_data;
    
 end behav;
