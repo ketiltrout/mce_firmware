@@ -32,6 +32,15 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.15  2005/10/21 01:06:53  erniel
+# updated pins for revision B:
+#      new mictor debug port
+#      new PLL clock inputs
+#      new RTC interface
+#      new SRAM0, SRAM1 chip enables
+#      additional fibre tx & rx control signals
+#      changed rs232 interface
+#
 # Revision 1.14  2005/10/20 21:31:57  bburger
 # Bryce: for Clock Card Rev. B.  There have been some minor changes from Rev. AA:
 # - fr3v3_ckr has changed from AE10 to R2
@@ -206,9 +215,9 @@ cmp add_assignment $top_name "" inclk11 LOCATION "Pin_P2"
 cmp add_assignment $top_name "" inclk14 LOCATION "Pin_K17"
 cmp add_assignment $top_name "" inclk15 LOCATION "Pin_M17"
 cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_E15"
-cmp add_assignment $top_name "" fibre_clkW LOCATION "Pin_K14"
-cmp add_assignment $top_name "" fibre_clkr LOCATION "Pin_R2"
-cmp add_assignment $top_name "" fibre_refclk LOCATION "Pin_C15"
+cmp add_assignment $top_name "" fibre_tx_clkW LOCATION "Pin_K14"
+cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_R2"
+cmp add_assignment $top_name "" fibre_rx_refclk LOCATION "Pin_C15"
 puts "   Assigned: PLL and clock pins."
 
 
