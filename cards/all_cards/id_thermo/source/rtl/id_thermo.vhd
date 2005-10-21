@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.4  2005/10/21 19:37:19  erniel
+-- updated one_wire_master component
+--
 -- Revision 1.3  2005/07/12 23:58:41  erniel
 -- fixed synthesis warnings in process wishbone_out
 --
@@ -424,7 +427,7 @@ begin
       end if;
    end process wishbone_FF;
 
-   wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd)
+   wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd, valid)
    begin
       case wb_ps is
          when WB_IDLE =>   if(read_id_cmd = '1') then
@@ -434,7 +437,19 @@ begin
                            else
                               wb_ns <= WB_IDLE;
                            end if;
-                     
+         
+         when SEND_ID =>   if(valid = '1') then
+                              wb_ns <= WB_IDLE;
+                           else
+                              wb_ns <= SEND_ID;
+                           end if;
+                           
+         when SEND_TEMP => if(valid = '1') then
+                              wb_ns <= WB_IDLE;
+                           else
+                              wb_ns <= SEND_TEMP;
+                           end if;
+                                       
          when others =>    wb_ns <= WB_IDLE;
       end case;
    end process wishbone_NS;
@@ -442,20 +457,24 @@ begin
    read_id_cmd <=   '1' when (addr_i = CARD_ID_ADDR   and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    read_temp_cmd <= '1' when (addr_i = CARD_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    
-   wishbone_out: process(wb_ps, id, thermo)
+   wishbone_out: process(wb_ps, id, thermo, valid)
    begin
       ack_o <= '0';
       dat_o <= (others => '0');
       
       case wb_ps is
-         when SEND_ID =>   ack_o <= '1';
-                           dat_o <= id(31 downto 0);
+         when SEND_ID =>   if(valid = '1') then
+                              ack_o <= '1';
+                              dat_o <= id(31 downto 0);
+                           end if;
          
-         when SEND_TEMP => ack_o <= '1';
-                           dat_o <= thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
-                                    thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
-                                    thermo(15 downto 0);  
-                                    -- sign extension to 32-bit since thermo is 16-bit and wishbone data is 32-bit
+         when SEND_TEMP => if(valid = '1') then
+                              ack_o <= '1';
+                              dat_o <= thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
+                                       thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
+                                       thermo(15 downto 0);  
+                                       -- sign extension to 32-bit since thermo is 16-bit and wishbone data is 32-bit
+                           end if;
          
          when others =>    null;
       end case;
