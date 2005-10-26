@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: one_wire_master.vhd,v $
+-- Revision 1.2  2005/10/21 19:04:50  erniel
+-- added support for interfaces with external tristate
+-- some interface signal name changes
+--
 -- Revision 1.1  2005/06/20 17:02:43  erniel
 -- initial version
 --
@@ -40,8 +44,13 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+library components;
+use components.component_pack.all;
 
 entity one_wire_master is
+generic(tristate : string := "INTERNAL");  -- valid values are "INTERNAL" and "EXTERNAL".
 port(clk_i         : in std_logic;
      rst_i         : in std_logic;
      
@@ -49,48 +58,21 @@ port(clk_i         : in std_logic;
      master_data_i : in std_logic_vector(7 downto 0);
      master_data_o : out std_logic_vector(7 downto 0);
 
-     init_i        : in std_logic;      -- initialization
-     read_i        : in std_logic;      -- read a byte
-     write_i       : in std_logic;      -- write a byte
+     init_i        : in std_logic;         -- request initialization
+     read_i        : in std_logic;         -- read a byte
+     write_i       : in std_logic;         -- write a byte
 
-     done_o        : out std_logic;     -- operation completed
-     ready_o       : out std_logic;     -- slave is ready
-     ndetect_o     : out std_logic;     -- slave is detected
+     done_o        : out std_logic;        -- operation completed
+     ready_o       : out std_logic;        -- slave is ready
+     ndetect_o     : out std_logic;        -- slave is detected
 
      -- slave-side signals
-     slave_data_io : inout std_logic;   -- when using internal tristate, only connect slave_data_io, leave others open.
-     slave_data_o  : out std_logic;     -- when using external tristate, use slave_data_io as data input.
+     slave_data_io : inout std_logic;      -- if using external tristate, use this signal as data input
+     slave_data_o  : out std_logic;
      slave_wren_o  : out std_logic);
 end one_wire_master;
 
 architecture behav of one_wire_master is
-
-component shift_reg
-generic(WIDTH : in integer range 2 to 512 := 8);
-port(clk_i      : in std_logic;
-     rst_i      : in std_logic;
-     ena_i      : in std_logic;
-     load_i     : in std_logic;
-     clr_i      : in std_logic;
-     shr_i      : in std_logic;
-     serial_i   : in std_logic;
-     serial_o   : out std_logic;
-     parallel_i : in std_logic_vector(WIDTH-1 downto 0);
-     parallel_o : out std_logic_vector(WIDTH-1 downto 0));
-end component;
-
-component counter
-generic(MAX         : integer := 255;
-        STEP_SIZE   : integer := 1;
-        WRAP_AROUND : std_logic := '1';
-        UP_COUNTER  : std_logic := '1');
-port(clk_i   : in std_logic;
-     rst_i   : in std_logic;
-     ena_i   : in std_logic;
-     load_i  : in std_logic;
-     count_i : in integer range 0 to MAX;
-     count_o : out integer range 0 to MAX);
-end component;
 
 --------------------------------------------------------------------------------------
 -- NOTE: The following constants must be adjusted if the clock frequency changes!
@@ -114,7 +96,7 @@ constant WRITE_1_SLOT_DELAY   : integer := 250;
 constant READ_SLOT_DELAY      : integer := 150;
 constant READ_SLOT_SAMPLE     : integer := 650;
 
-constant TIMER_WIDTH : integer := 18;   -- timer range must be greater than largest constant above!
+constant TIMER_WIDTH : integer := 18;   -- 2**TIMER_WIDTH must be greater than largest constant above!
 
 type states is (IDLE, INIT_PULSE, INIT_REPLY, WRITE_SLOT, READ_SLOT, INIT_DONE, WRITE_DONE, READ_DONE);
 signal pres_state : states;
@@ -129,10 +111,12 @@ signal read_data    : std_logic_vector(7 downto 0);
 
 signal bit_count_ena : std_logic;
 signal bit_count_clr : std_logic;
-signal bit_count     : integer range 0 to 7;
+signal bit_count     : std_logic_vector(2 downto 0);
 
 signal timer_clr : std_logic;
-signal timer     : integer range 0 to 2**TIMER_WIDTH-1;
+signal timer     : std_logic_vector(TIMER_WIDTH-1 downto 0);
+
+signal pulldown_ena : std_logic;
 
 begin
 
@@ -160,27 +144,37 @@ begin
             serial_i   => slave_data_io,
             serial_o   => open,
             parallel_i => (others => '0'),
-            parallel_o => read_data);
+            parallel_o => read_data);   
 
-   bit_counter : counter
-   generic map(MAX => 7)
+   master_data_o <= read_data;
+   
+   bit_counter : binary_counter
+   generic map(WIDTH => 3)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
             ena_i   => bit_count_ena,
-            load_i  => bit_count_clr,
-            count_i => 0,
+            up_i    => '1',
+            load_i  => '0',
+            clear_i => bit_count_clr,
+            count_i => (others => '0'),
             count_o => bit_count);
-
-   timer_counter : counter
-   generic map(MAX => 2**TIMER_WIDTH-1)
+     
+   timer_counter : binary_counter
+   generic map(WIDTH => TIMER_WIDTH)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
             ena_i   => '1',
-            load_i  => timer_clr,
-            count_i => 0,
+            up_i    => '1',
+            load_i  => '0',
+            clear_i => timer_clr,
+            count_i => (others => '0'),
             count_o => timer);
+            
 
-
+   ---------------------------------------------------------
+   -- One-Wire Protocol FSM
+   ---------------------------------------------------------
+   
    stateFF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -237,11 +231,8 @@ begin
       ready_o       <= '0';
       ndetect_o     <= '1';
 
-      slave_data_o  <= '0';
-      slave_wren_o  <= '0';
+      pulldown_ena  <= '0';
       
-      slave_data_io <= 'Z';
-
       write_reg_ena <= '0';
       write_reg_ld  <= '0';
 
@@ -258,9 +249,7 @@ begin
                             bit_count_clr <= '1';
                             timer_clr     <= '1';
 
-         when INIT_PULSE => slave_data_o  <= '0';
-                            slave_wren_o  <= '1';
-                            slave_data_io <= '0';
+         when INIT_PULSE => pulldown_ena  <= '1';
                             if(timer = INIT_PHASE_1_LENGTH) then
                                timer_clr     <= '1';
                             end if;
@@ -275,9 +264,7 @@ begin
 
          when WRITE_SLOT => if((timer < WRITE_0_SLOT_DELAY and write_data = '0') or 
                                (timer < WRITE_1_SLOT_DELAY and write_data = '1')) then
-                               slave_data_o  <= '0';
-                               slave_wren_o  <= '1';
-                               slave_data_io <= '0';
+                               pulldown_ena  <= '1';
                             end if;                                      
 
                             if(timer = SLOT_LENGTH) then
@@ -287,9 +274,7 @@ begin
                             end if;
 
          when READ_SLOT =>  if(timer < READ_SLOT_DELAY) then
-                               slave_data_o  <= '0';
-                               slave_wren_o  <= '1';
-                               slave_data_io <= '0';
+                               pulldown_ena  <= '1';
                             end if;
 
                             if(timer = READ_SLOT_SAMPLE) then
@@ -315,6 +300,23 @@ begin
       end case;
    end process stateOut;
 
-   master_data_o <= read_data;
+
+   ---------------------------------------------------------
+   -- Conversion to Internally Tristated Interface
+   ---------------------------------------------------------
+   
+   interface: process(pulldown_ena)
+   begin
+      if(tristate = "INTERNAL") then
+         if(pulldown_ena = '1') then
+            slave_data_io <= '0';
+         else
+            slave_data_io <= 'Z';
+         end if;
+      else
+         slave_data_o <= '0';
+         slave_wren_o <= pulldown_ena;
+      end if;
+   end process interface;         
    
 end behav;
