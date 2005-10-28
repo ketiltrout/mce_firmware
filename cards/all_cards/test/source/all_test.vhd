@@ -13,19 +13,23 @@ port(inclk : in std_logic;
      rx : in std_logic;
      tx : out std_logic;
 
-     led  : out std_logic_vector(7 downto 0);
-     dip  : in std_logic_vector(1 downto 0);
-     slot : in std_logic_vector(3 downto 0));
+     led    : out std_logic_vector(2 downto 0);
+     dip    : in std_logic_vector(1 downto 0);
+     slot   : in std_logic_vector(3 downto 0);
+     cardid : inout std_logic);
 end all_test;
 
 architecture rtl of all_test is
 
-constant RESET_MSG_LEN    : integer := 18;
+constant RESET_MSG_LEN    : integer := 17;
 constant IDLE_MSG_LEN     : integer := 10;
 constant ERROR_MSG_LEN    : integer := 11;
 constant EASTER_MSG_LEN   : integer := 14;
-constant DIP_SWITCH_WIDTH : integer := 2;
-constant SLOT_ID_WIDTH    : integer := 4;
+
+constant DIP_SWITCH_WIDTH  : integer := 2;
+constant SLOT_ID_WIDTH     : integer := 4;
+constant CARD_ID_WIDTH     : integer := 8;
+constant TEMPERATURE_WIDTH : integer := 4;
 
 signal clk : std_logic;
 signal rst : std_logic;
@@ -35,7 +39,7 @@ port(inclk0 : in std_logic;
      c0 : out std_logic);
 end component;
 
-type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, TX_EASTER, RX_CMD1, RX_CMD2, TOGGLE_LED, READ_DIP, TX_DIP, READ_SLOT, TX_SLOT);
+type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, TX_EASTER, RX_CMD1, RX_CMD2, TOGGLE_LED, READ_DIP, TX_DIP, READ_SLOT, TX_SLOT, READ_ID, TX_ID, READ_TEMP, TX_TEMP);
 signal pres_state : states;
 signal next_state : states;
 
@@ -109,6 +113,36 @@ signal slot_test_data : std_logic_vector(3 downto 0);
 signal slot_reg_data  : std_logic;
 signal slot_reg_ena   : std_logic;
 signal slot_reg_ld    : std_logic;
+
+component id_thermo_test_wrapper
+port(-- basic signals
+     rst_i     : in std_logic;    -- reset input
+     clk_i     : in std_logic;    -- clock input
+     
+     id_en_i   : in std_logic;    -- ID enable signal
+     temp_en_i : in std_logic;    -- temperature enable signal
+     
+     done_o    : out std_logic;   -- ID done output signal
+     
+     -- transmitter signals
+     data_o    : out std_logic_vector(31 downto 0);
+      
+     -- extended signals
+     id_thermo_io : inout std_logic); -- physical pin
+end component;
+
+signal id_test_ena : std_logic;
+signal temp_test_ena : std_logic;
+signal id_thermo_test_done : std_logic;
+signal id_thermo_test_data : std_logic_vector(31 downto 0);
+
+signal id_reg_data : std_logic_vector(31 downto 0);
+signal id_reg_ena : std_logic;
+signal id_reg_ld : std_logic;
+
+signal temp_reg_data : std_logic_vector(15 downto 0);
+signal temp_reg_ena : std_logic;
+signal temp_reg_ld : std_logic;
 
 signal rst_cmd : std_logic;
 
@@ -192,10 +226,9 @@ begin
                    space     when 10,
                    v         when 11,
                    period    when 12, 
-                   three     when 13, 
+                   four      when 13, 
                    period    when 14,
                    zero      when 15,
-                   b         when 16,
                    newline   when others;
 
    with tx_count select
@@ -253,7 +286,7 @@ begin
       end if;
    end process;
 
-   process(pres_state, rx_rdy, rx_data, tx_count, dip_test_done, slot_test_done)
+   process(pres_state, rx_rdy, rx_data, tx_count, dip_test_done, slot_test_done, id_thermo_test_done)
    begin
       case pres_state is
          when RESET =>      next_state <= TX_RESET;
@@ -288,6 +321,8 @@ begin
                                   when e | shift(e) => next_state <= TX_EASTER;
                                   when l | shift(l) => next_state <= RX_CMD2;
                                   when s | shift(s) => next_state <= READ_SLOT;
+                                  when c | shift(c) => next_state <= READ_ID;
+                                  when t | shift(t) => next_state <= READ_TEMP;
                                   when escape =>       next_state <= RESET;
                                   when others =>       next_state <= TX_ERROR;
                                end case;
@@ -331,12 +366,37 @@ begin
                                next_state <= TX_SLOT;
                             end if;
 
+
+         when READ_ID =>    if(id_thermo_test_done = '1') then
+                               next_state <= TX_ID;
+                            else
+                               next_state <= READ_ID;
+                            end if;
+
+         when TX_ID =>      if(tx_count = CARD_ID_WIDTH - 1) then
+                               next_state <= TX_IDLE;
+                            else
+                               next_state <= TX_ID;
+                            end if;
+
+         when READ_TEMP =>  if(id_thermo_test_done = '1') then
+                               next_state <= TX_TEMP;
+                            else
+                               next_state <= READ_TEMP;
+                            end if;
+
+         when TX_TEMP =>    if(tx_count = TEMPERATURE_WIDTH - 1) then
+                               next_state <= TX_IDLE;
+                            else
+                               next_state <= TX_TEMP;
+                            end if;
+
          when others =>     next_state <= TX_IDLE;
 
       end case;
    end process;
 
-   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, easter_msg, cmd2, dip_reg_data, slot_reg_data)   
+   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, easter_msg, cmd2, dip_reg_data, slot_reg_data, id_reg_data, temp_reg_data)   
    begin
       rx_ack       <= '0';
       tx_rdy       <= '0';
@@ -354,6 +414,15 @@ begin
       slot_test_ena <= '0';
       slot_reg_ena <= '0';
       slot_reg_ld  <= '0';
+
+      id_test_ena  <= '0';
+      id_reg_ena <= '0';
+      id_reg_ld <= '0';
+
+      temp_test_ena <= '0';
+      temp_reg_ena <= '0';
+      temp_reg_ld <= '0';
+
       rst_cmd      <= '0';
 
       case pres_state is
@@ -452,6 +521,40 @@ begin
                             end if;
                             tx_data <= bin2asc(slot_reg_data);
 
+         when READ_ID =>    id_test_ena <= '1';
+                            id_reg_ena <= '1';
+                            id_reg_ld <= '1';
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+
+         when TX_ID =>      if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               id_reg_ena   <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = CARD_ID_WIDTH - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            tx_data <= hex2asc(id_reg_data(31 downto 28));
+
+         when READ_TEMP =>  temp_test_ena <= '1';
+                            temp_reg_ena <= '1';
+                            temp_reg_ld <= '1';
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+
+         when TX_TEMP =>    if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               temp_reg_ena   <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = TEMPERATURE_WIDTH - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            tx_data <= hex2asc(temp_reg_data(15 downto 12));
+
          when others =>     null;
 
       end case;
@@ -534,5 +637,55 @@ begin
             serial_o   => slot_reg_data,
             parallel_i => slot_test_data,
             parallel_o => open);
+
+
+   --------------------------------------------------------
+   -- Card ID / Temperature block 
+   --------------------------------------------------------
+
+   id_thermo_test : id_thermo_test_wrapper
+   port map(clk_i => clk,
+            rst_i => rst,
+            id_en_i => id_test_ena,
+            temp_en_i => temp_test_ena,
+            done_o => id_thermo_test_done,
+            data_o => id_thermo_test_data,
+            id_thermo_io => cardid);
+
+   -- shift out id data as hexadecimal (4 bits at a time)
+   -- process implements a shift-by-4 shift register:
+   -- ID data is 32-bit.
+   process(clk, rst)  
+   begin
+      if(rst = '1') then
+         id_reg_data <= (others => '0');
+      elsif(clk = '1' and clk'event) then
+         if(id_reg_ena = '1') then
+            if(id_reg_ld = '1') then
+               id_reg_data <= id_thermo_test_data;
+            else
+               id_reg_data <= id_reg_data(27 downto 0) & "0000";
+            end if;
+         end if;
+      end if;
+   end process;
+   
+   -- shift data out as hexadecimal (4 bits at a time)
+   -- process implements a shift-by-4 shift register:
+   -- temperature data is 16 bit.
+   process(clk, rst)  
+   begin
+      if(rst = '1') then
+         temp_reg_data <= (others => '0');
+      elsif(clk = '1' and clk'event) then
+         if(temp_reg_ena = '1') then
+            if(temp_reg_ld = '1') then
+               temp_reg_data <= id_thermo_test_data(16 downto 1);  -- truncate LSB
+            else
+               temp_reg_data <= temp_reg_data(11 downto 0) & "0000";
+            end if;
+         end if;
+      end if;
+   end process;  
 
 end rtl;
