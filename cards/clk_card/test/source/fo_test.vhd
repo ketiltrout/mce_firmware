@@ -32,8 +32,12 @@
 -- on the scope on the receiver side.
 --
 -- Revision history:
--- <date $Date: 2004/06/10 16:52:14 $>	- <initials $Author: mandana $>
+-- <date $Date: 2004/10/22 03:57:49 $>	- <initials $Author: erniel $>
 -- $Log: fo_test.vhd,v $
+-- Revision 1.2  2004/10/22 03:57:49  erniel
+-- replaced "test" port with "mictor" port
+-- connected fibre receive ports to debug mictor
+--
 -- Revision 1.1  2004/06/10 16:52:14  mandana
 -- initial release: stand-alone fibre test
 --
@@ -52,27 +56,32 @@ entity fo_test is
       n_rst : in std_logic;
       
       -- clock signals
-      inclk  : in std_logic;
-      outclk : out std_logic;
+      inclk14  : in std_logic;
+--      outclk   : out std_logic;
       
       -- fibre pins
       fibre_tx_data   : out std_logic_vector(7 downto 0);
-      fibre_tx_clk    : out std_logic;
+      fibre_tx_clkW   : out std_logic;
       fibre_tx_ena    : out std_logic;
-      fibre_tx_rp	   : in std_logic;
+      fibre_tx_rp     : in std_logic;
       fibre_tx_sc_nd  : out std_logic;
+      fibre_tx_enn    : out std_logic;
       -- fibre_tx_svs is tied to gnd on board
       -- fibre_tx_enn is tied to vcc on board
       -- fibre_tx_mode is tied to gnd on board
+      fibre_tx_foto   : out std_logic;
+      fibre_tx_bisten : out std_logic;
       
       fibre_rx_data   : in std_logic_vector(7 downto 0);
-      fibre_rx_clk    : out std_logic;
+      fibre_rx_refclk : out std_logic;
       fibre_rx_error  : in std_logic;
       fibre_rx_rdy    : in std_logic;
       fibre_rx_status : in std_logic;
       fibre_rx_sc_nd  : in std_logic;
       fibre_rx_rvs    : in std_logic;
-  --    fibre_rx_rf     : out std_logic; --  is tied to vcc on board, we lifted the pin and routed it to P10.22
+      fibre_rx_rf     : out std_logic; --  is tied to vcc on board, we lifted the pin and routed it to P10.22
+      fibre_rx_a_nb   : out std_logic;
+      fibre_rx_bisten : out std_logic;
       
       --dip switch
       dip_sw2      : in std_logic;
@@ -83,9 +92,7 @@ entity fo_test is
 end fo_test;
                      
 architecture rtl of fo_test is
-   signal fibre_tx_nbist    : std_logic;
-   signal fibre_rx_nbist    : std_logic;
---   signal fibre_rx_rf       : std_logic;
+   signal clk       : std_logic;
 
    -- state signals
    type states is (TX_DATA1, TX_EN1,TX_DATA2, TX_EN2, TX_DATA3, TX_EN3);
@@ -95,6 +102,7 @@ architecture rtl of fo_test is
 
    component pll
    port(inclk0 : in std_logic;
+        c0 : out std_logic;
         e0 : out std_logic;
         e1 : out std_logic);
    end component;
@@ -102,14 +110,18 @@ architecture rtl of fo_test is
 begin
   
   fibre_pll : pll
-  port map(inclk0 => inclk,
-           e0 => fibre_tx_clk,
-           e1 => fibre_rx_clk);
+  port map(inclk0 => inclk14,
+           c0 => clk,
+           e0 => fibre_tx_clkW,
+           e1 => fibre_rx_refclk);
            
---  fibre_tx_nbist <= '1';
+  fibre_tx_bisten <= '1';
 --  fibre_tx_ena <= '1';
---  fibre_rx_nbist <= '1';
- -- fibre_rx_rf  <= '1';
+  fibre_tx_enn    <= 'Z';
+  fibre_tx_foto   <= 'Z';
+  fibre_rx_bisten <= '1';
+  fibre_rx_a_nb   <= '1';
+  fibre_rx_rf     <= '1';
   fibre_tx_sc_nd <= '0';
 --  test(19) <= '1'; --fibre_tx_nbist;
 --  test(20) <= '1'; -- fibre_rx_nbist;
@@ -126,11 +138,11 @@ begin
    mictor(11) <= fibre_rx_sc_nd;
    mictor(12) <= fibre_rx_rvs;
 
-   state_FF: process(inclk, n_rst)
+   state_FF: process(clk, n_rst)
    begin
       if(n_rst = '1') then 
          present_state <= TX_DATA1;
-      elsif(inclk'event and inclk = '1') then
+      elsif(clk'event and clk = '1') then
          present_state <= next_state;
       end if;
    end process state_FF;
@@ -200,5 +212,4 @@ begin
       end case;
    end process state_out;
     
---  test(23) <= fibre_tx_rp;
 end rtl;

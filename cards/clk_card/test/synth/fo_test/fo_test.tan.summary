@@ -1,0 +1,66 @@
+--------------------------------------------------------------------------------------
+Timing Analyzer Summary
+--------------------------------------------------------------------------------------
+
+Type           : Worst-case tco
+Slack          : N/A
+Required Time  : None
+Actual Time    : 3.853 ns
+From           : present_state~22
+To             : fibre_tx_ena
+From Clock     : inclk14
+To Clock       : 
+Failed Paths   : 0
+
+Type           : Worst-case tpd
+Slack          : N/A
+Required Time  : None
+Actual Time    : 9.040 ns
+From           : fibre_rx_data[3]
+To             : mictor[4]
+From Clock     : 
+To Clock       : 
+Failed Paths   : 0
+
+Type           : Worst-case Minimum tco
+Slack          : N/A
+Required Time  : None
+Actual Time    : 0.000 ns
+From           : pll:fibre_pll|altpll:altpll_component|_extclk0
+To             : fibre_tx_clkW
+From Clock     : inclk14
+To Clock       : 
+Failed Paths   : 0
+
+Type           : Worst-case Minimum tpd
+Slack          : N/A
+Required Time  : None
+Actual Time    : 8.840 ns
+From           : fibre_rx_data[5]
+To             : mictor[6]
+From Clock     : 
+To Clock       : 
+Failed Paths   : 0
+
+Type           : Clock Setup: 'pll:fibre_pll|altpll:altpll_component|_clk0'
+Slack          : 39.206 ns
+Required Time  : 25.00 MHz ( period = 40.000 ns )
+Actual Time    : Restricted to 500.00 MHz ( period = 2.000 ns )
+From           : present_state~20
+To             : present_state~21
+From Clock     : pll:fibre_pll|altpll:altpll_component|_clk0
+To Clock       : pll:fibre_pll|altpll:altpll_component|_clk0
+Failed Paths   : 0
+
+Type           : Total number of failed paths
+Slack          : 
+Required Time  : 
+Actual Time    : 
+From           : 
+To             : 
+From Clock     : 
+To Clock       : 
+Failed Paths   : 0
+
+--------------------------------------------------------------------------------------
+
