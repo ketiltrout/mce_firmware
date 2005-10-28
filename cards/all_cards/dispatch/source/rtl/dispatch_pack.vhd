@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_pack.vhd,v $
+-- Revision 1.12  2005/10/08 00:14:28  erniel
+-- removed component declarations
+-- removed unnecessary constants
+--
 -- Revision 1.11  2005/03/18 23:07:33  erniel
 -- added constants for cmd buffer addr & data bus sizes
 -- added constants for reply buffer addr & data bus sizes
@@ -82,12 +86,5 @@ library sys_param;
 use sys_param.command_pack.all;
 
 package dispatch_pack is
-
-   -- buffer declarations:
-   constant CMD_BUF_DATA_WIDTH : integer := 32;
-   constant CMD_BUF_ADDR_WIDTH : integer := 6;   
-   
-   constant REPLY_BUF_DATA_WIDTH : integer := 32;
-   constant REPLY_BUF_ADDR_WIDTH : integer := 9;
 
 end dispatch_pack;
