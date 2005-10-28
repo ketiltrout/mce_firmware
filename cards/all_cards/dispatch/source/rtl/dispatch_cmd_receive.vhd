@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.17  2005/10/12 15:51:55  erniel
+-- small cosmetic changes:
+--      renamed counter signals
+--      removed references to dispatch_pack constants
+--
 -- Revision 1.16  2005/10/07 21:56:00  erniel
 -- replaced serial CRC datapath and control with parallel CRC module
 -- simplified receiver FSM by converting to Mealy machine
@@ -106,8 +111,9 @@ port(clk_i      : in std_logic;
      lvds_cmd_i : in std_logic;
      card_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
      
-     cmd_rdy_o : out std_logic;  -- indicates receive completed
-     cmd_err_o : out std_logic;  -- indicates command failed CRC check
+     -- Done/error signals:
+     cmd_done_o  : out std_logic;  -- indicates receive completed
+     cmd_error_o : out std_logic;  -- indicates received packet is invalid (CRC error or data size error)
      
      -- Command header words:
      header0_o : out std_logic_vector(31 downto 0);
@@ -118,7 +124,7 @@ port(clk_i      : in std_logic;
      buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      buf_wren_o : out std_logic);
 end dispatch_cmd_receive;
-
+     
 architecture rtl of dispatch_cmd_receive is
 
 component lvds_rx
@@ -315,49 +321,46 @@ begin
       buf_wren_o     <= '0';
       header0_o      <= (others => '0');
       header1_o      <= (others => '0');      
-      cmd_rdy_o      <= '0';
-      cmd_err_o      <= '0';
+      cmd_done_o     <= '0';
+      cmd_error_o    <= '0';
       
       case pres_state is
-         when IDLE =>      word_count_clr    <= '1';
-                           crc_clr           <= '1';
+         when IDLE =>      word_count_clr     <= '1';
+                           crc_clr            <= '1';
                                        
          when RX_HDR0 =>   if(lvds_rx_rdy = '1') then
-                              lvds_rx_ack    <= '1';
+                              lvds_rx_ack     <= '1';
                               if(lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
-                                 crc_ena     <= '1';              -- don't want to enable CRC nor load header0 
-                                 header0_ld  <= '1';              -- when we are sync'ing to the next packet!
+                                 crc_ena      <= '1';              -- don't want to enable CRC nor load header0 
+                                 header0_ld   <= '1';              -- when we are sync'ing to the next packet!
                               end if;
                            end if;
                            
          when RX_HDR1 =>   if(lvds_rx_rdy = '1') then
-                              lvds_rx_ack    <= '1';
-                              crc_ena        <= '1';
-                              header1_ld     <= '1';
+                              lvds_rx_ack     <= '1';
+                              crc_ena         <= '1';
+                              header1_ld      <= '1';
                            end if;
          
          when RX_DATA =>   if(lvds_rx_rdy = '1') then
-                              lvds_rx_ack    <= '1';
-                              crc_ena        <= '1';
-                              word_count_ena <= '1';
-                              buf_data_o     <= lvds_rx_data;
-                              buf_wren_o     <= '1';
+                              lvds_rx_ack     <= '1';
+                              crc_ena         <= '1';
+                              word_count_ena  <= '1';
+                              buf_data_o      <= lvds_rx_data;
+                              buf_wren_o      <= '1';
                            end if;                            
          
          when RX_CRC =>    if(lvds_rx_rdy = '1') then
-                              lvds_rx_ack    <= '1';
-                              crc_ena        <= '1';
+                              lvds_rx_ack     <= '1';
+                              crc_ena         <= '1';
                            end if;
                   
          when DONE =>      if(cmd_valid = '1') then
-                              cmd_rdy_o      <= '1';
-                              if(crc_valid = '1') then
-                                 header0_o   <= header0;
-                                 header1_o   <= header1;
-                              else
-                                 header0_o   <= x"AAAA0000";      -- preamble with no data
-                                 header1_o   <= x"00000001";      -- null fields, status set to 1 for now
-                                 cmd_err_o   <= '1';
+                              cmd_done_o      <= '1';
+                              header0_o       <= header0;
+                              header1_o       <= header1;
+                              if(crc_valid = '0' or header0(BB_DATA_SIZE'range) = 0) then
+                                 cmd_error_o  <= '1';
                               end if;
                            end if;
                                        
