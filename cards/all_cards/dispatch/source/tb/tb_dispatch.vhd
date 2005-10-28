@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: tb_dispatch.vhd,v $
+-- Revision 1.5  2005/02/23 21:33:07  erniel
+-- updated dispatch component
+-- updated lvds_tx component
+--
 -- Revision 1.4  2005/01/05 23:24:33  erniel
 -- updated lvds_tx component
 --
@@ -59,9 +63,9 @@ library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
-library work;
-use work.dispatch_pack.all;
-use work.slot_id_pack.all;
+--library work;
+--use work.dispatch_pack.all;
+--use work.slot_id_pack.all;
 
 
 entity TB_DISPATCH is
@@ -86,7 +90,7 @@ architecture BEH of TB_DISPATCH is
            ACK_I          : in std_logic ;
            ERR_I          : in std_logic ;
            WDT_RST_O      : out std_logic ;
-           SLOT_I         : in std_logic_vector(SLOT_ID_BITS-1 downto 0));
+           SLOT_I         : in std_logic_vector(3 downto 0));
 
    end component;
 
@@ -127,11 +131,9 @@ architecture BEH of TB_DISPATCH is
    end component;
         
    constant PERIOD      : time := 20000 ps;  
-   constant MEM_PERIOD  : time := 5000 ps;
-   constant COMM_PERIOD : time := 2500 ps;  
+   constant COMM_PERIOD : time := 5000 ps;  
 
    signal W_CLK_I          : std_logic := '1';
-   signal W_MEM_CLK_I      : std_logic := '1';
    signal W_COMM_CLK_I     : std_logic := '1';
    signal W_RST_I          : std_logic ;
    signal W_LVDS_CMD       : std_logic ;
@@ -181,7 +183,6 @@ architecture BEH of TB_DISPATCH is
 begin
 
    DUT : DISPATCH
-
       port map(CLK_I          => W_CLK_I,
                COMM_CLK_I     => W_COMM_CLK_I,
                RST_I          => W_RST_I,
@@ -197,7 +198,7 @@ begin
                ACK_I          => W_ACK_I,
                ERR_I          => W_ERR_I,
                WDT_RST_O      => W_WDT_RST_O,
-               SLOT_I         => "0010");
+               SLOT_I         => "1000");       -- clock card
 
    TX : LVDS_TX
       port map(CLK_I        => W_CLK_I,
@@ -217,7 +218,6 @@ begin
                LVDS_I       => W_LVDS_REPLY);
                
    W_CLK_I <= not W_CLK_I after PERIOD/2;
-   W_MEM_CLK_I <= not W_MEM_CLK_I after MEM_PERIOD/2;
    W_COMM_CLK_I <= not W_COMM_CLK_I after COMM_PERIOD/2;
 
    -----------------------------------------------------------
@@ -342,36 +342,33 @@ begin
    -----------------------------------------------------------
 
    STIMULI : process
+
    procedure reset is
    begin
-      W_RST_I          <= '1';
-      W_LVDS_RDY_I     <= '0';
-      W_LVDS_DAT_I     <= (others => '0');
+      W_RST_I         <= '1';
+      W_LVDS_DAT_I    <= (others => '0');
+      W_LVDS_RDY_I    <= '0';
       
-      wait for PERIOD;
-      
-      W_RST_I          <= '0';
-      W_LVDS_RDY_I     <= '0';
-      W_LVDS_DAT_I     <= (others => '0');
-            
       wait for PERIOD*200;
       
    end reset;
-   
+      
    procedure transmit (data : in std_logic_vector(31 downto 0)) is
    begin
-      W_RST_I          <= '0';
-      W_LVDS_RDY_I     <= '1';      
-      W_LVDS_DAT_I     <= data;
-            
+      if(W_LVDS_BUSY_O = '1') then
+         wait until W_LVDS_BUSY_O = '0';
+      end if;
+      
+      W_RST_I         <= '0';
+      W_LVDS_DAT_I    <= data;
+      W_LVDS_RDY_I    <= '1';
+      
       wait for PERIOD;
       
-      W_RST_I          <= '0';
-      W_LVDS_RDY_I     <= '0';      
-      W_LVDS_DAT_I     <= (others => '0');
+      W_RST_I         <= '0';
+      W_LVDS_DAT_I    <= (others => '0');
+      W_LVDS_RDY_I    <= '0';
       
---      wait until W_LVDS_BUSY_O = '0';
-
       wait for PERIOD;
    
    end transmit;
@@ -408,18 +405,18 @@ begin
 --      
 --      pause(1000);
       
-      transmit("10101010101010101000000000000001");  -- write 1 data word
-      transmit("00000111100110010000000000000000");  -- to LEDs
-      transmit("00000000000000000000000000000101");  -- turn on LED0 and LED2
-      transmit("10011100001000111000000000110011");  -- CRC = 0x9C238033
+      transmit(x"AAAA8001");  -- write 1 data word
+      transmit(x"02990000");  -- to clock card, LEDs
+      transmit(x"00000005");  -- turn on LED0 and LED2
+      transmit(x"54C30F43");  -- CRC
       
       wait for 20 us;
       
 --      pause(1000);
 --      
-      transmit("10101010101010100000000000000001");  -- read 1 data word
-      transmit("00000111100110010000000000000000");  -- from LEDs
-      transmit("01110000010111010001000111010001");  -- CRC = 0x705D11D1
+      transmit(x"AAAA0001");  -- read 1 data word
+      transmit(x"02990000");  -- from LEDs
+      transmit(x"0037E55E");  -- CRC = 0x705D11D1
       
       wait for 20 us;
 --      
