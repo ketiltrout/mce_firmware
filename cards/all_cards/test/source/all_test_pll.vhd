@@ -107,8 +107,8 @@ BEGIN
 		bandwidth_type => "AUTO",
 		clk0_duty_cycle => 50,
 		lpm_type => "altpll",
-		clk0_multiply_by => 1,
-		inclk0_input_frequency => 20000,
+		clk0_multiply_by => 2,
+		inclk0_input_frequency => 40000,
 		clk0_divide_by => 1,
 		pll_type => "AUTO",
 		clk0_time_delay => "0",
@@ -181,11 +181,11 @@ END SYN;
 -- Retrieval info: PRIVATE: CLKLOSS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: BANDWIDTH_USE_AUTO STRING "1"
 -- Retrieval info: PRIVATE: SHORT_SCAN_RADIO STRING "0"
--- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE STRING "Not Available"
+-- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE STRING "300.000"
 -- Retrieval info: PRIVATE: CLKSWITCH_CHECK STRING "0"
 -- Retrieval info: PRIVATE: SPREAD_FREQ_UNIT STRING "KHz"
 -- Retrieval info: PRIVATE: PLL_ENA_CHECK STRING "0"
--- Retrieval info: PRIVATE: INCLK0_FREQ_EDIT STRING "50.000"
+-- Retrieval info: PRIVATE: INCLK0_FREQ_EDIT STRING "25.000"
 -- Retrieval info: PRIVATE: CNX_NO_COMPENSATE_RADIO STRING "0"
 -- Retrieval info: PRIVATE: INT_FEEDBACK__MODE_RADIO STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "50.000"
@@ -208,8 +208,8 @@ END SYN;
 -- Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "AUTO"
 -- Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
--- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "1"
--- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "20000"
+-- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "2"
+-- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "40000"
 -- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: PLL_TYPE STRING "AUTO"
 -- Retrieval info: CONSTANT: CLK0_TIME_DELAY STRING "0"
