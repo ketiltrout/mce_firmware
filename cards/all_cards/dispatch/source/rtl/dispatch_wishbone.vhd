@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.11  2005/10/08 00:13:29  erniel
+-- replaced counter with binary_counter
+-- hard-coded watchdog timer limit
+--
 -- Revision 1.10  2005/03/18 23:09:09  erniel
 -- updated changed buffer addr & data bus size constants
 -- slight modification to buffer address generation due to different buffer sizes
@@ -84,23 +88,19 @@ entity dispatch_wishbone is
 port(clk_i : in std_logic;
      rst_i : in std_logic;
      
-     -- Command interface:
-     cmd_rdy_i : in std_logic;
+     -- Command header and data buffer interface:     
+     header0_i : in std_logic_vector(31 downto 0);
+     header1_i : in std_logic_vector(31 downto 0);
      
-     data_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-     cmd_type_i  : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);     
-     param_id_i  : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
-       
-     cmd_buf_data_i : in std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
-     cmd_buf_addr_o : out std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
+     buf_data_i : in std_logic_vector(31 downto 0);     
+     buf_data_o : out std_logic_vector(31 downto 0);
+     buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+     buf_wren_o : out std_logic;
      
-     -- Reply interface:
-     wb_rdy_o : out std_logic;
-     wb_err_o : out std_logic;
-               
-     reply_buf_data_o : out std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
-     reply_buf_addr_o : out std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
-     reply_buf_wren_o : out std_logic;
+     -- Start/done/error signals:
+     execute_start_i : in std_logic;
+     execute_done_o   : out std_logic;     
+     execute_error_o  : out std_logic;
      
      -- Wishbone interface:
      dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -109,18 +109,17 @@ port(clk_i : in std_logic;
      we_o   : out std_logic;
      stb_o  : out std_logic;
      cyc_o  : out std_logic;
-     
      dat_i 	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i  : in std_logic;
-     
-     err_i  : in std_logic;  -- external signal that tells Wishbone master that a slave does not exist
-     wait_i : in std_logic;  -- external signal that tells Wishbone master to insert a wait state
+     err_i  : in std_logic;  -- asserted when a Wishbone slave is not connected
      
      -- Watchdog reset interface:
      wdt_rst_o : out std_logic);
 end dispatch_wishbone;
-
+     
 architecture rtl of dispatch_wishbone is
+
+constant WATCHDOG_TIMEOUT_US : integer := 180000;
    
 type master_states is (IDLE, WB_CYCLE, DONE, ERROR);
 signal pres_state : master_states;
@@ -129,10 +128,6 @@ signal next_state : master_states;
 signal addr_ena : std_logic;
 signal addr_clr : std_logic;
 signal addr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-
-signal cmd_buf_addr   : std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
-signal reply_buf_addr : std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
-signal tga_addr       : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
 
 signal timer_rst : std_logic;
 signal timer     : integer;
@@ -147,23 +142,19 @@ begin
    generic map(WIDTH => BB_DATA_SIZE_WIDTH)
    port map(clk_i   => clk_i,
             rst_i   => rst_i,
-            ena_i   => ack_i,
+            ena_i   => addr_ena,
             up_i    => '1',
             load_i  => '0',
             clear_i => addr_clr,
             count_i => (others => '0'),
             count_o => addr);
-   
-   cmd_buf_addr   <= addr(CMD_BUF_ADDR_WIDTH-1 downto 0);
-   reply_buf_addr <= addr(REPLY_BUF_ADDR_WIDTH-1 downto 0);
-   tga_addr       <= "00000000000000000" & addr;
-   
+
    
    ---------------------------------------------------------
    -- Watchdog timer
    ---------------------------------------------------------
    
-   -- When in IDLE, kick the watchdog every 180 ms (allow timer to free-count to 180 ms)
+   -- When in IDLE, kick the watchdog every WATCHDOG_TIMEOUT_US (currently 180,000) us
    
    -- When in WB_CYCLE or DONE, do not kick the watchdog (hold timer at 0).  
    -- If the wishbone hangs, the external watchdog will be allowed to reset the FPGA (since it is not being kicked)
@@ -173,7 +164,7 @@ begin
              timer_reset_i => timer_rst,
              timer_count_o => timer);
    
-   timer_rst <= '1' when timer = 180000 or pres_state = WB_CYCLE or pres_state = DONE else '0';   
+   timer_rst <= '1' when timer = WATCHDOG_TIMEOUT_US or pres_state = WB_CYCLE or pres_state = DONE else '0';   
    wdt_rst_o <= '1' when timer = 0 else '0';
          
    
@@ -190,19 +181,19 @@ begin
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, cmd_rdy_i, ack_i, err_i, addr, data_size_i)
+   stateNS: process(pres_state, header0_i, execute_start_i, ack_i, err_i, addr)
    begin
       case pres_state is
-         when IDLE =>     if(cmd_rdy_i = '1') then
+         when IDLE =>     if(execute_start_i = '1') then
                              next_state <= WB_CYCLE;
                           else
                              next_state <= IDLE;
                           end if;
                               
-         when WB_CYCLE => if(addr = data_size_i-1 and ack_i = '1') then    -- slave has accepted last piece of data
-                             next_state <= DONE;
-                          elsif(err_i = '1') then                          -- slave does not exist, abort
-                             next_state <= ERROR;
+         when WB_CYCLE => if(ack_i = '1' and addr = header0_i(BB_DATA_SIZE'range)-1) then  
+                             next_state <= DONE;        -- slave has accepted last piece of data
+                          elsif(err_i = '1') then 
+                             next_state <= ERROR;       -- slave does not exist, abort
                           else
                              next_state <= WB_CYCLE;
                           end if;
@@ -213,55 +204,48 @@ begin
       end case;
    end process stateNS;
    
-   stateOut: process(pres_state, cmd_type_i, param_id_i, cmd_buf_data_i, wait_i, tga_addr)
+   stateOut: process(pres_state, header0_i, header1_i, buf_data_i, dat_i, ack_i, addr)
    begin
-      addr_o <= (others => '0');
-      dat_o  <= (others => '0');
-      we_o   <= '0';
-      stb_o  <= '0';
-      cyc_o  <= '0';
-      tga_o  <= (others => '0');
-    
-      addr_clr <= '0';
-    
-      wb_rdy_o <= '0';
-      wb_err_o <= '0';
+      addr_o          <= (others => '0');
+      tga_o           <= (others => '0');
+      dat_o           <= (others => '0');
+      we_o            <= '0';
+      cyc_o           <= '0';
+      stb_o           <= '0';
+      addr_ena        <= '0';
+      addr_clr        <= '0';
+      buf_data_o      <= (others => '0');
+      buf_wren_o      <= '0';
+      execute_done_o  <= '0';
+      execute_error_o <= '0';
                             
       case pres_state is
-         when IDLE =>     addr_clr <= '1';
+         when IDLE =>     addr_clr      <= '1';
          
-         when WB_CYCLE => addr_o <= param_id_i;
-                          dat_o  <= cmd_buf_data_i;
-                          cyc_o  <= '1';
-                          tga_o  <= tga_addr;
-                                                          
-                          if(cmd_type_i = WRITE_CMD) then
-                             we_o  <= '1';
-                          else
-                             we_o  <= '0';
+         when WB_CYCLE => addr_o        <= header1_i(BB_PARAMETER_ID'range);
+                          tga_o         <= "00000000000000000" & addr;
+                          cyc_o         <= '1';
+                          stb_o         <= '1';
+                          
+                          if(ack_i = '1') then
+                             addr_ena   <= '1';
+                          end if;
+                             
+                          if(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then  
+                             buf_addr_o <= addr;           -- write commands: read data from buffer
+                             dat_o      <= buf_data_i;                                        
+                             we_o       <= '1';
+                          else  
+                             buf_addr_o <= addr;           -- read commands: write data to buffer              
+                             buf_data_o <= dat_i;
+                             buf_wren_o <= '1';
                           end if;
                           
-                          -- insert master wait state
-                          if(wait_i = '1') then
-                             stb_o <= '0';
-                          else
-                             stb_o <= '1';
-                          end if;
-                          
-         when DONE =>     wb_rdy_o <= '1';
+         when DONE =>     execute_done_o     <= '1';
          
-         when ERROR =>    wb_rdy_o <= '1';
-                          wb_err_o <= '1';
-      end case;
+         when ERROR =>    execute_done_o     <= '1';
+                          execute_error_o    <= '1';
+      end case;  
    end process stateOut;
-   
-   -- command buffer used during WRITE_BLOCK commands:
-   cmd_buf_addr_o   <= cmd_buf_addr when cmd_type_i = WRITE_CMD else (others => '0');
-   -- cmd_buf_data_i is wishbone dat_o
-      
-   -- reply buffer used during READ_BLOCK commands:
-   reply_buf_addr_o <= reply_buf_addr when cmd_type_i = READ_CMD else (others => '0');
-   reply_buf_data_o <= dat_i          when cmd_type_i = READ_CMD else (others => '0');
-   reply_buf_wren_o <= '1'            when cmd_type_i = READ_CMD and pres_state = WB_CYCLE else '0';
    
 end rtl;
