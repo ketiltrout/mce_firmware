@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.9  2005/10/12 15:53:02  erniel
+-- replaced serial CRC datapath and control with parallel CRC module
+-- simplified and rewrote control FSM
+-- replaced counters with binary counters
+--
 -- Revision 1.8  2005/03/18 23:08:43  erniel
 -- updated changed buffer addr & data bus size constants
 --
@@ -78,8 +83,9 @@ port(clk_i      : in std_logic;
      
      lvds_tx_o : out std_logic;
      
-     reply_rdy_i : in std_logic;
-     reply_ack_o : out std_logic;  -- reply sent, clear to send next
+     -- Start/done signals:
+     reply_start_i : in std_logic;
+     reply_done_o  : out std_logic;
      
      -- Command header words:
      header0_i : in std_logic_vector(31 downto 0);
@@ -89,7 +95,7 @@ port(clk_i      : in std_logic;
      buf_data_i : in std_logic_vector(31 downto 0);
      buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0));
 end dispatch_reply_transmit;
-
+     
 architecture rtl of dispatch_reply_transmit is
 
 component lvds_tx
@@ -185,10 +191,10 @@ begin
       end if;
    end process tx_stateFF;
    
-   tx_stateNS: process(pres_state, reply_rdy_i, lvds_tx_busy, word_count, header0_i)
+   tx_stateNS: process(pres_state, reply_start_i, lvds_tx_busy, word_count, header0_i)
    begin
       case pres_state is
-         when IDLE =>      if(reply_rdy_i = '1') then
+         when IDLE =>      if(reply_start_i = '1') then
                               next_state <= TX_HDR;
                            else
                               next_state <= IDLE;
@@ -229,7 +235,7 @@ begin
       crc_data       <= (others => '0');
       lvds_tx_rdy    <= '0';
       lvds_tx_data   <= (others => '0');
-      reply_ack_o    <= '0';
+      reply_done_o   <= '0';
       
       case pres_state is
          when IDLE =>    word_count_clr       <= '1';
@@ -263,7 +269,7 @@ begin
                             lvds_tx_data      <= crc_checksum;
                          end if;
          
-         when DONE =>    reply_ack_o          <= '1';
+         when DONE =>    reply_done_o         <= '1';
          
          when others =>  null;
       end case;
