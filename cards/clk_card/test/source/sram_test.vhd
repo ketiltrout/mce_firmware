@@ -20,7 +20,7 @@
 
 -- sram_test_wrapper.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_test.vhd,v 1.1 2004/06/29 18:51:20 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_test.vhd,v 1.2 2004/07/01 00:22:51 mandana Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -31,6 +31,9 @@
 --
 -- Revision history:
 -- $Log: sram_test.vhd,v $
+-- Revision 1.2  2004/07/01 00:22:51  mandana
+-- Mandana: walking 0/1 tests combined
+--
 -- Revision 1.1  2004/06/29 18:51:20  mandana
 -- Initial release
 --
@@ -112,12 +115,12 @@ begin
    slr_inst : shift_reg 
       generic map (WIDTH => 20)
       port map (
-           clk        => slr_clk,
-           rst        => rst_i,
-           ena        => one,
-           load       => slr_load,
-           clr        => zero,
-           shr        => zero,
+           clk_i      => slr_clk,
+           rst_i      => rst_i,
+           ena_i      => one,
+           load_i     => slr_load,
+           clr_i      => zero,
+           shr_i      => zero,
            serial_i   => slr_filler,
            serial_o   => dummy,
            parallel_i => slr_data,
@@ -131,12 +134,11 @@ zero_int <= 0;
 -- index counter to trace the bit location, not really needed since we can find out from 
 -- bit location, ma
    idx_count: counter
-   generic map(MAX => 20)
+   generic map(MAX => 20, UP_COUNTER => '0')
    port map(clk_i   => slr_clk,
             rst_i   => rst_i,
             ena_i   => one,
             load_i  => slr_load,
-            down_i  => zero,
             count_i => zero_int,
             count_o => idx);
 
