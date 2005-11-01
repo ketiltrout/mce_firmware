@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: rc_pin_assign.tcl,v $
+# Revision 1.10  2005/01/18 22:20:47  bburger
+# Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
+#
 # Revision 1.9  2004/12/17 01:17:23  bench2
 # *** empty log message ***
 #
@@ -85,7 +88,7 @@ puts "\nInfo: Assigning pins:"
 #U10.nIOPullup     U10.Y12
 
 # assign device parameters
-cmp add_assignment $top_name "" "" DEVICE EP1S30F780C5
+cmp add_assignment $top_name "" "" DEVICE EP1S40F780C5
 cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 
 # dev_clr_n disabled
