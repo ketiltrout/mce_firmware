@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_crc.vhd,v $
+-- Revision 1.7  2005/08/31 22:34:13  erniel
+-- added parallel_crc tests
+--
 -- Revision 1.6  2004/07/28 23:59:16  erniel
 -- removed configuration statement at end
 --
@@ -60,7 +63,7 @@ end TB_CRC;
 
 architecture BEH of TB_CRC is
 
-   component CRC
+   component SERIAL_CRC
 
       generic(POLY_WIDTH    : integer  := 8 );
 
@@ -122,7 +125,7 @@ architecture BEH of TB_CRC is
    
 begin
 
-   DUT1 : CRC
+   DUT1 : SERIAL_CRC
 
       generic map(POLY_WIDTH    => 8 )
 
