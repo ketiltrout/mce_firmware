@@ -31,6 +31,10 @@
 -- Revision History:
 --
 -- $Log: all_test_pack.vhd,v $
+-- Revision 1.6  2004/10/13 18:46:03  erniel
+-- ernie: added all_test_pll declaration
+-- WARNING: Compiles but not functional
+--
 -- Revision 1.5  2004/06/29 22:22:10  erniel
 -- uses new rs232 interface
 -- added BER test modules
