@@ -31,6 +31,13 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.12  2005/10/28 01:15:26  erniel
+-- unified cmd/reply buffer interfaces
+-- start/done signal name changes
+-- removed master wait state support
+-- added buffer access to FSM
+-- watchdog timeout is now a constant
+--
 -- Revision 1.11  2005/10/08 00:13:29  erniel
 -- replaced counter with binary_counter
 -- hard-coded watchdog timer limit
@@ -80,9 +87,6 @@ use components.component_pack.all;
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
-
-library work;
-use work.dispatch_pack.all;
 
 entity dispatch_wishbone is
 port(clk_i : in std_logic;
@@ -223,7 +227,7 @@ begin
          when IDLE =>     addr_clr      <= '1';
          
          when WB_CYCLE => addr_o        <= header1_i(BB_PARAMETER_ID'range);
-                          tga_o         <= "00000000000000000" & addr;
+                          tga_o(BB_DATA_SIZE_WIDTH-1 downto 0) <= addr;          -- zero-padded to 32-bits by default assignment
                           cyc_o         <= '1';
                           stb_o         <= '1';
                           
@@ -232,11 +236,11 @@ begin
                           end if;
                              
                           if(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then  
-                             buf_addr_o <= addr;           -- write commands: read data from buffer
+                             buf_addr_o <= addr;                                 -- write commands: read data from buffer
                              dat_o      <= buf_data_i;                                        
                              we_o       <= '1';
                           else  
-                             buf_addr_o <= addr;           -- read commands: write data to buffer              
+                             buf_addr_o <= addr;                                 -- read commands: write data to buffer              
                              buf_data_o <= dat_i;
                              buf_wren_o <= '1';
                           end if;
