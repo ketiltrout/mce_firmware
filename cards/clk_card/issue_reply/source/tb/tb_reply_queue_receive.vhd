@@ -30,12 +30,18 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_reply_queue_receive.vhd,v $
+-- Revision 1.1  2005/02/16 03:19:28  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.std_logic_1164.all;
+
+library components;
+use components.component_pack.all;
 
 entity TB_REPLY_QUEUE_RECEIVE is
 end TB_REPLY_QUEUE_RECEIVE;
@@ -47,10 +53,11 @@ architecture BEH of TB_REPLY_QUEUE_RECEIVE is
            COMM_CLK_I     : in std_logic ;
            RST_I          : in std_logic ;
            LVDS_REPLY_I   : in std_logic ;
+           ERROR_O        : out std_logic_vector ( 2 downto 0 );
            DATA_O         : out std_logic_vector ( 31 downto 0 );
            RDY_O          : out std_logic ;
            ACK_I          : in std_logic ;
-           DISCARD_I      : in std_logic );
+           CLEAR_I        : in std_logic );
 
    end component;
 
@@ -71,10 +78,11 @@ architecture BEH of TB_REPLY_QUEUE_RECEIVE is
    signal W_COMM_CLK_I     : std_logic := '1';
    signal W_RST_I          : std_logic ;
    signal W_LVDS_REPLY     : std_logic ;
+   signal W_ERROR_O        : std_logic_vector ( 2 downto 0 );
    signal W_DATA_O         : std_logic_vector ( 31 downto 0 );
    signal W_RDY_O          : std_logic ;
    signal W_ACK_I          : std_logic ;
-   signal W_DISCARD_I      : std_logic ;
+   signal W_CLEAR_I        : std_logic ;
 
    signal W_LVDS_DAT_I     : std_logic_vector ( 31 downto 0 );
    signal W_LVDS_RDY_I     : std_logic ;
@@ -87,10 +95,11 @@ begin
                COMM_CLK_I     => W_COMM_CLK_I,
                RST_I          => W_RST_I,
                LVDS_REPLY_I   => W_LVDS_REPLY,
+               ERROR_O        => W_ERROR_O,
                DATA_O         => W_DATA_O,
                RDY_O          => W_RDY_O,
                ACK_I          => W_ACK_I,
-               DISCARD_I      => W_DISCARD_I);
+               CLEAR_I        => W_CLEAR_I);
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
    W_COMM_CLK_I <= not W_COMM_CLK_I after COMM_PERIOD/2;
@@ -102,303 +111,249 @@ begin
                RDY_I        => W_LVDS_RDY_I,
                BUSY_O       => W_LVDS_BUSY_O,
                LVDS_O       => W_LVDS_REPLY);
-   
+         
    STIMULI : process
+   
    procedure reset is
    begin
       W_RST_I          <= '1';
-      W_ACK_I          <= '0';
-      W_DISCARD_I      <= '0';
       W_LVDS_DAT_I     <= (others => '0');
       W_LVDS_RDY_I     <= '0';
-      
+      W_ACK_I          <= '0';   
+      W_CLEAR_I        <= '0';   
       wait for PERIOD;
    end reset;
    
    procedure send (data : in std_logic_vector(31 downto 0)) is
-   begin      
+   begin 
+      if(W_LVDS_BUSY_O = '1') then
+         wait until W_LVDS_BUSY_O = '0';
+      end if;
+              
       W_RST_I          <= '0';
-      W_ACK_I          <= '0';
-      W_DISCARD_I      <= '0';
       W_LVDS_DAT_I     <= data;
       W_LVDS_RDY_I     <= '1';
-      
-      wait for PERIOD;      
-   end send;
-   
-   procedure eot is
-   begin
-      W_RST_I          <= '0';
       W_ACK_I          <= '0';
-      W_DISCARD_I      <= '0';
+      W_CLEAR_I        <= '0';      
+      wait for PERIOD;   
+      
+      W_RST_I          <= '0';
       W_LVDS_DAT_I     <= (others => '0');
       W_LVDS_RDY_I     <= '0';
-      
-      wait for PERIOD*200;
-   end eot;
-      
+      W_ACK_I          <= '0';
+      W_CLEAR_I        <= '0';      
+      wait for PERIOD;   
+   end send;
+   
    procedure pause (duration : in integer) is
    begin
       W_RST_I          <= '0';
-      W_ACK_I          <= '0';
-      W_DISCARD_I      <= '0';
       W_LVDS_DAT_I     <= (others => '0');
       W_LVDS_RDY_I     <= '0';
-      
+      W_ACK_I          <= '0';  
+      W_CLEAR_I        <= '0';    
       wait for PERIOD*duration;
    end pause;
---    
---   procedure ack (duration : in integer) is
---   begin
---      W_RST_I          <= '0';
---      W_ACK_I          <= '1';
---      W_DISCARD_I      <= '0';
---      W_LVDS_DAT_I     <= (others => '0');
---      W_LVDS_RDY_I     <= '0';
---      
---      wait for PERIOD*duration;
---      
---      W_ACK_I          <= '0';
---   end ack;
---   
---   procedure discard is
---   begin
---      W_RST_I          <= '0';
---      W_ACK_I          <= '0';
---      W_DISCARD_I      <= '1';
---      W_LVDS_DAT_I     <= (others => '0');
---      W_LVDS_RDY_I     <= '0';
---      
---      wait for PERIOD;
---      
---      W_DISCARD_I      <= '0';
---   end discard;
    
+   procedure ack is
+   begin
+      if(W_RDY_O = '0') then
+         wait until W_RDY_O = '1';
+         wait for PERIOD;
+      end if;
+      
+      W_RST_I          <= '0';
+      W_LVDS_DAT_I     <= (others => '0');
+      W_LVDS_RDY_I     <= '0';
+      W_ACK_I          <= '1';  
+      W_CLEAR_I        <= '0';          
+      wait for PERIOD;
+   end ack;
+   
+   procedure clear is
+   begin
+      W_RST_I          <= '0';
+      W_LVDS_DAT_I     <= (others => '0');
+      W_LVDS_RDY_I     <= '0';
+      W_ACK_I          <= '0';  
+      W_CLEAR_I        <= '1';          
+      wait for PERIOD;
+   end clear;
+      
    begin
       
       reset;
       
-      -------------------------------------------------------------------
-      -- Test Case 1: 3 good packets, read all after pushing into queue
-      -------------------------------------------------------------------
+      ------------------------------------------------------      
+      -- Test 1: Write packet returned OK
+      ------------------------------------------------------
             
-      -- good packet with no data words:
-      send("10101010101010100000000000000000"); -- AAAA0000
-      send("00000000000000000001001000110100"); -- 00001234
-      send("00000000000000000000000000000000"); -- 00000000
-      send("00111110001101100100001000001010"); -- 3E36420A
-      eot;
+      send(x"AAAAA800");
+      send(x"01010000");
+      send(x"98482961"); 
+      wait for 4500 ns;     
+      ack;
+      
+      
+      ------------------------------------------------------      
+      -- Test 2: Read packet returned OK
+      ------------------------------------------------------      
+      
+      send(x"AAAAA003");
+      send(x"02020000");
+      send(x"00001111");
+      send(x"00002222");
+      send(x"00003333");
+      send(x"0AA2D49D");
+      ack;
+      pause(10);
+      ack;
+      pause(5);
+      ack;
+      pause(5);
+
+
+      ------------------------------------------------------      
+      -- Test 3: Packet has corrupt preamble
+      ------------------------------------------------------
+      
+      send(x"AAAA5800");
+      send(x"3A3A0000");
+      send(x"15F12F7D");   
+      -- this packet is ignored
+
+      
+      ------------------------------------------------------
+      -- Test 4: Write packet has corrupt data size
+      ------------------------------------------------------
             
-      -- good packet with one data word:
-      send("10101010101010100000000000000001"); -- AAAA0001
-      send("00000000000000001010101111001101"); -- 0000ABCD
-      send("11111111000000000000000000000000"); -- FF000000
-      send("00010001000000000000000000000001"); -- 11000001
-      send("00011111001111001011000000011101"); -- 1F3CB01D
-      eot;
-                
-      -- good packet with two data words:
-      send("10101010101010100000000000000010"); -- AAAA0002
-      send("00000000000000001001100001110110"); -- 00009876
-      send("11111111000000000000000000000000"); -- FF000000
-      send("00100010000000000000000000000001"); -- 22000001
-      send("00100010000000000000000000000011"); -- 22000003
-      send("00111101110011110010110011001100"); -- 3DCF2CCC
-      eot;
+      send(x"AAAAA801");
+      send(x"4A4A0000");
+      send(x"6ACB27B7");
+
+      -- this packet continues the previous packet, CRC error results:      
+      send(x"AAAAA800");  -- CRC of previous packet
+      send(x"4B4B0000");  -- ignored (invalid preamble)
+      send(x"04D72660");  -- ignored (invalid preamble)
+      ack;
       
-      if(W_RDY_O = '0') then
-         wait until W_RDY_O = '1';
-      end if;
-      
-      W_ACK_I <= '1';
-      wait for PERIOD;
-      W_ACK_I <= '0';
-      
-      wait until W_RDY_O = '0';
-      wait until W_RDY_O = '1';
-      W_ACK_I <= '1';
-      wait for PERIOD*2;
-      W_ACK_I <= '0';
-     
-      wait until W_RDY_O = '0';
-      wait until W_RDY_O = '1';
-      W_ACK_I <= '1';
-      wait for PERIOD*3;
-      W_ACK_I <= '0';
+      -- this packet is first legit packet after error:      
+      send(x"AAAAA800");
+      send(x"4C4C0000");
+      send(x"D5F22504");
+      ack;
       
       
-      -------------------------------------------------------------------
-      -- Test Case 2: 3 good packets and 1 bad packet
-      -------------------------------------------------------------------
+      ------------------------------------------------------      
+      -- Test 5: Read packet has corrupt data size
+      --         (Corruption made it bigger)
+      ------------------------------------------------------
       
-      wait for PERIOD*1000;
+      send(x"AAAAA003");
+      send(x"5A5A0000");
+      send(x"00001111");
+      send(x"8FDF610B");
       
-      -- good packet with no data words:
-      send("10101010101010100000000000000000"); -- AAAA0000
-      send("00000000000000000001001000110100"); -- 00001234
-      send("00000000000000000000000000000000"); -- 00000000
-      send("00111110001101100100001000001010"); -- 3E36420A
-      eot;
+      -- this packet continues previous packet, CRC error results:      
+      send(x"AAAAA001");
+      send(x"5B5B0000");  -- CRC of previous packet
+      send(x"ACE76AAC");  -- ignored (invalid preamble)
       
-      -- good packet with one data word:
-      send("10101010101010100000000000000001"); -- AAAA0001
-      send("00000000000000001010101111001101"); -- 0000ABCD
-      send("11111111000000000000000000000000"); -- FF000000
-      send("00010001000000000000000000000001"); -- 11000001
-      send("00011111001111001011000000011101"); -- 1F3CB01D
-      eot;
-          
-      -- bad packet with two data words:
-      send("10101010101010100000000000000010"); -- AAAA0002
-      send("00000000000000001001100001110110"); -- 00009876
-      send("11111111000000000000000000000000"); -- FF000000
-      send("00110011000000000000000000000001"); -- 33000001
-      send("00110011000000000000000000000111"); -- 33000007
-      send("00111101110011110010110011001100"); -- 3DCF2CCC (invalid CRC)
-      eot;
-          
-      -- good packet with two data words:
-      send("10101010101010100000000000000010"); -- AAAA0002
-      send("00000000000000001001100001110110"); -- 00009876
-      send("11111111000000000000000000000000"); -- FF000000
-      send("00100010000000000000000000000001"); -- 22000001
-      send("00100010000000000000000000000011"); -- 22000003
-      send("00111101110011110010110011001100"); -- 3DCF2CCC
-      eot;
+      -- this packet is first legit packet after error:
+      send(x"AAAAA004");
+      send(x"5C5C0000");
+      send(x"00001111");
+      send(x"00002222");
+      send(x"00003333");
+      send(x"00004444");
+      send(x"6D83740F");
+      ack;                -- ack for CRC error
+      pause(5);
+      ack;                -- ack x 4 for data
+      pause(10);
+      ack;
+      ack;
+      pause(10);
+      ack;
+
       
-      if(W_RDY_O = '0') then
-         wait until W_RDY_O = '1';
-      end if;
+      ------------------------------------------------------      
+      -- Test 6: Read packet has corrupt data size
+      --         (Corruption made it smaller)
+      ------------------------------------------------------
       
-      W_ACK_I <= '1';
-      wait for PERIOD;
-      W_ACK_I <= '0';
       
-      wait until W_RDY_O = '0';
-      wait until W_RDY_O = '1';
-      W_ACK_I <= '1';
-      wait for PERIOD*2;
-      W_ACK_I <= '0';
-     
-      wait until W_RDY_O = '0';
-      wait until W_RDY_O = '1';
-      W_ACK_I <= '1';
-      wait for PERIOD*3;
-      W_ACK_I <= '0';
+      send(x"AAAAA001");
+      send(x"6A6A0000");
+      send(x"00001111");  -- thinks this is the CRC
+      send(x"00002222");  -- ignored (invalid preamble)
+      send(x"00003333");  -- ignored (invalid preamble)
+      send(x"E1D64CB1");  -- ignored (invalid preamble)
+      ack;      
       
+      -- this packet has no errors:
+      send(x"AAAAA003");
+      send(x"6B6B0000");
+      send(x"00001111");  
+      send(x"00002222");  
+      send(x"00003333");  
+      send(x"A14F7442");  
+      ack;
+      pause(10);
+      ack;
+      pause(10);
+      ack;
+
+      
+      ------------------------------------------------------
+      -- Test 7: Write packet returned with status info
+      ------------------------------------------------------
+
+      send(x"AAAAA800");
+      send(x"07070002");
+      send(x"8D78E359");
+      ack;
+      
+      
+      ------------------------------------------------------
+      -- Test 8: Read packet returned with status info
+      ------------------------------------------------------
+      
+      send(x"AAAAA004");
+      send(x"08080001");
+      send(x"00001111");
+      send(x"00002222");
+      send(x"00003333");
+      send(x"00004444");
+      send(x"AE7D6F71");
+      ack;
+      ack;
+      ack;
+      pause(10);
+      ack;
+      
+      
+      ------------------------------------------------------
+      -- Test 9: Read packet timed out, queue is reset
+      ------------------------------------------------------
+      
+      send(x"AAAAA003");
+      send(x"09090000");
+      send(x"00001111");
+      send(x"00002222");
+      send(x"00003333");
+      send(x"A25350D3");
+      wait for 15 us;
+      clear;
+      
+      
+      pause(500);
          
-      -------------------------------------------------------------------
-      -- Test Case 3: 3 good packets, discard all
-      -------------------------------------------------------------------
-      
-      wait for PERIOD*1000;
-            
-      -- good packet with no data words:
-      send("10101010101010100000000000000000"); -- AAAA0000
-      send("00000000000000000001001000110100"); -- 00001234
-      send("00000000000000000000000000000000"); -- 00000000
-      send("00111110001101100100001000001010"); -- 3E36420A
-      eot;
-      
-      -- good packet with one data word:
-      send("10101010101010100000000000000001"); -- AAAA0001
-      send("00000000000000001010101111001101"); -- 0000ABCD
-      send("11111111000000000000000000000000"); -- FF000000
-      send("00010001000000000000000000000001"); -- 11000001
-      send("00011111001111001011000000011101"); -- 1F3CB01D
-      eot;
-          
-      -- good packet with two data words:
-      send("10101010101010100000000000000010"); -- AAAA0002
-      send("00000000000000001001100001110110"); -- 00009876
-      send("11111111000000000000000000000000"); -- FF000000
-      send("00100010000000000000000000000001"); -- 22000001
-      send("00100010000000000000000000000011"); -- 22000003
-      send("00111101110011110010110011001100"); -- 3DCF2CCC
-      eot;
-      
-      if(W_RDY_O = '0') then
-         wait until W_RDY_O = '1';
-      end if;
-      
-      W_DISCARD_I <= '1';
-      wait for PERIOD;
-      W_DISCARD_I <= '0';
-      
-      wait until W_RDY_O = '0';
-      wait until W_RDY_O = '1';
-      W_DISCARD_I <= '1';
-      wait for PERIOD;
-      W_DISCARD_I <= '0';
-     
-      wait until W_RDY_O = '0';
-      wait until W_RDY_O = '1';
-      W_DISCARD_I <= '1';
-      wait for PERIOD;
-      W_DISCARD_I <= '0';
-      
-          
-      -------------------------------------------------------------------
-      -- Test Case 4: 2 good packets, discard mid-packet 1
-      ------------------------------------------------------------------- 
-            
-      wait for PERIOD*1000;
-      
-      -- good packet with ten data words:
-      send("10101010101010100000000000001010"); -- AAAA000A
-      send("00000000000000000101011001111000"); -- 00005678
-      send("00000000000000000000000000000000"); -- 00000000
-      send("10001000000000000000000000000001"); -- 88000001
-      send("10001000000000000000000000000010"); -- 88000002
-      send("10001000000000000000000000000011"); -- 88000003
-      send("10001000000000000000000000000100"); -- 88000004
-      send("10001000000000000000000000000101"); -- 88000005
-      send("10001000000000000000000000000110"); -- 88000006
-      send("10001000000000000000000000000111"); -- 88000007
-      send("10001000000000000000000000001000"); -- 88000008
-      send("10001000000000000000000000001001"); -- 88000009
-      send("10001000000000000000000000001010"); -- 8800000A
-      send("01010100010101111101110111000011"); -- 5457DDC3
-      eot;
-      
-      wait for PERIOD*100;
-      
-      -- good packet with two data words:
-      send("10101010101010100000000000000010"); -- AAAA0002
-      send("00000000000000001001100001110110"); -- 00009876
-      send("11111111000000000000000000000000"); -- FF000000
-      send("00100010000000000000000000000001"); -- 22000001
-      send("00100010000000000000000000000011"); -- 22000003
-      send("00111101110011110010110011001100"); -- 3DCF2CCC
-      eot;
-      
-      wait for PERIOD*1000;
-      
-      if(W_RDY_O = '0') then
-         wait until W_RDY_O = '1';
-      end if;
-      
-      W_ACK_I <= '1';
-      wait for PERIOD*4;
-      W_ACK_I <= '0';
-      W_DISCARD_I <= '1';
-      wait for PERIOD;
-      W_DISCARD_I <= '0';
-      
-      
-      wait until W_RDY_O = '0';
-      wait until W_RDY_O = '1';
-      W_ACK_I <= '1';
-      wait for PERIOD*3;
-      W_ACK_I <= '0';
-            
             
       -------------------------------------------------------------------
       -- End of Test Cases
       ------------------------------------------------------------------- 
       
-      wait for PERIOD*1000;
-         
       assert FALSE report "End of Simulation." severity FAILURE;
       
       wait for PERIOD;
