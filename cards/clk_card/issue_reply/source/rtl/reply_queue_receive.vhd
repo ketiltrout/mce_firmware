@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.13  2005/09/28 23:50:07  bburger
+-- Bryce:
+-- replaced obsolete crc block with serial_crc block
+--
 -- Revision 1.12  2005/02/16 03:16:44  erniel
 -- added integer range declaration to wr_count, rd_count
 -- modified read FSM next state and output logic
@@ -93,623 +97,309 @@ use components.component_pack.all;
 library sys_param;
 use sys_param.command_pack.all;
 
-library work;
-use work.async_pack.all;
-use work.reply_queue_pack.all;
-
 entity reply_queue_receive is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
      rst_i      : in std_logic;
      
-     lvds_reply_i : in std_logic;
+     lvds_reply_i : in std_logic;     
      
-     data_o    : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-     rdy_o     : out std_logic;
-     ack_i     : in std_logic;
-     discard_i : in std_logic);
+     error_o : out std_logic_vector(2 downto 0);   -- 3 error bits: Tx CRC error, Rx CRC error, Execute Error
+     data_o  : out std_logic_vector(31 downto 0);
+     rdy_o   : out std_logic;
+     ack_i   : in std_logic;
+     clear_i : in std_logic);
 end reply_queue_receive;
 
 architecture rtl of reply_queue_receive is
 
---------------------------------------------------
--- LVDS signals:
+component lvds_rx
+port(clk_i      : in std_logic;
+     comm_clk_i : in std_logic;
+     rst_i      : in std_logic;
+     dat_o      : out std_logic_vector(31 downto 0);
+     rdy_o      : out std_logic;
+     ack_i      : in std_logic;
+     lvds_i     : in std_logic);
+end component;
+   
+signal lvds_rx_data : std_logic_vector(31 downto 0);
+signal lvds_rx_rdy  : std_logic;
+signal lvds_rx_ack  : std_logic;
 
-signal lvds_data : std_logic_vector(31 downto 0);
-signal lvds_rdy  : std_logic;
-signal lvds_ack  : std_logic;
+signal crc_ena       : std_logic;
+signal crc_clr       : std_logic;
+signal crc_valid     : std_logic;
+signal crc_num_words : integer;
 
+signal buf_write : std_logic;
+signal buf_read  : std_logic;
+signal buf_clear : std_logic;
+signal buf_empty : std_logic;
 
---------------------------------------------------
--- CRC datapath control:
-
-type crc_states is (CRC_IDLE, CRC_INIT, CRC_SYNC, CRC_CALCULATE, CRC_WORD_RDY, WAIT_NEXT_WORD, LOAD_NEXT_WORD);
-signal crc_ps : crc_states;
-signal crc_ns : crc_states;
-
-constant CRC32 : std_logic_vector(31 downto 0) := "00000100110000010001110110110111";
-
-signal num_data_words_ld : std_logic;
-signal num_data_words    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-signal crc_num_bits      : integer;
-
-signal crc_bit_count_clr : std_logic;
-signal crc_bit_count     : integer range 0 to PACKET_WORD_WIDTH;
-
-signal crc_data_ena : std_logic;
-signal crc_data_ld  : std_logic;
-signal crc_data_in  : std_logic;
-signal crc_data_out : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-
-signal crc_ena   : std_logic;
-signal crc_clr   : std_logic;
-signal crc_done  : std_logic;
-signal crc_valid : std_logic;
-signal crc_rdy   : std_logic;
-
-
---------------------------------------------------
--- Stage 1 Packet Buffer
-
-signal buf_data_out : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal buf_write    : std_logic;
-signal buf_read     : std_logic;
-signal buf_clear    : std_logic;
-
-
---------------------------------------------------
--- Packet Buffer control:
-
-type buf_ctrl_states is (WRITE_BUF, DISCARD_BUF, BUF_DONE);
-signal buf_ps : buf_ctrl_states;
-signal buf_ns : buf_ctrl_states;
-
-signal buf_rdy : std_logic;
-
-
---------------------------------------------------
--- Stage 2 Packet Store
-
-signal packet_data_in  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal packet_data_out : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal packet_write    : std_logic;
-signal packet_read     : std_logic;
-
-signal header0    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal header1    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal header2    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal header0    : std_logic_vector(31 downto 0);
+signal header1    : std_logic_vector(31 downto 0);
 signal header0_ld : std_logic;
 signal header1_ld : std_logic;
-signal header2_ld : std_logic;
 
-signal wr_count     : integer range 0 to 2**PACKET_STORAGE_DEPTH;
-signal wr_count_ena : std_logic;
-signal wr_count_clr : std_logic;
+signal error_clr : std_logic;
+signal error_ld  : std_logic;
 
-signal rd_count     : integer range 0 to 2**PACKET_STORAGE_DEPTH;
-signal rd_count_ena : std_logic;
-signal rd_count_clr : std_logic;
+signal word_count     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+signal word_count_ena : std_logic;
+signal word_count_clr : std_logic;
 
-signal packets : integer range 0 to 2**PACKET_STORAGE_DEPTH;
-
-signal wr_done : std_logic;
-signal rd_done : std_logic;
-
-signal header    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal header_ld : std_logic;
-
-signal data_ld : std_logic;
-
-
---------------------------------------------------
--- Packet store write control:
-
-type write_ctrl_states is (WRITE_IDLE, GET_LONG_HDRS, WRITE_SHORT_HDR, WRITE_DATA, REMOVE_CRC, WRITE_DONE);
-signal write_ps : write_ctrl_states;
-signal write_ns : write_ctrl_states;
-
-
---------------------------------------------------
--- Packet store read control:
-
-type read_ctrl_states is (READ_IDLE, PACKET_SETUP, PACKET_READY, DISCARD_PACKET, READ_DONE);
-signal read_ps : read_ctrl_states;
-signal read_ns : read_ctrl_states;
-
+type states is (RX_INIT, RX_HEADER0, RX_HEADER1, RX_DATA, RX_CRC, RX_DONE, STATUS_READY, DATA_READY);
+signal pres_state : states;
+signal next_state : states;
 
 begin
 
-   --------------------------------------------------
-   -- LVDS receiver:         
-   --------------------------------------------------
+   ---------------------------------------------------------
+   -- LVDS receiver
+   ---------------------------------------------------------
    
    lvds_receiver : lvds_rx
-      port map(comm_clk_i => comm_clk_i,
+      port map(clk_i      => clk_i,
+               comm_clk_i => comm_clk_i,
                rst_i      => rst_i,
-               dat_o      => lvds_data,
-               rdy_o      => lvds_rdy,
-               ack_i      => lvds_ack,
+               dat_o      => lvds_rx_data,
+               rdy_o      => lvds_rx_rdy,
+               ack_i      => lvds_rx_ack,
                lvds_i     => lvds_reply_i);
-   
-   --------------------------------------------------
-   -- CRC datapath:         
-   --------------------------------------------------
 
-   data_size : reg
-      generic map(WIDTH => BB_DATA_SIZE_WIDTH)
-      port map(clk_i => clk_i,
-               rst_i => rst_i,
-               ena_i => num_data_words_ld,
-               reg_i => lvds_data(BB_DATA_SIZE'range),
-               reg_o => num_data_words);
 
-   -- number of bits to be processed by CRC is (# of data words + 3 header words + 1 CRC word) * 32
-   crc_num_bits <= conv_integer((num_data_words + BB_NUM_REPLY_HEADER_WORDS + 1) & "00000");     
+   ---------------------------------------------------------
+   -- CRC validation
+   ---------------------------------------------------------
+   
+   crc_calc : parallel_crc
+      generic map(POLY_WIDTH => 32,
+                  DATA_WIDTH => 32)
+      port map(clk_i       => clk_i,
+               rst_i       => rst_i,
+               clr_i       => crc_clr,
+               ena_i       => crc_ena,
+               poly_i      => "00000100110000010001110110110111",    -- CRC-32 polynomial
+               data_i      => lvds_rx_data,
+               num_words_i => crc_num_words,
+               done_o      => open,
+               valid_o     => crc_valid,
+               checksum_o  => open);
 
-   crc_data_reg : shift_reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
-      port map(clk_i      => clk_i,
-               rst_i      => rst_i,
-               ena_i      => crc_data_ena,
-               load_i     => crc_data_ld,
-               clr_i      => '0',
-               shr_i      => '1',            
-               serial_i   => crc_data_in,  
-               serial_o   => crc_data_in,
-               parallel_i => lvds_data,
-               parallel_o => crc_data_out);
-   
-   crc_bit_counter : counter
-      generic map(MAX         => PACKET_WORD_WIDTH,
-                  WRAP_AROUND => '0')
-      port map(clk_i   => clk_i,
-               rst_i   => rst_i,
-               ena_i   => '1',
-               load_i  => crc_bit_count_clr,
-               count_i => 0,
-               count_o => crc_bit_count);
+   crc_num_words <= conv_integer(header0(BB_DATA_SIZE'range) + 3);   -- data_size words + 2 headers + 1 CRC
 
-   crc_calc : serial_crc
-      generic map(POLY_WIDTH => PACKET_WORD_WIDTH)
-      port map(clk_i      => clk_i,
-               rst_i      => rst_i,
-               clr_i      => crc_clr,
-               ena_i      => crc_ena,
-               data_i     => crc_data_in,
-               num_bits_i => crc_num_bits,
-               poly_i     => CRC32,
-               done_o     => crc_done,
-               valid_o    => crc_valid,
-               checksum_o => open);
-               
-                                       
-   --------------------------------------------------
-   -- CRC controller:
-   --------------------------------------------------
-   
-   -- CRC control FSM
-   crc_stateFF: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         crc_ps <= CRC_IDLE;
-      elsif(clk_i'event and clk_i = '1') then
-         crc_ps <= crc_ns;
-      end if;
-   end process crc_stateFF;
-   
-   
-   -- Notes: - CRC receiver starts on valid preamble boundaries.
-   --        - If receiver loses packet sync, words will be ignored:
-   --             1. wait until return to CRC idle state (could be up to 8191 words later), then
-   --             2. wait until valid preamble is detected.
-   
-   crc_stateNS: process(crc_ps, lvds_rdy, lvds_data, crc_bit_count, crc_done)
-   begin
-      case crc_ps is
-         when CRC_IDLE =>       if(lvds_rdy = '1') then
-                                   if(lvds_data(BB_PREAMBLE'range) = BB_PREAMBLE) then    -- valid preamble detected
-                                      crc_ns <= CRC_INIT;  
-                                   else
-                                      crc_ns <= CRC_SYNC;
-                                   end if;
-                                else
-                                   crc_ns <= CRC_IDLE;
-                                end if;
-                                   
-         when CRC_INIT =>       crc_ns <= CRC_CALCULATE;
-                                
-         when CRC_SYNC =>       if(lvds_rdy = '1' and lvds_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
-                                   crc_ns <= CRC_INIT;  
-                                else
-                                   crc_ns <= CRC_SYNC;
-                                end if;         
-                  
-         when CRC_CALCULATE =>  if(crc_bit_count = PACKET_WORD_WIDTH-1) then
-                                   crc_ns <= CRC_WORD_RDY;
-                                else
-                                   crc_ns <= CRC_CALCULATE;
-                                end if;
+
+   ---------------------------------------------------------
+   -- Packet storage
+   ---------------------------------------------------------
                           
-         when CRC_WORD_RDY =>   crc_ns <= WAIT_NEXT_WORD;
-                                         
-         when WAIT_NEXT_WORD => if(crc_done = '1') then
-                                   crc_ns <= CRC_IDLE;
-                                elsif(lvds_rdy = '1') then 
-                                   crc_ns <= LOAD_NEXT_WORD;
-                                else
-                                   crc_ns <= WAIT_NEXT_WORD;
-                                end if;
-                            
-         when LOAD_NEXT_WORD => crc_ns <= CRC_CALCULATE;
-         
-         when others =>         crc_ns <= CRC_IDLE;
-      end case;
-   end process crc_stateNS;
-   
-   crc_stateOut: process(crc_ps)
-   begin
-      lvds_ack          <= '0';
-      num_data_words_ld <= '0';
-      crc_data_ena      <= '0';
-      crc_data_ld       <= '0';
-      crc_bit_count_clr <= '0';
-      crc_ena           <= '0';
-      crc_clr           <= '0';
-      crc_rdy           <= '0';
-            
-      case crc_ps is
-         when CRC_INIT =>       lvds_ack          <= '1';
-                                num_data_words_ld <= '1';
-                                crc_data_ld       <= '1';
-                                crc_data_ena      <= '1';
-                                crc_bit_count_clr <= '1';
-                                crc_ena           <= '1';
-                                crc_clr           <= '1';
-         
-         when CRC_SYNC =>       lvds_ack          <= '1';
-         
-         when CRC_CALCULATE =>  crc_data_ena      <= '1';
-                                crc_ena           <= '1';
-         
-         when CRC_WORD_RDY =>   crc_rdy           <= '1';
-                  
-         when LOAD_NEXT_WORD => lvds_ack          <= '1';
-                                crc_data_ena      <= '1';
-                                crc_data_ld       <= '1';
-                                crc_bit_count_clr <= '1';
-                                
-         when others =>         null;
-      end case;
-   end process crc_stateOut;
-   
-   --------------------------------------------------
-   -- Stage 1 Packet Buffer:
-   --------------------------------------------------
-
-   -- Incoming packets are buffered while CRC is calculated.  
-   -- If CRC fails, packet is discarded (FIFO cleared).  Else, it is passed to the packet store (Stage 2).  
-   
-   -- The entire packet is stored as-is, including the three header words and the CRC word.
-      
    packet_buffer : fifo
-      generic map(DATA_WIDTH => PACKET_WORD_WIDTH,
-                  ADDR_WIDTH => PACKET_BUFFER_DEPTH)
+      generic map(DATA_WIDTH => 32,
+                  ADDR_WIDTH => BB_DATA_SIZE_WIDTH)
       port map(clk_i   => clk_i,
                rst_i   => rst_i,
-               data_i  => crc_data_out,
-               data_o  => buf_data_out,
+               data_i  => lvds_rx_data,
+               data_o  => data_o,
                read_i  => buf_read,
                write_i => buf_write,
                clear_i => buf_clear,
-               empty_o => open,
+               empty_o => buf_empty,
                full_o  => open,
                error_o => open,
                used_o  => open); 
-
-                  
-   buf_FSM_state: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then 
-         buf_ps <= WRITE_BUF;
-      elsif(clk_i'event and clk_i = '1') then
-         buf_ps <= buf_ns;
-      end if;
-   end process buf_FSM_state;
    
-   buf_FSM_NS: process(buf_ps, crc_done, crc_rdy, crc_valid)
-   begin
-      case buf_ps is
-         when WRITE_BUF => if(crc_done = '1' and crc_rdy = '1') then
-                              if(crc_valid = '1') then
-                                 buf_ns <= BUF_DONE;
-                              else
-                                 buf_ns <= DISCARD_BUF;
-                              end if;
-                           else
-                              buf_ns <= WRITE_BUF;
-                           end if;
-                               
-         when others =>    buf_ns <= WRITE_BUF;
-      end case;
-   end process buf_FSM_NS;
-   
-   buf_FSM_Out: process(buf_ps, crc_rdy)
-   begin
-      buf_write <= '0';
-      buf_clear <= '0';
-      buf_rdy   <= '0';
-   
-      case buf_ps is
-         when WRITE_BUF =>   if(crc_rdy = '1') then
-                                buf_write <= '1';
-                             end if;
-                            
-         when DISCARD_BUF => buf_clear <= '1';
-                             
-         when BUF_DONE =>    buf_rdy <= '1';
-         
-         when others =>      null;
-      end case;
-   end process buf_FSM_Out;
-
-
-   --------------------------------------------------
-   -- Stage 2 Packet Store Write Interface:
-   --------------------------------------------------
-   
-   -- Incoming packets are queued here awaiting matching by 
-   -- reply_queue_sequencer and transmission to reply_translator.
-   
-   -- The three header words are read out of Stage 1 and written into Stage 2 in condensed format.
-   -- Any data words are copied from Stage 1 to Stage 2.
-   -- The CRC word is read out of Stage 1 but ignored by Stage 2.
-   
-   packet_store : fifo
-      generic map(DATA_WIDTH => PACKET_WORD_WIDTH,
-                  ADDR_WIDTH => PACKET_STORAGE_DEPTH)
-      port map(clk_i   => clk_i,
-               rst_i   => rst_i,
-               data_i  => packet_data_in,
-               data_o  => packet_data_out,
-               read_i  => packet_read,
-               write_i => packet_write,
-               clear_i => '0',
-               empty_o => open,
-               full_o  => open,
-               error_o => open,
-               used_o  => open);
-               
-   hdr0_reg : reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
+   header0_reg : reg
+      generic map(WIDTH => 32)
       port map(clk_i => clk_i,
                rst_i => rst_i,
                ena_i => header0_ld,
-               reg_i => buf_data_out,
+               reg_i => lvds_rx_data,
                reg_o => header0);
                
-   hdr1_reg : reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
+   header1_reg : reg
+      generic map(WIDTH => 32)
       port map(clk_i => clk_i,
                rst_i => rst_i,
                ena_i => header1_ld,
-               reg_i => buf_data_out,
+               reg_i => lvds_rx_data,
                reg_o => header1);
-               
-   hdr2_reg : reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
-      port map(clk_i => clk_i,
-               rst_i => rst_i,
-               ena_i => header2_ld,
-               reg_i => buf_data_out,
-               reg_o => header2);
 
-   write_counter : counter
-      generic map(MAX => 2**PACKET_STORAGE_DEPTH-1)
-      port map(clk_i   => clk_i,
-               rst_i   => rst_i,
-               ena_i   => wr_count_ena,
-               load_i  => wr_count_clr,
-               count_i => 0,
-               count_o => wr_count);
-     
-   packet_count: process(clk_i, rst_i)
+
+   ---------------------------------------------------------
+   -- Error (Status) register
+   ---------------------------------------------------------
+      
+   error_reg : process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         packets <= 0;
+         error_o <= (others => '0'); 
       elsif(clk_i'event and clk_i = '1') then
-         if(wr_done = '1' and rd_done = '0') then
-            packets <= packets + 1;
-         elsif(wr_done = '0' and rd_done = '1') then
-            packets <= packets - 1;
+         if(error_clr = '1') then
+            error_o <= (others => '0');
+         elsif(error_ld = '1') then
+            if(crc_valid = '0') then
+               error_o(0) <= '0';           -- if receive CRC failed, flag Rx CRC error condition
+               error_o(1) <= '0';           -- other error flags are meaningless
+               error_o(2) <= '1';
+            else
+               error_o(0) <= header1(0);    -- otherwise show error conditions received from dispatch
+               error_o(1) <= header1(1);
+               error_o(2) <= '0';
+            end if;               
          end if;
       end if;
-   end process packet_count;
-     
-   write_FSM_state : process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         write_ps <= WRITE_IDLE;
-      elsif(clk_i'event and clk_i = '1') then
-         write_ps <= write_ns;
-      end if;
-   end process write_FSM_state;
+   end process error_reg;
    
-   write_FSM_NS : process(write_ps, buf_rdy, wr_count, header0)
-   begin
-      case write_ps is
-         when WRITE_IDLE =>      if(buf_rdy = '1') then
-                                    write_ns <= GET_LONG_HDRS;
-                                 else
-                                    write_ns <= WRITE_IDLE;
-                                 end if;
-                      
-         when GET_LONG_HDRS =>   if(wr_count = BB_NUM_REPLY_HEADER_WORDS-1) then
-                                    write_ns <= WRITE_SHORT_HDR;
-                                 else
-                                    write_ns <= GET_LONG_HDRS;
-                                 end if;
-                               
-         when WRITE_SHORT_HDR => if(header0(BB_DATA_SIZE'range) = 0) then
-                                    write_ns <= REMOVE_CRC;
-                                 else
-                                    write_ns <= WRITE_DATA;
-                                 end if;
-         
-         when WRITE_DATA =>      if(wr_count = header0(BB_DATA_SIZE'range)-1) then
-                                    write_ns <= REMOVE_CRC;
-                                 else
-                                    write_ns <= WRITE_DATA;
-                                 end if;
-                                 
-         when REMOVE_CRC =>      write_ns <= WRITE_DONE;
-                                 
-         when WRITE_DONE =>      write_ns <= WRITE_IDLE;
-      end case;
-   end process write_FSM_NS;
    
-   write_FSM_Out : process(write_ps, wr_count, header0, header1, header2, buf_data_out)
-   begin
-      packet_data_in <= (others => '0');
-      packet_write   <= '0';
-      buf_read       <= '0';
-      header0_ld     <= '0';
-      header1_ld     <= '0';
-      header2_ld     <= '0';
-      wr_count_ena   <= '0';
-      wr_count_clr   <= '0';
-      wr_done        <= '0';
+   ---------------------------------------------------------               
+   -- Counter for received words
+   --------------------------------------------------------- 
       
-      case write_ps is
-         when WRITE_IDLE =>      wr_count_ena   <= '1';
-                                 wr_count_clr   <= '1';
-         
-         when GET_LONG_HDRS =>   buf_read       <= '1';
-                                 wr_count_ena   <= '1';
-                                 case wr_count is
-                                    when 0 =>      header0_ld <= '1';
-                                    when 1 =>      header1_ld <= '1';
-                                    when 2 =>      header2_ld <= '1';
-                                    when others => null;
-                                 end case;
-         
-         when WRITE_SHORT_HDR => packet_data_in <= "0000" & header2(31 downto 30) & header0(9 downto 0) & header1(15 downto 0);
-                                 packet_write   <= '1';
-                                 wr_count_ena   <= '1';
-                                 wr_count_clr   <= '1';
-         
-         when WRITE_DATA =>      packet_data_in <= buf_data_out;
-                                 packet_write   <= '1';
-                                 buf_read       <= '1';
-                                 wr_count_ena   <= '1';
-         
-         when REMOVE_CRC =>      buf_read       <= '1';
-         
-         when WRITE_DONE =>      wr_done        <= '1';
-      end case;
-   end process write_FSM_Out;
-
-
-   --------------------------------------------------
-   -- Stage 2 Packet Store Read Interface:
-   --------------------------------------------------
-   
-   hdr_reg : reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
-      port map(clk_i => clk_i,
-               rst_i => rst_i,
-               ena_i => header_ld,
-               reg_i => packet_data_out,
-               reg_o => header);
-   
-   data_reg : reg
-      generic map(WIDTH => PACKET_WORD_WIDTH)
-      port map(clk_i => clk_i,
-               rst_i => rst_i,
-               ena_i => data_ld,
-               reg_i => packet_data_out,
-               reg_o => data_o);
-               
-   read_counter : counter
-      generic map(MAX => 2**PACKET_STORAGE_DEPTH-1)
+   word_counter : binary_counter
+      generic map(WIDTH => BB_DATA_SIZE_WIDTH)
       port map(clk_i   => clk_i,
                rst_i   => rst_i,
-               ena_i   => rd_count_ena,
-               load_i  => rd_count_clr,
-               count_i => 0,
-               count_o => rd_count);
-           
-   read_FSM_state : process(clk_i, rst_i)
+               ena_i   => word_count_ena,
+               up_i    => '1',
+               load_i  => '0',
+               clear_i => word_count_clr,
+               count_i => (others => '0'),
+               count_o => word_count);
+
+
+   ---------------------------------------------------------
+   -- Receive controller FSM
+   ---------------------------------------------------------
+      
+   state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         read_ps <= READ_IDLE;
+         pres_state <= RX_INIT;
       elsif(clk_i'event and clk_i = '1') then
-         read_ps <= read_ns;
+         if(clear_i = '1') then
+            pres_state <= RX_INIT;
+         else
+            pres_state <= next_state;
+         end if;
       end if;
-   end process read_FSM_state;
-   
-   read_FSM_NS : process(read_ps, header, rd_count, packets, ack_i, discard_i)
+   end process state_FF;
+
+   state_NS: process(pres_state, lvds_rx_rdy, lvds_rx_data, word_count, header0, crc_valid, buf_empty, ack_i)
    begin
-      case read_ps is
-         when READ_IDLE =>      if(packets > 0) then
-                                   read_ns <= PACKET_SETUP;
-                                else
-                                   read_ns <= READ_IDLE;
-                                end if;
-                                
-         when PACKET_SETUP =>   read_ns <= PACKET_READY;
-                      
-         when PACKET_READY =>   if(discard_i = '1') then
-                                   read_ns <= DISCARD_PACKET;
-                                elsif(ack_i = '1' and rd_count = header(RQ_DATA_SIZE'range)) then
-                                   read_ns <= READ_DONE;                                   
-                                else
-                                   read_ns <= PACKET_READY;
-                                end if;
-                            
-         when DISCARD_PACKET => if(rd_count = header(RQ_DATA_SIZE'range)) then
-                                   read_ns <= READ_DONE;
-                                else
-                                   read_ns <= DISCARD_PACKET;
-                                end if;
-                                
-         when READ_DONE =>      read_ns <= READ_IDLE;
+      case pres_state is
+         when RX_INIT =>      next_state <= RX_HEADER0;
+                             
+         when RX_HEADER0 =>   if(lvds_rx_rdy = '1' and lvds_rx_data(BB_PREAMBLE'range) = BB_PREAMBLE) then
+                                 next_state <= RX_HEADER1;
+                              else
+                                 next_state <= RX_HEADER0;
+                              end if;
+                             
+         when RX_HEADER1 =>   if(lvds_rx_rdy = '1') then
+                                 next_state <= RX_DATA;
+                              else
+                                 next_state <= RX_HEADER1;
+                              end if;
+                             
+         when RX_DATA =>      if(word_count = header0(BB_DATA_SIZE'range)) then
+                                 next_state <= RX_CRC;
+                              else
+                                 next_state <= RX_DATA;
+                              end if;
          
+         when RX_CRC =>       if(lvds_rx_rdy = '1') then
+                                 next_state <= RX_DONE;
+                              else
+                                 next_state <= RX_CRC;
+                              end if;
+                             
+         when RX_DONE =>      if(crc_valid = '0' or header0(BB_COMMAND_TYPE'range) = WRITE_CMD) then
+                                 next_state <= STATUS_READY;
+                              else
+                                 next_state <= DATA_READY;
+                              end if;
+
+         when STATUS_READY => if(ack_i = '1') then
+                                 next_state <= RX_INIT;
+                              else
+                                 next_state <= STATUS_READY;
+                              end if;
+                                                          
+         when DATA_READY =>   if(buf_empty = '1') then
+                                 next_state <= RX_INIT;
+                              else
+                                 next_state <= DATA_READY;
+                              end if;
+                             
+         when others =>       next_state <= RX_INIT;
       end case;
-   end process read_FSM_NS;
+   end process state_NS;
    
-   read_FSM_Out : process(read_ps, header, rd_count, ack_i)
-   begin      
-      packet_read  <= '0';
-      header_ld    <= '0';
-      data_ld      <= '0';
-      rd_count_ena <= '0';
-      rd_count_clr <= '0';
-      rd_done      <= '0';
-      rdy_o        <= '0';
-      
-      case read_ps is
-         when READ_IDLE =>      rd_count_ena <= '1';
-                                rd_count_clr <= '1';
+   state_Out: process(pres_state, lvds_rx_rdy, lvds_rx_data, word_count, header0, crc_valid, buf_empty, ack_i)
+   begin
+      lvds_rx_ack    <= '0';
+      crc_ena        <= '0';
+      crc_clr        <= '0';
+      buf_write      <= '0';
+      buf_read       <= '0';
+      buf_clear      <= '0';
+      header0_ld     <= '0';
+      header1_ld     <= '0';
+      error_clr      <= '0';
+      error_ld       <= '0';
+      word_count_ena <= '0';
+      word_count_clr <= '0';
+      rdy_o          <= '0';
+   
+      case pres_state is
+         when RX_INIT =>      crc_clr           <= '1';
+                              buf_clear         <= '1';
+                              error_clr         <= '1';
+                              word_count_clr    <= '1';
+                             
+         when RX_HEADER0 =>   if(lvds_rx_rdy = '1') then
+                                 if(lvds_rx_data(BB_PREAMBLE'range) /= BB_PREAMBLE) then
+                                    crc_clr     <= '1';         -- reset CRC calculation during resynchronization
+                                 end if;
+                                 lvds_rx_ack    <= '1';
+                                 crc_ena        <= '1';
+                                 header0_ld     <= '1';
+                              end if;
+                             
+         when RX_HEADER1 =>   if(lvds_rx_rdy = '1') then
+                                 lvds_rx_ack    <= '1';
+                                 crc_ena        <= '1';
+                                 header1_ld     <= '1';
+                              end if;
+                             
+         when RX_DATA =>      if(word_count /= header0(BB_DATA_SIZE'range) and lvds_rx_rdy = '1') then
+                                 lvds_rx_ack    <= '1';
+                                 crc_ena        <= '1';
+                                 buf_write      <= '1';
+                                 word_count_ena <= '1';
+                              end if;
+                             
+         when RX_CRC =>       if(lvds_rx_rdy = '1') then
+                                 lvds_rx_ack    <= '1';
+                                 crc_ena        <= '1';
+                              end if;
          
-         when PACKET_SETUP =>   packet_read  <= '1';
-                                header_ld    <= '1';
-                                data_ld      <= '1';
+         when RX_DONE =>      error_ld          <= '1'; 
+                              if(crc_valid = '0') then
+                                 buf_clear      <= '1';
+                              end if;            
+                             
+         when STATUS_READY => rdy_o             <= '1';       
          
-         when PACKET_READY =>   rdy_o <= '1';
-                                if(ack_i = '1' and rd_count < header(RQ_DATA_SIZE'range)) then
-                                   packet_read  <= '1';
-                                   data_ld      <= '1';
-                                   rd_count_ena <= '1';
-                                end if;
+         when DATA_READY =>   if(buf_empty = '0') then 
+                                 rdy_o          <= '1';
+                              end if;
+                              if(ack_i = '1') then
+                                 buf_read       <= '1';
+                              end if;
          
-         when DISCARD_PACKET => if(rd_count < header(RQ_DATA_SIZE'range)) then
-                                   packet_read  <= '1';
-                                   rd_count_ena <= '1';
-                                end if;
-         
-         when READ_DONE =>      rd_done <= '1';
-         
+         when others =>       null;
       end case;
-   end process read_FSM_Out;
-   
+   end process state_Out;   
 end rtl; 
