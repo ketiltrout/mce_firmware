@@ -45,8 +45,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date$>    - <initials $Author$>
--- $Log$
+-- <date $Date: 2005/07/13 17:47:38 $>    - <initials $Author: mandana $>
+-- $Log: eeprom_admin.vhd,v $
+-- Revision 1.1  2005/07/13 17:47:38  mandana
+-- Initial release, write operation not tested yet
+--
 --
 --
 --
@@ -92,14 +95,6 @@ entity eeprom_admin is
 end eeprom_admin;
 
 architecture rtl of eeprom_admin is
-   ---------------------------------------------------------------------------
-   -- Registers for one page of data (page size is 64 for AT25128)
-   ---------------------------------------------------------------------------
-   type ee_data_bank is array (0 to EE_PAGE_SIZE-1) of std_logic_vector(EEPROM_DATA_WIDTH-1 downto 0);
-   signal reg : ee_data_bank;
-     
-   type wren_banks is array (0 to EE_PAGE_SIZE-1) of std_logic;
-   signal wren : wren_banks;
 
    -- internal signal declarations
  
