@@ -21,8 +21,8 @@
 --
 -- command_pack.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.15  2005/10/28 01:44:17  erniel
+-- updated constants definitions for new bus backplane protocol
+--
 -- Revision 1.14  2004/12/03 16:41:25  dca
 -- FIBRE_CHECKSUM_ERR definition removed.
 -- Now local definition in reply_translator
@@ -136,6 +139,7 @@ package command_pack is
    constant FIBRE_DATA_SIZE    : std_logic_vector(31 downto 0)  := "00000000000000000000000000000000";
    constant FIBRE_STATUS       : std_logic_vector(31 downto 0)  := "00000000000000000000000000000000";
    constant FIBRE_CHECKSUM     : std_logic_vector(31 downto 0)  := "00000000000000000000000000000000";
+   constant FIBRE_NO_ERROR_STATUS : std_logic_vector(29 downto 0) := (others => '0');
    
    -- field width declarations:
    constant FIBRE_PREAMBLE1_WIDTH    : integer := FIBRE_PREAMBLE1'length;
