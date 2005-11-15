@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue_pack.vhd,v 1.17 2005/03/12 02:19:01 bburger Exp $
+-- $Id: reply_queue_pack.vhd,v 1.18 2005/03/23 19:25:54 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue_pack.vhd,v $
+-- Revision 1.18  2005/03/23 19:25:54  bburger
+-- Bryce:  Added a debugging trigger
+--
 -- Revision 1.17  2005/03/12 02:19:01  bburger
 -- bryce:  bug fixes
 --
@@ -112,7 +115,8 @@ constant PACKET_BUFFER_DEPTH  : integer := 9;
 constant PACKET_STORAGE_DEPTH : integer := 11;
 
 -- reply_queue timeout limit (in microseconds):
-constant TIMEOUT_LIMIT : integer := 700;
+constant CMD_TIMEOUT_LIMIT : integer := 100;
+constant DATA_TIMEOUT_LIMIT : integer := 650;
 
 -- condensed header field range declarations:
 constant RQ_STATUS    : std_logic_vector(31 downto 26) := "000000";
@@ -141,7 +145,7 @@ component reply_queue
       cmd_to_retire_i   : in std_logic;                                           
       cmd_sent_o        : out std_logic;                                          
       cmd_i             : in std_logic_vector(QUEUE_WIDTH-1 downto 0);   
-      cmd_timeout_o     : out std_logic;         
+--      cmd_timeout_o     : out std_logic;         
       
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
@@ -159,7 +163,7 @@ component reply_queue
       stop_bit_o        : out std_logic;                                          
       last_frame_bit_o  : out std_logic;                                          
       frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
-      internal_cmd_o    : out std_logic;
+--      internal_cmd_o    : out std_logic;
 
       -- Bus Backplane interface
       lvds_reply_ac_a   : in std_logic;
@@ -303,6 +307,9 @@ component reply_queue_sequencer
         cc_ack_o      : out std_logic;
         cc_discard_o  : out std_logic;
       
+        card_data_size_i : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+        cmd_code_i       : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+
         -- fibre interface:
         size_o  : out integer;
         error_o : out std_logic_vector(29 downto 0);
@@ -315,8 +322,9 @@ component reply_queue_sequencer
         micro_op_i  : in std_logic_vector(BB_MICRO_OP_SEQ_WIDTH-1 downto 0);
         card_addr_i : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
         cmd_valid_i : in std_logic;
-        matched_o   : out std_logic;
-        timeout_o   : out std_logic);
+        matched_o   : out std_logic--;
+--        timeout_o   : out std_logic
+        );
 end component;   
    
 end reply_queue_pack;

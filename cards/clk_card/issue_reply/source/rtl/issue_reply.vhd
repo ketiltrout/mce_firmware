@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.38 2005/03/16 02:20:58 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.39 2005/03/19 00:31:23 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/03/16 02:20:58 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/03/19 00:31:23 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.39  2005/03/19 00:31:23  bburger
+-- bryce:  Fixed several bugs.  Tagging cc_01010007.
+--
 -- Revision 1.38  2005/03/16 02:20:58  bburger
 -- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
 --
@@ -214,7 +217,7 @@ architecture rtl of issue_reply is
    signal reply_cmd_stop      : std_logic;
    signal reply_last_frame    : std_logic;
    signal reply_frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-   signal internal_cmd        : std_logic := '0';
+--   signal internal_cmd        : std_logic := '0';
  
    -- reply_translator / fibre_tx interface 
    signal txd                 : std_logic_vector(7 downto 0); 
@@ -308,12 +311,12 @@ begin
          mop_cmd_code_i   => m_op_cmd_code,
          mop_param_id_i   => m_op_param_id,
          mop_card_id_i    => m_op_card_id, 
-         internal_cmd_i    => internal_cmd,
+--         internal_cmd_i    => internal_cmd,
          fibre_word_i      => fibre_word,
          num_fibre_words_i => num_fibre_words,
          fibre_word_ack_o  => fibre_word_ack,
          fibre_word_rdy_i  => fibre_word_rdy,
-         mop_ack_o        => m_op_ack,    
+         mop_ack_o         => m_op_ack,    
          
          cmd_stop_i        => reply_cmd_stop,
          last_frame_i      => reply_last_frame,
@@ -394,7 +397,7 @@ begin
         -- reply_queue interface
         uop_rdy_o       => uop_rdy,
         uop_ack_i       => uop_ack,  --uop_rdy_stg5
-        uop_timeout_i   => uop_timeout,
+--        uop_timeout_i   => uop_timeout,
         uop_o           => uop,
         
         -- cmd_translator interface
@@ -434,7 +437,7 @@ begin
          -- cmd_queue interface
          cmd_to_retire_i  => uop_rdy,
          cmd_sent_o       => uop_ack,
-         cmd_timeout_o    => uop_timeout,
+--         cmd_timeout_o    => uop_timeout,
          cmd_i            => uop,
          
          -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
@@ -453,7 +456,7 @@ begin
          stop_bit_o       => reply_cmd_stop,
          last_frame_bit_o => reply_last_frame,
          frame_seq_num_o  => reply_frame_seq_num,
-         internal_cmd_o   => internal_cmd,
+--         internal_cmd_o   => internal_cmd,
    
          -- Bus Backplane interface
          lvds_reply_ac_a     => lvds_reply_ac_a,

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_translator_pack.vhd,v 1.3 2004/12/02 12:34:06 dca Exp $
+-- $Id: reply_translator_pack.vhd,v 1.4 2004/12/03 16:42:51 dca Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_translator_pack.vhd,v $
+-- Revision 1.4  2004/12/03 16:42:51  dca
+-- mop_error_code_i width changed
+--
 -- Revision 1.3  2004/12/02 12:34:06  dca
 -- m_op_* signals names changed to mop_* for consistency across issue_reply.
 --
@@ -74,7 +77,7 @@ port(
      mop_cmd_code_i         : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1  downto 0);      -- command code vector - indicates if data or reply (and which command)
      mop_param_id_i         : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);      -- mop parameter id passed from reply_queue
      mop_card_id_i          : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);      -- mop card id passed from reply_queue
-     internal_cmd_i          : in  std_logic;                                                 -- asserted if m_op is an internal command
+--     internal_cmd_i          : in  std_logic;                                                 -- asserted if m_op is an internal command
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1        downto 0);    -- packet word read from reply queue
      num_fibre_words_i       : in  integer ;                                                  -- indicate number of packet words to be read from reply queue
      fibre_word_ack_o        : out std_logic;                                                 -- asserted to requeset next fibre word

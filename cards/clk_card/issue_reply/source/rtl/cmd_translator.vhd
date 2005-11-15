@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.29 2005/09/03 23:51:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.30 2005/09/28 23:35:22 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/09/03 23:51:26 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/09/28 23:35:22 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.30  2005/09/28 23:35:22  bburger
+-- Bryce:
+-- removed ret_dat_s logic and interface signals, which are not used.
+-- added a hardcoded data size in cmd_translator_ret_dat_fsm of 328 for data frames
+--
 -- Revision 1.29  2005/09/03 23:51:26  bburger
 -- jjacob:
 -- removed recirculation muxes and replaced with register enables, and cleaned up formatting
@@ -395,7 +400,7 @@ begin
    ---------------------------------------------------------------------  
    -- in order to disable internal commands, start commenting from here
    ---------------------------------------------------------------------
---      if time >= 1000000 then --1000000 then  -- 1x10^6 us = 1s
+--      if time >= 400 then --1000000 then  -- 1x10^6 us = 1s
 --         timer_rst            <= '1';
 --         internal_cmd_start   <= '1';      
 --      else

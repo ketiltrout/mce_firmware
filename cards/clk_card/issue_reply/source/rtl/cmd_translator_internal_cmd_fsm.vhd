@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.2 2004/12/16 22:05:40 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.3 2005/09/03 23:51:26 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/12/16 22:05:40 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/09/03 23:51:26 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_internal_cmd_fsm.vhd,v $
+-- Revision 1.3  2005/09/03 23:51:26  bburger
+-- jjacob:
+-- removed recirculation muxes and replaced with register enables, and cleaned up formatting
+--
 -- Revision 1.2  2004/12/16 22:05:40  bburger
 -- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
 --
@@ -137,8 +141,8 @@ begin
    -------------------------------------------------------------------------------------------
    -- assign outputs
    -------------------------------------------------------------------------------------------
-   card_addr_o       <= x"00" & ADDRESS_CARD    when current_state = ISSUE_INTRNL_CMD else (others => '0');
-   parameter_id_o    <= x"00" & ROW_ORDER_ADDR  when current_state = ISSUE_INTRNL_CMD else (others => '0');
+   card_addr_o       <= x"00" & READOUT_CARD_1  when current_state = ISSUE_INTRNL_CMD else (others => '0');
+   parameter_id_o    <= x"00" & LED_ADDR        when current_state = ISSUE_INTRNL_CMD else (others => '0');
    macro_instr_rdy_o <= '1'                     when current_state = ISSUE_INTRNL_CMD else '0';
    cmd_type_o        <= READ_BLOCK              when current_state = ISSUE_INTRNL_CMD else (others => '0');
    data_size_o       <= x"00000029";
