@@ -21,8 +21,8 @@
 --
 -- command_pack.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.14  2004/12/03 16:41:25  dca
+-- FIBRE_CHECKSUM_ERR definition removed.
+-- Now local definition in reply_translator
+--
 -- Revision 1.13  2004/11/26 00:11:50  erniel
 -- changed command type definitions
 -- changed status code definitions
@@ -145,7 +149,8 @@ package command_pack is
    constant FIBRE_DATA_SIZE_WIDTH    : integer := 32;
    constant FIBRE_CMD_CODE_WIDTH     : integer := 16;
    constant FIBRE_ERROR_WORD_WIDTH   : integer := PACKET_WORD_WIDTH;
-    
+   constant FIBRE_NO_ERROR_STATUS : std_logic_vector(29 downto 0) := (others => '0');
+ 
    constant FIBRE_PREAMBLE1 : std_logic_vector := x"A5";
    constant FIBRE_PREAMBLE2 : std_logic_vector := x"5A";
    
