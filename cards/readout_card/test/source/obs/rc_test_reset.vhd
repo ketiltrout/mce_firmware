@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: rc_test_reset.vhd,v $
+-- Revision 1.2  2004/07/16 18:50:51  mandana
+-- adding SRAM test, v02 now
+--
 -- Revision 1.1  2004/06/11 20:52:42  erniel
 -- initial version
 --

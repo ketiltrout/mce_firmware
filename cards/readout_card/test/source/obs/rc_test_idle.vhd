@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: rc_test_idle.vhd,v $
+-- Revision 1.5  2004/07/19 20:18:56  mandana
+-- added square wave test for parallel DACs
+--
 -- Revision 1.4  2004/07/16 18:48:08  mandana
 -- adding SRAM test
 --
