@@ -112,7 +112,7 @@ begin
    
 -- instantiate a counter for idat to go through all data values
    data_count: counter
-   generic map(MAX => 14,
+   generic map(MAX => 15,
                STEP_SIZE => 1,
                WRAP_AROUND => '1',
                UP_COUNTER => '1')
@@ -135,11 +135,12 @@ begin
    data (7) <= "00000001000000";--x0040
    data (8) <= "00000010000000";--x0080
    data (9) <= "00000100000000";--x0100
-   data (10) <= "00010000000000";--x0200
-   data (11) <= "00100000000000";--x0400
-   data (12) <= "01000000000000";--x0800
-   data (13) <= "10000000000000";--x1000
-   data (14) <= "11111111111111";--x3fff full scale
+   data (10) <="00001000000000";--x0200
+   data (11) <="00010000000000";--x0400
+   data (12) <="00100000000000";--x0800
+   data (13) <="01000000000000";--x1000
+   data (14) <="10000000000000";--x2000
+   data (15) <="11111111111111";--x3fff full scale
 
   -- state register:
    state_FF: process(clk_i, rst_i)
