@@ -29,8 +29,12 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2004/06/25 19:39:50 $>	- <initials $Author: erniel $>
+-- <date $Date: 2005/11/21 20:05:00 $>	- <initials $Author: erniel $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.8  2005/11/21 20:05:00  erniel
+-- updated AC_test to version 2.0
+-- rewrote command interface logic (ac_test_idle, ac_test_reset are obsolete)
+--
 -- Revision 1.7  2004/06/25 19:39:50  erniel
 -- Bryce: updated the pll reference
 --
@@ -84,7 +88,7 @@ end ac_test;
 
 architecture rtl of ac_test is
 
-constant RESET_MSG_LEN    : integer := 16;
+constant RESET_MSG_LEN    : integer := 17;
 constant IDLE_MSG_LEN     : integer := 10;
 constant ERROR_MSG_LEN    : integer := 13;
 constant EASTER_MSG_LEN   : integer := 16;
@@ -296,6 +300,7 @@ begin
                    two       when 12, 
                    period    when 13,
                    zero      when 14,
+                   b         when 15,
                    newline   when others;
 
    with tx_count select
