@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.18  2005/11/21 23:35:09  erniel
+-- temporary version (to maintain compatibility with previous version)
+--
 -- Revision 1.17  2005/11/18 20:43:16  erniel
 -- removed obsolete parameters:
 --      PACKET_WORD_WIDTH
@@ -85,6 +88,13 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 package command_pack is
+   
+   ------------------------------------------------------------------------
+   -- General Declarations
+   ------------------------------------------------------------------------
+   
+   constant PACKET_WORD_WIDTH : integer := 32;
+   
    
    ------------------------------------------------------------------------
    -- Bus Backplane-Protocol Declarations
@@ -142,8 +152,8 @@ package command_pack is
 
    -- field range declarations:   
 
---   constant FIBRE_PREAMBLE1    : std_logic_vector(31 downto 0)  := x"A5A5A5A5";  
---   constant FIBRE_PREAMBLE2    : std_logic_vector(31 downto 0)  := x"5A5A5A5A";
+   constant FIBRE_PREAMBLE1    : std_logic_vector(31 downto 0)  := x"A5A5A5A5";  
+   constant FIBRE_PREAMBLE2    : std_logic_vector(31 downto 0)  := x"5A5A5A5A";
    constant FIBRE_PACKET_TYPE  : std_logic_vector(31 downto 0)  := "00000000000000000000000000000000";
    constant FIBRE_CARD_ADDRESS : std_logic_vector(31 downto 16) := "0000000000000000";
    constant FIBRE_PARAMETER_ID : std_logic_vector(15 downto 0)  := "0000000000000000";
@@ -166,16 +176,18 @@ package command_pack is
   
    -- field value declarations:
    
-   -- packet types:
---   constant WRITE_BLOCK : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205742";
---   constant READ_BLOCK  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205242";
---   constant GO          : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"2020474F";
---   constant STOP        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205354";
---   constant RESET       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205253";
---   constant REPLY       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205250";
---   constant DATA        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20204441";
+   -- command packet types:
+   constant WRITE_BLOCK : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205742";
+   constant READ_BLOCK  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205242";
+   constant GO          : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"2020474F";
+   constant STOP        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205354";
+   constant RESET       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205253";
    
-   -- status types:
+   -- reply packet types:
+   constant REPLY       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205250";
+   constant DATA        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20204441";
+   
+   -- reply status types:
    constant WRITE_OK    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"57424F4B";
    constant READ_OK     : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"52424F4B";
    constant GO_OK       : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"474F4F4B";
@@ -197,24 +209,13 @@ package command_pack is
    -- Issue-Reply Declarations
    ------------------------------------------------------------------------
    
-   -- command types:
-   constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
-   constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
-   constant START       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "010";
-   constant STOP        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "011";
-   constant RESET       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "100";
-   constant DATA        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "101";
-
-
-   ------------------------------------------------------------------------
-   -- Fibre-Side Declarations
-   ------------------------------------------------------------------------
-   
-   constant FIBRE_CMD_CODE_WIDTH     : integer := 16;
-   constant FIBRE_ERROR_WORD_WIDTH   : integer := 32;
- 
-   constant FIBRE_PREAMBLE1 : std_logic_vector := x"A5";
-   constant FIBRE_PREAMBLE2 : std_logic_vector := x"5A";
+--   -- command types:
+--   constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
+--   constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
+--   constant START       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "010";
+--   constant STOP        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "011";
+--   constant RESET       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "100";
+--   constant DATA        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "101";
    
 
    ------------------------------------------------------------------------
