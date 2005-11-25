@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.6 2005/09/14 23:48:39 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.7 2005/10/07 21:38:07 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.7  2005/10/07 21:38:07  bburger
+-- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
+--
 -- Revision 1.6  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -61,7 +64,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
---use ieee.std_logic_unsigned.all;
 use ieee.std_logic_signed.all;
 
 library work;
@@ -156,6 +158,8 @@ constant COL5 : std_logic_vector(2 downto 0) := "101";
 constant COL6 : std_logic_vector(2 downto 0) := "110";
 constant COL7 : std_logic_vector(2 downto 0) := "111";
 
+constant ZERO_QUANTA : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0) := (others => '0');
+
 constant DATA_PATH0 : std_logic := '0';
 constant DATA_PATH1 : std_logic := '1';
 
@@ -166,7 +170,7 @@ signal column_switch1        : std_logic_vector(2 downto 0);
 signal column_switch2        : std_logic_vector(2 downto 0);
 signal pid_corr_rdy          : std_logic;
 signal m_pres_rdy            : std_logic;
-signal enable_feedthrough    : std_logic;
+--signal enable_feedthrough    : std_logic;
 
 -- Data-path signals
 signal flux_quanta1          : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
@@ -619,58 +623,59 @@ begin
             end if;
          end if;
          
----------------------------------------------
+         -- When flux jumping is disabled, we set all the m_pres values back to 0
+         -- This is what they should be if we were to re-enable the flux jumping
          if(m_pres_en0 = '1') then
-            if(enable_feedthrough = '0') then
+            if(flux_jumping_en_i = '1') then
                m_pres_reg0 <= m_pres0; 
             else
                m_pres_reg0 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en1 = '1') then
-            if(enable_feedthrough = '0') then
+            if(flux_jumping_en_i = '1') then
                m_pres_reg1 <= m_pres1; 
             else
                m_pres_reg1 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en2 = '1') then
-            if(enable_feedthrough = '0') then
+            if(flux_jumping_en_i = '1') then
                m_pres_reg2 <= m_pres2; 
             else
                m_pres_reg2 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en3 = '1') then
-            if(enable_feedthrough = '0') then
+            if(flux_jumping_en_i = '1') then
                m_pres_reg3 <= m_pres3; 
             else
                m_pres_reg3 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en4 = '1') then
-            if(enable_feedthrough = '0') then
+            if(flux_jumping_en_i = '1') then
                m_pres_reg4 <= m_pres4; 
             else
                m_pres_reg4 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en5 = '1') then
-            if(enable_feedthrough = '0') then
+            if(flux_jumping_en_i = '1') then
                m_pres_reg5 <= m_pres5; 
             else
                m_pres_reg5 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en6 = '1') then
-            if(enable_feedthrough = '0') then
+            if(flux_jumping_en_i = '1') then
                m_pres_reg6 <= m_pres6; 
             else
                m_pres_reg6 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en7 = '1') then
-            if(enable_feedthrough = '0') then
+            if(flux_jumping_en_i = '1') then
                m_pres_reg7 <= m_pres7; 
             else
                m_pres_reg7 <= (others => '0'); 
@@ -734,6 +739,33 @@ begin
          elsif(fsfb_ctrl_dat_rdy0_i = '1') then
             flux_quanta_reg0      <= flux_quanta0_i;
             m_prev_reg0           <= num_flux_quanta_prev0_i;
+
+            ---------------------------------------------------------------------------------------
+            -- In fsfb_corr, fsfb_ctrl_lock_en_i = '1' means that the servo is running, 
+            -- and that scaling on fsfb_ctrl_dat0_i input data bus
+            -- must occur at the input so that the servo is only as sensitive as it needs to be.
+            --
+            -- Case 1:
+            -- If fsfb_ctrl_lock_en_i = '1' and flux_jumping_en_i = '1' then 
+            -- the scaled pidz calculation input is used to determine whether a jump needs to occur
+            -- and the corrected value is passed through to the DACs
+            --
+            -- Case 2:
+            -- If fsfb_ctrl_lock_en_i = '1' and flux_jumping_en_i = '0' then
+            -- the scaled pidz calculation input is passed straight through to the DACs
+            --
+            -- Case 3:
+            -- If fsfb_ctrl_lock_en_i = '0' and flux_jumping_en_i = '1' then 
+            -- the un-scaled constant value input is used to determine whether a jump needs to occur
+            -- and the corrected value is passed through to the DACs
+            --
+            -- Case 4:
+            -- If fsfb_ctrl_lock_en_i = '0' and flux_jumping_en_i = '0' then 
+            -- the un-scaled constant value input is passed straight through to the DACs
+            --            
+            -- Currently, LSB_WINDOW_INDEX = 14, so the input is scaled down by 15 bits.
+            ---------------------------------------------------------------------------------------
+
             if(fsfb_ctrl_lock_en_i = '1') then
                pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
@@ -919,7 +951,7 @@ begin
       fsfb_ctrl_dat_rdy6 and
       fsfb_ctrl_dat_rdy7;
    
-   enable_feedthrough <= '1' when flux_jumping_en_i = '0' else '0'; --and fsfb_ctrl_lock_en_i = '1' 
+   --enable_feedthrough <= '1' when flux_jumping_en_i = '0' else '0'; --and fsfb_ctrl_lock_en_i = '1' 
       
    m_prev_sign_xtnd <= sign_xtnd_m(m_prev);
    m_pres_sign_xtnd <= sign_xtnd_m(m_pres);
@@ -928,70 +960,70 @@ begin
    pid_prev_sign_xtnd2 <= sign_xtnd_pid_prev(pid_prev2);
       
    fsfb_ctrl_dat0_o <=
-      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
+      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg0(DAC_DAT_WIDTH-1 downto 0);        
    fsfb_ctrl_dat1_o <=
-      pid_prev_reg1(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
+      pid_prev_reg1(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg1(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat2_o <=
-      pid_prev_reg2(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
+      pid_prev_reg2(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg2(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat3_o <=
-      pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
+      pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg3(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat4_o <=
-      pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
+      pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg4(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat5_o <=
-      pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
+      pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg5(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat6_o <=
-      pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
+      pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg6(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat7_o <=
-      pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when enable_feedthrough = '1' else
+      pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg7(DAC_DAT_WIDTH-1 downto 0);
    
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
 
    m_pres0 <=
-      m_prev_reg0 - 1 when (conv_integer(signed(res_a_reg0(31 downto 0))) < FSFB_MIN) and (m_prev_reg0 /= M_MIN) else
-      m_prev_reg0 + 1 when (conv_integer(signed(res_a_reg0(31 downto 0))) > FSFB_MAX) and (m_prev_reg0 /= M_MAX) else
+      m_prev_reg0 - 1 when (conv_integer(signed(res_a_reg0(31 downto 0))) < FSFB_MIN) and (m_prev_reg0 /= M_MIN) and (flux_quanta_reg0 /= ZERO_QUANTA) else
+      m_prev_reg0 + 1 when (conv_integer(signed(res_a_reg0(31 downto 0))) > FSFB_MAX) and (m_prev_reg0 /= M_MAX) and (flux_quanta_reg0 /= ZERO_QUANTA) else
       m_prev_reg0;
 
    m_pres1 <=
-      m_prev_reg1 - 1 when (conv_integer(signed(res_a_reg1(31 downto 0))) < FSFB_MIN) and (m_prev_reg1 /= M_MIN) else 
-      m_prev_reg1 + 1 when (conv_integer(signed(res_a_reg1(31 downto 0))) > FSFB_MAX) and (m_prev_reg1 /= M_MAX) else 
+      m_prev_reg1 - 1 when (conv_integer(signed(res_a_reg1(31 downto 0))) < FSFB_MIN) and (m_prev_reg1 /= M_MIN) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
+      m_prev_reg1 + 1 when (conv_integer(signed(res_a_reg1(31 downto 0))) > FSFB_MAX) and (m_prev_reg1 /= M_MAX) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
       m_prev_reg1;
 
    m_pres2 <=
-      m_prev_reg2 - 1 when (conv_integer(signed(res_a_reg2(31 downto 0))) < FSFB_MIN) and (m_prev_reg2 /= M_MIN) else 
-      m_prev_reg2 + 1 when (conv_integer(signed(res_a_reg2(31 downto 0))) > FSFB_MAX) and (m_prev_reg2 /= M_MAX) else 
+      m_prev_reg2 - 1 when (conv_integer(signed(res_a_reg2(31 downto 0))) < FSFB_MIN) and (m_prev_reg2 /= M_MIN) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
+      m_prev_reg2 + 1 when (conv_integer(signed(res_a_reg2(31 downto 0))) > FSFB_MAX) and (m_prev_reg2 /= M_MAX) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
       m_prev_reg2;
 
    m_pres3 <=
-      m_prev_reg3 - 1 when (conv_integer(signed(res_a_reg3(31 downto 0))) < FSFB_MIN) and (m_prev_reg3 /= M_MIN) else 
-      m_prev_reg3 + 1 when (conv_integer(signed(res_a_reg3(31 downto 0))) > FSFB_MAX) and (m_prev_reg3 /= M_MAX) else 
+      m_prev_reg3 - 1 when (conv_integer(signed(res_a_reg3(31 downto 0))) < FSFB_MIN) and (m_prev_reg3 /= M_MIN) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
+      m_prev_reg3 + 1 when (conv_integer(signed(res_a_reg3(31 downto 0))) > FSFB_MAX) and (m_prev_reg3 /= M_MAX) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
       m_prev_reg3;
 
    m_pres4 <=
-      m_prev_reg4 - 1 when (conv_integer(signed(res_a_reg4(31 downto 0))) < FSFB_MIN) and (m_prev_reg4 /= M_MIN) else 
-      m_prev_reg4 + 1 when (conv_integer(signed(res_a_reg4(31 downto 0))) > FSFB_MAX) and (m_prev_reg4 /= M_MAX) else 
+      m_prev_reg4 - 1 when (conv_integer(signed(res_a_reg4(31 downto 0))) < FSFB_MIN) and (m_prev_reg4 /= M_MIN) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
+      m_prev_reg4 + 1 when (conv_integer(signed(res_a_reg4(31 downto 0))) > FSFB_MAX) and (m_prev_reg4 /= M_MAX) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
       m_prev_reg4;
 
    m_pres5 <=
-      m_prev_reg5 - 1 when (conv_integer(signed(res_a_reg5(31 downto 0))) < FSFB_MIN) and (m_prev_reg5 /= M_MIN) else 
-      m_prev_reg5 + 1 when (conv_integer(signed(res_a_reg5(31 downto 0))) > FSFB_MAX) and (m_prev_reg5 /= M_MAX) else 
+      m_prev_reg5 - 1 when (conv_integer(signed(res_a_reg5(31 downto 0))) < FSFB_MIN) and (m_prev_reg5 /= M_MIN) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
+      m_prev_reg5 + 1 when (conv_integer(signed(res_a_reg5(31 downto 0))) > FSFB_MAX) and (m_prev_reg5 /= M_MAX) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
       m_prev_reg5;
 
    m_pres6 <=
-      m_prev_reg6 - 1 when (conv_integer(signed(res_a_reg6(31 downto 0))) < FSFB_MIN) and (m_prev_reg6 /= M_MIN) else 
-      m_prev_reg6 + 1 when (conv_integer(signed(res_a_reg6(31 downto 0))) > FSFB_MAX) and (m_prev_reg6 /= M_MAX) else 
+      m_prev_reg6 - 1 when (conv_integer(signed(res_a_reg6(31 downto 0))) < FSFB_MIN) and (m_prev_reg6 /= M_MIN) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
+      m_prev_reg6 + 1 when (conv_integer(signed(res_a_reg6(31 downto 0))) > FSFB_MAX) and (m_prev_reg6 /= M_MAX) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
       m_prev_reg6;
 
    m_pres7 <=
-      m_prev_reg7 - 1 when (conv_integer(signed(res_a_reg7(31 downto 0))) < FSFB_MIN) and (m_prev_reg7 /= M_MIN) else 
-      m_prev_reg7 + 1 when (conv_integer(signed(res_a_reg7(31 downto 0))) > FSFB_MAX) and (m_prev_reg7 /= M_MAX) else 
+      m_prev_reg7 - 1 when (conv_integer(signed(res_a_reg7(31 downto 0))) < FSFB_MIN) and (m_prev_reg7 /= M_MIN) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
+      m_prev_reg7 + 1 when (conv_integer(signed(res_a_reg7(31 downto 0))) > FSFB_MAX) and (m_prev_reg7 /= M_MAX) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
       m_prev_reg7;
       
 end rtl;
