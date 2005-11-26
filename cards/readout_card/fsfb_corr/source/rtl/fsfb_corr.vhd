@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.7 2005/10/07 21:38:07 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.8 2005/11/25 20:08:16 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.8  2005/11/25 20:08:16  bburger
+-- Bryce:  Adjusted fsfb_max = 7800 so that it is not too close to the actual sq1 V-I period of 6200 DA units -- & other modifications
+--
 -- Revision 1.7  2005/10/07 21:38:07  bburger
 -- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
 --
@@ -225,6 +228,7 @@ signal pid_prev_reg4         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WIND
 signal pid_prev_reg5         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0); 
 signal pid_prev_reg6         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0); 
 signal pid_prev_reg7         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0); 
+signal ZERO_PID              : std_logic_vector(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0) := (others => '0'); 
 
 signal fsfb_ctrl_dat_rdy0    : std_logic;
 signal fsfb_ctrl_dat_rdy1    : std_logic;
@@ -625,57 +629,59 @@ begin
          
          -- When flux jumping is disabled, we set all the m_pres values back to 0
          -- This is what they should be if we were to re-enable the flux jumping
+
          if(m_pres_en0 = '1') then
-            if(flux_jumping_en_i = '1') then
+            -- If we don't return to 0 after a very large pid_prev, then m_pres is not reset accordingly
+            if(flux_jumping_en_i = '1' and pid_prev_reg0 /= ZERO_PID) then
                m_pres_reg0 <= m_pres0; 
             else
                m_pres_reg0 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en1 = '1') then
-            if(flux_jumping_en_i = '1') then
+            if(flux_jumping_en_i = '1' and pid_prev_reg1 /= ZERO_PID) then
                m_pres_reg1 <= m_pres1; 
             else
                m_pres_reg1 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en2 = '1') then
-            if(flux_jumping_en_i = '1') then
+            if(flux_jumping_en_i = '1' and pid_prev_reg2 /= ZERO_PID) then
                m_pres_reg2 <= m_pres2; 
             else
                m_pres_reg2 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en3 = '1') then
-            if(flux_jumping_en_i = '1') then
+            if(flux_jumping_en_i = '1' and pid_prev_reg3 /= ZERO_PID) then
                m_pres_reg3 <= m_pres3; 
             else
                m_pres_reg3 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en4 = '1') then
-            if(flux_jumping_en_i = '1') then
+            if(flux_jumping_en_i = '1' and pid_prev_reg4 /= ZERO_PID) then
                m_pres_reg4 <= m_pres4; 
             else
                m_pres_reg4 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en5 = '1') then
-            if(flux_jumping_en_i = '1') then
+            if(flux_jumping_en_i = '1' and pid_prev_reg5 /= ZERO_PID) then
                m_pres_reg5 <= m_pres5; 
             else
                m_pres_reg5 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en6 = '1') then
-            if(flux_jumping_en_i = '1') then
+            if(flux_jumping_en_i = '1' and pid_prev_reg6 /= ZERO_PID) then
                m_pres_reg6 <= m_pres6; 
             else
                m_pres_reg6 <= (others => '0'); 
             end if;
          end if;
          if(m_pres_en7 = '1') then
-            if(flux_jumping_en_i = '1') then
+            if(flux_jumping_en_i = '1' and pid_prev_reg7 /= ZERO_PID) then
                m_pres_reg7 <= m_pres7; 
             else
                m_pres_reg7 <= (others => '0'); 
