@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.7 2005/08/30 23:53:59 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.8 2005/11/15 03:41:20 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.8  2005/11/15 03:41:20  bburger
+-- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
+--
 -- Revision 1.7  2005/08/30 23:53:59  bburger
 -- Bryce:
 -- Updated system testbench to account for changes in the RC interface (card_id is inout now)
@@ -1766,7 +1769,7 @@ begin
             when rc3_ret_dat_cmd  => data <= (others => '0');
             when rc4_ret_dat_cmd  => data <= (others => '0');
             when rcs_ret_dat_cmd  => data <= (others => '0');
-            when others           => data <= data + 1;
+            when others           => data <= data;-- + 1;
          end case;
          
          wait for fibre_clkr_prd * 0.6;
@@ -1948,7 +1951,7 @@ begin
 --------      command <= command_wb;
 --------      address_id <= rc1_flx_quanta0_cmd;
 --------      data_valid <= X"00000029"; -- 41 values
---------      data       <= X"00001B60"; -- 7008 ADC units = 146 * 48 ADC samples
+--------      data       <= X"00000001"; -- 7008 ADC units = 146 * 48 ADC samples
 --------      load_preamble;
 --------      load_command;
 --------      load_checksum;
@@ -2017,25 +2020,7 @@ begin
 --------      wait for 50 us;
 --------
 --------
---      command <= command_wb;
---      address_id <= rc1_fb_const_cmd;
---      data_valid <= X"00000001";
---      data       <= X"0000AAAA";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= rc1_data_mode_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 50 us;
+
 ------
 ------      command <= command_wb;
 ------      address_id <= rc1_flx_lp_init_cmd;
@@ -2108,7 +2093,196 @@ begin
 ------      
 ----
 ---------------------------------------------
+
+
+
+------------------------------------------------------
+--  Command sequence for testing the flux feedback on RC1
+------------------------------------------------------
+
+      command <= command_wb;
+      address_id <= rc1_flx_quanta0_cmd;
+      data_valid <= X"00000029"; -- 41 values
+      data       <= X"00001770"; -- 6000
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 100 us;
+      
+      command <= command_wb;
+      address_id <= rc1_en_fb_jump_cmd;
+      data_valid <= X"00000001"; -- 1 values
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
+
+      command <= command_wb;
+      address_id <= rc1_servo_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;     
+
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_data_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 50 us;
+
+      -- 5900  170c
+      -- 6000  1770
+      -- 6100  17d4
+      -- 6200  1838
+      -- 6300  189c
+      -- 7700  1e14
+      -- 7800  1e78
+      -- 7900  1edc
+      -- 8000  1f40
+      -- 14000 36b0
+      -- 16000 3e80
+      -- 17000 4268
+      -- 20000 4e20
+      -- 26000 6590
+      
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"0000170c";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00001770";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"000017d4";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00001838";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"0000189c";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00001838";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00001e78";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00001edc";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00001f40";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00003e80";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 100 us;
+
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00004e20";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
 --      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00006590";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 500 us;
 --
 --      command <= command_go;
 --      address_id <= rc1_ret_dat_cmd;
@@ -2118,8 +2292,7 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 3200 us;
-
+--      wait for 1000 us;
 
 ------------------------------------------------------
 --  Command sequence for testing frame header functionality on the CC
@@ -2182,86 +2355,96 @@ begin
 -- Internal commands must be disabled in cmd_translator
 -- The command timeout in reply_queue_sequencer must be set to 100us
 
-      command <= command_wb;
-      address_id <= rc1_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 54 us;
-      
-      command <= command_rb;
-      address_id <= rc1_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 54 us;
-      
-      command <= command_wb;
-      address_id <= rc2_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 200 us;
-      
-      command <= command_rb;
-      address_id <= rc2_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 200 us;
-
-      command <= command_wb;
-      address_id <= rcs_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 200 us;
-      
-      command <= command_rb;
-      address_id <= rcs_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 200 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-
-      wait for 1000 us;
-
-      command <= command_go;
-      address_id <= rcs_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-
-      wait for 2000 us;
-
+--      command <= command_wb;
+--      address_id <= rc1_led_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000006";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 54 us;
+--      
+--      command <= command_rb;
+--      address_id <= rc1_led_cmd;
+--      data_valid <= X"00000006";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 54 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--      
+--      
+--      command <= command_wb;
+--      address_id <= rc2_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 200 us;
+--      
+--      command <= command_rb;
+--      address_id <= rc2_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 200 us;
+--
+--      command <= command_wb;
+--      address_id <= rcs_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 200 us;
+--      
+--      command <= command_rb;
+--      address_id <= rcs_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 200 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 1000 us;
+--
+--      command <= command_go;
+--      address_id <= rcs_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 2000 us;
 
 ------------------------------------------------------
 
