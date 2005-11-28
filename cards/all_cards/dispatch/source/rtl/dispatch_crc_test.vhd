@@ -21,8 +21,8 @@
 --
 -- dispatch_crc_test.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_crc_test.vhd,v $
+-- Revision 1.2  2004/08/05 00:26:02  erniel
+-- entity renamed
+--
 -- Revision 1.1  2004/08/04 19:43:19  erniel
 -- initial version
 --
@@ -117,7 +120,7 @@ begin
                count_i => 0,
                count_o => crc_bit_count);
 
-   crc_calc : crc
+   crc_calc : serial_crc
       generic map(POLY_WIDTH => 32)
       port map(clk_i      => clk_i,
                rst_i      => rst_i,

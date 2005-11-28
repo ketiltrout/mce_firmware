@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.8  2005/03/18 23:08:43  erniel
+-- updated changed buffer addr & data bus size constants
+--
 -- Revision 1.7  2005/01/11 20:52:44  erniel
 -- updated lvds_tx component
 -- removed mem_clk_i port
@@ -204,7 +207,7 @@ begin
                count_i => 0,
                count_o => crc_bit_count);
 
-   crc_calc : crc
+   crc_calc : serial_crc
       generic map(POLY_WIDTH => 32)
       port map(clk_i      => clk_i,
                rst_i      => rst_i,

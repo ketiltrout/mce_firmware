@@ -21,8 +21,8 @@
 --
 -- dispatch_cmd_receive.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.15  2005/03/18 23:09:34  erniel
+-- updated changed buffer addr & data bus size constants
+--
 -- Revision 1.14  2005/02/24 20:47:04  erniel
 -- removed unused state LATCH_HDR
 --
@@ -96,7 +99,7 @@ use work.dispatch_pack.all;
 entity dispatch_cmd_receive is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
-     rst_i      : in std_logic;		
+     rst_i      : in std_logic;     
      
      lvds_cmd_i : in std_logic;
      card_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -228,7 +231,7 @@ begin
                count_i => 0,
                count_o => crc_bit_count);
 
-   crc_calc : crc
+   crc_calc : serial_crc
       generic map(POLY_WIDTH => 32)
       port map(clk_i      => clk_i,
                rst_i      => rst_i,
