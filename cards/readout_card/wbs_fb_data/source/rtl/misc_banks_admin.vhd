@@ -130,6 +130,10 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.5  2005/09/14 23:48:41  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.4  2005/01/11 01:49:35  mohsen
 -- Anthony & Mohse: Got rid of calculation in the wren to help solve timing violations
 --
@@ -286,11 +290,11 @@ begin  -- rtl
     i_reg: process (clk_50_i, rst_i)
     begin  -- process i_reg
       if rst_i = '1' then               -- asynchronous reset (active high)
-        if(i = EN_FB_JUMP_OFFSET) then
-          reg(i) <= (others => '1');
-        else
+--        if(i = EN_FB_JUMP_OFFSET) then
+--          reg(i) <= (others => '1');
+--        else
           reg(i) <= (others => '0');
-        end if;
+--        end if;
       elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
         if wren(i)='1' then
           reg(i) <= dat_i;
