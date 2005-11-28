@@ -21,7 +21,7 @@
 --
 -- adc_sample_coadd.vhd
 --
--- Project:	  SCUBA-2
+-- Project:   SCUBA-2
 -- Author:        Mohsen Nahvi
 -- Organisation:  UBC
 --
@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.5  2004/12/20 19:43:01  mohsen
+-- fixed sign bits usage
+--
 -- Revision 1.4  2004/12/13 21:03:01  mohsen
 -- Reduced the word size of RAW data storage from 16 to 8.  This is as the result of
 -- the memroy shortage in the Stratix EP1S30 with the current design of the readout card.
@@ -263,15 +266,16 @@ begin  -- struc
   -- Instantiation of the Raw data bank
   -----------------------------------------------------------------------------
 
-  i_raw_dat_bank: raw_dat_bank
-
-    port map (
-    data      => raw_dat,               -- system input modified
-    wren      => raw_wren,              -- from raw controller
-    wraddress => raw_write_addr,        -- from raw data path
-    rdaddress => raw_addr_i,            -- system input
-    clock     => clk_50_i,              -- system input
-    q         => raw_dat_out);
+--  Bryce:  Commented this out so that I could fit signaltap logic into an 8-channel synthesis.
+--  i_raw_dat_bank: raw_dat_bank
+--
+--    port map (
+--    data      => raw_dat,               -- system input modified
+--    wren      => raw_wren,              -- from raw controller
+--    wraddress => raw_write_addr,        -- from raw data path
+--    rdaddress => raw_addr_i,            -- system input
+--    clock     => clk_50_i,              -- system input
+--    q         => raw_dat_out);
 
 
   -----------------------------------------------------------------------------
