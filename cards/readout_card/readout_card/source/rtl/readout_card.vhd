@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.16  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.15  2005/06/23 17:19:32  mohsen
 -- Mandana: added COUNT_MAX to prevent raw_memory bank from wrapping, changed RAW_ADDR_MAX, RAW_DATA_POSITION_POINTER
 --
@@ -217,7 +221,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01020001";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01020002";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
