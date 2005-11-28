@@ -41,6 +41,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.5  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.4  2005/03/18 01:25:58  mohsen
 -- Free up the constant mode from the need for adc_sample_coadd signal to be programmed.
 --
@@ -132,7 +136,7 @@ use work.flux_loop_pack.all;
 architecture rtl of fsfb_processor is
 
    -- constant declarations
-   constant ZEROES             : std_logic_vector   := "00000000000000000000000";
+   constant CONST_VAL_ZERO     : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto CONST_VAL_WIDTH) := (others => '0'); 
 
    -- internal signal declarations
    signal const_mode_en        : std_logic;                                                    -- constant mode enable
@@ -206,7 +210,7 @@ begin
          if (initialize_window_ext_i = '1') then
             const_dat_ltch <= (others => '0');
          else
-            const_dat_ltch <= ZEROES & "000" & const_val_i;
+            const_dat_ltch <= CONST_VAL_ZERO & const_val_i;
          end if;
       end if;
    end process const_dat_ltch_proc;

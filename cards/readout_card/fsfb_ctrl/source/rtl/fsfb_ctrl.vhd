@@ -69,6 +69,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.6  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.5  2005/02/07 20:46:34  mohsen
 -- Introduced a mux at the input to distinguish between lock mode and other modes.
 -- Only for lock mode we need to keep the sign.
@@ -194,10 +198,11 @@ begin  -- rtl
   -- MUX for selecting lock mode or other modes
   -----------------------------------------------------------------------------
 
-  dac_dat <=
-    fsfb_ctrl_dat_mapped when fsfb_ctrl_lock_en_i='1' else
-    fsfb_ctrl_dat;
+--  dac_dat <=
+--    fsfb_ctrl_dat_mapped when fsfb_ctrl_lock_en_i='1' else
+--    fsfb_ctrl_dat;
 
+  dac_dat <= fsfb_ctrl_dat_mapped;
   
 
   -----------------------------------------------------------------------------

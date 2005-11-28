@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.5  2005/10/07 21:38:07  bburger
+-- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
+--
 -- Revision 1.4  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -79,10 +82,11 @@ package flux_loop_pack is
   constant PIDZ_MIN               : integer := -(2**(PIDZ_DATA_WIDTH-1));
   
   constant SERVO_MODE_SEL_WIDTH   : integer := WB_DATA_WIDTH-30;     -- data width of servo mode selection
-  constant RAMP_STEP_WIDTH        : integer := WB_DATA_WIDTH-18;     -- data width of ramp step size
-  constant RAMP_AMP_WIDTH         : integer := WB_DATA_WIDTH-18;     -- data width of ramp peak amplitude
-  constant RAMP_CYC_WIDTH         : integer := WB_DATA_WIDTH;        -- data width of ramp frame cycle number
-  constant CONST_VAL_WIDTH        : integer := WB_DATA_WIDTH-18;     -- data width of constant value
+
+  constant CONST_VAL_WIDTH        : integer := WB_DATA_WIDTH;     -- data width of constant value
+  constant RAMP_STEP_WIDTH        : integer := CONST_VAL_WIDTH;     -- data width of ramp step size
+  constant RAMP_AMP_WIDTH         : integer := CONST_VAL_WIDTH;     -- data width of ramp peak amplitude
+  constant RAMP_CYC_WIDTH         : integer := CONST_VAL_WIDTH;        -- data width of ramp frame cycle number
   
   constant FLUX_QUANTA_ADDR_WIDTH : integer := 6;
   constant FLUX_QUANTA_DATA_WIDTH : integer := 14;

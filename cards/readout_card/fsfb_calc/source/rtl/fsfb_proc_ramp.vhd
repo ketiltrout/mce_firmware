@@ -38,6 +38,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_ramp.vhd,v $
+-- Revision 1.3  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.2  2004/11/26 18:26:45  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -94,16 +98,14 @@ use work.flux_loop_pack.all;
 architecture rtl of fsfb_proc_ramp is
 
    -- constant declarations
-   constant ZEROES             : std_logic_vector(22 downto 0) := "00000000000000000000000";
-   constant ZEROES16           : std_logic_vector(15 downto 0) := x"0000";
+   constant ZEROES             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto RAMP_AMP_WIDTH) := (others => '0');
+   constant ZERO_VAL           : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0) := (others => '0');
+   constant ADDER_WIDTH        : integer := 32;
    
    -- internal signal declarations
    signal add_sub_n            : std_logic;                                                  -- add/subtract operation select
-   signal ramp_step_size16     : std_logic_vector(15 downto 0);                              -- ramp step size (extended to 16 bits)
-   signal pre_fsfb_dat16       : std_logic_vector(15 downto 0);                              -- previous fsfb queue value (truncated to 16 bits)
-   signal ramp_amp16           : std_logic_vector(15 downto 0);                              -- ramp amplitude (extended to 16 bits)
-   signal add_sub_result       : std_logic_vector(15 downto 0);                              -- result of the adder/subtractor
-   signal result_reg           : std_logic_vector(15 downto 0);                              -- registered adder/subtractor result
+   signal add_sub_result       : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);                              -- result of the adder/subtractor
+   signal result_reg           : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);                              -- registered adder/subtractor result 
    signal ramp_dat             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);           -- ramp result (msb = 1 for subtraction, 0 for addition)
    
    signal pre_fsfb_dat_rdy_1d  : std_logic;                                                  -- previous fsfb queue value rdy delay by 1 clock cycle
@@ -113,21 +115,16 @@ architecture rtl of fsfb_proc_ramp is
 begin
    
    -- Rename signals for internal use 
-   add_sub_n        <= not (previous_fsfb_dat_i(previous_fsfb_dat_i'left));
-   ramp_step_size16 <= ZEROES(1 downto 0) & ramp_step_size_i; 
-   pre_fsfb_dat16   <= previous_fsfb_dat_i(15 downto 0);
-   ramp_amp16       <= ZEROES(1 downto 0) & ramp_amp_i;
-
+   add_sub_n <= not (previous_fsfb_dat_i(previous_fsfb_dat_i'left));
    
    -- Perform add/subtract once the input data is ready
-   i_adder_subtractor : fsfb_calc_add_sub16
+   i_adder_subtractor : fsfb_calc_add_sub32
       port map (
          add_sub                 => add_sub_n,
-         dataa                   => pre_fsfb_dat16,
-         datab                   => ramp_step_size16, 
-          result                  => add_sub_result       
+         dataa                   => previous_fsfb_dat_i(RAMP_AMP_WIDTH-1 downto 0),
+         datab                   => ramp_step_size_i, 
+         result                  => add_sub_result       
       );
-
       
    -- Register the result for comparison
    result_reg_proc : process (rst_i, clk_50_i)
@@ -152,8 +149,8 @@ begin
          -- Add operation was performed
          -- Check upper limit <= ramp_amp_i
          if (add_sub_n = '1') then
-            if (result_reg >= ramp_amp16) then
-               ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & ramp_amp16;
+            if (result_reg >= ramp_amp_i) then
+               ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & ramp_amp_i;
                ramp_dat(ramp_dat'left)                    <= '1';                            -- next operation flag is set to subtraction    
             else
                ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & result_reg;
@@ -165,8 +162,8 @@ begin
          -- Check lower bound >= 0
          if (add_sub_n = '0') then
             if (result_reg(result_reg'left) = '1' or 
-               result_reg = ZEROES16) then
-               ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & ZEROES16;              -- next operation flag is set to addition
+               result_reg = ZERO_VAL) then
+               ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & ZERO_VAL;              -- next operation flag is set to addition
                ramp_dat(ramp_dat'left)                    <= '0'; 
             else
                ramp_dat(FSFB_QUEUE_DATA_WIDTH-1 downto 0) <= ZEROES & result_reg;      
@@ -191,12 +188,10 @@ begin
 
    
    -- Pulse to update queue with new ramp result
-   ramp_update <= pre_fsfb_dat_rdy_2d;
- 
+   ramp_update <= pre_fsfb_dat_rdy_2d; 
  
    -- Output result only when ramp_mode is enabled
    fsfb_proc_ramp_update_o <= ramp_update when ramp_mode_en_i = '1' else '0';
    fsfb_proc_ramp_dat_o    <= ramp_dat;
-
   
 end rtl;

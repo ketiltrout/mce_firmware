@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.6  2005/10/07 21:38:07  bburger
+-- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
+--
 -- Revision 1.5  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -325,9 +328,17 @@ package fsfb_calc_pack is
          add_sub                     : in          std_logic;
          dataa                       : in          std_logic_vector(15 DOWNTO 0);
          datab                       : in          std_logic_vector(15 DOWNTO 0);
-         result                   : out         std_logic_vector(15 DOWNTO 0)
+         result                      : out         std_logic_vector(15 DOWNTO 0)
       );
    end component fsfb_calc_add_sub16;
    
+   component fsfb_calc_add_sub32 is
+      port (
+         add_sub                     : in          std_logic;
+         dataa                       : in          std_logic_vector(31 DOWNTO 0);
+         datab                       : in          std_logic_vector(31 DOWNTO 0);
+         result                      : out         std_logic_vector(31 DOWNTO 0)
+      );
+   end component fsfb_calc_add_sub32;
    
 end fsfb_calc_pack;
