@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.6  2005/11/28 19:11:29  bburger
+-- Bryce:  increased the bus width for fb_const, ramp_dly, ramp_amp and ramp_step from 14 bits to 32 bits, to use them for flux-jumping testing
+--
 -- Revision 1.5  2005/10/07 21:38:07  bburger
 -- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
 --
@@ -107,8 +110,11 @@ package flux_loop_pack is
   constant COEFF_QUEUE_DATA_WIDTH : integer := WB_DATA_WIDTH;        -- data width of PIDZ coefficient queue
   constant COEFF_QUEUE_ADDR_WIDTH : integer := PIDZ_ADDR_WIDTH;      -- address width of PIDZ coefficient queue
 
+  -- filter related 
+  constant FLTR_QUEUE_DATA_WIDTH  : integer := WB_DATA_WIDTH;        -- data width of the filter results storage
+  constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
+  constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
-  
   
   -----------------------------------------------------------------------------
   -- Flux Loop Control Block
@@ -270,6 +276,7 @@ package flux_loop_pack is
     port (
       rst_i               : in  std_logic;
       clk_i               : in  std_logic;
+      restart_frame_1row_post_i : in  std_logic;      
       filtered_addr_ch0_o : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
       filtered_dat_ch0_i  : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       fsfb_addr_ch0_o     : out std_logic_vector (ROW_ADDR_WIDTH-1 downto 0);
