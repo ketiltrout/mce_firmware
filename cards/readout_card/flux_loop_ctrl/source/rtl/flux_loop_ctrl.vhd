@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.10  2005/10/07 21:38:07  bburger
+-- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
+--
 -- Revision 1.9  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -118,19 +121,18 @@ entity flux_loop_ctrl is
     dac_dat_en_i               : in  std_logic;
 
     -- Wishbone Slave (wbs) Frame Data signals
-    coadded_addr_i             : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
-    coadded_dat_o              : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-    raw_addr_i                 : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
-    raw_dat_o                  : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
-    raw_req_i                  : in  std_logic;
-    raw_ack_o                  : out std_logic;
+    coadded_addr_i            : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);
+    coadded_dat_o             : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+    raw_addr_i                : in  std_logic_vector (RAW_ADDR_WIDTH-1 downto 0);
+    raw_dat_o                 : out std_logic_vector (RAW_DAT_WIDTH-1 downto 0);
+    raw_req_i                 : in  std_logic;
+    raw_ack_o                 : out std_logic;
 
-    fsfb_addr_i                : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
-    fsfb_dat_o                 : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
+    fsfb_addr_i               : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
+    fsfb_dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
     flux_cnt_ws_dat_o          : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-    filtered_addr_i            : in  std_logic_vector(5 downto 0);
-    filtered_dat_o             : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-
+    filtered_addr_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- filter queue address for wishbone access (read only)
+    filtered_dat_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations for filter queue wishbone access
     
     -- Wishbove Slave (wbs) Feedback (fb) Data Signals
     adc_offset_dat_i           : in  std_logic_vector(ADC_OFFSET_DAT_WIDTH-1 downto 0);
@@ -168,9 +170,9 @@ entity flux_loop_ctrl is
     offset_dac_spi_o           : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
 
     -- INTERNAL
-    fsfb_fltr_dat_rdy_o        : out std_logic;                                             -- fs feedback queue current data ready 
-    fsfb_fltr_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
-    
+    fsfb_fltr_dat_rdy_o        : out std_logic;                                             -- fsfb filter data ready 
+    fsfb_fltr_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fsfb filter data
+  
     ---------------------------------------------------------------
     -- First Stage Feedback Correction Interface (for Flux Jumping)
     ---------------------------------------------------------------
@@ -178,6 +180,7 @@ entity flux_loop_ctrl is
     flux_jumping_en_i          : in std_logic;
     fsfb_ctrl_lock_en_o        : out std_logic;                                             -- fs feedback lock servo mode enable
     flux_quanta_o              : out std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- flux quanta value (formerly known as coeff z)
+    
     -- FSFB_QUEUE_DATA_WIDTH is also reduced from 32 to 24 to accomodate the flux quanta
     fsfb_ctrl_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data (uncorrected)
     fsfb_ctrl_dat_rdy_o        : out std_logic;                                             -- fs feedback queue previous data ready (uncorrected).  The rdy pulse is also good for num_flux_quanta_prev    
@@ -274,15 +277,20 @@ begin  -- struct
       d_dat_i                    => d_dat_i,
       flux_quanta_addr_o         => flux_quanta_addr_o,
       flux_quanta_dat_i          => flux_quanta_dat_i,
+
+      fsfb_ws_fltr_addr_i        => filtered_addr_i,
+      fsfb_ws_fltr_dat_o         => filtered_dat_o,
       fsfb_ws_addr_i             => fsfb_addr_i,
       fsfb_ws_dat_o              => fsfb_dat_o,
       flux_cnt_ws_dat_o          => flux_cnt_ws_dat_o,
+
       fsfb_fltr_dat_rdy_o        => fsfb_fltr_dat_rdy_o,
       fsfb_fltr_dat_o            => fsfb_fltr_dat_o,
-      num_flux_quanta_pres_rdy_i => num_flux_quanta_pres_rdy_i,
-      num_flux_quanta_pres_i     => num_flux_quanta_pres_i,
       fsfb_ctrl_dat_rdy_o        => fsfb_ctrl_dat_rdy_o,
       fsfb_ctrl_dat_o            => fsfb_ctrl_dat_o,
+
+      num_flux_quanta_pres_rdy_i => num_flux_quanta_pres_rdy_i,
+      num_flux_quanta_pres_i     => num_flux_quanta_pres_i,
       num_flux_quanta_prev_o     => num_flux_quanta_prev_o,
       fsfb_ctrl_lock_en_o        => fsfb_ctrl_lock_en,
       flux_jumping_en_i          => flux_jumping_en_i,
