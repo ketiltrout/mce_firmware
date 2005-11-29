@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.9  2005/10/07 21:38:07  bburger
+-- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
+--
 -- Revision 1.8  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -1131,6 +1134,7 @@ begin  -- struct
     port map (
         rst_i               => rst_i,
         clk_i               => clk_50_i,
+        restart_frame_1row_post_i => restart_frame_1row_post_i,        
         filtered_addr_ch0_o => filtered_addr_ch0,
         filtered_dat_ch0_i  => filtered_dat_ch0,
         fsfb_addr_ch0_o     => fsfb_addr_ch0,
