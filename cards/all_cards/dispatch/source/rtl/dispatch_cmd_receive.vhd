@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.18  2005/10/28 01:07:49  erniel
+-- some minor name changes
+-- removed special dummy error packet headers
+--
 -- Revision 1.17  2005/10/12 15:51:55  erniel
 -- small cosmetic changes:
 --      renamed counter signals
@@ -306,7 +310,7 @@ begin
       end case;
    end process rx_stateNS;
 
-   rx_stateOut: process(pres_state, lvds_rx_rdy, lvds_rx_data, header0, header1, word_count, cmd_valid, crc_valid)
+   rx_stateOut: process(pres_state, lvds_rx_rdy, lvds_rx_data, header0, header1, cmd_valid, crc_valid)
    begin
       -- default values:
       lvds_rx_ack    <= '0';
