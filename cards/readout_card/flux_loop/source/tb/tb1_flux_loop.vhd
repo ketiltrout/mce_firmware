@@ -57,6 +57,10 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop.vhd,v $
+-- Revision 1.4  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.3  2004/12/10 23:57:25  mohsen
 -- Sorted out the size of RAW data read by creating new signal and read procedure.
 -- Completed read and write commands from wbs_frame_data that
@@ -856,7 +860,6 @@ begin  -- beh
     init_window_req_i         => init_window_req_i,
     init_window_ack_o         => open,
     clk_i                     => clk_50_i,
-    mem_clk_i                 => clk_200_i,
     rst_i                     => rst_i,
     sync_i                    => sync);
     
@@ -872,7 +875,6 @@ begin  -- beh
     sync_o     => sync,
     sync_num_o => open,
     clk_i      => clk_50_i,
-    mem_clk_i  => clk_200_i,
     rst_i      => rst_i);
 
   
