@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.6  2005/11/28 19:12:45  bburger
+-- Bryce:  set the default value on 'rst' for flx_jmp_en to '0'
+--
 -- Revision 1.5  2005/09/14 23:48:41  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -233,7 +236,6 @@ end misc_banks_admin;
 
 architecture rtl of misc_banks_admin is
 
-  constant FILTER_INDEX_OFFSET     : integer := 0;    -- Index of filter_coeff in array register
   constant MAX_BIT_TAG             : integer := 3;    -- The number of bits used in tga_i to count up to the maximum number of values for each parameters
   constant SERVO_INDEX_OFFSET      : integer := 7;    -- Index of servo_mode in array register
   constant RAMP_STEP_INDEX_OFFSET  : integer := 8;    -- Index of ramp_step_size in array register
@@ -243,8 +245,9 @@ architecture rtl of misc_banks_admin is
   constant SA_BIAS_INDEX_OFFSET    : integer := 12;   -- Index of sa_bias in array register
   constant OFFSET_DAT_INDEX_OFFSET : integer := 20;   -- Index of offset_dat in array register
   constant EN_FB_JUMP_OFFSET       : integer := 28;   -- Index of enable flag for the flux-jumping block
-  constant MISC_BANK_MAX_RANGE     : integer := 29;   -- Maximum number of parameters in the Miscellanous bank
-  
+  constant FILTER_INDEX_OFFSET     : integer := 29;   -- Index of filter_coeff in array register (2 values common for all channels)
+  constant MISC_BANK_MAX_RANGE     : integer := 37;   -- Maximum number of parameters in the Miscellanous bank
+ 
   constant ZERO : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
 
   -----------------------------------------------------------------------------
