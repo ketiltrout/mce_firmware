@@ -29,8 +29,11 @@
 -- Generic parameterized counter
 --
 -- Revision history:
--- <date $Date: 2004/07/22 00:01:44 $>	- <initials $Author: erniel $>
+-- <date $Date: 2004/09/01 17:09:16 $>	- <initials $Author: erniel $>
 -- $Log: counter.vhd,v $
+-- Revision 1.5  2004/09/01 17:09:16  erniel
+-- added range parameter to input and output counter value
+--
 -- Revision 1.4  2004/07/22 00:01:44  erniel
 -- wraparound is default
 --
@@ -99,7 +102,7 @@ begin
                              count_new <= (count - STEP_SIZE) when count > 0 else MAX;
                           end generate;
    
-   process(clk_i, rst_i)
+   process(clk_i, rst_i, count_reset, count_i, count_new)
    begin
       if(rst_i = '1') then
          count <= count_reset;
