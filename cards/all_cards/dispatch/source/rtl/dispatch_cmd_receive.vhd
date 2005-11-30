@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.19  2005/11/29 01:42:49  erniel
+-- fixed synthesis warning in process rx_stateOut
+--
 -- Revision 1.18  2005/10/28 01:07:49  erniel
 -- some minor name changes
 -- removed special dummy error packet headers
@@ -321,7 +324,6 @@ begin
       word_count_ena <= '0';
       word_count_clr <= '0';
       buf_data_o     <= (others => '0');
-      buf_addr_o     <= (others => '0');
       buf_wren_o     <= '0';
       header0_o      <= (others => '0');
       header1_o      <= (others => '0');      
