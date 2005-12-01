@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.15  2005/10/03 02:43:22  erniel
+-- simplified logic for asserting rx_buf_ena in datapath FSM
+--
 -- Revision 1.14  2005/10/01 00:59:12  erniel
 -- minor bug fix to datapath FSM
 --
@@ -204,7 +207,7 @@ begin
                overflow_checking       => "ON",
                underflow_checking      => "ON",
                use_eab                 => "ON",
-               add_ram_output_register => "OFF",
+               add_ram_output_register => "ON",
                lpm_hint                => "RAM_BLOCK_TYPE=AUTO")
    port map(wrclk   => comm_clk_i,
             rdclk   => clk_i,
