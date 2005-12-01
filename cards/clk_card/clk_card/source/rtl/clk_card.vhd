@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.24 2005/03/31 16:56:59 bburger Exp $
+-- $Id: clk_card.vhd,v 1.25 2005/05/19 22:58:26 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.25  2005/05/19 22:58:26  bburger
+-- Bryce:  v01010018
+--
 -- Revision 1.24  2005/03/31 16:56:59  bburger
 -- Bryce:  changed to v01010010
 --
@@ -70,7 +73,7 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
-use work.dispatch_pack.all;
+--use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.fw_rev_pack.all;
 use work.sync_gen_pack.all;
@@ -83,16 +86,16 @@ use work.ret_dat_wbs_pack.all;
 entity clk_card is
    port(
       -- PLL input:
-      inclk      : in std_logic;
-      rst_n      : in std_logic;
+      inclk14           : in std_logic;
+      rst_n             : in std_logic;
       
       -- LVDS interface:
-      lvds_cmd   : out std_logic;
-      lvds_sync  : out std_logic;
-      lvds_spare : out std_logic;
-      lvds_clk   : out std_logic;
-      lvds_reply_ac_a  : in std_logic;  
-      lvds_reply_ac_b  : in std_logic;
+      lvds_cmd          : out std_logic;
+      lvds_sync         : out std_logic;
+      lvds_spare        : out std_logic;
+      lvds_clk          : out std_logic;
+      lvds_reply_ac_a   : in std_logic;  
+      lvds_reply_ac_b   : in std_logic;
       lvds_reply_bc1_a  : in std_logic;
       lvds_reply_bc1_b  : in std_logic;
       lvds_reply_bc2_a  : in std_logic;
@@ -109,69 +112,80 @@ entity clk_card is
       lvds_reply_rc4_b  : in std_logic;
       
       -- DV interface:
-      dv_pulse_fibre  : in std_logic;
-      dv_pulse_bnc    : in std_logic;
+      dv_pulse_fibre    : in std_logic;
+      dv_pulse_bnc      : in std_logic;
       
       -- TTL interface:
-      ttl_nrx1   : in std_logic;
-      ttl_tx1    : out std_logic;
-      ttl_txena1 : out std_logic;
+      ttl_nrx1          : in std_logic;
+      ttl_tx1           : out std_logic;
+      ttl_txena1        : out std_logic;
       
-      ttl_nrx2   : in std_logic;
-      ttl_tx2    : out std_logic;
-      ttl_txena2 : out std_logic;
+      ttl_nrx2          : in std_logic;
+      ttl_tx2           : out std_logic;
+      ttl_txena2        : out std_logic;
 
-      ttl_nrx3   : in std_logic;
-      ttl_tx3    : out std_logic;
-      ttl_txena3 : out std_logic;
+      ttl_nrx3          : in std_logic;
+      ttl_tx3           : out std_logic;
+      ttl_txena3        : out std_logic;
 
       -- eeprom interface:
-      eeprom_si  : in std_logic;
-      eeprom_so  : out std_logic;
-      eeprom_sck : out std_logic;
-      eeprom_cs  : out std_logic;
+      eeprom_si         : in std_logic;
+      eeprom_so         : out std_logic;
+      eeprom_sck        : out std_logic;
+      eeprom_cs         : out std_logic;
       
       -- miscellaneous ports:
-      red_led    : out std_logic;
-      ylw_led    : out std_logic;
-      grn_led    : out std_logic;
-      dip_sw3    : in std_logic;
-      dip_sw4    : in std_logic;
-      wdog       : out std_logic;
-      slot_id    : in std_logic_vector(3 downto 0);
+      red_led           : out std_logic;
+      ylw_led           : out std_logic;
+      grn_led           : out std_logic;
+      dip_sw3           : in std_logic;
+      dip_sw4           : in std_logic;
+      wdog              : out std_logic;
+      slot_id           : in std_logic_vector(3 downto 0);
       
       -- debug ports:
-      mictor_o    : out std_logic_vector(15 downto 1);
-      mictorclk_o : out std_logic;
-      mictor_e    : out std_logic_vector(15 downto 1);
-      mictorclk_e : out std_logic;
-      rs232_rx    : in std_logic;
-      rs232_tx    : out std_logic;
+      mictor_o          : out std_logic_vector(15 downto 1);
+      mictorclk_o       : out std_logic;
+      mictor_e          : out std_logic_vector(15 downto 1);
+      mictorclk_e       : out std_logic;
+      rs232_rx          : in std_logic;
+      rs232_tx          : out std_logic;
       
       -- interface to HOTLINK fibre receiver      
-      fibre_rx_clk       : out std_logic;
-      fibre_rx_data      : in std_logic_vector (7 downto 0);  
-      fibre_rx_rdy       : in std_logic;                      
-      fibre_rx_rvs       : in std_logic;                      
-      fibre_rx_status    : in std_logic;                      
-      fibre_rx_sc_nd     : in std_logic;                      
-      fibre_rx_ckr       : in std_logic;                      
+      fibre_rx_refclk   : out std_logic;
+      fibre_rx_data     : in std_logic_vector (7 downto 0);  
+      fibre_rx_rdy      : in std_logic;                      
+      fibre_rx_rvs      : in std_logic;                      
+      fibre_rx_status   : in std_logic;                      
+      fibre_rx_sc_nd    : in std_logic;                      
+      fibre_rx_clkr     : in std_logic;                      
+      
+      fibre_rx_a_nb     : out std_logic;
+      fibre_rx_bisten   : out std_logic;
+      fibre_rx_rf       : out std_logic;
       
       -- interface to hotlink fibre transmitter      
-      fibre_tx_clk       : out std_logic;
-      fibre_tx_data      : out std_logic_vector (7 downto 0);
-      fibre_tx_ena       : out std_logic;  
-      fibre_tx_sc_nd     : out std_logic
+      fibre_tx_clkw     : out std_logic;
+      fibre_tx_data     : out std_logic_vector (7 downto 0);
+      fibre_tx_ena      : out std_logic;  
+      fibre_tx_sc_nd    : out std_logic
    );     
 end clk_card;
 
 architecture top of clk_card is
 
+--Fibre_tx_clk is now fibre_tx_clkw
+--Fibre_rx_clk is now fibre_rx_clkr
+--Fibre_refclk is now fibre_rx_refclk
+
+
+
+
 -- The REVISION format is RRrrBBBB where 
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"01010018";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"01020000";
 
 -- reset
 signal rst           : std_logic;
@@ -239,27 +253,59 @@ component cc_pll
    );
 end component;
 
+component dispatch
+port(clk_i      : in std_logic;
+     comm_clk_i : in std_logic;
+     rst_i      : in std_logic;     
+     
+     -- bus backplane interface (LVDS)
+     lvds_cmd_i   : in std_logic;
+     lvds_reply_o : out std_logic;
+     
+     -- wishbone slave interface
+     dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+     tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+     we_o   : out std_logic;
+     stb_o  : out std_logic;
+     cyc_o  : out std_logic;
+     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     ack_i  : in std_logic;
+     err_i  : in std_logic;
+     
+     -- misc. external interface
+     wdt_rst_o : out std_logic;
+     slot_i    : in std_logic_vector(3 downto 0));
+end component;
+
 begin
 
    mictor_o(8 downto 1) <= fibre_rx_data;
-   mictor_o(9) <= fibre_rx_rdy;
-   mictor_o(10) <= lvds_reply_ac_a;
-   mictor_o(11) <= lvds_reply_bc1_a;
-   mictor_o(12) <= lvds_reply_bc2_a;
-   mictor_o(13) <= lvds_reply_bc3_a;
+   mictor_o(9)     <= fibre_rx_rdy;
+   mictor_o(10)    <= lvds_reply_ac_a;
+   mictor_o(11)    <= lvds_reply_bc1_a;
+   mictor_o(12)    <= lvds_reply_bc2_a;
+   mictor_o(13)    <= lvds_reply_bc3_a;
    
    mictor_e(8 downto 1) <= fib_tx_data;
-   mictor_e(9) <= fib_tx_ena;
-   mictor_e(10) <= lvds_reply_rc1_a;
-   mictor_e(11) <= lvds_reply_rc2_a;
-   mictor_e(12) <= lvds_reply_rc3_a;
-   mictor_e(13) <= lvds_reply_rc4_a;
+   mictor_e(9)     <= fib_tx_ena;
+   mictor_e(10)    <= lvds_reply_rc1_a;
+   mictor_e(11)    <= lvds_reply_rc2_a;
+   mictor_e(12)    <= lvds_reply_rc3_a;
+   mictor_e(13)    <= lvds_reply_rc4_a;
    
-   fibre_tx_data <= fib_tx_data;
-   fibre_tx_ena <= fib_tx_ena;
+   -- Fibre tx signals
+   fibre_tx_data   <= fib_tx_data;
+   fibre_tx_ena    <= fib_tx_ena;
+   
+   -- Fibre rx signals
+   fibre_rx_a_nb   <= '1';
+   fibre_rx_bisten <= '1'; 
+   fibre_rx_rf     <= '1'; 
    
    -- This is an active-low enable signal for the TTL transmitter.  This line is used as a BClr.
    ttl_txena1 <= '0';
+   
    -- ttl_tx1 is an active-low reset transmitted accross the bus backplane to clear FPGA registers (BClr)
    ttl_tx1    <= not sc_rst;
    
@@ -288,13 +334,13 @@ begin
 
    pll0: cc_pll
       port map(
-         inclk0 => inclk,
+         inclk0 => inclk14,
          c0     => clk,
          c1     => mem_clk,
          c2     => comm_clk,
          c3     => fibre_clk,
-         e0     => fibre_tx_clk, 
-         e1     => fibre_rx_clk,   
+         e0     => fibre_tx_clkw, 
+         e1     => fibre_rx_refclk,   
          e2     => lvds_clk 
       );
             
@@ -406,7 +452,7 @@ begin
          lvds_reply_cc_a   => lvds_reply_cc_a,
 
          -- fibre receiver interface 
-         fibre_clkr_i      => fibre_rx_ckr,  
+         fibre_clkr_i      => fibre_rx_clkr,  
          rx_data_i         => fibre_rx_data,
          nRx_rdy_i         => fibre_rx_rdy,
          rvs_i             => fibre_rx_rvs,
