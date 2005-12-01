@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.16  2005/10/21 20:40:36  erniel
+# minor name changes to fibre clocks
+#
 # Revision 1.15  2005/10/21 01:06:53  erniel
 # updated pins for revision B:
 #      new mictor debug port
@@ -216,7 +219,16 @@ cmp add_assignment $top_name "" inclk14 LOCATION "Pin_K17"
 cmp add_assignment $top_name "" inclk15 LOCATION "Pin_M17"
 cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_E15"
 cmp add_assignment $top_name "" fibre_tx_clkW LOCATION "Pin_K14"
-cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_R2"
+
+# For CC Rev. A & AA
+#cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_AE10"
+
+# For CC Rev B before the new fibre_rx/fibre_tx firmware is in place
+cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_G22"
+
+# For CC Rev B after the new fibre_rx/fibre_tx firmware is in place
+#cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_R2"
+
 cmp add_assignment $top_name "" fibre_rx_refclk LOCATION "Pin_C15"
 puts "   Assigned: PLL and clock pins."
 
