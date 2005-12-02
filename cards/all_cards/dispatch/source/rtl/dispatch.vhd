@@ -31,6 +31,14 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.9  2005/10/28 01:21:53  erniel
+-- moved component declarations from dispatch_pack
+-- replaced separate cmd and reply buffers with single buffer and multiplexed access via FSM
+-- changed behaviour of status register
+-- rewrote slot_id decode
+-- rewrote reply headers encode (new bus backplane protocol compliant)
+-- signal name changes
+--
 -- Revision 1.8  2005/03/19 00:12:35  erniel
 -- oops...forgot to connect n_clk
 --
@@ -190,8 +198,6 @@ signal buf_rdaddr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
 signal card : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 
-signal n_clk : std_logic;
-
 begin
 
    receiver : dispatch_cmd_receive
@@ -275,26 +281,22 @@ begin
                indata_aclr_a          => "NONE",
                wrcontrol_aclr_a       => "NONE",
                address_aclr_a         => "NONE",
-               address_reg_b          => "CLOCK1",
+               address_reg_b          => "CLOCK0",
                address_aclr_b         => "NONE",
                outdata_aclr_b         => "NONE",
                ram_block_type         => "AUTO",
                intended_device_family => "Stratix")
    port map(clock0    => clk_i,
-            clock1    => n_clk,
             wren_a    => buf_wren,
             address_a => buf_wraddr,
             data_a    => buf_wrdata,
             address_b => buf_rdaddr,
             q_b       => buf_rddata);
 
-
+	
    ---------------------------------------------------------
    -- Glue Logic
    ---------------------------------------------------------
-      
-   -- inverted clock for buffer flow-through read port:
-   n_clk <= not clk_i;
    
    -- slot ID decode logic:
    slot_decode: process(slot_i)
