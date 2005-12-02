@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.10  2005/10/28 01:10:07  erniel
+-- some minor name changes
+--
 -- Revision 1.9  2005/10/12 15:53:02  erniel
 -- replaced serial CRC datapath and control with parallel CRC module
 -- simplified and rewrote control FSM
@@ -107,7 +110,7 @@ port(clk_i      : in std_logic;
      lvds_o     : out std_logic);
 end component;
 
-type transmitter_states is (IDLE, TX_HDR, TX_DATA, TX_CRC, DONE);
+type transmitter_states is (IDLE, TX_HDR, FETCH, TX_DATA, TX_CRC, DONE);
 signal pres_state : transmitter_states;
 signal next_state : transmitter_states;
 
@@ -204,16 +207,18 @@ begin
                               if(header0_i(BB_DATA_SIZE'range) = 0) then
                                  next_state <= TX_CRC;
                               else
-                                 next_state <= TX_DATA;
+                                 next_state <= FETCH;
                               end if;
                            else
                               next_state <= TX_HDR;
                            end if;
          
+         when FETCH =>     next_state <= TX_DATA;
+         
          when TX_DATA =>   if(lvds_tx_busy = '0' and word_count = header0_i(BB_DATA_SIZE'range)-1) then
                               next_state <= TX_CRC;
                            else
-                              next_state <= TX_DATA;
+                              next_state <= FETCH;
                            end if;
                            
          when TX_CRC =>    if(lvds_tx_busy = '0') then
@@ -255,6 +260,8 @@ begin
                                crc_data       <= header1_i;
                             end if;
                          end if;
+         
+         when FETCH =>   null;
          
          when TX_DATA => if(lvds_tx_busy = '0') then
                             word_count_ena    <= '1';

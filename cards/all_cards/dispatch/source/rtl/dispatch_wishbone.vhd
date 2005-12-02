@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.13  2005/11/03 19:41:39  erniel
+-- removed reference to obsolete dispatch_pack
+-- fixed hard-coded assignment to tga_o in WB_CYCLE state
+--
 -- Revision 1.12  2005/10/28 01:15:26  erniel
 -- unified cmd/reply buffer interfaces
 -- start/done signal name changes
@@ -125,7 +129,7 @@ architecture rtl of dispatch_wishbone is
 
 constant WATCHDOG_TIMEOUT_US : integer := 180000;
    
-type master_states is (IDLE, WB_CYCLE, DONE, ERROR);
+type master_states is (IDLE, FETCH, WB_CYCLE, DONE, ERROR);
 signal pres_state : master_states;
 signal next_state : master_states;
 
@@ -189,15 +193,27 @@ begin
    begin
       case pres_state is
          when IDLE =>     if(execute_start_i = '1') then
-                             next_state <= WB_CYCLE;
+                             if(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then
+                                next_state <= FETCH;
+                             else
+                                next_state <= WB_CYCLE;
+                             end if;
                           else
                              next_state <= IDLE;
                           end if;
+         
+         when FETCH =>    next_state <= WB_CYCLE;
                               
-         when WB_CYCLE => if(ack_i = '1' and addr = header0_i(BB_DATA_SIZE'range)-1) then  
-                             next_state <= DONE;        -- slave has accepted last piece of data
+         when WB_CYCLE => if(ack_i = '1') then
+                             if(addr = header0_i(BB_DATA_SIZE'range)-1) then  
+                                next_state <= DONE;                              -- slave has accepted last piece of data
+                             elsif(header0_i(BB_COMMAND_TYPE'range) = WRITE_CMD) then
+                                next_state <= FETCH;
+                             else
+                                next_state <= WB_CYCLE;
+                             end if;
                           elsif(err_i = '1') then 
-                             next_state <= ERROR;       -- slave does not exist, abort
+                             next_state <= ERROR;                                -- slave does not exist, abort
                           else
                              next_state <= WB_CYCLE;
                           end if;
@@ -225,6 +241,8 @@ begin
                             
       case pres_state is
          when IDLE =>     addr_clr      <= '1';
+         
+         when FETCH =>    buf_addr_o    <= addr;
          
          when WB_CYCLE => addr_o        <= header1_i(BB_PARAMETER_ID'range);
                           tga_o(BB_DATA_SIZE_WIDTH-1 downto 0) <= addr;          -- zero-padded to 32-bits by default assignment
