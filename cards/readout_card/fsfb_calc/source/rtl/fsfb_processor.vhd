@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.6  2005/11/28 19:11:29  bburger
+-- Bryce:  increased the bus width for fb_const, ramp_dly, ramp_amp and ramp_step from 14 bits to 32 bits, to use them for flux-jumping testing
+--
 -- Revision 1.5  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -69,14 +72,16 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.fsfb_calc_pack.all;
+use work.fsfb_corr_pack.all;
 use work.flux_loop_ctrl_pack.all;
 use work.flux_loop_pack.all;
-use work.fsfb_corr_pack.all;
+use work.readout_card_pack.all;
+
 
 entity fsfb_processor is
    generic (
-      lock_dat_left           : integer := 30                                                 -- most significant bit position of lock mode data output, 
-                                                                                              -- valid range: min = FSFB_QUEUE_DATA_WIDTH-2, max = 2*COADD_QUEUE_DATA_WIDTH
+      lock_dat_left           : integer := 30;                                                -- most significant bit position of lock mode data output
+      filter_lock_dat_lsb     : integer := 0                                                  -- lsb position of the pidz results fed as input to the filter     
       );
 
    port (
@@ -104,19 +109,26 @@ entity fsfb_processor is
       ramp_amp_i              : in     std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);           -- ramp peak amplitude
       const_val_i             : in     std_logic_vector(CONST_VAL_WIDTH-1 downto 0);          -- fs feedback constant value
 
-      -- PIDZ coefficient queue interface
+      -- PID coefficient queue interface
       p_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- P,I,D,Z coefficients 
       i_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
       d_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-      --flux_quanta_dat_i       : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+
+      -- filter intermediate results
+      wn2_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+      wn1_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+      wn_dat_o                : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
    
       -- First stage feedback queue interface (write operation to current queue)
       fsfb_proc_update_o      : out    std_logic;                                             -- update pulse to the current fsfb_queue
       fsfb_proc_dat_o         : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);      -- new data to be written to the current fsfb_queue
       
+      -- First stage feedback filter queue interface (write operation)
+      fsfb_proc_fltr_update_o : out    std_logic;                                             -- update pulse to the current fsfb_queue
+      fsfb_proc_fltr_dat_o    : out    std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
+      
       -- First stage feedback control interface 
-      flux_jumping_en_i       : in     std_logic;
-      fsfb_proc_lock_en_o     : out    std_logic                                              -- fsfb_ctrl lock data mode enable
+       fsfb_proc_lock_en_o     : out    std_logic                                              -- fsfb_ctrl lock data mode enable
   
       );
 
@@ -143,6 +155,8 @@ architecture rtl of fsfb_processor is
    signal ramp_mode_en         : std_logic;                                                    -- ramp mode enable
    signal lock_mode_en         : std_logic;                                                    -- lock mode enable
    
+   signal fltr_update         : std_logic;                                                    -- filter result update
+   signal fltr_sum            : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);           -- filter result
    signal pidz_update          : std_logic;                                                    -- PIDZ lock mode result update
    signal pidz_sum             : std_logic_vector(COEFF_QUEUE_DATA_WIDTH*2+1 downto 0);        -- PIDZ sum
    signal ramp_update          : std_logic;                                                    -- Ramp mode result update from ramp processor block
@@ -173,6 +187,7 @@ begin
    -- Logic connections for update control output to the current queue
    --fsfb_proc_update_o <= (coadd_done_i and const_mode_en) or ramp_update_1d or pidz_update;
    fsfb_proc_update_o <= (previous_fsfb_dat_rdy_i and const_mode_en) or ramp_update_1d or pidz_update;
+   fsfb_proc_fltr_update_o <= fltr_update;
    
    -- Latch ramp mode data input with new fsfb_proc_ramp result only when 
    -- ramp_update_new_i = '1'
@@ -217,25 +232,33 @@ begin
        
 
    -- Muxes for update control and data output to the current queue
-   fsfb_proc_mux : process (servo_mode_i, const_dat_ltch, ramp_dat_ltch, pidz_sum)--, flux_jumping_en_i, max_range_fsfb, min_range_fsfb)
+   fsfb_proc_mux : process (servo_mode_i, const_dat_ltch, ramp_dat_ltch, pidz_sum, fltr_sum)
    begin
       -- The most significant bit of the FSFB_QUEUE will store the flag for
       -- the next operation (add/subtract) performed in RAMP mode.  All other modes
       -- would ignore this bit setting.
       
+      -- default assignment
+      fsfb_proc_fltr_dat_o  <= (others=>'0');
+      
       update_dat : case servo_mode_i is
+         
          -- constant mode setting
          when "01"   => fsfb_proc_dat_o <= const_dat_ltch;
          
          -- ramp mode setting
          when "10"   => fsfb_proc_dat_o <= ramp_dat_ltch;
+        
+         -- lock mode setting      
 
-         -- lock mode setting         
-         -- obtain sign bit from msb of pidz_sum and append it as bit 39 of result. 
-         -- Bit 40 always gets zero as it is ignored in lock mode.  Therefore, the
-         -- magnitude only covers bit 38 down to 0.
-         when "11"   => fsfb_proc_dat_o <= '0' & pidz_sum(pidz_sum'left) & pidz_sum(lock_dat_left-1 downto 0);
+         -- obtain sign bit from msb of pidz_sum and append it as bit 31 of result. 
+         -- Bit 32 always gets zero as it is ignored in lock mode.  Therefore, the
+         -- magnitude only covers bit 30 down to 0.
          
+         when "11"   => fsfb_proc_dat_o <= '0' & pidz_sum(pidz_sum'left) & 
+                                           pidz_sum(lock_dat_left downto (lock_dat_left-(FSFB_QUEUE_DATA_WIDTH-2)));
+                        fsfb_proc_fltr_dat_o <= fltr_sum;
+                        
          -- invalid setting
          when others => fsfb_proc_dat_o <= (others => '0');
       end case update_dat;
@@ -247,6 +270,9 @@ begin
    
    -- this block performs the lock mode operation
    i_fsfb_proc_pidz : fsfb_proc_pidz
+      generic map (
+         filter_lock_dat_lsb       => filter_lock_dat_lsb
+         )   
       port map (
          rst_i                     => rst_i,                                            
          clk_50_i                  => clk_50_i,                                            
@@ -259,8 +285,13 @@ begin
          i_dat_i                   => i_dat_i,  
          d_dat_i                   => d_dat_i,  
          z_dat_i                   => (others => '0'),  
+         wn2_dat_i                 => wn2_dat_i,
+         wn1_dat_i                 => wn1_dat_i,
+         wn_dat_o                  => wn_dat_o,
          fsfb_proc_pidz_update_o   => pidz_update,                                            
-         fsfb_proc_pidz_sum_o      => pidz_sum
+         fsfb_proc_pidz_sum_o      => pidz_sum,
+         fsfb_proc_fltr_update_o   => fltr_update,
+         fsfb_proc_fltr_sum_o      => fltr_sum
       );   
    
    
