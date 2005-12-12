@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.14  2005/12/02 00:41:17  erniel
+-- modified FSM to accomodate pipeline-mode buffer at dispatch top-level
+--
 -- Revision 1.13  2005/11/03 19:41:39  erniel
 -- removed reference to obsolete dispatch_pack
 -- fixed hard-coded assignment to tga_o in WB_CYCLE state
@@ -234,6 +237,7 @@ begin
       stb_o           <= '0';
       addr_ena        <= '0';
       addr_clr        <= '0';
+      buf_addr_o      <= (others => '0');
       buf_data_o      <= (others => '0');
       buf_wren_o      <= '0';
       execute_done_o  <= '0';
@@ -258,7 +262,7 @@ begin
                              dat_o      <= buf_data_i;                                        
                              we_o       <= '1';
                           else  
-                             buf_addr_o <= addr;                                 -- read commands: write data to buffer              
+                             buf_addr_o <= addr;                                 -- read commands: write data to buffer
                              buf_data_o <= dat_i;
                              buf_wren_o <= '1';
                           end if;
