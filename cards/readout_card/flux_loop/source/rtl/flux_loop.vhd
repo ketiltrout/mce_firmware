@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.10  2005/11/29 18:30:13  mandana
+-- added restart_frame_1row_post_i to wbs_frame_data interface in order to read filter data with precise timing. Now, filter data is read with one frame delay to avoid double-buffering the filter storage.
+--
 -- Revision 1.9  2005/10/07 21:38:07  bburger
 -- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
 --
@@ -522,7 +525,6 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        flux_jumping_en_i           => flux_jumping_en,
         fsfb_ctrl_lock_en_o         => fsfb_ctrl_lock_en,   
         flux_quanta_o               => flux_quanta0,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat0,   
@@ -595,7 +597,6 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        flux_jumping_en_i           => flux_jumping_en,
         fsfb_ctrl_lock_en_o         => open,   
         flux_quanta_o               => flux_quanta1,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat1,   
@@ -669,7 +670,6 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        flux_jumping_en_i           => flux_jumping_en,
         fsfb_ctrl_lock_en_o         => open,   
         flux_quanta_o               => flux_quanta2,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat2,   
@@ -743,7 +743,6 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        flux_jumping_en_i           => flux_jumping_en,
         fsfb_ctrl_lock_en_o         => open,   
         flux_quanta_o               => flux_quanta3,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat3,   
@@ -817,7 +816,6 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        flux_jumping_en_i           => flux_jumping_en,
         fsfb_ctrl_lock_en_o         => open,   
         flux_quanta_o               => flux_quanta4,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat4,   
@@ -891,7 +889,6 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        flux_jumping_en_i           => flux_jumping_en,
         fsfb_ctrl_lock_en_o         => open,   
         flux_quanta_o               => flux_quanta5,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat5,   
@@ -965,7 +962,6 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        flux_jumping_en_i           => flux_jumping_en,
         fsfb_ctrl_lock_en_o         => open,   
         flux_quanta_o               => flux_quanta6,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat6,   
@@ -1039,7 +1035,6 @@ begin  -- struct
         fsfb_fltr_dat_o           => open,
         
         --  fsfb_corr interface
-        flux_jumping_en_i           => flux_jumping_en,
         fsfb_ctrl_lock_en_o         => open,   
         flux_quanta_o               => flux_quanta7,   
         fsfb_ctrl_dat_o             => fsfb_ctrl_dat7,   
