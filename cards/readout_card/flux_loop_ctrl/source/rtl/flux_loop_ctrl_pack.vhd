@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.6  2005/10/07 21:38:07  bburger
+-- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
+--
 -- Revision 1.5  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -160,19 +163,19 @@ package flux_loop_ctrl_pack is
          d_dat_i                    : in    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          flux_quanta_addr_o         : out   std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
          flux_quanta_dat_i          : in    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+         fsfb_ws_fltr_addr_i       : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fsfb filter queue 
+         fsfb_ws_fltr_dat_o        : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations         
          fsfb_ws_addr_i             : in    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
          fsfb_ws_dat_o              : out   std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
          flux_cnt_ws_dat_o          : out   std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
          fsfb_fltr_dat_rdy_o        : out   std_logic;                                             -- fs feedback queue current data ready 
-         fsfb_fltr_dat_o            : out   std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+         fsfb_fltr_dat_o            : out   std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+         fsfb_ctrl_dat_rdy_o        : out   std_logic;                                             -- fs feedback queue previous data ready (uncorrected)  -- the rdy pulse is also good for num_flux_quanta_prev    
+         fsfb_ctrl_dat_o            : out   std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data (uncorrected)
+         fsfb_ctrl_lock_en_o        : out   std_logic;                                             -- fs feedback lock servo mode enable
          num_flux_quanta_pres_rdy_i : in    std_logic;                                             -- flux quanta present count ready
          num_flux_quanta_pres_i     : in    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta present count    
-         fsfb_ctrl_dat_rdy_o        : out   std_logic;                                             -- fs feedback queue previous data ready (uncorrected)
-                                                                                                   -- the rdy pulse is also good for num_flux_quanta_prev    
-         fsfb_ctrl_dat_o            : out   std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data (uncorrected)
-         num_flux_quanta_prev_o     : out   std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count        
-         fsfb_ctrl_lock_en_o        : out   std_logic;                                             -- fs feedback lock servo mode enable
-         flux_jumping_en_i          : in    std_logic;
+         num_flux_quanta_prev_o     : out   std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count, -- the rdy pulse is also good for num_flux_quanta_prev
          flux_quanta_o              : out   std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0)    -- flux quanta value (formerly know as coeff z)
       );
    end component fsfb_calc;
