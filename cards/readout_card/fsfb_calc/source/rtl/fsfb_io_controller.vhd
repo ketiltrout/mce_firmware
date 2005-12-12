@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_io_controller.vhd,v $
+-- Revision 1.5  2005/10/07 21:38:07  bburger
+-- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
+--
 -- Revision 1.4  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -74,78 +77,95 @@ entity fsfb_io_controller is
 
    port( 
       -- global signals
-      rst_i                               : in     std_logic;                                           -- global reset
-      clk_50_i                            : in     std_logic;                                           -- gobal clock
+      rst_i                           : in     std_logic;                                           -- global reset
+      clk_50_i                        : in     std_logic;                                           -- gobal clock
      
       -- control signals from frame timing block
-      restart_frame_aligned_i             : in     std_logic;                                           -- start of frame signal 
-      restart_frame_1row_post_i           : in     std_logic;                                           -- start of frame signal (one row behind of actual frame start)
-      row_switch_i                        : in     std_logic;                                           -- row switch signal to indicate next clock cycle is the beginning of new row
-      initialize_window_i                 : in     std_logic;                                           -- frame window at which all values read equal to fixed preset parameter
+      restart_frame_aligned_i         : in     std_logic;                                           -- start of frame signal 
+      restart_frame_1row_post_i       : in     std_logic;                                           -- start of frame signal (one row behind of actual frame start)
+      row_switch_i                    : in     std_logic;                                           -- row switch signal to indicate next clock cycle is the beginning of new row
+      initialize_window_i             : in     std_logic;                                           -- frame window at which all values read equal to fixed preset parameter
       
       -- configuration signals 
-      num_ramp_frame_cycles_i             : in     std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);         -- number of frame cycle ramp remained level
+      num_ramp_frame_cycles_i         : in     std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);         -- number of frame cycle ramp remained level
       
       -- signals from first stage feedback correction block
-      num_flux_quanta_pres_rdy_i          : in     std_logic;                                           -- flux quanta present count ready
-      num_flux_quanta_pres_i              : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);  -- flux quanta present count    
+      num_flux_quanta_pres_rdy_i      : in     std_logic;                                           -- flux quanta present count ready
+      num_flux_quanta_pres_i          : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);  -- flux quanta present count    
        
+      -- signals from first stage feedback processor block (filter related)
+      fsfb_proc_fltr_update_i         : in     std_logic;					    -- indicates when fsfb_proc_fltr_data_o is valid
+      fsfb_proc_fltr_dat_i            : in     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  -- fsfb filter result to be written to filter queue
+
       -- signals from first stage feedback processor block
-      fsfb_proc_update_i                  : in     std_logic;                                           -- current fsfb queue update
-      fsfb_proc_dat_i                     : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- new current fsfb queue data result
-      
-      -- wishbone slave interface (dedicated read ports to fsfb_queue/fsfb_flux_cnt_queue)
-      fsfb_ws_addr_i                      : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- wishbone slave address input
-      fsfb_ws_dat_o                       : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);          -- wishbone slave data output
-      flux_cnt_ws_dat_o                   : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
-      
+      fsfb_proc_update_i              : in     std_logic;                                           -- current fsfb queue update
+      fsfb_proc_dat_i                 : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- new current fsfb queue data result
+
+      -- wishbone slave interface (dedicated read ports to fsfb_queue/flux_cnt_queue/fltr_queue)
+      fsfb_ws_fltr_addr_i             : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- wishbone slave address input
+      fsfb_ws_fltr_dat_o              : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);          -- wishbone slave data output
+      fsfb_ws_addr_i                  : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- wishbone slave address input
+      fsfb_ws_dat_o                   : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);          -- wishbone slave data output
+      flux_cnt_ws_dat_o               : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+     
       -- signals to first stage feedback filter block
-      fsfb_fltr_dat_rdy_o                 : out    std_logic;                                           -- fs feedback queue current data ready to filter
-      fsfb_fltr_dat_o                     : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);  -- fs feedback queue current data to filter
+      fsfb_fltr_dat_rdy_o             : out    std_logic;                                           -- fs feedback queue current data ready to filter
+      fsfb_fltr_dat_o                 : out    std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  -- fs feedback queue current data to filter
       
       -- signals to first stage feedback control/correction block
-      fsfb_ctrl_dat_rdy_o                 : out    std_logic;                                           -- fs feedback queue previous data ready to control (now correction block)
-      fsfb_ctrl_dat_o                     : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);  -- fs feedback queue previous data to control (now correction block)
-      num_flux_quanta_prev_o              : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);           -- flux quanta previous count data to correction block       
+      fsfb_ctrl_dat_rdy_o             : out    std_logic;                                           -- fs feedback queue previous data ready to control (now correction block)
+      fsfb_ctrl_dat_o                 : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);  -- fs feedback queue previous data to control (now correction block)
+      num_flux_quanta_prev_o          : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);  -- flux quanta previous count data to correction block       
       
-      -- PIDZ coefficient queue interface
-      p_addr_o                            : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); -- coefficient queue address inputs
-      i_addr_o                            : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-      d_addr_o                            : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-      flux_quanta_addr_o                  : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+      -- PID coefficient queue interface
+      p_addr_o                        : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); -- coefficient queue address inputs
+      i_addr_o                        : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+      d_addr_o                        : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+     
+      -- filter wn interface
+      wn_addr_o                       : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- wn register address to store intermediate filter results
+      
+      -- flux quanta queue interface      
+      flux_quanta_addr_o              : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
         
       -- control signal to first stage feedback processor block
-      ramp_update_new_o                   : out     std_logic;                                          -- enable to latch new ramp result
-      initialize_window_ext_o             : out     std_logic;                                          -- ramp mode processor output would be zeroed during this window
+      ramp_update_new_o               : out     std_logic;                                          -- enable to latch new ramp result
+      initialize_window_ext_o         : out     std_logic;                                          -- ramp mode processor output would be zeroed during this window
       
       -- First stage feedback queue interface (used by fsfb_proc_ramp block to determine the next value in a ramp)
-      previous_fsfb_dat_o                 : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- previous data read from the previous fsfb_queue
-      previous_fsfb_dat_rdy_o             : out    std_logic;                                           -- previous data ready    
+      previous_fsfb_dat_o             : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- previous data read from the previous fsfb_queue
+      previous_fsfb_dat_rdy_o         : out    std_logic;                                           -- previous data ready    
 
-      fsfb_queue_wr_data_o                : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- write data to the fsfb data queue (bank 0, 1)
-      fsfb_queue_wr_addr_o                : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- write address to the fsfb data queue (bank 0, 1)
-      fsfb_queue_rd_addra_o               : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- read address (port a) to the fsfb data queue (bank 0, 1)
-      fsfb_queue_rd_addrb_o               : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- read address (port b) to the fsfb data queue (bank 0, 1)
-      fsfb_queue_wr_en_bank0_o            : out    std_logic;                                           -- write enable to the fsfb data queue (bank 0)
-      fsfb_queue_wr_en_bank1_o            : out    std_logic;                                           -- write enable to the fsfb data queue (bank 1)
-      fsfb_queue_rd_dataa_bank0_i         : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- read data (port a) from the fsfb data queue (bank 0)
-      fsfb_queue_rd_dataa_bank1_i         : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- read data (port a) from the fsfb data queue (bank 1)
-      fsfb_queue_rd_datab_bank0_i         : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- read data (port b) from the fsfb data queue (bank 0)
-      fsfb_queue_rd_datab_bank1_i         : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- read data (port b) from the fsfb data queue (bank 1)
+      -- fsbfb_fltr (filter) interface
+      fsfb_fltr_wr_data_o             : out    std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  -- write data to the filter queue
+      fsfb_fltr_wr_addr_o             : out    std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);  -- write address to the filter queue
+      fsfb_fltr_rd_addr_o             : out    std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);  -- read address to the filter queue
+      fsfb_fltr_wr_en_o               : out    std_logic;                                           -- write enable to the fsfb filter queue
+      fsfb_fltr_rd_data_i             : in     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  -- read data from the filter queue
+
+      -- fsfb Q interface
+      fsfb_queue_wr_data_o            : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- write data to the fsfb data queue (bank 0, 1)
+      fsfb_queue_wr_addr_o            : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- write address to the fsfb data queue (bank 0, 1)
+      fsfb_queue_rd_addra_o           : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- read address (port a) to the fsfb data queue (bank 0, 1)
+      fsfb_queue_rd_addrb_o           : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);  -- read address (port b) to the fsfb data queue (bank 0, 1)
+      fsfb_queue_wr_en_bank0_o        : out    std_logic;                                           -- write enable to the fsfb data queue (bank 0)
+      fsfb_queue_wr_en_bank1_o        : out    std_logic;                                           -- write enable to the fsfb data queue (bank 1)
+      fsfb_queue_rd_dataa_bank0_i     : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- read data (port a) from the fsfb data queue (bank 0)
+      fsfb_queue_rd_dataa_bank1_i     : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- read data (port a) from the fsfb data queue (bank 1)
+      fsfb_queue_rd_datab_bank0_i     : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- read data (port b) from the fsfb data queue (bank 0)
+      fsfb_queue_rd_datab_bank1_i     : in     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);    -- read data (port b) from the fsfb data queue (bank 1)
 
       -- First stage feedback flux count queue interface       
-      fsfb_flux_cnt_queue_wr_data_o        : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- write data to the fsfb quanta cnt queue (bank 0, 1)
-      fsfb_flux_cnt_queue_wr_addr_o        : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0); -- write address to the fsfb quanta cnt queue (bank 0, 1)
-      fsfb_flux_cnt_queue_rd_addra_o       : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0); -- read address (port a) to the fsfb quanta cnt queue (bank 0, 1)            
-      fsfb_flux_cnt_queue_rd_addrb_o       : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0); -- read address (port b) to the fsfb quanta cnt queue (bank 0, 1)
-      fsfb_flux_cnt_queue_wr_en_bank0_o    : out    std_logic;                                          -- write enable to the fsfb quanta cnt queue (bank 0)
-      fsfb_flux_cnt_queue_wr_en_bank1_o    : out    std_logic;                                          -- write enable to the fsfb quanta cnt queue (bank 1)
-      fsfb_flux_cnt_queue_rd_dataa_bank0_i : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- read data (port a) from the fsfb quanta cnt queue (bank 0)
-      fsfb_flux_cnt_queue_rd_dataa_bank1_i : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- read data (port a) from the fsfb quanta cnt queue (bank 1)
-      fsfb_flux_cnt_queue_rd_datab_bank0_i : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- read data (port b) from the fsfb quanta cnt queue (bank 0)
-      fsfb_flux_cnt_queue_rd_datab_bank1_i : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0)  -- read data (port b) from the fsfb quanta cnt queue (bank 1)
-      
-   
+      flux_cnt_queue_wr_data_o        : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- write data to the fsfb quanta cnt queue (bank 0, 1)
+      flux_cnt_queue_wr_addr_o        : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0); -- write address to the fsfb quanta cnt queue (bank 0, 1)
+      flux_cnt_queue_rd_addra_o       : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0); -- read address (port a) to the fsfb quanta cnt queue (bank 0, 1)            
+      flux_cnt_queue_rd_addrb_o       : out    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0); -- read address (port b) to the fsfb quanta cnt queue (bank 0, 1)
+      flux_cnt_queue_wr_en_bank0_o    : out    std_logic;                                          -- write enable to the fsfb quanta cnt queue (bank 0)
+      flux_cnt_queue_wr_en_bank1_o    : out    std_logic;                                          -- write enable to the fsfb quanta cnt queue (bank 1)
+      flux_cnt_queue_rd_dataa_bank0_i : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- read data (port a) from the fsfb quanta cnt queue (bank 0)
+      flux_cnt_queue_rd_dataa_bank1_i : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- read data (port a) from the fsfb quanta cnt queue (bank 1)
+      flux_cnt_queue_rd_datab_bank0_i : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- read data (port b) from the fsfb quanta cnt queue (bank 0)
+      flux_cnt_queue_rd_datab_bank1_i : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0)  -- read data (port b) from the fsfb quanta cnt queue (bank 1)        
   );
 
 end fsfb_io_controller;
@@ -299,12 +319,11 @@ begin
    
    
    fsfb_queue_wr_addr_o <= wr_addr;
-   
+   fsfb_fltr_wr_addr_o  <= wr_addr;
    
    -- The write address output of the flux cnt queue is same as that of the fsfb_ctrl; this is because
    -- the written data (newly updated flux cnt) corresponds to the same row the fsfb_ctrl currently processes
-   fsfb_flux_cnt_queue_wr_addr_o <= ctrl_rd_addr;
-   
+   flux_cnt_queue_wr_addr_o <= ctrl_rd_addr;   
    
    -- Write data control
    -- Directly connect to the data input of queue
@@ -316,7 +335,7 @@ begin
    -- during this time frame when operating in ramp mode.
    fsfb_queue_wr_data_o          <= fsfb_proc_dat_i;
    
-   fsfb_flux_cnt_queue_wr_data_o <= num_flux_quanta_pres_i;
+   flux_cnt_queue_wr_data_o <= num_flux_quanta_pres_i;
    
    
    -- Write enable control
@@ -324,37 +343,39 @@ begin
    fsfb_queue_wr_en_bank0_o <= fsfb_proc_update_i when even_odd_delayed_inv = '0' else '0';
    fsfb_queue_wr_en_bank1_o <= fsfb_proc_update_i when even_odd_delayed_inv = '1' else '0'; 
    
-   -- even_odd_inv bank will determine whether the fsfb_flux_cnt_queue_wr_data_o will written to bank 0 or 1   
-   fsfb_flux_cnt_queue_wr_en_bank0_o <= num_flux_quanta_pres_rdy_i when even_odd_inv = '0' else '0';
-   fsfb_flux_cnt_queue_wr_en_bank1_o <= num_flux_quanta_pres_rdy_i when even_odd_inv = '1' else '0';
+   -- even_odd_inv bank will determine whether the flux_cnt_queue_wr_data_o will written to bank 0 or 1   
+   flux_cnt_queue_wr_en_bank0_o <= num_flux_quanta_pres_rdy_i when even_odd_inv = '0' else '0';
+   flux_cnt_queue_wr_en_bank1_o <= num_flux_quanta_pres_rdy_i when even_odd_inv = '1' else '0';
       
    
    -- fsfb queue current data from processor to filter (essentially the same as fsfb_queue_wr_data_o)
-   fsfb_fltr_dat_o     <= fsfb_proc_dat_i(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
-   fsfb_fltr_dat_rdy_o <= fsfb_proc_update_i;
+   fsfb_fltr_dat_o     <= fsfb_proc_fltr_dat_i(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
+   fsfb_fltr_dat_rdy_o <= fsfb_proc_fltr_update_i;
    
+   -- this is the data to be written to filter storage ram (queue)
+   fsfb_fltr_wr_en_o   <= fsfb_proc_fltr_update_i;
+   fsfb_fltr_wr_data_o <= fsfb_proc_fltr_dat_i; 
  
    -- Read address control (bank 0 and 1, port a)
    -- Dedicated to wishbone slave read operation
-   -- Directly connect to the rdaddress_a inputs of fsfb and flux cnt queue
-   fsfb_queue_rd_addra_o          <= fsfb_ws_addr_i;
-   
-   fsfb_flux_cnt_queue_rd_addra_o <= fsfb_ws_addr_i;
-      
+
+   -- Directly connect to the rdaddress_a input of fsfb/flux_cnt/fltr queues
+   fsfb_queue_rd_addra_o <= fsfb_ws_addr_i;
+   fsfb_fltr_rd_addr_o   <= fsfb_ws_fltr_addr_i;   
+   flux_cnt_queue_rd_addra_o <= fsfb_ws_addr_i;
    
    -- Read data control (bank 0 and 1, port a)
-   -- Wishbone data would be 32 bits consisting of:
-   -- Bit field 23:0   fsfb_queue(23 downto 0)
-   -- Bit field 31:24  fsfb_flux_cnt_queue(10, 6 downto 0)
-   -- Note the fsfb_flux_cnt_queue is 10-bit wide, so the bit 10 (sign) occupies bit 31 and bit 6:0 occupy the remaining bits  
+   fsfb_ws_dat_o <= fsfb_queue_rd_dataa_bank1_i(WB_DATA_WIDTH-1 downto 0) when even_odd_delayed = '1' else 
+                    fsfb_queue_rd_dataa_bank0_i(WB_DATA_WIDTH-1 downto 0);
+    
+   fsfb_ws_fltr_dat_o <= fsfb_fltr_rd_data_i; 	  
+   -- ???? sign extend later
+   -- fsfb_ws_fltr_dat_o (WB_DATA_WIDTH-1 downto FSFB_QUEUE_DATA_WIDTH) <= 
+   --                                                        (others =>fsfb_fltr_rd_data_i(FSFB_QUEUE_DATA_WIDTH-1));
    
-   --fsfb_ws_dat_o <= fsfb_ws_dat(WB_DATA_WIDTH-1 downto 0);
-   
-   fsfb_ws_dat_o     <= fsfb_queue_rd_dataa_bank1_i(WB_DATA_WIDTH-1 downto 0) when even_odd_delayed = '1' else 
-                        fsfb_queue_rd_dataa_bank0_i(WB_DATA_WIDTH-1 downto 0);
-   
-   flux_cnt_ws_dat_o <= fsfb_flux_cnt_queue_rd_dataa_bank1_i when even_odd = '1' else
-                        fsfb_flux_cnt_queue_rd_dataa_bank0_i;
+   -- Read data control (bank 0 and 1, port a)
+   flux_cnt_ws_dat_o <= flux_cnt_queue_rd_dataa_bank1_i when even_odd = '1' else
+                        flux_cnt_queue_rd_dataa_bank0_i;
                     
    -- Read address control (bank 0 and 1, port b)
    -- Port b is dedicated to control and system read access 
@@ -411,7 +432,7 @@ begin
    fsfb_queue_rd_addrb_o <= ctrl_rd_addr when read_shifter(0) = '1' else sys_rd_addr;
    
    -- No selection is necessary as the read port is dedicated
-   fsfb_flux_cnt_queue_rd_addrb_o <= ctrl_rd_addr;
+   flux_cnt_queue_rd_addrb_o <= ctrl_rd_addr;
       
    
    -- Tap off the ready signals to control and system from the shifter
@@ -428,8 +449,8 @@ begin
                         fsfb_queue_rd_datab_bank0_i(FSFB_QUEUE_DATA_WIDTH downto 0);
    
    
-   flux_dat_selected <= fsfb_flux_cnt_queue_rd_datab_bank1_i when even_odd = '1' else
-                        fsfb_flux_cnt_queue_rd_datab_bank0_i;
+   flux_dat_selected <= flux_cnt_queue_rd_datab_bank1_i when even_odd = '1' else
+                        flux_cnt_queue_rd_datab_bank0_i;
    
    
    -- Latch the selected read data to control once RAM data is valid
@@ -470,14 +491,13 @@ begin
    p_addr_o <= wr_addr;
    i_addr_o <= wr_addr;
    d_addr_o <= wr_addr;
-   
+   wn_addr_o <= wr_addr;
    
    -- Output to z coefficient queue (now flux_quanta unit) address input is now set to ctrl_rd_addr
    -- This is such that flux quanta data output to fsfb_corr (formerly fsfb_ctrl) will be aligned with the
    -- fsfb_queue data output.
    flux_quanta_addr_o <= ctrl_rd_addr;
 
-   
    -- Outputs to downstream fsfb_ctrl (now fsfb_corr) block
    -- Note that the z_dat_i storing flux quanta unit is ready one clk cycle before the ctrl_dat and flux_cnt as 
    -- it does not involve bank selection
@@ -494,6 +514,8 @@ begin
    --                           '0' & conv_std_logic_vector(start_val, FSFB_QUEUE_DATA_WIDTH);
    previous_fsfb_dat_o     <= sys_dat;
    previous_fsfb_dat_rdy_o <= sys_dat_rdy_1d;
+   
+   -- 
    
    
 end rtl;
