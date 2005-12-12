@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.11  2005/11/29 19:18:30  mandana
+-- filter wishbone interface added
+--
 -- Revision 1.10  2005/10/07 21:38:07  bburger
 -- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
 --
@@ -130,7 +133,7 @@ entity flux_loop_ctrl is
 
     fsfb_addr_i               : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
     fsfb_dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
-    flux_cnt_ws_dat_o          : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+    flux_cnt_ws_dat_o         : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
     filtered_addr_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- filter queue address for wishbone access (read only)
     filtered_dat_o            : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations for filter queue wishbone access
     
@@ -168,27 +171,20 @@ entity flux_loop_ctrl is
     -- spi DAC Interface
     sa_bias_dac_spi_o          : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
     offset_dac_spi_o           : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
-
-    -- INTERNAL
-    fsfb_fltr_dat_rdy_o        : out std_logic;                                             -- fsfb filter data ready 
-    fsfb_fltr_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fsfb filter data
   
-    ---------------------------------------------------------------
-    -- First Stage Feedback Correction Interface (for Flux Jumping)
-    ---------------------------------------------------------------
-    -- to fsfb_calc block
-    flux_jumping_en_i          : in std_logic;
-    fsfb_ctrl_lock_en_o        : out std_logic;                                             -- fs feedback lock servo mode enable
-    flux_quanta_o              : out std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- flux quanta value (formerly known as coeff z)
-    
-    -- FSFB_QUEUE_DATA_WIDTH is also reduced from 32 to 24 to accomodate the flux quanta
+    -- fsfb_calc Interface
+    fsfb_fltr_dat_rdy_o        : out std_logic;                                             -- fsfb filter data ready 
+    fsfb_fltr_dat_o            : out std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);    -- fsfb filter data
     fsfb_ctrl_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data (uncorrected)
     fsfb_ctrl_dat_rdy_o        : out std_logic;                                             -- fs feedback queue previous data ready (uncorrected).  The rdy pulse is also good for num_flux_quanta_prev    
+    fsfb_ctrl_lock_en_o        : out std_logic;                                             -- fs feedback lock servo mode enable
+     
     num_flux_quanta_prev_o     : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count            
     num_flux_quanta_pres_rdy_i : in  std_logic;                                             -- flux quanta present count ready
     num_flux_quanta_pres_i     : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta present count    
+    flux_quanta_o              : out std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- flux quanta value (formerly known as coeff z)
 
-    -- to fsfb_ctrl block
+    -- fsfb_ctrl Interface
     fsfb_ctrl_dat_rdy_i        : in  std_logic;                                             -- fsfb control data ready (corrected)
     fsfb_ctrl_dat_i            : in  std_logic_vector(DAC_DAT_WIDTH-1 downto 0)             -- fsfb control data (corrected)
 
@@ -250,7 +246,7 @@ begin  -- struct
 
     generic map (
     start_val => 0,
-    lock_dat_left => FSFB_QUEUE_DATA_WIDTH-1)
+    lock_dat_left => FSFB_QUEUE_DATA_WIDTH-2)
 
     port map (
       rst_i                      => rst_i,
@@ -288,12 +284,11 @@ begin  -- struct
       fsfb_fltr_dat_o            => fsfb_fltr_dat_o,
       fsfb_ctrl_dat_rdy_o        => fsfb_ctrl_dat_rdy_o,
       fsfb_ctrl_dat_o            => fsfb_ctrl_dat_o,
+      fsfb_ctrl_lock_en_o        => fsfb_ctrl_lock_en,
 
       num_flux_quanta_pres_rdy_i => num_flux_quanta_pres_rdy_i,
       num_flux_quanta_pres_i     => num_flux_quanta_pres_i,
       num_flux_quanta_prev_o     => num_flux_quanta_prev_o,
-      fsfb_ctrl_lock_en_o        => fsfb_ctrl_lock_en,
-      flux_jumping_en_i          => flux_jumping_en_i,
       flux_quanta_o              => flux_quanta_o
       );
 
