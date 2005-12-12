@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.7  2005/10/07 21:38:07  bburger
+-- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
+--
 -- Revision 1.6  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -70,6 +73,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library work;
 use work.fsfb_calc_pack.all;
@@ -84,7 +89,8 @@ use sys_param.wishbone_pack.all;
 entity fsfb_calc is
    generic (
       start_val                 : integer := FSFB_QUEUE_INIT_VAL;                               -- value read from the queue when initialize_window_i is asserted
-      lock_dat_left             : integer := MOST_SIG_LOCK_POS                                  -- most significant bit position of lock mode data output
+      lock_dat_left             : integer := LOCK_MSB_POS;                                      -- most significant bit position of lock mode data output
+      filter_lock_dat_lsb       : integer := FILTER_LOCK_LSB_POS                                -- lsb position of the pidz results fed as input to the filter
       );
 
    port ( 
@@ -126,11 +132,15 @@ entity fsfb_calc is
       fsfb_ws_addr_i             : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
       fsfb_ws_dat_o              : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
       flux_cnt_ws_dat_o          : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
- 
+      
+      -- first stage feedback filter queue (dedicated wishbone slave interface)
+      fsfb_ws_fltr_addr_i        : in     std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);    -- fsfb filter queue 
+      fsfb_ws_fltr_dat_o         : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);    -- read-only operations
+       
       -- first stage feedback queue (shared filter interface)
       fsfb_fltr_dat_rdy_o        : out    std_logic;                                             -- fs feedback queue current data ready 
-      fsfb_fltr_dat_o            : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
-
+      fsfb_fltr_dat_o            : out    std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+            
       -- control/interface signals from first stage feedback correction block
       num_flux_quanta_pres_rdy_i : in     std_logic;                                             -- flux quanta present count ready
       num_flux_quanta_pres_i     : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta present count    
@@ -142,9 +152,7 @@ entity fsfb_calc is
       -- interface signals to first stage feedback correction block
       num_flux_quanta_prev_o     : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count        
       fsfb_ctrl_lock_en_o        : out    std_logic;                                             -- control lock data mode enable (used by fsfb_ctrl as well)
-      flux_jumping_en_i          : in     std_logic;
-      flux_quanta_o              : out    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0)    -- flux quanta value (formerly know as coeff z)
-      
+      flux_quanta_o              : out    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0)    -- flux quanta value (formerly know as coeff z)      
   );
 
 
@@ -152,38 +160,50 @@ end fsfb_calc;
 
 architecture struct of fsfb_calc is
 
-   -- internal signal declarations
+   -- internal signal declarations   
+   signal fsfb_proc_fltr_update_o     : std_logic;                                              -- filter data queue update
+   signal fsfb_proc_fltr_dat_o        : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);      -- filter data to the queue
+   signal fsfb_proc_update_o          : std_logic;                                              -- current first stage feedback data queue update
+   signal fsfb_proc_dat_o             : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- current first stage feedback data to be updated to the queue
+   signal previous_fsfb_dat_rdy_o     : std_logic;                                              -- previous first stage feedback data ready
+   signal previous_fsfb_dat_o         : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- previous first stage feedback data read from the queue
+   signal ramp_update_new_o           : std_logic;                                              -- enable to update ramp data latch content
+   signal initialize_window_ext_o     : std_logic;                                              -- window at which the processor output for ramp mode is zeroed                   
    
-   signal fsfb_proc_update_o                   : std_logic;                                              -- current first stage feedback data queue update
-   signal fsfb_proc_dat_o                      : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- current first stage feedback data to be updated to the queue
-   signal previous_fsfb_dat_rdy_o              : std_logic;                                              -- previous first stage feedback data ready
-   signal previous_fsfb_dat_o                  : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- previous first stage feedback data read from the queue
-   signal ramp_update_new_o                    : std_logic;                                              -- enable to update ramp data latch content
-   signal initialize_window_ext_o              : std_logic;                                              -- window at which the processor output for ramp mode is zeroed                   
+   -- filter related signals
+   signal fsfb_fltr_wr_data_o         : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- write data to the fsfb filtered queue 
+   signal fsfb_fltr_wr_addr_o         : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);     -- write address to the fsfb filtered queue 
+   signal fsfb_fltr_rd_addr_o         : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address to the fsfb filter queue 
+   signal fsfb_fltr_wr_en_o           : std_logic;                                              -- write enable to the fsfb filter queue
+   signal fsfb_fltr_rd_data_i         : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- read data from the fsfb filter queue
+   signal wn_addr_o                   : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);     -- address for wn set of filter registers
+   signal wn2_dat                     : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn2 result (wn delayed by 2 sample)
+   signal wn1_dat                     : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn1 result (wn delayed by 1 sample)
+   signal wn_dat                      : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn result   
 
-   signal fsfb_queue_wr_data_o                 : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- write data to the fsfb data queue (bank 0, 1)
-   signal fsfb_queue_wr_addr_o                 : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- write address to the fsfb data queue (bank 0, 1)
-   signal fsfb_queue_rd_addra_o                : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address (port a) to the fsfb data queue (bank 0, 1)            
-   signal fsfb_queue_rd_addrb_o                : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address (port b) to the fsfb data queue (bank 0, 1)
-   signal fsfb_queue_wr_en_bank0_o             : std_logic;                                              -- write enable to the fsfb data queue (bank 0)
-   signal fsfb_queue_wr_en_bank1_o             : std_logic;                                              -- write enable to the fsfb data queue (bank 1)
-   signal fsfb_queue_rd_dataa_bank0_i          : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- read data (port a) from the fsfb data queue (bank 0)
-   signal fsfb_queue_rd_dataa_bank1_i          : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- read data (port a) from the fsfb data queue (bank 1)
-   signal fsfb_queue_rd_datab_bank0_i          : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- read data (port b) from the fsfb data queue (bank 0)
-   signal fsfb_queue_rd_datab_bank1_i          : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- read data (port b) from the fsfb data queue (bank 1)
+   signal row1_fltr_data              : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- temporary for debug to store row1 data
+
+   signal fsfb_queue_wr_data_o        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- write data to the fsfb data queue (bank 0, 1)
+   signal fsfb_queue_wr_addr_o        : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- write address to the fsfb data queue (bank 0, 1)
+   signal fsfb_queue_rd_addra_o       : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address (port a) to the fsfb data queue (bank 0, 1)            
+   signal fsfb_queue_rd_addrb_o       : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address (port b) to the fsfb data queue (bank 0, 1)
+   signal fsfb_queue_wr_en_bank0_o    : std_logic;                                              -- write enable to the fsfb data queue (bank 0)
+   signal fsfb_queue_wr_en_bank1_o    : std_logic;                                              -- write enable to the fsfb data queue (bank 1)
+   signal fsfb_queue_rd_dataa_bank0_i : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- read data (port a) from the fsfb data queue (bank 0)
+   signal fsfb_queue_rd_dataa_bank1_i : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- read data (port a) from the fsfb data queue (bank 1)
+   signal fsfb_queue_rd_datab_bank0_i : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- read data (port b) from the fsfb data queue (bank 0)
+   signal fsfb_queue_rd_datab_bank1_i : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- read data (port b) from the fsfb data queue (bank 1)
    
-   signal fsfb_flux_cnt_queue_wr_data_o        : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- write data to the fsfb quanta cnt queue (bank 0, 1)
-   signal fsfb_flux_cnt_queue_wr_addr_o        : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- write address to the fsfb quanta cnt queue (bank 0, 1)
-   signal fsfb_flux_cnt_queue_rd_addra_o       : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address (port a) to the fsfb quanta cnt queue (bank 0, 1)            
-   signal fsfb_flux_cnt_queue_rd_addrb_o       : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address (port b) to the fsfb quanta cnt queue (bank 0, 1)
-   signal fsfb_flux_cnt_queue_wr_en_bank0_o    : std_logic;                                              -- write enable to the fsfb quanta cnt queue (bank 0)
-   signal fsfb_flux_cnt_queue_wr_en_bank1_o    : std_logic;                                              -- write enable to the fsfb quanta cnt queue (bank 1)
-   signal fsfb_flux_cnt_queue_rd_dataa_bank0_i : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- read data (port a) from the fsfb quanta cnt queue (bank 0)
-   signal fsfb_flux_cnt_queue_rd_dataa_bank1_i : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- read data (port a) from the fsfb quanta cnt queue (bank 1)
-   signal fsfb_flux_cnt_queue_rd_datab_bank0_i : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- read data (port b) from the fsfb quanta cnt queue (bank 0)
-   signal fsfb_flux_cnt_queue_rd_datab_bank1_i : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- read data (port b) from the fsfb quanta cnt queue (bank 1)
-
-
+   signal flux_cnt_queue_wr_data_o        : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- write data to the fsfb quanta cnt queue (bank 0, 1)
+   signal flux_cnt_queue_wr_addr_o        : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- write address to the fsfb quanta cnt queue (bank 0, 1)
+   signal flux_cnt_queue_rd_addra_o       : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address (port a) to the fsfb quanta cnt queue (bank 0, 1)            
+   signal flux_cnt_queue_rd_addrb_o       : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- read address (port b) to the fsfb quanta cnt queue (bank 0, 1)
+   signal flux_cnt_queue_wr_en_bank0_o    : std_logic;                                              -- write enable to the fsfb quanta cnt queue (bank 0)
+   signal flux_cnt_queue_wr_en_bank1_o    : std_logic;                                              -- write enable to the fsfb quanta cnt queue (bank 1)
+   signal flux_cnt_queue_rd_dataa_bank0_i : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- read data (port a) from the fsfb quanta cnt queue (bank 0)
+   signal flux_cnt_queue_rd_dataa_bank1_i : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- read data (port a) from the fsfb quanta cnt queue (bank 1)
+   signal flux_cnt_queue_rd_datab_bank0_i : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- read data (port b) from the fsfb quanta cnt queue (bank 0)
+   signal flux_cnt_queue_rd_datab_bank1_i : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     -- read data (port b) from the fsfb quanta cnt queue (bank 1)
 
 begin
   
@@ -194,53 +214,63 @@ begin
          start_val                            => start_val
       )
       port map (
-         rst_i                                => rst_i,
-         clk_50_i                             => clk_50_i,
-         restart_frame_aligned_i              => restart_frame_aligned_i,
-         restart_frame_1row_post_i            => restart_frame_1row_post_i,
-         row_switch_i                         => row_switch_i,
-         initialize_window_i                  => initialize_window_i,
-         num_ramp_frame_cycles_i              => num_ramp_frame_cycles_i,
-         num_flux_quanta_pres_rdy_i           => num_flux_quanta_pres_rdy_i,
-         num_flux_quanta_pres_i               => num_flux_quanta_pres_i,
-         fsfb_proc_update_i                   => fsfb_proc_update_o,
-         fsfb_proc_dat_i                      => fsfb_proc_dat_o,
-         fsfb_ws_addr_i                       => fsfb_ws_addr_i,
-         fsfb_ws_dat_o                        => fsfb_ws_dat_o,
-         flux_cnt_ws_dat_o                    => flux_cnt_ws_dat_o,
-         fsfb_fltr_dat_rdy_o                  => fsfb_fltr_dat_rdy_o,
-         fsfb_fltr_dat_o                      => fsfb_fltr_dat_o,
-         fsfb_ctrl_dat_rdy_o                  => fsfb_ctrl_dat_rdy_o,
-         fsfb_ctrl_dat_o                      => fsfb_ctrl_dat_o,
-         num_flux_quanta_prev_o               => num_flux_quanta_prev_o,
-         p_addr_o                             => p_addr_o,
-         i_addr_o                             => i_addr_o,
-         d_addr_o                             => d_addr_o,
-         flux_quanta_addr_o                   => flux_quanta_addr_o,
-         ramp_update_new_o                    => ramp_update_new_o,
-         initialize_window_ext_o              => initialize_window_ext_o,
-         previous_fsfb_dat_rdy_o              => previous_fsfb_dat_rdy_o,
-         previous_fsfb_dat_o                  => previous_fsfb_dat_o,
-         fsfb_queue_wr_data_o                 => fsfb_queue_wr_data_o,
-         fsfb_queue_wr_addr_o                 => fsfb_queue_wr_addr_o,
-         fsfb_queue_rd_addra_o                => fsfb_queue_rd_addra_o,            
-         fsfb_queue_rd_addrb_o                => fsfb_queue_rd_addrb_o,
-         fsfb_queue_wr_en_bank0_o             => fsfb_queue_wr_en_bank0_o,
-         fsfb_queue_wr_en_bank1_o             => fsfb_queue_wr_en_bank1_o,
-         fsfb_queue_rd_dataa_bank0_i          => fsfb_queue_rd_dataa_bank0_i, 
-         fsfb_queue_rd_dataa_bank1_i          => fsfb_queue_rd_dataa_bank1_i,
-         fsfb_queue_rd_datab_bank0_i          => fsfb_queue_rd_datab_bank0_i,
-         fsfb_queue_rd_datab_bank1_i          => fsfb_queue_rd_datab_bank1_i,
-         fsfb_flux_cnt_queue_wr_data_o        => fsfb_flux_cnt_queue_wr_data_o,
-         fsfb_flux_cnt_queue_wr_addr_o        => fsfb_flux_cnt_queue_wr_addr_o,
-         fsfb_flux_cnt_queue_rd_addra_o       => fsfb_flux_cnt_queue_rd_addra_o,
-         fsfb_flux_cnt_queue_rd_addrb_o       => fsfb_flux_cnt_queue_rd_addrb_o,
-         fsfb_flux_cnt_queue_wr_en_bank0_o    => fsfb_flux_cnt_queue_wr_en_bank0_o,
-         fsfb_flux_cnt_queue_wr_en_bank1_o    => fsfb_flux_cnt_queue_wr_en_bank1_o,
-         fsfb_flux_cnt_queue_rd_dataa_bank0_i => fsfb_flux_cnt_queue_rd_dataa_bank0_i,
-         fsfb_flux_cnt_queue_rd_dataa_bank1_i => fsfb_flux_cnt_queue_rd_dataa_bank1_i,
-         fsfb_flux_cnt_queue_rd_datab_bank0_i => fsfb_flux_cnt_queue_rd_datab_bank0_i,
-         fsfb_flux_cnt_queue_rd_datab_bank1_i => fsfb_flux_cnt_queue_rd_datab_bank1_i                  
+         rst_i                        => rst_i,
+         clk_50_i                     => clk_50_i,
+         restart_frame_aligned_i      => restart_frame_aligned_i,
+         restart_frame_1row_post_i    => restart_frame_1row_post_i,
+         row_switch_i                 => row_switch_i,
+         initialize_window_i          => initialize_window_i,
+         num_ramp_frame_cycles_i      => num_ramp_frame_cycles_i,
+         num_flux_quanta_pres_rdy_i   => num_flux_quanta_pres_rdy_i,
+         num_flux_quanta_pres_i       => num_flux_quanta_pres_i,
+         fsfb_proc_fltr_update_i      => fsfb_proc_fltr_update_o,
+         fsfb_proc_fltr_dat_i         => fsfb_proc_fltr_dat_o,
+         fsfb_proc_update_i           => fsfb_proc_update_o,
+         fsfb_proc_dat_i              => fsfb_proc_dat_o,
+         fsfb_ws_fltr_addr_i          => fsfb_ws_fltr_addr_i,
+         fsfb_ws_fltr_dat_o           => fsfb_ws_fltr_dat_o,
+         fsfb_ws_addr_i               => fsfb_ws_addr_i,
+         fsfb_ws_dat_o                => fsfb_ws_dat_o,
+         flux_cnt_ws_dat_o            => flux_cnt_ws_dat_o,
+         fsfb_fltr_dat_rdy_o          => fsfb_fltr_dat_rdy_o,
+         fsfb_fltr_dat_o              => fsfb_fltr_dat_o,
+         fsfb_ctrl_dat_rdy_o          => fsfb_ctrl_dat_rdy_o,
+         fsfb_ctrl_dat_o              => fsfb_ctrl_dat_o,
+         num_flux_quanta_prev_o       => num_flux_quanta_prev_o,
+         p_addr_o                     => p_addr_o,
+         i_addr_o                     => i_addr_o,
+         d_addr_o                     => d_addr_o,
+         wn_addr_o                    => wn_addr_o,
+         flux_quanta_addr_o           => flux_quanta_addr_o,
+         ramp_update_new_o            => ramp_update_new_o,
+         initialize_window_ext_o      => initialize_window_ext_o,
+         previous_fsfb_dat_rdy_o      => previous_fsfb_dat_rdy_o,
+         previous_fsfb_dat_o          => previous_fsfb_dat_o,
+         fsfb_fltr_wr_data_o          => fsfb_fltr_wr_data_o,
+         fsfb_fltr_wr_addr_o          => fsfb_fltr_wr_addr_o,
+         fsfb_fltr_rd_addr_o          => fsfb_fltr_rd_addr_o,            
+         fsfb_fltr_wr_en_o            => fsfb_fltr_wr_en_o,
+         fsfb_fltr_rd_data_i          => fsfb_fltr_rd_data_i,         
+         fsfb_queue_wr_data_o         => fsfb_queue_wr_data_o,
+         fsfb_queue_wr_addr_o         => fsfb_queue_wr_addr_o,
+         fsfb_queue_rd_addra_o        => fsfb_queue_rd_addra_o,            
+         fsfb_queue_rd_addrb_o        => fsfb_queue_rd_addrb_o,
+         fsfb_queue_wr_en_bank0_o     => fsfb_queue_wr_en_bank0_o,
+         fsfb_queue_wr_en_bank1_o     => fsfb_queue_wr_en_bank1_o,
+         fsfb_queue_rd_dataa_bank0_i  => fsfb_queue_rd_dataa_bank0_i, 
+         fsfb_queue_rd_dataa_bank1_i  => fsfb_queue_rd_dataa_bank1_i,
+         fsfb_queue_rd_datab_bank0_i  => fsfb_queue_rd_datab_bank0_i,
+         fsfb_queue_rd_datab_bank1_i  => fsfb_queue_rd_datab_bank1_i,
+         flux_cnt_queue_wr_data_o     => flux_cnt_queue_wr_data_o,
+         flux_cnt_queue_wr_addr_o     => flux_cnt_queue_wr_addr_o,
+         flux_cnt_queue_rd_addra_o    => flux_cnt_queue_rd_addra_o,
+         flux_cnt_queue_rd_addrb_o    => flux_cnt_queue_rd_addrb_o,
+         flux_cnt_queue_wr_en_bank0_o => flux_cnt_queue_wr_en_bank0_o,
+         flux_cnt_queue_wr_en_bank1_o => flux_cnt_queue_wr_en_bank1_o,
+         flux_cnt_queue_rd_dataa_bank0_i => flux_cnt_queue_rd_dataa_bank0_i,
+         flux_cnt_queue_rd_dataa_bank1_i => flux_cnt_queue_rd_dataa_bank1_i,
+         flux_cnt_queue_rd_datab_bank0_i => flux_cnt_queue_rd_datab_bank0_i,
+         flux_cnt_queue_rd_datab_bank1_i => flux_cnt_queue_rd_datab_bank1_i                  
       );
           
    -- Flux Quanta Unit output is now configured with the z coefficient
@@ -251,7 +281,8 @@ begin
    -- this block contains the ALU circuitry including multipliers and adders
    i_fsfb_processor : fsfb_processor
       generic map (
-         lock_dat_left                => lock_dat_left
+         lock_dat_left                => lock_dat_left,
+         filter_lock_dat_lsb          => filter_lock_dat_lsb
       )
       port map (
          rst_i                        => rst_i,
@@ -271,10 +302,13 @@ begin
          p_dat_i                      => p_dat_i,
          i_dat_i                      => i_dat_i,
          d_dat_i                      => d_dat_i,
---         flux_quanta_dat_i            => flux_quanta_dat_i,
+         wn1_dat_i                    => wn1_dat,
+         wn2_dat_i                    => wn2_dat,
+         wn_dat_o                     => wn_dat,
          fsfb_proc_update_o           => fsfb_proc_update_o,
          fsfb_proc_dat_o              => fsfb_proc_dat_o,
-         flux_jumping_en_i            => flux_jumping_en_i,
+         fsfb_proc_fltr_update_o      => fsfb_proc_fltr_update_o,
+         fsfb_proc_fltr_dat_o         => fsfb_proc_fltr_dat_o,
          fsfb_proc_lock_en_o          => fsfb_ctrl_lock_en_o
       ); 
      
@@ -308,34 +342,69 @@ begin
          qb                           => fsfb_queue_rd_datab_bank1_i
       );         
    
+   -- filter output storage      
+   -- Queue is 32-bit wide
+   i_fsfb_filter_storage : fsfb_filter_storage
+      port map (
+         data                         => fsfb_fltr_wr_data_o,
+         wraddress                    => fsfb_fltr_wr_addr_o,
+         rdaddress                    => fsfb_fltr_rd_addr_o,
+         wren                         => fsfb_fltr_wr_en_o,
+         clock                        => clk_50_i,
+         q                            => fsfb_fltr_rd_data_i
+      );   
+   
+   -- filter wn storage (set of registers)
+   i_fsfb_fltr_regs: fsfb_fltr_regs
+      port map (
+         rst_i                       => rst_i,
+         clk_50_i                    => clk_50_i,
+         initialize_window_i         => initialize_window_i,
+         addr_i                      => wn_addr_o,
+         wn2_o                       => wn2_dat,
+         wn1_o                       => wn1_dat,
+         wn_i                        => wn_dat,
+         wren_i                      => fsfb_fltr_wr_en_o
+      ); 
+   
+   row1_fltr_data_reg: process (clk_50_i, rst_i, fsfb_fltr_rd_data_i)
+   begin
+      if (rst_i = '1') then
+         row1_fltr_data <= (others => '0');
+      elsif ( clk_50_i'event and clk_50_i = '1') then
+         if (conv_integer(unsigned(fsfb_fltr_rd_addr_o)) = 1) then
+            row1_fltr_data <= fsfb_fltr_rd_data_i;
+         end if;
+      end if;   
+   end process row1_fltr_data_reg;
    
    -- flux quanta counter queues
    -- Bank 0 (even)
    -- Queue is 8-bit wide: 2's complement -- 7 (sign); 6:0 (magnitude) 
-   i_fsfb_flux_cnt_queue_bank0 : ram_8x64
+   i_flux_cnt_queue_bank0 : ram_8x64
       port map (
-         data                         => fsfb_flux_cnt_queue_wr_data_o,
-         wraddress                    => fsfb_flux_cnt_queue_wr_addr_o,
-         rdaddress_a                  => fsfb_flux_cnt_queue_rd_addra_o,
-         rdaddress_b                  => fsfb_flux_cnt_queue_rd_addrb_o,
-         wren                         => fsfb_flux_cnt_queue_wr_en_bank0_o,
+         data                         => flux_cnt_queue_wr_data_o,
+         wraddress                    => flux_cnt_queue_wr_addr_o,
+         rdaddress_a                  => flux_cnt_queue_rd_addra_o,
+         rdaddress_b                  => flux_cnt_queue_rd_addrb_o,
+         wren                         => flux_cnt_queue_wr_en_bank0_o,
          clock                        => clk_50_i,
-         qa                           => fsfb_flux_cnt_queue_rd_dataa_bank0_i,
-         qb                           => fsfb_flux_cnt_queue_rd_datab_bank0_i
+         qa                           => flux_cnt_queue_rd_dataa_bank0_i,
+         qb                           => flux_cnt_queue_rd_datab_bank0_i
       );   
       
    -- Bank 1 (odd)
    -- Queue is 8-bit wide: 2's complement -- 7 (sign); 6:0 (magnitude) 
-   i_fsfb_flux_cnt_queue_bank1 : ram_8x64
+   i_flux_cnt_queue_bank1 : ram_8x64
       port map (
-         data                         => fsfb_flux_cnt_queue_wr_data_o,
-         wraddress                    => fsfb_flux_cnt_queue_wr_addr_o,
-         rdaddress_a                  => fsfb_flux_cnt_queue_rd_addra_o,
-         rdaddress_b                  => fsfb_flux_cnt_queue_rd_addrb_o,
-         wren                         => fsfb_flux_cnt_queue_wr_en_bank1_o,
+         data                         => flux_cnt_queue_wr_data_o,
+         wraddress                    => flux_cnt_queue_wr_addr_o,
+         rdaddress_a                  => flux_cnt_queue_rd_addra_o,
+         rdaddress_b                  => flux_cnt_queue_rd_addrb_o,
+         wren                         => flux_cnt_queue_wr_en_bank1_o,
          clock                        => clk_50_i,
-         qa                           => fsfb_flux_cnt_queue_rd_dataa_bank1_i,
-         qb                           => fsfb_flux_cnt_queue_rd_datab_bank1_i
+         qa                           => flux_cnt_queue_rd_dataa_bank1_i,
+         qb                           => flux_cnt_queue_rd_datab_bank1_i
       );   
     
    
