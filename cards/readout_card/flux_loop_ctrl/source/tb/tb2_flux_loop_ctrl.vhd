@@ -50,6 +50,10 @@
 -- Revision history:
 -- 
 -- $Log: tb2_flux_loop_ctrl.vhd,v $
+-- Revision 1.10  2005/09/14 23:48:39  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.9  2004/12/17 00:39:46  anthonyk
 -- Number of clock cycles per row requirement is now changed to accomodate the increased latency of the shared pidz multiplier scheme.
 --
@@ -198,24 +202,18 @@ architecture beh of tb2_flux_loop_ctrl is
      sa_bias_dac_spi_o          : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
      offset_dac_spi_o           : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
  
- 
-     -- INTERNAL
+
+     -- fsfb_calc Interface
      fsfb_fltr_dat_rdy_o        : out std_logic;                                             -- fs feedback queue current data ready 
      fsfb_fltr_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
-
-     ---------------------------------------------------------------
-     -- First Stage Feedback Correction Interface (for Flux Jumping)
-     ---------------------------------------------------------------
-     -- to fsfb_calc block
-     flux_jumping_en_i          : in std_logic;
-     fsfb_ctrl_lock_en_o        : out std_logic;                                             -- fs feedback lock servo mode enable
-     flux_quanta_o              : out std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- flux quanta value (formerly known as coeff z)
-     -- FSFB_QUEUE_DATA_WIDTH is also reduced from 32 to 24 to accomodate the flux quanta
      fsfb_ctrl_dat_o            : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data (uncorrected)
      fsfb_ctrl_dat_rdy_o        : out std_logic;                                             -- fs feedback queue previous data ready (uncorrected).  The rdy pulse is also good for num_flux_quanta_prev    
+     fsfb_ctrl_lock_en_o        : out std_logic;                                             -- fs feedback lock servo mode enable
      num_flux_quanta_prev_o     : out std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count            
      num_flux_quanta_pres_rdy_i : in  std_logic;                                             -- flux quanta present count ready
      num_flux_quanta_pres_i     : in  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta present count    
+     flux_jumping_en_i          : in std_logic;
+     flux_quanta_o              : out std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   -- flux quanta value (formerly known as coeff z)
  
      -- to fsfb_ctrl block
      fsfb_ctrl_dat_rdy_i        : in  std_logic;                                             -- fsfb control data ready (corrected)
@@ -313,7 +311,6 @@ architecture beh of tb2_flux_loop_ctrl is
       );
    end component pidz_queue;  
  
-
   -- flux_loop_ctrl signals
   signal adc_dat_i                 : std_logic_vector (ADC_DAT_WIDTH-1 downto 0);
   signal adc_ovr_i                 : std_logic;
@@ -372,7 +369,7 @@ architecture beh of tb2_flux_loop_ctrl is
   signal sa_bias_dac_spi_o         : std_logic_vector(2 downto 0);
   signal offset_dac_spi_o          : std_logic_vector(2 downto 0);
   signal fsfb_fltr_dat_rdy_o       : std_logic;                                             -- fs feedback queue current data ready 
-  signal fsfb_fltr_dat_o           : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+  signal fsfb_fltr_dat_o           : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
                                                                                             -- the rdy pulse is also good for num_flux_quanta_prev    
 
   -- Signals Interface between fsfb_corr and flux_loop_ctrl

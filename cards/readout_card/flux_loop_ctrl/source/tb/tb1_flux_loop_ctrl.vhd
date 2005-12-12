@@ -77,6 +77,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_flux_loop_ctrl.vhd,v $
+-- Revision 1.6  2004/12/07 19:44:57  mohsen
+-- Anthony & Mohsen: Miscellanous updates
+--
 -- Revision 1.5  2004/11/26 18:26:21  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -184,8 +187,6 @@ architecture beh of tb1_flux_loop_ctrl is
     i_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     d_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
     d_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    z_addr_o                  : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    z_dat_i                   : in  std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     sa_bias_dat_i             : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     offset_dat_i              : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     filter_coeff0_i           : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -206,7 +207,7 @@ architecture beh of tb1_flux_loop_ctrl is
 
     -- INTERNAL
     fsfb_fltr_dat_rdy_o       : out std_logic;                                             -- fs feedback queue current data ready 
-    fsfb_fltr_dat_o           : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+    fsfb_fltr_dat_o           : out std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
     fsfb_ctrl_dat_rdy_o       : out std_logic;                                             -- fs feedback queue previous data ready
     fsfb_ctrl_dat_o           : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0)     -- fs feedback queue previous data
       );
@@ -255,8 +256,6 @@ architecture beh of tb1_flux_loop_ctrl is
     signal i_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     signal d_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
     signal d_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-    signal z_addr_o                  : std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-    signal z_dat_i                   : std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
     signal sa_bias_dat_i             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     signal offset_dat_i              : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
     signal filter_coeff0_i           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -271,7 +270,7 @@ architecture beh of tb1_flux_loop_ctrl is
     signal sa_bias_dac_spi_o         : std_logic_vector(2 downto 0);
     signal offset_dac_spi_o          : std_logic_vector(2 downto 0);
     signal fsfb_fltr_dat_rdy_o       : std_logic;                                             -- fs feedback queue current data ready 
-    signal fsfb_fltr_dat_o           : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+    signal fsfb_fltr_dat_o           : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
     signal fsfb_ctrl_dat_rdy_o       : std_logic;                                             -- fs feedback queue previous data ready
     signal fsfb_ctrl_dat_o           : std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data
       
@@ -322,25 +321,19 @@ architecture beh of tb1_flux_loop_ctrl is
    signal calc_d_addr_o                :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
    signal calc_d_dat_i                 :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
    signal calc_d_dat_i_33              :     std_logic_vector(32 downto 0);
-   signal calc_z_addr_o                :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
-   signal calc_z_dat_i                 :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-   signal calc_z_dat_i_33              :     std_logic_vector(32 downto 0);
    
    
    signal pq_wraddr_i                  :     std_logic_vector(5 downto 0);
    signal iq_wraddr_i                  :     std_logic_vector(5 downto 0);
    signal dq_wraddr_i                  :     std_logic_vector(5 downto 0);
-   signal zq_wraddr_i                  :     std_logic_vector(5 downto 0);
    
    signal pq_wrdata_i                  :     std_logic_vector(32 downto 0);
    signal iq_wrdata_i                  :     std_logic_vector(32 downto 0);
    signal dq_wrdata_i                  :     std_logic_vector(32 downto 0);
-   signal zq_wrdata_i                  :     std_logic_vector(32 downto 0);   
    
    signal pq_wren_i                    :     std_logic;
    signal iq_wren_i                    :     std_logic;
    signal dq_wren_i                    :     std_logic;
-   signal zq_wren_i                    :     std_logic;
 
 
   -- for selfcheck process
@@ -388,21 +381,18 @@ architecture beh of tb1_flux_loop_ctrl is
   -----------------------------------------------------------------------------
 
    -- procedure for configuring PIDZ coefficient queues   
-   procedure cfg_pidz(
+   procedure cfg_pid(
       signal clk_i    : in  std_logic;
       start_val       : in  integer;
       signal p_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
       signal i_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
       signal d_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
-      signal z_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
       signal p_dat_o  : out std_logic_vector(32 downto 0);
       signal i_dat_o  : out std_logic_vector(32 downto 0);        
       signal d_dat_o  : out std_logic_vector(32 downto 0);           
-      signal z_dat_o  : out std_logic_vector(32 downto 0);
       signal p_wren_o : out std_logic;
       signal i_wren_o : out std_logic;
       signal d_wren_o : out std_logic;
-      signal z_wren_o : out std_logic
       ) is
       
    begin
@@ -411,22 +401,18 @@ architecture beh of tb1_flux_loop_ctrl is
          p_addr_o <= conv_std_logic_vector(index, COEFF_QUEUE_ADDR_WIDTH);
          i_addr_o <= conv_std_logic_vector(index, COEFF_QUEUE_ADDR_WIDTH);
          d_addr_o <= conv_std_logic_vector(index, COEFF_QUEUE_ADDR_WIDTH);
-         z_addr_o <= conv_std_logic_vector(index, COEFF_QUEUE_ADDR_WIDTH);
          p_dat_o  <= conv_std_logic_vector(start_val+index, 33);
          i_dat_o  <= conv_std_logic_vector(start_val+2*index, 33);
          d_dat_o  <= conv_std_logic_vector(start_val+3*index, 33);
-         z_dat_o  <= conv_std_logic_vector(start_val+4*index, 33);
          p_wren_o <= '1';
          i_wren_o <= '1';
          d_wren_o <= '1';
-         z_wren_o <= '1';
       end loop;
       wait until clk_i = '0';
       p_wren_o <= '0';
       i_wren_o <= '0';
       d_wren_o <= '0';
-      z_wren_o <= '0';
-   end procedure cfg_pidz;
+   end procedure cfg_pid;
   
 
    -- procedure for test mode setting
@@ -530,8 +516,6 @@ begin  -- beh
     i_dat_i                   => i_dat_i,
     d_addr_o                  => d_addr_o,
     d_dat_i                   => d_dat_i,
-    z_addr_o                  => z_addr_o,
-    z_dat_i                   => z_dat_i,
     sa_bias_dat_i             => sa_bias_dat_i,
     offset_dat_i              => offset_dat_i,
     filter_coeff0_i           => filter_coeff0_i,
@@ -1153,10 +1137,10 @@ begin  -- beh
 --                         servo_mode_i, ramp_step_size_i, ramp_amp_i,
 --                         num_ramp_frame_cycles_i, const_val_i);          
          
-     cfg_pidz(calc_clk_i, 1,
-               pq_wraddr_i, iq_wraddr_i, dq_wraddr_i, zq_wraddr_i,
-               pq_wrdata_i, iq_wrdata_i, dq_wrdata_i, zq_wrdata_i,
-               pq_wren_i, iq_wren_i, dq_wren_i, zq_wren_i);
+     cfg_pid(calc_clk_i, 1,
+               pq_wraddr_i, iq_wraddr_i, dq_wraddr_i,
+               pq_wrdata_i, iq_wrdata_i, dq_wrdata_i,
+               pq_wren_i, iq_wren_i, dq_wren_i);
      
     
     do_initialize;
