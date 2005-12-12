@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.7  2005/11/29 18:33:52  mandana
+-- added filter queue storage parameters
+--
 -- Revision 1.6  2005/11/28 19:11:29  bburger
 -- Bryce:  increased the bus width for fb_const, ramp_dly, ramp_amp and ramp_step from 14 bits to 32 bits, to use them for flux-jumping testing
 --
@@ -177,10 +180,9 @@ package flux_loop_pack is
       sa_bias_dac_spi_o           : out std_logic_vector(SA_BIAS_SPI_DATA_WIDTH-1 downto 0);
       offset_dac_spi_o            : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0);
       fsfb_fltr_dat_rdy_o         : out std_logic;
-      fsfb_fltr_dat_o             : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
+      fsfb_fltr_dat_o             : out std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
       
       --  fsfb_corr interface
-      flux_jumping_en_i           : in std_logic;
       fsfb_ctrl_lock_en_o         : out std_logic;                                             
       flux_quanta_o               : out std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
       fsfb_ctrl_dat_o             : out std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    
