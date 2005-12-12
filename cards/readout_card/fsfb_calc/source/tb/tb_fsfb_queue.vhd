@@ -34,7 +34,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: tb_fsfb_queue.vhd,v $
+-- Revision 1.1  2004/10/22 22:19:41  anthonyk
+-- Initial release
+--
 --
 --
 --
@@ -66,15 +69,15 @@ architecture test of tb_fsfb_queue is
    signal rst                       :              std_logic := '1';     -- global reset
 
    -- ram interface
-   signal queue_data_i :                           std_logic_vector(32 downto 0);
+   signal queue_data_i :                           std_logic_vector(39 downto 0);
    signal queue_wraddr_i :                         std_logic_vector(5 downto 0);
    signal queue_rdaddr_i :                         std_logic_vector(5 downto 0);
    signal queue_rdaddra_i :                        std_logic_vector(5 downto 0);
    signal queue_rdaddrb_i :                        std_logic_vector(5 downto 0);
    signal queue_wren_i :                           std_logic;
    signal queue_clk_i :                            std_logic := '0';
-   signal queue_qa_o :                             std_logic_vector(32 downto 0);
-   signal queue_qb_o :                             std_logic_vector(32 downto 0);
+   signal queue_qa_o :                             std_logic_vector(39 downto 0);
+   signal queue_qb_o :                             std_logic_vector(39 downto 0);
    signal rden_a : std_logic;
    signal rden_b : std_logic;
    
@@ -177,7 +180,7 @@ begin
       
       
    -- unit under test:  first stage feedback queue
-   UUT : fsfb_queue 
+   UUT : ram_40x64 
       port map (
          data                     => queue_data_i,
          wraddress                => queue_wraddr_i,
