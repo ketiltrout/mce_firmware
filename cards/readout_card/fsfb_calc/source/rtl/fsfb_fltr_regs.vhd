@@ -35,8 +35,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date$>    - <initials $Author$>
--- $Log$
+-- <date $Date: 2005/11/30 18:20:08 $>    - <initials $Author: mandana $>
+-- $Log: fsfb_fltr_regs.vhd,v $
+-- Revision 1.1  2005/11/30 18:20:08  mandana
+-- initial release
+--
 --
 --
 
@@ -102,7 +105,7 @@ begin
       port map (
          data                         => wn1_temp_muxed,
          address                      => addr_i,
-         wren                         => wren_i,
+         wren                         => wren_muxed,
          clock                        => clk_50_i,
          q                            => wn2_o
       );
