@@ -46,8 +46,8 @@
 -- Ports:
 -- #clk_50_i: Golbal signal
 -- #rst_i: Global signal
--- #p_dat_ch0_o: P Data for flux_loop_ctrl channel0
--- #p_addr_ch0_i: Read address from flux_loop_ctrl channle0
+-- #dat_ch0_o: P/I/D Data for flux_loop_ctrl channel0
+-- #addr_ch0_i: Read address from flux_loop_ctrl channle0
 -- #### Similarly for ch1 to ch7
 -- #dat_i: Data in from Dispatch
 -- #addr_i: Address from Dispatch showing the address of memory banks. This is
@@ -59,13 +59,17 @@
 -- #stb_i: Strobe signal from Dispatch.  Indicates if an address is valid or
 -- not. See Wishbone manul page 54 and 57.  
 -- #cyc_i: Input from Dispatch indicating a read or write cycle is in progress
--- #qa_p_bank_o: A MUX output of all the qa output of the memory banks for P 
--- #ack_p_bank_o: A logical OR function of acknowledge signals for read or
+-- #qa_bank_o: A MUX output of all the qa output of the memory banks for P/I/D 
+-- #ack_bank_o: A logical OR function of acknowledge signals for read or
 -- write cycles of each memory bank
 --
 --
 -- Revision history:
--- $Log$
+-- $Log: pid_ram_admin.vhd,v $
+-- Revision 1.1  2005/09/15 00:03:59  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 --
 --
 ------------------------------------------------------------------------
@@ -133,7 +137,7 @@ end pid_ram_admin;
 architecture rtl of pid_ram_admin is
 
   -----------------------------------------------------------------------------
-  -- Signals from P Banks
+  -- Signals from Memory Banks
   -----------------------------------------------------------------------------
   signal qa0 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
   signal qa1 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);
@@ -154,7 +158,7 @@ architecture rtl of pid_ram_admin is
   signal qb7 : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0);   
   
   -----------------------------------------------------------------------------
-  -- Signals from P Controller
+  -- Signals from the Controller
   -----------------------------------------------------------------------------
   signal wren0 : std_logic;
   signal wren1 : std_logic;
@@ -177,17 +181,17 @@ begin  -- rtl
   -- Instantiation of P Banks
   -----------------------------------------------------------------------------
 
-  dat <= "10000000" when conv_integer(signed(dat_i)) < PIDZ_MIN else
-         "01111111" when conv_integer(signed(dat_i)) > PIDZ_MAX else dat_i(PIDZ_DATA_WIDTH-1 downto 0);
+  -- range_checking is handled in RTL
+  dat <= dat_i(PIDZ_DATA_WIDTH-1 downto 0);
   
-  dat_ch0_o <= sign_xtnd_8_to_32(qb0); 
-  dat_ch1_o <= sign_xtnd_8_to_32(qb1);
-  dat_ch2_o <= sign_xtnd_8_to_32(qb2);
-  dat_ch3_o <= sign_xtnd_8_to_32(qb3);
-  dat_ch4_o <= sign_xtnd_8_to_32(qb4);
-  dat_ch5_o <= sign_xtnd_8_to_32(qb5);
-  dat_ch6_o <= sign_xtnd_8_to_32(qb6);
-  dat_ch7_o <= sign_xtnd_8_to_32(qb7);
+  dat_ch0_o <= sign_xtnd_to_32(qb0); 
+  dat_ch1_o <= sign_xtnd_to_32(qb1);
+  dat_ch2_o <= sign_xtnd_to_32(qb2);
+  dat_ch3_o <= sign_xtnd_to_32(qb3);
+  dat_ch4_o <= sign_xtnd_to_32(qb4);
+  dat_ch5_o <= sign_xtnd_to_32(qb5);
+  dat_ch6_o <= sign_xtnd_to_32(qb6);
+  dat_ch7_o <= sign_xtnd_to_32(qb7);
   
   i_bank_ch0 : ram_8x64
     port map (
@@ -515,15 +519,15 @@ begin  -- rtl
   ack_bank_o <= ack_write_bank or ack_read_bank;
   
   qa_bank_o <=
-     sign_xtnd_8_to_32(qa0) when addr_i = GAINP0_ADDR or addr_i = GAINI0_ADDR or addr_i = GAIND0_ADDR else
-     sign_xtnd_8_to_32(qa1) when addr_i = GAINP1_ADDR or addr_i = GAINI1_ADDR or addr_i = GAIND1_ADDR else
-     sign_xtnd_8_to_32(qa2) when addr_i = GAINP2_ADDR or addr_i = GAINI2_ADDR or addr_i = GAIND2_ADDR else
-     sign_xtnd_8_to_32(qa3) when addr_i = GAINP3_ADDR or addr_i = GAINI3_ADDR or addr_i = GAIND3_ADDR else
-     sign_xtnd_8_to_32(qa4) when addr_i = GAINP4_ADDR or addr_i = GAINI4_ADDR or addr_i = GAIND4_ADDR else
-     sign_xtnd_8_to_32(qa5) when addr_i = GAINP5_ADDR or addr_i = GAINI5_ADDR or addr_i = GAIND5_ADDR else
-     sign_xtnd_8_to_32(qa6) when addr_i = GAINP6_ADDR or addr_i = GAINI6_ADDR or addr_i = GAIND6_ADDR else
-     sign_xtnd_8_to_32(qa7) when addr_i = GAINP7_ADDR or addr_i = GAINI7_ADDR or addr_i = GAIND7_ADDR else
-     sign_xtnd_8_to_32(qa0); -- default to ch0
+     sign_xtnd_to_32(qa0) when addr_i = GAINP0_ADDR or addr_i = GAINI0_ADDR or addr_i = GAIND0_ADDR else
+     sign_xtnd_to_32(qa1) when addr_i = GAINP1_ADDR or addr_i = GAINI1_ADDR or addr_i = GAIND1_ADDR else
+     sign_xtnd_to_32(qa2) when addr_i = GAINP2_ADDR or addr_i = GAINI2_ADDR or addr_i = GAIND2_ADDR else
+     sign_xtnd_to_32(qa3) when addr_i = GAINP3_ADDR or addr_i = GAINI3_ADDR or addr_i = GAIND3_ADDR else
+     sign_xtnd_to_32(qa4) when addr_i = GAINP4_ADDR or addr_i = GAINI4_ADDR or addr_i = GAIND4_ADDR else
+     sign_xtnd_to_32(qa5) when addr_i = GAINP5_ADDR or addr_i = GAINI5_ADDR or addr_i = GAIND5_ADDR else
+     sign_xtnd_to_32(qa6) when addr_i = GAINP6_ADDR or addr_i = GAINI6_ADDR or addr_i = GAIND6_ADDR else
+     sign_xtnd_to_32(qa7) when addr_i = GAINP7_ADDR or addr_i = GAINI7_ADDR or addr_i = GAIND7_ADDR else
+     sign_xtnd_to_32(qa0); -- default to ch0
 
   
   
