@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2004/12/07 19:37:46 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2005/06/23 17:31:56 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.7  2005/06/23 17:31:56  mohsen
+-- MA/BB: RAW_ADDR_MAX changed to 8192 which is the maximum size of raw memory bank
+--
 -- Revision 1.6  2004/12/07 19:37:46  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -79,15 +82,11 @@ constant PIXEL_ADDR_MAX    :  integer := NO_CHANNELS * NO_ROWS;
 --constant RAW_ADDR_MAX      :  integer := 2 * NO_CHANNELS * NO_ROWS * 64 ;
 constant RAW_ADDR_MAX      :  integer := NO_CHANNELS * (2**RAW_ADDR_WIDTH);
 
-constant MODE1_FILTERED    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
-constant MODE2_UNFILTERED  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000001";
-constant MODE3_FB_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000002";
-constant MODE4_RAW         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000003";
-
-
-
-
-
-
+constant MODE0_ERROR       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000000";
+constant MODE1_UNFILTERED  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000001";
+constant MODE2_FILTERED    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000002";
+constant MODE3_RAW         : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000003";
+constant MODE4_FB_ERROR    : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000004";
+constant MODE5_FB_FLX_CNT  : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0) := X"00000005";
 
 end package;
