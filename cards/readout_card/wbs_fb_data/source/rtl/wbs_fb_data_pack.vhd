@@ -32,6 +32,10 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.3  2005/09/14 23:48:41  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.2  2004/11/26 18:28:35  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -65,7 +69,8 @@ package wbs_fb_data_pack is
   constant P_COEFFICIENT : integer := 0;
   constant I_COEFFICIENT : integer := 1;
   constant D_COEFFICIENT : integer := 2;
-  
+  constant ZERO_XTND     : std_logic_vector(WB_DATA_WIDTH-1 downto PIDZ_DATA_WIDTH) := (others=>'0');
+  constant ONE_XTND      : std_logic_vector(WB_DATA_WIDTH-1 downto PIDZ_DATA_WIDTH) := (others=>'1');
   
   -----------------------------------------------------------------------------
   -- Memory Bank (Megafunction Declarations)
@@ -83,17 +88,6 @@ package wbs_fb_data_pack is
       qb          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0));
   end component;
 
---  component pid_ram
---    port (
---      data        : IN  STD_LOGIC_VECTOR (8 DOWNTO 0);
---      wraddress   : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
---      rdaddress_a : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
---      rdaddress_b : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
---      wren        : IN  STD_LOGIC := '1';
---      clock       : IN  STD_LOGIC;
---      qa          : OUT STD_LOGIC_VECTOR (8 DOWNTO 0);
---      qb          : OUT STD_LOGIC_VECTOR (8 DOWNTO 0));
---  end component;
 
   component ram_8x64
     port (
@@ -105,18 +99,6 @@ package wbs_fb_data_pack is
       clock       : IN  STD_LOGIC;
       qa          : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
       qb          : OUT STD_LOGIC_VECTOR (7 DOWNTO 0));
-  end component;
-
-  component ram_9x64
-    port (
-      data        : IN  STD_LOGIC_VECTOR (8 DOWNTO 0);
-      wraddress   : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_a : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_b : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
-      wren        : IN  STD_LOGIC := '1';
-      clock       : IN  STD_LOGIC;
-      qa          : OUT STD_LOGIC_VECTOR (8 DOWNTO 0);
-      qb          : OUT STD_LOGIC_VECTOR (8 DOWNTO 0));
   end component;
 
   component ram_14x64
@@ -132,7 +114,7 @@ package wbs_fb_data_pack is
   end component;
 
   -----------------------------------------------------------------------------
-  -- P Banks Administrator
+  -- PID Banks Administrator
   -----------------------------------------------------------------------------
 
   component pid_ram_admin
@@ -168,76 +150,6 @@ package wbs_fb_data_pack is
   end component;
 
   
---  -----------------------------------------------------------------------------
---  -- I Banks Administrator
---  -----------------------------------------------------------------------------
---
---  component i_banks_admin
---    port (
---      clk_50_i     : in  std_logic;
---      rst_i        : in  std_logic;
---      i_dat_ch0_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      i_addr_ch0_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      i_dat_ch1_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      i_addr_ch1_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      i_dat_ch2_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      i_addr_ch2_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      i_dat_ch3_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      i_addr_ch3_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      i_dat_ch4_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      i_addr_ch4_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      i_dat_ch5_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      i_addr_ch5_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      i_dat_ch6_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      i_addr_ch6_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      i_dat_ch7_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      i_addr_ch7_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      dat_i        : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      addr_i       : in  std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
---      tga_i        : in  std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
---      we_i         : in  std_logic;
---      stb_i        : in  std_logic;
---      cyc_i        : in  std_logic;
---      qa_i_bank_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      ack_i_bank_o : out std_logic);
---  end component;
---
---  
---  -----------------------------------------------------------------------------
---  -- D Banks Administrator
---  -----------------------------------------------------------------------------
---
---  component d_banks_admin
---    port (
---      clk_50_i     : in  std_logic;
---      rst_i        : in  std_logic;
---      d_dat_ch0_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      d_addr_ch0_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      d_dat_ch1_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      d_addr_ch1_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      d_dat_ch2_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      d_addr_ch2_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      d_dat_ch3_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      d_addr_ch3_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      d_dat_ch4_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      d_addr_ch4_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      d_dat_ch5_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      d_addr_ch5_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      d_dat_ch6_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      d_addr_ch6_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      d_dat_ch7_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      d_addr_ch7_i : in  std_logic_vector(PIDZ_ADDR_WIDTH-1 downto 0);
---      dat_i        : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      addr_i       : in  std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
---      tga_i        : in  std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
---      we_i         : in  std_logic;
---      stb_i        : in  std_logic;
---      cyc_i        : in  std_logic;
---      qa_d_bank_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
---      ack_d_bank_o : out std_logic);
---  end component;
---
---  
   -----------------------------------------------------------------------------
   -- FLUX_LOOP Banks Administrator
   -----------------------------------------------------------------------------
@@ -358,34 +270,22 @@ package wbs_fb_data_pack is
   -----------------------------------------------------------------------------
   -- Functions 
   -----------------------------------------------------------------------------
-  function sign_xtnd_8_to_32    (input : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0)) return std_logic_vector;
-  function sign_xtnd_14_to_32 (input : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0)) return std_logic_vector;
+  function sign_xtnd_to_32    (input : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0)) return std_logic_vector;
     
 end wbs_fb_data_pack;
 
 
 package body wbs_fb_data_pack is
 
-   function sign_xtnd_8_to_32 (input : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0)) return std_logic_vector is
+   function sign_xtnd_to_32 (input : std_logic_vector(PIDZ_DATA_WIDTH-1 downto 0)) return std_logic_vector is
       variable result : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    begin
       case input(PIDZ_DATA_WIDTH-1) is
-         when '0' =>    result := "000000000000000000000000" & input;           
-         when '1' =>    result := "111111111111111111111111" & input;
+         when '0' =>    result := ZERO_XTND & input;           
+         when '1' =>    result := ONE_XTND  & input;
          when others => result := (others => '0');
       end case;
       return result;
-   end function sign_xtnd_8_to_32;
-
-   function sign_xtnd_14_to_32 (input : std_logic_vector(FLUX_QUANTA_DATA_WIDTH-1 downto 0)) return std_logic_vector is
-      variable result : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   begin
-      case input(FLUX_QUANTA_ADDR_WIDTH-1) is
-         when '0' =>    result := "000000000000000000" & input;           
-         when '1' =>    result := "111111111111111111" & input;
-         when others => result := (others => '0');
-      end case;
-      return result;
-   end function sign_xtnd_14_to_32;
+   end function sign_xtnd_to_32;
 
 end package body wbs_fb_data_pack;
