@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_io_controller.vhd,v $
+-- Revision 1.4  2005/02/25 23:06:21  anthonyk
+-- Added testcase for changing the num_ramp_frame_cycles on the fly but without initialize_window
+--
 -- Revision 1.3  2004/12/07 19:41:42  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -104,8 +107,10 @@ architecture test of tb_fsfb_io_controller is
    signal fsfb_proc_dat_i             :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
    signal fsfb_ws_addr_i              :     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
    signal fsfb_ws_dat_o               :     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal fsfb_ws_fltr_addr_i         :     std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);
+   signal fsfb_ws_fltr_dat_o          :     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fsfb_fltr_dat_rdy_o         :     std_logic;
-   signal fsfb_fltr_dat_o             :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
+   signal fsfb_fltr_dat_o             :     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
    signal fsfb_ctrl_dat_rdy_o         :     std_logic;
    signal fsfb_ctrl_dat_o             :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
    signal p_addr_o                    :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
@@ -126,7 +131,35 @@ architecture test of tb_fsfb_io_controller is
    signal fsfb_queue_rd_dataa_bank1_i :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       
    signal fsfb_queue_rd_datab_bank0_i :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       
    signal fsfb_queue_rd_datab_bank1_i :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       
-      
+   
+   -- filter related uut interface
+   signal fsfb_proc_fltr_update_i     :     std_logic;
+   signal fsfb_proc_fltr_dat_i        :     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
+   signal fsfb_fltr_wr_data_o         :     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);  -- write data to the filter queue
+   signal fsfb_fltr_wr_addr_o         :     std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);  -- write address to the filter queue
+   signal fsfb_fltr_rd_addr_o         :     std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);  -- read address to the filter queue
+   signal fsfb_fltr_wr_en_o           :     std_logic;                                           -- write enable to the fsfb filter queue
+   signal fsfb_fltr_rd_data_i         :     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
+   signal wn_addr_o                   :     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);   
+   
+   -- flux jumping related uut interface
+   signal num_flux_quanta_pres_rdy_i  :     std_logic;
+   signal num_flux_quanta_pres_i      :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal num_flux_quanta_prev_o      :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal flux_quanta_addr_o          :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);   
+   signal flux_cnt_ws_dat_o           :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal flux_cnt_queue_wr_data_o    :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);     
+   signal flux_cnt_queue_wr_addr_o    :     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     
+   signal flux_cnt_queue_rd_addra_o   :     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);                 
+   signal flux_cnt_queue_rd_addrb_o   :     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     
+   signal flux_cnt_queue_wr_en_bank0_o:     std_logic;                                              
+   signal flux_cnt_queue_wr_en_bank1_o:     std_logic;                                                 
+   signal flux_cnt_queue_rd_dataa_bank0_i:  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+   signal flux_cnt_queue_rd_dataa_bank1_i:  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+   signal flux_cnt_queue_rd_datab_bank0_i:  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
+   signal flux_cnt_queue_rd_datab_bank1_i:  std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);  
+   
+   
    -- data to be written to the queue for the write operation
    signal dat                         :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
    
@@ -213,6 +246,7 @@ begin
    
    fsfb_ws_addr_i <= frame_counter;
    
+   fsfb_ws_fltr_addr_i <= frame_counter;
    
    delay_en_proc : process (io_clk_i, rst_i)   
    begin
@@ -248,8 +282,9 @@ begin
    
    fsfb_proc_update_i <= fsfb_proc_update_shift(3);   
    
+   fsfb_proc_fltr_update_i <= fsfb_proc_update_shift(3);
    
-   -- Generate the fsfb_proc_dat_i inputs
+   -- Generate the fsfb_proc_dat_i and fsfb_proc_fltr_dat_i inputs
    dat_counter : process (rst_i, io_clk_i)
    begin
       if rst_i = '1' then
@@ -265,6 +300,13 @@ begin
          fsfb_proc_dat_i <= dat;
       end if;
    end process fsfb_proc_dat_gen;
+
+   fsfb_proc_fltr_dat_gen : process (fsfb_proc_fltr_update_i)
+   begin
+      if fsfb_proc_fltr_update_i = '1' then
+         fsfb_proc_fltr_dat_i <= dat(31 downto 0);
+      end if;
+   end process fsfb_proc_fltr_dat_gen;
    
    -- Change the num_ramp cycles to observe the impact on changing the 
    -- num_ramp_frame_cycles input on the fly without asserting
@@ -291,22 +333,36 @@ begin
          row_switch_i                 => row_switch_i,
          initialize_window_i          => initialize_window_i,
          num_ramp_frame_cycles_i      => num_ramp_frame_cycles_i,
+         num_flux_quanta_pres_rdy_i   => num_flux_quanta_pres_rdy_i,
+         num_flux_quanta_pres_i       => num_flux_quanta_pres_i,
+         fsfb_proc_fltr_update_i      => fsfb_proc_fltr_update_i,
+	 fsfb_proc_fltr_dat_i         => fsfb_proc_fltr_dat_i,	 
          fsfb_proc_update_i           => fsfb_proc_update_i,
-	 fsfb_proc_dat_i              => fsfb_proc_dat_i,
+         fsfb_proc_dat_i              => fsfb_proc_dat_i,
+         fsfb_ws_fltr_addr_i          => fsfb_ws_fltr_addr_i,
+         fsfb_ws_fltr_dat_o           => fsfb_ws_fltr_dat_o,         
          fsfb_ws_addr_i               => fsfb_ws_addr_i,
          fsfb_ws_dat_o                => fsfb_ws_dat_o,
+         flux_cnt_ws_dat_o            => flux_cnt_ws_dat_o,
          fsfb_fltr_dat_rdy_o          => fsfb_fltr_dat_rdy_o,
          fsfb_fltr_dat_o              => fsfb_fltr_dat_o,
          fsfb_ctrl_dat_rdy_o          => fsfb_ctrl_dat_rdy_o,
          fsfb_ctrl_dat_o              => fsfb_ctrl_dat_o,
+         num_flux_quanta_prev_o       => num_flux_quanta_prev_o,
          p_addr_o                     => p_addr_o,
          i_addr_o                     => i_addr_o,
          d_addr_o                     => d_addr_o,
-         z_addr_o                     => z_addr_o,
+         wn_addr_o                    => wn_addr_o,
+         flux_quanta_addr_o           => flux_quanta_addr_o,
          ramp_update_new_o            => ramp_update_new_o,
          initialize_window_ext_o      => initialize_window_ext_o,
          previous_fsfb_dat_rdy_o      => previous_fsfb_dat_rdy_o,
          previous_fsfb_dat_o          => previous_fsfb_dat_o,
+         fsfb_fltr_wr_data_o          => fsfb_fltr_wr_data_o,
+         fsfb_fltr_wr_addr_o          => fsfb_fltr_wr_addr_o,
+         fsfb_fltr_rd_addr_o          => fsfb_fltr_rd_addr_o,
+         fsfb_fltr_wr_en_o            => fsfb_fltr_wr_en_o,
+         fsfb_fltr_rd_data_i          => fsfb_fltr_rd_data_i, 
          fsfb_queue_wr_data_o         => fsfb_queue_wr_data_o,
          fsfb_queue_wr_addr_o         => fsfb_queue_wr_addr_o,
          fsfb_queue_rd_addra_o        => fsfb_queue_rd_addra_o,            
@@ -316,14 +372,24 @@ begin
          fsfb_queue_rd_dataa_bank0_i  => fsfb_queue_rd_dataa_bank0_i, 
          fsfb_queue_rd_dataa_bank1_i  => fsfb_queue_rd_dataa_bank1_i,
          fsfb_queue_rd_datab_bank0_i  => fsfb_queue_rd_datab_bank0_i,
-         fsfb_queue_rd_datab_bank1_i  => fsfb_queue_rd_datab_bank1_i         
-      );
+         fsfb_queue_rd_datab_bank1_i  => fsfb_queue_rd_datab_bank1_i,
+         flux_cnt_queue_wr_data_o     => flux_cnt_queue_wr_data_o,      
+         flux_cnt_queue_wr_addr_o     => flux_cnt_queue_wr_addr_o,      
+         flux_cnt_queue_rd_addra_o    => flux_cnt_queue_rd_addra_o,                 
+         flux_cnt_queue_rd_addrb_o    => flux_cnt_queue_rd_addrb_o,     
+         flux_cnt_queue_wr_en_bank0_o => flux_cnt_queue_wr_en_bank0_o,  
+         flux_cnt_queue_wr_en_bank1_o => flux_cnt_queue_wr_en_bank1_o,  
+         flux_cnt_queue_rd_dataa_bank0_i => flux_cnt_queue_rd_dataa_bank0_i,
+         flux_cnt_queue_rd_dataa_bank1_i => flux_cnt_queue_rd_dataa_bank1_i,
+         flux_cnt_queue_rd_datab_bank0_i => flux_cnt_queue_rd_datab_bank0_i,
+         flux_cnt_queue_rd_datab_bank1_i => flux_cnt_queue_rd_datab_bank1_i         				 
+      );				 
    
    
    -- first stage feedback queues
    -- Bank 0 (even)
    -- Queue is 33-bit wide:  32 (ramp +/-); 31:0 (actual fsfb data)
-   i_fsfb_queue_bank0 : fsfb_queue
+   i_fsfb_queue_bank0 : ram_40x64
       port map (
          data                         => fsfb_queue_wr_data_o,
          wraddress                    => fsfb_queue_wr_addr_o,
@@ -337,7 +403,7 @@ begin
     
    -- Bank 1 (odd)
    -- Queue is 33-bit wide:  32 (ramp +/-); 31:0 (actual fsfb data)   
-   i_fsfb_queue_bank1 : fsfb_queue
+   i_fsfb_queue_bank1 : ram_40x64
       port map (
          data                         => fsfb_queue_wr_data_o,
          wraddress                    => fsfb_queue_wr_addr_o,
@@ -349,7 +415,17 @@ begin
          qb                           => fsfb_queue_rd_datab_bank1_i
       );     
    
-   
+   -- filter output storage      
+   -- Queue is 32-bit wide
+   i_fsfb_filter_storage : fsfb_filter_storage
+      port map (
+         data                         => fsfb_fltr_wr_data_o,
+         wraddress                    => fsfb_fltr_wr_addr_o,
+         rdaddress                    => fsfb_fltr_rd_addr_o,
+         wren                         => fsfb_fltr_wr_en_o,
+         clock                        => io_clk_i,
+         q                            => fsfb_fltr_rd_data_i
+      );         
      
    run_test : process 
    begin
