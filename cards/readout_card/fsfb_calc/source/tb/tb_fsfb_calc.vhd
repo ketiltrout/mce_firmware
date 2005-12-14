@@ -32,9 +32,20 @@
 -- encapsulates fsfb io controller and processor.  The io controller in turn encapsulates fsfb queue
 -- for storing the fsfb calculation result.
 --
+-- Mandana: The test bench is updated to test for filter response by:
+-- running the test for more frames, using file I/O to store the results, configuring PID with P term 
+-- only while I and D terms are set to 0, and finally using an impulse as ADC input.
+--
+-- In order to run simpler tests with no filter functionality, you have to uncomment/comment few 
+-- sections. search for keyword 'non-filter' to find your way.
+--
+--
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.5  2004/12/07 19:41:42  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.4  2004/11/26 18:26:45  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -55,6 +66,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+use ieee.std_logic_textio.all;
+use std.textio.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
@@ -120,57 +133,78 @@ architecture test of tb_fsfb_calc is
    -- wishbone access (away from frame boundary)
    signal calc_ws_addr_i               :     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
    signal calc_ws_dat_o                :     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal calc_ws_fltr_addr_i          :     std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);
+   signal calc_ws_fltr_dat_o           :     std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal calc_flux_cnt_ws_dat_o       :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
   
-   -- PIDZ coefficient queues io  
+   -- PID coefficient queues io  
    signal calc_p_addr_o                :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
    signal calc_p_dat_i                 :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-   signal calc_p_dat_i_33              :     std_logic_vector(32 downto 0);
+   signal calc_p_dat_i_33              :     std_logic_vector(7 downto 0);
    signal calc_i_addr_o                :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
    signal calc_i_dat_i                 :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-   signal calc_i_dat_i_33              :     std_logic_vector(32 downto 0);   
+   signal calc_i_dat_i_33              :     std_logic_vector(7 downto 0);   
    signal calc_d_addr_o                :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
    signal calc_d_dat_i                 :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-   signal calc_d_dat_i_33              :     std_logic_vector(32 downto 0);
-   signal calc_z_addr_o                :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
-   signal calc_z_dat_i                 :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-   signal calc_z_dat_i_33              :     std_logic_vector(32 downto 0);
+   signal calc_d_dat_i_33              :     std_logic_vector(7 downto 0);
+   signal calc_flux_quanta_addr_o      :     std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
+   signal calc_flux_quanta_dat_i       :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+   signal calc_flux_quanta_dat_i_14    :     std_logic_vector(13 downto 0);
    
    
    signal pq_wraddr_i                  :     std_logic_vector(5 downto 0);
    signal iq_wraddr_i                  :     std_logic_vector(5 downto 0);
    signal dq_wraddr_i                  :     std_logic_vector(5 downto 0);
-   signal zq_wraddr_i                  :     std_logic_vector(5 downto 0);
+   signal flux_quantaq_wraddr_i        :     std_logic_vector(5 downto 0);
    
-   signal pq_wrdata_i                  :     std_logic_vector(32 downto 0);
-   signal iq_wrdata_i                  :     std_logic_vector(32 downto 0);
-   signal dq_wrdata_i                  :     std_logic_vector(32 downto 0);
-   signal zq_wrdata_i                  :     std_logic_vector(32 downto 0);   
+   signal pq_wrdata_i                  :     std_logic_vector(7 downto 0);
+   signal iq_wrdata_i                  :     std_logic_vector(7 downto 0);
+   signal dq_wrdata_i                  :     std_logic_vector(7 downto 0);
+   signal flux_quantaq_wrdata_i        :     std_logic_vector(13 downto 0);   
    
    signal pq_wren_i                    :     std_logic;
    signal iq_wren_i                    :     std_logic;
    signal dq_wren_i                    :     std_logic;
-   signal zq_wren_i                    :     std_logic;
+   signal flux_quantaq_wren_i          :     std_logic;
       
    
    -- downstream filter interface
    signal calc_fltr_dat_rdy_o          :     std_logic;
-   signal calc_fltr_dat_o              :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
+   signal calc_fltr_dat_o              :     std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);
 
    -- downstream control interface
    signal calc_ctrl_dat_rdy_o          :     std_logic;
    signal calc_ctrl_dat_o              :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);
    signal calc_ctrl_lock_en_o          :     std_logic;
 
-
+   -- upstream fsfb_corr interface
+   signal corr_flux_cnt_pres_rdy_i     :   std_logic;
+   signal corr_flux_cnt_pres_i         :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal calc_flux_cnt_prev_o         :     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+   signal calc_flux_quanta_o           :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);   
+   
    -- data to be written to the queue for the write operation
    signal dat                          :     integer;
+   signal impulse                      :     integer;
    
+   component ram_14x64
+     port (
+       data        : IN  STD_LOGIC_VECTOR (13 DOWNTO 0);
+       wraddress   : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
+       rdaddress_a : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
+       rdaddress_b : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
+       wren        : IN  STD_LOGIC := '1';
+       clock       : IN  STD_LOGIC;
+       qa          : OUT STD_LOGIC_VECTOR (13 DOWNTO 0);
+       qb          : OUT STD_LOGIC_VECTOR (13 DOWNTO 0));
+   end component;
    
    -- fsfb calc (UUT) component declaration
    component fsfb_calc is
       generic (
          start_val                 : integer := FSFB_QUEUE_INIT_VAL;                               -- value read from the queue when initialize_window_i is asserted
-         lock_dat_left             : integer := MOST_SIG_LOCK_POS                                  -- most significant bit position of lock mode data output
+         lock_dat_left             : integer := LOCK_MSB_POS;                                      -- most significant bit position of lock mode data output
+         filter_lock_dat_lsb       : integer := FILTER_LOCK_LSB_POS                                -- lsb position of the pidz results fed as input to the filter         
          );
          
       port (
@@ -196,35 +230,40 @@ architecture test of tb_fsfb_calc is
          i_dat_i                   : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          d_addr_o                  : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
          d_dat_i                   : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
-         z_addr_o                  : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
-         z_dat_i                   : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+         flux_quanta_addr_o        : out    std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0); 
+         flux_quanta_dat_i         : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          fsfb_ws_addr_i            : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- fs feedback queue previous address/data inputs/outputs
          fsfb_ws_dat_o             : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
+         flux_cnt_ws_dat_o         : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);
+         fsfb_ws_fltr_addr_i       : in     std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);-- filter results queue address
+         fsfb_ws_fltr_dat_o        : out    std_logic_vector(WB_DATA_WIDTH-1 downto 0);            -- read-only operations
          fsfb_fltr_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue current data ready 
-         fsfb_fltr_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+         fsfb_fltr_dat_o           : out    std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue current data 
+         num_flux_quanta_pres_rdy_i: in     std_logic;                                             -- flux quanta present count ready
+         num_flux_quanta_pres_i    : in     std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta present count    
          fsfb_ctrl_dat_rdy_o       : out    std_logic;                                             -- fs feedback queue previous data ready
          fsfb_ctrl_dat_o           : out    std_logic_vector(FSFB_QUEUE_DATA_WIDTH-1 downto 0);    -- fs feedback queue previous data
-         fsfb_ctrl_lock_en_o       : out    std_logic                                              -- control lock data mode enable
+         num_flux_quanta_prev_o    : out    std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0);    -- flux quanta previous count                 
+         fsfb_ctrl_lock_en_o       : out    std_logic;                                              -- control lock data mode enable
+         flux_quanta_o             : out    std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0)    -- flux quanta value (formerly know as coeff z)
+         
       );
    end component fsfb_calc;
   
 
-   -- procedure for configuring PIDZ coefficient queues   
-   procedure cfg_pidz(
+   -- procedure for configuring PID coefficient queues   
+   procedure cfg_pid(
       signal clk_i    : in  std_logic;
       start_val       : in  integer;
       signal p_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
       signal i_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
       signal d_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
-      signal z_addr_o : out std_logic_vector(COEFF_QUEUE_ADDR_WIDTH-1 downto 0);
-      signal p_dat_o  : out std_logic_vector(32 downto 0);
-      signal i_dat_o  : out std_logic_vector(32 downto 0);        
-      signal d_dat_o  : out std_logic_vector(32 downto 0);           
-      signal z_dat_o  : out std_logic_vector(32 downto 0);
+      signal p_dat_o  : out std_logic_vector(7 downto 0);
+      signal i_dat_o  : out std_logic_vector(7 downto 0);        
+      signal d_dat_o  : out std_logic_vector(7 downto 0);           
       signal p_wren_o : out std_logic;
       signal i_wren_o : out std_logic;
-      signal d_wren_o : out std_logic;
-      signal z_wren_o : out std_logic
+      signal d_wren_o : out std_logic
       ) is
       
    begin
@@ -233,37 +272,55 @@ architecture test of tb_fsfb_calc is
          p_addr_o <= conv_std_logic_vector(index, COEFF_QUEUE_ADDR_WIDTH);
          i_addr_o <= conv_std_logic_vector(index, COEFF_QUEUE_ADDR_WIDTH);
          d_addr_o <= conv_std_logic_vector(index, COEFF_QUEUE_ADDR_WIDTH);
-         z_addr_o <= conv_std_logic_vector(index, COEFF_QUEUE_ADDR_WIDTH);
-         p_dat_o  <= conv_std_logic_vector(start_val+index, 33);
-         i_dat_o  <= conv_std_logic_vector(start_val+2*index, 33);
-         d_dat_o  <= conv_std_logic_vector(start_val+3*index, 33);
-         z_dat_o  <= conv_std_logic_vector(start_val+4*index, 33);
+         p_dat_o  <= conv_std_logic_vector(start_val+index, 8);
+         -- filter-response test sets I and D terms to 0, while for non-filter tests 
+         -- the I and D terms are calculated. choose accordingly!
+         i_dat_o  <= (others=>'0'); --conv_std_logic_vector(start_val+2*index, 8); 
+         d_dat_o  <= (others=>'0'); --conv_std_logic_vector(start_val+3*index, 8);
          p_wren_o <= '1';
          i_wren_o <= '1';
          d_wren_o <= '1';
-         z_wren_o <= '1';
       end loop;
       wait until clk_i = '0';
       p_wren_o <= '0';
       i_wren_o <= '0';
       d_wren_o <= '0';
-      z_wren_o <= '0';
-   end procedure cfg_pidz;
+   end procedure cfg_pid;
    
 
-   -- procedure for wishbone access to the fsfb queues
+   -- procedure for wishbone access to the fsfb queues.
+   -- Note that since filter results are not double-buffered, ws_access to 
+   -- filter data has to be synchronized with restart_frame_1row_post in order
+   -- to maintain integrity of the filter results for all the rows to be in sync 
+   -- with the same-frame data.
    procedure ws_access(
       signal clk_i     : in  std_logic;
-      signal rd_addr_o : out std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0)
+      signal restart_frame_1row_post_i : in  std_logic;
+      signal rd_addr_o : out std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
+      signal rd_fltr_addr_o : out std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0)      
+      ) is
+   
+   begin
+      wait until restart_frame_1row_post_i = '1';      
+      for index in 0 to 40 loop
+         wait until clk_i = '0';        
+         rd_addr_o <= conv_std_logic_vector(index, FSFB_QUEUE_ADDR_WIDTH);
+         rd_fltr_addr_o <= conv_std_logic_vector(index, FLTR_QUEUE_ADDR_WIDTH);
+      end loop;
+   end procedure ws_access;
+   
+   -- procedure for wishbone access to the fsfb filter Q
+   procedure ws_fltr_access(
+      signal clk_i     : in  std_logic;
+      signal rd_addr_o : out std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0)
       ) is
    
    begin
       for index in 0 to 40 loop
          wait until clk_i = '0';
-         rd_addr_o <= conv_std_logic_vector(index, FSFB_QUEUE_ADDR_WIDTH);
+         rd_addr_o <= conv_std_logic_vector(index, FLTR_QUEUE_ADDR_WIDTH);
       end loop;
-   end procedure ws_access;
-   
+   end procedure ws_fltr_access;
    
    -- procedure for generating initialize_window_i input
    procedure init_window(
@@ -322,16 +379,16 @@ begin
    ft_num_rows_sub1_i <= conv_std_logic_vector(40, FSFB_QUEUE_ADDR_WIDTH);
    
 
-   -- Configure the P,I,D,Z coefficient values
-   pidz_setup : process 
+   -- Configure the P,I,D coefficient values
+   pid_setup : process 
    begin
       wait until rst_i = '1';
-      cfg_pidz(calc_clk_i, 1,
-               pq_wraddr_i, iq_wraddr_i, dq_wraddr_i, zq_wraddr_i,
-               pq_wrdata_i, iq_wrdata_i, dq_wrdata_i, zq_wrdata_i,
-               pq_wren_i, iq_wren_i, dq_wren_i, zq_wren_i);
+      cfg_pid(calc_clk_i, 1,
+               pq_wraddr_i, iq_wraddr_i, dq_wraddr_i, 
+               pq_wrdata_i, iq_wrdata_i, dq_wrdata_i,
+               pq_wren_i, iq_wren_i, dq_wren_i);
       wait;
-   end process pidz_setup;
+   end process pid_setup;
       
    
 
@@ -423,33 +480,66 @@ begin
    
    adc_coadd_done_i <= coadd_done_shift(coadd_done_cyc-1);   
    
-
+   
    -- Generate the data inputs from ADC using a free-running counter
    dat_counter : process (rst_i, calc_clk_i)
    begin
       if rst_i = '1' then
          dat <= 0;
+         impulse <= 0;
       elsif (calc_clk_i'event and calc_clk_i = '1') then
          dat <= dat + 1;
       end if;
+      if (dat > 2481 and dat<3294) then -- to generate an impulse after init_window is done and only for one frame period
+        impulse <= 100;
+      else 
+        impulse <= 0;
+      end if;  
    end process dat_counter;
    
    adc_dat_gen : process (adc_coadd_done_i)
    begin
       if adc_coadd_done_i = '1' then
-         adc_coadd_dat_i    <= conv_std_logic_vector(dat, COADD_QUEUE_DATA_WIDTH);
+         -- uncomment one of the following 2 lines:
+         
+         -- for non-filter tests, use the random data
+         -- adc_coadd_dat_i    <= conv_std_logic_vector(dat, COADD_QUEUE_DATA_WIDTH);      
+         
+         -- for filter test use impulse
+         adc_coadd_dat_i    <= conv_std_logic_vector(impulse, COADD_QUEUE_DATA_WIDTH);
+         
          adc_diff_dat_i     <= conv_std_logic_vector(2*dat, COADD_QUEUE_DATA_WIDTH);
          adc_integral_dat_i <= conv_std_logic_vector(3*dat, COADD_QUEUE_DATA_WIDTH);
       end if;
    end process adc_dat_gen;
    
+   -- storing filter results to files   
+   write_filter_out: process (calc_ws_addr_i) is 
+      file output1 : TEXT open WRITE_MODE is "calc_out_addr";
+      file output2 : TEXT open WRITE_MODE is "calc_out_dat";
+      file output3 : TEXT open WRITE_MODE is "calc_out_fltr";
+
+      variable my_line : LINE;
+      variable my_output_line : LINE;
+   begin
+      if (conv_integer(calc_ws_addr_i) = 2) then
+      write(my_output_line, conv_integer(calc_ws_addr_i));
+      writeline(output1, my_output_line);   
+      write(my_output_line, conv_integer(calc_ws_dat_o));
+      writeline(output2, my_output_line);
+      write(my_output_line, conv_integer(calc_ws_fltr_dat_o));
+      writeline(output3, my_output_line);
+      end if;
+
+   end process write_filter_out;
    
 
    -- unit under test:  first stage feedback calculator block
    UUT : fsfb_calc
       generic map (
          start_val                 => 0,
-         lock_dat_left             => 30
+         lock_dat_left             => 30,
+         filter_lock_dat_lsb       => 0
          )
       port map (
          rst_i                     => rst_i,
@@ -474,20 +564,27 @@ begin
          i_dat_i                   => calc_i_dat_i,
          d_addr_o                  => calc_d_addr_o,
          d_dat_i                   => calc_d_dat_i,
-         z_addr_o                  => calc_z_addr_o,
-         z_dat_i                   => calc_z_dat_i,
+         flux_quanta_addr_o        => calc_flux_quanta_addr_o,
+         flux_quanta_dat_i         => calc_flux_quanta_dat_i,
          fsfb_ws_addr_i            => calc_ws_addr_i,
          fsfb_ws_dat_o             => calc_ws_dat_o,
+         flux_cnt_ws_dat_o         => calc_flux_cnt_ws_dat_o,
+         fsfb_ws_fltr_addr_i       => calc_ws_fltr_addr_i,
+         fsfb_ws_fltr_dat_o        => calc_ws_fltr_dat_o,
          fsfb_fltr_dat_rdy_o       => calc_fltr_dat_rdy_o,
          fsfb_fltr_dat_o           => calc_fltr_dat_o,
          fsfb_ctrl_dat_rdy_o       => calc_ctrl_dat_rdy_o,
          fsfb_ctrl_dat_o           => calc_ctrl_dat_o,
+         num_flux_quanta_pres_rdy_i=> corr_flux_cnt_pres_rdy_i,
+         num_flux_quanta_pres_i    => corr_flux_cnt_pres_i,
+         num_flux_quanta_prev_o    => calc_flux_cnt_prev_o,
+         flux_quanta_o             => calc_flux_quanta_o,
          fsfb_ctrl_lock_en_o       => calc_ctrl_lock_en_o
    );      
       
 
    -- Instantiate P coefficient queue
-   p_queue : fsfb_queue 
+   p_queue : ram_8x64 
       port map (
          data                     => pq_wrdata_i,
          wraddress                => pq_wraddr_i,
@@ -495,15 +592,15 @@ begin
          rdaddress_b              => calc_p_addr_o,
          wren                     => pq_wren_i,
          clock                    => calc_clk_i,
-         qa                       => calc_p_dat_i_33,
+         qa                       => calc_p_dat_i(7 downto 0),
          qb                       => open
          );
 
-   calc_p_dat_i <= calc_p_dat_i_33(COEFF_QUEUE_DATA_WIDTH-1 downto 0);         
+  -- calc_p_dat_i <= calc_p_dat_i_33(COEFF_QUEUE_DATA_WIDTH-1 downto 0);         
    
 
    -- Instantiate I coefficient queue
-   i_queue : fsfb_queue 
+   i_queue : ram_8x64
       port map (
          data                     => iq_wrdata_i,
          wraddress                => iq_wraddr_i,
@@ -511,15 +608,15 @@ begin
          rdaddress_b              => calc_i_addr_o,
          wren                     => iq_wren_i,
          clock                    => calc_clk_i,
-         qa                       => calc_i_dat_i_33,
+         qa                       => calc_i_dat_i(7 downto 0),
          qb                       => open
          );
          
-   calc_i_dat_i <= calc_i_dat_i_33(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+  -- calc_i_dat_i <= calc_i_dat_i_33(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
    
 
    -- Instantiate D coefficient queue
-   d_queue : fsfb_queue 
+   d_queue : ram_8x64 
       port map (
          data                     => dq_wrdata_i,
          wraddress                => dq_wraddr_i,
@@ -527,27 +624,27 @@ begin
          rdaddress_b              => calc_d_addr_o,
          wren                     => dq_wren_i,
          clock                    => calc_clk_i,
-         qa                       => calc_d_dat_i_33,
+         qa                       => calc_d_dat_i(7 downto 0),
          qb                       => open
          );
 
-   calc_d_dat_i <= calc_d_dat_i_33(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+  -- calc_d_dat_i <= calc_d_dat_i_33(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
          
 
    -- Instantiate Z coefficient queue
-   z_queue : fsfb_queue 
+   flux_quanta_queue : ram_14x64 
       port map (
-         data                     => zq_wrdata_i,
-         wraddress                => zq_wraddr_i,
-         rdaddress_a              => calc_z_addr_o,
-         rdaddress_b              => calc_z_addr_o,
-         wren                     => zq_wren_i,
+         data                     => flux_quantaq_wrdata_i,
+         wraddress                => flux_quantaq_wraddr_i,
+         rdaddress_a              => calc_flux_quanta_addr_o,
+         rdaddress_b              => calc_flux_quanta_addr_o,
+         wren                     => flux_quantaq_wren_i,
          clock                    => calc_clk_i,
-         qa                       => calc_z_dat_i_33,
+         qa                       => calc_flux_quanta_dat_i(13 downto 0),
          qb                       => open
          );
 
-   calc_z_dat_i <= calc_z_dat_i_33(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
+  -- calc_flux_quanta_dat_i <= calc_flux_quanta_dat_i_33(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
    
    
    -- Wishbone read access
@@ -555,16 +652,16 @@ begin
    begin
       
       wait for 500*clk_period;
-      ws_access(calc_clk_i, calc_ws_addr_i);
-   
+      ws_access(calc_clk_i, ft_restart_frame_1row_post_i, calc_ws_addr_i, calc_ws_fltr_addr_i);
+      
    end process ws_rd_fsfb;
       
 
    -- Main test stimuli
    run_test : process 
    begin
-            
-      for index in 1 to 2 loop
+      -- for non-filter-related test, use 'index 1 to 2      
+      for index in 1 to 1 loop   
       
       
          wait until ft_restart_frame_aligned_i = '1';
@@ -576,38 +673,38 @@ begin
          wait for 20*num_clk_row*clk_period;
         
          -- ramp mode testing   
-         cfg_test_mode(2, 2, 5, 1, 2**CONST_VAL_WIDTH-1,
-                       cfg_servo_mode_i, cfg_ramp_step_size_i, cfg_ramp_amp_i,
-                       cfg_num_ramp_frame_cycles_i, cfg_const_val_i);          
+--         cfg_test_mode(2, 2, 5, 1, 2**CONST_VAL_WIDTH-1,
+--                       cfg_servo_mode_i, cfg_ramp_step_size_i, cfg_ramp_amp_i,
+--                       cfg_num_ramp_frame_cycles_i, cfg_const_val_i);          
    
-         init_window(ft_restart_frame_aligned_i, ft_initialize_window_i);
+--         init_window(ft_restart_frame_aligned_i, ft_initialize_window_i);
       
          -- wait for about 10 frame times
-         wait for 10*41*num_clk_row*clk_period;
-         wait for 20*num_clk_row*clk_period;
+--         wait for 10*41*num_clk_row*clk_period;
+--         wait for 20*num_clk_row*clk_period;
    
-         -- const mode testing
-         cfg_test_mode(1, 0, 0, 0, 2**CONST_VAL_WIDTH-1,
-                       cfg_servo_mode_i, cfg_ramp_step_size_i, cfg_ramp_amp_i,
-                       cfg_num_ramp_frame_cycles_i, cfg_const_val_i);          
+--         -- const mode testing
+--         cfg_test_mode(1, 0, 0, 0, 2**CONST_VAL_WIDTH-1,
+--                       cfg_servo_mode_i, cfg_ramp_step_size_i, cfg_ramp_amp_i,
+--                       cfg_num_ramp_frame_cycles_i, cfg_const_val_i);          
       
-         init_window(ft_restart_frame_aligned_i, ft_initialize_window_i);
+--         init_window(ft_restart_frame_aligned_i, ft_initialize_window_i);
       
       
          -- wait for about 10 frame times
-         wait for 10*41*num_clk_row*clk_period;
-         wait for 20*num_clk_row*clk_period;
+--         wait for 10*41*num_clk_row*clk_period;
+--         wait for 20*num_clk_row*clk_period;
          
          -- ramp mode testing
-         cfg_test_mode(2, 3, 9, 3, 2**CONST_VAL_WIDTH-1,
-                       cfg_servo_mode_i, cfg_ramp_step_size_i, cfg_ramp_amp_i,
-                       cfg_num_ramp_frame_cycles_i, cfg_const_val_i);          
+--         cfg_test_mode(2, 3, 9, 3, 2**CONST_VAL_WIDTH-1,
+--                       cfg_servo_mode_i, cfg_ramp_step_size_i, cfg_ramp_amp_i,
+--                       cfg_num_ramp_frame_cycles_i, cfg_const_val_i);          
 
-         init_window(ft_restart_frame_aligned_i, ft_initialize_window_i);
+--         init_window(ft_restart_frame_aligned_i, ft_initialize_window_i);
       
          -- wait for about 30 frame times
-         wait for 30*41*num_clk_row*clk_period;
-         wait for 20*num_clk_row*clk_period;
+--         wait for 30*41*num_clk_row*clk_period;
+--         wait for 20*num_clk_row*clk_period;
       
          -- lock mode testing
          cfg_test_mode(3, 0, 0, 0, 0,
@@ -616,9 +713,13 @@ begin
       
          init_window(ft_restart_frame_aligned_i, ft_initialize_window_i);
       
-      
-         -- run for about 30 frame times
+         -- run for about 30 frame times 
          wait for 30*41*num_clk_row*clk_period;
+         
+         -- NOTE: comment the following line for non-filter tests.
+         -- run for more frames if testing filter in order to have enough points for FFT (2000 points)
+         wait for 4170*41*num_clk_row*clk_period;
+         
          wait for 20*num_clk_row*clk_period;
       
       end loop;
