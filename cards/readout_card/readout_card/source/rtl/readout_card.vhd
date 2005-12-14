@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.17  2005/11/28 19:21:20  bburger
+-- Bryce:  changed from v01020001 to v01020002
+--
 -- Revision 1.16  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -221,7 +224,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01020002";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01040001"; -- 04 for filtering + flux jumping
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
