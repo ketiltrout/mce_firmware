@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/11/15 20:03:41 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/12/07 22:11:16 $> - <initials $Author: bench2 $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.8  2004/12/07 22:11:16  bench2
+-- mandana: frame timing commented, not used
+--
 -- Revision 1.7  2004/11/15 20:03:41  bburger
 -- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
 --
@@ -129,7 +132,7 @@ signal clk_count: std_logic_vector(10 downto 0);
 
 signal logic0 : std_logic;
 signal logic1 : std_logic;
-signal zero : integer;
+signal zero : integer Range 0 to 7;
 
 begin
    logic0 <= '0';
