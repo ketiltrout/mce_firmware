@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.6 2005/03/23 19:25:54 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.7 2005/08/30 23:53:59 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,10 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.7  2005/08/30 23:53:59  bburger
+-- Bryce:
+-- Updated system testbench to account for changes in the RC interface (card_id is inout now)
+--
 -- Revision 1.6  2005/03/23 19:25:54  bburger
 -- Bryce:  Added a debugging trigger
 --
@@ -215,6 +219,14 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_ramp_dly_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_DLY_ADDR;
    constant rc1_fb_const_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FB_CONST_ADDR;
    constant rc1_captr_raw_cmd       : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & CAPTR_RAW_ADDR;
+   constant gainp0_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP0_ADDR;   
+   constant gainp1_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP1_ADDR;   
+   constant gainp2_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP2_ADDR;   
+   constant gainp3_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP3_ADDR;   
+   constant gainp4_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP4_ADDR;   
+   constant gainp5_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP5_ADDR;      
+   constant gainp6_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP6_ADDR;      
+   constant gainp7_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP7_ADDR;      
    constant rc1_en_fb_jump_cmd      : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & EN_FB_JUMP_ADDR;
    
    constant rc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_2    & x"00" & LED_ADDR;
@@ -1466,7 +1478,7 @@ begin
 --      );
    
    ------------------------------------------------
-   -- Create test bench clock
+   -- Create stimulus for ADC inputs
    -------------------------------------------------
    
    i_counter : counter
@@ -1485,10 +1497,22 @@ begin
       count_o => ctr_count_o
    );
    
-   rst          <= rst_n;
+   ctr_count_slv_o <= std_logic_vector(conv_unsigned(ctr_count_o, ADC_DAT_WIDTH));
+   
+   -- read a sine wave from a file
+
+   ------------------------------------------------
+   -- Create clock 
+   -------------------------------------------------
+   
+   rst          <= not rst_n;
    inclk        <= not inclk        after clk_period/2;
    fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
-   ctr_count_slv_o <= std_logic_vector(conv_unsigned(ctr_count_o, DAC_DAT_WIDTH));
+
+   ------------------------------------------------
+   -- Apply stimulus to RC cards
+   -------------------------------------------------
+
    rc1_adc1_rdy <= inclk;
    rc1_adc2_rdy <= inclk;
    rc1_adc3_rdy <= inclk;
@@ -1872,49 +1896,174 @@ begin
 ------------------------------------------------------      
        
    begin
+
+--------------------------------------------------------
+-- Test Case 1: Filter Test
+-- wb rc3 sample_dly 6
+-- wb rc3 sample_num 48
+-- wb rc3 fb_dly 3
+-- wb rc3 servo_mode 3
+-- wb rc3 data_mode 0
+-- wb cc  ret_dat_s 1
+-- wb rc3 gainp0 100 100 100 100 100 100 ... 
+-- wb rc3 gainp0 100 100 100 100 100 100 ... 
+-- wb rc3 flx_lp_init 1
+-- wb rc3 ret_dat 1
+
+------------------------------------------------------      
       
       do_reset;
       wait for 5 us;
 
       command <= command_wb;
-      address_id <= rc1_flx_quanta0_cmd;
-      data_valid <= X"00000029"; -- 41 values
-      data       <= X"000000AA";
+      address_id <= rc1_sample_dly_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000006";
       load_preamble;
       load_command;
-      load_checksum;
-      
-      wait for 50 us;
-
-      command <= command_rb;
-      address_id <= rc1_flx_quanta0_cmd;
-      data_valid <= X"00000029"; -- 41 values
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
+      load_checksum;      
+      report "End of writing sample_dly command";
       
       wait for 50 us;
 
       command <= command_wb;
-      address_id <= rc1_en_fb_jump_cmd;
-      data_valid <= X"00000001"; -- 1 values
-      data       <= X"00000000";
+      address_id <= rc1_sample_num_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000030";
       load_preamble;
       load_command;
       load_checksum;
+      report "End of writing sample_num command";
       
       wait for 50 us;
 
-      command <= command_rb;
-      address_id <= rc1_en_fb_jump_cmd;
-      data_valid <= X"00000001"; -- 1 values
-      data       <= X"00000000";
+      command <= command_wb;
+      address_id <= rc1_fb_dly_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000003";
       load_preamble;
       load_command;
       load_checksum;
+      report "End of writing fb_dly command";
       
       wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_servo_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000003";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing servo_mode command";
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_data_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing data_mode command";
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= cc_ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing cc ret_dat_s command";
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= gainp0_cmd;
+      data_valid <= X"00000029";        -- number of data to write
+      data       <= X"00000064";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing gainp0 command";
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= gainp7_cmd;
+      data_valid <= X"00000029";        -- number of data to write
+      data       <= X"00000064";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing gainp0 command";
+      
+      wait for 50 us;
+      
+      command <= command_wb;
+      address_id <= rc1_flx_lp_init_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing flx_lp_init command";
+      
+      wait for 50 us;
+
+      command <= command_go;
+      address_id <= rc1_ret_dat_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing ret_dat command";
+      
+      wait for 15000 us;
+
+--      command <= command_wb;
+--      address_id <= rc1_flx_quanta0_cmd;
+--      data_valid <= X"00000029"; -- 41 values
+--      data       <= X"000000AA";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_flx_quanta0_cmd;
+--      data_valid <= X"00000029"; -- 41 values
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_en_fb_jump_cmd;
+--      data_valid <= X"00000001"; -- 1 values
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_en_fb_jump_cmd;
+--      data_valid <= X"00000001"; -- 1 values
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
 
 
 
