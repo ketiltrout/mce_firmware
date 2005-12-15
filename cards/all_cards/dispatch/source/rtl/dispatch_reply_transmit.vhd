@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.8.2.1  2005/11/28 19:41:34  bburger
+-- Bryce:  changed crc instatiation to serial_crc instatiation so that these files are compatible with the new library.  When the library crc block was replaced with serial_crc, these files were not updated in CVS to match!!!!!  They should have, Ernie!!!
+--
 -- Revision 1.8  2005/03/18 23:08:43  erniel
 -- updated changed buffer addr & data bus size constants
 --
@@ -107,7 +110,7 @@ signal lvds_tx_busy : std_logic;
 
 signal word_count_ena : std_logic;
 signal word_count_clr : std_logic;
-signal word_count     : integer;
+signal word_count     : integer range 0 to MAX_DATA_WORDS+5;
 
 signal reply_size    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal reply_size_ld : std_logic;
@@ -130,7 +133,7 @@ signal crc_input_sel : std_logic_vector(1 downto 0);
 signal tx_input_sel  : std_logic;
 
 signal crc_bit_count_clr : std_logic;
-signal crc_bit_count     : integer;
+signal crc_bit_count     : integer range 0 to PACKET_WORD_WIDTH;
 
 signal crc_ena      : std_logic;
 signal crc_clr      : std_logic;
