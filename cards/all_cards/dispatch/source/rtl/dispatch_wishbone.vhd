@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_wishbone.vhd,v $
+-- Revision 1.10  2005/03/18 23:09:09  erniel
+-- updated changed buffer addr & data bus size constants
+-- slight modification to buffer address generation due to different buffer sizes
+--
 -- Revision 1.9  2004/11/26 01:34:31  erniel
 -- added support for wishbone err_i signal
 --
@@ -124,7 +128,7 @@ signal next_state : master_states;
 
 signal addr_ena : std_logic;
 signal addr_clr : std_logic;
-signal addr : integer;
+signal addr : integer range 0 to MAX_DATA_WORDS;
 
 signal cmd_buf_addr   : std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
 signal reply_buf_addr : std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
