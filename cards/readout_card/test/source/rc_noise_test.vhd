@@ -29,8 +29,11 @@
 -- Stand-alone test module for readout card. It only routes the ADC outputs to DAC inputs. 
 --
 -- Revision history:
--- -- <date $Date: 2004/07/22 23:51:27 $>    - <initials $Author: bench1 $>
+-- -- <date $Date: 2004/07/26 22:52:59 $>    - <initials $Author: bench1 $>
 -- $Log: rc_noise_test.vhd,v $
+-- Revision 1.4  2004/07/26 22:52:59  bench1
+-- Mandana: added comment, swapped adc_rdy and adc_ovr on mictor to work with the wire-add on board.
+--
 -- Revision 1.3  2004/07/22 23:51:27  bench1
 -- Mandana: invert the last bit of ADC for all channels before routing to DAC
 --
@@ -45,6 +48,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library components;
+use components.component_pack.all;
 
 entity rc_noise_test is
    port(
@@ -133,6 +139,8 @@ architecture behaviour of rc_noise_test is
    signal clk : std_logic;  
    signal clk2: std_logic;
    signal nclk: std_logic;
+   signal clk_count: integer range 0 to 7;
+   signal clk_div4 : std_logic;
    
 begin
    
@@ -141,6 +149,19 @@ begin
                c0 => clk,
                c1 => clk2,
                e0 => outclk);
+
+   clk_div_4: counter
+   generic map(MAX => 7,
+               STEP_SIZE => 1,
+               WRAP_AROUND => '1',
+               UP_COUNTER => '1')
+   port map(clk_i   => clk,
+            rst_i   => '0',
+            ena_i   => '1',
+            load_i  => '0',
+            count_i => 0,
+            count_o => clk_count);
+   clk_div4   <= '1' when clk_count > 3 else '0';
    
    adc1_clk <= clk;
    adc2_clk <= clk;
@@ -170,14 +191,21 @@ begin
    dac_FB8_dat(13) <= not(adc8_dat(13)); --adc is signed
    
    nclk <= not(clk);
-   dac_FB_clk <= (others => nclk);
+   dac_FB_clk(0) <= nclk;
+   dac_FB_clk(1) <= nclk;
+   dac_FB_clk(2) <= nclk;
+   dac_FB_clk(3) <= nclk;
+   dac_FB_clk(4) <= nclk;
+   dac_FB_clk(5) <= nclk;
+   dac_FB_clk(6) <= nclk;
+   dac_FB_clk(7) <= nclk;
 
    -- map different channels to mictor
-   mictor (13 downto 0) <= adc8_dat(13 downto 0);
-   mictor (14)          <= adc8_ovr;
-   mictor (15)          <= adc8_rdy;
---   mictor (29 downto 16)<= adc3_dat(13 downto 0);
---   mictor (30)          <= adc3_rdy;
-   mictor (31)          <= adc8_rdy;
+   mictor (13 downto 0) <= adc2_dat(13 downto 0);
+   mictor (14)          <= adc2_ovr;
+   mictor (15)          <= adc2_rdy;
+--   mictor (29 downto 16)<= adc8_dat(13 downto 0);
+--   mictor (30)          <= adc8_rdy;
+   mictor (31)          <= adc2_rdy;
    
 end behaviour;
