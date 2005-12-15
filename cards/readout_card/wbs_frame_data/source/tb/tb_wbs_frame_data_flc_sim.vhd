@@ -30,9 +30,12 @@
 -- test block to mimic flux_loop_cntl behaviour for wbs_frame_data test bed.
 --
 -- Revision history:
--- <date $Date: 2004/11/26 18:29:08 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2004/12/07 19:37:46 $> - <text> - <initials $Author: mohsen $>
 --
 -- $Log: tb_wbs_frame_data_flc_sim.vhd,v $
+-- Revision 1.4  2004/12/07 19:37:46  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.3  2004/11/26 18:29:08  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -73,6 +76,7 @@ port(
      filtered_dat_ch0_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 0
      fsfb_addr_ch0_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 0   
      fsfb_dat_ch0_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 0
+     flux_cnt_dat_ch0_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 0      
      coadded_addr_ch0_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 0
      coadded_dat_ch0_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 0
      raw_addr_ch0_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
@@ -84,6 +88,7 @@ port(
      filtered_dat_ch1_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 1
      fsfb_addr_ch1_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 1   
      fsfb_dat_ch1_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 1
+     flux_cnt_dat_ch1_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 1      
      coadded_addr_ch1_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 1
      coadded_dat_ch1_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 1
      raw_addr_ch1_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 1
@@ -95,6 +100,7 @@ port(
      filtered_dat_ch2_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 2
      fsfb_addr_ch2_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 2   
      fsfb_dat_ch2_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 2
+     flux_cnt_dat_ch2_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 2      
      coadded_addr_ch2_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 2
      coadded_dat_ch2_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 2
      raw_addr_ch2_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 2
@@ -106,6 +112,7 @@ port(
      filtered_dat_ch3_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 3
      fsfb_addr_ch3_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 3   
      fsfb_dat_ch3_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 3
+     flux_cnt_dat_ch3_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 3           
      coadded_addr_ch3_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 3
      coadded_dat_ch3_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 3
      raw_addr_ch3_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 3
@@ -117,6 +124,7 @@ port(
      filtered_dat_ch4_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 4
      fsfb_addr_ch4_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 4   
      fsfb_dat_ch4_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 4
+     flux_cnt_dat_ch4_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 4      
      coadded_addr_ch4_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 4
      coadded_dat_ch4_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 4
      raw_addr_ch4_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 4
@@ -128,6 +136,7 @@ port(
      filtered_dat_ch5_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 5
      fsfb_addr_ch5_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 5   
      fsfb_dat_ch5_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 5
+     flux_cnt_dat_ch5_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 5      
      coadded_addr_ch5_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 5
      coadded_dat_ch5_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 5
      raw_addr_ch5_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 5
@@ -139,6 +148,7 @@ port(
      filtered_dat_ch6_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 6
      fsfb_addr_ch6_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 6   
      fsfb_dat_ch6_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 6
+     flux_cnt_dat_ch6_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 6      
      coadded_addr_ch6_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 6
      coadded_dat_ch6_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 6
      raw_addr_ch6_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 6
@@ -150,6 +160,7 @@ port(
      filtered_dat_ch7_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 7
      fsfb_addr_ch7_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 7   
      fsfb_dat_ch7_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 7
+     flux_cnt_dat_ch7_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 7      
      coadded_addr_ch7_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 7
      coadded_dat_ch7_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 7
      raw_addr_ch7_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 7
@@ -180,43 +191,51 @@ architecture behav of tb_wbs_frame_data_flc_sim is
 
 signal filtered_dat_ch0      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_dat_ch0          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch0      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal coadded_dat_ch0       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_dat_ch0           : std_logic_vector (RAW_DATA_WIDTH-1    downto 0);                            
 
 signal filtered_dat_ch1      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_dat_ch1          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch1      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal coadded_dat_ch1       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_dat_ch1           : std_logic_vector (RAW_DATA_WIDTH-1    downto 0); 
  
 signal filtered_dat_ch2      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);   
 signal fsfb_dat_ch2          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);    
+signal flux_cnt_dat_ch2      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal coadded_dat_ch2       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);   
 signal raw_dat_ch2           : std_logic_vector (RAW_DATA_WIDTH-1    downto 0); 
 
 signal filtered_dat_ch3      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_dat_ch3          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch3      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal coadded_dat_ch3       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_dat_ch3           : std_logic_vector (RAW_DATA_WIDTH-1    downto 0); 
 
 signal filtered_dat_ch4      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);   
 signal fsfb_dat_ch4          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch4      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal coadded_dat_ch4       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);   
 signal raw_dat_ch4           : std_logic_vector (RAW_DATA_WIDTH-1    downto 0); 
 
 signal filtered_dat_ch5      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);   
 signal fsfb_dat_ch5          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);   
+signal flux_cnt_dat_ch5      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal coadded_dat_ch5       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_dat_ch5           : std_logic_vector (RAW_DATA_WIDTH-1    downto 0); 
        
  
 signal filtered_dat_ch6      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_dat_ch6          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
+signal flux_cnt_dat_ch6      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal coadded_dat_ch6       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);    
 signal raw_dat_ch6           : std_logic_vector (RAW_DATA_WIDTH-1    downto 0); 
      
  
 signal filtered_dat_ch7      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_dat_ch7          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch7      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0);
 signal coadded_dat_ch7       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_dat_ch7           : std_logic_vector (RAW_DATA_WIDTH-1    downto 0); 
         
@@ -499,41 +518,49 @@ register_buff_output : process(clk_i, rst_i)
  
          filtered_dat_ch0_o   <= (others => '0');  
          fsfb_dat_ch0_o       <= (others => '0');  
+         flux_cnt_dat_ch0_o   <= (others => '0');
          coadded_dat_ch0_o    <= (others => '0');  
          raw_dat_ch0_o        <= (others => '0');  
          
          filtered_dat_ch1_o   <= (others => '0');  
          fsfb_dat_ch1_o       <= (others => '0');  
+         flux_cnt_dat_ch1_o   <= (others => '0');
          coadded_dat_ch1_o    <= (others => '0');  
          raw_dat_ch1_o        <= (others => '0');  
          
          filtered_dat_ch2_o   <= (others => '0');  
          fsfb_dat_ch2_o       <= (others => '0');  
+         flux_cnt_dat_ch2_o   <= (others => '0');
          coadded_dat_ch2_o    <= (others => '0');  
          raw_dat_ch2_o        <= (others => '0');  
          
          filtered_dat_ch3_o   <= (others => '0');  
          fsfb_dat_ch3_o       <= (others => '0');  
+         flux_cnt_dat_ch3_o   <= (others => '0');
          coadded_dat_ch3_o    <= (others => '0');  
          raw_dat_ch3_o        <= (others => '0');  
          
          filtered_dat_ch4_o   <= (others => '0');  
          fsfb_dat_ch4_o       <= (others => '0');  
+         flux_cnt_dat_ch4_o   <= (others => '0');         
          coadded_dat_ch4_o    <= (others => '0');  
          raw_dat_ch4_o        <= (others => '0');  
          
          filtered_dat_ch5_o   <= (others => '0');  
          fsfb_dat_ch5_o       <= (others => '0');  
+         flux_cnt_dat_ch5_o   <= (others => '0');
          coadded_dat_ch5_o    <= (others => '0');  
          raw_dat_ch5_o        <= (others => '0');  
          
          filtered_dat_ch6_o   <= (others => '0');  
          fsfb_dat_ch6_o       <= (others => '0');  
+         flux_cnt_dat_ch6_o   <= (others => '0');
          coadded_dat_ch6_o    <= (others => '0');  
          raw_dat_ch6_o        <= (others => '0');    
          
          filtered_dat_ch7_o   <= (others => '0');  
          fsfb_dat_ch7_o       <= (others => '0');  
+         flux_cnt_dat_ch7_o   <= (others => '0');
          coadded_dat_ch7_o    <= (others => '0');  
          raw_dat_ch7_o        <= (others => '0'); 
 
@@ -542,41 +569,49 @@ register_buff_output : process(clk_i, rst_i)
  
          filtered_dat_ch0_o   <= filtered_dat_ch0;  
          fsfb_dat_ch0_o       <= fsfb_dat_ch0;  
+         flux_cnt_dat_ch0_o   <= fsfb_dat_ch0(FLUX_QUANTA_CNT_WIDTH-1 downto 0) + 100;         
          coadded_dat_ch0_o    <= coadded_dat_ch0;  
          raw_dat_ch0_o        <= raw_dat_ch0;  
          
          filtered_dat_ch1_o   <= filtered_dat_ch1;  
          fsfb_dat_ch1_o       <= fsfb_dat_ch1;  
+         flux_cnt_dat_ch1_o   <= fsfb_dat_ch1(FLUX_QUANTA_CNT_WIDTH-1 downto 0) + 100;                  
          coadded_dat_ch1_o    <= coadded_dat_ch1;  
          raw_dat_ch1_o        <= raw_dat_ch1;  
          
          filtered_dat_ch2_o   <= filtered_dat_ch2;  
          fsfb_dat_ch2_o       <= fsfb_dat_ch2;  
+         flux_cnt_dat_ch2_o   <= fsfb_dat_ch2(FLUX_QUANTA_CNT_WIDTH-1 downto 0) + 100;         
          coadded_dat_ch2_o    <= coadded_dat_ch2;  
          raw_dat_ch2_o        <= raw_dat_ch2;  
          
          filtered_dat_ch3_o   <= filtered_dat_ch3;  
          fsfb_dat_ch3_o       <= fsfb_dat_ch3;  
+         flux_cnt_dat_ch3_o   <= fsfb_dat_ch3(FLUX_QUANTA_CNT_WIDTH-1 downto 0) + 100;         
          coadded_dat_ch3_o    <= coadded_dat_ch3;  
          raw_dat_ch3_o        <= raw_dat_ch3;  
          
          filtered_dat_ch4_o   <= filtered_dat_ch4;  
          fsfb_dat_ch4_o       <= fsfb_dat_ch4;  
+         flux_cnt_dat_ch4_o   <= fsfb_dat_ch4(FLUX_QUANTA_CNT_WIDTH-1 downto 0) + 100;                  
          coadded_dat_ch4_o    <= coadded_dat_ch4;  
          raw_dat_ch4_o        <= raw_dat_ch4;  
          
          filtered_dat_ch5_o   <= filtered_dat_ch5;  
          fsfb_dat_ch5_o       <= fsfb_dat_ch5;  
+         flux_cnt_dat_ch5_o   <= fsfb_dat_ch5(FLUX_QUANTA_CNT_WIDTH-1 downto 0) + 100;                  
          coadded_dat_ch5_o    <= coadded_dat_ch5;  
          raw_dat_ch5_o        <= raw_dat_ch5;  
          
          filtered_dat_ch6_o   <= filtered_dat_ch6;  
          fsfb_dat_ch6_o       <= fsfb_dat_ch6;  
+         flux_cnt_dat_ch6_o   <= fsfb_dat_ch6(FLUX_QUANTA_CNT_WIDTH-1 downto 0) + 100;                           
          coadded_dat_ch6_o    <= coadded_dat_ch6;  
          raw_dat_ch6_o        <= raw_dat_ch6;  
          
          filtered_dat_ch7_o   <= filtered_dat_ch7;  
          fsfb_dat_ch7_o       <= fsfb_dat_ch7;  
+         flux_cnt_dat_ch7_o   <= fsfb_dat_ch7(FLUX_QUANTA_CNT_WIDTH-1 downto 0) + 100;                  
          coadded_dat_ch7_o    <= coadded_dat_ch7;  
          raw_dat_ch7_o        <= raw_dat_ch7;  
   
