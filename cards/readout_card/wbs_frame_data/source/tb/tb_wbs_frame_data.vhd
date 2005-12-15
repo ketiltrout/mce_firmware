@@ -30,9 +30,16 @@
 -- test bed for wbs_frame_data.vhd
 --
 -- Revision history:
--- <date $Date: 2004/12/07 19:37:46 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2004/12/13 10:00:58 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: tb_wbs_frame_data.vhd,v $
+-- Revision 1.7  2004/12/13 10:00:58  dca
+-- following instructions added:
+--
+-- read captr_raw
+-- read data_mode
+-- write ret_data
+--
 -- Revision 1.6  2004/12/07 19:37:46  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -89,11 +96,13 @@ signal flc_buff_rst   : std_logic;   -- initialise FLUX loop contorl buffers...
 
 signal param_id       :  std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
    
+signal restart_frame_1row_post : std_logic;  
 
 signal filtered_addr_ch0     : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  
 signal filtered_dat_ch0      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_addr_ch0         : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0); 
 signal fsfb_dat_ch0          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch0      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal coadded_addr_ch0      : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);   
 signal coadded_dat_ch0       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_addr_ch0          : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  
@@ -106,6 +115,7 @@ signal filtered_addr_ch1     : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);
 signal filtered_dat_ch1      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_addr_ch1         : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0); 
 signal fsfb_dat_ch1          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch1      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal coadded_addr_ch1      : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);   
 signal coadded_dat_ch1       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_addr_ch1          : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  
@@ -117,6 +127,7 @@ signal filtered_addr_ch2     : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);
 signal filtered_dat_ch2      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_addr_ch2         : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0); 
 signal fsfb_dat_ch2          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch2      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal coadded_addr_ch2      : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);   
 signal coadded_dat_ch2       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_addr_ch2          : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  
@@ -128,6 +139,7 @@ signal filtered_addr_ch3     : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);
 signal filtered_dat_ch3      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_addr_ch3         : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0); 
 signal fsfb_dat_ch3          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch3      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal coadded_addr_ch3      : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);   
 signal coadded_dat_ch3       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_addr_ch3          : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  
@@ -139,6 +151,7 @@ signal filtered_addr_ch4     : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);
 signal filtered_dat_ch4      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_addr_ch4         : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0); 
 signal fsfb_dat_ch4          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch4      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal coadded_addr_ch4      : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);   
 signal coadded_dat_ch4       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_addr_ch4          : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  
@@ -150,6 +163,7 @@ signal filtered_addr_ch5     : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);
 signal filtered_dat_ch5      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_addr_ch5         : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0); 
 signal fsfb_dat_ch5          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch5      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal coadded_addr_ch5      : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);   
 signal coadded_dat_ch5       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_addr_ch5          : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  
@@ -161,6 +175,7 @@ signal filtered_addr_ch6     : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);
 signal filtered_dat_ch6      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_addr_ch6         : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0); 
 signal fsfb_dat_ch6          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch6      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal coadded_addr_ch6      : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);   
 signal coadded_dat_ch6       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_addr_ch6          : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  
@@ -172,6 +187,7 @@ signal filtered_addr_ch7     : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);
 signal filtered_dat_ch7      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal fsfb_addr_ch7         : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0); 
 signal fsfb_dat_ch7          : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
+signal flux_cnt_dat_ch7      : std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); 
 signal coadded_addr_ch7      : std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);   
 signal coadded_dat_ch7       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  
 signal raw_addr_ch7          : std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  
@@ -284,6 +300,7 @@ port(
      filtered_dat_ch0_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 0
      fsfb_addr_ch0_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 0   
      fsfb_dat_ch0_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 0
+     flux_cnt_dat_ch0_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 0           
      coadded_addr_ch0_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 0
      coadded_dat_ch0_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 0
      raw_addr_ch0_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 0
@@ -295,6 +312,7 @@ port(
      filtered_dat_ch1_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 1
      fsfb_addr_ch1_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 1   
      fsfb_dat_ch1_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 1
+     flux_cnt_dat_ch1_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 1           
      coadded_addr_ch1_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 1
      coadded_dat_ch1_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 1
      raw_addr_ch1_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 1
@@ -306,6 +324,7 @@ port(
      filtered_dat_ch2_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 2
      fsfb_addr_ch2_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 2   
      fsfb_dat_ch2_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 2
+     flux_cnt_dat_ch2_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 2           
      coadded_addr_ch2_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 2
      coadded_dat_ch2_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 2
      raw_addr_ch2_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 2
@@ -317,6 +336,7 @@ port(
      filtered_dat_ch3_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 3
      fsfb_addr_ch3_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 3   
      fsfb_dat_ch3_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 3
+     flux_cnt_dat_ch3_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 3           
      coadded_addr_ch3_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 3
      coadded_dat_ch3_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 3
      raw_addr_ch3_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 3
@@ -328,6 +348,7 @@ port(
      filtered_dat_ch4_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 4
      fsfb_addr_ch4_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 4   
      fsfb_dat_ch4_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 4
+     flux_cnt_dat_ch4_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 4           
      coadded_addr_ch4_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 4
      coadded_dat_ch4_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 4
      raw_addr_ch4_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 4
@@ -339,6 +360,7 @@ port(
      filtered_dat_ch5_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 5
      fsfb_addr_ch5_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 5   
      fsfb_dat_ch5_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 5
+     flux_cnt_dat_ch5_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 5           
      coadded_addr_ch5_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 5
      coadded_dat_ch5_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 5
      raw_addr_ch5_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 5
@@ -350,6 +372,7 @@ port(
      filtered_dat_ch6_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 6
      fsfb_addr_ch6_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 6   
      fsfb_dat_ch6_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 6
+     flux_cnt_dat_ch6_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 6           
      coadded_addr_ch6_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 6
      coadded_dat_ch6_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 6
      raw_addr_ch6_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 6
@@ -361,6 +384,7 @@ port(
      filtered_dat_ch7_o        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- filtered data - channel 7
      fsfb_addr_ch7_i           : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- feedback data address - channel 7   
      fsfb_dat_ch7_o            : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- feedback data - channel 7
+     flux_cnt_dat_ch7_o        : out std_logic_vector (FLUX_QUANTA_CNT_WIDTH-1 downto 0); -- flux jump count - channel 7           
      coadded_addr_ch7_i        : in  std_logic_vector (ROW_ADDR_WIDTH-1    downto 0);  -- co-added data address - channel 7
      coadded_dat_ch7_o         : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- co_added data - channel 7
      raw_addr_ch7_i            : in  std_logic_vector (RAW_ADDR_WIDTH-1    downto 0);  -- raw data address - channel 7
@@ -386,12 +410,15 @@ begin
      rst_i                     =>  dut_rst, 
      clk_i                     =>  dut_clk,
 
-     -- signals to/from flux_loop_ctrl    
+     -- signal from frame_timing
+     restart_frame_1row_post_i =>  restart_frame_1row_post,
 
+     -- signals to/from flux_loop_ctrl    
      filtered_addr_ch0_o       =>  filtered_addr_ch0,
      filtered_dat_ch0_i        =>  filtered_dat_ch0, 
      fsfb_addr_ch0_o           =>  fsfb_addr_ch0,
      fsfb_dat_ch0_i            =>  fsfb_dat_ch0,
+     flux_cnt_dat_ch0_i        =>  flux_cnt_dat_ch0,
      coadded_addr_ch0_o        =>  coadded_addr_ch0,
      coadded_dat_ch0_i         =>  coadded_dat_ch0,
      raw_addr_ch0_o            =>  raw_addr_ch0, 
@@ -404,6 +431,7 @@ begin
      filtered_dat_ch1_i        =>   filtered_dat_ch1,
      fsfb_addr_ch1_o           =>   fsfb_addr_ch1,
      fsfb_dat_ch1_i            =>   fsfb_dat_ch1,
+     flux_cnt_dat_ch1_i        =>   flux_cnt_dat_ch1,     
      coadded_addr_ch1_o        =>   coadded_addr_ch1,
      coadded_dat_ch1_i         =>   coadded_dat_ch1,
      raw_addr_ch1_o            =>   raw_addr_ch1,
@@ -415,6 +443,7 @@ begin
      filtered_dat_ch2_i        =>   filtered_dat_ch2, 
      fsfb_addr_ch2_o           =>   fsfb_addr_ch2, 
      fsfb_dat_ch2_i            =>   fsfb_dat_ch2, 
+     flux_cnt_dat_ch2_i        =>   flux_cnt_dat_ch2,     
      coadded_addr_ch2_o        =>   coadded_addr_ch2, 
      coadded_dat_ch2_i         =>   coadded_dat_ch2,
      raw_addr_ch2_o            =>   raw_addr_ch2,
@@ -426,6 +455,7 @@ begin
      filtered_dat_ch3_i        =>   filtered_dat_ch3,
      fsfb_addr_ch3_o           =>   fsfb_addr_ch3 ,
      fsfb_dat_ch3_i            =>   fsfb_dat_ch3 ,
+     flux_cnt_dat_ch3_i        =>   flux_cnt_dat_ch3,     
      coadded_addr_ch3_o        =>   coadded_addr_ch3,
      coadded_dat_ch3_i         =>   coadded_dat_ch3  ,
      raw_addr_ch3_o            =>   raw_addr_ch3,
@@ -437,6 +467,7 @@ begin
      filtered_dat_ch4_i        =>   filtered_dat_ch4,
      fsfb_addr_ch4_o           =>   fsfb_addr_ch4 ,
      fsfb_dat_ch4_i            =>   fsfb_dat_ch4 ,
+     flux_cnt_dat_ch4_i        =>   flux_cnt_dat_ch4,     
      coadded_addr_ch4_o        =>   coadded_addr_ch4,
      coadded_dat_ch4_i         =>   coadded_dat_ch4,  
      raw_addr_ch4_o            =>   raw_addr_ch4,
@@ -448,6 +479,7 @@ begin
      filtered_dat_ch5_i        =>   filtered_dat_ch5,
      fsfb_addr_ch5_o           =>   fsfb_addr_ch5 ,
      fsfb_dat_ch5_i            =>   fsfb_dat_ch5 ,
+     flux_cnt_dat_ch5_i        =>   flux_cnt_dat_ch5,     
      coadded_addr_ch5_o        =>   coadded_addr_ch5,
      coadded_dat_ch5_i         =>   coadded_dat_ch5  ,
      raw_addr_ch5_o            =>   raw_addr_ch5,
@@ -459,6 +491,7 @@ begin
      filtered_dat_ch6_i        =>   filtered_dat_ch6,
      fsfb_addr_ch6_o           =>   fsfb_addr_ch6 ,
      fsfb_dat_ch6_i            =>   fsfb_dat_ch6 ,
+     flux_cnt_dat_ch6_i        =>   flux_cnt_dat_ch6,     
      coadded_addr_ch6_o        =>   coadded_addr_ch6,
      coadded_dat_ch6_i         =>   coadded_dat_ch6  ,
      raw_addr_ch6_o            =>   raw_addr_ch6,
@@ -470,6 +503,7 @@ begin
      filtered_dat_ch7_i        =>   filtered_dat_ch7,
      fsfb_addr_ch7_o           =>   fsfb_addr_ch7 ,
      fsfb_dat_ch7_i            =>   fsfb_dat_ch7 ,
+     flux_cnt_dat_ch7_i        =>   flux_cnt_dat_ch7,     
      coadded_addr_ch7_o        =>   coadded_addr_ch7,
      coadded_dat_ch7_i         =>   coadded_dat_ch7,  
      raw_addr_ch7_o            =>   raw_addr_ch7,
@@ -510,6 +544,7 @@ begin
      filtered_dat_ch0_o        =>  filtered_dat_ch0, 
      fsfb_addr_ch0_i           =>  fsfb_addr_ch0,
      fsfb_dat_ch0_o            =>  fsfb_dat_ch0,
+     flux_cnt_dat_ch0_o        =>  flux_cnt_dat_ch0,
      coadded_addr_ch0_i        =>  coadded_addr_ch0,
      coadded_dat_ch0_o         =>  coadded_dat_ch0,
      raw_addr_ch0_i            =>  raw_addr_ch0, 
@@ -522,6 +557,7 @@ begin
      filtered_dat_ch1_o        =>   filtered_dat_ch1,
      fsfb_addr_ch1_i           =>   fsfb_addr_ch1,
      fsfb_dat_ch1_o            =>   fsfb_dat_ch1,
+     flux_cnt_dat_ch1_o        =>   flux_cnt_dat_ch1,
      coadded_addr_ch1_i        =>   coadded_addr_ch1,
      coadded_dat_ch1_o         =>   coadded_dat_ch1,
      raw_addr_ch1_i            =>   raw_addr_ch1,
@@ -533,6 +569,7 @@ begin
      filtered_dat_ch2_o        =>   filtered_dat_ch2, 
      fsfb_addr_ch2_i           =>   fsfb_addr_ch2, 
      fsfb_dat_ch2_o            =>   fsfb_dat_ch2, 
+     flux_cnt_dat_ch2_o        =>   flux_cnt_dat_ch2,
      coadded_addr_ch2_i        =>   coadded_addr_ch2, 
      coadded_dat_ch2_o         =>   coadded_dat_ch2,
      raw_addr_ch2_i            =>   raw_addr_ch2,
@@ -544,6 +581,7 @@ begin
      filtered_dat_ch3_o        =>   filtered_dat_ch3,
      fsfb_addr_ch3_i           =>   fsfb_addr_ch3 ,
      fsfb_dat_ch3_o            =>   fsfb_dat_ch3 ,
+     flux_cnt_dat_ch3_o        =>   flux_cnt_dat_ch3,
      coadded_addr_ch3_i        =>   coadded_addr_ch3,
      coadded_dat_ch3_o         =>   coadded_dat_ch3  ,
      raw_addr_ch3_i            =>   raw_addr_ch3,
@@ -555,6 +593,7 @@ begin
      filtered_dat_ch4_o        =>   filtered_dat_ch4,
      fsfb_addr_ch4_i           =>   fsfb_addr_ch4 ,
      fsfb_dat_ch4_o            =>   fsfb_dat_ch4 ,
+     flux_cnt_dat_ch4_o        =>   flux_cnt_dat_ch4,     
      coadded_addr_ch4_i        =>   coadded_addr_ch4,
      coadded_dat_ch4_o         =>   coadded_dat_ch4,  
      raw_addr_ch4_i            =>   raw_addr_ch4,
@@ -566,6 +605,7 @@ begin
      filtered_dat_ch5_o        =>   filtered_dat_ch5,
      fsfb_addr_ch5_i           =>   fsfb_addr_ch5 ,
      fsfb_dat_ch5_o            =>   fsfb_dat_ch5 ,
+     flux_cnt_dat_ch5_o        =>   flux_cnt_dat_ch5,     
      coadded_addr_ch5_i        =>   coadded_addr_ch5,
      coadded_dat_ch5_o         =>   coadded_dat_ch5  ,
      raw_addr_ch5_i            =>   raw_addr_ch5,
@@ -577,6 +617,7 @@ begin
      filtered_dat_ch6_o        =>   filtered_dat_ch6,
      fsfb_addr_ch6_i           =>   fsfb_addr_ch6 ,
      fsfb_dat_ch6_o            =>   fsfb_dat_ch6 ,
+     flux_cnt_dat_ch6_o        =>   flux_cnt_dat_ch6,     
      coadded_addr_ch6_i        =>   coadded_addr_ch6,
      coadded_dat_ch6_o         =>   coadded_dat_ch6  ,
      raw_addr_ch6_i            =>   raw_addr_ch6,
@@ -588,6 +629,7 @@ begin
      filtered_dat_ch7_o        =>   filtered_dat_ch7,
      fsfb_addr_ch7_i           =>   fsfb_addr_ch7 ,
      fsfb_dat_ch7_o            =>   fsfb_dat_ch7 ,
+     flux_cnt_dat_ch7_o        =>   flux_cnt_dat_ch7,     
      coadded_addr_ch7_i        =>   coadded_addr_ch7,
      coadded_dat_ch7_o         =>   coadded_dat_ch7,  
      raw_addr_ch7_i            =>   raw_addr_ch7,
@@ -853,7 +895,7 @@ begin
    do_req_raw_data;
    
    -- test writing and reading data mode
-   wbm_dat_o <= MODE3_FB_ERROR;
+   wbm_dat_o <= MODE4_FB_ERROR;
    do_set_data_mode;
    assert false report " DATA MODE SET ....." severity NOTE;
    wait for clk_prd;
@@ -873,12 +915,130 @@ begin
    assert false report " WRITE RET_DATA ....." severity NOTE;
    wait for clk_prd;
    
-   
-   -- Get MODE 3 coadd/error data
+   -- Get MODE 0 error data
    ------------------------------
-   wbm_dat_o <= MODE3_FB_ERROR;
+   wbm_dat_o <= MODE0_ERROR;
    do_set_data_mode;
-   assert false report " DATA MODE SET to MODE 3 (FB_ERROR)......" severity NOTE;
+   assert false report " DATA MODE SET to MODE 0 (ERROR)......" severity NOTE;
+   
+   wait for clk_prd;
+   
+   do_start_ret_data; 
+                  
+   wait until wbm_ack_i = '1';
+   
+   for i in 1 to (41*8) loop
+      wait for clk_prd;
+   end loop;
+            
+   do_end_ret_data;   
+   
+   wait  for clk_prd;
+  
+   assert false report "A Frame of ERROR (COADD) data has been read....." severity NOTE;
+   
+   wait for clk_prd;
+   
+     assert (wbm_dat_reg = x"1728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+--     assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;   
+ 
+   
+   -- Get MODE 1 unfilterd data
+   ------------------------------
+   wbm_dat_o <= MODE1_UNFILTERED;
+   do_set_data_mode;
+   assert false report " DATA MODE SET to MODE 1 (UNFILTERED)......" severity NOTE;
+   
+   wait for clk_prd;
+   
+   do_start_ret_data; 
+                  
+   wait until wbm_ack_i = '1';
+   
+   for i in 1 to (41*8) loop
+      wait for clk_prd;
+   end loop;
+            
+   do_end_ret_data;   
+   
+   wait  for clk_prd;
+   
+   assert false report "A Frame of UNFILTERED data has been read....." severity NOTE;
+   
+   wait for clk_prd;
+   
+     assert (wbm_dat_reg = x"1728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+--     assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
+   
+   
+   -- Get MODE 2 Filtered data
+   ------------------------------
+   wbm_dat_o <= MODE2_FILTERED;
+   do_set_data_mode;
+   assert false report " DATA MODE SET to MODE 2 (FILTERED)......" severity NOTE;
+   
+   wait for clk_prd;
+   
+   do_start_ret_data; 
+                  
+   wait until wbm_ack_i = '1';
+   
+   for i in 1 to (41*8) loop
+      wait for clk_prd;
+   end loop;
+            
+   do_end_ret_data;    
+   
+   wait  for clk_prd;
+      
+   assert false report "A Frame of FILTERED data has been read....." severity NOTE;
+   
+     assert (wbm_dat_reg = x"0728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+     
+    -- assert (conv_integer(filtered_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
+   
+   -- wait for clk_prd * 20;
+   -- assert false report "END OF SIMULATION....." severity FAILURE;
+
+ 
+   -- Get MODE 3 raw data
+   ------------------------------
+   wbm_dat_o <= MODE3_RAW;
+   do_set_data_mode;
+   assert false report " DATA MODE SET to MODE 3 (RAW)......" severity NOTE;
+   
+    wait for clk_prd;
+   
+   -- read 128 sets or raw data to get a full raw data frame...
+   
+   for i in 1 to 128 loop 
+     
+      do_start_ret_data; 
+      wait until wbm_ack_i = '1';
+   
+      for j in 1 to (41*8) loop
+         wait for clk_prd;
+      end loop;
+      
+      assert false report "**SET OF RAW DATA READ.........." severity NOTE;
+      do_end_ret_data; 
+      wait  for clk_prd;
+   
+   end loop;
+   
+       
+   assert (wbm_dat_reg = x"0000377F" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+  -- assert (conv_integer(raw_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
+   
+      
+   assert false report "******A FRAME OF RAW DATA HAS BEEN READ******" severity NOTE;
+
+
+   -- Get MODE 4 fb/error data
+   ------------------------------
+   wbm_dat_o <= MODE4_FB_ERROR;
+   do_set_data_mode;
+   assert false report " DATA MODE SET to MODE 4 (FB_ERROR)......" severity NOTE;
    
    wait for clk_prd;
   
@@ -908,103 +1068,44 @@ begin
  --  assert (conv_integer(coadded_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
    assert false report "A Frame of FEEDBACK/ERROR data has been read....." severity NOTE;
-   
-   
-   -- Get MODE 2 unfilterd data
+
+
+   -- Get MODE 5 fb/flx_cnt data
    ------------------------------
-   wbm_dat_o <= MODE2_UNFILTERED;
+   wbm_dat_o <= MODE5_FB_FLX_CNT;
    do_set_data_mode;
-   assert false report " DATA MODE SET to MODE 2 (UNFILTERED)......" severity NOTE;
+   assert false report " DATA MODE SET to MODE 5 (FB_FLX_CNT)......" severity NOTE;
    
    wait for clk_prd;
-   
+  
+  
    do_start_ret_data; 
-                  
-   wait until wbm_ack_i = '1';
    
-   for i in 1 to (41*8) loop
+                  
+   wait until wbm_ack_i = '1';  
+   for i in 1 to (41*4) loop     -- wait for half a frame
       wait for clk_prd;
    end loop;
+     
+   do_insert_master_wait_state;
+  
+   wait until wbm_ack_i = '1'; 
+   for i in 1 to (41*4) loop    -- wait for 2nd half of frame data
+      wait for clk_prd;
+   end loop;
+   
+   do_end_ret_data;
             
-   do_end_ret_data;   
    
    wait  for clk_prd;
    
-   assert false report "A Frame of UNFILTEREDdata has been read....." severity NOTE;
+   assert (wbm_dat_reg = x"17282728" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
+ --  assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
+ --  assert (conv_integer(coadded_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
    
-   wait for clk_prd;
-   
-     assert (wbm_dat_reg = x"1728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
---     assert (conv_integer(fsfb_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
-   
-  
-   
-  
-   -- Get MODE 1 Filtered data
+   assert false report "A Frame of FEEDBACK/FLUX_COUNT data has been read....." severity NOTE;
+
    ------------------------------
-   wbm_dat_o <= MODE1_FILTERED;
-   do_set_data_mode;
-   assert false report " DATA MODE SET to MODE 1 (FILTERED)......" severity NOTE;
-   
-   wait for clk_prd;
-   
-   do_start_ret_data; 
-                  
-   wait until wbm_ack_i = '1';
-   
-   for i in 1 to (41*8) loop
-      wait for clk_prd;
-   end loop;
-            
-   do_end_ret_data;    
-   
-   wait  for clk_prd;
-      
-   assert false report "A Frame of FILTERED data has been read....." severity NOTE;
-   
-     assert (wbm_dat_reg = x"0728FFFF" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
-     
-    -- assert (conv_integer(filtered_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
-   
-   -- wait for clk_prd * 20;
-   -- assert false report "END OF SIMULATION....." severity FAILURE;
-
-
- 
-   -- Get MODE 4 raw data
-   ------------------------------
-   wbm_dat_o <= MODE4_RAW;
-   do_set_data_mode;
-   assert false report " DATA MODE SET to MODE 4 (RAW)......" severity NOTE;
-   
-    wait for clk_prd;
-   
-   -- read 128 sets or raw data to get a full raw data frame...
-   
-   for i in 1 to 128 loop 
-     
-      do_start_ret_data; 
-      wait until wbm_ack_i = '1';
-   
-      for j in 1 to (41*8) loop
-         wait for clk_prd;
-      end loop;
-      
-      assert false report "**SET OF RAW DATA READ.........." severity NOTE;
-      do_end_ret_data; 
-      wait  for clk_prd;
-   
-   end loop;
-   
-       
-   assert (wbm_dat_reg = x"0000377F" ) report "***LAST DATA WORD INCORRECT....***" severity ERROR;
-  -- assert (conv_integer(raw_addr_ch7) = 0) report "***ADDRESS NOT BACK TO ZERO***" severity ERROR;
-   
-      
-   assert false report "******A FRAME OF RAW DATA HAS BEEN READ******" severity NOTE;
-
-
-
 
    wait for clk_prd*20;
    assert false report "END OF SIMULATION....." severity FAILURE;
