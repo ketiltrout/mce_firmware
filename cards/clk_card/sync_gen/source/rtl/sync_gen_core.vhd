@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.9  2005/03/19 00:31:23  bburger
+-- bryce:  Fixed several bugs.  Tagging cc_01010007.
+--
 -- Revision 1.8  2005/03/16 02:20:58  bburger
 -- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
 --
@@ -160,7 +163,7 @@ begin
       end if;
    end process clk_cntr;
 
-   sync_count_new <= sync_count + "00000001";
+   sync_count_new <= sync_count + "0000000000000001";
    sync_cntr: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
