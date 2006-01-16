@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.3 2004/10/11 13:31:27 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_fifo.vhd,v 1.4 2004/11/24 01:15:52 bench2 Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        David Atkinson
@@ -36,9 +36,12 @@
 -- Revision history:
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2004/10/11 13:31:27 $> -     <text>      - <initials $Author: dca $>
+-- <date $Date: 2004/11/24 01:15:52 $> -     <text>      - <initials $Author: bench2 $>
 --
 -- $Log: fibre_rx_fifo.vhd,v $
+-- Revision 1.4  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 -- Revision 1.3  2004/10/11 13:31:27  dca
 -- Now instantiates synchronous FIFO megafunction
 --
@@ -76,7 +79,21 @@ end fibre_rx_fifo ;
 
 
 architecture rtl of fibre_rx_fifo is
-   
+   component sync_fifo_rx
+	PORT
+	(
+		data		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+		wrreq		: IN STD_LOGIC ;
+		rdreq		: IN STD_LOGIC ;
+		rdclk		: IN STD_LOGIC ;
+		wrclk		: IN STD_LOGIC ;
+		aclr		: IN STD_LOGIC  := '0';
+		q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+		rdempty		: OUT STD_LOGIC ;
+		wrfull		: OUT STD_LOGIC 
+	);
+   END component;
+
 begin
  
    -- instantiate asynchronous FIFO

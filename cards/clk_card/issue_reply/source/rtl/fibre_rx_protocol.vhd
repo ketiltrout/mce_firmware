@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.7 2005/02/15 03:15:44 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx_protocol.vhd,v 1.8 2005/02/28 18:55:17 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        David Atkinson
@@ -67,6 +67,9 @@
 -- Revision history:
 --
 -- $Log: fibre_rx_protocol.vhd,v $
+-- Revision 1.8  2005/02/28 18:55:17  mandana
+-- Ernie/Mandana: fixed CRC calculation error
+--
 -- Revision 1.7  2005/02/15 03:15:44  erniel
 -- minor formatting and cleaning up
 --
@@ -78,7 +81,7 @@
 --
 -- 1st March 2004   - Initial version      - DA
 -- 
--- <date $Date: 2005/02/15 03:15:44 $> -     <text>      - <initials $Author: erniel $>
+-- <date $Date: 2005/02/28 18:55:17 $> -     <text>      - <initials $Author: mandana $>
 --
 -- Log: fibre_rx_protocol.vhd,v $
 -----------------------------------------------------------------------------
@@ -109,7 +112,7 @@ entity fibre_rx_protocol is
       rxd_i       : in std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);         -- receive data byte 
       cmd_ack_i   : in std_logic;                                                -- command acknowledge
 
-      cmd_code_o  : out std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);      -- command code  
+      cmd_code_o  : out std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);      -- command code  
       card_id_o   : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
       param_id_o  : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1  downto 0); -- parameter id
       num_data_o  : out std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);     -- number of valid 32-bit data words
@@ -139,7 +142,7 @@ signal cksum_calc_ena : std_logic;
 signal cksum_calc_clr : std_logic;
 
 -- signals mapped to output ports
-signal cmd_code  : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);     -- command code  
+signal cmd_code  : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);     -- command code  
 signal num_data  : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of valid 32-bit data words
 
 
@@ -229,7 +232,7 @@ begin
          when RQ_BYTE =>   next_state <= LD_BYTE;
          
          when LD_BYTE =>   if(rx_fe_i = '0') then
-                              if((word_count = 0 and rxd_i /= FIBRE_PREAMBLE1) or (word_count = 1 and rxd_i /= FIBRE_PREAMBLE2)) then
+                              if((word_count = 0 and rxd_i /= FIBRE_PREAMBLE1(7 downto 0)) or (word_count = 1 and rxd_i /= FIBRE_PREAMBLE2(7 downto 0))) then
                                  next_state <= IDLE;
                               elsif(byte_count = 3 and word_count > 1 and word_count < BLOCK_SIZE+5) then
                                  next_state <= CKSM_CALC;
@@ -390,6 +393,8 @@ begin
            case byte_count is
               when 0 =>      cmd_code(7 downto 0)  <= rxd_i;
               when 1 =>      cmd_code(15 downto 8) <= rxd_i;
+              when 2 =>      cmd_code(23 downto 16) <= rxd_i;
+              when 3 =>      cmd_code(31 downto 24) <= rxd_i;
               when others => null;
            end case;
         end if;
