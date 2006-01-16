@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.9 2004/09/30 22:34:44 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.10 2005/09/03 23:51:26 bburger Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -33,9 +33,13 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2004/09/30 22:34:44 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2005/09/03 23:51:26 $>	-		<text>		- <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.10  2005/09/03 23:51:26  bburger
+-- jjacob:
+-- removed recirculation muxes and replaced with register enables, and cleaned up formatting
+--
 -- Revision 1.9  2004/09/30 22:34:44  erniel
 -- using new command_pack constants
 --
@@ -94,30 +98,30 @@ port(
       rst_i             : in  std_logic;
       clk_i             : in  std_logic;
 
-      -- inputs from cmd_translator top level      
+      -- inputs from fibre_rx via cmd_translator top-level      
       card_addr_i       : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_i    : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_i       : in  std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i            : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
       data_clk_i        : in  std_logic;							                               -- for clocking out the data
-      cmd_code_i        : in  std_logic_vector (                        15 downto 0);
+      cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       
       -- other inputs
       sync_pulse_i      : in  std_logic;
       cmd_start_i       : in  std_logic;
       cmd_stop_i        : in  std_logic;
   
-      -- outputs to the macro-instruction arbiter
-      card_addr_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o    : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_o       : out std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_o            : out std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
-      data_clk_o        : out std_logic;							                               -- for clocking out the data
-      macro_instr_rdy_o : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
-      cmd_type_o        : out std_logic_vector (   BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
+      -- outputs to the instruction arbiter
+      card_addr_o       : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o    : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_o       : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
+      data_o            : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
+      data_clk_o        : out std_logic;							                            -- for clocking out the data
+      instr_rdy_o       : out std_logic;                                            -- ='1' when the instruction is valid, else it's '0'
+      cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
       
-      -- input from the macro-instruction arbiter
-      ack_i             : in std_logic                                                 -- acknowledgment from the arbiter that it is ready and has grabbed the data
+      -- input from the instruction arbiter
+      instr_ack_i       : in std_logic                                              -- acknowledgment from the arbiter that it is ready and has grabbed the data
    ); 
      
 end cmd_translator_simple_cmd_fsm;
@@ -129,21 +133,23 @@ begin
 --
 ------------------------------------------------------------------------
 
-   card_addr_o        <= card_addr_i    when cmd_start_i = '1' else (others => '0');
-   parameter_id_o     <= parameter_id_i when cmd_start_i = '1' else (others => '0');
-   data_size_o        <= data_size_i    when cmd_start_i = '1' else (others => '0');
-   data_o             <= data_i         when cmd_start_i = '1' else (others => '0');
-   data_clk_o         <= data_clk_i     when cmd_start_i = '1' else '0';
-   macro_instr_rdy_o  <= '1'            when cmd_start_i = '1' else '0';
+   card_addr_o    <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0)    when cmd_start_i = '1' else (others => '0');
+   parameter_id_o <= parameter_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) when cmd_start_i = '1' else (others => '0');
+   data_size_o    <= data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0)       when cmd_start_i = '1' else (others => '0');
+   data_o         <= data_i                                           when cmd_start_i = '1' else (others => '0');
+   data_clk_o     <= data_clk_i                                       when cmd_start_i = '1' else '0';
+   instr_rdy_o    <= '1'                                              when cmd_start_i = '1' else '0';
 
    -- re-mapping logic for cmd_code_i -> cmd_type_o
-   with cmd_code_i select
-      cmd_type_o <=
-      WRITE_BLOCK   when x"5742",
-      READ_BLOCK    when x"5242",
-      START         when x"474F",
-      STOP          when x"5354",
-      RESET         when x"5253",
-      (others=>'1') when others;  -- undefined cmd_type
+--   with cmd_code_i select
+--      cmd_type_o <=
+--      WRITE_BLOCK   when x"5742",
+--      READ_BLOCK    when x"5242",
+--      START         when x"474F",
+--      STOP          when x"5354",
+--      RESET         when x"5253",
+--      (others=>'1') when others;  -- undefined cmd_type
    
+   cmd_type_o <= WRITE_CMD when cmd_code_i = WRITE_BLOCK else READ_CMD;
+         
 end rtl;

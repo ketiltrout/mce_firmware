@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.21 2005/09/03 23:51:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.22 2005/09/28 23:35:22 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/09/03 23:51:26 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2005/09/28 23:35:22 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.22  2005/09/28 23:35:22  bburger
+-- Bryce:
+-- removed ret_dat_s logic and interface signals, which are not used.
+-- added a hardcoded data size in cmd_translator_ret_dat_fsm of 328 for data frames
+--
 -- Revision 1.21  2005/09/03 23:51:26  bburger
 -- jjacob:
 -- removed recirculation muxes and replaced with register enables, and cleaned up formatting
@@ -61,7 +66,7 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library sys_param;
-use sys_param.wishbone_pack.all;
+--use sys_param.wishbone_pack.all;
 use sys_param.command_pack.all;
 
 library components;
@@ -79,14 +84,13 @@ port(
       -- inputs from fibre_rx      
       card_addr_i             : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_i          : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
---      data_size_i             : in  std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i                  : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
       data_clk_i              : in  std_logic;                                               -- for clocking out the data
-      cmd_code_i              : in  std_logic_vector (                        15 downto 0);
+--      cmd_code_i              : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       
       -- ret_dat_wbs interface:
-      start_seq_num_i         : in  std_logic_vector(            WB_DATA_WIDTH-1 downto 0);
-      stop_seq_num_i          : in  std_logic_vector(            WB_DATA_WIDTH-1 downto 0);
+      start_seq_num_i         : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
+      stop_seq_num_i          : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       data_rate_i             : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
 
       -- other inputs
@@ -95,18 +99,17 @@ port(
       ret_dat_start_i         : in  std_logic;
       ret_dat_stop_i          : in  std_logic;
       ret_dat_cmd_valid_o     : out std_logic;
---      ret_dat_s_start_i       : in  std_logic;
       frame_seq_num_o         : out std_logic_vector (                        31 downto 0);
       frame_sync_num_o        : out std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
       
       -- outputs to the arbiter
-      card_addr_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_o          : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_o             : out std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-      data_o                  : out std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
+      card_addr_o             : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+      parameter_id_o          : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+      data_size_o             : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+      data_o                  : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
       data_clk_o              : out std_logic;                                               -- for clocking out the data
-      macro_instr_rdy_o       : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
-      cmd_type_o              : out std_logic_vector (   BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
+      instr_rdy_o             : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
+      cmd_type_o              : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o              : out std_logic;                      
       last_frame_o            : out std_logic;
       ret_dat_fsm_working_o   : out std_logic;                                               -- indicates the state machine is busy
@@ -143,14 +146,11 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal ret_dat_stop_reg_en             : std_logic;
    signal ret_dat_stop_reg_rst            : std_logic; 
 
---   signal cmd_type                        : std_logic_vector (   BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
---   signal cmd_stop                        : std_logic;      
-   
    signal input_reg_en                    : std_logic;  
-   signal card_addr_reg                   : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); 
-   signal parameter_id_reg                : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
-   signal data_size_reg                   : std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);
-   signal data_reg                        : std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);
+   signal card_addr_reg                   : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0); 
+   signal parameter_id_reg                : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
+   signal data_size_reg                   : std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
+   signal data_reg                        : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
  
    signal sync_next_state                 : sync_state;
    signal sync_current_state              : sync_state;
@@ -169,7 +169,6 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal current_seq_num_reg             : std_logic_vector(                         31 downto 0);
    signal current_seq_num                 : std_logic_vector(                         31 downto 0);
    
---   signal ack_mux                         : std_logic;
 
    -------------------------------------------------------------------------------------------
    -- constants
@@ -288,9 +287,8 @@ begin
    process(current_state, ack_i, ret_dat_start, ret_dat_start_i)
    begin
       -- default assignments
---      ack_mux                          <= '0';
       ret_dat_cmd_valid                <= '0';
-      macro_instr_rdy_o                <= '0'; 
+      instr_rdy_o                <= '0'; 
       ret_dat_done                     <= '0';
       ret_dat_fsm_working              <= '0';
       input_reg_en                     <= '0';
@@ -301,7 +299,7 @@ begin
          
             if ret_dat_start = '1' then
                ret_dat_cmd_valid       <= '1';
-               macro_instr_rdy_o       <= '1';
+               instr_rdy_o       <= '1';
                ret_dat_fsm_working     <= '1';
                ret_dat_start_ack       <= '1';
             else
@@ -310,14 +308,13 @@ begin
 
          when RETURN_DATA_SINGLE_FRAME =>
             ret_dat_cmd_valid          <= '1';
-            macro_instr_rdy_o          <= '1';
+            instr_rdy_o          <= '1';
             ret_dat_fsm_working        <= '1';
 
          when RETURN_DATA_SINGLE_FRAME_PAUSE1 =>
             ret_dat_cmd_valid          <= '1';
-            macro_instr_rdy_o          <= '1';
+            instr_rdy_o          <= '1';
             ret_dat_fsm_working        <= '1';
---            ack_mux                    <= '1';
 
          when RETURN_DATA_SINGLE_FRAME_PAUSE2 =>
             if ret_dat_start_i = '0' then
@@ -331,13 +328,12 @@ begin
 
          when RETURN_DATA_1ST =>
             ret_dat_cmd_valid          <= '1';
-            macro_instr_rdy_o          <= '1';
+            instr_rdy_o          <= '1';
             ret_dat_fsm_working        <= '1';
---            ack_mux                    <= '1';
             
          when RETURN_DATA =>
             ret_dat_cmd_valid          <= '1';
-            macro_instr_rdy_o          <= '1';
+            instr_rdy_o          <= '1';
             ret_dat_fsm_working        <= '1';  
 
          when RETURN_DATA_PAUSE =>
@@ -349,12 +345,12 @@ begin
          when RETURN_DATA_LAST =>
             if ack_i = '1' then
                ret_dat_cmd_valid       <= '1';
-               macro_instr_rdy_o       <= '1';
+               instr_rdy_o       <= '1';
                ret_dat_done            <= '1';
                ret_dat_fsm_working     <= '1';               
             else
                ret_dat_cmd_valid       <= '1';
-               macro_instr_rdy_o       <= '1';
+               instr_rdy_o       <= '1';
                ret_dat_fsm_working     <= '1';
             end if;
             
@@ -377,9 +373,6 @@ begin
       end if;
    end process;   
    
-   -- If a STOP command is issued during data frame taking, the last frame of data will be tagged
-   -- with a STOP cmd_code, rather than a DATA cmd_code for the cmd_queue
---   cmd_type <= STOP when cmd_stop = '1' else DATA;
    
    -------------------------------------------------------------------------------------------
    -- state machine for grabbing ret_dat_s data
@@ -432,10 +425,9 @@ begin
          end if;
          
          if input_reg_en = '1' then  
-            parameter_id_reg     <= parameter_id_i;
-            card_addr_reg        <= card_addr_i;
+            parameter_id_reg     <= parameter_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0);
+            card_addr_reg        <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0);
             data_reg             <= data_i;
---            data_size_reg        <= data_size_i;
          end if;
       end if;
    end process;
@@ -485,45 +477,28 @@ begin
    -- START and STOP acknowledgments
    -------------------------------------------------------------------------------------------       
    ret_dat_stop_ack            <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i = '1' else '0';
---   ret_dat_start_ack           <= ack_i when ack_mux = '1' else '0';  -- this is to acknowledge back to the fibre_rx that cmd_queue has grabbed the ret_dat command
-                                                                     -- for the first ret_dat, but after that, the fibre_rx doesn't need to know about the 'ack'
-                                                                     -- only the cmd_translator needs to know so it can issue the ret_dat for the next frame of data.
---   cmd_stop                    <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg  = '1' else '0';
    
    -------------------------------------------------------------------------------------------
    -- assign outputs
    -------------------------------------------------------------------------------------------
    ack_o                   <= ret_dat_stop_ack or ret_dat_start_ack;
    cmd_stop_o              <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg  = '1' else '0';
---   cmd_stop_o              <= cmd_stop;
    ret_dat_cmd_valid_o     <= ret_dat_cmd_valid;
    ret_dat_fsm_working_o   <= ret_dat_fsm_working;
 
    last_frame_o            <= '1' when (current_state = RETURN_DATA_LAST and (ret_dat_stop_reg = '1' or current_seq_num >= stop_seq_num_i)) 
                                     or (current_state = RETURN_DATA_SINGLE_FRAME or current_state = RETURN_DATA_SINGLE_FRAME_PAUSE1) else '0';
 
-   process(ret_dat_fsm_working, --ret_dat_s_start_i, data_size_i, card_addr_i, parameter_id_i, data_size_reg, data_i, 
-           current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg)--, cmd_type)
+   process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg)
    begin
---      if ret_dat_s_start_i = '1' then
---         frame_seq_num_o  <= (others => '0');
---         frame_sync_num_o <= (others => '0');
---         card_addr_o      <= card_addr_i;
---         parameter_id_o   <= parameter_id_i;
---         data_size_o      <= data_size_i;
---         data_o           <= data_i;
---         cmd_type_o       <= (others => '0');  -- the cmd_queue doesn't need to know about the ret_dat_s command
---         data_clk_o       <= '0';              -- no need to pass the data_clk through
---         
---      elsif ret_dat_fsm_working = '1' then
       if ret_dat_fsm_working = '1' then
          frame_seq_num_o  <= current_seq_num_reg;
          frame_sync_num_o <= current_sync_num_reg;
          card_addr_o      <= card_addr_reg;    --card_addr;
          parameter_id_o   <= parameter_id_reg; --parameter_id;
-         data_size_o      <= RET_DAT_NUM_WORDS;--data_size;
+         data_size_o      <= "00101001000";    --data_size;
          data_o           <= data_reg;         --data_mux;
-         cmd_type_o       <= DATA;             --this will always indicate data, whether or not a stop command was received, or it is the last frame
+         cmd_type_o       <= READ_CMD;         --this will always indicate data, whether or not a stop command was received, or it is the last frame
          data_clk_o       <= '0';              -- not passing any data, so keep the data clock inactive
          
       else
