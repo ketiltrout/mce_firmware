@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.40 2005/03/16 02:20:58 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.41 2005/03/19 00:31:23 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.41  2005/03/19 00:31:23  bburger
+-- bryce:  Fixed several bugs.  Tagging cc_01010007.
+--
 -- Revision 1.40  2005/03/16 02:20:58  bburger
 -- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
 --
@@ -72,8 +75,7 @@ component issue_reply
       rst_i             : in std_logic;
       clk_i             : in std_logic;
       comm_clk_i        : in std_logic;
---      mem_clk_i         : in std_logic;
-      
+
       -- inputs from the bus backplane
       lvds_reply_ac_a   : in std_logic;  
       lvds_reply_bc1_a  : in std_logic;
@@ -97,13 +99,13 @@ component issue_reply
       -- interface to fibre transmitter
       tx_data_o         : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
       tsc_nTd_o         : out std_logic;                          -- hotlink tx special char/ data sel
-      nFena_o           : out std_logic;                           -- hotlink tx enable
+      nFena_o           : out std_logic;                          -- hotlink tx enable
 
       -- 25MHz clock for fibre_tx_control
-      fibre_clkw_i      : in std_logic;                          -- in phase with 25MHz hotlink clock
+      fibre_clkw_i      : in std_logic;                           -- in phase with 25MHz hotlink clock
 
       -- lvds_tx interface
-      lvds_cmd_o        : out std_logic;  -- transmitter output pin
+      lvds_cmd_o        : out std_logic;                          -- transmitter output pin
 
       -- ret_dat_wbs interface:
       start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
