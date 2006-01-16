@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs_pack.vhd,v 1.1 2005/03/05 01:31:36 bburger Exp $
+-- $Id: ret_dat_wbs_pack.vhd,v 1.2 2005/03/19 00:31:23 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs_pack.vhd,v $
+-- Revision 1.2  2005/03/19 00:31:23  bburger
+-- bryce:  Fixed several bugs.  Tagging cc_01010007.
+--
 -- Revision 1.1  2005/03/05 01:31:36  bburger
 -- Bryce:  New
 --
@@ -64,7 +67,8 @@ package ret_dat_wbs_pack is
 
 -- Data rate is calculated as "1 data packet per x frames".  A smaller x values yields a larger data rate, and vice versa
 constant MIN_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000FFFF";
-constant MAX_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000000A";
+constant MAX_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000000";
+constant DEF_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000005F";  -- 200.577 Hz Based on 41 rows, 64 cycles per row, 20ns per cycle
 
 component ret_dat_wbs is        
    port
