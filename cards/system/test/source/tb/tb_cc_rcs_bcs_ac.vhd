@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.8 2005/11/15 03:41:20 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.9 2005/11/28 19:30:33 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.9  2005/11/28 19:30:33  bburger
+-- Bryce:  minor additions to test routines for flux-jumping
+--
 -- Revision 1.8  2005/11/15 03:41:20  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -64,7 +67,7 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.bc_dac_ctrl_pack.all;
-use work.clk_card_pack.all;
+--use work.clk_card_pack.all;
 use work.addr_card_pack.all;
 use work.bias_card_pack.all;
 use work.readout_card_pack.all;
@@ -82,6 +85,95 @@ entity tb_cc_rcs_bcs_ac is
 end tb_cc_rcs_bcs_ac;
 
 architecture tb of tb_cc_rcs_bcs_ac is 
+
+   component clk_card
+   port(
+      -- PLL input:
+      inclk14           : in std_logic;
+      rst_n             : in std_logic;
+      
+      -- LVDS interface:
+      lvds_cmd          : out std_logic;
+      lvds_sync         : out std_logic;
+      lvds_spare        : out std_logic;
+      lvds_clk          : out std_logic;
+      lvds_reply_ac_a   : in std_logic;  
+      lvds_reply_ac_b   : in std_logic;
+      lvds_reply_bc1_a  : in std_logic;
+      lvds_reply_bc1_b  : in std_logic;
+      lvds_reply_bc2_a  : in std_logic;
+      lvds_reply_bc2_b  : in std_logic;
+      lvds_reply_bc3_a  : in std_logic;
+      lvds_reply_bc3_b  : in std_logic;
+      lvds_reply_rc1_a  : in std_logic;
+      lvds_reply_rc1_b  : in std_logic;
+      lvds_reply_rc2_a  : in std_logic;
+      lvds_reply_rc2_b  : in std_logic;
+      lvds_reply_rc3_a  : in std_logic; 
+      lvds_reply_rc3_b  : in std_logic;  
+      lvds_reply_rc4_a  : in std_logic; 
+      lvds_reply_rc4_b  : in std_logic;
+      
+      -- DV interface:
+      dv_pulse_fibre    : in std_logic;
+      dv_pulse_bnc      : in std_logic;
+      
+      -- TTL interface:
+      ttl_nrx1          : in std_logic;
+      ttl_tx1           : out std_logic;
+      ttl_txena1        : out std_logic;
+      
+      ttl_nrx2          : in std_logic;
+      ttl_tx2           : out std_logic;
+      ttl_txena2        : out std_logic;
+
+      ttl_nrx3          : in std_logic;
+      ttl_tx3           : out std_logic;
+      ttl_txena3        : out std_logic;
+
+      -- eeprom interface:
+      eeprom_si         : in std_logic;
+      eeprom_so         : out std_logic;
+      eeprom_sck        : out std_logic;
+      eeprom_cs         : out std_logic;
+      
+      -- miscellaneous ports:
+      red_led           : out std_logic;
+      ylw_led           : out std_logic;
+      grn_led           : out std_logic;
+      dip_sw3           : in std_logic;
+      dip_sw4           : in std_logic;
+      wdog              : out std_logic;
+      slot_id           : in std_logic_vector(3 downto 0);
+      
+      -- debug ports:
+      mictor_o          : out std_logic_vector(15 downto 1);
+      mictorclk_o       : out std_logic;
+      mictor_e          : out std_logic_vector(15 downto 1);
+      mictorclk_e       : out std_logic;
+      rs232_rx          : in std_logic;
+      rs232_tx          : out std_logic;
+      
+      -- interface to HOTLINK fibre receiver      
+      fibre_rx_refclk   : out std_logic;
+      fibre_rx_data     : in std_logic_vector (7 downto 0);  
+      fibre_rx_rdy      : in std_logic;                      
+      fibre_rx_rvs      : in std_logic;                      
+      fibre_rx_status   : in std_logic;                      
+      fibre_rx_sc_nd    : in std_logic;                      
+      fibre_rx_clkr     : in std_logic;                      
+      
+      fibre_rx_a_nb     : out std_logic;
+      fibre_rx_bisten   : out std_logic;
+      fibre_rx_rf       : out std_logic;
+      
+      -- interface to hotlink fibre transmitter      
+      fibre_tx_clkw     : out std_logic;
+      fibre_tx_data     : out std_logic_vector (7 downto 0);
+      fibre_tx_ena      : out std_logic;  
+      fibre_tx_sc_nd    : out std_logic
+   );     
+   end component;
 
    component readout_card
       generic (
@@ -250,7 +342,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_row_len_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ROW_LEN_ADDR;    
    constant cc_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & NUM_ROWS_ADDR;
    constant cc_ret_dat_s_cmd        : std_logic_vector(31 downto 0) := X"00020053";  -- card id=0, ret_dat_s command
-   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"00000001";   
+   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"0000000A";   
    constant cc_led_cmd              : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & LED_ADDR;
    constant cc_array_id_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ARRAY_ID_ADDR;
    constant cc_use_dv_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_DV_ADDR;
@@ -347,8 +439,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_red_led    : std_logic;
    signal cc_ylw_led    : std_logic;
    signal cc_grn_led    : std_logic;
-   signal cc_dip_sw3    : std_logic := '0';
-   signal cc_dip_sw4    : std_logic := '0';
+   signal cc_dip_sw3    : std_logic := '1';
+   signal cc_dip_sw4    : std_logic := '1';
    signal cc_wdog       : std_logic;
    signal cc_slot_id    : std_logic_vector(3 downto 0) := "1000";
    
@@ -634,8 +726,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc1_ylw_led        : std_logic;
    signal rc1_grn_led        : std_logic;
 
-   signal rc1_dip_sw3        : std_logic := '0';
-   signal rc1_dip_sw4        : std_logic := '0';
+   signal rc1_dip_sw3        : std_logic := '1';
+   signal rc1_dip_sw4        : std_logic := '1';
    signal rc1_wdog           : std_logic;
    signal rc1_slot_id        : std_logic_vector(3 downto 0) := "1011";
    signal rc1_card_id        : std_logic;
@@ -678,8 +770,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal ac_red_led    : std_logic;
    signal ac_ylw_led    : std_logic;
    signal ac_grn_led    : std_logic;
-   signal ac_dip_sw3    : std_logic;
-   signal ac_dip_sw4    : std_logic;
+   signal ac_dip_sw3    : std_logic := '1';
+   signal ac_dip_sw4    : std_logic := '1';
    signal ac_wdog       : std_logic;
    signal ac_slot_id    : std_logic_vector(3 downto 0) := "1111";
     
@@ -1410,69 +1502,69 @@ begin
 --         rs232_tx      => bc1_rs232_tx
 --      );     
 --
---   i_addr_card : addr_card
---      port map
---      (
---         -- PLL input:
---         inclk            => lvds_clk,
---         rst_n            => rst_n,
---         
---         -- LVDS interface:
---         lvds_cmd         => lvds_cmd,  
---         lvds_sync        => lvds_sync, 
---         lvds_spare       => lvds_spare,
---         lvds_txa         => lvds_reply_ac_a, 
---         lvds_txb         => lvds_reply_ac_b, 
---      
---         -- TTL interface:
---         ttl_nrx1         => bclr_n,
---         ttl_tx1          => open,
---         ttl_txena1       => ac_ttl_txena1,
---         
---         ttl_nrx2         => ac_ttl_nrx2,
---         ttl_tx2          => open,
---         ttl_txena2       => ac_ttl_txena2,
---         
---         ttl_nrx3         => ac_ttl_nrx3,
---         ttl_tx3          => open,
---         ttl_txena3       => ac_ttl_txena3,
---         
---         -- eeprom interface:
---         eeprom_si        => ac_eeprom_si, 
---         eeprom_so        => ac_eeprom_so, 
---         eeprom_sck       => ac_eeprom_sck,
---         eeprom_cs        => ac_eeprom_cs, 
---         
---         -- dac interface:
---         dac_data0        => ac_dac_data0,  
---         dac_data1        => ac_dac_data1,  
---         dac_data2        => ac_dac_data2,  
---         dac_data3        => ac_dac_data3,  
---         dac_data4        => ac_dac_data4,  
---         dac_data5        => ac_dac_data5,  
---         dac_data6        => ac_dac_data6,  
---         dac_data7        => ac_dac_data7,  
---         dac_data8        => ac_dac_data8,  
---         dac_data9        => ac_dac_data9,  
---         dac_data10       => ac_dac_data10, 
---         dac_clk          => ac_dac_clk,    
---         
---         -- miscellaneous ports:
---         red_led          => ac_red_led, 
---         ylw_led          => ac_ylw_led, 
---         grn_led          => ac_grn_led, 
---         dip_sw3          => ac_dip_sw3, 
---         dip_sw4          => ac_dip_sw4, 
---         wdog             => ac_wdog,    
---         slot_id          => ac_slot_id, 
---         
---         -- debug ports:
---         test             => ac_test,       
---         mictor           => ac_mictor,     
---         mictorclk        => ac_mictorclk,  
---         rs232_rx         => ac_rs232_rx,
---         rs232_tx         => ac_rs232_tx
---      );
+   i_addr_card : addr_card
+      port map
+      (
+         -- PLL input:
+         inclk            => lvds_clk,
+         rst_n            => rst_n,
+         
+         -- LVDS interface:
+         lvds_cmd         => lvds_cmd,  
+         lvds_sync        => lvds_sync, 
+         lvds_spare       => lvds_spare,
+         lvds_txa         => lvds_reply_ac_a, 
+         lvds_txb         => lvds_reply_ac_b, 
+      
+         -- TTL interface:
+         ttl_nrx1         => bclr_n,
+         ttl_tx1          => open,
+         ttl_txena1       => ac_ttl_txena1,
+         
+         ttl_nrx2         => ac_ttl_nrx2,
+         ttl_tx2          => open,
+         ttl_txena2       => ac_ttl_txena2,
+         
+         ttl_nrx3         => ac_ttl_nrx3,
+         ttl_tx3          => open,
+         ttl_txena3       => ac_ttl_txena3,
+         
+         -- eeprom interface:
+         eeprom_si        => ac_eeprom_si, 
+         eeprom_so        => ac_eeprom_so, 
+         eeprom_sck       => ac_eeprom_sck,
+         eeprom_cs        => ac_eeprom_cs, 
+         
+         -- dac interface:
+         dac_data0        => ac_dac_data0,  
+         dac_data1        => ac_dac_data1,  
+         dac_data2        => ac_dac_data2,  
+         dac_data3        => ac_dac_data3,  
+         dac_data4        => ac_dac_data4,  
+         dac_data5        => ac_dac_data5,  
+         dac_data6        => ac_dac_data6,  
+         dac_data7        => ac_dac_data7,  
+         dac_data8        => ac_dac_data8,  
+         dac_data9        => ac_dac_data9,  
+         dac_data10       => ac_dac_data10, 
+         dac_clk          => ac_dac_clk,    
+         
+         -- miscellaneous ports:
+         red_led          => ac_red_led, 
+         ylw_led          => ac_ylw_led, 
+         grn_led          => ac_grn_led, 
+         dip_sw3          => ac_dip_sw3, 
+         dip_sw4          => ac_dip_sw4, 
+         wdog             => ac_wdog,    
+         slot_id          => ac_slot_id, 
+         
+         -- debug ports:
+         test             => ac_test,       
+         mictor           => ac_mictor,     
+         mictorclk        => ac_mictorclk,  
+         rs232_rx         => ac_rs232_rx,
+         rs232_tx         => ac_rs232_tx
+      );
    
    ------------------------------------------------
    -- Create test bench clock
@@ -2031,15 +2123,45 @@ begin
 ------      load_checksum;
 ------      wait for 50 us;
 --------------------------------------------------
-----      command <= command_wb;
-----      address_id <= cc_ret_dat_s_cmd;
-----      data_valid <= X"00000002";
-----      data       <= X"00000001";
-----      load_preamble;
-----      load_command;
-----      load_checksum;
-----      
-----      wait for 50 us;
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 10000 us;
+-- 
+--      command <= command_st;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
 ------------------------------------------------------
 --      command <= command_wb;
 --      address_id <= rc1_led_cmd;
@@ -2100,160 +2222,160 @@ begin
 --  Command sequence for testing the flux feedback on RC1
 ------------------------------------------------------
 
-      command <= command_wb;
-      address_id <= rc1_flx_quanta0_cmd;
-      data_valid <= X"00000029"; -- 41 values
-      data       <= X"00001770"; -- 6000
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 100 us;
-      
-      command <= command_wb;
-      address_id <= rc1_en_fb_jump_cmd;
-      data_valid <= X"00000001"; -- 1 values
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-      
-
-      command <= command_wb;
-      address_id <= rc1_servo_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;     
-
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 50 us;
-
-      -- 5900  170c
-      -- 6000  1770
-      -- 6100  17d4
-      -- 6200  1838
-      -- 6300  189c
-      -- 7700  1e14
-      -- 7800  1e78
-      -- 7900  1edc
-      -- 8000  1f40
-      -- 14000 36b0
-      -- 16000 3e80
-      -- 17000 4268
-      -- 20000 4e20
-      -- 26000 6590
-      
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"0000170c";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00001770";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"000017d4";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00001838";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"0000189c";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00001838";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00001e78";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00001edc";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00001f40";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00003e80";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 100 us;
-
+--      command <= command_wb;
+--      address_id <= rc1_flx_quanta0_cmd;
+--      data_valid <= X"00000029"; -- 41 values
+--      data       <= X"00001770"; -- 6000
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 100 us;
+--      
+--      command <= command_wb;
+--      address_id <= rc1_en_fb_jump_cmd;
+--      data_valid <= X"00000001"; -- 1 values
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--      
+--
+--      command <= command_wb;
+--      address_id <= rc1_servo_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;     
+--
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 50 us;
+--
+--      -- 5900  170c
+--      -- 6000  1770
+--      -- 6100  17d4
+--      -- 6200  1838
+--      -- 6300  189c
+--      -- 7700  1e14
+--      -- 7800  1e78
+--      -- 7900  1edc
+--      -- 8000  1f40
+--      -- 14000 36b0
+--      -- 16000 3e80
+--      -- 17000 4268
+--      -- 20000 4e20
+--      -- 26000 6590
+--      
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000170c";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00001770";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"000017d4";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00001838";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"0000189c";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00001838";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00001e78";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00001edc";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00001f40";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00003e80";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
 --      command <= command_wb;
 --      address_id <= rc1_fb_const_cmd;
 --      data_valid <= X"00000001";
@@ -2273,16 +2395,16 @@ begin
 --      load_checksum;
 --      
 --      wait for 100 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 500 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 500 us;
 --
 --      command <= command_go;
 --      address_id <= rc1_ret_dat_cmd;
@@ -2350,6 +2472,60 @@ begin
 --      wait for 3200 us;
 
 ------------------------------------------------------
+--  Command sequence for reproducing the bug found 14 Dec 2005
+------------------------------------------------------
+
+      command <= command_wb;
+      address_id <= ac_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000005";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 54 us;
+      
+      command <= command_wb;
+      address_id <= ac_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000005";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 54 us;
+
+      command <= command_wb;
+      address_id <= rc1_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000005";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 54 us;
+
+      command <= command_wb;
+      address_id <= rc1_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000005";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 54 us;
+
+      command <= command_wb;
+      address_id <= ac_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000005";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 150 us;
+
+------------------------------------------------------
 --  Command sequence for testing timeout recovery on the CC
 ------------------------------------------------------
 -- Internal commands must be disabled in cmd_translator
@@ -2357,7 +2533,7 @@ begin
 
 --      command <= command_wb;
 --      address_id <= rc1_led_cmd;
---      data_valid <= X"00000002";
+--      data_valid <= X"00000001";
 --      data       <= X"00000006";
 --      load_preamble;
 --      load_command;
@@ -2367,7 +2543,7 @@ begin
 --      
 --      command <= command_rb;
 --      address_id <= rc1_led_cmd;
---      data_valid <= X"00000006";
+--      data_valid <= X"00000001";
 --      data       <= X"00000007";
 --      load_preamble;
 --      load_command;
@@ -2377,7 +2553,7 @@ begin
 --
 --      command <= command_wb;
 --      address_id <= rc1_led_cmd;
---      data_valid <= X"00000001";
+--      data_valid <= X"0000000B";
 --      data       <= X"00000001";
 --      load_preamble;
 --      load_command;
@@ -2425,7 +2601,7 @@ begin
 --      load_checksum;
 --      
 --      wait for 200 us;
---
+
 --      command <= command_go;
 --      address_id <= rc1_ret_dat_cmd;
 --      data_valid <= X"00000001";
