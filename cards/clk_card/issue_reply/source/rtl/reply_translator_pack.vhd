@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_translator_pack.vhd,v 1.4 2004/12/03 16:42:51 dca Exp $
+-- $Id: reply_translator_pack.vhd,v 1.5 2005/11/15 03:17:22 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: reply_translator_pack.vhd,v $
+-- Revision 1.5  2005/11/15 03:17:22  bburger
+-- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
+--
 -- Revision 1.4  2004/12/03 16:42:51  dca
 -- mop_error_code_i width changed
 --
@@ -67,7 +70,7 @@ port(
      -- signals to/from cmd_translator    
      cmd_rcvd_er_i           : in  std_logic;                                               -- command received on fibre with checksum error
      cmd_rcvd_ok_i           : in  std_logic;                                               -- command received on fibre - no checksum error
-     cmd_code_i              : in  std_logic_vector (FIBRE_CMD_CODE_WIDTH-1     downto 0);  -- fibre command code
+     cmd_code_i              : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1     downto 0);  -- fibre command code
      card_id_i               : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- fibre command card id
      param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
          
