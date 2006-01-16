@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.22 2005/03/19 00:31:23 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.23 2005/11/15 03:17:22 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.23  2005/11/15 03:17:22  bburger
+-- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
+--
 -- Revision 1.22  2005/03/19 00:31:23  bburger
 -- bryce:  Fixed several bugs.  Tagging cc_01010007.
 --
@@ -118,6 +121,7 @@ constant MAX_NUM_UOPS     : integer :=   3;
 -- Calculated constants for inputing data on the correct lines into/out-of the queue
 -- The following fields make up the first four lines of each u-op entry in the queue:
 constant NUM_NON_BB_CMD_HEADER_WORDS : integer := 2;
+constant BB_NUM_CMD_HEADER_WORDS : integer := 2;
 constant CQ_NUM_CMD_HEADER_WORDS : integer := BB_NUM_CMD_HEADER_WORDS + NUM_NON_BB_CMD_HEADER_WORDS;
 
 -- Line 1:
@@ -135,8 +139,8 @@ constant DATA_SIZE_END    : integer := QUEUE_WIDTH - ISSUE_SYNC_WIDTH - BB_COMMA
 -- BB_MICRO_OP_SEQ_WIDTH (8 bits)
 constant CARD_ADDR_END    : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH;
 constant PARAM_ID_END     : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH;
-constant MOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH;
-constant UOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH - BB_MICRO_OP_SEQ_WIDTH;
+--constant MOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH;
+--constant UOP_END          : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_PARAMETER_ID_WIDTH - BB_MACRO_OP_SEQ_WIDTH - BB_MICRO_OP_SEQ_WIDTH;
 
 -- Line 3:
 -- 'Data Frame Stop' bit (bit 1)
@@ -154,16 +158,22 @@ component cmd_queue
       -- reply_queue interface
       uop_rdy_o       : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
       uop_ack_i       : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
---      uop_timeout_i   : in std_logic; -- Tells the cmd_queue that the reply_queue has not received  a reply in the alloted period of time.
-      uop_o           : out std_logic_vector(QUEUE_WIDTH-1 downto 0); --Tells the reply_queue the next u-op that the cmd_queue wants to retire
+      card_addr_o     : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
+      par_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
+      data_size_o     : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
+      cmd_type_o      : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_stop_o      : out std_logic;                                          -- indicates a STOP command was recieved
+      last_frame_o    : out std_logic;                                          -- indicates the last frame of data for a ret_dat command
+      frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      internal_cmd_o  : out std_logic;
 
       -- cmd_translator interface
-      card_addr_i     : in std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
-      par_id_i        : in std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
-      data_size_i     : in std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
+      card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
+      par_id_i        : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
+      data_size_i     : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
       data_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- Data belonging to a m-op
       data_clk_i      : in std_logic; -- Clocks in 32-bit wide data
-      mop_i           : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
+--      mop_i           : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
       issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       mop_rdy_i       : in std_logic; -- Tells cmd_queue when a m-op is ready
       mop_ack_o       : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
