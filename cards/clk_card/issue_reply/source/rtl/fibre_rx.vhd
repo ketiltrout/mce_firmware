@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.4 2004/10/11 13:32:15 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5 2004/11/24 01:15:52 bench2 Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -33,8 +33,11 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2004/10/11 13:32:15 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/24 01:15:52 $> - <text> - <initials $Author: bench2 $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.5  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 -- Revision 1.4  2004/10/11 13:32:15  dca
 -- Changes due to fibre_rx_fifo becoming a synchronous FIFO megafunction.
 --
@@ -66,7 +69,7 @@ entity fibre_rx is
       rx_data_i    : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);  -- received data byte from fibre  
       cmd_ack_i    : in     std_logic;                                         -- command acknowledge
       
-      cmd_code_o   : out    std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0);   -- command code  
+      cmd_code_o   : out    std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);   -- command code  
       card_id_o    : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
       param_id_o   : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- parameter id
       num_data_o   : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- number of valid 32 bit data words
