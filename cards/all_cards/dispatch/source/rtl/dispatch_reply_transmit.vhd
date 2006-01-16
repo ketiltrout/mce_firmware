@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.11  2005/12/02 00:41:01  erniel
+-- modified FSM to accomodate pipeline-mode buffer at dispatch top-level
+--
 -- Revision 1.10  2005/10/28 01:10:07  erniel
 -- some minor name changes
 --
@@ -96,7 +99,10 @@ port(clk_i      : in std_logic;
      
      -- Buffer interface:
      buf_data_i : in std_logic_vector(31 downto 0);
-     buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0));
+     buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+     
+     -- test interface
+     dip_sw : in std_logic);
 end dispatch_reply_transmit;
      
 architecture rtl of dispatch_reply_transmit is
@@ -127,6 +133,7 @@ signal crc_clr       : std_logic;
 signal crc_data      : std_logic_vector(31 downto 0);
 signal crc_checksum  : std_logic_vector(31 downto 0);
 signal crc_num_words : integer;
+signal crc_poly      : std_logic_vector(31 downto 0);
 
 begin
 
@@ -154,7 +161,7 @@ begin
                rst_i       => rst_i,
                clr_i       => crc_clr,
                ena_i       => crc_ena,
-               poly_i      => "00000100110000010001110110110111",    -- CRC-32 polynomial
+               poly_i      => crc_poly,    -- CRC-32 polynomial
                data_i      => crc_data,
                num_words_i => crc_num_words,
                done_o      => open,
@@ -162,6 +169,7 @@ begin
                checksum_o  => crc_checksum);
     
    crc_num_words <= conv_integer(header0_i(BB_DATA_SIZE'range) + 2);           
+   crc_poly <= "00000100110000010001110110110111" when dip_sw = '1' else "10000100110000010001110110110111";
 
 
    ---------------------------------------------------------               

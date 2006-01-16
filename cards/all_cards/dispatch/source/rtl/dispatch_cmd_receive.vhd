@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.20  2005/11/30 18:55:53  erniel
+-- fixed bug: multiple assignment to buf_addr_o
+--
 -- Revision 1.19  2005/11/29 01:42:49  erniel
 -- fixed synthesis warning in process rx_stateOut
 --
@@ -129,7 +132,10 @@ port(clk_i      : in std_logic;
      -- Buffer interface (stores data from command packet):
      buf_data_o : out std_logic_vector(31 downto 0);
      buf_addr_o : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-     buf_wren_o : out std_logic);
+     buf_wren_o : out std_logic;
+     
+     -- test interface
+     dip_sw : in std_logic);
 end dispatch_cmd_receive;
      
 architecture rtl of dispatch_cmd_receive is
@@ -171,6 +177,7 @@ signal crc_ena   : std_logic;
 signal crc_clr   : std_logic;
 signal crc_valid : std_logic;
 signal crc_num_words : integer;
+signal crc_poly : std_logic_vector(31 downto 0);
 
 begin
 
@@ -199,7 +206,7 @@ begin
                rst_i       => rst_i,
                clr_i       => crc_clr,
                ena_i       => crc_ena,
-               poly_i      => "00000100110000010001110110110111",    -- CRC-32 polynomial
+               poly_i      => crc_poly,    -- CRC-32 polynomial
                data_i      => lvds_rx_data,
                num_words_i => crc_num_words,
                done_o      => open,
@@ -207,7 +214,7 @@ begin
                checksum_o  => open);
    
    crc_num_words <= conv_integer(data_size + 3);
-
+   crc_poly <= "00000100110000010001110110110111" when dip_sw = '1' else "10000100110000010001110110110111";
 
    ---------------------------------------------------------
    -- Temp registers for header words

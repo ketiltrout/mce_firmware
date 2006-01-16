@@ -21,7 +21,7 @@
 --
 -- dispatch.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.10  2005/12/02 00:38:38  erniel
+-- buffer is now pipeline mode (previously flow-through mode)
+-- removed need for inverted clock
+--
 -- Revision 1.9  2005/10/28 01:21:53  erniel
 -- moved component declarations from dispatch_pack
 -- replaced separate cmd and reply buffers with single buffer and multiplexed access via FSM
@@ -83,7 +87,7 @@ use sys_param.wishbone_pack.all;
 entity dispatch is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
-     rst_i      : in std_logic;		
+     rst_i      : in std_logic;     
      
      -- bus backplane interface (LVDS)
      lvds_cmd_i   : in std_logic;
@@ -96,13 +100,17 @@ port(clk_i      : in std_logic;
      we_o   : out std_logic;
      stb_o  : out std_logic;
      cyc_o  : out std_logic;
-     dat_i 	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i  : in std_logic;
      err_i  : in std_logic;
      
      -- misc. external interface
      wdt_rst_o : out std_logic;
-     slot_i    : in std_logic_vector(3 downto 0));
+     slot_i    : in std_logic_vector(3 downto 0);
+     
+     -- test interface
+     dip_sw3 : in std_logic;
+     dip_sw4 : in std_logic);
 end dispatch;
 
 architecture rtl of dispatch is
@@ -110,7 +118,7 @@ architecture rtl of dispatch is
 component dispatch_cmd_receive
 port(clk_i       : in std_logic;
      comm_clk_i  : in std_logic;
-     rst_i       : in std_logic;		     
+     rst_i       : in std_logic;         
      lvds_cmd_i  : in std_logic;
      card_i      : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
      cmd_done_o  : out std_logic;
@@ -119,7 +127,8 @@ port(clk_i       : in std_logic;
      header1_o   : out std_logic_vector(31 downto 0);
      buf_data_o  : out std_logic_vector(31 downto 0);
      buf_addr_o  : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-     buf_wren_o  : out std_logic);
+     buf_wren_o  : out std_logic;
+     dip_sw      : in std_logic);
 end component;
 
 component dispatch_wishbone
@@ -140,7 +149,7 @@ port(clk_i           : in std_logic;
      we_o            : out std_logic;
      stb_o           : out std_logic;
      cyc_o           : out std_logic;
-     dat_i          	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     dat_i           : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i           : in std_logic;
      err_i           : in std_logic;
      wdt_rst_o       : out std_logic);
@@ -155,7 +164,8 @@ port(clk_i         : in std_logic;
      header0_i     : in std_logic_vector(31 downto 0);
      header1_i     : in std_logic_vector(31 downto 0);
      buf_data_i    : in std_logic_vector(31 downto 0);
-     buf_addr_o    : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0));
+     buf_addr_o    : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+     dip_sw        : in std_logic);
 end component;
 
 type dispatch_states is (INITIALIZE, FETCH, EXECUTE, REPLY);
@@ -212,7 +222,8 @@ begin
             header1_o    => rx_header1,
             buf_data_o   => cmd_buf_data,
             buf_addr_o   => cmd_buf_addr,
-            buf_wren_o   => cmd_buf_wren);
+            buf_wren_o   => cmd_buf_wren,
+            dip_sw       => dip_sw3);
                  
    wishbone : dispatch_wishbone
    port map(clk_i           => clk_i,
@@ -246,7 +257,8 @@ begin
             header0_i     => reply_header0,
             header1_i     => reply_header1,
             buf_data_i    => buf_rddata,
-            buf_addr_o    => reply_buf_addr);
+            buf_addr_o    => reply_buf_addr,
+            dip_sw        => dip_sw4);
             
            
    ---------------------------------------------------------
@@ -293,7 +305,7 @@ begin
             address_b => buf_rdaddr,
             q_b       => buf_rddata);
 
-	
+   
    ---------------------------------------------------------
    -- Glue Logic
    ---------------------------------------------------------
