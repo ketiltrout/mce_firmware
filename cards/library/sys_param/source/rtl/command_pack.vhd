@@ -22,7 +22,7 @@
 -- command_pack.vhd
 --
 -- Project:       SCUBA-2
--- Author:         Ernie Lin
+-- Author:        Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,29 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.19  2005/11/23 18:20:44  erniel
+-- brought back PACKET_WORD_WIDTH constant
+-- changed FIBRE_PREAMBLE1 and FIBRE_PREAMBLE2 to 32 bits
+--
+-- Revision 1.18  2005/11/21 23:35:09  erniel
+-- temporary version (to maintain compatibility with previous version)
+--
+-- Revision 1.17  2005/11/18 20:43:16  erniel
+-- removed obsolete parameters:
+--      PACKET_WORD_WIDTH
+--      BB_NUM_CMD_HEADER_WORDS
+--      BB_NUM_REPLY_HEADER_WORDS
+-- modified bus backplane parameter definitions:
+--      BB_PREAMBLE
+--      BB_COMMAND_TYPE
+--      BB_DATA_SIZE
+--
+-- Revision 1.16  2005/11/15 03:28:04  bburger
+-- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
+--
+-- Revision 1.15  2005/10/28 01:44:17  erniel
+-- updated constants definitions for new bus backplane protocol
+--
 -- Revision 1.14  2004/12/03 16:41:25  dca
 -- FIBRE_CHECKSUM_ERR definition removed.
 -- Now local definition in reply_translator
@@ -69,42 +92,44 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 package command_pack is
-
-   constant PACKET_WORD_WIDTH   : integer := 32;
-   constant CHECKSUM_WORD_WIDTH : integer := PACKET_WORD_WIDTH;
    
    ------------------------------------------------------------------------
-   -- Bus Backplane-Side Declarations
+   -- General Declarations
    ------------------------------------------------------------------------
    
-   constant BB_NUM_CMD_HEADER_WORDS   : integer := 2;
-   constant BB_NUM_REPLY_HEADER_WORDS : integer := 3;
-      
-   -- header field range declarations:
-   constant BB_PREAMBLE     : std_logic_vector(31 downto 16) := x"AAAA";  
-   constant BB_COMMAND_TYPE : std_logic_vector(15 downto 13) := "000";
-   constant BB_DATA_SIZE    : std_logic_vector(12 downto 0)  := "0000000000000";
+   constant PACKET_WORD_WIDTH : integer := 32;
+   
+   
+   ------------------------------------------------------------------------
+   -- Bus Backplane-Protocol Declarations
+   ------------------------------------------------------------------------
+     
+   -- field range declarations:   
+  
+   constant BB_PREAMBLE     : std_logic_vector(31 downto 12) := x"AAAAA";  
+   constant BB_COMMAND_TYPE : std_logic_vector(11 downto 11) := "0";
+   constant BB_DATA_SIZE    : std_logic_vector(10 downto 0)  := "00000000000";
    constant BB_CARD_ADDRESS : std_logic_vector(31 downto 24) := "00000000";
    constant BB_PARAMETER_ID : std_logic_vector(23 downto 16) := "00000000";
-   constant BB_MACRO_OP_SEQ : std_logic_vector(15 downto 8)  := "00000000";
-   constant BB_MICRO_OP_SEQ : std_logic_vector(7 downto 0)   := "00000000";
-   constant BB_STATUS       : std_logic_vector(31 downto 29) := "000";
-   
-   -- header field width declarations:      
+   constant BB_STATUS       : std_logic_vector(15 downto 0)  := "0000000000000000";
+  
+  
+   -- field width declarations:   
+    
    constant BB_PREAMBLE_WIDTH     : integer := BB_PREAMBLE'length;
    constant BB_COMMAND_TYPE_WIDTH : integer := BB_COMMAND_TYPE'length;
    constant BB_DATA_SIZE_WIDTH    : integer := BB_DATA_SIZE'length;
    constant BB_CARD_ADDRESS_WIDTH : integer := BB_CARD_ADDRESS'length;
    constant BB_PARAMETER_ID_WIDTH : integer := BB_PARAMETER_ID'length;
-   constant BB_MACRO_OP_SEQ_WIDTH : integer := BB_MACRO_OP_SEQ'length;
-   constant BB_MICRO_OP_SEQ_WIDTH : integer := BB_MICRO_OP_SEQ'length;
    constant BB_STATUS_WIDTH       : integer := BB_STATUS'length;
    
-   -- header field value declarations:
+   
+   -- field value declarations:   
+   
    -- command types:
-   constant WRITE_CMD : std_logic_vector := "100";
-   constant READ_CMD  : std_logic_vector := "000";
-
+   constant WRITE_CMD         : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "1";
+   constant READ_CMD          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "0";
+      
    -- card addresses:
    constant NO_CARDS          : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"00";
    constant POWER_SUPPLY_CARD : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"01";
@@ -122,37 +147,79 @@ package command_pack is
    constant ALL_FPGA_CARDS    : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0D";
    constant ALL_CARDS         : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0) := x"0E";
 
-   -- status/error codes:
-   constant WB_SLAVE_ERR  : std_logic_vector(BB_STATUS_WIDTH-1 downto 0) := "100";   
-   constant CHECKSUM_ERR  : std_logic_vector(BB_STATUS_WIDTH-1 downto 0) := "010";
-   constant FIFO_FULL_ERR : std_logic_vector(BB_STATUS_WIDTH-1 downto 0) := "001";
+   -- parameter id's are defined in wishbone_pack.vhd
    
+  
+   ------------------------------------------------------------------------
+   -- Fibre-Protocol Declarations
+   ------------------------------------------------------------------------
+
+   -- field range declarations:   
+
+   constant FIBRE_PREAMBLE1    : std_logic_vector(31 downto 0)  := x"A5A5A5A5";  
+   constant FIBRE_PREAMBLE2    : std_logic_vector(31 downto 0)  := x"5A5A5A5A";
+   constant FIBRE_PACKET_TYPE  : std_logic_vector(31 downto 0)  := "00000000000000000000000000000000";
+   constant FIBRE_CARD_ADDRESS : std_logic_vector(31 downto 16) := "0000000000000000";
+   constant FIBRE_PARAMETER_ID : std_logic_vector(15 downto 0)  := "0000000000000000";
+   constant FIBRE_DATA_SIZE    : std_logic_vector(31 downto 0)  := "00000000000000000000000000000000";
+   constant FIBRE_STATUS       : std_logic_vector(31 downto 0)  := "00000000000000000000000000000000";
+   constant FIBRE_CHECKSUM     : std_logic_vector(31 downto 0)  := "00000000000000000000000000000000";
+
    
+   -- field width declarations:
+
+   constant FIBRE_PREAMBLE1_WIDTH    : integer := FIBRE_PREAMBLE1'length;
+   constant FIBRE_PREAMBLE2_WIDTH    : integer := FIBRE_PREAMBLE2'length;
+   constant FIBRE_PACKET_TYPE_WIDTH  : integer := FIBRE_PACKET_TYPE'length;
+   constant FIBRE_CARD_ADDRESS_WIDTH : integer := FIBRE_CARD_ADDRESS'length;
+   constant FIBRE_PARAMETER_ID_WIDTH : integer := FIBRE_PARAMETER_ID'length;
+   constant FIBRE_DATA_SIZE_WIDTH    : integer := FIBRE_DATA_SIZE'length;
+   constant FIBRE_STATUS_WIDTH       : integer := FIBRE_STATUS'length;
+   constant FIBRE_CHECKSUM_WIDTH     : integer := FIBRE_CHECKSUM'length;
+   
+  
+   -- field value declarations:
+   
+   -- command packet types:
+   constant WRITE_BLOCK : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205742";
+   constant READ_BLOCK  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205242";
+   constant GO          : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"2020474F";
+   constant STOP        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205354";
+   constant RESET       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205253";
+   
+   -- reply packet types:
+   constant REPLY       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205250";
+   constant DATA        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20204441";
+   
+   -- reply status types:
+   constant WRITE_OK    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"57424F4B";
+   constant READ_OK     : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"52424F4B";
+   constant GO_OK       : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"474F4F4B";
+   constant STOP_OK     : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"53544F4B";
+   constant RESET_OK    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"52534F4B";
+   constant WRITE_ERR   : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"57424552";
+   constant READ_ERR    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"52424552";
+   constant GO_ERR      : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"474F4552";
+   constant STOP_ERR    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"53544552";
+   constant RESET_ERR   : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"52534552";
+   
+   constant FIBRE_NO_ERROR_STATUS : std_logic_vector(29 downto 0) := (others => '0');
+      
+   -- card addresses and parameter id's are the same as ones 
+   -- used over bus backplane, except zero-padded to 16 bits.
+
+
    ------------------------------------------------------------------------
    -- Issue-Reply Declarations
    ------------------------------------------------------------------------
    
-   -- command types:
-   constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
-   constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
-   constant START       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "010";
-   constant STOP        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "011";
-   constant RESET       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "100";
-   constant DATA        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "101";
-   
-   ------------------------------------------------------------------------
-   -- Fibre-Side Declarations
-   ------------------------------------------------------------------------
-   
-   constant FIBRE_CARD_ADDRESS_WIDTH : integer := 16;
-   constant FIBRE_PARAMETER_ID_WIDTH : integer := 16;
-   constant FIBRE_DATA_SIZE_WIDTH    : integer := 32;
-   constant FIBRE_CMD_CODE_WIDTH     : integer := 16;
-   constant FIBRE_ERROR_WORD_WIDTH   : integer := PACKET_WORD_WIDTH;
-   constant FIBRE_NO_ERROR_STATUS : std_logic_vector(29 downto 0) := (others => '0');
- 
-   constant FIBRE_PREAMBLE1 : std_logic_vector := x"A5";
-   constant FIBRE_PREAMBLE2 : std_logic_vector := x"5A";
+--   -- command types:
+--   constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
+--   constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
+--   constant START       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "010";
+--   constant STOP        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "011";
+--   constant RESET       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "100";
+--   constant DATA        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "101";
    
 
    ------------------------------------------------------------------------
@@ -172,6 +239,5 @@ package command_pack is
    constant ASCII_S    : byte := x"53";  -- ascii value for 'S'
    constant ASCII_T    : byte := x"54";  -- ascii value for 'T'
    constant ASCII_W    : byte := x"57";  -- ascii value for 'W'
-   constant ASCII_SP   : byte := x"20";  -- ascii value for space
-
+   constant ASCII_SP   : byte := x"20";  -- ascii value for space   
 end command_pack;
