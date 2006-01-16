@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_tx_fifo.vhd,v 1.2 2004/10/06 21:50:52 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_tx_fifo.vhd,v 1.3 2004/10/12 14:18:56 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -32,9 +32,12 @@
 -- the tx_control block controls their transfer to the HOTLINK transmitter
 -- 
 -- Revision history:
--- <date $Date: 2004/10/06 21:50:52 $> - <text> - <initials $Author: erniel $>
+-- <date $Date: 2004/10/12 14:18:56 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx_fifo.vhd,v $
+-- Revision 1.3  2004/10/12 14:18:56  dca
+-- Changed to instantiate synchronous FIFO megafunction
+--
 -- Revision 1.2  2004/10/06 21:50:52  erniel
 -- removed references to unused libraries
 --
@@ -78,7 +81,21 @@ end fibre_tx_fifo ;
 
 
 architecture behav of fibre_tx_fifo is
-   
+   component sync_fifo_tx
+	PORT
+	(
+		data		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+		wrreq		: IN STD_LOGIC ;
+		rdreq		: IN STD_LOGIC ;
+		rdclk		: IN STD_LOGIC ;
+		wrclk		: IN STD_LOGIC ;
+		aclr		: IN STD_LOGIC  := '0';
+		q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+		rdempty		: OUT STD_LOGIC ;
+		wrfull		: OUT STD_LOGIC 
+	);
+   END component;
+
 begin
 
    -- Instance port mappings.
