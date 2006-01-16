@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_core.vhd,v 1.4 2005/01/20 19:48:54 bburger Exp $
+-- $Id: ac_dac_ctrl_core.vhd,v 1.5 2005/01/26 01:25:21 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_core.vhd,v $
+-- Revision 1.5  2005/01/26 01:25:21  mandana
+-- removed mem_clk_i
+-- added PAUSE1 and PAUSE2 state for data to be ready in time
+-- removed dac_on_data and dac_off data registers
+--
 -- Revision 1.4  2005/01/20 19:48:54  bburger
 -- Bryce:  Changes associated with timing errors (slack) on the address card
 --
@@ -107,7 +112,7 @@ end ac_dac_ctrl_core;
 architecture rtl of ac_dac_ctrl_core is
 
 -- Row Addressing FSM signals:
-type row_states is (IDLE, UPDATE_VALS, LOAD_ON_VAL, PAUSE1, PAUSE2, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL);                
+type row_states is (PRESET1, PRESET2, IDLE, UPDATE_VALS, LOAD_ON_VAL, PAUSE1, PAUSE2, LATCH_ON_VAL, LOAD_OFF_VAL, LATCH_OFF_VAL);                
 signal row_current_state   : row_states;
 signal row_next_state      : row_states;
 signal frame_aligned_reg   : std_logic;
@@ -169,7 +174,7 @@ begin
    begin
       if(rst_i = '1') then
          dac_id_int <= 0;         
-         row_current_state <= IDLE;
+         row_current_state <= PRESET1;
       elsif(clk_i'event and clk_i = '1') then
          dac_id_int <= conv_integer(dac_id_i);         
          row_current_state <= row_next_state;
@@ -182,30 +187,43 @@ begin
       row_next_state <= row_current_state;
       
       case row_current_state is 
+         when PRESET1 =>
+            row_next_state <= PRESET2;
+         
+         when PRESET2 =>
+            row_next_state <= IDLE;
+
          when IDLE =>
             if(restart_frame_aligned_i = '1' and mux_en = '1') then
                row_next_state <= PAUSE1;
             end if;
+         
          when PAUSE1 =>
             row_next_state <= PAUSE2;
+         
          when PAUSE2 =>
             row_next_state <= LOAD_ON_VAL;
+         
          when LOAD_ON_VAL =>
             if(row_en_i = '1') then
                row_next_state <= LATCH_ON_VAL;
             end if;
+         
          when LATCH_ON_VAL =>
             row_next_state <= LOAD_OFF_VAL;
+         
          when LOAD_OFF_VAL =>
             if(row_en_i = '0') then
                row_next_state <= LATCH_OFF_VAL;
             end if;
+         
          when LATCH_OFF_VAL =>
             if(mux_en = '0' and frame_aligned_reg = '1') then
                row_next_state <= IDLE;
             else
                row_next_state <= PAUSE1;
             end if;
+         
          when others =>
             row_next_state <= IDLE;
       end case;
@@ -217,31 +235,45 @@ begin
    row_state_out: process(row_current_state, on_data_i, off_data_i, dac_id_int)--, frame_aligned_reg)
    begin
       -- Default assignments
-      dac_data      <= (others => '0');
-      dac_clks_o    <= (others => '0');
+      dac_data                     <= (others => '0');
+      dac_clks_o                   <= (others => '0');
       
       case row_current_state is
+         when PRESET1 =>
+            dac_clks_o             <= (others => '0');
+         
+         when PRESET2 =>
+            -- Set the output of all the DACs to '0'
+            dac_clks_o             <= (others => '1');
+
          when IDLE =>
-            dac_data      <= (others => '0');
-            dac_clks_o    <= (others => '0');
+            dac_data               <= (others => '0');
+            dac_clks_o             <= (others => '0');
+         
          when PAUSE1 =>
-            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
-            dac_clks_o <= (others => '0');
+            dac_data               <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_clks_o             <= (others => '0');
+         
          when PAUSE2 =>
-            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
-            dac_clks_o <= (others => '0');
+            dac_data               <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_clks_o             <= (others => '0');
+         
          when LOAD_ON_VAL =>
-            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
-            dac_clks_o <= (others => '0');
+            dac_data               <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_clks_o             <= (others => '0');
+         
          when LATCH_ON_VAL =>
-            dac_data <= on_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_data               <= on_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
+         
          when LOAD_OFF_VAL =>
-            dac_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
-            dac_clks_o <= (others => '0');
+            dac_data               <= off_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_clks_o             <= (others => '0');
+         
          when LATCH_OFF_VAL =>
-            dac_data <= off_data_i(AC_BUS_WIDTH-1 downto 0);
+            dac_data               <= off_data_i(AC_BUS_WIDTH-1 downto 0);
             dac_clks_o(dac_id_int) <= '1';
+         
          when others =>
       end case;
    end process row_state_out;   

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.16  2005/05/09 20:07:10  bburger
+-- Bryce:  ac v01010006
+--
 -- Revision 1.15  2005/05/06 20:02:31  bburger
 -- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
 -- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
@@ -94,7 +97,7 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
-use work.dispatch_pack.all;
+--use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.fw_rev_pack.all;
 use work.frame_timing_pack.all;
@@ -170,7 +173,7 @@ architecture top of addr_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010006";
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010007";
 
 -- clocks
 signal clk      : std_logic;
@@ -217,6 +220,34 @@ port(inclk0 : in std_logic;
      c3 : out std_logic);
 end component;
 
+component dispatch
+port(clk_i      : in std_logic;
+     comm_clk_i : in std_logic;
+     rst_i      : in std_logic;     
+     
+     -- bus backplane interface (LVDS)
+     lvds_cmd_i   : in std_logic;
+     lvds_reply_o : out std_logic;
+     
+     -- wishbone slave interface
+     dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+     tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+     we_o   : out std_logic;
+     stb_o  : out std_logic;
+     cyc_o  : out std_logic;
+     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     ack_i  : in std_logic;
+     err_i  : in std_logic;
+     
+     -- misc. external interface
+     wdt_rst_o : out std_logic;
+     slot_i    : in std_logic_vector(3 downto 0);
+
+     dip_sw3 : in std_logic;
+     dip_sw4 : in std_logic);
+end component;
+
 begin
    
    -- Active low enable signal for the transmitter on the card.  With '1' it is disabled.
@@ -252,7 +283,10 @@ begin
          err_i                      => slave_err, 
      
          wdt_rst_o                  => wdog,
-         slot_i                     => slot_id
+         slot_i                     => slot_id,
+         
+         dip_sw3                    => '1',
+         dip_sw4                    => '1'
       );
             
    leds_slave: leds
