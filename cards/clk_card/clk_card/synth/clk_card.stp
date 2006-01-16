@@ -4,7 +4,7 @@
   </display_tree>
   <instance entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
     <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="3"/>
-    <signal_set global_temp="1" is_expanded="true" name="signal_set: 2005/12/01 12:43:04  #0">
+    <signal_set global_temp="1" is_expanded="true" name="signal_set: 2005/12/05 11:00:08  #0">
       <clock name="cc_pll:pll0|c0" polarity="posedge"/>
       <config ram_type="AUTO" reserved_data_nodes="0" reserved_trigger_nodes="0" sample_depth="16384" trigger_in_enable="no" trigger_out_enable="no"/>
       <top_entity/>
@@ -13,52 +13,11 @@
           <wire connection_status="true" name="fibre_rx_a_nb" tap_mode="classic" type="output pin"/>
           <wire connection_status="true" name="fibre_rx_bisten" tap_mode="classic" type="output pin"/>
           <wire connection_status="true" name="fibre_rx_clkr" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="fibre_rx_data[0]" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="fibre_rx_data[1]" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="fibre_rx_data[2]" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="fibre_rx_data[3]" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="fibre_rx_data[4]" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="fibre_rx_data[5]" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="fibre_rx_data[6]" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="fibre_rx_data[7]" tap_mode="classic" type="input pin"/>
           <wire connection_status="true" name="fibre_rx_rdy" tap_mode="classic" type="input pin"/>
           <wire connection_status="true" name="fibre_rx_rf" tap_mode="classic" type="output pin"/>
           <wire connection_status="true" name="fibre_rx_rvs" tap_mode="classic" type="input pin"/>
           <wire connection_status="true" name="fibre_rx_sc_nd" tap_mode="classic" type="input pin"/>
           <wire connection_status="true" name="fibre_rx_status" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[0]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[10]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[11]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[12]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[13]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[14]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[15]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[16]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[17]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[18]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[19]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[1]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[20]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[21]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[22]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[23]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[24]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[25]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[26]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[27]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[28]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[29]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[2]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[30]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[31]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[3]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[4]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[5]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[6]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[7]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[8]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[9]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|rdy_i" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_ack_o" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_rdy_i" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|uop_ack_i" tap_mode="classic" type="combinatorial"/>
@@ -66,40 +25,76 @@
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_rdy_i" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|instr_rdy_o" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|cmd_ack_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.done_header_store" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headera" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerb" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerc" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerd" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.latch_cmd" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.next_header_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.received" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_data" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_header" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_status" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.store_header_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.wait_for_ack" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.wait_for_match" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|rdy_o" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[0]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[10]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[11]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[12]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[13]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[14]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[15]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[16]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[17]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[18]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[19]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[1]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[20]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[21]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[22]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[23]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[24]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[25]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[26]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[27]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[28]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[29]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[2]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[30]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[31]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[3]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[4]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[5]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[6]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[7]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[8]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[9]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|rdy_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.done" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.matched" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_ac" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_cc" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc4" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.status_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.timed_out" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.wait_for_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ack_q_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ck_er_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.data_frame" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.done" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.fibre_idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.no_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_er" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_go_rs" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_ok" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.st_er_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word4" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word_ack_o" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word_rdy_i" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_ack_o" tap_mode="classic" type="combinatorial"/>
@@ -131,39 +126,6 @@
           <wire connection_status="true" name="fibre_rx_rvs" tap_mode="classic" type="input pin"/>
           <wire connection_status="true" name="fibre_rx_sc_nd" tap_mode="classic" type="input pin"/>
           <wire connection_status="true" name="fibre_rx_status" tap_mode="classic" type="input pin"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[0]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[10]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[11]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[12]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[13]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[14]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[15]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[16]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[17]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[18]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[19]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[1]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[20]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[21]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[22]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[23]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[24]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[25]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[26]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[27]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[28]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[29]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[2]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[30]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[31]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[3]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[4]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[5]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[6]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[7]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[8]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[9]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|rdy_i" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_ack_o" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_rdy_i" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|uop_ack_i" tap_mode="classic" type="combinatorial"/>
@@ -171,40 +133,76 @@
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_rdy_i" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|instr_rdy_o" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|cmd_ack_i" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.done_header_store" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headera" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerb" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerc" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerd" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.latch_cmd" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.next_header_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.received" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_data" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_header" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_status" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.store_header_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.wait_for_ack" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.wait_for_match" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|rdy_o" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[0]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[10]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[11]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[12]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[13]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[14]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[15]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[16]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[17]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[18]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[19]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[1]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[20]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[21]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[22]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[23]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[24]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[25]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[26]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[27]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[28]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[29]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[2]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[30]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[31]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[3]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[4]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[5]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[6]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[7]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[8]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[9]" tap_mode="classic" type="combinatorial"/>
-          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|rdy_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.done" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.matched" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_ac" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_cc" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc4" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.status_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.timed_out" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.wait_for_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ack_q_word" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ck_er_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.data_frame" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.done" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.fibre_idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.no_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_er" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_go_rs" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_ok" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.st_er_reply" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_0" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word1" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word2" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word3" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word4" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word_ack_o" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word_rdy_i" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_ack_o" tap_mode="classic" type="combinatorial"/>
@@ -221,119 +219,6 @@
         </data_input_vec>
       </signal_vec>
       <presentation>
-        <data_view>
-          <bus link="all" name="fibre_rx_data" order="msb_to_lsb" radix="hex" state="collapse" type="input pin">
-            <net name="fibre_rx_data[7]"/>
-            <net name="fibre_rx_data[6]"/>
-            <net name="fibre_rx_data[5]"/>
-            <net name="fibre_rx_data[4]"/>
-            <net name="fibre_rx_data[3]"/>
-            <net name="fibre_rx_data[2]"/>
-            <net name="fibre_rx_data[1]"/>
-            <net name="fibre_rx_data[0]"/>
-          </bus>
-          <net name="fibre_rx_rdy"/>
-          <net name="fibre_rx_rvs"/>
-          <net name="fibre_rx_sc_nd"/>
-          <net name="fibre_rx_status"/>
-          <net name="fibre_rx_clkr"/>
-          <net name="fibre_rx_a_nb"/>
-          <net name="fibre_rx_bisten"/>
-          <net name="fibre_rx_rf"/>
-          <net name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|cmd_ack_i"/>
-          <net name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_rdy_i"/>
-          <net name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|instr_rdy_o"/>
-          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_rdy_i"/>
-          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|uop_rdy_o"/>
-          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_ack_o"/>
-          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|uop_ack_i"/>
-          <bus link="all" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[31]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[30]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[29]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[28]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[27]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[26]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[25]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[24]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[23]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[22]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[21]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[20]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[19]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[18]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[17]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[16]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[15]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[14]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[13]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[12]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[11]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[10]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[9]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[8]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[7]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[6]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[5]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[4]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[3]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[2]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[1]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[0]"/>
-          </bus>
-          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|rdy_i"/>
-          <bus link="all" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[31]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[30]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[29]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[28]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[27]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[26]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[25]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[24]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[23]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[22]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[21]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[20]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[19]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[18]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[17]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[16]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[15]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[14]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[13]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[12]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[11]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[10]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[9]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[8]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[7]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[6]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[5]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[4]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[3]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[2]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[1]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[0]"/>
-          </bus>
-          <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|rdy_o"/>
-          <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|rdy_o"/>
-          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word_rdy_i"/>
-          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_rdy_i"/>
-          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word_ack_o"/>
-          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_ack_o"/>
-          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|tx_fw_o"/>
-          <bus link="all" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
-            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[7]"/>
-            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[6]"/>
-            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[5]"/>
-            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[4]"/>
-            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[3]"/>
-            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[2]"/>
-            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[1]"/>
-            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[0]"/>
-          </bus>
-        </data_view>
         <setup_view>
           <bus link="all" name="fibre_rx_data" order="msb_to_lsb" radix="hex" state="collapse" type="input pin">
             <net name="fibre_rx_data[7]"/>
@@ -376,95 +261,215 @@
             <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[1]"/>
             <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[0]"/>
           </bus>
-          <bus link="all" name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[31]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[30]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[29]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[28]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[27]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[26]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[25]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[24]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[23]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[22]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[21]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[20]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[19]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[18]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[17]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[16]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[15]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[14]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[13]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[12]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[11]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[10]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[9]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[8]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[7]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[6]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[5]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[4]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[3]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[2]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[1]"/>
-            <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|dat_i[0]"/>
+          <bus link="all" name="reply_queue_sequencer_pres_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.done"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.idle"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.matched"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_ac"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc1"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc2"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc3"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_cc"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc1"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc2"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc3"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc4"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.status_word"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.timed_out"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.wait_for_reply"/>
           </bus>
-          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|lvds_tx:cmd_tx2|rdy_i"/>
-          <bus link="all" name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[31]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[30]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[29]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[28]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[27]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[26]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[25]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[24]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[23]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[22]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[21]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[20]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[19]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[18]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[17]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[16]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[15]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[14]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[13]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[12]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[11]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[10]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[9]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[8]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[7]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[6]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[5]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[4]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[3]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[2]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[1]"/>
-            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|dat_o[0]"/>
+          <bus link="all" name="reply_queue_pres_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.done_header_store"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headera"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerb"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerc"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerd"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.idle"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.latch_cmd"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.next_header_word"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.received"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_data"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_header"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_reply"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_status"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.store_header_word"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.wait_for_ack"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.wait_for_match"/>
           </bus>
-          <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_cc|lvds_rx:lvds_receiver|rdy_o"/>
+          <bus link="all" name="reply_translator_pres_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ck_er_reply"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.data_frame"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.fibre_idle"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.no_reply"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_er"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_go_rs"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_ok"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.st_er_reply"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word4"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ack_q_word"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.done"/>
+          </bus>
         </setup_view>
+        <data_view>
+          <bus link="all" name="fibre_rx_data" order="msb_to_lsb" radix="hex" state="collapse" type="input pin">
+            <net name="fibre_rx_data[7]"/>
+            <net name="fibre_rx_data[6]"/>
+            <net name="fibre_rx_data[5]"/>
+            <net name="fibre_rx_data[4]"/>
+            <net name="fibre_rx_data[3]"/>
+            <net name="fibre_rx_data[2]"/>
+            <net name="fibre_rx_data[1]"/>
+            <net name="fibre_rx_data[0]"/>
+          </bus>
+          <net name="fibre_rx_rdy"/>
+          <net name="fibre_rx_rvs"/>
+          <net name="fibre_rx_status"/>
+          <net name="fibre_rx_clkr"/>
+          <net name="fibre_rx_a_nb"/>
+          <net name="fibre_rx_bisten"/>
+          <net name="fibre_rx_rf"/>
+          <net name="issue_reply:issue_reply0|fibre_rx:i_fibre_rx|cmd_ack_i"/>
+          <net name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_rdy_i"/>
+          <net name="issue_reply:issue_reply0|cmd_translator:i_cmd_translator|instr_rdy_o"/>
+          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_rdy_i"/>
+          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|uop_rdy_o"/>
+          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|mop_ack_o"/>
+          <net name="issue_reply:issue_reply0|cmd_queue:i_cmd_queue|uop_ack_i"/>
+          <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|rdy_o"/>
+          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word_rdy_i"/>
+          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_rdy_i"/>
+          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word_ack_o"/>
+          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|mop_ack_o"/>
+          <bus link="all" name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[7]"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[6]"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[5]"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[4]"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[3]"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[2]"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[1]"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|txd_o[0]"/>
+          </bus>
+          <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|tx_fw_o"/>
+          <bus link="all" name="reply_queue_sequencer_pres_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.done"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.idle"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.matched"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_ac"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc1"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc2"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_bc3"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_cc"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc1"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc2"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc3"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.read_rc4"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.status_word"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.timed_out"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|pres_state.wait_for_reply"/>
+          </bus>
+          <bus link="all" name="reply_queue_pres_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.done_header_store"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headera"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerb"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerc"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.headerd"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.idle"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.latch_cmd"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.next_header_word"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.received"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_data"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_header"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_reply"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.send_status"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.store_header_word"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.wait_for_ack"/>
+            <net name="issue_reply:issue_reply0|reply_queue:i_reply_queue|present_retire_state.wait_for_match"/>
+          </bus>
+          <bus link="all" name="reply_translator_pres_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ck_er_reply"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.data_frame"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.fibre_idle"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.no_reply"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_er"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_go_rs"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_ok"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.st_er_reply"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_rp_word3_3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_rp_word3_3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ack_q_word"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word4"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_wordn_3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_wordn_3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum0"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum1"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum2"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.tx_cksum3"/>
+            <net name="issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.done"/>
+          </bus>
+          <net name="fibre_rx_sc_nd"/>
+        </data_view>
       </presentation>
-      <trigger CRC="BACA0415" global_temp="1" is_expanded="true" name="trigger: 2005/12/01 12:43:04  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+      <trigger global_temp="1" is_expanded="true" name="trigger: 2005/12/05 11:00:08  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
         <events>
           <level enabled="yes" type="basic">
-            <op_node/>
-          </level>
-          <level enabled="no" type="basic">
             <op_node/>
           </level>
         </events>
       </trigger>
     </signal_set>
     <position_info>
-      <single attribute="active tab" value="0"/>
+      <single attribute="active tab" value="1"/>
       <single attribute="data horizontal scroll position" value="240"/>
       <single attribute="data vertical scroll position" value="0"/>
-      <single attribute="setup horizontal scroll position" value="0"/>
-      <single attribute="setup vertical scroll position" value="0"/>
+      <single attribute="setup horizontal scroll position" value="84"/>
+      <single attribute="setup vertical scroll position" value="1"/>
       <single attribute="zoom level denominator" value="1"/>
       <single attribute="zoom level numerator" value="2048"/>
       <single attribute="zoom offset denominator" value="1"/>
@@ -475,6 +480,6 @@
   <global_info>
     <single attribute="active instance" value="0"/>
     <multi attribute="column width" size="18" value="34,34,600,74,68,70,88,100,101,101,101,101,101,101,101,101,107,78"/>
-    <multi attribute="window position" size="7" value="1257,724,374,125,0,50,15"/>
+    <multi attribute="window position" size="7" value="1335,847,374,125,347,50,15"/>
   </global_info>
 </session>
