@@ -31,6 +31,16 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.14  2005/11/10 23:47:16  erniel
+-- replaced serial CRC datapath with parallel CRC
+-- replaced two-level buffering with single-level buffer
+-- removed transfer FSMs associated with two-level buffer
+-- reworked buffer interface FSM for single-level buffer
+-- replaced references to reply_queue_pack parameters with command_pack
+-- abolished "short headers", and header info not forwarded to downstream blocks
+-- added error/status output
+-- added queue clear input
+--
 -- Revision 1.13  2005/09/28 23:50:07  bburger
 -- Bryce:
 -- replaced obsolete crc block with serial_crc block
@@ -287,6 +297,9 @@ begin
 
    state_NS: process(pres_state, lvds_rx_rdy, lvds_rx_data, word_count, header0, crc_valid, buf_empty, ack_i)
    begin
+      -- Default Assignment
+      next_state <= pres_state;
+      
       case pres_state is
          when RX_INIT =>      next_state <= RX_HEADER0;
                              
