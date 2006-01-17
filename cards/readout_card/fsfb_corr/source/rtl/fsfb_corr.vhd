@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.8 2005/11/25 20:08:16 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.9 2005/11/26 04:35:33 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.9  2005/11/26 04:35:33  bburger
+-- Bryce:  Added a patch that allows flux jumping parameters to return to normal after a big change in pid_prev
+--
 -- Revision 1.8  2005/11/25 20:08:16  bburger
 -- Bryce:  Adjusted fsfb_max = 7800 so that it is not too close to the actual sq1 V-I period of 6200 DA units -- & other modifications
 --
@@ -885,7 +888,8 @@ begin
       flux_quanta_reg4 when column_switch1 = COL4 else
       flux_quanta_reg5 when column_switch1 = COL5 else
       flux_quanta_reg6 when column_switch1 = COL6 else
-      flux_quanta_reg7 when column_switch1 = COL7;
+      flux_quanta_reg7 when column_switch1 = COL7 else
+      (others => '0');
    
    flux_quanta2 <=
       flux_quanta_reg0 when column_switch2 = COL0 else
@@ -895,7 +899,8 @@ begin
       flux_quanta_reg4 when column_switch2 = COL4 else
       flux_quanta_reg5 when column_switch2 = COL5 else
       flux_quanta_reg6 when column_switch2 = COL6 else
-      flux_quanta_reg7 when column_switch2 = COL7;
+      flux_quanta_reg7 when column_switch2 = COL7 else
+      (others => '0');
 
    m_prev <=
       m_prev_reg0 when column_switch1 = COL0 else
@@ -905,7 +910,8 @@ begin
       m_prev_reg4 when column_switch1 = COL4 else
       m_prev_reg5 when column_switch1 = COL5 else
       m_prev_reg6 when column_switch1 = COL6 else
-      m_prev_reg7 when column_switch1 = COL7;
+      m_prev_reg7 when column_switch1 = COL7 else
+      (others => '0');
       
    pid_prev1 <=
       pid_prev_reg0 when column_switch1 = COL0 else
@@ -915,7 +921,8 @@ begin
       pid_prev_reg4 when column_switch1 = COL4 else
       pid_prev_reg5 when column_switch1 = COL5 else
       pid_prev_reg6 when column_switch1 = COL6 else
-      pid_prev_reg7 when column_switch1 = COL7;
+      pid_prev_reg7 when column_switch1 = COL7 else
+      (others => '0');
       
    pid_prev2 <=
       pid_prev_reg0 when column_switch2 = COL0 else
@@ -925,7 +932,8 @@ begin
       pid_prev_reg4 when column_switch2 = COL4 else
       pid_prev_reg5 when column_switch2 = COL5 else
       pid_prev_reg6 when column_switch2 = COL6 else
-      pid_prev_reg7 when column_switch2 = COL7;
+      pid_prev_reg7 when column_switch2 = COL7 else
+      (others => '0');
 
    num_flux_quanta_pres0_o <= m_pres_reg0;
    num_flux_quanta_pres1_o <= m_pres_reg1;
@@ -945,7 +953,8 @@ begin
       m_pres_reg4 when column_switch2 = COL4 else
       m_pres_reg5 when column_switch2 = COL5 else
       m_pres_reg6 when column_switch2 = COL6 else
-      m_pres_reg7 when column_switch2 = COL7;
+      m_pres_reg7 when column_switch2 = COL7 else
+      (others => '0');
       
    start_corr <= 
       fsfb_ctrl_dat_rdy0 and
