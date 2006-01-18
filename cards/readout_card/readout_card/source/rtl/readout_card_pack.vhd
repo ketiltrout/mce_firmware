@@ -32,6 +32,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.4  2005/09/14 23:51:49  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.3  2005/05/06 20:02:31  bburger
 -- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
 -- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
@@ -82,7 +86,38 @@ package readout_card_pack is
   constant SA_BIAS_SPI_DATA_WIDTH : integer := 3;         -- data width of SPI interface 
   constant OFFSET_SPI_DATA_WIDTH  : integer := 3;         -- data width of SPI interface 
 
-  
+  -----------------------------------------------------------------------------
+  -- Flux Loop Component
+  -----------------------------------------------------------------------------
+
+  component dispatch
+    port(clk_i      : in std_logic;
+      comm_clk_i : in std_logic;
+      rst_i      : in std_logic;     
+      
+      -- bus backplane interface (LVDS)
+      lvds_cmd_i   : in std_logic;
+      lvds_reply_o : out std_logic;
+      
+      -- wishbone slave interface
+      dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_o   : out std_logic;
+      stb_o  : out std_logic;
+      cyc_o  : out std_logic;
+      dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_i  : in std_logic;
+      err_i  : in std_logic;
+      
+      -- misc. external interface
+      wdt_rst_o : out std_logic;
+      slot_i    : in std_logic_vector(3 downto 0);
+
+      dip_sw3 : in std_logic;
+      dip_sw4 : in std_logic);
+  end component;
+ 
   -----------------------------------------------------------------------------
   -- Flux Loop Component
   -----------------------------------------------------------------------------
