@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.18  2005/12/14 20:01:50  mandana
+-- revision number updated to 01040001 for merged filter + flux_jump functionality
+--
 -- Revision 1.17  2005/11/28 19:21:20  bburger
 -- Bryce:  changed from v01020001 to v01020002
 --
@@ -107,7 +110,6 @@ use work.readout_card_pack.all;
 -- call these libraries, as the component we are using are defined in these
 -- libraries and we could not define our own components in readout_card_pack
 -- file.  See the readout_card_pack file!
-use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.fw_rev_pack.all;
 use work.frame_timing_pack.all;
@@ -224,7 +226,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01040001"; -- 04 for filtering + flux jumping
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01040002"; -- 04 for filtering + flux jumping
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
@@ -338,7 +340,9 @@ begin
          ack_i        => dispatch_ack_in,
          err_i        => dispatch_err_in,
          wdt_rst_o    => wdog,
-         slot_i       => slot_id);
+         slot_i       => slot_id,
+         dip_sw3      => '1',
+         dip_sw4      => '1');
 
 
   lvds_txa <= dispatch_lvds_txa;
