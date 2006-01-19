@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.6 2005/02/01 01:10:18 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.7 2005/07/05 19:49:54 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.7  2005/07/05 19:49:54  mandana
+-- added id_thermo dispatch slave to the top level, rev. 01020001
+--
 -- Revision 1.6  2005/02/01 01:10:18  mandana
 -- slot_id and ttl_nrx1 are now hard coded in the self_test module
 --
@@ -124,6 +127,41 @@ component bias_card
       rs232_tx   : out std_logic
    );     
 end component;
+  -----------------------------------------------------------------------------
+  -- Dispatch component
+  -----------------------------------------------------------------------------
+
+  component dispatch
+    port(clk_i      : in std_logic;
+      comm_clk_i : in std_logic;
+      rst_i      : in std_logic;     
+      
+      -- bus backplane interface (LVDS)
+      lvds_cmd_i   : in std_logic;
+      lvds_reply_o : out std_logic;
+      
+      -- wishbone slave interface
+      dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_o   : out std_logic;
+      stb_o  : out std_logic;
+      cyc_o  : out std_logic;
+      dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_i  : in std_logic;
+      err_i  : in std_logic;
+      
+      -- misc. external interface
+      wdt_rst_o : out std_logic;
+      slot_i    : in std_logic_vector(3 downto 0);
+
+      dip_sw3 : in std_logic;
+      dip_sw4 : in std_logic);
+  end component;
+  
+  -----------------------------------------------------------------------------
+  -- bias card self test component
+  -----------------------------------------------------------------------------
 
 component bias_card_self_test
    port(
