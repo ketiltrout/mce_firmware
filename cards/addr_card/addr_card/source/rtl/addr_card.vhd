@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.17  2006/01/16 01:09:56  bburger
+-- Bryce:  Commital for v01020002, DACs reset upon power up
+--
 -- Revision 1.16  2005/05/09 20:07:10  bburger
 -- Bryce:  ac v01010006
 --
@@ -173,7 +176,7 @@ architecture top of addr_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"01010007";
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"01020002";
 
 -- clocks
 signal clk      : std_logic;
