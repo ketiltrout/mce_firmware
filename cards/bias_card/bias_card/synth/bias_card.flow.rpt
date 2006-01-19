@@ -1,6 +1,6 @@
 Flow report for bias_card
-Tue Jul 05 11:32:15 2005
-Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
+Wed Jan 18 15:40:53 2006
+Version 5.0 Build 171 11/03/2005 Service Pack 2 SJ Full Version
 
 
 ---------------------
@@ -17,41 +17,37 @@ Version 4.1 Build 208 09/10/2004 Service Pack 2 SJ Full Version
 ----------------
 ; Legal Notice ;
 ----------------
-Copyright (C) 1991-2004 Altera Corporation
-Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
-support information,  device programming or simulation file,  and any other
-associated  documentation or information  provided by  Altera  or a partner
-under  Altera's   Megafunction   Partnership   Program  may  be  used  only
-to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
-other  use  of such  megafunction  design,  netlist,  support  information,
-device programming or simulation file,  or any other  related documentation
-or information  is prohibited  for  any  other purpose,  including, but not
-limited to  modification,  reverse engineering,  de-compiling, or use  with
-any other  silicon devices,  unless such use is  explicitly  licensed under
-a separate agreement with  Altera  or a megafunction partner.  Title to the
-intellectual property,  including patents,  copyrights,  trademarks,  trade
-secrets,  or maskworks,  embodied in any such megafunction design, netlist,
-support  information,  device programming or simulation file,  or any other
-related documentation or information provided by  Altera  or a megafunction
-partner, remains with Altera, the megafunction partner, or their respective
-licensors. No other licenses, including any licenses needed under any third
-party's intellectual property, are provided herein.
+Copyright (C) 1991-2005 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic       
+functions, and any output files any of the foregoing           
+(including device programming or simulation files), and any    
+associated documentation or information are expressly subject  
+to the terms and conditions of the Altera Program License      
+Subscription Agreement, Altera MegaCore Function License       
+Agreement, or other applicable license agreement, including,   
+without limitation, that your use is for the sole purpose of   
+programming logic devices manufactured by Altera and sold by   
+Altera or its authorized distributors.  Please refer to the    
+applicable agreement for further details.
 
 
 
 +--------------------------------------------------------------------------+
 ; Flow Summary                                                             ;
 +--------------------------+-----------------------------------------------+
-; Flow Status              ; Successful - Tue Jul 05 11:32:15 2005         ;
-; Quartus II Version       ; 4.1 Build 208 09/10/2004 SP 2 SJ Full Version ;
+; Flow Status              ; Successful - Wed Jan 18 15:40:53 2006         ;
+; Quartus II Version       ; 5.0 Build 171 11/03/2005 SP 2 SJ Full Version ;
 ; Revision Name            ; bias_card                                     ;
 ; Top-level Entity Name    ; bias_card                                     ;
 ; Family                   ; Stratix                                       ;
 ; Device                   ; EP1S10F780C5                                  ;
-; Timing Models            ; Production                                    ;
-; Total logic elements     ; 2,177 / 10,570 ( 20 % )                       ;
+; Timing Models            ; Final                                         ;
+; Met timing requirements  ; Yes                                           ;
+; Total logic elements     ; 1,803 / 10,570 ( 17 % )                       ;
 ; Total pins               ; 184 / 427 ( 43 % )                            ;
-; Total memory bits        ; 22,016 / 920,448 ( 2 % )                      ;
+; Total virtual pins       ; 0                                             ;
+; Total memory bits        ; 68,608 / 920,448 ( 7 % )                      ;
 ; DSP block 9-bit elements ; 0 / 48 ( 0 % )                                ;
 ; Total PLLs               ; 1 / 6 ( 16 % )                                ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                                 ;
@@ -63,7 +59,7 @@ party's intellectual property, are provided herein.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 07/05/2005 11:26:27 ;
+; Start date & time ; 01/18/2006 15:37:43 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -74,23 +70,23 @@ party's intellectual property, are provided herein.
 +----------------------+--------------+
 ; Module Name          ; Elapsed Time ;
 +----------------------+--------------+
-; Analysis & Synthesis ; 00:01:24     ;
-; Fitter               ; 00:03:58     ;
-; Assembler            ; 00:00:09     ;
-; Timing Analyzer      ; 00:00:05     ;
-; Design Assistant     ; 00:00:06     ;
-; Total                ; 00:05:42     ;
+; Analysis & Synthesis ; 00:00:59     ;
+; Fitter               ; 00:01:53     ;
+; Assembler            ; 00:00:05     ;
+; Timing Analyzer      ; 00:00:04     ;
+; Design Assistant     ; 00:00:04     ;
+; Total                ; 00:03:05     ;
 +----------------------+--------------+
 
 
 ------------
 ; Flow Log ;
 ------------
-quartus_map --import_settings_files=on --export_settings_files=off bias_card -c bias_card
-quartus_fit --import_settings_files=off --export_settings_files=off bias_card -c bias_card
-quartus_asm --import_settings_files=off --export_settings_files=off bias_card -c bias_card
-quartus_tan --import_settings_files=off --export_settings_files=off bias_card -c bias_card --timing_analysis_only
-quartus_drc --import_settings_files=off --export_settings_files=off bias_card -c bias_card
+quartus_map --read_settings_files=on --write_settings_files=off bias_card -c bias_card
+quartus_fit --read_settings_files=off --write_settings_files=off bias_card -c bias_card
+quartus_asm --read_settings_files=off --write_settings_files=off bias_card -c bias_card
+quartus_tan --read_settings_files=off --write_settings_files=off bias_card -c bias_card --timing_analysis_only
+quartus_drc --read_settings_files=off --write_settings_files=off bias_card -c bias_card
 
 
 

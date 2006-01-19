@@ -5,7 +5,7 @@ Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 15.397 ns
+Actual Time    : 15.422 ns
 From           : lvds_sync
 To             : frame_timing:frame_timing_slave|frame_timing_core:ftc|sync_temp
 From Clock     : 
@@ -15,9 +15,9 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 15.138 ns
-From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|lpm_counter:count_rtl_3|alt_counter_stratix:wysi_counter|safe_q[23]
-To             : dac_ncs[21]
+Actual Time    : 8.552 ns
+From           : dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|us_count[3]
+To             : wdog
 From Clock     : inclk
 To Clock       : 
 Failed Paths   : 0
@@ -25,8 +25,8 @@ Failed Paths   : 0
 Type           : Worst-case tpd
 Slack          : N/A
 Required Time  : None
-Actual Time    : 9.417 ns
-From           : ttl_nrx1
+Actual Time    : 9.704 ns
+From           : rst_n
 To             : dac_nclr
 From Clock     : 
 To Clock       : 
@@ -35,9 +35,9 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : -4.856 ns
-From           : lvds_cmd
-To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_temp
+Actual Time    : -4.695 ns
+From           : card_id
+To             : id_thermo:id_thermo0|one_wire_master:master|shift_reg:rx_data_reg|reg[7]
 From Clock     : 
 To Clock       : inclk
 Failed Paths   : 0
@@ -45,7 +45,7 @@ Failed Paths   : 0
 Type           : Worst-case Minimum tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 3.042 ns
+Actual Time    : 3.067 ns
 From           : bc_pll:pll0|altpll:altpll_component|_clk0
 To             : mictor[8]
 From Clock     : inclk
@@ -55,31 +55,51 @@ Failed Paths   : 0
 Type           : Worst-case Minimum tpd
 Slack          : N/A
 Required Time  : None
-Actual Time    : 8.795 ns
-From           : rst_n
+Actual Time    : 9.073 ns
+From           : ttl_nrx1
 To             : dac_nclr
 From Clock     : 
 To Clock       : 
 Failed Paths   : 0
 
 Type           : Clock Setup: 'bc_pll:pll0|altpll:altpll_component|_clk1'
-Slack          : 1.008 ns
+Slack          : 0.855 ns
 Required Time  : 200.00 MHz ( period = 5.000 ns )
-Actual Time    : 250.50 MHz ( period = 3.992 ns )
-From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|counter:sample_counter|count[0]
-To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[3]
+Actual Time    : 241.25 MHz ( period = 4.145 ns )
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_5ha1:auto_generated|alt_sync_fifo_aem:sync_fifo|cntr_808:cntr1|safe_q[0]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_5ha1:auto_generated|alt_sync_fifo_aem:sync_fifo|dpram_lpr:dpram4|altsyncram_9lc1:altsyncram14|ram_block15a0~porta_datain_reg0
 From Clock     : bc_pll:pll0|altpll:altpll_component|_clk1
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk1
 Failed Paths   : 0
 
 Type           : Clock Setup: 'bc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : 2.090 ns
+Slack          : 4.235 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
-From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|reg:data_buffer|reg_o[27]
-To             : dispatch:cmd0|dispatch_cmd_receive:receiver|crc_pres_state~21
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_5ha1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe7a[3]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_5ha1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe8a[3]
 From Clock     : bc_pll:pll0|altpll:altpll_component|_clk1
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk0
+Failed Paths   : 0
+
+Type           : Clock Hold: 'bc_pll:pll0|altpll:altpll_component|_clk0'
+Slack          : 0.535 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_5ha1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe7a[1]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_5ha1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe8a[1]
+From Clock     : bc_pll:pll0|altpll:altpll_component|_clk1
+To Clock       : bc_pll:pll0|altpll:altpll_component|_clk0
+Failed Paths   : 0
+
+Type           : Clock Hold: 'bc_pll:pll0|altpll:altpll_component|_clk1'
+Slack          : 0.663 ns
+Required Time  : 200.00 MHz ( period = 5.000 ns )
+Actual Time    : N/A
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[20]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[19]
+From Clock     : bc_pll:pll0|altpll:altpll_component|_clk1
+To Clock       : bc_pll:pll0|altpll:altpll_component|_clk1
 Failed Paths   : 0
 
 Type           : Total number of failed paths
