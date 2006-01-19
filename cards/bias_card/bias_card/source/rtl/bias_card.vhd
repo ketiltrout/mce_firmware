@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.18 2005/06/03 20:36:25 mandana Exp $
+-- $Id: bias_card.vhd,v 1.19 2005/07/05 19:49:54 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.19  2005/07/05 19:49:54  mandana
+-- added id_thermo dispatch slave to the top level, rev. 01020001
+--
 -- Revision 1.18  2005/06/03 20:36:25  mandana
 -- build revision 01010007 updated the tcl script to reverse ch0 to ch16 pin assignment
 --
@@ -101,7 +104,6 @@ use sys_param.data_types_pack.all;
 
 library work;
 use work.bias_card_pack.all;
-use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.fw_rev_pack.all;
 use work.frame_timing_pack.all;
@@ -174,7 +176,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01020001";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01020002";
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -265,7 +267,9 @@ begin
          ack_i                      => slave_ack,
          err_i                      => slave_err,      
          wdt_rst_o                  => wdog,
-         slot_i                     => slot_id
+         slot_i                     => slot_id,
+         dip_sw3                    => '1',
+         dip_sw4                    => '1'
       );
    
    id_thermo0: id_thermo
