@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.31 2005/08/31 22:38:59 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.32 2005/10/21 19:05:19 erniel Exp $>
 --
 -- Project:		SCUBA-2
 -- Author:		Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.32  2005/10/21 19:05:19  erniel
+-- updated one_wire_master component
+--
 -- Revision 1.31  2005/08/31 22:38:59  erniel
 -- added parallel and serial CRC generators
 --
@@ -494,6 +497,35 @@ package component_pack is
         slave_data_o  : out std_logic;     -- when using external tristate, use slave_data_io as data input.
         slave_wren_o  : out std_logic);
    end component;
+
+   
+------------------------------------------------------------
+--
+-- SMBus protocol components
+--
+------------------------------------------------------------ 
+
+   component smb_master
+   port(clk_i         : in std_logic;
+        rst_i         : in std_logic;
+
+        -- host-side signals
+        master_data_i : in std_logic_vector(7 downto 0);
+        master_data_o : out std_logic_vector(7 downto 0);
+
+        start_i       : in std_logic;         -- request a start condition
+        stop_i        : in std_logic;         -- request a stop condition
+        write_i       : in std_logic;         -- write a byte
+        read_i        : in std_logic;         -- read a byte
+
+        done_o        : out std_logic;        -- operation completed
+        error_o       : out std_logic;        -- slave returned an error
+
+        -- slave-side signals
+        slave_clk_o   : out std_logic;        -- SMBus clock
+        slave_data_io : inout std_logic);     -- SMBus data
+   end component;
+   
    
 ------------------------------------------------------------
 --
