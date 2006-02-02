@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.27 2006/01/16 19:03:36 bburger Exp $
+-- $Id: clk_card.vhd,v 1.28 2006/01/31 22:18:12 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.28  2006/01/31 22:18:12  mandana
+-- rev. up to 01030001
+-- fpga_thermo and id_thermo slaves added
+-- mem_clk removed
+--
 -- Revision 1.27  2006/01/16 19:03:36  bburger
 -- Bryce:
 -- moved to 01020001
@@ -195,7 +200,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"01030001";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000000";
 
 -- reset
 signal rst           : std_logic;
@@ -298,7 +303,7 @@ port(clk_i : in std_logic;
      rst_i : in std_logic;
 
      -- wishbone signals
-     dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+     dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
      addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
      we_i    : in std_logic;
