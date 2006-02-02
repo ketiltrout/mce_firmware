@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_tx_control.vhd,v 1.1 2004/10/05 12:22:34 dca Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_tx_control.vhd,v 1.2 2004/10/12 14:19:10 dca Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	      David Atkinson
@@ -31,9 +31,12 @@
 -- 'fibre_tx_fifo' block for transmission by the HOTLINK transmitter chip.
 --
 -- Revision history:
--- <date $Date: 2004/10/05 12:22:34 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/10/12 14:19:10 $> - <text> - <initials $Author: dca $>
 --
 -- $Log: fibre_tx_control.vhd,v $
+-- Revision 1.2  2004/10/12 14:19:10  dca
+-- Changed to contol synchronous FIFO megafunction
+--
 -- Revision 1.1  2004/10/05 12:22:34  dca
 -- moved from fibre_tx directory.
 --
@@ -46,6 +49,7 @@ use ieee.std_logic_1164.all;
 
 entity fibre_tx_control is
    port( 
+      rst_i        : in     std_logic;
       fibre_clkw_i : in     std_logic;
       tx_fe_i      : in     std_logic;
       tsc_nTd_o    : out    std_logic;
@@ -77,10 +81,12 @@ begin
 
 
 ----------------------------------------------------------
-clocked: PROCESS(fibre_clkw_i)
+clocked: PROCESS(rst_i, fibre_clkw_i)
 ----------------------------------------------------------
 begin
-   if (fibre_clkw_i'EVENT and fibre_clkw_i = '1') then
+   if(rst_i = '1') then
+      nFena_o <= '1';
+   elsif (fibre_clkw_i'EVENT and fibre_clkw_i = '1') then
       nFena_o <= tx_fe_i; 
    end if; 
 end process clocked;
