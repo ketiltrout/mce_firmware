@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.28 2005/11/15 03:17:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.29 2006/01/16 19:00:33 bburger Exp $>
 --
 -- Project:          Scuba 2
 -- Author:           David Atkinson
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2005/11/15 03:17:22 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/01/16 19:00:33 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.29  2006/01/16 19:00:33  bburger
+-- Bryce:  minor bug fixes for handling crc errors and timeouts
+--
 -- Revision 1.28  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -1169,7 +1172,15 @@ txd_o              <= fibre_byte;
       fibre_byte               <= (others => '0');
       
       checksum_load            <= (others => '0');
+
+      reply_argument           <= (others => '0');
+      reply_status             <= (others => '0');
       
+      packet_size              <= (others => '0');     -- reset packet size
+      reply_status             <= (others => '0');     -- reset reply status
+      reply_data               <= (others => '0');     -- reset reply/data word
+      packet_type              <= (others => '0');     -- reset packet type
+     
       case fibre_current_state is
 
 
@@ -1182,10 +1193,6 @@ txd_o              <= fibre_byte;
             checksum_load              <= (others => '0');     -- reset checksum calculator input
             checksum_in_mux_sel        <= '1';                 -- register reset checksum calculator input
                 
-            packet_size                <= (others => '0');     -- reset packet size
-            reply_status               <= (others => '0');     -- reset reply status
-            reply_data                 <= (others => '0');     -- reset reply/data word
-            packet_type                <= (others => '0');     -- reset packet type
             
       when CK_ER_REPLY =>              -- checksum error state
   
@@ -1796,9 +1803,11 @@ txd_o              <= fibre_byte;
    )
    ----------------------------------------------------------------------------
    begin
-     
-      case arb_current_state is
+      
+      arb_next_state <= arb_current_state;
 
+      case arb_current_state is
+      
       when ARB_IDLE =>
          
          if (fibre_fsm_busy = '1' and cmd_rcvd_er_i = '1' and cmd_code = ASCII_S & ASCII_T ) then
