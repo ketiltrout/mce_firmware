@@ -27,9 +27,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/10/12 14:19:59 $> - <text> - <initials $Author: dca $>
+-- <date $Date: 2004/11/24 01:15:52 $> - <text> - <initials $Author: bench2 $>
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.3  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 -- Revision 1.2  2004/10/12 14:19:59  dca
 -- nTrp removed.  Various other changes due to fifo becoming synchronous.
 --
@@ -112,9 +115,10 @@ architecture behav of fibre_tx is
       tx_data_o    => tx_data_o
    );
   
- 
+   
    fibre_tx_control_inst : fibre_tx_control 
       port map ( 
+         rst_i          =>   rst_i,
          fibre_clkw_i   =>   fibre_clkw_i,
          tx_fe_i        =>   tx_fe,
          tsc_nTd_o      =>   tsc_nTd_o,
