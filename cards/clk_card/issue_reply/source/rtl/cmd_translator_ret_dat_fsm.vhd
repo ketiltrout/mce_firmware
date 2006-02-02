@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.22 2005/09/28 23:35:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.23 2006/01/16 18:45:27 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/09/28 23:35:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.23  2006/01/16 18:45:27  bburger
+-- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
+-- moved component declarations from above package files to cmd_translator
+-- renamed constants to work with new command_pack (new bus backplane constants)
+--
 -- Revision 1.22  2005/09/28 23:35:22  bburger
 -- Bryce:
 -- removed ret_dat_s logic and interface signals, which are not used.
@@ -149,7 +154,6 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal input_reg_en                    : std_logic;  
    signal card_addr_reg                   : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0); 
    signal parameter_id_reg                : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-   signal data_size_reg                   : std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
    signal data_reg                        : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
  
    signal sync_next_state                 : sync_state;
@@ -415,7 +419,6 @@ begin
          current_sync_num_reg    <= (others=>'0');
          current_seq_num_reg     <= (others=>'0');
          data_reg                <= (others=>'0');
-         data_size_reg           <= (others=>'0');
          parameter_id_reg        <= (others=>'0');
          card_addr_reg           <= (others=>'0');
       elsif clk_i'event and clk_i='1' then
