@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.86 2005/11/15 03:17:22 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.87 2006/01/16 18:07:33 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.87  2006/01/16 18:07:33  bburger
+-- Bryce:  Brand new version of the cmd_queue.  It only queue's up a single command at a time.
+--
 -- Revision 1.86  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -142,7 +145,7 @@ signal lvds_tx_rdy          : std_logic;
 signal lvds_tx_busy         : std_logic;
 
 -- Bit Counter signals
-signal bit_ctr_count        : integer;
+signal bit_ctr_count        : integer range 0 to QUEUE_WIDTH;
 signal bit_ctr_ena          : std_logic; -- enables the counter which controls the enable line to the CRC block.  The counter should only be functional when there is a to calculate.
 signal bit_ctr_load         : std_logic; --Not part of the interface to the crc block; enables sh_reg and bit_ctr.
 
