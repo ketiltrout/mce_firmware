@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.9 2005/11/28 19:30:33 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.10 2006/01/16 19:14:26 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.10  2006/01/16 19:14:26  bburger
+-- Bryce:   commital for tagging
+--
 -- Revision 1.9  2005/11/28 19:30:33  bburger
 -- Bryce:  minor additions to test routines for flux-jumping
 --
@@ -2485,7 +2488,7 @@ begin
       
       wait for 54 us;
       
-      command <= command_wb;
+      command <= command_rb;
       address_id <= ac_led_cmd;
       data_valid <= X"00000001";
       data       <= X"00000005";
