@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: fibre_tx_pack.vhd,v 1.1 2004/11/24 01:15:52 bench2 Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -28,7 +28,10 @@
 -- Declares a few constants used as parameters in the fibre_tx block
 --
 -- Revision history:
--- $Log$
+-- $Log: fibre_tx_pack.vhd,v $
+-- Revision 1.1  2004/11/24 01:15:52  bench2
+-- Greg: Broke apart issue reply and created pack files for all of its sub-components
+--
 --
 --
 ------------------------------------------------------------------------
@@ -92,6 +95,7 @@ end component;
 component fibre_tx_control
 ----------------------------- 
 port( 
+   rst_i        : in     std_logic;
    fibre_clkw_i : in     std_logic;
    tx_fe_i      : in     std_logic;
    tsc_nTd_o    : out    std_logic;
