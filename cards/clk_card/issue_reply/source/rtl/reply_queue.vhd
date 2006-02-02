@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.18 2005/11/15 03:17:22 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.19 2006/01/16 19:03:02 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.19  2006/01/16 19:03:02  bburger
+-- Bryce:
+-- minor bug fixes for handling crc errors and timeouts
+-- moved reply_queue_receive instantiations from reply_queue to reply_queue_sequencer
+--
 -- Revision 1.18  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -310,7 +315,7 @@ begin
          clk_i      => clk_i,
          rst_i      => rst_i,
          ena_i      => reg_en,
-         reg_i      => bit_status_i,
+         reg_i      => bit_status_i, 
          reg_o      => bit_status
       );
 
@@ -445,7 +450,7 @@ begin
       end case;
    end process;
    
-   retire_state_out: process(present_retire_state, next_retire_state, cmd_sent_i, ack_i, head_q, data, data_size, par_id)
+   retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, head_q, data, data_size, par_id)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -519,7 +524,7 @@ begin
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
 
-            if(next_retire_state = SEND_DATA) then
+            if(word_count < data_size + NUM_RAM_HEAD_WORDS) then
                rdy_o           <= '1';
                cmd_valid_o     <= '1';
             end if;
