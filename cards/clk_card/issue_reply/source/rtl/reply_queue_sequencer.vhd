@@ -32,6 +32,11 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.17  2006/01/16 19:03:02  bburger
+-- Bryce:
+-- minor bug fixes for handling crc errors and timeouts
+-- moved reply_queue_receive instantiations from reply_queue to reply_queue_sequencer
+--
 -- Revision 1.16  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -123,8 +128,8 @@ signal timeout_reg_clr : std_logic;
 signal timeout_reg_q   : std_logic;
 
 signal datasize_reg_en : std_logic;
-signal datasize_reg_q  : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal num_cards       : std_logic_vector(15 downto 0);
+signal datasize_reg_q  : std_logic_vector(BB_DATA_SIZE_WIDTH + 4 -1 downto 0);
+signal num_cards       : std_logic_vector(3 downto 0);
 
 signal status          : std_logic_vector(30 downto 0);
 
@@ -427,9 +432,9 @@ begin
    end process timeout_reg;
 
    num_cards <= 
-      x"0000" when 
+      x"0" when 
          (card_addr_i = NO_CARDS) else
-      x"0001" when 
+      x"1" when 
          ((card_addr_i = POWER_SUPPLY_CARD) or 
          (card_addr_i = CLOCK_CARD) or 
          (card_addr_i = READOUT_CARD_1) or 
@@ -440,24 +445,24 @@ begin
          (card_addr_i = BIAS_CARD_2) or 
          (card_addr_i = BIAS_CARD_3) or 
          (card_addr_i = ADDRESS_CARD)) else
-      x"0003" when
+      x"3" when
          (card_addr_i = ALL_BIAS_CARDS) else
-      x"0004" when
+      x"4" when
          (card_addr_i = ALL_READOUT_CARDS) else
-      x"0009" when
+      x"9" when
          (card_addr_i = ALL_FPGA_CARDS) else
-      x"000A" when
+      x"A" when
          (card_addr_i = ALL_CARDS) else
-      x"0000";         
+      x"0";         
       
-   size_o <= conv_integer(datasize_reg_q(31 downto 0));
+   size_o <= conv_integer(datasize_reg_q);
    datasize_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          datasize_reg_q <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
          if(datasize_reg_en = '1') then
-            datasize_reg_q <= num_cards * (ZEROS & card_data_size_i);
+            datasize_reg_q <= num_cards * card_data_size_i;
          end if;
       end if;
    end process datasize_reg;
