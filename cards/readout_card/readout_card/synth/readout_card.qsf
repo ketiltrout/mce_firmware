@@ -34,6 +34,9 @@
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
 set_global_assignment -name LAST_QUARTUS_VERSION "4.1 SP2"
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
@@ -46,8 +49,6 @@ set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot
 set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/readout_card_pack.vhd
 set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop_pack.vhd
 set_global_assignment -name VHDL_FILE ../../flux_loop_ctrl/source/rtl/flux_loop_ctrl_pack.vhd
@@ -60,14 +61,25 @@ set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data_p
 set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_pack.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_add_sub32.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/ram_40x64.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_14x64.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/pid_ram_admin.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_8x64.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_9x64.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_flux_cnt_queue.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_multiplier.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_subtractor.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/crc.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
 set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
 set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
@@ -94,33 +106,11 @@ set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_spi_
 set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd
 set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_ctrl.vhd
 set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_spi_if.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/ram_40x64.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub29.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_add_sub32.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder29.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub45.vhd
 set_global_assignment -name VHDL_FILE ../../fsfb_ctrl/source/rtl/fsfb_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_wn_queue.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub16.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub20.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub22.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub26.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub32.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub41.vhd
 set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_add_sub16.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder26.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder30.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder31.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder32.vhd
 set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder65.vhd
 set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder66.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_filter_storage.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_fltr_regs.vhd
 set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_queue.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_pack.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_multiplier.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_subtractor.vhd
 set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_io_controller.vhd
 set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_proc_pidz.vhd
 set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_proc_ramp.vhd
@@ -131,24 +121,18 @@ set_global_assignment -name VHDL_FILE ../../flux_loop_ctrl/source/rtl/flux_loop_
 set_global_assignment -name VHDL_FILE ../../pll/source/rtl/rc_pll.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_storage.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/flux_quanta_banks_admin.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/adc_offset_banks_admin.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_14x64.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/pid_ram_admin.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_8x64.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/misc_banks_admin.vhd
 set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.vhd
 set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
 set_global_assignment -name SIGNALTAP_FILE rc_v01010006_03may2005_single_ch_ac_sync_check.stp
 set_global_assignment -name SIGNALTAP_FILE ro_card.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter2.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter_ws.stp
+set_global_assignment -name SIGNALTAP_FILE readout_card_fsfb_corr.stp
 
 # Pin & Location Assignments
 # ==========================
-set_location_assignment PIN_AC9 -to rst_n
 set_location_assignment PIN_H20 -to red_led
 set_location_assignment PIN_H19 -to ylw_led
 set_location_assignment PIN_J20 -to grn_led
@@ -160,15 +144,15 @@ set_location_assignment PIN_B6 -to slot_id\[1\]
 set_location_assignment PIN_C9 -to slot_id\[2\]
 set_location_assignment PIN_D10 -to slot_id\[3\]
 set_location_assignment PIN_A16 -to card_id
-set_location_assignment PIN_G7 -to ttl_dir1
-set_location_assignment PIN_F7 -to ttl_in1
-set_location_assignment PIN_F11 -to ttl_out1
-set_location_assignment PIN_G9 -to ttl_dir2
-set_location_assignment PIN_F8 -to ttl_in2
-set_location_assignment PIN_G8 -to ttl_out2
-set_location_assignment PIN_H9 -to ttl_dir3
-set_location_assignment PIN_F9 -to ttl_in3
-set_location_assignment PIN_G12 -to ttl_out3
+set_location_assignment PIN_G7 -to ttl_dir\[1\]
+set_location_assignment PIN_F7 -to ttl_in\[1\]
+set_location_assignment PIN_F11 -to ttl_out\[1\]
+set_location_assignment PIN_G9 -to ttl_dir\[2\]
+set_location_assignment PIN_F8 -to ttl_in\[2\]
+set_location_assignment PIN_G8 -to ttl_out\[2\]
+set_location_assignment PIN_H9 -to ttl_dir\[3\]
+set_location_assignment PIN_F9 -to ttl_in\[3\]
+set_location_assignment PIN_G12 -to ttl_out\[3\]
 set_location_assignment PIN_K17 -to inclk
 set_location_assignment PIN_E15 -to pll5_out\[0\]
 set_location_assignment PIN_K14 -to pll5_out\[1\]
@@ -291,7 +275,6 @@ set_location_assignment PIN_AH16 -to bias_dac_ncs\[4\]
 set_location_assignment PIN_AC24 -to bias_dac_ncs\[5\]
 set_location_assignment PIN_AD24 -to bias_dac_ncs\[6\]
 set_location_assignment PIN_AC22 -to bias_dac_ncs\[7\]
-set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
 set_location_assignment PIN_Y9 -to offset_dac_ncs\[1\]
 set_location_assignment PIN_AA10 -to offset_dac_ncs\[2\]
 set_location_assignment PIN_AB12 -to offset_dac_ncs\[3\]
@@ -555,28 +538,219 @@ set_location_assignment PIN_F26 -to adc8_dat\[10\]
 set_location_assignment PIN_F25 -to adc8_dat\[11\]
 set_location_assignment PIN_K24 -to adc8_dat\[12\]
 set_location_assignment PIN_K23 -to adc8_dat\[13\]
+set_location_assignment PIN_AC9 -to rst_n
+set_location_assignment PIN_AE7 -to offset_dac_ncs\[0\]
+set_location_assignment PIN_G7 -to ttl_dir1
+set_location_assignment PIN_F7 -to ttl_in1
+set_location_assignment PIN_F11 -to ttl_out1
+set_location_assignment PIN_G9 -to ttl_dir2
+set_location_assignment PIN_F8 -to ttl_in2
+set_location_assignment PIN_G8 -to ttl_out2
+set_location_assignment PIN_H9 -to ttl_dir3
+set_location_assignment PIN_F9 -to ttl_in3
+set_location_assignment PIN_G12 -to ttl_out3
+set_location_assignment PIN_B8 -to dip_sw2
+set_location_assignment PIN_AD5 -to dip_sw7
+set_location_assignment PIN_AE4 -to dip_sw8
+set_location_assignment PIN_E27 -to array_id\[0\]
+set_location_assignment PIN_J23 -to array_id\[1\]
+set_location_assignment PIN_J24 -to array_id\[2\]
+set_location_assignment PIN_L23 -to box_id_in
+set_location_assignment PIN_L22 -to box_id_out
+set_location_assignment PIN_K21 -to box_id_ena
+set_location_assignment PIN_W26 -to lvds_reply_ac_a
+set_location_assignment PIN_Y26 -to lvds_reply_ac_b
+set_location_assignment PIN_U26 -to lvds_reply_bc1_a
+set_location_assignment PIN_V26 -to lvds_reply_bc1_b
+set_location_assignment PIN_W28 -to lvds_reply_bc2_a
+set_location_assignment PIN_Y28 -to lvds_reply_bc2_b
+set_location_assignment PIN_T28 -to lvds_reply_bc3_a
+set_location_assignment PIN_V27 -to lvds_reply_bc3_b
+set_location_assignment PIN_AB28 -to lvds_reply_rc1_a
+set_location_assignment PIN_AA28 -to lvds_reply_rc1_b
+set_location_assignment PIN_AE28 -to lvds_reply_rc2_a
+set_location_assignment PIN_AC28 -to lvds_reply_rc2_b
+set_location_assignment PIN_AB26 -to lvds_reply_rc3_a
+set_location_assignment PIN_AA25 -to lvds_reply_rc3_b
+set_location_assignment PIN_AF28 -to lvds_reply_rc4_a
+set_location_assignment PIN_AD28 -to lvds_reply_rc4_b
+set_location_assignment PIN_L24 -to ttl_nrx1
+set_location_assignment PIN_H26 -to ttl_nrx2
+set_location_assignment PIN_H25 -to ttl_nrx3
+set_location_assignment PIN_L21 -to ttl_tx1
+set_location_assignment PIN_G27 -to ttl_tx2
+set_location_assignment PIN_G28 -to ttl_tx3
+set_location_assignment PIN_K22 -to ttl_txena1
+set_location_assignment PIN_G26 -to ttl_txena2
+set_location_assignment PIN_G25 -to ttl_txena3
+set_location_assignment PIN_E15 -to lvds_clk
+set_location_assignment PIN_K14 -to fibre_tx_clk
+set_location_assignment PIN_C15 -to fibre_rx_clk
+set_location_assignment PIN_H21 -to psdo
+set_location_assignment PIN_H22 -to pscso
+set_location_assignment PIN_E28 -to psclko
+set_location_assignment PIN_F28 -to psdi
+set_location_assignment PIN_F27 -to pscsi
+set_location_assignment PIN_J22 -to psclki
+set_location_assignment PIN_AG25 -to n5vok
+set_location_assignment PIN_AD21 -to mictor_o\[1\]
+set_location_assignment PIN_AE21 -to mictor_o\[2\]
+set_location_assignment PIN_AG21 -to mictor_o\[3\]
+set_location_assignment PIN_AF21 -to mictor_o\[4\]
+set_location_assignment PIN_AE20 -to mictor_o\[5\]
+set_location_assignment PIN_AF20 -to mictor_o\[6\]
+set_location_assignment PIN_AH21 -to mictor_o\[7\]
+set_location_assignment PIN_AH20 -to mictor_o\[8\]
+set_location_assignment PIN_AE19 -to mictor_o\[9\]
+set_location_assignment PIN_AD19 -to mictor_o\[10\]
+set_location_assignment PIN_AF19 -to mictor_o\[11\]
+set_location_assignment PIN_AG19 -to mictor_o\[12\]
+set_location_assignment PIN_AH19 -to mictor_o\[13\]
+set_location_assignment PIN_AD18 -to mictor_o\[14\]
+set_location_assignment PIN_AE18 -to mictor_o\[15\]
+set_location_assignment PIN_AG18 -to mictorclk_o
+set_location_assignment PIN_AG22 -to mictor_e\[1\]
+set_location_assignment PIN_AH22 -to mictor_e\[2\]
+set_location_assignment PIN_AF22 -to mictor_e\[3\]
+set_location_assignment PIN_AE22 -to mictor_e\[4\]
+set_location_assignment PIN_AH23 -to mictor_e\[5\]
+set_location_assignment PIN_AF23 -to mictor_e\[6\]
+set_location_assignment PIN_AD23 -to mictor_e\[7\]
+set_location_assignment PIN_AG23 -to mictor_e\[8\]
+set_location_assignment PIN_AH24 -to mictor_e\[9\]
+set_location_assignment PIN_AE24 -to mictor_e\[10\]
+set_location_assignment PIN_AG24 -to mictor_e\[11\]
+set_location_assignment PIN_AF25 -to mictor_e\[12\]
+set_location_assignment PIN_AH25 -to mictor_e\[13\]
+set_location_assignment PIN_AG25 -to mictor_e\[14\]
+set_location_assignment PIN_AH26 -to mictor_e\[15\]
+set_location_assignment PIN_AG26 -to mictorclk_e
+set_location_assignment PIN_AF16 -to eeprom_si
+set_location_assignment PIN_AE16 -to eeprom_sck
+set_location_assignment PIN_C1 -to sram0_addr\[0\]
+set_location_assignment PIN_C2 -to sram0_addr\[1\]
+set_location_assignment PIN_D1 -to sram0_addr\[2\]
+set_location_assignment PIN_D2 -to sram0_addr\[3\]
+set_location_assignment PIN_E1 -to sram0_addr\[4\]
+set_location_assignment PIN_E2 -to sram0_addr\[5\]
+set_location_assignment PIN_F3 -to sram0_addr\[6\]
+set_location_assignment PIN_F4 -to sram0_addr\[7\]
+set_location_assignment PIN_F5 -to sram0_addr\[8\]
+set_location_assignment PIN_F6 -to sram0_addr\[9\]
+set_location_assignment PIN_G5 -to sram0_addr\[10\]
+set_location_assignment PIN_G6 -to sram0_addr\[11\]
+set_location_assignment PIN_H5 -to sram0_addr\[12\]
+set_location_assignment PIN_H6 -to sram0_addr\[13\]
+set_location_assignment PIN_H7 -to sram0_addr\[14\]
+set_location_assignment PIN_H8 -to sram0_addr\[15\]
+set_location_assignment PIN_J5 -to sram0_addr\[16\]
+set_location_assignment PIN_J6 -to sram0_addr\[17\]
+set_location_assignment PIN_K5 -to sram0_addr\[18\]
+set_location_assignment PIN_K6 -to sram0_addr\[19\]
+set_location_assignment PIN_G1 -to sram0_data\[0\]
+set_location_assignment PIN_G2 -to sram0_data\[1\]
+set_location_assignment PIN_H1 -to sram0_data\[2\]
+set_location_assignment PIN_H2 -to sram0_data\[3\]
+set_location_assignment PIN_H3 -to sram0_data\[4\]
+set_location_assignment PIN_H4 -to sram0_data\[5\]
+set_location_assignment PIN_J3 -to sram0_data\[6\]
+set_location_assignment PIN_J4 -to sram0_data\[7\]
+set_location_assignment PIN_L5 -to sram0_data\[8\]
+set_location_assignment PIN_L6 -to sram0_data\[9\]
+set_location_assignment PIN_L7 -to sram0_data\[10\]
+set_location_assignment PIN_L8 -to sram0_data\[11\]
+set_location_assignment PIN_M7 -to sram0_data\[12\]
+set_location_assignment PIN_M8 -to sram0_data\[13\]
+set_location_assignment PIN_L9 -to sram0_data\[14\]
+set_location_assignment PIN_L10 -to sram0_data\[15\]
+set_location_assignment PIN_G3 -to sram0_nbhe
+set_location_assignment PIN_J7 -to sram0_nble
+set_location_assignment PIN_J8 -to sram0_noe
+set_location_assignment PIN_F1 -to sram0_nwe
+set_location_assignment PIN_F2 -to sram0_ncs
+set_location_assignment PIN_T1 -to sram1_addr\[0\]
+set_location_assignment PIN_U2 -to sram1_addr\[1\]
+set_location_assignment PIN_T3 -to sram1_addr\[2\]
+set_location_assignment PIN_T4 -to sram1_addr\[3\]
+set_location_assignment PIN_U3 -to sram1_addr\[4\]
+set_location_assignment PIN_U4 -to sram1_addr\[5\]
+set_location_assignment PIN_T5 -to sram1_addr\[6\]
+set_location_assignment PIN_T6 -to sram1_addr\[7\]
+set_location_assignment PIN_T7 -to sram1_addr\[8\]
+set_location_assignment PIN_T8 -to sram1_addr\[9\]
+set_location_assignment PIN_T9 -to sram1_addr\[10\]
+set_location_assignment PIN_T10 -to sram1_addr\[11\]
+set_location_assignment PIN_U9 -to sram1_addr\[12\]
+set_location_assignment PIN_U10 -to sram1_addr\[13\]
+set_location_assignment PIN_V1 -to sram1_addr\[14\]
+set_location_assignment PIN_V2 -to sram1_addr\[15\]
+set_location_assignment PIN_W1 -to sram1_addr\[16\]
+set_location_assignment PIN_W2 -to sram1_addr\[17\]
+set_location_assignment PIN_V3 -to sram1_addr\[18\]
+set_location_assignment PIN_V4 -to sram1_addr\[19\]
+set_location_assignment PIN_V5 -to sram1_data\[0\]
+set_location_assignment PIN_V6 -to sram1_data\[1\]
+set_location_assignment PIN_W5 -to sram1_data\[2\]
+set_location_assignment PIN_W6 -to sram1_data\[3\]
+set_location_assignment PIN_Y2 -to sram1_data\[4\]
+set_location_assignment PIN_Y3 -to sram1_data\[5\]
+set_location_assignment PIN_Y4 -to sram1_data\[6\]
+set_location_assignment PIN_AA1 -to sram1_data\[7\]
+set_location_assignment PIN_AA2 -to sram1_data\[8\]
+set_location_assignment PIN_AA3 -to sram1_data\[9\]
+set_location_assignment PIN_AA4 -to sram1_data\[10\]
+set_location_assignment PIN_AB1 -to sram1_data\[11\]
+set_location_assignment PIN_AB2 -to sram1_data\[12\]
+set_location_assignment PIN_AB4 -to sram1_data\[13\]
+set_location_assignment PIN_AB3 -to sram1_data\[14\]
+set_location_assignment PIN_AC1 -to sram1_data\[15\]
+set_location_assignment PIN_Y1 -to sram1_nbhe
+set_location_assignment PIN_U6 -to sram1_nble
+set_location_assignment PIN_U5 -to sram1_noe
+set_location_assignment PIN_W4 -to sram1_nwe
+set_location_assignment PIN_W3 -to sram1_ncs
+set_location_assignment PIN_AF5 -to fibre_tx_data\[0\]
+set_location_assignment PIN_AH5 -to fibre_tx_data\[1\]
+set_location_assignment PIN_AF4 -to fibre_tx_data\[2\]
+set_location_assignment PIN_AG4 -to fibre_tx_data\[3\]
+set_location_assignment PIN_AG5 -to fibre_tx_data\[4\]
+set_location_assignment PIN_AG3 -to fibre_tx_data\[5\]
+set_location_assignment PIN_AE5 -to fibre_tx_data\[6\]
+set_location_assignment PIN_AH4 -to fibre_tx_data\[7\]
+set_location_assignment PIN_AG6 -to fibre_tx_ena
+set_location_assignment PIN_AH6 -to fibre_tx_rp
+set_location_assignment PIN_AE6 -to fibre_tx_sc_nd
+set_location_assignment PIN_AG9 -to fibre_rx_data\[0\]
+set_location_assignment PIN_AF9 -to fibre_rx_data\[1\]
+set_location_assignment PIN_AE9 -to fibre_rx_data\[2\]
+set_location_assignment PIN_AH8 -to fibre_rx_data\[3\]
+set_location_assignment PIN_AH9 -to fibre_rx_data\[4\]
+set_location_assignment PIN_AD8 -to fibre_rx_data\[5\]
+set_location_assignment PIN_AF8 -to fibre_rx_data\[6\]
+set_location_assignment PIN_AG8 -to fibre_rx_data\[7\]
+set_location_assignment PIN_AE14 -to fibre_rx_rdy
+set_location_assignment PIN_AH10 -to fibre_rx_status
+set_location_assignment PIN_AF10 -to fibre_rx_sc_nd
+set_location_assignment PIN_AD10 -to fibre_rx_rvs
+set_location_assignment PIN_AE10 -to fibre_rx_ckr
+set_location_assignment PIN_AG12 -to dv_pulse_fibre
+set_location_assignment PIN_AF12 -to dv_pulse_bnc
 
 # Analysis & Synthesis Assignments
 # ================================
-set_global_assignment -name MUX_RESTRUCTURE ON
-set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF NORMAL
-set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
+set_global_assignment -name MUX_RESTRUCTURE OFF
+set_global_assignment -name SPEED_DISK_USAGE_TRADEOFF SMART
+set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 5
 set_global_assignment -name FAMILY Stratix
 set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
 set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
-set_global_assignment -name IGNORE_CARRY_BUFFERS OFF
-set_global_assignment -name IGNORE_CASCADE_BUFFERS OFF
-set_global_assignment -name IGNORE_GLOBAL_BUFFERS OFF
-set_global_assignment -name IGNORE_LCELL_BUFFERS OFF
 set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
-set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP OFF
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_GATE_RETIME OFF
-set_global_assignment -name AUTO_RESOURCE_SHARING OFF
-set_global_assignment -name ALLOW_ANY_RAM_SIZE_FOR_RECOGNITION ON
-set_global_assignment -name ALLOW_ANY_ROM_SIZE_FOR_RECOGNITION ON
-set_global_assignment -name ALLOW_ANY_SHIFT_REGISTER_SIZE_FOR_RECOGNITION OFF
 set_global_assignment -name TOP_LEVEL_ENTITY readout_card
-set_global_assignment -name AUTO_ENABLE_SMART_COMPILE on
+set_global_assignment -name AUTO_ENABLE_SMART_COMPILE off
 
 # Fitter Assignments
 # ==================
@@ -586,7 +760,6 @@ set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
 set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
-set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX "MINIMIZE AREA"
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
 set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN 8ns
@@ -623,8 +796,8 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP off
-set_global_assignment -name USE_SIGNALTAP_FILE rc_filter_ws.stp
+set_global_assignment -name ENABLE_SIGNALTAP on
+set_global_assignment -name USE_SIGNALTAP_FILE readout_card.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -643,6 +816,198 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 
 # end CLOCK(inclk)
 # ----------------
+
+# ---------------------------------------------------
+# start AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
+
+	# SignalTap II Assignments
+	# ========================
+	set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=AUTO" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=402681344" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=4096" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_MEM_ADDRESS_BITS=12" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BIT_CNTR_BITS=7" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[0\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[0\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[1\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[10\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[2\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[11\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[3\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[12\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[4\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[13\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[5\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[14\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[6\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[15\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[7\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[16\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[8\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[17\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[9\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[18\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[10\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[19\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[11\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[1\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[12\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[20\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[13\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[21\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[14\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[22\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[15\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[23\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[16\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[24\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[17\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[25\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[18\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[26\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[19\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[27\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[20\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[28\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[21\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[29\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[22\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[2\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[23\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[30\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[24\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[31\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[25\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[3\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[26\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[4\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[27\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[5\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[28\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[6\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[29\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[7\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[30\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[8\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[31\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[32\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|rdy_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[33\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.done" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[34\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.idle" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[35\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.parse_hdr" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[36\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.rx_crc" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[37\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.rx_data" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[38\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.rx_hdr0" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[39\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.rx_hdr1" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[40\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[0\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[41\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[10\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[42\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[11\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[43\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[12\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[44\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[13\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[45\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[14\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[46\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[15\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[47\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[16\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[48\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[17\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[49\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[18\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[50\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[19\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[51\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[1\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[52\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[20\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[53\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[21\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[54\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[22\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[55\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[23\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[56\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[24\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[57\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[25\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[58\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[26\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[59\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[27\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[60\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[28\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[61\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[29\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[62\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[2\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[63\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[30\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[64\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[31\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[65\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[3\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[66\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[4\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[67\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[5\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[68\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[6\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[69\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[7\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[70\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[8\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[71\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[72\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|rdy_i" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[73\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.done" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[74\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.fetch" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[75\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.idle" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[76\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.tx_crc" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[77\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.tx_data" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[78\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.tx_hdr" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[79\] -to "dispatch:i_dispatch\|pres_state.execute" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[80\] -to "dispatch:i_dispatch\|pres_state.fetch" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[81\] -to "dispatch:i_dispatch\|pres_state.initialize" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[82\] -to "dispatch:i_dispatch\|pres_state.reply" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[0\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[0\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[1\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[10\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[2\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[11\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[3\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[12\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[4\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[13\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[5\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[14\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[6\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[15\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[7\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[16\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[8\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[17\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[9\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[18\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[10\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[19\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[11\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[1\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[12\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[20\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[13\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[21\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[14\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[22\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[15\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[23\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[16\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[24\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[17\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[25\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[18\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[26\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[19\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[27\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[20\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[28\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[21\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[29\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[22\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[2\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[23\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[30\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[24\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[31\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[25\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[3\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[26\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[4\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[27\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[5\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[28\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[6\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[29\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[7\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[30\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[8\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[31\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|dat_o\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[32\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|lvds_rx:cmd_rx\|rdy_o" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[33\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.done" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[34\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.idle" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[35\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.parse_hdr" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[36\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.rx_crc" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[37\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.rx_data" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[38\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.rx_hdr0" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[39\] -to "dispatch:i_dispatch\|dispatch_cmd_receive:receiver\|pres_state.rx_hdr1" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[40\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[0\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[41\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[10\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[42\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[11\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[43\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[12\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[44\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[13\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[45\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[14\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[46\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[15\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[47\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[16\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[48\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[17\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[49\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[18\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[50\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[19\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[51\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[1\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[52\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[20\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[53\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[21\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[54\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[22\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[55\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[23\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[56\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[24\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[57\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[25\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[58\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[26\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[59\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[27\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[60\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[28\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[61\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[29\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[62\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[2\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[63\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[30\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[64\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[31\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[65\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[3\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[66\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[4\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[67\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[5\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[68\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[6\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[69\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[7\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[70\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[8\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[71\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|dat_i\[9\]" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[72\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|lvds_tx:reply_tx\|rdy_i" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[73\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.done" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[74\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.fetch" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[75\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.idle" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[76\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.tx_crc" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[77\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.tx_data" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[78\] -to "dispatch:i_dispatch\|dispatch_reply_transmit:transmitter\|pres_state.tx_hdr" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[79\] -to "dispatch:i_dispatch\|pres_state.execute" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[80\] -to "dispatch:i_dispatch\|pres_state.fetch" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[81\] -to "dispatch:i_dispatch\|pres_state.initialize" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[82\] -to "dispatch:i_dispatch\|pres_state.reply" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=83" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=83" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=58475" -section_id auto_signaltap_0
+	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "rc_pll:i_rc_pll\|c0" -section_id auto_signaltap_0
+	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=26665" -section_id auto_signaltap_0
+
+# end AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
+# -------------------------------------------------
 
 # -----------------------------
 # start TIMEGROUP("ADC Inputs")

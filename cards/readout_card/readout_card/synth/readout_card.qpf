@@ -21,7 +21,7 @@
 
 
 QUARTUS_VERSION = "4.1"
-DATE = "13:39:49  December 14, 2005"
+DATE = "16:35:59  December 14, 2005"
 
 
 # Revisions
@@ -30,4 +30,3 @@ PROJECT_REVISION = "readout_card"
 PROJECT_REVISION = "with_filter_no_raw_readable_pidz"
 PROJECT_REVISION = "with_no_raw_readable_pidz"
 PROJECT_REVISION = "with_full_raw_no_pidz"
-PROJECT_REVISION = "fltr_dly_w_20_balance_opt"
