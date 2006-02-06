@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.19  2006/01/18 21:40:44  mandana
+-- revision num. updated to 01040002 for integration of new dispatch module that incorporates new BB protocol
+--
 -- Revision 1.18  2005/12/14 20:01:50  mandana
 -- revision number updated to 01040001 for merged filter + flux_jump functionality
 --
@@ -226,7 +229,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01040002"; -- 04 for filtering + flux jumping
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"01020004";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
@@ -295,6 +298,32 @@ signal fw_rev_ack              : std_logic;
 signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal id_thermo_ack     : std_logic;
 
+component dispatch
+port(clk_i      : in std_logic;
+     comm_clk_i : in std_logic;
+     rst_i      : in std_logic;     
+     
+     -- bus backplane interface (LVDS)
+     lvds_cmd_i   : in std_logic;
+     lvds_reply_o : out std_logic;
+     
+     -- wishbone slave interface
+     dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+     tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+     we_o   : out std_logic;
+     stb_o  : out std_logic;
+     cyc_o  : out std_logic;
+     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     ack_i  : in std_logic;
+     err_i  : in std_logic;
+     
+     -- misc. external interface
+     wdt_rst_o : out std_logic;
+     slot_i    : in std_logic_vector(3 downto 0);
+     dip_sw3 : in std_logic;
+     dip_sw4 : in std_logic);
+end component;
 
 begin
 
@@ -341,11 +370,12 @@ begin
          err_i        => dispatch_err_in,
          wdt_rst_o    => wdog,
          slot_i       => slot_id,
-         dip_sw3      => '1',
-         dip_sw4      => '1');
+         dip_sw3      => '1',--dip_sw3,
+         dip_sw4      => '1'--dip_sw4
+         );
 
 
-  lvds_txa <= dispatch_lvds_txa;
+  lvds_txa <= dispatch_lvds_txa;-- when dip_sw3 = '1' else '1';  -- multiplexer for disabling the RC output during test of issue_reply
   
   -----------------------------------------------------------------------------
   -- Output MUX to Dispatch:
