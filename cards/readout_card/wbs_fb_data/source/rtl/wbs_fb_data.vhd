@@ -81,6 +81,10 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data.vhd,v $
+-- Revision 1.4  2005/09/14 23:48:41  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.3  2004/12/07 19:39:29  mohsen
 -- Changed default datapath to zero rather than a ch0
 --
@@ -276,12 +280,14 @@ architecture struct of wbs_fb_data is
   signal qa_flux_quanta_bank     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal qa_adc_offset_bank   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal qa_misc_bank  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+  signal dat           : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
   signal ack_p_bank    : std_logic;
   signal ack_i_bank    : std_logic;
   signal ack_d_bank    : std_logic;
   signal ack_flux_quanta_bank    : std_logic;
   signal ack_adc_offset_bank  : std_logic;
   signal ack_misc_bank : std_logic;
+  signal ack           : std_logic;
 
 
 
@@ -534,12 +540,12 @@ begin  -- struct
   -- 2. Acknowlege is ORing of the acknowledge signals from all Admins.
   -----------------------------------------------------------------------------
 
-  ack_o <= ack_p_bank or ack_d_bank or ack_i_bank or ack_flux_quanta_bank or
+  ack <= ack_p_bank or ack_d_bank or ack_i_bank or ack_flux_quanta_bank or
            ack_adc_offset_bank or ack_misc_bank;
   
 
   with addr_i select
-    dat_o <=
+    dat <=
     qa_p_bank           when GAINP0_ADDR | GAINP1_ADDR | GAINP2_ADDR |
                              GAINP3_ADDR | GAINP4_ADDR | GAINP5_ADDR |
                              GAINP6_ADDR | GAINP7_ADDR,
@@ -561,7 +567,21 @@ begin  -- struct
     
     (others => '0')     when others;        -- default to zero
 
-  
-  
+  -----------------------------------------------------------------------------
+  --
+  -- register both ack and data before sending them back to dispatch
+  --
+  -----------------------------------------------------------------------------
+  i_wb_reg: process (rst_i, clk_50_i)
+  begin 
+     if (rst_i = '1') then
+        dat_o <= (others => '0');
+        ack_o <= '0';
+     elsif (clk_50_i'event and clk_50_i = '1') then
+        dat_o <= dat;
+        ack_o <= ack;
+     end if;
+     
+  end process i_wb_reg;
   
 end struct;
