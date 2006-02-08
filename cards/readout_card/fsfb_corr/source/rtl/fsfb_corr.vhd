@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.9 2005/11/26 04:35:33 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.10 2006/01/17 20:27:56 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.10  2006/01/17 20:27:56  bburger
+-- Bryce:
+-- Added unconditional else statements to convert latches to combinatorial logic
+--
 -- Revision 1.9  2005/11/26 04:35:33  bburger
 -- Bryce:  Added a patch that allows flux jumping parameters to return to normal after a big change in pid_prev
 --
@@ -383,7 +387,7 @@ begin
       end case;
    end process;
 
-   state_out: process(present_state)
+   state_out: process(present_state, start_corr, flux_jumping_en_i)
    begin   
       --defaults
       rdy_clr           <= '0';
@@ -428,6 +432,12 @@ begin
          when IDLE =>
             column_switch1 <= COL7;
             column_switch2 <= COL7;
+
+            -- If flux jumping is disabled, the fsfb at the input to this block is passed immediately to the output 
+            if(start_corr = '1' and flux_jumping_en_i = '0') then
+               pid_corr_rdy   <= '1';
+            end if;
+
          when CALCA0 =>
             column_switch1 <= COL0;
             column_switch2 <= COL7;
@@ -487,7 +497,12 @@ begin
          when PAUSE3 => 
             column_switch1 <= COL7;
             column_switch2 <= COL7;
-            pid_corr_rdy   <= '1';
+
+            -- If flux jumping is enabled, it takes a few clock cycles to calculate the correct feedback
+            if(flux_jumping_en_i = '1') then
+               pid_corr_rdy   <= '1';
+            end if;
+
          when others =>
       end case;
    end process;
@@ -772,7 +787,7 @@ begin
             -- If fsfb_ctrl_lock_en_i = '0' and flux_jumping_en_i = '0' then 
             -- the un-scaled constant value input is passed straight through to the DACs
             --            
-            -- Currently, LSB_WINDOW_INDEX = 14, so the input is scaled down by 15 bits.
+            -- Currently, LSB_WINDOW_INDEX = 14, so the input is scaled down by 2^14.
             ---------------------------------------------------------------------------------------
 
             if(fsfb_ctrl_lock_en_i = '1') then
@@ -956,6 +971,7 @@ begin
       m_pres_reg7 when column_switch2 = COL7 else
       (others => '0');
       
+   -- start_corr relies on the fact that all 8 fsfb_io_controllers assert their rdy signal at the same time, otherwise this statement will not work
    start_corr <= 
       fsfb_ctrl_dat_rdy0 and
       fsfb_ctrl_dat_rdy1 and
