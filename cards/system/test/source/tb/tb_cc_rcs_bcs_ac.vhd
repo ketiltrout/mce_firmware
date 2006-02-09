@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.11 2006/02/02 19:51:18 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.12 2006/02/06 19:35:00 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.12  2006/02/06 19:35:00  bburger
+-- Bryce:  commital for tagging the pi loop tests
+--
 -- Revision 1.11  2006/02/02 19:51:18  bburger
 -- Bryce:  changed one command from a wb to a rb
 --
@@ -1604,14 +1607,14 @@ begin
    rc1_adc6_rdy <= inclk;
    rc1_adc7_rdy <= inclk;
    rc1_adc8_rdy <= inclk;
-   rc1_adc1_dat <= "00000000001000";  --"01111111111111"; -- positive maximum;
-   rc1_adc2_dat <= "00000000000000";  --ctr_count_slv_o;
-   rc1_adc3_dat <= "00000000000000";  --ctr_count_slv_o;
-   rc1_adc4_dat <= "00000000000000";  --ctr_count_slv_o;
-   rc1_adc5_dat <= "00000000000000";  --ctr_count_slv_o;
-   rc1_adc6_dat <= "00000000000000";  --ctr_count_slv_o;
-   rc1_adc7_dat <= "00000000000000";  --ctr_count_slv_o;
-   rc1_adc8_dat <= "00000000000000";  --ctr_count_slv_o;
+   rc1_adc1_dat <= "11111111110000";  --"01111111111111"; -- positive maximum;
+   rc1_adc2_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc3_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc4_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc5_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc6_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc7_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc8_dat <= "11111111110000";  --ctr_count_slv_o;
    rc2_adc1_rdy <= inclk;
    rc2_adc2_rdy <= inclk;
    rc2_adc3_rdy <= inclk;
@@ -1986,95 +1989,115 @@ begin
 --  Command sequence for testing the PI loop on RC1
 ------------------------------------------------------
 
-      command <= command_wb;
-      address_id <= cc_num_rows_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000008";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-      
-      command <= command_wb;
-      address_id <= rc1_num_rows_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000008";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_row_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000010";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-      
-      command <= command_wb;
-      address_id <= rc1_row_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000010";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_sample_dly_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000008";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command <= command_wb;
-      address_id <= rc1_sample_num_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000006";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command <= command_wb;
-      address_id <= rc1_servo_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
-      load_preamble;
-      load_command;
-      load_checksum;     
-      wait for 20 us;
+--      command <= command_wb;
+--      address_id <= cc_num_rows_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000008";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--      
+--      command <= command_wb;
+--      address_id <= rc1_num_rows_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000008";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000020";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--      
+--      command <= command_wb;
+--      address_id <= rc1_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000020";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_sample_dly_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000008";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_sample_num_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000006";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_servo_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;     
+--      wait for 50 us;
 
       command <= command_wb;
       address_id <= rc1_gainp0_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000010";
+      data_valid <= X"00000003";
+      data       <= X"00000040";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 20 us;
+      wait for 50 us;
 
-      command <= command_wb;
-      address_id <= rc1_gaini0_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000010";
+      command <= command_rb;
+      address_id <= rc1_gainp0_cmd;
+      data_valid <= X"00000005";
+      data       <= X"00000040";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 20 us;
-      
-      command <= command_wb;
-      address_id <= rc1_flx_lp_init_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 2000 us;
+      wait for 70 us;
+
+
+--      command <= command_wb;
+--      address_id <= rc1_gaini0_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000040";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_en_fb_jump_cmd;
+--      data_valid <= X"00000001"; -- 1 values
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      
+--      command <= command_wb;
+--      address_id <= rc1_flx_lp_init_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 2000 us;
 
 ------------------------------------------------------
 --  Command sequence for testing the flux feedback on RC1
