@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.20  2006/02/06 19:23:35  bburger
+-- Bryce:  commital for intermediate tag
+--
 -- Revision 1.19  2006/01/18 21:40:44  mandana
 -- revision num. updated to 01040002 for integration of new dispatch module that incorporates new BB protocol
 --
@@ -229,7 +232,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"01020004";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000000";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
