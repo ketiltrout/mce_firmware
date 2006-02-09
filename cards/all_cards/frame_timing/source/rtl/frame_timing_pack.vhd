@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.7 2005/02/19 01:21:44 mohsen Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.8 2005/05/06 20:02:31 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,12 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2005/02/19 01:21:44 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2005/05/06 20:02:31 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.8  2005/05/06 20:02:31  bburger
+-- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
+-- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
+--
 -- Revision 1.7  2005/02/19 01:21:44  mohsen
 -- Changed encoding to 1000 to match with previous version that uses single pulse of 1.
 --
@@ -125,41 +129,5 @@ package frame_timing_pack is
    
    ------------------------------------------------------------------------------------
    -- Frame Timing Interface
-
-   component frame_timing is
-   port(
-      -- Readout Card interface
-      dac_dat_en_o               : out std_logic;
-      adc_coadd_en_o             : out std_logic;
-      restart_frame_1row_prev_o  : out std_logic;
-      restart_frame_aligned_o    : out std_logic; 
-      restart_frame_1row_post_o  : out std_logic;
-      initialize_window_o        : out std_logic;
-      
-      -- Address Card interface
-      row_switch_o               : out std_logic;
-      row_en_o                   : out std_logic;
-         
-      -- Bias Card interface
-      update_bias_o              : out std_logic;
-      
-      -- Wishbone interface
-      dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                       : in std_logic;
-      stb_i                      : in std_logic;
-      cyc_i                      : in std_logic;
-      dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                      : out std_logic;      
-      
-      -- Global signals
-      clk_i                      : in std_logic;
-      clk_n_i                    : in std_logic;
-      rst_i                      : in std_logic;
-      sync_i                     : in std_logic
-   );
-   end component;
-
 
 end frame_timing_pack;

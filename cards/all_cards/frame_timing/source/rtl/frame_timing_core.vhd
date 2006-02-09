@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.8 2005/05/06 20:02:31 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.9 2005/05/19 22:58:11 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.9  2005/05/19 22:58:11  bburger
+-- Bryce:  v01010018
+--
 -- Revision 1.8  2005/05/06 20:02:31  bburger
 -- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
 -- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
@@ -70,7 +73,7 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.frame_timing_core_pack.all;
+--use work.frame_timing_core_pack.all;
 use work.frame_timing_pack.all;
 
 library components;
@@ -85,6 +88,7 @@ entity frame_timing_core is
       restart_frame_aligned_o    : out std_logic; 
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
+      fltr_rst_o                 : out std_logic;
       
       -- Address Card interface
       row_switch_o               : out std_logic;
@@ -104,6 +108,8 @@ entity frame_timing_core is
       resync_ack_o               : out std_logic; -- not used yet
       init_window_req_i          : in std_logic;
       init_window_ack_o          : out std_logic; -- not used yet
+      fltr_rst_ack_o             : out std_logic; 
+      fltr_rst_req_i             : in std_logic; 
       
       -- Global signals
       clk_i                      : in std_logic;
@@ -135,7 +141,7 @@ architecture beh of frame_timing_core is
    type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);--, WAIT_TO_LATCH_ERR);
    signal current_state, next_state : states;
    
-   type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, SET, SET_HOLD);
+   type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, RESET_ON, RESET_HOLD, SET, SET_HOLD);
    signal current_init_win_state, next_init_win_state : init_win_states;
    
 begin
@@ -213,40 +219,60 @@ begin
       end if;
    end process init_win_state_FF;
 
-   init_win_state_NS: process(current_init_win_state, sync_received, init_window_req_i)
+   init_win_state_NS: process(current_init_win_state, sync_received, init_window_req_i, fltr_rst_req_i)
    begin
       next_init_win_state <= current_init_win_state;
 
       case current_init_win_state is
          when SET =>
             next_init_win_state <= SET_HOLD;
+         
          when SET_HOLD =>
             if(sync_received = '1') then
-               next_init_win_state <= INIT_ON;
+               -- Will service an init_window request first, and then a fltr_rst request
+               if(init_window_req_i = '1') then
+                  next_init_win_state <= INIT_ON;
+               elsif(fltr_rst_req_i = '1') then
+                  next_init_win_state <= RESET_ON;
+               end if;
             end if;
+         
          when INIT_ON =>
             next_init_win_state <= INIT_HOLD;
+         
          when INIT_HOLD =>
             if(sync_received = '1') then
                next_init_win_state <= INIT_OFF;
             end if;               
+         
+         when RESET_ON =>
+            next_init_win_state <= RESET_HOLD;
+         
+         when RESET_HOLD =>
+            if(sync_received = '1') then
+               next_init_win_state <= INIT_OFF;
+            end if;               
+         
          when INIT_OFF =>
-            if(init_window_req_i = '1') then
+            if(init_window_req_i = '1' or fltr_rst_req_i = '1') then
                if(sync_received = '1') then
                   next_init_win_state <= SET;
                else
                   next_init_win_state <= SET_HOLD;
                end if;
             end if;               
+         
          when others =>
             next_init_win_state <= INIT_OFF;
       end case;
    end process init_win_state_NS;
    
-   init_win_state_out: process(current_init_win_state, init_window_req_i)
+   init_win_state_out: process(current_init_win_state, sync_received)
    begin
       initialize_window_o <= '0';
       init_window_ack_o   <= '0';
+      fltr_rst_o          <= '0';
+      fltr_rst_ack_o      <= '0';
       
       case current_init_win_state is
          when SET =>
@@ -255,12 +281,23 @@ begin
 
          when INIT_ON =>
             initialize_window_o <= '1';
-            if(init_window_req_i = '1') then
-               init_window_ack_o <= '1';
-            end if;
 
          when INIT_HOLD =>
             initialize_window_o <= '1';
+            
+            if(sync_received = '1') then
+               init_window_ack_o <= '1';
+            end if;
+         
+         when RESET_ON =>
+            fltr_rst_o <= '1';
+         
+         when RESET_HOLD =>
+            fltr_rst_o <= '1';
+
+            if(sync_received = '1') then
+               fltr_rst_ack_o    <= '1';
+            end if;
 
          when INIT_OFF =>
 

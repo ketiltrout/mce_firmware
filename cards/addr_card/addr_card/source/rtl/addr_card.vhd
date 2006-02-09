@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.18  2006/01/19 21:04:53  bburger
+-- Bryce:  real v01020002
+--
 -- Revision 1.17  2006/01/16 01:09:56  bburger
 -- Bryce:  Commital for v01020002, DACs reset upon power up
 --
@@ -100,10 +103,8 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
---use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.fw_rev_pack.all;
-use work.frame_timing_pack.all;
 use work.ac_dac_ctrl_pack.all;
 
 entity addr_card is
@@ -250,6 +251,43 @@ port(clk_i      : in std_logic;
      dip_sw3 : in std_logic;
      dip_sw4 : in std_logic);
 end component;
+
+component frame_timing is
+port(
+   -- Readout Card interface
+   dac_dat_en_o               : out std_logic;
+   adc_coadd_en_o             : out std_logic;
+   restart_frame_1row_prev_o  : out std_logic;
+   restart_frame_aligned_o    : out std_logic; 
+   restart_frame_1row_post_o  : out std_logic;
+   initialize_window_o        : out std_logic;
+   fltr_rst_o                 : out std_logic;
+   
+   -- Address Card interface
+   row_switch_o               : out std_logic;
+   row_en_o                   : out std_logic;
+      
+   -- Bias Card interface
+   update_bias_o              : out std_logic;
+   
+   -- Wishbone interface
+   dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+   tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+   we_i                       : in std_logic;
+   stb_i                      : in std_logic;
+   cyc_i                      : in std_logic;
+   dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   ack_o                      : out std_logic;      
+   
+   -- Global signals
+   clk_i                      : in std_logic;
+   clk_n_i                    : in std_logic;
+   rst_i                      : in std_logic;
+   sync_i                     : in std_logic
+);
+end component;
+
 
 begin
    

@@ -28,8 +28,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/03/31 01:08:19 $> - <initials $Author: bburger $>
+-- <date $Date: 2005/09/15 20:59:44 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.25  2005/09/15 20:59:44  bburger
+-- bburger:
+-- Integrated flux-jumping into flux_loop
+--
 -- Revision 1.24  2005/03/31 01:08:19  bburger
 -- Bryce:  removed the row_map command from the address card
 --
@@ -187,6 +191,7 @@ package wishbone_pack is
    constant ADC_OFFSET7_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"6F";
    
    -- All Readout Cards
+   constant FLTR_RST_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"14";
    constant EN_FB_JUMP_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"15";
    constant RET_DAT_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"16";
    constant DATA_MODE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"17";

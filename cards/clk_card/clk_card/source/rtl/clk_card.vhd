@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.28 2006/01/31 22:18:12 mandana Exp $
+-- $Id: clk_card.vhd,v 1.29 2006/02/02 17:51:39 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.29  2006/02/02 17:51:39  bburger
+-- Bryce:  moving to issue_reply v2 -- version number: 02000000
+--
 -- Revision 1.28  2006/01/31 22:18:12  mandana
 -- rev. up to 01030001
 -- fpga_thermo and id_thermo slaves added
@@ -85,11 +88,9 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
---use work.dispatch_pack.all;
 use work.leds_pack.all;
 use work.fw_rev_pack.all;
 use work.sync_gen_pack.all;
-use work.frame_timing_pack.all;
 use work.issue_reply_pack.all;
 use work.cc_reset_pack.all;
 use work.ret_dat_wbs_pack.all;
@@ -336,6 +337,43 @@ component id_thermo
      data_io : inout std_logic
   );
 end component;
+
+component frame_timing is
+port(
+   -- Readout Card interface
+   dac_dat_en_o               : out std_logic;
+   adc_coadd_en_o             : out std_logic;
+   restart_frame_1row_prev_o  : out std_logic;
+   restart_frame_aligned_o    : out std_logic; 
+   restart_frame_1row_post_o  : out std_logic;
+   initialize_window_o        : out std_logic;
+   fltr_rst_o                 : out std_logic;
+   
+   -- Address Card interface
+   row_switch_o               : out std_logic;
+   row_en_o                   : out std_logic;
+      
+   -- Bias Card interface
+   update_bias_o              : out std_logic;
+   
+   -- Wishbone interface
+   dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+   tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+   we_i                       : in std_logic;
+   stb_i                      : in std_logic;
+   cyc_i                      : in std_logic;
+   dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   ack_o                      : out std_logic;      
+   
+   -- Global signals
+   clk_i                      : in std_logic;
+   clk_n_i                    : in std_logic;
+   rst_i                      : in std_logic;
+   sync_i                     : in std_logic
+);
+end component;
+
 
 begin
 

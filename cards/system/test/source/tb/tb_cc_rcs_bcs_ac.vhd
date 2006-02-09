@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.12 2006/02/06 19:35:00 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.13 2006/02/09 17:17:30 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.13  2006/02/09 17:17:30  bburger
+-- Bryce:  comittal for tagging purposes
+--
 -- Revision 1.12  2006/02/06 19:35:00  bburger
 -- Bryce:  commital for tagging the pi loop tests
 --
@@ -318,6 +321,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_flx_quanta6_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA6_ADDR;
    constant rc1_flx_quanta7_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA7_ADDR;
    constant rc1_flx_lp_init_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_LP_INIT_ADDR;
+   constant rc1_fltr_rst_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLTR_RST_ADDR;
    constant rc1_ramp_step_cmd       : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_STEP_ADDR;
    constant rc1_ramp_amp_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_AMP_ADDR;
    constant rc1_ramp_dly_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_DLY_ADDR;
@@ -2051,26 +2055,27 @@ begin
 --      load_command;
 --      load_checksum;     
 --      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_gainp0_cmd;
-      data_valid <= X"00000003";
-      data       <= X"00000040";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_rb;
-      address_id <= rc1_gainp0_cmd;
-      data_valid <= X"00000005";
-      data       <= X"00000040";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 70 us;
-
-
+--
+--      command <= command_wb;
+--      address_id <= rc1_gainp0_cmd;
+--      data_valid <= X"00000003";
+--      data       <= X"00000040";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+---- For testing the wbs_fb_data slave with buffers on it's dat_o and ack_o lines
+----      command <= command_rb;
+----      address_id <= rc1_gainp0_cmd;
+----      data_valid <= X"00000005";
+----      data       <= X"00000040";
+----      load_preamble;
+----      load_command;
+----      load_checksum;
+----      wait for 70 us;
+--
+--
 --      command <= command_wb;
 --      address_id <= rc1_gaini0_cmd;
 --      data_valid <= X"00000001";
@@ -2090,14 +2095,23 @@ begin
 --      wait for 50 us;
 --
 --      
---      command <= command_wb;
---      address_id <= rc1_flx_lp_init_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 2000 us;
+      command <= command_wb;
+      address_id <= rc1_fltr_rst_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_flx_lp_init_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 200 us;
 
 ------------------------------------------------------
 --  Command sequence for testing the flux feedback on RC1

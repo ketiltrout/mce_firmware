@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_wbs.vhd,v 1.5 2005/01/13 23:57:23 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.6 2005/05/06 20:02:31 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 --
 -- Revision history:
 -- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.6  2005/05/06 20:02:31  bburger
+-- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
+-- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
+--
 -- Revision 1.5  2005/01/13 23:57:23  bburger
 -- Bryce:  init_window_req_reg has been replaced with a custom register to get rid of a non-standard usaged of the rst_i line
 --
@@ -90,6 +94,8 @@ entity frame_timing_wbs is
       resync_req_o       : out std_logic;
       init_window_ack_i  : in std_logic;
       init_window_req_o  : out std_logic;
+      fltr_rst_ack_i     : in std_logic; 
+      fltr_rst_req_o     : out std_logic; 
 
       -- wishbone interface:
       dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -131,8 +137,8 @@ architecture rtl of frame_timing_wbs is
    signal resync_req_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal init_window_req_wren  : std_logic;
    signal init_window_req_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   
-   signal init_window_rst       : std_logic;
+   signal fltr_rst_req_wren     : std_logic;
+   signal fltr_rst_req_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    -- WBS states:
    type states is (IDLE, WR, RD); 
@@ -151,6 +157,7 @@ begin
    -- register the wren and use that to write to these registers
    resync_req_o       <= '0' when resync_req_data      = x"00000000" else '1';      
    init_window_req_o  <= '0' when init_window_req_data = x"00000000" else '1';   
+   fltr_rst_req_o     <= '0' when fltr_rst_req_data    = x"00000000" else '1';   
    
    -- Custom register that gets set to MUX_LINE_PERIOD upon reset
    row_len_reg: process(clk_i, rst_i)
@@ -236,7 +243,7 @@ begin
          reg_o             => resync_req_data
       );
 
-   -- Custom register
+   -- Custom registers
    init_window_req_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -244,12 +251,28 @@ begin
       elsif(clk_i'event and clk_i = '1') then
          if(init_window_ack_i = '1') then
             init_window_req_data <= (others => '0');
-         end if;
-         if(init_window_ack_i /= '1' and init_window_req_wren = '1') then
+         elsif(init_window_ack_i /= '1' and init_window_req_wren = '1') then
             init_window_req_data <= dat_i;
+         else
+            init_window_req_data <= init_window_req_data;
          end if;
       end if;
    end process init_window_req_reg;
+
+   fltr_rst_req_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         fltr_rst_req_data <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(fltr_rst_ack_i = '1') then
+            fltr_rst_req_data <= (others => '0');
+         elsif(fltr_rst_ack_i /= '1' and fltr_rst_req_wren = '1') then
+            fltr_rst_req_data <= dat_i;
+         else
+            fltr_rst_req_data <= fltr_rst_req_data;
+         end if;
+      end if;
+   end process fltr_rst_req_reg;
 
 ------------------------------------------------------------
 --  WB FSM
@@ -308,6 +331,7 @@ begin
       address_on_delay_wren <= '0';
       resync_req_wren       <= '0';
       init_window_req_wren  <= '0';
+      fltr_rst_req_wren     <= '0';
       
       case current_state is         
          when IDLE  =>                   
@@ -332,6 +356,8 @@ begin
                   resync_req_wren       <= '1';
                elsif(addr_i = FLX_LP_INIT_ADDR) then
                   init_window_req_wren  <= '1';
+               elsif(addr_i = FLTR_RST_ADDR) then
+                  fltr_rst_req_wren     <= '1';
                end if;
             end if;
          
@@ -352,7 +378,8 @@ begin
 --  constant FB_DLY_ADDR       
 --  constant ROW_DLY_ADDR      
 --  constant RESYNC_ADDR       
---  constant FLX_LP_INIT_ADDR  
+--  constant FLX_LP_INIT_ADDR
+--  constant FLTR_RST_ADDR
 ------------------------------------------------------------
   
    with addr_i select dat_o <=
@@ -364,18 +391,19 @@ begin
       address_on_delay_data when ROW_DLY_ADDR,
       resync_req_data       when RESYNC_ADDR,
       init_window_req_data  when FLX_LP_INIT_ADDR,
+      fltr_rst_req_data     when FLTR_RST_ADDR,
       (others => '0') when others;
    
    master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR or 
-       addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR) else '0'; 
+      (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR  or 
+       addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR or addr_i = FLTR_RST_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR or 
-       addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR) else '0'; 
+      (addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = SAMPLE_DLY_ADDR or addr_i = SAMPLE_NUM_ADDR  or 
+       addr_i = FB_DLY_ADDR  or addr_i = ROW_DLY_ADDR  or addr_i = RESYNC_ADDR     or addr_i = FLX_LP_INIT_ADDR or addr_i = FLTR_RST_ADDR) else '0'; 
       
 end rtl;
