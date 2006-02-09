@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.8  2005/12/12 23:50:25  mandana
+-- added filter storage elements, updated for filter-related interfaces
+--
 -- Revision 1.7  2005/10/07 21:38:07  bburger
 -- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
 --
@@ -367,7 +370,7 @@ begin
          wren_i                      => fsfb_fltr_wr_en_o
       ); 
    
-   row1_fltr_data_reg: process (clk_50_i, rst_i, fsfb_fltr_rd_data_i)
+   row1_fltr_data_reg: process (clk_50_i, rst_i)
    begin
       if (rst_i = '1') then
          row1_fltr_data <= (others => '0');
