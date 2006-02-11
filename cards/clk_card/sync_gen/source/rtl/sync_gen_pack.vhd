@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.8  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.7  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
@@ -64,29 +67,5 @@ package sync_gen_pack is
 
 constant SYNC_NUM_WIDTH     : integer := 16;
 constant ISSUE_SYNC_WIDTH   : integer := SYNC_NUM_WIDTH;
-
-component sync_gen
-   port(
-      -- Inputs/Outputs
-      dv_i        : in std_logic;
-      sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- Wishbone interface
-      dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i               : in std_logic;
-      stb_i              : in std_logic;
-      cyc_i              : in std_logic;
-      dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o              : out std_logic;
-
-      -- Global Signals
-      clk_i       : in std_logic;
---      mem_clk_i   : in std_logic;
-      rst_i       : in std_logic
-   );
-end component;
 
 end sync_gen_pack;

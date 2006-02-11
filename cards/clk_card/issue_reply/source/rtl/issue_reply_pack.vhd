@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.41 2005/03/19 00:31:23 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.42 2006/01/16 18:58:05 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.42  2006/01/16 18:58:05  bburger
+-- Ernie:
+-- Added component declarations
+-- Updated the interfaces to issue_reply sub-blocks
+--
 -- Revision 1.41  2005/03/19 00:31:23  bburger
 -- bryce:  Fixed several bugs.  Tagging cc_01010007.
 --
@@ -111,6 +116,9 @@ component issue_reply
       start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      data_req_i        : in  std_logic;
+      data_ack_o        : out std_logic;
+      frame_num_external_i : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
 
       -- sync_gen interface
       sync_pulse_i      : in std_logic;

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_translator_pack.vhd,v 1.6 2005/09/28 23:35:22 bburger Exp $
+-- $Id: cmd_translator_pack.vhd,v 1.7 2006/01/16 18:45:27 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: cmd_translator_pack.vhd,v $
+-- Revision 1.7  2006/01/16 18:45:27  bburger
+-- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
+-- moved component declarations from above package files to cmd_translator
+-- renamed constants to work with new command_pack (new bus backplane constants)
+--
 -- Revision 1.6  2005/09/28 23:35:22  bburger
 -- Bryce:
 -- removed ret_dat_s logic and interface signals, which are not used.
@@ -127,6 +132,8 @@ component cmd_translator_ret_dat_fsm
       sync_number_i           : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);    -- a counter of synch pulses
       ret_dat_start_i         : in std_logic;
       ret_dat_stop_i          : in std_logic;
+      data_req_i              : in  std_logic;
+      data_ack_o              : out std_logic;
 
       ret_dat_cmd_valid_o     : out std_logic;
 

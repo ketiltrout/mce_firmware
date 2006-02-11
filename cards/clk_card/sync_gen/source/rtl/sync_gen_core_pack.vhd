@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core_pack.vhd,v $
+-- Revision 1.4  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.3  2005/01/13 03:14:51  bburger
 -- Bryce:
 -- addr_card and clk_card:  added slot_id functionality, removed mem_clock
@@ -67,6 +70,7 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
+use sys_param.command_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
@@ -79,6 +83,9 @@ component sync_gen_core
       dv_en_i     : in std_logic;
       row_len_i   : in integer;
       num_rows_i  : in integer;
+      data_req_o           : out std_logic;
+      data_ack_i           : in  std_logic;
+      frame_num_external_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       
       -- Inputs/Outputs
       dv_i        : in std_logic;

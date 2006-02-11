@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.31 2005/11/15 03:17:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.32 2006/01/16 18:45:27 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/11/15 03:17:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.32  2006/01/16 18:45:27  bburger
+-- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
+-- moved component declarations from above package files to cmd_translator
+-- renamed constants to work with new command_pack (new bus backplane constants)
+--
 -- Revision 1.31  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -195,6 +200,9 @@ port(
       start_seq_num_i       : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       stop_seq_num_i        : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       data_rate_i           : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
+      data_req_i            : in  std_logic;
+      data_ack_o            : out std_logic;
+      frame_num_external_i  : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
 
       -- other inputs 
       sync_pulse_i          : in  std_logic;
@@ -270,6 +278,9 @@ architecture rtl of cmd_translator is
         start_seq_num_i         : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
         stop_seq_num_i          : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
         data_rate_i             : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
+        data_req_i              : in  std_logic;
+        data_ack_o              : out std_logic;
+        frame_num_external_i    : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
         sync_pulse_i            : in  std_logic;
         sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
         ret_dat_start_i         : in  std_logic;
@@ -565,6 +576,9 @@ begin
       start_seq_num_i        => start_seq_num_i,
       stop_seq_num_i         => stop_seq_num_i, 
       data_rate_i            => data_rate_i,
+      data_req_i             => data_req_i,
+      data_ack_o             => data_ack_o,
+      frame_num_external_i   => frame_num_external_i,
 
       -- other inputs
       sync_pulse_i           => sync_pulse_i,

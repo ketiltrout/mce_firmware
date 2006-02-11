@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.29 2006/02/02 17:51:39 bburger Exp $
+-- $Id: clk_card.vhd,v 1.30 2006/02/09 20:32:59 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.30  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.29  2006/02/02 17:51:39  bburger
 -- Bryce:  moving to issue_reply v2 -- version number: 02000000
 --
@@ -219,6 +224,9 @@ signal sync_num   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 signal start_seq_num : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal stop_seq_num  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal data_rate     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+signal data_req      : std_logic;
+signal data_ack      : std_logic;
+signal frame_num_external : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
 -- wishbone bus (from master)
 signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -338,42 +346,32 @@ component id_thermo
   );
 end component;
 
-component frame_timing is
-port(
-   -- Readout Card interface
-   dac_dat_en_o               : out std_logic;
-   adc_coadd_en_o             : out std_logic;
-   restart_frame_1row_prev_o  : out std_logic;
-   restart_frame_aligned_o    : out std_logic; 
-   restart_frame_1row_post_o  : out std_logic;
-   initialize_window_o        : out std_logic;
-   fltr_rst_o                 : out std_logic;
-   
-   -- Address Card interface
-   row_switch_o               : out std_logic;
-   row_en_o                   : out std_logic;
-      
-   -- Bias Card interface
-   update_bias_o              : out std_logic;
-   
-   -- Wishbone interface
-   dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-   tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-   we_i                       : in std_logic;
-   stb_i                      : in std_logic;
-   cyc_i                      : in std_logic;
-   dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   ack_o                      : out std_logic;      
-   
-   -- Global signals
-   clk_i                      : in std_logic;
-   clk_n_i                    : in std_logic;
-   rst_i                      : in std_logic;
-   sync_i                     : in std_logic
-);
-end component;
+component sync_gen
+   port(
+      -- Inputs/Outputs
+      dv_i        : in std_logic;
+      sync_o      : out std_logic;
+      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      data_req_o           : out std_logic;
+      data_ack_i           : in  std_logic;
+      frame_num_external_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
+      -- Wishbone interface
+      dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i               : in std_logic;
+      stb_i              : in std_logic;
+      cyc_i              : in std_logic;
+      dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o              : out std_logic;
+
+      -- Global Signals
+      clk_i       : in std_logic;
+--      mem_clk_i   : in std_logic;
+      rst_i       : in std_logic
+   );
+end component;
 
 begin
 
@@ -554,6 +552,9 @@ begin
          dv_i       => dv_pulse_fibre,
          sync_o     => sync,
          sync_num_o => sync_num,
+         data_req_o           => data_req,
+         data_ack_i           => data_ack,
+         frame_num_external_o => frame_num_external,
       
          -- Wishbone interface
          dat_i       => data,         
@@ -615,6 +616,9 @@ begin
          start_seq_num_i   => start_seq_num,
          stop_seq_num_i    => stop_seq_num,
          data_rate_i       => data_rate,
+         data_req_i        => data_req,
+         data_ack_o        => data_ack,
+         frame_num_external_i => frame_num_external,
          
          -- sync_gen interface
          sync_pulse_i      => sync,

@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.10  2006/01/16 18:02:10  bburger
+-- Bryce:  sign-extended a literal std_logic_vector
+--
 -- Revision 1.9  2005/03/19 00:31:23  bburger
 -- bryce:  Fixed several bugs.  Tagging cc_01010007.
 --
@@ -120,6 +123,9 @@ entity sync_gen_core is
       dv_en_i     : in std_logic;
       row_len_i   : in integer;
       num_rows_i  : in integer;
+      data_req_o           : out std_logic;
+      data_ack_i           : in  std_logic;
+      frame_num_external_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       
       -- Inputs/Outputs
       dv_i        : in std_logic;

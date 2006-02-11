@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.13  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.12  2005/01/13 03:14:51  bburger
 -- Bryce:
 -- addr_card and clk_card:  added slot_id functionality, removed mem_clock
@@ -103,6 +106,9 @@ entity sync_gen is
       dv_i        : in std_logic;
       sync_o      : out std_logic;
       sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      data_req_o           : out std_logic;
+      data_ack_i           : in  std_logic;
+      frame_num_external_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
       -- Wishbone interface
       dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -159,6 +165,9 @@ begin
          dv_en_i    => dv_en,
          row_len_i  => row_len,
          num_rows_i => num_rows,
+         data_req_o           => data_req_o,          
+         data_ack_i           => data_ack_i,          
+         frame_num_external_o => frame_num_external_o,
 
          -- Inputs/Outputs
          dv_i       => dv_i,      

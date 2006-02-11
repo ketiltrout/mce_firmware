@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.23 2006/01/16 18:45:27 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.24 2006/02/02 00:30:52 mandana Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/02/02 00:30:52 $> -     <text>      - <initials $Author: mandana $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.24  2006/02/02 00:30:52  mandana
+-- unused signal data_size_reg removed
+--
 -- Revision 1.23  2006/01/16 18:45:27  bburger
 -- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
 -- moved component declarations from above package files to cmd_translator
@@ -91,12 +94,16 @@ port(
       parameter_id_i          : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_i                  : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
       data_clk_i              : in  std_logic;                                               -- for clocking out the data
---      cmd_code_i              : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       
       -- ret_dat_wbs interface:
       start_seq_num_i         : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       stop_seq_num_i          : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       data_rate_i             : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
+      
+      data_req_i              : in  std_logic;
+      data_ack_o              : out std_logic;
+--      frame_num_internal_i    : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
+      frame_num_external_i    : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
 
       -- other inputs
       sync_pulse_i            : in  std_logic;
@@ -202,7 +209,7 @@ begin
    -- State machine for issuing ret_dat macro-ops.
    -- Next State logic
    ------------------------------------------------------------------------------------------- 
-   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i)
+   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i, data_req_i)
    begin
      next_state                     <= current_state;
      ret_dat_stop_reg_en            <= '0';
@@ -214,6 +221,8 @@ begin
             if(ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) then
                next_state           <= RETURN_DATA_1ST;
             elsif(ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) then
+               next_state           <= RETURN_DATA_SINGLE_FRAME;
+            elsif(data_req_i = '1') then
                next_state           <= RETURN_DATA_SINGLE_FRAME;
             else
                next_state           <= RETURN_DATA_IDLE;
@@ -292,11 +301,12 @@ begin
    begin
       -- default assignments
       ret_dat_cmd_valid                <= '0';
-      instr_rdy_o                <= '0'; 
+      instr_rdy_o                      <= '0'; 
       ret_dat_done                     <= '0';
       ret_dat_fsm_working              <= '0';
       input_reg_en                     <= '0';
       ret_dat_start_ack                <= '0';
+      data_ack_o                       <= '0';
       
       case current_state is
          when RETURN_DATA_IDLE =>
@@ -312,15 +322,16 @@ begin
 
          when RETURN_DATA_SINGLE_FRAME =>
             ret_dat_cmd_valid          <= '1';
-            instr_rdy_o          <= '1';
+            instr_rdy_o                <= '1';
             ret_dat_fsm_working        <= '1';
 
          when RETURN_DATA_SINGLE_FRAME_PAUSE1 =>
             ret_dat_cmd_valid          <= '1';
-            instr_rdy_o          <= '1';
+            instr_rdy_o                <= '1';
             ret_dat_fsm_working        <= '1';
 
          when RETURN_DATA_SINGLE_FRAME_PAUSE2 =>
+            data_ack_o                 <= '1';
             if ret_dat_start_i = '0' then
                ret_dat_cmd_valid       <= '1';
                ret_dat_done            <= '1';
@@ -332,12 +343,12 @@ begin
 
          when RETURN_DATA_1ST =>
             ret_dat_cmd_valid          <= '1';
-            instr_rdy_o          <= '1';
+            instr_rdy_o                <= '1';
             ret_dat_fsm_working        <= '1';
             
          when RETURN_DATA =>
             ret_dat_cmd_valid          <= '1';
-            instr_rdy_o          <= '1';
+            instr_rdy_o                <= '1';
             ret_dat_fsm_working        <= '1';  
 
          when RETURN_DATA_PAUSE =>
@@ -349,12 +360,12 @@ begin
          when RETURN_DATA_LAST =>
             if ack_i = '1' then
                ret_dat_cmd_valid       <= '1';
-               instr_rdy_o       <= '1';
+               instr_rdy_o             <= '1';
                ret_dat_done            <= '1';
                ret_dat_fsm_working     <= '1';               
             else
                ret_dat_cmd_valid       <= '1';
-               instr_rdy_o       <= '1';
+               instr_rdy_o             <= '1';
                ret_dat_fsm_working     <= '1';
             end if;
             

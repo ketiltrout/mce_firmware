@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.40 2005/11/15 03:17:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.41 2006/01/16 18:58:05 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/11/15 03:17:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/01/16 18:58:05 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.41  2006/01/16 18:58:05  bburger
+-- Ernie:
+-- Added component declarations
+-- Updated the interfaces to issue_reply sub-blocks
+--
 -- Revision 1.40  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -145,6 +150,9 @@ entity issue_reply is
       start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      data_req_i        : in  std_logic;
+      data_ack_o        : out std_logic;
+      frame_num_external_i : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
 
       -- sync_gen interface
       sync_pulse_i      : in std_logic;
@@ -203,6 +211,9 @@ architecture rtl of issue_reply is
       start_seq_num_i       : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       stop_seq_num_i        : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       data_rate_i           : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
+      data_req_i            : in  std_logic;
+      data_ack_o            : out std_logic;
+      frame_num_external_i  : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
 
       -- other inputs 
       sync_pulse_i          : in  std_logic;
@@ -608,6 +619,9 @@ begin
          start_seq_num_i     => start_seq_num_i,
          stop_seq_num_i      => stop_seq_num_i,
          data_rate_i         => data_rate_i,
+         data_req_i          => data_req_i,
+         data_ack_o          => data_ack_o,
+         frame_num_external_i => frame_num_external_i,
 
          sync_pulse_i        => sync_pulse_i,
          sync_number_i       => sync_number_i
