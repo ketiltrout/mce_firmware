@@ -1,0 +1,74 @@
+-- Copyright (c) 2003 SCUBA-2 Project
+--                  All Rights Reserved
+--
+--  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+--  The copyright notice above does not evidence any
+--  actual or intended publication of such source code.
+--
+--  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+--  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+--  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+--  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+--  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+--
+-- For the purposes of this code the SCUBA-2 Project consists of the
+-- following organisations.
+--
+-- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
+-- UBC,   University of British Columbia, Physics & Astronomy Department,
+--        Vancouver BC, V6T 1Z1
+--
+-- $Id$
+--
+-- Project:       SCUBA-2
+-- Author:        Greg Dennis
+-- Organization:  UBC
+--
+-- Description:
+-- DV and Manchester Decoder
+--
+-- Revision history:
+-- $Log$
+--
+-----------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+library work;
+use work.dv_rx_pack.all;
+
+entity dv_rx is
+   port(
+      -- Clock and Reset:
+      clk_i             : in std_logic;
+      rst_i             : in std_logic;
+      
+      -- Fibre Interface:
+      manchester_data_i : in std_logic;
+      dv_pulse_fibre_i  : in std_logic;
+      
+      -- Issue-Reply Interface:
+      sync_select_i     : in std_logic_vector(ROW_SWITCH_SELECT_WIDTH-1 downto 0);
+      sync_o            : out std_logic;
+      
+      -- When frame_req_o is asserted, frame_seq_num_o is valid
+      dv_select_i       : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      frame_req_o       : out std_logic;
+      frame_ack_i       : in std_logic;
+      frame_seq_num_o   : out std_logic
+   );     
+end dv_rx;
+
+architecture top of dv_rx is
+   
+   type states is (INIT);   
+   signal current_state, next_state : states;
+   
+   
+
+begin
+
+end top;
+
+
