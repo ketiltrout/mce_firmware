@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.22  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.21  2006/02/09 17:24:57  bburger
 -- Bryce:  committing v02000000 for tagging
 --
@@ -323,9 +328,10 @@ port(clk_i      : in std_logic;
      
      -- misc. external interface
      wdt_rst_o : out std_logic;
-     slot_i    : in std_logic_vector(3 downto 0);
-     dip_sw3 : in std_logic;
-     dip_sw4 : in std_logic);
+     slot_i    : in std_logic_vector(3 downto 0)--;
+--     dip_sw3 : in std_logic;
+--     dip_sw4 : in std_logic
+     );
 end component;
 
 component frame_timing is
@@ -408,9 +414,9 @@ begin
          ack_i        => dispatch_ack_in,
          err_i        => dispatch_err_in,
          wdt_rst_o    => wdog,
-         slot_i       => slot_id,
-         dip_sw3      => '1',--dip_sw3,
-         dip_sw4      => '1'--dip_sw4
+         slot_i       => slot_id--,
+--         dip_sw3      => '1',--dip_sw3,
+--         dip_sw4      => '1'--dip_sw4
          );
 
 
