@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.15.2.1  2005/11/28 19:41:34  bburger
+-- Bryce:  changed crc instatiation to serial_crc instatiation so that these files are compatible with the new library.  When the library crc block was replaced with serial_crc, these files were not updated in CVS to match!!!!!  They should have, Ernie!!!
+--
 -- Revision 1.15  2005/03/18 23:09:34  erniel
 -- updated changed buffer addr & data bus size constants
 --
@@ -180,7 +183,8 @@ begin
    ---------------------------------------------------------
    
    cmd_rx: lvds_rx
-      port map(comm_clk_i => comm_clk_i,
+      port map(clk_i      => clk_i,
+               comm_clk_i => comm_clk_i,
                rst_i      => rst_i,
                dat_o      => lvds_rx_data,
                rdy_o      => lvds_rx_rdy,
