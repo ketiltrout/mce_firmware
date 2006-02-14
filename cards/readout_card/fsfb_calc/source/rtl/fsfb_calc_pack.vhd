@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.9  2006/02/08 21:22:06  bburger
+-- Mandana: changed FILTER_LOCK_LSB_POS from 0 to 10
+--
 -- Revision 1.8  2005/12/14 18:20:36  mandana
 -- added 2-pole LPF filter functionality
 --
@@ -88,7 +91,7 @@ package fsfb_calc_pack is
    -- First stage feedback filter block constants
    ---------------------------------------------------------------------------------
 
-   constant FILTER_LOCK_LSB_POS    : integer := 10;    -- 10 later!               -- a sliding window of the 66b result is used as the filter input
+   constant FILTER_LOCK_LSB_POS    : integer := 14;    -- 10 later!               -- a sliding window of the 66b result is used as the filter input
    constant FILTER_SCALE_LSB       : integer := 1;
    constant FILTER_GAIN            : integer := 171;                  -- 0.0000610  NOT USED for now!
  
