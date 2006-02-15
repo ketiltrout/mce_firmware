@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.23  2006/02/15 21:53:29  mandana
+-- added FLTR_RST_ADDR command
+-- moved component declarations to readout_card.pak
+-- revision number upgraded to 0200000001
+--
 -- Revision 1.22  2006/02/09 20:32:59  bburger
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
@@ -237,7 +242,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000001"; 
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000002";
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
@@ -352,9 +357,9 @@ begin
          ack_i        => dispatch_ack_in,
          err_i        => dispatch_err_in,
          wdt_rst_o    => wdog,
-         slot_i       => slot_id,
-         dip_sw3      => '1',--dip_sw3,
-         dip_sw4      => '1'--dip_sw4
+         slot_i       => slot_id--,
+--         dip_sw3      => '1',--dip_sw3,
+--         dip_sw4      => '1'--dip_sw4
          );
 
 

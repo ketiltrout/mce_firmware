@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.6  2006/02/15 21:55:06  mandana
+-- added frame_timing component declaration
+--
 -- Revision 1.5  2006/01/18 21:42:08  mandana
 -- component declaration added for dispatch, dispactch_pack.vhd is obsolete now.
 --
@@ -115,10 +118,10 @@ package readout_card_pack is
       
       -- misc. external interface
       wdt_rst_o : out std_logic;
-      slot_i    : in std_logic_vector(3 downto 0);
+      slot_i    : in std_logic_vector(3 downto 0)--;
 
-      dip_sw3 : in std_logic;
-      dip_sw4 : in std_logic
+--      dip_sw3 : in std_logic;
+--      dip_sw4 : in std_logic
 );
   end component;
 
