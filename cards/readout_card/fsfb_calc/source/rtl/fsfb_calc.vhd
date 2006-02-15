@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.9  2006/02/09 17:19:03  bburger
+-- Bryce:  removed an inappropriate signal from the sensitivity list of a clocked process.
+--
 -- Revision 1.8  2005/12/12 23:50:25  mandana
 -- added filter storage elements, updated for filter-related interfaces
 --
@@ -113,6 +116,7 @@ entity fsfb_calc is
       row_switch_i               : in     std_logic;                                             -- row switch signal to indicate next clock cycle is the beginning of new row
       initialize_window_i        : in     std_logic;                                             -- frame window at which all values read equal to fixed preset parameter
       num_rows_sub1_i            : in     std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
+      fltr_rst_i                 : in     std_logic;                                             -- reset internal registers (wn) of the filter
       
       -- control signals from configuration registers
       servo_mode_i               : in     std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
@@ -183,7 +187,8 @@ architecture struct of fsfb_calc is
    signal wn2_dat                     : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn2 result (wn delayed by 2 sample)
    signal wn1_dat                     : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn1 result (wn delayed by 1 sample)
    signal wn_dat                      : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn result   
-
+   signal fltr_rst                    : std_logic;                                              -- reset filter internal registers
+   
    signal row1_fltr_data              : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- temporary for debug to store row1 data
 
    signal fsfb_queue_wr_data_o        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- write data to the fsfb data queue (bank 0, 1)
@@ -362,13 +367,16 @@ begin
       port map (
          rst_i                       => rst_i,
          clk_50_i                    => clk_50_i,
-         initialize_window_i         => initialize_window_i,
+         fltr_rst_i                  => fltr_rst,
          addr_i                      => wn_addr_o,
          wn2_o                       => wn2_dat,
          wn1_o                       => wn1_dat,
          wn_i                        => wn_dat,
          wren_i                      => fsfb_fltr_wr_en_o
       ); 
+
+   -- reset wn registers when either of fltr_rst or initialize_window are asserted
+   fltr_rst <= fltr_rst_i or initialize_window_i;
    
    row1_fltr_data_reg: process (clk_50_i, rst_i)
    begin

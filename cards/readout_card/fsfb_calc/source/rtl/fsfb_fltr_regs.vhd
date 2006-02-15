@@ -35,8 +35,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/11/30 18:20:08 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/12/12 23:48:05 $>    - <initials $Author: mandana $>
 -- $Log: fsfb_fltr_regs.vhd,v $
+-- Revision 1.2  2005/12/12 23:48:05  mandana
+-- fix the bug with clearing wn2 upon initilize_window, tied wren for fsfb_wn2_Q to wren_muxed instead of wren_i
+--
 -- Revision 1.1  2005/11/30 18:20:08  mandana
 -- initial release
 --
@@ -58,7 +61,7 @@ entity fsfb_fltr_regs is
       -- global signals
       rst_i                     : in     std_logic;                                    -- global reset
       clk_50_i                  : in     std_logic;                                    -- global clock (50 MHz)
-      initialize_window_i       : in     std_logic;                                    
+      fltr_rst_i                : in     std_logic;                                    
 
       -- register interface     
       addr_i                    : in     std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);
@@ -78,16 +81,16 @@ architecture rtl of fsfb_fltr_regs is
    
 begin
 
-   -- use a multiplexer to reset wn values when initialize_window_i is asserted
-   -- initialize_window is high for the period of one frame, hence, initializing
+   -- use a multiplexer to reset wn values when fltr_rst_i is asserted
+   -- fltr_rst_i is high for the period of one frame, hence, initializing
    -- wn values for all addresses.
-   wn1_temp_muxed <= (others=>'0') when initialize_window_i = '1' else
+   wn1_temp_muxed <= (others=>'0') when fltr_rst_i = '1' else
                      wn1_temp;
                      
-   wn_muxed       <= (others=>'0') when initialize_window_i = '1' else
+   wn_muxed       <= (others=>'0') when fltr_rst_i = '1' else
                      wn_i;                  
 
-   wren_muxed     <= '1'           when initialize_window_i = '1' else
+   wren_muxed     <= '1'           when fltr_rst_i = '1' else
                      wren_i;                  
 
 
