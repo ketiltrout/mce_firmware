@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.17  2006/02/15 01:09:41  erniel
+-- attempt at correcting timing problem on path data_buf_full to data_buf_write
+--
 -- Revision 1.16  2005/12/01 18:39:07  erniel
 -- minor bug fix: enabled output register on dcfifo
 --
@@ -137,6 +140,8 @@ signal data_buf_read  : std_logic;
 signal data_buf_full  : std_logic;
 signal data_buf_empty : std_logic;
 
+signal lvds_receiving : std_logic;
+
 type datapath_states is (IDLE, RECV);
 signal datapath_ps : datapath_states;
 signal datapath_ns : datapath_states;
@@ -169,6 +174,10 @@ begin
             clear_i => sample_count_clr,
             count_i => (others => '0'),
             count_o => sample_count);
+   
+   sample_count_ena <= lvds_receiving;
+   sample_count_clr <= not lvds_receiving;
+   
             
    rx_sample: shift_reg
    generic map(WIDTH => 3)
@@ -182,6 +191,10 @@ begin
             serial_o   => open,
             parallel_i => (others => '0'),
             parallel_o => sample_buf);
+   
+   sample_buf_ena <= lvds_receiving;
+   sample_buf_clr <= not lvds_receiving;
+   
             
    -- received bit is majority function of sample buffer
    rx_bit <= (sample_buf(2) and sample_buf(1)) or (sample_buf(2) and sample_buf(0)) or (sample_buf(1) and sample_buf(0));
@@ -198,6 +211,10 @@ begin
             serial_o   => open,
             parallel_i => (others => '0'),
             parallel_o => rx_buf);
+            
+   rx_buf_ena <= '1' when sample_count(2 downto 0) = "101" else '0';
+   rx_buf_clr <= not lvds_receiving;
+   
             
    data_buffer: dcfifo
    generic map(intended_device_family  => "Stratix",
@@ -224,68 +241,81 @@ begin
 
    data_buf_write <= not data_buf_full when sample_count = 271 else '0';
    
+   
+   -- lvds_receiving flag (high when a transfer is in progress):
+   process(rst_i, comm_clk_i)
+   begin
+      if(rst_i = '1') then
+         lvds_receiving <= '0';
+      elsif(comm_clk_i'event and comm_clk_i = '1') then
+         if((lvds = '0' and lvds_receiving = '0') or (sample_count = 271 and lvds_receiving = '1')) then
+            lvds_receiving <= not lvds_receiving;
+         end if;
+      end if;
+   end process;
+   
 
 ------------------------------------------------------------
 --
 --  Datapath FSM : Controls the receiver datapath
 --
 ------------------------------------------------------------
-
-   dp_stateFF: process(rst_i, comm_clk_i)
-   begin
-      if(rst_i = '1') then
-         datapath_ps <= IDLE;
-      elsif(comm_clk_i'event and comm_clk_i = '1') then
-         datapath_ps <= datapath_ns;
-      end if;
-   end process dp_stateFF;
-   
-   dp_stateNS: process(datapath_ps, lvds, sample_count)
-   begin
-      case datapath_ps is
-         when IDLE =>   if(lvds = '0') then
-                           datapath_ns <= RECV;
-                        else
-                           datapath_ns <= IDLE;
-                        end if;
-                      
-         when RECV =>   if(sample_count = 271) then
-                           datapath_ns <= IDLE;
-                        else
-                           datapath_ns <= RECV;
-                        end if;
-         
-         when others => datapath_ns <= IDLE;
-      end case;
-   end process dp_stateNS;
-   
-   dp_stateOut: process(datapath_ps, sample_count, data_buf_full)
-   begin
-      sample_count_ena <= '0';
-      sample_count_clr <= '0';
-      sample_buf_ena   <= '0';
-      sample_buf_clr   <= '0';
-      rx_buf_ena       <= '0';
-      rx_buf_clr       <= '0';
+--   
+--   dp_stateFF: process(rst_i, comm_clk_i)
+--   begin
+--      if(rst_i = '1') then
+--         datapath_ps <= IDLE;
+--      elsif(comm_clk_i'event and comm_clk_i = '1') then
+--         datapath_ps <= datapath_ns;
+--      end if;
+--   end process dp_stateFF;
+--   
+--   dp_stateNS: process(datapath_ps, lvds, sample_count)
+--   begin
+--      case datapath_ps is
+--         when IDLE =>   if(lvds = '0') then
+--                           datapath_ns <= RECV;
+--                        else
+--                           datapath_ns <= IDLE;
+--                        end if;
+--                      
+--         when RECV =>   if(sample_count = 271) then
+--                           datapath_ns <= IDLE;
+--                        else
+--                           datapath_ns <= RECV;
+--                        end if;
+--         
+--         when others => datapath_ns <= IDLE;
+--      end case;
+--   end process dp_stateNS;
+--   
+--   dp_stateOut: process(datapath_ps, sample_count, data_buf_full)
+--   begin
+--      sample_count_ena <= '0';
+--      sample_count_clr <= '0';
+--      sample_buf_ena   <= '0';
+--      sample_buf_clr   <= '0';
+--      rx_buf_ena       <= '0';
+--      rx_buf_clr       <= '0';
 --      data_buf_write   <= '0';
-      
-      case datapath_ps is
-         when IDLE =>   sample_count_clr <= '1';
-                        sample_buf_clr   <= '1';
-                        rx_buf_clr       <= '1';
-                       
-         when RECV =>   sample_count_ena <= '1';
-                        sample_buf_ena   <= '1';
-                        if(sample_count(2 downto 0) = "101") then             -- enable rx_buf starting at sample_count = 5 and then every 8 thereafter
-                           rx_buf_ena <= '1';
-                        end if;
+--      
+--      case datapath_ps is
+--         when IDLE =>   sample_count_clr <= '1';
+--                        sample_buf_clr   <= '1';
+--                        rx_buf_clr       <= '1';
+--                       
+--         when RECV =>   sample_count_ena <= '1';
+--                        sample_buf_ena   <= '1';
+--                        if(sample_count(2 downto 0) = "101") then             -- enable rx_buf starting at sample_count = 5 and then every 8 thereafter
+--                           rx_buf_ena <= '1';
+--                        end if;
 --                        if(sample_count = 271 and data_buf_full = '0') then   -- write to data buffer when sample_count = 271
 --                           data_buf_write <= '1';
 --                        end if;
-         
-         when others => null;
-      end case;
-   end process dp_stateOut;
+--         
+--         when others => null;
+--      end case;
+--   end process dp_stateOut;
 
 
 ------------------------------------------------------------
