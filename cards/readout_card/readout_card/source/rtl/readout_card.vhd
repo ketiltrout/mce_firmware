@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.22  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.21  2006/02/09 17:24:57  bburger
 -- Bryce:  committing v02000000 for tagging
 --
@@ -232,7 +237,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000000";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000001"; 
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
@@ -263,6 +268,7 @@ signal restart_frame_1row_prev : std_logic;
 signal restart_frame_aligned   : std_logic;
 signal restart_frame_1row_post : std_logic;
 signal initialize_window       : std_logic;
+signal fltr_rst                : std_logic;
 signal row_switch              : std_logic;
 signal dat_ft                  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal ack_ft                  : std_logic;
@@ -301,68 +307,6 @@ signal fw_rev_ack              : std_logic;
 signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal id_thermo_ack     : std_logic;
 
-component dispatch
-port(clk_i      : in std_logic;
-     comm_clk_i : in std_logic;
-     rst_i      : in std_logic;     
-     
-     -- bus backplane interface (LVDS)
-     lvds_cmd_i   : in std_logic;
-     lvds_reply_o : out std_logic;
-     
-     -- wishbone slave interface
-     dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-     tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-     we_o   : out std_logic;
-     stb_o  : out std_logic;
-     cyc_o  : out std_logic;
-     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     ack_i  : in std_logic;
-     err_i  : in std_logic;
-     
-     -- misc. external interface
-     wdt_rst_o : out std_logic;
-     slot_i    : in std_logic_vector(3 downto 0);
-     dip_sw3 : in std_logic;
-     dip_sw4 : in std_logic);
-end component;
-
-component frame_timing is
-port(
-   -- Readout Card interface
-   dac_dat_en_o               : out std_logic;
-   adc_coadd_en_o             : out std_logic;
-   restart_frame_1row_prev_o  : out std_logic;
-   restart_frame_aligned_o    : out std_logic; 
-   restart_frame_1row_post_o  : out std_logic;
-   initialize_window_o        : out std_logic;
-   fltr_rst_o                 : out std_logic;
-   
-   -- Address Card interface
-   row_switch_o               : out std_logic;
-   row_en_o                   : out std_logic;
-      
-   -- Bias Card interface
-   update_bias_o              : out std_logic;
-   
-   -- Wishbone interface
-   dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-   tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-   we_i                       : in std_logic;
-   stb_i                      : in std_logic;
-   cyc_i                      : in std_logic;
-   dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   ack_o                      : out std_logic;      
-   
-   -- Global signals
-   clk_i                      : in std_logic;
-   clk_n_i                    : in std_logic;
-   rst_i                      : in std_logic;
-   sync_i                     : in std_logic
-);
-end component;
 
 begin
 
@@ -510,7 +454,7 @@ begin
           restart_frame_aligned_o   => restart_frame_aligned,
           restart_frame_1row_post_o => restart_frame_1row_post,
           initialize_window_o       => initialize_window,
-          fltr_rst_o                => open,
+          fltr_rst_o                => fltr_rst,
           row_switch_o              => row_switch,
           row_en_o                  => open,
           update_bias_o             => open,
@@ -543,6 +487,7 @@ begin
           restart_frame_1row_post_i => restart_frame_1row_post,
           row_switch_i              => row_switch,
           initialize_window_i       => initialize_window,
+          fltr_rst_i                => fltr_rst,
           num_rows_sub1_i           => (others => '0'),
           dac_dat_en_i              => dac_dat_en,
           dat_i                     => dispatch_dat_out,
