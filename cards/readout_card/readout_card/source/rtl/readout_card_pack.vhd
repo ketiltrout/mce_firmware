@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.5  2006/01/18 21:42:08  mandana
+-- component declaration added for dispatch, dispactch_pack.vhd is obsolete now.
+--
 -- Revision 1.4  2005/09/14 23:51:49  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -87,7 +90,7 @@ package readout_card_pack is
   constant OFFSET_SPI_DATA_WIDTH  : integer := 3;         -- data width of SPI interface 
 
   -----------------------------------------------------------------------------
-  -- Flux Loop Component
+  -- Dispatch component
   -----------------------------------------------------------------------------
 
   component dispatch
@@ -115,9 +118,49 @@ package readout_card_pack is
       slot_i    : in std_logic_vector(3 downto 0);
 
       dip_sw3 : in std_logic;
-      dip_sw4 : in std_logic);
+      dip_sw4 : in std_logic
+);
   end component;
- 
+
+  -----------------------------------------------------------------------------
+  -- frame_timing component
+  -----------------------------------------------------------------------------
+  
+  component frame_timing is
+    port(
+      -- Readout Card interface
+      dac_dat_en_o               : out std_logic;
+      adc_coadd_en_o             : out std_logic;
+      restart_frame_1row_prev_o  : out std_logic;
+      restart_frame_aligned_o    : out std_logic; 
+      restart_frame_1row_post_o  : out std_logic;
+      initialize_window_o        : out std_logic;
+      fltr_rst_o                 : out std_logic;
+      
+      -- Address Card interface
+      row_switch_o               : out std_logic;
+      row_en_o                   : out std_logic;
+         
+      -- Bias Card interface
+      update_bias_o              : out std_logic;
+      
+      -- Wishbone interface
+      dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                       : in std_logic;
+      stb_i                      : in std_logic;
+      cyc_i                      : in std_logic;
+      dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                      : out std_logic;      
+      
+      -- Global signals
+      clk_i                      : in std_logic;
+      clk_n_i                    : in std_logic;
+      rst_i                      : in std_logic;
+      sync_i                     : in std_logic);
+  end component;
+  
   -----------------------------------------------------------------------------
   -- Flux Loop Component
   -----------------------------------------------------------------------------
@@ -133,6 +176,7 @@ package readout_card_pack is
       restart_frame_1row_post_i : in  std_logic;
       row_switch_i              : in  std_logic;
       initialize_window_i       : in  std_logic;
+      fltr_rst_i                : in  std_logic;
       num_rows_sub1_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
       dac_dat_en_i              : in  std_logic;
       dat_i                     : in  std_logic_vector(WB_DATA_WIDTH-1 downto 0);
