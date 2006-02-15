@@ -34,6 +34,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.10  2006/02/14 22:59:20  bburger
+-- Bryce:  Commital for an experimental tag rc_14feb2006_filter10_and_fj_fix_old_dispatch
+-- This file actually does have the filter window set to 10, unlike the last commital.
+--
 -- Revision 1.9  2006/02/08 21:22:06  bburger
 -- Mandana: changed FILTER_LOCK_LSB_POS from 0 to 10
 --
@@ -91,7 +95,7 @@ package fsfb_calc_pack is
    -- First stage feedback filter block constants
    ---------------------------------------------------------------------------------
 
-   constant FILTER_LOCK_LSB_POS    : integer := 14;    -- 10 later!               -- a sliding window of the 66b result is used as the filter input
+   constant FILTER_LOCK_LSB_POS    : integer := 10;    -- 10 later!               -- a sliding window of the 66b result is used as the filter input
    constant FILTER_SCALE_LSB       : integer := 1;
    constant FILTER_GAIN            : integer := 171;                  -- 0.0000610  NOT USED for now!
  
@@ -466,7 +470,7 @@ package fsfb_calc_pack is
       port (       
          rst_i                     : in     std_logic; 
          clk_50_i                  : in     std_logic; 
-         initialize_window_i       : in     std_logic;
+         fltr_rst_i                : in     std_logic;
          addr_i                    : in     std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);
          wn2_o                     : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
          wn1_o             : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
