@@ -1,16 +1,22 @@
- -- Copyright (C) 1991-2006 Altera Corporation
- -- Your use of Altera Corporation's design tools, logic functions 
- -- and other software and tools, and its AMPP partner logic 
- -- functions, and any output files any of the foregoing 
- -- (including device programming or simulation files), and any 
- -- associated documentation or information are expressly subject 
- -- to the terms and conditions of the Altera Program License 
- -- Subscription Agreement, Altera MegaCore Function License 
- -- Agreement, or other applicable license agreement, including, 
- -- without limitation, that your use is for the sole purpose of 
- -- programming logic devices manufactured by Altera and sold by 
- -- Altera or its authorized distributors.  Please refer to the 
- -- applicable agreement for further details.
+ -- Copyright (C) 1991-2004 Altera Corporation
+ -- Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
+ -- support information,  device programming or simulation file,  and any other
+ -- associated  documentation or information  provided by  Altera  or a partner
+ -- under  Altera's   Megafunction   Partnership   Program  may  be  used  only
+ -- to program  PLD  devices (but not masked  PLD  devices) from  Altera.   Any
+ -- other  use  of such  megafunction  design,  netlist,  support  information,
+ -- device programming or simulation file,  or any other  related documentation
+ -- or information  is prohibited  for  any  other purpose,  including, but not
+ -- limited to  modification,  reverse engineering,  de-compiling, or use  with
+ -- any other  silicon devices,  unless such use is  explicitly  licensed under
+ -- a separate agreement with  Altera  or a megafunction partner.  Title to the
+ -- intellectual property,  including patents,  copyrights,  trademarks,  trade
+ -- secrets,  or maskworks,  embodied in any such megafunction design, netlist,
+ -- support  information,  device programming or simulation file,  or any other
+ -- related documentation or information provided by  Altera  or a megafunction
+ -- partner, remains with Altera, the megafunction partner, or their respective
+ -- licensors. No other licenses, including any licenses needed under any third
+ -- party's intellectual property, are provided herein.
  -- 
  -- This is a Quartus II output file. It is for reporting purposes only, and is
  -- not intended for use as a Quartus II input file. This file cannot be used
@@ -56,10 +62,9 @@
  --           	    device's immunity to noise.
  -- RESERVED      : Unused I/O pin, which MUST be left unconnected.
  -- RESERVED_INPUT    : Pin is tri-stated and should be connected to the board.
- -- RESERVED_INPUT_WITH_WEAK_PULLUP    : Pin is tri-stated with internal weak pull-up resistor.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
+Quartus II Version 4.2 Build 157 12/07/2004 SJ Full Version
 CHIP  "readout_card"  ASSIGNED TO AN: EP1S30F780C5
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -180,11 +185,11 @@ NC                           : AD3       :        :                   :         
 NC                           : AD4       :        :                   :         :           :                
 RESERVED_INPUT               : AD5       :        :                   :         : 7         :                
 dac_FB6_dat[10]              : AD6       : output : LVTTL             :         : 7         : Y              
-GND                          : AD7       : gnd    :                   :         :           :                
+GND                          : AD7       :        :                   :         :           :                
 dac_FB8_dat[1]               : AD8       : output : LVTTL             :         : 7         : Y              
-GND                          : AD9       : gnd    :                   :         :           :                
+GND                          : AD9       :        :                   :         :           :                
 dac_FB8_dat[7]               : AD10      : output : LVTTL             :         : 7         : Y              
-GND                          : AD11      : gnd    :                   :         :           :                
+GND                          : AD11      :        :                   :         :           :                
 dac_FB5_dat[3]               : AD12      : output : LVTTL             :         : 7         : Y              
 dac_FB5_dat[6]               : AD13      : output : LVTTL             :         : 7         : Y              
 GND+                         : AD14      :        :                   :         : 7         :                
@@ -193,9 +198,9 @@ dac_FB5_dat[9]               : AD16      : output : LVTTL             :         
 dac_FB5_dat[11]              : AD17      : output : LVTTL             :         : 8         : Y              
 dac_FB7_dat[1]               : AD18      : output : LVTTL             :         : 8         : Y              
 dac_FB7_dat[5]               : AD19      : output : LVTTL             :         : 8         : Y              
-GND                          : AD20      : gnd    :                   :         :           :                
+GND                          : AD20      :        :                   :         :           :                
 RESERVED_INPUT               : AD21      :        :                   :         : 8         :                
-GND                          : AD22      : gnd    :                   :         :           :                
+GND                          : AD22      :        :                   :         :           :                
 adc2_dat[4]                  : AD23      : input  : LVTTL             :         : 8         : Y              
 bias_dac_ncs[6]              : AD24      : output : LVTTL             :         : 8         : Y              
 NC                           : AD25      :        :                   :         :           :                
@@ -204,7 +209,7 @@ adc4_dat[9]                  : AD27      : input  : LVTTL             :         
 adc4_dat[8]                  : AD28      : input  : LVTTL             :         : 1         : Y              
 RESERVED_INPUT               : AE1       :        :                   :         : 6         :                
 RESERVED_INPUT               : AE2       :        :                   :         : 6         :                
-GND                          : AE3       : gnd    :                   :         :           :                
+GND                          : AE3       :        :                   :         :           :                
 RESERVED_INPUT               : AE4       :        :                   :         : 7         :                
 dac_FB6_dat[0]               : AE5       : output : LVTTL             :         : 7         : Y              
 dac_FB6_dat[7]               : AE6       : output : LVTTL             :         : 7         : Y              
@@ -227,7 +232,7 @@ adc2_dat[1]                  : AE22      : input  : LVTTL             :         
 dac_dat[4]                   : AE23      : output : LVTTL             :         : 8         : Y              
 adc2_dat[7]                  : AE24      : input  : LVTTL             :         : 8         : Y              
 dac_dat[5]                   : AE25      : output : LVTTL             :         : 8         : Y              
-GND                          : AE26      : gnd    :                   :         :           :                
+GND                          : AE26      :        :                   :         :           :                
 adc4_dat[5]                  : AE27      : input  : LVTTL             :         : 1         : Y              
 adc4_dat[4]                  : AE28      : input  : LVTTL             :         : 1         : Y              
 RESERVED_INPUT               : AF1       :        :                   :         : 6         :                
@@ -302,7 +307,7 @@ GND                          : AH14      : gnd    :                   :         
 GND                          : AH15      : gnd    :                   :         :           :                
 bias_dac_ncs[4]              : AH16      : output : LVTTL             :         : 8         : Y              
 VCCIO8                       : AH17      : power  :                   : 3.3V    : 8         :                
-GND                          : AH18      : gnd    :                   :         :           :                
+GND                          : AH18      :        :                   :         :           :                
 dac_FB7_dat[2]               : AH19      : output : LVTTL             :         : 8         : Y              
 dac_FB7_dat[7]               : AH20      : output : LVTTL             :         : 8         : Y              
 dac_FB7_dat[8]               : AH21      : output : LVTTL             :         : 8         : Y              
@@ -400,26 +405,26 @@ dac_FB2_dat[8]               : E1        : output : LVTTL             :         
 dac_FB2_dat[7]               : E2        : output : LVTTL             :         : 5         : Y              
 NC                           : E3        :        :                   :         :           :                
 NC                           : E4        :        :                   :         :           :                
-GND                          : E5        : gnd    :                   :         :           :                
+GND                          : E5        :        :                   :         :           :                
 mictor[31]                   : E6        : output : LVTTL             :         : 4         : Y              
-GND                          : E7        : gnd    :                   :         :           :                
+GND                          : E7        :        :                   :         :           :                
 mictor[30]                   : E8        : output : LVTTL             :         : 4         : Y              
-GND                          : E9        : gnd    :                   :         :           :                
+GND                          : E9        :        :                   :         :           :                
 mictor[15]                   : E10       : output : LVTTL             :         : 4         : Y              
-GND                          : E11       : gnd    :                   :         :           :                
+GND                          : E11       :        :                   :         :           :                
 mictor[14]                   : E12       : output : LVTTL             :         : 4         : Y              
 mictor[12]                   : E13       : output : LVTTL             :         : 4         : Y              
 GNDG_PLL5                    : E14       : gnd    :                   :         :           :                
 RESERVED_INPUT               : E15       :        :                   :         : 9         :                
 RESERVED_INPUT               : E16       :        :                   :         : 3         :                
 RESERVED_INPUT               : E17       :        :                   :         : 3         :                
-GND                          : E18       : gnd    :                   :         :           :                
+GND                          : E18       :        :                   :         :           :                
 RESERVED_INPUT               : E19       :        :                   :         : 3         :                
-GND                          : E20       : gnd    :                   :         :           :                
+GND                          : E20       :        :                   :         :           :                
 RESERVED_INPUT               : E21       :        :                   :         : 3         :                
-GND                          : E22       : gnd    :                   :         :           :                
+GND                          : E22       :        :                   :         :           :                
 RESERVED_INPUT               : E23       :        :                   :         : 3         :                
-GND                          : E24       : gnd    :                   :         :           :                
+GND                          : E24       :        :                   :         :           :                
 NC                           : E25       :        :                   :         :           :                
 NC                           : E26       :        :                   :         :           :                
 adc8_dat[7]                  : E27       : input  : LVTTL             :         : 2         : Y              
@@ -471,7 +476,7 @@ VCC_PLL5_OUTB                : G16       : power  :                   : 3.3V    
 CONF_DONE                    : G17       :        :                   :         : 3         :                
 RESERVED_INPUT               : G18       :        :                   :         : 3         :                
 RESERVED_INPUT               : G19       :        :                   :         : 3         :                
-GND                          : G20       : gnd    :                   :         :           :                
+GND                          : G20       :        :                   :         :           :                
 RESERVED_INPUT               : G21       :        :                   :         : 3         :                
 RESERVED_INPUT               : G22       :        :                   :         : 3         :                
 RESERVED_INPUT               : G23       :        :                   :         : 2         :                
@@ -544,7 +549,7 @@ RESERVED_INPUT               : K5        :        :                   :         
 dac_FB2_dat[13]              : K6        : output : LVTTL             :         : 5         : Y              
 dac_FB3_dat[6]               : K7        : output : LVTTL             :         : 5         : Y              
 dac_FB3_dat[5]               : K8        : output : LVTTL             :         : 5         : Y              
-GND                          : K9        : gnd    :                   :         :           :                
+GND                          : K9        :        :                   :         :           :                
 dip_sw3                      : K10       : input  : LVTTL             :         : 4         : Y              
 RESERVED_INPUT               : K11       :        :                   :         : 4         :                
 TCK                          : K12       : input  :                   :         : 4         :                
@@ -555,7 +560,7 @@ RESERVED_INPUT               : K16       :        :                   :         
 inclk                        : K17       : input  : LVTTL             :         : 3         : Y              
 RESERVED_INPUT               : K18       :        :                   :         : 3         :                
 RESERVED_INPUT               : K19       :        :                   :         : 3         :                
-GND                          : K20       : gnd    :                   :         :           :                
+GND                          : K20       :        :                   :         :           :                
 adc7_dat[5]                  : K21       : input  : LVTTL             :         : 2         : Y              
 adc7_dat[4]                  : K22       : input  : LVTTL             :         : 2         : Y              
 adc8_dat[13]                 : K23       : input  : LVTTL             :         : 2         : Y              
@@ -657,7 +662,7 @@ VCCA_PLL4                    : P6        : power  :                   : 1.5V    
 GNDG_PLL4                    : P7        : gnd    :                   :         :           :                
 VCCG_PLL4                    : P8        : power  :                   : 1.5V    : 1         :                
 VCCIO5                       : P9        : power  :                   : 3.3V    : 5         :                
-GND                          : P10       : gnd    :                   :         :           :                
+GND                          : P10       :        :                   :         :           :                
 GND                          : P11       : gnd    :                   :         :           :                
 VCCINT                       : P12       : power  :                   : 1.5V    :           :                
 GND                          : P13       : gnd    :                   :         :           :                
@@ -666,7 +671,7 @@ GND                          : P15       : gnd    :                   :         
 VCCINT                       : P16       : power  :                   : 1.5V    :           :                
 GND                          : P17       : gnd    :                   :         :           :                
 GND                          : P18       : gnd    :                   :         :           :                
-GND                          : P19       : gnd    :                   :         :           :                
+GND                          : P19       :        :                   :         :           :                
 VCCIO2                       : P20       : power  :                   : 3.3V    : 2         :                
 VCCG_PLL1                    : P21       : power  :                   : 1.5V    : 1         :                
 GNDG_PLL1                    : P22       : gnd    :                   :         :           :                
@@ -685,7 +690,7 @@ VCCA_PLL3                    : R6        : power  :                   : 1.5V    
 GNDG_PLL3                    : R7        : gnd    :                   :         :           :                
 VCCG_PLL3                    : R8        : power  :                   : 1.5V    : 1         :                
 VCCIO6                       : R9        : power  :                   : 3.3V    : 6         :                
-GND                          : R10       : gnd    :                   :         :           :                
+GND                          : R10       :        :                   :         :           :                
 GND                          : R11       : gnd    :                   :         :           :                
 GND                          : R12       : gnd    :                   :         :           :                
 VCCINT                       : R13       : power  :                   : 1.5V    :           :                
@@ -694,7 +699,7 @@ VCCINT                       : R15       : power  :                   : 1.5V    
 GND                          : R16       : gnd    :                   :         :           :                
 VCCINT                       : R17       : power  :                   : 1.5V    :           :                
 GND                          : R18       : gnd    :                   :         :           :                
-GND                          : R19       : gnd    :                   :         :           :                
+GND                          : R19       :        :                   :         :           :                
 VCCIO1                       : R20       : power  :                   : 3.3V    : 1         :                
 VCCG_PLL2                    : R21       : power  :                   : 1.5V    : 1         :                
 GNDG_PLL2                    : R22       : gnd    :                   :         :           :                
@@ -796,7 +801,7 @@ RESERVED_INPUT               : W5        :        :                   :         
 RESERVED_INPUT               : W6        :        :                   :         : 6         :                
 RESERVED_INPUT               : W7        :        :                   :         : 6         :                
 RESERVED_INPUT               : W8        :        :                   :         : 6         :                
-GND                          : W9        : gnd    :                   :         :           :                
+GND                          : W9        :        :                   :         :           :                
 RESERVED_INPUT               : W10       :        :                   :         : 7         :                
 RESERVED_INPUT               : W11       :        :                   :         : 7         :                
 RESERVED_INPUT               : W12       :        :                   :         : 7         :                
@@ -807,7 +812,7 @@ RESERVED_INPUT               : W16       :        :                   :         
 MSEL1                        : W17       :        :                   :         : 8         :                
 RESERVED_INPUT               : W18       :        :                   :         : 8         :                
 RESERVED_INPUT               : W19       :        :                   :         : 8         :                
-GND                          : W20       : gnd    :                   :         :           :                
+GND                          : W20       :        :                   :         :           :                
 adc8_ovr                     : W21       : input  : LVTTL             :         : 1         : Y              
 adc1_rdy                     : W22       : input  : LVTTL             :         : 1         : Y              
 adc1_dat[2]                  : W23       : input  : LVTTL             :         : 1         : Y              
