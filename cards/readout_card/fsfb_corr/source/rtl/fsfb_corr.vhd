@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.10 2006/01/17 20:27:56 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.11 2006/02/08 21:00:55 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.11  2006/02/08 21:00:55  bburger
+-- Bryce:  fixed a bug that prevented the MCE from locking when flux-jumping was disabled
+--
 -- Revision 1.10  2006/01/17 20:27:56  bburger
 -- Bryce:
 -- Added unconditional else statements to convert latches to combinatorial logic
@@ -793,7 +796,7 @@ begin
             if(fsfb_ctrl_lock_en_i = '1') then
                pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+               pid_prev_reg0         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy0    <= fsfb_ctrl_dat_rdy0_i;
          end if;
@@ -804,9 +807,9 @@ begin
             flux_quanta_reg1      <= flux_quanta1_i;
             m_prev_reg1           <= num_flux_quanta_prev1_i;
             if(fsfb_ctrl_lock_en_i = '1') then
-               pid_prev_reg1         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg1         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+               pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy1    <= fsfb_ctrl_dat_rdy1_i;
          end if;
@@ -817,9 +820,9 @@ begin
             flux_quanta_reg2      <= flux_quanta2_i;
             m_prev_reg2           <= num_flux_quanta_prev2_i;
             if(fsfb_ctrl_lock_en_i = '1') then
-               pid_prev_reg2         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               pid_prev_reg2         <= fsfb_ctrl_dat2_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg2         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+               pid_prev_reg2         <= fsfb_ctrl_dat2_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy2    <= fsfb_ctrl_dat_rdy2_i;
          end if;
@@ -830,9 +833,9 @@ begin
             flux_quanta_reg3      <= flux_quanta3_i;
             m_prev_reg3           <= num_flux_quanta_prev3_i;
             if(fsfb_ctrl_lock_en_i = '1') then
-               pid_prev_reg3         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               pid_prev_reg3         <= fsfb_ctrl_dat3_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg3         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+               pid_prev_reg3         <= fsfb_ctrl_dat3_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy3    <= fsfb_ctrl_dat_rdy3_i;
          end if;
@@ -843,9 +846,9 @@ begin
             flux_quanta_reg4      <= flux_quanta4_i;
             m_prev_reg4           <= num_flux_quanta_prev4_i;
             if(fsfb_ctrl_lock_en_i = '1') then
-               pid_prev_reg4         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               pid_prev_reg4         <= fsfb_ctrl_dat4_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg4         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+               pid_prev_reg4         <= fsfb_ctrl_dat4_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy4    <= fsfb_ctrl_dat_rdy4_i;
          end if;
@@ -856,9 +859,9 @@ begin
             flux_quanta_reg5      <= flux_quanta5_i;
             m_prev_reg5           <= num_flux_quanta_prev5_i;
             if(fsfb_ctrl_lock_en_i = '1') then
-               pid_prev_reg5         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               pid_prev_reg5         <= fsfb_ctrl_dat5_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg5         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+               pid_prev_reg5         <= fsfb_ctrl_dat5_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy5    <= fsfb_ctrl_dat_rdy5_i;
          end if;
@@ -869,9 +872,9 @@ begin
             flux_quanta_reg6      <= flux_quanta6_i;
             m_prev_reg6           <= num_flux_quanta_prev6_i;
             if(fsfb_ctrl_lock_en_i = '1') then
-               pid_prev_reg6         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               pid_prev_reg6         <= fsfb_ctrl_dat6_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg6         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+               pid_prev_reg6         <= fsfb_ctrl_dat6_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy6    <= fsfb_ctrl_dat_rdy6_i;
          end if;
@@ -882,9 +885,9 @@ begin
             flux_quanta_reg7      <= flux_quanta7_i;
             m_prev_reg7           <= num_flux_quanta_prev7_i;
             if(fsfb_ctrl_lock_en_i = '1') then
-               pid_prev_reg7         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
+               pid_prev_reg7         <= fsfb_ctrl_dat7_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg7         <= fsfb_ctrl_dat0_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX - 1 downto 0);
+               pid_prev_reg7         <= fsfb_ctrl_dat7_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy7    <= fsfb_ctrl_dat_rdy7_i;
          end if;
