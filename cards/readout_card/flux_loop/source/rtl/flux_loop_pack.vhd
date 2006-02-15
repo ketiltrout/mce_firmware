@@ -32,6 +32,10 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.8  2005/12/12 22:20:03  mandana
+-- removed the unused flux_jumping_en_i port
+-- changed fsfb_fltr_dat_o port definition to fltr_queue_data_width-1
+--
 -- Revision 1.7  2005/11/29 18:33:52  mandana
 -- added filter queue storage parameters
 --
@@ -138,6 +142,7 @@ package flux_loop_pack is
       restart_frame_1row_post_i   : in  std_logic;
       row_switch_i                : in  std_logic;
       initialize_window_i         : in  std_logic;
+      fltr_rst_i                  : in  std_logic;
       num_rows_sub1_i             : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);
       dac_dat_en_i                : in  std_logic;
       coadded_addr_i              : in  std_logic_vector (COADD_ADDR_WIDTH-1 downto 0);

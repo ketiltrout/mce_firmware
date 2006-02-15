@@ -36,6 +36,9 @@
 --
 --
 -- $Log: flux_loop.vhd,v $
+-- Revision 1.11  2005/12/12 22:18:14  mandana
+-- removed the unused flux_jumping_en_i port
+--
 -- Revision 1.10  2005/11/29 18:30:13  mandana
 -- added restart_frame_1row_post_i to wbs_frame_data interface in order to read filter data with precise timing. Now, filter data is read with one frame delay to avoid double-buffering the filter storage.
 --
@@ -91,6 +94,7 @@ entity flux_loop is
     initialize_window_i       : in  std_logic;
     num_rows_sub1_i           : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
     dac_dat_en_i              : in  std_logic;
+    fltr_rst_i                : in  std_logic;
 
     -- signals to/from dispatch  (wishbone interface)
     dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);       -- wishbone data in
@@ -391,8 +395,8 @@ architecture struct of flux_loop is
   signal ramp_step_size        : std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);
   signal ramp_amp              : std_logic_vector(RAMP_AMP_WIDTH-1 downto 0);
   signal const_val             : std_logic_vector(CONST_VAL_WIDTH-1 downto 0);
-  signal num_ramp_frame_cycles : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);
-
+  signal num_ramp_frame_cycles : std_logic_vector(RAMP_CYC_WIDTH-1 downto 0);  
+  
   
   -- Signals Interface between fsfb_corr and flux_loop_ctrl
   signal flux_jumping_en           : std_logic;    
@@ -480,6 +484,7 @@ begin  -- struct
         restart_frame_1row_post_i => restart_frame_1row_post_i,
         row_switch_i              => row_switch_i,
         initialize_window_i       => initialize_window_i,
+        fltr_rst_i                => fltr_rst_i,
         num_rows_sub1_i           => (others =>'0'),                      -- not used
         dac_dat_en_i              => dac_dat_en_i,
         coadded_addr_i            => coadded_addr_ch0,
@@ -552,6 +557,7 @@ begin  -- struct
         restart_frame_1row_post_i => restart_frame_1row_post_i,
         row_switch_i              => row_switch_i,
         initialize_window_i       => initialize_window_i,
+        fltr_rst_i                => fltr_rst_i,
         num_rows_sub1_i           => (others =>'0'),                      -- not used
         dac_dat_en_i              => dac_dat_en_i,
         coadded_addr_i            => coadded_addr_ch1,
@@ -625,6 +631,7 @@ begin  -- struct
         restart_frame_1row_post_i => restart_frame_1row_post_i,
         row_switch_i              => row_switch_i,
         initialize_window_i       => initialize_window_i,
+        fltr_rst_i                => fltr_rst_i,
         num_rows_sub1_i           => (others =>'0'),                      -- not used
         dac_dat_en_i              => dac_dat_en_i,
         coadded_addr_i            => coadded_addr_ch2,
@@ -698,6 +705,7 @@ begin  -- struct
         restart_frame_1row_post_i => restart_frame_1row_post_i,
         row_switch_i              => row_switch_i,
         initialize_window_i       => initialize_window_i,
+        fltr_rst_i                => fltr_rst_i,
         num_rows_sub1_i           => (others =>'0'),                      -- not used
         dac_dat_en_i              => dac_dat_en_i,
         coadded_addr_i            => coadded_addr_ch3,
@@ -771,6 +779,7 @@ begin  -- struct
         restart_frame_1row_post_i => restart_frame_1row_post_i,
         row_switch_i              => row_switch_i,
         initialize_window_i       => initialize_window_i,
+        fltr_rst_i                => fltr_rst_i,
         num_rows_sub1_i           => (others =>'0'),                      -- not used
         dac_dat_en_i              => dac_dat_en_i,
         coadded_addr_i            => coadded_addr_ch4,
@@ -844,6 +853,7 @@ begin  -- struct
         restart_frame_1row_post_i => restart_frame_1row_post_i,
         row_switch_i              => row_switch_i,
         initialize_window_i       => initialize_window_i,
+        fltr_rst_i                => fltr_rst_i,
         num_rows_sub1_i           => (others =>'0'),                      -- not used
         dac_dat_en_i              => dac_dat_en_i,
         coadded_addr_i            => coadded_addr_ch5,
@@ -917,6 +927,7 @@ begin  -- struct
         restart_frame_1row_post_i => restart_frame_1row_post_i,
         row_switch_i              => row_switch_i,
         initialize_window_i       => initialize_window_i,
+        fltr_rst_i                => fltr_rst_i,
         num_rows_sub1_i           => (others =>'0'),                      -- not used
         dac_dat_en_i              => dac_dat_en_i,
         coadded_addr_i            => coadded_addr_ch6,
@@ -990,6 +1001,7 @@ begin  -- struct
         restart_frame_1row_post_i => restart_frame_1row_post_i,
         row_switch_i              => row_switch_i,
         initialize_window_i       => initialize_window_i,
+        fltr_rst_i                => fltr_rst_i,
         num_rows_sub1_i           => (others =>'0'),                      -- not used
         dac_dat_en_i              => dac_dat_en_i,
         coadded_addr_i            => coadded_addr_ch7,
