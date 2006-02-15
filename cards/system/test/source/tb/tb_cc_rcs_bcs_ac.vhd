@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.7 2005/08/30 23:53:59 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.7.2.1 2005/12/15 22:06:22 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.7.2.1  2005/12/15 22:06:22  mandana
+-- added filter test
+--
 -- Revision 1.7  2005/08/30 23:53:59  bburger
 -- Bryce:
 -- Updated system testbench to account for changes in the RC interface (card_id is inout now)
@@ -61,7 +64,7 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.bc_dac_ctrl_pack.all;
-use work.clk_card_pack.all;
+--use work.clk_card_pack.all;
 use work.addr_card_pack.all;
 use work.bias_card_pack.all;
 use work.readout_card_pack.all;
@@ -79,6 +82,95 @@ entity tb_cc_rcs_bcs_ac is
 end tb_cc_rcs_bcs_ac;
 
 architecture tb of tb_cc_rcs_bcs_ac is 
+   component clk_card
+   port(
+      -- PLL input:
+      inclk14           : in std_logic;
+      rst_n             : in std_logic;
+      
+      -- LVDS interface:
+      lvds_cmd          : out std_logic;
+      lvds_sync         : out std_logic;
+      lvds_spare        : out std_logic;
+      lvds_clk          : out std_logic;
+      lvds_reply_ac_a   : in std_logic;  
+      lvds_reply_ac_b   : in std_logic;
+      lvds_reply_bc1_a  : in std_logic;
+      lvds_reply_bc1_b  : in std_logic;
+      lvds_reply_bc2_a  : in std_logic;
+      lvds_reply_bc2_b  : in std_logic;
+      lvds_reply_bc3_a  : in std_logic;
+      lvds_reply_bc3_b  : in std_logic;
+      lvds_reply_rc1_a  : in std_logic;
+      lvds_reply_rc1_b  : in std_logic;
+      lvds_reply_rc2_a  : in std_logic;
+      lvds_reply_rc2_b  : in std_logic;
+      lvds_reply_rc3_a  : in std_logic; 
+      lvds_reply_rc3_b  : in std_logic;  
+      lvds_reply_rc4_a  : in std_logic; 
+      lvds_reply_rc4_b  : in std_logic;
+      
+      -- DV interface:
+      dv_pulse_fibre    : in std_logic;
+      dv_pulse_bnc      : in std_logic;
+      
+      -- TTL interface:
+      ttl_nrx1          : in std_logic;
+      ttl_tx1           : out std_logic;
+      ttl_txena1        : out std_logic;
+      
+      ttl_nrx2          : in std_logic;
+      ttl_tx2           : out std_logic;
+      ttl_txena2        : out std_logic;
+
+      ttl_nrx3          : in std_logic;
+      ttl_tx3           : out std_logic;
+      ttl_txena3        : out std_logic;
+
+      -- eeprom interface:
+      eeprom_si         : in std_logic;
+      eeprom_so         : out std_logic;
+      eeprom_sck        : out std_logic;
+      eeprom_cs         : out std_logic;
+      
+      -- miscellaneous ports:
+      red_led           : out std_logic;
+      ylw_led           : out std_logic;
+      grn_led           : out std_logic;
+      dip_sw3           : in std_logic;
+      dip_sw4           : in std_logic;
+      wdog              : out std_logic;
+      slot_id           : in std_logic_vector(3 downto 0);
+      
+      -- debug ports:
+      mictor_o          : out std_logic_vector(15 downto 1);
+      mictorclk_o       : out std_logic;
+      mictor_e          : out std_logic_vector(15 downto 1);
+      mictorclk_e       : out std_logic;
+      rs232_rx          : in std_logic;
+      rs232_tx          : out std_logic;
+      
+      -- interface to HOTLINK fibre receiver      
+      fibre_rx_refclk   : out std_logic;
+      fibre_rx_data     : in std_logic_vector (7 downto 0);  
+      fibre_rx_rdy      : in std_logic;                      
+      fibre_rx_rvs      : in std_logic;                      
+      fibre_rx_status   : in std_logic;                      
+      fibre_rx_sc_nd    : in std_logic;                      
+      fibre_rx_clkr     : in std_logic;                      
+      
+      fibre_rx_a_nb     : out std_logic;
+      fibre_rx_bisten   : out std_logic;
+      fibre_rx_rf       : out std_logic;
+      
+      -- interface to hotlink fibre transmitter      
+      fibre_tx_clkw     : out std_logic;
+      fibre_tx_data     : out std_logic_vector (7 downto 0);
+      fibre_tx_ena      : out std_logic;  
+      fibre_tx_sc_nd    : out std_logic
+   );     
+   end component;
+
 
    component readout_card
       generic (
@@ -831,7 +923,7 @@ begin
       port map
       (
          -- PLL input:
-         inclk            => inclk,
+         inclk14          => inclk,
          rst_n            => rst_n,
                           
          -- LVDS interface:
@@ -897,16 +989,16 @@ begin
          rs232_tx         => cc_rs232_tx,
          
          -- interface to HOTLINK fibre receiver         
-         fibre_rx_clk     => open,
+         fibre_rx_refclk  => open,
          fibre_rx_data    => fibre_rx_data,   
          fibre_rx_rdy     => fibre_rx_rdy,    
          fibre_rx_rvs     => fibre_rx_rvs,    
          fibre_rx_status  => fibre_rx_status, 
          fibre_rx_sc_nd   => fibre_rx_sc_nd,  
-         fibre_rx_ckr     => fibre_rx_ckr,    
+         fibre_rx_clkr    => fibre_rx_ckr,    
          
          -- interface to hotlink fibre transmitter         
-         fibre_tx_clk     => open,
+         fibre_tx_clkw    => open,
          fibre_tx_data    => fibre_tx_data,   
          fibre_tx_ena     => fibre_tx_ena,    
          fibre_tx_sc_nd   => fibre_tx_sc_nd  
