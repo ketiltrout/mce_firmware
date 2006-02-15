@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.16  2005/12/01 18:39:07  erniel
+-- minor bug fix: enabled output register on dcfifo
+--
 -- Revision 1.15  2005/10/03 02:43:22  erniel
 -- simplified logic for asserting rx_buf_ena in datapath FSM
 --
@@ -219,6 +222,8 @@ begin
             wrfull  => data_buf_full,
             rdempty => data_buf_empty); 
 
+   data_buf_write <= not data_buf_full when sample_count = 271 else '0';
+   
 
 ------------------------------------------------------------
 --
@@ -262,7 +267,7 @@ begin
       sample_buf_clr   <= '0';
       rx_buf_ena       <= '0';
       rx_buf_clr       <= '0';
-      data_buf_write   <= '0';
+--      data_buf_write   <= '0';
       
       case datapath_ps is
          when IDLE =>   sample_count_clr <= '1';
@@ -274,9 +279,9 @@ begin
                         if(sample_count(2 downto 0) = "101") then             -- enable rx_buf starting at sample_count = 5 and then every 8 thereafter
                            rx_buf_ena <= '1';
                         end if;
-                        if(sample_count = 271 and data_buf_full = '0') then   -- write to data buffer when sample_count = 271
-                           data_buf_write <= '1';
-                        end if;
+--                        if(sample_count = 271 and data_buf_full = '0') then   -- write to data buffer when sample_count = 271
+--                           data_buf_write <= '1';
+--                        end if;
          
          when others => null;
       end case;
