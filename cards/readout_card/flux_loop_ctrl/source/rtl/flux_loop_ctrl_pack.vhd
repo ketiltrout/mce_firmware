@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl_pack.vhd,v $
+-- Revision 1.7  2005/12/12 22:25:29  mandana
+-- removed the unused flux_jumping_en_i port
+-- added filter interface ports
+--
 -- Revision 1.6  2005/10/07 21:38:07  bburger
 -- Bryce:  Added a port between fsfb_io_controller and wbs_frame_data to readout flux_counts
 --
@@ -149,6 +153,7 @@ package flux_loop_ctrl_pack is
          restart_frame_1row_post_i  : in    std_logic;                                             -- start of frame signal (1 row behind of actual frame start)
          row_switch_i               : in    std_logic;                                             -- row switch signal to indicate next clock cycle is the beginning of new row
          initialize_window_i        : in    std_logic;                                             -- frame window at which all values read equal to fixed preset parameter
+         fltr_rst_i                 : in    std_logic;                                             -- reset filter internal registers
          num_rows_sub1_i            : in    std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
          servo_mode_i               : in    std_logic_vector(SERVO_MODE_SEL_WIDTH-1 downto 0);     -- servo mode selection 
          ramp_step_size_i           : in    std_logic_vector(RAMP_STEP_WIDTH-1 downto 0);          -- ramp step increments/decrements

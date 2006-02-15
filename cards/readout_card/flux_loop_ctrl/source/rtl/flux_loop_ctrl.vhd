@@ -41,6 +41,11 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_ctrl.vhd,v $
+-- Revision 1.12  2005/12/12 22:24:26  mandana
+-- removed the unused flux_jumping_en_i port
+-- changed fsfb_fltr_dat_o port definition to fltr_queue_data_width-1
+-- changed lock_dat_left position
+--
 -- Revision 1.11  2005/11/29 19:18:30  mandana
 -- filter wishbone interface added
 --
@@ -120,6 +125,7 @@ entity flux_loop_ctrl is
     restart_frame_1row_post_i  : in  std_logic;
     row_switch_i               : in  std_logic;
     initialize_window_i        : in  std_logic;
+    fltr_rst_i                 : in  std_logic;                                             -- reset internal registers (wn) of the filter block
     num_rows_sub1_i            : in  std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);    -- number of rows per frame subtract 1
     dac_dat_en_i               : in  std_logic;
 
@@ -259,6 +265,7 @@ begin  -- struct
       restart_frame_1row_post_i  => restart_frame_1row_post_i,
       row_switch_i               => row_switch_i,
       initialize_window_i        => initialize_window_i,
+      fltr_rst_i                 => fltr_rst_i,
       num_rows_sub1_i            => num_rows_sub1_i,
       servo_mode_i               => servo_mode_i,
       ramp_step_size_i           => ramp_step_size_i,
