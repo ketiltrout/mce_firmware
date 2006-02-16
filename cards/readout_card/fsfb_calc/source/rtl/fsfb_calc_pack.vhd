@@ -34,6 +34,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.11  2006/02/15 21:43:35  mandana
+-- changed initialize_window_i port to fltr_rst_i port on fltr_regs
+-- changed filter_lock_lsb_pos from 0 to 10
+--
 -- Revision 1.10  2006/02/14 22:59:20  bburger
 -- Bryce:  Commital for an experimental tag rc_14feb2006_filter10_and_fj_fix_old_dispatch
 -- This file actually does have the filter window set to 10, unlike the last commital.
@@ -95,7 +99,7 @@ package fsfb_calc_pack is
    -- First stage feedback filter block constants
    ---------------------------------------------------------------------------------
 
-   constant FILTER_LOCK_LSB_POS    : integer := 10;    -- 10 later!               -- a sliding window of the 66b result is used as the filter input
+   constant FILTER_LOCK_LSB_POS    : integer := 14;    -- 10 later!               -- a sliding window of the 66b result is used as the filter input
    constant FILTER_SCALE_LSB       : integer := 1;
    constant FILTER_GAIN            : integer := 171;                  -- 0.0000610  NOT USED for now!
  
