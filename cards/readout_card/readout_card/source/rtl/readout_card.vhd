@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.23.2.2  2006/02/15 22:22:40  bburger
+-- Bryce:  changed revision number to 02000003
+--
 -- Revision 1.23.2.1  2006/02/15 22:07:39  mandana
 -- old dispatch, revision number changed to 02000002
 --
@@ -245,7 +248,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000003";
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000004"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
