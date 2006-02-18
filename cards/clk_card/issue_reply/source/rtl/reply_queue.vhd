@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.19 2006/01/16 19:03:02 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.20 2006/02/02 00:38:28 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.20  2006/02/02 00:38:28  mandana
+-- removed next_retire_state out of the sensitivity list for retire_state_out process
+--
 -- Revision 1.19  2006/01/16 19:03:02  bburger
 -- Bryce:
 -- minor bug fixes for handling crc errors and timeouts
@@ -450,7 +453,7 @@ begin
       end case;
    end process;
    
-   retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, head_q, data, data_size, par_id)
+   retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, head_q, data, data_size, par_id, word_count)
    begin   
       -- Default values
       reg_en          <= '0';
