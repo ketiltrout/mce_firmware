@@ -800,7 +800,7 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-
 
 # Simulator Assignments
 # =====================
-set_global_assignment -name GLITCH_INTERVAL "1 "
+set_global_assignment -name GLITCH_INTERVAL 1
 
 # Design Assistant Assignments
 # ============================
