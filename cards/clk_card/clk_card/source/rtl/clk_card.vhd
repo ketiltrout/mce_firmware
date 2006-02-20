@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.30 2006/02/09 20:32:59 bburger Exp $
+-- $Id: clk_card.vhd,v 1.31 2006/02/11 01:19:33 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.31  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.30  2006/02/09 20:32:59  bburger
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
@@ -206,7 +212,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000000";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000001";
 
 -- reset
 signal rst           : std_logic;
@@ -302,9 +308,10 @@ port(clk_i      : in std_logic;
      
      -- misc. external interface
      wdt_rst_o : out std_logic;
-     slot_i    : in std_logic_vector(3 downto 0);
-     dip_sw3 : in std_logic;
-     dip_sw4 : in std_logic);
+     slot_i    : in std_logic_vector(3 downto 0)--;
+--     dip_sw3 : in std_logic;
+--     dip_sw4 : in std_logic
+);
 end component;
 
 component fpga_thermo
@@ -466,9 +473,9 @@ begin
          err_i  => slave_err, 
      
          wdt_rst_o => wdog,
-         slot_i    => slot_id,
-         dip_sw3   => '1',
-         dip_sw4   => '1'
+         slot_i    => slot_id--,
+--         dip_sw3   => '1',
+--         dip_sw4   => '1'
       );
             
    led0: leds
@@ -616,9 +623,9 @@ begin
          start_seq_num_i   => start_seq_num,
          stop_seq_num_i    => stop_seq_num,
          data_rate_i       => data_rate,
-         data_req_i        => data_req,
-         data_ack_o        => data_ack,
-         frame_num_external_i => frame_num_external,
+--         data_req_i        => data_req,
+--         data_ack_o        => data_ack,
+--         frame_num_external_i => frame_num_external,
          
          -- sync_gen interface
          sync_pulse_i      => sync,
