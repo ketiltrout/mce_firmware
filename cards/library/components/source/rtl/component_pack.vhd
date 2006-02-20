@@ -20,11 +20,11 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.32 2005/10/21 19:05:19 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.33 2006/01/20 21:23:18 erniel Exp $>
 --
--- Project:		SCUBA-2
--- Author:		Jon Jacob
--- Organisation:	UBC
+-- Project:    SCUBA-2
+-- Author:     Jon Jacob
+-- Organisation:  UBC
 --
 -- Description:
 -- This file contains the declarations for the component library.
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.33  2006/01/20 21:23:18  erniel
+-- added SMBus Master component
+--
 -- Revision 1.32  2005/10/21 19:05:19  erniel
 -- updated one_wire_master component
 --
@@ -412,6 +415,21 @@ package component_pack is
 --
 ------------------------------------------------------------ 
 
+   component crc
+      generic(POLY_WIDTH : integer := 8);
+      port(clk_i  : in std_logic;
+           rst_i  : in std_logic;
+           clr_i  : in std_logic;
+           ena_i  : in std_logic;
+           
+           poly_i     : in std_logic_vector(POLY_WIDTH downto 1);
+           data_i     : in std_logic;
+           num_bits_i : in integer;
+           done_o     : out std_logic;
+           valid_o    : out std_logic;
+           checksum_o : out std_logic_vector(POLY_WIDTH downto 1));
+   end component;
+
    component serial_crc
       generic(POLY_WIDTH : integer := 8);
       port(clk_i  : in std_logic;
@@ -549,8 +567,8 @@ package component_pack is
 --      
 --           -- wishbone signals
 --           clk_i  : in std_logic;
---           rst_i  : in std_logic;		
---           dat_i 	: in std_logic_vector (DATA_WIDTH-1 downto 0);
+--           rst_i  : in std_logic;    
+--           dat_i   : in std_logic_vector (DATA_WIDTH-1 downto 0);
 --           addr_i : in std_logic_vector (ADDR_WIDTH-1 downto 0);
 --           tga_i  : in std_logic_vector (TAG_ADDR_WIDTH-1 downto 0);
 --           we_i   : in std_logic;
@@ -693,18 +711,18 @@ end component;
 -- Synchronous FIFO for fibre_rx
 --
 ------------------------------------------------------------
---component sync_fifo_rx
---port(data		: in std_logic_vector (7 downto 0);      -- input data
---     wrreq		: in std_logic ;                         -- write request
---     rdreq		: in std_logic ;                         -- read request
---     rdclk		: in std_logic ;                         -- read clock
---     wrclk		: in std_logic ;                         -- write clock
---     aclr		: in std_logic ;                         -- asynchrouous clear
---     q		: out std_logic_vector (7 downto 0);     -- output data 
---     rdempty		: out std_logic ;                        -- empty flag (read)
---     wrfull		: out std_logic                          -- write flad (full)
---);
---end component;
+component sync_fifo_rx
+port(data    : in std_logic_vector (7 downto 0);      -- input data
+     wrreq      : in std_logic ;                         -- write request
+     rdreq      : in std_logic ;                         -- read request
+     rdclk      : in std_logic ;                         -- read clock
+     wrclk      : in std_logic ;                         -- write clock
+     aclr    : in std_logic ;                         -- asynchrouous clear
+     q    : out std_logic_vector (7 downto 0);     -- output data 
+     rdempty    : out std_logic ;                        -- empty flag (read)
+     wrfull     : out std_logic                          -- write flad (full)
+);
+end component;
 
 
 
@@ -714,18 +732,18 @@ end component;
 --
 -- rdreq acts are read acknowledge
 ------------------------------------------------------------
---component sync_fifo_tx
---port(data		: in std_logic_vector (7 downto 0);      -- input data
---     wrreq		: in std_logic ;                         -- write request
---     rdreq		: in std_logic ;                         -- read request (acknowledge)
---     rdclk		: in std_logic ;                         -- read clock
---     wrclk		: in std_logic ;                         -- write clock
---     aclr		: in std_logic ;                         -- asynchrouous clear
---     q	        : out std_logic_vector (7 downto 0);     -- output data 
---     rdempty	: out std_logic ;                        -- empty flag (read)
---     wrfull		: out std_logic                          -- write flad (full)
---);
---end component;
+component sync_fifo_tx
+port(data    : in std_logic_vector (7 downto 0);      -- input data
+     wrreq      : in std_logic ;                         -- write request
+     rdreq      : in std_logic ;                         -- read request (acknowledge)
+     rdclk      : in std_logic ;                         -- read clock
+     wrclk      : in std_logic ;                         -- write clock
+     aclr    : in std_logic ;                         -- asynchrouous clear
+     q         : out std_logic_vector (7 downto 0);     -- output data 
+     rdempty : out std_logic ;                        -- empty flag (read)
+     wrfull     : out std_logic                          -- write flad (full)
+);
+end component;
 
 
 
