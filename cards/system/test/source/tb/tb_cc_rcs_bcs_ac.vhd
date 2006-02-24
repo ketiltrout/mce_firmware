@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.12 2006/02/06 19:35:00 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.13 2006/02/09 17:17:30 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.13  2006/02/09 17:17:30  bburger
+-- Bryce:  comittal for tagging purposes
+--
 -- Revision 1.12  2006/02/06 19:35:00  bburger
 -- Bryce:  commital for tagging the pi loop tests
 --
@@ -309,23 +312,26 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_servo_mode_cmd      : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_MODE_ADDR;
    constant rc1_sa_bias_cmd         : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SA_BIAS_ADDR;
    constant rc1_offset_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & OFFSET_ADDR;
-   constant rc1_flx_quanta0_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA0_ADDR;
-   constant rc1_flx_quanta1_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA1_ADDR;
-   constant rc1_flx_quanta2_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA2_ADDR;
-   constant rc1_flx_quanta3_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA3_ADDR;
-   constant rc1_flx_quanta4_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA4_ADDR;
-   constant rc1_flx_quanta5_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA5_ADDR;
-   constant rc1_flx_quanta6_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA6_ADDR;
-   constant rc1_flx_quanta7_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA7_ADDR;
+--   constant rc1_flx_quanta0_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA0_ADDR;
+--   constant rc1_flx_quanta1_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA1_ADDR;
+--   constant rc1_flx_quanta2_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA2_ADDR;
+--   constant rc1_flx_quanta3_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA3_ADDR;
+--   constant rc1_flx_quanta4_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA4_ADDR;
+--   constant rc1_flx_quanta5_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA5_ADDR;
+--   constant rc1_flx_quanta6_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA6_ADDR;
+--   constant rc1_flx_quanta7_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA7_ADDR;
    constant rc1_flx_lp_init_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_LP_INIT_ADDR;
+--   constant rc1_fltr_rst_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLTR_RST_ADDR;
    constant rc1_ramp_step_cmd       : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_STEP_ADDR;
    constant rc1_ramp_amp_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_AMP_ADDR;
    constant rc1_ramp_dly_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_DLY_ADDR;
    constant rc1_fb_const_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FB_CONST_ADDR;
    constant rc1_captr_raw_cmd       : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & CAPTR_RAW_ADDR;
-   constant rc1_en_fb_jump_cmd      : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & EN_FB_JUMP_ADDR;
+--   constant rc1_en_fb_jump_cmd      : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & EN_FB_JUMP_ADDR;
    constant rc1_gainp0_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP0_ADDR;
    constant rc1_gaini0_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINI0_ADDR;
+   constant rc1_gainp6_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP6_ADDR;
+   constant rc1_gaini6_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINI6_ADDR;
    constant rc1_adc_offset0_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & ADC_OFFSET0_ADDR;
    constant rc1_led_cmd             : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & LED_ADDR;
    
@@ -1253,86 +1259,86 @@ begin
 --         mictor         => rc2_mictor
 --      );
 --
-   i_readout_card1: readout_card
-      generic map (
-         CARD => READOUT_CARD_1
-      )
-      port map (
-         rst_n          => rst_n,
-         inclk          => lvds_clk,
-         adc1_dat       => rc1_adc1_dat,
-         adc2_dat       => rc1_adc2_dat,
-         adc3_dat       => rc1_adc3_dat,
-         adc4_dat       => rc1_adc4_dat,
-         adc5_dat       => rc1_adc5_dat,
-         adc6_dat       => rc1_adc6_dat,
-         adc7_dat       => rc1_adc7_dat,
-         adc8_dat       => rc1_adc8_dat,
-         adc1_ovr       => rc1_adc1_ovr,
-         adc2_ovr       => rc1_adc2_ovr,
-         adc3_ovr       => rc1_adc3_ovr,
-         adc4_ovr       => rc1_adc4_ovr,
-         adc5_ovr       => rc1_adc5_ovr,
-         adc6_ovr       => rc1_adc6_ovr,
-         adc7_ovr       => rc1_adc7_ovr,
-         adc8_ovr       => rc1_adc8_ovr,
-         adc1_rdy       => rc1_adc1_rdy,
-         adc2_rdy       => rc1_adc2_rdy,
-         adc3_rdy       => rc1_adc3_rdy,
-         adc4_rdy       => rc1_adc4_rdy,
-         adc5_rdy       => rc1_adc5_rdy,
-         adc6_rdy       => rc1_adc6_rdy,
-         adc7_rdy       => rc1_adc7_rdy,
-         adc8_rdy       => rc1_adc8_rdy,
-         adc1_clk       => rc1_adc1_clk,
-         adc2_clk       => rc1_adc2_clk,
-         adc3_clk       => rc1_adc3_clk,
-         adc4_clk       => rc1_adc4_clk,
-         adc5_clk       => rc1_adc5_clk,
-         adc6_clk       => rc1_adc6_clk,
-         adc7_clk       => rc1_adc7_clk,
-         adc8_clk       => rc1_adc8_clk,
-         dac_FB1_dat    => rc1_dac_FB1_dat,
-         dac_FB2_dat    => rc1_dac_FB2_dat,
-         dac_FB3_dat    => rc1_dac_FB3_dat,
-         dac_FB4_dat    => rc1_dac_FB4_dat,
-         dac_FB5_dat    => rc1_dac_FB5_dat,
-         dac_FB6_dat    => rc1_dac_FB6_dat,
-         dac_FB7_dat    => rc1_dac_FB7_dat,
-         dac_FB8_dat    => rc1_dac_FB8_dat,
-         dac_FB_clk     => rc1_dac_FB_clk,
-         dac_clk        => rc1_dac_clk,
-         dac_dat        => rc1_dac_dat,
-         bias_dac_ncs   => rc1_bias_dac_ncs,
-         offset_dac_ncs => rc1_offset_dac_ncs,
-         lvds_cmd       => lvds_cmd,
-         lvds_sync      => lvds_sync,
-         lvds_spare     => lvds_spare,
-         lvds_txa       => rc1_lvds_txa,
-         lvds_txb       => rc1_lvds_txb,
-
-         ttl_dir1       => rc1_ttl_dir1,
-         ttl_in1        => bclr_n, 
-         ttl_out1       => open,
-                           
-         ttl_dir2       => rc1_ttl_dir2,
-         ttl_in2        => rc1_ttl_in2, 
-         ttl_out2       => open,
-                           
-         ttl_dir3       => rc1_ttl_dir3,
-         ttl_in3        => rc1_ttl_in3, 
-         ttl_out3       => open,
-                      
-         red_led        => rc1_red_led,
-         ylw_led        => rc1_ylw_led,
-         grn_led        => rc1_grn_led,
-         dip_sw3        => rc1_dip_sw3,
-         dip_sw4        => rc1_dip_sw4,
-         wdog           => rc1_wdog,
-         slot_id        => rc1_slot_id,
-         card_id        => rc1_card_id,
-         mictor         => rc1_mictor
-      );
+--   i_readout_card1: readout_card
+--      generic map (
+--         CARD => READOUT_CARD_1
+--      )
+--      port map (
+--         rst_n          => rst_n,
+--         inclk          => lvds_clk,
+--         adc1_dat       => rc1_adc1_dat,
+--         adc2_dat       => rc1_adc2_dat,
+--         adc3_dat       => rc1_adc3_dat,
+--         adc4_dat       => rc1_adc4_dat,
+--         adc5_dat       => rc1_adc5_dat,
+--         adc6_dat       => rc1_adc6_dat,
+--         adc7_dat       => rc1_adc7_dat,
+--         adc8_dat       => rc1_adc8_dat,
+--         adc1_ovr       => rc1_adc1_ovr,
+--         adc2_ovr       => rc1_adc2_ovr,
+--         adc3_ovr       => rc1_adc3_ovr,
+--         adc4_ovr       => rc1_adc4_ovr,
+--         adc5_ovr       => rc1_adc5_ovr,
+--         adc6_ovr       => rc1_adc6_ovr,
+--         adc7_ovr       => rc1_adc7_ovr,
+--         adc8_ovr       => rc1_adc8_ovr,
+--         adc1_rdy       => rc1_adc1_rdy,
+--         adc2_rdy       => rc1_adc2_rdy,
+--         adc3_rdy       => rc1_adc3_rdy,
+--         adc4_rdy       => rc1_adc4_rdy,
+--         adc5_rdy       => rc1_adc5_rdy,
+--         adc6_rdy       => rc1_adc6_rdy,
+--         adc7_rdy       => rc1_adc7_rdy,
+--         adc8_rdy       => rc1_adc8_rdy,
+--         adc1_clk       => rc1_adc1_clk,
+--         adc2_clk       => rc1_adc2_clk,
+--         adc3_clk       => rc1_adc3_clk,
+--         adc4_clk       => rc1_adc4_clk,
+--         adc5_clk       => rc1_adc5_clk,
+--         adc6_clk       => rc1_adc6_clk,
+--         adc7_clk       => rc1_adc7_clk,
+--         adc8_clk       => rc1_adc8_clk,
+--         dac_FB1_dat    => rc1_dac_FB1_dat,
+--         dac_FB2_dat    => rc1_dac_FB2_dat,
+--         dac_FB3_dat    => rc1_dac_FB3_dat,
+--         dac_FB4_dat    => rc1_dac_FB4_dat,
+--         dac_FB5_dat    => rc1_dac_FB5_dat,
+--         dac_FB6_dat    => rc1_dac_FB6_dat,
+--         dac_FB7_dat    => rc1_dac_FB7_dat,
+--         dac_FB8_dat    => rc1_dac_FB8_dat,
+--         dac_FB_clk     => rc1_dac_FB_clk,
+--         dac_clk        => rc1_dac_clk,
+--         dac_dat        => rc1_dac_dat,
+--         bias_dac_ncs   => rc1_bias_dac_ncs,
+--         offset_dac_ncs => rc1_offset_dac_ncs,
+--         lvds_cmd       => lvds_cmd,
+--         lvds_sync      => lvds_sync,
+--         lvds_spare     => lvds_spare,
+--         lvds_txa       => rc1_lvds_txa,
+--         lvds_txb       => rc1_lvds_txb,
+--
+--         ttl_dir1       => rc1_ttl_dir1,
+--         ttl_in1        => bclr_n, 
+--         ttl_out1       => open,
+--                           
+--         ttl_dir2       => rc1_ttl_dir2,
+--         ttl_in2        => rc1_ttl_in2, 
+--         ttl_out2       => open,
+--                           
+--         ttl_dir3       => rc1_ttl_dir3,
+--         ttl_in3        => rc1_ttl_in3, 
+--         ttl_out3       => open,
+--                      
+--         red_led        => rc1_red_led,
+--         ylw_led        => rc1_ylw_led,
+--         grn_led        => rc1_grn_led,
+--         dip_sw3        => rc1_dip_sw3,
+--         dip_sw4        => rc1_dip_sw4,
+--         wdog           => rc1_wdog,
+--         slot_id        => rc1_slot_id,
+--         card_id        => rc1_card_id,
+--         mictor         => rc1_mictor
+--      );
 
 --   i_bias_card3: bias_card
 --      port map
@@ -1607,14 +1613,14 @@ begin
    rc1_adc6_rdy <= inclk;
    rc1_adc7_rdy <= inclk;
    rc1_adc8_rdy <= inclk;
-   rc1_adc1_dat <= "11111111110000";  --"01111111111111"; -- positive maximum;
-   rc1_adc2_dat <= "11111111110000";  --ctr_count_slv_o;
-   rc1_adc3_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc1_dat <= "11111110000000";  --"01111111111111"; -- positive maximum;
+   rc1_adc2_dat <= "11111111000000";  --ctr_count_slv_o;
+   rc1_adc3_dat <= "11111111100000";  --ctr_count_slv_o;
    rc1_adc4_dat <= "11111111110000";  --ctr_count_slv_o;
-   rc1_adc5_dat <= "11111111110000";  --ctr_count_slv_o;
-   rc1_adc6_dat <= "11111111110000";  --ctr_count_slv_o;
-   rc1_adc7_dat <= "11111111110000";  --ctr_count_slv_o;
-   rc1_adc8_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc5_dat <= "00000000001111";  --ctr_count_slv_o;
+   rc1_adc6_dat <= "00000000011111";  --ctr_count_slv_o;
+   rc1_adc7_dat <= "00000000111111";  --ctr_count_slv_o;
+   rc1_adc8_dat <= "00000001111111";  --ctr_count_slv_o;
    rc2_adc1_rdy <= inclk;
    rc2_adc2_rdy <= inclk;
    rc2_adc3_rdy <= inclk;
@@ -1870,7 +1876,9 @@ begin
             when rc3_ret_dat_cmd  => data <= (others => '0');
             when rc4_ret_dat_cmd  => data <= (others => '0');
             when rcs_ret_dat_cmd  => data <= (others => '0');
-            when others           => data <= data;-- + 1;
+--            when others           => data <= data + 1;
+--            when others           => data <= data + 64;
+            when others           => data <= data;
          end case;
          
          wait for fibre_clkr_prd * 0.6;
@@ -2032,7 +2040,7 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 50 us;
+--      wait for 20 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_sample_num_cmd;
@@ -2041,7 +2049,7 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 50 us;
+--      wait for 20 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_servo_mode_cmd;
@@ -2050,27 +2058,17 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;     
---      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_gainp0_cmd;
-      data_valid <= X"00000003";
-      data       <= X"00000040";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_rb;
-      address_id <= rc1_gainp0_cmd;
-      data_valid <= X"00000005";
-      data       <= X"00000040";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 70 us;
-
-
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_gainp0_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000040";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
 --      command <= command_wb;
 --      address_id <= rc1_gaini0_cmd;
 --      data_valid <= X"00000001";
@@ -2078,12 +2076,30 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 50 us;
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_gainp6_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000040";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_gaini6_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000040";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_en_fb_jump_cmd;
 --      data_valid <= X"00000001"; -- 1 values
---      data       <= X"00000001";
+--      data       <= X"00000000";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
@@ -2091,7 +2107,25 @@ begin
 --
 --      
 --      command <= command_wb;
+--      address_id <= rc1_fltr_rst_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--      
+--      command <= command_wb;
 --      address_id <= rc1_flx_lp_init_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fltr_rst_cmd;
 --      data_valid <= X"00000001";
 --      data       <= X"00000001";
 --      load_preamble;
@@ -2356,15 +2390,15 @@ begin
 --  Command sequence for reproducing the bug found 14 Dec 2005
 ------------------------------------------------------
 
---      command <= command_wb;
---      address_id <= ac_led_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000005";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 54 us;
+      command <= command_wb;
+      address_id <= cc_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000007";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 54 us;
 --      
 --      command <= command_rb;
 --      address_id <= ac_led_cmd;
