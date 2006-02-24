@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.25 2005/05/19 22:58:26 bburger Exp $
+-- $Id: clk_card.vhd,v 1.26 2005/12/01 20:59:19 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.26  2005/12/01 20:59:19  bburger
+-- Ernie:  Renamed a whole bunch of interface signals.  This version matches cc_pin_assign.tcl version 1.17
+--
 -- Revision 1.25  2005/05/19 22:58:26  bburger
 -- Bryce:  v01010018
 --
@@ -185,7 +188,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"01020000";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000002";
 
 -- reset
 signal rst           : std_logic;
