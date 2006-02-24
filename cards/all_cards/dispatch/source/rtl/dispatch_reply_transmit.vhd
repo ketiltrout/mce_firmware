@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_reply_transmit.vhd,v $
+-- Revision 1.8  2005/03/18 23:08:43  erniel
+-- updated changed buffer addr & data bus size constants
+--
 -- Revision 1.7  2005/01/11 20:52:44  erniel
 -- updated lvds_tx component
 -- removed mem_clk_i port
@@ -104,7 +107,7 @@ signal lvds_tx_busy : std_logic;
 
 signal word_count_ena : std_logic;
 signal word_count_clr : std_logic;
-signal word_count     : integer;
+signal word_count     : integer range 0 to 8192;
 
 signal reply_size    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal reply_size_ld : std_logic;
@@ -127,7 +130,7 @@ signal crc_input_sel : std_logic_vector(1 downto 0);
 signal tx_input_sel  : std_logic;
 
 signal crc_bit_count_clr : std_logic;
-signal crc_bit_count     : integer;
+signal crc_bit_count     : integer range 0 to 32;
 
 signal crc_ena      : std_logic;
 signal crc_clr      : std_logic;
