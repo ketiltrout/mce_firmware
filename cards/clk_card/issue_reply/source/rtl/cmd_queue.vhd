@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.82 2005/03/19 00:31:23 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.83 2005/03/31 16:55:58 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.83  2005/03/31 16:55:58  bburger
+-- Bryce:  added special logic analyzer trigger signals for debugging
+--
 -- Revision 1.82  2005/03/19 00:31:23  bburger
 -- bryce:  Fixed several bugs.  Tagging cc_01010007.
 --
@@ -209,7 +212,7 @@ signal sh_reg_parallel_i    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal sh_reg_parallel_o    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); --Dummy signal
 
 -- Bit Counter signals
-signal bit_ctr_count        : integer;
+signal bit_ctr_count        : integer range 0 to QUEUE_WIDTH;
 signal bit_ctr_ena          : std_logic; -- enables the counter which controls the enable line to the CRC block.  The counter should only be functional when there is a to calculate.
 signal bit_ctr_load         : std_logic; --Not part of the interface to the crc block; enables sh_reg and bit_ctr.
 
