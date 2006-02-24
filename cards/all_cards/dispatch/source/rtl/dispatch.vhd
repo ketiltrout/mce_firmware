@@ -21,7 +21,7 @@
 --
 -- dispatch.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -72,10 +72,14 @@ library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
+library work;
+use work.dispatch_pack.all;
+use work.slot_id_pack.all;
+
 entity dispatch is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
-     rst_i      : in std_logic;		
+     rst_i      : in std_logic;     
      
      -- bus backplane interface (LVDS)
      lvds_cmd_i   : in std_logic;
@@ -88,187 +92,120 @@ port(clk_i      : in std_logic;
      we_o   : out std_logic;
      stb_o  : out std_logic;
      cyc_o  : out std_logic;
-     dat_i 	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
      ack_i  : in std_logic;
      err_i  : in std_logic;
      
      -- misc. external interface
      wdt_rst_o : out std_logic;
-     slot_i    : in std_logic_vector(3 downto 0));
+     slot_i    : in std_logic_vector(SLOT_ID_BITS-1 downto 0));
 end dispatch;
 
 architecture rtl of dispatch is
-
-component dispatch_cmd_receive
-port(clk_i       : in std_logic;
-     comm_clk_i  : in std_logic;
-     rst_i       : in std_logic;		     
-     lvds_cmd_i  : in std_logic;
-     card_i      : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
-     cmd_done_o  : out std_logic;
-     cmd_error_o : out std_logic;
-     header0_o   : out std_logic_vector(31 downto 0);
-     header1_o   : out std_logic_vector(31 downto 0);
-     buf_data_o  : out std_logic_vector(31 downto 0);
-     buf_addr_o  : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-     buf_wren_o  : out std_logic);
-end component;
-
-component dispatch_wishbone
-port(clk_i           : in std_logic;
-     rst_i           : in std_logic;     
-     header0_i       : in std_logic_vector(31 downto 0);
-     header1_i       : in std_logic_vector(31 downto 0);     
-     buf_data_i      : in std_logic_vector(31 downto 0);     
-     buf_data_o      : out std_logic_vector(31 downto 0);
-     buf_addr_o      : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-     buf_wren_o      : out std_logic;
-     execute_start_i : in std_logic;
-     execute_done_o  : out std_logic;     
-     execute_error_o : out std_logic;
-     dat_o           : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     addr_o          : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-     tga_o           : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-     we_o            : out std_logic;
-     stb_o           : out std_logic;
-     cyc_o           : out std_logic;
-     dat_i          	: in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     ack_i           : in std_logic;
-     err_i           : in std_logic;
-     wdt_rst_o       : out std_logic);
-end component;
-
-component dispatch_reply_transmit
-port(clk_i         : in std_logic;
-     rst_i         : in std_logic;
-     lvds_tx_o     : out std_logic;
-     reply_start_i : in std_logic;
-     reply_done_o  : out std_logic;
-     header0_i     : in std_logic_vector(31 downto 0);
-     header1_i     : in std_logic_vector(31 downto 0);
-     buf_data_i    : in std_logic_vector(31 downto 0);
-     buf_addr_o    : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0));
-end component;
-
 type dispatch_states is (INITIALIZE, FETCH, EXECUTE, REPLY);
 signal pres_state : dispatch_states;
 signal next_state : dispatch_states;
 
-signal cmd_done      : std_logic;
-signal cmd_error     : std_logic;
-signal execute_start : std_logic;
-signal execute_done  : std_logic;
-signal execute_error : std_logic;
-signal reply_start   : std_logic;
-signal reply_done    : std_logic;
+signal cmd_rdy      : std_logic;
+signal cmd_err      : std_logic;
+signal wb_cmd_rdy   : std_logic;
+signal wb_rdy       : std_logic;
+signal wb_err       : std_logic;
+signal reply_rdy    : std_logic;
+signal reply_ack    : std_logic;
+
+signal uop_status_ld : std_logic;
 
 signal status_clr : std_logic;
-signal status     : std_logic_vector(BB_STATUS_WIDTH-1 downto 0);
+signal status_reg : std_logic_vector(1 downto 0);
 
-signal header_ld     : std_logic;
-signal rx_header0    : std_logic_vector(31 downto 0);
-signal rx_header1    : std_logic_vector(31 downto 0);
-signal cmd_header0   : std_logic_vector(31 downto 0);
-signal cmd_header1   : std_logic_vector(31 downto 0);
-signal reply_header0 : std_logic_vector(31 downto 0);
-signal reply_header1 : std_logic_vector(31 downto 0);
+signal reply_data_size : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 
-signal cmd_buf_wren : std_logic;
-signal wb_buf_wren  : std_logic;
-signal buf_wren     : std_logic;
+signal cmd_hdr0   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal cmd_hdr1   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_hdr0 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_hdr1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_hdr2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
-signal cmd_buf_data : std_logic_vector(31 downto 0);
-signal wb_buf_data  : std_logic_vector(31 downto 0);
-signal buf_wrdata   : std_logic_vector(31 downto 0);
-signal buf_rddata   : std_logic_vector(31 downto 0);
+signal cmd_header0   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal cmd_header1   : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_header0 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_header1 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+signal reply_header2 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
-signal cmd_buf_addr   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-signal wb_buf_addr    : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-signal reply_buf_addr : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-signal buf_wraddr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-signal buf_rdaddr     : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+signal cmd_hdr_ld   : std_logic;
+
+signal cmd_buf_wren   : std_logic;
+signal cmd_buf_wrdata : std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
+signal cmd_buf_wraddr : std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
+signal cmd_buf_rddata : std_logic_vector(CMD_BUF_DATA_WIDTH-1 downto 0);
+signal cmd_buf_rdaddr : std_logic_vector(CMD_BUF_ADDR_WIDTH-1 downto 0);
+
+signal reply_buf_wren   : std_logic;
+signal reply_buf_wrdata : std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
+signal reply_buf_wraddr : std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
+signal reply_buf_rddata : std_logic_vector(REPLY_BUF_DATA_WIDTH-1 downto 0);
+signal reply_buf_rdaddr : std_logic_vector(REPLY_BUF_ADDR_WIDTH-1 downto 0);
 
 signal card : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
 
 signal n_clk : std_logic;
 
 begin
-
+   
+   -- inverted clock for buffers:
+   n_clk <= not clk_i;
+   
+   
    receiver : dispatch_cmd_receive
-   port map(clk_i        => clk_i,
-            comm_clk_i   => comm_clk_i,
-            rst_i        => rst_i,
-            lvds_cmd_i   => lvds_cmd_i,
-            card_i       => card,
-            cmd_done_o   => cmd_done,
-            cmd_error_o  => cmd_error,
-            header0_o    => rx_header0,
-            header1_o    => rx_header1,
-            buf_data_o   => cmd_buf_data,
-            buf_addr_o   => cmd_buf_addr,
-            buf_wren_o   => cmd_buf_wren);
-                 
-   wishbone : dispatch_wishbone
-   port map(clk_i           => clk_i,
-            rst_i           => rst_i,
-            header0_i       => cmd_header0,
-            header1_i       => cmd_header1,
-            buf_data_i      => buf_rddata,
-            buf_data_o      => wb_buf_data,
-            buf_addr_o      => wb_buf_addr,
-            buf_wren_o      => wb_buf_wren,
-            execute_start_i => execute_start,
-            execute_done_o  => execute_done,
-            execute_error_o => execute_error,
-            dat_o           => dat_o,
-            addr_o          => addr_o,
-            tga_o           => tga_o,
-            we_o            => we_o,
-            stb_o           => stb_o,
-            cyc_o           => cyc_o,
-            dat_i           => dat_i,
-            ack_i           => ack_i,
-            err_i           => err_i,
-            wdt_rst_o       => wdt_rst_o);
-
-   transmitter : dispatch_reply_transmit
-   port map(clk_i         => clk_i,
-            rst_i         => rst_i,
-            lvds_tx_o     => lvds_reply_o,
-            reply_start_i => reply_start,
-            reply_done_o  => reply_done,
-            header0_i     => reply_header0,
-            header1_i     => reply_header1,
-            buf_data_i    => buf_rddata,
-            buf_addr_o    => reply_buf_addr);
+   port map(clk_i      => clk_i,
+            comm_clk_i => comm_clk_i,
+            rst_i      => rst_i,
+            lvds_cmd_i => lvds_cmd_i,
+            card_i     => card,
+            cmd_rdy_o  => cmd_rdy,
+            cmd_err_o  => cmd_err,
+            header0_o  => cmd_hdr0,
+            header1_o  => cmd_hdr1,
+            buf_data_o => cmd_buf_wrdata,
+            buf_addr_o => cmd_buf_wraddr,
+            buf_wren_o => cmd_buf_wren);
             
-           
-   ---------------------------------------------------------
-   -- Storage for Headers and Data
-   ---------------------------------------------------------
-      
-   hdr0 : reg
-   generic map(WIDTH => 32)
+   with slot_i select
+      card <= ADDRESS_CARD      when "0000",
+              BIAS_CARD_1       when "0001",
+              BIAS_CARD_2       when "0010",
+              BIAS_CARD_3       when "0011",
+              READOUT_CARD_1    when "0100",
+              READOUT_CARD_2    when "1010",
+              READOUT_CARD_3    when "0110",
+              READOUT_CARD_4    when "0111",
+              CLOCK_CARD        when "1000",
+              POWER_SUPPLY_CARD when "1001",
+              (others => '1')   when others;
+   
+   cmd0 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
    port map(clk_i => clk_i,
             rst_i => rst_i,
-            ena_i => header_ld,
-            reg_i => rx_header0,
+            ena_i => cmd_hdr_ld,
+            reg_i => cmd_hdr0,
             reg_o => cmd_header0);
    
-   hdr1 : reg
-   generic map(WIDTH => 32)
+   cmd1 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
    port map(clk_i => clk_i,
             rst_i => rst_i,
-            ena_i => header_ld,
-            reg_i => rx_header1,
+            ena_i => cmd_hdr_ld,
+            reg_i => cmd_hdr1,
             reg_o => cmd_header1);
 
-   buf : altsyncram
+   receive_buf : altsyncram
    generic map(operation_mode         => "DUAL_PORT",
-               width_a                => 32,
-               widthad_a              => BB_DATA_SIZE_WIDTH,
-               width_b                => 32,
-               widthad_b              => BB_DATA_SIZE_WIDTH,
+               width_a                => CMD_BUF_DATA_WIDTH,
+               widthad_a              => CMD_BUF_ADDR_WIDTH,
+               width_b                => CMD_BUF_DATA_WIDTH,
+               widthad_b              => CMD_BUF_ADDR_WIDTH,
                lpm_type               => "altsyncram",
                width_byteena_a        => 1,
                outdata_reg_b          => "UNREGISTERED",
@@ -282,73 +219,131 @@ begin
                intended_device_family => "Stratix")
    port map(clock0    => clk_i,
             clock1    => n_clk,
-            wren_a    => buf_wren,
-            address_a => buf_wraddr,
-            data_a    => buf_wrdata,
-            address_b => buf_rdaddr,
-            q_b       => buf_rddata);
-
-
-   ---------------------------------------------------------
-   -- Glue Logic
-   ---------------------------------------------------------
-      
-   -- inverted clock for buffer flow-through read port:
-   n_clk <= not clk_i;
+            wren_a    => cmd_buf_wren,
+            address_a => cmd_buf_wraddr,
+            data_a    => cmd_buf_wrdata,
+            address_b => cmd_buf_rdaddr,
+            q_b       => cmd_buf_rddata);
    
-   -- slot ID decode logic:
-   slot_decode: process(slot_i)
-   begin
-      case slot_i is
-         when "0000" => card <= (others => '1');
-         when "0001" => card <= (others => '1');
-         when "0010" => card <= (others => '1');
-         when "0011" => card <= (others => '1');
-         when "0100" => card <= (others => '1');
-         when "0101" => card <= (others => '1');
-         when "0110" => card <= READOUT_CARD_3;
-         when "0111" => card <= READOUT_CARD_4;
-         when "1000" => card <= CLOCK_CARD;
-         when "1001" => card <= POWER_SUPPLY_CARD;
-         when "1010" => card <= READOUT_CARD_2;
-         when "1011" => card <= READOUT_CARD_1;
-         when "1100" => card <= BIAS_CARD_3;
-         when "1101" => card <= BIAS_CARD_2;
-         when "1110" => card <= BIAS_CARD_1;
-         when others => card <= ADDRESS_CARD;
-      end case;
-   end process slot_decode;
+   wishbone : dispatch_wishbone
+   port map(clk_i            => clk_i,
+            rst_i            => rst_i,
+            cmd_rdy_i        => wb_cmd_rdy,
+            data_size_i      => cmd_header0(BB_DATA_SIZE'range),
+            cmd_type_i       => cmd_header0(BB_COMMAND_TYPE'range),
+            param_id_i       => cmd_header1(BB_PARAMETER_ID'range),
+            cmd_buf_data_i   => cmd_buf_rddata,
+            cmd_buf_addr_o   => cmd_buf_rdaddr,
+            wb_rdy_o         => wb_rdy,
+            wb_err_o         => wb_err,
+            reply_buf_data_o => reply_buf_wrdata,
+            reply_buf_addr_o => reply_buf_wraddr,
+            reply_buf_wren_o => reply_buf_wren,
+            wait_i           => '0',
+            dat_o            => dat_o,
+            addr_o           => addr_o,
+            tga_o            => tga_o,
+            we_o             => we_o,
+            stb_o            => stb_o,
+            cyc_o            => cyc_o,
+            dat_i             => dat_i,
+            ack_i            => ack_i,
+            err_i            => err_i,
+            wdt_rst_o        => wdt_rst_o);
    
-   -- status register:
-   status_reg: process(clk_i, rst_i)
+   transmitter : dispatch_reply_transmit
+   port map(clk_i       => clk_i,
+            rst_i       => rst_i,
+            lvds_tx_o   => lvds_reply_o,
+            reply_rdy_i => reply_rdy,
+            reply_ack_o => reply_ack,
+            header0_i   => reply_header0,
+            header1_i   => reply_header1,
+            header2_i   => reply_header2,
+            buf_data_i  => reply_buf_rddata,
+            buf_addr_o  => reply_buf_rdaddr);
+   
+   -- reply data size = 0 for WRITE commands, data size field otherwise         
+   reply_data_size <= (others => '0') when cmd_header0(BB_COMMAND_TYPE'range) = WRITE_CMD else cmd_header0(BB_DATA_SIZE'range);
+   
+   reply_hdr0 <= cmd_header0(BB_PREAMBLE'range) & cmd_header0(BB_COMMAND_TYPE'range) & reply_data_size;
+   reply_hdr1 <= cmd_header1;
+   reply_hdr2 <= status_reg & "000000000000000000000000000000";
+                                        
+   reply0 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
+            ena_i => '1',
+            reg_i => reply_hdr0,
+            reg_o => reply_header0);
+            
+   reply1 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
+            ena_i => '1',
+            reg_i => reply_hdr1,
+            reg_o => reply_header1);
+            
+   reply2 : reg
+   generic map(WIDTH => PACKET_WORD_WIDTH)
+   port map(clk_i => clk_i,
+            rst_i => rst_i,
+            ena_i => '1',
+            reg_i => reply_hdr2,
+            reg_o => reply_header2);
+
+   transmit_buf : altsyncram
+   generic map(operation_mode         => "DUAL_PORT",
+               width_a                => REPLY_BUF_DATA_WIDTH,
+               widthad_a              => REPLY_BUF_ADDR_WIDTH,
+               width_b                => REPLY_BUF_DATA_WIDTH,
+               widthad_b              => REPLY_BUF_ADDR_WIDTH,
+               lpm_type               => "altsyncram",
+               width_byteena_a        => 1,
+               outdata_reg_b          => "UNREGISTERED",
+               indata_aclr_a          => "NONE",
+               wrcontrol_aclr_a       => "NONE",
+               address_aclr_a         => "NONE",
+               address_reg_b          => "CLOCK1",
+               address_aclr_b         => "NONE",
+               outdata_aclr_b         => "NONE",
+               ram_block_type         => "AUTO",
+               intended_device_family => "Stratix")
+   port map(clock0    => clk_i,
+            clock1    => n_clk,
+            wren_a    => reply_buf_wren,
+            address_a => reply_buf_wraddr,
+            data_a    => reply_buf_wrdata,
+            address_b => reply_buf_rdaddr,
+            q_b       => reply_buf_rddata);            
+            
+   
+   ---------------------------------------------------------
+   -- Status Register
+   ---------------------------------------------------------
+                    
+   status : process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         status <= (others => '0');
+         status_reg <= (others => '0');
       elsif(clk_i = '1' and clk_i'event) then
          if(status_clr = '1') then
-            status <= (others => '0');  -- status bits are reset only when status_clr asserted (during initialize state)
-         else
-            if(cmd_error = '1') then    -- status bits are set when an error happens
-               status(0) <= '1';
-            end if;
-         
-            if(execute_error = '1') then
-               status(1) <= '1';
-            end if;
+            status_reg <= (others => '0');
+         elsif(cmd_err = '1') then
+            status_reg(0) <= '1';
+         elsif(wb_err = '1') then
+            status_reg(1) <= '1';
          end if;
       end if;
-   end process status_reg;
+   end process status;
    
-   -- reply header encode logic:   
-   reply_header0(BB_PREAMBLE'range)     <= cmd_header0(BB_PREAMBLE'range); 
-   reply_header0(BB_COMMAND_TYPE'range) <= cmd_header0(BB_COMMAND_TYPE'range);
-   reply_header0(BB_DATA_SIZE'range)    <= (others => '0') when cmd_header0(BB_COMMAND_TYPE'range) = WRITE_CMD else cmd_header0(BB_DATA_SIZE'range);
-                                         
-   reply_header1(BB_CARD_ADDRESS'range) <= cmd_header1(BB_CARD_ADDRESS'range);
-   reply_header1(BB_PARAMETER_ID'range) <= cmd_header1(BB_PARAMETER_ID'range);
-   reply_header1(BB_STATUS'range)       <= status;
+   -- Error scenarios:
+   --
+   -- 1. CRC receive error     -> Send back error packet with CRC error flag.
+   -- 2. WB slave non-existent -> WB intercon will allow bus cycle to complete, and assert err_i.  Send back full packet with WB error flag.
    
-         
    ---------------------------------------------------------
    -- Dispatch Control FSM
    ---------------------------------------------------------
@@ -356,71 +351,61 @@ begin
    stateFF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         pres_state <= INITIALIZE;
+         pres_state <= FETCH;
       elsif(clk_i = '1' and clk_i'event) then
          pres_state <= next_state;
       end if;
    end process stateFF;
    
-   stateNS: process(pres_state, cmd_done, cmd_error, execute_done, reply_done)
+   stateNS: process(pres_state, cmd_rdy, cmd_err, wb_rdy, reply_ack)
    begin
-      case pres_state is   
+      case pres_state is
          when INITIALIZE => next_state <= FETCH;
-               
-         when FETCH =>      if(cmd_done = '1') then
-                               if(cmd_error = '1') then
-                                  next_state <= REPLY;       -- if there are errors in received command packet, send error reply packet
-                               else                  
-                                  next_state <= EXECUTE;     -- otherwise execute command
+         
+         when FETCH =>      if(cmd_rdy = '1') then
+                               if(cmd_err = '1') then          -- if CRC error in command, reply immediately with error packet
+                                  next_state <= REPLY;
+                               else                            -- otherwise, process command
+                                  next_state <= EXECUTE;
                                end if;
                             else
                                next_state <= FETCH;
                             end if;
                          
-         when EXECUTE =>    if(execute_done = '1') then
+         when EXECUTE =>    if(wb_rdy = '1') then
                                next_state <= REPLY;
                             else
                                next_state <= EXECUTE;
                             end if;
                          
-         when REPLY =>      if(reply_done = '1') then
+         when REPLY =>      if(reply_ack = '1') then
                                next_state <= INITIALIZE;
                             else
                                next_state <= REPLY;
                             end if;
-                            
+         
          when others =>     next_state <= INITIALIZE;
       end case;
    end process stateNS;
    
-   stateOut: process(pres_state, cmd_buf_wren, cmd_buf_addr, cmd_buf_data, wb_buf_wren, wb_buf_addr, wb_buf_data, reply_buf_addr)
+   stateOut: process(pres_state)
    begin
       status_clr    <= '0';
-      header_ld     <= '0'; 
-      execute_start <= '0';
-      reply_start   <= '0';     
-      buf_wren      <= '0';
-      buf_wraddr    <= (others => '0');
-      buf_wrdata    <= (others => '0');
-      buf_rdaddr    <= (others => '0');
-   
-      case pres_state is 
-         when INITIALIZE => status_clr    <= '1';
-                 
-         when FETCH =>      header_ld     <= '1'; 
-                            buf_wren      <= cmd_buf_wren;
-                            buf_wraddr    <= cmd_buf_addr;
-                            buf_wrdata    <= cmd_buf_data;
+      cmd_hdr_ld    <= '0';
+      uop_status_ld <= '0';      
+      wb_cmd_rdy    <= '0';
+      reply_rdy     <= '0';
+      
+      case pres_state is
+         when INITIALIZE => status_clr <= '1';
          
-         when EXECUTE =>    execute_start <= '1';
-                            buf_wren      <= wb_buf_wren;
-                            buf_wraddr    <= wb_buf_addr;
-                            buf_wrdata    <= wb_buf_data;
-                            buf_rdaddr    <= wb_buf_addr;
+         when FETCH =>      cmd_hdr_ld    <= '1';                         
+                            uop_status_ld <= '1';
          
-         when REPLY =>      reply_start   <= '1';
-                            buf_rdaddr    <= reply_buf_addr;
-                            
+         when EXECUTE =>    wb_cmd_rdy <= '1';
+         
+         when REPLY =>      reply_rdy <= '1';
+         
          when others =>     null;
       end case;
    end process stateOut;
