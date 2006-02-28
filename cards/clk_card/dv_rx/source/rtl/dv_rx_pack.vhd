@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: dv_rx_pack.vhd,v 1.1 2006/02/11 01:11:53 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -28,7 +28,10 @@
 -- DV and Manchester Decoder
 --
 -- Revision history:
--- $Log$
+-- $Log: dv_rx_pack.vhd,v $
+-- Revision 1.1  2006/02/11 01:11:53  bburger
+-- Bryce:  New!
+--
 --
 -----------------------------------------------------------------------------
 
@@ -37,17 +40,14 @@ use ieee.std_logic_1164.all;
 
 package dv_rx_pack is
 
-   constant DV_SELECT_WIDTH      : integer := 3;
-   constant DV_INTERNAL          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "000";
-   constant DV_FIBRE_PULSE       : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "001";
-   constant DV_FIBRE_PACKET      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "010";
-   constant DV_MANCHESTER_PULSE  : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "011";
-   constant DV_MANCHESTER_PACKET : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "100";
+   constant DV_SELECT_WIDTH        : integer := 2;
+   constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+   constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
+   constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
 
-   constant ROW_SWITCH_SELECT_WIDTH      : integer := 3;
-   constant ROW_SWITCH_INTERNAL          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "000";
-   constant ROW_SWITCH_FIBRE_PACKET      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "001";
-   constant ROW_SWITCH_MANCHESTER_PACKET : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "010";
+   constant SYNC_SELECT_WIDTH      : integer := 2;
+   constant SYNC_INTERNAL          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+   constant SYNC_EXTERNAL          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
 
 end dv_rx_pack;
 

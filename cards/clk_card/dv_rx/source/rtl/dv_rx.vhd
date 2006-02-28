@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: dv_rx.vhd,v 1.1 2006/02/11 01:11:53 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -28,7 +28,10 @@
 -- DV and Manchester Decoder
 --
 -- Revision history:
--- $Log$
+-- $Log: dv_rx.vhd,v $
+-- Revision 1.1  2006/02/11 01:11:53  bburger
+-- Bryce:  New!
+--
 --
 -----------------------------------------------------------------------------
 
@@ -45,18 +48,16 @@ entity dv_rx is
       rst_i             : in std_logic;
       
       -- Fibre Interface:
-      manchester_data_i : in std_logic;
-      dv_pulse_fibre_i  : in std_logic;
+      manchester_dat_i  : in std_logic;
+      dv_dat_i          : in std_logic;
       
       -- Issue-Reply Interface:
-      sync_select_i     : in std_logic_vector(ROW_SWITCH_SELECT_WIDTH-1 downto 0);
-      sync_o            : out std_logic;
-      
-      -- When frame_req_o is asserted, frame_seq_num_o is valid
-      dv_select_i       : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      frame_req_o       : out std_logic;
-      frame_ack_i       : in std_logic;
-      frame_seq_num_o   : out std_logic
+      dv_sel_i          : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      dv_o              : out std_logic;
+      dv_sequence_num_o : out std_logic_vector(31 downto 0);
+
+      sync_sel_i        : in std_logic_vector(ROW_SWITCH_SELECT_WIDTH-1 downto 0);
+      sync_o            : out std_logic
    );     
 end dv_rx;
 
