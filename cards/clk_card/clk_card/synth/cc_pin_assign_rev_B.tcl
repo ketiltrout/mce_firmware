@@ -31,7 +31,10 @@
 #
 # Revision history:
 #
-# $Log: cc_pin_assign.tcl,v $
+# $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.1  2006/02/24 00:40:14  bburger
+# Bryce:  revisioned to v02000002, to create a clock card download for rev B or the Clock Card hardware, which is used with rev C of the Bus Backplane hardware
+#
 # Revision 1.17  2005/12/01 20:49:47  bburger
 # Bryce:  Added different sections for the fibre optic fibre_rx_clkr input.  Depending on the version of firmware and hardware, you will have to choose which line to uncomment
 #
@@ -480,8 +483,8 @@ puts "   Assigned: Fibre receiver interface pins."
 
 
 # assign manchester fibre interface
-cmp add_assignment $top_name "" manchester_data LOCATION "Pin_AF11"
-cmp add_assignment $top_name "" manchester_sigdet LOCATION "Pin_AE11"
+cmp add_assignment $top_name "" manchester_data LOCATION "Pin_E10"
+cmp add_assignment $top_name "" manchester_sigdet LOCATION "Pin_A10"
 puts "   Assigned: Manchester fibre interface pins."
 
 
