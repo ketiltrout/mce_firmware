@@ -26,11 +26,14 @@
 -- Organisation:  UBC
 --
 -- Description:
--- LVDS receive module (LVDS wrapper for async_rx)
+-- LVDS receive module
 --
 -- Revision history:
 -- 
 -- $Log: lvds_rx.vhd,v $
+-- Revision 1.18  2006/02/15 09:57:43  erniel
+-- manual optimization of FIFO write logic (attempt at reducing number of levels of logic)
+--
 -- Revision 1.17  2006/02/15 01:09:41  erniel
 -- attempt at correcting timing problem on path data_buf_full to data_buf_write
 --
@@ -122,7 +125,7 @@ architecture rtl of lvds_rx is
 signal lvds      : std_logic;
 signal lvds_temp : std_logic;
 
-signal sample_count     : std_logic_vector(8 downto 0);
+signal sample_count     : std_logic_vector(7 downto 0);
 signal sample_count_ena : std_logic;
 signal sample_count_clr : std_logic;
 
@@ -141,14 +144,7 @@ signal data_buf_full  : std_logic;
 signal data_buf_empty : std_logic;
 
 signal lvds_receiving : std_logic;
-
-type datapath_states is (IDLE, RECV);
-signal datapath_ps : datapath_states;
-signal datapath_ns : datapath_states;
-
-type interface_states is (IDLE, READY);
-signal interface_ps : interface_states;
-signal interface_ns : interface_states;
+signal data_ready     : std_logic;
 
 begin
    
@@ -165,7 +161,7 @@ begin
    end process;
     
    sample_counter: binary_counter
-   generic map(WIDTH => 9)
+   generic map(WIDTH => 8)
    port map(clk_i   => comm_clk_i,
             rst_i   => rst_i,
             ena_i   => sample_count_ena,
@@ -212,7 +208,7 @@ begin
             parallel_i => (others => '0'),
             parallel_o => rx_buf);
             
-   rx_buf_ena <= '1' when sample_count(2 downto 0) = "101" else '0';
+   rx_buf_ena <= '1' when sample_count(1 downto 0) = "10" else '0';
    rx_buf_clr <= not lvds_receiving;
    
             
@@ -239,7 +235,8 @@ begin
             wrfull  => data_buf_full,
             rdempty => data_buf_empty); 
 
-   data_buf_write <= not data_buf_full when sample_count = 271 else '0';
+   data_buf_write <= not data_buf_full when sample_count = 135 else '0';   
+   data_buf_read <= not data_buf_empty and not data_ready;    
    
    
    -- lvds_receiving flag (high when a transfer is in progress):
@@ -248,124 +245,25 @@ begin
       if(rst_i = '1') then
          lvds_receiving <= '0';
       elsif(comm_clk_i'event and comm_clk_i = '1') then
-         if((lvds = '0' and lvds_receiving = '0') or (sample_count = 271 and lvds_receiving = '1')) then
+         if((lvds = '0' and lvds_receiving = '0') or (sample_count = 135 and lvds_receiving = '1')) then
             lvds_receiving <= not lvds_receiving;
          end if;
       end if;
    end process;
-   
-
-------------------------------------------------------------
---
---  Datapath FSM : Controls the receiver datapath
---
-------------------------------------------------------------
---   
---   dp_stateFF: process(rst_i, comm_clk_i)
---   begin
---      if(rst_i = '1') then
---         datapath_ps <= IDLE;
---      elsif(comm_clk_i'event and comm_clk_i = '1') then
---         datapath_ps <= datapath_ns;
---      end if;
---   end process dp_stateFF;
---   
---   dp_stateNS: process(datapath_ps, lvds, sample_count)
---   begin
---      case datapath_ps is
---         when IDLE =>   if(lvds = '0') then
---                           datapath_ns <= RECV;
---                        else
---                           datapath_ns <= IDLE;
---                        end if;
---                      
---         when RECV =>   if(sample_count = 271) then
---                           datapath_ns <= IDLE;
---                        else
---                           datapath_ns <= RECV;
---                        end if;
---         
---         when others => datapath_ns <= IDLE;
---      end case;
---   end process dp_stateNS;
---   
---   dp_stateOut: process(datapath_ps, sample_count, data_buf_full)
---   begin
---      sample_count_ena <= '0';
---      sample_count_clr <= '0';
---      sample_buf_ena   <= '0';
---      sample_buf_clr   <= '0';
---      rx_buf_ena       <= '0';
---      rx_buf_clr       <= '0';
---      data_buf_write   <= '0';
---      
---      case datapath_ps is
---         when IDLE =>   sample_count_clr <= '1';
---                        sample_buf_clr   <= '1';
---                        rx_buf_clr       <= '1';
---                       
---         when RECV =>   sample_count_ena <= '1';
---                        sample_buf_ena   <= '1';
---                        if(sample_count(2 downto 0) = "101") then             -- enable rx_buf starting at sample_count = 5 and then every 8 thereafter
---                           rx_buf_ena <= '1';
---                        end if;
---                        if(sample_count = 271 and data_buf_full = '0') then   -- write to data buffer when sample_count = 271
---                           data_buf_write <= '1';
---                        end if;
---         
---         when others => null;
---      end case;
---   end process dp_stateOut;
 
 
-------------------------------------------------------------
---
---  Interface FSM : Manages the rdy/ack handshaking
---
-------------------------------------------------------------
-
-   if_stateFF: process(rst_i, clk_i)
+   -- data_ready flag (high when a datum is output and waiting for an ack):
+   process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
-         interface_ps <= IDLE;
+         data_ready <= '0';
       elsif(clk_i'event and clk_i = '1') then
-         interface_ps <= interface_ns;
+         if((data_buf_empty = '0' and data_ready = '0') or (ack_i = '1' and data_ready = '1')) then
+            data_ready <= not data_ready;
+         end if;
       end if;
-   end process if_stateFF; 
+   end process;
    
-   if_stateNS: process(interface_ps, data_buf_empty, ack_i)
-   begin
-      case interface_ps is
-         when IDLE =>   if(data_buf_empty = '0') then
-                           interface_ns <= READY;
-                        else
-                           interface_ns <= IDLE;
-                        end if;
-                      
-         when READY =>  if(ack_i = '1') then
-                           interface_ns <= IDLE;
-                        else
-                           interface_ns <= READY;
-                        end if;
-         
-         when others => interface_ns <= IDLE;
-      end case;
-   end process if_stateNS;
-   
-   if_stateOut: process(interface_ps, data_buf_empty)
-   begin
-      data_buf_read <= '0';
-      rdy_o         <= '0';
-      
-      case interface_ps is
-         when IDLE =>   if(data_buf_empty = '0') then
-                           data_buf_read <= '1';
-                        end if;
-                       
-         when READY =>   rdy_o <= '1';
-         
-         when others => null;
-      end case;
-   end process if_stateOut;   
+   rdy_o <= data_ready; 
              
 end rtl;
