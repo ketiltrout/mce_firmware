@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.1 2006/02/11 01:11:53 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.2 2006/02/28 09:20:58 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.2  2006/02/28 09:20:58  bburger
+-- Bryce:  Modified the interface of dv_rx.  Non-functional at this point.
+--
 -- Revision 1.1  2006/02/11 01:11:53  bburger
 -- Bryce:  New!
 --
@@ -39,7 +42,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library work;
-use work.dv_rx_pack.all;
+use work.sync_gen_pack.all;
 
 entity dv_rx is
    port(
@@ -52,11 +55,11 @@ entity dv_rx is
       dv_dat_i          : in std_logic;
       
       -- Issue-Reply Interface:
-      dv_sel_i          : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      dv_mode_i         : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       dv_o              : out std_logic;
       dv_sequence_num_o : out std_logic_vector(31 downto 0);
 
-      sync_sel_i        : in std_logic_vector(ROW_SWITCH_SELECT_WIDTH-1 downto 0);
+      sync_mode_i       : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       sync_o            : out std_logic
    );     
 end dv_rx;
