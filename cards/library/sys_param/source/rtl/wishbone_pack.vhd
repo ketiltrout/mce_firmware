@@ -28,8 +28,13 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/09/15 20:59:44 $> - <initials $Author: bburger $>
+-- <date $Date: 2006/02/09 20:32:59 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.26  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.25  2005/09/15 20:59:44  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -252,6 +257,7 @@ package wishbone_pack is
    constant SRAM1_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
    constant SRAM2_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
    constant DATA_RATE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
+   constant USE_SYNC_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
 
    -- Power Card Specific
    constant BRST_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
