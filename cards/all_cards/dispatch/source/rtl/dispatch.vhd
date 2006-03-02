@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch.vhd,v $
+-- Revision 1.11  2006/01/16 20:02:48  bburger
+-- Ernie:   Added dip_sw interfaces to introduce artifical crc rx/tx errors on the busbackplan.  This feature is for testing purposes only.
+--
 -- Revision 1.10  2005/12/02 00:38:38  erniel
 -- buffer is now pipeline mode (previously flow-through mode)
 -- removed need for inverted clock
@@ -310,26 +313,51 @@ begin
    -- Glue Logic
    ---------------------------------------------------------
    
+--   -- For Bus Backplane Rev. A and B
+--   -- slot ID decode logic:
+--   slot_decode: process(slot_i)
+--   begin
+--      case slot_i is
+--         when "0000" => card <= (others => '1');
+--         when "0001" => card <= (others => '1');
+--         when "0010" => card <= (others => '1');
+--         when "0011" => card <= (others => '1');
+--         when "0100" => card <= (others => '1');
+--         when "0101" => card <= (others => '1');
+--         when "0110" => card <= READOUT_CARD_3;
+--         when "0111" => card <= READOUT_CARD_4;
+--         when "1000" => card <= CLOCK_CARD;
+--         when "1001" => card <= POWER_SUPPLY_CARD;
+--         when "1010" => card <= READOUT_CARD_2;
+--         when "1011" => card <= READOUT_CARD_1;
+--         when "1100" => card <= BIAS_CARD_3;
+--         when "1101" => card <= BIAS_CARD_2;
+--         when "1110" => card <= BIAS_CARD_1;
+--         when others => card <= ADDRESS_CARD;
+--      end case;
+--   end process slot_decode;
+
+   -- For Bus Backplane Rev. C
    -- slot ID decode logic:
    slot_decode: process(slot_i)
    begin
       case slot_i is
-         when "0000" => card <= (others => '1');
-         when "0001" => card <= (others => '1');
-         when "0010" => card <= (others => '1');
-         when "0011" => card <= (others => '1');
-         when "0100" => card <= (others => '1');
-         when "0101" => card <= (others => '1');
+         when "0000" => card <= ADDRESS_CARD;
+         when "0001" => card <= BIAS_CARD_1;
+         when "0010" => card <= BIAS_CARD_2;
+         when "0011" => card <= BIAS_CARD_3;
+         when "0100" => card <= READOUT_CARD_1;
+         when "0101" => card <= READOUT_CARD_2;
          when "0110" => card <= READOUT_CARD_3;
          when "0111" => card <= READOUT_CARD_4;
          when "1000" => card <= CLOCK_CARD;
          when "1001" => card <= POWER_SUPPLY_CARD;
-         when "1010" => card <= READOUT_CARD_2;
-         when "1011" => card <= READOUT_CARD_1;
-         when "1100" => card <= BIAS_CARD_3;
-         when "1101" => card <= BIAS_CARD_2;
-         when "1110" => card <= BIAS_CARD_1;
-         when others => card <= ADDRESS_CARD;
+         when "1010" => card <= (others => '1');
+         when "1011" => card <= (others => '1');
+         when "1100" => card <= (others => '1');
+         when "1101" => card <= (others => '1');
+         when "1110" => card <= (others => '1');
+         when others => card <= (others => '1');
       end case;
    end process slot_decode;
    
