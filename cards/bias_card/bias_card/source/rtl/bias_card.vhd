@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.20 2006/01/19 00:30:27 mandana Exp $
+-- $Id: bias_card.vhd,v 1.21 2006/02/09 20:32:59 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.21  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.20  2006/01/19 00:30:27  mandana
 -- new dispatch module that incorporates the new BB protocol is integrated, rev. num upgraded to 01020002
 --
@@ -162,6 +167,8 @@ entity bias_card is
       wdog       : out std_logic;
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
+      smb_clk           : out std_logic;
+      smb_data          : inout std_logic;      
       
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
@@ -178,7 +185,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01020002";
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030001"; -- 03 signifies backplane Rev. C slot IDs
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -213,6 +220,8 @@ signal fw_rev_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fw_rev_ack        : std_logic;
 signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal id_thermo_ack     : std_logic;
+signal fpga_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal fpga_thermo_ack     : std_logic;
 
 
 -- frame_timing interface
@@ -225,69 +234,6 @@ port(inclk0 : in std_logic;
      c0 : out std_logic;
      c1 : out std_logic;
      c2 : out std_logic);
-end component;
-
-component dispatch
-port(clk_i      : in std_logic;
-     comm_clk_i : in std_logic;
-     rst_i      : in std_logic;     
-     
-     -- bus backplane interface (LVDS)
-     lvds_cmd_i   : in std_logic;
-     lvds_reply_o : out std_logic;
-     
-     -- wishbone slave interface
-     dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-     tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-     we_o   : out std_logic;
-     stb_o  : out std_logic;
-     cyc_o  : out std_logic;
-     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     ack_i  : in std_logic;
-     err_i  : in std_logic;
-     
-     -- misc. external interface
-     wdt_rst_o : out std_logic;
-     slot_i    : in std_logic_vector(3 downto 0);
-     dip_sw3 : in std_logic;
-     dip_sw4 : in std_logic);
-end component;
-
-component frame_timing is
-port(
-   -- Readout Card interface
-   dac_dat_en_o               : out std_logic;
-   adc_coadd_en_o             : out std_logic;
-   restart_frame_1row_prev_o  : out std_logic;
-   restart_frame_aligned_o    : out std_logic; 
-   restart_frame_1row_post_o  : out std_logic;
-   initialize_window_o        : out std_logic;
-   fltr_rst_o                 : out std_logic;
-   
-   -- Address Card interface
-   row_switch_o               : out std_logic;
-   row_en_o                   : out std_logic;
-      
-   -- Bias Card interface
-   update_bias_o              : out std_logic;
-   
-   -- Wishbone interface
-   dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-   tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-   we_i                       : in std_logic;
-   stb_i                      : in std_logic;
-   cyc_i                      : in std_logic;
-   dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   ack_o                      : out std_logic;      
-   
-   -- Global signals
-   clk_i                      : in std_logic;
-   clk_n_i                    : in std_logic;
-   rst_i                      : in std_logic;
-   sync_i                     : in std_logic
-);
 end component;
 
 begin
@@ -314,7 +260,7 @@ begin
             c2 => clk_n);
             
    cmd0: dispatch
-      port map(
+      port map(                                                                  
          clk_i                      => clk,
          comm_clk_i                 => comm_clk,
          rst_i                      => rst,         
@@ -343,18 +289,38 @@ begin
          rst_i                      => rst,  
          
          -- Wishbone signals
-         dat_i                        => data, 
-         addr_i          => addr,
-         tga_i           => tga,
-         we_i            => we,
-         stb_i           => stb,
-         cyc_i           => cyc,
-         dat_o           => id_thermo_data,
-         ack_o           => id_thermo_ack,
+         dat_i                      => data, 
+         addr_i                     => addr,
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
+         dat_o                      => id_thermo_data,
+         ack_o                      => id_thermo_ack,
             
          -- silicon id/temperature chip signals
          data_io                    => card_id
        );
+       
+   fpga_thermo0: fpga_thermo
+      port map(
+         clk_i                      => clk,
+         rst_i                      => rst,  
+         
+         -- Wishbone signals
+         dat_i                      => data, 
+         addr_i                     => addr,
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
+         dat_o                      => fpga_thermo_data,
+         ack_o                      => fpga_thermo_ack,
+            
+         -- FPGA temperature chip signals
+         smbclk_o                   => smb_clk,
+         smbdat_io                  => smb_data);
+       
 
    leds_slave: leds
       port map(
@@ -390,7 +356,7 @@ begin
          dat_o                      => fw_rev_data,
          ack_o                      => fw_rev_ack
     );
-            
+         
    bc_dac_ctrl_slave: bc_dac_ctrl
       port map(
          -- DAC hardware interface:
@@ -460,6 +426,7 @@ begin
          bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
+         fpga_thermo_data  when FPGA_TEMP_ADDR,         
          (others => '0')   when others;
 
    with addr select
@@ -469,13 +436,15 @@ begin
          bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
+         fpga_thermo_ack   when FPGA_TEMP_ADDR,         
          '0'              when others;
          
    with addr select
       slave_err <= 
          '0'              when FW_REV_ADDR | LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | 
                                SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | 
-                               CARD_ID_ADDR | CARD_TEMP_ADDR,
+                               CARD_ID_ADDR | CARD_TEMP_ADDR|
+                               FPGA_TEMP_ADDR,
          '1'              when others;        
    
 end top;
