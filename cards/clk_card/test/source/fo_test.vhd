@@ -32,8 +32,14 @@
 -- on the scope on the receiver side.
 --
 -- Revision history:
--- <date $Date: 2004/10/22 03:57:49 $>	- <initials $Author: erniel $>
+-- <date $Date: 2005/10/28 19:04:37 $>	- <initials $Author: mandana $>
 -- $Log: fo_test.vhd,v $
+-- Revision 1.3  2005/10/28 19:04:37  mandana
+-- Updated for Rev. B Clock_card tcl file
+-- signal name changes, more pins added for fibre interface to enable bist functionality.
+-- BIST functionality not covered yet
+-- rxrefclk is now generated through the PLL
+--
 -- Revision 1.2  2004/10/22 03:57:49  erniel
 -- replaced "test" port with "mictor" port
 -- connected fibre receive ports to debug mictor
@@ -51,7 +57,7 @@ use ieee.std_logic_unsigned.all;
 
 -----------------------------------------------------------------------------
 
-entity fo_test is
+entity fo_bist is
    port(
       n_rst : in std_logic;
       
@@ -89,10 +95,12 @@ entity fo_test is
       
       --test pins
       mictor : out std_logic_vector(12 downto 1));
-end fo_test;
+end fo_bist;
                      
-architecture rtl of fo_test is
+architecture rtl of fo_bist is
    signal clk       : std_logic;
+   signal fibre_tx_data_prereg : std_logic_vector(7 downto 0);
+   signal fibre_tx_ena_prereg  : std_logic;
 
    -- state signals
    type states is (TX_DATA1, TX_EN1,TX_DATA2, TX_EN2, TX_DATA3, TX_EN3);
@@ -100,21 +108,35 @@ architecture rtl of fo_test is
    signal next_state    : states;
     
 
-   component pll
-   port(inclk0 : in std_logic;
-        c0 : out std_logic;
-        e0 : out std_logic;
-        e1 : out std_logic);
-   end component;
+component cc_pll
+   port(
+      inclk0 : in std_logic;
+      e2     : out std_logic;
+      c0     : out std_logic;
+      c1     : out std_logic;
+      c2     : out std_logic;
+      c3     : out std_logic;
+      e0     : out std_logic;
+      e1     : out std_logic 
+   );
+end component;
+
    
 begin
+
+  fibre_pll: cc_pll
+  port map(
+         inclk0 => inclk14,
+         c0     => open,
+         c1     => open,
+         c2     => open,
+         c3     => clk,
+         e0     => fibre_tx_clkW, 
+         e1     => fibre_rx_refclk,   
+         e2     => open 
+      );
   
-  fibre_pll : pll
-  port map(inclk0 => inclk14,
-           c0 => clk,
-           e0 => fibre_tx_clkW,
-           e1 => fibre_rx_refclk);
-           
+      
   fibre_tx_bisten <= '1';
 --  fibre_tx_ena <= '1';
   fibre_tx_enn    <= 'Z';
@@ -149,67 +171,79 @@ begin
 ---------------------------------------------------------------   
    state_NS: process(present_state)
    begin
+      next_state <= present_state;
       case present_state is
          when TX_DATA1 =>     
             next_state <= TX_EN1;
                
          when TX_EN1 =>
---            if (fibre_tx_rp = '0') then               
-               next_state  <= TX_DATA2; 
---            else
---               next_state  <= TX_EN1;
---            end if;   
+            next_state  <= TX_DATA2; 
             
          when TX_DATA2 =>
             next_state  <= TX_EN2;                  
             
          when TX_EN2 =>
---            if (fibre_tx_rp = '0') then               
-                 next_state  <= TX_DATA3; 
---            else
---               next_state  <= TX_EN2;
---            end if;   
+            next_state  <= TX_DATA3; 
+
          when TX_DATA3 =>
             next_state  <= TX_EN3;                  
             
          when TX_EN3 =>
---            if (fibre_tx_rp = '0') then               
-                 next_state  <= TX_DATA1; 
---            else
---               next_state  <= TX_EN3;
---            end if;   
+            next_state  <= TX_DATA1; 
+         
+         when others => 
+            next_state  <= TX_DATA1;
                                     
       end case;
    end process state_NS;
 -----------------------------------------------------------------   
    state_out: process(present_state)
    begin
+      -- default states
+      fibre_tx_data_prereg  <= "00000000";
+      fibre_tx_ena_prereg   <= '1';    
+      
       case present_state is
          when TX_DATA1 =>     
-            fibre_tx_data  <= "00000000";
-            fibre_tx_ena   <= '1';               
+            fibre_tx_data_prereg  <= "00000000";
+            fibre_tx_ena_prereg   <= '1';               
          
          when TX_EN1 =>   
-            fibre_tx_data  <= "00000000";
-            fibre_tx_ena   <= '0';               
+            fibre_tx_data_prereg  <= "00000000";
+            fibre_tx_ena_prereg   <= '0';               
 
          when TX_DATA2 =>     
-            fibre_tx_data  <= "11111111";
-            fibre_tx_ena   <= '1';               
+            fibre_tx_data_prereg  <= "11111111";
+            fibre_tx_ena_prereg   <= '1';               
          
          when TX_EN2 =>   
-            fibre_tx_data  <= "11111111";
-            fibre_tx_ena   <= '0';               
+            fibre_tx_data_prereg  <= "11111111";
+            fibre_tx_ena_prereg   <= '0';               
 
          when TX_DATA3 =>     
-            fibre_tx_data  <= "10101010";
-            fibre_tx_ena   <= '1';               
+            fibre_tx_data_prereg  <= "00000000";
+            fibre_tx_ena_prereg   <= '1';               
          
          when TX_EN3 =>   
-            fibre_tx_data  <= "10101010";
-            fibre_tx_ena   <= '0';               
+            fibre_tx_data_prereg  <= "00000000";
+            fibre_tx_ena_prereg   <= '0';  
+            
+         when others =>
+            null;
 	                              
       end case;
    end process state_out;
+
+   tx_reg: process(clk, n_rst)
+   begin
+      if(n_rst = '1') then 
+         fibre_tx_data <= "11111111";
+         fibre_tx_ena <= '1';
+      elsif(clk'event and clk = '1') then
+         fibre_tx_data <= fibre_tx_data_prereg;
+         fibre_tx_ena <= fibre_tx_ena_prereg;
+      end if;
+   end process tx_reg;
+
     
 end rtl;
