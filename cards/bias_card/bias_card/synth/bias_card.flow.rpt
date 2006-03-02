@@ -1,6 +1,6 @@
 Flow report for bias_card
-Wed Jan 18 15:40:53 2006
-Version 5.0 Build 171 11/03/2005 Service Pack 2 SJ Full Version
+Thu Mar 02 12:01:20 2006
+Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
 
 
 ---------------------
@@ -17,18 +17,18 @@ Version 5.0 Build 171 11/03/2005 Service Pack 2 SJ Full Version
 ----------------
 ; Legal Notice ;
 ----------------
-Copyright (C) 1991-2005 Altera Corporation
+Copyright (C) 1991-2006 Altera Corporation
 Your use of Altera Corporation's design tools, logic functions 
-and other software and tools, and its AMPP partner logic       
-functions, and any output files any of the foregoing           
-(including device programming or simulation files), and any    
-associated documentation or information are expressly subject  
-to the terms and conditions of the Altera Program License      
-Subscription Agreement, Altera MegaCore Function License       
-Agreement, or other applicable license agreement, including,   
-without limitation, that your use is for the sole purpose of   
-programming logic devices manufactured by Altera and sold by   
-Altera or its authorized distributors.  Please refer to the    
+and other software and tools, and its AMPP partner logic 
+functions, and any output files any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
 applicable agreement for further details.
 
 
@@ -36,20 +36,20 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------+
 ; Flow Summary                                                             ;
 +--------------------------+-----------------------------------------------+
-; Flow Status              ; Successful - Wed Jan 18 15:40:53 2006         ;
-; Quartus II Version       ; 5.0 Build 171 11/03/2005 SP 2 SJ Full Version ;
+; Flow Status              ; Analyzed - Thu Mar 02 12:01:20 2006           ;
+; Quartus II Version       ; 5.1 Build 213 01/19/2006 SP 1 SJ Full Version ;
 ; Revision Name            ; bias_card                                     ;
 ; Top-level Entity Name    ; bias_card                                     ;
 ; Family                   ; Stratix                                       ;
 ; Device                   ; EP1S10F780C5                                  ;
 ; Timing Models            ; Final                                         ;
 ; Met timing requirements  ; Yes                                           ;
-; Total logic elements     ; 1,803 / 10,570 ( 17 % )                       ;
-; Total pins               ; 184 / 427 ( 43 % )                            ;
+; Total logic elements     ; 2,136 / 10,570 ( 20 % )                       ;
+; Total pins               ; 186 / 427 ( 44 % )                            ;
 ; Total virtual pins       ; 0                                             ;
 ; Total memory bits        ; 68,608 / 920,448 ( 7 % )                      ;
 ; DSP block 9-bit elements ; 0 / 48 ( 0 % )                                ;
-; Total PLLs               ; 1 / 6 ( 16 % )                                ;
+; Total PLLs               ; 1 / 6 ( 17 % )                                ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                                 ;
 +--------------------------+-----------------------------------------------+
 
@@ -59,7 +59,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 01/18/2006 15:37:43 ;
+; Start date & time ; 03/02/2006 11:56:51 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -70,12 +70,12 @@ applicable agreement for further details.
 +----------------------+--------------+
 ; Module Name          ; Elapsed Time ;
 +----------------------+--------------+
-; Analysis & Synthesis ; 00:00:59     ;
-; Fitter               ; 00:01:53     ;
+; Analysis & Synthesis ; 00:01:42     ;
+; Fitter               ; 00:02:27     ;
 ; Assembler            ; 00:00:05     ;
 ; Timing Analyzer      ; 00:00:04     ;
 ; Design Assistant     ; 00:00:04     ;
-; Total                ; 00:03:05     ;
+; Total                ; 00:04:22     ;
 +----------------------+--------------+
 
 
