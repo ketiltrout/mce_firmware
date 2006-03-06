@@ -35,8 +35,11 @@
 --
 --
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$
+-- <date $Date: 2005/11/29 22:32:20 $>    - <initials $Author: mandana $>
+-- $Log: tb_fsfb_fltr_regs.vhd,v $
+-- Revision 1.1  2005/11/29 22:32:20  mandana
+-- Initial release
+--
 --
 --
 
@@ -45,6 +48,8 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
+library work;
+use work.fsfb_calc_pack.all;
 
 
 entity tb_fsfb_fltr_regs is
@@ -52,42 +57,29 @@ entity tb_fsfb_fltr_regs is
 end tb_fsfb_fltr_regs;
 
 architecture test of tb_fsfb_fltr_regs is
-   ---------------------------------------------------------------------------------
-   -- Filter stage wn registers for intermediate FIR values
-   ---------------------------------------------------------------------------------
-   component fsfb_fltr_regs is
-      port (       
-         rst_i                     : in     std_logic; 
-         clk_50_i                  : in     std_logic; 
-         initialize_window_i       : in     std_logic;
-         addr_i                    : in     std_logic_vector(5 downto 0);
-         wn2_o                     : out    std_logic_vector(19 downto 0);
-         wn1_o 			   : out    std_logic_vector(19 downto 0);
-         wn_i                      : in     std_logic_vector(19 downto 0);
-         wren_i                    : in     std_logic
-      );
-   end component fsfb_fltr_regs;
-
    -- constant/signal declarations
 
-   constant clk_period              :              time      := 20 ns;   -- 50 MHz clock period
-   shared variable endsim           :              boolean   := false;   -- simulation window
+   constant clk_period              : time      := 20 ns;   -- 50 MHz clock period
+   shared variable endsim           : boolean   := false;   -- simulation window
 
-   signal rst                       :              std_logic := '1';     -- global reset
+   signal rst                       : std_logic := '1';     -- global reset
 
    -- ram interface
-   signal data_i                    :              std_logic_vector(19 downto 0);
-   signal addr_i                    :              std_logic_vector(5 downto 0);
-   signal wraddr_i                  :              std_logic_vector(5 downto 0);
-   signal rdaddr_i                  :              std_logic_vector(5 downto 0);
-   signal wren_i                    :              std_logic;
-   signal clk_i                     :              std_logic := '0';
-   signal slow_clk_i                :              std_logic := '0';
-   signal wn1_o                     :              std_logic_vector(19 downto 0);
-   signal wn2_o                     :              std_logic_vector(19 downto 0);
+   signal data1_i                   : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal data2_i                   : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);   
+   signal addr_i                    : std_logic_vector(5 downto 0);
+   signal wraddr_i                  : std_logic_vector(5 downto 0);
+   signal rdaddr_i                  : std_logic_vector(5 downto 0);
+   signal wren_i                    : std_logic;
+   signal clk_i                     : std_logic := '0';
+   signal slow_clk_i                : std_logic := '0';
+   signal wn11_o                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn12_o                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn21_o                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn22_o                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
    
    -- initialize_window if '1' for full frame, it would initialize all wn1 and wn2 entries to 0
-   signal init_i                    :              std_logic := '0';
+   signal init_i                    : std_logic := '0';
    
    -- done signals
    signal wr_done                   : std_logic := '1';
@@ -134,17 +126,20 @@ begin
       if rst = '1' then
          wraddr_i <= (others => '1');
          rdaddr_i <= (0 => '0', others => '1'); 
-         data_i   <= (others => '1');
+         data1_i  <= (others => '1');
+         data2_i  <= (others => '1');
             
       elsif (slow_clk_i'event and slow_clk_i = '1') then         
          if (first_round_done) = '0' then
            wraddr_i <= wraddr_i + 1;
            rdaddr_i <= rdaddr_i + 1;
-           data_i   <= data_i + 2;    
+           data1_i  <= data1_i + 2;
+           data2_i  <= data2_i + 5;
          else
            wraddr_i <= (others => '1');
            rdaddr_i <= (0 => '0', others => '1'); 
-           data_i   <= (others => '0');
+           data1_i  <= (others => '0');
+           data2_i  <= (others => '0');
          end if;  
       end if;
    end process addr_gen;
@@ -164,7 +159,7 @@ begin
       end if;
 
       -- end the simulation
-      if n = 2 then 
+      if n = 3 then 
         endsim := true;
       end if;
    end process;
@@ -175,11 +170,14 @@ begin
       port map (
          rst_i                    => rst,
          clk_50_i                 => clk_i,
-         initialize_window_i      => init_i,
+         fltr_rst_i               => init_i,
          addr_i                   => addr_i,
-         wn2_o                    => wn2_o,
-         wn1_o                    => wn1_o,
-         wn_i                     => data_i,
+         wn12_o                   => wn12_o,
+         wn11_o                   => wn11_o,
+         wn10_i                   => data1_i,
+         wn22_o                   => wn22_o,
+         wn21_o                   => wn21_o,
+         wn20_i                   => data2_i,         
          wren_i                   => wren_i
       );
    
