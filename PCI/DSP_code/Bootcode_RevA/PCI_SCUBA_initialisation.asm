@@ -182,13 +182,6 @@ START	MOVEP	#>$000001,X:DPMC
 	NOP
 	BSET	#MACE,X:DPCR		; Master access counter enable
 	NOP
-
-
-;	BSET	#IAE,X:DPCR		; Insert PCI address before data
-; Unlike Bob Leach's code 
-; we don't want IAE set in DPCR or else  data read by DSP from
-; DRXR FIFO will contain address of data as well as data...
-
 	NOP				; End of PCI programming
 
 
@@ -300,6 +293,14 @@ CLR1
 ;-----------------------------------------------------------------------------
 ; copy parameter table from P memory into X memory
 
+; but not word_count and num_dumped - don't want these reset by fatal error....
+; they will be reset by new packet or pci_reset ISR
+
+
+	MOVE	X:WORD_COUNT,Y0		; store packet word count
+	MOVE	X:NUM_DUMPED,Y1		; store number dumped (after HST TO)
+	MOVE	X:FRAME_COUNT,X1	; store frame count
+
 ; Move the table of constants from P: space to X: space
 	MOVE	#VAR_TBL_START,R1 		; Start of parameter table in P 
 	MOVE	#VAR_TBL,R0			; start of parameter table in X
@@ -307,6 +308,11 @@ CLR1
 	MOVE	P:(R1)+,X0
 	MOVE	X0,X:(R0)+			; Write the constants to X:
 X_WRITE
+
+
+	MOVE	Y0,X:WORD_COUNT			; restore packet word count
+	MOVE	Y1,X:NUM_DUMPED			; restore number dumped (after HST TO)
+	MOVE	X1,X:FRAME_COUNT		; restore frame count
 
 ;-------------------------------------------------------------------------------
 ; initialise some bits in STATUS
@@ -330,24 +336,12 @@ X_WRITE
 	MOVEC	#$200,SR		; Mask level 1 interrupts
 
 ;----------------------------------------------------------------------------
-; Enable Byte swapin
-	BSET	#BYTE_SWAP,X:<STATUS	; flag to let host know byte swapping on
-	BSET	#AUX1,X:PDRC		; enable hardware
+; Disable Byte swapin - enabled after first command to MCE.
+; i.e after first 'CON'
 
-; ------------------------------------------------------------------------------
-; before starting main code 
-; Clear out any garbage in the receive FIFO....
-; keep clearing for 350ms then continue....
+	BCLR	#BYTE_SWAP,X:<STATUS	; flag to let host know byte swapping off
+	BCLR	#AUX1,X:PDRC		; enable disable
 
-	MOVE	#10000,X0		; Delay by about 350 milliseconds
-	DO	X0,RX_DELAY
-	DO	#1000,RX_RDFIFO
-	MOVEP	Y:RDFIFO,Y0		; Read the FIFO word to keep the
-	NOP				;   receiver empty
-RX_RDFIFO
-	NOP
-RX_DELAY
-	NOP	
 ;-----------------------------------------------------------------------------
 ; Here endth the initialisation code run after power up.
 ; ----------------------------------------------------------------------------

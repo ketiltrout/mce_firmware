@@ -7,7 +7,7 @@ Author:      DAVID ATKINSON
 Target:      250MHz SDSU PCI card - DSP56301
 Controller:  For use with SCUBA 2 Multichannel Electronics 
 
-Version:     Release Version A
+Version:     Release Version A (1.4)
 
 
 Assembler directives:
@@ -82,6 +82,18 @@ CHECK_WD	JSET	#PACKET_CHOKE,X:<STATUS,PACKET_IN	; IF MCE Packet choke on - just 
 PRE_ERROR	
 		BSET	#PREAMBLE_ERROR,X:<STATUS	; indicate a preamble error
                 MOVE	X0,X:<PRE_CORRUPT		; store corrupted word
+
+; preampble error so clear out both FIFOs using reset line
+; - protects against an odd number of bytes having been sent 
+; (byte swapping on - so odd byte being would end up in 
+; the FIFO without the empty flag)
+
+		MOVEP	#%011000,X:PDRD			; clear FIFO RESET* for 2 ms
+		MOVE	#200000,X0
+		DO	X0,*+3
+		NOP
+		MOVEP	#%011100,X:PDRD
+
 		JMP	<PACKET_IN			; wait for next packet
 
 
@@ -159,6 +171,8 @@ MCE_PACKET
 		CLR	A			; 
 		MOVE	#0,R4			; initialise word count
 		MOVE	A,X:<WORD_COUNT	  	; initialise word count store (num of words written over bus/packet)
+		MOVE	A,X:<NUM_DUMPED		; initialise number dumped from FIFO (after HST TO)
+
 
 ; ----------------------------------------------------------------------------------------------------------
 ; Determine how to break up packet to write to host
@@ -197,7 +211,7 @@ WT_HOST		JSET	#FATAL_ERROR,X:<STATUS,START		; if fatal error - run initialisatio
 		MOVE	#<IMAGE_BUFFER,R2		; Y mem ----->  PCI BUS	
 
 
-WAIT_BUFF	JSET	#FATAL_ERROR,X:<STATUS,START	; if fatal error then reset (i.e. if HST timeout)
+WAIT_BUFF	JSET	#FATAL_ERROR,X:<STATUS,DUMP_FIFO	; if fatal error then dump fifo and reset (i.e. if HST timeout)
 		JSET	#HF,X:PDRD,WAIT_BUFF		; Wait for FIFO to be half full + 1
 		NOP
 		NOP
@@ -232,7 +246,7 @@ ALL_BUFFS_END							; all buffers have been writen to host
 		MOVE	#<IMAGE_BUFFER,R2		; Y mem ----->  PCI BUS	
 
 		DO	#32,S_BUFFER
-WAIT_1		JSET	#FATAL_ERROR,X:<STATUS,START	; check for fatal error (i.e. after HST timeout)
+WAIT_1		JSET	#FATAL_ERROR,X:<STATUS,DUMP_FIFO ; check for fatal error (i.e. after HST timeout)
 		JCLR	#EF,X:PDRD,WAIT_1		; Wait for the pixel datum to be there
 		NOP					; Settling time
 		NOP
@@ -284,6 +298,33 @@ HST_ACK_REP	MOVE	#'REP',X0
 		MOVE	X0,X:<DTXS_WD4		; no error
 		JSR	<PCI_MESSAGE_TO_HOST
 		JMP	<PACKET_IN
+
+;---------------------------------------------------------------------------------------------------
+; clear out the fifo after an HST timeout...
+;----------------------------------------------------------
+
+DUMP_FIFO	MOVE	#DUMP_BUFF,R1		; address where dumped words stored in Y mem
+		MOVE	#MAX_DUMP,X0		; put a limit to number of words read from fifo
+		CLR	A
+		MOVE	#0,R2			; use R2 as a dump count
+
+NEXT_DUMP	JCLR	#EF,X:PDRD,FIFO_EMPTY
+		NOP
+		NOP
+		JCLR	#EF,X:PDRD,FIFO_EMPTY
+
+		MOVEP	Y:RDFIFO,Y:(R1)+	; dump word to Y mem.
+		MOVE	(R2)+			; inc dump count
+		MOVE	R2,A			; 	
+		CMP	X0,A			; check we've not hit dump limit
+		JNE	NEXT_DUMP		; not hit limit?
+
+
+FIFO_EMPTY	MOVE	R2,X:NUM_DUMPED		; store number of words dumped after HST timeout.
+		JMP	<START			; re-initialise
+
+
+
 ; ------------------------------------------------------------------------------------------------
 ;                              END OF MAIN PACKET HANDLING CODE
 ; ---------------------------------------------------------------------------------------------
@@ -510,6 +551,13 @@ END_CLR_CMD
 SET_PACKET_DELAY
 	BSET	#DATA_DLY,X:STATUS      ; set data delay so that next data packet after go reply
                                         ; experiences a delay before host notify.
+
+; -----------------------------------------------------------------------
+; WARNING!!!
+; MCE requires IDLE characters between 32bit words sent FROM the PCI card
+; DO not change READ_FROM_PCI to DMA block transfer....
+; ------------------------------------------------------------------------
+
 BLOCK_CON
 	DO	#64,END_BLOCK_CON	; block size = 32bit x 64 (256 bytes)
 	JSR	<READ_FROM_PCI		; get next 32 bit word from HOST
@@ -521,6 +569,10 @@ END_BLOCK_CON
 
 	BCLR	#PACKET_CHOKE,X:<STATUS	; disable packet choke...
 					; comms now open with MCE and packets will be processed.	
+; Enable Byte swaping for correct comms protocol.
+	BSET	#BYTE_SWAP,X:<STATUS	; flag to let host know byte swapping on
+	BSET	#AUX1,X:PDRC		; enable hardware
+
 
 ; -------------------------------------------------------------------------
 ; when completed successfully then PCI needs to reply to Host with
@@ -638,6 +690,14 @@ FINISH_RST
 	BCLR	#APPLICATION_LOADED,X:<STATUS	; clear app flag
         BCLR	#PREAMBLE_ERROR,X:<STATUS	; clear preamble error
 	BCLR	#APPLICATION_RUNNING,X:<STATUS  ; clear appl running bit.
+
+; initialise some parameter here - that we don't want to initialse under a fatal error reset.
+
+	CLR	A			
+	MOVE	#0,R4			; initialise word count
+	MOVE	A,X:<WORD_COUNT	  	; initialise word count store (num of words written over bus/packet)
+	MOVE	A,X:<NUM_DUMPED		; initialise number dumped from FIFO (after HST TO)
+
 
 ; remember we are in a ISR so can't just jump to start.
 
@@ -927,7 +987,7 @@ GET_FO_WRD
 		JCLR	#EF,X:PDRD,CLR_FO_RTS		; check twice for FO metastability.	
 		JMP	RD_FO_WD
 
-WT_FIFO		JCLR	#EF,X:PDRD,*		; Wait till something in FIFO flagged
+WT_FIFO		JCLR	#EF,X:PDRD,*			; Wait till something in FIFO flagged
 		NOP
 		NOP
 		JCLR	#EF,X:PDRD,WT_FIFO	; check twice.....
@@ -1402,14 +1462,15 @@ VAR_TBL_START	EQU	@LCV(L)
 STATUS		DC	0
 FRAME_COUNT	DC	0	; used as a check....... increments for every frame write.....must be cleared by host.
 PRE_CORRUPT	DC	0
-REV_NUMBER	DC	$410103		; byte 0 = minor revision #
+REV_NUMBER	DC	$410104		; byte 0 = minor revision #
 					; byte 1 = mayor revision #
 					; byte 2 = release Version (ascii letter)
-REV_DATA	DC	$230905		; data: day-month-year
-P_CHECKSUM	DC	$c06238         ;**** DO NOT CHANGE
+REV_DATA	DC	$070306		; data: day-month-year
+P_CHECKSUM	DC	$B1FE60         ;**** DO NOT CHANGE
 ; -------------------------------------------------
-
 WORD_COUNT		DC	0	; word count.  Number of words successfully writen to host in last packet.	
+NUM_DUMPED		DC	0	; number of words (16-bit) dumped to Y memory (512) after an HST timeout.
+; --------------------------------------------------------------------------------------------------------------
 
 DRXR_WD1		DC	0
 DRXR_WD2		DC	0

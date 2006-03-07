@@ -1,16 +1,27 @@
 This folder contains all the required files to 
-generate SCUBA2's PCI bootcode release A (version 1.3)
+generate SCUBA2's PCI bootcode release A (version 1.4)
 
 
-updated 23/09/05
+updated 07/03/06
+
 ---------------------------------------
 When downloading via dataman to EEPROM
-Checksum = $73AF1D
+Checksum = $73475F
 ---------------------------------------
 
 'build_pci_once' is run to generate .lod and .cld files which can be downloaded to the PCI DSP via the on-chip emulator OnCe.
 
 'build_pci_rom' is run to generate a motorola .s file which is burned to E2PROM, from which the PCI code is bootstraped.
+
+
+Change from RevA_1.3 --> RevA1.4
+--------------------------------
+
+1. byte swapping disabled after a pci reset.  Only enabled once comms opened with MCE.  This is to help protect against the MCE sending an odd number of bytes after it is power cycled.  The pci card should be reset prior to any MCE power cycle/reconfiguration. 
+
+2. If pre-amble error FIFO *RS line now held low for 2ms to clear both FIFOs.  This is to add protection against an odd number of bytes being sent up the fibre - which would put the preamble out of sync (since byte swapping enabled)
+
+Added a Fifo dump after an HST timout.  That is, if the PCI card is waiting on some packet data and gets a fatal error fast interrupt it will save any data in the FO FIFO before re-initialising (max of 512 words).   Any words in FIFO are saved to Y mem.   The number of 16-bit words recovered from Y mem are saved in X:NUM_DUMPED, and the number of words that were successfully written to the host (before HST timeout) are saved in X:WORD_COUNT.  These are not re-initialised by a fatal error reset, but will be reset by a RST command or when a new packet arrives.
 
 
 Change from RevA_1.2 --> RevA1.3
@@ -49,7 +60,6 @@ All packets sent to and from the MCE are sent LSB first (little endian).
 The code uses DMA BURST MODE to write the data across the PCI bus. 
 
 This version does not use the large SRAM area in Y memory, but stores a 512 (memory) buffer in on-chip y memory and then immediately DMAs it to X memory for PCI burst mode transfer across the bus (similar to 'ultracam' version 3.0).
-
 -------------------------------------------------------------------------
 
 

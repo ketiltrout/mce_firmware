@@ -66,7 +66,10 @@ INTERNAL_GO		EQU	13   ; GO command received while diagnostic application still r
 				     ; tests DMA bursts as bus master
 
 
+; HST timeout recovery....
 
+MAX_DUMP		EQU	512	; if HST timeout.. max number that could be in FIFO is 511..
+DUMP_BUFF		EQU	512	; store in Y memory above normal data buffer...(Y:0 --> Y:511)
 
 
 
