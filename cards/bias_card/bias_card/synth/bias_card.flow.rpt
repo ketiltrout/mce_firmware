@@ -1,5 +1,5 @@
 Flow report for bias_card
-Thu Mar 02 12:01:20 2006
+Wed Mar 08 12:34:23 2006
 Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
 
 
@@ -36,7 +36,7 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------+
 ; Flow Summary                                                             ;
 +--------------------------+-----------------------------------------------+
-; Flow Status              ; Analyzed - Thu Mar 02 12:01:20 2006           ;
+; Flow Status              ; Analyzed - Wed Mar 08 12:34:23 2006           ;
 ; Quartus II Version       ; 5.1 Build 213 01/19/2006 SP 1 SJ Full Version ;
 ; Revision Name            ; bias_card                                     ;
 ; Top-level Entity Name    ; bias_card                                     ;
@@ -44,7 +44,7 @@ applicable agreement for further details.
 ; Device                   ; EP1S10F780C5                                  ;
 ; Timing Models            ; Final                                         ;
 ; Met timing requirements  ; Yes                                           ;
-; Total logic elements     ; 2,136 / 10,570 ( 20 % )                       ;
+; Total logic elements     ; 2,133 / 10,570 ( 20 % )                       ;
 ; Total pins               ; 186 / 427 ( 44 % )                            ;
 ; Total virtual pins       ; 0                                             ;
 ; Total memory bits        ; 68,608 / 920,448 ( 7 % )                      ;
@@ -59,7 +59,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 03/02/2006 11:56:51 ;
+; Start date & time ; 03/08/2006 12:31:35 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -70,12 +70,12 @@ applicable agreement for further details.
 +----------------------+--------------+
 ; Module Name          ; Elapsed Time ;
 +----------------------+--------------+
-; Analysis & Synthesis ; 00:01:42     ;
-; Fitter               ; 00:02:27     ;
-; Assembler            ; 00:00:05     ;
+; Analysis & Synthesis ; 00:01:31     ;
+; Fitter               ; 00:01:00     ;
+; Assembler            ; 00:00:04     ;
 ; Timing Analyzer      ; 00:00:04     ;
 ; Design Assistant     ; 00:00:04     ;
-; Total                ; 00:04:22     ;
+; Total                ; 00:02:43     ;
 +----------------------+--------------+
 
 
