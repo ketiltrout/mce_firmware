@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.9 2005/05/19 22:58:11 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.10 2006/02/09 20:32:59 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.10  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.9  2005/05/19 22:58:11  bburger
 -- Bryce:  v01010018
 --
@@ -68,13 +73,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
 
 library work;
---use work.frame_timing_core_pack.all;
 use work.frame_timing_pack.all;
+use work.sync_gen_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -89,6 +95,7 @@ entity frame_timing_core is
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
+      sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       
       -- Address Card interface
       row_switch_o               : out std_logic;
@@ -131,14 +138,16 @@ architecture beh of frame_timing_core is
    signal enable_counters         : std_logic;
    signal sync_received           : std_logic;
    
+   signal sync_count       : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal sync_count_new   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   
    signal end_of_frame_minus_1row : integer;
    signal end_of_frame_plus_1row  : integer;
---   signal address_on_delay        : integer;
    
    signal sync_temp               : std_logic;
    signal sync                    : std_logic;
 
-   type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);--, WAIT_TO_LATCH_ERR);
+   type states is (IDLE, GOT_BIT0, GOT_BIT1, GOT_BIT2, GOT_BIT3, GOT_SYNC, WAIT_FRM_RST);
    signal current_state, next_state : states;
    
    type init_win_states is (INIT_OFF, INIT_ON, INIT_HOLD, RESET_ON, RESET_HOLD, SET, SET_HOLD);
@@ -146,6 +155,19 @@ architecture beh of frame_timing_core is
    
 begin
    
+   sync_num_o     <= sync_count;
+   sync_count_new <= sync_count + "00000000000000000000000000000001";
+   sync_cntr: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         sync_count <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(sync_received = '1') then
+            sync_count <= sync_count_new;
+         end if;
+      end if;
+   end process sync_cntr;
+
    end_of_frame_minus_1row <= (num_rows_i*row_len_i)-row_len_i-1;
    end_of_frame_plus_1row <= row_len_i-1;
    
@@ -372,7 +394,7 @@ begin
    
    state_out: process(current_state)
    begin
-      sync_received <= '0';
+      sync_received   <= '0';
       case current_state is
          when IDLE =>
          when GOT_BIT0 =>

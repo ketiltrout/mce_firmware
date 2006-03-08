@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing.vhd,v 1.6 2005/05/06 20:02:31 bburger Exp $
+-- $Id: frame_timing.vhd,v 1.7 2006/02/09 20:32:59 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: frame_timing.vhd,v $
+-- Revision 1.7  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.6  2005/05/06 20:02:31  bburger
 -- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
 -- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
@@ -61,6 +66,7 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.frame_timing_pack.all;
+use work.sync_gen_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -75,6 +81,7 @@ entity frame_timing is
       restart_frame_1row_post_o  : out std_logic;
       initialize_window_o        : out std_logic;
       fltr_rst_o                 : out std_logic;
+      sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       
       -- Address Card interface
       row_switch_o               : out std_logic;
@@ -126,6 +133,7 @@ architecture beh of frame_timing is
          restart_frame_1row_post_o  : out std_logic;
          initialize_window_o        : out std_logic;
          fltr_rst_o                 : out std_logic;
+         sync_num_o                 : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
          
          -- Address Card interface
          row_switch_o               : out std_logic;
@@ -229,6 +237,7 @@ begin
          restart_frame_1row_post_o => restart_frame_1row_post_o,
          initialize_window_o       => initialize_window_o,
          fltr_rst_o                => fltr_rst_o,
+         sync_num_o                => sync_num_o,
                                   
          -- Address Card interface    
          row_switch_o              => row_switch_o,             

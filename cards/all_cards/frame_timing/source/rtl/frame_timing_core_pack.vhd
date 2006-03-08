@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- $Id: frame_timing_core_pack.vhd,v 1.1 2004/11/19 20:00:05 bburger Exp $
+-- $Id: frame_timing_core_pack.vhd,v 1.2 2005/05/06 20:02:31 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -32,6 +32,10 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core_pack.vhd,v $
+-- Revision 1.2  2005/05/06 20:02:31  bburger
+-- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
+-- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
+--
 -- Revision 1.1  2004/11/19 20:00:05  bburger
 -- Bryce :  updated frame_timing and sync_gen interfaces
 --
@@ -54,43 +58,5 @@ use sys_param.data_types_pack.all;
 use sys_param.wishbone_pack.all;
 
 package frame_timing_core_pack is
-
-   component frame_timing_core is
-   port(
-      -- Readout Card interface
-      dac_dat_en_o               : out std_logic;
-      adc_coadd_en_o             : out std_logic;
-      restart_frame_1row_prev_o  : out std_logic;
-      restart_frame_aligned_o    : out std_logic; 
-      restart_frame_1row_post_o  : out std_logic;
-      initialize_window_o        : out std_logic;
-      
-      -- Address Card interface
-      row_switch_o               : out std_logic;
-      row_en_o                   : out std_logic;
-         
-      -- Bias Card interface
-      update_bias_o              : out std_logic;
-      
-      -- Wishbone interface
-      row_len_i                  : in integer; -- not used yet
-      num_rows_i                 : in integer; -- not used yet
-      sample_delay_i             : in integer;
-      sample_num_i               : in integer;
-      feedback_delay_i           : in integer;
-      address_on_delay_i         : in integer;
-      resync_req_i               : in std_logic;
-      resync_ack_o               : out std_logic; -- not used yet
-      init_window_req_i          : in std_logic;
-      init_window_ack_o          : out std_logic; -- not used yet
-      
-      -- Global signals
-      clk_i                      : in std_logic;
-      clk_n_i                    : in std_logic;
-      rst_i                      : in std_logic;
-      sync_i                     : in std_logic
-   );
-   end component;
-
 
 end frame_timing_core_pack;
