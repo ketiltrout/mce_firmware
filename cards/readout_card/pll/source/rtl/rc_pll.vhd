@@ -160,7 +160,7 @@ BEGIN
 		pll_type => "AUTO",
 		clk2_phase_shift => "0",
 		clk4_multiply_by => 2,
-		clk1_multiply_by => 8,
+		clk1_multiply_by => 4,
 		clk0_time_delay => "0",
 		spread_frequency => 0,
 		intended_device_family => "Stratix",
@@ -172,7 +172,7 @@ BEGIN
 		clk3_phase_shift => "0",
 		clk1_time_delay => "0",
 		clk0_phase_shift => "0",
-		clk2_multiply_by => 8
+		clk2_multiply_by => 4
 	)
 	PORT MAP (
 		clkena => sub_wire7,
@@ -300,13 +300,13 @@ END SYN;
 -- Retrieval info: PRIVATE: CREATE_INCLK1_CHECK STRING "0"
 -- Retrieval info: PRIVATE: SACN_INPUTS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: DEV_FAMILY STRING "Stratix"
--- Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "200.000"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "100.000"
 -- Retrieval info: PRIVATE: LOCK_LOSS_SWITCHOVER_CHECK STRING "0"
 -- Retrieval info: PRIVATE: SWITCHOVER_COUNT_EDIT NUMERIC "1"
 -- Retrieval info: PRIVATE: SWITCHOVER_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: BANDWIDTH_PRESET STRING "Low"
 -- Retrieval info: PRIVATE: GLOCKED_FEATURE_ENABLED STRING "1"
--- Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "200.000"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "100.000"
 -- Retrieval info: PRIVATE: USE_CLKENA0 STRING "0"
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT0 STRING "ps"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "25.000"
@@ -337,7 +337,7 @@ END SYN;
 -- Retrieval info: CONSTANT: PLL_TYPE STRING "AUTO"
 -- Retrieval info: CONSTANT: CLK2_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: CLK4_MULTIPLY_BY NUMERIC "2"
--- Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "8"
+-- Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "4"
 -- Retrieval info: CONSTANT: CLK0_TIME_DELAY STRING "0"
 -- Retrieval info: CONSTANT: SPREAD_FREQUENCY NUMERIC "0"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix"
@@ -349,7 +349,7 @@ END SYN;
 -- Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: CLK1_TIME_DELAY STRING "0"
 -- Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
--- Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "8"
+-- Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "4"
 -- Retrieval info: USED_PORT: c0 0 0 0 0 OUTPUT VCC "c0"
 -- Retrieval info: USED_PORT: @clk 0 0 6 0 OUTPUT VCC "@clk[5..0]"
 -- Retrieval info: USED_PORT: c1 0 0 0 0 OUTPUT VCC "c1"

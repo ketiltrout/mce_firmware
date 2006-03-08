@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.24  2006/03/04 00:08:26  bench1
+-- Mandana: changed revision number to 03000001 for new dispatch with Rev. C backplane slot ids
+--
 -- Revision 1.23  2006/02/15 21:53:29  mandana
 -- added FLTR_RST_ADDR command
 -- moved component declarations to readout_card.pak
@@ -242,7 +245,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000001";--03 signifies Rev. C backplane slot ids
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000002";--03 signifies Rev. C backplane slot ids
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk

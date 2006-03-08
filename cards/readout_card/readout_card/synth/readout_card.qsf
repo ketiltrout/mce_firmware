@@ -775,8 +775,8 @@ set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
+set_global_assignment -name FITTER_EFFORT "FAST FIT"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD LVTTL
 set_instance_assignment -name IO_STANDARD LVDS -to adc1_clk
@@ -814,7 +814,7 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 # SignalTap II Assignments
 # ========================
 set_global_assignment -name ENABLE_SIGNALTAP off
-set_global_assignment -name USE_SIGNALTAP_FILE readout_card_fsfb_corr.stp
+set_global_assignment -name USE_SIGNALTAP_FILE readout_card.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -1358,24 +1358,13 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 # --------------------------
 # start ENTITY(readout_card)
 
-	# Pin & Location Assignments
-	# ==========================
-	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
-	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o*"
-
 	# Timing Assignments
 	# ==================
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
-	set_instance_assignment -name OUTPUT_MAX_DELAY 0ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Outputs"
-	set_instance_assignment -name INPUT_MAX_DELAY 11.7ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
-	set_instance_assignment -name INPUT_MIN_DELAY 3.7ns -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Inputs"
-	set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7ns" -from "rc_pll:i_rc_pll\|altpll:altpll_component\|_clk0" -to "ADC Outputs"
 
 	# Analysis & Synthesis Assignments
 	# ================================
 	set_instance_assignment -name MAX_FANOUT 100 -to *
-	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o"
-	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch\|dispatch_wishbone:wishbone\|tga_o*"
 
 # end ENTITY(readout_card)
 # ------------------------
