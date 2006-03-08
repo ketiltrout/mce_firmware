@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.19  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.18  2006/01/19 21:04:53  bburger
 -- Bryce:  real v01020002
 --
@@ -177,7 +182,7 @@ architecture top of addr_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"01020002";
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000000";
 
 -- clocks
 signal clk      : std_logic;
