@@ -32,8 +32,11 @@
 -- on the scope on the receiver side.
 --
 -- Revision history:
--- <date $Date: 2005/10/28 19:04:37 $>	- <initials $Author: mandana $>
+-- <date $Date: 2006/03/02 23:20:16 $>	- <initials $Author: bench2 $>
 -- $Log: fo_test.vhd,v $
+-- Revision 1.4  2006/03/02 23:20:16  bench2
+-- Mandana: integrated cc_pll and changed top-level name to fo_bist
+--
 -- Revision 1.3  2005/10/28 19:04:37  mandana
 -- Updated for Rev. B Clock_card tcl file
 -- signal name changes, more pins added for fibre interface to enable bist functionality.
@@ -99,6 +102,7 @@ end fo_bist;
                      
 architecture rtl of fo_bist is
    signal clk       : std_logic;
+   signal nclk      : std_logic;
    signal fibre_tx_data_prereg : std_logic_vector(7 downto 0);
    signal fibre_tx_ena_prereg  : std_logic;
 
@@ -135,8 +139,18 @@ begin
          e1     => fibre_rx_refclk,   
          e2     => open 
       );
-  
+
+-- BIST Mode assignments 
+--  fibre_tx_bisten <= '0';
+--  fibre_tx_ena <= '1';
+--  fibre_tx_enn    <= '1';
+--  fibre_tx_foto   <= 'Z';
+--  fibre_rx_bisten <= '0';
+--  fibre_rx_a_nb   <= '0';
+--  fibre_rx_rf     <= '0';
+--  fibre_tx_sc_nd <= '0';
       
+-- Normal mode assignments      
   fibre_tx_bisten <= '1';
 --  fibre_tx_ena <= '1';
   fibre_tx_enn    <= 'Z';
@@ -145,6 +159,7 @@ begin
   fibre_rx_a_nb   <= '1';
   fibre_rx_rf     <= '1';
   fibre_tx_sc_nd <= '0';
+  
 --  test(19) <= '1'; --fibre_tx_nbist;
 --  test(20) <= '1'; -- fibre_rx_nbist;
 --  test(22) <= '1';
@@ -233,13 +248,14 @@ begin
 	                              
       end case;
    end process state_out;
-
-   tx_reg: process(clk, n_rst)
+   
+   nclk <= not clk;
+   tx_reg: process(nclk, n_rst)
    begin
       if(n_rst = '1') then 
-         fibre_tx_data <= "11111111";
+         fibre_tx_data <= "00000000";
          fibre_tx_ena <= '1';
-      elsif(clk'event and clk = '1') then
+      elsif(nclk'event and nclk = '1') then
          fibre_tx_data <= fibre_tx_data_prereg;
          fibre_tx_ena <= fibre_tx_ena_prereg;
       end if;
