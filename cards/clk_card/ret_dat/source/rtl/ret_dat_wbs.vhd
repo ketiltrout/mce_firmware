@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.3 2005/07/23 01:39:25 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.4 2006/01/16 18:00:44 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.4  2006/01/16 18:00:44  bburger
+-- Bryce:  Adjusted the upper and lower bounds for data_rate, and added a default value of 0x5F = 95 = data at 200 Hz based on 50 Mhz/41rows/64cycles per row
+--
 -- Revision 1.3  2005/07/23 01:39:25  bburger
 -- Bryce:
 -- Added a wishbone-accessible register to change the data rate.  The register default is one frame of data every ten frames (maximum rate).
@@ -129,21 +132,15 @@ begin
          reg_o             => stop_data
       );
 
-   -- Custom register that gets set to MAX_DATA_RATE upon reset
-   data_rate_o <= data_rate_data(15 downto 0);
+   -- Custom register that gets set to DEF_DATA_RATE upon reset
+   data_rate_o <= data_rate_data(SYNC_NUM_WIDTH-1 downto 0);
    data_rate_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          data_rate_data <= DEF_DATA_RATE;
       elsif(clk_i'event and clk_i = '1') then
          if(data_rate_wren = '1') then
---            if(dat_i < MAX_DATA_RATE) then
---               data_rate_data <= MAX_DATA_RATE;
---            elsif(dat_i > MIN_DATA_RATE) then
---               data_rate_data <= MIN_DATA_RATE;
---            else
-               data_rate_data <= dat_i;
---            end if;
+            data_rate_data <= dat_i;
          end if;
       end if;
    end process data_rate_reg;
