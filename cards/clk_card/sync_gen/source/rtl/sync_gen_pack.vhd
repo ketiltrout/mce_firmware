@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.9  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.8  2005/03/16 02:20:58  bburger
 -- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
 --
@@ -62,10 +68,21 @@ use ieee.std_logic_1164.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
+use sys_param.command_pack.all;
 
 package sync_gen_pack is
 
-constant SYNC_NUM_WIDTH     : integer := 16;
-constant ISSUE_SYNC_WIDTH   : integer := SYNC_NUM_WIDTH;
+   constant SYNC_NUM_WIDTH     : integer := 32;
+   constant ISSUE_SYNC_WIDTH   : integer := SYNC_NUM_WIDTH;
+
+   constant DV_NUM_WIDTH           : integer := PACKET_WORD_WIDTH;
+   constant DV_SELECT_WIDTH        : integer := 2;
+   constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+   constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
+   constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
+
+   constant SYNC_SELECT_WIDTH      : integer := 2;
+   constant SYNC_INTERNAL          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+   constant SYNC_EXTERNAL          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
 
 end sync_gen_pack;
