@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.20 2006/02/02 00:38:28 mandana Exp $
+-- $Id: reply_queue.vhd,v 1.21 2006/02/18 01:21:41 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.21  2006/02/18 01:21:41  bburger
+-- Bryce:  added word_count to the output sensitivity list
+--
 -- Revision 1.20  2006/02/02 00:38:28  mandana
 -- removed next_retire_state out of the sensitivity list for retire_state_out process
 --
@@ -68,6 +71,7 @@ use components.component_pack.all;
 library work;
 use work.cmd_queue_ram40_pack.all;
 use work.cmd_queue_pack.all;
+use work.sync_gen_pack.all;
 
 entity reply_queue is
    port(
@@ -82,6 +86,7 @@ entity reply_queue is
       last_frame_i      : in std_logic;                                          
       frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i    : in std_logic;
+      issue_sync_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
@@ -177,12 +182,12 @@ architecture behav of reply_queue is
    signal bit_status           : std_logic_vector(2 downto 0);
    signal bit_status_i         : std_logic_vector(2 downto 0);
    signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal issue_sync_num       : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal reg_en               : std_logic;
-
 
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
    type retire_states is (IDLE, LATCH_CMD, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, SEND_REPLY, 
-      STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, SEND_HEADER, SEND_DATA, WAIT_FOR_ACK, SEND_STATUS);
+      STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, SEND_HEADER, SEND_SYNC_NUM_HEADER, SEND_DATA, WAIT_FOR_ACK, SEND_STATUS);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;   
 
@@ -334,7 +339,17 @@ begin
          reg_o      => frame_seq_num
       );
 
-
+   issue_sync_num_reg: reg
+      generic map(
+         WIDTH      => SYNC_NUM_WIDTH
+      )
+      port map(
+         clk_i      => clk_i,
+         rst_i      => rst_i,
+         ena_i      => reg_en,
+         reg_i      => issue_sync_i,
+         reg_o      => issue_sync_num
+      );
       
    error_code_o <= "0" & status_q;
    status_reg : reg
@@ -428,6 +443,13 @@ begin
             next_retire_state <= IDLE;         
 
          when SEND_HEADER =>
+            -- The "- 1" is to compensate for single words sent at the end of the header
+            -- i.e. sync_num (SEND_SYNC_NUM_HEADER)
+            if(word_count >= NUM_RAM_HEAD_WORDS - 1) then
+               next_retire_state <= SEND_SYNC_NUM_HEADER;
+            end if;
+            
+         when SEND_SYNC_NUM_HEADER =>
             if(word_count >= NUM_RAM_HEAD_WORDS) then
                next_retire_state <= SEND_DATA;
             end if;
@@ -453,7 +475,7 @@ begin
       end case;
    end process;
    
-   retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, head_q, data, data_size, par_id, word_count)
+   retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, head_q, data, data_size, par_id, word_count, issue_sync_num)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -520,6 +542,14 @@ begin
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
             
+         when SEND_SYNC_NUM_HEADER =>
+            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+            rdy_o           <= '1';
+            data_o          <= issue_sync_num;
+            ena_word_count  <= ack_i;            
+            cmd_rdy         <= '1';
+            cmd_valid_o     <= '1';
+
          when SEND_DATA =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             data_o          <= data;
