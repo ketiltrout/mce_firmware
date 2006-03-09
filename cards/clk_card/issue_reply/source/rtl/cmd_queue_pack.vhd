@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.23 2005/11/15 03:17:22 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.24 2006/01/16 18:07:33 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.24  2006/01/16 18:07:33  bburger
+-- Bryce:  Brand new version of the cmd_queue.  It only queue's up a single command at a time.
+--
 -- Revision 1.23  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -148,53 +151,5 @@ constant PARAM_ID_END     : integer := QUEUE_WIDTH - BB_CARD_ADDRESS_WIDTH - BB_
 
 -- Line 4:
 -- Data Frame Sequence Number (32 bits)   
-
-component cmd_queue
-   port(
-      -- for testing
-      debug_o  : out std_logic_vector(31 downto 0);
-      timer_trigger_o : out std_logic;
-
-      -- reply_queue interface
-      uop_rdy_o       : out std_logic; -- Tells the reply_queue when valid m-op and u-op codes are asserted on it's interface
-      uop_ack_i       : in std_logic; -- Tells the cmd_queue that a reply to the u-op waiting to be retired has been found and it's status is asserted on uop_status_i
-      card_addr_o     : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
-      par_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
-      data_size_o     : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-      cmd_type_o      : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
-      cmd_stop_o      : out std_logic;                                          -- indicates a STOP command was recieved
-      last_frame_o    : out std_logic;                                          -- indicates the last frame of data for a ret_dat command
-      frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      internal_cmd_o  : out std_logic;
-
-      -- cmd_translator interface
-      card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
-      par_id_i        : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
-      data_size_i     : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-      data_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- Data belonging to a m-op
-      data_clk_i      : in std_logic; -- Clocks in 32-bit wide data
---      mop_i           : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0); -- M-op sequence number
-      issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      mop_rdy_i       : in std_logic; -- Tells cmd_queue when a m-op is ready
-      mop_ack_o       : out std_logic; -- Tells the cmd_translator when cmd_queue has taken the m-op
-      cmd_type_i      : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
-      cmd_stop_i      : in std_logic;                                          -- indicates a STOP command was recieved
-      last_frame_i    : in std_logic;                                          -- indicates the last frame of data for a ret_dat command
-      frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      internal_cmd_i  : in std_logic;
-
-      -- lvds_tx interface
-      tx_o            : out std_logic;  -- transmitter output pin
-
-      -- frame_timing interface
---      sync_i          : in std_logic; -- The sync pulse determines when and when not to issue u-ops
-      sync_num_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- Clock lines
-      clk_i           : in std_logic; -- Advances the state machines
---      mem_clk_i    : in std_logic;  -- PLL locked 25MHz input clock for the
-      rst_i           : in std_logic  -- Resets all FSMs
-   );
-end component;
 
 end cmd_queue_pack;

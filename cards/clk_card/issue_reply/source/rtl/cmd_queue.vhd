@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.87 2006/01/16 18:07:33 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.88 2006/02/02 00:26:24 mandana Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.88  2006/02/02 00:26:24  mandana
+-- added range to integer bit_ctr_coun
+--
 -- Revision 1.87  2006/01/16 18:07:33  bburger
 -- Bryce:  Brand new version of the cmd_queue.  It only queue's up a single command at a time.
 --
@@ -76,6 +79,7 @@ entity cmd_queue is
       last_frame_o    : out std_logic;                                          
       frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_o  : out std_logic;
+      issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 
       -- cmd_translator interface
       card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
@@ -83,7 +87,6 @@ entity cmd_queue is
       data_size_i     : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); 
       data_i          : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  
       data_clk_i      : in std_logic; 
---      mop_i           : in std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0); 
       issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       mop_rdy_i       : in std_logic;
       mop_ack_o       : out std_logic; 
@@ -109,7 +112,7 @@ architecture behav of cmd_queue is
 
 constant ADDR_ZERO          : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0)   := (others => '0');
 constant ADDR_FULL_SCALE    : std_logic_vector(QUEUE_ADDR_WIDTH-1 downto 0)   := (others => '1');
-constant TIMEOUT_LEN        : std_logic_vector(ISSUE_SYNC_WIDTH-1 downto 0)   := x"0001";  -- The number of sync pulses after which an instruction will expire
+constant TIMEOUT_LEN        : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0)   := x"00000001";  -- Defines the window during which an instruction can be issued
 constant HIGH               : std_logic := '1';
 constant LOW                : std_logic := '0';
 constant INT_ZERO           : integer   :=  0;
@@ -166,7 +169,6 @@ signal sh_reg_parallel_o    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); --
 signal uop_send_expired     : std_logic;
 signal timeout_sync         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 signal update_prev_state    : std_logic;
---signal bb_cmd_code          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
 signal timer_clr            : std_logic;
 signal timer_count          : integer;
 
@@ -184,25 +186,7 @@ begin
    -----------------------------------------------------
    -- Combinatorial Logic
    -----------------------------------------------------   
-   -- There should be enough time in the sync period following the timeout_sync of a m-op to get rid of all it's u-ops and still have time to issue the u-ops that need to be issued during that period
-   -- That is why we don't check for a range here - just for the sync period that is the timeout
-   -- This second condition checks to see whether the instruction is in the black out period of the last valid sync pulse during which it can be issued.
-   -- This condition won't work properly if a frame period is too short to issue a command within the correct period.
-   -- I have removed the second condition for the time being, because on a regular basis, there won't be time to re-issue commands during the same frame-period.
-   -- Thus, u-op will not be re-issued if they were erroneous the first time.
-   -- The concept of START_OF_BLACKOUT had been added to forsee the possibility of re-issuing u-ops during the same frame
-   -- The idea was that there would always be enough time in a frame to send one set of data-taking u-ops during a frame, but there wouldn't be enough time for an unlimited number of retries
-   -- The start START_OF_BLACKOUT period would basically denote the time in the frame at which it would be too late to re-start transmitting all the u-ops associated with taking data.
-   -- There is also a problem with the second condition, in that if the clk_count has slipped to the end of the previous frame when the sync pulse arrives, then clk_count > START_OF_BLACKOUT.  
-   -- We need something different here.
-   -- Something like:  '1' when (abs_value((END_OF_FRAME - clk_count) < something) else '0';
    uop_send_expired <= '1' when (sync_num_i = timeout_sync) else '0';
-
-
-   -- issue_sync and timeout_sync need to be assigned continuously because they don't seem to update correctly inside the FSM
-   -- There's something fishy about this.  
-   -- The trade off with continuous assignement is that sometimes the assignment will be invalid, while send pointer is pointing at the first word of a packet
-   -- That's ok, though.  I only used issue_sync and timeout_sync when they're valid.
    timeout_sync     <= issue_sync + TIMEOUT_LEN;
    
    
@@ -261,6 +245,7 @@ begin
          reg_o      => data_size
       );
 
+   issue_sync_o <= issue_sync;
    issue_sync_reg: reg
       generic map(
          WIDTH      => SYNC_NUM_WIDTH
