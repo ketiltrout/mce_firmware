@@ -38,6 +38,12 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.11  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.10  2006/01/16 18:02:10  bburger
 -- Bryce:  sign-extended a literal std_logic_vector
 --
@@ -120,22 +126,18 @@ use work.sync_gen_core_pack.all;
 entity sync_gen_core is
    port(
       -- Wishbone Interface
-      dv_en_i     : in std_logic;
-      row_len_i   : in integer;
-      num_rows_i  : in integer;
-      data_req_o           : out std_logic;
-      data_ack_i           : in  std_logic;
-      frame_num_external_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      dv_mode_i            : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      sync_mode_i          : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+      row_len_i            : in integer;
+      num_rows_i           : in integer;
       
       -- Inputs/Outputs
-      dv_i        : in std_logic;
-      sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      external_sync_i      : in std_logic;
+      encoded_sync_o       : out std_logic;
 
       -- Global Signals
-      clk_i       : in std_logic;
---      mem_clk_i   : in std_logic;
-      rst_i       : in std_logic
+      clk_i                : in std_logic;
+      rst_i                : in std_logic
    );
 end sync_gen_core;
 
@@ -147,17 +149,12 @@ architecture beh of sync_gen_core is
    signal new_frame_period : std_logic;   
    signal clk_count        : integer;
    signal clk_count_new    : integer;
-   signal sync_count       : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0); --: integer;
-   signal sync_count_new   : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0); --integer;
    signal sync_num         : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   
-   signal sync_num_mux     : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   signal sync_num_mux_sel : std_logic;
-   
    signal frame_end        : integer;
 
 begin      
 
+   new_frame_period <= '1' when clk_count = frame_end else '0';
    frame_end <= (num_rows_i*row_len_i)-1;
    clk_count_new <= (clk_count + 1) when clk_count < frame_end else 0;
    clk_cntr: process(clk_i, rst_i)
@@ -168,68 +165,40 @@ begin
          clk_count <= clk_count_new;
       end if;
    end process clk_cntr;
-
-   sync_count_new <= sync_count + "0000000000000001";
-   sync_cntr: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         sync_count <= (others => '0');
-      elsif(clk_i'event and clk_i = '1') then
-         if(new_frame_period = '1') then
-            sync_count <= sync_count_new;
-         end if;
-      end if;
-   end process sync_cntr;
-
-   new_frame_period  <= '1' when clk_count = frame_end else '0';
---   sync_o            <= new_frame_period;
-   sync_num_o        <= sync_num;
-
+  
    sync_state_FF: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
          current_state <= SYNC_HIGH;
-         sync_num      <= (others=>'0');
       elsif(clk_i'event and clk_i = '1') then
          current_state <= next_state;
-         sync_num      <= sync_num_mux;
       end if;
    end process;
 
-   sync_state_NS: process(current_state, new_frame_period)--, dv_i, dv_en_i
+   sync_state_NS: process(current_state, new_frame_period)
    begin
       next_state <= current_state;
+      
       case current_state is
          when SYNC_LOW =>
--- The functionality of being able to sync to the DV pulse is not implemented yet.
--- Currently, sync pulses and sync numbers will be disabled if this setting is enabled
---            if(dv_en_i = '1') then
---               if(dv_i = '1') then
---                  next_state <= DV_RECEIVED;
---               else
---                  next_state <= SYNC_LOW;
---               end if;
---            else
-               if(new_frame_period = '1') then
-                  next_state <= SEND_BIT0;
-               else
-                  next_state <= SYNC_LOW;
-               end if;
---            end if;
+            if(new_frame_period = '1') then
+               next_state <= SEND_BIT0;
+            else
+               next_state <= SYNC_LOW;
+            end if;
+         
          when SEND_BIT0 =>
             next_state <= SEND_BIT1;
+         
          when SEND_BIT1 =>
             next_state <= SEND_BIT2;
+         
          when SEND_BIT2 =>
             next_state <= SEND_BIT3;
+         
          when SEND_BIT3 =>
-            next_state <= SYNC_LOW;
-         when DV_RECEIVED =>
-            if(new_frame_period = '1') then
-               next_state <= SYNC_HIGH;
-            else
-               next_state <= DV_RECEIVED;
-            end if;
+            next_state <= SYNC_HIGH;
+         
          when others =>
             next_state <= SYNC_LOW;
       end case;
@@ -237,24 +206,25 @@ begin
    
    sync_state_out: process(current_state)
    begin
-      sync_num_mux_sel <= '0';
-      sync_o <= '0';
+      encoded_sync_o <= '0';
+      
       case current_state is
          when SYNC_LOW =>
+         
          when SEND_BIT0 =>
-            sync_o <= SYNC_PULSE_BIT0;
+            encoded_sync_o <= SYNC_PULSE_BIT0;
+         
          when SEND_BIT1 =>
-            sync_o <= SYNC_PULSE_BIT1;
+            encoded_sync_o <= SYNC_PULSE_BIT1;
+         
          when SEND_BIT2 =>
-            sync_o <= SYNC_PULSE_BIT2;
+            encoded_sync_o <= SYNC_PULSE_BIT2;
+         
          when SEND_BIT3 =>
-            sync_o <= SYNC_PULSE_BIT3;
-            sync_num_mux_sel <= '1';
-         when DV_RECEIVED =>
+            encoded_sync_o <= SYNC_PULSE_BIT3;
+            
          when others =>
       end case;
    end process;
    
-   sync_num_mux <= sync_num when sync_num_mux_sel = '0' else sync_count;
-
 end beh;
