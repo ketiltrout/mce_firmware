@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.13 2006/02/09 17:17:30 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.14 2006/02/09 20:32:59 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,11 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.14  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.13  2006/02/09 17:17:30  bburger
 -- Bryce:  comittal for tagging purposes
 --
@@ -79,7 +84,6 @@ use ieee.std_logic_unsigned.all;
 
 library work;
 use work.bc_dac_ctrl_pack.all;
---use work.clk_card_pack.all;
 use work.addr_card_pack.all;
 use work.bias_card_pack.all;
 use work.readout_card_pack.all;
@@ -128,7 +132,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       
       -- DV interface:
       dv_pulse_fibre    : in std_logic;
-      dv_pulse_bnc      : in std_logic;
+      manchester_data   : in std_logic;
       
       -- TTL interface:
       ttl_nrx1          : in std_logic;
@@ -173,8 +177,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       fibre_rx_rvs      : in std_logic;                      
       fibre_rx_status   : in std_logic;                      
       fibre_rx_sc_nd    : in std_logic;                      
-      fibre_rx_clkr     : in std_logic;                      
-      
+      fibre_rx_clkr     : in std_logic;     
       fibre_rx_a_nb     : out std_logic;
       fibre_rx_bisten   : out std_logic;
       fibre_rx_rf       : out std_logic;
@@ -375,7 +378,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    
    constant bc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_2       & x"00" & LED_ADDR;
    
-   constant all_row_len_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_CARDS    & x"00" & ROW_LEN_ADDR;    
+   constant all_row_len_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_CARDS         & x"00" & ROW_LEN_ADDR;    
    constant all_num_rows_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & NUM_ROWS_ADDR;
    constant all_sample_delay_cmd    : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & SAMPLE_DLY_ADDR; 
    constant all_sample_num_cmd      : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & SAMPLE_NUM_ADDR; 
@@ -399,6 +402,33 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal ctr_count_o     : integer;
    signal ctr_count_slv_o : std_logic_vector(ADC_DAT_WIDTH-1 downto 0);
 
+   ------------------------------------------------
+   -- Counter Signals
+   ------------------------------------------------
+   -- For Bus Backplane Rev. A and B
+   -- slot ID decode logic:
+--   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
+--   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
+--   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
+--   signal rc2_slot_id : std_logic_vector(3 downto 0) := "1010";
+--   signal rc1_slot_id : std_logic_vector(3 downto 0) := "1011";
+--   signal ac_slot_id  : std_logic_vector(3 downto 0) := "1111";
+--   signal bc1_slot_id : std_logic_vector(3 downto 0) := "1110";
+--   signal bc2_slot_id : std_logic_vector(3 downto 0) := "1101";
+--   signal bc3_slot_id : std_logic_vector(3 downto 0) := "1100";
+
+   -- For Bus Backplane Rev. C
+   -- slot ID decode logic:
+   signal ac_slot_id  : std_logic_vector(3 downto 0) := "0000";
+   signal bc1_slot_id : std_logic_vector(3 downto 0) := "0001";
+   signal bc2_slot_id : std_logic_vector(3 downto 0) := "0010";
+   signal bc3_slot_id : std_logic_vector(3 downto 0) := "0011";
+   signal rc1_slot_id : std_logic_vector(3 downto 0) := "0100";
+   signal rc2_slot_id : std_logic_vector(3 downto 0) := "0101";
+   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
+   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
+   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
+   
    ------------------------------------------------
    -- Clock Card Signals
    -------------------------------------------------
@@ -433,7 +463,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    
    -- DV interface:
    signal dv_pulse_fibre  : std_logic := '0';
-   signal dv_pulse_bnc    : std_logic := '0';
+   signal manchester_data : std_logic := '0';
    
    -- TTL interface:
    signal cc_ttl_txena1 : std_logic := '0';
@@ -455,7 +485,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_dip_sw3    : std_logic := '1';
    signal cc_dip_sw4    : std_logic := '1';
    signal cc_wdog       : std_logic;
-   signal cc_slot_id    : std_logic_vector(3 downto 0) := "1000";
    
    -- debug ports:
    signal cc_mictor_o    : std_logic_vector(15 downto 1);
@@ -541,7 +570,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc4_dip_sw3        : std_logic;
    signal rc4_dip_sw4        : std_logic;
    signal rc4_wdog           : std_logic;
-   signal rc4_slot_id        : std_logic_vector(3 downto 0) := "0111";
    signal rc4_card_id        : std_logic;
    signal rc4_mictor         : std_logic_vector(31 downto 0);
 
@@ -608,7 +636,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc3_dip_sw3        : std_logic;
    signal rc3_dip_sw4        : std_logic;
    signal rc3_wdog           : std_logic;
-   signal rc3_slot_id        : std_logic_vector(3 downto 0) := "0110";
    signal rc3_card_id        : std_logic;
    signal rc3_mictor         : std_logic_vector(31 downto 0);
 
@@ -675,7 +702,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc2_dip_sw3        : std_logic;
    signal rc2_dip_sw4        : std_logic;
    signal rc2_wdog           : std_logic;
-   signal rc2_slot_id        : std_logic_vector(3 downto 0) := "1010";
    signal rc2_card_id        : std_logic;
    signal rc2_mictor         : std_logic_vector(31 downto 0);
 
@@ -742,7 +768,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc1_dip_sw3        : std_logic := '1';
    signal rc1_dip_sw4        : std_logic := '1';
    signal rc1_wdog           : std_logic;
-   signal rc1_slot_id        : std_logic_vector(3 downto 0) := "1011";
    signal rc1_card_id        : std_logic;
    signal rc1_mictor         : std_logic_vector(31 downto 0);
 
@@ -786,7 +811,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal ac_dip_sw3    : std_logic := '1';
    signal ac_dip_sw4    : std_logic := '1';
    signal ac_wdog       : std_logic;
-   signal ac_slot_id    : std_logic_vector(3 downto 0) := "1111";
     
    -- debug ports:
    signal ac_test       : std_logic_vector(16 downto 3);
@@ -828,7 +852,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc1_dip_sw3       : std_logic;
    signal bc1_dip_sw4       : std_logic;
    signal bc1_wdog          : std_logic;
-   signal bc1_slot_id       : std_logic_vector(3 downto 0) := "1110";
    
    -- debug ports:
    signal bc1_test          : std_logic_vector(16 downto 3);
@@ -870,7 +893,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc2_dip_sw3       : std_logic;
    signal bc2_dip_sw4       : std_logic;
    signal bc2_wdog          : std_logic;
-   signal bc2_slot_id       : std_logic_vector(3 downto 0) := "1101";
    
    -- debug ports:
    signal bc2_test          : std_logic_vector(16 downto 3);
@@ -912,7 +934,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal bc3_dip_sw3       : std_logic;
    signal bc3_dip_sw4       : std_logic;
    signal bc3_wdog          : std_logic;
-   signal bc3_slot_id       : std_logic_vector(3 downto 0) := "1100";
    
    -- debug ports:
    signal bc3_test          : std_logic_vector(16 downto 3);
@@ -923,7 +944,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
 
 begin
    bclr_n <= not bclr;
---   noisy_sync <= inclk;
    lvds_sync <= 
       cc_lvds_sync when sync_en = "00" else 
       '0'          when sync_en = "01" else
@@ -960,7 +980,7 @@ begin
                           
          -- DV interface:
          dv_pulse_fibre   => dv_pulse_fibre,
-         dv_pulse_bnc     => dv_pulse_bnc,  
+         manchester_data  => manchester_data,  
       
          -- TTL interface:
          ttl_nrx1         => bclr_n,
@@ -2095,23 +2115,23 @@ begin
 --      wait for 50 us;
 --
 --      
-      command <= command_wb;
-      address_id <= rc1_fltr_rst_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_flx_lp_init_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 200 us;
+--      command <= command_wb;
+--      address_id <= rc1_fltr_rst_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_flx_lp_init_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
 
 ------------------------------------------------------
 --  Command sequence for testing the flux feedback on RC1
@@ -2421,11 +2441,75 @@ begin
 --      wait for 150 us;
 
 ------------------------------------------------------
+--  DV Rx testing
+------------------------------------------------------
+--      constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+--      constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
+--      constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
+-- 
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 800 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+--      
+--      dv_pulse_fibre <= '1';
+--      wait for 1 us;
+--      dv_pulse_fibre <= '0';      
+--      wait for 1200 us;
+
+
+      command <= command_wb;
+      address_id <= cc_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000006";
+      load_preamble;
+      load_command;
+      load_checksum;
+      
+      wait for 200 us;
+--      
+--      command <= command_wb;
+--      address_id <= rc1_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000006";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 200 us;
+      
+
+------------------------------------------------------
 --  Command sequence for testing timeout recovery on the CC
 ------------------------------------------------------
 -- Internal commands must be disabled in cmd_translator
 -- The command timeout in reply_queue_sequencer must be set to 100us
-
+--
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
+--
 --      command <= command_wb;
 --      address_id <= rc1_led_cmd;
 --      data_valid <= X"00000001";
