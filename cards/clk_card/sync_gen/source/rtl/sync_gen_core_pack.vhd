@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core_pack.vhd,v $
+-- Revision 1.5  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.4  2005/03/16 02:20:58  bburger
 -- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
 --
@@ -76,27 +82,5 @@ library work;
 use work.sync_gen_pack.all;
 
 package sync_gen_core_pack is
-
-component sync_gen_core
-   port(
-      -- Wishbone Interface
-      dv_en_i     : in std_logic;
-      row_len_i   : in integer;
-      num_rows_i  : in integer;
-      data_req_o           : out std_logic;
-      data_ack_i           : in  std_logic;
-      frame_num_external_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      
-      -- Inputs/Outputs
-      dv_i        : in std_logic;
-      sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- Global Signals
-      clk_i       : in std_logic;
---      mem_clk_i   : in std_logic;
-      rst_i       : in std_logic
-   );
-end component;
 
 end sync_gen_core_pack;
