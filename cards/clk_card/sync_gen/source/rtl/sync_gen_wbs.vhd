@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs.vhd,v 1.5 2005/02/17 22:42:12 bburger Exp $
+-- $Id: sync_gen_wbs.vhd,v 1.6 2005/03/16 02:20:58 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.6  2005/03/16 02:20:58  bburger
+-- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
+--
 -- Revision 1.5  2005/02/17 22:42:12  bburger
 -- Bryce:  changes to synchronization in the MCE in response to two problems
 -- - a rising edge on the sync line during configuration
@@ -65,11 +68,13 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.frame_timing_pack.all;
+use work.sync_gen_pack.all;
 
 entity sync_gen_wbs is        
    port(
       -- sync_gen interface:
-      dv_en_o             : out std_logic;
+      dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      sync_mode_o         : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       row_len_o           : out integer;
       num_rows_o          : out integer;
 
@@ -85,7 +90,6 @@ entity sync_gen_wbs is
 
       -- global interface
       clk_i               : in std_logic;
---      mem_clk_i           : in std_logic;
       rst_i               : in std_logic 
    );     
 end sync_gen_wbs;
@@ -98,8 +102,10 @@ architecture rtl of sync_gen_wbs is
    signal master_wait     : std_logic;
 
    -- Register signals
-   signal dv_en_wren      : std_logic;
-   signal dv_en_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal dv_mode_wren    : std_logic;
+   signal dv_mode_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal sync_mode_wren  : std_logic;
+   signal sync_mode_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal row_length_wren : std_logic;
    signal row_length_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal num_rows_wren   : std_logic;
@@ -120,9 +126,21 @@ begin
       port map(
          clk_i             => clk_i,
          rst_i             => rst_i,
-         ena_i             => dv_en_wren,
+         ena_i             => dv_mode_wren,
          reg_i             => dat_i,
-         reg_o             => dv_en_data
+         reg_o             => dv_mode_data
+      );
+
+   sync_mode_reg : reg
+      generic map(
+         WIDTH             => PACKET_WORD_WIDTH
+      )
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => sync_mode_wren,
+         reg_i             => dat_i,
+         reg_o             => sync_mode_data
       );
 
    -- Custom register that gets set to MUX_LINE_PERIOD upon reset
@@ -149,13 +167,14 @@ begin
       end if;
    end process num_rows_reg;
 
-   row_len_o <= conv_integer(row_length_data);
-   num_rows_o <= conv_integer(num_rows_data);
-   dv_en_o <= '0' when (dv_en_data = x"00000000") else '1';
+   row_len_o   <= conv_integer(row_length_data);
+   num_rows_o  <= conv_integer(num_rows_data);
+   dv_mode_o   <= dv_mode_data(DV_SELECT_WIDTH-1 downto 0);
+   sync_mode_o <= sync_mode_data(SYNC_SELECT_WIDTH-1 downto 0);
 
-------------------------------------------------------------
---  WB FSM
-------------------------------------------------------------   
+   ------------------------------------------------------------
+   --  WB FSM
+   ------------------------------------------------------------   
 
    -- clocked FSMs, advance the state for both FSMs
    state_FF: process(clk_i, rst_i)
@@ -202,9 +221,10 @@ begin
    begin
       -- Default assignments
       ack_o           <= '0';
-      dv_en_wren      <= '0';
+      dv_mode_wren    <= '0';
       row_length_wren <= '0';
       num_rows_wren   <= '0';
+      sync_mode_wren  <= '0';
      
       case current_state is         
          when IDLE  =>                   
@@ -214,11 +234,13 @@ begin
             ack_o <= '1';
             if(stb_i = '1') then
                if(addr_i = USE_DV_ADDR) then
-                  dv_en_wren <= '1';
+                  dv_mode_wren <= '1';
                elsif(addr_i = ROW_LEN_ADDR) then
                   row_length_wren <= '1';
                elsif(addr_i = NUM_ROWS_ADDR) then
                   num_rows_wren <= '1';
+               elsif(addr_i = USE_SYNC_ADDR) then
+                  sync_mode_wren <= '1';
                end if;
             end if;
          
@@ -230,25 +252,24 @@ begin
       end case;
    end process state_out;
 
-------------------------------------------------------------
---  Wishbone interface: 
---  constant USE_DV_ADDR       
-------------------------------------------------------------
-  
+   ------------------------------------------------------------
+   --  Wishbone interface: 
+   ------------------------------------------------------------  
    with addr_i select dat_o <=
-      dv_en_data      when USE_DV_ADDR,
+      dv_mode_data    when USE_DV_ADDR,
       row_length_data when ROW_LEN_ADDR,
       num_rows_data   when NUM_ROWS_ADDR,
+      sync_mode_data  when USE_SYNC_ADDR,
       (others => '0') when others;
    
    master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR) else '0'; 
+      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR) else '0'; 
+      (addr_i = USE_DV_ADDR or addr_i = ROW_LEN_ADDR or addr_i = NUM_ROWS_ADDR or addr_i = USE_SYNC_ADDR) else '0'; 
       
 end rtl;
