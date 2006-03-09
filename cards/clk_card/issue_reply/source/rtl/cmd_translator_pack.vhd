@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_translator_pack.vhd,v 1.7 2006/01/16 18:45:27 bburger Exp $
+-- $Id: cmd_translator_pack.vhd,v 1.8 2006/02/11 01:19:33 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: cmd_translator_pack.vhd,v $
+-- Revision 1.8  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.7  2006/01/16 18:45:27  bburger
 -- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
 -- moved component declarations from above package files to cmd_translator
@@ -132,12 +138,11 @@ component cmd_translator_ret_dat_fsm
       sync_number_i           : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);    -- a counter of synch pulses
       ret_dat_start_i         : in std_logic;
       ret_dat_stop_i          : in std_logic;
-      data_req_i              : in  std_logic;
-      data_ack_o              : out std_logic;
-
+      dv_mode_i               : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i           : in std_logic;
+      external_dv_num_i       : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      
       ret_dat_cmd_valid_o     : out std_logic;
-
---      ret_dat_s_start_i       : in std_logic;
 
       -- outputs to the macro-instruction arbiter
       card_addr_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
@@ -214,7 +219,7 @@ component cmd_translator_arbiter
       sync_number_i                : in  std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
 
       -- outputs to the cmd_queue (micro instruction sequence generator)
-      m_op_seq_num_o               : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
+--      m_op_seq_num_o               : out std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
       frame_seq_num_o              : out std_logic_vector (31 downto 0);
       frame_sync_num_o             : out std_logic_vector (SYNC_NUM_WIDTH-1 downto 0);
       
@@ -263,27 +268,27 @@ component cmd_translator_internal_cmd_fsm
 end component;
 
 
-component cmd_translator_m_op_table 
-   port(
-      -- global inputs
-      rst_i                   : in     std_logic;
-      clk_i                   : in     std_logic;
-
-      -- inputs from cmd_translator (top level)     
-      card_addr_store_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-      parameter_id_store_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      m_op_seq_num_store_i    : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
-      frame_seq_num_store_i   : in std_logic_vector (31                    downto 0);
-      macro_instr_rdy_i       : in std_logic;                                           -- '1' when data is valid and ready to be stored in table 
- 
-      -- inputs from reply translator
-      m_op_seq_num_retire_i    : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
-      macro_instr_done_i       : in std_logic;                                          --'1' when issued command ready to be retired from table  
-       
-      retiring_busy_o          : out std_logic;                                         -- asserted high if retiring a command, during which no command should be issued.
-      table_empty_o            : out std_logic;                                         -- asserted high if table full.  no more macro instructions should be retired.
-      table_full_o             : out std_logic                                          -- asserted high  if table full.  No more macro instructions should be issued.
-   ); 
-end component;
+--component cmd_translator_m_op_table 
+--   port(
+--      -- global inputs
+--      rst_i                   : in     std_logic;
+--      clk_i                   : in     std_logic;
+--
+--      -- inputs from cmd_translator (top level)     
+--      card_addr_store_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
+--      parameter_id_store_i    : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1    downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
+--      m_op_seq_num_store_i    : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
+--      frame_seq_num_store_i   : in std_logic_vector (31                    downto 0);
+--      macro_instr_rdy_i       : in std_logic;                                           -- '1' when data is valid and ready to be stored in table 
+-- 
+--      -- inputs from reply translator
+--      m_op_seq_num_retire_i    : in std_logic_vector (BB_MACRO_OP_SEQ_WIDTH-1       downto 0);
+--      macro_instr_done_i       : in std_logic;                                          --'1' when issued command ready to be retired from table  
+--       
+--      retiring_busy_o          : out std_logic;                                         -- asserted high if retiring a command, during which no command should be issued.
+--      table_empty_o            : out std_logic;                                         -- asserted high if table full.  no more macro instructions should be retired.
+--      table_full_o             : out std_logic                                          -- asserted high  if table full.  No more macro instructions should be issued.
+--   ); 
+--end component;
 
 end cmd_translator_pack;

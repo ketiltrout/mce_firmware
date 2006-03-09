@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.32 2006/01/16 18:45:27 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.33 2006/02/11 01:19:33 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/02/11 01:19:33 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.33  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.32  2006/01/16 18:45:27  bburger
 -- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
 -- moved component declarations from above package files to cmd_translator
@@ -200,9 +206,9 @@ port(
       start_seq_num_i       : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       stop_seq_num_i        : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       data_rate_i           : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
-      data_req_i            : in  std_logic;
-      data_ack_o            : out std_logic;
-      frame_num_external_i  : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
+      dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i         : in std_logic;
+      external_dv_num_i     : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- other inputs 
       sync_pulse_i          : in  std_logic;
@@ -224,7 +230,6 @@ port(
       ack_i                 : in  std_logic;                                                     -- acknowledge signal from the micro-instruction sequence generator
 
       -- outputs to the cmd_queue
-      --m_op_seq_num_o        : out std_logic_vector (   BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
       frame_seq_num_o       : out std_logic_vector(       PACKET_WORD_WIDTH-1 downto 0);
       frame_sync_num_o      : out std_logic_vector(          SYNC_NUM_WIDTH-1 downto 0);
 
@@ -250,10 +255,6 @@ architecture rtl of cmd_translator is
    signal arbiter_ret_dat_ack          : std_logic;
    signal ret_dat_cmd_valid            : std_logic;
    signal ret_dat_ack                  : std_logic;
---   signal ret_dat_stop_ack             : std_logic;
---   signal ret_dat_s_start              : std_logic;
---   signal ret_dat_s_done               : std_logic;
---   signal ret_dat_s_ack                : std_logic;
    signal ret_dat_cmd_stop             : std_logic;
    signal ret_dat_last_frame           : std_logic;
    
@@ -274,13 +275,12 @@ architecture rtl of cmd_translator is
         parameter_id_i          : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
         data_i                  : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);
         data_clk_i              : in  std_logic;
---        cmd_code_i              : in  std_logic_vector (                        15 downto 0);
         start_seq_num_i         : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
         stop_seq_num_i          : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
         data_rate_i             : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
-        data_req_i              : in  std_logic;
-        data_ack_o              : out std_logic;
-        frame_num_external_i    : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
+        dv_mode_i               : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+        external_dv_i           : in std_logic;
+        external_dv_num_i       : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
         sync_pulse_i            : in  std_logic;
         sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
         ret_dat_start_i         : in  std_logic;
@@ -442,7 +442,6 @@ architecture rtl of cmd_translator is
    signal cmd_stop_cmd_queue           : std_logic; 
    signal last_frame                   : std_logic; 
    signal internal_cmd                 : std_logic;                                       
---   signal m_op_seq_num                 : std_logic_vector (   BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
    signal frame_seq_num                : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
    signal frame_sync_num               : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);   
    
@@ -459,17 +458,9 @@ architecture rtl of cmd_translator is
    signal cmd_stop_reg                 : std_logic; 
    signal last_frame_reg               : std_logic; 
    signal internal_cmd_reg             : std_logic;                                       
---   signal m_op_seq_num_reg             : std_logic_vector (   BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
    signal frame_seq_num_reg            : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
    signal frame_sync_num_reg           : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0); 
 
---   -------------------------------------------------------------------------------------------
---   -- constants
---   -------------------------------------------------------------------------------------------  
---   constant START_CMD                  : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0) := x"474F";
---   constant STOP_CMD                   : std_logic_vector (FIBRE_CMD_CODE_WIDTH-1 downto 0) := x"5354";
-   
-   
 begin
    -------------------------------------------------------------------------------------------
    -- logic for routing incoming de-composed fibre commands
@@ -481,19 +472,15 @@ begin
             -- RETURN DATA FRAMES command
             when RET_DAT_ADDR  =>
                if cmd_code_i = GO then
-               -- START command
+                  -- START command
                   ret_dat_start        <= '1';
                   ret_dat_stop         <= '0';
---                  ret_dat_s_start      <= '0';
---                  ret_dat_s_ack        <= '0';
                   cmd_start            <= '0';
                   cmd_stop             <= '0';
                else 
-               -- assume it's a STOP command
+                  -- assume it's a STOP command
                   ret_dat_start        <= '0';
                   ret_dat_stop         <= '1';
---                  ret_dat_s_start      <= '0';
---                  ret_dat_s_ack        <= '0';
                   cmd_start            <= '0';
                   cmd_stop             <= '0';
                end if;   
@@ -502,8 +489,6 @@ begin
             when others =>
                ret_dat_start           <= '0';
                ret_dat_stop            <= '0';
---               ret_dat_s_start         <= '0';
---               ret_dat_s_ack           <= '0';
                cmd_start               <= '1';
                cmd_stop                <= '0';
 
@@ -513,8 +498,6 @@ begin
         -- no commands pending
          ret_dat_start         <= '0';
          ret_dat_stop          <= '0';
---         ret_dat_s_start       <= '0';
---         ret_dat_s_ack         <= '0';
          cmd_start             <= '0';
          cmd_stop              <= '0';
  
@@ -537,8 +520,8 @@ begin
 --         timer_rst            <= '1';
 --         internal_cmd_start   <= '1';      
 --      else
---         timer_rst            <= '0';
---         internal_cmd_start   <= '0';      
+         timer_rst            <= '0';
+         internal_cmd_start   <= '0';      
 --      end if;
    ---------------------------------------------------------------------  
    -- end of comments for disabling internal commands.
@@ -567,18 +550,16 @@ begin
       -- inputs from fibre_rx      
       card_addr_i            => card_id_i,                   -- specifies which card the command is targetting
       parameter_id_i         => param_id_i,                  -- comes from param_id_i, indicates which device(s) the command is targetting
---      data_size_i            => num_data_i,                  -- data_size_i, indicates number of 16-bit words of data
       data_i                 => cmd_data_i,                  -- data will be passed straight thru in 16-bit words
       data_clk_i             => data_clk_i,                  -- for clocking out the data
---      cmd_code_i             => cmd_code_i,
       
       -- ret_dat_wbs interface
       start_seq_num_i        => start_seq_num_i,
       stop_seq_num_i         => stop_seq_num_i, 
       data_rate_i            => data_rate_i,
-      data_req_i             => data_req_i,
-      data_ack_o             => data_ack_o,
-      frame_num_external_i   => frame_num_external_i,
+      dv_mode_i              => dv_mode_i,        
+      external_dv_i          => external_dv_i,    
+      external_dv_num_i      => external_dv_num_i,
 
       -- other inputs
       sync_pulse_i           => sync_pulse_i,
@@ -586,7 +567,6 @@ begin
       ret_dat_start_i        => ret_dat_start,
       ret_dat_stop_i         => ret_dat_stop,
       ret_dat_cmd_valid_o    => ret_dat_cmd_valid,
---      ret_dat_s_start_i      => ret_dat_s_start,
  
       -- outputs to arbiter
       card_addr_o            => ret_dat_cmd_card_addr,       -- specifies which card the command is targetting
@@ -719,7 +699,6 @@ begin
       internal_cmd_ack_o             => internal_cmd_ack,
  
       -- outputs to the cmd_queue 
---      m_op_seq_num_o                 => m_op_seq_num,
       frame_seq_num_o                => frame_seq_num,
       frame_sync_num_o               => frame_sync_num,
       card_addr_o                    => card_addr,                  -- specifies which card the command is targetting
@@ -753,7 +732,6 @@ begin
          cmd_stop_reg                <= '0';
          last_frame_reg              <= '0';
          internal_cmd_reg            <= '0'; 
---         m_op_seq_num_reg            <= (others => '0');   
          frame_seq_num_reg           <= (others => '0');   
          frame_sync_num_reg          <= (others => '0');   
       elsif clk_i'event and clk_i = '1' then
@@ -767,7 +745,6 @@ begin
          cmd_stop_reg                <= cmd_stop_cmd_queue;
          last_frame_reg              <= last_frame;
          internal_cmd_reg            <= internal_cmd;
---         m_op_seq_num_reg            <= m_op_seq_num;
          frame_seq_num_reg           <= frame_seq_num;
          frame_sync_num_reg          <= frame_sync_num;
       end if;
@@ -785,7 +762,6 @@ begin
    reply_card_id_o                   <= card_id_i;   
  
    -- acknowledge signal back to fibre_rx indicating receipt of command
---   ack_o                             <= ret_dat_s_ack or ret_dat_ack or simple_cmd_ack;
    ack_o                             <= ret_dat_ack or simple_cmd_ack;
 
    -- outputs to cmd_queue
@@ -799,7 +775,6 @@ begin
    cmd_stop_o                        <= cmd_stop_reg;
    last_frame_o                      <= last_frame_reg;
    internal_cmd_o                    <= internal_cmd_reg;
---   m_op_seq_num_o                    <= m_op_seq_num_reg;
    frame_seq_num_o                   <= frame_seq_num_reg;
    frame_sync_num_o                  <= frame_sync_num_reg;
 
