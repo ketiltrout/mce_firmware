@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.24 2006/02/02 00:30:52 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.25 2006/02/11 01:19:33 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,15 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/02/02 00:30:52 $> -     <text>      - <initials $Author: mandana $>
+-- <date $Date: 2006/02/11 01:19:33 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.25  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.24  2006/02/02 00:30:52  mandana
 -- unused signal data_size_reg removed
 --
@@ -74,7 +80,7 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library sys_param;
---use sys_param.wishbone_pack.all;
+use sys_param.wishbone_pack.all;
 use sys_param.command_pack.all;
 
 library components;
@@ -100,10 +106,9 @@ port(
       stop_seq_num_i          : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
       data_rate_i             : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
       
-      data_req_i              : in  std_logic;
-      data_ack_o              : out std_logic;
---      frame_num_internal_i    : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
-      frame_num_external_i    : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
+      dv_mode_i               : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i           : in std_logic;
+      external_dv_num_i       : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- other inputs
       sync_pulse_i            : in  std_logic;
@@ -209,7 +214,7 @@ begin
    -- State machine for issuing ret_dat macro-ops.
    -- Next State logic
    ------------------------------------------------------------------------------------------- 
-   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i, data_req_i)
+   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i)
    begin
      next_state                     <= current_state;
      ret_dat_stop_reg_en            <= '0';
@@ -218,15 +223,23 @@ begin
       case current_state is
 
          when RETURN_DATA_IDLE =>
-            if(ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) then
+            if (ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) then
                next_state           <= RETURN_DATA_1ST;
-            elsif(ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) then
-               next_state           <= RETURN_DATA_SINGLE_FRAME;
-            elsif(data_req_i = '1') then
+            elsif (ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) then
                next_state           <= RETURN_DATA_SINGLE_FRAME;
             else
                next_state           <= RETURN_DATA_IDLE;
             end if;
+
+--            if (dv_mode_i = DV_INTERNAL) and (ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) then
+--               next_state           <= RETURN_DATA_1ST;
+--            elsif ((dv_mode_i = DV_EXTERNAL_FIBRE) or (dv_mode_i = DV_EXTERNAL_MANCHESTER)) and (ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) then
+--               next_state           <= RETURN_DATA_SINGLE_FRAME;
+--            elsif ((dv_mode_i = DV_EXTERNAL_FIBRE) or (dv_mode_i = DV_EXTERNAL_MANCHESTER)) and (external_dv_i = '1') then
+--               next_state           <= RETURN_DATA_SINGLE_FRAME;
+--            else
+--               next_state           <= RETURN_DATA_IDLE;
+--            end if;
 
             ret_dat_stop_reg_rst    <= '1'; -- reset value
 
@@ -306,14 +319,13 @@ begin
       ret_dat_fsm_working              <= '0';
       input_reg_en                     <= '0';
       ret_dat_start_ack                <= '0';
-      data_ack_o                       <= '0';
       
       case current_state is
          when RETURN_DATA_IDLE =>
          
             if ret_dat_start = '1' then
                ret_dat_cmd_valid       <= '1';
-               instr_rdy_o       <= '1';
+               instr_rdy_o             <= '1';
                ret_dat_fsm_working     <= '1';
                ret_dat_start_ack       <= '1';
             else
@@ -331,7 +343,6 @@ begin
             ret_dat_fsm_working        <= '1';
 
          when RETURN_DATA_SINGLE_FRAME_PAUSE2 =>
-            data_ack_o                 <= '1';
             if ret_dat_start_i = '0' then
                ret_dat_cmd_valid       <= '1';
                ret_dat_done            <= '1';
@@ -392,15 +403,15 @@ begin
    -------------------------------------------------------------------------------------------
    -- state machine for grabbing ret_dat_s data
    ------------------------------------------------------------------------------------------- 
-   process(sync_current_state, ret_dat_start_i, ret_dat_done)
+   process(sync_current_state, ret_dat_start_i, ret_dat_done, external_dv_i)
    begin
       ret_dat_start                        <= '0';
       case sync_current_state is
          when IDLE =>
-            if ret_dat_start_i = '1' then
+            if(ret_dat_start_i = '1' or external_dv_i = '1') then
                ret_dat_start               <= '1';  
                sync_next_state             <= RETURN_DATA_WAIT;
-            elsif ret_dat_done = '1' then
+            elsif(ret_dat_done = '1') then
                ret_dat_start               <= '0';       
                sync_next_state             <= IDLE;
             else
@@ -408,7 +419,7 @@ begin
             end if;
 
          when RETURN_DATA_WAIT =>
-            if ret_dat_done = '1' then
+            if(ret_dat_done = '1') then
                sync_next_state             <= IDLE;
             else
                sync_next_state             <= RETURN_DATA_WAIT;
@@ -503,17 +514,27 @@ begin
    last_frame_o            <= '1' when (current_state = RETURN_DATA_LAST and (ret_dat_stop_reg = '1' or current_seq_num >= stop_seq_num_i)) 
                                     or (current_state = RETURN_DATA_SINGLE_FRAME or current_state = RETURN_DATA_SINGLE_FRAME_PAUSE1) else '0';
 
-   process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg)
+   process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg, dv_mode_i)
    begin
       if ret_dat_fsm_working = '1' then
          frame_seq_num_o  <= current_seq_num_reg;
          frame_sync_num_o <= current_sync_num_reg;
-         card_addr_o      <= card_addr_reg;    --card_addr;
-         parameter_id_o   <= parameter_id_reg; --parameter_id;
-         data_size_o      <= "00101001000";    --data_size;
-         data_o           <= data_reg;         --data_mux;
-         cmd_type_o       <= READ_CMD;         --this will always indicate data, whether or not a stop command was received, or it is the last frame
-         data_clk_o       <= '0';              -- not passing any data, so keep the data clock inactive
+
+         if(dv_mode_i = DV_INTERNAL) then
+            card_addr_o      <= card_addr_reg;
+            parameter_id_o   <= parameter_id_reg;
+         else
+            -- These statements override the values of the previous command, so that DV pulses cause this FSM to fetch data frames
+            card_addr_o      <= ALL_READOUT_CARDS;
+            parameter_id_o   <= RET_DAT_ADDR;
+         end if;
+         
+         data_size_o      <= "00101001000";    
+         data_o           <= data_reg;         
+         --this will always indicate data, whether or not a stop command was received, or it is the last frame
+         cmd_type_o       <= READ_CMD;         
+         -- not passing any data, so keep the data clock inactive
+         data_clk_o       <= '0';              
          
       else
          frame_seq_num_o  <= (others => '0');
