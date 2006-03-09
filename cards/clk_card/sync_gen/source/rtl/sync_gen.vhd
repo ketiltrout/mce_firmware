@@ -38,6 +38,12 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.14  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.13  2005/03/16 02:20:58  bburger
 -- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
 --
@@ -103,27 +109,24 @@ use work.sync_gen_core_pack.all;
 entity sync_gen is
    port(
       -- Inputs/Outputs
-      dv_i        : in std_logic;
-      sync_o      : out std_logic;
-      sync_num_o  : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      data_req_o           : out std_logic;
-      data_ack_i           : in  std_logic;
-      frame_num_external_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      dv_mode_o            : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      sync_mode_o          : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+      encoded_sync_o       : out std_logic;
+      external_sync_i      : in std_logic;
 
       -- Wishbone interface
-      dat_i              : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i             : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i              : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i               : in std_logic;
-      stb_i              : in std_logic;
-      cyc_i              : in std_logic;
-      dat_o              : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o              : out std_logic;
+      dat_i                : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i               : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                 : in std_logic;
+      stb_i                : in std_logic;
+      cyc_i                : in std_logic;
+      dat_o                : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                : out std_logic;
 
       -- Global Signals
-      clk_i       : in std_logic;
---      mem_clk_i   : in std_logic;
-      rst_i       : in std_logic
+      clk_i                : in std_logic;
+      rst_i                : in std_logic
    );
 end sync_gen;
 
@@ -134,14 +137,62 @@ architecture beh of sync_gen is
    
    signal clk_count        : integer;
    signal sync_count       : integer;
-   signal dv_en            : std_logic;
+   signal dv_mode          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+   signal sync_mode        : std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
    signal row_len          : integer;
    signal num_rows         : integer;
 
+   component sync_gen_core
+   port(
+      -- Wishbone Interface
+      dv_mode_i            : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      sync_mode_i          : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+      row_len_i            : in integer;
+      num_rows_i           : in integer;
+      
+      -- Inputs/Outputs
+      external_sync_i      : in std_logic;
+      encoded_sync_o       : out std_logic;
+
+      -- Global Signals
+      clk_i                : in std_logic;
+      rst_i                : in std_logic
+   );
+   end component;
+
+   component sync_gen_wbs        
+   port(
+      -- sync_gen interface:
+      dv_mode_o           : out std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      sync_mode_o         : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+      row_len_o           : out integer;
+      num_rows_o          : out integer;
+
+      -- wishbone interface:
+      dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                : in std_logic;
+      stb_i               : in std_logic;
+      cyc_i               : in std_logic;
+      dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o               : out std_logic;
+
+      -- global interface
+      clk_i               : in std_logic;
+      rst_i               : in std_logic 
+   );     
+   end component;
+
 begin      
+   
+   dv_mode_o <= dv_mode;
+   sync_mode_o <= sync_mode;
+   
    wbi: sync_gen_wbs        
       port map(
-         dv_en_o     => dv_en,
+         dv_mode_o   => dv_mode,
+         sync_mode_o => sync_mode,
          row_len_o   => row_len,
          num_rows_o  => num_rows,
 
@@ -155,29 +206,24 @@ begin
          ack_o       => ack_o, 
 
          clk_i       => clk_i,           
---         mem_clk_i   => mem_clk_i,       
          rst_i       => rst_i           
       );
    
    sgc: sync_gen_core
       port map(
          -- Wishbone Interface
-         dv_en_i    => dv_en,
-         row_len_i  => row_len,
-         num_rows_i => num_rows,
-         data_req_o           => data_req_o,          
-         data_ack_i           => data_ack_i,          
-         frame_num_external_o => frame_num_external_o,
+         dv_mode_i            => dv_mode,
+         sync_mode_i          => sync_mode,
+         row_len_i            => row_len,
+         num_rows_i           => num_rows,
 
          -- Inputs/Outputs
-         dv_i       => dv_i,      
-         sync_o     => sync_o,    
-         sync_num_o => sync_num_o,
+         external_sync_i      => external_sync_i,
+         encoded_sync_o       => encoded_sync_o,
 
          -- Global Signals
-         clk_i      => clk_i,    
---         mem_clk_i  => mem_clk_i,
-         rst_i      => rst_i     
+         clk_i                => clk_i,    
+         rst_i                => rst_i     
       );            
       
 end beh;
