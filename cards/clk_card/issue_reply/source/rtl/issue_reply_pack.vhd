@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.42 2006/01/16 18:58:05 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.43 2006/02/11 01:19:33 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.43  2006/02/11 01:19:33  bburger
+-- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
+-- data_req
+-- data_ack
+-- frame_num_external
+--
 -- Revision 1.42  2006/01/16 18:58:05  bburger
 -- Ernie:
 -- Added component declarations
@@ -116,9 +122,9 @@ component issue_reply
       start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      data_req_i        : in  std_logic;
-      data_ack_o        : out std_logic;
-      frame_num_external_i : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
+      dv_mode_i         : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i     : in std_logic;
+      external_dv_num_i : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- sync_gen interface
       sync_pulse_i      : in std_logic;
