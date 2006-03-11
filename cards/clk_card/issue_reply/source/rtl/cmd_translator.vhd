@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.33 2006/02/11 01:19:33 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.34 2006/03/09 00:57:10 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/02/11 01:19:33 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/09 00:57:10 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.34  2006/03/09 00:57:10  bburger
+-- Bryce:  Added the following signals to the interface:  dv_mode_i, external_dv_i, external_dv_num_i
+--
 -- Revision 1.33  2006/02/11 01:19:33  bburger
 -- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
 -- data_req
@@ -465,25 +468,33 @@ begin
    -------------------------------------------------------------------------------------------
    -- logic for routing incoming de-composed fibre commands
    -------------------------------------------------------------------------------------------
-   process (cmd_rdy_i, param_id_i, cmd_code_i)            
+   process (cmd_rdy_i, param_id_i, cmd_code_i, dv_mode_i)            
    begin
       if cmd_rdy_i = '1' then 
          case param_id_i (7 downto 0) is
             -- RETURN DATA FRAMES command
             when RET_DAT_ADDR  =>
-               if cmd_code_i = GO then
-                  -- START command
-                  ret_dat_start        <= '1';
-                  ret_dat_stop         <= '0';
-                  cmd_start            <= '0';
-                  cmd_stop             <= '0';
-               else 
-                  -- assume it's a STOP command
-                  ret_dat_start        <= '0';
-                  ret_dat_stop         <= '1';
-                  cmd_start            <= '0';
-                  cmd_stop             <= '0';
-               end if;   
+               -- If the ret_dat fsm is set to respond to 
+               if (dv_mode_i = DV_INTERNAL) then
+                  if cmd_code_i = GO then
+                     -- START command
+                     ret_dat_start        <= '1';
+                     ret_dat_stop         <= '0';
+                     cmd_start            <= '0';
+                     cmd_stop             <= '0';
+                  else 
+                     -- assume it's a STOP command
+                     ret_dat_start        <= '0';
+                     ret_dat_stop         <= '1';
+                     cmd_start            <= '0';
+                     cmd_stop             <= '0';
+                  end if;
+               else
+                  ret_dat_start         <= '0';
+                  ret_dat_stop          <= '0';
+                  cmd_start             <= '0';
+                  cmd_stop              <= '0';
+               end if;         
 
             -- all other commands (SIMPLE commands)
             when others =>

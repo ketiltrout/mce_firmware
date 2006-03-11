@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.25 2006/02/11 01:19:33 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.26 2006/03/09 00:58:41 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/02/11 01:19:33 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/09 00:58:41 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.26  2006/03/09 00:58:41  bburger
+-- Bryce:
+-- - Added the following signals to the interface:  dv_mode_i, external_dv_i, external_dv_num_i
+-- - Implemented logic for this block to be responsive to external dv pulses
+--
 -- Revision 1.25  2006/02/11 01:19:33  bburger
 -- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
 -- data_req
@@ -214,7 +219,7 @@ begin
    -- State machine for issuing ret_dat macro-ops.
    -- Next State logic
    ------------------------------------------------------------------------------------------- 
-   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i)
+   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i, dv_mode_i)
    begin
      next_state                     <= current_state;
      ret_dat_stop_reg_en            <= '0';
@@ -223,23 +228,15 @@ begin
       case current_state is
 
          when RETURN_DATA_IDLE =>
-            if (ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) then
+            if (ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) and (dv_mode_i = DV_INTERNAL) then
                next_state           <= RETURN_DATA_1ST;
-            elsif (ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) then
+            elsif (ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) and (dv_mode_i = DV_INTERNAL) then
+               next_state           <= RETURN_DATA_SINGLE_FRAME;
+            elsif (ret_dat_start = '1') and (dv_mode_i /= DV_INTERNAL) then
                next_state           <= RETURN_DATA_SINGLE_FRAME;
             else
                next_state           <= RETURN_DATA_IDLE;
             end if;
-
---            if (dv_mode_i = DV_INTERNAL) and (ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) then
---               next_state           <= RETURN_DATA_1ST;
---            elsif ((dv_mode_i = DV_EXTERNAL_FIBRE) or (dv_mode_i = DV_EXTERNAL_MANCHESTER)) and (ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) then
---               next_state           <= RETURN_DATA_SINGLE_FRAME;
---            elsif ((dv_mode_i = DV_EXTERNAL_FIBRE) or (dv_mode_i = DV_EXTERNAL_MANCHESTER)) and (external_dv_i = '1') then
---               next_state           <= RETURN_DATA_SINGLE_FRAME;
---            else
---               next_state           <= RETURN_DATA_IDLE;
---            end if;
 
             ret_dat_stop_reg_rst    <= '1'; -- reset value
 
@@ -408,7 +405,12 @@ begin
       ret_dat_start                        <= '0';
       case sync_current_state is
          when IDLE =>
-            if(ret_dat_start_i = '1' or external_dv_i = '1') then
+            if(ret_dat_start_i = '1') then
+--            if((dv_mode_i = DV_INTERNAL) and (ret_dat_start_i = '1')) then
+               ret_dat_start               <= '1';  
+               sync_next_state             <= RETURN_DATA_WAIT;
+            elsif(external_dv_i = '1') then
+--            elsif((dv_mode_i /= DV_INTERNAL) and (external_dv_i = '1')) then
                ret_dat_start               <= '1';  
                sync_next_state             <= RETURN_DATA_WAIT;
             elsif(ret_dat_done = '1') then
