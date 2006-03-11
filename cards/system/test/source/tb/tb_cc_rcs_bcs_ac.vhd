@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.14 2006/02/09 20:32:59 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.15 2006/03/09 01:32:05 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,11 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.15  2006/03/09 01:32:05  bburger
+-- Bryce:
+-- - Updated the slot id's for revC of the Bus Backplane
+-- - Added commands for testing the external DV functionality
+--
 -- Revision 1.14  2006/02/09 20:32:59  bburger
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
@@ -358,7 +363,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_row_len_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ROW_LEN_ADDR;    
    constant cc_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & NUM_ROWS_ADDR;
    constant cc_ret_dat_s_cmd        : std_logic_vector(31 downto 0) := X"00020053";  -- card id=0, ret_dat_s command
-   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"0000000A";   
+   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"00000002";   
    constant cc_led_cmd              : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & LED_ADDR;
    constant cc_array_id_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ARRAY_ID_ADDR;
    constant cc_use_dv_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_DV_ADDR;
@@ -429,6 +434,23 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
    signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
    
+
+--         when "0000" => card <= ADDRESS_CARD;
+--         when "0001" => card <= BIAS_CARD_1;
+--         when "0010" => card <= BIAS_CARD_2;
+--         when "0011" => card <= BIAS_CARD_3;
+--         when "0100" => card <= READOUT_CARD_1;
+--         when "0101" => card <= READOUT_CARD_2;
+--         when "0110" => card <= READOUT_CARD_3;
+--         when "0111" => card <= READOUT_CARD_4;
+--         when "1000" => card <= CLOCK_CARD;
+--         when "1001" => card <= POWER_SUPPLY_CARD;
+--         when "1010" => card <= (others => '1');
+--         when "1011" => card <= (others => '1');
+--         when "1100" => card <= (others => '1');
+--         when "1101" => card <= (others => '1');
+--         when "1110" => card <= (others => '1');
+
    ------------------------------------------------
    -- Clock Card Signals
    -------------------------------------------------
@@ -2457,31 +2479,56 @@ begin
 --
 --      wait for 800 us;
 --
---      command <= command_wb;
---      address_id <= cc_use_dv_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;      
---      
---      wait for 53 us;
---      
---      dv_pulse_fibre <= '1';
---      wait for 1 us;
---      dv_pulse_fibre <= '0';      
---      wait for 1200 us;
-
 
       command <= command_wb;
-      address_id <= cc_led_cmd;
+      address_id <= cc_ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;      
+      
+      wait for 53 us;
+
+      command <= command_wb;
+      address_id <= cc_use_dv_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000006";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;      
+      
+      wait for 53 us;
+
+      command <= command_go;
+      address_id <= rc1_ret_dat_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
       
-      wait for 200 us;
+      wait for 53 us;
+
+      dv_pulse_fibre <= '1';
+      wait for 1 us;
+      dv_pulse_fibre <= '0';      
+      wait for 1200 us;
+      
+      dv_pulse_fibre <= '1';
+      wait for 1 us;
+      dv_pulse_fibre <= '0';      
+      wait for 1200 us;
+
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000006";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 200 us;
 --      
 --      command <= command_wb;
 --      address_id <= rc1_led_cmd;
