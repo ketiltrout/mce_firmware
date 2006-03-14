@@ -43,6 +43,9 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_processor.vhd,v $
+-- Revision 1.6  2005/12/14 20:03:06  mandana
+-- added filter-response test for impulse and stimulus read from a file
+--
 -- Revision 1.5  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -97,6 +100,7 @@ architecture test of tb_fsfb_processor is
    constant coadd_done_cyc           :     integer   := 5;       -- cycle number at which coadd_done occurs
    constant num_ramp_frame_cycles    :     integer   := 2;       -- num of frame_cycles for fixed ramp output
    constant lock_dat_msb_pos         :     integer   := 37;      -- most significant bit position of lock mode data output 
+   constant fltr_lock_dat_lsb_pos    :     integer   := 0;       -- least significant bit position of lock-mode data output that goes to the filter block
     
      
    shared variable endsim            :     boolean   := false;   -- simulation window
@@ -141,11 +145,14 @@ architecture test of tb_fsfb_processor is
    signal ws_z_dat_i                 :     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
    
    -- filter wn interface
-   signal wn2_dat_i                  :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
-   signal wn1_dat_i                  :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn12_dat_i                 :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn11_dat_i                 :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn22_dat_i                 :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn21_dat_i                 :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
    
    -- outputs from the processor
-   signal wn_dat_o                   :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn10_dat_o                 :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+   signal wn20_dat_o                 :     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);   
    signal processor_update_o         :     std_logic;
    signal processor_dat_o            :     std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);
    signal processor_lock_en_o        :     std_logic;
@@ -433,7 +440,7 @@ begin
    UUT : fsfb_processor
       generic map (
          lock_dat_left            => lock_dat_msb_pos,
-         filter_lock_dat_lsb      => 0
+         filter_lock_dat_lsb      => fltr_lock_dat_lsb_pos
       )
       port map (
          rst_i                    => rst,
@@ -453,9 +460,12 @@ begin
    	 p_dat_i                  => ws_p_dat_i,
    	 i_dat_i                  => ws_i_dat_i,
    	 d_dat_i                  => ws_d_dat_i,
-   	 wn2_dat_i                => wn2_dat_i,
-   	 wn1_dat_i                => wn1_dat_i,
-   	 wn_dat_o                 => wn_dat_o,
+   	 wn12_dat_i               => wn12_dat_i,
+   	 wn11_dat_i               => wn11_dat_i,
+   	 wn10_dat_o               => wn10_dat_o,
+   	 wn22_dat_i               => wn22_dat_i,
+   	 wn21_dat_i               => wn21_dat_i,
+   	 wn20_dat_o               => wn20_dat_o,
          fsfb_proc_update_o       => processor_update_o,
          fsfb_proc_dat_o          => processor_dat_o,
          fsfb_proc_fltr_update_o  => proc_fltr_update_o,
@@ -469,18 +479,21 @@ begin
        port map (
           rst_i                       => rst,
           clk_50_i                    => processor_clk_i,
-          initialize_window_i         => io_initialize_window_ext_i,
+          fltr_rst_i                  => io_initialize_window_ext_i,
           addr_i                      => frame_counter,
-          wn2_o                       => wn2_dat_i,
-          wn1_o                       => wn1_dat_i,
-          wn_i                        => wn_dat_o,
+          wn12_o                      => wn12_dat_i,
+          wn11_o                      => wn11_dat_i,
+          wn10_i                      => wn10_dat_o,
+          wn22_o                      => wn22_dat_i,
+          wn21_o                      => wn21_dat_i,
+          wn20_i                      => wn20_dat_o,          
           wren_i                      => proc_fltr_update_o
        ); 
 
    -- set up PIDZ coefficients
    
    -- PIDZ setup for filter impulse response test
-   pidz_config(10000, 0, 0, 0, 0, coadd_done_shift(2),
+   pidz_config(100, 0, 0, 0, 0, coadd_done_shift(2),
                ws_p_dat_i, ws_i_dat_i, ws_d_dat_i, ws_z_dat_i);
                
    -- PIDZ setup for non-filter test            
