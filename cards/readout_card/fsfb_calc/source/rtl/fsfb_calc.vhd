@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc.vhd,v $
+-- Revision 1.10  2006/02/15 21:40:57  mandana
+-- registers can now be reset by either fltr_rst_i or initialize_window_i
+--
 -- Revision 1.9  2006/02/09 17:19:03  bburger
 -- Bryce:  removed an inappropriate signal from the sensitivity list of a clocked process.
 --
@@ -184,12 +187,15 @@ architecture struct of fsfb_calc is
    signal fsfb_fltr_wr_en_o           : std_logic;                                              -- write enable to the fsfb filter queue
    signal fsfb_fltr_rd_data_i         : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- read data from the fsfb filter queue
    signal wn_addr_o                   : std_logic_vector(FLTR_QUEUE_ADDR_WIDTH-1 downto 0);     -- address for wn set of filter registers
-   signal wn2_dat                     : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn2 result (wn delayed by 2 sample)
-   signal wn1_dat                     : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn1 result (wn delayed by 1 sample)
-   signal wn_dat                      : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- filter wn result   
+   signal wn12_dat                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- 1st biquad: filter wn2 result (wn delayed by 2 sample)
+   signal wn11_dat                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- 1st biquad: filter wn1 result (wn delayed by 1 sample)
+   signal wn10_dat                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- 1st biquad: filter wn result   
+   signal wn22_dat                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- 2nd biquad: filter wn2 result (wn delayed by 2 sample)
+   signal wn21_dat                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- 2nd biquad: filter wn1 result (wn delayed by 1 sample)
+   signal wn20_dat                    : std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);          -- 2nd biquad: filter wn result      
    signal fltr_rst                    : std_logic;                                              -- reset filter internal registers
    
-   signal row1_fltr_data              : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- temporary for debug to store row1 data
+--   signal row1_fltr_data              : std_logic_vector(FLTR_QUEUE_DATA_WIDTH-1 downto 0);     -- temporary for debug to store row1 data
 
    signal fsfb_queue_wr_data_o        : std_logic_vector(FSFB_QUEUE_DATA_WIDTH downto 0);       -- write data to the fsfb data queue (bank 0, 1)
    signal fsfb_queue_wr_addr_o        : std_logic_vector(FSFB_QUEUE_ADDR_WIDTH-1 downto 0);     -- write address to the fsfb data queue (bank 0, 1)
@@ -310,9 +316,12 @@ begin
          p_dat_i                      => p_dat_i,
          i_dat_i                      => i_dat_i,
          d_dat_i                      => d_dat_i,
-         wn1_dat_i                    => wn1_dat,
-         wn2_dat_i                    => wn2_dat,
-         wn_dat_o                     => wn_dat,
+         wn11_dat_i                   => wn11_dat,
+         wn12_dat_i                   => wn12_dat,
+         wn10_dat_o                   => wn10_dat,
+         wn21_dat_i                   => wn21_dat,
+         wn22_dat_i                   => wn22_dat,
+         wn20_dat_o                   => wn20_dat,         
          fsfb_proc_update_o           => fsfb_proc_update_o,
          fsfb_proc_dat_o              => fsfb_proc_dat_o,
          fsfb_proc_fltr_update_o      => fsfb_proc_fltr_update_o,
@@ -369,25 +378,28 @@ begin
          clk_50_i                    => clk_50_i,
          fltr_rst_i                  => fltr_rst,
          addr_i                      => wn_addr_o,
-         wn2_o                       => wn2_dat,
-         wn1_o                       => wn1_dat,
-         wn_i                        => wn_dat,
+         wn12_o                      => wn12_dat,
+         wn11_o                      => wn11_dat,
+         wn10_i                      => wn10_dat,
+         wn22_o                      => wn22_dat,
+         wn21_o                      => wn21_dat,
+         wn20_i                      => wn20_dat,         
          wren_i                      => fsfb_fltr_wr_en_o
       ); 
 
    -- reset wn registers when either of fltr_rst or initialize_window are asserted
    fltr_rst <= fltr_rst_i or initialize_window_i;
    
-   row1_fltr_data_reg: process (clk_50_i, rst_i)
-   begin
-      if (rst_i = '1') then
-         row1_fltr_data <= (others => '0');
-      elsif ( clk_50_i'event and clk_50_i = '1') then
-         if (conv_integer(unsigned(fsfb_fltr_rd_addr_o)) = 1) then
-            row1_fltr_data <= fsfb_fltr_rd_data_i;
-         end if;
-      end if;   
-   end process row1_fltr_data_reg;
+--   row1_fltr_data_reg: process (clk_50_i, rst_i)
+--   begin
+--      if (rst_i = '1') then
+--         row1_fltr_data <= (others => '0');
+--      elsif ( clk_50_i'event and clk_50_i = '1') then
+--         if (conv_integer(unsigned(fsfb_fltr_rd_addr_o)) = 1) then
+--            row1_fltr_data <= fsfb_fltr_rd_data_i;
+--         end if;
+--      end if;   
+--   end process row1_fltr_data_reg;
    
    -- flux quanta counter queues
    -- Bank 0 (even)

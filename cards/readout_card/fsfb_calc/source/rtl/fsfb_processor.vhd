@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.7  2005/12/12 23:56:37  mandana
+-- added filter-related interface, removed unused port flux_jumping_en_i
+--
 -- Revision 1.6  2005/11/28 19:11:29  bburger
 -- Bryce:  increased the bus width for fb_const, ramp_dly, ramp_amp and ramp_step from 14 bits to 32 bits, to use them for flux-jumping testing
 --
@@ -114,10 +117,15 @@ entity fsfb_processor is
       i_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
       d_dat_i                 : in     std_logic_vector(COEFF_QUEUE_DATA_WIDTH-1 downto 0);
 
-      -- filter intermediate results
-      wn2_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
-      wn1_dat_i               : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
-      wn_dat_o                : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+      -- filter intermediate results 
+      -- 1st biquad
+      wn12_dat_i              : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+      wn11_dat_i              : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+      wn10_dat_o              : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+      -- 2nd biquad
+      wn22_dat_i              : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+      wn21_dat_i              : in     std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
+      wn20_dat_o              : out    std_logic_vector(FILTER_DLY_WIDTH-1 downto 0);
    
       -- First stage feedback queue interface (write operation to current queue)
       fsfb_proc_update_o      : out    std_logic;                                             -- update pulse to the current fsfb_queue
@@ -285,9 +293,12 @@ begin
          i_dat_i                   => i_dat_i,  
          d_dat_i                   => d_dat_i,  
          z_dat_i                   => (others => '0'),  
-         wn2_dat_i                 => wn2_dat_i,
-         wn1_dat_i                 => wn1_dat_i,
-         wn_dat_o                  => wn_dat_o,
+         wn12_dat_i                => wn12_dat_i,
+         wn11_dat_i                => wn11_dat_i,
+         wn10_dat_o                => wn10_dat_o,
+         wn22_dat_i                => wn22_dat_i,
+         wn21_dat_i                => wn21_dat_i,
+         wn20_dat_o                => wn20_dat_o,
          fsfb_proc_pidz_update_o   => pidz_update,                                            
          fsfb_proc_pidz_sum_o      => pidz_sum,
          fsfb_proc_fltr_update_o   => fltr_update,
