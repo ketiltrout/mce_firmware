@@ -31,8 +31,14 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
--- Revision 1.24  2006/03/04 00:08:26  bench1
--- Mandana: changed revision number to 03000001 for new dispatch with Rev. C backplane slot ids
+-- Revision 1.23.2.3  2006/02/17 21:16:48  mandana
+-- revision number changed to 02000004 for princeton filter and filter window set at 14
+--
+-- Revision 1.23.2.2  2006/02/15 22:22:40  bburger
+-- Bryce:  changed revision number to 02000003
+--
+-- Revision 1.23.2.1  2006/02/15 22:07:39  mandana
+-- old dispatch, revision number changed to 02000002
 --
 -- Revision 1.23  2006/02/15 21:53:29  mandana
 -- added FLTR_RST_ADDR command
@@ -245,11 +251,11 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000002";--03 signifies Rev. C backplane slot ids
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000005"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+                                                                     -- build up on princeton version to fix timing violations by modifying fsfb_proc_pidz.vhd
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
-signal mem_clk                 : std_logic;  -- memory clk
 signal comm_clk                : std_logic;  -- communication clk
 signal spi_clk                 : std_logic;  -- spi clk
 signal rst                     : std_logic;
@@ -332,7 +338,7 @@ begin
      port map (
          inclk0 => inclk,
          c0     => clk,
-         c1     => mem_clk,
+         c1     => open,
          c2     => comm_clk,
          c3     => spi_clk,
          c4     => clk_n);
@@ -360,9 +366,9 @@ begin
          ack_i        => dispatch_ack_in,
          err_i        => dispatch_err_in,
          wdt_rst_o    => wdog,
-         slot_i       => slot_id,
-         dip_sw3      => '1',--dip_sw3,
-         dip_sw4      => '1'--dip_sw4
+         slot_i       => slot_id--,
+--         dip_sw3      => '1',--dip_sw3,
+--         dip_sw4      => '1'--dip_sw4
          );
 
 
