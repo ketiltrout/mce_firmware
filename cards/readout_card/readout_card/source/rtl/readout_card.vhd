@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.26  2006/03/14 23:31:43  mandana
+-- revision upgraded to 02000005 for 4-pole filter and timing violations introduced by Q5.1 are fixed now
+-- mem_clk finally deleted
+--
 -- Revision 1.23.2.3  2006/02/17 21:16:48  mandana
 -- revision number changed to 02000004 for princeton filter and filter window set at 14
 --
@@ -251,7 +255,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000005"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000006"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- build up on princeton version to fix timing violations by modifying fsfb_proc_pidz.vhd
   
 -- Global signals
