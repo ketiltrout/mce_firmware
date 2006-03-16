@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.20  2006/03/08 23:01:43  bburger
+-- Bryce:  New tag of the address card: ac_v02000000_08mar2006
+-- - Instantiates a new lvds_rx block that runs at 100MHz
+-- - Dispatch files work with issue_reply2
+--
 -- Revision 1.19  2006/02/09 20:32:59  bburger
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
@@ -182,7 +187,7 @@ architecture top of addr_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000000";
+constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000001";
 
 -- clocks
 signal clk      : std_logic;
