@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs_pack.vhd,v 1.3 2006/01/16 18:00:44 bburger Exp $
+-- $Id: ret_dat_wbs_pack.vhd,v 1.4 2006/03/09 01:27:21 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs_pack.vhd,v $
+-- Revision 1.4  2006/03/09 01:27:21  bburger
+-- Bryce:
+-- - ret_dat_wbs no longer clamps the data_rate
+-- - ret_dat_wbs_pack defines a default data rate of ~200Hz based on row_len=120 and num_rows=41
+--
 -- Revision 1.3  2006/01/16 18:00:44  bburger
 -- Bryce:  Adjusted the upper and lower bounds for data_rate, and added a default value of 0x5F = 95 = data at 200 Hz based on 50 Mhz/41rows/64cycles per row
 --
@@ -72,29 +77,5 @@ package ret_dat_wbs_pack is
 constant MIN_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000FFFF";
 constant MAX_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"00000000";
 constant DEF_DATA_RATE : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := x"0000005F";  -- 200.577 Hz Based on 41 rows, 120 cycles per row, 20ns per cycle
-
-component ret_dat_wbs is        
-   port
-   (
-      -- cmd_translator interface:
-      start_seq_num_o : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      stop_seq_num_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      data_rate_o     : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-
-      -- global interface
-      clk_i          : in std_logic;
-      rst_i          : in std_logic; 
-      
-      -- wishbone interface:
-      dat_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i         : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i          : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i           : in std_logic;
-      stb_i          : in std_logic;
-      cyc_i          : in std_logic;
-      dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o          : out std_logic
-   );     
-end component;
 
 end package;
