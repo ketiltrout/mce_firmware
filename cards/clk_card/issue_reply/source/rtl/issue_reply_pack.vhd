@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.43 2006/02/11 01:19:33 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.44 2006/03/09 01:04:37 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.44  2006/03/09 01:04:37  bburger
+-- Bryce:
+-- - cmd_translator interface now takes the following signals:  dv_mode_i, external_dv_i, external_dv_num_i
+-- - cmd_queue communicates the issue_sync to reply_queue
+--
 -- Revision 1.43  2006/02/11 01:19:33  bburger
 -- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
 -- data_req
@@ -76,60 +81,5 @@ library work;
 use work.sync_gen_pack.all;
 
 package issue_reply_pack is
-
-component issue_reply
-   port(
-      -- for testing
-      debug_o           : out std_logic_vector (31 downto 0);
-
-      -- global signals
-      rst_i             : in std_logic;
-      clk_i             : in std_logic;
-      comm_clk_i        : in std_logic;
-
-      -- inputs from the bus backplane
-      lvds_reply_ac_a   : in std_logic;  
-      lvds_reply_bc1_a  : in std_logic;
-      lvds_reply_bc2_a  : in std_logic;
-      lvds_reply_bc3_a  : in std_logic;
-      lvds_reply_rc1_a  : in std_logic;
-      lvds_reply_rc2_a  : in std_logic;
-      lvds_reply_rc3_a  : in std_logic; 
-      lvds_reply_rc4_a  : in std_logic;
-      lvds_reply_cc_a   : in std_logic;
-      
-      -- inputs from the fibre receiver 
-      fibre_clkr_i      : in std_logic;
-      rx_data_i         : in std_logic_vector (7 DOWNTO 0);
-      nRx_rdy_i         : in std_logic;
-      rvs_i             : in std_logic;
-      rso_i             : in std_logic;
-      rsc_nRd_i         : in std_logic;        
-      cksum_err_o       : out std_logic;
-
-      -- interface to fibre transmitter
-      tx_data_o         : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
-      tsc_nTd_o         : out std_logic;                          -- hotlink tx special char/ data sel
-      nFena_o           : out std_logic;                          -- hotlink tx enable
-
-      -- 25MHz clock for fibre_tx_control
-      fibre_clkw_i      : in std_logic;                           -- in phase with 25MHz hotlink clock
-
-      -- lvds_tx interface
-      lvds_cmd_o        : out std_logic;                          -- transmitter output pin
-
-      -- ret_dat_wbs interface:
-      start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      dv_mode_i         : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      external_dv_i     : in std_logic;
-      external_dv_num_i : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-
-      -- sync_gen interface
-      sync_pulse_i      : in std_logic;
-      sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
-   );    
-end component;
 
 end issue_reply_pack;
