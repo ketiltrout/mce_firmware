@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.16 2006/03/11 03:43:45 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.17 2006/03/16 00:12:38 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.17  2006/03/16 00:12:38  bburger
+-- Bryce:  Added test routines for dv-pulse functionality
+--
 -- Revision 1.16  2006/03/11 03:43:45  bburger
 -- Bryce:  has a dv_rx testing section
 --
@@ -415,44 +418,27 @@ architecture tb of tb_cc_rcs_bcs_ac is
    ------------------------------------------------
    -- For Bus Backplane Rev. A and B
    -- slot ID decode logic:
---   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
---   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
---   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
---   signal rc2_slot_id : std_logic_vector(3 downto 0) := "1010";
---   signal rc1_slot_id : std_logic_vector(3 downto 0) := "1011";
---   signal ac_slot_id  : std_logic_vector(3 downto 0) := "1111";
---   signal bc1_slot_id : std_logic_vector(3 downto 0) := "1110";
---   signal bc2_slot_id : std_logic_vector(3 downto 0) := "1101";
---   signal bc3_slot_id : std_logic_vector(3 downto 0) := "1100";
+   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
+   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
+   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
+   signal rc2_slot_id : std_logic_vector(3 downto 0) := "1010";
+   signal rc1_slot_id : std_logic_vector(3 downto 0) := "1011";
+   signal ac_slot_id  : std_logic_vector(3 downto 0) := "1111";
+   signal bc1_slot_id : std_logic_vector(3 downto 0) := "1110";
+   signal bc2_slot_id : std_logic_vector(3 downto 0) := "1101";
+   signal bc3_slot_id : std_logic_vector(3 downto 0) := "1100";
 
    -- For Bus Backplane Rev. C
    -- slot ID decode logic:
-   signal ac_slot_id  : std_logic_vector(3 downto 0) := "0000";
-   signal bc1_slot_id : std_logic_vector(3 downto 0) := "0001";
-   signal bc2_slot_id : std_logic_vector(3 downto 0) := "0010";
-   signal bc3_slot_id : std_logic_vector(3 downto 0) := "0011";
-   signal rc1_slot_id : std_logic_vector(3 downto 0) := "0100";
-   signal rc2_slot_id : std_logic_vector(3 downto 0) := "0101";
-   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
-   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
-   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
-   
-
---         when "0000" => card <= ADDRESS_CARD;
---         when "0001" => card <= BIAS_CARD_1;
---         when "0010" => card <= BIAS_CARD_2;
---         when "0011" => card <= BIAS_CARD_3;
---         when "0100" => card <= READOUT_CARD_1;
---         when "0101" => card <= READOUT_CARD_2;
---         when "0110" => card <= READOUT_CARD_3;
---         when "0111" => card <= READOUT_CARD_4;
---         when "1000" => card <= CLOCK_CARD;
---         when "1001" => card <= POWER_SUPPLY_CARD;
---         when "1010" => card <= (others => '1');
---         when "1011" => card <= (others => '1');
---         when "1100" => card <= (others => '1');
---         when "1101" => card <= (others => '1');
---         when "1110" => card <= (others => '1');
+--   signal ac_slot_id  : std_logic_vector(3 downto 0) := "0000";
+--   signal bc1_slot_id : std_logic_vector(3 downto 0) := "0001";
+--   signal bc2_slot_id : std_logic_vector(3 downto 0) := "0010";
+--   signal bc3_slot_id : std_logic_vector(3 downto 0) := "0011";
+--   signal rc1_slot_id : std_logic_vector(3 downto 0) := "0100";
+--   signal rc2_slot_id : std_logic_vector(3 downto 0) := "0101";
+--   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
+--   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
+--   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
 
    ------------------------------------------------
    -- Clock Card Signals
@@ -1656,7 +1642,7 @@ begin
    rc1_adc6_rdy <= inclk;
    rc1_adc7_rdy <= inclk;
    rc1_adc8_rdy <= inclk;
-   rc1_adc1_dat <= "11111111110000";  --"01111111111111"; -- positive maximum;
+   rc1_adc1_dat <= "01001110001000";  --5000
    rc1_adc2_dat <= "11111111110000";  --ctr_count_slv_o;
    rc1_adc3_dat <= "11111111110000";  --ctr_count_slv_o;
    rc1_adc4_dat <= "11111111110000";  --ctr_count_slv_o;
@@ -2038,102 +2024,101 @@ begin
 --  Command sequence for testing the PI loop on RC1
 ------------------------------------------------------
 
---      command <= command_wb;
---      address_id <= cc_num_rows_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000008";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---      
---      command <= command_wb;
---      address_id <= rc1_num_rows_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000008";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= cc_row_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000020";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---      
---      command <= command_wb;
---      address_id <= rc1_row_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000020";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= rc1_sample_dly_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000008";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= rc1_sample_num_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000006";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= rc1_servo_mode_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000003";
---      load_preamble;
---      load_command;
---      load_checksum;     
---      wait for 50 us;
---
---      command <= command_wb;
+      command <= command_wb;
+      address_id <= cc_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
+      command <= command_wb;
+      address_id <= rc1_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= cc_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000020";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+      
+      command <= command_wb;
+      address_id <= rc1_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000020";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_sample_dly_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000008";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_sample_num_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_servo_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000003";
+      load_preamble;
+      load_command;
+      load_checksum;     
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_gainp0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
+-- For testing the wbs_fb_data slave with buffers on it's dat_o and ack_o lines
+--      command <= command_rb;
 --      address_id <= rc1_gainp0_cmd;
---      data_valid <= X"00000003";
+--      data_valid <= X"00000005";
 --      data       <= X"00000040";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 50 us;
---
----- For testing the wbs_fb_data slave with buffers on it's dat_o and ack_o lines
-----      command <= command_rb;
-----      address_id <= rc1_gainp0_cmd;
-----      data_valid <= X"00000005";
-----      data       <= X"00000040";
-----      load_preamble;
-----      load_command;
-----      load_checksum;
-----      wait for 70 us;
---
---
---      command <= command_wb;
---      address_id <= rc1_gaini0_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000040";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 50 us;
---
+--      wait for 70 us;
+
+      command <= command_wb;
+      address_id <= rc1_gaini0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 50 us;
+
 --      command <= command_wb;
 --      address_id <= rc1_en_fb_jump_cmd;
 --      data_valid <= X"00000001"; -- 1 values
---      data       <= X"00000001";
+--      data       <= X"00000000";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
@@ -2148,15 +2133,15 @@ begin
 --      load_command;
 --      load_checksum;
 --      wait for 50 us;
---
---      command <= command_wb;
---      address_id <= rc1_flx_lp_init_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 200 us;
+
+      command <= command_wb;
+      address_id <= rc1_flx_lp_init_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 1000 us;
 
 ------------------------------------------------------
 --  Command sequence for testing the flux feedback on RC1
@@ -2505,53 +2490,53 @@ begin
 --      constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
 --      constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
 
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;      
-      
-      wait for 53 us;
-
-      command <= command_wb;
-      address_id <= cc_use_dv_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;      
-      
-      wait for 53 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 150 us;
-      
-      -- DV pulse is inverted by the receiver
-      dv_pulse_fibre <= '0';
-      wait for 1 us;
-      dv_pulse_fibre <= '1';      
-      wait for 1200 us;
-      
-      dv_pulse_fibre <= '0';
-      wait for 1 us;
-      dv_pulse_fibre <= '1';      
-      wait for 1200 us;
-
-      dv_pulse_fibre <= '0';
-      wait for 1 us;
-      dv_pulse_fibre <= '1';      
-      wait for 1200 us;
-
-      wait for 150 us;
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 150 us;
+--      
+--      -- DV pulse is inverted by the receiver
+--      dv_pulse_fibre <= '0';
+--      wait for 1 us;
+--      dv_pulse_fibre <= '1';      
+--      wait for 1200 us;
+--      
+--      dv_pulse_fibre <= '0';
+--      wait for 1 us;
+--      dv_pulse_fibre <= '1';      
+--      wait for 1200 us;
+--
+--      dv_pulse_fibre <= '0';
+--      wait for 1 us;
+--      dv_pulse_fibre <= '1';      
+--      wait for 1200 us;
+--
+--      wait for 150 us;
 ------------------------------------------------------
 --  Command sequence for testing timeout recovery on the CC
 ------------------------------------------------------
