@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.3 2006/03/01 02:53:32 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.4 2006/03/09 00:53:04 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.4  2006/03/09 00:53:04  bburger
+-- Bryce:
+-- - Implemented the dv_fibre receiver
+-- - Moved some constants from dv_rx_pack to sync_gen_pack
+--
 -- Revision 1.3  2006/03/01 02:53:32  bburger
 -- Bryce:  modified interface signals dv_sel_i and sync_sel_i to dv_mode_i and sync_mode_i
 --
@@ -152,7 +157,8 @@ begin
          
          when IDLE =>
             if(dv_mode_i = DV_EXTERNAL_FIBRE) then
-               if(dv_dat = '1') then
+               -- Note: the dv input is inverted, so we detect the rising edge.
+               if(dv_dat = '0') then
                   next_state <= FIBRE_DV_HIGH;
                end if;
             elsif(dv_mode_i = DV_EXTERNAL_MANCHESTER) then
@@ -162,7 +168,7 @@ begin
             end if;
             
          when FIBRE_DV_HIGH =>
-            if(dv_dat = '0') then
+            if(dv_dat = '1') then
                next_state <= FIBRE_DV_LOW;
             end if;
          
