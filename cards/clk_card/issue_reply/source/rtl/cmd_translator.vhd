@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.34 2006/03/09 00:57:10 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.35 2006/03/11 03:45:11 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/09 00:57:10 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/11 03:45:11 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.35  2006/03/11 03:45:11  bburger
+-- Bryce:  polishing off dv_rx functionality -- fixing bugs
+--
 -- Revision 1.34  2006/03/09 00:57:10  bburger
 -- Bryce:  Added the following signals to the interface:  dv_mode_i, external_dv_i, external_dv_num_i
 --
@@ -212,6 +215,8 @@ port(
       dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i         : in std_logic;
       external_dv_num_i     : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      ret_dat_req_i         : in std_logic;
+      ret_dat_ack_o         : out std_logic;
 
       -- other inputs 
       sync_pulse_i          : in  std_logic;
@@ -284,6 +289,8 @@ architecture rtl of cmd_translator is
         dv_mode_i               : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
         external_dv_i           : in std_logic;
         external_dv_num_i       : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+        ret_dat_req_i           : in std_logic;
+        ret_dat_ack_o           : out std_logic;
         sync_pulse_i            : in  std_logic;
         sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
         ret_dat_start_i         : in  std_logic;
@@ -451,6 +458,9 @@ architecture rtl of cmd_translator is
    -------------------------------------------------------------------------------------------
    -- registered arbiter output signals
    -------------------------------------------------------------------------------------------   
+   type states is (IDLE, CMD_READY, CMD_WAITING);   
+   signal current_state, next_state : states;
+
    signal card_addr_reg                : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
    signal parameter_id_reg             : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
    signal data_size_reg                : std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
@@ -468,33 +478,68 @@ begin
    -------------------------------------------------------------------------------------------
    -- logic for routing incoming de-composed fibre commands
    -------------------------------------------------------------------------------------------
-   process (cmd_rdy_i, param_id_i, cmd_code_i, dv_mode_i)            
+   
+   -- This FSM ensures that the reply_cmd_rcvd_ok_o signal is only asserted for one cycle per command.
+   cmd_state_FF: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         current_state <= IDLE;
+      elsif(clk_i'event and clk_i = '1') then
+         current_state <= next_state;
+      end if;
+   end process;
+
+   cmd_state_NS: process(current_state, cmd_rdy_i)
+   begin
+      next_state <= current_state;      
+      case current_state is         
+         when IDLE =>
+            if (cmd_rdy_i = '1') then
+               next_state <= CMD_READY;
+            end if;         
+         when CMD_READY =>
+            next_state <= CMD_WAITING;         
+         when CMD_WAITING =>
+            if (cmd_rdy_i = '0') then
+               next_state <= IDLE;
+            end if;         
+         when others =>
+            next_state <= IDLE;      
+      end case;
+   end process;    
+   
+   cmd_state_out: process(current_state)
+   begin
+      reply_cmd_rcvd_ok_o <= '0';
+      
+      case current_state is
+         when IDLE =>
+         when CMD_READY =>
+            reply_cmd_rcvd_ok_o <= '1';
+         when CMD_WAITING =>
+         when others =>
+      end case;
+   end process;
+
+   process (cmd_rdy_i, param_id_i, cmd_code_i)            
    begin
       if cmd_rdy_i = '1' then 
          case param_id_i (7 downto 0) is
             -- RETURN DATA FRAMES command
             when RET_DAT_ADDR  =>
-               -- If the ret_dat fsm is set to respond to 
-               if (dv_mode_i = DV_INTERNAL) then
-                  if cmd_code_i = GO then
-                     -- START command
-                     ret_dat_start        <= '1';
-                     ret_dat_stop         <= '0';
-                     cmd_start            <= '0';
-                     cmd_stop             <= '0';
-                  else 
-                     -- assume it's a STOP command
-                     ret_dat_start        <= '0';
-                     ret_dat_stop         <= '1';
-                     cmd_start            <= '0';
-                     cmd_stop             <= '0';
-                  end if;
-               else
-                  ret_dat_start         <= '0';
-                  ret_dat_stop          <= '0';
-                  cmd_start             <= '0';
-                  cmd_stop              <= '0';
-               end if;         
+               if cmd_code_i = GO then
+                  -- START command
+                  ret_dat_start        <= '1';
+                  ret_dat_stop         <= '0';
+                  cmd_start            <= '0';
+                  cmd_stop             <= '0';
+               else 
+                  -- assume it's a STOP command
+                  ret_dat_start        <= '0';
+                  ret_dat_stop         <= '1';
+                  cmd_start            <= '0';
+                  cmd_stop             <= '0';
+               end if;
 
             -- all other commands (SIMPLE commands)
             when others =>
@@ -571,6 +616,8 @@ begin
       dv_mode_i              => dv_mode_i,        
       external_dv_i          => external_dv_i,    
       external_dv_num_i      => external_dv_num_i,
+      ret_dat_req_i          => ret_dat_req_i,
+      ret_dat_ack_o          => ret_dat_ack_o,
 
       -- other inputs
       sync_pulse_i           => sync_pulse_i,
@@ -767,7 +814,6 @@ begin
          
    -- outputs to the reply_translator
    reply_cmd_rcvd_er_o               <= cksum_err_i;
-   reply_cmd_rcvd_ok_o               <= cmd_rdy_i;
    reply_cmd_code_o                  <= cmd_code_i;
    reply_param_id_o                  <= param_id_i;
    reply_card_id_o                   <= card_id_i;   
