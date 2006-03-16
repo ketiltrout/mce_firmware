@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.4 2006/01/16 18:00:44 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.5 2006/03/09 01:27:21 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,11 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.5  2006/03/09 01:27:21  bburger
+-- Bryce:
+-- - ret_dat_wbs no longer clamps the data_rate
+-- - ret_dat_wbs_pack defines a default data rate of ~200Hz based on row_len=120 and num_rows=41
+--
 -- Revision 1.4  2006/01/16 18:00:44  bburger
 -- Bryce:  Adjusted the upper and lower bounds for data_rate, and added a default value of 0x5F = 95 = data at 200 Hz based on 50 Mhz/41rows/64cycles per row
 --
@@ -66,6 +71,8 @@ entity ret_dat_wbs is
       start_seq_num_o : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       stop_seq_num_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       data_rate_o     : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      ret_dat_req_o   : out std_logic;
+      ret_dat_ack_i   : in std_logic;
 
       -- global interface
       clk_i          : in std_logic;
@@ -98,6 +105,8 @@ architecture rtl of ret_dat_wbs is
    signal start_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal stop_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal data_rate_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   
+   signal data_req          : std_logic;
    
    -- WBS states:
    type states is (IDLE, WR, RD); 
@@ -144,8 +153,24 @@ begin
          end if;
       end if;
    end process data_rate_reg;
-      
 
+   -- Custom register that indicates fresh ret_dat commands
+   ret_dat_req_o <= data_req;
+   data_req_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         data_req <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if(stb_i = '1' and cyc_i = '1' and we_i = '1' and addr_i = RET_DAT_S_ADDR) then
+            data_req <= '1';
+         elsif(ret_dat_ack_i = '1') then
+            data_req <= '0';
+         else
+            data_req <= data_req;
+         end if;
+      end if;
+   end process data_req_reg;
+      
 ------------------------------------------------------------
 --  WB FSM
 ------------------------------------------------------------   
