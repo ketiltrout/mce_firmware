@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.26 2006/03/09 00:58:41 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.27 2006/03/11 03:45:11 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/09 00:58:41 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/11 03:45:11 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.27  2006/03/11 03:45:11  bburger
+-- Bryce:  polishing off dv_rx functionality -- fixing bugs
+--
 -- Revision 1.26  2006/03/09 00:58:41  bburger
 -- Bryce:
 -- - Added the following signals to the interface:  dv_mode_i, external_dv_i, external_dv_num_i
@@ -114,6 +117,8 @@ port(
       dv_mode_i               : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i           : in std_logic;
       external_dv_num_i       : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      ret_dat_req_i           : in std_logic;
+      ret_dat_ack_o           : out std_logic;
 
       -- other inputs
       sync_pulse_i            : in  std_logic;
@@ -152,7 +157,7 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    -- type definitions
    ------------------------------------------------------------------------------------------- 
    type sync_state is                     (IDLE, SET_SEQ_NUM_1, SET_SEQ_NUM_2, RETURN_DATA_WAIT);
-   type state      is                     (RETURN_DATA_IDLE, RETURN_DATA_1ST, RETURN_DATA_PAUSE, RETURN_DATA, RETURN_DATA_LAST_PAUSE, RETURN_DATA_LAST,
+   type state      is                     (RETURN_DATA_IDLE, RETURN_DATA_1ST, RETURN_DATA_PAUSE, RETURN_DATA_DV_PAUSE, RETURN_DATA, RETURN_DATA_LAST_PAUSE, RETURN_DATA_LAST,
                                            RETURN_DATA_SINGLE_FRAME, RETURN_DATA_SINGLE_FRAME_PAUSE1, RETURN_DATA_SINGLE_FRAME_PAUSE2);
                                            
    -------------------------------------------------------------------------------------------
@@ -179,7 +184,7 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal next_state                      : state;
    signal current_state                   : state;
  
-   signal mux_sel                         : std_logic;
+--   signal mux_sel                         : std_logic;
    signal reg_en                          : std_logic;
    
    signal current_sync_num_reg_plus_1     : std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
@@ -219,7 +224,7 @@ begin
    -- State machine for issuing ret_dat macro-ops.
    -- Next State logic
    ------------------------------------------------------------------------------------------- 
-   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i, dv_mode_i)
+   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i, dv_mode_i, external_dv_i, ret_dat_req_i)
    begin
      next_state                     <= current_state;
      ret_dat_stop_reg_en            <= '0';
@@ -228,12 +233,18 @@ begin
       case current_state is
 
          when RETURN_DATA_IDLE =>
-            if (ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) and (dv_mode_i = DV_INTERNAL) then
-               next_state           <= RETURN_DATA_1ST;
-            elsif (ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) and (dv_mode_i = DV_INTERNAL) then
-               next_state           <= RETURN_DATA_SINGLE_FRAME;
-            elsif (ret_dat_start = '1') and (dv_mode_i /= DV_INTERNAL) then
-               next_state           <= RETURN_DATA_SINGLE_FRAME;
+            if(ret_dat_start = '1') and (start_seq_num_i /= stop_seq_num_i) then
+               if(dv_mode_i /= DV_INTERNAL and ret_dat_req_i = '0') then
+                  next_state        <= RETURN_DATA_IDLE;
+               else
+                  next_state        <= RETURN_DATA_1ST;
+               end if;
+            elsif(ret_dat_start = '1') and (start_seq_num_i = stop_seq_num_i) then
+               if(dv_mode_i /= DV_INTERNAL and ret_dat_req_i = '0') then
+                  next_state        <= RETURN_DATA_IDLE;
+               else
+                  next_state        <= RETURN_DATA_SINGLE_FRAME;
+               end if;
             else
                next_state           <= RETURN_DATA_IDLE;
             end if;
@@ -258,20 +269,30 @@ begin
             end if;
          
          when RETURN_DATA_1ST =>
-            if ack_i = '1' and ret_dat_stop_i = '0' then
+            if ack_i = '1' and ret_dat_stop_i = '0' and dv_mode_i = DV_INTERNAL then
                next_state           <= RETURN_DATA_PAUSE;
-            elsif ack_i = '1' and ret_dat_stop_i = '1' then
+            elsif ack_i = '1' and ret_dat_stop_i = '0' and dv_mode_i /= DV_INTERNAL then
+               next_state           <= RETURN_DATA_DV_PAUSE;
+            elsif ack_i = '1' and ret_dat_stop_i = '1' and dv_mode_i = DV_INTERNAL then
                next_state           <= RETURN_DATA_LAST_PAUSE;
+               ret_dat_stop_reg_en    <= '1'; -- grab ret_dat_stop_i;
+            elsif ack_i = '1' and ret_dat_stop_i = '1' and dv_mode_i /= DV_INTERNAL then
+               next_state           <= RETURN_DATA_DV_PAUSE;
                ret_dat_stop_reg_en    <= '1'; -- grab ret_dat_stop_i;
             else
                next_state           <= RETURN_DATA_1ST;
             end if;
 
          when RETURN_DATA =>
-            if ack_i = '1' and ret_dat_stop_i = '0' then
+            if ack_i = '1' and ret_dat_stop_i = '0' and dv_mode_i = DV_INTERNAL then
                next_state           <= RETURN_DATA_PAUSE;
-            elsif ack_i = '1' and ret_dat_stop_i = '1' then
+            elsif ack_i = '1' and ret_dat_stop_i = '0' and dv_mode_i /= DV_INTERNAL then
+               next_state           <= RETURN_DATA_DV_PAUSE;
+            elsif ack_i = '1' and ret_dat_stop_i = '1' and dv_mode_i = DV_INTERNAL then
                next_state           <= RETURN_DATA_LAST_PAUSE;
+               ret_dat_stop_reg_en  <= '1'; -- grab ret_dat_stop_i;
+            elsif ack_i = '1' and ret_dat_stop_i = '1' and dv_mode_i /= DV_INTERNAL then
+               next_state           <= RETURN_DATA_DV_PAUSE;
                ret_dat_stop_reg_en  <= '1'; -- grab ret_dat_stop_i;
             else
                next_state           <= RETURN_DATA;
@@ -280,12 +301,26 @@ begin
          when RETURN_DATA_LAST_PAUSE =>
             next_state              <= RETURN_DATA_LAST;
 
+         when RETURN_DATA_DV_PAUSE =>
+            if ret_dat_stop_i = '1' then
+               ret_dat_stop_reg_en  <= '1'; -- grab ret_dat_stop_i;
+               next_state           <= RETURN_DATA_LAST;
+            elsif(external_dv_i = '1') then
+               if(current_seq_num >= stop_seq_num_i) then
+                  next_state        <= RETURN_DATA_LAST;
+               else
+                  next_state        <= RETURN_DATA;
+               end if;
+            end if;
+         
          when RETURN_DATA_PAUSE =>
             if ret_dat_stop_i = '1' then
                ret_dat_stop_reg_en  <= '1'; -- grab ret_dat_stop_i;
                next_state           <= RETURN_DATA_LAST;
-            elsif current_seq_num >= stop_seq_num_i then   
+--            elsif ((dv_mode_i = DV_INTERNAL) or ((dv_mode_i /= DV_INTERNAL) and (external_dv_i = '1'))) and (current_seq_num >= stop_seq_num_i) then
+            elsif (current_seq_num >= stop_seq_num_i) then
                next_state           <= RETURN_DATA_LAST;
+            
             else
                next_state           <= RETURN_DATA;
             end if;
@@ -307,7 +342,8 @@ begin
    -- State machine for issuing ret_dat macro-ops.
    -- Assign values
    ------------------------------------------------------------------------------------------- 
-   process(current_state, ack_i, ret_dat_start, ret_dat_start_i)
+   process(current_state, ack_i, ret_dat_start, ret_dat_start_i, ret_dat_stop_reg, external_dv_i, 
+      sync_number_i, start_seq_num_i, current_seq_num_reg, current_sync_num_reg, data_rate_i)
    begin
       -- default assignments
       ret_dat_cmd_valid                <= '0';
@@ -316,15 +352,26 @@ begin
       ret_dat_fsm_working              <= '0';
       input_reg_en                     <= '0';
       ret_dat_start_ack                <= '0';
+      last_frame_o                     <= '0';
+      cmd_stop_o                       <= '0';
+      
+      current_sync_num                 <= (others => '0');
+      current_seq_num                  <= (others => '0');
+      reg_en                           <= '0';
+      
+      ret_dat_ack_o                    <= '0';
       
       case current_state is
          when RETURN_DATA_IDLE =>
          
-            if ret_dat_start = '1' then
-               ret_dat_cmd_valid       <= '1';
-               instr_rdy_o             <= '1';
+            if(ret_dat_start = '1') then
+--               ret_dat_cmd_valid       <= '1';
+--               instr_rdy_o             <= '1';
                ret_dat_fsm_working     <= '1';
                ret_dat_start_ack       <= '1';
+               reg_en                  <= '1';           
+               current_sync_num        <= sync_number_i + 1;
+               current_seq_num         <= start_seq_num_i;
             else
                input_reg_en            <= '1';
             end if;
@@ -333,11 +380,13 @@ begin
             ret_dat_cmd_valid          <= '1';
             instr_rdy_o                <= '1';
             ret_dat_fsm_working        <= '1';
+            last_frame_o               <= '1';
 
          when RETURN_DATA_SINGLE_FRAME_PAUSE1 =>
             ret_dat_cmd_valid          <= '1';
             instr_rdy_o                <= '1';
             ret_dat_fsm_working        <= '1';
+            last_frame_o               <= '1';
 
          when RETURN_DATA_SINGLE_FRAME_PAUSE2 =>
             if ret_dat_start_i = '0' then
@@ -348,6 +397,7 @@ begin
                ret_dat_cmd_valid       <= '1';
                ret_dat_fsm_working     <= '1';
             end if;
+            ret_dat_ack_o              <= '1';
 
          when RETURN_DATA_1ST =>
             ret_dat_cmd_valid          <= '1';
@@ -359,13 +409,28 @@ begin
             instr_rdy_o                <= '1';
             ret_dat_fsm_working        <= '1';  
 
+         when RETURN_DATA_DV_PAUSE =>
+            ret_dat_fsm_working        <= '1';
+            if(external_dv_i = '1') then
+               reg_en                  <= '1';
+               current_sync_num        <= sync_number_i + 1;
+               current_seq_num         <= current_seq_num_reg + 1;
+            end if;
+         
          when RETURN_DATA_PAUSE =>
             ret_dat_fsm_working        <= '1';
+            reg_en                     <= '1';
+            current_sync_num           <= current_sync_num_reg + data_rate_i;
+            current_seq_num            <= current_seq_num_reg + 1;
             
          when RETURN_DATA_LAST_PAUSE =>
             ret_dat_fsm_working        <= '1';
+            reg_en                     <= '1';
+            current_sync_num           <= current_sync_num_reg + data_rate_i;
+            current_seq_num            <= current_seq_num_reg + 1;
             
          when RETURN_DATA_LAST =>
+            
             if ack_i = '1' then
                ret_dat_cmd_valid       <= '1';
                instr_rdy_o             <= '1';
@@ -376,64 +441,33 @@ begin
                instr_rdy_o             <= '1';
                ret_dat_fsm_working     <= '1';
             end if;
+
+            if(ret_dat_stop_reg  = '1') then
+               cmd_stop_o              <= '1';
+            end if;            
+             
+            last_frame_o               <= '1';
+            ret_dat_ack_o              <= '1';
+ 
+         when others =>            
             
       end case;
    end process;
 
    -------------------------------------------------------------------------------------------
-   -- return data STOP signal
-   ------------------------------------------------------------------------------------------- 
-   process(clk_i, rst_i)
-   begin
-      if rst_i = '1' then
-         ret_dat_stop_reg <= '0';
-      elsif clk_i'event and clk_i='1' then
-         if ret_dat_stop_reg_en = '1' then
-            ret_dat_stop_reg <= ret_dat_stop_i;
-         elsif ret_dat_stop_reg_rst = '1' then
-            ret_dat_stop_reg <= '0';
-          end if;
-      end if;
-   end process;   
+   -- 'sync number' and 'sequence number' muxes
+   -------------------------------------------------------------------------------------------    
+--   current_sync_num            <= sync_number_i + 1           when mux_sel = INPUT_NUM_SEL          else -- the first ret_dat command
+--                                  current_sync_num_reg_plus_1;                                           -- the next increment of the sync number
+--
+--   current_sync_num_reg_plus_1 <= (current_sync_num_reg + data_rate_i) when (dv_mode_i = DV_INTERNAL) else (current_sync_num_reg + 1); -- this is the sync pulse increment value for issuing ret_dat commands on consecutive
+--                                                                      -- frames of data.  Ex: if you want every 1000 frames, change to "+ 1000"
+--
+--   current_seq_num             <= start_seq_num_i             when mux_sel = INPUT_NUM_SEL          else
+--                                  current_seq_num_reg_plus_1;
+--
+--   current_seq_num_reg_plus_1  <= current_seq_num_reg + 1;
    
-   
-   -------------------------------------------------------------------------------------------
-   -- state machine for grabbing ret_dat_s data
-   ------------------------------------------------------------------------------------------- 
-   process(sync_current_state, ret_dat_start_i, ret_dat_done, external_dv_i)
-   begin
-      ret_dat_start                        <= '0';
-      case sync_current_state is
-         when IDLE =>
-            if(ret_dat_start_i = '1') then
---            if((dv_mode_i = DV_INTERNAL) and (ret_dat_start_i = '1')) then
-               ret_dat_start               <= '1';  
-               sync_next_state             <= RETURN_DATA_WAIT;
-            elsif(external_dv_i = '1') then
---            elsif((dv_mode_i /= DV_INTERNAL) and (external_dv_i = '1')) then
-               ret_dat_start               <= '1';  
-               sync_next_state             <= RETURN_DATA_WAIT;
-            elsif(ret_dat_done = '1') then
-               ret_dat_start               <= '0';       
-               sync_next_state             <= IDLE;
-            else
-               sync_next_state             <= IDLE;
-            end if;
-
-         when RETURN_DATA_WAIT =>
-            if(ret_dat_done = '1') then
-               sync_next_state             <= IDLE;
-            else
-               sync_next_state             <= RETURN_DATA_WAIT;
-               ret_dat_start               <= '1';
-            end if;
-
-         when others =>
-            sync_next_state                <= IDLE;
-    
-      end case;  
-   end process;
-
    -------------------------------------------------------------------------------------------
    -- registers
    ------------------------------------------------------------------------------------------- 
@@ -458,47 +492,57 @@ begin
          end if;
       end if;
    end process;
-
+   
    -------------------------------------------------------------------------------------------
-   -- select line and register enable generation for 'sync number' and 'sequence number' mux 
+   -- return data STOP signal
    ------------------------------------------------------------------------------------------- 
-   process(current_state, ret_dat_start)
+   process(clk_i, rst_i)
    begin
-      --default assignments
-      reg_en           <= '0';
-      mux_sel          <= CURRENT_NUM_PLUS_1_SEL;
-      
-      case current_state is 
-         when RETURN_DATA_IDLE =>         
-            if ret_dat_start = '1' then
-               mux_sel          <= INPUT_NUM_SEL;
-               reg_en           <= '1';           
+      if rst_i = '1' then
+         ret_dat_stop_reg <= '0';
+      elsif clk_i'event and clk_i='1' then
+         if ret_dat_stop_reg_en = '1' then
+            ret_dat_stop_reg <= ret_dat_stop_i;
+         elsif ret_dat_stop_reg_rst = '1' then
+            ret_dat_stop_reg <= '0';
+          end if;
+      end if;
+   end process;   
+   
+   -------------------------------------------------------------------------------------------
+   -- state machine for grabbing ret_dat_s data
+   ------------------------------------------------------------------------------------------- 
+   process(sync_current_state, ret_dat_start_i, ret_dat_done, external_dv_i, dv_mode_i, ret_dat_req_i)
+   begin
+      ret_dat_start                        <= '0';
+      case sync_current_state is
+         when IDLE =>
+            if((dv_mode_i = DV_INTERNAL) and (ret_dat_start_i = '1')) then
+               ret_dat_start               <= '1';  
+               sync_next_state             <= RETURN_DATA_WAIT;
+            elsif(dv_mode_i /= DV_INTERNAL and ret_dat_req_i = '1' and external_dv_i = '1') then
+               ret_dat_start               <= '1';  
+               sync_next_state             <= RETURN_DATA_WAIT;
+            elsif(ret_dat_done = '1') then
+               ret_dat_start               <= '0';       
+               sync_next_state             <= IDLE;
+            else
+               sync_next_state             <= IDLE;
             end if;
 
-         when RETURN_DATA_PAUSE | RETURN_DATA_LAST_PAUSE =>        
-            mux_sel             <= CURRENT_NUM_PLUS_1_SEL;
-            reg_en              <= '1';
-  
-         when others =>            
-            mux_sel             <= CURRENT_NUM_PLUS_1_SEL;
-            reg_en              <= '0';    
+         when RETURN_DATA_WAIT =>
+            if(ret_dat_done = '1') then
+               sync_next_state             <= IDLE;
+            else
+               sync_next_state             <= RETURN_DATA_WAIT;
+               ret_dat_start               <= '1';
+            end if;
 
-      end case;
+         when others =>
+            sync_next_state                <= IDLE;
+    
+      end case;  
    end process;
-
-   -------------------------------------------------------------------------------------------
-   -- 'sync number' and 'sequence number' muxes
-   -------------------------------------------------------------------------------------------    
-   current_sync_num            <= sync_number_i + 1           when mux_sel = INPUT_NUM_SEL          else -- the first ret_dat command
-                                  current_sync_num_reg_plus_1;                                           -- the next increment of the sync number
-
-   current_sync_num_reg_plus_1 <= current_sync_num_reg + data_rate_i; -- this is the sync pulse increment value for issuing ret_dat commands on consecutive
-                                                                      -- frames of data.  Ex: if you want every 1000 frames, change to "+ 1000"
-
-   current_seq_num             <= start_seq_num_i             when mux_sel = INPUT_NUM_SEL          else
-                                  current_seq_num_reg_plus_1;
-
-   current_seq_num_reg_plus_1  <= current_seq_num_reg + 1;
 
    -------------------------------------------------------------------------------------------
    -- START and STOP acknowledgments
@@ -509,12 +553,8 @@ begin
    -- assign outputs
    -------------------------------------------------------------------------------------------
    ack_o                   <= ret_dat_stop_ack or ret_dat_start_ack;
-   cmd_stop_o              <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_reg  = '1' else '0';
    ret_dat_cmd_valid_o     <= ret_dat_cmd_valid;
    ret_dat_fsm_working_o   <= ret_dat_fsm_working;
-
-   last_frame_o            <= '1' when (current_state = RETURN_DATA_LAST and (ret_dat_stop_reg = '1' or current_seq_num >= stop_seq_num_i)) 
-                                    or (current_state = RETURN_DATA_SINGLE_FRAME or current_state = RETURN_DATA_SINGLE_FRAME_PAUSE1) else '0';
 
    process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg, dv_mode_i)
    begin
