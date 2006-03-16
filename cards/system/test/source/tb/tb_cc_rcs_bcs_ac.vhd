@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.15 2006/03/09 01:32:05 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.16 2006/03/11 03:43:45 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.16  2006/03/11 03:43:45  bburger
+-- Bryce:  has a dv_rx testing section
+--
 -- Revision 1.15  2006/03/09 01:32:05  bburger
 -- Bryce:
 -- - Updated the slot id's for revC of the Bus Backplane
@@ -484,7 +487,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc4_lvds_txb : std_logic := '1';
    
    -- DV interface:
-   signal dv_pulse_fibre  : std_logic := '0';
+   signal dv_pulse_fibre  : std_logic := '1';
    signal manchester_data : std_logic := '0';
    
    -- TTL interface:
@@ -2463,12 +2466,28 @@ begin
 --      wait for 150 us;
 
 ------------------------------------------------------
---  DV Rx testing
+--  ret_dat testing
 ------------------------------------------------------
---      constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
---      constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
---      constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
--- 
+--      command <= command_wb;
+--      address_id <= cc_data_rate_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000014";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+--
 --      command <= command_go;
 --      address_id <= rc1_ret_dat_cmd;
 --      data_valid <= X"00000001";
@@ -2476,9 +2495,15 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---
---      wait for 800 us;
---
+--      
+--      wait for 2000 us;
+
+------------------------------------------------------
+--  DV Rx testing
+------------------------------------------------------
+--      constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
+--      constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
+--      constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
 
       command <= command_wb;
       address_id <= cc_ret_dat_s_cmd;
@@ -2508,39 +2533,25 @@ begin
       load_command;
       load_checksum;
       
-      wait for 53 us;
-
-      dv_pulse_fibre <= '1';
+      wait for 150 us;
+      
+      -- DV pulse is inverted by the receiver
+      dv_pulse_fibre <= '0';
       wait for 1 us;
-      dv_pulse_fibre <= '0';      
+      dv_pulse_fibre <= '1';      
       wait for 1200 us;
       
-      dv_pulse_fibre <= '1';
+      dv_pulse_fibre <= '0';
       wait for 1 us;
-      dv_pulse_fibre <= '0';      
+      dv_pulse_fibre <= '1';      
       wait for 1200 us;
 
---      command <= command_wb;
---      address_id <= cc_led_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000006";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 200 us;
---      
---      command <= command_wb;
---      address_id <= rc1_led_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000006";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 200 us;
-      
+      dv_pulse_fibre <= '0';
+      wait for 1 us;
+      dv_pulse_fibre <= '1';      
+      wait for 1200 us;
 
+      wait for 150 us;
 ------------------------------------------------------
 --  Command sequence for testing timeout recovery on the CC
 ------------------------------------------------------
