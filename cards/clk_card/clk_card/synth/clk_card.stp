@@ -185,6 +185,11 @@
           <level enabled="yes" type="basic">'dv_rx:dv_rx_inst|dv_dat_i' == either edge
             
             
+            
+            
+            
+            
+            
             <op_node/>
           </level>
         </events>

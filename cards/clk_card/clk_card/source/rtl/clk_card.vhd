@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.31 2006/02/11 01:19:33 bburger Exp $
+-- $Id: clk_card.vhd,v 1.32 2006/03/08 23:18:08 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.32  2006/03/08 23:18:08  bburger
+-- Bryce:
+-- - Added a 'use_sync' command
+-- - Instantiated frame_timing and dv_rx blocks
+-- - Added dv triggering signals to issue_reply interface
+--
 -- Revision 1.31  2006/02/11 01:19:33  bburger
 -- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
 -- data_req
@@ -204,7 +210,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000001";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000002";
 
 -- reset
 signal rst                : std_logic;
@@ -231,6 +237,9 @@ signal external_dv        : std_logic;
 signal external_dv_num    : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 signal sync_mode          : std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
 signal external_sync      : std_logic;
+signal ret_dat_req        : std_logic;
+signal ret_dat_done       : std_logic;
+
 
 -- wishbone bus (from master)
 signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -437,6 +446,89 @@ component dv_rx
       sync_i            : in std_logic;
       sync_o            : out std_logic
    );     
+end component;
+
+component ret_dat_wbs is        
+   port
+   (
+      -- cmd_translator interface:
+      start_seq_num_o : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_o     : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      ret_dat_req_o   : out std_logic;
+      ret_dat_ack_i   : in std_logic;
+
+      -- global interface
+      clk_i          : in std_logic;
+      rst_i          : in std_logic; 
+      
+      -- wishbone interface:
+      dat_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i         : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i          : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i           : in std_logic;
+      stb_i          : in std_logic;
+      cyc_i          : in std_logic;
+      dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o          : out std_logic
+   );     
+end component;
+
+component issue_reply
+   port(
+      -- for testing
+      debug_o           : out std_logic_vector (31 downto 0);
+
+      -- global signals
+      rst_i             : in std_logic;
+      clk_i             : in std_logic;
+      comm_clk_i        : in std_logic;
+
+      -- inputs from the bus backplane
+      lvds_reply_ac_a   : in std_logic;  
+      lvds_reply_bc1_a  : in std_logic;
+      lvds_reply_bc2_a  : in std_logic;
+      lvds_reply_bc3_a  : in std_logic;
+      lvds_reply_rc1_a  : in std_logic;
+      lvds_reply_rc2_a  : in std_logic;
+      lvds_reply_rc3_a  : in std_logic; 
+      lvds_reply_rc4_a  : in std_logic;
+      lvds_reply_cc_a   : in std_logic;
+      
+      -- inputs from the fibre receiver 
+      fibre_clkr_i      : in std_logic;
+      rx_data_i         : in std_logic_vector (7 DOWNTO 0);
+      nRx_rdy_i         : in std_logic;
+      rvs_i             : in std_logic;
+      rso_i             : in std_logic;
+      rsc_nRd_i         : in std_logic;        
+      cksum_err_o       : out std_logic;
+
+      -- interface to fibre transmitter
+      tx_data_o         : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+      tsc_nTd_o         : out std_logic;                          -- hotlink tx special char/ data sel
+      nFena_o           : out std_logic;                          -- hotlink tx enable
+
+      -- 25MHz clock for fibre_tx_control
+      fibre_clkw_i      : in std_logic;                           -- in phase with 25MHz hotlink clock
+
+      -- lvds_tx interface
+      lvds_cmd_o        : out std_logic;                          -- transmitter output pin
+
+      -- ret_dat_wbs interface:
+      start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      dv_mode_i         : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i     : in std_logic;
+      external_dv_num_i : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      ret_dat_req_i     : in std_logic;
+      ret_dat_ack_o     : out std_logic;
+
+      -- sync_gen interface
+      sync_pulse_i      : in std_logic;
+      sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
+   );    
 end component;
 
 begin
@@ -735,12 +827,13 @@ begin
          dv_mode_i         => dv_mode,
          external_dv_i     => external_dv,
          external_dv_num_i => external_dv_num,
+         ret_dat_req_i     => ret_dat_req,
+         ret_dat_ack_o     => ret_dat_done,
          
          -- sync_gen interface
          sync_pulse_i      => sync,
          sync_number_i     => sync_num
-      );
-      
+      );      
       
    cc_reset0: cc_reset
       port map ( 
@@ -761,6 +854,8 @@ begin
          start_seq_num_o => start_seq_num,
          stop_seq_num_o  => stop_seq_num,
          data_rate_o     => data_rate,
+         ret_dat_req_o   => ret_dat_req,
+         ret_dat_ack_i   => ret_dat_done,
 
          -- global interface
          clk_i           => clk,
