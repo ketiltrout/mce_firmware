@@ -31,13 +31,6 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
--- Revision 1.27  2006/03/15 18:18:48  mandana
--- revision upgraded to 02000006 for 2^12 scaling in fsfb_corr_pack
---
--- Revision 1.26  2006/03/14 23:31:43  mandana
--- revision upgraded to 02000005 for 4-pole filter and timing violations introduced by Q5.1 are fixed now
--- mem_clk finally deleted
---
 -- Revision 1.23.2.3  2006/02/17 21:16:48  mandana
 -- revision number changed to 02000004 for princeton filter and filter window set at 14
 --
@@ -258,11 +251,11 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000007"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- build up on princeton version to fix timing violations by modifying fsfb_proc_pidz.vhd
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000008"; -- filter coefs set for princeton fc/fs=100Hz/10kHz, fsfb_corr window set to 2^12
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
+signal mem_clk                 : std_logic;  -- memory clk
 signal comm_clk                : std_logic;  -- communication clk
 signal spi_clk                 : std_logic;  -- spi clk
 signal rst                     : std_logic;
@@ -345,7 +338,7 @@ begin
      port map (
          inclk0 => inclk,
          c0     => clk,
-         c1     => open,
+         c1     => mem_clk,
          c2     => comm_clk,
          c3     => spi_clk,
          c4     => clk_n);
