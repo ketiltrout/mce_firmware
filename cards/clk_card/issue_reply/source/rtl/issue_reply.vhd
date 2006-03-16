@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.42 2006/02/11 01:19:33 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.43 2006/03/09 01:04:37 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/02/11 01:19:33 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/09 01:04:37 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.43  2006/03/09 01:04:37  bburger
+-- Bryce:
+-- - cmd_translator interface now takes the following signals:  dv_mode_i, external_dv_i, external_dv_num_i
+-- - cmd_queue communicates the issue_sync to reply_queue
+--
 -- Revision 1.42  2006/02/11 01:19:33  bburger
 -- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
 -- data_req
@@ -152,6 +157,8 @@ entity issue_reply is
       dv_mode_i         : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i     : in std_logic;
       external_dv_num_i : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      ret_dat_req_i     : in std_logic;
+      ret_dat_ack_o     : out std_logic;
 
       -- sync_gen interface
       sync_pulse_i      : in std_logic;
@@ -213,6 +220,8 @@ architecture rtl of issue_reply is
       dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
       external_dv_i         : in std_logic;
       external_dv_num_i     : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      ret_dat_req_i         : in std_logic;
+      ret_dat_ack_o         : out std_logic;
 
       -- other inputs 
       sync_pulse_i          : in  std_logic;
@@ -613,6 +622,8 @@ begin
          dv_mode_i           => dv_mode_i,        
          external_dv_i       => external_dv_i,    
          external_dv_num_i   => external_dv_num_i,
+         ret_dat_req_i       => ret_dat_req_i,
+         ret_dat_ack_o       => ret_dat_ack_o,
 
          sync_pulse_i        => sync_pulse_i,
          sync_number_i       => sync_number_i
