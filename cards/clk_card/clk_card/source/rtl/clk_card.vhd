@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.33 2006/03/16 00:25:46 bburger Exp $
+-- $Id: clk_card.vhd,v 1.34 2006/03/16 19:22:13 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.34  2006/03/16 19:22:13  bburger
+-- Bryce:  comitting v02000003 for bus backplane revC
+--
 -- Revision 1.33  2006/03/16 00:25:46  bburger
 -- Bryce:  committing v02000002
 --
@@ -213,7 +216,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000003";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000004";
 
 -- reset
 signal rst                : std_logic;
@@ -228,6 +231,8 @@ signal fibre_clk          : std_logic;
 -- sync_gen interface
 signal sync_num           : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
 signal encoded_sync       : std_logic;
+signal row_len            : integer;
+signal num_rows           : integer;
 
 -- ret_dat_wbs interface
 signal start_seq_num      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -242,7 +247,6 @@ signal sync_mode          : std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
 signal external_sync      : std_logic;
 signal ret_dat_req        : std_logic;
 signal ret_dat_done       : std_logic;
-
 
 -- wishbone bus (from master)
 signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -375,6 +379,8 @@ component sync_gen
       sync_mode_o          : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       encoded_sync_o       : out std_logic;
       external_sync_i      : in std_logic;
+      row_len_o            : out integer;
+      num_rows_o           : out integer;
 
       -- Wishbone interface
       dat_i                : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -529,6 +535,8 @@ component issue_reply
       ret_dat_ack_o     : out std_logic;
 
       -- sync_gen interface
+      row_len_i         : in integer;
+      num_rows_i        : in integer;
       sync_pulse_i      : in std_logic;
       sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );    
@@ -715,6 +723,8 @@ begin
          sync_mode_o          => sync_mode,
          encoded_sync_o       => encoded_sync,
          external_sync_i      => external_sync,
+         row_len_o            => row_len,
+         num_rows_o           => num_rows,
       
          -- Wishbone interface
          dat_i                => data,         
@@ -834,6 +844,8 @@ begin
          ret_dat_ack_o     => ret_dat_done,
          
          -- sync_gen interface
+         row_len_i         => row_len,
+         num_rows_i        => num_rows,
          sync_pulse_i      => sync,
          sync_number_i     => sync_num
       );      
