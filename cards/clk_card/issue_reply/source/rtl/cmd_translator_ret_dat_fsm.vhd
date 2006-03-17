@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.28 2006/03/16 00:20:21 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.29 2006/03/17 17:04:20 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/16 00:20:21 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/17 17:04:20 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.29  2006/03/17 17:04:20  bburger
+-- Bryce:  formatting changes
+--
 -- Revision 1.28  2006/03/16 00:20:21  bburger
 -- Bryce:
 -- - added support for dv pulses
@@ -553,14 +556,14 @@ begin
          frame_seq_num_o  <= current_seq_num_reg;
          frame_sync_num_o <= current_sync_num_reg;
 
-         if(dv_mode_i = DV_INTERNAL) then
+--         if(dv_mode_i = DV_INTERNAL) then
             card_addr_o      <= card_addr_reg;
             parameter_id_o   <= parameter_id_reg;
-         else
-            -- These statements override the values of the previous command, so that DV pulses cause this FSM to fetch data frames
-            card_addr_o      <= ALL_READOUT_CARDS;
-            parameter_id_o   <= RET_DAT_ADDR;
-         end if;
+--         else
+--            -- These statements override the values of the previous command, so that DV pulses cause this FSM to fetch data frames
+--            card_addr_o      <= ALL_READOUT_CARDS;
+--            parameter_id_o   <= RET_DAT_ADDR;
+--         end if;
          
          data_size_o      <= "00101001000";    
          data_o           <= data_reg;         
