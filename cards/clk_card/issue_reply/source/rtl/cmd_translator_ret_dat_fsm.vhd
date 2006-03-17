@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.27 2006/03/11 03:45:11 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.28 2006/03/16 00:20:21 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/11 03:45:11 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/16 00:20:21 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.28  2006/03/16 00:20:21  bburger
+-- Bryce:
+-- - added support for dv pulses
+-- - removed recirculation muxes
+--
 -- Revision 1.27  2006/03/11 03:45:11  bburger
 -- Bryce:  polishing off dv_rx functionality -- fixing bugs
 --
@@ -224,7 +229,8 @@ begin
    -- State machine for issuing ret_dat macro-ops.
    -- Next State logic
    ------------------------------------------------------------------------------------------- 
-   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, start_seq_num_i, stop_seq_num_i, ack_i, dv_mode_i, external_dv_i, ret_dat_req_i)
+   process(current_state, ret_dat_start, ret_dat_start_i, ret_dat_stop_i, current_seq_num, 
+      start_seq_num_i, stop_seq_num_i, ack_i, dv_mode_i, external_dv_i, ret_dat_req_i)
    begin
      next_state                     <= current_state;
      ret_dat_stop_reg_en            <= '0';
@@ -317,7 +323,6 @@ begin
             if ret_dat_stop_i = '1' then
                ret_dat_stop_reg_en  <= '1'; -- grab ret_dat_stop_i;
                next_state           <= RETURN_DATA_LAST;
---            elsif ((dv_mode_i = DV_INTERNAL) or ((dv_mode_i /= DV_INTERNAL) and (external_dv_i = '1'))) and (current_seq_num >= stop_seq_num_i) then
             elsif (current_seq_num >= stop_seq_num_i) then
                next_state           <= RETURN_DATA_LAST;
             
@@ -454,20 +459,6 @@ begin
       end case;
    end process;
 
-   -------------------------------------------------------------------------------------------
-   -- 'sync number' and 'sequence number' muxes
-   -------------------------------------------------------------------------------------------    
---   current_sync_num            <= sync_number_i + 1           when mux_sel = INPUT_NUM_SEL          else -- the first ret_dat command
---                                  current_sync_num_reg_plus_1;                                           -- the next increment of the sync number
---
---   current_sync_num_reg_plus_1 <= (current_sync_num_reg + data_rate_i) when (dv_mode_i = DV_INTERNAL) else (current_sync_num_reg + 1); -- this is the sync pulse increment value for issuing ret_dat commands on consecutive
---                                                                      -- frames of data.  Ex: if you want every 1000 frames, change to "+ 1000"
---
---   current_seq_num             <= start_seq_num_i             when mux_sel = INPUT_NUM_SEL          else
---                                  current_seq_num_reg_plus_1;
---
---   current_seq_num_reg_plus_1  <= current_seq_num_reg + 1;
-   
    -------------------------------------------------------------------------------------------
    -- registers
    ------------------------------------------------------------------------------------------- 
