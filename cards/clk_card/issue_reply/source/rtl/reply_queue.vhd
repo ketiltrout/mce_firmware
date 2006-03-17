@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.21 2006/02/18 01:21:41 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.22 2006/03/09 00:59:49 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.22  2006/03/09 00:59:49  bburger
+-- Bryce:
+-- - Added issue_sync_i interface
+-- - Implemented logic to include the issue_sync number in data frame headers
+--
 -- Revision 1.21  2006/02/18 01:21:41  bburger
 -- Bryce:  added word_count to the output sensitivity list
 --
@@ -86,8 +91,12 @@ entity reply_queue is
       last_frame_i      : in std_logic;                                          
       frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i    : in std_logic;
-      issue_sync_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       
+      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      row_len_i         : in integer;
+      num_rows_i        : in integer;
+      issue_sync_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+            
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -187,7 +196,8 @@ architecture behav of reply_queue is
 
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
    type retire_states is (IDLE, LATCH_CMD, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, SEND_REPLY, 
-      STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, SEND_HEADER, SEND_SYNC_NUM_HEADER, SEND_DATA, WAIT_FOR_ACK, SEND_STATUS);
+      STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, SEND_HEADER, SEND_SYNC_NUM_HEADER, 
+      SEND_DATA_RATE_HEADER, SEND_ROW_LEN_HEADER, SEND_NUM_ROWS_HEADER, SEND_DATA, WAIT_FOR_ACK, SEND_STATUS);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;   
 
@@ -445,10 +455,25 @@ begin
          when SEND_HEADER =>
             -- The "- 1" is to compensate for single words sent at the end of the header
             -- i.e. sync_num (SEND_SYNC_NUM_HEADER)
+            if(word_count >= NUM_RAM_HEAD_WORDS - 4) then
+               next_retire_state <= SEND_DATA_RATE_HEADER;
+            end if;
+            
+         when SEND_DATA_RATE_HEADER =>
+            if(word_count >= NUM_RAM_HEAD_WORDS - 3) then
+               next_retire_state <= SEND_ROW_LEN_HEADER;
+            end if;
+
+         when SEND_ROW_LEN_HEADER =>
+            if(word_count >= NUM_RAM_HEAD_WORDS - 2) then
+               next_retire_state <= SEND_NUM_ROWS_HEADER;
+            end if;
+
+         when SEND_NUM_ROWS_HEADER =>
             if(word_count >= NUM_RAM_HEAD_WORDS - 1) then
                next_retire_state <= SEND_SYNC_NUM_HEADER;
             end if;
-            
+         
          when SEND_SYNC_NUM_HEADER =>
             if(word_count >= NUM_RAM_HEAD_WORDS) then
                next_retire_state <= SEND_DATA;
@@ -475,7 +500,8 @@ begin
       end case;
    end process;
    
-   retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, head_q, data, data_size, par_id, word_count, issue_sync_num)
+   retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, head_q, data, 
+      data_size, par_id, word_count, issue_sync_num, row_len_i, num_rows_i, data_rate_i)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -542,6 +568,30 @@ begin
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
             
+         when SEND_DATA_RATE_HEADER =>
+            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+            rdy_o           <= '1';
+            data_o          <= data_rate_i;
+            ena_word_count  <= ack_i;            
+            cmd_rdy         <= '1';
+            cmd_valid_o     <= '1';
+
+         when SEND_ROW_LEN_HEADER =>
+            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+            rdy_o           <= '1';
+            data_o          <= conv_std_logic_vector(row_len_i,32);
+            ena_word_count  <= ack_i;            
+            cmd_rdy         <= '1';
+            cmd_valid_o     <= '1';
+
+         when SEND_NUM_ROWS_HEADER =>
+            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+            rdy_o           <= '1';
+            data_o          <= conv_std_logic_vector(num_rows_i,32);
+            ena_word_count  <= ack_i;            
+            cmd_rdy         <= '1';
+            cmd_valid_o     <= '1';
+
          when SEND_SYNC_NUM_HEADER =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';

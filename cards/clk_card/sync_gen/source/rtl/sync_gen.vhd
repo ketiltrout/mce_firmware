@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen.vhd,v $
+-- Revision 1.15  2006/03/09 00:41:02  bburger
+-- Bryce:  Added the following signal interfaces:  dv_mode_o, sync_mode_o, encoded_sync_o, external_sync_i
+--
 -- Revision 1.14  2006/02/11 01:19:33  bburger
 -- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
 -- data_req
@@ -113,6 +116,8 @@ entity sync_gen is
       sync_mode_o          : out std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
       encoded_sync_o       : out std_logic;
       external_sync_i      : in std_logic;
+      row_len_o            : out integer;
+      num_rows_o           : out integer;
 
       -- Wishbone interface
       dat_i                : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -188,6 +193,8 @@ begin
    
    dv_mode_o <= dv_mode;
    sync_mode_o <= sync_mode;
+   row_len_o <= row_len;
+   num_rows_o <= num_rows;   
    
    wbi: sync_gen_wbs        
       port map(

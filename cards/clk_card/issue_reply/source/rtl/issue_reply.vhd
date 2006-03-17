@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.43 2006/03/09 01:04:37 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.44 2006/03/16 00:20:57 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/09 01:04:37 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/16 00:20:57 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.44  2006/03/16 00:20:57  bburger
+-- Bryce:  added ret_dat_req_i  and ret_dat_ack_o interfaces
+--
 -- Revision 1.43  2006/03/09 01:04:37  bburger
 -- Bryce:
 -- - cmd_translator interface now takes the following signals:  dv_mode_i, external_dv_i, external_dv_num_i
@@ -161,6 +164,8 @@ entity issue_reply is
       ret_dat_ack_o     : out std_logic;
 
       -- sync_gen interface
+      row_len_i         : in integer;
+      num_rows_i        : in integer;
       sync_pulse_i      : in std_logic;
       sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );     
@@ -317,6 +322,10 @@ architecture rtl of issue_reply is
       last_frame_i      : in std_logic;                                          
       frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i    : in std_logic;
+
+      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      row_len_i         : in integer;
+      num_rows_i        : in integer;
       issue_sync_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
@@ -693,6 +702,10 @@ begin
          last_frame_i     => last_frame_cr,   
          frame_seq_num_i  => frame_seq_num_cr,
          internal_cmd_i   => internal_cmd_cr,
+         
+         data_rate_i      => data_rate_i,
+         row_len_i        => row_len_i,
+         num_rows_i       => num_rows_i,
          issue_sync_i     => issue_sync,
 
          
