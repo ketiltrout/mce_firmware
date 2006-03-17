@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.5 2006/03/09 01:27:21 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.6 2006/03/16 00:22:39 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.6  2006/03/16 00:22:39  bburger
+-- Bryce:  added ret_dat_req_i  and ret_dat_ack_o interfaces to prevent the cc from returning data frames for errant dv pulses
+--
 -- Revision 1.5  2006/03/09 01:27:21  bburger
 -- Bryce:
 -- - ret_dat_wbs no longer clamps the data_rate
@@ -154,22 +157,23 @@ begin
       end if;
    end process data_rate_reg;
 
-   -- Custom register that indicates fresh ret_dat commands
-   ret_dat_req_o <= data_req;
-   data_req_reg: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         data_req <= '0';
-      elsif(clk_i'event and clk_i = '1') then
-         if(stb_i = '1' and cyc_i = '1' and we_i = '1' and addr_i = RET_DAT_S_ADDR) then
-            data_req <= '1';
-         elsif(ret_dat_ack_i = '1') then
-            data_req <= '0';
-         else
-            data_req <= data_req;
-         end if;
-      end if;
-   end process data_req_reg;
+     -- Eventually this register will be used when the ret_dat handling is moved to this block
+     -- Custom register that indicates fresh ret_dat commands
+--   ret_dat_req_o <= data_req;
+--   data_req_reg: process(clk_i, rst_i)
+--   begin
+--      if(rst_i = '1') then
+--         data_req <= '0';
+--      elsif(clk_i'event and clk_i = '1') then
+--         if(stb_i = '1' and cyc_i = '1' and we_i = '1' and addr_i = RET_DAT_S_ADDR) then
+--            data_req <= '1';
+--         elsif(ret_dat_ack_i = '1') then
+--            data_req <= '0';
+--         else
+--            data_req <= data_req;
+--         end if;
+--      end if;
+--   end process data_req_reg;
       
 ------------------------------------------------------------
 --  WB FSM
