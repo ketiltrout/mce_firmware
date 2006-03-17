@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.35 2006/03/11 03:45:11 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.36 2006/03/16 00:19:17 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/11 03:45:11 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/16 00:19:17 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.36  2006/03/16 00:19:17  bburger
+-- Bryce:
+-- - added ret_dat_req_i  and ret_dat_ack_o interfaces
+-- - reply_cmd_rcvd_ok_o is now asserted for a single cycle instead of for as long as cmd_rdy_i is asserted
+--
 -- Revision 1.35  2006/03/11 03:45:11  bburger
 -- Bryce:  polishing off dv_rx functionality -- fixing bugs
 --
@@ -474,6 +479,10 @@ architecture rtl of cmd_translator is
    signal frame_seq_num_reg            : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
    signal frame_sync_num_reg           : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0); 
 
+   signal data_req                     : std_logic;
+   signal dat_req                      : std_logic;
+   signal dat_ack                      : std_logic;
+
 begin
    -------------------------------------------------------------------------------------------
    -- logic for routing incoming de-composed fibre commands
@@ -560,6 +569,24 @@ begin
       end if;
    end process;
 
+   -- Custom register that indicates fresh ret_dat commands
+   dat_req <= data_req;
+   data_req_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         data_req <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if(ret_dat_start = '1') then
+            data_req <= '1';
+         elsif(dat_ack = '1' or ret_dat_stop = '1') then
+            data_req <= '0';
+         else
+            data_req <= data_req;
+         end if;
+      end if;
+   end process data_req_reg;
+
+
    -------------------------------------------------------------------------------------------
    -- timer reset logic for issuing internal commands
    -------------------------------------------------------------------------------------------
@@ -616,8 +643,8 @@ begin
       dv_mode_i              => dv_mode_i,        
       external_dv_i          => external_dv_i,    
       external_dv_num_i      => external_dv_num_i,
-      ret_dat_req_i          => ret_dat_req_i,
-      ret_dat_ack_o          => ret_dat_ack_o,
+      ret_dat_req_i          => dat_req,
+      ret_dat_ack_o          => dat_ack,
 
       -- other inputs
       sync_pulse_i           => sync_pulse_i,
