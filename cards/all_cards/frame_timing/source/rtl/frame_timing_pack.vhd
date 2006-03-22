@@ -20,7 +20,7 @@
 
 -- frame_timing_pack.vhd
 --
--- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.8 2005/05/06 20:02:31 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: frame_timing_pack.vhd,v 1.9 2006/02/09 20:32:59 bburger Exp $>
 --
 -- Project:     SCUBA-2
 -- Author:      Bryce Burger
@@ -31,8 +31,13 @@
 -- on the AC, BC, RC.
 --
 -- Revision history:
--- <date $Date: 2005/05/06 20:02:31 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/02/09 20:32:59 $> - <text> - <initials $Author: bburger $>
 -- $Log: frame_timing_pack.vhd,v $
+-- Revision 1.9  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.8  2005/05/06 20:02:31  bburger
 -- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
 -- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
@@ -90,6 +95,8 @@ package frame_timing_pack is
    constant SYNC_PULSE_BIT1        : std_logic := '0';
    constant SYNC_PULSE_BIT2        : std_logic := '0';
    constant SYNC_PULSE_BIT3        : std_logic := '0';
+   constant SYNC_NUM_WIDTH         : integer := 32;
+   constant ISSUE_SYNC_WIDTH       : integer := SYNC_NUM_WIDTH;
    
    ------------------------------------------------------------------------------------
    -- Clock Card frame structure

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_core.vhd,v 1.10 2006/02/09 20:32:59 bburger Exp $
+-- $Id: frame_timing_core.vhd,v 1.11 2006/03/08 22:57:22 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: frame_timing_core.vhd,v $
+-- Revision 1.11  2006/03/08 22:57:22  bburger
+-- Bryce:
+-- - removed component delclarations from frame_timing pack files
+-- - added sync_num_o interfaces to frame_timing and frame_timing_core
+-- - added a counter to frame_timing_core for outputting the sync_num_o
+--
 -- Revision 1.10  2006/02/09 20:32:59  bburger
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
@@ -80,7 +86,6 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.frame_timing_pack.all;
-use work.sync_gen_pack.all;
 
 library components;
 use components.component_pack.all;
