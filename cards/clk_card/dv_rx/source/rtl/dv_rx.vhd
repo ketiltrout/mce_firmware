@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.4 2006/03/09 00:53:04 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.5 2006/03/16 00:14:52 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.5  2006/03/16 00:14:52  bburger
+-- Bryce:  dv is inverted at the receiver, so dv_rx detects rising edges instead of falling edges.
+--
 -- Revision 1.4  2006/03/09 00:53:04  bburger
 -- Bryce:
 -- - Implemented the dv_fibre receiver
@@ -139,16 +142,6 @@ begin
          current_state <= next_state;
       end if;
    end process state_ff;   
-
-   --   constant DV_NUM_WIDTH           : integer := PACKET_WORD_WIDTH;
-   --   constant DV_SELECT_WIDTH        : integer := 2;
-   --   constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
-   --   constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
-   --   constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
-   --
-   --   constant SYNC_SELECT_WIDTH      : integer := 2;
-   --   constant SYNC_INTERNAL          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
-   --   constant SYNC_EXTERNAL          : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
 
    state_ns: process(current_state, dv_mode_i, dv_dat, manch_rdy, manch_dv, sync_i)
    begin
