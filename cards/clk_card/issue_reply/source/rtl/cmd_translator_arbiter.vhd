@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.24 2005/09/28 23:35:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.25 2006/01/16 18:45:27 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/09/28 23:35:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.25  2006/01/16 18:45:27  bburger
+-- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
+-- moved component declarations from above package files to cmd_translator
+-- renamed constants to work with new command_pack (new bus backplane constants)
+--
 -- Revision 1.24  2005/09/28 23:35:22  bburger
 -- Bryce:
 -- removed ret_dat_s logic and interface signals, which are not used.
@@ -149,6 +154,7 @@ use components.component_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
 
 entity cmd_translator_arbiter is
 port(

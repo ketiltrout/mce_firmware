@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.44 2006/03/16 00:20:57 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.45 2006/03/17 17:06:18 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/16 00:20:57 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/17 17:06:18 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.45  2006/03/17 17:06:18  bburger
+-- Bryce:  added row_len, num_rows and data_rate interfaces to add this information to the frame headers
+--
 -- Revision 1.44  2006/03/16 00:20:57  bburger
 -- Bryce:  added ret_dat_req_i  and ret_dat_ack_o interfaces
 --
@@ -107,6 +110,7 @@ use components.component_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.fibre_rx_pack.all;
+use work.frame_timing_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;

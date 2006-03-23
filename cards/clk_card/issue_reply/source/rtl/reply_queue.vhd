@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.22 2006/03/09 00:59:49 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.23 2006/03/17 17:06:18 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.23  2006/03/17 17:06:18  bburger
+-- Bryce:  added row_len, num_rows and data_rate interfaces to add this information to the frame headers
+--
 -- Revision 1.22  2006/03/09 00:59:49  bburger
 -- Bryce:
 -- - Added issue_sync_i interface
@@ -77,6 +80,7 @@ library work;
 use work.cmd_queue_ram40_pack.all;
 use work.cmd_queue_pack.all;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
 
 entity reply_queue is
    port(

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue_pack.vhd,v 1.24 2006/01/16 18:07:33 bburger Exp $
+-- $Id: cmd_queue_pack.vhd,v 1.25 2006/03/09 00:55:07 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue_pack.vhd,v $
+-- Revision 1.25  2006/03/09 00:55:07  bburger
+-- Bryce:  Added an issue_sync_o signal to the interface so that the reply_queue can include this information in data headers
+--
 -- Revision 1.24  2006/01/16 18:07:33  bburger
 -- Bryce:  Brand new version of the cmd_queue.  It only queue's up a single command at a time.
 --
@@ -116,6 +119,7 @@ use sys_param.command_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.cmd_queue_ram40_pack.all;
+use work.frame_timing_pack.all;
 
 package cmd_queue_pack is
    

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.36 2006/03/16 00:19:17 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.37 2006/03/17 17:03:10 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/16 00:19:17 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/17 17:03:10 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.37  2006/03/17 17:03:10  bburger
+-- Bryce:  Added a register for preventing errant DV pulses from causing problems on the CC and in the DAS software
+--
 -- Revision 1.36  2006/03/16 00:19:17  bburger
 -- Bryce:
 -- - added ret_dat_req_i  and ret_dat_ack_o interfaces
@@ -187,6 +190,7 @@ use components.component_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;

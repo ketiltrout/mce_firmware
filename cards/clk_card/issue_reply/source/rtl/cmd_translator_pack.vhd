@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_translator_pack.vhd,v 1.8 2006/02/11 01:19:33 bburger Exp $
+-- $Id: cmd_translator_pack.vhd,v 1.9 2006/03/09 00:57:10 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: cmd_translator_pack.vhd,v $
+-- Revision 1.9  2006/03/09 00:57:10  bburger
+-- Bryce:  Added the following signals to the interface:  dv_mode_i, external_dv_i, external_dv_num_i
+--
 -- Revision 1.8  2006/02/11 01:19:33  bburger
 -- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
 -- data_req
@@ -73,11 +76,11 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
+
+
 
 package cmd_translator_pack is
-
-
-
 
 component cmd_translator_simple_cmd_fsm
    port(

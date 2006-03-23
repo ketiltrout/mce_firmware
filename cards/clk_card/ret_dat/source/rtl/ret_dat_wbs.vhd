@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.6 2006/03/16 00:22:39 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.7 2006/03/17 17:07:15 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.7  2006/03/17 17:07:15  bburger
+-- Bryce:  commented out ret_dat logic that will be moved here later from cmd_translator
+--
 -- Revision 1.6  2006/03/16 00:22:39  bburger
 -- Bryce:  added ret_dat_req_i  and ret_dat_ack_o interfaces to prevent the cc from returning data frames for errant dv pulses
 --
@@ -66,6 +69,7 @@ use sys_param.wishbone_pack.all;
 library work;
 use work.ret_dat_wbs_pack.all;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
 
 entity ret_dat_wbs is        
    port

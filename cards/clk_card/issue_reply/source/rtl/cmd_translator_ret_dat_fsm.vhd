@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.29 2006/03/17 17:04:20 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.30 2006/03/17 21:25:54 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/17 17:04:20 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/17 21:25:54 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.30  2006/03/17 21:25:54  bburger
+-- Bryce:  cc_v02000005_17mar2006, cmd_translator now uses the card address specified by the ret_dat command.
+--
 -- Revision 1.29  2006/03/17 17:04:20  bburger
 -- Bryce:  formatting changes
 --
@@ -104,6 +107,7 @@ use components.component_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
+use work.frame_timing_pack.all;
 
 entity cmd_translator_ret_dat_fsm is
 port(
@@ -550,7 +554,7 @@ begin
    ret_dat_cmd_valid_o     <= ret_dat_cmd_valid;
    ret_dat_fsm_working_o   <= ret_dat_fsm_working;
 
-   process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg, dv_mode_i)
+   process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg)
    begin
       if ret_dat_fsm_working = '1' then
          frame_seq_num_o  <= current_seq_num_reg;
