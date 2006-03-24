@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.13 2006/03/14 23:37:01 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.14 2006/03/22 21:33:28 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.14  2006/03/22 21:33:28  mandana
+-- same as rev. 1.12, the fix introduced in 1.13 for timing violations breaks down the functionality, the fix is tracked on a branch 1.12.2.1
+--
 -- Revision 1.13  2006/03/14 23:37:01  mandana
 -- Reduced comparator widths to resolve timing violations introduced in Q5.1
 --
@@ -1022,43 +1025,43 @@ begin
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
 
    m_pres0 <=
-      m_prev_reg0 - 1 when (conv_integer(signed(res_a_reg0(31 downto 0))) < FSFB_MIN) and (m_prev_reg0 /= M_MIN) and (flux_quanta_reg0 /= ZERO_QUANTA) else
-      m_prev_reg0 + 1 when (conv_integer(signed(res_a_reg0(31 downto 0))) > FSFB_MAX) and (m_prev_reg0 /= M_MAX) and (flux_quanta_reg0 /= ZERO_QUANTA) else
+      m_prev_reg0 - 1 when (signed(res_a_reg0(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg0 /= M_MIN) and (flux_quanta_reg0 /= ZERO_QUANTA) else
+      m_prev_reg0 + 1 when (signed(res_a_reg0(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg0 /= M_MAX) and (flux_quanta_reg0 /= ZERO_QUANTA) else
       m_prev_reg0;
 
    m_pres1 <=
-      m_prev_reg1 - 1 when (conv_integer(signed(res_a_reg1(31 downto 0))) < FSFB_MIN) and (m_prev_reg1 /= M_MIN) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
-      m_prev_reg1 + 1 when (conv_integer(signed(res_a_reg1(31 downto 0))) > FSFB_MAX) and (m_prev_reg1 /= M_MAX) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
+      m_prev_reg1 - 1 when (signed(res_a_reg1(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg1 /= M_MIN) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
+      m_prev_reg1 + 1 when (signed(res_a_reg1(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg1 /= M_MAX) and (flux_quanta_reg1 /= ZERO_QUANTA) else 
       m_prev_reg1;
 
    m_pres2 <=
-      m_prev_reg2 - 1 when (conv_integer(signed(res_a_reg2(31 downto 0))) < FSFB_MIN) and (m_prev_reg2 /= M_MIN) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
-      m_prev_reg2 + 1 when (conv_integer(signed(res_a_reg2(31 downto 0))) > FSFB_MAX) and (m_prev_reg2 /= M_MAX) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
+      m_prev_reg2 - 1 when (signed(res_a_reg2(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg2 /= M_MIN) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
+      m_prev_reg2 + 1 when (signed(res_a_reg2(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg2 /= M_MAX) and (flux_quanta_reg2 /= ZERO_QUANTA) else 
       m_prev_reg2;
 
    m_pres3 <=
-      m_prev_reg3 - 1 when (conv_integer(signed(res_a_reg3(31 downto 0))) < FSFB_MIN) and (m_prev_reg3 /= M_MIN) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
-      m_prev_reg3 + 1 when (conv_integer(signed(res_a_reg3(31 downto 0))) > FSFB_MAX) and (m_prev_reg3 /= M_MAX) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
+      m_prev_reg3 - 1 when (signed(res_a_reg3(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg3 /= M_MIN) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
+      m_prev_reg3 + 1 when (signed(res_a_reg3(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg3 /= M_MAX) and (flux_quanta_reg3 /= ZERO_QUANTA) else 
       m_prev_reg3;
 
    m_pres4 <=
-      m_prev_reg4 - 1 when (conv_integer(signed(res_a_reg4(31 downto 0))) < FSFB_MIN) and (m_prev_reg4 /= M_MIN) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
-      m_prev_reg4 + 1 when (conv_integer(signed(res_a_reg4(31 downto 0))) > FSFB_MAX) and (m_prev_reg4 /= M_MAX) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
+      m_prev_reg4 - 1 when (signed(res_a_reg4(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg4 /= M_MIN) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
+      m_prev_reg4 + 1 when (signed(res_a_reg4(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg4 /= M_MAX) and (flux_quanta_reg4 /= ZERO_QUANTA) else 
       m_prev_reg4;
 
    m_pres5 <=
-      m_prev_reg5 - 1 when (conv_integer(signed(res_a_reg5(31 downto 0))) < FSFB_MIN) and (m_prev_reg5 /= M_MIN) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
-      m_prev_reg5 + 1 when (conv_integer(signed(res_a_reg5(31 downto 0))) > FSFB_MAX) and (m_prev_reg5 /= M_MAX) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
+      m_prev_reg5 - 1 when (signed(res_a_reg5(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg5 /= M_MIN) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
+      m_prev_reg5 + 1 when (signed(res_a_reg5(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg5 /= M_MAX) and (flux_quanta_reg5 /= ZERO_QUANTA) else 
       m_prev_reg5;
 
    m_pres6 <=
-      m_prev_reg6 - 1 when (conv_integer(signed(res_a_reg6(31 downto 0))) < FSFB_MIN) and (m_prev_reg6 /= M_MIN) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
-      m_prev_reg6 + 1 when (conv_integer(signed(res_a_reg6(31 downto 0))) > FSFB_MAX) and (m_prev_reg6 /= M_MAX) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
+      m_prev_reg6 - 1 when (signed(res_a_reg6(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg6 /= M_MIN) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
+      m_prev_reg6 + 1 when (signed(res_a_reg6(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg6 /= M_MAX) and (flux_quanta_reg6 /= ZERO_QUANTA) else 
       m_prev_reg6;
 
    m_pres7 <=
-      m_prev_reg7 - 1 when (conv_integer(signed(res_a_reg7(31 downto 0))) < FSFB_MIN) and (m_prev_reg7 /= M_MIN) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
-      m_prev_reg7 + 1 when (conv_integer(signed(res_a_reg7(31 downto 0))) > FSFB_MAX) and (m_prev_reg7 /= M_MAX) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
+      m_prev_reg7 - 1 when (signed(res_a_reg7(31 downto 0)) < signed(FSFB_MIN)) and (m_prev_reg7 /= M_MIN) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
+      m_prev_reg7 + 1 when (signed(res_a_reg7(31 downto 0)) > signed(FSFB_MAX)) and (m_prev_reg7 /= M_MAX) and (flux_quanta_reg7 /= ZERO_QUANTA) else 
       m_prev_reg7;
       
 end rtl;
