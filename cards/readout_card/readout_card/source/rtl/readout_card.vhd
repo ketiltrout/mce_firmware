@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.31  2006/03/22 19:28:34  mandana
+-- revision 03000003 built based on 02000009 with latest BB protocol
+--
 -- Revision 1.30  2006/03/17 18:29:18  mandana
 -- revision upgraded to 02000009 for data_mode 4 adjusted and 2^12 scaling in fsfb_corr_pack
 --
@@ -264,7 +267,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000003"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000004"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- data mode 4 changed windowing, new BB protocol, BB rev. C
   
 -- Global signals
@@ -379,9 +382,9 @@ begin
          ack_i        => dispatch_ack_in,
          err_i        => dispatch_err_in,
          wdt_rst_o    => wdog,
-         slot_i       => slot_id--,
---         dip_sw3      => '1',--dip_sw3,
---         dip_sw4      => '1'--dip_sw4
+         slot_i       => slot_id,
+         dip_sw3      => '1',--dip_sw3,
+         dip_sw4      => '1'--dip_sw4
          );
 
 
