@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.30  2006/03/17 18:29:18  mandana
+-- revision upgraded to 02000009 for data_mode 4 adjusted and 2^12 scaling in fsfb_corr_pack
+--
 -- Revision 1.28  2006/03/15 23:41:22  mandana
 -- revision upgraded to 02000007 for 2^10 scaling in fsfb_corr_pack
 --
@@ -261,8 +264,8 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"02000009"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- data mode 4 changed windowing
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0200000a"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+                                                                     -- data mode 4 changed windowing, corrected sign bit, fsfb_corr window set at 10
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
