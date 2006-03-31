@@ -49,9 +49,13 @@
 --
 --
 -- Revision history:
--- <date $Date: 2005/12/13 00:51:51 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2006/03/17 18:31:17 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.25  2006/03/17 18:31:17  mandana
+-- adjusted windows for combined fb/error data_mode (4)
+-- included fsfb_corr_pack to tie the window on fsfb reading in data_mode 4 to what is applied to the DAC
+--
 -- Revision 1.24  2005/12/13 00:51:51  mandana
 -- reorganized the data modes, added data mode for filtering and for mixed feedback and flux-count
 --
@@ -803,14 +807,29 @@ begin
                         filtered_dat_ch7_i when others;
 
    with ch_mux_sel select
-      fb_error_dat   <= fsfb_dat_ch0_i (LSB_WINDOW_INDEX+15 downto LSB_WINDOW_INDEX) & coadded_dat_ch0_i(15 downto 0) when "000",
-                        fsfb_dat_ch1_i (LSB_WINDOW_INDEX+15 downto LSB_WINDOW_INDEX) & coadded_dat_ch1_i(15 downto 0) when "001",
-                        fsfb_dat_ch2_i (LSB_WINDOW_INDEX+15 downto LSB_WINDOW_INDEX) & coadded_dat_ch2_i(15 downto 0) when "010",
-                        fsfb_dat_ch3_i (LSB_WINDOW_INDEX+15 downto LSB_WINDOW_INDEX) & coadded_dat_ch3_i(15 downto 0) when "011",
-                        fsfb_dat_ch4_i (LSB_WINDOW_INDEX+15 downto LSB_WINDOW_INDEX) & coadded_dat_ch4_i(15 downto 0) when "100",
-                        fsfb_dat_ch5_i (LSB_WINDOW_INDEX+15 downto LSB_WINDOW_INDEX) & coadded_dat_ch5_i(15 downto 0) when "101",
-                        fsfb_dat_ch6_i (LSB_WINDOW_INDEX+15 downto LSB_WINDOW_INDEX) & coadded_dat_ch6_i(15 downto 0) when "110",
-                        fsfb_dat_ch7_i (LSB_WINDOW_INDEX+15 downto LSB_WINDOW_INDEX) & coadded_dat_ch7_i(15 downto 0) when others;
+      fb_error_dat   <= fsfb_dat_ch0_i(31) & fsfb_dat_ch0_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
+                        coadded_dat_ch0_i(31) & coadded_dat_ch0_i(12 downto 0) when "000",
+                        
+                        fsfb_dat_ch1_i(31) & fsfb_dat_ch1_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
+                        coadded_dat_ch1_i(31) & coadded_dat_ch1_i(12 downto 0) when "001",
+                        
+                        fsfb_dat_ch2_i(31) & fsfb_dat_ch2_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
+                        coadded_dat_ch2_i(31) & coadded_dat_ch2_i(12 downto 0) when "010",
+                        
+                        fsfb_dat_ch3_i(31) & fsfb_dat_ch3_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
+                        coadded_dat_ch3_i(31) & coadded_dat_ch3_i(12 downto 0) when "011",
+                        
+                        fsfb_dat_ch4_i(31) & fsfb_dat_ch4_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
+                        coadded_dat_ch4_i(31) & coadded_dat_ch4_i(12 downto 0) when "100",
+                        
+                        fsfb_dat_ch5_i(31) & fsfb_dat_ch5_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
+                        coadded_dat_ch5_i(31) & coadded_dat_ch5_i(12 downto 0) when "101",
+                        
+                        fsfb_dat_ch6_i(31) & fsfb_dat_ch6_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
+                        coadded_dat_ch6_i(31) & coadded_dat_ch6_i(12 downto 0) when "110",
+                        
+                        fsfb_dat_ch7_i(31) & fsfb_dat_ch7_i(LSB_WINDOW_INDEX+16 downto LSB_WINDOW_INDEX) & 
+                        coadded_dat_ch7_i(31) & coadded_dat_ch7_i(12 downto 0) when others;
       
    with ch_mux_sel select       
       fb_flx_cnt_dat <= fsfb_dat_ch0_i (31 downto 8) & flux_cnt_dat_ch0_i when "000",
