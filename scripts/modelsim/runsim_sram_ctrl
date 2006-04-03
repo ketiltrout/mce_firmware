@@ -1,5 +1,0 @@
-vsim -coverage tb_sram(beh)
-add wave -hex /*
-add list -hex /*
-run -all
-view signals list wave
