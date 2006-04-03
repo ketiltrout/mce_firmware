@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.32  2006/03/24 21:01:44  mandana
+-- revision 03000004 built based on 03000003 where dip_sw ports are added for dispatch block
+--
 -- Revision 1.31  2006/03/22 19:28:34  mandana
 -- revision 03000003 built based on 02000009 with latest BB protocol
 --
@@ -267,8 +270,8 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000004"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- data mode 4 changed windowing, new BB protocol, BB rev. C
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000005"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+                                                                     -- data mode 4 is 18b/14b, new BB protocol, BB rev. C
   
 -- Global signals
 signal clk                     : std_logic;  -- system clk
