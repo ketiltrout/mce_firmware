@@ -31,7 +31,10 @@
 #
 # Revision history:
 #
-# $Log: rc_pin_assign.tcl,v $
+# $Log: readout_card_ep1s30.tcl,v $
+# Revision 1.1  2006/03/23 23:28:58  bburger
+# Bryce:  commit
+#
 # Revision 1.10  2005/01/18 22:20:47  bburger
 # Bryce:  Added a BClr signal across the bus backplane to all the card top levels.
 #
@@ -93,7 +96,7 @@ cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 
 # dev_clr_n disabled
 cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET OFF
-puts "   Assigned: EP1Sx0 device parameters."
+puts "   Assigned: EP1S30 device parameters."
 
 # assign rst_n
 cmp add_assignment $top_name "" rst_n LOCATION "Pin_AC9"
