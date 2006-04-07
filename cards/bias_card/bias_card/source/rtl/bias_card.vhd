@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.22 2006/03/02 20:12:51 mandana Exp $
+-- $Id: bias_card.vhd,v 1.23 2006/03/08 21:01:46 bench2 Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.23  2006/03/08 21:01:46  bench2
+-- Mandana: changed revision to 01030002 to incorporate 100MHz lvds_rx
+--
 -- Revision 1.22  2006/03/02 20:12:51  mandana
 -- revision number changed to 01030001 for new dispatch and backplane Rev. C
 -- added FPGA_thermo
@@ -189,7 +192,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030002"; -- 03 signifies backplane Rev. C slot IDs, lvds rx upgraded
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030003"; -- 03 signifies backplane Rev. C slot IDs, lvds rx upgraded
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
