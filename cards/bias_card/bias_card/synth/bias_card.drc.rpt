@@ -1,5 +1,5 @@
 Design Assistant report for bias_card
-Fri Apr 07 15:03:47 2006
+Fri Apr 07 16:08:25 2006
 Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
 
 
@@ -39,7 +39,7 @@ applicable agreement for further details.
 +-------------------------------------------------------------------------+
 ; Design Assistant Summary                                                ;
 +-----------------------------------+-------------------------------------+
-; Design Assistant Status           ; Analyzed - Fri Apr 07 15:03:47 2006 ;
+; Design Assistant Status           ; Analyzed - Fri Apr 07 16:08:25 2006 ;
 ; Revision Name                     ; bias_card                           ;
 ; Top-level Entity Name             ; bias_card                           ;
 ; Family                            ; Stratix                             ;
@@ -769,59 +769,59 @@ applicable agreement for further details.
 ; Nodes with more than specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|reduce_or~248                                                            ; 96      ;
 ; Nodes with more than specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|spi_clk_o~10                               ; 32      ;
 ; Nodes with more than specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[15]                ; 33      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~179                                                                            ; 41      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle                                                                      ; 317     ;
 ; Nodes with more than specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|current_state.write                           ; 35      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                                                  ; 105     ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle                                                                      ; 315     ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|buf_wren~32                                                                                                         ; 33      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                                                  ; 106     ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|buf_wren~20                                                                                                         ; 33      ;
 ; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|we_o~16                                                                                  ; 37      ;
 ; Nodes with more than specified number of fan-outs ; dispatch:cmd0|pres_state.fetch                                                                                                    ; 44      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_done_o~751                                                                        ; 33      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_done_o~712                                                                        ; 33      ;
 ; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal~62                                                                    ; 33      ;
 ; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                                                             ; 33      ;
 ; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync                                                      ; 73      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|empty_o~72                                    ; 33      ;
 ; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle                                                                 ; 69      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|empty_o~72                                    ; 33      ;
 ; Nodes with more than specified number of fan-outs ; ~GND                                                                                                                              ; 48      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[20]                                                                                                  ; 173     ;
 ; Nodes with more than specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[21]                                                                                                  ; 142     ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|reg:hdr1|reg_o[20]                                                                                                  ; 174     ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~180                                                                            ; 44      ;
-; Nodes with more than specified number of fan-outs ; id_thermo:id_thermo0|valid                                                                                                        ; 37      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~182                                                                            ; 48      ;
-; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|rd_cmd~635                                                                   ; 34      ;
-; Nodes with more than specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|next_state.rd1~142                                                         ; 35      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~220                                                                            ; 38      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~222                                                                            ; 47      ;
+; Nodes with more than specified number of fan-outs ; id_thermo:id_thermo0|valid                                                                                                        ; 38      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~224                                                                            ; 50      ;
+; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|rd_cmd~635                                                                   ; 38      ;
+; Nodes with more than specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|next_state.rd1~141                                                         ; 35      ;
 ; Nodes with more than specified number of fan-outs ; sld_hub:sld_hub_inst|sld_jtag_state_machine:jtag_state_machine|state[4]                                                           ; 31      ;
-; Nodes with more than specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|bias_wren~14                                                               ; 32      ;
+; Nodes with more than specified number of fan-outs ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|bias_wren~31                                                               ; 32      ;
 ; Nodes with more than specified number of fan-outs ; id_thermo:id_thermo0|wb_ps.send_id                                                                                                ; 33      ;
 ; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_init_win_state.reset_hold                                           ; 34      ;
-; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_data[15]~2171                                                   ; 32      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9216                                                                       ; 63      ;
-; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~16                                                           ; 32      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9219                                                                       ; 32      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9220                                                                       ; 31      ;
-; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_delay_wren~52                                                         ; 32      ;
+; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_data[31]~2171                                                   ; 32      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9293                                                                       ; 63      ;
+; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~17                                                           ; 32      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9296                                                                       ; 32      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9297                                                                       ; 31      ;
+; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_delay_wren~53                                                         ; 32      ;
 ; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|feedback_delay_wren~15                                                       ; 32      ;
 ; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_data~2074                                                    ; 33      ;
-; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_data[23]~2075                                                ; 32      ;
+; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_data[13]~2075                                                ; 32      ;
 ; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_num_wren~16                                                           ; 32      ;
 ; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|address_on_delay_wren~16                                                     ; 32      ;
 ; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|num_rows_wren~12                                                             ; 32      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9664                                                                       ; 31      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9740                                                                       ; 31      ;
+; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|resync_req_wren~21                                                           ; 32      ;
 ; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle                                                                       ; 46      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|full_o                                        ; 39      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_data                                                              ; 53      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|full_o                                        ; 41      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_data                                                              ; 52      ;
 ; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_crc                                                               ; 39      ;
-; Nodes with more than specified number of fan-outs ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|resync_req_wren~22                                                           ; 32      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg[18]~1365                                                ; 32      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg[12]~1365                                                ; 32      ;
 ; Nodes with more than specified number of fan-outs ; sld_signaltap:auto_signaltap_0|reset_all                                                                                          ; 336     ;
 ; Nodes with more than specified number of fan-outs ; sld_signaltap:auto_signaltap_0|sld_ela_control:ela_control|trigger_setup_ena                                                      ; 210     ;
 ; Nodes with more than specified number of fan-outs ; sld_signaltap:auto_signaltap_0|sdr~13                                                                                             ; 32      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[9]~9633                                                                       ; 42      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[8]~9333                                                                       ; 43      ;
 ; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving                                                         ; 46      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[18]~1510                                       ; 33      ;
-; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[2]~1057                                           ; 32      ;
-; Nodes with more than specified number of fan-outs ; sld_signaltap:auto_signaltap_0|sld_offload_buffer_mgr:\stp_non_zero_depth_offload_gen:stp_offload_buff_mgr_inst|offload_shift_ena ; 35      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[14]~1510                                       ; 33      ;
+; Nodes with more than specified number of fan-outs ; dispatch:cmd0|dispatch_reply_transmit:transmitter|parallel_crc:crc_calc|crc_reg[13]~1057                                          ; 32      ;
 ; Nodes with more than specified number of fan-outs ; sld_signaltap:auto_signaltap_0|sld_offload_buffer_mgr:\stp_non_zero_depth_offload_gen:stp_offload_buff_mgr_inst|Equal~83          ; 32      ;
+; Nodes with more than specified number of fan-outs ; sld_signaltap:auto_signaltap_0|sld_offload_buffer_mgr:\stp_non_zero_depth_offload_gen:stp_offload_buff_mgr_inst|offload_shift_ena ; 35      ;
 ; Nodes with more than specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk0                                                                                         ; 1145    ;
 ; Nodes with more than specified number of fan-outs ; bc_pll:pll0|altpll:altpll_component|_clk1                                                                                         ; 63      ;
 ; Nodes with more than specified number of fan-outs ; altera_internal_jtag~TCKUTAP                                                                                                      ; 371     ;
@@ -829,52 +829,52 @@ applicable agreement for further details.
 ; Top nodes with highest fan-out                    ; rst                                                                                                                               ; 948     ;
 ; Top nodes with highest fan-out                    ; altera_internal_jtag~TCKUTAP                                                                                                      ; 371     ;
 ; Top nodes with highest fan-out                    ; sld_signaltap:auto_signaltap_0|reset_all                                                                                          ; 336     ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle                                                                      ; 315     ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle                                                                      ; 317     ;
 ; Top nodes with highest fan-out                    ; sld_signaltap:auto_signaltap_0|sld_ela_control:ela_control|trigger_setup_ena                                                      ; 210     ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|reg:hdr1|reg_o[20]                                                                                                  ; 174     ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|reg:hdr1|reg_o[20]                                                                                                  ; 173     ;
 ; Top nodes with highest fan-out                    ; dispatch:cmd0|reg:hdr1|reg_o[21]                                                                                                  ; 142     ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                                                  ; 106     ;
 ; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:clk_div_2|count[1]                                               ; 106     ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|reg:hdr0|reg_o[11]                                                                                                  ; 105     ;
 ; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]                                             ; 103     ;
 ; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|reduce_or~248                                                            ; 96      ;
 ; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync                                                      ; 73      ;
 ; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle                                                                 ; 69      ;
 ; Top nodes with highest fan-out                    ; bc_pll:pll0|altpll:altpll_component|_clk1                                                                                         ; 63      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9216                                                                       ; 63      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_data                                                              ; 53      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9293                                                                       ; 63      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_data                                                              ; 52      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~224                                                                            ; 50      ;
 ; Top nodes with highest fan-out                    ; ~GND                                                                                                                              ; 48      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~182                                                                            ; 48      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving                                                         ; 46      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~222                                                                            ; 47      ;
 ; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle                                                                       ; 46      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~180                                                                            ; 44      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving                                                         ; 46      ;
 ; Top nodes with highest fan-out                    ; dispatch:cmd0|pres_state.fetch                                                                                                    ; 44      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[9]~9633                                                                       ; 42      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~179                                                                            ; 41      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[8]~9333                                                                       ; 43      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|full_o                                        ; 41      ;
 ; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_crc                                                               ; 39      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|full_o                                        ; 39      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~220                                                                            ; 38      ;
+; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|rd_cmd~635                                                                   ; 38      ;
+; Top nodes with highest fan-out                    ; id_thermo:id_thermo0|valid                                                                                                        ; 38      ;
 ; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|we_o~16                                                                                  ; 37      ;
-; Top nodes with highest fan-out                    ; id_thermo:id_thermo0|valid                                                                                                        ; 37      ;
 ; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|current_state.write                        ; 35      ;
-; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|current_state.write                           ; 35      ;
+; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|next_state.rd1~141                                                         ; 35      ;
 ; Top nodes with highest fan-out                    ; sld_signaltap:auto_signaltap_0|sld_offload_buffer_mgr:\stp_non_zero_depth_offload_gen:stp_offload_buff_mgr_inst|offload_shift_ena ; 35      ;
-; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|next_state.rd1~142                                                         ; 35      ;
 ; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|pres_state.setup                                               ; 35      ;
+; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|current_state.write                           ; 35      ;
 ; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_core:ftc|current_init_win_state.reset_hold                                           ; 34      ;
 ; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|tx_ena~28                                                      ; 34      ;
-; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|rd_cmd~635                                                                   ; 34      ;
-; Top nodes with highest fan-out                    ; id_thermo:id_thermo0|wb_ps.send_id                                                                                                ; 33      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|buf_wren~32                                                                                                         ; 33      ;
-; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[15]                ; 33      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|empty_o~72                                    ; 33      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal~62                                                                    ; 33      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|buf_wren~20                                                                                                         ; 33      ;
 ; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|spi_ncs_o~237                              ; 33      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[18]~1510                                       ; 33      ;
-; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                                                             ; 33      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_done_o~751                                                                        ; 33      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|shift_reg:rx_buffer|reg[14]~1510                                       ; 33      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_done_o~712                                                                        ; 33      ;
 ; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|init_window_req_data~2074                                                    ; 33      ;
-; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_cmd_receive:receiver|parallel_crc:crc_calc|crc_reg[18]~1365                                                ; 32      ;
-; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|sample_delay_wren~52                                                         ; 32      ;
-; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|feedback_delay_wren~15                                                       ; 32      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|empty_o~72                                    ; 33      ;
+; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters                                                             ; 33      ;
+; Top nodes with highest fan-out                    ; id_thermo:id_thermo0|wb_ps.send_id                                                                                                ; 33      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal~62                                                                    ; 33      ;
+; Top nodes with highest fan-out                    ; bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[15]                ; 33      ;
+; Top nodes with highest fan-out                    ; dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9296                                                                       ; 32      ;
+; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|row_length_wren~17                                                           ; 32      ;
+; Top nodes with highest fan-out                    ; frame_timing:frame_timing_slave|frame_timing_wbs:wbi|fltr_rst_req_data[31]~2171                                                   ; 32      ;
 +---------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------+---------+
 
 
@@ -884,7 +884,7 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Design Assistant
     Info: Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
-    Info: Processing started: Fri Apr 07 15:03:41 2006
+    Info: Processing started: Fri Apr 07 16:08:19 2006
 Info: Command: quartus_drc --read_settings_files=off --write_settings_files=off bias_card -c bias_card
 Critical Warning: Design Assistant warning: Gated clock should be implemented according to Altera standard scheme. Found 1 node(s) related to this rule.
     Critical Warning: Node  "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_wbs:bcdc_wbs|flux_fb_changed_o~20"
@@ -1092,62 +1092,62 @@ Info: Design Assistant information: Nodes with more than specified number of fan
     Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|reduce_or~248" has 96 fan-out(s)
     Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|spi_clk_o~10" has 32 fan-out(s)
     Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|shift_reg:spi_shift|reg[15]" has 33 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~179" has 41 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle" has 317 fan-out(s)
     Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|current_state.write" has 35 fan-out(s)
-    Info: Node "dispatch:cmd0|reg:hdr0|reg_o[11]" has 105 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle" has 315 fan-out(s)
-    Info: Node "dispatch:cmd0|buf_wren~32" has 33 fan-out(s)
+    Info: Node "dispatch:cmd0|reg:hdr0|reg_o[11]" has 106 fan-out(s)
+    Info: Node "dispatch:cmd0|buf_wren~20" has 33 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|we_o~16" has 37 fan-out(s)
     Info: Node "dispatch:cmd0|pres_state.fetch" has 44 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_done_o~751" has 33 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|cmd_done_o~712" has 33 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|us_timer:wdt|Equal~62" has 33 fan-out(s)
     Info: Node "frame_timing:frame_timing_slave|frame_timing_core:ftc|enable_counters" has 33 fan-out(s)
     Info: Node "frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync" has 73 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|empty_o~72" has 33 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle" has 69 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|empty_o~72" has 33 fan-out(s)
     Info: Node "~GND" has 48 fan-out(s)
+    Info: Node "dispatch:cmd0|reg:hdr1|reg_o[20]" has 173 fan-out(s)
     Info: Node "dispatch:cmd0|reg:hdr1|reg_o[21]" has 142 fan-out(s)
-    Info: Node "dispatch:cmd0|reg:hdr1|reg_o[20]" has 174 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~180" has 44 fan-out(s)
-    Info: Node "id_thermo:id_thermo0|valid" has 37 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~182" has 48 fan-out(s)
-    Info: Node "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|rd_cmd~635" has 34 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~220" has 38 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~222" has 47 fan-out(s)
+    Info: Node "id_thermo:id_thermo0|valid" has 38 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~224" has 50 fan-out(s)
+    Info: Node "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|rd_cmd~635" has 38 fan-out(s)
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
 Info: Design Assistant information: Top nodes with highest fan-out. Found 50 node(s) with highest fan-out.
     Info: Node "bc_pll:pll0|altpll:altpll_component|_clk0" has 1145 fan-out(s)
     Info: Node "rst" has 948 fan-out(s)
     Info: Node "altera_internal_jtag~TCKUTAP" has 371 fan-out(s)
     Info: Node "sld_signaltap:auto_signaltap_0|reset_all" has 336 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle" has 315 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|pres_state.wb_cycle" has 317 fan-out(s)
     Info: Node "sld_signaltap:auto_signaltap_0|sld_ela_control:ela_control|trigger_setup_ena" has 210 fan-out(s)
-    Info: Node "dispatch:cmd0|reg:hdr1|reg_o[20]" has 174 fan-out(s)
+    Info: Node "dispatch:cmd0|reg:hdr1|reg_o[20]" has 173 fan-out(s)
     Info: Node "dispatch:cmd0|reg:hdr1|reg_o[21]" has 142 fan-out(s)
+    Info: Node "dispatch:cmd0|reg:hdr0|reg_o[11]" has 106 fan-out(s)
     Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:clk_div_2|count[1]" has 106 fan-out(s)
-    Info: Node "dispatch:cmd0|reg:hdr0|reg_o[11]" has 105 fan-out(s)
     Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|counter:dac_counter|count[4]" has 103 fan-out(s)
     Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|reduce_or~248" has 96 fan-out(s)
     Info: Node "frame_timing:frame_timing_slave|frame_timing_core:ftc|current_state.got_sync" has 73 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.idle" has 69 fan-out(s)
     Info: Node "bc_pll:pll0|altpll:altpll_component|_clk1" has 63 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9216" has 63 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_data" has 53 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[0]~9293" has 63 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_data" has 52 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~224" has 50 fan-out(s)
     Info: Node "~GND" has 48 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[2]~182" has 48 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving" has 46 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~222" has 47 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|pres_state.idle" has 46 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[1]~180" has 44 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|lvds_receiving" has 46 fan-out(s)
     Info: Node "dispatch:cmd0|pres_state.fetch" has 44 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[9]~9633" has 42 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~179" has 41 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|buf_data_o[8]~9333" has 43 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|full_o" has 41 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|pres_state.tx_crc" has 39 fan-out(s)
-    Info: Node "dispatch:cmd0|dispatch_reply_transmit:transmitter|lvds_tx:reply_tx|fifo:data_buffer|full_o" has 39 fan-out(s)
+    Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|addr_o[7]~220" has 38 fan-out(s)
+    Info: Node "frame_timing:frame_timing_slave|frame_timing_wbs:wbi|rd_cmd~635" has 38 fan-out(s)
+    Info: Node "id_thermo:id_thermo0|valid" has 38 fan-out(s)
     Info: Node "dispatch:cmd0|dispatch_wishbone:wishbone|we_o~16" has 37 fan-out(s)
-    Info: Node "id_thermo:id_thermo0|valid" has 37 fan-out(s)
-    Info: Node "bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|current_state.write" has 35 fan-out(s)
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
 Info: Design Assistant information: finished post-fitting analysis of current design -- generated 116 information messages and 261 warning messages
 Info: Quartus II Design Assistant was successful. 0 errors, 194 warnings
-    Info: Processing ended: Fri Apr 07 15:03:47 2006
-    Info: Elapsed time: 00:00:06
+    Info: Processing ended: Fri Apr 07 16:08:25 2006
+    Info: Elapsed time: 00:00:07
 
 
