@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.6 2005/01/20 23:08:14 mandana Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.7 2005/01/25 00:00:03 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.7  2005/01/25 00:00:03  mandana
+-- fixed the synthesis error about flux_fb_changed_reg
+--
 -- Revision 1.6  2005/01/20 23:08:14  mandana
 -- added a register for flux_fb_changed_i
 -- removed debug connections
@@ -139,11 +142,11 @@ architecture rtl of bc_dac_ctrl_core is
    -- Counter for the Flux Feedback DACs
    signal dac_count_clk          : std_logic;
    signal dac_count_rst          : std_logic;
-   signal dac_count              : integer;
+   signal dac_count              : integer range 0 to NUM_FLUX_FB_DACS;
    
    -- SPI counter signals for clock division
    signal clk_div2                  : std_logic;
-   signal clk_count              : integer;
+   signal clk_count              : integer range 0 to 3;
 
 begin
 
