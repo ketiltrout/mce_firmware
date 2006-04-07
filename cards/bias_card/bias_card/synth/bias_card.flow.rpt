@@ -1,5 +1,5 @@
 Flow report for bias_card
-Wed Mar 08 13:55:30 2006
+Fri Apr 07 15:03:48 2006
 Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
 
 
@@ -36,7 +36,7 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------+
 ; Flow Summary                                                             ;
 +--------------------------+-----------------------------------------------+
-; Flow Status              ; Analyzed - Wed Mar 08 13:55:30 2006           ;
+; Flow Status              ; Analyzed - Fri Apr 07 15:03:47 2006           ;
 ; Quartus II Version       ; 5.1 Build 213 01/19/2006 SP 1 SJ Full Version ;
 ; Revision Name            ; bias_card                                     ;
 ; Top-level Entity Name    ; bias_card                                     ;
@@ -44,10 +44,10 @@ applicable agreement for further details.
 ; Device                   ; EP1S10F780C5                                  ;
 ; Timing Models            ; Final                                         ;
 ; Met timing requirements  ; Yes                                           ;
-; Total logic elements     ; 2,133 / 10,570 ( 20 % )                       ;
+; Total logic elements     ; 3,064 / 10,570 ( 29 % )                       ;
 ; Total pins               ; 186 / 427 ( 44 % )                            ;
 ; Total virtual pins       ; 0                                             ;
-; Total memory bits        ; 68,608 / 920,448 ( 7 % )                      ;
+; Total memory bits        ; 577,536 / 920,448 ( 63 % )                    ;
 ; DSP block 9-bit elements ; 0 / 48 ( 0 % )                                ;
 ; Total PLLs               ; 1 / 6 ( 17 % )                                ;
 ; Total DLLs               ; 0 / 2 ( 0 % )                                 ;
@@ -59,7 +59,7 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 03/08/2006 13:52:41 ;
+; Start date & time ; 04/07/2006 14:59:58 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
@@ -70,12 +70,12 @@ applicable agreement for further details.
 +----------------------+--------------+
 ; Module Name          ; Elapsed Time ;
 +----------------------+--------------+
-; Analysis & Synthesis ; 00:01:30     ;
-; Fitter               ; 00:01:02     ;
-; Assembler            ; 00:00:04     ;
-; Timing Analyzer      ; 00:00:03     ;
-; Design Assistant     ; 00:00:03     ;
-; Total                ; 00:02:42     ;
+; Analysis & Synthesis ; 00:01:58     ;
+; Fitter               ; 00:01:28     ;
+; Assembler            ; 00:00:05     ;
+; Timing Analyzer      ; 00:00:05     ;
+; Design Assistant     ; 00:00:06     ;
+; Total                ; 00:03:42     ;
 +----------------------+--------------+
 
 
