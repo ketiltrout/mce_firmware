@@ -35,8 +35,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/02/15 21:39:15 $>    - <initials $Author: mandana $>
+-- <date $Date: 2006/03/06 23:26:52 $>    - <initials $Author: mandana $>
 -- $Log: fsfb_fltr_regs.vhd,v $
+-- Revision 1.4  2006/03/06 23:26:52  mandana
+-- modified for 4-pole filter to include wn terms for 2 biquads
+--
 -- Revision 1.3  2006/02/15 21:39:15  mandana
 -- registers can now be reset by either fltr_rst_i or initialize_window_i
 --
@@ -115,45 +118,45 @@ begin
                      wren_i;                  
 
 
-   i_fsfb_wn11_Q : fsfb_wn_queue
-      port map (
-         data                         => wn10_muxed,
-         address                      => addr_i,         
-         wren                         => wren_muxed,
-         clock                        => clk_50_i,
-         q                            => wn11_temp
-      );   
+--   i_fsfb_wn11_Q : fsfb_wn_queue
+--      port map (
+--         data                         => wn10_muxed,
+--         address                      => addr_i,         
+--         wren                         => wren_muxed,
+--         clock                        => clk_50_i,
+--         q                            => wn11_temp
+--      );   
    
    
-   i_fsfb_wn12_Q : fsfb_wn_queue
-      port map (
-         data                         => wn11_temp_muxed,
-         address                      => addr_i,
-         wren                         => wren_muxed,
-         clock                        => clk_50_i,
-         q                            => wn12_o
-      );
+--   i_fsfb_wn12_Q : fsfb_wn_queue
+--      port map (
+--         data                         => wn11_temp_muxed,
+--         address                      => addr_i,
+--         wren                         => wren_muxed,
+--         clock                        => clk_50_i,
+--         q                            => wn12_o
+--      );
       
    wn11_o <= wn11_temp_muxed;
    
-   i_fsfb_wn21_Q : fsfb_wn_queue
-      port map (
-         data                         => wn20_muxed,
-         address                      => addr_i,         
-         wren                         => wren_muxed,
-         clock                        => clk_50_i,
-         q                            => wn21_temp
-      );   
+--   i_fsfb_wn21_Q : fsfb_wn_queue
+--      port map (
+--         data                         => wn20_muxed,
+--         address                      => addr_i,         
+--         wren                         => wren_muxed,
+--         clock                        => clk_50_i,
+--         q                            => wn21_temp
+--      );   
    
    
-   i_fsfb_wn22_Q : fsfb_wn_queue
-      port map (
-         data                         => wn21_temp_muxed,
-         address                      => addr_i,
-         wren                         => wren_muxed,
-         clock                        => clk_50_i,
-         q                            => wn22_o
-      );
+--   i_fsfb_wn22_Q : fsfb_wn_queue
+--      port map (
+--         data                         => wn21_temp_muxed,
+--         address                      => addr_i,
+--         wren                         => wren_muxed,
+--         clock                        => clk_50_i,
+--         q                            => wn22_o
+--      );
       
    wn21_o <= wn21_temp_muxed;
    
