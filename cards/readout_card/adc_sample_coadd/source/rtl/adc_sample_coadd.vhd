@@ -109,6 +109,9 @@
 -- Revision history:
 -- 
 -- $Log: adc_sample_coadd.vhd,v $
+-- Revision 1.6  2005/11/28 18:56:25  bburger
+-- Bryce:  Raw data queue removed to make room from flux-jumping & signal tap
+--
 -- Revision 1.5  2004/12/20 19:43:01  mohsen
 -- fixed sign bits usage
 --
@@ -266,16 +269,15 @@ begin  -- struc
   -- Instantiation of the Raw data bank
   -----------------------------------------------------------------------------
 
---  Bryce:  Commented this out so that I could fit signaltap logic into an 8-channel synthesis.
---  i_raw_dat_bank: raw_dat_bank
---
---    port map (
---    data      => raw_dat,               -- system input modified
---    wren      => raw_wren,              -- from raw controller
---    wraddress => raw_write_addr,        -- from raw data path
---    rdaddress => raw_addr_i,            -- system input
---    clock     => clk_50_i,              -- system input
---    q         => raw_dat_out);
+  i_raw_dat_bank: raw_dat_bank
+
+    port map (
+    data      => raw_dat,               -- system input modified
+    wren      => raw_wren,              -- from raw controller
+    wraddress => raw_write_addr,        -- from raw data path
+    rdaddress => raw_addr_i,            -- system input
+    clock     => clk_50_i,              -- system input
+    q         => raw_dat_out);
 
 
   -----------------------------------------------------------------------------
