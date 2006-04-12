@@ -26,11 +26,17 @@
 -- Organisation:  UBC
 --
 -- Description:
--- Stand-alone test module for readout card. It only routes the ADC outputs to DAC inputs. 
+-- Stand-alone test module for readout card. 
+-- For noise_response test the ADC outputs are routed to DAC inputs and 
+-- For noise_test_chx a particular ADC output is routed to the mictor.
+-- customize for the type of the test and the desired channel and recompile
 --
 -- Revision history:
--- -- <date $Date: 2004/07/26 22:52:59 $>    - <initials $Author: bench1 $>
+-- -- <date $Date: 2005/12/15 21:24:42 $>    - <initials $Author: mandana $>
 -- $Log: rc_noise_test.vhd,v $
+-- Revision 1.5  2005/12/15 21:24:42  mandana
+-- *** empty log message ***
+--
 -- Revision 1.4  2004/07/26 22:52:59  bench1
 -- Mandana: added comment, swapped adc_rdy and adc_ovr on mictor to work with the wire-add on board.
 --
@@ -49,12 +55,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library components;
-use components.component_pack.all;
-
 entity rc_noise_test is
    port(
-      n_rst : in std_logic;
+      rst_n : in std_logic;
       
       -- clock signals
       inclk  : in std_logic;
@@ -121,48 +124,48 @@ entity rc_noise_test is
                   
       --test pins
       smb_clk: out std_logic; 
-      mictor : out std_logic_vector(31 downto 0));
+      mictor : out std_logic_vector(31 downto 0);
+      mictor_clk: out std_logic_vector(1 downto 0));
+      
 end rc_noise_test;
 
 architecture behaviour of rc_noise_test is
    
-   component pll
-   port(inclk0 : in std_logic;
-        c0 : out std_logic;
-        c1 : out std_logic;
-        e0 : out std_logic);
-   end component;
+  -----------------------------------------------------------------------------
+  -- PLL Component
+  -----------------------------------------------------------------------------
+
+  component rc_pll
+    port (
+      inclk0 : IN  STD_LOGIC := '0';
+      c0     : OUT STD_LOGIC;
+      c1     : OUT STD_LOGIC;
+      c2     : OUT STD_LOGIC;
+      c3     : OUT STD_LOGIC;
+      c4     : OUT STD_LOGIC);
+  end component;
 
    signal zero : std_logic;
    signal one : std_logic;
    
    signal clk : std_logic;  
-   signal clk2: std_logic;
    signal nclk: std_logic;
-   signal clk_count: integer range 0 to 7;
-   signal clk_div4 : std_logic;
    
 begin
    
-   clk_gen : pll
-      port map(inclk0 => inclk,
-               c0 => clk,
-               c1 => clk2,
-               e0 => outclk);
-
-   clk_div_4: counter
-   generic map(MAX => 7,
-               STEP_SIZE => 1,
-               WRAP_AROUND => '1',
-               UP_COUNTER => '1')
-   port map(clk_i   => clk,
-            rst_i   => '0',
-            ena_i   => '1',
-            load_i  => '0',
-            count_i => 0,
-            count_o => clk_count);
-   clk_div4   <= '1' when clk_count > 3 else '0';
+   ----------------------------------------------------------------------------
+   -- PLL Instantiation
+   ----------------------------------------------------------------------------
    
+   i_rc_pll: rc_pll
+     port map (
+         inclk0 => inclk,
+         c0     => clk,
+         c1     => open,
+         c2     => open,
+         c3     => open,
+         c4     => nclk);
+  
    adc1_clk <= clk;
    adc2_clk <= clk;
    adc3_clk <= clk;
@@ -190,22 +193,23 @@ begin
    dac_FB7_dat(13) <= not(adc7_dat(13)); --adc is signed
    dac_FB8_dat(13) <= not(adc8_dat(13)); --adc is signed
    
-   nclk <= not(clk);
-   dac_FB_clk(0) <= nclk;
-   dac_FB_clk(1) <= nclk;
-   dac_FB_clk(2) <= nclk;
-   dac_FB_clk(3) <= nclk;
-   dac_FB_clk(4) <= nclk;
-   dac_FB_clk(5) <= nclk;
-   dac_FB_clk(6) <= nclk;
-   dac_FB_clk(7) <= nclk;
+--   dac_FB_clk(0) <= nclk;
+--   dac_FB_clk(1) <= nclk;
+--   dac_FB_clk(2) <= nclk;
+--   dac_FB_clk(3) <= nclk;
+--   dac_FB_clk(4) <= nclk;
+--   dac_FB_clk(5) <= nclk;
+--   dac_FB_clk(6) <= nclk;
+--   dac_FB_clk(7) <= nclk;
 
    -- map different channels to mictor
-   mictor (13 downto 0) <= adc2_dat(13 downto 0);
-   mictor (14)          <= adc2_ovr;
-   mictor (15)          <= adc2_rdy;
+   mictor (13 downto 0) <= adc7_dat(13 downto 0);
+   mictor (14)          <= adc7_ovr;
+   mictor (15)          <= adc7_rdy;
+   mictor_clk (0)       <= adc7_rdy;
+   mictor_clk (1)       <= adc7_rdy;
 --   mictor (29 downto 16)<= adc8_dat(13 downto 0);
 --   mictor (30)          <= adc8_rdy;
-   mictor (31)          <= adc2_rdy;
+   mictor (31)          <= adc7_rdy;
    
 end behaviour;
