@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: readout_card_ep1s40.tcl,v $
+# Revision 1.2  2006/04/03 19:03:43  mandana
+# fixed the print out for 1s30/1s40 device selection
+#
 # Revision 1.1  2006/03/23 23:28:58  bburger
 # Bryce:  commit
 #
@@ -255,6 +258,7 @@ cmp add_assignment $top_name "" "mictor\[12\]" LOCATION "Pin_E13"
 cmp add_assignment $top_name "" "mictor\[13\]" LOCATION "Pin_D12"
 cmp add_assignment $top_name "" "mictor\[14\]" LOCATION "Pin_E12"
 cmp add_assignment $top_name "" "mictor\[15\]" LOCATION "Pin_E10"
+cmp add_assignment $top_name "" "mictor_clk\[0\]" LOCATION "PIN_G5"
 cmp add_assignment $top_name "" "mictor\[16\]" LOCATION "Pin_A9"
 cmp add_assignment $top_name "" "mictor\[17\]" LOCATION "Pin_B9"
 cmp add_assignment $top_name "" "mictor\[18\]" LOCATION "Pin_B8"
@@ -271,6 +275,7 @@ cmp add_assignment $top_name "" "mictor\[28\]" LOCATION "Pin_D9"
 cmp add_assignment $top_name "" "mictor\[29\]" LOCATION "Pin_D7"
 cmp add_assignment $top_name "" "mictor\[30\]" LOCATION "Pin_E8"
 cmp add_assignment $top_name "" "mictor\[31\]" LOCATION "Pin_E6"
+cmp add_assignment $top_name "" "mictor_clk\[1\]" LOCATION "PIN_C5"
 puts "   Assigned: Mictor header pins."
 
 # assign serial DAC
