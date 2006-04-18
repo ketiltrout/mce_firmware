@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.35  2006/04/12 23:25:09  mandana
+-- revision upgraded to 03000007 to enable raw mode and disable filter
+--
 -- Revision 1.34  2006/04/10 23:53:47  mandana
 -- revision upgraded to 03000006 for Rev. A/B BP, data_mode 4 adjusted and 2^12 scaling in fsfb_corr_pack
 --
@@ -276,9 +279,9 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000007"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- data mode 4 is 18b/14b, new BB protocol, BB rev. C
-                                                                     -- raw mode enabled, filter disabled
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000008"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+                                                                     -- data mode 4 is 18b/14b, new BB protocol, BB rev. A/B 
+                                                                     -- RC Rev. B (1S40)  
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk
