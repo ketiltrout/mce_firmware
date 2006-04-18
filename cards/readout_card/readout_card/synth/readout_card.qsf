@@ -1,3 +1,6 @@
+set_global_assignment -name DEVICE EP1S40F780C6
+set_location_assignment PIN_G5 -to mictor_clk[0]
+set_location_assignment PIN_C5 -to mictor_clk[1]
 set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 # Copyright (C) 1991-2004 Altera Corporation
 # Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
