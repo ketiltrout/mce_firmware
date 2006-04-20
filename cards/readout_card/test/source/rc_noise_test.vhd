@@ -32,8 +32,13 @@
 -- customize for the type of the test and the desired channel and recompile
 --
 -- Revision history:
--- -- <date $Date: 2005/12/15 21:24:42 $>    - <initials $Author: mandana $>
+-- -- <date $Date: 2006/04/12 23:02:22 $>    - <initials $Author: mandana $>
 -- $Log: rc_noise_test.vhd,v $
+-- Revision 1.6  2006/04/12 23:02:22  mandana
+-- now uses the regular rc_pll model
+-- mictor_clk pins added (new in Rev. B readout card)
+-- added notes for how to use this file to generate response test and noise test for each channel
+--
 -- Revision 1.5  2005/12/15 21:24:42  mandana
 -- *** empty log message ***
 --
@@ -54,6 +59,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library altera_mf;
+use altera_mf.altera_mf_components.all;
 
 entity rc_noise_test is
    port(
@@ -130,12 +138,12 @@ entity rc_noise_test is
 end rc_noise_test;
 
 architecture behaviour of rc_noise_test is
-   
+
   -----------------------------------------------------------------------------
   -- PLL Component
   -----------------------------------------------------------------------------
 
-  component rc_pll
+   component rc_pll
     port (
       inclk0 : IN  STD_LOGIC := '0';
       c0     : OUT STD_LOGIC;
@@ -143,13 +151,15 @@ architecture behaviour of rc_noise_test is
       c2     : OUT STD_LOGIC;
       c3     : OUT STD_LOGIC;
       c4     : OUT STD_LOGIC);
-  end component;
+   end component;
 
    signal zero : std_logic;
    signal one : std_logic;
    
    signal clk : std_logic;  
    signal nclk: std_logic;
+   signal wrfull : std_logic;
+   signal rdempty: std_logic;
    
 begin
    
@@ -165,7 +175,35 @@ begin
          c2     => open,
          c3     => open,
          c4     => nclk);
-  
+         
+    adc_fifo : dcfifo
+	GENERIC MAP (
+--		add_ram_output_register => "ON",
+		clocks_are_synchronized => "FALSE",
+		intended_device_family => "Stratix",
+		lpm_numwords => 256,
+		lpm_showahead => "OFF",
+		lpm_type => "dcfifo",
+		lpm_width => 14,
+		lpm_widthu => 8,
+		overflow_checking => "ON",
+		underflow_checking => "ON",
+		use_eab => "ON"
+	)
+	PORT MAP (
+		wrclk => adc8_rdy,
+		rdreq => '1',
+		rdclk => clk,
+		wrreq => '1',
+		data  => adc8_dat(13 downto 0),
+		rdempty => rdempty,
+		wrfull  => wrfull,
+		q     => mictor(13 downto 0)
+	);
+
+   mictor_clk(0) <= clk;
+   mictor_clk(1) <= clk;
+   
    adc1_clk <= clk;
    adc2_clk <= clk;
    adc3_clk <= clk;
@@ -175,41 +213,14 @@ begin
    adc7_clk <= clk;
    adc8_clk <= clk;
    
-   dac_FB1_dat(12 downto 0) <= adc1_dat(12 downto 0);
-   dac_FB2_dat(12 downto 0) <= adc2_dat(12 downto 0);
-   dac_FB3_dat(12 downto 0) <= adc3_dat(12 downto 0);
-   dac_FB4_dat(12 downto 0) <= adc4_dat(12 downto 0);
-   dac_FB5_dat(12 downto 0) <= adc5_dat(12 downto 0);
-   dac_FB6_dat(12 downto 0) <= adc6_dat(12 downto 0);
-   dac_FB7_dat(12 downto 0) <= adc7_dat(12 downto 0);
-   dac_FB8_dat(12 downto 0) <= adc8_dat(12 downto 0);
- 
-   dac_FB1_dat(13) <= not(adc1_dat(13)); --adc is signed
-   dac_FB2_dat(13) <= not(adc2_dat(13)); --adc is signed
-   dac_FB3_dat(13) <= not(adc3_dat(13)); --adc is signed
-   dac_FB4_dat(13) <= not(adc4_dat(13)); --adc is signed
-   dac_FB5_dat(13) <= not(adc5_dat(13)); --adc is signed
-   dac_FB6_dat(13) <= not(adc6_dat(13)); --adc is signed
-   dac_FB7_dat(13) <= not(adc7_dat(13)); --adc is signed
-   dac_FB8_dat(13) <= not(adc8_dat(13)); --adc is signed
-   
---   dac_FB_clk(0) <= nclk;
---   dac_FB_clk(1) <= nclk;
---   dac_FB_clk(2) <= nclk;
---   dac_FB_clk(3) <= nclk;
---   dac_FB_clk(4) <= nclk;
---   dac_FB_clk(5) <= nclk;
---   dac_FB_clk(6) <= nclk;
---   dac_FB_clk(7) <= nclk;
-
    -- map different channels to mictor
-   mictor (13 downto 0) <= adc7_dat(13 downto 0);
-   mictor (14)          <= adc7_ovr;
-   mictor (15)          <= adc7_rdy;
-   mictor_clk (0)       <= adc7_rdy;
-   mictor_clk (1)       <= adc7_rdy;
---   mictor (29 downto 16)<= adc8_dat(13 downto 0);
+--   mictor (13 downto 0) <= adc7_dat(13 downto 0);
+--   mictor (14)          <= adc7_ovr;
+--   mictor (15)          <= adc7_rdy;
+--   mictor_clk (0)       <= adc7_rdy;
+--   mictor_clk (1)       <= adc1_rdy;
+--   mictor (29 downto 16)<= adc1_dat(13 downto 0);
 --   mictor (30)          <= adc8_rdy;
-   mictor (31)          <= adc7_rdy;
+--   mictor (31)          <= adc7_rdy;
    
 end behaviour;
