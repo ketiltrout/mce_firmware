@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/02/09 20:32:59 $> - <initials $Author: bburger $>
+-- <date $Date: 2006/03/02 19:00:34 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.27  2006/03/02 19:00:34  bburger
+-- Bryce:  branched to implement up-to-date definitions for the slot_id for revC of the bus backplane
+--
 -- Revision 1.26  2006/02/09 20:32:59  bburger
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
@@ -240,14 +243,14 @@ package wishbone_pack is
    constant LED_ADDR          : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"99";
 
    -- Clock Card Specific
-   constant CONFIG_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
-   constant APP_CONFIG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"51";
-   constant FAC_CONFIG_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
+   constant UPLOAD_FW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"50";
+   constant CONFIG_FAC_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"51";
+   constant CONFIG_APP_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
    constant RET_DAT_S_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"53";
    constant USE_DV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"54";
    constant VRFY_SRAM1_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
    constant VRFY_SRAM2_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56";
-   constant CONFIG_S_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"57";
+   constant UPLOAD_FW_S_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"57";
    constant ARRAY_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"58";
    constant BOX_ID_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
    constant SRAM1_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5A";
