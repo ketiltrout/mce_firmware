@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.2  2006/03/01 02:59:20  bburger
+# Bryce:  fixed a physical pin conflict between fibre_rx_a_nb and manchester_data which both were declared to use AF11
+#
 # Revision 1.1  2006/02/24 00:40:14  bburger
 # Bryce:  revisioned to v02000002, to create a clock card download for rev B or the Clock Card hardware, which is used with rev C of the Bus Backplane hardware
 #
@@ -126,13 +129,16 @@ puts "\nInfo: Assigning pins:"
 cmp add_assignment $top_name "" "" DEVICE EP1S30F780C5
 cmp add_assignment $top_name "" "" RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 
+
 #dev_clr_n disabled
 cmp add_assignment $top_name "" "" ENABLE_DEVICE_WIDE_RESET OFF
 puts "   Assigned: EP1S30 device parameters."
 
+
 # assign rst_n
 cmp add_assignment $top_name "" rst_n LOCATION "Pin_AC9"
 puts "   Assigned: RST_N pin."
+
 
 # assign leds
 cmp add_assignment $top_name "" grn_led LOCATION "Pin_AC23"
@@ -228,12 +234,11 @@ cmp add_assignment $top_name "" fibre_tx_clkW LOCATION "Pin_K14"
 
 # For CC Rev. A & AA
 #cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_AE10"
-
 # For CC Rev B before the new fibre_rx/fibre_tx firmware is in place
 #cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_G22"
-
 # For CC Rev B after the new fibre_rx/fibre_tx firmware is in place
 cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_R2"
+
 
 cmp add_assignment $top_name "" fibre_rx_refclk LOCATION "Pin_C15"
 puts "   Assigned: PLL and clock pins."
@@ -488,9 +493,21 @@ cmp add_assignment $top_name "" manchester_sigdet LOCATION "Pin_A10"
 puts "   Assigned: Manchester fibre interface pins."
 
 
-#Data valid pulse
+# data valid pulse
 cmp add_assignment $top_name "" dv_pulse_fibre LOCATION "Pin_AG12"
 puts "   Assigned: Data valid pulse interface pins."
+
+
+# configuration device selection
+cmp add_assignment $top_name "" fpga_tdo LOCATION "Pin_A18"
+cmp add_assignment $top_name "" fpga_tck LOCATION "Pin_C18"
+cmp add_assignment $top_name "" fpga_tms LOCATION "Pin_D18"
+cmp add_assignment $top_name "" epc_tdo LOCATION "Pin_A19"
+cmp add_assignment $top_name "" jtag_sel LOCATION "Pin_B19"
+cmp add_assignment $top_name "" nbb_jtag LOCATION "Pin_C19"
+cmp add_assignment $top_name "" nreconf LOCATION "Pin_E19"
+cmp add_assignment $top_name "" nepc_sel LOCATION "Pin_D19"
+puts "   Assigned: Configuration device selection pins."
 
 
 # recompile to commit

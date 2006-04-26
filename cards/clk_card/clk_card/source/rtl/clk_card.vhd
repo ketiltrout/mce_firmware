@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.36 2006/03/17 21:25:45 bburger Exp $
+-- $Id: clk_card.vhd,v 1.37 2006/04/03 23:24:37 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.37  2006/04/03 23:24:37  bburger
+-- Bryce:  uses frame_timing_pack
+--
 -- Revision 1.36  2006/03/17 21:25:45  bburger
 -- Bryce:  cc_v02000005_17mar2006, cmd_translator now uses the card address specified by the ret_dat command.
 --
@@ -57,54 +60,6 @@
 -- Bryce:
 -- - Added a fltr_rst_o output signal from the frame_timing block
 -- - Adjusted the top-levels of each card to reflect the frame_timing interface change
---
--- Revision 1.29  2006/02/02 17:51:39  bburger
--- Bryce:  moving to issue_reply v2 -- version number: 02000000
---
--- Revision 1.28  2006/01/31 22:18:12  mandana
--- rev. up to 01030001
--- fpga_thermo and id_thermo slaves added
--- mem_clk removed
---
--- Revision 1.27  2006/01/16 19:03:36  bburger
--- Bryce:
--- moved to 01020001
---
--- Revision 1.26  2005/12/01 20:59:19  bburger
--- Ernie:  Renamed a whole bunch of interface signals.  This version matches cc_pin_assign.tcl version 1.17
---
--- Revision 1.25  2005/05/19 22:58:26  bburger
--- Bryce:  v01010018
---
--- Revision 1.24  2005/03/31 16:56:59  bburger
--- Bryce:  changed to v01010010
---
--- Revision 1.23  2005/03/24 18:33:16  bburger
--- Bryce:  changed version number to  01010008
---
--- Revision 1.22  2005/03/19 00:31:23  bburger
--- bryce:  Fixed several bugs.  Tagging cc_01010007.
---
--- Revision 1.21  2005/03/16 02:20:58  bburger
--- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
---
--- Revision 1.20  2005/03/14 21:30:20  bburger
--- bryce:  commital for a new tag:  cc_v01010003
---
--- Revision 1.19  2005/03/09 18:08:23  bburger
--- mohsen:  registered and widened TTL reset pulse (BClr)
---
--- Revision 1.18  2005/03/04 18:27:49  bburger
--- Bryce:  decremented the build number, because of a mistake
---
--- Revision 1.17  2005/03/04 18:26:27  bburger
--- Bryce:  incremented the build number
---
--- Revision 1.16  2005/03/04 03:45:58  bburger
--- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
---
--- Revision 1.15  2005/02/21 22:27:53  mandana
--- added firmware revision CC_REVISION (fw_rev)
 --
 -----------------------------------------------------------------------------
 
@@ -213,7 +168,10 @@ entity clk_card is
       fibre_tx_clkw     : out std_logic;
       fibre_tx_data     : out std_logic_vector (7 downto 0);
       fibre_tx_ena      : out std_logic;  
-      fibre_tx_sc_nd    : out std_logic
+      fibre_tx_sc_nd    : out std_logic;
+      
+      nreconf           : out std_logic;
+      nepc_sel          : out std_logic
    );     
 end clk_card;
 
@@ -223,7 +181,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000006";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000007";
 
 -- reset
 signal rst                : std_logic;
@@ -287,6 +245,8 @@ signal id_thermo_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal id_thermo_ack       : std_logic;
 signal fpga_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fpga_thermo_ack     : std_logic;
+signal config_fpga_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal config_fpga_ack     : std_logic;
 
 -- lvds_tx interface
 signal sync       : std_logic;
@@ -299,6 +259,28 @@ signal lvds_reply_cc_a     : std_logic;
 signal debug             : std_logic_vector(31 downto 0);
 signal fib_tx_data       : std_logic_vector (7 downto 0);
 signal fib_tx_ena        : std_logic;
+
+component config_fpga
+   port(
+      -- Clock and Reset:
+      clk_i         : in std_logic;
+      rst_i         : in std_logic;
+      
+      -- Wishbone Interface:
+      dat_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i        : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i         : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i          : in std_logic;
+      stb_i         : in std_logic;
+      cyc_i         : in std_logic;
+      dat_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o         : out std_logic;
+      
+      -- Configuration Interface
+      config_n_o    : out std_logic;
+      epc16_sel_n_o : out std_logic
+   );     
+end component;
 
 component cc_pll
    port(
@@ -590,6 +572,7 @@ begin
          ret_dat_data      when RET_DAT_S_ADDR | DATA_RATE_ADDR,
          id_thermo_data    when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
+         config_fpga_data  when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          (others => '0')   when others;
          
    with addr select
@@ -600,11 +583,14 @@ begin
          ret_dat_ack       when RET_DAT_S_ADDR | DATA_RATE_ADDR,
          id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
+         config_fpga_ack   when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          '0'               when others;
          
    with addr select
       slave_err <= 
-         '0'              when FW_REV_ADDR | LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | DATA_RATE_ADDR | CARD_ID_ADDR | CARD_TEMP_ADDR | FPGA_TEMP_ADDR, --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when FW_REV_ADDR | LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | 
+                               DATA_RATE_ADDR | CARD_ID_ADDR | CARD_TEMP_ADDR | FPGA_TEMP_ADDR |CONFIG_FAC_ADDR | CONFIG_APP_ADDR, 
+                               --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
    pll0: cc_pll
@@ -618,7 +604,28 @@ begin
          e1     => fibre_rx_refclk,   
          e2     => lvds_clk 
       );
-            
+
+   config_fpga_inst: config_fpga
+      port map(
+         -- Clock and Reset:
+         clk_i         => clk,
+         rst_i         => rst,
+         
+         -- Wishbone Interface:
+         dat_i         => data,         
+         addr_i        => addr,         
+         tga_i         => tga,
+         we_i          => we,          
+         stb_i         => stb,          
+         cyc_i         => cyc,       
+         dat_o         => config_fpga_data,
+         ack_o         => config_fpga_ack,
+         
+         -- Configuration Interface
+         config_n_o    => nreconf,
+         epc16_sel_n_o => nepc_sel
+      );
+
    lvds_cmd <= cmd;
    cmd0: dispatch
       port map(

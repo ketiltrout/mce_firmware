@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.10 2005/09/03 23:51:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.11 2006/01/16 18:45:27 bburger Exp $>
 --
--- Project:	      SCUBA-2
--- Author:	       Jonathan Jacob
+-- Project:       SCUBA-2
+-- Author:         Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/09/03 23:51:26 $>	-		<text>		- <initials $Author: bburger $>
+-- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.11  2006/01/16 18:45:27  bburger
+-- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
+-- moved component declarations from above package files to cmd_translator
+-- renamed constants to work with new command_pack (new bus backplane constants)
+--
 -- Revision 1.10  2005/09/03 23:51:26  bburger
 -- jjacob:
 -- removed recirculation muxes and replaced with register enables, and cleaned up formatting
@@ -103,7 +108,7 @@ port(
       parameter_id_i    : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_i       : in  std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_i            : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
-      data_clk_i        : in  std_logic;							                               -- for clocking out the data
+      data_clk_i        : in  std_logic;                                                   -- for clocking out the data
       cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       
       -- other inputs
@@ -116,7 +121,7 @@ port(
       parameter_id_o    : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
       data_size_o       : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
       data_o            : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
-      data_clk_o        : out std_logic;							                            -- for clocking out the data
+      data_clk_o        : out std_logic;                                                -- for clocking out the data
       instr_rdy_o       : out std_logic;                                            -- ='1' when the instruction is valid, else it's '0'
       cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
       
@@ -140,16 +145,17 @@ begin
    data_clk_o     <= data_clk_i                                       when cmd_start_i = '1' else '0';
    instr_rdy_o    <= '1'                                              when cmd_start_i = '1' else '0';
 
-   -- re-mapping logic for cmd_code_i -> cmd_type_o
---   with cmd_code_i select
---      cmd_type_o <=
---      WRITE_BLOCK   when x"5742",
---      READ_BLOCK    when x"5242",
---      START         when x"474F",
---      STOP          when x"5354",
---      RESET         when x"5253",
---      (others=>'1') when others;  -- undefined cmd_type
+--   -- command packet types:
+--   constant WRITE_BLOCK : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205742";
+--   constant READ_BLOCK  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205242";
+--   constant GO          : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"2020474F";
+--   constant STOP        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205354";
+--   constant RESET       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205253";
+--   
+--   -- reply packet types:
+--   constant REPLY       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205250";
+--   constant DATA        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20204441";
    
-   cmd_type_o <= WRITE_CMD when cmd_code_i = WRITE_BLOCK else READ_CMD;
+   cmd_type_o <= WRITE_CMD when (cmd_code_i = WRITE_BLOCK or cmd_code_i = GO or cmd_code_i = STOP or cmd_code_i = RESET) else READ_CMD;
          
 end rtl;
