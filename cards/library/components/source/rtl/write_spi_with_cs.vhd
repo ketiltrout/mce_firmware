@@ -29,8 +29,11 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2004/10/27 00:00:35 $> - <initials $Author: bburger $>
+-- <date $Date: 2005/01/17 23:29:54 $> - <initials $Author: mandana $>
 -- $Log: write_spi_with_cs.vhd,v $
+-- Revision 1.5  2005/01/17 23:29:54  mandana
+-- fixed a bug with the data load
+--
 -- Revision 1.4  2004/10/27 00:00:35  bburger
 -- Bryce:  ports were out of date with the component library
 --
@@ -83,7 +86,7 @@ signal run_spi_clk   : std_logic;
 signal n_spi_clk     : std_logic;
 
 signal reset_counter : std_logic;
-signal count         : integer;
+signal count         : integer range 0 to DATA_LENGTH;
 signal spi_ncs       : std_logic;
 
 -- shift register signals
