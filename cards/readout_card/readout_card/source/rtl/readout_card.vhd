@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.36  2006/04/18 17:37:07  mandana
+-- revision upgraded to 03000008 (from 030000006) to compile for 1S40 and backplane Rev. A/B
+--
 -- Revision 1.35  2006/04/12 23:25:09  mandana
 -- revision upgraded to 03000007 to enable raw mode and disable filter
 --
@@ -279,8 +282,8 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000008"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- data mode 4 is 18b/14b, new BB protocol, BB rev. A/B 
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000009"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+                                                                     -- data mode 4 is 18b/14b, new BB protocol, BB rev. C 
                                                                      -- RC Rev. B (1S40)  
 -- Global signals
 signal clk                     : std_logic;  -- system clk
