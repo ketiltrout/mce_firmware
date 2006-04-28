@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.14 2006/03/22 21:33:28 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.15 2006/03/24 18:35:37 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.15  2006/03/24 18:35:37  bburger
+-- Bryce:
+-- In fsfb_corr_pack:  converted FSFB_MAX and FSFB_MIN to std_logic_vectors
+-- In fsfb_corr:  removed a conv_integer call to get rid of timing violations
+--
 -- Revision 1.14  2006/03/22 21:33:28  mandana
 -- same as rev. 1.12, the fix introduced in 1.13 for timing violations breaks down the functionality, the fix is tracked on a branch 1.12.2.1
 --
@@ -813,7 +818,8 @@ begin
             if(fsfb_ctrl_lock_en_i = '1') then
                pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
+               pid_prev_reg1         <= fsfb_ctrl_dat1_i(fsfb_ctrl_dat1_i'left) & 
+                                        fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
             end if;
             fsfb_ctrl_dat_rdy1    <= fsfb_ctrl_dat_rdy1_i;
          end if;
