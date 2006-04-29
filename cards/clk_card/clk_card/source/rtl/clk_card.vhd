@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.37 2006/04/03 23:24:37 bburger Exp $
+-- $Id: clk_card.vhd,v 1.38 2006/04/26 22:55:08 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,13 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.38  2006/04/26 22:55:08  bburger
+-- Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
+-- In the process:
+-- - fixed a bug in cmd_translator_simple_cmd_fsm that output the wrong read/write code.
+-- - updated the cc_pin_assign_rev_b.tcl file to include the fpga output pins for epc16 control
+-- - updated the clock card top level with a new version number.
+--
 -- Revision 1.37  2006/04/03 23:24:37  bburger
 -- Bryce:  uses frame_timing_pack
 --
@@ -181,7 +188,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000007";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000008";
 
 -- reset
 signal rst                : std_logic;

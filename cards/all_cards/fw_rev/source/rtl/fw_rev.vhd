@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: fw_rev.vhd,v 1.1 2005/02/21 22:25:15 mandana Exp $>
 --
 -- Project:      SCUBA2
 -- Author:       Mandana Amiri
@@ -34,8 +34,11 @@
 --                  BBBB is the build number
 --
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$ 
+-- <date $Date: 2005/02/21 22:25:15 $>    - <initials $Author: mandana $>
+-- $Log: fw_rev.vhd,v $
+-- Revision 1.1  2005/02/21 22:25:15  mandana
+-- Initial release of firmware revision register
+-- 
 --
 ------------------------------------------------------------------------
 
@@ -49,10 +52,10 @@ use sys_param.wishbone_pack.all;
 entity fw_rev is
 generic(REVISION         :std_logic_vector (31 downto 0) := X"01010001");
    port(clk_i   : in std_logic;
-        rst_i   : in std_logic;		
+        rst_i   : in std_logic;     
         
         -- Wishbone signals
-        dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
         addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
         tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
         we_i    : in std_logic;
@@ -124,7 +127,12 @@ begin
                              
          when DONE =>        
             ack_o       <= '0';
-            dat_o       <= (others => '0');            
+            dat_o       <= (others => '0');
+            
+         when others =>
+            ack_o       <= '0';
+            dat_o       <= (others => '0');
+            
       end case;
    end process state_out;
 

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: config_fpga.vhd,v 1.1 2006/04/26 22:55:08 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -28,7 +28,14 @@
 -- Allows user to reconfigure the Clock Card FPGA from either the Factory or Application EPC16
 --
 -- Revision history:
--- $Log$
+-- $Log: config_fpga.vhd,v $
+-- Revision 1.1  2006/04/26 22:55:08  bburger
+-- Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
+-- In the process:
+-- - fixed a bug in cmd_translator_simple_cmd_fsm that output the wrong read/write code.
+-- - updated the cc_pin_assign_rev_b.tcl file to include the fpga output pins for epc16 control
+-- - updated the clock card top level with a new version number.
+--
 --
 -----------------------------------------------------------------------------
 
@@ -72,6 +79,13 @@ architecture top of config_fpga is
    type states is (IDLE, WR, RD); 
    signal current_state   : states;
    signal next_state      : states;
+
+   type out_states is (IDLE, SEL_FAC, SEL_APP, CONFIG_FAC, CONFIG_APP); 
+   signal current_out_state   : out_states;
+   signal next_out_state      : out_states;
+
+   signal config_n    : std_logic;
+   signal epc16_sel_n : std_logic;
    
 begin
 
@@ -84,11 +98,72 @@ begin
    begin
       if(rst_i = '1') then
          current_state     <= IDLE;
+         current_out_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
          current_state     <= next_state;
+         current_out_state <= next_out_state;
       end if;
    end process state_FF;
    
+   out_state_NS: process(current_out_state, config_n, epc16_sel_n)
+   begin
+      -- Default assignments
+      next_out_state <= current_out_state;
+      
+      case current_out_state is
+         when IDLE =>
+            if(config_n = '0' and epc16_sel_n = '1') then
+               next_out_state <= SEL_FAC;            
+            elsif(config_n = '0' and epc16_sel_n = '0') then
+               next_out_state <= SEL_APP;            
+            end if;                  
+            
+         when SEL_FAC =>     
+            next_out_state <= CONFIG_FAC;            
+
+         when CONFIG_FAC =>     
+            -- Stay in this state indefinately
+         
+         when SEL_APP =>     
+            next_out_state <= CONFIG_APP;            
+
+         when CONFIG_APP =>     
+            -- Stay in this state indefinately
+
+         when others =>
+            next_out_state <= IDLE;
+
+      end case;
+   end process out_state_NS;
+
+   out_state_out: process(current_out_state)
+   begin
+      -- Default assignments
+      config_n_o    <= '1';  -- '0' triggers reconfiguration
+      epc16_sel_n_o <= '1';  -- '1'=Factory, '0'=Application
+     
+      case current_out_state is         
+         when IDLE  =>                   
+            
+         when SEL_FAC =>     
+            epc16_sel_n_o <= '1';  -- '1'=Factory, '0'=Application
+         
+         when CONFIG_FAC =>     
+            config_n_o    <= '0';  -- '0' triggers reconfiguration
+            epc16_sel_n_o <= '1';  -- '1'=Factory, '0'=Application
+
+         when SEL_APP =>     
+            epc16_sel_n_o <= '0';  -- '1'=Factory, '0'=Application
+         
+         when CONFIG_APP =>     
+            config_n_o    <= '0';  -- '0' triggers reconfiguration
+            epc16_sel_n_o <= '0';  -- '1'=Factory, '0'=Application
+
+         when others =>
+         
+      end case;
+   end process out_state_out;
+
    -- Transition table for DAC controller
    state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
    begin
@@ -123,9 +198,9 @@ begin
    state_out: process(current_state, stb_i, addr_i)
    begin
       -- Default assignments
-      ack_o         <= '0';
-      config_n_o    <= '1';  -- '0' triggers reconfiguration
-      epc16_sel_n_o <= '1';  -- '1'=Factory, '0'=Application
+      ack_o       <= '0';
+      config_n    <= '1';  -- '0' triggers reconfiguration
+      epc16_sel_n <= '1';  -- '1'=Factory, '0'=Application
      
       case current_state is         
          when IDLE  =>                   
@@ -135,11 +210,11 @@ begin
             ack_o <= '1';
             if(stb_i = '1') then
                if(addr_i = CONFIG_FAC_ADDR) then
-                  config_n_o    <= '0'; 
-                  epc16_sel_n_o <= '1';
+                  config_n    <= '0'; 
+                  epc16_sel_n <= '1';
                elsif(addr_i = CONFIG_APP_ADDR) then
-                  config_n_o    <= '0'; 
-                  epc16_sel_n_o <= '0';  
+                  config_n    <= '0'; 
+                  epc16_sel_n <= '0';  
                end if;
             end if;
          
