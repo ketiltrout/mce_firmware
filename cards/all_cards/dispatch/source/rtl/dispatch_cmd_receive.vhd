@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.21  2006/01/16 20:02:48  bburger
+-- Ernie:   Added dip_sw interfaces to introduce artifical crc rx/tx errors on the busbackplan.  This feature is for testing purposes only.
+--
 -- Revision 1.20  2005/11/30 18:55:53  erniel
 -- fixed bug: multiple assignment to buf_addr_o
 --
@@ -176,7 +179,7 @@ signal data_size      : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 signal crc_ena   : std_logic;
 signal crc_clr   : std_logic;
 signal crc_valid : std_logic;
-signal crc_num_words : integer;
+signal crc_num_words : integer range 0 to 2**BB_DATA_SIZE_WIDTH +4;
 signal crc_poly : std_logic_vector(31 downto 0);
 
 begin
