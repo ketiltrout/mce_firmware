@@ -61,6 +61,9 @@
 -- Revision history:
 -- 
 -- $Log: tb2_adc_sample_coadd.vhd,v $
+-- Revision 1.4  2004/11/26 18:25:54  mohsen
+-- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
+--
 -- Revision 1.3  2004/10/29 02:03:56  mohsen
 -- Sorted out library use and use parameters
 --
@@ -778,16 +781,34 @@ begin  -- beh
       if adc_coadd_en_dly(4) = '1' and adc_coadd_en_dly(3) = '0' then
         
         if current_bank = '0' then
-          coadd_bank0(address_index) <= coadded_value;
-          integral_bank0(address_index) <=  coadded_value +
-                                           integral_bank1(address_index);
+          coadd_bank0(address_index) <= coadded_value;         
+
+          if (integral_bank1(address_index) >= 0 ) then          
+             integral_bank0(address_index) <= coadded_value + 
+                                              integral_bank1(address_index) -
+                                              (integral_bank1(address_index))/128;
+          else                                    
+             integral_bank0(address_index) <= coadded_value + 
+                                              integral_bank1(address_index) -
+                                              (integral_bank1(address_index))/128 + 1;
+          end if;
+          
           diff_value <=  coadded_value - coadd_bank1(address_index);
         end if;
         
         if current_bank = '1' then
           coadd_bank1(address_index) <= coadded_value;
-          integral_bank1(address_index) <=  coadded_value +
-                                           integral_bank0(address_index);
+          
+          if (integral_bank0(address_index) >= 0) then
+             integral_bank1(address_index) <= coadded_value +
+                                              integral_bank0(address_index) -
+                                              (integral_bank0(address_index))/128;
+          else
+             integral_bank1(address_index) <= coadded_value +
+                                              integral_bank0(address_index) -
+                                              (integral_bank0(address_index))/128 + 1;          
+          end if;
+          
           diff_value <=  coadded_value - coadd_bank0(address_index);
         end if;
 
