@@ -30,7 +30,10 @@
 --
 -- Revision history:
 -- 
--- $Log$
+-- $Log: fpga_thermo.vhd,v $
+-- Revision 1.1  2006/01/23 18:18:16  erniel
+-- initial version
+--
 --
 -----------------------------------------------------------------------------
 
@@ -55,6 +58,7 @@ port(clk_i : in std_logic;
      we_i    : in std_logic;
      stb_i   : in std_logic;
      cyc_i   : in std_logic;
+     err_o   : out std_logic;
      dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
      ack_o   : out std_logic;
      
@@ -81,11 +85,12 @@ signal ctrl_ps : states;
 signal ctrl_ns : states;
 
 -- wishbone FSM states:
-type wb_states is (WB_IDLE, SEND_TEMP);
+type wb_states is (WB_IDLE, SEND_TEMP, WB_ERROR);
 signal wb_ps : wb_states;
 signal wb_ns : wb_states;
 
-signal read_temp_cmd : std_logic;
+signal read_temp_cmd  : std_logic;
+signal write_temp_cmd : std_logic;
 
 -- temperature data register and valid flag:
 signal thermo    : std_logic_vector(7 downto 0);
@@ -226,11 +231,13 @@ begin
       end if;
    end process wishbone_FF;
 
-   wishbone_NS: process(wb_ps, read_temp_cmd, valid)
+   wishbone_NS: process(wb_ps, read_temp_cmd, write_temp_cmd, valid)
    begin
       case wb_ps is
          when WB_IDLE =>   if(read_temp_cmd = '1') then
                               wb_ns <= SEND_TEMP;
+                           elsif (write_temp_cmd = '1') then
+                              wb_ns <= WB_ERROR;
                            else
                               wb_ns <= WB_IDLE;
                            end if;
@@ -240,23 +247,29 @@ begin
                            else
                               wb_ns <= SEND_TEMP;
                            end if;
-                                       
+         
+         when WB_ERROR => wb_ns <= WB_IDLE;
+         
          when others =>    wb_ns <= WB_IDLE;
       end case;
    end process wishbone_NS;
    
    read_temp_cmd <= '1' when (addr_i = FPGA_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
-   
+   write_temp_cmd <= '1' when (addr_i = FPGA_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
+      
    wishbone_out: process(wb_ps, thermo, valid)
    begin
       ack_o <= '0';
       dat_o <= (others => '0');
+      err_o <= '0';
       
       case wb_ps is         
          when SEND_TEMP => if(valid = '1') then
                               ack_o <= '1';
                               dat_o(7 downto 0) <= thermo;   -- upper bits set to '0' by default assignment
                            end if;
+         
+         when WB_ERROR  => err_o <= '1';
          
          when others =>    null;
       end case;

@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id$>
+-- <revision control keyword substitutions e.g. $Id: fw_rev_pack.vhd,v 1.1 2005/02/21 22:25:15 mandana Exp $>
 --
 -- Project:      SCUBA2
 -- Author:       Mandana Amiri
@@ -30,8 +30,11 @@
 -- fw_rev pack file
 --
 -- Revision history:
--- <date $Date$>    - <initials $Author$>
--- $Log$ 
+-- <date $Date: 2005/02/21 22:25:15 $>    - <initials $Author: mandana $>
+-- $Log: fw_rev_pack.vhd,v $
+-- Revision 1.1  2005/02/21 22:25:15  mandana
+-- Initial release of firmware revision register
+-- 
 --
 ------------------------------------------------------------------------
 library ieee;
@@ -55,6 +58,7 @@ package fw_rev_pack is
         we_i    : in std_logic;
         stb_i   : in std_logic;
         cyc_i   : in std_logic;
+        err_o   : out std_logic;
         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic
       );

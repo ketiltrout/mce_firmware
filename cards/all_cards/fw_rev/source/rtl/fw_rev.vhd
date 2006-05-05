@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: fw_rev.vhd,v 1.1 2005/02/21 22:25:15 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: fw_rev.vhd,v 1.2 2006/04/29 00:52:36 bburger Exp $>
 --
 -- Project:      SCUBA2
 -- Author:       Mandana Amiri
@@ -34,8 +34,14 @@
 --                  BBBB is the build number
 --
 -- Revision history:
--- <date $Date: 2005/02/21 22:25:15 $>    - <initials $Author: mandana $>
+-- <date $Date: 2006/04/29 00:52:36 $>    - <initials $Author: bburger $>
 -- $Log: fw_rev.vhd,v $
+-- Revision 1.2  2006/04/29 00:52:36  bburger
+-- Bryce:
+-- - fw_rev:  added a 'when others' statement to a state machine
+-- - clock_card:  upped the cc rev #
+-- - config_fpga:  fixed a couple of bugs
+--
 -- Revision 1.1  2005/02/21 22:25:15  mandana
 -- Initial release of firmware revision register
 -- 
@@ -61,6 +67,7 @@ generic(REVISION         :std_logic_vector (31 downto 0) := X"01010001");
         we_i    : in std_logic;
         stb_i   : in std_logic;
         cyc_i   : in std_logic;
+        err_o   : out std_logic;
         dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
         ack_o   : out std_logic
       );
@@ -68,13 +75,14 @@ end fw_rev;
 
 architecture rtl of fw_rev is
 
-type states is (IDLE, READ, DONE);
+type states is (IDLE, READ, DONE, ERROR);
 signal present_state : states;
 signal next_state    : states;
 
 signal read_cmd      : std_logic;
+signal write_cmd     : std_logic;
 
-signal fw_rev_data      : std_logic_vector(31 downto 0);
+signal fw_rev_data   : std_logic_vector(31 downto 0);
 
 begin
    fw_rev_data <= REVISION;
@@ -92,13 +100,15 @@ begin
       end if;
    end process state_FF;
   
-   state_NS: process(present_state, read_cmd)
+   state_NS: process(present_state, read_cmd, write_cmd)
    begin
       case present_state is
          when IDLE =>        
             if(read_cmd = '1') then
                next_state <= READ;
-            else
+            elsif (write_cmd = '1') then
+               next_state <= ERROR;
+            else   
                next_state <= IDLE;
             end if;
                         
@@ -108,6 +118,9 @@ begin
          when DONE => 
             next_state <= IDLE;
          
+         when ERROR =>
+            next_state <= IDLE;
+            
          when others =>
             next_state <= IDLE;
          
@@ -116,26 +129,25 @@ begin
    
    state_out: process(present_state, fw_rev_data)
    begin
-      case present_state is
-         when IDLE =>        
-            ack_o       <= '0';
-            dat_o       <= (others => '0');
-                             
+      ack_o       <= '0';
+      dat_o       <= (others => '0');
+      err_o       <= '0';
+      
+      case present_state is                             
          when READ => 
             ack_o       <= '1';
             dat_o       <= fw_rev_data;
-                             
-         when DONE =>        
-            ack_o       <= '0';
-            dat_o       <= (others => '0');
+                                       
+         when ERROR =>  
+            err_o       <= '1';
             
          when others =>
-            ack_o       <= '0';
-            dat_o       <= (others => '0');
+            null;
             
       end case;
    end process state_out;
 
    read_cmd  <= '1' when (addr_i = FW_REV_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   write_cmd <= '1' when (addr_i = FW_REV_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
    
 end rtl;

@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.5  2005/10/21 20:07:40  erniel
+-- valid flag now controls termination of wishbone cycle
+--
 -- Revision 1.4  2005/10/21 19:37:19  erniel
 -- updated one_wire_master component
 --
@@ -68,6 +71,7 @@ port(clk_i : in std_logic;
      we_i    : in std_logic;
      stb_i   : in std_logic;
      cyc_i   : in std_logic;
+     err_o   : out std_logic;
      dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
      ack_o   : out std_logic;
         
@@ -102,12 +106,13 @@ signal ctrl_ps : states;
 signal ctrl_ns : states;
 
 -- wishbone FSM states:
-type wb_states is (WB_IDLE, SEND_ID, SEND_TEMP);  -- only sending back 32-bits of 48-bit silicon id code (can be modified later)
+type wb_states is (WB_IDLE, SEND_ID, SEND_TEMP, WB_ERROR);  -- only sending back 32-bits of 48-bit silicon id code (can be modified later)
 signal wb_ps : wb_states;
 signal wb_ns : wb_states;
 
 signal read_id_cmd   : std_logic;
 signal read_temp_cmd : std_logic;
+signal write_cmd     : std_logic;
 
 -- data registers:
 signal id         : std_logic_vector(47 downto 0);
@@ -427,13 +432,15 @@ begin
       end if;
    end process wishbone_FF;
 
-   wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd, valid)
+   wishbone_NS: process(wb_ps, read_id_cmd, read_temp_cmd, write_cmd, valid)
    begin
       case wb_ps is
          when WB_IDLE =>   if(read_id_cmd = '1') then
                               wb_ns <= SEND_ID;
                            elsif(read_temp_cmd = '1') then
                               wb_ns <= SEND_TEMP;
+                           elsif(write_cmd = '1') then
+                              wb_ns <= WB_ERROR;
                            else
                               wb_ns <= WB_IDLE;
                            end if;
@@ -449,6 +456,8 @@ begin
                            else
                               wb_ns <= SEND_TEMP;
                            end if;
+         
+         when WB_ERROR  => wb_ns <= WB_IDLE;
                                        
          when others =>    wb_ns <= WB_IDLE;
       end case;
@@ -456,11 +465,13 @@ begin
    
    read_id_cmd <=   '1' when (addr_i = CARD_ID_ADDR   and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
    read_temp_cmd <= '1' when (addr_i = CARD_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   write_cmd   <=   '1' when ((addr_i = CARD_TEMP_ADDR or addr_i = CARD_ID_ADDR) and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
    
    wishbone_out: process(wb_ps, id, thermo, valid)
    begin
       ack_o <= '0';
       dat_o <= (others => '0');
+      err_o <= '0';
       
       case wb_ps is
          when SEND_ID =>   if(valid = '1') then
@@ -475,6 +486,8 @@ begin
                                        thermo(15 downto 0);  
                                        -- sign extension to 32-bit since thermo is 16-bit and wishbone data is 32-bit
                            end if;
+         
+         when WB_ERROR => err_o <= '1';                  
          
          when others =>    null;
       end case;
