@@ -100,6 +100,9 @@
 -- Revision history:
 -- 
 -- $Log: dynamic_manager_data_path.vhd,v $
+-- Revision 1.4  2004/12/13 21:50:22  mohsen
+-- To avoid synthesis complication, changed the construct to generate shift register.
+--
 -- Revision 1.3  2004/11/26 18:25:54  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -176,8 +179,10 @@ architecture rtl of dynamic_manager_data_path is
 
 
   -- Signals needed for Integral Finder
-  signal integral_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
-  signal previous_intgral : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal integral_result   : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal previous_intgral  : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal weighted_integral : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
+  signal sign_xtnd_7       : std_logic_vector(6 downto 0);
 
   -- Signals needed for Difference Finder
   signal diff_result : std_logic_vector(COADD_DAT_WIDTH-1 downto 0);
@@ -217,9 +222,16 @@ begin  -- rtl
   -- banks has higher priority in the code wirtten here.  Also note that when
   -- current_bank_i=1, inputs from bank 1 is selected and vice versa.
   -----------------------------------------------------------------------------
+  
+  -- multiply the previous integral by (1-1/2^7) before adding the new entry
+  weighted_integral <= previous_intgral - (sign_xtnd_7 & previous_intgral(COADD_DAT_WIDTH-1 downto 7));
 
-  integral_result <= current_coadd_dat_i + previous_intgral;
-
+  integral_result <= current_coadd_dat_i + weighted_integral;    
+  
+  sign_xtnd_7 <=
+    (others => '1') when previous_intgral(COADD_DAT_WIDTH-1) = '1' else
+    (others => '0');
+    
   previous_intgral <=
     (others => '0')        when initialize_window_max_dly = '1' else
     intgrl_dat_frm_bank1_i when current_bank_i = '0' else
