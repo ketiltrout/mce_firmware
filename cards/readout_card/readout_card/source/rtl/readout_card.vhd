@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.37  2006/04/28 18:11:24  mandana
+-- revision upgraded to 03000009 (from 030000006) to compile for 1S40 and backplane Rev. C
+--
 -- Revision 1.36  2006/04/18 17:37:07  mandana
 -- revision upgraded to 03000008 (from 030000006) to compile for 1S40 and backplane Rev. A/B
 --
@@ -165,12 +168,7 @@ use sys_param.wishbone_pack.all;
 
 library work;
 use work.readout_card_pack.all;
-
--- call these libraries, as the component we are using are defined in these
--- libraries and we could not define our own components in readout_card_pack
--- file.  See the readout_card_pack file!
-use work.leds_pack.all;
-use work.fw_rev_pack.all;
+use work.all_cards_pack.all;
 
 entity readout_card is
 generic(
@@ -264,8 +262,16 @@ port(
   dip_sw3         : in std_logic;
   dip_sw4         : in std_logic;
   wdog            : out std_logic;
+
+  -- slot_id interface  
   slot_id         : in std_logic_vector(3 downto 0);
+
+  -- silicon_id/temperature interface
   card_id         : inout std_logic;
+  
+  -- fpga_thermo serial interface
+  smb_clk         : out std_logic;
+  smb_data        : inout std_logic;      
 
   -- Debug ports
   mictor          : out std_logic_vector(31 downto 0)
@@ -282,7 +288,7 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000009"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300000a"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- data mode 4 is 18b/14b, new BB protocol, BB rev. C 
                                                                      -- RC Rev. B (1S40)  
 -- Global signals
@@ -347,11 +353,22 @@ signal dat_led                 : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 -- Firmware Revision block signals
 signal fw_rev_data             : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fw_rev_ack              : std_logic;
+signal fw_rev_err              : std_logic;
 
--- Thermometer signals
-signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal id_thermo_ack     : std_logic;
+-- id_thermo signals
+signal id_thermo_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal id_thermo_ack           : std_logic;
+signal id_thermo_err           : std_logic;
 
+-- fpga_thermo signals
+signal fpga_thermo_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal fpga_thermo_ack         : std_logic;
+signal fpga_thermo_err         : std_logic;
+
+-- slot_id signals
+signal slot_id_data            : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal slot_id_ack             : std_logic;
+signal slot_id_err             : std_logic;
 
 begin
 
@@ -444,11 +461,13 @@ begin
                              RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
       fw_rev_data     when   FW_REV_ADDR,     
       id_thermo_data  when   CARD_ID_ADDR | CARD_TEMP_ADDR,                      
+      fpga_thermo_data when  FPGA_TEMP_ADDR,
+      slot_id_data    when   SLOT_ID_ADDR,
       (others => '0') when others;        -- default to zero
 
 
    
-   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or fw_rev_ack or id_thermo_ack;
+   dispatch_ack_in <= ack_fb or ack_frame or ack_led or ack_ft or fw_rev_ack or id_thermo_ack or fpga_thermo_ack or slot_id_ack;
 
  
 
@@ -476,16 +495,17 @@ begin
                             LED_ADDR |
                             ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR |
                             SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR |
-                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR | 
-                            FW_REV_ADDR |
-                            CARD_ID_ADDR | CARD_TEMP_ADDR,
+                            RESYNC_ADDR | FLX_LP_INIT_ADDR | FLTR_RST_ADDR,
+                                        
+    fw_rev_err       when   FW_REV_ADDR,
     
-     '1'             when others;        
-
-   
-
-   
-
+    id_thermo_err    when   CARD_ID_ADDR | CARD_TEMP_ADDR,
+    
+    fpga_thermo_err  when   FPGA_TEMP_ADDR,
+    
+    slot_id_err      when   SLOT_ID_ADDR,
+    
+    '1'              when others;        
    
    ----------------------------------------------------------------------------
    -- Frame_timing Instantiation
@@ -750,7 +770,7 @@ begin
    -- Firmware Revision Instantition
    ----------------------------------------------------------------------------
 
-    fw_rev_slave: fw_rev
+    i_fw_rev: fw_rev
        generic map( REVISION => RC_REVISION)
        port map(
           clk_i  => clk,
@@ -762,15 +782,37 @@ begin
           we_i   => dispatch_we_out,
           stb_i  => dispatch_stb_out,
           cyc_i  => dispatch_cyc_out,
+          err_o  => fw_rev_err,
           dat_o  => fw_rev_data,
           ack_o  => fw_rev_ack
      );
    
    ----------------------------------------------------------------------------
-   -- Thermometer Instantition
+   -- slot_id Instantition
    ----------------------------------------------------------------------------
 
-   id_thermo0: id_thermo
+    i_slot_id: bp_slot_id
+       port map(
+          slot_id_i => slot_id,
+          clk_i  => clk,
+          rst_i  => rst,
+
+          dat_i  => dispatch_dat_out,
+          addr_i => dispatch_addr_out,
+          tga_i  => dispatch_tga_out,
+          we_i   => dispatch_we_out,
+          stb_i  => dispatch_stb_out,
+          cyc_i  => dispatch_cyc_out,
+          err_o  => slot_id_err,
+          dat_o  => slot_id_data,
+          ack_o  => slot_id_ack
+     );
+
+   ----------------------------------------------------------------------------
+   -- id_thermo Instantition
+   ----------------------------------------------------------------------------
+
+   i_id_thermo: id_thermo
       port map(
          clk_i   => clk,
          rst_i   => rst,  
@@ -782,6 +824,7 @@ begin
          we_i    => dispatch_we_out,
          stb_i   => dispatch_stb_out,
          cyc_i   => dispatch_cyc_out,
+         err_o   => id_thermo_err,
          dat_o   => id_thermo_data,
          ack_o   => id_thermo_ack,
             
@@ -789,7 +832,31 @@ begin
          data_io => card_id
       );
    
-   
+   ----------------------------------------------------------------------------
+   -- fpga_thermo Instantition
+   ----------------------------------------------------------------------------
+
+   i_fpga_thermo: fpga_thermo
+      port map(
+         clk_i   => clk,
+         rst_i   => rst,  
+         
+         -- Wishbone signals
+         dat_i   => dispatch_dat_out, 
+         addr_i  => dispatch_addr_out,
+         tga_i   => dispatch_tga_out,
+         we_i    => dispatch_we_out,
+         stb_i   => dispatch_stb_out,
+         cyc_i   => dispatch_cyc_out,
+         err_o   => fpga_thermo_err,
+         dat_o   => fpga_thermo_data,
+         ack_o   => fpga_thermo_ack,
+            
+         -- FPGA temperature chip signals
+         smbclk_o  => smb_clk,
+         smbdat_io => smb_data
+   );
+
    ----------------------------------------------------------------------------
    -- Mictor Connection
    ----------------------------------------------------------------------------
