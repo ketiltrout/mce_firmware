@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: slot_id.vhd,v $
+-- Revision 1.4  2005/01/06 03:10:24  erniel
+-- added comments
+-- fixed minor read cycle bug
+--
 -- Revision 1.3  2005/01/06 03:03:13  erniel
 -- removed slave_ctrl submodule and associated signals
 -- removed obsolete signals, code, and comments
@@ -45,13 +49,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-library work;
-use work.slot_id_pack.all;
-
 library sys_param;
 use sys_param.wishbone_pack.all;
 
-entity slot_id is      
+entity bp_slot_id is
+   generic ( SLOT_ID_BITS: integer := 4);
 port(clk_i   : in std_logic;
      rst_i   : in std_logic;		
       
@@ -64,11 +66,12 @@ port(clk_i   : in std_logic;
      we_i    : in std_logic;
      stb_i   : in std_logic;
      cyc_i   : in std_logic;
+     err_o   : out std_logic;
      dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
      ack_o   : out std_logic);
-end slot_id;
+end bp_slot_id;
 
-architecture rtl of slot_id is
+architecture rtl of bp_slot_id is
 
 signal slot_id_data        : std_logic_vector(SLOT_ID_BITS-1 downto 0);
 signal padded_slot_id_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -107,5 +110,6 @@ begin
    
    ack_o <= '1'                 when addr_i = SLOT_ID_ADDR and we_i = '0' and stb_i = '1' and cyc_i = '1' else '0';
    dat_o <= padded_slot_id_data when addr_i = SLOT_ID_ADDR and we_i = '0' and stb_i = '1' and cyc_i = '1' else (others => '0');
-
+   err_o <= '1'                 when addr_i = SLOT_ID_ADDR and we_i = '1' and stb_i = '1' and cyc_i = '1' else '0';
+   
 end rtl;
