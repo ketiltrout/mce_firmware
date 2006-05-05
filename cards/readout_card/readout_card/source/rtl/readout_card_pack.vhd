@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.6  2006/02/15 21:55:06  mandana
+-- added frame_timing component declaration
+--
 -- Revision 1.5  2006/01/18 21:42:08  mandana
 -- component declaration added for dispatch, dispactch_pack.vhd is obsolete now.
 --
@@ -69,11 +72,6 @@ use sys_param.wishbone_pack.all;
 
 library work;
 
--- Child pack file for the sake of FSFB_QUEUE_ADDR_WIDTH
---use work.flux_loop_pack.all;
-
-
-
 package readout_card_pack is
 
   
@@ -89,78 +87,6 @@ package readout_card_pack is
   constant SA_BIAS_SPI_DATA_WIDTH : integer := 3;         -- data width of SPI interface 
   constant OFFSET_SPI_DATA_WIDTH  : integer := 3;         -- data width of SPI interface 
 
-  -----------------------------------------------------------------------------
-  -- Dispatch component
-  -----------------------------------------------------------------------------
-
-  component dispatch
-    port(clk_i      : in std_logic;
-      comm_clk_i : in std_logic;
-      rst_i      : in std_logic;     
-      
-      -- bus backplane interface (LVDS)
-      lvds_cmd_i   : in std_logic;
-      lvds_reply_o : out std_logic;
-      
-      -- wishbone slave interface
-      dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_o   : out std_logic;
-      stb_o  : out std_logic;
-      cyc_o  : out std_logic;
-      dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_i  : in std_logic;
-      err_i  : in std_logic;
-      
-      -- misc. external interface
-      wdt_rst_o : out std_logic;
-      slot_i    : in std_logic_vector(3 downto 0);
-
-      dip_sw3 : in std_logic;
-      dip_sw4 : in std_logic
-);
-  end component;
-
-  -----------------------------------------------------------------------------
-  -- frame_timing component
-  -----------------------------------------------------------------------------
-  
-  component frame_timing is
-    port(
-      -- Readout Card interface
-      dac_dat_en_o               : out std_logic;
-      adc_coadd_en_o             : out std_logic;
-      restart_frame_1row_prev_o  : out std_logic;
-      restart_frame_aligned_o    : out std_logic; 
-      restart_frame_1row_post_o  : out std_logic;
-      initialize_window_o        : out std_logic;
-      fltr_rst_o                 : out std_logic;
-      
-      -- Address Card interface
-      row_switch_o               : out std_logic;
-      row_en_o                   : out std_logic;
-         
-      -- Bias Card interface
-      update_bias_o              : out std_logic;
-      
-      -- Wishbone interface
-      dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                       : in std_logic;
-      stb_i                      : in std_logic;
-      cyc_i                      : in std_logic;
-      dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                      : out std_logic;      
-      
-      -- Global signals
-      clk_i                      : in std_logic;
-      clk_n_i                    : in std_logic;
-      rst_i                      : in std_logic;
-      sync_i                     : in std_logic);
-  end component;
-  
   -----------------------------------------------------------------------------
   -- Flux Loop Component
   -----------------------------------------------------------------------------
@@ -255,23 +181,6 @@ package readout_card_pack is
       offset_dac_spi_ch7_o      : out std_logic_vector(OFFSET_SPI_DATA_WIDTH-1 downto 0));
   end component;
 
-  
-  -----------------------------------------------------------------------------
-  -- Dispatch Component
-  -----------------------------------------------------------------------------
-
-  -- The component declaration is defined in dispatch_pack.  To avoid error in
-  -- compilation, we omit the declaration in this pack file.
-
-  
-  -----------------------------------------------------------------------------
-  -- Frame Timing Component
-  -----------------------------------------------------------------------------
-
-  -- The component declaration is defined in frame_timing_pack.  To avoid error in
-  -- compilation, we omit the declaration in this pack file.
-
-  
   -----------------------------------------------------------------------------
   -- PLL Component
   -----------------------------------------------------------------------------
@@ -285,47 +194,6 @@ package readout_card_pack is
       c3     : OUT STD_LOGIC;
       c4     : OUT STD_LOGIC);
   end component;
-  
-
-  -----------------------------------------------------------------------------
-  -- LED Component
-  -----------------------------------------------------------------------------
-
-  -- The component declaration is defined in leds_pack.  To avoid error in
-  -- compilation, we omit the declaration in this pack file.
-
-
-  -----------------------------------------------------------------------------
-  -- Firmware Revision Component
-  -----------------------------------------------------------------------------
-
-  -- The component declaration is defined in fw_rev_pack.  To avoid error in
-  -- compilation, we omit the declaration in this pack file.
-  
-  
-  -----------------------------------------------------------------------------
-  -- Thermometer Component
-  -----------------------------------------------------------------------------
-  component id_thermo
-     port(
-        clk_i : in std_logic;
-        rst_i : in std_logic;
-        
-        -- Wishbone signals
-        dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
-        addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-        tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-        we_i    : in std_logic;
-        stb_i   : in std_logic;
-        cyc_i   : in std_logic;
-        dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-        ack_o   : out std_logic;
-           
-        -- silicon id/temperature chip signals
-        data_io : inout std_logic
-     );
-  end component;
-  
-  
+      
 end readout_card_pack;
 
