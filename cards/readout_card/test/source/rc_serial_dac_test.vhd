@@ -33,12 +33,8 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/12/07 22:11:56 $> - <initials $Author: bench2 $>
+-- <date $Date: 2004/11/15 20:03:41 $> - <initials $Author: bburger $>
 -- $Log: rc_serial_dac_test.vhd,v $
--- Revision 1.8  2004/12/07 22:11:56  bench2
--- mandana: frame timing commented, not used
--- The full range fix value commented for subrack test
---
 -- Revision 1.7  2004/11/15 20:03:41  bburger
 -- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
 --
@@ -75,8 +71,6 @@ use sys_param.data_types_pack.all;
 
 use components.component_pack.all;
 
---use work.frame_timing_pack.all;
-
 -----------------------------------------------------------------------------
                      
 entity rc_serial_dac_test_wrapper is
@@ -84,7 +78,7 @@ entity rc_serial_dac_test_wrapper is
       -- basic signals
       rst_i     : in std_logic;    -- reset input
       clk_i     : in std_logic;    -- clock input
-      clk_4_i   : in std_logic;    -- spi clock input
+      clk_4_i   : in std_logic;    -- spi clock 12.5MHz
       en_i      : in std_logic;    -- enable signal
       mode      : in std_logic_vector(1 downto 0);    -- mode: fix/ramp/xtalk
       done_o    : out std_logic;   -- done ouput signal
@@ -101,36 +95,30 @@ end;
 
 architecture rtl of rc_serial_dac_test_wrapper is
 
--- State encoding and state variables:
 -- controller states:
 type states is (IDLE, PUSH_DATA_FIX, PUSH_DATA_RAMP, SPI_START, DONE); 
 
 signal present_state         : states;
 signal next_state            : states;
-
 type   w_array3 is array (2 downto 0) of word16; 
 type   w_array8 is array (7 downto 0) of word16; 
-signal data     : w_array8;
+signal data     : w_array3;
 
 signal idac     : integer;
-signal idx      : integer;
+signal val_clk  : std_logic;
+signal fix_data_count_en : std_logic;
+signal idx      : integer range 0 to 3;
 signal send_dac_start: std_logic;
 signal dac_done : std_logic_vector (7 downto 0);
 signal en_fix   : std_logic;
 signal en_ramp  : std_logic;
+signal en_slow  : std_logic;
 signal ramp     : std_logic := '0';
-signal spi_rdy : std_logic;
-signal ramp_data_count_en : std_logic;
-signal fix_data_count_en  : std_logic;
+signal idata    : integer range 0 to 65536;
 
-signal idata    : integer;
-
-signal logic0   : std_logic;
-signal logic1   : std_logic;
 signal ramp_data: std_logic_vector(15 downto 0);
 signal done_fix : std_logic;
 signal done_ramp: std_logic;
-signal en_slow  : std_logic;
 
 -- parallel data signals for DAC
 signal dac_data_p      : w_array8;
@@ -139,50 +127,35 @@ begin
 
    en_fix  <= en_slow when mode = "00" else '0';
    en_ramp <= en_slow when mode = "01" else '0';
-
+   
 -- instantiate a counter for generating ramp
-   ramp_data_count: counter
+   data_count: counter
    generic map(MAX => 16#ffff#,
                STEP_SIZE => 1,
                WRAP_AROUND => '1',
                UP_COUNTER => '1')
-   port map(clk_i   => clk_4_i,
+   port map(clk_i   => clk_i,
             rst_i   => rst_i,
-            ena_i   => ramp_data_count_en,
+            ena_i   => dac_done(0),
             load_i  => '0',
             count_i => 0,
             count_o => idata);
-   
-   ramp_data_count_en  <= ramp and spi_rdy;
-
-   next_dac_value: process(clk_4_i, rst_i)
-   begin
-      if(rst_i = '1') then 
-         spi_rdy <= '1';
-      elsif(clk_4_i'event and clk_4_i = '1') then
-         if ( dac_done(0) = '1') then
-           spi_rdy <= '1';
-         else
-           spi_rdy <= '0';
-         end if;
-      end if;
-   end process next_dac_value;
-   
+  
    ramp_data <= conv_std_logic_vector(idata,16);
      
 -- instantiate a counter for idx to go through different values    
    idx_count: counter
-   generic map(MAX => 7,
+   generic map(MAX => 2,
                STEP_SIZE => 1,
                WRAP_AROUND => '1',
                UP_COUNTER => '1')
    port map(clk_i   => clk_4_i,
-            rst_i   => '0', -- '0' or rst_i? think!!!!!
+            rst_i   => '0',
             ena_i   => fix_data_count_en,
             load_i  => '0',
             count_i =>  0,
             count_o => idx);
-            
+
    clk_domain_crosser : fast2slow_clk_domain_crosser
       generic map (
          NUM_TIMES_FASTER            => 4
@@ -195,23 +168,22 @@ begin
          input_fast                  => en_i,
          output_slow                 => en_slow
       );     
-   
+
 ------------------------------------------------------------------------
 --
 -- Instantiate spi interface blocks, they all share the same start signal
 -- and therefore they are all fired at once.
 --
 ------------------------------------------------------------------------
-  -- values tried on DAC Tests with fixed values          
--- comment out full-range to run with rc_test_ssr and generate a square wave
+  -- values tried on DAC Tests with fixed values                               
    data (0) <= "1111111111111111";--xffff     full scale
    data (1) <= "1000000000000000";--x8000     half range
    data (2) <= "0000000000000000";--x0000     0
-   data (3) <= "0000000000000001";--x0001 
-   data (4) <= "0000000000000010";--x0002 
-   data (5) <= "0000000000000100";--x0004 
-   data (6) <= "0000000000001000";--x0008 
-   data (7) <= "0000000000010000";--x0010 
+-- data (3) <= "0000000000000001";--x0001 
+-- data (4) <= "0000000000000010";--x0002 
+-- data (5) <= "0000000000000100";--x0004 
+-- data (6) <= "0000000000001000";--x0008 
+-- data (7) <= "0000000000010000";--x0010 
 
    gen_spi8: for k in 0 to 7 generate
    
@@ -242,8 +214,9 @@ begin
       end if;
    end process state_FF;
 ---------------------------------------------------------------   
-   state_NS: process(present_state, en_fix, en_ramp, ramp_data, ramp)
+   state_NS: process(present_state, en_fix, en_ramp, ramp_data,ramp)
    begin
+      next_state <= present_state;
       case present_state is
          when IDLE =>     
             if(en_fix = '1') then
@@ -253,7 +226,7 @@ begin
             else
                next_state <= IDLE;
             end if;
-                           
+               
          when PUSH_DATA_FIX =>  
             next_state  <= DONE;--SPI_START; -- 2ns settling time for data (ts)
             
@@ -265,61 +238,66 @@ begin
          
          when DONE =>
             next_state  <= IDLE;
+         
+         when others => 
+            next_state <= IDLE;
                         
       end case;
    end process state_NS;
 -----------------------------------------------------------------   
-   state_out: process(present_state, data,ramp_data,idx, en_fix)
+   state_out: process(present_state, data, idx, ramp_data, en_fix)
    begin
       for idac in 0 to 7 loop
         dac_data_p(idac) <= (others => '0');
       end loop;            
       done_fix           <= '0';
-      fix_data_count_en  <= '0';
       send_dac_start     <= '0';
-
+      fix_data_count_en  <= '0';
+   
       case present_state is
          when IDLE =>     
             null;
-                  
+         
          when PUSH_DATA_FIX =>    
             for idac in 0 to 7 loop
                dac_data_p(idac) <= data(idx);
             end loop;
             send_dac_start    <= '1';
-            fix_data_count_en <= '1';            
                           
          when PUSH_DATA_RAMP =>    
             for idac in 0 to 7 loop
                dac_data_p(idac) <= ramp_data;
             end loop;
-            send_dac_start    <= '1';
+            send_dac_start   <= '1';
 
          when SPI_START =>     -- we may need to hold ramp data in this state        
             for idac in 0 to 7 loop
                dac_data_p(idac) <= data(idx);
             end loop;
-            send_dac_start    <= '1';
 
-          when DONE =>        -- we may need to hold ramp data in this state 
+            send_dac_start   <= '1';
+
+         when DONE =>        -- we may need to hold ramp data in this state 
             if en_fix = '1' then   
-              done_fix        <= '1';
+               done_fix      <= '1';
             end if;   
             -- for fix values, we want to assert done_o after one value is loaded
             -- but for the ramp done_o signal is asserted in a process.
+            fix_data_count_en <= '1';
+
+         when others =>
+            null;
        
       end case;
    end process state_out;
 -----------------------------------------------------------------   
-   process(en_ramp, rst_i, ramp)
+   process(en_ramp)
    begin
-      if (rst_i = '1') then
-        ramp <= '0';
-      elsif(en_ramp = '1') then
+      if(en_ramp = '1') then
          ramp <= not ramp;
       end if;
    end process;
-
+   
    process(clk_4_i)
    begin
       if(clk_4_i'event and clk_4_i = '1') then
@@ -328,7 +306,7 @@ begin
    end process;
 
    done_o <= done_fix when en_fix = '1' else done_ramp;
-   
+
    end;
  
 
