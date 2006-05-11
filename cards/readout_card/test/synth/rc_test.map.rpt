@@ -1,5 +1,5 @@
 Analysis & Synthesis report for rc_test
-Thu May 11 15:36:40 2006
+Thu May 11 15:50:35 2006
 Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
 
 
@@ -91,7 +91,7 @@ applicable agreement for further details.
 +-----------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                ;
 +-----------------------------+-----------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Thu May 11 15:36:40 2006         ;
+; Analysis & Synthesis Status ; Successful - Thu May 11 15:50:35 2006         ;
 ; Quartus II Version          ; 5.1 Build 213 01/19/2006 SP 1 SJ Full Version ;
 ; Revision Name               ; rc_test                                       ;
 ; Top-level Entity Name       ; rc_test                                       ;
@@ -255,8 +255,8 @@ applicable agreement for further details.
 ; Total PLLs                                  ; 1                                              ;
 ; Maximum fan-out node                        ; rc_test_pll:clk0|altpll:altpll_component|_clk0 ;
 ; Maximum fan-out                             ; 592                                            ;
-; Total fan-out                               ; 4902                                           ;
-; Average fan-out                             ; 3.84                                           ;
+; Total fan-out                               ; 4894                                           ;
+; Average fan-out                             ; 3.83                                           ;
 +---------------------------------------------+------------------------------------------------+
 
 
@@ -1245,7 +1245,7 @@ The equations can be found in C:/scuba2_repository/cards/readout_card/test/synth
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu May 11 15:36:05 2006
+    Info: Processing started: Thu May 11 15:50:01 2006
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off rc_test -c rc_test
 Info: Found 1 design units, including 0 entities, in source file ../../../library/sys_param/source/rtl/command_pack.vhd
     Info: Found design unit 1: command_pack
@@ -1342,11 +1342,11 @@ Info (10425): VHDL Case Statement information at write_spi_with_cs.vhd(153): OTH
 Info (10425): VHDL Case Statement information at write_spi_with_cs.vhd(199): OTHERS choice is never selected
 Info: Elaborating entity "shift_reg" for hierarchy "rc_serial_dac_test_wrapper:rc_serial_dac|write_spi_with_cs:\gen_spi8:0:dac_write_spi|shift_reg:spi_shift"
 Info: Elaborating entity "rc_parallel_dac_test_wrapper" for hierarchy "rc_parallel_dac_test_wrapper:rc_parallel_dac"
-Info (10035): Verilog HDL or VHDL information at rc_parallel_dac_test.vhd(119): object "idac" declared but not used
-Warning (10492): VHDL Process Statement warning at rc_parallel_dac_test.vhd(226): signal "square" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
-Warning (10631): VHDL Process Statement warning at rc_parallel_dac_test.vhd(222): signal or variable "square" may not be assigned a new value in every possible path through the Process Statement. Signal or variable "square" holds its previous value in every path with no new value assignment, which may create a combinational loop in the current design.
-Info (10425): VHDL Case Statement information at rc_parallel_dac_test.vhd(288): OTHERS choice is never selected
-Info (10425): VHDL Case Statement information at rc_parallel_dac_test.vhd(313): OTHERS choice is never selected
+Info (10035): Verilog HDL or VHDL information at rc_parallel_dac_test.vhd(122): object "idac" declared but not used
+Warning (10492): VHDL Process Statement warning at rc_parallel_dac_test.vhd(229): signal "square" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
+Warning (10631): VHDL Process Statement warning at rc_parallel_dac_test.vhd(225): signal or variable "square" may not be assigned a new value in every possible path through the Process Statement. Signal or variable "square" holds its previous value in every path with no new value assignment, which may create a combinational loop in the current design.
+Info (10425): VHDL Case Statement information at rc_parallel_dac_test.vhd(291): OTHERS choice is never selected
+Info (10425): VHDL Case Statement information at rc_parallel_dac_test.vhd(316): OTHERS choice is never selected
 Info: Elaborating entity "counter" for hierarchy "rc_parallel_dac_test_wrapper:rc_parallel_dac|counter:fix_data_count"
 Warning: Reduced register "serial_dac_mode[1]" with stuck data_in port to stuck value GND
 Info: State machine "|rc_test|pres_state" contains 9 states
@@ -1499,14 +1499,23 @@ Info: Encoding result for state machine "|rc_test|rs232_rx:rx0|pres_state"
     Info: State "|rc_test|rs232_rx:rx0|pres_state.idle" uses code string "000"
     Info: State "|rc_test|rs232_rx:rx0|pres_state.recv" uses code string "011"
     Info: State "|rc_test|rs232_rx:rx0|pres_state.ready" uses code string "101"
+Warning: Output pins are stuck at VCC or GND
+    Warning: Pin "bias_dac_ncs[0]" stuck at VCC
+    Warning: Pin "bias_dac_ncs[1]" stuck at VCC
+    Warning: Pin "bias_dac_ncs[2]" stuck at VCC
+    Warning: Pin "bias_dac_ncs[3]" stuck at VCC
+    Warning: Pin "bias_dac_ncs[4]" stuck at VCC
+    Warning: Pin "bias_dac_ncs[5]" stuck at VCC
+    Warning: Pin "bias_dac_ncs[6]" stuck at VCC
+    Warning: Pin "bias_dac_ncs[7]" stuck at VCC
 Info: Implemented 1278 device resources after synthesis - the final resource count might be different
     Info: Implemented 3 input pins
     Info: Implemented 153 output pins
     Info: Implemented 1113 logic cells
     Info: Implemented 8 RAM segments
     Info: Implemented 1 ClockLock PLLs
-Info: Quartus II Analysis & Synthesis was successful. 0 errors, 3 warnings
-    Info: Processing ended: Thu May 11 15:36:40 2006
-    Info: Elapsed time: 00:00:35
+Info: Quartus II Analysis & Synthesis was successful. 0 errors, 12 warnings
+    Info: Processing ended: Thu May 11 15:50:35 2006
+    Info: Elapsed time: 00:00:34
 
 

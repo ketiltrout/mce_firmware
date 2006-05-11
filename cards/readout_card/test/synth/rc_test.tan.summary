@@ -5,7 +5,7 @@ Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 9.957 ns
+Actual Time    : 10.281 ns
 From           : rst_n
 To             : rc_parallel_dac_test_wrapper:rc_parallel_dac|done_ramp
 From Clock     : --
@@ -15,9 +15,9 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 17.377 ns
+Actual Time    : 16.740 ns
 From           : rc_parallel_dac_test_wrapper:rc_parallel_dac|counter:fix_data_count|count[1]
-To             : dac_FB7_dat[5]
+To             : dac_FB2_dat[7]
 From Clock     : inclk
 To Clock       : --
 Failed Paths   : 0
@@ -25,9 +25,9 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : -7.741 ns
+Actual Time    : -7.271 ns
 From           : rx
-To             : rs232_rx:rx0|pres_state.idle
+To             : rs232_rx:rx0|shift_reg:rx_sample|reg[2]
 From Clock     : --
 To Clock       : inclk
 Failed Paths   : 0
@@ -35,50 +35,50 @@ Failed Paths   : 0
 Type           : Worst-case Minimum tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 4.893 ns
+Actual Time    : 4.952 ns
 From           : rc_test_pll:clk0|altpll:altpll_component|_clk1
-To             : dac_clk[0]
+To             : dac_clk[4]
 From Clock     : inclk
 To Clock       : --
 Failed Paths   : 0
 
 Type           : Clock Setup: 'rc_test_pll:clk0|altpll:altpll_component|_clk0'
-Slack          : 5.788 ns
+Slack          : 6.012 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 118.71 MHz ( period = 8.424 ns )
+Actual Time    : 125.38 MHz ( period = 7.976 ns )
 From           : rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_sk41:auto_generated|ram_block1a0~portb_address_reg5
-To             : rs232_tx:tx0|shift_reg:tx_buffer|reg[7]
+To             : rs232_tx:tx0|shift_reg:tx_buffer|reg[8]
 From Clock     : rc_test_pll:clk0|altpll:altpll_component|_clk0
 To Clock       : rc_test_pll:clk0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Clock Setup: 'rc_test_pll:clk0|altpll:altpll_component|_clk1'
-Slack          : 16.219 ns
+Slack          : 16.354 ns
 Required Time  : 12.50 MHz ( period = 80.000 ns )
 Actual Time    : N/A
-From           : rc_serial_dac_test_wrapper:rc_serial_dac|counter:data_count|count[10]
-To             : rc_serial_dac_test_wrapper:rc_serial_dac|write_spi_with_cs:\gen_spi8:3:dac_write_spi|shift_reg:spi_shift|reg[10]
+From           : rc_serial_dac_test_wrapper:rc_serial_dac|counter:data_count|count[15]
+To             : rc_serial_dac_test_wrapper:rc_serial_dac|write_spi_with_cs:\gen_spi8:4:dac_write_spi|shift_reg:spi_shift|reg[15]
 From Clock     : rc_test_pll:clk0|altpll:altpll_component|_clk0
 To Clock       : rc_test_pll:clk0|altpll:altpll_component|_clk1
 Failed Paths   : 0
 
 Type           : Clock Hold: 'rc_test_pll:clk0|altpll:altpll_component|_clk0'
-Slack          : -0.880 ns
+Slack          : -1.082 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
 From           : rc_parallel_dac_test_wrapper:rc_parallel_dac|ramp
 To             : rc_parallel_dac_test_wrapper:rc_parallel_dac|ramp
 From Clock     : rc_test_pll:clk0|altpll:altpll_component|_clk0
 To Clock       : rc_test_pll:clk0|altpll:altpll_component|_clk0
-Failed Paths   : 2
+Failed Paths   : 7
 
 Type           : Clock Hold: 'rc_test_pll:clk0|altpll:altpll_component|_clk1'
-Slack          : 0.517 ns
+Slack          : 0.539 ns
 Required Time  : 12.50 MHz ( period = 80.000 ns )
 Actual Time    : N/A
-From           : rc_serial_dac_test_wrapper:rc_serial_dac|ramp
-To             : rc_serial_dac_test_wrapper:rc_serial_dac|ramp
-From Clock     : rc_test_pll:clk0|altpll:altpll_component|_clk0
+From           : rc_serial_dac_test_wrapper:rc_serial_dac|write_spi_with_cs:\gen_spi8:0:dac_write_spi|shift_reg:spi_shift|reg[10]
+To             : rc_serial_dac_test_wrapper:rc_serial_dac|write_spi_with_cs:\gen_spi8:0:dac_write_spi|shift_reg:spi_shift|reg[11]
+From Clock     : rc_test_pll:clk0|altpll:altpll_component|_clk1
 To Clock       : rc_test_pll:clk0|altpll:altpll_component|_clk1
 Failed Paths   : 0
 
@@ -90,7 +90,7 @@ From           :
 To             : 
 From Clock     : 
 To Clock       : 
-Failed Paths   : 2
+Failed Paths   : 7
 
 --------------------------------------------------------------------------------------
 
