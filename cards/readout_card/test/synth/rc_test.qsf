@@ -33,25 +33,7 @@
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "12:14:37  NOVEMBER 16, 2005"
-set_global_assignment -name LAST_QUARTUS_VERSION "4.1 SP2"
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/frame_timing_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_tx.vhd
-set_global_assignment -name VHDL_FILE ../source/rc_parallel_dac_test.vhd
-set_global_assignment -name VHDL_FILE ../source/rc_serial_dac_test.vhd
-set_global_assignment -name VHDL_FILE ../source/rc_test_pll.vhd
-set_global_assignment -name VHDL_FILE ../source/rc_test.vhd
+set_global_assignment -name LAST_QUARTUS_VERSION "5.1 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -145,8 +127,6 @@ set_location_assignment PIN_B11 -to mictor\[1\]
 set_location_assignment PIN_C11 -to mictor\[2\]
 set_location_assignment PIN_A10 -to mictor\[3\]
 set_location_assignment PIN_B10 -to mictor\[4\]
-set_location_assignment PIN_C12 -to mictor\[5\]
-set_location_assignment PIN_B12 -to mictor\[6\]
 set_location_assignment PIN_C13 -to mictor\[7\]
 set_location_assignment PIN_B13 -to mictor\[8\]
 set_location_assignment PIN_C10 -to mictor\[9\]
@@ -460,8 +440,8 @@ set_location_assignment PIN_F26 -to adc8_dat\[10\]
 set_location_assignment PIN_F25 -to adc8_dat\[11\]
 set_location_assignment PIN_K24 -to adc8_dat\[12\]
 set_location_assignment PIN_K23 -to adc8_dat\[13\]
-set_location_assignment PIN_F20 -to rx
-set_location_assignment PIN_F21 -to tx
+set_location_assignment PIN_C12 -to rx
+set_location_assignment PIN_B12 -to tx
 
 # Analysis & Synthesis Assignments
 # ================================
@@ -470,9 +450,36 @@ set_global_assignment -name TOP_LEVEL_ENTITY rc_test
 
 # Fitter Assignments
 # ==================
-set_global_assignment -name DEVICE EP1S40F780C6
+set_global_assignment -name DEVICE EP1S40F780C5
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 
 # LogicLock Region Assignments
 # ============================
-set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
+set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
+
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
+set_location_assignment PIN_F20 -to eeprom_si
+set_location_assignment PIN_F21 -to eeprom_sck
+set_location_assignment PIN_C12 -to rs232_rx
+set_location_assignment PIN_G5 -to mictor_clk[0]
+set_location_assignment PIN_C5 -to mictor_clk[1]
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/frame_timing_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fast2slow_clk_domain_crosser.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_rx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/rs232_tx.vhd
+set_global_assignment -name VHDL_FILE ../source/rc_parallel_dac_test.vhd
+set_global_assignment -name VHDL_FILE ../source/rc_serial_dac_test.vhd
+set_global_assignment -name VHDL_FILE ../source/rc_test_pll.vhd
+set_global_assignment -name VHDL_FILE ../source/rc_test.vhd
