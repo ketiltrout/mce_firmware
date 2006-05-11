@@ -33,8 +33,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2004/12/07 22:11:16 $> - <initials $Author: bench2 $>
+-- <date $Date: 2005/12/15 21:26:08 $> - <initials $Author: mandana $>
 -- $Log: rc_parallel_dac_test.vhd,v $
+-- Revision 1.9  2005/12/15 21:26:08  mandana
+-- added integer range
+--
 -- Revision 1.8  2004/12/07 22:11:16  bench2
 -- mandana: frame timing commented, not used
 --
@@ -116,9 +119,8 @@ signal idat     : integer;
 signal idac     : integer;
 signal clkcount : std_logic;
 signal nclk     : std_logic;
-signal idata    : integer;
-signal ramp     : std_logic;
-signal square   : std_logic;
+signal ramp     : std_logic := '0';
+signal square   : std_logic := '0';
 
 signal data_fix : word14;
 signal data_ramp: word14;
@@ -130,14 +132,7 @@ signal done_fix, done_ramp, done_square  : std_logic;
 signal clk_2    : std_logic;
 signal clk_count: std_logic_vector(10 downto 0);
 
-signal logic0 : std_logic;
-signal logic1 : std_logic;
-signal zero : integer Range 0 to 7;
-
 begin
-   logic0 <= '0';
-   logic1 <= '1';
-   zero <= 0;
    
    en_fix    <= en_i when mode = "00" else '0';
    en_ramp   <= en_i when mode = "01" else '0';
@@ -185,29 +180,30 @@ begin
                     done_square when "10",
                     done_fix    when others;
     
-   ramp_data_count: counter
-   generic map(MAX => 16#3fff#,
-               STEP_SIZE => 1,
-               WRAP_AROUND => '1',
-               UP_COUNTER => '1')
-   port map(clk_i   => clkcount,
-            rst_i   => rst_i,
-            ena_i   => ramp,
-            load_i  => logic0,
-            count_i => zero,
-            count_o => idata);
-  
+   ramp_data_count: process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         data_ramp <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if (ramp = '1') then
+            data_ramp <= data_ramp + 1;
+         end if;   
+      end if;
+   end process;
+   
    clkcount <= clk_i when ramp = '1' else '0';
    nclk <= not (clkcount);
    
    dac_clk_ramp <= (others => nclk);
-   data_ramp <= conv_std_logic_vector(idata,14);
    
+   -- ramp mode
    process(en_ramp)
-   begin
-      if(en_ramp = '1') then
-         ramp <= not ramp;
-      end if;
+   begin      
+      --if (clk_i'event and clk_i = '1') then
+         if(en_ramp = '1') then
+            ramp <= not ramp;
+         end if;
+      --end if;   
    end process;
  
    -------------------------------------------------------
@@ -222,12 +218,16 @@ begin
 
    clk_2 <= clk_count(6);
    
-   process(en_square)
+   -- square_mode;
+   process(clk_i, en_square)
    begin
-      if(en_square = '1') then
-         square <= not(square);
-      end if;
+      --if (clk_i'event and clk_i = '1') then
+         if(en_square = '1') then
+            square <= not(square);
+         end if;   
+      --end if;
    end process;
+   
    data_square <= (others => clk_2) when square = '1' else (others => '0');
    dac_clk_square <= (others => nclk);
 -----------------------------------------------------------
@@ -238,9 +238,9 @@ begin
                UP_COUNTER => '1')
    port map(clk_i   => en_i,
             rst_i   => rst_i,
-            ena_i   => logic1,
-            load_i  => logic0,
-            count_i => zero ,
+            ena_i   => '1',
+            load_i  => '0',
+            count_i => 0,
             count_o => idat);
             
    -- test DACs for fixed values, single bit on LSBs and full scale
@@ -284,33 +284,35 @@ begin
          
          when DONE =>
             next_state  <= IDLE;
+         
+         when others => 
+            next_state <= IDLE;
                         
       end case;
    end process state_NS;
 -----------------------------------------------------------------   
-   state_out: process(present_state)
+   state_out: process(present_state, fix, idat)
    begin
+      data_fix    <= (others => '0');
+      dac_clk_fix <= (others => '0');
+      done_fix    <= '0';
       case present_state is
          when IDLE =>        
-            data_fix <= "00000000000000";   
-            dac_clk_fix <= (others => '0');
-       done_fix    <= '0';
-         
+            null;
+            
          when PUSH_DATA =>    
             data_fix <= fix(idat);           
-            dac_clk_fix <= (others => '0');
-       done_fix    <= '0';
-                          
+                                      
          when CLKNOW =>    
             data_fix <= fix(idat);
             dac_clk_fix <= (others => '1');
-       done_fix    <= '0';
 
-          when DONE =>    
-            data_fix <= "00000000000000";
-            dac_clk_fix <= (others => '0');
-       done_fix    <= '1';
+         when DONE =>    
+            done_fix    <= '1';
                                  
+         when others =>
+            null;
+            
       end case;
    end process state_out;
    
