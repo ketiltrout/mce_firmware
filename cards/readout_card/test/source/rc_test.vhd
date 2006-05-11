@@ -29,8 +29,11 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2005/11/19 00:36:21 $>	- <initials $Author: erniel $>
+-- <date $Date: 2006/05/11 22:25:01 $>	- <initials $Author: bench2 $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.14  2006/05/11 22:25:01  bench2
+-- modified error_msg, added 12.5MHz pll output, upgraded version number to 4.0
+--
 -- Revision 1.13  2005/11/19 00:36:21  erniel
 -- updated RC_test to version 3.0
 -- rewrote command interface logic (rc_test_idle, rc_test_reset are obsolete)
@@ -296,9 +299,9 @@ begin
                    space     when 9,
                    v         when 10,
                    period    when 11, 
-                   four      when 12, -- v4.0 test firmware
+                   four      when 12, -- v4.1 test firmware
                    period    when 13,
-                   zero      when 14,
+                   one       when 14,
                    newline   when others;
 
    with tx_count select
@@ -573,7 +576,7 @@ begin
                dac_dat_o => dac_dat,
                dac_ncs_o => dac_ncs);
 
-   bias_dac_ncs <= dac_ncs;
+   bias_dac_ncs <= (others=> '1');
    offset_dac_ncs <= dac_ncs;
 
    --------------------------------------------------------
