@@ -29,8 +29,12 @@
 -- Test module for readout card
 --
 -- Revision history:
--- <date $Date: 2004/07/19 20:19:19 $>	- <initials $Author: mandana $>
+-- <date $Date: 2005/11/19 00:36:21 $>	- <initials $Author: erniel $>
 -- $Log: rc_test.vhd,v $
+-- Revision 1.13  2005/11/19 00:36:21  erniel
+-- updated RC_test to version 3.0
+-- rewrote command interface logic (rc_test_idle, rc_test_reset are obsolete)
+--
 -- Revision 1.12  2004/07/19 20:19:19  mandana
 -- added square wave test for parallel DACs
 --
@@ -112,15 +116,17 @@ architecture rtl of rc_test is
 
 constant RESET_MSG_LEN    : integer := 16;
 constant IDLE_MSG_LEN     : integer := 10;
-constant ERROR_MSG_LEN    : integer := 14;
+constant ERROR_MSG_LEN    : integer := 17;
 constant EASTER_MSG_LEN   : integer := 24;
 
+signal clk_4: std_logic;
 signal clk : std_logic;
 signal rst : std_logic;
 
 component rc_test_pll
 port(inclk0 : in std_logic;
-     c0 : out std_logic);
+     c0 : out std_logic;
+     c1 : out std_logic);
 end component;
 
 type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, TX_EASTER, RX_CMD1, RX_CMD2, DAC_TEST_SETUP, WAIT_DAC_DONE);
@@ -172,6 +178,7 @@ signal rst_cmd : std_logic;
 component rc_serial_dac_test_wrapper
 port(rst_i     : in std_logic; 
      clk_i     : in std_logic; 
+     clk_4_i   : in std_logic;
      en_i      : in std_logic; 
      mode      : in std_logic_vector(1 downto 0); 
      done_o    : out std_logic;
@@ -215,7 +222,8 @@ begin
 
    clk0: rc_test_pll
    port map(inclk0 => inclk,
-            c0 => clk);
+            c0 => clk,
+            c1 => clk_4);
 
 
    --------------------------------------------------------
@@ -274,8 +282,8 @@ begin
             count_i => 0,
             count_o => tx_count);
 
-
-   with tx_count select
+   -- print out the version message
+   with tx_count select              
       reset_msg <= newline   when 0,
                    newline   when 1,
                    shift(r)  when 2,
@@ -288,7 +296,7 @@ begin
                    space     when 9,
                    v         when 10,
                    period    when 11, 
-                   three     when 12, 
+                   four      when 12, -- v4.0 test firmware
                    period    when 13,
                    zero      when 14,
                    newline   when others;
@@ -307,19 +315,22 @@ begin
 
    with tx_count select
       error_msg <= tab         when 0,
-                   shift(y)    when 1,
-                   o           when 2,
-                   u           when 3,
-                   space       when 4,
-                   shift(b)    when 5,
-                   o           when 6,
-                   n           when 7,
-                   e           when 8,
-                   h           when 9,
-                   e           when 10,
-                   a           when 11,
-                   d           when 12,
-                   shift(one)  when others;
+                   shift(i)    when 1,
+                   n           when 2,
+                   v           when 3,
+                   a           when 4,
+                   l           when 5,
+                   i           when 6,
+                   d           when 7,
+                   space       when 8,
+                   c           when 9,
+                   o           when 10,
+                   m           when 11,
+                   m           when 12,
+                   a           when 13,
+                   n           when 14,
+                   d           when 15,
+                   space       when others;
 
    with tx_count select
       easter_msg <= n          when 0,
@@ -361,7 +372,7 @@ begin
       end if;
    end process;
 
-   process(pres_state, rx_rdy, rx_data, tx_count, serial_dac_done, parallel_dac_done)
+   process(pres_state, rx_rdy, rx_data, tx_count, serial_dac_done, parallel_dac_done, cmd1)
    begin
       case pres_state is
          when RESET =>          next_state <= TX_RESET;
@@ -553,6 +564,7 @@ begin
    rc_serial_dac : rc_serial_dac_test_wrapper
       port map(rst_i     => rst,
                clk_i     => clk,
+               clk_4_i   => clk_4,
                en_i      => serial_dac_ena,
                mode      => serial_dac_mode,
                done_o    => serial_dac_done,
