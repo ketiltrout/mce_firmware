@@ -31,6 +31,12 @@
 -- Revision history:
 -- 
 -- $Log: rs232_tx.vhd,v $
+-- Revision 1.4  2005/01/12 22:45:56  erniel
+-- removed async_tx instantiation
+-- removed comm_clk and mem_clk
+-- modified transmitter datapath (based on async_tx datapath)
+-- modified transmitter control
+--
 -- Revision 1.3  2005/01/05 23:39:50  erniel
 -- updated async_tx component
 --
@@ -152,6 +158,9 @@ begin
                        end if;
          
          when DONE =>  next_state <= IDLE;
+         
+         when others => next_state <= IDLE;
+         
       end case;
    end process stateNS;
                          
@@ -180,6 +189,8 @@ begin
                        rs232_o <= tx_bit;                      
          
          when DONE =>  buf_read      <= '1';
+         
+         when others => null;
       end case;
    end process stateOut;
    
