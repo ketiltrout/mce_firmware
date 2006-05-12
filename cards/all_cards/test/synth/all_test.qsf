@@ -34,6 +34,58 @@
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "10:28:24  OCTOBER 20, 2005"
 set_global_assignment -name LAST_QUARTUS_VERSION "4.1 SP2"
+
+# Pin & Location Assignments
+# ==========================
+set_location_assignment PIN_C12 -to rx
+set_location_assignment PIN_A16 -to cardid
+set_location_assignment PIN_B12 -to tx
+set_location_assignment PIN_H20 -to led[0]
+set_location_assignment PIN_H19 -to led[1]
+set_location_assignment PIN_J20 -to led[2]
+set_location_assignment PIN_AC9 -to nrst
+set_location_assignment PIN_K17 -to inclk
+set_location_assignment PIN_D5 -to slot[0]
+set_location_assignment PIN_B6 -to slot[1]
+set_location_assignment PIN_C9 -to slot[2]
+set_location_assignment PIN_D10 -to slot[3]
+set_location_assignment PIN_K10 -to dip[0]
+set_location_assignment PIN_L11 -to dip[1]
+
+# Analysis & Synthesis Assignments
+# ================================
+set_global_assignment -name FAMILY Stratix
+set_global_assignment -name TOP_LEVEL_ENTITY all_test
+
+# Fitter Assignments
+# ==================
+set_global_assignment -name DEVICE EP1S40F780C6
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+
+# Assembler Assignments
+# =====================
+set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
+
+# SignalTap II Assignments
+# ========================
+set_global_assignment -name ENABLE_SIGNALTAP On
+set_global_assignment -name USE_SIGNALTAP_FILE test1.stp
+
+# LogicLock Region Assignments
+# ============================
+set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
+
+# ---------------------------------------------------
+# start AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
+
+	# SignalTap II Assignments
+	# ========================
+
+# end AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
+# -------------------------------------------------
+
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
+set_global_assignment -name ANALYZE_LATCHES_AS_SYNCHRONOUS_ELEMENTS OFF
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/frame_timing_pack.vhd
@@ -64,201 +116,7 @@ set_global_assignment -name VHDL_FILE ../../async/source/rtl/async_pack.vhd
 set_global_assignment -name VHDL_FILE ../../async/source/rtl/ascii_pack.vhd
 set_global_assignment -name VHDL_FILE ../../async/source/rtl/rs232_rx.vhd
 set_global_assignment -name VHDL_FILE ../../async/source/rtl/rs232_tx.vhd
-set_global_assignment -name VHDL_FILE ../source/all_test_pack.vhd
 set_global_assignment -name VHDL_FILE ../source/all_test_pll.vhd
 set_global_assignment -name VHDL_FILE ../source/all_test.vhd
 set_global_assignment -name SIGNALTAP_FILE test1.stp
-
-# Pin & Location Assignments
-# ==========================
-set_location_assignment PIN_AE11 -to rx
-set_location_assignment PIN_T21 -to cardid
-set_location_assignment PIN_AD8 -to tx
-set_location_assignment PIN_V27 -to led\[0\]
-set_location_assignment PIN_T24 -to led\[1\]
-set_location_assignment PIN_T23 -to led\[2\]
-set_location_assignment PIN_AC9 -to nrst
-set_location_assignment PIN_K17 -to inclk
-set_location_assignment PIN_V25 -to slot\[0\]
-set_location_assignment PIN_V26 -to slot\[1\]
-set_location_assignment PIN_T25 -to slot\[2\]
-set_location_assignment PIN_T26 -to slot\[3\]
-set_location_assignment PIN_W23 -to dip\[0\]
-set_location_assignment PIN_W24 -to dip\[1\]
-
-# Analysis & Synthesis Assignments
-# ================================
-set_global_assignment -name FAMILY Stratix
-set_global_assignment -name TOP_LEVEL_ENTITY all_test
-
-# Fitter Assignments
-# ==================
-set_global_assignment -name DEVICE EP1S10F780C5
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-
-# Assembler Assignments
-# =====================
-set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
-
-# SignalTap II Assignments
-# ========================
-set_global_assignment -name ENABLE_SIGNALTAP On
-set_global_assignment -name USE_SIGNALTAP_FILE test1.stp
-
-# LogicLock Region Assignments
-# ============================
-set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
-
-# ---------------------------------------------------
-# start AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
-
-	# SignalTap II Assignments
-	# ========================
-	set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=402681344" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BIT_CNTR_BITS=6" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=AUTO" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "all_test_pll:clk0\|c0" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=8192" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_MEM_ADDRESS_BITS=13" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[0\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[1\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[2\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[3\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[4\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[5\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[6\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[7\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[8\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[9\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[10\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[11\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[12\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[13\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[14\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[15\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[16\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[17\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[18\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[19\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[20\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[21\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[22\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[23\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[24\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[25\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[26\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[27\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[28\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[29\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[30\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[31\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[32\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[33\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[34\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[35\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[36\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[37\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[38\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[39\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[40\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[41\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[42\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[43\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[44\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[45\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[46\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[47\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[48\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[49\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[50\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[51\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[52\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[53\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[54\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[55\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[56\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[57\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[58\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[59\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[60\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[61\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[62\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in\[63\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[0\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[1\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[2\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[3\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[4\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[5\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[6\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[7\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data0\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[8\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[9\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[10\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[11\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[12\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[13\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[14\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[15\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data1\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[16\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[17\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[18\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[19\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[20\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[21\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[22\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[23\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data2\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[24\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[25\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[26\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[27\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[28\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[29\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[30\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[31\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data3\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[32\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[33\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[34\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[35\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[36\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[37\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[38\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[39\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data4\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[40\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[41\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[42\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[43\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[44\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[45\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[46\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[47\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:id_data5\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[48\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[49\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[50\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[51\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[52\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[53\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[54\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[55\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data0\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[56\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[0\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[57\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[1\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[58\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[2\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[59\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[3\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[60\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[4\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[61\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[5\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[62\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[6\]" -section_id auto_signaltap_0
-	set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in\[63\] -to "id_thermo_test_wrapper:id_thermo_test\|id_thermo:id_thermo_test\|reg:thermo_data1\|reg_o\[7\]" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=64" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=64" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=8330" -section_id auto_signaltap_0
-	set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=37546" -section_id auto_signaltap_0
-
-# end AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
-# -------------------------------------------------
+set_global_assignment -name VHDL_FILE ../source/all_test_pack.vhd
