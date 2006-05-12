@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.8 2004/10/13 03:56:12 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.9 2006/05/12 19:15:06 mandana Exp $>
 --
 -- Project:      SCUBA2
 -- Author:		 Bryce Burger
@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: leds.vhd,v $
+-- Revision 1.9  2006/05/12 19:15:06  mandana
+-- default status for leds are specified as Green On, Red and Yellow Off
+--
 -- Revision 1.8  2004/10/13 03:56:12  erniel
 -- minor correction to comments
 --
@@ -41,7 +44,7 @@
 -- added new wishbone slave controller
 --
 --
--- <date $Date: 2004/10/13 03:56:12 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2006/05/12 19:15:06 $>	-		<text>		- <initials $Author: mandana $>
 --
 ------------------------------------------------------------------------
 
@@ -166,7 +169,7 @@ begin
    led_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         led_data <= "110"; --  yellow: off, green: on, red: off
+         led_data <= "011"; --  yellow: off, green: on, red: off
       elsif(clk_i'event and clk_i = '1') then
          if(led_data_ld = '1') then
             led_data <= led_data xor dat_i(NUM_LEDS-1 downto 0);
