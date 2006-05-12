@@ -440,7 +440,7 @@ TMS                          : F13       : input  :                   :         
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    :           :                
 VCC_PLL5_OUTA                : F15       : power  :                   : 3.3V    : 9         :                
 DCLK                         : F16       :        :                   :         : 3         :                
-RESERVED_INPUT               : F17       :        :                   :         : 3         :                
+smb_clk                      : F17       : output : LVTTL             :         : 3         : Y              
 RESERVED_INPUT               : F18       :        :                   :         : 3         :                
 RESERVED_INPUT               : F19       :        :                   :         : 3         :                
 RESERVED_INPUT               : F20       :        :                   :         : 3         :                
@@ -473,7 +473,7 @@ RESERVED_INPUT               : G18       :        :                   :         
 RESERVED_INPUT               : G19       :        :                   :         : 3         :                
 GND                          : G20       : gnd    :                   :         :           :                
 RESERVED_INPUT               : G21       :        :                   :         : 3         :                
-RESERVED_INPUT               : G22       :        :                   :         : 3         :                
+smb_data                     : G22       : bidir  : LVTTL             :         : 3         : Y              
 RESERVED_INPUT               : G23       :        :                   :         : 2         :                
 RESERVED_INPUT               : G24       :        :                   :         : 2         :                
 adc7_dat[2]                  : G25       : input  : LVTTL             :         : 2         : Y              
