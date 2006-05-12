@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.7 2004/10/09 09:00:32 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: leds.vhd,v 1.8 2004/10/13 03:56:12 erniel Exp $>
 --
 -- Project:      SCUBA2
 -- Author:		 Bryce Burger
@@ -32,13 +32,16 @@
 -- Revision history:
 -- 
 -- $Log: leds.vhd,v $
+-- Revision 1.8  2004/10/13 03:56:12  erniel
+-- minor correction to comments
+--
 -- Revision 1.7  2004/10/09 09:00:32  erniel
 -- removed slave_ctrl submodule
 -- removed generic map
 -- added new wishbone slave controller
 --
 --
--- <date $Date: 2004/10/09 09:00:32 $>	-		<text>		- <initials $Author: erniel $>
+-- <date $Date: 2004/10/13 03:56:12 $>	-		<text>		- <initials $Author: erniel $>
 --
 ------------------------------------------------------------------------
 
@@ -163,7 +166,7 @@ begin
    led_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         led_data <= (others => '0');
+         led_data <= "110"; --  yellow: off, green: on, red: off
       elsif(clk_i'event and clk_i = '1') then
          if(led_data_ld = '1') then
             led_data <= led_data xor dat_i(NUM_LEDS-1 downto 0);
@@ -174,8 +177,8 @@ begin
    padded_led_data(WB_DATA_WIDTH-1 downto NUM_LEDS) <= (others => '0');
    padded_led_data(NUM_LEDS-1 downto 0) <= led_data;
    
-   power  <= led_data(POWER_LED);
-   status <= led_data(STATUS_LED);
-   fault  <= led_data(FAULT_LED);
+   power  <= led_data(POWER_LED); -- green
+   status <= led_data(STATUS_LED); -- yellow
+   fault  <= led_data(FAULT_LED); -- red
    
 end rtl;
