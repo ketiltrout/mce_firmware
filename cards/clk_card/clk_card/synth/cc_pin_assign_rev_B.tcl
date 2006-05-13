@@ -32,6 +32,13 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.3  2006/04/26 22:55:08  bburger
+# Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
+# In the process:
+# - fixed a bug in cmd_translator_simple_cmd_fsm that output the wrong read/write code.
+# - updated the cc_pin_assign_rev_b.tcl file to include the fpga output pins for epc16 control
+# - updated the clock card top level with a new version number.
+#
 # Revision 1.2  2006/03/01 02:59:20  bburger
 # Bryce:  fixed a physical pin conflict between fibre_rx_a_nb and manchester_data which both were declared to use AF11
 #
@@ -231,6 +238,7 @@ cmp add_assignment $top_name "" inclk14 LOCATION "Pin_K17"
 cmp add_assignment $top_name "" inclk15 LOCATION "Pin_M17"
 cmp add_assignment $top_name "" lvds_clk LOCATION "Pin_E15"
 cmp add_assignment $top_name "" fibre_tx_clkW LOCATION "Pin_K14"
+
 
 # For CC Rev. A & AA
 #cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_AE10"

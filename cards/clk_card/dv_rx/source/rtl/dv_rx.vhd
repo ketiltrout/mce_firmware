@@ -18,10 +18,10 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.5 2006/03/16 00:14:52 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.6 2006/03/23 23:18:02 bburger Exp $
 --
 -- Project:       SCUBA-2
--- Author:        Greg Dennis
+-- Author:        Bryce Burger
 -- Organization:  UBC
 --
 -- Description:
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.6  2006/03/23 23:18:02  bburger
+-- Bryce:  cleaned up this file a little
+--
 -- Revision 1.5  2006/03/16 00:14:52  bburger
 -- Bryce:  dv is inverted at the receiver, so dv_rx detects rising edges instead of falling edges.
 --
@@ -51,6 +54,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library components;
+use components.component_pack.all;
 
 library work;
 use work.sync_gen_pack.all;
@@ -97,6 +103,10 @@ architecture top of dv_rx is
    signal manch_dv       : std_logic;
    signal manch_dv_num   : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
+   --00’, followed by a 32 bit number, followed by 6 spare bits
+   signal rx_buf_ena     : std_logic;
+   signal rx_buf_clr     : std_logic;
+
 begin
 
    ---------------------------------------------------------
@@ -130,6 +140,26 @@ begin
          manch_dat      <= manch_dat_temp;
       end if;
    end process;
+
+   ---------------------------------------------------------
+   -- Manchester receiver
+   ---------------------------------------------------------
+   rx_buffer: shift_reg
+   generic map(
+      WIDTH => MANCHESTER_WORD_WIDTH
+   )
+   port map(
+      clk_i      => clk_i,
+      rst_i      => rst_i,
+      ena_i      => rx_buf_ena,
+      load_i     => '0',
+      clr_i      => rx_buf_clr,
+      shr_i      => '1',
+      serial_i   => manch_dat,
+      serial_o   => open,
+      parallel_i => (others => '0'),
+      parallel_o => manch_word
+   );
 
    ---------------------------------------------------------
    -- State Machine

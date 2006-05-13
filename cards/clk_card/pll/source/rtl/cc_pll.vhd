@@ -45,14 +45,21 @@ USE altera_mf.altera_mf_components.all;
 ENTITY cc_pll IS
 	PORT
 	(
+		clkswitch		: IN STD_LOGIC  := '0';
 		inclk0		: IN STD_LOGIC  := '0';
+		inclk1		: IN STD_LOGIC  := '0';
 		e2		: OUT STD_LOGIC ;
 		c0		: OUT STD_LOGIC ;
 		c1		: OUT STD_LOGIC ;
 		c2		: OUT STD_LOGIC ;
 		c3		: OUT STD_LOGIC ;
+		clkloss		: OUT STD_LOGIC ;
+		locked		: OUT STD_LOGIC ;
+		activeclock		: OUT STD_LOGIC ;
 		e0		: OUT STD_LOGIC ;
-		e1		: OUT STD_LOGIC 
+		clkbad0		: OUT STD_LOGIC ;
+		e1		: OUT STD_LOGIC ;
+		clkbad1		: OUT STD_LOGIC 
 	);
 END cc_pll;
 
@@ -68,14 +75,21 @@ ARCHITECTURE SYN OF cc_pll IS
 	SIGNAL sub_wire6	: STD_LOGIC ;
 	SIGNAL sub_wire7	: STD_LOGIC ;
 	SIGNAL sub_wire8	: STD_LOGIC ;
-	SIGNAL sub_wire9_bv	: BIT_VECTOR (0 DOWNTO 0);
-	SIGNAL sub_wire9	: STD_LOGIC_VECTOR (0 DOWNTO 0);
-	SIGNAL sub_wire10	: STD_LOGIC_VECTOR (5 DOWNTO 0);
-	SIGNAL sub_wire11_bv	: BIT_VECTOR (0 DOWNTO 0);
-	SIGNAL sub_wire11	: STD_LOGIC_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire9	: STD_LOGIC ;
+	SIGNAL sub_wire10	: STD_LOGIC ;
+	SIGNAL sub_wire11	: STD_LOGIC_VECTOR (1 DOWNTO 0);
 	SIGNAL sub_wire12	: STD_LOGIC ;
-	SIGNAL sub_wire13	: STD_LOGIC_VECTOR (1 DOWNTO 0);
-	SIGNAL sub_wire14	: STD_LOGIC_VECTOR (3 DOWNTO 0);
+	SIGNAL sub_wire13	: STD_LOGIC ;
+	SIGNAL sub_wire14	: STD_LOGIC ;
+	SIGNAL sub_wire15_bv	: BIT_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire15	: STD_LOGIC_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire16	: STD_LOGIC_VECTOR (5 DOWNTO 0);
+	SIGNAL sub_wire17_bv	: BIT_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire17	: STD_LOGIC_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire18	: STD_LOGIC ;
+	SIGNAL sub_wire19	: STD_LOGIC_VECTOR (1 DOWNTO 0);
+	SIGNAL sub_wire20	: STD_LOGIC ;
+	SIGNAL sub_wire21	: STD_LOGIC_VECTOR (3 DOWNTO 0);
 
 
 
@@ -85,6 +99,7 @@ ARCHITECTURE SYN OF cc_pll IS
 		extclk2_phase_shift		: STRING;
 		clk3_duty_cycle		: NATURAL;
 		extclk1_multiply_by		: NATURAL;
+		switch_over_counter		: NATURAL;
 		bandwidth_type		: STRING;
 		extclk1_divide_by		: NATURAL;
 		clk1_phase_shift		: STRING;
@@ -92,7 +107,9 @@ ARCHITECTURE SYN OF cc_pll IS
 		lpm_type		: STRING;
 		clk3_multiply_by		: NATURAL;
 		clk0_multiply_by		: NATURAL;
+		invalid_lock_multiplier		: NATURAL;
 		inclk0_input_frequency		: NATURAL;
+		enable_switch_over_counter		: STRING;
 		extclk0_duty_cycle		: NATURAL;
 		clk3_divide_by		: NATURAL;
 		clk0_divide_by		: NATURAL;
@@ -102,8 +119,11 @@ ARCHITECTURE SYN OF cc_pll IS
 		clk1_duty_cycle		: NATURAL;
 		pll_type		: STRING;
 		clk2_phase_shift		: STRING;
+		switch_over_on_lossclk		: STRING;
+		valid_lock_multiplier		: NATURAL;
 		extclk1_duty_cycle		: NATURAL;
 		clk1_multiply_by		: NATURAL;
+		primary_clock		: STRING;
 		spread_frequency		: NATURAL;
 		intended_device_family		: STRING;
 		clk2_divide_by		: NATURAL;
@@ -111,45 +131,60 @@ ARCHITECTURE SYN OF cc_pll IS
 		extclk1_phase_shift		: STRING;
 		extclk0_multiply_by		: NATURAL;
 		clk2_duty_cycle		: NATURAL;
+		switch_over_on_gated_lock		: STRING;
 		extclk2_divide_by		: NATURAL;
 		compensate_clock		: STRING;
 		extclk2_duty_cycle		: NATURAL;
 		clk3_phase_shift		: STRING;
 		clk0_phase_shift		: STRING;
-		clk2_multiply_by		: NATURAL
+		clk2_multiply_by		: NATURAL;
+		inclk1_input_frequency		: NATURAL
 	);
 	PORT (
+			clkswitch	: IN STD_LOGIC ;
 			extclk	: OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+			clkloss	: OUT STD_LOGIC ;
+			clkbad	: OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
 			clkena	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
 			inclk	: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
 			extclkena	: IN STD_LOGIC_VECTOR (3 DOWNTO 0);
-			clk	: OUT STD_LOGIC_VECTOR (5 DOWNTO 0)
+			locked	: OUT STD_LOGIC ;
+			clk	: OUT STD_LOGIC_VECTOR (5 DOWNTO 0);
+			activeclock	: OUT STD_LOGIC 
 	);
 	END COMPONENT;
 
 BEGIN
-	sub_wire9_bv(0 DOWNTO 0) <= "0";
-	sub_wire9    <= NOT(To_stdlogicvector(sub_wire9_bv));
-	sub_wire11_bv(0 DOWNTO 0) <= "0";
-	sub_wire11    <= To_stdlogicvector(sub_wire11_bv);
-	sub_wire8    <= sub_wire0(1);
-	sub_wire7    <= sub_wire0(0);
+	sub_wire15_bv(0 DOWNTO 0) <= "0";
+	sub_wire15    <= NOT(To_stdlogicvector(sub_wire15_bv));
+	sub_wire17_bv(0 DOWNTO 0) <= "0";
+	sub_wire17    <= To_stdlogicvector(sub_wire17_bv);
+	sub_wire20    <= inclk1;
+	sub_wire14    <= sub_wire0(1);
+	sub_wire10    <= sub_wire0(0);
 	sub_wire1    <= sub_wire0(2);
 	e2    <= sub_wire1;
-	sub_wire6    <= sub_wire2(3);
+	sub_wire7    <= sub_wire2(3);
 	sub_wire5    <= sub_wire2(2);
 	sub_wire4    <= sub_wire2(1);
 	sub_wire3    <= sub_wire2(0);
 	c0    <= sub_wire3;
 	c1    <= sub_wire4;
 	c2    <= sub_wire5;
-	c3    <= sub_wire6;
-	e0    <= sub_wire7;
-	e1    <= sub_wire8;
-	sub_wire10    <= sub_wire11(0 DOWNTO 0) & sub_wire11(0 DOWNTO 0) & sub_wire9(0 DOWNTO 0) & sub_wire9(0 DOWNTO 0) & sub_wire9(0 DOWNTO 0) & sub_wire9(0 DOWNTO 0);
-	sub_wire12    <= inclk0;
-	sub_wire13    <= sub_wire11(0 DOWNTO 0) & sub_wire12;
-	sub_wire14    <= sub_wire11(0 DOWNTO 0) & sub_wire9(0 DOWNTO 0) & sub_wire9(0 DOWNTO 0) & sub_wire9(0 DOWNTO 0);
+	clkloss    <= sub_wire6;
+	c3    <= sub_wire7;
+	locked    <= sub_wire8;
+	activeclock    <= sub_wire9;
+	e0    <= sub_wire10;
+	sub_wire13    <= sub_wire11(1);
+	sub_wire12    <= sub_wire11(0);
+	clkbad0    <= sub_wire12;
+	clkbad1    <= sub_wire13;
+	e1    <= sub_wire14;
+	sub_wire16    <= sub_wire17(0 DOWNTO 0) & sub_wire17(0 DOWNTO 0) & sub_wire15(0 DOWNTO 0) & sub_wire15(0 DOWNTO 0) & sub_wire15(0 DOWNTO 0) & sub_wire15(0 DOWNTO 0);
+	sub_wire18    <= inclk0;
+	sub_wire19    <= sub_wire20 & sub_wire18;
+	sub_wire21    <= sub_wire17(0 DOWNTO 0) & sub_wire15(0 DOWNTO 0) & sub_wire15(0 DOWNTO 0) & sub_wire15(0 DOWNTO 0);
 
 	altpll_component : altpll
 	GENERIC MAP (
@@ -157,6 +192,7 @@ BEGIN
 		extclk2_phase_shift => "0",
 		clk3_duty_cycle => 50,
 		extclk1_multiply_by => 1,
+		switch_over_counter => 11,
 		bandwidth_type => "AUTO",
 		extclk1_divide_by => 1,
 		clk1_phase_shift => "10000",
@@ -164,7 +200,9 @@ BEGIN
 		lpm_type => "altpll",
 		clk3_multiply_by => 1,
 		clk0_multiply_by => 2,
+		invalid_lock_multiplier => 5,
 		inclk0_input_frequency => 40000,
+		enable_switch_over_counter => "ON",
 		extclk0_duty_cycle => 50,
 		clk3_divide_by => 1,
 		clk0_divide_by => 1,
@@ -172,10 +210,13 @@ BEGIN
 		extclk2_multiply_by => 1,
 		extclk0_divide_by => 1,
 		clk1_duty_cycle => 50,
-		pll_type => "AUTO",
+		pll_type => "ENHANCED",
 		clk2_phase_shift => "0",
+		switch_over_on_lossclk => "ON",
+		valid_lock_multiplier => 1,
 		extclk1_duty_cycle => 50,
 		clk1_multiply_by => 2,
+		primary_clock => "inclk0",
 		spread_frequency => 0,
 		intended_device_family => "Stratix",
 		clk2_divide_by => 1,
@@ -183,19 +224,26 @@ BEGIN
 		extclk1_phase_shift => "0",
 		extclk0_multiply_by => 1,
 		clk2_duty_cycle => 50,
+		switch_over_on_gated_lock => "OFF",
 		extclk2_divide_by => 1,
 		compensate_clock => "CLK0",
 		extclk2_duty_cycle => 50,
 		clk3_phase_shift => "0",
 		clk0_phase_shift => "0",
-		clk2_multiply_by => 4
+		clk2_multiply_by => 4,
+		inclk1_input_frequency => 40000
 	)
 	PORT MAP (
-		clkena => sub_wire10,
-		inclk => sub_wire13,
-		extclkena => sub_wire14,
+		clkswitch => clkswitch,
+		clkena => sub_wire16,
+		inclk => sub_wire19,
+		extclkena => sub_wire21,
 		extclk => sub_wire0,
-		clk => sub_wire2
+		clk => sub_wire2,
+		clkloss => sub_wire6,
+		locked => sub_wire8,
+		activeclock => sub_wire9,
+		clkbad => sub_wire11
 	);
 
 
@@ -226,7 +274,7 @@ END SYN;
 -- Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "1"
 -- Retrieval info: PRIVATE: SPREAD_PERCENT STRING "0.500"
--- Retrieval info: PRIVATE: LOCKED_OUTPUT_CHECK STRING "0"
+-- Retrieval info: PRIVATE: LOCKED_OUTPUT_CHECK STRING "1"
 -- Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ6 STRING "25.000"
 -- Retrieval info: PRIVATE: MIRROR_CLK2 STRING "0"
@@ -252,7 +300,7 @@ END SYN;
 -- Retrieval info: PRIVATE: SPREAD_FREQ STRING "300.000"
 -- Retrieval info: PRIVATE: BANDWIDTH_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: LONG_SCAN_RADIO STRING "1"
--- Retrieval info: PRIVATE: PLL_ENHPLL_CHECK NUMERIC "0"
+-- Retrieval info: PRIVATE: PLL_ENHPLL_CHECK NUMERIC "1"
 -- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE_DIRTY NUMERIC "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ8 STRING "25.000"
 -- Retrieval info: PRIVATE: USE_CLKENA6 STRING "0"
@@ -271,7 +319,7 @@ END SYN;
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT7 STRING "ps"
 -- Retrieval info: PRIVATE: STICKY_CLK3 STRING "1"
 -- Retrieval info: PRIVATE: USE_CLK1 STRING "1"
--- Retrieval info: PRIVATE: CREATE_CLKBAD_CHECK STRING "0"
+-- Retrieval info: PRIVATE: CREATE_CLKBAD_CHECK STRING "1"
 -- Retrieval info: PRIVATE: INCLK1_FREQ_EDIT STRING "25.000"
 -- Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c0"
 -- Retrieval info: PRIVATE: PLL_FASTPLL_CHECK NUMERIC "0"
@@ -281,7 +329,7 @@ END SYN;
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT6 STRING "deg"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT6 STRING "MHz"
 -- Retrieval info: PRIVATE: USE_CLK2 STRING "1"
--- Retrieval info: PRIVATE: ACTIVECLK_CHECK STRING "0"
+-- Retrieval info: PRIVATE: ACTIVECLK_CHECK STRING "1"
 -- Retrieval info: PRIVATE: BANDWIDTH_FREQ_UNIT STRING "MHz"
 -- Retrieval info: PRIVATE: INCLK0_FREQ_UNIT_COMBO STRING "MHz"
 -- Retrieval info: PRIVATE: MIRROR_CLK7 STRING "0"
@@ -307,21 +355,21 @@ END SYN;
 -- Retrieval info: PRIVATE: INCLK1_FREQ_UNIT_CHANGED STRING "1"
 -- Retrieval info: PRIVATE: HAS_MANUAL_SWITCHOVER STRING "1"
 -- Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
--- Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "1"
+-- Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: DUTY_CYCLE8 STRING "50.00000000"
 -- Retrieval info: PRIVATE: PHASE_SHIFT8 STRING "0.00000000"
 -- Retrieval info: PRIVATE: MULT_FACTOR8 NUMERIC "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE8 STRING "1"
 -- Retrieval info: PRIVATE: STICKY_CLK7 STRING "1"
 -- Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "1"
--- Retrieval info: PRIVATE: CLKLOSS_CHECK STRING "0"
+-- Retrieval info: PRIVATE: CLKLOSS_CHECK STRING "1"
 -- Retrieval info: PRIVATE: BANDWIDTH_USE_AUTO STRING "1"
 -- Retrieval info: PRIVATE: SHORT_SCAN_RADIO STRING "0"
 -- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE STRING "Not Available"
 -- Retrieval info: PRIVATE: STICKY_CLK8 STRING "1"
 -- Retrieval info: PRIVATE: USE_CLK6 STRING "1"
 -- Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "1"
--- Retrieval info: PRIVATE: CLKSWITCH_CHECK STRING "0"
+-- Retrieval info: PRIVATE: CLKSWITCH_CHECK STRING "1"
 -- Retrieval info: PRIVATE: SPREAD_FREQ_UNIT STRING "KHz"
 -- Retrieval info: PRIVATE: PLL_ENA_CHECK STRING "0"
 -- Retrieval info: PRIVATE: INCLK0_FREQ_EDIT STRING "25.000"
@@ -332,13 +380,13 @@ END SYN;
 -- Retrieval info: PRIVATE: USE_CLK8 STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "50.000"
 -- Retrieval info: PRIVATE: PRIMARY_CLK_COMBO STRING "inclk0"
--- Retrieval info: PRIVATE: CREATE_INCLK1_CHECK STRING "0"
+-- Retrieval info: PRIVATE: CREATE_INCLK1_CHECK STRING "1"
 -- Retrieval info: PRIVATE: SACN_INPUTS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: DEV_FAMILY STRING "Stratix"
 -- Retrieval info: PRIVATE: DIV_FACTOR6 NUMERIC "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "50.000"
 -- Retrieval info: PRIVATE: LOCK_LOSS_SWITCHOVER_CHECK STRING "0"
--- Retrieval info: PRIVATE: SWITCHOVER_COUNT_EDIT NUMERIC "1"
+-- Retrieval info: PRIVATE: SWITCHOVER_COUNT_EDIT NUMERIC "10"
 -- Retrieval info: PRIVATE: SWITCHOVER_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: BANDWIDTH_PRESET STRING "Low"
 -- Retrieval info: PRIVATE: GLOCKED_FEATURE_ENABLED STRING "0"
@@ -350,7 +398,7 @@ END SYN;
 -- Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "25.000"
 -- Retrieval info: PRIVATE: USE_CLKENA1 STRING "0"
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT1 STRING "ps"
--- Retrieval info: PRIVATE: CLKBAD_SWITCHOVER_CHECK STRING "0"
+-- Retrieval info: PRIVATE: CLKBAD_SWITCHOVER_CHECK STRING "1"
 -- Retrieval info: PRIVATE: BANDWIDTH_USE_PRESET STRING "0"
 -- Retrieval info: PRIVATE: PLL_LVDS_PLL_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: DEVICE_FAMILY NUMERIC "9"
@@ -359,6 +407,7 @@ END SYN;
 -- Retrieval info: CONSTANT: EXTCLK2_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: CLK3_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: EXTCLK1_MULTIPLY_BY NUMERIC "1"
+-- Retrieval info: CONSTANT: SWITCH_OVER_COUNTER NUMERIC "11"
 -- Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "AUTO"
 -- Retrieval info: CONSTANT: EXTCLK1_DIVIDE_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "10000"
@@ -366,7 +415,9 @@ END SYN;
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
 -- Retrieval info: CONSTANT: CLK3_MULTIPLY_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "2"
+-- Retrieval info: CONSTANT: INVALID_LOCK_MULTIPLIER NUMERIC "5"
 -- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "40000"
+-- Retrieval info: CONSTANT: ENABLE_SWITCH_OVER_COUNTER STRING "ON"
 -- Retrieval info: CONSTANT: EXTCLK0_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: CLK3_DIVIDE_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "1"
@@ -374,10 +425,13 @@ END SYN;
 -- Retrieval info: CONSTANT: EXTCLK2_MULTIPLY_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: EXTCLK0_DIVIDE_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
--- Retrieval info: CONSTANT: PLL_TYPE STRING "AUTO"
+-- Retrieval info: CONSTANT: PLL_TYPE STRING "ENHANCED"
 -- Retrieval info: CONSTANT: CLK2_PHASE_SHIFT STRING "0"
+-- Retrieval info: CONSTANT: SWITCH_OVER_ON_LOSSCLK STRING "ON"
+-- Retrieval info: CONSTANT: VALID_LOCK_MULTIPLIER NUMERIC "1"
 -- Retrieval info: CONSTANT: EXTCLK1_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "2"
+-- Retrieval info: CONSTANT: PRIMARY_CLOCK STRING "inclk0"
 -- Retrieval info: CONSTANT: SPREAD_FREQUENCY NUMERIC "0"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix"
 -- Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "1"
@@ -385,27 +439,38 @@ END SYN;
 -- Retrieval info: CONSTANT: EXTCLK1_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: EXTCLK0_MULTIPLY_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: CLK2_DUTY_CYCLE NUMERIC "50"
+-- Retrieval info: CONSTANT: SWITCH_OVER_ON_GATED_LOCK STRING "OFF"
 -- Retrieval info: CONSTANT: EXTCLK2_DIVIDE_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK0"
 -- Retrieval info: CONSTANT: EXTCLK2_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "4"
+-- Retrieval info: CONSTANT: INCLK1_INPUT_FREQUENCY NUMERIC "40000"
 -- Retrieval info: USED_PORT: e2 0 0 0 0 OUTPUT VCC "e2"
 -- Retrieval info: USED_PORT: c0 0 0 0 0 OUTPUT VCC "c0"
 -- Retrieval info: USED_PORT: @clk 0 0 6 0 OUTPUT VCC "@clk[5..0]"
 -- Retrieval info: USED_PORT: c1 0 0 0 0 OUTPUT VCC "c1"
+-- Retrieval info: USED_PORT: clkswitch 0 0 0 0 INPUT GND "clkswitch"
 -- Retrieval info: USED_PORT: c2 0 0 0 0 OUTPUT VCC "c2"
 -- Retrieval info: USED_PORT: c3 0 0 0 0 OUTPUT VCC "c3"
+-- Retrieval info: USED_PORT: clkloss 0 0 0 0 OUTPUT VCC "clkloss"
 -- Retrieval info: USED_PORT: inclk0 0 0 0 0 INPUT GND "inclk0"
+-- Retrieval info: USED_PORT: inclk1 0 0 0 0 INPUT GND "inclk1"
+-- Retrieval info: USED_PORT: locked 0 0 0 0 OUTPUT GND "locked"
 -- Retrieval info: USED_PORT: @extclk 0 0 4 0 OUTPUT VCC "@extclk[3..0]"
 -- Retrieval info: USED_PORT: @inclk 0 0 2 0 INPUT VCC "@inclk[1..0]"
+-- Retrieval info: USED_PORT: activeclock 0 0 0 0 OUTPUT GND "activeclock"
 -- Retrieval info: USED_PORT: e0 0 0 0 0 OUTPUT VCC "e0"
+-- Retrieval info: USED_PORT: clkbad0 0 0 0 0 OUTPUT VCC "clkbad0"
 -- Retrieval info: USED_PORT: e1 0 0 0 0 OUTPUT VCC "e1"
+-- Retrieval info: USED_PORT: clkbad1 0 0 0 0 OUTPUT VCC "clkbad1"
 -- Retrieval info: CONNECT: @clkena 0 0 1 1 VCC 0 0 0 0
 -- Retrieval info: CONNECT: e1 0 0 0 0 @extclk 0 0 1 1
+-- Retrieval info: CONNECT: locked 0 0 0 0 @locked 0 0 0 0
 -- Retrieval info: CONNECT: @inclk 0 0 1 0 inclk0 0 0 0 0
 -- Retrieval info: CONNECT: @clkena 0 0 1 4 GND 0 0 0 0
+-- Retrieval info: CONNECT: @inclk 0 0 1 1 inclk1 0 0 0 0
 -- Retrieval info: CONNECT: @extclkena 0 0 1 2 VCC 0 0 0 0
 -- Retrieval info: CONNECT: @clkena 0 0 1 2 VCC 0 0 0 0
 -- Retrieval info: CONNECT: c0 0 0 0 0 @clk 0 0 1 0
@@ -413,19 +478,18 @@ END SYN;
 -- Retrieval info: CONNECT: e2 0 0 0 0 @extclk 0 0 1 2
 -- Retrieval info: CONNECT: c3 0 0 0 0 @clk 0 0 1 3
 -- Retrieval info: CONNECT: c2 0 0 0 0 @clk 0 0 1 2
+-- Retrieval info: CONNECT: clkbad0 0 0 0 0 @clkbad 0 0 1 0
 -- Retrieval info: CONNECT: @extclkena 0 0 1 0 VCC 0 0 0 0
 -- Retrieval info: CONNECT: @clkena 0 0 1 5 GND 0 0 0 0
+-- Retrieval info: CONNECT: clkloss 0 0 0 0 @clkloss 0 0 0 0
 -- Retrieval info: CONNECT: @clkena 0 0 1 3 VCC 0 0 0 0
 -- Retrieval info: CONNECT: @clkena 0 0 1 0 VCC 0 0 0 0
--- Retrieval info: CONNECT: @inclk 0 0 1 1 GND 0 0 0 0
+-- Retrieval info: CONNECT: activeclock 0 0 0 0 @activeclock 0 0 0 0
+-- Retrieval info: CONNECT: clkbad1 0 0 0 0 @clkbad 0 0 1 1
 -- Retrieval info: CONNECT: @extclkena 0 0 1 3 GND 0 0 0 0
 -- Retrieval info: CONNECT: e0 0 0 0 0 @extclk 0 0 1 0
 -- Retrieval info: CONNECT: @extclkena 0 0 1 1 VCC 0 0 0 0
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll.vhd FALSE FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll.inc FALSE FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll.cmp FALSE FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll.bsf FALSE FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_inst.vhd FALSE FALSE
+-- Retrieval info: CONNECT: @clkswitch 0 0 0 0 clkswitch 0 0 0 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL cc_pll.vhd TRUE FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL cc_pll.inc FALSE FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL cc_pll.cmp FALSE FALSE

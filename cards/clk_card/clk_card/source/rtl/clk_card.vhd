@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.38 2006/04/26 22:55:08 bburger Exp $
+-- $Id: clk_card.vhd,v 1.39 2006/04/29 00:52:36 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.39  2006/04/29 00:52:36  bburger
+-- Bryce:
+-- - fw_rev:  added a 'when others' statement to a state machine
+-- - clock_card:  upped the cc rev #
+-- - config_fpga:  fixed a couple of bugs
+--
 -- Revision 1.38  2006/04/26 22:55:08  bburger
 -- Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
 -- In the process:
@@ -89,9 +95,15 @@ use work.frame_timing_pack.all;
 
 entity clk_card is
    port(
-      -- PLL input:
-      inclk14           : in std_logic;
+      -- Crystal Clock PLL input:
+      inclk14           : in std_logic; -- Crystal Clock Input
       rst_n             : in std_logic;
+
+      -- Manchester Clock PLL inputs:
+      inclk1            : in std_logic;
+--      inclk3            : in std_logic;
+--      inclk5            : in std_logic;
+--      inclk15           : in std_logic;
       
       -- LVDS interface:
       lvds_cmd          : out std_logic;
@@ -118,6 +130,9 @@ entity clk_card is
       -- DV interface:
       dv_pulse_fibre    : in std_logic;
       manchester_data   : in std_logic;
+      manchester_sigdet : in std_logic;
+      switch_to_xtal    : in std_logic;
+      switch_to_manch   : in std_logic;
       
       -- TTL interface:
       ttl_nrx1          : in std_logic;
@@ -289,9 +304,14 @@ component config_fpga
    );     
 end component;
 
-component cc_pll
+component clk_switchover
    port(
-      inclk0 : in std_logic;
+      rst       : in std_logic;
+      xtal_clk  : in std_logic; -- Crystal Clock Input
+      manch_clk : in std_logic; -- Manchester Clock Input
+      manch_det : in std_logic;
+      switch_to_xtal  : in std_logic;
+      switch_to_manch : in std_logic;
       e2     : out std_logic;
       c0     : out std_logic;
       c1     : out std_logic;
@@ -299,53 +319,57 @@ component cc_pll
       c3     : out std_logic;
       e0     : out std_logic;
       e1     : out std_logic 
-   );
+   );     
 end component;
 
 component dispatch
-port(clk_i      : in std_logic;
-     comm_clk_i : in std_logic;
-     rst_i      : in std_logic;     
-     
-     -- bus backplane interface (LVDS)
-     lvds_cmd_i   : in std_logic;
-     lvds_reply_o : out std_logic;
-     
-     -- wishbone slave interface
-     dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-     tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-     we_o   : out std_logic;
-     stb_o  : out std_logic;
-     cyc_o  : out std_logic;
-     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     ack_i  : in std_logic;
-     err_i  : in std_logic;
-     
-     -- misc. external interface
-     wdt_rst_o : out std_logic;
-     slot_i    : in std_logic_vector(3 downto 0);
-     dip_sw3 : in std_logic;
-     dip_sw4 : in std_logic);
+   port(
+      clk_i      : in std_logic;
+      comm_clk_i : in std_logic;
+      rst_i      : in std_logic;     
+      
+      -- bus backplane interface (LVDS)
+      lvds_cmd_i   : in std_logic;
+      lvds_reply_o : out std_logic;
+      
+      -- wishbone slave interface
+      dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_o   : out std_logic;
+      stb_o  : out std_logic;
+      cyc_o  : out std_logic;
+      dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_i  : in std_logic;
+      err_i  : in std_logic;
+      
+      -- misc. external interface
+      wdt_rst_o : out std_logic;
+      slot_i    : in std_logic_vector(3 downto 0);
+      dip_sw3 : in std_logic;
+      dip_sw4 : in std_logic
+   );
 end component;
 
 component fpga_thermo
-port(clk_i : in std_logic;
-     rst_i : in std_logic;
+   port(
+      clk_i : in std_logic;
+      rst_i : in std_logic;
 
-     -- wishbone signals
-     dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
-     addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-     tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-     we_i    : in std_logic;
-     stb_i   : in std_logic;
-     cyc_i   : in std_logic;
-     dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-     ack_o   : out std_logic;
-     
-     -- SMBus temperature sensor signals
-     smbclk_o : out std_logic;
-     smbdat_io : inout std_logic);
+      -- wishbone signals
+      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+      addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i    : in std_logic;
+      stb_i   : in std_logic;
+      cyc_i   : in std_logic;
+      dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      ack_o   : out std_logic;
+      
+      -- SMBus temperature sensor signals
+      smbclk_o : out std_logic;
+      smbdat_io : inout std_logic
+   );
 end component;
 
 component id_thermo
@@ -600,9 +624,14 @@ begin
                                --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
-   pll0: cc_pll
+   clk_switch: clk_switchover
       port map(
-         inclk0 => inclk14,
+         rst       => rst,
+         xtal_clk  => inclk14, -- Crystal Clock Input
+         manch_clk => inclk1,  -- Manchester Clock Input
+         manch_det => manchester_sigdet,
+         switch_to_xtal  => switch_to_xtal,
+         switch_to_manch => switch_to_manch,
          c0     => clk,
          c1     => clk_n,
          c2     => comm_clk,

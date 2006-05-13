@@ -18,27 +18,17 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx_pack.vhd,v 1.3 2006/03/09 00:53:04 bburger Exp $
+-- $Id$
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
 -- Organization:  UBC
 --
 -- Description:
--- DV and Manchester Decoder
+-- Clock Switchover Logic
 --
 -- Revision history:
--- $Log: dv_rx_pack.vhd,v $
--- Revision 1.3  2006/03/09 00:53:04  bburger
--- Bryce:
--- - Implemented the dv_fibre receiver
--- - Moved some constants from dv_rx_pack to sync_gen_pack
---
--- Revision 1.2  2006/02/28 09:20:58  bburger
--- Bryce:  Modified the interface of dv_rx.  Non-functional at this point.
---
--- Revision 1.1  2006/02/11 01:11:53  bburger
--- Bryce:  New!
+-- $Log$
 --
 --
 -----------------------------------------------------------------------------
@@ -46,9 +36,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-package dv_rx_pack is
+package clk_switchover_pack is
 
-   constant MANCHESTER_WORD_WIDTH      : integer := 40;
 
-end dv_rx_pack;
+end clk_switchover_pack;
 
