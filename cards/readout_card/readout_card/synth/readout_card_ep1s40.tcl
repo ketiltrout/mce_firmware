@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: readout_card_ep1s40.tcl,v $
+# Revision 1.3  2006/04/13 17:04:38  mandana
+# added mictor_clk pins introduced in Rev. B RC
+#
 # Revision 1.2  2006/04/03 19:03:43  mandana
 # fixed the print out for 1s30/1s40 device selection
 #
@@ -169,17 +172,11 @@ puts "   Assigned: SMB interface pins."
 
 
 # assign EEPROM pins
-
-# The eeprom debug header is also used for rs232 communication
-#cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_F20"
-cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_F20"
-
+# In Rev. A, the eeprom debug header is also used for rs232 communication
+# but in Rev. B there is a dedicated RS232 header.
+cmp add_assignment $top_name "" eeprom_si LOCATION "Pin_F20"
 cmp add_assignment $top_name "" eeprom_so LOCATION "Pin_F18"
-
-
-#cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_F21"
-cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_F21"
-
+cmp add_assignment $top_name "" eeprom_sck LOCATION "Pin_F21"
 cmp add_assignment $top_name "" eeprom_cs LOCATION "Pin_F22"
 puts "   Assigned: EEPROM pins."
 
@@ -241,14 +238,19 @@ cmp add_assignment $top_name "" minus7Vok LOCATION "Pin_J9"
 cmp add_assignment $top_name "" n15Vok LOCATION "Pin_H10"
 puts "   Assigned: Power supply status pin."
 
+# assign rs232 interface
+cmp add_assignment $top_name "" tx LOCATION "Pin_B12"
+cmp add_assignment $top_name "" rx LOCATION "Pin_C12"
+puts "   Assigned: RS232 pins."
+
 # assign mictor connector header
 cmp add_assignment $top_name "" "mictor\[0\]" LOCATION "Pin_A11"
 cmp add_assignment $top_name "" "mictor\[1\]" LOCATION "Pin_B11"
 cmp add_assignment $top_name "" "mictor\[2\]" LOCATION "Pin_C11"
 cmp add_assignment $top_name "" "mictor\[3\]" LOCATION "Pin_A10"
 cmp add_assignment $top_name "" "mictor\[4\]" LOCATION "Pin_B10"
-cmp add_assignment $top_name "" "mictor\[5\]" LOCATION "Pin_C12"
-cmp add_assignment $top_name "" "mictor\[6\]" LOCATION "Pin_B12"
+#cmp add_assignment $top_name "" "mictor\[5\]" LOCATION "Pin_C12"
+#cmp add_assignment $top_name "" "mictor\[6\]" LOCATION "Pin_B12"
 cmp add_assignment $top_name "" "mictor\[7\]" LOCATION "Pin_C13"
 cmp add_assignment $top_name "" "mictor\[8\]" LOCATION "Pin_B13"
 cmp add_assignment $top_name "" "mictor\[9\]" LOCATION "Pin_C10"
