@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_fsfb_ctrl.vhd,v $
+-- Revision 1.3  2005/02/21 23:47:11  mohsen
+-- sign extend negative values
+--
 -- Revision 1.2  2004/11/26 18:27:02  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -84,13 +87,13 @@ architecture beh of tb1_fsfb_ctrl is
 
   component fsfb_ctrl
     generic (
-      CONVERSION_POLARITY_MODE : integer;
-      FSFB_ACCURACY_POSITION   : integer);
+      CONVERSION_POLARITY_MODE : integer);
+      --FSFB_ACCURACY_POSITION   : integer);
     port (
       clk_50_i            : in  std_logic;
       rst_i               : in  std_logic;
       dac_dat_en_i        : in  std_logic;
-      fsfb_ctrl_dat_i     : in  std_logic_vector(FSFB_DAT_WIDTH-1 downto 0);
+      fsfb_ctrl_dat_i     : in  std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
       fsfb_ctrl_dat_rdy_i : in  std_logic;
       fsfb_ctrl_lock_en_i : in  std_logic;
       dac_dat_o           : out std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
@@ -104,7 +107,7 @@ architecture beh of tb1_fsfb_ctrl is
   signal clk_50_i            : std_logic;
   signal rst_i               : std_logic;
   signal dac_dat_en_i        : std_logic;
-  signal fsfb_ctrl_dat_i     : std_logic_vector(FSFB_DAT_WIDTH-1 downto 0);
+  signal fsfb_ctrl_dat_i     : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
   signal fsfb_ctrl_dat_rdy_i : std_logic;
   signal fsfb_ctrl_lock_en_i : std_logic;
   signal dac_dat_o           : std_logic_vector(DAC_DAT_WIDTH-1 downto 0);
@@ -133,8 +136,8 @@ begin  -- beh
   
   DUT: fsfb_ctrl
     generic map (
-        CONVERSION_POLARITY_MODE => CONVERSION_POLARITY_MODE,
-        FSFB_ACCURACY_POSITION   => FSFB_ACCURACY_POSITION)
+        CONVERSION_POLARITY_MODE => CONVERSION_POLARITY_MODE)--,
+        --FSFB_ACCURACY_POSITION   => FSFB_ACCURACY_POSITION)
     port map (
         clk_50_i            => clk_50_i,
         rst_i               => rst_i,
@@ -204,7 +207,7 @@ begin  -- beh
       -- Phase1: dac_dat_en_i is not valid when we recieve fsfb_ctrl_dat_rdy_i
       -------------------------------------------------------------------------
       phase1              <= true;
-      fsfb_ctrl_dat_i     <= x"00001A5F";   -- positive value for 14-bit data
+      fsfb_ctrl_dat_i     <= "01" & x"A5F";   -- positive value for 14-bit data
       fsfb_ctrl_dat_rdy_i <= '1',
                              '0' after PERIOD;
       wait for 6*PERIOD;
@@ -218,7 +221,7 @@ begin  -- beh
 
       wait for 5*PERIOD;
 
-      fsfb_ctrl_dat_i     <= x"FFFFFB17";   -- negative value for 14-bit data
+      fsfb_ctrl_dat_i     <= "11" & x"B17";   -- negative value for 14-bit data
       wait for PERIOD;
       fsfb_ctrl_dat_rdy_i <= '1',
                              '0' after PERIOD;
@@ -239,7 +242,7 @@ begin  -- beh
       dac_dat_en_i <= '1';
 
       wait for 4*PERIOD;
-      fsfb_ctrl_dat_i     <= x"FFFFE145";    -- negarive value for 14-bit
+      fsfb_ctrl_dat_i     <= "10" & x"145";    -- negarive value for 14-bit
       wait for 2*PERIOD;
       fsfb_ctrl_dat_rdy_i <= '1',
                              '0' after PERIOD;
@@ -257,7 +260,7 @@ begin  -- beh
       fsfb_ctrl_lock_en_i <= '0';
       wait for 15*PERIOD;
 
-      fsfb_ctrl_dat_i     <= x"FFFFF8AE";   -- negative value for 14-bit
+      fsfb_ctrl_dat_i     <= "11" & x"8AE";   -- negative value for 14-bit
       wait for 3*PERIOD;
       fsfb_ctrl_dat_rdy_i <= '1',
                              '0' after PERIOD;
