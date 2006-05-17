@@ -69,6 +69,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.7  2005/11/28 19:11:29  bburger
+-- Bryce:  increased the bus width for fb_const, ramp_dly, ramp_amp and ramp_step from 14 bits to 32 bits, to use them for flux-jumping testing
+--
 -- Revision 1.6  2005/09/14 23:48:39  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -141,6 +144,8 @@ architecture rtl of fsfb_ctrl is
   signal latch_dac_dat        : std_logic;
   signal rdy_to_clk_dac       : std_logic;
   signal dac_clk              : std_logic;
+  signal wakeup               : std_logic;
+  signal wakeup_dac_clk       : std_logic;
 
   
 begin  -- rtl
@@ -273,8 +278,24 @@ begin  -- rtl
       
     end if;
   end process i_control;
-
-  dac_clk_o <= dac_clk;
+  
+  -----------------------------------------------------------------------------
+  -- Generate a single-shot clock after reset to clear DACs
+  -----------------------------------------------------------------------------
+  i_wakeup_dac_clk: process (clk_50_i, rst_i)
+  begin
+    if rst_i = '1' then
+      wakeup <= '1';
+      wakeup_dac_clk <= '0';
+    elsif clk_50_i'event and clk_50_i = '1' then
+      wakeup_dac_clk <= wakeup;
+      if wakeup_dac_clk = '1' then
+         wakeup <= '0';
+      end if;
+    end if;  
+  end process i_wakeup_dac_clk;
+  
+  dac_clk_o <= dac_clk or wakeup_dac_clk;
 
 
   
