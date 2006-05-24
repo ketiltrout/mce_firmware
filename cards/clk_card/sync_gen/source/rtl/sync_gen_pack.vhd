@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: sync_gen_pack.vhd,v $
+-- Revision 1.11  2006/03/28 01:03:39  bburger
+-- Bryce:
+-- - Moved constants from sync_gen_pack to frame_timing_pack
+-- - Modified/added constants used to create timing signals from external sync pulse
+--
 -- Revision 1.10  2006/03/09 00:42:18  bburger
 -- Bryce:  Added SYNC_* and DV_* constants
 --
@@ -76,6 +81,7 @@ use sys_param.command_pack.all;
 package sync_gen_pack is
 
    constant DV_NUM_WIDTH             : integer := PACKET_WORD_WIDTH;
+   
    constant DV_SELECT_WIDTH          : integer := 2;
    constant DV_INTERNAL              : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
    constant DV_EXTERNAL_FIBRE        : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";

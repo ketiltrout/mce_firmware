@@ -38,6 +38,11 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.12  2006/03/09 00:50:56  bburger
+-- Bryce:
+-- - Changed interface to accept an external sync input (the sync switchover guts still need to be implemented here)
+-- - Moved the sync count to the frame_timing_core block
+--
 -- Revision 1.11  2006/02/11 01:19:33  bburger
 -- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
 -- data_req
@@ -181,11 +186,15 @@ begin
       
       case current_state is
          when SYNC_LOW =>
-            if(new_frame_period = '1') then
-               next_state <= SEND_BIT0;
-            else
-               next_state <= SYNC_LOW;
-            end if;
+            if(sync_mode_i = SYNC_INTERNAL) then
+               if(new_frame_period = '1') then
+                  next_state <= SEND_BIT0;
+               end if;
+            elsif(sync_mode_i = SYNC_EXTERNAL_FIBRE or sync_mode_i = SYNC_EXTERNAL_MANCHESTER) then
+               if(external_sync_i = '1') then
+                  next_state <= SEND_BIT0;
+               end if;
+            end if;         
          
          when SEND_BIT0 =>
             next_state <= SEND_BIT1;

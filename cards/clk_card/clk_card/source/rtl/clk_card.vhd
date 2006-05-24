@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.39 2006/04/29 00:52:36 bburger Exp $
+-- $Id: clk_card.vhd,v 1.40 2006/05/13 07:38:49 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.40  2006/05/13 07:38:49  bburger
+-- Bryce:  Intermediate commital -- going away on holiday and don't want to lose work
+--
 -- Revision 1.39  2006/04/29 00:52:36  bburger
 -- Bryce:
 -- - fw_rev:  added a 'when others' statement to a state machine
@@ -230,7 +233,7 @@ signal data_ack           : std_logic;
 signal dv_mode            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
 signal external_dv        : std_logic;
 signal external_dv_num    : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-signal sync_mode          : std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+--signal sync_mode          : std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
 signal external_sync      : std_logic;
 signal ret_dat_req        : std_logic;
 signal ret_dat_done       : std_logic;
@@ -471,8 +474,8 @@ component dv_rx
       dv_o              : out std_logic;
       dv_sequence_num_o : out std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
-      sync_mode_i       : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
-      sync_i            : in std_logic;
+--      sync_mode_i       : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+--      sync_i            : in std_logic;
       sync_o            : out std_logic
    );     
 end component;
@@ -770,7 +773,8 @@ begin
       port map( 
          -- Inputs/Outputs
          dv_mode_o            => dv_mode,
-         sync_mode_o          => sync_mode,
+--         sync_mode_o          => sync_mode,
+         sync_mode_o          => open,
          encoded_sync_o       => encoded_sync,
          external_sync_i      => external_sync,
          row_len_o            => row_len,
@@ -837,8 +841,8 @@ begin
          dv_o              => external_dv,
          dv_sequence_num_o => external_dv_num,
 
-         sync_mode_i       => sync_mode,
-         sync_i            => sync,
+--         sync_mode_i       => sync_mode,
+--         sync_i            => sync,
          sync_o            => external_sync
       );
 

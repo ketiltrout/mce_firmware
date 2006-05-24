@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.7 2006/05/13 07:38:49 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.8 2006/05/23 21:26:42 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.8  2006/05/23 21:26:42  bburger
+-- Bryce:  Intemediate Committal
+--
 -- Revision 1.7  2006/05/13 07:38:49  bburger
 -- Bryce:  Intermediate commital -- going away on holiday and don't want to lose work
 --
@@ -81,8 +84,8 @@ entity dv_rx is
       dv_o              : out std_logic;
       dv_sequence_num_o : out std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
-      sync_mode_i       : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
-      sync_i            : in std_logic;
+--      sync_mode_i       : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+--      sync_i            : in std_logic;
       sync_o            : out std_logic
    );     
 end dv_rx;
@@ -107,10 +110,8 @@ architecture top of dv_rx is
    signal manch_word       : std_logic_vector(MANCHESTER_WORD_WIDTH-1 downto 0);
    signal manch_reg        : std_logic_vector(MANCHESTER_WORD_WIDTH-1 downto 0);
    signal manch_reg_en     : std_logic;
---   signal manch_reg_clr    : std_logic;
    signal manch_sync       : std_logic;
    signal manch_dv         : std_logic;
-   signal manch_dv_num     : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
    --00’, followed by a 32 bit number, followed by 6 spare bits
    signal rx_buf_ena       : std_logic;
@@ -125,9 +126,9 @@ begin
    ---------------------------------------------------------
    -- Continuous Assignments
    ---------------------------------------------------------
-   manch_sync   <= manch_reg(0);
-   manch_dv     <= manch_reg(1);
-   manch_dv_num <= manch_reg(33 downto 2);
+   manch_sync        <= manch_reg(0);
+   manch_dv          <= manch_reg(1);
+   dv_sequence_num_o <= manch_reg(33 downto 2);
 
    ---------------------------------------------------------
    -- double synchronizer for dv_dat_i and manchester_dat_i:
@@ -153,9 +154,6 @@ begin
          dv_dat         <= dv_dat_temp;
          manch_dat      <= manch_dat_temp;
          
---         if (manch_reg_clr = '1') then
---            manch_reg <= (others => '0');
---         elsif (manch_reg_en = '1') then
          if (manch_reg_en = '1') then
             manch_reg <= manch_word;
          else
@@ -235,6 +233,7 @@ begin
       sample_count_ena <= '0';
       sample_count_clr <= '0';
       manch_reg_en     <= '0';
+      manch_rdy        <= '0';
       
       case current_m_state is
          
@@ -255,6 +254,7 @@ begin
             
          when DONE =>
             sample_count_clr <= '1';
+            manch_rdy        <= '1';
 
          when others => NULL;
       end case;
@@ -286,7 +286,7 @@ begin
                   next_state <= FIBRE_DV_HIGH;
                end if;
             elsif(dv_mode_i = DV_EXTERNAL_MANCHESTER) then
-               if(manch_rdy = '1' and manch_dv = '1') then
+               if(manch_rdy = '1') then
                   next_state <= MANCH_DV_RCVD;
                end if;
             end if;
@@ -299,14 +299,6 @@ begin
          when FIBRE_DV_LOW =>
             next_state <= IDLE;         
          
---         when WAIT_FOR_SYNC =>
---            if(sync_i = '1') then
---               next_state <= SYNC_ARRIVED;
---            end if;
-         
---         when SYNC_ARRIVED =>
---            next_state <= IDLE;
-         
          when MANCH_DV_RCVD =>
             next_state <= MANCH_DV_ACK;
          
@@ -318,11 +310,10 @@ begin
       end case;
    end process state_ns;
    
-   state_out: process(current_state, manch_dv, manch_sync, manch_dv_num)
+   state_out: process(current_state, manch_dv, manch_sync)
    begin
       -- Default Assignments
       dv_o              <= '0';
-      dv_sequence_num_o <= (others => '0');
       sync_o            <= '0';
       manch_ack         <= '0';
     
@@ -332,19 +323,14 @@ begin
 
          when FIBRE_DV_HIGH =>
 
---         when WAIT_FOR_SYNC =>
-
          when FIBRE_DV_LOW =>
             -- cmd_translator synchronizes the DV pulse with the clock cycle following the next sync pulse (only for fibre dv input)
             -- DV input from Manchester is alredy sync'd with sync pulse.
-            dv_o           <= '1';
-
---         when SYNC_ARRIVED =>
+            dv_o              <= '1';
 
          when MANCH_DV_RCVD =>
             dv_o              <= manch_dv;
             sync_o            <= manch_sync;
-            dv_sequence_num_o <= manch_dv_num;
 
          when MANCH_DV_ACK =>
             manch_ack         <= '1';
