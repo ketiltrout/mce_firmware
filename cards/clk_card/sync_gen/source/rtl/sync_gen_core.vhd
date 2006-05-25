@@ -38,6 +38,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_core.vhd,v $
+-- Revision 1.13  2006/05/24 07:07:29  bburger
+-- Bryce:  Intermediate committal
+--
 -- Revision 1.12  2006/03/09 00:50:56  bburger
 -- Bryce:
 -- - Changed interface to accept an external sync input (the sync switchover guts still need to be implemented here)
@@ -180,7 +183,7 @@ begin
       end if;
    end process;
 
-   sync_state_NS: process(current_state, new_frame_period)
+   sync_state_NS: process(current_state, new_frame_period, sync_mode_i, external_sync_i)
    begin
       next_state <= current_state;
       

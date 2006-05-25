@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.23 2006/03/17 17:06:18 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.24 2006/03/23 23:14:07 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.24  2006/03/23 23:14:07  bburger
+-- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
+--
 -- Revision 1.23  2006/03/17 17:06:18  bburger
 -- Bryce:  added row_len, num_rows and data_rate interfaces to add this information to the frame headers
 --
@@ -456,6 +459,7 @@ begin
          when DONE_HEADER_STORE =>
             next_retire_state <= IDLE;         
 
+         -- **Re-order these words.
          when SEND_HEADER =>
             -- The "- 1" is to compensate for single words sent at the end of the header
             -- i.e. sync_num (SEND_SYNC_NUM_HEADER)

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.8 2006/05/23 21:26:42 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.9 2006/05/24 07:07:29 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.9  2006/05/24 07:07:29  bburger
+-- Bryce:  Intermediate committal
+--
 -- Revision 1.8  2006/05/23 21:26:42  bburger
 -- Bryce:  Intemediate Committal
 --
@@ -76,7 +79,8 @@ entity dv_rx is
       rst_i             : in std_logic;
       
       -- Fibre Interface:
-      manchester_dat_i  : in std_logic;
+      manch_det_i       : in std_logic;
+      manch_dat_i       : in std_logic;
       dv_dat_i          : in std_logic;
       
       -- Issue-Reply Interface:
@@ -84,7 +88,7 @@ entity dv_rx is
       dv_o              : out std_logic;
       dv_sequence_num_o : out std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
---      sync_mode_i       : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+      sync_mode_i       : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
 --      sync_i            : in std_logic;
       sync_o            : out std_logic
    );     
@@ -101,12 +105,21 @@ architecture top of dv_rx is
    type m_states is (IDLE, RX_1, RX_2, DONE);   
    signal current_m_state, next_m_state : m_states;
    
+   type sync_states is (IDLE, MANCH_SYNC_RCVD, MANCH_SYNC_ACK);   
+   signal current_s_state, next_s_state : sync_states;
+   
    signal dv_dat_temp      : std_logic;
    signal dv_dat           : std_logic;
+   
    signal manch_dat_temp   : std_logic;
    signal manch_dat        : std_logic;
+   signal manch_det_temp   : std_logic;
+   signal manch_det        : std_logic;
+   
    signal manch_rdy        : std_logic;
    signal manch_ack        : std_logic;
+   signal manch_ack1       : std_logic;
+   signal manch_ack2       : std_logic;
    signal manch_word       : std_logic_vector(MANCHESTER_WORD_WIDTH-1 downto 0);
    signal manch_reg        : std_logic_vector(MANCHESTER_WORD_WIDTH-1 downto 0);
    signal manch_reg_en     : std_logic;
@@ -115,7 +128,7 @@ architecture top of dv_rx is
 
    --00’, followed by a 32 bit number, followed by 6 spare bits
    signal rx_buf_ena       : std_logic;
-   signal rx_buf_clr       : std_logic;
+--   signal rx_buf_clr       : std_logic;
    
    signal sample_count     : std_logic_vector(7 downto 0);
    signal sample_count_ena : std_logic;
@@ -126,9 +139,10 @@ begin
    ---------------------------------------------------------
    -- Continuous Assignments
    ---------------------------------------------------------
-   manch_sync        <= manch_reg(0);
-   manch_dv          <= manch_reg(1);
-   dv_sequence_num_o <= manch_reg(33 downto 2);
+   manch_sync        <= manch_reg(39);
+   manch_dv          <= manch_reg(38);
+   dv_sequence_num_o <= manch_reg(37 downto 6);
+   manch_ack         <= manch_ack1 or manch_ack2;
 
    ---------------------------------------------------------
    -- double synchronizer for dv_dat_i and manchester_dat_i:
@@ -138,9 +152,11 @@ begin
       if(rst_i = '1') then
          dv_dat_temp    <= '0';
          manch_dat_temp <= '0';
+         manch_det_temp <= '0';
       elsif(clk_n_i'event and clk_n_i = '1') then
          dv_dat_temp    <= dv_dat_i;
-         manch_dat_temp <= manchester_dat_i;
+         manch_dat_temp <= manch_dat_i;
+         manch_det_temp <= manch_det_i;
       end if;
    end process;
    
@@ -149,10 +165,13 @@ begin
       if(rst_i = '1') then
          dv_dat         <= '0';      
          manch_dat      <= '0';    
+         manch_det      <= '0';
          manch_reg      <= (others => '0');
+         
       elsif(clk_i'event and clk_i = '1') then
          dv_dat         <= dv_dat_temp;
          manch_dat      <= manch_dat_temp;
+         manch_det      <= manch_det_temp;
          
          if (manch_reg_en = '1') then
             manch_reg <= manch_word;
@@ -175,8 +194,8 @@ begin
       rst_i      => rst_i,
       ena_i      => rx_buf_ena,
       load_i     => '0',
-      clr_i      => rx_buf_clr,
-      shr_i      => '1',
+      clr_i      => '0',
+      shr_i      => '0',
       serial_i   => manch_dat,
       serial_o   => open,
       parallel_i => (others => '0'),
@@ -198,13 +217,14 @@ begin
    
    
 
-   manch_ns: process(current_m_state, manch_dat, sample_count)
+   manch_ns: process(current_m_state, manch_dat, sample_count, manch_det)
    begin
       next_m_state <= current_m_state;
       case current_m_state is
          
          when IDLE =>
-            if (manch_dat = '1') then
+            -- Manchester sync and DV are active low
+            if (manch_det = '1' and manch_dat = '0') then 
                next_m_state <= RX_2;
             end if;
             
@@ -226,7 +246,7 @@ begin
       end case;
    end process manch_ns;
 
-   manch_out: process(current_m_state, manch_dat, sample_count)
+   manch_out: process(current_m_state, manch_dat, sample_count, manch_det)
    begin
       -- Default Assignments
       rx_buf_ena       <= '0';
@@ -238,7 +258,8 @@ begin
       case current_m_state is
          
          when IDLE =>
-            if (manch_dat = '1') then
+            -- Manchester sync and DV are active low
+            if (manch_det = '1' and manch_dat = '0') then 
                rx_buf_ena       <= '1';
                sample_count_ena <= '1';
             end if;
@@ -268,13 +289,15 @@ begin
       if(rst_i = '1') then
          current_state <= IDLE;
          current_m_state <= IDLE;
+         current_s_state <= IDLE;
       elsif(clk_i'event and clk_i = '1') then
          current_state <= next_state;
          current_m_state <= next_m_state;
+         current_s_state <= next_s_state;
       end if;
    end process state_ff;   
 
-   state_ns: process(current_state, dv_mode_i, dv_dat, manch_rdy, manch_dv)
+   dv_ns: process(current_state, dv_mode_i, dv_dat, manch_rdy)
    begin
       next_state <= current_state;
       case current_state is
@@ -308,14 +331,13 @@ begin
          when others =>
             next_state <= IDLE;
       end case;
-   end process state_ns;
+   end process dv_ns;
    
-   state_out: process(current_state, manch_dv, manch_sync)
+   dv_out: process(current_state, manch_dv)
    begin
       -- Default Assignments
       dv_o              <= '0';
-      sync_o            <= '0';
-      manch_ack         <= '0';
+      manch_ack1         <= '0';
     
       case current_state is
          
@@ -329,15 +351,63 @@ begin
             dv_o              <= '1';
 
          when MANCH_DV_RCVD =>
-            dv_o              <= manch_dv;
-            sync_o            <= manch_sync;
+            -- Manchester sync and DV are active low
+            dv_o              <= not manch_dv;
 
          when MANCH_DV_ACK =>
-            manch_ack         <= '1';
+            manch_ack1        <= '1';
 
          when others => NULL;
       end case;
-   end process state_out;
+   end process dv_out;
+
+   -- This state machine is tuned to execute with the same timing as the one above when a manchester packet arrives
+   sync_ns: process(current_s_state, sync_mode_i, manch_rdy)
+   begin
+      next_s_state <= current_s_state;
+      case current_s_state is
+         
+         when IDLE =>            
+--            if(sync_mode_i = SYNC_EXTERNAL_MANCHESTER) then
+               -- If we have a manchester signal, then we may as well always output the sync
+               -- Because syncs are never received from the dv input.
+               if(manch_rdy = '1') then
+                  next_s_state <= MANCH_SYNC_RCVD;
+               end if;
+--            end if;
+            
+         when MANCH_SYNC_RCVD =>
+            next_s_state <= MANCH_SYNC_ACK;
+         
+         when MANCH_SYNC_ACK =>
+            next_s_state <= IDLE;
+         
+         when others =>
+            next_s_state <= IDLE;
+            
+      end case;
+   end process sync_ns;
+   
+   sync_out: process(current_s_state, manch_sync)
+   begin
+      -- Default Assignments
+      sync_o              <= '0';
+      manch_ack2         <= '0';
+    
+      case current_s_state is
+         
+         when IDLE =>
+
+         when MANCH_SYNC_RCVD =>
+            -- Manchester sync and DV are active low
+            sync_o              <= not manch_sync;
+
+         when MANCH_SYNC_ACK =>
+            manch_ack2        <= '1';
+
+         when others => NULL;
+      end case;
+   end process sync_out;
 
 end top;
 
