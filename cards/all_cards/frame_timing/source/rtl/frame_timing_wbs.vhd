@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: frame_timing_wbs.vhd,v 1.6 2005/05/06 20:02:31 bburger Exp $
+-- $Id: frame_timing_wbs.vhd,v 1.7 2006/02/09 20:32:59 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,11 @@
 --
 -- Revision history:
 -- $Log: frame_timing_wbs.vhd,v $
+-- Revision 1.7  2006/02/09 20:32:59  bburger
+-- Bryce:
+-- - Added a fltr_rst_o output signal from the frame_timing block
+-- - Adjusted the top-levels of each card to reflect the frame_timing interface change
+--
 -- Revision 1.6  2005/05/06 20:02:31  bburger
 -- Bryce:  Added a 50MHz clock that is 180 degrees out of phase with clk_i.
 -- This clk_n_i signal is used for sampling the sync_i line during the middle of the pulse, to avoid problems associated with sampling on the edges.
@@ -118,7 +123,7 @@ architecture rtl of frame_timing_wbs is
    -- FSM inputs
    signal wr_cmd                : std_logic;
    signal rd_cmd                : std_logic;
-   signal master_wait           : std_logic;
+--   signal master_wait           : std_logic;
 
    -- Register signals
    signal row_length_wren       : std_logic;
@@ -394,7 +399,7 @@ begin
       fltr_rst_req_data     when FLTR_RST_ADDR,
       (others => '0') when others;
    
-   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
+--   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 

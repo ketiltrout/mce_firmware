@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.7 2006/03/17 17:07:15 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.8 2006/03/23 23:14:07 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.8  2006/03/23 23:14:07  bburger
+-- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
+--
 -- Revision 1.7  2006/03/17 17:07:15  bburger
 -- Bryce:  commented out ret_dat logic that will be moved here later from cmd_translator
 --
@@ -102,7 +105,7 @@ architecture rtl of ret_dat_wbs is
    -- FSM inputs
    signal wr_cmd            : std_logic;
    signal rd_cmd            : std_logic;
-   signal master_wait       : std_logic;
+--   signal master_wait       : std_logic;
 
    -- RAM/Register signals
    signal start_wren        : std_logic;   
@@ -163,6 +166,7 @@ begin
 
      -- Eventually this register will be used when the ret_dat handling is moved to this block
      -- Custom register that indicates fresh ret_dat commands
+   ret_dat_req_o <= '0';
 --   ret_dat_req_o <= data_req;
 --   data_req_reg: process(clk_i, rst_i)
 --   begin
@@ -272,7 +276,7 @@ begin
       stop_data      when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
       data_rate_data when (addr_i = DATA_RATE_ADDR) else (others => '0');
    
-   master_wait <= '1' when (stb_i = '0' and cyc_i = '1') else '0';   
+--   master_wait <= '1' when (stb_i = '0' and cyc_i = '1') else '0';   
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 

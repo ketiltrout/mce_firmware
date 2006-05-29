@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: config_fpga.vhd,v 1.1 2006/04/26 22:55:08 bburger Exp $
+-- $Id: config_fpga.vhd,v 1.2 2006/04/29 00:52:36 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: config_fpga.vhd,v $
+-- Revision 1.2  2006/04/29 00:52:36  bburger
+-- Bryce:
+-- - fw_rev:  added a 'when others' statement to a state machine
+-- - clock_card:  upped the cc rev #
+-- - config_fpga:  fixed a couple of bugs
+--
 -- Revision 1.1  2006/04/26 22:55:08  bburger
 -- Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
 -- In the process:
@@ -73,7 +79,7 @@ architecture top of config_fpga is
    -- FSM inputs
    signal wr_cmd          : std_logic;
    signal rd_cmd          : std_logic;
-   signal master_wait     : std_logic;
+--   signal master_wait     : std_logic;
 
    -- WBS states:
    type states is (IDLE, WR, RD); 
@@ -231,7 +237,7 @@ begin
    ------------------------------------------------------------  
    dat_o <= (others => '0');
    
-   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
+--   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 

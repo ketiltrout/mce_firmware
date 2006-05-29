@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.29 2006/01/16 19:00:33 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.30 2006/02/02 00:36:36 mandana Exp $>
 --
 -- Project:          Scuba 2
 -- Author:           David Atkinson
@@ -30,9 +30,13 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/01/16 19:00:33 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/02/02 00:36:36 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.30  2006/02/02 00:36:36  mandana
+-- added output default assignments for reply_fsm_output process
+-- added default arb_next_state assigment for arb_fsm_nextstate process
+--
 -- Revision 1.29  2006/01/16 19:00:33  bburger
 -- Bryce:  minor bug fixes for handling crc errors and timeouts
 --
@@ -409,14 +413,14 @@ signal   arb_next_state           : arb_state;
 signal packet_size           : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);   -- this value is written to the packet header word 4
 signal fibre_fsm_busy        : std_logic;                                     -- asserted when txing a packet 
 signal reply_status          : std_logic_vector (15 downto 0);                -- this word is writen to reply word 1 to indicate if 'OK' or 'ER' 
-signal reply_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- this word is the reply or data word read from cmd_queue
+--signal reply_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- this word is the reply or data word read from cmd_queue
 signal packet_type           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);  -- indicates reply or data packet - written to header word 3
 signal mop_rdy_reply         : std_logic;                                     -- asserted high when a mop is done and processing a reply packet
 signal mop_rdy_data          : std_logic;                                     -- asserted high when a mop is done and processing a data packet
 signal rst_checksum          : std_logic;                                     -- signal asserted to reset packet checksum
 signal ena_checksum          : std_logic;                                     -- signal assertd to update packet checksum with checksum_in value
-signal ena_fibre_count       : std_logic;                                     -- signal asserted to reset fibre count 
-signal rst_fibre_count       : std_logic;                                     -- signal asserted to enable fibre count (i.e inc by 1) 
+--signal ena_fibre_count       : std_logic;                                     -- signal asserted to reset fibre count 
+--signal rst_fibre_count       : std_logic;                                     -- signal asserted to enable fibre count (i.e inc by 1) 
 signal fibre_byte            : byte;                                          -- output byte to  be written to tranmit FIFO
 signal write_fifo            : std_logic;                                     -- asserted high when writing to transmit FIFO fibre_tx_fifo
 signal rb_packet_size        : integer;
@@ -1163,8 +1167,8 @@ txd_o              <= fibre_byte;
              
       checksum_in_mux_sel      <= '0';
       
-      rst_fibre_count          <= '0';
-      ena_fibre_count          <= '0';
+--      rst_fibre_count          <= '0';
+--      ena_fibre_count          <= '0';
       
       mop_ack_o                <= '0';
       arb_fsm_ack              <= '0';
@@ -1178,7 +1182,7 @@ txd_o              <= fibre_byte;
       
       packet_size              <= (others => '0');     -- reset packet size
       reply_status             <= (others => '0');     -- reset reply status
-      reply_data               <= (others => '0');     -- reset reply/data word
+--      reply_data               <= (others => '0');     -- reset reply/data word
       packet_type              <= (others => '0');     -- reset packet type
      
       case fibre_current_state is
@@ -1189,7 +1193,7 @@ txd_o              <= fibre_byte;
       
             fibre_fsm_busy             <= '0';                 -- indicate no longer tranmitting packet
             rst_checksum               <= '1';                 -- reset checksum
-            rst_fibre_count            <= '1';                 -- reset fibre count
+--            rst_fibre_count            <= '1';                 -- reset fibre count
             checksum_load              <= (others => '0');     -- reset checksum calculator input
             checksum_in_mux_sel        <= '1';                 -- register reset checksum calculator input
                 
@@ -1675,7 +1679,7 @@ txd_o              <= fibre_byte;
            end if;
            
            -- this assignemnt MUST be in a state that is only held for one clock cycle 
-           ena_fibre_count             <= '1'; 
+--           ena_fibre_count             <= '1'; 
            
        when LD_WORDN_1 =>
            fibre_byte                  <=  wordN_1;

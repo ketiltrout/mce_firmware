@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.45 2006/03/17 17:06:18 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.46 2006/03/23 23:14:07 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/17 17:06:18 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/03/23 23:14:07 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.46  2006/03/23 23:14:07  bburger
+-- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
+--
 -- Revision 1.45  2006/03/17 17:06:18  bburger
 -- Bryce:  added row_len, num_rows and data_rate interfaces to add this information to the frame headers
 --
@@ -472,9 +475,9 @@ architecture rtl of issue_reply is
    -- reply_translator to reply_queue interface      
    signal m_op_rdy            : std_logic;     
    signal m_op_error_code     : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
-   signal m_op_cmd_code       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
-   signal m_op_param_id       : std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  
-   signal m_op_card_id        : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  
+--   signal m_op_cmd_code       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
+--   signal m_op_param_id       : std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  
+--   signal m_op_card_id        : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  
    signal fibre_word          : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0); 
    signal num_fibre_words     : integer;    
    signal fibre_word_ack      : std_logic;
@@ -723,9 +726,9 @@ begin
          
          -- reply_translator interface (from reply_queue_retire)
          cmd_sent_i       => m_op_ack,
-         cmd_code_o       => m_op_cmd_code,
-         param_id_o       => m_op_param_id,
-         card_addr_o      => m_op_card_id,
+         cmd_code_o       => open, --m_op_cmd_code,
+         param_id_o       => open, --m_op_param_id,
+         card_addr_o      => open, --m_op_card_id,
          stop_bit_o       => reply_cmd_stop,
          last_frame_bit_o => reply_last_frame,
          frame_seq_num_o  => reply_frame_seq_num,

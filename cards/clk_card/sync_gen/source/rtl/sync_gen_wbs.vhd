@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: sync_gen_wbs.vhd,v 1.6 2005/03/16 02:20:58 bburger Exp $
+-- $Id: sync_gen_wbs.vhd,v 1.7 2006/03/09 00:44:13 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: sync_gen_wbs.vhd,v $
+-- Revision 1.7  2006/03/09 00:44:13  bburger
+-- Bryce:  Added registers and logic for USE_SYNC command
+--
 -- Revision 1.6  2005/03/16 02:20:58  bburger
 -- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
 --
@@ -99,7 +102,7 @@ architecture rtl of sync_gen_wbs is
    -- FSM inputs
    signal wr_cmd          : std_logic;
    signal rd_cmd          : std_logic;
-   signal master_wait     : std_logic;
+--   signal master_wait     : std_logic;
 
    -- Register signals
    signal dv_mode_wren    : std_logic;
@@ -262,7 +265,7 @@ begin
       sync_mode_data  when USE_SYNC_ADDR,
       (others => '0') when others;
    
-   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
+--   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
            
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 

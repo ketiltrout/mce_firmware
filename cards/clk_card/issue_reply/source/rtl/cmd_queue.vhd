@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.88 2006/02/02 00:26:24 mandana Exp $
+-- $Id: cmd_queue.vhd,v 1.89 2006/03/09 00:55:07 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.89  2006/03/09 00:55:07  bburger
+-- Bryce:  Added an issue_sync_o signal to the interface so that the reply_queue can include this information in data headers
+--
 -- Revision 1.88  2006/02/02 00:26:24  mandana
 -- added range to integer bit_ctr_coun
 --
@@ -140,7 +143,7 @@ signal data_count           : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 -- Data Queue I/O
 signal wren_sig             : std_logic;
 signal qa_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
-signal qb_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
+--signal qb_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 
 -- LVDS Tx Signals
 signal lvds_tx_word         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -157,13 +160,13 @@ signal crc_clr              : std_logic;
 signal crc_ena              : std_logic;
 signal crc_num_bits         : integer;
 signal crc_done             : std_logic;
-signal crc_valid            : std_logic;
+--signal crc_valid            : std_logic;
 signal crc_checksum         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal crc_reg              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
 -- Shift Register signals:
 signal sh_reg_serial_o      : std_logic;
-signal sh_reg_parallel_o    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); --Dummy signal
+--signal sh_reg_parallel_o    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); --Dummy signal
 
 -- Miscellaneous Signals
 signal uop_send_expired     : std_logic;
@@ -307,7 +310,7 @@ begin
          wren        => wren_sig,
          clock       => clk_i,  
          qa          => qa_sig,          
-         qb          => qb_sig -- qb_sig data is not used by the FSM
+         qb          => open --qb_sig -- qb_sig data is not used by the FSM
       );
 
    -----------------------------------------------------
@@ -339,7 +342,7 @@ begin
          num_bits_i => crc_num_bits,
          poly_i     => "00000100110000010001110110110111",         
          done_o     => crc_done,
-         valid_o    => crc_valid, 
+         valid_o    => open, --crc_valid, 
          checksum_o => crc_checksum 
       );
       
@@ -357,7 +360,7 @@ begin
          serial_i   => LOW, 
          serial_o   => sh_reg_serial_o,  
          parallel_i => lvds_tx_word, 
-         parallel_o => sh_reg_parallel_o
+         parallel_o => open --sh_reg_parallel_o
       );
 
    bit_ctr: counter
