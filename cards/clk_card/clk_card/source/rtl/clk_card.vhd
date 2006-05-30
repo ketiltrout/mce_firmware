@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.41 2006/05/24 07:07:29 bburger Exp $
+-- $Id: clk_card.vhd,v 1.42 2006/05/25 05:41:26 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.42  2006/05/25 05:41:26  bburger
+-- Bryce:  Intermediate committal
+--
 -- Revision 1.41  2006/05/24 07:07:29  bburger
 -- Bryce:  Intermediate committal
 --
@@ -209,7 +212,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000008";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000009";
 
 -- reset
 signal rst                : std_logic;
@@ -635,10 +638,10 @@ begin
       port map(
          rst       => rst,
          xtal_clk  => inclk14, -- Crystal Clock Input
-         manch_clk => inclk1,  -- Manchester Clock Input
+         manch_clk => '0', --inclk1,  -- Manchester Clock Input
          manch_det => manchester_sigdet,
-         switch_to_xtal  => switch_to_xtal,
-         switch_to_manch => switch_to_manch,
+         switch_to_xtal  => '0', --switch_to_xtal,
+         switch_to_manch => '0', --switch_to_manch,
          c0     => clk,
          c1     => clk_n,
          c2     => comm_clk,

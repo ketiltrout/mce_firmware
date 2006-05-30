@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.31 2006/03/23 23:14:07 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.32 2006/05/24 07:07:29 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/23 23:14:07 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/05/24 07:07:29 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.32  2006/05/24 07:07:29  bburger
+-- Bryce:  Intermediate committal
+--
 -- Revision 1.31  2006/03/23 23:14:07  bburger
 -- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
 --
@@ -322,7 +325,7 @@ begin
                ret_dat_stop_reg_en  <= '1'; -- grab ret_dat_stop_i;
                next_state           <= RETURN_DATA_LAST;
             elsif(external_dv_i = '1') then
-               if(current_seq_num /= stop_seq_num_i) then
+               if(current_seq_num = stop_seq_num_i) then
                   next_state        <= RETURN_DATA_LAST;
                else
                   next_state        <= RETURN_DATA;

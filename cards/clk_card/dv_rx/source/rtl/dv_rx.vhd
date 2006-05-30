@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.9 2006/05/24 07:07:29 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.10 2006/05/25 05:41:26 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.10  2006/05/25 05:41:26  bburger
+-- Bryce:  Intermediate committal
+--
 -- Revision 1.9  2006/05/24 07:07:29  bburger
 -- Bryce:  Intermediate committal
 --
@@ -117,9 +120,9 @@ architecture top of dv_rx is
    signal manch_det        : std_logic;
    
    signal manch_rdy        : std_logic;
-   signal manch_ack        : std_logic;
-   signal manch_ack1       : std_logic;
-   signal manch_ack2       : std_logic;
+--   signal manch_ack        : std_logic;
+--   signal manch_ack1       : std_logic;
+--   signal manch_ack2       : std_logic;
    signal manch_word       : std_logic_vector(MANCHESTER_WORD_WIDTH-1 downto 0);
    signal manch_reg        : std_logic_vector(MANCHESTER_WORD_WIDTH-1 downto 0);
    signal manch_reg_en     : std_logic;
@@ -142,7 +145,7 @@ begin
    manch_sync        <= manch_reg(39);
    manch_dv          <= manch_reg(38);
    dv_sequence_num_o <= manch_reg(37 downto 6);
-   manch_ack         <= manch_ack1 or manch_ack2;
+--   manch_ack         <= manch_ack1 or manch_ack2;
 
    ---------------------------------------------------------
    -- double synchronizer for dv_dat_i and manchester_dat_i:
@@ -336,8 +339,8 @@ begin
    dv_out: process(current_state, manch_dv)
    begin
       -- Default Assignments
-      dv_o              <= '0';
-      manch_ack1         <= '0';
+      dv_o       <= '0';
+--      manch_ack1 <= '0';
     
       case current_state is
          
@@ -348,21 +351,21 @@ begin
          when FIBRE_DV_LOW =>
             -- cmd_translator synchronizes the DV pulse with the clock cycle following the next sync pulse (only for fibre dv input)
             -- DV input from Manchester is alredy sync'd with sync pulse.
-            dv_o              <= '1';
+            dv_o <= '1';
 
          when MANCH_DV_RCVD =>
             -- Manchester sync and DV are active low
-            dv_o              <= not manch_dv;
+            dv_o <= not manch_dv;
 
          when MANCH_DV_ACK =>
-            manch_ack1        <= '1';
+--            manch_ack1 <= '1';
 
          when others => NULL;
       end case;
    end process dv_out;
 
    -- This state machine is tuned to execute with the same timing as the one above when a manchester packet arrives
-   sync_ns: process(current_s_state, sync_mode_i, manch_rdy)
+   sync_ns: process(current_s_state, manch_rdy)
    begin
       next_s_state <= current_s_state;
       case current_s_state is
@@ -391,8 +394,8 @@ begin
    sync_out: process(current_s_state, manch_sync)
    begin
       -- Default Assignments
-      sync_o              <= '0';
-      manch_ack2         <= '0';
+      sync_o <= '0';
+--      manch_ack2 <= '0';
     
       case current_s_state is
          
@@ -400,10 +403,10 @@ begin
 
          when MANCH_SYNC_RCVD =>
             -- Manchester sync and DV are active low
-            sync_o              <= not manch_sync;
+            sync_o <= not manch_sync;
 
          when MANCH_SYNC_ACK =>
-            manch_ack2        <= '1';
+--            manch_ack2 <= '1';
 
          when others => NULL;
       end case;
