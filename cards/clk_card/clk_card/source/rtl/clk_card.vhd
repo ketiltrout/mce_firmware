@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.38 2006/04/26 22:55:08 bburger Exp $
+-- $Id: clk_card.vhd,v 1.39 2006/04/29 00:52:36 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,12 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.39  2006/04/29 00:52:36  bburger
+-- Bryce:
+-- - fw_rev:  added a 'when others' statement to a state machine
+-- - clock_card:  upped the cc rev #
+-- - config_fpga:  fixed a couple of bugs
+--
 -- Revision 1.38  2006/04/26 22:55:08  bburger
 -- Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
 -- In the process:
@@ -188,7 +194,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000008";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"0200000a";
 
 -- reset
 signal rst                : std_logic;
