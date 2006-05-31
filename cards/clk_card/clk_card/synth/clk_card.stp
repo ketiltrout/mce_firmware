@@ -1,16 +1,24 @@
-<session jtag_chain="ByteBlaster [LPT1]" jtag_device="" sof_file="clk_card.sof">
+<session jtag_chain="" jtag_device="" sof_file="clk_card.sof">
   <display_tree gui_logging_enabled="0">
     <display_branch instance="auto_signaltap_0" signal_set="USE_GLOBAL_TEMP" trigger="USE_GLOBAL_TEMP"/>
   </display_tree>
   <instance entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
     <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="3"/>
-    <signal_set global_temp="1" is_expanded="true" name="signal_set: 2006/04/27 15:58:04  #0">
+    <signal_set global_temp="1" is_expanded="true" name="signal_set: 2006/05/30 21:58:42  #0">
       <clock name="cc_pll:pll0|c0" polarity="posedge"/>
       <config ram_type="AUTO" reserved_data_nodes="0" reserved_trigger_nodes="0" sample_depth="16384" trigger_in_enable="no" trigger_out_enable="no"/>
       <top_entity/>
       <signal_vec>
         <trigger_input_vec>
           <wire connection_status="true" name="config_fpga:config_fpga_inst|config_n_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.config_app" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.config_fac" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.sel_app" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.sel_fac" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_state.rd" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_state.wr" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="config_fpga:config_fpga_inst|epc16_sel_n_o" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="dv_rx:dv_rx_inst|current_state.fibre_dv_high" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="dv_rx:dv_rx_inst|current_state.fibre_dv_low" tap_mode="classic" type="combinatorial"/>
@@ -50,6 +58,14 @@
         </trigger_input_vec>
         <data_input_vec>
           <wire connection_status="true" name="config_fpga:config_fpga_inst|config_n_o" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.config_app" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.config_fac" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.sel_app" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_out_state.sel_fac" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_state.idle" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_state.rd" tap_mode="classic" type="combinatorial"/>
+          <wire connection_status="true" name="config_fpga:config_fpga_inst|current_state.wr" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="config_fpga:config_fpga_inst|epc16_sel_n_o" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="dv_rx:dv_rx_inst|current_state.fibre_dv_high" tap_mode="classic" type="combinatorial"/>
           <wire connection_status="true" name="dv_rx:dv_rx_inst|current_state.fibre_dv_low" tap_mode="classic" type="combinatorial"/>
@@ -137,6 +153,18 @@
           <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|tx_fw_i"/>
           <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|config_n_o"/>
           <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|epc16_sel_n_o"/>
+          <bus is_signal_inverted="no" link="all" name="current_out_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.config_app"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.config_fac"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.idle"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.sel_app"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.sel_fac"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="current_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_state.idle"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_state.rd"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_state.wr"/>
+          </bus>
         </data_view>
         <setup_view>
           <net is_signal_inverted="no" name="fibre_rx_clkr"/>
@@ -186,13 +214,23 @@
           <net is_signal_inverted="no" name="issue_reply:issue_reply0|fibre_tx:i_fibre_tx|tx_fw_i"/>
           <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|config_n_o"/>
           <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|epc16_sel_n_o"/>
+          <bus is_signal_inverted="no" link="all" name="current_out_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.config_app"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.config_fac"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.idle"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.sel_app"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_out_state.sel_fac"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="current_state" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_state.idle"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_state.rd"/>
+            <net is_signal_inverted="no" name="config_fpga:config_fpga_inst|current_state.wr"/>
+          </bus>
         </setup_view>
       </presentation>
-      <trigger global_temp="1" is_expanded="true" name="trigger: 2006/04/27 15:58:04  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+      <trigger global_temp="1" is_expanded="true" name="trigger: 2006/05/30 21:58:42  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
         <events>
           <level enabled="yes" type="basic">'dv_rx:dv_rx_inst|dv_dat_i' == either edge
-            
-            
             
             <op_node/>
           </level>
@@ -204,7 +242,7 @@
       <single attribute="data horizontal scroll position" value="44"/>
       <single attribute="data vertical scroll position" value="0"/>
       <single attribute="setup horizontal scroll position" value="0"/>
-      <single attribute="setup vertical scroll position" value="0"/>
+      <single attribute="setup vertical scroll position" value="2"/>
       <single attribute="zoom level denominator" value="1"/>
       <single attribute="zoom level numerator" value="4096"/>
       <single attribute="zoom offset denominator" value="2"/>
@@ -215,6 +253,6 @@
   <global_info>
     <single attribute="active instance" value="0"/>
     <multi attribute="column width" size="18" value="34,34,703,74,68,70,88,100,101,101,101,101,101,101,101,101,107,78"/>
-    <multi attribute="window position" size="9" value="1180,792,398,124,356,99,0,0,0"/>
+    <multi attribute="window position" size="9" value="1032,663,398,124,356,99,0,0,0"/>
   </global_info>
 </session>
