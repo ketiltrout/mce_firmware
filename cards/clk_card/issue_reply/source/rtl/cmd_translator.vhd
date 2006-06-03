@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.38 2006/03/23 23:14:07 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.39 2006/05/29 23:11:00 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/23 23:14:07 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/05/29 23:11:00 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.39  2006/05/29 23:11:00  bburger
+-- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
+--
 -- Revision 1.38  2006/03/23 23:14:07  bburger
 -- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
 --
@@ -244,6 +247,8 @@ port(
    cmd_stop_o            : out std_logic;                                                     -- indicates a STOP command was recieved
    last_frame_o          : out std_logic;                                                     -- indicates the last frame of data for a ret_dat command
    internal_cmd_o        : out std_logic;                                       
+   row_len_i             : in integer;
+   num_rows_i            : in integer;
    
    -- input from the cmd_queue
    ack_i                 : in  std_logic;                                                     -- acknowledge signal from the micro-instruction sequence generator
@@ -304,6 +309,8 @@ architecture rtl of cmd_translator is
       sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
       ret_dat_start_i         : in  std_logic;
       ret_dat_stop_i          : in  std_logic;
+      row_len_i               : in integer;
+      num_rows_i              : in integer;
       ret_dat_cmd_valid_o     : out std_logic;
       frame_seq_num_o         : out std_logic_vector (                        31 downto 0);
       frame_sync_num_o        : out std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
@@ -659,7 +666,9 @@ begin
       ret_dat_start_i        => ret_dat_start,
       ret_dat_stop_i         => ret_dat_stop,
       ret_dat_cmd_valid_o    => open, --ret_dat_cmd_valid,
- 
+      row_len_i              => row_len_i,
+      num_rows_i             => num_rows_i,
+
       -- outputs to arbiter
       card_addr_o            => ret_dat_cmd_card_addr,       -- specifies which card the command is targetting
       parameter_id_o         => ret_dat_cmd_parameter_id,    -- comes from param_id_i, indicates which device(s) the command is targetting

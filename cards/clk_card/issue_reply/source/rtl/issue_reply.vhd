@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.46 2006/03/23 23:14:07 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.47 2006/05/29 23:11:00 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/23 23:14:07 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/05/29 23:11:00 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.47  2006/05/29 23:11:00  bburger
+-- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
+--
 -- Revision 1.46  2006/03/23 23:14:07  bburger
 -- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
 --
@@ -250,6 +253,8 @@ architecture rtl of issue_reply is
       cmd_stop_o            : out std_logic;                                                     -- indicates a STOP command was recieved
       last_frame_o          : out std_logic;                                                     -- indicates the last frame of data for a ret_dat command
       internal_cmd_o        : out std_logic;                                       
+      row_len_i             : in integer;
+      num_rows_i            : in integer;
       
       -- input from the cmd_queue
       ack_i                 : in  std_logic;                                                     -- acknowledge signal from the micro-instruction sequence generator
@@ -621,6 +626,8 @@ begin
          cmd_stop_o          => cmd_stop,
          last_frame_o        => last_frame,       
          internal_cmd_o      => internal_cmd_issued,
+         row_len_i           => row_len_i,
+         num_rows_i          => num_rows_i,
          
          --input from the u-op sequence generator
          ack_i               => mop_ack,

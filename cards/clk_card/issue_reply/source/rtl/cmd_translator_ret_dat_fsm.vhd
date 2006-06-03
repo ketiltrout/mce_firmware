@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.32 2006/05/24 07:07:29 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.33 2006/05/30 00:53:37 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/05/24 07:07:29 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/05/30 00:53:37 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.33  2006/05/30 00:53:37  bburger
+-- Bryce:  Interim committal
+--
 -- Revision 1.32  2006/05/24 07:07:29  bburger
 -- Bryce:  Intermediate committal
 --
@@ -143,6 +146,9 @@ port(
       sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);  -- a counter of synch pulses 
       ret_dat_start_i         : in  std_logic;
       ret_dat_stop_i          : in  std_logic;
+      row_len_i               : in integer;
+      num_rows_i              : in integer;
+
       ret_dat_cmd_valid_o     : out std_logic;
       frame_seq_num_o         : out std_logic_vector (                        31 downto 0);
       frame_sync_num_o        : out std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
@@ -213,6 +219,8 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal current_seq_num_reg             : std_logic_vector(                         31 downto 0);
    signal current_seq_num                 : std_logic_vector(                         31 downto 0);
    
+   signal data_size                       : std_logic_vector (BB_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
+   signal data_size_int                   : integer;
 
    -------------------------------------------------------------------------------------------
    -- constants
@@ -559,8 +567,11 @@ begin
    ack_o                   <= ret_dat_stop_ack or ret_dat_start_ack;
    ret_dat_cmd_valid_o     <= ret_dat_cmd_valid;
    ret_dat_fsm_working_o   <= ret_dat_fsm_working;
+   
+   data_size_int           <= NO_CHANNELS * num_rows_i;
+   data_size               <= conv_std_logic_vector(data_size_int,11);
 
-   process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg)
+   process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg, data_size)
    begin
       if ret_dat_fsm_working = '1' then
          frame_seq_num_o  <= current_seq_num_reg;
@@ -575,7 +586,7 @@ begin
 --            parameter_id_o   <= RET_DAT_ADDR;
 --         end if;
          
-         data_size_o      <= "00101001000";    
+         data_size_o      <= data_size;    
          data_o           <= data_reg;         
          --this will always indicate data, whether or not a stop command was received, or it is the last frame
          cmd_type_o       <= READ_CMD;         

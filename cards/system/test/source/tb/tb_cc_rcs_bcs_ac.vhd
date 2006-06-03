@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.20 2006/05/19 00:57:48 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.21 2006/05/30 00:53:37 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.21  2006/05/30 00:53:37  bburger
+-- Bryce:  Interim committal
+--
 -- Revision 1.20  2006/05/19 00:57:48  bburger
 -- Bryce:  Committal for backup
 --
@@ -97,6 +100,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
       dv_pulse_fibre    : in std_logic;
       manchester_data   : in std_logic;
       manchester_sigdet : in std_logic;
+      
+      -- For Testbenching
       switch_to_xtal    : in std_logic;
       switch_to_manch   : in std_logic;
       
@@ -2071,6 +2076,19 @@ begin
       do_reset;
       wait for 5 us;
 
+------------------------------------------------------
+--  Testing Sys Commands
+------------------------------------------------------
+      command <= command_wb;
+      address_id <= cc_ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;      
+      
+      wait for 53 us;
+
 
 ------------------------------------------------------
 --  Testing Manchester Data Packets
@@ -2093,27 +2111,78 @@ begin
       
       wait for 53 us;
 
-      -- From Manchester = 2
       command <= command_wb;
-      address_id <= cc_use_dv_cmd;
+      address_id <= cc_data_rate_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000002";
+      data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;      
       
       wait for 53 us;
- 
-      -- From Manchester = 2
+
       command <= command_wb;
-      address_id <= cc_use_sync_cmd;
+      address_id <= cc_num_rows_cmd;
       data_valid <= X"00000001";
-      data       <= X"00000002";
+      data       <= X"00000004";
       load_preamble;
       load_command;
-      load_checksum;      
-      
+      load_checksum;
+
       wait for 53 us;
+
+      command <= command_wb;
+      address_id <= rc1_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000004";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 53 us;
+
+      command <= command_wb;
+      address_id <= cc_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"000003E8";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 53 us;
+
+      command <= command_wb;
+      address_id <= rc1_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"000003E8";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 53 us;
+
+--      -- From Manchester = 2
+--      command <= command_wb;
+--      address_id <= cc_use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+-- 
+--      -- From Manchester = 2
+--      command <= command_wb;
+--      address_id <= cc_use_sync_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+      
       command <= command_go;
       address_id <= rc1_ret_dat_cmd;
       data_valid <= X"00000001";
@@ -2122,7 +2191,7 @@ begin
       load_command;
       load_checksum;
       
-      wait for 4000 us;
+      wait for 6000 us;
       
       
 

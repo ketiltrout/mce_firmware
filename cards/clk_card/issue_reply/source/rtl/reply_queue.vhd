@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.24 2006/03/23 23:14:07 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.25 2006/05/25 05:41:26 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.25  2006/05/25 05:41:26  bburger
+-- Bryce:  Intermediate committal
+--
 -- Revision 1.24  2006/03/23 23:14:07  bburger
 -- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
 --
@@ -436,7 +439,7 @@ begin
             if (ack_i = '1') then
                -- If is a data frame
                if (par_id = RET_DAT_ADDR) then
-                  next_retire_state <= SEND_HEADER;
+                  next_retire_state <= SEND_ROW_LEN_HEADER;
                -- If this is a RB
                elsif (cmd_type = READ_CMD) then
                   next_retire_state <= SEND_REPLY;
@@ -459,30 +462,29 @@ begin
          when DONE_HEADER_STORE =>
             next_retire_state <= IDLE;         
 
-         -- **Re-order these words.
-         when SEND_HEADER =>
-            -- The "- 1" is to compensate for single words sent at the end of the header
-            -- i.e. sync_num (SEND_SYNC_NUM_HEADER)
-            if(word_count >= NUM_RAM_HEAD_WORDS - 4) then
-               next_retire_state <= SEND_DATA_RATE_HEADER;
-            end if;
-            
-         when SEND_DATA_RATE_HEADER =>
-            if(word_count >= NUM_RAM_HEAD_WORDS - 3) then
-               next_retire_state <= SEND_ROW_LEN_HEADER;
-            end if;
-
          when SEND_ROW_LEN_HEADER =>
-            if(word_count >= NUM_RAM_HEAD_WORDS - 2) then
+            if(word_count >= 1) then
                next_retire_state <= SEND_NUM_ROWS_HEADER;
             end if;
 
          when SEND_NUM_ROWS_HEADER =>
-            if(word_count >= NUM_RAM_HEAD_WORDS - 1) then
-               next_retire_state <= SEND_SYNC_NUM_HEADER;
+            if(word_count >= 2) then
+               next_retire_state <= SEND_DATA_RATE_HEADER;
             end if;
          
+         when SEND_DATA_RATE_HEADER =>
+            if(word_count >= 3) then
+               next_retire_state <= SEND_SYNC_NUM_HEADER;
+            end if;
+
          when SEND_SYNC_NUM_HEADER =>
+            if(word_count >= 4) then
+               next_retire_state <= SEND_HEADER;
+            end if;
+
+         when SEND_HEADER =>
+            -- The "- 1" is to compensate for single words sent at the end of the header
+            -- i.e. sync_num (SEND_SYNC_NUM_HEADER)
             if(word_count >= NUM_RAM_HEAD_WORDS) then
                next_retire_state <= SEND_DATA;
             end if;
