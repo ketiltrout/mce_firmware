@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.24 2006/04/07 22:00:46 bburger Exp $
+-- $Id: bias_card.vhd,v 1.25 2006/04/07 23:15:42 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.25  2006/04/07 23:15:42  bburger
+-- Bryce:  Commital for v01030004
+--
 -- Revision 1.24  2006/04/07 22:00:46  bburger
 -- Bryce:  Commital for v01030003
 --
@@ -122,8 +125,7 @@ use sys_param.data_types_pack.all;
 
 library work;
 use work.bias_card_pack.all;
-use work.leds_pack.all;
-use work.fw_rev_pack.all;
+use work.all_cards_pack.all;
 use work.bc_dac_ctrl_pack.all;
 
 entity bias_card is
@@ -195,7 +197,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030004"; -- 03 signifies backplane Rev. C slot IDs, lvds rx upgraded
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030005"; -- 03 signifies backplane Rev. C slot IDs
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -226,12 +228,22 @@ signal bc_dac_ack        : std_logic;
 signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack  : std_logic;
 signal slave_err         : std_logic;
+
 signal fw_rev_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fw_rev_ack        : std_logic;
+signal fw_rev_err        : std_logic;
+
 signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal id_thermo_ack     : std_logic;
-signal fpga_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal fpga_thermo_ack     : std_logic;
+signal id_thermo_err     : std_logic;
+
+signal fpga_thermo_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal fpga_thermo_ack   : std_logic;
+signal fpga_thermo_err   : std_logic;
+
+signal slot_id_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal slot_id_ack       : std_logic;
+signal slot_id_err       : std_logic;
 
 
 -- frame_timing interface
@@ -305,6 +317,7 @@ begin
          we_i                       => we,
          stb_i                      => stb,
          cyc_i                      => cyc,
+         err_o                      => id_thermo_err,
          dat_o                      => id_thermo_data,
          ack_o                      => id_thermo_ack,
             
@@ -324,6 +337,7 @@ begin
          we_i                       => we,
          stb_i                      => stb,
          cyc_i                      => cyc,
+         err_o                      => fpga_thermo_err,
          dat_o                      => fpga_thermo_data,
          ack_o                      => fpga_thermo_ack,
             
@@ -363,10 +377,28 @@ begin
          we_i                       => we,
          stb_i                      => stb,
          cyc_i                      => cyc,
+         err_o                      => fw_rev_err,
          dat_o                      => fw_rev_data,
          ack_o                      => fw_rev_ack
     );
-         
+   
+    slot_id_slave: bp_slot_id
+       port map(
+          slot_id_i => slot_id,
+          clk_i  => clk,
+          rst_i  => rst,
+
+          dat_i  => data,
+          addr_i => addr,
+          tga_i  => tga,
+          we_i   => we,
+          stb_i  => stb,
+          cyc_i  => cyc,
+          err_o  => slot_id_err,
+          dat_o  => slot_id_data,
+          ack_o  => slot_id_ack
+     );
+
    bc_dac_ctrl_slave: bc_dac_ctrl
       port map(
          -- DAC hardware interface:
@@ -437,6 +469,7 @@ begin
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,         
+         slot_id_data      when SLOT_ID_ADDR,
          (others => '0')   when others;
 
    with addr select
@@ -446,15 +479,18 @@ begin
          bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
-         fpga_thermo_ack   when FPGA_TEMP_ADDR,         
+         fpga_thermo_ack  when FPGA_TEMP_ADDR,         
+         slot_id_ack      when SLOT_ID_ADDR,
          '0'              when others;
          
    with addr select
       slave_err <= 
-         '0'              when FW_REV_ADDR | LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | 
-                               SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR | 
-                               CARD_ID_ADDR | CARD_TEMP_ADDR|
-                               FPGA_TEMP_ADDR,
+         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | 
+                               SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         fw_rev_err       when FW_REV_ADDR,
+         id_thermo_err    when CARD_ID_ADDR | CARD_TEMP_ADDR,
+         fpga_thermo_err  when FPGA_TEMP_ADDR,
+         slot_id_err      when SLOT_ID_ADDR,                      
          '1'              when others;        
    
 end top;
