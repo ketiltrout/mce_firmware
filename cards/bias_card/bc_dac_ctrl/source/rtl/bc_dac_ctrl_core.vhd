@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.7 2005/01/25 00:00:03 mandana Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.8 2006/04/07 22:02:21 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.8  2006/04/07 22:02:21  bburger
+-- Bryce:  Bug Fix:  Added integer ranges to dac_count and clk_count.  Quartus 5.1 was messing up the synthsis without these ranges.
+--
 -- Revision 1.7  2005/01/25 00:00:03  mandana
 -- fixed the synthesis error about flux_fb_changed_reg
 --
@@ -124,6 +127,8 @@ architecture rtl of bc_dac_ctrl_core is
    
    signal bias_current_state     : dac_states;
    signal bias_next_state        : dac_states;
+   signal bias_changed           : std_logic;
+   signal bias_changed_clr       : std_logic;
    
    -- Flux Feedback SPI interface
    signal flux_fb_clk            : std_logic;
@@ -319,26 +324,38 @@ begin
 -- register the change, in case a new change commands comes in when 
 -- state machine is not in IDLE, i.e. DAC values are being clocked out.
 ----------------------------------------------------------------------
-   flux_fb_changed_reg: process(flux_fb_changed_clr, flux_fb_changed_i)
-   begin
+   flux_fb_changed_reg: process(clk_i,rst_i)
+   begin 
+      if (rst_i = '1') then
+         flux_fb_changed <= '0';
+         bias_changed <= '0';
+      elsif(clk_i'event and clk_i='1') then   
          if (flux_fb_changed_clr = '1') then
             flux_fb_changed <= '0';
-         elsif(flux_fb_changed_i'event and flux_fb_changed_i = '1') then
+         elsif (flux_fb_changed_i = '1') then
             flux_fb_changed <= '1';
-         end if;         
+         end if;
+         
+         if (bias_changed_clr = '1') then
+            bias_changed <= '0';
+         elsif (bias_changed_i = '1') then
+            bias_changed <= '1';
+         end if;
+          
+      end if;
    end process flux_fb_changed_reg;
-     
+      
 ----------------------------------------------------------------------
 -- FSM for the bias DAC
 ----------------------------------------------------------------------
-   bias_state_NS : process(bias_current_state, bias_changed_i, update_bias_i, bias_done)
+   bias_state_NS : process(bias_current_state, bias_changed, update_bias_i, bias_done)
    begin      
       -- Default assignment
       bias_next_state <= bias_current_state;
       
       case bias_current_state is 
          when IDLE => 
-            if(bias_changed_i = '1') then
+            if(bias_changed = '1') then
                bias_next_state <= PENDING;
             else 
                bias_next_state <= IDLE;               
@@ -377,6 +394,7 @@ begin
       bias_data_o    <= '0';    
       bias_ncs_o     <= '1';
       bias_clk_o     <= '0';        
+      bias_changed_clr <= '0';
       
       case bias_current_state is 
          
@@ -393,6 +411,7 @@ begin
             bias_data_o   <= bias_data;
             bias_ncs_o    <= bias_ncs;
             bias_clk_o    <= bias_clk;
+            bias_changed_clr <= '1';
 
          when LAST_BIT =>
             bias_data_o   <= bias_data;
