@@ -5,7 +5,7 @@ Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 14.989 ns
+Actual Time    : 16.033 ns
 From           : lvds_sync
 To             : frame_timing:frame_timing_slave|frame_timing_core:ftc|sync_temp
 From Clock     : --
@@ -15,9 +15,9 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 15.875 ns
-From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|count[24]
-To             : dac_ncs[23]
+Actual Time    : 14.911 ns
+From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:flux_fb_dac|count[2]
+To             : dac_ncs[27]
 From Clock     : inclk
 To Clock       : --
 Failed Paths   : 0
@@ -25,7 +25,7 @@ Failed Paths   : 0
 Type           : Worst-case tpd
 Slack          : N/A
 Required Time  : None
-Actual Time    : 9.649 ns
+Actual Time    : 9.928 ns
 From           : ttl_nrx1
 To             : dac_nclr
 From Clock     : --
@@ -35,45 +35,55 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : 1.953 ns
-From           : altera_internal_jtag
-To             : sld_hub:sld_hub_inst|sld_dffex:IRF_ENA_0|Q[0]
+Actual Time    : -4.946 ns
+From           : smb_data
+To             : fpga_thermo:fpga_thermo0|smb_master:master|shift_reg:rx_data_reg|reg[0]
 From Clock     : --
-To Clock       : altera_internal_jtag~TCKUTAP
+To Clock       : inclk
 Failed Paths   : 0
 
-Type           : Clock Setup: 'bc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : 2.583 ns
-Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 67.41 MHz ( period = 14.834 ns )
-From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|count[15]
-To             : sld_signaltap:auto_signaltap_0|acq_trigger_in_reg[9]
-From Clock     : bc_pll:pll0|altpll:altpll_component|_clk0
-To Clock       : bc_pll:pll0|altpll:altpll_component|_clk0
+Type           : Worst-case Minimum tco
+Slack          : N/A
+Required Time  : None
+Actual Time    : 3.067 ns
+From           : bc_pll:pll0|altpll:altpll_component|_clk0
+To             : mictor[8]
+From Clock     : inclk
+To Clock       : --
+Failed Paths   : 0
+
+Type           : Worst-case Minimum tpd
+Slack          : N/A
+Required Time  : None
+Actual Time    : 9.510 ns
+From           : rst_n
+To             : dac_nclr
+From Clock     : --
+To Clock       : --
 Failed Paths   : 0
 
 Type           : Clock Setup: 'bc_pll:pll0|altpll:altpll_component|_clk1'
-Slack          : 4.587 ns
+Slack          : 4.412 ns
 Required Time  : 100.00 MHz ( period = 10.000 ns )
-Actual Time    : 184.74 MHz ( period = 5.413 ns )
-From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_kkg1:auto_generated|alt_sync_fifo_aem:sync_fifo|cntr_808:cntr1|safe_q[0]
-To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_kkg1:auto_generated|alt_sync_fifo_aem:sync_fifo|cntr_808:cntr1|safe_q[3]
+Actual Time    : 178.95 MHz ( period = 5.588 ns )
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|binary_counter:sample_counter|count[1]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_kkg1:auto_generated|alt_sync_fifo_aem:sync_fifo|dpram_lpr:dpram4|altsyncram_9lc1:altsyncram14|ram_block15a0~porta_datain_reg0
 From Clock     : bc_pll:pll0|altpll:altpll_component|_clk1
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk1
 Failed Paths   : 0
 
-Type           : Clock Setup: 'altera_internal_jtag~TCKUTAP'
-Slack          : N/A
-Required Time  : None
-Actual Time    : 119.93 MHz ( period = 8.338 ns )
-From           : sld_hub:sld_hub_inst|sld_dffex:\GEN_IRF:1:IRF|Q[5]
-To             : sld_hub:sld_hub_inst|hub_tdo
-From Clock     : altera_internal_jtag~TCKUTAP
-To Clock       : altera_internal_jtag~TCKUTAP
+Type           : Clock Setup: 'bc_pll:pll0|altpll:altpll_component|_clk0'
+Slack          : 5.007 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : 100.14 MHz ( period = 9.986 ns )
+From           : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|write_spi_with_cs:bias_dac|count[2]
+To             : bc_dac_ctrl:bc_dac_ctrl_slave|bc_dac_ctrl_core:bcdc_core|bias_current_state.clock_out
+From Clock     : bc_pll:pll0|altpll:altpll_component|_clk0
+To Clock       : bc_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Clock Hold: 'bc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : 0.526 ns
+Slack          : 0.537 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
 From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_kkg1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe7a[4]
@@ -83,12 +93,12 @@ To Clock       : bc_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Clock Hold: 'bc_pll:pll0|altpll:altpll_component|_clk1'
-Slack          : 0.560 ns
+Slack          : 0.556 ns
 Required Time  : 100.00 MHz ( period = 10.000 ns )
 Actual Time    : N/A
-From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_kkg1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe5a[2]
-To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_kkg1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe9a[2]
-From Clock     : bc_pll:pll0|altpll:altpll_component|_clk0
+From           : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_kkg1:auto_generated|alt_sync_fifo_aem:sync_fifo|cntr_808:cntr1|safe_q[0]
+To             : dispatch:cmd0|dispatch_cmd_receive:receiver|lvds_rx:cmd_rx|dcfifo:data_buffer|dcfifo_kkg1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe7a[0]
+From Clock     : bc_pll:pll0|altpll:altpll_component|_clk1
 To Clock       : bc_pll:pll0|altpll:altpll_component|_clk1
 Failed Paths   : 0
 
