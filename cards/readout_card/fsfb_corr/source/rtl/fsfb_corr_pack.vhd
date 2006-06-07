@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr_pack.vhd,v 1.7 2005/11/25 20:08:16 bburger Exp $
+-- $Id: fsfb_corr_pack.vhd,v 1.8 2006/03/24 18:35:37 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,11 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr_pack.vhd,v $
+-- Revision 1.8  2006/03/24 18:35:37  bburger
+-- Bryce:
+-- In fsfb_corr_pack:  converted FSFB_MAX and FSFB_MIN to std_logic_vectors
+-- In fsfb_corr:  removed a conv_integer call to get rid of timing violations
+--
 -- Revision 1.7  2005/11/25 20:08:16  bburger
 -- Bryce:  Adjusted fsfb_max = 7800 so that it is not too close to the actual sq1 V-I period of 6200 DA units -- & other modifications
 --
@@ -72,7 +77,7 @@ package fsfb_corr_pack is
    
    -- This is the index of the least significant bit used in the flux-jumping algorithm
    -- Using a window of this type is equivalent to dividing P, I and D by 2^15.
-   constant LSB_WINDOW_INDEX       : integer := 14;  
+   constant LSB_WINDOW_INDEX       : integer := 6;  
 
 --   constant FSFB_MAX               : integer :=  7800;  -- Max is  (2**13)-1 =  8191;  One sq1 flux quanta is about 6200 DAC units
 --   constant FSFB_MIN               : integer := -7800;  -- Min is -(2**13)   = -8192;  One sq1 flux quanta is about 6200 DAC units
