@@ -49,9 +49,12 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/03/17 18:31:17 $> - <text> - <initials $Author: mandana $>
+-- <date $Date: 2006/03/31 21:51:45 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data.vhd,v $
+-- Revision 1.26  2006/03/31 21:51:45  mandana
+-- adjusted data mode 4 windows to signed 18b-fb/14b-error
+--
 -- Revision 1.25  2006/03/17 18:31:17  mandana
 -- adjusted windows for combined fb/error data_mode (4)
 -- included fsfb_corr_pack to tie the window on fsfb reading in data_mode 4 to what is applied to the DAC
@@ -326,6 +329,7 @@ signal rst_addr_ena        : std_logic;
 -- address used for all modes except raw mode (mode 3)
 signal pix_addr_cnt      : integer range 0 to 2**(ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH)-1;
 signal pix_address       : std_logic_vector (ROW_ADDR_WIDTH+CH_MUX_SEL_WIDTH-1 downto 0);       -- pixel address split for row and channel modes 1,2,3
+signal pix_addr_clr      : std_logic;
 signal ch_mux_sel        : std_logic_vector (CH_MUX_SEL_WIDTH-1 downto 0);       -- channel select ch 0 --> 7
     
 -- channel select needs to be delayed by 2 clock cycles as that the time it take to update data
@@ -505,6 +509,7 @@ begin
    output_fsm: process (current_state, wbs_data, data_mode_reg)
    ---------------------------------------------------------------
    begin
+      pix_addr_clr <= '0';
 
       case current_state is
       
@@ -566,6 +571,7 @@ begin
          dec_addr_ena      <= '1';     
          rst_addr_ena      <= '0';
          raw_req           <= '0';
+         pix_addr_clr      <= '1';
          
       when WSM2 =>
          dat_rdy           <= '0';
@@ -667,20 +673,16 @@ begin
             raw_addr_cnt   <= 0 ;
          end if;
 
-          if inc_addr_ena = '1' and data_mode_reg = MODE3_RAW then
+         if dec_addr_ena = '1' and data_mode_reg = MODE3_RAW then
+           raw_addr_cnt <= raw_addr_cnt -3;  -- synchronous decrement by 3
+         elsif inc_addr_ena = '1' and data_mode_reg = MODE3_RAW then
            raw_addr_cnt <= raw_addr_cnt+1;  -- synchronous increment by 1
          end if;
 
-         if inc_addr_ena = '1' and data_mode_reg /= MODE3_RAW then
+         if pix_addr_clr = '1' and data_mode_reg /= MODE3_RAW then
+           pix_addr_cnt <= 0;  -- synchronous decrement by 3
+         elsif inc_addr_ena = '1' and data_mode_reg /= MODE3_RAW then
            pix_addr_cnt <= pix_addr_cnt +1; -- synchronous increment by 1
-         end if;
-
-         if dec_addr_ena = '1' and data_mode_reg = MODE3_RAW then
-           raw_addr_cnt <= raw_addr_cnt -3;  -- synchronous decrement by 3
-         end if;
-         
-         if dec_addr_ena = '1' and data_mode_reg /= MODE3_RAW then
-           pix_addr_cnt <= pix_addr_cnt -3;  -- synchronous decrement by 3
          end if;
 
      end if;
