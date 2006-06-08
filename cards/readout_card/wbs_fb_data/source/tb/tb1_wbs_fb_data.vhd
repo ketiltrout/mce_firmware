@@ -38,6 +38,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_wbs_fb_data.vhd,v $
+-- Revision 1.3  2006/06/07 20:11:10  mandana
+-- replaced z_addr and z_data with flux_quanta_addr and flux_quanta_data
+--
 -- Revision 1.2  2004/11/26 18:28:35  mohsen
 -- Anthony & Mohsen: Restructured constant declaration.  Moved shared constants from lower level package files to the upper level ones.  This was done to resolve compilation error resulting from shared constants defined in multiple package files.
 --
@@ -324,6 +327,7 @@ architecture beh of tb1_wbs_fb_data is
   signal reset_window_done                 : boolean := false;
   signal finish_tb1                        : boolean := false;  -- asserted to end tb
   signal finish_write_p_bank_ch0           : boolean := false;
+  signal finish_write_p_bank_ch1           : boolean := false;
   signal finish_write_i_bank_ch0           : boolean := false;
   signal finish_write_d_bank_ch4           : boolean := false;
   signal finish_write_flux_quanta_bank_ch7 : boolean := false;
@@ -332,6 +336,7 @@ architecture beh of tb1_wbs_fb_data is
   signal finish_write_misc_bank_servo_mode : boolean := false;
   signal finish_write_to_banks             : boolean := false;
   signal finish_read_p_bank_ch0            : boolean := false;
+  signal finish_read_p_bank_ch1            : boolean := false;
   signal finish_read_i_bank_ch0            : boolean := false;
   signal finish_read_d_bank_ch4            : boolean := false;
   signal finish_read_flux_quanta_bank_ch7  : boolean := false;
@@ -539,11 +544,36 @@ begin  -- beh
     stb_i <= '0';
     cyc_i <= '0';
     we_i  <= '0';
-    tga_i    <= (others => '0');
-    
-    
+    tga_i <= (others => '0');
     ---------------------------------------------------------------------------
     -- Write to other channnels here
+    
+    -- Write to Bank for Channel 1
+    addr_i <= GAINP1_ADDR;
+    stb_i  <= '1';
+    cyc_i  <= '1';
+    we_i   <= '1';
+    dat_i  <= (others => '0');
+    wait for 11*PERIOD;
+   
+    for i in 0 to 40 loop
+      dat_i  <= dat_i +8;
+      wait until falling_edge(ack_o);
+      wait for EDGE_DEPENDENCY;
+      -- assert a wait cycle by master
+      if i=25 then
+        stb_i <= '0';
+        wait for 11*PERIOD;
+        stb_i <= '1';
+      end if;
+      tga_i  <= tga_i+1;
+    end loop;  -- i
+    
+    finish_write_p_bank_ch1 <= true;
+    stb_i <= '0';
+    cyc_i <= '0';
+    we_i  <= '0';
+    tga_i    <= (others => '0');
 
 
     ---------------------------------------------------------------------------
@@ -799,6 +829,30 @@ begin  -- beh
     
     ---------------------------------------------------------------------------
     -- Read from other channnels here
+
+    -- Read from Bank for Channel 1
+    addr_i <= GAINP1_ADDR;
+    stb_i  <= '1';
+    cyc_i  <= '1';
+    we_i   <= '0';
+   
+    for i in 0 to 40 loop
+      wait until falling_edge(ack_o);
+      wait for EDGE_DEPENDENCY;
+      -- assert a wait cycle by master
+      if i=17 then
+        stb_i <= '0';
+        wait for 23*PERIOD;
+        stb_i <= '1';
+      end if;
+      tga_i  <= tga_i+1;
+    end loop;  -- i
+    
+    finish_read_p_bank_ch1 <= true;
+    stb_i <= '0';
+    cyc_i <= '0';
+    we_i  <= '0';
+    tga_i    <= (others => '0');
    
 
     ---------------------------------------------------------------------------
@@ -1017,6 +1071,7 @@ begin  -- beh
       reset_window_done      <= false;
       rst_i                  <= '1';
       p_addr_ch0_i           <= (others => '0');
+      p_addr_ch1_i           <= (others => '0');
       i_addr_ch0_i           <= (others => '0');
       d_addr_ch4_i           <= (others => '0');
       flux_quanta_addr_ch7_i           <= (others => '0');
@@ -1042,6 +1097,17 @@ begin  -- beh
     --wait for EDGE_DEPENDENCY;
     for i in 0 to 40 loop
       p_addr_ch0_i <= p_addr_ch0_i+1;
+      wait for PERIOD;
+    end loop;  -- i
+
+    -- Read Bank P from Flux_loop_ctrl
+    wait until finish_write_p_bank_ch1;
+    p_addr_ch0_i           <= (others => '0');
+    wait for PERIOD;
+    --wait for EDGE_DEPENDENCY;
+    for i in 0 to 40 loop
+      p_addr_ch0_i <= p_addr_ch0_i+1;
+      p_addr_ch1_i <= p_addr_ch1_i+1;
       wait for PERIOD;
     end loop;  -- i
 
