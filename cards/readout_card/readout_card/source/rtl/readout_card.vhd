@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.40  2006/06/07 19:49:45  bburger
+-- Bryce:  rc_v0300000d
+--
 -- Revision 1.39  2006/05/16 21:22:33  mandana
 -- revision upgraded to 0300000b (from 03000000a) for slot_id, default LED status, fpga_temp
 --
@@ -297,7 +300,8 @@ architecture top of readout_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300000d"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300000e"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- data mode 4 is 18b/14b, new BB protocol, BB rev. C 
                                                                      -- RC Rev. B (1S40)  
 -- Global signals
