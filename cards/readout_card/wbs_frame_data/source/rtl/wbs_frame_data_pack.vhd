@@ -29,9 +29,12 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2005/06/23 17:31:56 $> - <text> - <initials $Author: mohsen $>
+-- <date $Date: 2005/12/13 00:51:08 $> - <text> - <initials $Author: mandana $>
 --
 -- $Log: wbs_frame_data_pack.vhd,v $
+-- Revision 1.8  2005/12/13 00:51:08  mandana
+-- reorganized the data modes, added data mode for filtering and for mixed feedback and flux-count
+--
 -- Revision 1.7  2005/06/23 17:31:56  mohsen
 -- MA/BB: RAW_ADDR_MAX changed to 8192 which is the maximum size of raw memory bank
 --
@@ -64,6 +67,7 @@ use ieee.std_logic_1164.all;
 
 library work;
 use work.flux_loop_pack.all;
+use work.frame_timing_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -71,11 +75,8 @@ use sys_param.wishbone_pack.all;
 
 package wbs_frame_data_pack is
 
-constant CH_MUX_SEL_WIDTH :  integer := 3;
-
-constant NO_CHANNELS       :  integer := 2**CH_MUX_SEL_WIDTH;
-constant NO_ROWS           :  integer := 41;
-
+constant CH_MUX_SEL_WIDTH  :  integer := 3;
+constant NO_ROWS           :  integer := NUM_OF_ROWS;
 constant PIXEL_ADDR_MAX    :  integer := NO_CHANNELS * NO_ROWS;
 --constant PIXEL_ADDR_MAX    :  integer := (NO_CHANNELS * (2**ROW_ADDR_WIDTH)) - 1;
 

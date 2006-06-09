@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.19  2005/11/23 18:20:44  erniel
+-- brought back PACKET_WORD_WIDTH constant
+-- changed FIBRE_PREAMBLE1 and FIBRE_PREAMBLE2 to 32 bits
+--
 -- Revision 1.18  2005/11/21 23:35:09  erniel
 -- temporary version (to maintain compatibility with previous version)
 --
@@ -95,7 +99,9 @@ package command_pack is
    
    constant PACKET_WORD_WIDTH : integer := 32;
    
-   
+   -- Number of channels per RC
+   constant NO_CHANNELS       : integer := 8;
+
    ------------------------------------------------------------------------
    -- Bus Backplane-Protocol Declarations
    ------------------------------------------------------------------------

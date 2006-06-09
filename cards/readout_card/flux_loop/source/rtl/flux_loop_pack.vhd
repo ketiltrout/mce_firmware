@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.9  2006/02/15 21:34:23  mandana
+-- added fltr_rst_i port
+--
 -- Revision 1.8  2005/12/12 22:20:03  mandana
 -- removed the unused flux_jumping_en_i port
 -- changed fsfb_fltr_dat_o port definition to fltr_queue_data_width-1
@@ -70,6 +73,7 @@ use ieee.std_logic_arith.all;
 
 library work;
 use work.readout_card_pack.all;
+use work.frame_timing_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -120,7 +124,7 @@ package flux_loop_pack is
   -- filter related 
   constant FLTR_QUEUE_DATA_WIDTH  : integer := WB_DATA_WIDTH;        -- data width of the filter results storage
   constant FLTR_QUEUE_ADDR_WIDTH  : integer := 6;
-  constant FLTR_QUEUE_COUNT       : integer := 41;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
+  constant FLTR_QUEUE_COUNT       : integer := NUM_OF_ROWS;                   -- 2**FLTR_QUEUE_ADDR_WIDTH-1; -- or just 41! 
 
   
   -----------------------------------------------------------------------------
