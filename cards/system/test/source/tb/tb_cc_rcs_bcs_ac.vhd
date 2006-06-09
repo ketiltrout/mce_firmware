@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.21 2006/05/30 00:53:37 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.22 2006/06/03 02:29:15 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.22  2006/06/03 02:29:15  bburger
+-- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
+--
 -- Revision 1.21  2006/05/30 00:53:37  bburger
 -- Bryce:  Interim committal
 --
@@ -350,6 +353,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_servo_mode_cmd      : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SERVO_MODE_ADDR;
    constant rc1_sa_bias_cmd         : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & SA_BIAS_ADDR;
    constant rc1_offset_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & OFFSET_ADDR;
+   constant rc1_gainp0_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP0_ADDR;
+   constant rc1_gainp1_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP1_ADDR;
    constant rc1_flx_quanta0_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA0_ADDR;
    constant rc1_flx_quanta1_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA1_ADDR;
    constant rc1_flx_quanta2_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FLX_QUANTA2_ADDR;
@@ -366,8 +371,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_fb_const_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FB_CONST_ADDR;
    constant rc1_captr_raw_cmd       : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & CAPTR_RAW_ADDR;
    constant rc1_en_fb_jump_cmd      : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & EN_FB_JUMP_ADDR;
-   constant rc1_gainp0_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINP0_ADDR;
-   constant rc1_gaini0_cmd          : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & GAINI0_ADDR;
    constant rc1_adc_offset0_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & ADC_OFFSET0_ADDR;
    constant rc1_led_cmd             : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & LED_ADDR;
    
@@ -412,6 +415,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant ac_enbl_mux_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & ENBL_MUX_ADDR;
    constant ac_row_dly_cmd          : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & ROW_DLY_ADDR;
    constant ac_row_len_cmd          : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & ROW_LEN_ADDR;    
+   constant ac_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & NUM_ROWS_ADDR;
    
    constant bc1_flux_fb_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & FLUX_FB_ADDR;
 
@@ -1038,7 +1042,7 @@ begin
    rc1_adc7_rdy <= inclk;
    rc1_adc8_rdy <= inclk;
    rc1_adc1_dat <= "01001110001000";  --5000
-   rc1_adc2_dat <= "11111111110000";  --ctr_count_slv_o;
+   rc1_adc2_dat <= "01001110001000";  --ctr_count_slv_o;
    rc1_adc3_dat <= "11111111110000";  --ctr_count_slv_o;
    rc1_adc4_dat <= "11111111110000";  --ctr_count_slv_o;
    rc1_adc5_dat <= "11111111110000";  --ctr_count_slv_o;
@@ -1689,69 +1693,69 @@ begin
 --         rs232_tx      => bc1_rs232_tx
 --      );     
 --
---   i_addr_card : addr_card
---      port map
---      (
---         -- PLL input:
---         inclk            => lvds_clk,
---         rst_n            => rst_n,
---         
---         -- LVDS interface:
---         lvds_cmd         => lvds_cmd,  
---         lvds_sync        => lvds_sync, 
---         lvds_spare       => lvds_spare,
---         lvds_txa         => lvds_reply_ac_a, 
---         lvds_txb         => lvds_reply_ac_b, 
---      
---         -- TTL interface:
---         ttl_nrx1         => bclr_n,
---         ttl_tx1          => open,
---         ttl_txena1       => ac_ttl_txena1,
---         
---         ttl_nrx2         => ac_ttl_nrx2,
---         ttl_tx2          => open,
---         ttl_txena2       => ac_ttl_txena2,
---         
---         ttl_nrx3         => ac_ttl_nrx3,
---         ttl_tx3          => open,
---         ttl_txena3       => ac_ttl_txena3,
---         
---         -- eeprom interface:
---         eeprom_si        => ac_eeprom_si, 
---         eeprom_so        => ac_eeprom_so, 
---         eeprom_sck       => ac_eeprom_sck,
---         eeprom_cs        => ac_eeprom_cs, 
---         
---         -- dac interface:
---         dac_data0        => ac_dac_data0,  
---         dac_data1        => ac_dac_data1,  
---         dac_data2        => ac_dac_data2,  
---         dac_data3        => ac_dac_data3,  
---         dac_data4        => ac_dac_data4,  
---         dac_data5        => ac_dac_data5,  
---         dac_data6        => ac_dac_data6,  
---         dac_data7        => ac_dac_data7,  
---         dac_data8        => ac_dac_data8,  
---         dac_data9        => ac_dac_data9,  
---         dac_data10       => ac_dac_data10, 
---         dac_clk          => ac_dac_clk,    
---         
---         -- miscellaneous ports:
---         red_led          => ac_red_led, 
---         ylw_led          => ac_ylw_led, 
---         grn_led          => ac_grn_led, 
---         dip_sw3          => ac_dip_sw3, 
---         dip_sw4          => ac_dip_sw4, 
---         wdog             => ac_wdog,    
---         slot_id          => ac_slot_id, 
---         
---         -- debug ports:
---         test             => ac_test,       
---         mictor           => ac_mictor,     
---         mictorclk        => ac_mictorclk,  
---         rs232_rx         => ac_rs232_rx,
---         rs232_tx         => ac_rs232_tx
---      );
+   i_addr_card : addr_card
+      port map
+      (
+         -- PLL input:
+         inclk            => lvds_clk,
+         rst_n            => rst_n,
+         
+         -- LVDS interface:
+         lvds_cmd         => lvds_cmd,  
+         lvds_sync        => lvds_sync, 
+         lvds_spare       => lvds_spare,
+         lvds_txa         => lvds_reply_ac_a, 
+         lvds_txb         => lvds_reply_ac_b, 
+      
+         -- TTL interface:
+         ttl_nrx1         => bclr_n,
+         ttl_tx1          => open,
+         ttl_txena1       => ac_ttl_txena1,
+         
+         ttl_nrx2         => ac_ttl_nrx2,
+         ttl_tx2          => open,
+         ttl_txena2       => ac_ttl_txena2,
+         
+         ttl_nrx3         => ac_ttl_nrx3,
+         ttl_tx3          => open,
+         ttl_txena3       => ac_ttl_txena3,
+         
+         -- eeprom interface:
+         eeprom_si        => ac_eeprom_si, 
+         eeprom_so        => ac_eeprom_so, 
+         eeprom_sck       => ac_eeprom_sck,
+         eeprom_cs        => ac_eeprom_cs, 
+         
+         -- dac interface:
+         dac_data0        => ac_dac_data0,  
+         dac_data1        => ac_dac_data1,  
+         dac_data2        => ac_dac_data2,  
+         dac_data3        => ac_dac_data3,  
+         dac_data4        => ac_dac_data4,  
+         dac_data5        => ac_dac_data5,  
+         dac_data6        => ac_dac_data6,  
+         dac_data7        => ac_dac_data7,  
+         dac_data8        => ac_dac_data8,  
+         dac_data9        => ac_dac_data9,  
+         dac_data10       => ac_dac_data10, 
+         dac_clk          => ac_dac_clk,    
+         
+         -- miscellaneous ports:
+         red_led          => ac_red_led, 
+         ylw_led          => ac_ylw_led, 
+         grn_led          => ac_grn_led, 
+         dip_sw3          => ac_dip_sw3, 
+         dip_sw4          => ac_dip_sw4, 
+         wdog             => ac_wdog,    
+         slot_id          => ac_slot_id, 
+         
+         -- debug ports:
+         test             => ac_test,       
+         mictor           => ac_mictor,     
+         mictorclk        => ac_mictorclk,  
+         rs232_rx         => ac_rs232_rx,
+         rs232_tx         => ac_rs232_tx
+      );
      
    ------------------------------------------------
    -- Create test bench stimuli
@@ -1959,7 +1963,7 @@ begin
             when rc3_ret_dat_cmd  => data <= (others => '0');
             when rc4_ret_dat_cmd  => data <= (others => '0');
             when rcs_ret_dat_cmd  => data <= (others => '0');
-            when others           => data <= data;-- + 1;
+            when others           => data <= data + 1;
          end case;
          
          wait for fibre_clkr_prd * 0.6;
@@ -2079,16 +2083,6 @@ begin
 ------------------------------------------------------
 --  Testing Sys Commands
 ------------------------------------------------------
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;      
-      
-      wait for 53 us;
-
 
 ------------------------------------------------------
 --  Testing Manchester Data Packets
@@ -2100,7 +2094,28 @@ begin
 --      constant DV_INTERNAL            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "00";
 --      constant DV_EXTERNAL_FIBRE      : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "01";
 --      constant DV_EXTERNAL_MANCHESTER : std_logic_vector(DV_SELECT_WIDTH-1 downto 0) := "10";
---
+
+
+      command <= command_wb;
+      address_id <= rc1_gainp0_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;      
+      
+      wait for 53 us;
+
+--      command <= command_wb;
+--      address_id <= rc1_gainp1_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+
       command <= command_wb;
       address_id <= cc_ret_dat_s_cmd;
       data_valid <= X"00000002";
@@ -2142,6 +2157,16 @@ begin
       wait for 53 us;
 
       command <= command_wb;
+      address_id <= ac_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000004";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 53 us;
+
+      command <= command_wb;
       address_id <= cc_row_len_cmd;
       data_valid <= X"00000001";
       data       <= X"000003E8";
@@ -2160,6 +2185,57 @@ begin
       load_checksum;
 
       wait for 53 us;
+
+      command <= command_wb;
+      address_id <= rc1_sample_num_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 53 us;
+
+      command <= command_wb;
+      address_id <= ac_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"000003E8";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 53 us;
+      
+      command <= command_wb;
+      address_id <= ac_row_order_cmd;
+      data_valid <= X"00000004";
+      data       <= X"0000000A";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 53 us;
+
+      command <= command_wb;
+      address_id <= ac_enbl_mux_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+
+      wait for 53 us;
+      
+      command <= command_wb;
+      address_id <= rc1_servo_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000003";
+      load_preamble;
+      load_command;
+      load_checksum;     
+      
+      wait for 53 us;
+      
 
 --      -- From Manchester = 2
 --      command <= command_wb;
@@ -2190,8 +2266,8 @@ begin
       load_preamble;
       load_command;
       load_checksum;
-      
-      wait for 6000 us;
+
+      wait for 3000 us;
       
       
 
@@ -2951,281 +3027,281 @@ begin
    end process stimuli;  
    
    
-   manchester_input : process
-   
-      procedure manchester_sync_packet is
-      begin 
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '1';
-         wait for 40 ns;
-         manchester_data <= '1';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '1';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         
-         manchester_data <= '1';
-         wait for 50880 ns; -- Based on 41 rows, 64 cycles per row, 20 ns per cycle, minus 40 bits at 25 MHz
-      
-      end manchester_sync_packet;
-      
-      procedure manchester_data_packet is
-      begin 
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '1';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '1';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         manchester_data <= '0';
-         wait for 40 ns;
-         
-         manchester_data <= '1';
-         wait for 50880 ns; -- Based on 41 rows, 64 cycles per row, 20 ns per cycle, minus 40 bits at 25 MHz
-      
-      end manchester_data_packet;   
-   
-   begin
-
-      manchester_sigdet <= '1';
-
-      manchester_data_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      
-      manchester_data_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      
-      manchester_data_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      
-      manchester_data_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      
-      manchester_data_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      manchester_sync_packet;
-      
-   end process manchester_input;
+--   manchester_input : process
+--   
+--      procedure manchester_sync_packet is
+--      begin 
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '1';
+--         wait for 40 ns;
+--         manchester_data <= '1';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '1';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         
+--         manchester_data <= '1';
+--         wait for 50880 ns; -- Based on 41 rows, 64 cycles per row, 20 ns per cycle, minus 40 bits at 25 MHz
+--      
+--      end manchester_sync_packet;
+--      
+--      procedure manchester_data_packet is
+--      begin 
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '1';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '1';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         manchester_data <= '0';
+--         wait for 40 ns;
+--         
+--         manchester_data <= '1';
+--         wait for 50880 ns; -- Based on 41 rows, 64 cycles per row, 20 ns per cycle, minus 40 bits at 25 MHz
+--      
+--      end manchester_data_packet;   
+--   
+--   begin
+--
+--      manchester_sigdet <= '1';
+--
+--      manchester_data_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      
+--      manchester_data_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      
+--      manchester_data_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      
+--      manchester_data_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      
+--      manchester_data_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      manchester_sync_packet;
+--      
+--   end process manchester_input;
    
 end tb;

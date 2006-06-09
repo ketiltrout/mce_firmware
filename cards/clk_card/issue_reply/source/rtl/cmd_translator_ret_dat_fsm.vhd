@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.33 2006/05/30 00:53:37 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.34 2006/06/03 02:29:15 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/05/30 00:53:37 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/06/03 02:29:15 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.34  2006/06/03 02:29:15  bburger
+-- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
+--
 -- Revision 1.33  2006/05/30 00:53:37  bburger
 -- Bryce:  Interim committal
 --
@@ -369,7 +372,7 @@ begin
    -- Assign values
    ------------------------------------------------------------------------------------------- 
    process(current_state, ack_i, ret_dat_start, ret_dat_start_i, ret_dat_stop_reg, external_dv_i, 
-      sync_number_i, start_seq_num_i, current_seq_num_reg, current_sync_num_reg, data_rate_i)
+      sync_number_i, start_seq_num_i, current_seq_num_reg, current_sync_num_reg, data_rate_i, external_dv_num_i, dv_mode_i)
    begin
       -- default assignments
       ret_dat_cmd_valid                <= '0';
@@ -440,7 +443,12 @@ begin
             if(external_dv_i = '1') then
                reg_en                  <= '1';
                current_sync_num        <= sync_number_i + 1;
-               current_seq_num         <= current_seq_num_reg + 1;
+               
+               if(dv_mode_i = DV_EXTERNAL_MANCHESTER) then
+                  current_seq_num      <= external_dv_num_i;
+               else
+                  current_seq_num      <= current_seq_num_reg + 1;
+               end if;
             end if;
          
          when RETURN_DATA_PAUSE =>

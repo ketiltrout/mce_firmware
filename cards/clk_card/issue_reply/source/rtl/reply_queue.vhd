@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.25 2006/05/25 05:41:26 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.26 2006/06/03 02:29:15 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.26  2006/06/03 02:29:15  bburger
+-- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
+--
 -- Revision 1.25  2006/05/25 05:41:26  bburger
 -- Bryce:  Intermediate committal
 --
@@ -207,7 +210,7 @@ architecture behav of reply_queue is
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
    type retire_states is (IDLE, LATCH_CMD, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, SEND_REPLY, 
       STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, SEND_HEADER, SEND_SYNC_NUM_HEADER, 
-      SEND_DATA_RATE_HEADER, SEND_ROW_LEN_HEADER, SEND_NUM_ROWS_HEADER, SEND_DATA, WAIT_FOR_ACK, SEND_STATUS);
+      SEND_DATA_RATE_HEADER, SEND_ROW_LEN_HEADER, SEND_NUM_ROWS_HEADER, SEND_SEQUENCE_NUM_HEADER, SEND_DATA, WAIT_FOR_ACK, SEND_STATUS);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;   
 
@@ -479,6 +482,11 @@ begin
 
          when SEND_SYNC_NUM_HEADER =>
             if(word_count >= 4) then
+               next_retire_state <= SEND_SEQUENCE_NUM_HEADER;
+            end if;
+
+         when SEND_SEQUENCE_NUM_HEADER =>
+            if(word_count >= 5) then
                next_retire_state <= SEND_HEADER;
             end if;
 
@@ -511,7 +519,7 @@ begin
    end process;
    
    retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, head_q, data, 
-      data_size, par_id, word_count, issue_sync_num, row_len_i, num_rows_i, data_rate_i)
+      data_size, par_id, word_count, issue_sync_num, row_len_i, num_rows_i, data_rate_i, frame_seq_num)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -606,6 +614,14 @@ begin
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= issue_sync_num;
+            ena_word_count  <= ack_i;            
+            cmd_rdy         <= '1';
+            cmd_valid_o     <= '1';
+
+         when SEND_SEQUENCE_NUM_HEADER =>
+            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+            rdy_o           <= '1';
+            data_o          <= frame_seq_num;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
