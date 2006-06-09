@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.42 2006/05/25 05:41:26 bburger Exp $
+-- $Id: clk_card.vhd,v 1.43 2006/05/30 00:53:37 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.43  2006/05/30 00:53:37  bburger
+-- Bryce:  Interim committal
+--
 -- Revision 1.42  2006/05/25 05:41:26  bburger
 -- Bryce:  Intermediate committal
 --
@@ -140,6 +143,8 @@ entity clk_card is
       dv_pulse_fibre    : in std_logic;
       manchester_data   : in std_logic;
       manchester_sigdet : in std_logic;
+
+      -- For Testbenching
       switch_to_xtal    : in std_logic;
       switch_to_manch   : in std_logic;
       
@@ -212,7 +217,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000009";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"0200000b";
 
 -- reset
 signal rst                : std_logic;
