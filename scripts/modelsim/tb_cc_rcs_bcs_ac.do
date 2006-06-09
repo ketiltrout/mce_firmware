@@ -176,7 +176,6 @@ add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_queue/tx_o
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_queue/sync_num_i
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_queue/clk_i
-add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_queue/mem_clk_i
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_queue/rst_i
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_queue/data_sig
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_queue/wraddress_sig
@@ -280,6 +279,7 @@ add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card
 add wave -noupdate -divider ret_dat_wbs
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/start_seq_num_o
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/stop_seq_num_o
+add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/data_rate_o
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/clk_i
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/rst_i
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/dat_i
@@ -295,23 +295,17 @@ add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/master_wait
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/start_wren
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/stop_wren
+add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/data_rate_wren
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/start_data
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/stop_data
+add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/data_rate_data
+add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/clamped_rate_data
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/current_state
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/ret_dat_param/next_state
 add wave -noupdate -divider {rcs leds}
 add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/red_led
 add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/ylw_led
 add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/grn_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card3/red_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card3/ylw_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card3/grn_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card2/red_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card2/ylw_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card2/grn_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card1/red_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card1/ylw_led
-add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card1/grn_led
 add wave -noupdate -divider cc_reset
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/cc_reset0/nrx_rdy_i
 add wave -noupdate -format Logic -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/cc_reset0/rsc_nrd_i
@@ -509,13 +503,52 @@ add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_ca
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_translator/i_return_data_cmd/current_sync_num_reg_plus_1
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_translator/i_return_data_cmd/current_sync_num_reg
 add wave -noupdate -format Literal -radix hexadecimal /tb_cc_rcs_bcs_ac/i_clk_card/issue_reply0/i_cmd_translator/i_return_data_cmd/current_sync_num
+add wave -noupdate -divider frame_timing_core
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/dac_dat_en_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/adc_coadd_en_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/restart_frame_1row_prev_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/restart_frame_aligned_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/restart_frame_1row_post_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/initialize_window_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/row_switch_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/row_en_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/update_bias_o
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/row_len_i
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/num_rows_i
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/sample_delay_i
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/sample_num_i
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/feedback_delay_i
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/address_on_delay_i
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/resync_req_i
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/resync_ack_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/init_window_req_i
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/init_window_ack_o
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/clk_i
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/mem_clk_i
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/rst_i
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/sync_i
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/frame_count_int
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/frame_count_new
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/row_count_int
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/row_count_new
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/enable_counters
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/sync_received
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/end_of_frame_minus_1row
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/end_of_frame_plus_1row
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/address_on_delay
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/sync_temp
+add wave -noupdate -format Logic /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/sync
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/current_state
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/next_state
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/current_init_win_state
+add wave -noupdate -format Literal /tb_cc_rcs_bcs_ac/i_readout_card4/i_frame_timing/ftc/next_init_win_state
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {52795622 ps} 0} {{Cursor 2} {740653434 ps} 0}
-WaveRestoreZoom {52747010 ps} {53139955 ps}
-configure wave -namecolwidth 587
-configure wave -valuecolwidth 85
+WaveRestoreCursors {{Cursor 1} {193743766 ps} 0} {{Cursor 2} {987105995 ps} 0}
+WaveRestoreZoom {0 ps} {1522185 ns}
+configure wave -namecolwidth 285
+configure wave -valuecolwidth 76
 configure wave -justifyvalue left
-configure wave -signalnamewidth 0
+configure wave -signalnamewidth 2
 configure wave -snapdistance 10
 configure wave -datasetprefix 0
 configure wave -rowmargin 4

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id$
+-- $Id: clk_switchover.vhd,v 1.1 2006/05/13 07:38:12 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -28,7 +28,10 @@
 -- Clock switchover logic
 --
 -- Revision history:
--- $Log$
+-- $Log: clk_switchover.vhd,v $
+-- Revision 1.1  2006/05/13 07:38:12  bburger
+-- Bryce:  Intermediate commital -- going away on holiday and don't want to lose work
+--
 --
 --
 -----------------------------------------------------------------------------
@@ -160,6 +163,8 @@ begin
 --            locked => locked);
 
 
+   -- **Note:  make sure that the machester signal detect is double buffered.
+   
    -- gated lock, msig generation:
    process(xtal_clk)
    begin
