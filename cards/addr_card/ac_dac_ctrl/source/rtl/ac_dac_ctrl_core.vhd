@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_core.vhd,v 1.6 2006/01/16 01:09:56 bburger Exp $
+-- $Id: ac_dac_ctrl_core.vhd,v 1.7 2006/05/04 23:09:07 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_core.vhd,v $
+-- Revision 1.7  2006/05/04 23:09:07  bburger
+-- Bryce:  Added integer ranges four integers
+--
 -- Revision 1.6  2006/01/16 01:09:56  bburger
 -- Bryce:  Commital for v01020002, DACs reset upon power up
 --
@@ -120,13 +123,13 @@ signal row_current_state   : row_states;
 signal row_next_state      : row_states;
 signal frame_aligned_reg   : std_logic;
 signal mux_en              : std_logic;
-signal row_count           : integer range 0 to AC_NUM_BUSES;
-signal row_count_new       : integer range 0 to AC_NUM_BUSES;
+signal row_count           : integer range 0 to 2**31-1;
+signal row_count_new       : integer range 0 to 2**31-1;
 
 -- DAC signals 
-signal k                   : integer range 0 to AC_NUM_BUSES;
+signal k                   : integer range 0 to 2**31-1;
 signal dac_data            : std_logic_vector(AC_BUS_WIDTH-1 downto 0);
-signal dac_id_int          : integer range 0 to AC_NUM_BUSES;
+signal dac_id_int          : integer range 0 to 2**31-1;
 
 begin
                        
