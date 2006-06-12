@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.15 2006/03/24 18:35:37 bburger Exp $
+-- $Id: fsfb_corr.vhd,v 1.15.2.1 2006/04/28 18:15:29 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.15.2.1  2006/04/28 18:15:29  mandana
+-- correct sign-bit for feedback data when windowing is in effect for lock_en =0
+--
 -- Revision 1.15  2006/03/24 18:35:37  bburger
 -- Bryce:
 -- In fsfb_corr_pack:  converted FSFB_MAX and FSFB_MIN to std_logic_vectors
@@ -818,8 +821,7 @@ begin
             if(fsfb_ctrl_lock_en_i = '1') then
                pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH-1 downto LSB_WINDOW_INDEX);
             else
-               pid_prev_reg1         <= fsfb_ctrl_dat1_i(fsfb_ctrl_dat1_i'left) & 
-                                        fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-2 downto 0);
+               pid_prev_reg1         <= fsfb_ctrl_dat1_i(FSFB_QUEUE_DATA_WIDTH - LSB_WINDOW_INDEX-1 downto 0);
             end if;
             fsfb_ctrl_dat_rdy1    <= fsfb_ctrl_dat_rdy1_i;
          end if;
@@ -1004,28 +1006,28 @@ begin
    pid_prev_sign_xtnd2 <= sign_xtnd_pid_prev(pid_prev2);
       
    fsfb_ctrl_dat0_o <=
-      pid_prev_reg0(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
+      pid_prev_reg0(pid_prev_reg0'left) & pid_prev_reg0(DAC_DAT_WIDTH-2 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg0(DAC_DAT_WIDTH-1 downto 0);        
    fsfb_ctrl_dat1_o <=
-      pid_prev_reg1(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
+      pid_prev_reg1(pid_prev_reg1'left) & pid_prev_reg1(DAC_DAT_WIDTH-2 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg1(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat2_o <=
-      pid_prev_reg2(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
+      pid_prev_reg2(pid_prev_reg2'left) & pid_prev_reg2(DAC_DAT_WIDTH-2 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg2(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat3_o <=
-      pid_prev_reg3(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
+      pid_prev_reg3(pid_prev_reg3'left) & pid_prev_reg3(DAC_DAT_WIDTH-2 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg3(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat4_o <=
-      pid_prev_reg4(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
+      pid_prev_reg4(pid_prev_reg4'left) & pid_prev_reg4(DAC_DAT_WIDTH-2 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg4(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat5_o <=
-      pid_prev_reg5(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
+      pid_prev_reg5(pid_prev_reg5'left) & pid_prev_reg5(DAC_DAT_WIDTH-2 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg5(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat6_o <=
-      pid_prev_reg6(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
+      pid_prev_reg6(pid_prev_reg6'left) & pid_prev_reg6(DAC_DAT_WIDTH-2 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg6(DAC_DAT_WIDTH-1 downto 0);
    fsfb_ctrl_dat7_o <=
-      pid_prev_reg7(DAC_DAT_WIDTH-1 downto 0) when flux_jumping_en_i = '0' else
+      pid_prev_reg7(pid_prev_reg7'left) & pid_prev_reg7(DAC_DAT_WIDTH-2 downto 0) when flux_jumping_en_i = '0' else
       res_b_reg7(DAC_DAT_WIDTH-1 downto 0);
    
    fsfb_ctrl_dat_rdy_o <= pid_corr_rdy;
