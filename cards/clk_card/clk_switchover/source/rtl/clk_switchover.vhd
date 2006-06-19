@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_switchover.vhd,v 1.1 2006/05/13 07:38:12 bburger Exp $
+-- $Id: clk_switchover.vhd,v 1.2 2006/06/09 22:37:12 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_switchover.vhd,v $
+-- Revision 1.2  2006/06/09 22:37:12  bburger
+-- Bryce:  Interim comittal
+--
 -- Revision 1.1  2006/05/13 07:38:12  bburger
 -- Bryce:  Intermediate commital -- going away on holiday and don't want to lose work
 --
@@ -41,21 +44,35 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
+library sys_param;
+--use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
+
 entity clk_switchover is
    port(
-      rst       : in std_logic;
-      xtal_clk  : in std_logic; -- Crystal Clock Input
-      manch_clk : in std_logic; -- Manchester Clock Input
-      manch_det : in std_logic;
-      switch_to_xtal  : in std_logic;
-      switch_to_manch : in std_logic;
-      e2        : out std_logic;
-      c0        : out std_logic;
-      c1        : out std_logic;
-      c2        : out std_logic;
-      c3        : out std_logic;
-      e0        : out std_logic;
-      e1        : out std_logic 
+      -- wishbone interface:
+      dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                : in std_logic;
+      stb_i               : in std_logic;
+      cyc_i               : in std_logic;
+      dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o               : out std_logic;
+
+      rst_i       		  : in std_logic;
+      xtal_clk_i          : in std_logic; -- Crystal Clock Input
+      manch_clk_i         : in std_logic; -- Manchester Clock Input
+      manch_det_i         : in std_logic;
+      switch_to_xtal_i    : in std_logic;
+      switch_to_manch_i   : in std_logic;
+      e2_o                : out std_logic;
+      c0_o                : out std_logic;
+      c1_o                : out std_logic;
+      c2_o                : out std_logic;
+      c3_o                : out std_logic;
+      e0_o                : out std_logic;
+      e1_o                : out std_logic 
    );     
 end clk_switchover;
 
@@ -67,7 +84,6 @@ architecture top of clk_switchover is
          clkswitch      : IN STD_LOGIC  := '0';
          inclk0      : IN STD_LOGIC  := '0';
          inclk1      : IN STD_LOGIC  := '0';
---         pfdena      : IN STD_LOGIC  := '1';
          e2    : OUT STD_LOGIC ;
          c0    : OUT STD_LOGIC ;
          c1    : OUT STD_LOGIC ;
@@ -83,251 +99,182 @@ architecture top of clk_switchover is
       );
    end component;   
 
-   --component pll1
-   --port(inclk0      : in std_logic  := '0';
-   --     inclk1      : in std_logic  := '0';
-   --     c0          : out std_logic ;
-   --     c0_ena      : in std_logic  := '1';
-   --     e0          : out std_logic ;
-   --     e0_ena      : in std_logic  := '1';
-   --     clkswitch   : in std_logic  := '0';
-   --     pfdena      : in std_logic  := '1';
-   --     activeclock : out std_logic ;
-   --     clkbad0     : out std_logic ;
-   --     clkbad1     : out std_logic ;
-   --     locked      : out std_logic);
-   --end component;
+   constant XTAL_CLK               : std_logic := '1';
+   constant MANCH_CLK              : std_logic := '0';
 
+   -- Clock Switchover and PLL signals/states
    type states is (CRYSTAL_CLK, MANCHESTER_CLK, SWITCHING, RELOCKING);
    signal ps, ns : states;
 
-   constant LOCK_GATED_DELAY : integer := 16;
-   constant DET_GATED_DELAY  :  integer := 8;
+   signal activeclock     : std_logic;
+   signal xtal_clk_bad    : std_logic;
+   signal manch_clk_bad   : std_logic;
+   signal locked          : std_logic;
+   signal clkswitch       : std_logic;
+   signal clkloss         : std_logic;
+   signal clk             : std_logic;
 
-   signal gated_lock_reg     : std_logic_vector(LOCK_GATED_DELAY-1 downto 0);
-   signal gated_lock         : std_logic;
+   -- Wishbone FSM inputs
+   signal wr_cmd          : std_logic;
+   signal rd_cmd          : std_logic;
 
-   signal gated_det_reg      : std_logic_vector(DET_GATED_DELAY-1 downto 0);
-   signal gated_det          : std_logic;
+   -- WBS states:
+   type wbs_states is (IDLE, WR, RD); 
+   signal current_state   : wbs_states;
+   signal next_state      : wbs_states;
 
-   signal count              : std_logic_vector(1 downto 0);
-   signal count_rst          : std_logic;
-   
-   signal pfdena             : std_logic;
---   signal extclkena          : std_logic;
-   signal activeclock        : std_logic;
-   signal xtal_clk_bad       : std_logic;
-   signal manch_clk_bad      : std_logic;
-   signal locked             : std_logic;
-   signal clkswitch          : std_logic;
-   signal clkloss            : std_logic;
-   
-   signal clk                : std_logic;
+   signal select_clk_wren : std_logic;
+   signal select_clk_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal input_data      : std_logic;
 
 begin
 
-   c0 <= clk;
+   c0_o <= clk;
    pll0: cc_pll
       port map(
          clkswitch   => clkswitch,
-         inclk0      => xtal_clk,
-         inclk1      => manch_clk,
---         pfdena      => pfdena,
-         e2          => e2,
+         inclk0      => xtal_clk_i,
+         inclk1      => manch_clk_i,
+         e2          => e2_o,
          c0          => clk,
-         c1          => c1,
-         c2          => c2,
-         c3          => c3,
+         c1          => c1_o,
+         c2          => c2_o,
+         c3          => c3_o,
          clkloss     => clkloss,
          locked      => locked,
          activeclock => activeclock,
-         e0          => e0,
+         e0          => e0_o,
          clkbad0     => xtal_clk_bad,
-         e1          => e1,
+         e1          => e1_o,
          clkbad1     => manch_clk_bad
       );  
 
---   clkgen0 : pll1
---   port map(inclk0 => xtal_clk,
---            inclk1 => manch_clk,
---            c0 => open,
---            c0_ena => '1',
---            e0 => extclkout,
---            e0_ena => extclkena,
---            clkswitch => clkswitch,
---            -- What is this?
---            pfdena => pfdena,
---            activeclock => activeclock,
---            clkbad0 => clkbad0,
---            clkbad1 => clkbad1,
---            locked => locked);
-
-
    -- **Note:  make sure that the machester signal detect is double buffered.
+   ------------------------------------------------------------
+   --  WB FSM
+   ------------------------------------------------------------   
+
+   -- clocked FSMs, advance the state for both FSMs
+   state_FF: process(clk, rst_i)
+   begin
+      if(rst_i = '1') then
+         current_state     <= IDLE;
+      elsif(clk'event and clk = '1') then
+         current_state     <= next_state;
+      end if;
+   end process state_FF;
    
-   -- gated lock, msig generation:
-   process(xtal_clk)
+   -- Transition table for DAC controller
+   state_NS: process(current_state, rd_cmd, wr_cmd, cyc_i)
    begin
-      if(xtal_clk'event and xtal_clk = '1') then
-         gated_lock_reg <= locked & gated_lock_reg(LOCK_GATED_DELAY-1 downto 1);
-         gated_det_reg <= manch_det & gated_det_reg(DET_GATED_DELAY-1 downto 1);
-      end if;
-   end process;
+      -- Default assignments
+      next_state <= current_state;
+      
+      case current_state is
+         when IDLE =>
+            if(wr_cmd = '1') then
+               next_state <= WR;            
+            elsif(rd_cmd = '1') then
+               next_state <= RD;
+            end if;                  
+            
+         when WR =>     
+            if(cyc_i = '0') then
+               next_state <= IDLE;
+            end if;
+         
+         when RD =>
+            if(cyc_i = '0') then
+               next_state <= IDLE;
+            end if;
+         
+         when others =>
+            next_state <= IDLE;
 
-   process(gated_lock_reg)
-   variable gated_lock_temp : std_logic;
+      end case;
+   end process state_NS;
+   
+   -- Output states for DAC controller   
+   state_out: process(current_state, stb_i)
    begin
-      gated_lock_temp := gated_lock_reg(0);
-      for i in 1 to LOCK_GATED_DELAY-1 loop
-         gated_lock_temp := gated_lock_temp and gated_lock_reg(i);
-      end loop;
-      gated_lock <= gated_lock_temp;
-   end process;
+      -- Default assignments
+      ack_o           <= '0';
+      select_clk_wren <= '1';
+     
+      case current_state is         
+         when IDLE  =>                   
+            ack_o <= '0';
+            
+         when WR =>
+            ack_o <= '1';
+            if(stb_i = '1') then
+               select_clk_wren <= '1';
+            end if;
+         
+         when RD =>
+            ack_o <= '1';
+         
+         when others =>
+         
+      end case;
+   end process state_out;
 
-   process(gated_det_reg)
-   variable gated_det_temp : std_logic;
+   ------------------------------------------------------------
+   --  Wishbone interface: 
+   ------------------------------------------------------------  
+   input_data <= '0' when dat_i = x"00000000" else '1';
+   select_clk_data <= "0000000000000000000000000000000" & activeclock;
+   
+   with addr_i select dat_o <=
+      select_clk_data when SELECT_CLK_ADDR,
+      (others => '0') when others;
+   
+   rd_cmd  <= '1' when 
+      (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
+      (addr_i = SELECT_CLK_ADDR) else '0'; 
+      
+   wr_cmd  <= '1' when 
+      (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
+      (addr_i = SELECT_CLK_ADDR) else '0'; 
+
+   
+   ------------------------------------------------------------
+   -- Switchover FSM:
+   ------------------------------------------------------------
+   process(clk, rst_i)
    begin
-      gated_det_temp := gated_det_reg(0);
-      for i in 1 to DET_GATED_DELAY-1 loop
-         gated_det_temp := gated_det_temp and gated_det_reg(i);
-      end loop;
-      gated_det <= gated_det_temp;
-   end process;
-
-
-   -- counter for counting out minimum CLKSWITCH pulse duration:
-   process(clk)
-   begin
-      if(clk'event and clk = '1') then
-         if(count_rst = '1') then
-            count <= "00";
-         else
-            count <= count + 1;
-         end if;
-      end if;
-   end process;
-
-
-   -- switchover FSM:
-   process(clk, rst)
-   begin
-      if(rst = '1') then
+      if(rst_i = '1') then
          ps <= CRYSTAL_CLK;
       elsif(clk'event and clk = '1') then
          ps <= ns;
       end if;
    end process;
 
--- There are four scenarios to be handled:
--- if(using crystal clock)
---    if(crystal clock is good)
---       if(clock switch command)
---          if(manchester clock is good)
---             switch to manchester clock;
---          end if;
---       end if;
---    elsif(crystal clock is bad)
---       if(manchester clock is good)
---          switch to manchester clock;
---       end if;
---    end if;
--- elsif(using manchester clock)
---    if(mancheseter clock is good)
---       if(clock switch command)
---          if(crystal clock is good)
---             switch to crystal clock;
---          end if;
---       end if;
---    elsif(manchester clock is bad)
---       if(crystal clock is good)
---          switch to crystal clock;
---       end if;
---    end if;
--- end if;
---SWITCH_TO_XTAL
-
-   process(ps, xtal_clk_bad, manch_clk_bad, switch_to_manch, switch_to_xtal, activeclock, clkloss) --manch_det, locked)
+   process(ps, xtal_clk_bad, manch_clk_bad, activeclock, select_clk_wren, input_data)-- switch_to_manch_i, switch_to_xtal_i,
    begin
       -- Default Assignment
       ns <= ps;
       
       case ps is
          when CRYSTAL_CLK => 
---            if(xtal_clk_bad = '0') then
-               if(activeclock = '1') then
-                  ns <= MANCHESTER_CLK;
-               elsif(switch_to_manch = '1') then
-                  if(manch_clk_bad = '0') then
-                     ns <= SWITCHING;
-                  end if;
+            if(activeclock = XTAL_CLK) then
+               ns <= MANCHESTER_CLK;
+--            elsif(switch_to_manch_i = '1') then
+            elsif(select_clk_wren = '1' and input_data = MANCH_CLK) then
+               if(manch_clk_bad = '0') then
+                  ns <= CRYSTAL_CLK;
                end if;
-
-               
---            elsif(xtal_clk_bad = '1') then
---               if(manch_clk_bad = '0') then
---                  ns <= SWITCHING;
---               end if;
---            end if;
-               
---            if(gated_det = '1') then
---               ns <= SWITCHING;
---            else
---               ns <= CRYSTAL_CLK;
---            end if;
+            end if;
 
          when MANCHESTER_CLK =>   
---            if(manch_clk_bad = '0') then
-               if(activeclock = '0') then
-                  ns <= CRYSTAL_CLK;
-               elsif(switch_to_xtal = '1') then
-                  if(xtal_clk_bad = '0') then
-                     ns <= SWITCHING;
-                  end if;
-               end if;
---            elsif(manch_clk_bad = '1') then
---               if(xtal_clk_bad = '0') then
---                  ns <= SWITCHING;
---               end if;
---            end if;
-
---            if(gated_lock = '0') then
---               ns <= SWITCHING;
---            else
---               ns <= FIBRE_CLK;
---            end if;
-
-         when SWITCHING =>
-            if(clkloss /= '1') then
-               ns <= RELOCKING;
-            end if;
---            if(count = "11") then
---               ns <= RELOCKING;
---            else
---               ns <= SWITCHING;
---            end if;         
-         
-         when RELOCKING =>   
-            if(activeclock = '0') then
+            if(activeclock = MANCH_CLK) then
                ns <= CRYSTAL_CLK;
-            elsif(activeclock = '1') then
-               ns <= MANCHESTER_CLK;
+--            elsif(switch_to_xtal_i = '1') then
+            elsif(select_clk_wren = '1' and input_data = XTAL_CLK) then
+               if(xtal_clk_bad = '0') then
+                  ns <= MANCHESTER_CLK;
+               end if;
             end if;
-
---            if(activeclock = '0') then
---               ns <= CRYSTAL_CLK;
---            elsif(activeclock = '1') then
---               ns <= MANCHESTER_CLK;
---            else
---               ns <= RELOCKING;
---            end if;
-
---            if(gated_lock = '1' and activeclock = '0') then
---               ns <= CRYSTAL_CLK;
---            elsif(gated_lock = '1' and activeclock = '1') then
---               ns <= MANCH_CLK;
---            else
---               ns <= RELOCKING;
---            end if;
 
          when others =>      
             ns <= CRYSTAL_CLK;
@@ -335,46 +282,33 @@ begin
       end case;
    end process;
 
-   process(ps)
+   process(ps, xtal_clk_bad, activeclock, manch_clk_bad, select_clk_wren, input_data)-- switch_to_manch_i, switch_to_xtal_i,
    begin
       clkswitch <= '0';
---      extclkena <= '0';
-      count_rst <= '1';
 
       case ps is        
          when CRYSTAL_CLK => 
---            extclkena <= '1';
+            if(activeclock = XTAL_CLK) then
+--            elsif(switch_to_manch_i = '1') then
+            elsif(select_clk_wren = '1' and input_data = MANCH_CLK) then
+               if(manch_clk_bad = '0') then
+                  clkswitch <= '1';
+               end if;
+            end if;
 
          when MANCHESTER_CLK =>   
---            if(gated_det = '0') then
---               extclkena <= '0';
---            else
---               extclkena <= '1';
---            end if;
-
-         when SWITCHING =>   
---            count_rst <= '0';
-            clkswitch <= '1';
-
-         when RELOCKING =>
-            clkswitch <= '1';
+            if(activeclock = MANCH_CLK) then
+--            elsif(switch_to_xtal_i = '1') then
+            elsif(select_clk_wren = '1' and input_data = XTAL_CLK) then
+               if(xtal_clk_bad = '0') then
+                  clkswitch <= '1';
+               end if;
+            end if;
          
          when others => null;
          
       end case;
    end process;
-
-   pfdena <= '1';
-
-   -- output monitors:
---   pfdena_o <= pfdena;
---   extclkena_o <= extclkena;
---   clkswitch_o <= clkswitch;
---   activeclock_o <= activeclock;
---   clkbad0_o <= clkbad0;
---   clkbad1_o <= clkbad1;
---   locked_o <= locked;
---   clkloss_o <= clkloss;
 
 end top;
 
