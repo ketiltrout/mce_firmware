@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.47 2006/05/29 23:11:00 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.48 2006/06/03 02:29:15 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/05/29 23:11:00 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/06/03 02:29:15 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.48  2006/06/03 02:29:15  bburger
+-- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
+--
 -- Revision 1.47  2006/05/29 23:11:00  bburger
 -- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
 --
@@ -205,7 +208,7 @@ architecture rtl of issue_reply is
       cksum_err_o  : out    std_logic;                                          -- checksum error flag
       cmd_rdy_o    : out    std_logic;                                          -- command ready flag (checksum passed)
       data_clk_o   : out    std_logic                                           -- data clock
-    );
+   );
    end component;
    
    -------------------------------
@@ -389,42 +392,55 @@ architecture rtl of issue_reply is
      param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
          
      -- signals to/from reply queue 
-     mop_rdy_i              : in  std_logic;                                                 -- macro op response ready to be processed
-     mop_error_code_i       : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);      -- macro op success (others => '0') else error code
+     mop_rdy_i               : in  std_logic;                                                 -- macro op response ready to be processed
+     mop_error_code_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);      -- macro op success (others => '0') else error code
      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1     downto 0);      -- packet word read from reply queue
      num_fibre_words_i       : in  integer ;                                                 -- indicate number of packet words to be read from reply queue
      fibre_word_ack_o        : out std_logic;                                                -- asserted to requeset next fibre word
      fibre_word_rdy_i        : in std_logic;
-     mop_ack_o              : out std_logic;                                                 -- asserted to indicate to reply queue the the packet has been processed
+     mop_ack_o               : out std_logic;                                                 -- asserted to indicate to reply queue the the packet has been processed
 
      cmd_stop_i              : in std_logic;
      last_frame_i            : in std_logic;
      frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
      -- signals to / from fibre_tx
-     tx_ff_i                 : in std_logic;                                             -- transmit fifo full
-     tx_fw_o                 : out std_logic;                                            -- transmit fifo write request
-     txd_o                   : out std_logic_vector (7 downto 0)                         -- transmit fifo data input
+     fibre_tx_busy_i         : in std_logic;                                             -- transmit fifo full
+     fibre_tx_rdy_o          : out std_logic;                                            -- transmit fifo write request
+     fibre_tx_dat_o          : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0)                         -- transmit fifo data input
      );      
    end component;
 
    component fibre_tx
       port(       
-      -- global inputs
-         clk_i        : in     std_logic;
-         rst_i        : in     std_logic;                         -- global reset
+         clk_i  : in std_logic;
+         rst_i  : in std_logic;
          
-      -- interface to reply_translator
-      
-         txd_i        : in     std_logic_vector (7 downto 0);     -- FIFO input byte
-         tx_fw_i      : in     std_logic;                         -- FIFO write request
-         tx_ff_o      : out    std_logic;                         -- FIFO full flag
-      
-      -- interface to HOTLINK transmitter
-         fibre_clkw_i : in     std_logic;                          -- 25MHz hotlink clock
-         tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
-         tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
-         nFena_o      : out    std_logic                           -- hotlink tx enable
+         dat_i  : in std_logic_vector(31 downto 0);
+         rdy_i  : in std_logic;
+         busy_o : out std_logic;    
+     
+         fibre_clk_i   : in std_logic;    
+         fibre_clkw_o  : out std_logic;
+         fibre_data_o  : out std_logic_vector(7 downto 0);
+         fibre_sc_nd_o : out std_logic;
+         fibre_nena_o  : out std_logic
+
+--      -- global inputs
+--         clk_i        : in     std_logic;
+--         rst_i        : in     std_logic;                         -- global reset
+--         
+--      -- interface to reply_translator
+--      
+--         txd_i        : in     std_logic_vector (7 downto 0);     -- FIFO input byte
+--         tx_fw_i      : in     std_logic;                         -- FIFO write request
+--         tx_ff_o      : out    std_logic;                         -- FIFO full flag
+--      
+--      -- interface to HOTLINK transmitter
+--         fibre_clkw_i : in     std_logic;                          -- 25MHz hotlink clock
+--         tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+--         tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
+--         nFena_o      : out    std_logic                           -- hotlink tx enable
       );
 
    end component;
@@ -493,9 +509,9 @@ architecture rtl of issue_reply is
    signal reply_frame_seq_num : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
  
    -- reply_translator / fibre_tx interface 
-   signal txd                 : std_logic_vector(7 downto 0); 
-   signal tx_fw               : std_logic; 
-   signal tx_ff               : std_logic;     
+   signal fibre_tx_dat        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
+   signal fibre_tx_rdy        : std_logic; 
+   signal fibre_tx_busy       : std_logic;     
    
    type state is (IDLE, WAIT1, WAIT2, ACK1, ACK2);
    signal cur_state, next_state  : state;
@@ -540,20 +556,33 @@ begin
    ------------------------------------------------------------------------
    i_fibre_tx : fibre_tx
       port map(        
-         -- global inputs
-         clk_i        => clk_i, 
-         rst_i        => rst_i, 
-            
-         -- interface to reply_translator 
-         txd_i        => txd, 
-         tx_fw_i      => tx_fw, 
-         tx_ff_o      => tx_ff, 
+         clk_i  		  => clk_i,
+         rst_i  		  => rst_i,
          
-         -- interface to HOTLINK transmitter
-         fibre_clkw_i => fibre_clkw_i,
-         tx_data_o    => tx_data_o,
-         tsc_nTd_o    => tsc_nTd_o,
-         nFena_o      => nFena_o 
+         dat_i  		  => fibre_tx_dat,
+         rdy_i  		  => fibre_tx_rdy,
+         busy_o 		  => fibre_tx_busy,
+     
+         fibre_clk_i   => fibre_clkw_i,
+         fibre_clkw_o  => open,
+         fibre_data_o  => tx_data_o,
+         fibre_sc_nd_o => tsc_nTd_o,
+         fibre_nena_o  => nFena_o
+
+--         -- global inputs
+--         clk_i        => clk_i, 
+--         rst_i        => rst_i, 
+--            
+--         -- interface to reply_translator 
+--         txd_i        => txd, 
+--*         tx_fw_i      => tx_fw, 
+--*         tx_ff_o      => tx_ff, 
+--         
+--         -- interface to HOTLINK transmitter
+--         fibre_clkw_i => fibre_clkw_i,
+--         tx_data_o    => tx_data_o,
+--         tsc_nTd_o    => tsc_nTd_o,
+--         nFena_o      => nFena_o 
       );
 
    ------------------------------------------------------------------------
@@ -586,9 +615,9 @@ begin
          frame_seq_num_i   => reply_frame_seq_num,
 
          -- signals to / from fibre_tx
-         tx_ff_i           => tx_ff, 
-         tx_fw_o           => tx_fw,
-         txd_o             => txd
+         fibre_tx_rdy_o    => fibre_tx_rdy,
+         fibre_tx_busy_i   => fibre_tx_busy,   
+         fibre_tx_dat_o    => fibre_tx_dat
       );      
 
    ------------------------------------------------------------------------
