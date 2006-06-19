@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.34 2006/06/03 02:29:15 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.35 2006/06/09 22:17:55 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/06/03 02:29:15 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/06/09 22:17:55 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.35  2006/06/09 22:17:55  bburger
+-- Bryce:  Modified to output the correct frame sequence number -- internal or manchester
+--
 -- Revision 1.34  2006/06/03 02:29:15  bburger
 -- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
 --
@@ -145,7 +148,7 @@ port(
       ret_dat_ack_o           : out std_logic;
 
       -- other inputs
-      sync_pulse_i            : in  std_logic;
+      --sync_pulse_i            : in  std_logic;
       sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);  -- a counter of synch pulses 
       ret_dat_start_i         : in  std_logic;
       ret_dat_stop_i          : in  std_logic;

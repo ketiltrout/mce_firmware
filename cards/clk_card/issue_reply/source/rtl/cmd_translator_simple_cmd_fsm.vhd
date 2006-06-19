@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.11 2006/01/16 18:45:27 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.12 2006/04/26 22:55:08 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,16 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/04/26 22:55:08 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.12  2006/04/26 22:55:08  bburger
+-- Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
+-- In the process:
+-- - fixed a bug in cmd_translator_simple_cmd_fsm that output the wrong read/write code.
+-- - updated the cc_pin_assign_rev_b.tcl file to include the fpga output pins for epc16 control
+-- - updated the clock card top level with a new version number.
+--
 -- Revision 1.11  2006/01/16 18:45:27  bburger
 -- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
 -- moved component declarations from above package files to cmd_translator
@@ -112,7 +119,7 @@ port(
       cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       
       -- other inputs
-      sync_pulse_i      : in  std_logic;
+      --sync_pulse_i      : in  std_logic;
       cmd_start_i       : in  std_logic;
       cmd_stop_i        : in  std_logic;
   

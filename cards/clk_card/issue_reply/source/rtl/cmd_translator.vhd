@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.39 2006/05/29 23:11:00 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.40 2006/06/03 02:29:15 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/05/29 23:11:00 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/06/03 02:29:15 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.40  2006/06/03 02:29:15  bburger
+-- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
+--
 -- Revision 1.39  2006/05/29 23:11:00  bburger
 -- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
 --
@@ -305,7 +308,7 @@ architecture rtl of cmd_translator is
       external_dv_num_i       : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
       ret_dat_req_i           : in std_logic;
       ret_dat_ack_o           : out std_logic;
-      sync_pulse_i            : in  std_logic;
+      --sync_pulse_i            : in  std_logic;
       sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
       ret_dat_start_i         : in  std_logic;
       ret_dat_stop_i          : in  std_logic;
@@ -354,7 +357,7 @@ architecture rtl of cmd_translator is
       data_i            : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);
       data_clk_i        : in  std_logic;
       cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      sync_pulse_i      : in  std_logic;
+      --sync_pulse_i      : in  std_logic;
       cmd_start_i       : in  std_logic;
       cmd_stop_i        : in  std_logic;
       card_addr_o       : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -661,7 +664,7 @@ begin
       ret_dat_ack_o          => dat_ack,
 
       -- other inputs
-      sync_pulse_i           => sync_pulse_i,
+      --sync_pulse_i           => sync_pulse_i,
       sync_number_i          => sync_number_i,               -- a counter of synch pulses 
       ret_dat_start_i        => ret_dat_start,
       ret_dat_stop_i         => ret_dat_stop,
@@ -706,7 +709,7 @@ begin
       cmd_code_i             => cmd_code_i,
       
       -- other inputs
-      sync_pulse_i           => sync_pulse_i,
+      --sync_pulse_i           => sync_pulse_i,
       cmd_start_i            => cmd_start,
       cmd_stop_i             => cmd_stop,                    -- what's this for???
   
