@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.43 2006/05/30 00:53:37 bburger Exp $
+-- $Id: clk_card.vhd,v 1.44 2006/06/09 22:14:13 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,62 +29,12 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.44  2006/06/09 22:14:13  bburger
+-- Bryce:  v0200000b
+--
 -- Revision 1.43  2006/05/30 00:53:37  bburger
 -- Bryce:  Interim committal
 --
--- Revision 1.42  2006/05/25 05:41:26  bburger
--- Bryce:  Intermediate committal
---
--- Revision 1.41  2006/05/24 07:07:29  bburger
--- Bryce:  Intermediate committal
---
--- Revision 1.40  2006/05/13 07:38:49  bburger
--- Bryce:  Intermediate commital -- going away on holiday and don't want to lose work
---
--- Revision 1.39  2006/04/29 00:52:36  bburger
--- Bryce:
--- - fw_rev:  added a 'when others' statement to a state machine
--- - clock_card:  upped the cc rev #
--- - config_fpga:  fixed a couple of bugs
---
--- Revision 1.38  2006/04/26 22:55:08  bburger
--- Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
--- In the process:
--- - fixed a bug in cmd_translator_simple_cmd_fsm that output the wrong read/write code.
--- - updated the cc_pin_assign_rev_b.tcl file to include the fpga output pins for epc16 control
--- - updated the clock card top level with a new version number.
---
--- Revision 1.37  2006/04/03 23:24:37  bburger
--- Bryce:  uses frame_timing_pack
---
--- Revision 1.36  2006/03/17 21:25:45  bburger
--- Bryce:  cc_v02000005_17mar2006, cmd_translator now uses the card address specified by the ret_dat command.
---
--- Revision 1.35  2006/03/17 16:58:04  bburger
--- Bryce:  cc_v02000004_17mar2006
---
--- Revision 1.34  2006/03/16 19:22:13  bburger
--- Bryce:  comitting v02000003 for bus backplane revC
---
--- Revision 1.33  2006/03/16 00:25:46  bburger
--- Bryce:  committing v02000002
---
--- Revision 1.32  2006/03/08 23:18:08  bburger
--- Bryce:
--- - Added a 'use_sync' command
--- - Instantiated frame_timing and dv_rx blocks
--- - Added dv triggering signals to issue_reply interface
---
--- Revision 1.31  2006/02/11 01:19:33  bburger
--- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
--- data_req
--- data_ack
--- frame_num_external
---
--- Revision 1.30  2006/02/09 20:32:59  bburger
--- Bryce:
--- - Added a fltr_rst_o output signal from the frame_timing block
--- - Adjusted the top-levels of each card to reflect the frame_timing interface change
 --
 -----------------------------------------------------------------------------
 
@@ -145,8 +95,8 @@ entity clk_card is
       manchester_sigdet : in std_logic;
 
       -- For Testbenching
-      switch_to_xtal    : in std_logic;
-      switch_to_manch   : in std_logic;
+--      switch_to_xtal    : in std_logic;
+--      switch_to_manch   : in std_logic;
       
       -- TTL interface:
       ttl_nrx1          : in std_logic;
@@ -283,6 +233,8 @@ signal fpga_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fpga_thermo_ack     : std_logic;
 signal config_fpga_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal config_fpga_ack     : std_logic;
+signal select_clk_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal select_clk_ack     : std_logic;
 
 -- lvds_tx interface
 signal sync       : std_logic;
@@ -320,19 +272,29 @@ end component;
 
 component clk_switchover
    port(
-      rst       : in std_logic;
-      xtal_clk  : in std_logic; -- Crystal Clock Input
-      manch_clk : in std_logic; -- Manchester Clock Input
-      manch_det : in std_logic;
-      switch_to_xtal  : in std_logic;
-      switch_to_manch : in std_logic;
-      e2     : out std_logic;
-      c0     : out std_logic;
-      c1     : out std_logic;
-      c2     : out std_logic;
-      c3     : out std_logic;
-      e0     : out std_logic;
-      e1     : out std_logic 
+      -- wishbone interface:
+      dat_i               : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i              : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i               : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                : in std_logic;
+      stb_i               : in std_logic;
+      cyc_i               : in std_logic;
+      dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o               : out std_logic;
+
+      rst_i       		  : in std_logic;
+      xtal_clk_i          : in std_logic; -- Crystal Clock Input
+      manch_clk_i         : in std_logic; -- Manchester Clock Input
+      manch_det_i         : in std_logic;
+      switch_to_xtal_i    : in std_logic;
+      switch_to_manch_i   : in std_logic;
+      e2_o                : out std_logic;
+      c0_o                : out std_logic;
+      c1_o                : out std_logic;
+      c2_o                : out std_logic;
+      c3_o                : out std_logic;
+      e0_o                : out std_logic;
+      e1_o                : out std_logic 
    );     
 end component;
 
@@ -619,6 +581,7 @@ begin
          id_thermo_data    when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
          config_fpga_data  when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
+         select_clk_data   when SELECT_CLK_ADDR,
          (others => '0')   when others;
          
    with addr select
@@ -630,31 +593,43 @@ begin
          id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
          config_fpga_ack   when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
+         select_clk_ack    when SELECT_CLK_ADDR,
          '0'               when others;
          
    with addr select
       slave_err <= 
          '0'              when FW_REV_ADDR | LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | 
-                               DATA_RATE_ADDR | CARD_ID_ADDR | CARD_TEMP_ADDR | FPGA_TEMP_ADDR |CONFIG_FAC_ADDR | CONFIG_APP_ADDR, 
+                               DATA_RATE_ADDR | CARD_ID_ADDR | CARD_TEMP_ADDR | FPGA_TEMP_ADDR |CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
+                               SELECT_CLK_ADDR, 
                                --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'              when others;
 
-   clk_switch: clk_switchover
+   clk_switchover_inst: clk_switchover
       port map(
-         rst       => rst,
-         xtal_clk  => inclk14, -- Crystal Clock Input
-         manch_clk => '0', --inclk1,  -- Manchester Clock Input
-         manch_det => manchester_sigdet,
-         switch_to_xtal  => '0', --switch_to_xtal,
-         switch_to_manch => '0', --switch_to_manch,
-         c0     => clk,
-         c1     => clk_n,
-         c2     => comm_clk,
-         c3     => fibre_clk,
-         e0     => fibre_tx_clkw, 
-         e1     => fibre_rx_refclk,   
-         e2     => lvds_clk 
-      );
+         -- wishbone interface:
+         dat_i               => data,
+         addr_i              => addr,
+         tga_i               => tga,
+         we_i                => we,  
+         stb_i               => stb, 
+         cyc_i               => cyc, 
+         dat_o               => select_clk_data,
+         ack_o               => select_clk_ack,
+
+         rst_i       		  => rst,
+         xtal_clk_i          => inclk14, -- Crystal Clock Input
+         manch_clk_i         => inclk1,  -- Manchester Clock Input
+         manch_det_i         => manchester_sigdet,
+         switch_to_xtal_i    => '0',--switch_to_xtal,
+         switch_to_manch_i   => '0',--switch_to_manch,
+         e2_o                => clk,
+         c0_o                => clk_n,
+         c1_o                => comm_clk,
+         c2_o                => fibre_clk,
+         c3_o                => fibre_tx_clkw, 
+         e0_o                => fibre_rx_refclk,   
+         e1_o                => lvds_clk 
+      );     
 
    config_fpga_inst: config_fpga
       port map(
