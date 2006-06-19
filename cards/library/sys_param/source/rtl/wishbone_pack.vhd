@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/03/02 19:00:34 $> - <initials $Author: bburger $>
+-- <date $Date: 2006/04/26 22:41:25 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.28  2006/04/26 22:41:25  bburger
+-- *** empty log message ***
+--
 -- Revision 1.27  2006/03/02 19:00:34  bburger
 -- Bryce:  branched to implement up-to-date definitions for the slot_id for revC of the bus backplane
 --
@@ -261,6 +264,7 @@ package wishbone_pack is
    constant SRAM2_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
    constant DATA_RATE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
+   constant SELECT_CLK_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A2";
 
    -- Power Card Specific
    constant BRST_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
