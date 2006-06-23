@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.89 2006/03/09 00:55:07 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.90 2006/05/29 23:11:00 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.90  2006/05/29 23:11:00  bburger
+-- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
+--
 -- Revision 1.89  2006/03/09 00:55:07  bburger
 -- Bryce:  Added an issue_sync_o signal to the interface so that the reply_queue can include this information in data headers
 --
@@ -465,7 +468,11 @@ begin
          -- Issue Command
          -----------------------------------------------------
          when WAIT_TO_ISSUE =>
-            if(uop_send_expired = '1') then
+            if(par_id /= RET_DAT_ADDR) then
+               next_state <= HEADER_A;
+-- If a data command has timed out, then a flag must be included in the header
+-- This is to indicate that the timing has jitter..
+            elsif(uop_send_expired = '1') then
                -- If the u-op has expired, it is still issued.  This may have to change
                -- uops typically will not expire while waiting in the cmd_queue, because the the command queue can issue uops faster than mops will be received from the cmd_translator (assuming the internal commanding rate is reasonable).
                --next_send_state <= NEXT_UOP;
