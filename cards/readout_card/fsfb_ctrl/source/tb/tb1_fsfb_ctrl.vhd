@@ -44,6 +44,9 @@
 -- Revision history:
 -- 
 -- $Log: tb1_fsfb_ctrl.vhd,v $
+-- Revision 1.4  2006/05/17 20:33:53  mandana
+-- modified to work with latest fsfb_ctrl
+--
 -- Revision 1.3  2005/02/21 23:47:11  mohsen
 -- sign extend negative values
 --
@@ -272,6 +275,12 @@ begin  -- beh
       dac_dat_en_i <= '0';
       wait for 3*PERIOD;
       phase3       <= false;
+      
+      rst_i <= '1';
+      wait for 2*PERIOD;
+      
+      rst_i <= '0';
+      wait for 30*PERIOD;
       
     end simple_test;
 
