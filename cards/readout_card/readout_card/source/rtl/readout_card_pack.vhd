@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card_pack.vhd,v $
+-- Revision 1.7  2006/05/05 19:58:31  mandana
+-- moved all all_cards components to all_cards_pack.vhd
+--
 -- Revision 1.6  2006/02/15 21:55:06  mandana
 -- added frame_timing component declaration
 --
@@ -84,6 +87,7 @@ package readout_card_pack is
 
   constant ADC_DAT_WIDTH          : integer := 14;
   constant DAC_DAT_WIDTH          : integer := 14;
+  constant DAC_INIT_VAL           : integer := -8192;
   constant SA_BIAS_SPI_DATA_WIDTH : integer := 3;         -- data width of SPI interface 
   constant OFFSET_SPI_DATA_WIDTH  : integer := 3;         -- data width of SPI interface 
 
