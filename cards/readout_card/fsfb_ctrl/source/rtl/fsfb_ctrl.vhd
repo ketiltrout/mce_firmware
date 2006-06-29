@@ -69,6 +69,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.8  2006/05/17 20:32:53  mandana
+-- generate a dac_clk upon reset to clear the DACs
+--
 -- Revision 1.7  2005/11/28 19:11:29  bburger
 -- Bryce:  increased the bus width for fb_const, ramp_dly, ramp_amp and ramp_step from 14 bits to 32 bits, to use them for flux-jumping testing
 --
@@ -100,9 +103,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
-
-library work;
-use work.fsfb_ctrl_pack.all;
 
 -- Call Parent Library
 use work.flux_loop_ctrl_pack.all;
@@ -217,7 +217,7 @@ begin  -- rtl
   i_latch_dac_out: process (clk_50_i, rst_i)
   begin  -- process i_latch_dac_out
     if rst_i = '1' then                 -- asynchronous reset (active high)
-      dac_dat_o <= (others => '0');
+      dac_dat_o <= conv_std_logic_vector(DAC_INIT_VAL,DAC_DAT_WIDTH);
       
     elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
       if latch_dac_dat='1' then
