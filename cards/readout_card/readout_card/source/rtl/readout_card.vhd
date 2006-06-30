@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.41  2006/06/09 16:48:46  mandana
+-- fixed pix_addr_cnt  reset problem in wbs_frame_data to fix a bug with readout data of reduced number of rows
+--
 -- Revision 1.40  2006/06/07 19:49:45  bburger
 -- Bryce:  rc_v0300000d
 --
@@ -301,9 +304,8 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"0300000e"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- data mode 4 is 18b/14b, new BB protocol, BB rev. C 
-                                                                     -- RC Rev. B (1S40)  
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000010"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+                                                                     -- raw mode enabled, filter disabled, DAC init value fixed
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk
