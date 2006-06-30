@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.90 2006/05/29 23:11:00 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.91 2006/06/23 18:12:01 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.91  2006/06/23 18:12:01  bburger
+-- Bryce:  removed the dependance on the sync number for all commands, except ret_dat which must be timed appropriately
+--
 -- Revision 1.90  2006/05/29 23:11:00  bburger
 -- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
 --
@@ -413,7 +416,7 @@ begin
    
    state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_type,
    uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state,
-   uop_ack_i)
+   uop_ack_i, par_id)
    begin
       next_state <= present_state;
       case present_state is
