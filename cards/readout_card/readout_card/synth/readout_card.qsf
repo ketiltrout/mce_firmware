@@ -1,6 +1,3 @@
-set_location_assignment PIN_G5 -to mictor_clk[0]
-set_location_assignment PIN_C5 -to mictor_clk[1]
-set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 # Copyright (C) 1991-2004 Altera Corporation
 # Any  megafunction  design,  and related netlist (encrypted  or  decrypted),
 # support information,  device programming or simulation file,  and any other
@@ -34,12 +31,127 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 
 # Project-Wide Assignments
 # ========================
+set_parameter -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:51:03  NOVEMBER 16, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "5.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 4.2
+set_global_assignment -name SIGNALTAP_FILE rc_v01010006_03may2005_single_ch_ac_sync_check.stp
+set_global_assignment -name SIGNALTAP_FILE ro_card.stp
+set_global_assignment -name SIGNALTAP_FILE rc_filter.stp
+set_global_assignment -name SIGNALTAP_FILE rc_filter2.stp
+set_global_assignment -name SIGNALTAP_FILE rc_filter_ws.stp
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/readout_card_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
+set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop_pack.vhd
+set_global_assignment -name VHDL_FILE ../../flux_loop_ctrl/source/rtl/flux_loop_ctrl_pack.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/adc_sample_coadd_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_ctrl/source/rtl/fsfb_ctrl_pack.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_pack.vhd
+set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_ctrl_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
+set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_ctrl_pack.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/crc.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_storage.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_dynamic_manager_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_manager_data_path.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/dynamic_manager_data_path.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/raw_dat_bank.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/raw_dat_manager_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/raw_dat_manager_data_path.vhd
+set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/adc_sample_coadd.vhd
+set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_clk_domain_crosser.vhd
+set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_spi_if.vhd
+set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd
+set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_spi_if.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/ram_40x64.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub29.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_add_sub32.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder29.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub45.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_ctrl/source/rtl/fsfb_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_wn_queue.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub16.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub20.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub22.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub26.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub32.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub41.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_add_sub16.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder26.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder30.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder31.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder32.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder65.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder66.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_filter_storage.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_fltr_regs.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_queue.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_pack.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_multiplier.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_subtractor.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_io_controller.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_proc_pidz.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_proc_ramp.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_processor.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_multiplier.vhd
+set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc.vhd
+set_global_assignment -name VHDL_FILE ../../flux_loop_ctrl/source/rtl/flux_loop_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../pll/source/rtl/rc_pll.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_storage.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/adc_offset_banks_admin.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_14x64.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/pid_ram_admin.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_8x64.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/misc_banks_admin.vhd
+set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.vhd
+set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
 
 # Pin & Location Assignments
 # ==========================
+set_location_assignment PIN_G5 -to mictor_clk[0]
+set_location_assignment PIN_C5 -to mictor_clk[1]
 set_location_assignment PIN_AC9 -to rst_n
 set_location_assignment PIN_H20 -to red_led
 set_location_assignment PIN_H19 -to ylw_led
@@ -473,8 +585,8 @@ set_global_assignment -name AUTO_ENABLE_SMART_COMPILE OFF
 # ==================
 set_global_assignment -name DEVICE EP1S30F780C5
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
-set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
 set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
@@ -482,6 +594,7 @@ set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX "MINIMIZE AREA"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD LVTTL
@@ -502,6 +615,11 @@ set_global_assignment -name NUMBER_OF_PATHS_TO_REPORT 500
 # Assembler Assignments
 # =====================
 set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
+
+# Simulator Assignments
+# =====================
+set_global_assignment -name GLITCH_INTERVAL 1
 
 # Design Assistant Assignments
 # ============================
@@ -520,18 +638,18 @@ set_global_assignment -name USE_SIGNALTAP_FILE rc_filter_ws.stp
 
 # LogicLock Region Assignments
 # ============================
-set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
+set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 
 # ------------------
 # start CLOCK(inclk)
 
 	# Timing Assignments
 	# ==================
-set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
-set_global_assignment -name INVERT_BASE_CLOCK OFF -section_id inclk
-set_global_assignment -name MULTIPLY_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
-set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
-set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
+	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
+	set_global_assignment -name INVERT_BASE_CLOCK OFF -section_id inclk
+	set_global_assignment -name MULTIPLY_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
+	set_global_assignment -name DIVIDE_BASE_CLOCK_PERIOD_BY 1 -section_id inclk
+	set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
@@ -541,134 +659,134 @@ set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_ovr -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_rdy -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_ovr -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_rdy -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_ovr -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_rdy -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_ovr -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_rdy -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_ovr -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_rdy -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_ovr -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_rdy -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_ovr -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_rdy -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_ovr -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_rdy -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[0] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[1] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[2] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[3] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[4] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[5] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[6] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[7] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[8] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[9] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[10] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[11] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[12] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_dat[13] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[0] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[1] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[2] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[3] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[4] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[5] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[6] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[7] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[8] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[9] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[10] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[11] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[12] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_dat[13] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[0] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[1] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[2] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[3] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[4] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[5] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[6] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[7] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[8] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[9] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[10] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[11] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[12] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_dat[13] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[0] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[1] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[2] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[3] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[4] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[5] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[6] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[7] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[8] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[9] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[10] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[11] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[12] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_dat[13] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[0] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[1] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[2] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[3] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[4] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[5] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[6] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[7] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[8] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[9] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[10] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[11] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[12] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_dat[13] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[0] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[1] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[2] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[3] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[4] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[5] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[6] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[7] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[8] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[9] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[10] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[11] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[12] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_dat[13] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[0] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[1] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[2] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[3] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[4] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[5] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[6] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[7] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[8] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[9] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[10] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[11] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[12] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_dat[13] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[0] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[1] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[2] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[3] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[4] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[5] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[6] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[7] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[8] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[9] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[10] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[11] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[12] -section_id "ADC Inputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[13] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_ovr -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_rdy -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[0] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[1] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[2] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[3] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[4] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[5] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[6] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[7] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[8] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[9] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[10] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[11] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[12] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_dat[13] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[0] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[1] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[2] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[3] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[4] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[5] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[6] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[7] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[8] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[9] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[10] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[11] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[12] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_dat[13] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[0] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[1] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[2] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[3] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[4] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[5] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[6] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[7] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[8] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[9] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[10] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[11] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[12] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_dat[13] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[0] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[1] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[2] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[3] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[4] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[5] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[6] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[7] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[8] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[9] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[10] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[11] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[12] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_dat[13] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[0] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[1] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[2] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[3] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[4] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[5] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[6] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[7] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[8] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[9] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[10] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[11] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[12] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_dat[13] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[0] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[1] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[2] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[3] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[4] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[5] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[6] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[7] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[8] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[9] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[10] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[11] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[12] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_dat[13] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[0] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[1] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[2] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[3] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[4] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[5] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[6] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[7] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[8] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[9] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[10] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[11] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[12] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_dat[13] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[0] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[1] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[2] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[3] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[4] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[5] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[6] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[7] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[8] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[9] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[10] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[11] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[12] -section_id "ADC Inputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_dat[13] -section_id "ADC Inputs"
 
 # end TIMEGROUP("ADC Inputs")
 # ---------------------------
@@ -678,14 +796,14 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_dat[13] -section_id "AD
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc1_clk -section_id "ADC Outputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc2_clk -section_id "ADC Outputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc3_clk -section_id "ADC Outputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc4_clk -section_id "ADC Outputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc5_clk -section_id "ADC Outputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc6_clk -section_id "ADC Outputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc7_clk -section_id "ADC Outputs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc1_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc2_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc3_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc4_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc5_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc6_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc7_clk -section_id "ADC Outputs"
+	set_global_assignment -name TIMEGROUP_MEMBER adc8_clk -section_id "ADC Outputs"
 
 # end TIMEGROUP("ADC Outputs")
 # ----------------------------
@@ -695,118 +813,118 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER adc8_clk -section_id "ADC Ou
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[0] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[1] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[2] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[3] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[4] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[5] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[6] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[7] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[8] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[9] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[10] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[11] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[12] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB1_dat[13] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[0] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[1] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[2] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[3] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[4] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[5] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[6] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[7] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[8] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[9] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[10] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[11] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[12] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB2_dat[13] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[0] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[1] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[2] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[3] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[4] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[5] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[6] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[7] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[8] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[9] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[10] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[11] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[12] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB3_dat[13] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[0] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[1] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[2] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[3] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[4] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[5] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[6] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[7] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[8] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[9] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[10] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[11] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[12] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB4_dat[13] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[0] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[1] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[2] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[3] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[4] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[5] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[6] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[7] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[8] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[9] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[10] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[11] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[12] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB5_dat[13] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[0] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[1] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[2] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[3] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[4] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[5] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[6] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[7] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[8] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[9] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[10] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[11] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[12] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB6_dat[13] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[0] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[1] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[2] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[3] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[4] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[5] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[6] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[7] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[8] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[9] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[10] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[11] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[12] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB7_dat[13] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[0] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[1] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[2] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[3] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[4] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[5] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[6] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[7] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[8] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[9] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[10] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[11] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[12] -section_id "DAC Data Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[13] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[0] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[1] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[2] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[3] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[4] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[5] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[6] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[7] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[8] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[9] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[10] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[11] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[12] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB1_dat[13] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[0] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[1] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[2] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[3] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[4] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[5] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[6] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[7] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[8] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[9] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[10] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[11] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[12] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB2_dat[13] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[0] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[1] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[2] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[3] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[4] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[5] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[6] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[7] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[8] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[9] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[10] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[11] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[12] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB3_dat[13] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[0] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[1] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[2] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[3] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[4] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[5] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[6] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[7] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[8] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[9] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[10] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[11] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[12] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB4_dat[13] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[0] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[1] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[2] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[3] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[4] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[5] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[6] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[7] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[8] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[9] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[10] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[11] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[12] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB5_dat[13] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[0] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[1] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[2] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[3] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[4] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[5] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[6] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[7] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[8] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[9] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[10] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[11] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[12] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB6_dat[13] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[0] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[1] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[2] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[3] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[4] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[5] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[6] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[7] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[8] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[9] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[10] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[11] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[12] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB7_dat[13] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[0] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[1] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[2] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[3] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[4] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[5] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[6] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[7] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[8] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[9] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[10] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[11] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[12] -section_id "DAC Data Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB8_dat[13] -section_id "DAC Data Output"
 
 # end TIMEGROUP("DAC Data Output")
 # --------------------------------
@@ -816,14 +934,14 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB8_dat[13] -section_id 
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[0] -section_id "DAC clk Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[1] -section_id "DAC clk Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[2] -section_id "DAC clk Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[3] -section_id "DAC clk Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[4] -section_id "DAC clk Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[5] -section_id "DAC clk Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[6] -section_id "DAC clk Output"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[7] -section_id "DAC clk Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk[0] -section_id "DAC clk Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk[1] -section_id "DAC clk Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk[2] -section_id "DAC clk Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk[3] -section_id "DAC clk Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk[4] -section_id "DAC clk Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk[5] -section_id "DAC clk Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk[6] -section_id "DAC clk Output"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_FB_clk[7] -section_id "DAC clk Output"
 
 # end TIMEGROUP("DAC clk Output")
 # -------------------------------
@@ -833,14 +951,14 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_FB_clk[7] -section_id "D
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_clk" -section_id "DAC clk output reg"
 
 # end TIMEGROUP("DAC clk output reg")
 # -----------------------------------
@@ -850,118 +968,118 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[0]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[1]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[2]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[3]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[4]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[5]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[6]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[7]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[8]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[9]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[10]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[11]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[12]~reg0" -section_id "DAC data output reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|fsfb_ctrl:i_fsfb_ctrl|dac_dat_o[13]~reg0" -section_id "DAC data output reg"
 
 # end TIMEGROUP("DAC data output reg")
 # ------------------------------------
@@ -971,38 +1089,38 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_csb_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch0|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch1|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch2|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch3|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch4|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch5|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch6|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|offset_ctrl:i_offset_ctrl|offset_spi_if:i_offset_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
+	set_global_assignment -name TIMEGROUP_MEMBER "flux_loop:i_flux_loop|flux_loop_ctrl:i_flux_loop_ctrl_ch7|sa_bias_ctrl:i_sa_bias_ctrl|sa_bias_spi_if:i_sa_bias_spi_if|spi_sdat_o~reg0" -section_id "Serial DA data & CS reg"
 
 # end TIMEGROUP("Serial DA data & CS reg")
 # ----------------------------------------
@@ -1012,14 +1130,14 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER "flux_loop:i_flux_loop|flux_
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[0] -section_id "serial DAC clk"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[1] -section_id "serial DAC clk"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[2] -section_id "serial DAC clk"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[3] -section_id "serial DAC clk"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[4] -section_id "serial DAC clk"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[5] -section_id "serial DAC clk"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[6] -section_id "serial DAC clk"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[7] -section_id "serial DAC clk"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk[0] -section_id "serial DAC clk"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk[1] -section_id "serial DAC clk"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk[2] -section_id "serial DAC clk"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk[3] -section_id "serial DAC clk"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk[4] -section_id "serial DAC clk"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk[5] -section_id "serial DAC clk"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk[6] -section_id "serial DAC clk"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_clk[7] -section_id "serial DAC clk"
 
 # end TIMEGROUP("serial DAC clk")
 # -------------------------------
@@ -1029,30 +1147,30 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_clk[7] -section_id "seri
 
 	# Timing Group Assignments
 	# ========================
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_dat[0] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_dat[1] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_dat[2] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_dat[3] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_dat[4] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_dat[5] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_dat[6] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER dac_dat[7] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER bias_dac_ncs[0] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER bias_dac_ncs[1] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER bias_dac_ncs[2] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER bias_dac_ncs[3] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER bias_dac_ncs[4] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER bias_dac_ncs[5] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER bias_dac_ncs[6] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER bias_dac_ncs[7] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[0] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[1] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[2] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[3] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[4] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[5] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[6] -section_id "serial DAC data&cs"
-set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[7] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat[0] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat[1] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat[2] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat[3] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat[4] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat[5] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat[6] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER dac_dat[7] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs[0] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs[1] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs[2] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs[3] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs[4] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs[5] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs[6] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER bias_dac_ncs[7] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs[0] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs[1] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs[2] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs[3] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs[4] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs[5] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs[6] -section_id "serial DAC data&cs"
+	set_global_assignment -name TIMEGROUP_MEMBER offset_dac_ncs[7] -section_id "serial DAC data&cs"
 
 # end TIMEGROUP("serial DAC data&cs")
 # -----------------------------------
@@ -1060,139 +1178,24 @@ set_global_assignment -name ASSIGNMENT_GROUP_MEMBER offset_dac_ncs[7] -section_i
 # --------------------------
 # start ENTITY(readout_card)
 
-	# Pin & Location Assignments
-	# ==========================
-set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o"
-set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o*"
-
 	# Timing Assignments
 	# ==================
-set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
-set_instance_assignment -name OUTPUT_MAX_DELAY "0 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Outputs"
-set_instance_assignment -name INPUT_MAX_DELAY "11.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Inputs"
-set_instance_assignment -name INPUT_MIN_DELAY "3.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Inputs"
-set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Outputs"
+	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
+	set_instance_assignment -name OUTPUT_MAX_DELAY "0 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Outputs"
+	set_instance_assignment -name INPUT_MAX_DELAY "11.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Inputs"
+	set_instance_assignment -name INPUT_MIN_DELAY "3.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Inputs"
+	set_instance_assignment -name OUTPUT_MIN_DELAY "-3.7 ns" -from "rc_pll:i_rc_pll|altpll:altpll_component|_clk0" -to "ADC Outputs"
 
 	# Analysis & Synthesis Assignments
 	# ================================
-set_instance_assignment -name MAX_FANOUT 100 -to *
-set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o"
-set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o*"
+	set_instance_assignment -name MAX_FANOUT 100 -to *
+	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o"
+	set_instance_assignment -name MAX_FANOUT 100 -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o*"
+
+	# Fitter Assignments
+	# ==================
+	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o"
+	set_instance_assignment -name GLOBAL_SIGNAL ON -to "dispatch:i_dispatch|dispatch_wishbone:wishbone|tga_o*"
 
 # end ENTITY(readout_card)
 # ------------------------
-
-set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"
-set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
-set_global_assignment -name SIGNALTAP_FILE rc_v01010006_03may2005_single_ch_ac_sync_check.stp
-set_global_assignment -name SIGNALTAP_FILE ro_card.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter2.stp
-set_global_assignment -name SIGNALTAP_FILE rc_filter_ws.stp
-set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/all_cards/source/rtl/all_cards_pack.vhd
-set_global_assignment -name VHDL_FILE ../source/rtl/readout_card_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
-set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop_pack.vhd
-set_global_assignment -name VHDL_FILE ../../flux_loop_ctrl/source/rtl/flux_loop_ctrl_pack.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/adc_sample_coadd_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_ctrl/source/rtl/fsfb_ctrl_pack.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_pack.vhd
-set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_ctrl_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
-set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_ctrl_pack.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data_pack.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/crc.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_storage.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_dynamic_manager_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/coadd_manager_data_path.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/dynamic_manager_data_path.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/raw_dat_bank.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/raw_dat_manager_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/raw_dat_manager_data_path.vhd
-set_global_assignment -name VHDL_FILE ../../adc_sample_coadd/source/rtl/adc_sample_coadd.vhd
-set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_clk_domain_crosser.vhd
-set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../sa_bias_ctrl/source/rtl/sa_bias_spi_if.vhd
-set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_clk_domain_crosser.vhd
-set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../offset_ctrl/source/rtl/offset_spi_if.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/ram_40x64.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub29.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_add_sub32.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder29.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub45.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_ctrl/source/rtl/fsfb_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_wn_queue.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub16.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub20.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub22.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub26.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub32.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_sub41.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_add_sub16.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder26.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder30.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder31.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder32.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder65.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_adder66.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_filter_storage.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_fltr_regs.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_queue.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_pack.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_multiplier.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_corr/source/rtl/fsfb_corr_subtractor.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_io_controller.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_proc_pidz.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_proc_ramp.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_processor.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc_multiplier.vhd
-set_global_assignment -name VHDL_FILE ../../fsfb_calc/source/rtl/fsfb_calc.vhd
-set_global_assignment -name VHDL_FILE ../../flux_loop_ctrl/source/rtl/flux_loop_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../pll/source/rtl/rc_pll.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_frame_data/source/rtl/wbs_frame_data.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_storage.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/adc_offset_banks_admin.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_14x64.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/flux_quanta_ram_admin.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/pid_ram_admin.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/ram_8x64.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/misc_banks_admin.vhd
-set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.vhd
-set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
-set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
