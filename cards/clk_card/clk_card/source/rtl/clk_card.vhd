@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.44 2006/06/09 22:14:13 bburger Exp $
+-- $Id: clk_card.vhd,v 1.45 2006/06/19 17:20:59 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.45  2006/06/19 17:20:59  bburger
+-- Bryce:  added some signals to the clock_switchover interface
+--
 -- Revision 1.44  2006/06/09 22:14:13  bburger
 -- Bryce:  v0200000b
 --
@@ -167,7 +170,7 @@ architecture top of clk_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant CC_REVISION: std_logic_vector (31 downto 0) := X"0200000b";
+constant CC_REVISION: std_logic_vector (31 downto 0) := X"0200000c";
 
 -- reset
 signal rst                : std_logic;
@@ -233,8 +236,8 @@ signal fpga_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal fpga_thermo_ack     : std_logic;
 signal config_fpga_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal config_fpga_ack     : std_logic;
-signal select_clk_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal select_clk_ack     : std_logic;
+signal select_clk_data     : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal select_clk_ack      : std_logic;
 
 -- lvds_tx interface
 signal sync       : std_logic;
@@ -247,6 +250,14 @@ signal lvds_reply_cc_a     : std_logic;
 signal debug             : std_logic_vector(31 downto 0);
 signal fib_tx_data       : std_logic_vector (7 downto 0);
 signal fib_tx_ena        : std_logic;
+
+-- The clock being used by the PLL to generate all others.
+-- 0 = crystal clock, 1 = manchester clock
+signal active_clk        : std_logic;
+
+-- dv_rx interface signals
+signal sync_box_err      : std_logic;
+signal sync_box_free_run : std_logic;   
 
 component config_fpga
    port(
@@ -282,12 +293,13 @@ component clk_switchover
       dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o               : out std_logic;
 
-      rst_i       		  : in std_logic;
+      rst_i               : in std_logic;
       xtal_clk_i          : in std_logic; -- Crystal Clock Input
       manch_clk_i         : in std_logic; -- Manchester Clock Input
       manch_det_i         : in std_logic;
       switch_to_xtal_i    : in std_logic;
       switch_to_manch_i   : in std_logic;
+      active_clk_o        : out std_logic;
       e2_o                : out std_logic;
       c0_o                : out std_logic;
       c1_o                : out std_logic;
@@ -434,23 +446,24 @@ end component;
 component dv_rx
    port(
       -- Clock and Reset:
-      clk_i             : in std_logic;
-      clk_n_i           : in std_logic;
-      rst_i             : in std_logic;
+      clk_i               : in std_logic;
+      clk_n_i             : in std_logic;
+      rst_i               : in std_logic;
       
       -- Fibre Interface:
-      manch_det_i       : in std_logic;
-      manch_dat_i       : in std_logic;
-      dv_dat_i          : in std_logic;
+      manch_det_i         : in std_logic;
+      manch_dat_i         : in std_logic;
+      dv_dat_i            : in std_logic;
       
       -- Issue-Reply Interface:
-      dv_mode_i         : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      dv_o              : out std_logic;
-      dv_sequence_num_o : out std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      dv_mode_i           : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      dv_o                : out std_logic;
+      dv_sequence_num_o   : out std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      sync_box_err_o      : out std_logic;
+      sync_box_free_run_o : out std_logic;
 
-      sync_mode_i       : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
---      sync_i            : in std_logic;
-      sync_o            : out std_logic
+      sync_mode_i         : in std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+      sync_o              : out std_logic
    );     
 end component;
 
@@ -530,6 +543,13 @@ component issue_reply
       external_dv_num_i : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
       ret_dat_req_i     : in std_logic;
       ret_dat_ack_o     : out std_logic;
+
+      -- clk_switchover interface
+      active_clk_i        : in std_logic;
+
+      -- dv_rx interface
+      sync_box_err_i      : in std_logic;
+      sync_box_free_run_i : in std_logic;
 
       -- sync_gen interface
       row_len_i         : in integer;
@@ -616,19 +636,20 @@ begin
          dat_o               => select_clk_data,
          ack_o               => select_clk_ack,
 
-         rst_i       		  => rst,
+         rst_i               => rst,
          xtal_clk_i          => inclk14, -- Crystal Clock Input
          manch_clk_i         => inclk1,  -- Manchester Clock Input
          manch_det_i         => manchester_sigdet,
          switch_to_xtal_i    => '0',--switch_to_xtal,
          switch_to_manch_i   => '0',--switch_to_manch,
-         e2_o                => clk,
-         c0_o                => clk_n,
-         c1_o                => comm_clk,
-         c2_o                => fibre_clk,
-         c3_o                => fibre_tx_clkw, 
-         e0_o                => fibre_rx_refclk,   
-         e1_o                => lvds_clk 
+         active_clk_o        => active_clk,
+         c0_o                => clk,
+         c1_o                => clk_n,
+         c2_o                => comm_clk,
+         c3_o                => fibre_clk, 
+         e0_o                => fibre_tx_clkw,   
+         e1_o                => fibre_rx_refclk, 
+         e2_o                => lvds_clk
       );     
 
    config_fpga_inst: config_fpga
@@ -815,23 +836,24 @@ begin
    dv_rx_inst: dv_rx
       port map(
          -- Clock and Reset:
-         clk_i             => clk,
-         clk_n_i           => clk_n,
-         rst_i             => rst,
+         clk_i               => clk,
+         clk_n_i             => clk_n,
+         rst_i               => rst,
          
          -- Fibre Interface
-         manch_det_i       => manchester_sigdet,
-         manch_dat_i       => manchester_data,
-         dv_dat_i          => dv_pulse_fibre,
+         manch_det_i         => manchester_sigdet,
+         manch_dat_i         => manchester_data,
+         dv_dat_i            => dv_pulse_fibre,
          
          -- Issue-Reply Interface:
-         dv_mode_i         => dv_mode,
-         dv_o              => external_dv,
-         dv_sequence_num_o => external_dv_num,
+         dv_mode_i           => dv_mode,
+         dv_o                => external_dv,
+         dv_sequence_num_o   => external_dv_num,
+         sync_box_err_o      => sync_box_err,
+         sync_box_free_run_o => sync_box_free_run,
 
-         sync_mode_i       => sync_mode,
---         sync_i            => sync,
-         sync_o            => external_sync
+         sync_mode_i         => sync_mode,
+         sync_o              => external_sync
       );
 
    issue_reply0: issue_reply
@@ -884,7 +906,14 @@ begin
          external_dv_num_i => external_dv_num,
          ret_dat_req_i     => ret_dat_req,
          ret_dat_ack_o     => ret_dat_done,
+
+         -- clk_switchover interface
+         active_clk_i      => active_clk,
          
+         -- dv_rx interface
+         sync_box_err_i      => sync_box_err,
+         sync_box_free_run_i => sync_box_free_run,
+
          -- sync_gen interface
          row_len_i         => row_len,
          num_rows_i        => num_rows,
