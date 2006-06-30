@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_switchover.vhd,v 1.2 2006/06/09 22:37:12 bburger Exp $
+-- $Id: clk_switchover.vhd,v 1.3 2006/06/19 17:22:47 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_switchover.vhd,v $
+-- Revision 1.3  2006/06/19 17:22:47  bburger
+-- Bryce:  added wishbone slave functionality
+--
 -- Revision 1.2  2006/06/09 22:37:12  bburger
 -- Bryce:  Interim comittal
 --
@@ -60,12 +63,13 @@ entity clk_switchover is
       dat_o               : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       ack_o               : out std_logic;
 
-      rst_i       		  : in std_logic;
+      rst_i               : in std_logic;
       xtal_clk_i          : in std_logic; -- Crystal Clock Input
       manch_clk_i         : in std_logic; -- Manchester Clock Input
       manch_det_i         : in std_logic;
       switch_to_xtal_i    : in std_logic;
       switch_to_manch_i   : in std_logic;
+      active_clk_o        : out std_logic;
       e2_o                : out std_logic;
       c0_o                : out std_logic;
       c1_o                : out std_logic;
@@ -129,6 +133,7 @@ architecture top of clk_switchover is
 
 begin
 
+   active_clk_o <= activeclock;
    c0_o <= clk;
    pll0: cc_pll
       port map(
@@ -199,7 +204,7 @@ begin
    begin
       -- Default assignments
       ack_o           <= '0';
-      select_clk_wren <= '1';
+      select_clk_wren <= '0';
      
       case current_state is         
          when IDLE  =>                   
