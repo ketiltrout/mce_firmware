@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.48 2006/06/03 02:29:15 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.49 2006/06/19 17:46:07 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/06/03 02:29:15 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/06/19 17:46:07 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.49  2006/06/19 17:46:07  bburger
+-- Bryce:  interface changes to reply_translator and fibre_tx
+--
 -- Revision 1.48  2006/06/03 02:29:15  bburger
 -- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
 --
@@ -128,59 +131,66 @@ use sys_param.wishbone_pack.all;
 entity issue_reply is
    port(
       -- for testing
-      debug_o           : out std_logic_vector (31 downto 0);
+      debug_o             : out std_logic_vector (31 downto 0);
 
       -- global signals
-      rst_i             : in std_logic;
-      clk_i             : in std_logic;
-      comm_clk_i        : in std_logic;
+      rst_i               : in std_logic;
+      clk_i               : in std_logic;
+      comm_clk_i          : in std_logic;
       
       -- inputs from the bus backplane
-      lvds_reply_ac_a   : in std_logic;  
-      lvds_reply_bc1_a  : in std_logic;
-      lvds_reply_bc2_a  : in std_logic;
-      lvds_reply_bc3_a  : in std_logic;
-      lvds_reply_rc1_a  : in std_logic;
-      lvds_reply_rc2_a  : in std_logic;
-      lvds_reply_rc3_a  : in std_logic; 
-      lvds_reply_rc4_a  : in std_logic;
-      lvds_reply_cc_a   : in std_logic;
+      lvds_reply_ac_a     : in std_logic;  
+      lvds_reply_bc1_a    : in std_logic;
+      lvds_reply_bc2_a    : in std_logic;
+      lvds_reply_bc3_a    : in std_logic;
+      lvds_reply_rc1_a    : in std_logic;
+      lvds_reply_rc2_a    : in std_logic;
+      lvds_reply_rc3_a    : in std_logic; 
+      lvds_reply_rc4_a    : in std_logic;
+      lvds_reply_cc_a     : in std_logic;
       
       -- inputs from the fibre receiver 
-      fibre_clkr_i      : in std_logic;
-      rx_data_i         : in std_logic_vector (7 DOWNTO 0);
-      nRx_rdy_i         : in std_logic;
-      rvs_i             : in std_logic;
-      rso_i             : in std_logic;
-      rsc_nRd_i         : in std_logic;        
-      cksum_err_o       : out std_logic;
+      fibre_clkr_i        : in std_logic;
+      rx_data_i           : in std_logic_vector (7 DOWNTO 0);
+      nRx_rdy_i           : in std_logic;
+      rvs_i               : in std_logic;
+      rso_i               : in std_logic;
+      rsc_nRd_i           : in std_logic;        
+      cksum_err_o         : out std_logic;
 
       -- interface to fibre transmitter
-      tx_data_o         : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
-      tsc_nTd_o         : out std_logic;                          -- hotlink tx special char/ data sel
-      nFena_o           : out std_logic;                           -- hotlink tx enable
+      tx_data_o           : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+      tsc_nTd_o           : out std_logic;                          -- hotlink tx special char/ data sel
+      nFena_o             : out std_logic;                           -- hotlink tx enable
 
       -- 25MHz clock for fibre_tx_control
-      fibre_clkw_i      : in std_logic;                          -- in phase with 25MHz hotlink clock
+      fibre_clkw_i        : in std_logic;                          -- in phase with 25MHz hotlink clock
 
       -- lvds_tx interface
-      lvds_cmd_o        : out std_logic;  -- transmitter output pin
+      lvds_cmd_o          : out std_logic;  -- transmitter output pin
 
       -- ret_dat_wbs interface:
-      start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      dv_mode_i         : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      external_dv_i     : in std_logic;
-      external_dv_num_i : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-      ret_dat_req_i     : in std_logic;
-      ret_dat_ack_o     : out std_logic;
+      start_seq_num_i     : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i         : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      dv_mode_i           : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i       : in std_logic;
+      external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+      ret_dat_req_i       : in std_logic;
+      ret_dat_ack_o       : out std_logic;
+
+      -- clk_switchover interface
+      active_clk_i        : in std_logic;
+
+      -- dv_rx interface
+      sync_box_err_i      : in std_logic;
+      sync_box_free_run_i : in std_logic;
 
       -- sync_gen interface
-      row_len_i         : in integer;
-      num_rows_i        : in integer;
-      sync_pulse_i      : in std_logic;
-      sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
+      row_len_i           : in integer;
+      num_rows_i          : in integer;
+      sync_pulse_i        : in std_logic;
+      sync_number_i       : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );     
 end issue_reply;
 
@@ -360,6 +370,13 @@ architecture rtl of issue_reply is
       last_frame_bit_o  : out std_logic;                                          
       frame_seq_num_o   : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     
 
+      -- clk_switchover interface
+      active_clk_i      : in std_logic;
+
+      -- dv_rx interface
+      sync_box_err_i      : in std_logic;
+      sync_box_free_run_i : in std_logic;
+
       -- Bus Backplane interface
       lvds_reply_ac_a   : in std_logic;
       lvds_reply_bc1_a  : in std_logic;
@@ -425,22 +442,6 @@ architecture rtl of issue_reply is
          fibre_data_o  : out std_logic_vector(7 downto 0);
          fibre_sc_nd_o : out std_logic;
          fibre_nena_o  : out std_logic
-
---      -- global inputs
---         clk_i        : in     std_logic;
---         rst_i        : in     std_logic;                         -- global reset
---         
---      -- interface to reply_translator
---      
---         txd_i        : in     std_logic_vector (7 downto 0);     -- FIFO input byte
---         tx_fw_i      : in     std_logic;                         -- FIFO write request
---         tx_ff_o      : out    std_logic;                         -- FIFO full flag
---      
---      -- interface to HOTLINK transmitter
---         fibre_clkw_i : in     std_logic;                          -- 25MHz hotlink clock
---         tx_data_o    : out    std_logic_vector (7 downto 0);      -- byte of data to be transmitted
---         tsc_nTd_o    : out    std_logic;                          -- hotlink tx special char/ data sel
---         nFena_o      : out    std_logic                           -- hotlink tx enable
       );
 
    end component;
@@ -496,9 +497,6 @@ architecture rtl of issue_reply is
    -- reply_translator to reply_queue interface      
    signal m_op_rdy            : std_logic;     
    signal m_op_error_code     : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
---   signal m_op_cmd_code       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1    downto 0); 
---   signal m_op_param_id       : std_logic_vector (BB_PARAMETER_ID_WIDTH-1  downto 0);  
---   signal m_op_card_id        : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1  downto 0);  
    signal fibre_word          : std_logic_vector (PACKET_WORD_WIDTH-1        downto 0); 
    signal num_fibre_words     : integer;    
    signal fibre_word_ack      : std_logic;
@@ -556,33 +554,18 @@ begin
    ------------------------------------------------------------------------
    i_fibre_tx : fibre_tx
       port map(        
-         clk_i  		  => clk_i,
-         rst_i  		  => rst_i,
+         clk_i         => clk_i,
+         rst_i         => rst_i,
          
-         dat_i  		  => fibre_tx_dat,
-         rdy_i  		  => fibre_tx_rdy,
-         busy_o 		  => fibre_tx_busy,
+         dat_i         => fibre_tx_dat,
+         rdy_i         => fibre_tx_rdy,
+         busy_o        => fibre_tx_busy,
      
          fibre_clk_i   => fibre_clkw_i,
          fibre_clkw_o  => open,
          fibre_data_o  => tx_data_o,
          fibre_sc_nd_o => tsc_nTd_o,
          fibre_nena_o  => nFena_o
-
---         -- global inputs
---         clk_i        => clk_i, 
---         rst_i        => rst_i, 
---            
---         -- interface to reply_translator 
---         txd_i        => txd, 
---*         tx_fw_i      => tx_fw, 
---*         tx_ff_o      => tx_ff, 
---         
---         -- interface to HOTLINK transmitter
---         fibre_clkw_i => fibre_clkw_i,
---         tx_data_o    => tx_data_o,
---         tsc_nTd_o    => tsc_nTd_o,
---         nFena_o      => nFena_o 
       );
 
    ------------------------------------------------------------------------
@@ -602,8 +585,8 @@ begin
          param_id_i        => reply_param_id,            
                          
          -- signals to/from reply queue
-         mop_rdy_i        => m_op_rdy,  
-         mop_error_code_i => m_op_error_code, 
+         mop_rdy_i         => m_op_rdy,  
+         mop_error_code_i  => m_op_error_code, 
          fibre_word_i      => fibre_word,
          num_fibre_words_i => num_fibre_words,
          fibre_word_ack_o  => fibre_word_ack,
@@ -735,40 +718,46 @@ begin
    i_reply_queue : reply_queue
       port map(
          -- cmd_queue interface
-         cmd_to_retire_i  => uop_rdy,
-         cmd_sent_o       => uop_ack,
-         card_addr_i      => card_addr_cr,    
-         par_id_i         => par_id_cr,       
-         data_size_i      => data_size_cr,    
-         cmd_type_i       => cmd_type_cr,     
-         cmd_stop_i       => cmd_stop_cr,     
-         last_frame_i     => last_frame_cr,   
-         frame_seq_num_i  => frame_seq_num_cr,
-         internal_cmd_i   => internal_cmd_cr,
+         cmd_to_retire_i     => uop_rdy,
+         cmd_sent_o          => uop_ack,
+         card_addr_i         => card_addr_cr,    
+         par_id_i            => par_id_cr,       
+         data_size_i         => data_size_cr,    
+         cmd_type_i          => cmd_type_cr,     
+         cmd_stop_i          => cmd_stop_cr,     
+         last_frame_i        => last_frame_cr,   
+         frame_seq_num_i     => frame_seq_num_cr,
+         internal_cmd_i      => internal_cmd_cr,
          
-         data_rate_i      => data_rate_i,
-         row_len_i        => row_len_i,
-         num_rows_i       => num_rows_i,
-         issue_sync_i     => issue_sync,
-
+         data_rate_i         => data_rate_i,
+         row_len_i           => row_len_i,
+         num_rows_i          => num_rows_i,
+         issue_sync_i        => issue_sync,
          
          -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
-         size_o           => num_fibre_words,
-         data_o           => fibre_word,
-         error_code_o     => m_op_error_code,
-         cmd_valid_o      => m_op_rdy,
-         rdy_o            => fibre_word_rdy,
-         ack_i            => fibre_word_ack,
+         size_o              => num_fibre_words,
+         data_o              => fibre_word,
+         error_code_o        => m_op_error_code,
+         cmd_valid_o         => m_op_rdy,
+         rdy_o               => fibre_word_rdy,
+         ack_i               => fibre_word_ack,
          
          -- reply_translator interface (from reply_queue_retire)
-         cmd_sent_i       => m_op_ack,
-         cmd_code_o       => open, --m_op_cmd_code,
-         param_id_o       => open, --m_op_param_id,
-         card_addr_o      => open, --m_op_card_id,
-         stop_bit_o       => reply_cmd_stop,
-         last_frame_bit_o => reply_last_frame,
-         frame_seq_num_o  => reply_frame_seq_num,
+         cmd_sent_i          => m_op_ack,
+         cmd_code_o          => open, --m_op_cmd_code,
+         param_id_o          => open, --m_op_param_id,
+         card_addr_o         => open, --m_op_card_id,
+         stop_bit_o          => reply_cmd_stop,
+         last_frame_bit_o    => reply_last_frame,
+         frame_seq_num_o     => reply_frame_seq_num,
+
+         -- clk_switchover interface
+         active_clk_i        => active_clk_i,
    
+         -- dv_rx interface
+         sync_box_err_i      => sync_box_err_i,
+         sync_box_free_run_i => sync_box_free_run_i,
+
          -- Bus Backplane interface
          lvds_reply_ac_a     => lvds_reply_ac_a,
          lvds_reply_bc1_a    => lvds_reply_bc1_a,
@@ -781,9 +770,9 @@ begin
          lvds_reply_cc_a     => lvds_reply_cc_a,
          
          -- Global signals
-         clk_i            => clk_i,
-         comm_clk_i       => comm_clk_i,
-         rst_i            => rst_i
+         clk_i               => clk_i,
+         comm_clk_i          => comm_clk_i,
+         rst_i               => rst_i
       );
 
 end rtl; 
