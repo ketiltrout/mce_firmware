@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.91 2006/06/23 18:12:01 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.92 2006/06/30 22:11:39 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.92  2006/06/30 22:11:39  bburger
+-- Bryce:  removed the unused signal par_id from the sensitivity list
+--
 -- Revision 1.91  2006/06/23 18:12:01  bburger
 -- Bryce:  removed the dependance on the sync number for all commands, except ret_dat which must be timed appropriately
 --
@@ -536,18 +539,19 @@ begin
             next_state <= ISSUE;
          
          when CMD_ISSUED =>
-            next_state <= WAIT_TO_RETIRE;
-
-         -----------------------------------------------------
-         -- Retire Command
-         -----------------------------------------------------
-         when WAIT_TO_RETIRE =>
-            if(uop_ack_i = '1') then
-               next_state <= RETIRE;
-            end if;
-         
-         when RETIRE =>
             next_state <= IDLE;
+
+-- Removed 4 July 2006
+--         -----------------------------------------------------
+--         -- Retire Command
+--         -----------------------------------------------------
+--         when WAIT_TO_RETIRE =>
+--            if(uop_ack_i = '1') then
+--               next_state <= RETIRE;
+--            end if;
+--         
+--         when RETIRE =>
+--            next_state <= IDLE;
          
          when others =>
             next_state <= IDLE;
@@ -707,14 +711,15 @@ begin
          when CMD_ISSUED =>
             uop_rdy_o            <= '1';
 
-         -----------------------------------------------------
-         -- Retire Command
-         -----------------------------------------------------
-         when WAIT_TO_RETIRE =>  
-            null;
-         
-         when RETIRE =>          
-            null;
+-- Removed 4 July 2006
+--         -----------------------------------------------------
+--         -- Retire Command
+--         -----------------------------------------------------
+--         when WAIT_TO_RETIRE =>  
+--            null;
+--         
+--         when RETIRE =>          
+--            null;
          
          when others =>          
             null;
