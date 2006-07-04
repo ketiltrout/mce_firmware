@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.45 2006/06/19 17:20:59 bburger Exp $
+-- $Id: clk_card.vhd,v 1.46 2006/06/30 22:05:59 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.46  2006/06/30 22:05:59  bburger
+-- Bryce:  Added dv_rx and clk_switchover status signals to issue_reply
+--
 -- Revision 1.45  2006/06/19 17:20:59  bburger
 -- Bryce:  added some signals to the clock_switchover interface
 --
@@ -65,10 +68,10 @@ entity clk_card is
       rst_n             : in std_logic;
 
       -- Manchester Clock PLL inputs:
-      inclk1            : in std_logic;
+--      inclk1            : in std_logic;
 --      inclk3            : in std_logic;
 --      inclk5            : in std_logic;
---      inclk15           : in std_logic;
+      inclk15           : in std_logic;
       
       -- LVDS interface:
       lvds_cmd          : out std_logic;
@@ -638,7 +641,7 @@ begin
 
          rst_i               => rst,
          xtal_clk_i          => inclk14, -- Crystal Clock Input
-         manch_clk_i         => inclk1,  -- Manchester Clock Input
+         manch_clk_i         => inclk15,  -- Manchester Clock Input
          manch_det_i         => manchester_sigdet,
          switch_to_xtal_i    => '0',--switch_to_xtal,
          switch_to_manch_i   => '0',--switch_to_manch,
