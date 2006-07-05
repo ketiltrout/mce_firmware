@@ -41,6 +41,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_processor.vhd,v $
+-- Revision 1.8  2006/03/14 22:47:51  mandana
+-- interface change to accomodate 4-pole filter
+--
 -- Revision 1.7  2005/12/12 23:56:37  mandana
 -- added filter-related interface, removed unused port flux_jumping_en_i
 --
@@ -181,9 +184,9 @@ architecture rtl of fsfb_processor is
 begin
 
    -- Generate enable signals for different servo mode settings
-   -- 00:  Invalid
+   -- 00:  Default is constant mode
    -- 01:  Constant
-   const_mode_en <= not(servo_mode_i(1)) and servo_mode_i(0); 
+   const_mode_en <= not(servo_mode_i(1));-- and servo_mode_i(0)); 
    -- 10:  Ramp (Sawtooth)
    ramp_mode_en  <= servo_mode_i(1) and not(servo_mode_i(0));
    -- 11:  Lock 
@@ -250,6 +253,9 @@ begin
       fsfb_proc_fltr_dat_o  <= (others=>'0');
       
       update_dat : case servo_mode_i is
+         
+         -- constant mode setting
+         when "00"   => fsfb_proc_dat_o <= const_dat_ltch;
          
          -- constant mode setting
          when "01"   => fsfb_proc_dat_o <= const_dat_ltch;
