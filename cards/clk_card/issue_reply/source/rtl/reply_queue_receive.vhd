@@ -31,6 +31,11 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.15  2006/01/16 19:03:02  bburger
+-- Bryce:
+-- minor bug fixes for handling crc errors and timeouts
+-- moved reply_queue_receive instantiations from reply_queue to reply_queue_sequencer
+--
 -- Revision 1.14  2005/11/10 23:47:16  erniel
 -- replaced serial CRC datapath with parallel CRC
 -- replaced two-level buffering with single-level buffer
@@ -248,15 +253,20 @@ begin
          if(error_clr = '1') then
             error_o <= (others => '0');
          elsif(error_ld = '1') then
-            if(crc_valid = '0') then
-               error_o(0) <= '0';           -- if receive CRC failed, flag Rx CRC error condition
-               error_o(1) <= '0';           -- other error flags are meaningless
-               error_o(2) <= '1';
-            else
-               error_o(0) <= header1(0);    -- otherwise show error conditions received from dispatch
-               error_o(1) <= header1(1);
-               error_o(2) <= '0';
-            end if;               
+               error_o(0) <= header1(1);                    -- Wishbone execution error
+               error_o(1) <= (not crc_valid) or header1(0); -- LVDS rx error in dispatch or reply_queue_receive (CRC error)
+               error_o(2) <= '0';                           -- Timeout because card missing
+
+--            if(crc_valid = '0') then
+--               error_o(0) <= '0';           -- if receive CRC failed, flag Rx CRC error condition
+--               error_o(1) <= '0';           -- other error flags are meaningless
+--               error_o(2) <= '1';
+--            else
+--               error_o(0) <= header1(0);    -- otherwise show error conditions received from dispatch
+--               error_o(1) <= header1(1);
+--               error_o(2) <= '0';
+--            end if;               
+
          end if;
       end if;
    end process error_reg;
