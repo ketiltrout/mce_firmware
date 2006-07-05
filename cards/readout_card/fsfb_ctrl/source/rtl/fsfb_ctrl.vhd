@@ -69,6 +69,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_ctrl.vhd,v $
+-- Revision 1.9  2006/06/29 18:45:43  mandana
+-- introduced DAC_INIT_VALUE to initialize DACs to -8192 instead of 0, constant defined in readout_card_pack
+--
 -- Revision 1.8  2006/05/17 20:32:53  mandana
 -- generate a dac_clk upon reset to clear the DACs
 --
@@ -167,7 +170,7 @@ begin  -- rtl
   i_latch_fsfb_dat: process (clk_50_i, rst_i)
   begin  -- process i_latch_fsfb_dat
     if rst_i = '1' then                 -- asynchronous reset (active high)
-      fsfb_ctrl_dat <= (others => '0');
+      fsfb_ctrl_dat <= conv_std_logic_vector(DAC_INIT_VAL,DAC_DAT_WIDTH);
       
     elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
       if fsfb_ctrl_dat_rdy_i='1' then
