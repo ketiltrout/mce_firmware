@@ -130,6 +130,9 @@
 -- Revision history:
 -- 
 -- $Log: misc_banks_admin.vhd,v $
+-- Revision 1.7  2005/11/29 22:16:57  mandana
+-- adjusted offset for filter coefficients storage
+--
 -- Revision 1.6  2005/11/28 19:12:45  bburger
 -- Bryce:  set the default value on 'rst' for flx_jmp_en to '0'
 --
@@ -165,6 +168,7 @@ use sys_param.wishbone_pack.all;
 library work;
 
 -- Call Parent Library
+use work.readout_card_pack.all;
 use work.wbs_fb_data_pack.all;
 use work.flux_loop_pack.all;
 
@@ -293,11 +297,11 @@ begin  -- rtl
     i_reg: process (clk_50_i, rst_i)
     begin  -- process i_reg
       if rst_i = '1' then               -- asynchronous reset (active high)
---        if(i = EN_FB_JUMP_OFFSET) then
---          reg(i) <= (others => '1');
---        else
+        if(i = CONST_VAL_INDEX_OFFSET) then
+          reg(i) <= conv_std_logic_vector(DAC_INIT_VAL,WB_DATA_WIDTH);
+        else
           reg(i) <= (others => '0');
---        end if;
+        end if;
       elsif clk_50_i'event and clk_50_i = '1' then  -- rising clock edge
         if wren(i)='1' then
           reg(i) <= dat_i;
