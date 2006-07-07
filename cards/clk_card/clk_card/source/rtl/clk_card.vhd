@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.46 2006/06/30 22:05:59 bburger Exp $
+-- $Id: clk_card.vhd,v 1.47 2006/07/04 22:47:09 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.47  2006/07/04 22:47:09  bburger
+-- Bryce:  Changed the manchester pll input from inclk1 to inclk15
+--
 -- Revision 1.46  2006/06/30 22:05:59  bburger
 -- Bryce:  Added dv_rx and clk_switchover status signals to issue_reply
 --
@@ -700,8 +703,8 @@ begin
      
          wdt_rst_o => wdog,
          slot_i    => slot_id,
-         dip_sw3   => '1',
-         dip_sw4   => '1'
+         dip_sw3   => '1',--dip_sw3,--'1',
+         dip_sw4   => '1'--dip_sw4--'1'
       );
             
    led0: leds
