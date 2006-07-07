@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.42  2006/06/30 17:09:08  bburger
+-- raw_mode enabled, filter disabled, Q42
+--
 -- Revision 1.41  2006/06/09 16:48:46  mandana
 -- fixed pix_addr_cnt  reset problem in wbs_frame_data to fix a bug with readout data of reduced number of rows
 --
@@ -304,8 +307,9 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000010"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- raw mode enabled, filter disabled, DAC init value fixed
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000011"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+                                                                     -- FB DACs reset to -8192, default servo_mode set to 0, DACs initialized to 0V
+                                                                     
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk
