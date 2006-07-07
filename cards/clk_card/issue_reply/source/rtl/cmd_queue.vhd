@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.92 2006/06/30 22:11:39 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.93 2006/07/04 22:48:13 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.93  2006/07/04 22:48:13  bburger
+-- Bryce:  The cmd_queue no longer waits for a command to retire before issuing the next.
+--
 -- Revision 1.92  2006/06/30 22:11:39  bburger
 -- Bryce:  removed the unused signal par_id from the sensitivity list
 --
@@ -418,8 +421,7 @@ begin
    end process;
    
    state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_type,
-   uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state,
-   uop_ack_i, par_id)
+   uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state, par_id)
    begin
       next_state <= present_state;
       case present_state is
@@ -429,9 +431,8 @@ begin
             end if;
          
          --   -- command types:
-         --constant WRITE_CMD         : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "1";
-         --constant READ_CMD          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "0";
-
+         --constant WRITE_CMD   : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "1";
+         --constant READ_CMD    : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "0";
          
          --constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
          --constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
