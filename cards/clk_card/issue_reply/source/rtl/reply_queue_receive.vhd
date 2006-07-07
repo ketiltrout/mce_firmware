@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_receive.vhd,v $
+-- Revision 1.16  2006/07/05 14:42:01  bburger
+-- Bryce:  Adjusted the encoding for the error bits to suit the new protocol
+--
 -- Revision 1.15  2006/01/16 19:03:02  bburger
 -- Bryce:
 -- minor bug fixes for handling crc errors and timeouts
@@ -253,10 +256,15 @@ begin
          if(error_clr = '1') then
             error_o <= (others => '0');
          elsif(error_ld = '1') then
-               error_o(0) <= header1(1);                    -- Wishbone execution error
-               error_o(1) <= (not crc_valid) or header1(0); -- LVDS rx error in dispatch or reply_queue_receive (CRC error)
-               error_o(2) <= '0';                           -- Timeout because card missing
-
+               error_o(0) <= header1(1);                                -- Wishbone execution error
+               error_o(1) <= (not crc_valid) or header1(0);             -- LVDS rx error in dispatch or reply_queue_receive (CRC error)
+               if(pres_state = RX_HEADER0) then
+                  error_o(2) <= '0';
+               else
+                  error_o(2) <= '1';
+               end if;
+               
+--               error_o(2) <= '0' when (pres_state = RX_HEADER0) else '1'; -- Used to determine if the wrong card is replying
 --            if(crc_valid = '0') then
 --               error_o(0) <= '0';           -- if receive CRC failed, flag Rx CRC error condition
 --               error_o(1) <= '0';           -- other error flags are meaningless
