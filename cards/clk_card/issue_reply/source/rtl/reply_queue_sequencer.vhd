@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.18  2006/02/02 00:32:59  mandana
+-- datasize_reg_q calculations trimmed to less number of bits
+--
 -- Revision 1.17  2006/01/16 19:03:02  bburger
 -- Bryce:
 -- minor bug fixes for handling crc errors and timeouts
@@ -111,34 +114,45 @@ port(clk_i      : in std_logic;
      clear_i : in std_logic);
 end component;
 
-type seq_states is (IDLE, WAIT_FOR_REPLY, READ_AC, READ_BC1, READ_BC2, READ_BC3, MATCHED, TIMED_OUT, --CALC_DATA_SIZE, 
+type seq_states is (IDLE, WAIT_FOR_REPLY, READ_AC, READ_BC1, READ_BC2, READ_BC3, MATCHED, TIMED_OUT, 
                     READ_RC1, READ_RC2, READ_RC3, READ_RC4, READ_CC, DONE, STATUS_WORD);
-signal pres_state      : seq_states;
-signal next_state      : seq_states;
+signal pres_state       : seq_states;
+signal next_state       : seq_states;
 
 --signal seq_num         : std_logic_vector(15 downto 0);
 
 -- maybe register this
-signal timeout         : std_logic;
-signal timeout_clr     : std_logic;
-signal timeout_count   : integer;
+signal timeout          : std_logic;
+signal timeout_clr      : std_logic;
+signal timeout_count    : integer;
 
-signal timeout_reg_set : std_logic;
-signal timeout_reg_clr : std_logic;
-signal timeout_reg_q   : std_logic;
+signal timeout_reg_set  : std_logic;
+signal timeout_reg_clr  : std_logic;
+signal timeout_reg_q    : std_logic;
 
-signal datasize_reg_en : std_logic;
-signal datasize_reg_q  : std_logic_vector(BB_DATA_SIZE_WIDTH + 4 -1 downto 0);
-signal num_cards       : std_logic_vector(3 downto 0);
+signal datasize_reg_en  : std_logic;
+signal datasize_reg_q   : std_logic_vector(BB_DATA_SIZE_WIDTH + 4 -1 downto 0);
+signal num_cards        : std_logic_vector(3 downto 0);
 
-signal status          : std_logic_vector(30 downto 0);
+signal cards_rdy        : std_logic_vector(9 downto 0);
+signal cards_to_reply   : std_logic_vector(9 downto 0);
+signal no_reply_yet     : std_logic_vector(9 downto 0);
+signal wrong_cards      : std_logic_vector(9 downto 0);
+-- Timeout:  Card Not Populated
+signal timeout_not_pop  : std_logic_vector(9 downto 0);
+-- Timeout:  Execution Error
+signal timeout_error    : std_logic_vector(9 downto 0);
+signal card_error       : std_logic_vector(9 downto 0);
+signal half_done_error  : std_logic_vector(9 downto 0);
+signal cumulative_error : std_logic_vector(9 downto 0);
+signal update_status    : std_logic;
 
 
 ---------------------------------------------------------
 -- FSM for latching out 0xDEADDEAD data
 ---------------------------------------------------------
-constant err_dat     : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"DEADDEAD";
-constant ZEROS       : std_logic_vector(16-BB_DATA_SIZE_WIDTH-1 downto 0) := (others => '0'); 
+constant err_dat        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"FFFFFFFF";
+constant ZEROS          : std_logic_vector(16-BB_DATA_SIZE_WIDTH-1 downto 0) := (others => '0'); 
 
 -- reply_queue timeout limit (in microseconds):
 constant CMD_TIMEOUT_LIMIT : integer := 100;
@@ -146,12 +160,10 @@ constant DATA_TIMEOUT_LIMIT : integer := 650;
 
 -- output that indicates that there is an error word ready
 -- is asserted for each card that must reply only as long as needed to clock out the correct number of error words
-signal err_rdy       : std_logic;
-
-signal err_count_ena : std_logic;
-signal err_count_clr : std_logic;
-signal err_count     : integer;
-signal err_count_new : integer;
+signal err_rdy          : std_logic;
+signal err_count_ena    : std_logic;
+signal err_count        : integer;
+signal err_count_new    : integer;
 
 
 ---------------------------------------------------------
@@ -159,10 +171,10 @@ signal err_count_new : integer;
 ---------------------------------------------------------
 signal timer_count     : integer;
 
+
 ---------------------------------------------------------
 -- Reply_queue_receiver interface signals
 ---------------------------------------------------------
-
 signal ac_error           : std_logic_vector(2 downto 0);
 signal ac_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal ac_rdy             : std_logic;
@@ -217,14 +229,12 @@ signal cc_rdy             : std_logic;
 signal cc_ack             : std_logic;
 signal cc_clear           : std_logic;
 
+
 begin
 
-   
    ---------------------------------------------------------
    -- Receive FIFO Instantiations
-   ---------------------------------------------------------
-
-   
+   ---------------------------------------------------------   
    rx_ac : reply_queue_receive
       port map(
          clk_i        => clk_i,
@@ -364,12 +374,25 @@ begin
    ---------------------------------------------------------
    -- Continuous Assignments
    ---------------------------------------------------------
-   -- This eventually needs to change
-   error_o  <= status;
-   status <= timeout_reg_q & ac_error & bc1_error & bc2_error & bc3_error & rc1_error & rc2_error & rc3_error & rc4_error & cc_error & "000";
+   error_o <= 
+      '0' & -- This bit was originally used as the timeout bit for all cards.  Now unused.
+      -- The bit order from left to right of the following lines is:
+      -- (a) Timeout because card not present
+      -- (b) CRC error or other timeout error
+      -- (c) Wishbone execution error
+      timeout_not_pop(9) & cumulative_error(9) & ac_error(0)  & 
+      timeout_not_pop(8) & cumulative_error(8) & bc1_error(0) & 
+      timeout_not_pop(7) & cumulative_error(7) & bc2_error(0) & 
+      timeout_not_pop(6) & cumulative_error(6) & bc3_error(0) & 
+      timeout_not_pop(5) & cumulative_error(5) & rc1_error(0) & 
+      timeout_not_pop(4) & cumulative_error(4) & rc2_error(0) & 
+      timeout_not_pop(3) & cumulative_error(3) & rc3_error(0) & 
+      timeout_not_pop(2) & cumulative_error(2) & rc4_error(0) & 
+      timeout_not_pop(1) & cumulative_error(1) & cc_error(0)  & 
+      '0' & '0' & '0'; -- This last line is for the PSU, should it ever be implemented
 
    ---------------------------------------------------------
-   -- Error Word FSM
+   -- Error FSM
    ---------------------------------------------------------   
    err_count_new <= err_count + 1;
    err_counter: process(clk_i, rst_i)
@@ -397,7 +420,7 @@ begin
          -- This state machine needs one clock cycle of set up time, during the MATCHED state
          --(pres_state = MATCHED) or 
          (pres_state = DONE) or
-         ((pres_state = READ_AC) and (ac_rdy = '1')) or
+         ((pres_state = READ_AC)  and (ac_rdy = '1'))  or
          ((pres_state = READ_BC1) and (bc1_rdy = '1')) or
          ((pres_state = READ_BC2) and (bc2_rdy = '1')) or
          ((pres_state = READ_BC3) and (bc3_rdy = '1')) or
@@ -405,7 +428,7 @@ begin
          ((pres_state = READ_RC2) and (rc2_rdy = '1')) or
          ((pres_state = READ_RC3) and (rc3_rdy = '1')) or
          ((pres_state = READ_RC4) and (rc4_rdy = '1')) or
-         ((pres_state = READ_CC) and (cc_rdy = '1'))) then
+         ((pres_state = READ_CC)  and (cc_rdy = '1'))) then
             err_rdy <= '0';
          elsif(timeout_reg_q = '1' and err_count < conv_integer(card_data_size_i)) then
             err_rdy <= '1';
@@ -415,6 +438,53 @@ begin
       end if;
    end process err_word_fsm;   
    
+   ---------------------------------------------------------
+   -- Status Word Registers
+   ---------------------------------------------------------   
+--   status <= no_reply_yet and cards_to_reply;
+   
+   status_word_ff: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         -- Resetting to '1' to clear the slate and record whether a card ever replies.
+         no_reply_yet        <= (others => '1');
+         wrong_cards         <= (others => '0');
+         timeout_not_pop     <= (others => '0');
+         timeout_error       <= (others => '0');
+         cumulative_error    <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         if(update_status = '1') then
+            -- The Carnot Maps for this logic are Bryce Burger's SCUBA2 Logbook #8
+            no_reply_yet     <= (no_reply_yet and (((not cards_to_reply) and wrong_cards) or ((not cards_rdy) and (not wrong_cards))));
+            timeout_not_pop  <= (cards_to_reply and (not cards_rdy) and no_reply_yet and (not wrong_cards));
+            timeout_error    <= (cards_to_reply and (not cards_rdy) and (not no_reply_yet) and (not wrong_cards)) or ((not cards_to_reply) and cards_rdy and wrong_cards);
+            wrong_cards      <= (half_done_error and (not cards_to_reply));
+            cumulative_error <= card_error or timeout_error;
+         end if;      
+      end if;
+   end process;
+
+   card_error       <= ac_error(1) & bc1_error(1) & bc2_error(1) & bc3_error(1) & rc1_error(1) & rc2_error(1) & rc3_error(1) & rc4_error(1) & cc_error(1) & '0';
+   half_done_error  <= ac_error(2) & bc1_error(2) & bc2_error(2) & bc3_error(2) & rc1_error(2) & rc2_error(2) & rc3_error(2) & rc4_error(2) & cc_error(2) & '0';
+   cards_rdy        <= ac_rdy & bc1_rdy & bc2_rdy & bc3_rdy & rc1_rdy & rc2_rdy & rc3_rdy & rc4_rdy & cc_rdy & '0';
+   cards_to_reply   <=
+      "0000000000" when (card_addr_i = NO_CARDS) else
+      "0000000001" when (card_addr_i = POWER_SUPPLY_CARD) else
+      "0000000010" when (card_addr_i = CLOCK_CARD) else
+      "0000000100" when (card_addr_i = READOUT_CARD_4) else
+      "0000001000" when (card_addr_i = READOUT_CARD_3) else
+      "0000010000" when (card_addr_i = READOUT_CARD_2) else
+      "0000100000" when (card_addr_i = READOUT_CARD_1) else
+      "0001000000" when (card_addr_i = BIAS_CARD_3) else
+      "0010000000" when (card_addr_i = BIAS_CARD_2) else
+      "0100000000" when (card_addr_i = BIAS_CARD_1) else
+      "1000000000" when (card_addr_i = ADDRESS_CARD) else
+      "0111000000" when (card_addr_i = ALL_BIAS_CARDS) else
+      "0000111100" when (card_addr_i = ALL_READOUT_CARDS) else
+      "1111111110" when (card_addr_i = ALL_FPGA_CARDS) else
+      "1111111111" when (card_addr_i = ALL_CARDS) else
+      "0000000000";
+
    ---------------------------------------------------------
    -- Registers
    ---------------------------------------------------------
@@ -741,6 +811,8 @@ begin
                       ac_rdy,  bc1_rdy,  bc2_rdy,  bc3_rdy,  rc1_rdy,  rc2_rdy,  rc3_rdy,  rc4_rdy,  cc_rdy,  
                       ac_data, bc1_data, bc2_data, bc3_data, rc1_data, rc2_data, rc3_data, rc4_data, cc_data)
    begin
+      update_status <= '0';
+      
       timeout_clr   <= '1';
      
       ac_ack        <= '0';
@@ -788,10 +860,11 @@ begin
             end if;
       
          when WAIT_FOR_REPLY => 
-            timeout_clr     <= '0';
+            timeout_clr      <= '0';
                              
          when MATCHED =>        
-            matched_o <= '1';
+            update_status    <= '1';
+            matched_o        <= '1';
          
          when READ_AC =>        
             if(ac_rdy = '1') then 
@@ -893,27 +966,28 @@ begin
             end if;
          
          when TIMED_OUT =>      
-            timeout_o <= '1';
-            timeout_reg_set <= '1';                                
+--            update_status    <= '1';
+            timeout_o        <= '1';
+            timeout_reg_set  <= '1';                                
 
          when STATUS_WORD =>
-            data_o          <= x"EFF1CACE";
-            rdy_o           <= '1';
+            data_o           <= x"EFF1CACE";
+            rdy_o            <= '1';
             
             -- Even if there is just a status word (no data) we don't have to pipe through the ack, because the DONE state below
             -- takes care of clearing the reply_queue_receive blocks once we're done with them
          
          when DONE =>           
-            timeout_reg_clr <= '1';
-            ac_clear        <= '1';            
-            bc1_clear       <= '1';            
-            bc2_clear       <= '1';            
-            bc3_clear       <= '1';            
-            rc1_clear       <= '1';            
-            rc2_clear       <= '1';            
-            rc3_clear       <= '1';            
-            rc4_clear       <= '1';            
-            cc_clear        <= '1';
+            timeout_reg_clr  <= '1';
+            ac_clear         <= '1';            
+            bc1_clear        <= '1';            
+            bc2_clear        <= '1';            
+            bc3_clear        <= '1';            
+            rc1_clear        <= '1';            
+            rc2_clear        <= '1';            
+            rc3_clear        <= '1';            
+            rc4_clear        <= '1';            
+            cc_clear         <= '1';
          
          when others =>
             null;            
