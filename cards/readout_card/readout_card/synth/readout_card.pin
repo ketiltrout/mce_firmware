@@ -57,9 +57,10 @@
  -- RESERVED      : Unused I/O pin, which MUST be left unconnected.
  -- RESERVED_INPUT    : Pin is tri-stated and should be connected to the board.
  -- RESERVED_INPUT_WITH_WEAK_PULLUP    : Pin is tri-stated with internal weak pull-up resistor.
+ -- RESERVED_INPUT_WITH_BUS_HOLD       : Pin is tri-stated with bus-hold circuitry.
  ---------------------------------------------------------------------------------
 
-Quartus II Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
+Quartus II Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
 CHIP  "readout_card"  ASSIGNED TO AN: EP1S30F780C5
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
@@ -102,7 +103,7 @@ bias_dac_ncs[2]              : AA9       : output : LVTTL             :         
 offset_dac_ncs[2]            : AA10      : output : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AA11      :        :                   :         : 7         :                
 VCCSEL                       : AA12      :        :                   :         : 7         :                
-VCCG_PLL6                    : AA13      : power  :                   : 1.5V    : 1         :                
+VCCG_PLL6                    : AA13      : power  :                   : 1.5V    :           :                
 RESERVED_INPUT               : AA14      :        :                   :         : 11        :                
 RESERVED_INPUT               : AA15      :        :                   :         : 11        :                
 GND                          : AA16      : gnd    :                   :         :           :                
@@ -381,7 +382,7 @@ slot_id[3]                   : D10       : input  : LVTTL             :         
 mictor[10]                   : D11       : output : LVTTL             :         : 4         : Y              
 mictor[13]                   : D12       : output : LVTTL             :         : 4         : Y              
 mictor[11]                   : D13       : output : LVTTL             :         : 4         : Y              
-VCCG_PLL5                    : D14       : power  :                   : 1.5V    : 1         :                
+VCCG_PLL5                    : D14       : power  :                   : 1.5V    :           :                
 RESERVED_INPUT               : D15       :        :                   :         : 9         :                
 RESERVED_INPUT               : D16       :        :                   :         : 3         :                
 RESERVED_INPUT               : D17       :        :                   :         : 3         :                
@@ -655,7 +656,7 @@ GND+                         : P4        :        :                   :         
 GNDA_PLL4                    : P5        : gnd    :                   :         :           :                
 VCCA_PLL4                    : P6        : power  :                   : 1.5V    :           :                
 GNDG_PLL4                    : P7        : gnd    :                   :         :           :                
-VCCG_PLL4                    : P8        : power  :                   : 1.5V    : 1         :                
+VCCG_PLL4                    : P8        : power  :                   : 1.5V    :           :                
 VCCIO5                       : P9        : power  :                   : 3.3V    : 5         :                
 GND                          : P10       : gnd    :                   :         :           :                
 GND                          : P11       : gnd    :                   :         :           :                
@@ -668,7 +669,7 @@ GND                          : P17       : gnd    :                   :         
 GND                          : P18       : gnd    :                   :         :           :                
 GND                          : P19       : gnd    :                   :         :           :                
 VCCIO2                       : P20       : power  :                   : 3.3V    : 2         :                
-VCCG_PLL1                    : P21       : power  :                   : 1.5V    : 1         :                
+VCCG_PLL1                    : P21       : power  :                   : 1.5V    :           :                
 GNDG_PLL1                    : P22       : gnd    :                   :         :           :                
 VCCA_PLL1                    : P23       : power  :                   : 1.5V    :           :                
 GNDA_PLL1                    : P24       : gnd    :                   :         :           :                
@@ -683,7 +684,7 @@ GND+                         : R4        :        :                   :         
 GNDA_PLL3                    : R5        : gnd    :                   :         :           :                
 VCCA_PLL3                    : R6        : power  :                   : 1.5V    :           :                
 GNDG_PLL3                    : R7        : gnd    :                   :         :           :                
-VCCG_PLL3                    : R8        : power  :                   : 1.5V    : 1         :                
+VCCG_PLL3                    : R8        : power  :                   : 1.5V    :           :                
 VCCIO6                       : R9        : power  :                   : 3.3V    : 6         :                
 GND                          : R10       : gnd    :                   :         :           :                
 GND                          : R11       : gnd    :                   :         :           :                
@@ -696,7 +697,7 @@ VCCINT                       : R17       : power  :                   : 1.5V    
 GND                          : R18       : gnd    :                   :         :           :                
 GND                          : R19       : gnd    :                   :         :           :                
 VCCIO1                       : R20       : power  :                   : 3.3V    : 1         :                
-VCCG_PLL2                    : R21       : power  :                   : 1.5V    : 1         :                
+VCCG_PLL2                    : R21       : power  :                   : 1.5V    :           :                
 GNDG_PLL2                    : R22       : gnd    :                   :         :           :                
 VCCA_PLL2                    : R23       : power  :                   : 1.5V    :           :                
 GNDA_PLL2                    : R24       : gnd    :                   :         :           :                
