@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.27 2006/06/09 22:17:55 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.28 2006/07/01 00:05:31 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.28  2006/07/01 00:05:31  bburger
+-- Bryce:  added active_clk, sync_box_err and sync_box_free_run interface signals -- and now these signals are reported in the data frame header.
+--
 -- Revision 1.27  2006/06/09 22:17:55  bburger
 -- Bryce:  Modified to output the correct frame sequence number -- internal or manchester
 --
@@ -550,12 +553,13 @@ begin
       end case;
    end process;
    
-   retire_state_out: process(present_retire_state, cmd_sent_i, ack_i, data, active_clk, sync_box_err, sync_box_free_run, 
+   cmd_sent_o <= matched;
+   retire_state_out: process(present_retire_state, ack_i, data, active_clk, sync_box_err, sync_box_free_run, 
       data_size, par_id, word_count, issue_sync_num, row_len_i, num_rows_i, data_rate_i, frame_seq_num)
    begin   
       -- Default values
       reg_en          <= '0';
-      cmd_sent_o      <= '0';
+--      cmd_sent_o      <= '0';
       cmd_rdy         <= '0';
       cmd_valid_o     <= '0';
       
@@ -608,7 +612,7 @@ begin
             word_ack        <= '1';
 
          when DONE_HEADER_STORE =>
-            cmd_sent_o      <= '1';            
+--            cmd_sent_o      <= '1';            
 
          when TX_HEADER =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
@@ -702,14 +706,14 @@ begin
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
 
-            if(cmd_sent_i = '1') then
-               cmd_sent_o   <= '1';
-            end if;
+--            if(cmd_sent_i = '1') then
+--               cmd_sent_o   <= '1';
+--            end if;
 
          when WAIT_FOR_ACK =>
-            if(cmd_sent_i = '1') then
-               cmd_sent_o   <= '1';
-            end if;
+--            if(cmd_sent_i = '1') then
+--               cmd_sent_o   <= '1';
+--            end if;
            
          when others =>
             null;
