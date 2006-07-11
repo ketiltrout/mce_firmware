@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.4  2006/05/13 07:38:49  bburger
+# Bryce:  Intermediate commital -- going away on holiday and don't want to lose work
+#
 # Revision 1.3  2006/04/26 22:55:08  bburger
 # Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
 # In the process:
@@ -290,7 +293,7 @@ cmp add_assignment $top_name "" "mictor0_o\[15\]" LOCATION "Pin_AF17"
 cmp add_assignment $top_name "" "mictor0clk_o" LOCATION "Pin_AG17"
 puts "   Assigned: Mictor 0 (Bank 7/8 Debug) ODD pod."
 
-cmp add_assignment $top_name "" "mictor0_o\[0\]" LOCATION "Pin_AD21"
+cmp add_assignment $top_name "" "mictor0_e\[0\]" LOCATION "Pin_AD21"
 cmp add_assignment $top_name "" "mictor0_e\[1\]" LOCATION "Pin_AG22"
 cmp add_assignment $top_name "" "mictor0_e\[2\]" LOCATION "Pin_AH22"
 cmp add_assignment $top_name "" "mictor0_e\[3\]" LOCATION "Pin_AF22"
@@ -330,7 +333,7 @@ cmp add_assignment $top_name "" "mictor1_o\[15\]" LOCATION "Pin_AF13"
 cmp add_assignment $top_name "" "mictor1clk_o" LOCATION "Pin_AD12"
 puts "   Assigned: Mictor 1 (Bank 8 Debug) ODD pod."
 
-cmp add_assignment $top_name "" "mictor1_o\[0\]" LOCATION "Pin_AA18"
+cmp add_assignment $top_name "" "mictor1_e\[0\]" LOCATION "Pin_AA18"
 cmp add_assignment $top_name "" "mictor1_e\[1\]" LOCATION "Pin_Y18"
 cmp add_assignment $top_name "" "mictor1_e\[2\]" LOCATION "Pin_AA19"
 cmp add_assignment $top_name "" "mictor1_e\[3\]" LOCATION "Pin_W19"

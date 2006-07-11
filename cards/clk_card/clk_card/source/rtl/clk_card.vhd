@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.48 2006/07/07 00:39:36 bburger Exp $
+-- $Id: clk_card.vhd,v 1.49 2006/07/11 18:20:32 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.49  2006/07/11 18:20:32  bburger
+-- Bryce:  Adjusted the Mictor signals slightly to debug the odd-byte problem we see on the fibre
+--
 -- Revision 1.48  2006/07/07 00:39:36  bburger
 -- Bryce:  Added commented out code for controlling functionality in the dispatch block with dip switches
 --
@@ -142,10 +145,14 @@ entity clk_card is
       smb_data          : inout std_logic;
       
       -- debug ports:
-      mictor_o          : out std_logic_vector(15 downto 1);
-      mictorclk_o       : out std_logic;
-      mictor_e          : out std_logic_vector(15 downto 1);
-      mictorclk_e       : out std_logic;
+      mictor0_o         : out std_logic_vector(15 downto 0);
+      mictor0clk_o      : out std_logic;
+      mictor0_e         : out std_logic_vector(15 downto 0);
+      mictor0clk_e      : out std_logic;
+      mictor1_o         : out std_logic_vector(15 downto 0);
+      mictor1clk_o      : out std_logic;
+      mictor1_e         : out std_logic_vector(15 downto 0);
+      mictor1clk_e      : out std_logic;
       rs232_rx          : in std_logic;
       rs232_tx          : out std_logic;
       
@@ -570,11 +577,9 @@ end component;
 
 begin
 
-   mictor_o(7 downto 0) <= debug(7 downto 0);
-   
-   mictor_e(7 downto 0) <= fib_tx_data;
-   mictor_e(8)          <= fib_tx_ena;
-   mictor_e(9)          <= fibre_tx_sc_nd;
+   mictor0_o(7 downto 0) <= debug(7 downto 0);
+   mictor0_e(7 downto 0) <= fib_tx_data;
+   mictor0_e(8)          <= fib_tx_ena;
    
    -- Fibre tx signals
    fibre_tx_data   <= fib_tx_data;
