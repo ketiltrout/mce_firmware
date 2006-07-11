@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.49 2006/06/19 17:46:07 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.50 2006/07/01 00:04:25 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,81 +33,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/06/19 17:46:07 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/07/01 00:04:25 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
--- Revision 1.49  2006/06/19 17:46:07  bburger
--- Bryce:  interface changes to reply_translator and fibre_tx
---
--- Revision 1.48  2006/06/03 02:29:15  bburger
--- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
---
--- Revision 1.47  2006/05/29 23:11:00  bburger
--- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
---
--- Revision 1.46  2006/03/23 23:14:07  bburger
--- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
---
--- Revision 1.45  2006/03/17 17:06:18  bburger
--- Bryce:  added row_len, num_rows and data_rate interfaces to add this information to the frame headers
---
--- Revision 1.44  2006/03/16 00:20:57  bburger
--- Bryce:  added ret_dat_req_i  and ret_dat_ack_o interfaces
---
--- Revision 1.43  2006/03/09 01:04:37  bburger
--- Bryce:
--- - cmd_translator interface now takes the following signals:  dv_mode_i, external_dv_i, external_dv_num_i
--- - cmd_queue communicates the issue_sync to reply_queue
---
--- Revision 1.42  2006/02/11 01:19:33  bburger
--- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
--- data_req
--- data_ack
--- frame_num_external
---
--- Revision 1.41  2006/01/16 18:58:05  bburger
--- Ernie:
--- Added component declarations
--- Updated the interfaces to issue_reply sub-blocks
---
--- Revision 1.40  2005/11/15 03:17:22  bburger
--- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
---
--- Revision 1.39  2005/03/19 00:31:23  bburger
--- bryce:  Fixed several bugs.  Tagging cc_01010007.
---
--- Revision 1.38  2005/03/16 02:20:58  bburger
--- bryce:  removed mem_clk from the cmd_queue and sync_gen blocks
---
--- Revision 1.37  2005/03/04 03:45:58  bburger
--- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
---
--- Revision 1.36  2005/02/20 02:00:29  bburger
--- Bryce:  integrated the reply_queue and cmd_queue with respect to the timeout signal.
---
--- Revision 1.35  2005/02/20 00:13:59  bburger
--- Bryce:  added a uop_timeout signal to the interface that will tell the cmd_queue to skip a command if it times out in the reply_queue
---
--- Revision 1.34  2005/01/12 22:11:25  mandana
--- remove mem_clk_i from reply_queue interface
---
--- Revision 1.33  2005/01/12 21:52:17  mandana
--- update cmd_queue interface by deleting comm_clk_i
---
--- Revision 1.32  2004/12/16 22:05:40  bburger
--- Bryce:  changes associated with lvds_tx and cmd_translator interface changes
---
--- Revision 1.31  2004/12/09 01:56:22  bburger
--- Bryce:  updated the port map on the reply_translator to match the entity
---
--- Revision 1.30  2004/12/04 02:03:38  bburger
--- Bryce:  fixing some problems associated with integrating the reply_queue
---
--- Revision 1.29  2004/11/30 22:58:47  bburger
--- Bryce:  reply_queue integration
---
--- Revision 1.28  2004/11/25 11:04:30  dca
--- internal_cmd_i added to reply_translator instantiation
+-- Revision 1.50  2006/07/01 00:04:25  bburger
+-- Bryce:  added active_clk, sync_box_err and sync_box_free_run interface signals to reply_queue, clk_switchover and dv_rx blocks
 --
 -----------------------------------------------------------------------------
 
@@ -289,7 +219,7 @@ architecture rtl of issue_reply is
    component cmd_queue
    port(
       -- for testing
-      debug_o         : out std_logic_vector(31 downto 0);
+      debug_o         : out std_logic_vector (31 downto 0);
       timer_trigger_o : out std_logic;
 
       -- reply_queue interface
@@ -397,53 +327,55 @@ architecture rtl of issue_reply is
 
    component reply_translator
    port(
-     -- global inputs 
-     rst_i                   : in  std_logic;                                               -- global reset
-     clk_i                   : in  std_logic;                                               -- global clock
+      -- for testing
+      debug_o             : out std_logic_vector (31 downto 0);
 
-     -- signals to/from cmd_translator    
-     cmd_rcvd_er_i           : in  std_logic;                                               -- command received on fibre with checksum error
-     cmd_rcvd_ok_i           : in  std_logic;                                               -- command received on fibre - no checksum error
-     cmd_code_i              : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);  -- fibre command code
-     card_addr_i             : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- fibre command card id
-     param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
-         
-     -- signals to/from reply queue 
-     mop_rdy_i               : in  std_logic;                                                 -- macro op response ready to be processed
-     mop_error_code_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);      -- macro op success (others => '0') else error code
-     fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1     downto 0);      -- packet word read from reply queue
-     num_fibre_words_i       : in  integer ;                                                 -- indicate number of packet words to be read from reply queue
-     fibre_word_ack_o        : out std_logic;                                                -- asserted to requeset next fibre word
-     fibre_word_rdy_i        : in std_logic;
-     mop_ack_o               : out std_logic;                                                 -- asserted to indicate to reply queue the the packet has been processed
+      -- global inputs 
+      rst_i                   : in  std_logic;                                               -- global reset
+      clk_i                   : in  std_logic;                                               -- global clock
 
-     cmd_stop_i              : in std_logic;
-     last_frame_i            : in std_logic;
-     frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+      -- signals to/from cmd_translator    
+      cmd_rcvd_er_i           : in  std_logic;                                               -- command received on fibre with checksum error
+      cmd_rcvd_ok_i           : in  std_logic;                                               -- command received on fibre - no checksum error
+      cmd_code_i              : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);  -- fibre command code
+      card_addr_i             : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- fibre command card id
+      param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
+          
+      -- signals to/from reply queue 
+      mop_rdy_i               : in  std_logic;                                                 -- macro op response ready to be processed
+      mop_error_code_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);      -- macro op success (others => '0') else error code
+      fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1     downto 0);      -- packet word read from reply queue
+      num_fibre_words_i       : in  integer ;                                                 -- indicate number of packet words to be read from reply queue
+      fibre_word_ack_o        : out std_logic;                                                -- asserted to requeset next fibre word
+      fibre_word_rdy_i        : in std_logic;
+      mop_ack_o               : out std_logic;                                                 -- asserted to indicate to reply queue the the packet has been processed
 
-     -- signals to / from fibre_tx
-     fibre_tx_busy_i         : in std_logic;                                             -- transmit fifo full
-     fibre_tx_rdy_o          : out std_logic;                                            -- transmit fifo write request
-     fibre_tx_dat_o          : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0)                         -- transmit fifo data input
-     );      
+      cmd_stop_i              : in std_logic;
+      last_frame_i            : in std_logic;
+      frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+
+      -- signals to / from fibre_tx
+      fibre_tx_busy_i         : in std_logic;                                             -- transmit fifo full
+      fibre_tx_rdy_o          : out std_logic;                                            -- transmit fifo write request
+      fibre_tx_dat_o          : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0)                         -- transmit fifo data input
+      );      
    end component;
 
    component fibre_tx
-      port(       
-         clk_i  : in std_logic;
-         rst_i  : in std_logic;
-         
-         dat_i  : in std_logic_vector(31 downto 0);
-         rdy_i  : in std_logic;
-         busy_o : out std_logic;    
-     
-         fibre_clk_i   : in std_logic;    
-         fibre_clkw_o  : out std_logic;
-         fibre_data_o  : out std_logic_vector(7 downto 0);
-         fibre_sc_nd_o : out std_logic;
-         fibre_nena_o  : out std_logic
-      );
-
+   port(       
+      clk_i  : in std_logic;
+      rst_i  : in std_logic;
+      
+      dat_i  : in std_logic_vector(31 downto 0);
+      rdy_i  : in std_logic;
+      busy_o : out std_logic;    
+   
+      fibre_clk_i   : in std_logic;    
+      fibre_clkw_o  : out std_logic;
+      fibre_data_o  : out std_logic_vector(7 downto 0);
+      fibre_sc_nd_o : out std_logic;
+      fibre_nena_o  : out std_logic
+   );
    end component;
 
    -- inputs from fibre_rx 
@@ -456,14 +388,12 @@ architecture rtl of issue_reply is
    signal num_data            : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
    signal param_id            : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
    signal cmd_type            : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
-   signal cmd_ack             : std_logic;   -- acknowledge signal from cmd_translator to fibre_rx
-  
+   signal cmd_ack             : std_logic;   -- acknowledge signal from cmd_translator to fibre_rx  
    signal reply_cmd_rcvd_er   : std_logic;
    signal reply_cmd_rcvd_ok   : std_logic;
    signal reply_cmd_code      : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal reply_param_id      : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0); 
    signal reply_card_id       : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-
    signal sync_pulse          : std_logic;
    signal issue_sync          : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    
@@ -485,7 +415,6 @@ architecture rtl of issue_reply is
    signal data_size           : std_logic_vector (BB_DATA_SIZE_WIDTH-1 downto 0);
    signal data                : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal data_clk2           : std_logic; 
-   --signal m_op_seq_num        : std_logic_vector(BB_MACRO_OP_SEQ_WIDTH-1 downto 0);
    signal frame_sync_num      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal frame_seq_num       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal macro_instr_rdy     : std_logic; 
@@ -573,6 +502,9 @@ begin
    ------------------------------------------------------------------------ 
    i_reply_translator : reply_translator
       port map(
+         -- for testing
+         debug_o           => debug_o,
+
          -- global inputs 
          rst_i             => rst_i,
          clk_i             => clk_i,
@@ -670,7 +602,7 @@ begin
    i_cmd_queue : cmd_queue
      port map(
         -- for testing
-        debug_o         => debug_o,
+        debug_o         => open,
         timer_trigger_o => open,
 
         -- reply_queue interface
