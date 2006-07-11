@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.47 2006/07/04 22:47:09 bburger Exp $
+-- $Id: clk_card.vhd,v 1.48 2006/07/07 00:39:36 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.48  2006/07/07 00:39:36  bburger
+-- Bryce:  Added commented out code for controlling functionality in the dispatch block with dip switches
+--
 -- Revision 1.47  2006/07/04 22:47:09  bburger
 -- Bryce:  Changed the manchester pll input from inclk1 to inclk15
 --
@@ -567,19 +570,11 @@ end component;
 
 begin
 
-   mictor_o(8 downto 1) <= fibre_rx_data;
-   mictor_o(9)     <= fibre_rx_rdy;
-   mictor_o(10)    <= lvds_reply_ac_a;
-   mictor_o(11)    <= lvds_reply_bc1_a;
-   mictor_o(12)    <= lvds_reply_bc2_a;
-   mictor_o(13)    <= lvds_reply_bc3_a;
+   mictor_o(7 downto 0) <= debug(7 downto 0);
    
-   mictor_e(8 downto 1) <= fib_tx_data;
-   mictor_e(9)     <= fib_tx_ena;
-   mictor_e(10)    <= lvds_reply_rc1_a;
-   mictor_e(11)    <= lvds_reply_rc2_a;
-   mictor_e(12)    <= lvds_reply_rc3_a;
-   mictor_e(13)    <= lvds_reply_rc4_a;
+   mictor_e(7 downto 0) <= fib_tx_data;
+   mictor_e(8)          <= fib_tx_ena;
+   mictor_e(9)          <= fibre_tx_sc_nd;
    
    -- Fibre tx signals
    fibre_tx_data   <= fib_tx_data;
@@ -594,8 +589,7 @@ begin
    ttl_txena1 <= '0';
    
    -- ttl_tx1 is an active-low reset transmitted accross the bus backplane to clear FPGA registers (BClr)
-   ttl_tx1    <= not sc_rst;
-   
+   ttl_tx1    <= not sc_rst;   
    rst        <= (not rst_n) or sc_rst;
 
    with addr select
