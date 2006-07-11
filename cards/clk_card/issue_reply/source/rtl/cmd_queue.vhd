@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.93 2006/07/04 22:48:13 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.94 2006/07/07 00:40:34 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.94  2006/07/07 00:40:34  bburger
+-- Bryce:  Removed unused signal uop_ack_i from a sensitivity list
+--
 -- Revision 1.93  2006/07/04 22:48:13  bburger
 -- Bryce:  The cmd_queue no longer waits for a command to retire before issuing the next.
 --
@@ -420,7 +423,7 @@ begin
       end if;
    end process;
    
-   state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_type,
+   state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_type, uop_ack_i,
    uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state, par_id)
    begin
       next_state <= present_state;
@@ -540,19 +543,20 @@ begin
             next_state <= ISSUE;
          
          when CMD_ISSUED =>
-            next_state <= IDLE;
+            next_state <= WAIT_TO_RETIRE;
 
 -- Removed 4 July 2006
---         -----------------------------------------------------
---         -- Retire Command
---         -----------------------------------------------------
---         when WAIT_TO_RETIRE =>
---            if(uop_ack_i = '1') then
---               next_state <= RETIRE;
---            end if;
---         
---         when RETIRE =>
---            next_state <= IDLE;
+-- Readded 10 July 2006 after i realized that the on safeguard that we need is between the cmd_queue and reply_queue
+         -----------------------------------------------------
+         -- Retire Command
+         -----------------------------------------------------
+         when WAIT_TO_RETIRE =>
+            if(uop_ack_i = '1') then
+               next_state <= RETIRE;
+            end if;
+         
+         when RETIRE =>
+            next_state <= IDLE;
          
          when others =>
             next_state <= IDLE;
@@ -712,15 +716,14 @@ begin
          when CMD_ISSUED =>
             uop_rdy_o            <= '1';
 
--- Removed 4 July 2006
---         -----------------------------------------------------
---         -- Retire Command
---         -----------------------------------------------------
---         when WAIT_TO_RETIRE =>  
---            null;
---         
---         when RETIRE =>          
---            null;
+         -----------------------------------------------------
+         -- Retire Command
+         -----------------------------------------------------
+         when WAIT_TO_RETIRE =>  
+            null;
+         
+         when RETIRE =>          
+            null;
          
          when others =>          
             null;
