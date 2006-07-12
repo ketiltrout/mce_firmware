@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.5  2006/07/11 18:46:03  bburger
+# Bryce:  Corrected the mictor debug port interfaces
+#
 # Revision 1.4  2006/05/13 07:38:49  bburger
 # Bryce:  Intermediate commital -- going away on holiday and don't want to lose work
 #
@@ -273,7 +276,7 @@ cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_Y20"
 puts "   Assigned: SMB interface pins."
 
 
-# assign mictor0 (Bank 7/8 Debug) test header pins
+# assign Mictor 0 (P10, Bank 8) test header pins
 cmp add_assignment $top_name "" "mictor0_o\[0\]" LOCATION "Pin_AE21"
 cmp add_assignment $top_name "" "mictor0_o\[1\]" LOCATION "Pin_AG21"
 cmp add_assignment $top_name "" "mictor0_o\[2\]" LOCATION "Pin_AF21"
@@ -291,7 +294,7 @@ cmp add_assignment $top_name "" "mictor0_o\[13\]" LOCATION "Pin_AE18"
 cmp add_assignment $top_name "" "mictor0_o\[14\]" LOCATION "Pin_AG18"
 cmp add_assignment $top_name "" "mictor0_o\[15\]" LOCATION "Pin_AF17"
 cmp add_assignment $top_name "" "mictor0clk_o" LOCATION "Pin_AG17"
-puts "   Assigned: Mictor 0 (Bank 7/8 Debug) ODD pod."
+puts "   Assigned: Mictor 0 (P10, Bank 8) ODD pod."
 
 cmp add_assignment $top_name "" "mictor0_e\[0\]" LOCATION "Pin_AD21"
 cmp add_assignment $top_name "" "mictor0_e\[1\]" LOCATION "Pin_AG22"
@@ -310,10 +313,10 @@ cmp add_assignment $top_name "" "mictor0_e\[13\]" LOCATION "Pin_AH25"
 cmp add_assignment $top_name "" "mictor0_e\[14\]" LOCATION "Pin_AG25"
 cmp add_assignment $top_name "" "mictor0_e\[15\]" LOCATION "Pin_AH26"
 cmp add_assignment $top_name "" "mictor0clk_e" LOCATION "Pin_AG26"
-puts "   Assigned: Mictor 0 (Bank 7/8 Debug) EVEN pod."
+puts "   Assigned: Mictor 0 (P10, Bank 8) EVEN pod."
 
 
-# assign mictor1 (Bank 8 Debug) test header pins
+# assign Mictor 1 (P11, Bank 7 & 8) test header pins
 cmp add_assignment $top_name "" "mictor1_o\[0\]" LOCATION "Pin_V11"
 cmp add_assignment $top_name "" "mictor1_o\[1\]" LOCATION "Pin_Y9"
 cmp add_assignment $top_name "" "mictor1_o\[2\]" LOCATION "Pin_Y10"
@@ -331,7 +334,7 @@ cmp add_assignment $top_name "" "mictor1_o\[13\]" LOCATION "Pin_AD13"
 cmp add_assignment $top_name "" "mictor1_o\[14\]" LOCATION "Pin_AE13"
 cmp add_assignment $top_name "" "mictor1_o\[15\]" LOCATION "Pin_AF13"
 cmp add_assignment $top_name "" "mictor1clk_o" LOCATION "Pin_AD12"
-puts "   Assigned: Mictor 1 (Bank 8 Debug) ODD pod."
+puts "   Assigned: Mictor 1 (P11, Bank 7 & 8) ODD pod."
 
 cmp add_assignment $top_name "" "mictor1_e\[0\]" LOCATION "Pin_AA18"
 cmp add_assignment $top_name "" "mictor1_e\[1\]" LOCATION "Pin_Y18"
@@ -350,7 +353,7 @@ cmp add_assignment $top_name "" "mictor1_e\[13\]" LOCATION "Pin_AD17"
 cmp add_assignment $top_name "" "mictor1_e\[14\]" LOCATION "Pin_AE17"
 cmp add_assignment $top_name "" "mictor1_e\[15\]" LOCATION "Pin_AE12"
 cmp add_assignment $top_name "" "mictor1clk_e" LOCATION "Pin_AG13"
-puts "   Assigned: Mictor 1 (Bank 8 Debug) EVEN pod."
+puts "   Assigned: Mictor 1 (P11, Bank 7 & 8) EVEN pod."
 
 
 # assign RS232 pins
