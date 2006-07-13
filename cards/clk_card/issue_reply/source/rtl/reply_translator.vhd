@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.36 2006/07/11 00:48:03 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.37 2006/07/11 18:24:26 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/07/11 00:48:03 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/07/11 18:24:26 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.37  2006/07/11 18:24:26  bburger
+-- Bryce:  Added a debug port
+--
 -- Revision 1.36  2006/07/11 00:48:03  bburger
 -- Bryce:  Removed recirc-muxes, cleaned up all the registers.  This block is now a lean machine.
 --
@@ -376,11 +379,13 @@ begin
       -- "RSOK" = 0x52534F4B or
       -- "WBOK" = 0x57424F4B or
       -- "RBOK" = 0x52424F4B or
+      -- "DAOK" = 0x44414F4B or
       -- "GOER" = 0x474F4552 or
       -- "STER" = 0x53544552 or
       -- "RSER" = 0x52534552 or
       -- "WBER" = 0x57424552 or
       -- "RBER" = 0x52424552 or
+      -- "DAOK" = 0x44414552
       -- Frame Status Block
       ----------------------------------------
       when LD_OKorER =>
@@ -405,8 +410,11 @@ begin
          end if;             
 
       ----------------------------------------
-      -- 
+      -- Intermediate Steps
       ----------------------------------------
+      when ACK_Q_WORD =>
+         fibre_next_state <= WAIT_Q_WORD1;    
+      
       when WAIT_Q_WORD1 =>
          -- and fibre_tx_busy_i = '0' Don't check for busy here, because its done in all other states.
          if (fibre_word_rdy_i  = '1') then 
@@ -423,9 +431,6 @@ begin
             fibre_next_state <= ACK_Q_WORD;
          end if;             
 
-      when ACK_Q_WORD =>
-         fibre_next_state <= WAIT_Q_WORD1;    
-      
       ----------------------------------------
       -- Checksum word
       ----------------------------------------
@@ -567,13 +572,13 @@ begin
       when LD_STATUS =>
          if(fibre_tx_busy_i = '0') then 
             fibre_tx_dat_o <= ok_or_er;
-            -- Do not transmit a status word if an RB was successful or if returning DATA
-            -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
-            if((cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (mop_rdy_data = '1')) then
-               null;
-            else
+--            -- Do not transmit a status word if an RB was successful or if returning DATA
+--            -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
+--            if((cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (mop_rdy_data = '1')) then
+--               null;
+--            else
                fibre_tx_rdy_o <= '1';
-            end if;
+--            end if;
          end if;   
 
       ----------------------------------------
@@ -583,13 +588,13 @@ begin
          if(fibre_tx_busy_i = '0') then 
             fibre_tx_dat_o <= fibre_word_i; 
 
-            -- Do not transmit a data word if an RB was unsuccessful
-            -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
-            if(cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
-               null;
-            else
+--            -- Do not transmit a data word if an RB was unsuccessful
+--            -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
+--            if(cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
+--               null;
+--            else
                fibre_tx_rdy_o <= '1';
-            end if;
+--            end if;
          end if;   
 
       ----------------------------------------
