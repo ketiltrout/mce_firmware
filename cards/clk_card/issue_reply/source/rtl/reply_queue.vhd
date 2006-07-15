@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.28 2006/07/01 00:05:31 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.29 2006/07/11 00:46:56 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,53 +30,8 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
--- Revision 1.28  2006/07/01 00:05:31  bburger
--- Bryce:  added active_clk, sync_box_err and sync_box_free_run interface signals -- and now these signals are reported in the data frame header.
---
--- Revision 1.27  2006/06/09 22:17:55  bburger
--- Bryce:  Modified to output the correct frame sequence number -- internal or manchester
---
--- Revision 1.26  2006/06/03 02:29:15  bburger
--- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
---
--- Revision 1.25  2006/05/25 05:41:26  bburger
--- Bryce:  Intermediate committal
---
--- Revision 1.24  2006/03/23 23:14:07  bburger
--- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
---
--- Revision 1.23  2006/03/17 17:06:18  bburger
--- Bryce:  added row_len, num_rows and data_rate interfaces to add this information to the frame headers
---
--- Revision 1.22  2006/03/09 00:59:49  bburger
--- Bryce:
--- - Added issue_sync_i interface
--- - Implemented logic to include the issue_sync number in data frame headers
---
--- Revision 1.21  2006/02/18 01:21:41  bburger
--- Bryce:  added word_count to the output sensitivity list
---
--- Revision 1.20  2006/02/02 00:38:28  mandana
--- removed next_retire_state out of the sensitivity list for retire_state_out process
---
--- Revision 1.19  2006/01/16 19:03:02  bburger
--- Bryce:
--- minor bug fixes for handling crc errors and timeouts
--- moved reply_queue_receive instantiations from reply_queue to reply_queue_sequencer
---
--- Revision 1.18  2005/11/15 03:17:22  bburger
--- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
---
--- Revision 1.17  2005/09/28 23:50:07  bburger
--- Bryce:
--- replaced obsolete crc block with serial_crc block
---
--- Revision 1.16  2005/03/23 19:25:54  bburger
--- Bryce:  Added a debugging trigger
---
--- Revision 1.1  2004/10/21 00:45:38  bburger
--- Bryce:  new
---
+-- Revision 1.29  2006/07/11 00:46:56  bburger
+-- Bryce:  Removed the cmd_sent logic because that signal is irrelevant now that the interlock between cmd_queue and cmd_translator has been removed.
 --
 ------------------------------------------------------------------------
 
@@ -208,6 +163,7 @@ architecture behav of reply_queue is
    signal internal_cmd         : std_logic;
    
    signal data_size            : integer;
+   signal packet_size          : integer;
    signal data                 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal error_code           : std_logic_vector(30 downto 0);
    signal word_rdy             : std_logic; -- word is valid
@@ -227,7 +183,7 @@ architecture behav of reply_queue is
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
    type retire_states is (IDLE, LATCH_CMD, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, REPLY, 
       STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, 
-      TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM, TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS);
+      TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM_MANCH, TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_STATUS_BITS, TX_FRAME_SEQUENCE_NUM);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;   
 
@@ -245,9 +201,6 @@ architecture behav of reply_queue is
    signal load_word_count      : std_logic; 
    signal word_count           : integer; 
    signal word_count_new       : integer; 
- 
-   signal status_en            : std_logic;
-   signal status_q             : std_logic_vector(30 downto 0);
  
    -- number of frame header words stored in RAM
    constant NUM_RAM_HEAD_WORDS : integer := 41 ;
@@ -391,18 +344,7 @@ begin
          reg_o      => issue_sync_num
       );
       
-   error_code_o <= "0" & status_q;
-   status_reg : reg
-      generic map(
-         WIDTH => 31
-      )
-      port map(
-         clk_i => clk_i,
-         rst_i => rst_i,
-         ena_i => status_en,
-         reg_i => error_code,
-         reg_o => status_q
-      );      
+   error_code_o <= "0" & error_code;
 
    -- Some of the outputs to reply_translator and lvds_rx fifo's
    cmd_code_o        <= cmd_type;
@@ -428,8 +370,8 @@ begin
       end if;
    end process retire_state_FF;
 
-   retire_state_NS: process(present_retire_state, cmd_to_retire_i, matched, ack_i, --status_q, --timeout, 
-      internal_cmd, word_rdy, word_count, data_size, par_id, cmd_sent_i, cmd_type)
+   retire_state_NS: process(present_retire_state, cmd_to_retire_i, matched, ack_i, 
+      internal_cmd, word_rdy, word_count, data_size, par_id, cmd_sent_i, cmd_type) --, packet_size)
    begin
       -- Default Values
       next_retire_state <= present_retire_state;
@@ -462,10 +404,11 @@ begin
             if (ack_i = '1') then
                -- If is a data frame
                if (par_id = RET_DAT_ADDR) then
-                  next_retire_state <= TX_ROW_LEN;
+                  next_retire_state <= TX_STATUS_BITS;
                -- If this is a RB
                elsif (cmd_type = READ_CMD) then
-                  next_retire_state <= REPLY;
+                  next_retire_state <= TX_SEND_DATA;
+--                  next_retire_state <= REPLY;
                -- If this is a WB
                else
                   next_retire_state <= WAIT_FOR_ACK;
@@ -475,6 +418,7 @@ begin
          when STORE_HEADER_WORD =>
             next_retire_state <= NEXT_HEADER_WORD;
 
+         -- What happens if there's a timeout.  Does the FSM just freeze here?
          when NEXT_HEADER_WORD =>
             if (word_rdy = '1') and (word_count < data_size) then 
                next_retire_state <= STORE_HEADER_WORD;
@@ -485,55 +429,64 @@ begin
          when DONE_HEADER_STORE =>
             next_retire_state <= IDLE;         
 
-         when TX_ROW_LEN =>
+         when TX_STATUS_BITS =>
             if(word_count >= 1) then
-               next_retire_state <= TX_NUM_ROWS;
-            end if;
-
-         when TX_NUM_ROWS =>
-            if(word_count >= 2) then
-               next_retire_state <= TX_DATA_RATE;
-            end if;
-         
-         when TX_DATA_RATE =>
-            if(word_count >= 3) then
-               next_retire_state <= TX_SYNC_NUM;
-            end if;
-
-         when TX_SYNC_NUM =>
-            if(word_count >= 4) then
                next_retire_state <= TX_FRAME_SEQUENCE_NUM;
             end if;
 
          when TX_FRAME_SEQUENCE_NUM =>
+            if(word_count >= 2) then
+               next_retire_state <= TX_ROW_LEN;
+            end if;
+
+         when TX_ROW_LEN =>
+            if(word_count >= 3) then
+               next_retire_state <= TX_NUM_ROWS;
+            end if;
+
+         when TX_NUM_ROWS =>
+            if(word_count >= 4) then
+               next_retire_state <= TX_DATA_RATE;
+            end if;
+         
+         when TX_DATA_RATE =>
             if(word_count >= 5) then
+               next_retire_state <= TX_SYNC_NUM;
+            end if;
+
+         when TX_SYNC_NUM =>
+            if(word_count >= 6) then
+               next_retire_state <= TX_FRAME_SEQUENCE_NUM_MANCH;
+            end if;
+
+         when TX_FRAME_SEQUENCE_NUM_MANCH =>
+            if(word_count >= 7) then
                next_retire_state <= TX_ACTIVE_CLK;
             end if;
 
          when TX_ACTIVE_CLK =>
-            if(word_count >= 6) then
+            if(word_count >= 8) then
                next_retire_state <= TX_SYNC_BOX_ERR;
             end if; 
 
          when TX_SYNC_BOX_ERR =>
-            if(word_count >= 7) then
+            if(word_count >= 9) then
                next_retire_state <= TX_SYNC_BOX_FR;
             end if;
 
          when TX_SYNC_BOX_FR =>
-            if(word_count >= 8) then
+            if(word_count >= 10) then
                next_retire_state <= TX_HEADER;
             end if;
 
          when TX_HEADER =>
-            -- The "- 1" is to compensate for single words sent at the end of the header
-            -- i.e. sync_num (TX_SYNC_NUM)
             if(word_count >= NUM_RAM_HEAD_WORDS) then
                next_retire_state <= TX_SEND_DATA;
             end if;
 
          when TX_SEND_DATA =>
-            if(word_count >= data_size + NUM_RAM_HEAD_WORDS) then
+--            if(word_count >= packet_size) then
+            if(word_rdy = '0') then
                next_retire_state <= WAIT_FOR_ACK;
             end if;
 
@@ -553,13 +506,15 @@ begin
       end case;
    end process;
    
-   cmd_sent_o <= matched;
+   cmd_sent_o  <= matched;
+   packet_size <= (data_size + NUM_RAM_HEAD_WORDS) when (par_id = RET_DAT_ADDR) else data_size;
+   size_o      <= packet_size;
+   
    retire_state_out: process(present_retire_state, ack_i, data, active_clk, sync_box_err, sync_box_free_run, 
-      data_size, par_id, word_count, issue_sync_num, row_len_i, num_rows_i, data_rate_i, frame_seq_num)
+      issue_sync_num, row_len_i, num_rows_i, data_rate_i, frame_seq_num, word_rdy, bit_status) --word_count, , packet_size
    begin   
       -- Default values
       reg_en          <= '0';
---      cmd_sent_o      <= '0';
       cmd_rdy         <= '0';
       cmd_valid_o     <= '0';
       
@@ -568,11 +523,9 @@ begin
       ena_word_count  <= '0';
       load_word_count <= '0';      
       
-      size_o          <=  0 ;
+--      size_o          <=  0 ;
       rdy_o           <= '0';
       data_o          <= (others => '0');
-      
-      status_en       <= '0';
       
       case present_retire_state is
          when IDLE =>
@@ -587,14 +540,13 @@ begin
 
          when WAIT_FOR_MATCH =>
             cmd_rdy         <= '1';
-            status_en       <= '1';
             
          when TX_STATUS =>           
-            if(par_id = RET_DAT_ADDR) then
-               size_o       <= data_size + NUM_RAM_HEAD_WORDS;
-            else
-               size_o       <= data_size;
-            end if;
+--            if(par_id = RET_DAT_ADDR) then
+--               size_o       <= data_size + NUM_RAM_HEAD_WORDS;
+--            else
+--               size_o       <= data_size;
+--            end if;
             
             rdy_o           <= '1';
             data_o          <= data;
@@ -612,18 +564,31 @@ begin
             word_ack        <= '1';
 
          when DONE_HEADER_STORE =>
---            cmd_sent_o      <= '1';            
 
          when TX_HEADER =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= (others => '0'); --head_q;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
-            
+
+         when TX_STATUS_BITS =>
+            rdy_o           <= '1';
+            data_o          <= "000000000000000000000000000000" & bit_status(1) & bit_status(0);
+            ena_word_count  <= ack_i;            
+            cmd_rdy         <= '1';
+            cmd_valid_o     <= '1';
+
+         when TX_FRAME_SEQUENCE_NUM =>
+            rdy_o           <= '1';
+            data_o          <= frame_seq_num;
+            ena_word_count  <= ack_i;            
+            cmd_rdy         <= '1';
+            cmd_valid_o     <= '1';
+
          when TX_DATA_RATE =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= data_rate_i;
             ena_word_count  <= ack_i;            
@@ -631,7 +596,7 @@ begin
             cmd_valid_o     <= '1';
 
          when TX_ROW_LEN =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= conv_std_logic_vector(row_len_i,32);
             ena_word_count  <= ack_i;            
@@ -639,7 +604,7 @@ begin
             cmd_valid_o     <= '1';
 
          when TX_NUM_ROWS =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= conv_std_logic_vector(num_rows_i,32);
             ena_word_count  <= ack_i;            
@@ -647,23 +612,23 @@ begin
             cmd_valid_o     <= '1';
 
          when TX_SYNC_NUM =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= issue_sync_num;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
 
-         when TX_FRAME_SEQUENCE_NUM =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+         when TX_FRAME_SEQUENCE_NUM_MANCH =>
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= frame_seq_num;
+            data_o          <= (others => '0');
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
 
          when TX_ACTIVE_CLK =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= "0000000000000000000000000000000" & active_clk;
             ena_word_count  <= ack_i;            
@@ -671,7 +636,7 @@ begin
             cmd_valid_o     <= '1';
 
          when TX_SYNC_BOX_ERR =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= "0000000000000000000000000000000" & sync_box_err;
             ena_word_count  <= ack_i;            
@@ -679,7 +644,7 @@ begin
             cmd_valid_o     <= '1';
 
          when TX_SYNC_BOX_FR =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= "0000000000000000000000000000000" & sync_box_free_run;
             ena_word_count  <= ack_i;            
@@ -687,33 +652,26 @@ begin
             cmd_valid_o     <= '1';
 
          when TX_SEND_DATA =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+--            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             data_o          <= data;
             word_ack        <= ack_i;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
 
-            if(word_count < data_size + NUM_RAM_HEAD_WORDS) then
-               rdy_o           <= '1';
-               cmd_valid_o     <= '1';
-            end if;
+--            if(word_count < packet_size) then
+               rdy_o           <= word_rdy;
+               cmd_valid_o     <= word_rdy;
+--            end if;
 
          when REPLY =>
-            size_o          <= data_size;
-            rdy_o           <= '1';
+--            size_o          <= data_size;
+            rdy_o           <= word_rdy;
             data_o          <= data;
             word_ack        <= ack_i;
             cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
-
---            if(cmd_sent_i = '1') then
---               cmd_sent_o   <= '1';
---            end if;
+            cmd_valid_o     <= word_rdy;
 
          when WAIT_FOR_ACK =>
---            if(cmd_sent_i = '1') then
---               cmd_sent_o   <= '1';
---            end if;
            
          when others =>
             null;

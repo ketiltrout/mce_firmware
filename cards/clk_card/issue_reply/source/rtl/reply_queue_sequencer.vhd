@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.19  2006/07/07 00:43:23  bburger
+-- Bryce:  finished writing the logic for detecting timeouts due to execution errors vs. timeouts due to card not present.
+--
 -- Revision 1.18  2006/02/02 00:32:59  mandana
 -- datasize_reg_q calculations trimmed to less number of bits
 --
@@ -101,25 +104,24 @@ end reply_queue_sequencer;
 architecture rtl of reply_queue_sequencer is
 
 component reply_queue_receive
-port(clk_i      : in std_logic;
-     comm_clk_i : in std_logic;
-     rst_i      : in std_logic;
-     
-     lvds_reply_i : in std_logic;     
-     
-     error_o : out std_logic_vector(2 downto 0);   -- 3 error bits: Tx CRC error, Rx CRC error, Execute Error
-     data_o  : out std_logic_vector(31 downto 0);
-     rdy_o   : out std_logic;
-     ack_i   : in std_logic;
-     clear_i : in std_logic);
+port(
+   clk_i      : in std_logic;
+   comm_clk_i : in std_logic;
+   rst_i      : in std_logic;
+   
+   lvds_reply_i : in std_logic;     
+   
+   error_o : out std_logic_vector(2 downto 0);   -- 3 error bits: Tx CRC error, Rx CRC error, Execute Error
+   data_o  : out std_logic_vector(31 downto 0);
+   rdy_o   : out std_logic;
+   ack_i   : in std_logic;
+   clear_i : in std_logic);
 end component;
 
 type seq_states is (IDLE, WAIT_FOR_REPLY, READ_AC, READ_BC1, READ_BC2, READ_BC3, MATCHED, TIMED_OUT, 
                     READ_RC1, READ_RC2, READ_RC3, READ_RC4, READ_CC, DONE, STATUS_WORD);
 signal pres_state       : seq_states;
 signal next_state       : seq_states;
-
---signal seq_num         : std_logic_vector(15 downto 0);
 
 -- maybe register this
 signal timeout          : std_logic;
@@ -138,8 +140,10 @@ signal cards_rdy        : std_logic_vector(9 downto 0);
 signal cards_to_reply   : std_logic_vector(9 downto 0);
 signal no_reply_yet     : std_logic_vector(9 downto 0);
 signal wrong_cards      : std_logic_vector(9 downto 0);
+
 -- Timeout:  Card Not Populated
 signal timeout_not_pop  : std_logic_vector(9 downto 0);
+
 -- Timeout:  Execution Error
 signal timeout_error    : std_logic_vector(9 downto 0);
 signal card_error       : std_logic_vector(9 downto 0);
@@ -147,16 +151,14 @@ signal half_done_error  : std_logic_vector(9 downto 0);
 signal cumulative_error : std_logic_vector(9 downto 0);
 signal update_status    : std_logic;
 
-
 ---------------------------------------------------------
 -- FSM for latching out 0xDEADDEAD data
 ---------------------------------------------------------
-constant err_dat        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"FFFFFFFF";
-constant ZEROS          : std_logic_vector(16-BB_DATA_SIZE_WIDTH-1 downto 0) := (others => '0'); 
-
 -- reply_queue timeout limit (in microseconds):
-constant CMD_TIMEOUT_LIMIT : integer := 100;
+constant CMD_TIMEOUT_LIMIT  : integer := 100;
 constant DATA_TIMEOUT_LIMIT : integer := 650;
+constant err_dat            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"FFFFFFFF";
+constant ZEROS              : std_logic_vector(16-BB_DATA_SIZE_WIDTH-1 downto 0) := (others => '0'); 
 
 -- output that indicates that there is an error word ready
 -- is asserted for each card that must reply only as long as needed to clock out the correct number of error words
@@ -164,13 +166,12 @@ signal err_rdy          : std_logic;
 signal err_count_ena    : std_logic;
 signal err_count        : integer;
 signal err_count_new    : integer;
-
+signal error_word       : std_logic_vector(30 downto 0);
 
 ---------------------------------------------------------
 -- Debugging Logic
 ---------------------------------------------------------
 signal timer_count     : integer;
-
 
 ---------------------------------------------------------
 -- Reply_queue_receiver interface signals
@@ -374,7 +375,8 @@ begin
    ---------------------------------------------------------
    -- Continuous Assignments
    ---------------------------------------------------------
-   error_o <= 
+   error_o <= error_word;
+   error_word <= 
       '0' & -- This bit was originally used as the timeout bit for all cards.  Now unused.
       -- The bit order from left to right of the following lines is:
       -- (a) Timeout because card not present
@@ -403,40 +405,55 @@ begin
          if(err_count >= conv_integer(card_data_size_i)) then
             err_count <= 0;
          -- I don't think that I need the err_rdy = '1' condition here, because err_count_ena will only be asserted if err_rdy is already asserted.
-         elsif(err_rdy = '1' and err_count_ena = '1') then
+--         elsif(err_rdy = '1' and err_count_ena = '1') then
+         elsif(err_count_ena = '1') then
             err_count <= err_count_new;
          end if;
       end if;
    end process err_counter;
    
-   -- The err_rdy signal's behavior is akin to the rdy signal from the reply_queue_receive blocks.
-   -- However, the err_rdy signal is only used when an error has occurred.
-   err_word_fsm: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         err_rdy <= '0';         
-      elsif(clk_i'event and clk_i = '1') then         
-         if(
-         -- This state machine needs one clock cycle of set up time, during the MATCHED state
-         --(pres_state = MATCHED) or 
-         (pres_state = DONE) or
-         ((pres_state = READ_AC)  and (ac_rdy = '1'))  or
-         ((pres_state = READ_BC1) and (bc1_rdy = '1')) or
-         ((pres_state = READ_BC2) and (bc2_rdy = '1')) or
-         ((pres_state = READ_BC3) and (bc3_rdy = '1')) or
-         ((pres_state = READ_RC1) and (rc1_rdy = '1')) or
-         ((pres_state = READ_RC2) and (rc2_rdy = '1')) or
-         ((pres_state = READ_RC3) and (rc3_rdy = '1')) or
-         ((pres_state = READ_RC4) and (rc4_rdy = '1')) or
-         ((pres_state = READ_CC)  and (cc_rdy = '1'))) then
-            err_rdy <= '0';
-         elsif(timeout_reg_q = '1' and err_count < conv_integer(card_data_size_i)) then
-            err_rdy <= '1';
-         else
-            err_rdy <= '0';
-         end if;     
-      end if;
-   end process err_word_fsm;   
+   err_rdy <= '1' when 
+      ((pres_state=READ_AC and error_word(29 downto 27)/="000")  or
+      (pres_state=READ_BC1 and error_word(26 downto 24)/="000")  or
+      (pres_state=READ_BC2 and error_word(23 downto 21)/="000")  or
+      (pres_state=READ_BC3 and error_word(20 downto 18)/="000")  or
+      (pres_state=READ_RC1 and error_word(17 downto 15)/="000")  or
+      (pres_state=READ_RC2 and error_word(14 downto 12)/="000")  or
+      (pres_state=READ_RC3 and error_word(11 downto  9)/="000")  or
+      (pres_state=READ_RC4 and error_word( 8 downto  6)/="000")  or
+      (pres_state=READ_CC  and error_word( 5 downto  3)/="000")) and 
+      (err_count < conv_integer(card_data_size_i)) else '0';
+
+
+
+--   -- The err_rdy signal's behavior is akin to the rdy signal from the reply_queue_receive blocks.
+--   -- However, the err_rdy signal is only used when an error has occurred.
+--   err_word_fsm: process(clk_i, rst_i)
+--   begin
+--      if(rst_i = '1') then
+--         err_rdy <= '0';         
+--      elsif(clk_i'event and clk_i = '1') then         
+--         if(
+--         -- This state machine needs one clock cycle of set up time, during the MATCHED state
+--         --(pres_state = MATCHED) or 
+--         (pres_state = DONE) or
+--         ((pres_state = READ_AC)  and (ac_rdy = '1'))  or
+--         ((pres_state = READ_BC1) and (bc1_rdy = '1')) or
+--         ((pres_state = READ_BC2) and (bc2_rdy = '1')) or
+--         ((pres_state = READ_BC3) and (bc3_rdy = '1')) or
+--         ((pres_state = READ_RC1) and (rc1_rdy = '1')) or
+--         ((pres_state = READ_RC2) and (rc2_rdy = '1')) or
+--         ((pres_state = READ_RC3) and (rc3_rdy = '1')) or
+--         ((pres_state = READ_RC4) and (rc4_rdy = '1')) or
+--         ((pres_state = READ_CC)  and (cc_rdy = '1'))) then
+--            err_rdy <= '0';
+--         elsif(timeout_reg_q = '1' and err_count < conv_integer(card_data_size_i)) then
+--            err_rdy <= '1';
+--         else
+--            err_rdy <= '0';
+--         end if;     
+--      end if;
+--   end process err_word_fsm;   
    
    ---------------------------------------------------------
    -- Status Word Registers
@@ -811,34 +828,25 @@ begin
                       ac_rdy,  bc1_rdy,  bc2_rdy,  bc3_rdy,  rc1_rdy,  rc2_rdy,  rc3_rdy,  rc4_rdy,  cc_rdy,  
                       ac_data, bc1_data, bc2_data, bc3_data, rc1_data, rc2_data, rc3_data, rc4_data, cc_data)
    begin
-      update_status <= '0';
-      
+      update_status <= '0';      
       timeout_clr   <= '1';
      
       ac_ack        <= '0';
-      ac_clear      <= '0';
-      
+      ac_clear      <= '0';      
       bc1_ack       <= '0';
-      bc1_clear     <= '0';
-      
+      bc1_clear     <= '0';      
       bc2_ack       <= '0';
-      bc2_clear     <= '0';
-      
+      bc2_clear     <= '0';      
       bc3_ack       <= '0';
-      bc3_clear     <= '0';
-      
+      bc3_clear     <= '0';      
       rc1_ack       <= '0';
-      rc1_clear     <= '0';
-      
+      rc1_clear     <= '0';      
       rc2_ack       <= '0';
-      rc2_clear     <= '0';
-      
+      rc2_clear     <= '0';      
       rc3_ack       <= '0';
-      rc3_clear     <= '0';
-      
+      rc3_clear     <= '0';      
       rc4_ack       <= '0';
-      rc4_clear     <= '0';
-      
+      rc4_clear     <= '0';      
       cc_ack        <= '0';
       cc_clear      <= '0';
       
@@ -966,7 +974,6 @@ begin
             end if;
          
          when TIMED_OUT =>      
---            update_status    <= '1';
             timeout_o        <= '1';
             timeout_reg_set  <= '1';                                
 
