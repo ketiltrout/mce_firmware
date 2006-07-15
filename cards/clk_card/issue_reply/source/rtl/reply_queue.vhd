@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.29 2006/07/11 00:46:56 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.29.2.1 2006/07/15 05:45:21 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.29.2.1  2006/07/15 05:45:21  bburger
+-- Bryce:  Changed to conform to the proposed fibre protocol
+--
 -- Revision 1.29  2006/07/11 00:46:56  bburger
 -- Bryce:  Removed the cmd_sent logic because that signal is irrelevant now that the interlock between cmd_queue and cmd_translator has been removed.
 --
@@ -203,7 +206,7 @@ architecture behav of reply_queue is
    signal word_count_new       : integer; 
  
    -- number of frame header words stored in RAM
-   constant NUM_RAM_HEAD_WORDS : integer := 41 ;
+   constant NUM_RAM_HEAD_WORDS : integer := 43 ;
 
    component reply_translator_frame_head_ram 
    port(
