@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.49 2006/07/11 18:20:32 bburger Exp $
+-- $Id: clk_card.vhd,v 1.50 2006/07/11 18:46:03 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.50  2006/07/11 18:46:03  bburger
+-- Bryce:  Corrected the mictor debug port interfaces
+--
 -- Revision 1.49  2006/07/11 18:20:32  bburger
 -- Bryce:  Adjusted the Mictor signals slightly to debug the odd-byte problem we see on the fibre
 --
@@ -157,14 +160,13 @@ entity clk_card is
       rs232_tx          : out std_logic;
       
       -- interface to HOTLINK fibre receiver      
-      fibre_rx_refclk   : out std_logic;
       fibre_rx_data     : in std_logic_vector (7 downto 0);  
       fibre_rx_rdy      : in std_logic;                      
       fibre_rx_rvs      : in std_logic;                      
       fibre_rx_status   : in std_logic;                      
       fibre_rx_sc_nd    : in std_logic;                      
-      fibre_rx_clkr     : in std_logic;                      
-      
+      fibre_rx_clkr     : in std_logic;      
+      fibre_rx_refclk   : out std_logic;
       fibre_rx_a_nb     : out std_logic;
       fibre_rx_bisten   : out std_logic;
       fibre_rx_rf       : out std_logic;
@@ -174,6 +176,9 @@ entity clk_card is
       fibre_tx_data     : out std_logic_vector (7 downto 0);
       fibre_tx_ena      : out std_logic;  
       fibre_tx_sc_nd    : out std_logic;
+      fibre_tx_enn      : out std_logic;
+      fibre_tx_bisten   : out std_logic;
+      fibre_tx_foto     : out std_logic;
       
       nreconf           : out std_logic;
       nepc_sel          : out std_logic
@@ -266,6 +271,7 @@ signal lvds_reply_cc_a     : std_logic;
 signal debug             : std_logic_vector(31 downto 0);
 signal fib_tx_data       : std_logic_vector (7 downto 0);
 signal fib_tx_ena        : std_logic;
+signal fib_tx_scnd       : std_logic;
 
 -- The clock being used by the PLL to generate all others.
 -- 0 = crystal clock, 1 = manchester clock
@@ -577,15 +583,21 @@ end component;
 
 begin
 
+   -- Debug Signals
    mictor0_o(7 downto 0) <= debug(7 downto 0);
    mictor0_e(7 downto 0) <= fib_tx_data;
    mictor0_e(8)          <= fib_tx_ena;
+   mictor0_e(9)          <= fib_tx_scnd;
    
-   -- Fibre tx signals
+   -- Fibre TX Signals
    fibre_tx_data   <= fib_tx_data;
    fibre_tx_ena    <= fib_tx_ena;
+   fibre_tx_sc_nd  <= fib_tx_scnd;
+   fibre_tx_enn    <= '1';
+   fibre_tx_bisten <= '1';
+   fibre_tx_foto   <= '0';
    
-   -- Fibre rx signals
+   -- Fibre RX Signals
    fibre_rx_a_nb   <= '1';
    fibre_rx_bisten <= '1'; 
    fibre_rx_rf     <= '1'; 
@@ -893,7 +905,7 @@ begin
     
          -- fibre transmitter interface
          tx_data_o         => fib_tx_data,     -- byte of data to be transmitted
-         tsc_nTd_o         => fibre_tx_sc_nd,  -- hotlink tx special char/ data sel
+         tsc_nTd_o         => fib_tx_scnd,  -- hotlink tx special char/ data sel
          nFena_o           => fib_tx_ena,      -- hotlink tx enable
    
          -- 25MHz clock for fibre_tx_control
