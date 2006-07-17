@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: command_pack.vhd,v $
+-- Revision 1.20  2006/06/09 22:22:59  bburger
+-- Bryce:  Moved the no_channels constant from wbs_frame_data_pack to command_pack so that the clock card could use it.  I also modified flux_loop_pack to use no_channels instead of a literal value of 8.
+--
 -- Revision 1.19  2005/11/23 18:20:44  erniel
 -- brought back PACKET_WORD_WIDTH constant
 -- changed FIBRE_PREAMBLE1 and FIBRE_PREAMBLE2 to 32 bits
@@ -199,18 +202,19 @@ package command_pack is
    constant GO_OK       : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"474F4F4B";
    constant STOP_OK     : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"53544F4B";
    constant RESET_OK    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"52534F4B";
+   constant DATA_OK     : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"44414F4B";
    constant WRITE_ERR   : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"57424552";
    constant READ_ERR    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"52424552";
    constant GO_ERR      : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"474F4552";
    constant STOP_ERR    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"53544552";
    constant RESET_ERR   : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"52534552";
+   constant DATA_ERR    : std_logic_vector(FIBRE_STATUS_WIDTH-1 downto 0) := x"44414552";
    
-   constant FIBRE_NO_ERROR_STATUS : std_logic_vector(29 downto 0) := (others => '0');
+   constant FIBRE_NO_ERROR_STATUS : std_logic_vector(9 downto 0) := (others => '0');
       
    -- card addresses and parameter id's are the same as ones 
    -- used over bus backplane, except zero-padded to 16 bits.
-
-
+     
    ------------------------------------------------------------------------
    -- Issue-Reply Declarations
    ------------------------------------------------------------------------
