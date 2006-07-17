@@ -20,7 +20,7 @@
 
 -- sram.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_fail.vhd,v 1.1 2004/03/23 20:13:07 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram.vhd,v 1.2 2004/03/17 03:09:04 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Ernie Lin
@@ -30,11 +30,8 @@
 -- VHDL model of asynch. SRAM chip
 --
 -- Revision history:
--- <date $Date: 2004/03/23 20:13:07 $>	-		<text>		- <initials $Author: erniel $>
--- $Log: sram_fail.vhd,v $
--- Revision 1.1  2004/03/23 20:13:07  erniel
--- Initial version
---
+-- <date $Date: 2004/03/17 03:09:04 $>	-		<text>		- <initials $Author: erniel $>
+-- $Log$
 --
 -----------------------------------------------------------------------------
 

@@ -1,54 +1,40 @@
 -- Copyright (c) 2003 SCUBA-2 Project
---                  All Rights Reserved
---
---  THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
---  The copyright notice above does not evidence any
---  actual or intended publication of such source code.
---
---  SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
---  REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
---  MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
---  PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
---  THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
---
+-- All Rights Reserved
+-- THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE SCUBA-2 Project
+-- The copyright notice above does not evidence any
+-- actual or intended publication of such source code.
+-- SOURCE CODE IS PROVIDED "AS IS". ALL EXPRESS OR IMPLIED CONDITIONS,
+-- REPRESENTATIONS, AND WARRANTIES, INCLUDING ANY IMPLIED WARRANT OF
+-- MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR
+-- PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT
+-- THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
 -- For the purposes of this code the SCUBA-2 Project consists of the
 -- following organisations.
---
 -- UKATC, Royal Observatory, Blackford Hill Edinburgh EH9 3HJ
--- UBC,   University of British Columbia, Physics & Astronomy Department,
---        Vancouver BC, V6T 1Z1
+-- UBC, University of British Columbia, Physics & Astronomy Department,
+-- Vancouver BC, V6T 1Z1
+-- 
 --
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5 2004/11/24 01:15:52 bench2 Exp $>
 --
--- fibre_rx.vhd
+-- Project: Scuba 2
+-- Author: David Atkinson
+-- Organisation: UK ATC
 --
--- Project:	      SCUBA-2
--- Author:        Ernie Lin
--- Organisation:  UBC
+-- Title
+-- fibre_rx
 --
 -- Description:
--- Fibre optic receiver interface module
+-- Fibre Optic front end receive firmware:
+-- Instantiates:
+-- 
+-- 1. fibre_rx_control
+-- 2. fibre_rx_fifo
+-- 3. fibre_rx_protocol
 --
 -- Revision history:
---
+-- <date $Date: 2004/11/24 01:15:52 $> - <text> - <initials $Author: bench2 $>
 -- $Log: fibre_rx.vhd,v $
--- Revision 1.8  2005/09/25 00:47:39  erniel
--- reduced number of FSM states (collapsed LOAD_BYTEx states into one state)
--- added a byte counter
--- fixed FIFO read timing w.r.t. flushing invalid bytes
--- FSM no longer waits for a set number of bytes before starting FIFO read process
---
--- Revision 1.7  2005/09/23 00:28:38  erniel
--- changed FSM to ignore any special/idle characters that occur mid-word
---
--- Revision 1.6  2005/09/16 23:06:49  erniel
--- completely rewrote module:
---      interface changed to support 32-bit data natively
---      interface changed to support rdy/ack handshaking
---      added data framing synchronization check
---      combined modules that were previously separate
---      removed fibre_rx_protocol functionality
---      renamed entity ports
---
 -- Revision 1.5  2004/11/24 01:15:52  bench2
 -- Greg: Broke apart issue reply and created pack files for all of its sub-components
 --
@@ -58,256 +44,118 @@
 -- Revision 1.3  2004/10/08 14:07:32  dca
 -- updated due to parameter name changes in command_pack
 --
------------------------------------------------------------------------------
 
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
 
-library altera_mf;
-use altera_mf.altera_mf_components.all;
+library work;
+use work.issue_reply_pack.all;
+use work.fibre_rx_pack.all;
 
-library components;
-use components.component_pack.all;
-
+library sys_param;
+use sys_param.command_pack.all;
 
 entity fibre_rx is
-port(clk_i : in std_logic; 
-     rst_i : in std_logic; 
+   port( 
+      rst_i        : in     std_logic;                                         -- global reset
+      clk_i        : in     std_logic;                                         -- gobal clock
+      
+      fibre_clkr_i : in     std_logic;                                          -- CKR from hotlink receiver       
+      nRx_rdy_i    : in     std_logic;                                         -- received fibre data ready (active low) 
+      rvs_i        : in     std_logic;                                         -- receive fibre data violation symbol (high indicates error)
+      rso_i        : in     std_logic;                                         -- receive fibre status out
+      rsc_nRd_i    : in     std_logic;                                         -- received special character / (Not) Data select
+      rx_data_i    : in     std_logic_vector (RX_FIFO_DATA_WIDTH-1 downto 0);  -- received data byte from fibre  
+      cmd_ack_i    : in     std_logic;                                         -- command acknowledge
+      
+      cmd_code_o   : out    std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);   -- command code  
+      card_id_o    : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
+      param_id_o   : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- parameter id
+      num_data_o   : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- number of valid 32 bit data words
+      cmd_data_o   : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- 32bit valid data word
+      cksum_err_o  : out    std_logic;                                          -- checksum error flag
+      cmd_rdy_o    : out    std_logic;                                          -- command ready flag (checksum passed)
+      data_clk_o   : out    std_logic                                           -- data clock
 
-     dat_o : out std_logic_vector(31 downto 0);
-     rdy_o : out std_logic;
-     ack_i : in std_logic;
-     
-     fibre_refclk_o : out std_logic;
-     fibre_clkr_i   : in std_logic;
-     fibre_data_i   : in std_logic_vector (7 downto 0);
-     fibre_nrdy_i   : in std_logic;
-     fibre_rvs_i    : in std_logic;
-     fibre_rso_i    : in std_logic;
-     fibre_sc_nd_i  : in std_logic);
+    );
+
+
 end fibre_rx;
 
 
 architecture rtl of fibre_rx is 
 
-constant HOTLINK_IDLE : std_logic_vector(8 downto 0) := "100000101";
-
-type states is (IDLE, CHECK_FRAME, LOAD_BYTES, READY);
-signal pres_state : states;
-signal next_state : states;
-
-signal buf_write    : std_logic; 
-signal buf_read     : std_logic;
-signal buf_full     : std_logic; 
-signal buf_empty    : std_logic; 
-signal buf_data_in  : std_logic_vector(8 downto 0); 
-signal buf_data_out : std_logic_vector(8 downto 0); 
-          
-signal byte0_ld : std_logic;
-signal byte1_ld : std_logic;
-signal byte2_ld : std_logic;
-signal byte3_ld : std_logic;
-
-signal byte_count_ena : std_logic;
-signal byte_count_clr : std_logic;
-signal byte_count     : std_logic_vector(1 downto 0);
-
-signal refclk : std_logic;
+   -- Internal signal declarations
+   signal rx_fr       : std_logic;                                        -- receive fifo read request
+   signal rx_fw       : std_logic;                                        -- receive fifo write request
+   signal rx_fe       : std_logic;                                        -- receive fifo empty
+   signal rx_ff       : std_logic;                                        -- receive fifo full
+   signal rxd         : std_logic_vector(RX_FIFO_DATA_WIDTH-1 DOWNTO 0);  -- data ouput of fifo
             
 begin
 
-   ---------------------------------------------------------
-   -- Clock divider (generates reference clock)
-   ---------------------------------------------------------
-   
-   process(rst_i, clk_i)
-   begin
-      if(rst_i = '1') then
-         refclk <= '0';
-      elsif(clk_i'event and clk_i = '1') then
-         refclk <= not refclk;
-      end if;
-   end process;
+-- Instance port mappings.
+--   I0 : fibre_rx_fifo
+--      generic map (
+--         addr_size => RX_FIFO_ADDR_SIZE              -- fifo size = 2**addr_size
+--      )
+--      port map (
+--         rst_i       => rst_i,
+--         rx_fr_i     => rx_fr,
+--         rx_fw_i     => rx_fw,
+--         rx_data_i   => rx_data_i,
+--         rx_fe_o     => rx_fe,
+--         rx_ff_o     => rx_ff,
+--         rxd_o       => rxd
+--      );
 
-   fibre_refclk_o <= refclk;
-   
-   
-   ---------------------------------------------------------
-   -- Receiver buffer (stores incoming byte + sc/nD bit)
-   ---------------------------------------------------------
-   
-   fibre_rx_buffer : dcfifo
-   generic map(intended_device_family  => "Stratix",
-               lpm_width               => 9,
-               lpm_numwords            => 64,
-               lpm_widthu              => 6,
-               clocks_are_synchronized => "FALSE",
-               lpm_type                => "dcfifo",
-               lpm_showahead           => "OFF",
-               overflow_checking       => "ON",
-               underflow_checking      => "ON",
-               use_eab                 => "ON",
-               add_ram_output_register => "OFF",
-               lpm_hint                => "RAM_BLOCK_TYPE=AUTO")
-   port map(wrclk   => fibre_clkr_i,
-            rdclk   => clk_i,
-            wrreq   => buf_write,
-            rdreq   => buf_read,
-            data    => buf_data_in,
-            q       => buf_data_out,
-            aclr    => rst_i,
-            wrfull  => buf_full,
-            rdempty => buf_empty); 
-		
-   buf_write <= not buf_full and not fibre_nrdy_i and not fibre_rvs_i and fibre_rso_i;   
-   
-   buf_data_in <= fibre_sc_nd_i & fibre_data_i;
-   
-   
-   ---------------------------------------------------------
-   -- Output registers
-   ---------------------------------------------------------
-   
-   byte0_buffer : reg
-   generic map(WIDTH => 8)
-   port map(clk_i => clk_i,
-            rst_i => rst_i,
-            ena_i => byte0_ld,
-            reg_i => buf_data_out(7 downto 0),
-            reg_o => dat_o(7 downto 0));
-   
-   byte1_buffer : reg
-   generic map(WIDTH => 8)
-   port map(clk_i => clk_i,
-            rst_i => rst_i,
-            ena_i => byte1_ld,
-            reg_i => buf_data_out(7 downto 0),
-            reg_o => dat_o(15 downto 8));
-   
-   byte2_buffer : reg
-   generic map(WIDTH => 8)
-   port map(clk_i => clk_i,
-            rst_i => rst_i,
-            ena_i => byte2_ld,
-            reg_i => buf_data_out(7 downto 0),
-            reg_o => dat_o(23 downto 16));
-   
-   byte3_buffer : reg
-   generic map(WIDTH => 8)
-   port map(clk_i => clk_i,
-            rst_i => rst_i,
-            ena_i => byte3_ld,
-            reg_i => buf_data_out(7 downto 0),
-            reg_o => dat_o(31 downto 24));
-             
-   
-   ---------------------------------------------------------
-   -- Byte Counter
-   ---------------------------------------------------------
-   
-   byte_counter : binary_counter
-   generic map(WIDTH => 2)
-   port map(clk_i   => clk_i,
-            rst_i   => rst_i,
-            ena_i   => byte_count_ena,
-            up_i    => '1',
-            load_i  => '0',
-            clear_i => byte_count_clr,
-            count_i => (others => '0'),
-            count_o => byte_count);
-            
-            
-   ---------------------------------------------------------
-   -- Control FSM
-   ---------------------------------------------------------
-   
-   process(rst_i, clk_i)
-   begin
-      if(rst_i = '1') then
-         pres_state <= IDLE;
-      elsif(clk_i'event and clk_i = '1') then
-         pres_state <= next_state;
-      end if;
-   end process;
-   
-   process(pres_state, ack_i, buf_empty, buf_data_out, byte_count)
-   begin
-      case pres_state is
-         when IDLE =>        if(buf_empty = '0') then                 -- wait until there is at least one byte
-                                next_state <= CHECK_FRAME;
-                             else
-                                next_state <= IDLE;
-                             end if;
-         
-         when CHECK_FRAME => if(buf_data_out /= HOTLINK_IDLE) then    -- if first byte is not IDLE, return to idle state
-                                next_state <= IDLE;              
-                             else
-                                if(buf_empty = '0') then              -- otherwise, if there is at least one byte, proceed
-                                   next_state <= LOAD_BYTES;
-                                else
-                                   next_state <= CHECK_FRAME;         -- otherwise, wait here until a byte is available
-                                end if;
-                             end if; 
 
-         when LOAD_BYTES =>  if(buf_data_out(8) = '0' and byte_count = 3) then
-                                next_state <= READY;                  -- if byte is data and we're on last byte, goto ready
-                             else
-                                next_state <= LOAD_BYTES;             -- otherwise load more bytes
-                             end if;
-      
-         when READY =>       if(ack_i = '1') then                     -- if ack asserted, return to idle
-                                next_state <= IDLE;
-                             else
-                                next_state <= READY;
-                             end if;
-                            
-         when others =>      next_state <= IDLE;
-      end case;
-   end process;
-   
-   process(pres_state, buf_empty, buf_data_out, byte_count)
-   begin
-      buf_read       <= '0';
-      byte0_ld       <= '0';
-      byte1_ld       <= '0';
-      byte2_ld       <= '0';
-      byte3_ld       <= '0';
-      byte_count_ena <= '0';
-      byte_count_clr <= '0';
-      rdy_o          <= '0';
-      
-      case pres_state is
-         when IDLE =>        if(buf_empty = '0') then
-                                buf_read <= '1';                      -- read new byte when available
-                             end if;
-                             byte_count_clr <= '1';                   -- reset byte counter
+   I0: fibre_rx_fifo 
+--   generic map (addr_size => RX_FIFO_ADDR_SIZE);                             -- use this if instantiating async fifo
+      port map( 
+      clk_i            => clk_i,
+      rst_i            => rst_i,
+           
+      fibre_clkr_i     => fibre_clkr_i,  
+      rx_fr_i          => rx_fr, 
+      rx_fw_i          => rx_fw,
+      rx_data_i        => rx_data_i,
+      rx_fe_o          => rx_fe,
+      rx_ff_o          => rx_ff,  
+      rxd_o            => rxd   
+   );
+
+
+
+   I1: fibre_rx_control 
+      port map ( 
+      nRx_rdy_i  =>   nRx_rdy_i,
+      rsc_nRd_i  =>   rsc_nRd_i,
+      rso_i      =>   rso_i,
+      rvs_i      =>   rvs_i,
+      rx_ff_i    =>   rx_ff,
+      rx_fw_o    =>   rx_fw
+   );
+ 
+ 
+   I2: fibre_rx_protocol
+      port map ( 
+      rst_i       =>   rst_i,
+      clk_i       =>   clk_i,
+      rx_fe_i     =>   rx_fe,
+      rxd_i       =>   rxd,
+      cmd_ack_i   =>   cmd_ack_i,
          
-         when CHECK_FRAME => if(buf_data_out = HOTLINK_IDLE and buf_empty = '0') then
-                                buf_read <= '1';                      -- read new byte when available and current one is not IDLE
-                             end if;
-        
-         when LOAD_BYTES =>  if(buf_data_out(8) = '1') then           
-                                buf_read <= '1';                      -- flush byte if it is a special character
-                             else
-                                if(buf_empty = '0' and byte_count < 3) then
-                                   buf_read       <= '1';             -- read new byte when available and not on last byte
-                                   byte_count_ena <= '1';             -- and increment byte counter
-                                end if;
-                             
-                                case byte_count is
-                                   when "00"   => byte0_ld <= '1';  
-                                   when "01"   => byte1_ld <= '1';
-                                   when "10"   => byte2_ld <= '1';
-                                   when others => byte3_ld <= '1';
-                                end case; 
-                             end if;
-                                      
-         when READY =>       rdy_o    <= '1';
-         
-         when others =>      null;
-      end case;
-   end process;
-   
+      cmd_code_o  =>   cmd_code_o,
+      card_id_o   =>   card_id_o,
+      param_id_o  =>   param_id_o,
+      num_data_o  =>   num_data_o,
+      cmd_data_o  =>   cmd_data_o,
+      cksum_err_o =>   cksum_err_o,
+      cmd_rdy_o   =>   cmd_rdy_o,
+      data_clk_o  =>   data_clk_o,
+      rx_fr_o     =>   rx_fr
+      );
+      
 end rtl;

@@ -1,6 +1,6 @@
 -- dip_leds_test.vhd
 --
--- <revision control keyword substitutions e.g. $Id: dip_leds_test.vhd,v 1.1 2004/07/12 23:45:18 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: dip_leds_test.vhd,v 1.10 2004/04/13 23:35:14 bburger Exp $>
 --
 -- Project:     SCUBA2
 -- Author:      Bryce Burger
@@ -10,13 +10,10 @@
 -- This code implements the testbench for the Array ID
 --
 -- Revision history:
--- <date $Date: 2004/07/12 23:45:18 $>  -       <text>      - <initials $Author: erniel $>
+-- <date $Date: 2004/04/13 23:35:14 $>  -       <text>      - <initials $Author: bburger $>
 --
 --
 -- <$Log: dip_leds_test.vhd,v $
--- <Revision 1.1  2004/07/12 23:45:18  erniel
--- <moved to clk_card/test/source
--- <
 -- <Revision 1.10  2004/04/13 23:35:14  bburger
 -- <new
 -- <>

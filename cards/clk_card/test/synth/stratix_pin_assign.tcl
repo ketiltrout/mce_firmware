@@ -12,9 +12,6 @@
 # 
 # Revision History:
 # $Log: stratix_pin_assign.tcl,v $
-# Revision 1.1  2004/04/14 22:14:01  jjacob
-# new directory structure
-#
 # Revision 1.3  2004/04/07 16:28:02  erniel
 # added SRAM bank 0 pins
 # added SRAM bank 1 pins

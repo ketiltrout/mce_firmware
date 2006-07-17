@@ -20,7 +20,7 @@
 --
 -- <Title>
 --
--- <revision control keyword substitutions e.g. $Id: tri_state_buf_vec.vhd,v 1.1 2004/03/05 22:38:35 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id$>
 --
 -- Project:		<project name>
 -- Author:		Jonathan Jacob
@@ -30,7 +30,7 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2004/03/05 22:38:35 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date$>	-		<text>		- <initials $Author$>
 --
 ------------------------------------------------------------------------
 

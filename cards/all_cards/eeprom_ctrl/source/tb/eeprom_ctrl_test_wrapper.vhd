@@ -20,7 +20,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: eeprom_ctrl_test_wrapper.vhd,v 1.1 2004/05/06 18:17:47 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: card_id_test_wrapper.vhd,v 1.1 2004/04/14 22:05:14 jjacob Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -32,11 +32,8 @@
 -- and emulates the master (command FSM, for example) on the wishbone bus.
 --
 -- Revision history:
--- <date $Date: 2004/05/06 18:17:47 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2004/04/14 22:05:14 $>	-		<text>		- <initials $Author: jjacob $>
 -- $Log: eeprom_ctrl_test_wrapper.vhd,v $
--- Revision 1.1  2004/05/06 18:17:47  jjacob
--- first version
---
 -- 
 --
 -----------------------------------------------------------------------------

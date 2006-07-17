@@ -27,9 +27,6 @@
 -- CVS Logs:
 --
 -- $Log: cc_test.vhd,v $
--- Revision 1.1  2004/05/20 23:51:14  erniel
--- relocated old cc_test files
---
 -- Revision 1.1  2004/04/14 22:16:23  jjacob
 -- new directory structure
 --

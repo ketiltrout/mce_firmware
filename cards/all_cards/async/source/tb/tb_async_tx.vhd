@@ -30,11 +30,7 @@
 --
 -- Revision history:
 -- 
--- $Log: tb_async_tx.vhd,v $
--- Revision 1.1  2004/06/11 18:38:47  erniel
--- initial version
--- uses new async tx/rx interface
---
+-- $Log$
 --
 -----------------------------------------------------------------------------
 
