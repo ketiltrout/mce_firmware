@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.7.2.1 2005/12/15 22:06:22 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.7.2.2 2006/02/15 19:45:51 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.7.2.2  2006/02/15 19:45:51  mandana
+-- adapted latest clock card component declaration, changed inclk to inclk14 on clk_card instantiation
+--
 -- Revision 1.7.2.1  2005/12/15 22:06:22  mandana
 -- added filter test
 --
@@ -112,7 +115,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       
       -- DV interface:
       dv_pulse_fibre    : in std_logic;
-      dv_pulse_bnc      : in std_logic;
+      manchester_data   : in std_logic;
       
       -- TTL interface:
       ttl_nrx1          : in std_logic;
@@ -311,15 +314,17 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant rc1_ramp_dly_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & RAMP_DLY_ADDR;
    constant rc1_fb_const_cmd        : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & FB_CONST_ADDR;
    constant rc1_captr_raw_cmd       : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & CAPTR_RAW_ADDR;
-   constant gainp0_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP0_ADDR;   
-   constant gainp1_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP1_ADDR;   
-   constant gainp2_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP2_ADDR;   
-   constant gainp3_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP3_ADDR;   
-   constant gainp4_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP4_ADDR;   
-   constant gainp5_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP5_ADDR;      
-   constant gainp6_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP6_ADDR;      
-   constant gainp7_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP7_ADDR;      
+   constant rc1_gainp0_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP0_ADDR;   
+   constant rc1_gainp1_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP1_ADDR;   
+   constant rc1_gainp2_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP2_ADDR;   
+   constant rc1_gainp3_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP3_ADDR;   
+   constant rc1_gainp4_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP4_ADDR;   
+   constant rc1_gainp5_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP5_ADDR;      
+   constant rc1_gainp6_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP6_ADDR;      
+   constant rc1_gainp7_cmd              : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1     & x"00" & GAINP7_ADDR;      
    constant rc1_en_fb_jump_cmd      : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & EN_FB_JUMP_ADDR;
+   constant rc1_adc_offset0_cmd     : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & ADC_OFFSET0_ADDR;
+   constant rc1_led_cmd             : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_1    & x"00" & LED_ADDR;
    
    constant rc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & READOUT_CARD_2    & x"00" & LED_ADDR;
    constant rc2_ret_dat_cmd         : std_logic_vector(31 downto 0) := X"00040016";  -- card_addr=READOUT_CARD_2, param_id=RET_DAT_ADDR
@@ -423,7 +428,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    
    -- DV interface:
    signal dv_pulse_fibre  : std_logic := '0';
-   signal dv_pulse_bnc    : std_logic := '0';
+   signal manchester_data : std_logic := '0';
    
    -- TTL interface:
    signal cc_ttl_txena1 : std_logic := '0';
@@ -732,7 +737,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc1_dip_sw3        : std_logic := '0';
    signal rc1_dip_sw4        : std_logic := '0';
    signal rc1_wdog           : std_logic;
-   signal rc1_slot_id        : std_logic_vector(3 downto 0) := "1011";
+   signal rc1_slot_id        : std_logic_vector(3 downto 0) := "0100";
    signal rc1_card_id        : std_logic;
    signal rc1_mictor         : std_logic_vector(31 downto 0);
 
@@ -950,7 +955,7 @@ begin
                           
          -- DV interface:
          dv_pulse_fibre   => dv_pulse_fibre,
-         dv_pulse_bnc     => dv_pulse_bnc,  
+         manchester_data  => manchester_data,  
       
          -- TTL interface:
          ttl_nrx1         => bclr_n,
@@ -1988,7 +1993,53 @@ begin
 ------------------------------------------------------      
        
    begin
+--------------------------------------------------------
+-- Test Case 2: Reset FB DAC values test
+-- wb rc3 servo_mode 1
+-- wb rc3 fb_const 101
+-- wb rc3 flx_lp_init 1
+------------------------------------------------------      
+      
+      do_reset;
+      wait for 5 us;
 
+      command <= command_wb;
+      address_id <= rc1_servo_mode_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;      
+      report "End of writing servo_mode command";
+      
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= rc1_fb_const_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000065";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing fb_const command";
+      
+      command <= command_wb;
+      address_id <= rc1_flx_lp_init_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      report "End of writing flx_lp_init command";
+      
+      wait for 50 us;
+
+      wait for 200 us;
+      
+      do_reset;
+      
+      wait for 100 us;
+      wait for 100 us;
 --------------------------------------------------------
 -- Test Case 1: Filter Test
 -- wb rc3 sample_dly 6
@@ -2004,118 +2055,118 @@ begin
 
 ------------------------------------------------------      
       
-      do_reset;
-      wait for 5 us;
-
-      command <= command_wb;
-      address_id <= rc1_sample_dly_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000006";
-      load_preamble;
-      load_command;
-      load_checksum;      
-      report "End of writing sample_dly command";
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_sample_num_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000030";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing sample_num command";
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_dly_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing fb_dly command";
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_servo_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000003";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing servo_mode command";
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_data_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000002";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing data_mode command";
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing cc ret_dat_s command";
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= gainp0_cmd;
-      data_valid <= X"00000029";        -- number of data to write
-      data       <= X"00000064";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing gainp0 command";
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= gainp7_cmd;
-      data_valid <= X"00000029";        -- number of data to write
-      data       <= X"00000064";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing gainp0 command";
-      
-      wait for 50 us;
-      
-      command <= command_wb;
-      address_id <= rc1_flx_lp_init_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing flx_lp_init command";
-      
-      wait for 50 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing ret_dat command";
-      
-      wait for 15000 us;
+--      do_reset;
+--      wait for 5 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_sample_dly_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000006";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      report "End of writing sample_dly command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_sample_num_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000030";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing sample_num command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_dly_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing fb_dly command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_servo_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing servo_mode command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_data_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing data_mode command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing cc ret_dat_s command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_gainp0_cmd;
+--      data_valid <= X"00000029";        -- number of data to write
+--      data       <= X"00000064";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing gainp0 command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_gainp7_cmd;
+--      data_valid <= X"00000029";        -- number of data to write
+--      data       <= X"00000064";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing gainp0 command";
+--      
+--      wait for 50 us;
+--      
+--      command <= command_wb;
+--      address_id <= rc1_flx_lp_init_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing flx_lp_init command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing ret_dat command";
+--      
+--      wait for 150000 us;
 
 --      command <= command_wb;
 --      address_id <= rc1_flx_quanta0_cmd;
