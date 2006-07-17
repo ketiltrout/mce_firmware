@@ -119,6 +119,7 @@ architecture rtl of reply_translator is
    signal crd_add_par_id         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 2 byte 0 
    signal ok_or_er               : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- reply word 3 byte 0 
    signal checksum               : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- checksum word (output from checksum calculator)
+   signal mop_error_code         : std_logic_vector(9 downto 0);
    
    ----------------------------------------------------------------------------------------------------------------
    --                             FIBRE PACKET FSM
@@ -188,8 +189,13 @@ begin
 
    -- for a read block the packet size is alway 3 + the number of words to be read on fibre_word_i
    -- number of detector words + (status + seq_number + checksum word)
-   rb_packet_size   <= num_fibre_words_i + 3;   
-   data_packet_size <= num_fibre_words_i + 3 ;     
+   rb_packet_size   <= num_fibre_words_i + NUM_REPLY_WORDS;   
+   data_packet_size <= num_fibre_words_i + NUM_REPLY_WORDS;
+   
+   -- The only flags in the status words that should cause an ER in the reply packed are outlined in fibre_and_backplane_protocols.xls
+   mop_error_code   <= 
+      mop_error_code_i(28) & mop_error_code_i(25) & mop_error_code_i(22) & mop_error_code_i(19) & mop_error_code_i(16) &
+      mop_error_code_i(13) & mop_error_code_i(10) & mop_error_code_i( 7) & mop_error_code_i( 4) & mop_error_code_i( 1);
    
    ----------------------------------------------------------------------------
    -- process to register recircualtion MUX outputs 
@@ -328,7 +334,7 @@ begin
    debug_o(0) <= mop_rdy_data;
    
    fibre_fsm_nextstate : process (fibre_current_state, cmd_rcvd_ok_i, cmd_rcvd_er_i, mop_rdy_reply,
-      cmd_code_i, fibre_tx_busy_i, stop_err_rdy, fibre_word_rdy_i, mop_error_code_i)
+      cmd_code_i, fibre_tx_busy_i, stop_err_rdy, fibre_word_rdy_i, mop_error_code)
    begin
       -- Default Assignments
       fibre_next_state <= fibre_current_state;
@@ -345,10 +351,10 @@ begin
          elsif (stop_err_rdy = '1') then                 -- if we missed a stop command with checksum error during data readout
             fibre_next_state <= ST_ER_REPLY;     
          -- Normal (non_data) reply no error
-         elsif (mop_rdy_reply = '1' and mop_error_code_i = FIBRE_NO_ERROR_STATUS) then 
+         elsif (mop_rdy_reply = '1' and mop_error_code = FIBRE_NO_ERROR_STATUS) then 
             fibre_next_state <= REPLY_OK;
          -- Normal (non-data) reply with error
-         elsif (mop_rdy_reply = '1' and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then 
+         elsif (mop_rdy_reply = '1' and mop_error_code /= FIBRE_NO_ERROR_STATUS) then 
             fibre_next_state <= REPLY_ER; 
 --         -- Data packet
 --         elsif (mop_rdy_data = '1') then
