@@ -21,7 +21,7 @@
 --
 -- fibre_tx.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -31,6 +31,9 @@
 -- Revision history:
 --
 -- $Log: fibre_tx.vhd,v $
+-- Revision 1.5  2005/09/22 19:53:08  erniel
+-- modified FSM to transmit data at full speed (no idle between words)
+--
 -- Revision 1.4  2005/09/16 23:08:50  erniel
 -- completely rewrote module:
 --      interface changed to support 32-bit data natively
@@ -99,7 +102,6 @@ signal buf_data  : std_logic_vector(31 downto 0);
 begin
 
    fibre_clkw_o <= fibre_clk_i;
-	   
    fibre_sc_nd_o <= '0';
  
  
@@ -135,11 +137,13 @@ begin
    -- Control FSM
    ---------------------------------------------------------
                
-   process(rst_i, fibre_clk_i)
+--   process(rst_i, fibre_clk_i)
+   process(fibre_clk_i)
    begin
-      if(rst_i = '1') then
-         pres_state <= IDLE;
-      elsif(fibre_clk_i'event and fibre_clk_i = '1') then
+--      if(rst_i = '1') then
+--         pres_state <= IDLE;
+--      elsif(fibre_clk_i'event and fibre_clk_i = '1') then
+      if(fibre_clk_i'event and fibre_clk_i = '1') then
          pres_state <= next_state;
       end if;
    end process;

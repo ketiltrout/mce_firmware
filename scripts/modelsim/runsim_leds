@@ -1,5 +1,0 @@
-vsim -coverage tb_leds(beh)
-add wave -hex /*
-add list -hex /*
-run -all
-view signals list wave
