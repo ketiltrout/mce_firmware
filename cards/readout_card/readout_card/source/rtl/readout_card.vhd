@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.43  2006/07/07 21:28:03  mandana
+-- revision upgraded to 03000011 for DACs to be initialized to 0 by loading -8192 to DACs as default and default servo_mode is constant rather than undefined
+--
 -- Revision 1.42  2006/06/30 17:09:08  bburger
 -- raw_mode enabled, filter disabled, Q42
 --
@@ -307,8 +310,8 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000011"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
-                                                                     -- FB DACs reset to -8192, default servo_mode set to 0, DACs initialized to 0V
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000100"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+                                                                     -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      
 -- Global signals
 signal clk                     : std_logic;  -- system clk
