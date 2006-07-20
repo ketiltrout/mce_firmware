@@ -471,7 +471,7 @@ set_global_assignment -name AUTO_ENABLE_SMART_COMPILE OFF
 
 # Fitter Assignments
 # ==================
-set_global_assignment -name DEVICE EP1S30F780C5
+set_global_assignment -name DEVICE EP1S40F780C6
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
 set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
@@ -1197,3 +1197,10 @@ set_global_assignment -name VHDL_FILE ../../wbs_fb_data/source/rtl/wbs_fb_data.v
 set_global_assignment -name VHDL_FILE ../../flux_loop/source/rtl/flux_loop.vhd
 set_global_assignment -name VHDL_FILE ../source/rtl/readout_card.vhd
 set_global_assignment -name MIF_FILE ../../fsfb_calc/source/rtl/ram_40x64.mif
+set_location_assignment PIN_F20 -to eeprom_si
+set_location_assignment PIN_F21 -to eeprom_sck
+set_location_assignment PIN_B12 -to tx
+set_location_assignment PIN_C12 -to rx
+set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
+set_global_assignment -name EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ON -section_id eda_simulation
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
