@@ -1,5 +1,5 @@
 Design Assistant report for readout_card
-Thu Jul 20 15:44:14 2006
+Fri Jul 21 13:57:39 2006
 Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
 
 
@@ -37,7 +37,7 @@ applicable agreement for further details.
 +-------------------------------------------------------------------------+
 ; Design Assistant Summary                                                ;
 +-----------------------------------+-------------------------------------+
-; Design Assistant Status           ; Analyzed - Thu Jul 20 15:44:14 2006 ;
+; Design Assistant Status           ; Analyzed - Fri Jul 21 13:57:39 2006 ;
 ; Revision Name                     ; readout_card                        ;
 ; Top-level Entity Name             ; readout_card                        ;
 ; Family                            ; Stratix                             ;
@@ -540,7 +540,7 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Design Assistant
     Info: Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Jul 20 15:42:33 2006
+    Info: Processing started: Fri Jul 21 13:55:53 2006
 Info: Command: quartus_drc --read_settings_files=off --write_settings_files=off readout_card -c readout_card
 Warning: Found ignored names in time group
     Info: Time group "ADC Inputs" contains invalid members or exceptions
@@ -630,7 +630,7 @@ Info: Design Assistant information: Top nodes with highest fan-out (T102). Found
     Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
 Info: Design Assistant information: finished post-fitting analysis of current design -- generated 426 information messages and 2 warning messages
 Info: Quartus II Design Assistant was successful. 0 errors, 5 warnings
-    Info: Processing ended: Thu Jul 20 15:44:14 2006
-    Info: Elapsed time: 00:01:42
+    Info: Processing ended: Fri Jul 21 13:57:39 2006
+    Info: Elapsed time: 00:01:46
 
 

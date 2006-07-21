@@ -475,7 +475,7 @@ set_global_assignment -name DEVICE EP1S40F780C6
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
 set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "IO PATHS AND MINIMUM TPD PATHS"
 set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
 set_global_assignment -name AUTO_GLOBAL_MEMORY_CONTROLS ON
 set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIX "MINIMIZE AREA"
