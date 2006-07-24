@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr.vhd,v 1.15.2.2 2006/06/12 22:41:55 mandana Exp $
+-- $Id: fsfb_corr.vhd,v 1.15.2.3 2006/07/05 19:34:45 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,10 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr.vhd,v $
+-- Revision 1.15.2.3  2006/07/05 19:34:45  mandana
+-- added sign-bit correction when windowing is in effect for all channels
+-- removed sign-bit correction introduced in the earlier version (it limited DAC range to half positive range!)
+--
 -- Revision 1.15.2.2  2006/06/12 22:41:55  mandana
 -- fixed sign-bit for fsfb_ctrl_dat_o when flux_jumping is off
 --
@@ -333,7 +337,7 @@ begin
    mult1 : fsfb_corr_multiplier
       port map (
          dataa  => flux_quanta1,
-         datab  => m_prev_sign_xtnd,
+         datab  => m_prev,
          result => mult_res1
       );
       
@@ -347,7 +351,7 @@ begin
    mult2 : fsfb_corr_multiplier
       port map (
          dataa  => flux_quanta2,
-         datab  => m_pres_sign_xtnd,
+         datab  => m_pres,
          result => mult_res2
       );
       
@@ -1010,8 +1014,8 @@ begin
    
    --enable_feedthrough <= '1' when flux_jumping_en_i = '0' else '0'; --and fsfb_ctrl_lock_en_i = '1' 
       
-   m_prev_sign_xtnd <= sign_xtnd_m(m_prev);
-   m_pres_sign_xtnd <= sign_xtnd_m(m_pres);
+   --m_prev_sign_xtnd <= sign_xtnd_m(m_prev);
+   --m_pres_sign_xtnd <= sign_xtnd_m(m_pres);
    
    pid_prev_sign_xtnd1 <= sign_xtnd_pid_prev(pid_prev1);
    pid_prev_sign_xtnd2 <= sign_xtnd_pid_prev(pid_prev2);
