@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.46  2006/07/24 18:24:38  mandana
+-- revision 03000102 for 1S40 and FILTER_LOCK_LSB_POS set to 10
+--
 -- Revision 1.45  2006/07/20 23:32:43  mandana
 -- revision 03000101 for 1S40 and FILTER_LOCK_LSB_POS set to 12 instead of 14
 --
@@ -316,7 +319,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000102"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000103"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      
 -- Global signals
