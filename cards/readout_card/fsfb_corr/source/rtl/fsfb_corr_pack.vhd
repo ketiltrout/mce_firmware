@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: fsfb_corr_pack.vhd,v 1.8 2006/03/24 18:35:37 bburger Exp $
+-- $Id: fsfb_corr_pack.vhd,v 1.8.2.1 2006/04/03 19:31:01 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: fsfb_corr_pack.vhd,v $
+-- Revision 1.8.2.1  2006/04/03 19:31:01  mandana
+-- LSB_WINDOW_INDEX changed from 14 to 12
+--
 -- Revision 1.8  2006/03/24 18:35:37  bburger
 -- Bryce:
 -- In fsfb_corr_pack:  converted FSFB_MAX and FSFB_MIN to std_logic_vectors
@@ -71,9 +74,9 @@ use work.readout_card_pack.all;
 
 package fsfb_corr_pack is
 
-   constant SUB_WIDTH              : integer := 64;
+   constant SUB_WIDTH              : integer := 40;
    constant MULT_WIDTH             : integer := 32;
-   constant PROD_WIDTH             : integer := 64;
+   constant PROD_WIDTH             : integer := 40;
    
    -- This is the index of the least significant bit used in the flux-jumping algorithm
    -- Using a window of this type is equivalent to dividing P, I and D by 2^15.
@@ -81,14 +84,14 @@ package fsfb_corr_pack is
 
 --   constant FSFB_MAX               : integer :=  7800;  -- Max is  (2**13)-1 =  8191;  One sq1 flux quanta is about 6200 DAC units
 --   constant FSFB_MIN               : integer := -7800;  -- Min is -(2**13)   = -8192;  One sq1 flux quanta is about 6200 DAC units
-   constant FSFB_MAX               : std_logic_vector(SUB_WIDTH-1 downto 0) := x"0000000000001E78"; --  7800
-   constant FSFB_MIN               : std_logic_vector(SUB_WIDTH-1 downto 0) := x"FFFFFFFFFFFFE188"; -- -7800
+   constant FSFB_MAX               : std_logic_vector(SUB_WIDTH-1 downto 0) := x"0000001E78"; --  7800
+   constant FSFB_MIN               : std_logic_vector(SUB_WIDTH-1 downto 0) := x"FFFFFFE188"; -- -7800
    
    constant M_MAX                  : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := "01111111";
    constant M_MIN                  : std_logic_vector(FLUX_QUANTA_CNT_WIDTH-1 downto 0) := "10000000";
    
-   constant FSFB_CLAMP_MAX         : std_logic_vector(SUB_WIDTH-1 downto 0) := x"0000000000001FFF";  --  (2^13)-1
-   constant FSFB_CLAMP_MIN         : std_logic_vector(SUB_WIDTH-1 downto 0) := x"FFFFFFFFFFFF2000";  -- -(2^13)
+   constant FSFB_CLAMP_MAX         : std_logic_vector(SUB_WIDTH-1 downto 0) := x"0000001FFF";  --  (2^13)-1
+   constant FSFB_CLAMP_MIN         : std_logic_vector(SUB_WIDTH-1 downto 0) := x"FFFFFF2000";  -- -(2^13)
    
    constant SIGN_XTND_M_POS        : std_logic_vector(MULT_WIDTH - FLUX_QUANTA_CNT_WIDTH - 1 downto 0) := (others => '0');
    constant SIGN_XTND_M_NEG        : std_logic_vector(MULT_WIDTH - FLUX_QUANTA_CNT_WIDTH - 1 downto 0) := (others => '1');
@@ -98,7 +101,7 @@ package fsfb_corr_pack is
    component fsfb_corr_multiplier is
       port (
          dataa    : IN STD_LOGIC_VECTOR (MULT_WIDTH-1 DOWNTO 0);
-         datab    : IN STD_LOGIC_VECTOR (MULT_WIDTH-1 DOWNTO 0);
+         datab    : IN STD_LOGIC_VECTOR (FLUX_QUANTA_CNT_WIDTH-1 DOWNTO 0);
          result      : OUT STD_LOGIC_VECTOR (PROD_WIDTH-1 DOWNTO 0)
       );   
    end component fsfb_corr_multiplier; 
