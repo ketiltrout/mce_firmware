@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.45  2006/07/20 23:32:43  mandana
+-- revision 03000101 for 1S40 and FILTER_LOCK_LSB_POS set to 12 instead of 14
+--
 -- Revision 1.44  2006/07/18 17:06:08  mandana
 -- revision 03000100 to fix the bug with PID RAMs for ch1 to ch7 being synthesized out, uses Q6.0 SP1.
 --
@@ -313,7 +316,7 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000101"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000102"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      
 -- Global signals
