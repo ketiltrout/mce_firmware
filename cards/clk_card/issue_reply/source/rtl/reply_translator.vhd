@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.36 2006/07/11 00:48:03 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.37 2006/07/11 18:24:26 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/07/11 00:48:03 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/07/11 18:24:26 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.37  2006/07/11 18:24:26  bburger
+-- Bryce:  Added a debug port
+--
 -- Revision 1.36  2006/07/11 00:48:03  bburger
 -- Bryce:  Removed recirc-muxes, cleaned up all the registers.  This block is now a lean machine.
 --
@@ -597,7 +600,14 @@ begin
       ----------------------------------------
        when LD_CKSUM =>
           if(fibre_tx_busy_i = '0') then 
-             fibre_tx_dat_o <= checksum;
+             -- This line is here to simulate a data checksum error on a data packet
+             -- We intend to use this to determine what is happening on the PCI card at AMEC, 2006/07/25
+             -- They periodically seeing checksum errors reported on data frames.
+             if(packet_type = DATA) then
+                fibre_tx_dat_o <= x"ABCDABCD";
+             else
+                fibre_tx_dat_o <= checksum;
+             end if;
              fibre_tx_rdy_o <= '1';
              -- acknowledge that packet has finished - i.e. started txing checksum
              mop_ack_o      <= '1';    
