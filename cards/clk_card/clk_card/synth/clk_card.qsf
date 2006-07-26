@@ -34,7 +34,7 @@
 set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "5.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 4.2
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -140,6 +140,9 @@ set_global_assignment -name SIGNALTAP_FILE clk_card_new.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_fit.stp
 set_global_assignment -name SIGNALTAP_FILE clock_card_b.stp
 set_global_assignment -name SIGNALTAP_FILE clock_card_d.stp
+set_global_assignment -name SIGNALTAP_FILE clk_card_vd.stp
+set_global_assignment -name SIGNALTAP_FILE clk_card_more.stp
+set_global_assignment -name SIGNALTAP_FILE clk_card_reply_tx_bug.stp
 
 # Pin & Location Assignments
 # ==========================
@@ -461,6 +464,8 @@ set_location_assignment PIN_B19 -to jtag_sel
 set_location_assignment PIN_C19 -to nbb_jtag
 set_location_assignment PIN_E19 -to nreconf
 set_location_assignment PIN_D19 -to nepc_sel
+set_location_assignment PIN_AD21 -to mictor0_e[0]
+set_location_assignment PIN_AA18 -to mictor1_e[0]
 
 # Timing Assignments
 # ==================
@@ -505,7 +510,7 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-
 
 # Simulator Assignments
 # =====================
-set_global_assignment -name GLITCH_INTERVAL "1 ns"
+set_global_assignment -name GLITCH_INTERVAL "1 "
 
 # Design Assistant Assignments
 # ============================
@@ -518,39 +523,72 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP OFF
+set_global_assignment -name ENABLE_SIGNALTAP off
 set_global_assignment -name USE_SIGNALTAP_FILE clk_card_reply_tx_bug.stp
 
 # LogicLock Region Assignments
 # ============================
-set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
+set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
+
+# ---------------
+# start CLOCK(c0)
+
+	# Timing Assignments
+	# ==================
+	set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id c0
+
+# end CLOCK(c0)
+# -------------
+
+# ---------------
+# start CLOCK(c1)
+
+	# Timing Assignments
+	# ==================
+	set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id c1
+
+# end CLOCK(c1)
+# -------------
+
+# ---------------
+# start CLOCK(c3)
+
+	# Timing Assignments
+	# ==================
+	set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id c3
+
+# end CLOCK(c3)
+# -------------
+
+# --------------------
+# start CLOCK(ext_clk)
+
+	# Timing Assignments
+	# ==================
+	set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id ext_clk
+
+# end CLOCK(ext_clk)
+# ------------------
 
 # ------------------
 # start CLOCK(inclk)
 
 	# Timing Assignments
 	# ==================
-set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
-set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
+	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
+	set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
-
-# ---------------------------------------------------
-# start AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
-
-	# SignalTap II Assignments
-	# ========================
-
-# end AUTO_INSERT_SLD_NODE_ENTITY(auto_signaltap_0)
-# -------------------------------------------------
 
 # ----------------------
 # start ENTITY(clk_card)
 
 	# Timing Assignments
 	# ==================
-set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk14
+	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk14
+	set_instance_assignment -name SETUP_RELATIONSHIP "30 ns" -from "issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_*" -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|*"
+	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk15
 
 	# Analysis & Synthesis Assignments
 	# ================================
@@ -558,15 +596,3 @@ set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk14
 
 # end ENTITY(clk_card)
 # --------------------
-
-set_global_assignment -name SIGNALTAP_FILE clk_card_vd.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_more.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_reply_tx_bug.stp
-set_location_assignment PIN_AD21 -to mictor0_e[0]
-set_location_assignment PIN_AA18 -to mictor1_e[0]
-set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id c0
-set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id c1
-set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id c3
-set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id ext_clk
-set_instance_assignment -name SETUP_RELATIONSHIP "30 ns" -from "issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_*" -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|*"
-set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk15
