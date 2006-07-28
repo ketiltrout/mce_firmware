@@ -38,6 +38,10 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_proc_pidz.vhd,v $
+-- Revision 1.7  2006/03/14 22:51:06  mandana
+-- interface changes to accomodate 4-pole filter
+-- registered multiplier inputs to break the timing chain and resolve timing violations introduced in Quartus 5.1 synthesis
+--
 -- Revision 1.6  2005/12/14 18:21:51  mandana
 -- added 2-pole LPF filter functionality, the multiplier is pipelined.
 --
@@ -516,7 +520,7 @@ begin
    -- filter wn stage addition  (1st biquad)
    -- wn <= fltr_sum_reg - wtemp;
    fltr1_sum_reg_shift <= fltr1_sum_reg(fltr1_sum_reg'left) & fltr1_sum_reg(fltr1_sum_reg'left) 
-                         & fltr1_sum_reg(FILTER_DLY_WIDTH-3 downto 0);
+                         & fltr1_sum_reg(FILTER_DLY_WIDTH-3+FILTER_GAIN_WIDTH downto FILTER_GAIN_WIDTH);
    i_wn20_sub : fsfb_calc_sub29
       port map (
          dataa                              => fltr1_sum_reg_shift,
