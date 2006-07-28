@@ -43,6 +43,11 @@
 -- Revision history:
 -- 
 -- $Log: tb_fsfb_calc.vhd,v $
+-- Revision 1.7  2006/02/17 21:12:59  mandana
+-- added fltr_rst
+-- accomodated flux_quanta properly
+-- replaced hardcoded widths with appropriate PIDZ_DATA_WIDTH and COEFF_DATA_WIDTH
+--
 -- Revision 1.6  2005/12/14 19:48:28  mandana
 -- added filter-response test
 --
@@ -511,7 +516,7 @@ begin
          dat <= dat + 1;
       end if;
       if (dat > 2481 and dat<3294) then -- to generate an impulse after init_window is done and only for one frame period
-        impulse <= 100;
+        impulse <= 50000;
       else 
         impulse <= 0;
       end if;  
