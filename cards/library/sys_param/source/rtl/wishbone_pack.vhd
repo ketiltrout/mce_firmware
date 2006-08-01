@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/04/26 22:41:25 $> - <initials $Author: bburger $>
+-- <date $Date: 2006/06/19 17:28:24 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.29  2006/06/19 17:28:24  bburger
+-- Bryce:  added a new command called SELECT_CLK_ADDR
+--
 -- Revision 1.28  2006/04/26 22:41:25  bburger
 -- *** empty log message ***
 --
@@ -267,10 +270,10 @@ package wishbone_pack is
    constant SELECT_CLK_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A2";
 
    -- Power Card Specific
-   constant BRST_ADDR         : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
-   constant POW_CYCLE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
-   constant PSC_STATUS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
-   constant PSC_CTRL_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
+   constant BRST_MCE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
+   constant CYCLE_POW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
+   constant CUT_POW_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
+   constant PSC_STATUS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
    
    
    ---------------------------------------------------------------------------------
