@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: psu_ctrl.vhd,v 1.2 2006/07/27 00:04:30 bburger Exp $
+-- $Id: psu_ctrl.vhd,v 1.3 2006/07/28 22:40:24 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: psu_ctrl.vhd,v $
+-- Revision 1.3  2006/07/28 22:40:24  bburger
+-- Bryce:  beginning simulation
+--
 -- Revision 1.2  2006/07/27 00:04:30  bburger
 -- Bryce:  New
 --
@@ -68,7 +71,7 @@ port(
    sclk_i        : in std_logic;   -- Serial Clock
    ccss_i        : in std_logic;   -- Clock Card Slave Select
    miso_o        : out std_logic;  -- Master Input/ Slave Output
-   sreq_o        : out std_logic  -- Service Request      
+   sreq_o        : out std_logic   -- Service Request      
 );     
 end psu_ctrl;
 
@@ -190,7 +193,7 @@ begin
 
    bit_ctr: counter
    generic map(
-      MAX => STATUS_LENGTH,
+      MAX         => STATUS_LENGTH,
       STEP_SIZE   => 1, 
       WRAP_AROUND => LOW, 
       UP_COUNTER  => HIGH        
@@ -243,7 +246,7 @@ begin
          end if;
          
          -- Status Block is updated at 200 Hz
-         if(timeout_count = 5000) then
+         if(timeout_count = 350) then
             update_status <= '1';
          elsif(status_done = '1') then
             update_status <= '0';
@@ -304,18 +307,18 @@ begin
       case current_out_state is
          when IDLE =>
             if(brst_mce_req = '1') then
-               next_out_state <= CLK_LOW;
+               next_out_state <= TX_RX;
             elsif(cycle_pow_req = '1') then
-               next_out_state <= CLK_LOW;
+               next_out_state <= TX_RX;
             elsif(cut_pow_req = '1') then
-               next_out_state <= CLK_LOW;
+               next_out_state <= TX_RX;
             elsif(update_status = '1') then
-               next_out_state <= CLK_LOW;
+               next_out_state <= TX_RX;
             end if;
           
          -- For sending brst, power-cycle or power-shutdown commands and retrieving status block simultaneously
          when TX_RX =>
-            next_out_state <= CLK_HIGH;
+            next_out_state <= CLK_LOW;
          
          when CLK_LOW =>
             if(bit_ctr_count = STATUS_LENGTH) then
@@ -332,6 +335,7 @@ begin
             end if;            
          
          when DONE =>
+            next_out_state <= IDLE;
 
          when others =>
             next_out_state <= IDLE;
@@ -342,17 +346,24 @@ begin
    out_state_out: process(current_out_state, brst_mce_req, cycle_pow_req, cut_pow_req, update_status, bit_ctr_count, sclk)
    begin
       -- Default assignments
-      sreq_o       <= '0'; -- Active High?
-      spi_tx_word  <= (others => '0');
-      bit_ctr_ena  <= '0';
-      bit_ctr_load <= '0';
-     
+      sreq_o        <= '0'; -- Active High?
+      spi_tx_word   <= (others => '0');
+      bit_ctr_ena   <= '0';
+      bit_ctr_load  <= '0';
+      
+      brst_mce_clr  <= '0';
+      cycle_pow_clr <= '0';
+      cut_pow_clr   <= '0';
+      timeout_clr   <= '0';
+      status_done   <= '0';
+
       case current_out_state is         
          when IDLE  =>                   
             
          -- For sending brst, power-cycle or power-shutdown commands only
          when TX_RX =>
             bit_ctr_load <= '1';
+            bit_ctr_ena  <= '1';
             if(brst_mce_req = '1') then
                spi_tx_word  <= ASCII_R & ASCII_M & ASCII_R & ASCII_M & ASCII_R & ASCII_M;
             elsif(cycle_pow_req = '1') then
@@ -375,6 +386,16 @@ begin
             sreq_o <= '1';
          
          when DONE =>
+            if(brst_mce_req = '1') then
+               brst_mce_clr  <= '1';
+            elsif(cycle_pow_req = '1') then
+               cycle_pow_clr <= '1';
+            elsif(cut_pow_req = '1') then
+               cut_pow_clr   <= '1';
+            elsif(update_status = '1') then
+               timeout_clr <= '1';
+               status_done <= '1';
+            end if;
 
          when others =>
          
@@ -426,7 +447,9 @@ begin
       ack_o         <= '0';
       brst_mce_set  <= '0';
       cycle_pow_set <= '0';
-      cut_pow_set   <= '0';      
+      cut_pow_set   <= '0';
+      status_wren   <= '0';
+      status_addr   <= (others => '0');
       
       case current_state is         
          when IDLE  =>                   
