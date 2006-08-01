@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl.vhd,v 1.10 2004/11/20 01:20:44 bburger Exp $
+-- $Id: ac_dac_ctrl.vhd,v 1.11 2005/01/26 01:21:29 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl.vhd,v $
+-- Revision 1.11  2005/01/26 01:21:29  mandana
+-- removed mem_clk_i and other unused signals
+--
 -- Revision 1.10  2004/11/20 01:20:44  bburger
 -- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
 --
@@ -65,7 +68,7 @@ use sys_param.data_types_pack.all;
 library work;
 use work.ac_dac_ctrl_pack.all;
 use work.ac_dac_ctrl_wbs_pack.all;
-use work.ac_dac_ctrl_core_pack.all;
+--use work.ac_dac_ctrl_core_pack.all;
 use work.frame_timing_pack.all;
 
 library components;
@@ -100,12 +103,63 @@ end ac_dac_ctrl;
 
 architecture rtl of ac_dac_ctrl is
 
-signal mux_en              : std_logic;
+   component ac_dac_ctrl_core    
+      port
+      (
+         -- DAC hardware interface:
+         dac_data_o              : out w14_array11;   
+         dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
+      
+         -- Wishbone interface
+         on_off_addr_o           : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+         dac_id_i                : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         on_data_i               : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         off_data_i              : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         mux_en_wbs_i            : in std_logic;
 
-signal on_off_addr         : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-signal dac_id              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal on_data             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-signal off_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         -- frame_timing interface:
+         row_switch_i            : in std_logic;
+         restart_frame_aligned_i : in std_logic;
+         row_en_i                : in std_logic;
+         
+         -- Global Signals      
+         clk_i                   : in std_logic;
+         rst_i                   : in std_logic     
+      );     
+   end component;
+
+   component ac_dac_ctrl_wbs        
+      port
+      (
+         -- ac_dac_ctrl interface:
+         on_off_addr_i  : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+         dac_id_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         on_data_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+         off_data_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
+         mux_en_o       : out std_logic;
+
+         -- global interface
+         clk_i          : in std_logic;
+         rst_i          : in std_logic; 
+         
+         -- wishbone interface:
+         dat_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         addr_i         : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+         tga_i          : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+         we_i           : in std_logic;
+         stb_i          : in std_logic;
+         cyc_i          : in std_logic;
+         dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+         ack_o          : out std_logic
+      );     
+   end component;
+
+
+   signal mux_en              : std_logic;
+   signal on_off_addr         : std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
+   signal dac_id              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal on_data             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal off_data            : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
 begin
 

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_wbs.vhd,v 1.4 2005/01/26 01:27:01 mandana Exp $
+-- $Id: ac_dac_ctrl_wbs.vhd,v 1.5 2005/03/31 01:09:26 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_wbs.vhd,v $
+-- Revision 1.5  2005/03/31 01:09:26  bburger
+-- Bryce:  fixed a RB bug
+--
 -- Revision 1.4  2005/01/26 01:27:01  mandana
 -- removed mem_clk_i
 -- memories are clocked by clk_i now
@@ -99,6 +102,20 @@ entity ac_dac_ctrl_wbs is
 end ac_dac_ctrl_wbs;
 
 architecture rtl of ac_dac_ctrl_wbs is
+
+   component tpram_32bit_x_64
+      PORT
+      (
+         data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+         wraddress      : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_a    : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
+         rdaddress_b    : IN STD_LOGIC_VECTOR (ROW_ADDR_WIDTH-1 DOWNTO 0);
+         wren     : IN STD_LOGIC  := '1';
+         clock    : IN STD_LOGIC ;
+         qa    : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+         qb    : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+      );
+   end component;
 
    -- FSM inputs
    signal wr_cmd           : std_logic;

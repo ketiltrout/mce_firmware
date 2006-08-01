@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: addr_card.vhd,v $
+-- Revision 1.21  2006/03/16 19:18:37  bburger
+-- Bryce:  comitting v02000001
+--
 -- Revision 1.20  2006/03/08 23:01:43  bburger
 -- Bryce:  New tag of the address card: ac_v02000000_08mar2006
 -- - Instantiates a new lvds_rx block that runs at 100MHz
@@ -116,6 +119,7 @@ library work;
 use work.leds_pack.all;
 use work.fw_rev_pack.all;
 use work.ac_dac_ctrl_pack.all;
+use work.frame_timing_pack.all;
 
 entity addr_card is
    port(
@@ -183,121 +187,148 @@ end addr_card;
 
 architecture top of addr_card is
 
--- The REVISION format is RRrrBBBB where 
---               RR is the major revision number
---               rr is the minor revision number
---               BBBB is the build number
-constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000001";
+   -- The REVISION format is RRrrBBBB where 
+   --               RR is the major revision number
+   --               rr is the minor revision number
+   --               BBBB is the build number
+   constant AC_REVISION: std_logic_vector (31 downto 0) := X"02000001";
+   
+   -- clocks
+   signal clk      : std_logic;
+   signal mem_clk  : std_logic;
+   signal comm_clk : std_logic;
+   signal clk_n    : std_logic;
+   
+   signal rst      : std_logic;
+   
+   -- wishbone bus (from master)
+   signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal addr : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+   signal tga  : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+   signal we   : std_logic;
+   signal stb  : std_logic;
+   signal cyc  : std_logic;
 
--- clocks
-signal clk      : std_logic;
-signal mem_clk  : std_logic;
-signal comm_clk : std_logic;
-signal clk_n    : std_logic;
-
-signal rst      : std_logic;
-
--- wishbone bus (from master)
-signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal addr : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-signal tga  : std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-signal we   : std_logic;
-signal stb  : std_logic;
-signal cyc  : std_logic;
-
--- wishbone bus (from slaves)
-signal slave_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal slave_ack         : std_logic;
-signal led_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal led_ack           : std_logic;
-signal ac_dac_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal ac_dac_ack        : std_logic;
-signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal frame_timing_ack  : std_logic;
-signal slave_err         : std_logic;
-signal fw_rev_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-signal fw_rev_ack           : std_logic;
-
--- frame_timing interface
-signal restart_frame_aligned : std_logic; 
-signal row_switch            : std_logic;
-signal row_en                : std_logic;
-
--- DAC hardware interface:
-signal dac_data : w14_array11;   
-
-component ac_pll
-port(inclk0 : in std_logic;
+   -- wishbone bus (from slaves)
+   signal slave_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal slave_ack         : std_logic;
+   signal led_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal led_ack           : std_logic;
+   signal ac_dac_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal ac_dac_ack        : std_logic;
+   signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal frame_timing_ack  : std_logic;
+   signal slave_err         : std_logic;
+   signal fw_rev_data          : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal fw_rev_ack           : std_logic;
+   
+   -- frame_timing interface
+   signal restart_frame_aligned : std_logic; 
+   signal row_switch            : std_logic;
+   signal row_en                : std_logic;
+   
+   -- DAC hardware interface:
+   signal dac_data : w14_array11;   
+   
+   component ac_pll
+   port(inclk0 : in std_logic;
      c0 : out std_logic;
-     c1 : out std_logic;
-     c2 : out std_logic;
+        c1 : out std_logic;
+        c2 : out std_logic;
      c3 : out std_logic);
-end component;
-
-component dispatch
-port(clk_i      : in std_logic;
-     comm_clk_i : in std_logic;
-     rst_i      : in std_logic;     
+   end component;
+   
+   component dispatch
+   port(clk_i      : in std_logic;
+        comm_clk_i : in std_logic;
+        rst_i      : in std_logic;     
+        
+        -- bus backplane interface (LVDS)
+        lvds_cmd_i   : in std_logic;
+        lvds_reply_o : out std_logic;
+        
+        -- wishbone slave interface
+        dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+        tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+        we_o   : out std_logic;
+        stb_o  : out std_logic;
+        cyc_o  : out std_logic;
+        dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+        ack_i  : in std_logic;
+        err_i  : in std_logic;
      
-     -- bus backplane interface (LVDS)
-     lvds_cmd_i   : in std_logic;
-     lvds_reply_o : out std_logic;
-     
-     -- wishbone slave interface
-     dat_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     addr_o : out std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-     tga_o  : out std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-     we_o   : out std_logic;
-     stb_o  : out std_logic;
-     cyc_o  : out std_logic;
-     dat_i  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-     ack_i  : in std_logic;
-     err_i  : in std_logic;
-     
-     -- misc. external interface
-     wdt_rst_o : out std_logic;
+        -- misc. external interface
+        wdt_rst_o : out std_logic;
      slot_i    : in std_logic_vector(3 downto 0);
 
      dip_sw3 : in std_logic;
      dip_sw4 : in std_logic);
-end component;
-
-component frame_timing is
-port(
-   -- Readout Card interface
-   dac_dat_en_o               : out std_logic;
-   adc_coadd_en_o             : out std_logic;
-   restart_frame_1row_prev_o  : out std_logic;
-   restart_frame_aligned_o    : out std_logic; 
-   restart_frame_1row_post_o  : out std_logic;
-   initialize_window_o        : out std_logic;
-   fltr_rst_o                 : out std_logic;
+   end component;
    
-   -- Address Card interface
-   row_switch_o               : out std_logic;
-   row_en_o                   : out std_logic;
+   component frame_timing is
+   port(
+      -- Readout Card interface
+      dac_dat_en_o               : out std_logic;
+      adc_coadd_en_o             : out std_logic;
+      restart_frame_1row_prev_o  : out std_logic;
+      restart_frame_aligned_o    : out std_logic; 
+      restart_frame_1row_post_o  : out std_logic;
+      initialize_window_o        : out std_logic;
+      fltr_rst_o                 : out std_logic;
       
-   -- Bias Card interface
-   update_bias_o              : out std_logic;
+      -- Address Card interface
+      row_switch_o               : out std_logic;
+      row_en_o                   : out std_logic;
+         
+      -- Bias Card interface
+      update_bias_o              : out std_logic;
+      
+      -- Wishbone interface
+      dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                       : in std_logic;
+      stb_i                      : in std_logic;
+      cyc_i                      : in std_logic;
+      dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                      : out std_logic;      
+      
+      -- Global signals
+      clk_i                      : in std_logic;
+      clk_n_i                    : in std_logic;
+      rst_i                      : in std_logic;
+      sync_i                     : in std_logic
+   );
+   end component;
    
-   -- Wishbone interface
-   dat_i                      : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   addr_i                     : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-   tga_i                      : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-   we_i                       : in std_logic;
-   stb_i                      : in std_logic;
-   cyc_i                      : in std_logic;
-   dat_o                      : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   ack_o                      : out std_logic;      
+   component ac_dac_ctrl is        
+   port
+   (
+      -- DAC hardware interface:
+      dac_data_o              : out w14_array11;   
+      dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
    
-   -- Global signals
-   clk_i                      : in std_logic;
-   clk_n_i                    : in std_logic;
-   rst_i                      : in std_logic;
-   sync_i                     : in std_logic
-);
-end component;
+      -- wishbone interface:
+      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                    : in std_logic;
+      stb_i                   : in std_logic;
+      cyc_i                   : in std_logic;
+      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                   : out std_logic;
 
+      -- frame_timing interface:
+      row_switch_i            : in std_logic;
+      restart_frame_aligned_i : in std_logic;
+      row_en_i                : in std_logic;
+      
+      -- Global Signals      
+      clk_i                   : in std_logic;
+      rst_i                   : in std_logic     
+   );     
+   end component;
 
 begin
    

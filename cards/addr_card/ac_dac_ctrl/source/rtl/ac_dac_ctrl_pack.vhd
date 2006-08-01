@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_pack.vhd,v 1.6 2004/11/20 01:20:44 bburger Exp $
+-- $Id: ac_dac_ctrl_pack.vhd,v 1.7 2005/01/26 01:26:04 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_pack.vhd,v $
+-- Revision 1.7  2005/01/26 01:26:04  mandana
+-- removed mem_clk_i
+--
 -- Revision 1.6  2004/11/20 01:20:44  bburger
 -- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
 --
@@ -66,34 +69,5 @@ package ac_dac_ctrl_pack is
    -- The reset value is one less than the max value so that the counter does not stop, and hold reset high forever.
    constant FRAME_RESTART_DELAY_MAX : integer := 2;
    constant FRAME_RESTART_RESET : integer := 1;
-
-component ac_dac_ctrl is        
-   port
-   (
-      -- DAC hardware interface:
-      dac_data_o              : out w14_array11;   
-      dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
-   
-      -- wishbone interface:
-      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i                    : in std_logic;
-      stb_i                   : in std_logic;
-      cyc_i                   : in std_logic;
-      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o                   : out std_logic;
-
-      -- frame_timing interface:
-      row_switch_i            : in std_logic;
-      restart_frame_aligned_i : in std_logic;
-      row_en_i                : in std_logic;
-      
-      -- Global Signals      
-      clk_i                   : in std_logic;
-      rst_i                   : in std_logic     
-   );     
-end component;
-
 
 end ac_dac_ctrl_pack;

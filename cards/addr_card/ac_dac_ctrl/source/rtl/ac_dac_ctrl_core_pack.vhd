@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_core_pack.vhd,v 1.1 2004/11/20 01:20:44 bburger Exp $
+-- $Id: ac_dac_ctrl_core_pack.vhd,v 1.2 2005/01/26 01:25:42 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_core_pack.vhd,v $
+-- Revision 1.2  2005/01/26 01:25:42  mandana
+-- removed mem_clk_i
+--
 -- Revision 1.1  2004/11/20 01:20:44  bburger
 -- Bryce :  fixed a bug in the ac_dac_ctrl_core block that did not load the off value of the row at the end of a frame.
 --
@@ -58,31 +61,6 @@ use work.ac_dac_ctrl_wbs_pack.all;
 use work.frame_timing_pack.all;
 
 package ac_dac_ctrl_core_pack is
-
-component ac_dac_ctrl_core is        
-   port
-   (
-      -- DAC hardware interface:
-      dac_data_o              : out w14_array11;   
-      dac_clks_o              : out std_logic_vector(NUM_OF_ROWS-1 downto 0);
-   
-      -- Wishbone interface
-      on_off_addr_o           : out std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-      dac_id_i                : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      on_data_i               : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      off_data_i              : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      mux_en_wbs_i            : in std_logic;
-
-      -- frame_timing interface:
-      row_switch_i            : in std_logic;
-      restart_frame_aligned_i : in std_logic;
-      row_en_i                : in std_logic;
-      
-      -- Global Signals      
-      clk_i                   : in std_logic;
-      rst_i                   : in std_logic     
-   );     
-end component;
 
 
 end ac_dac_ctrl_core_pack;

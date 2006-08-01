@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_wbs_pack.vhd,v 1.2 2004/12/21 22:06:51 bburger Exp $
+-- $Id: ac_dac_ctrl_wbs_pack.vhd,v 1.3 2005/01/26 01:27:20 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_wbs_pack.vhd,v $
+-- Revision 1.3  2005/01/26 01:27:20  mandana
+-- removed mem_clk_i
+--
 -- Revision 1.2  2004/12/21 22:06:51  bburger
 -- Bryce:  update
 --
@@ -55,55 +58,29 @@ package ac_dac_ctrl_wbs_pack is
 
 constant ROW_ADDR_WIDTH : integer := 6; 
 
-component ac_dac_ctrl_wbs is        
-   port
-   (
-      -- ac_dac_ctrl interface:
-      on_off_addr_i  : in std_logic_vector(ROW_ADDR_WIDTH-1 downto 0);
-      dac_id_o       : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      on_data_o      : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
-      off_data_o     : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
-      mux_en_o       : out std_logic;
+--component tpram_32bit_x_64 is
+--   PORT
+--   (
+--      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+--      wraddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+--      rdaddress_a    : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+--      rdaddress_b    : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+--      wren     : IN STD_LOGIC  := '1';
+--      clock    : IN STD_LOGIC ;
+--      qa    : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+--      qb    : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+--   );
+--end component;
 
-      -- global interface
-      clk_i          : in std_logic;
-      rst_i          : in std_logic; 
-      
-      -- wishbone interface:
-      dat_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i         : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i          : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i           : in std_logic;
-      stb_i          : in std_logic;
-      cyc_i          : in std_logic;
-      dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o          : out std_logic
-   );     
-end component;
-
-component tpram_32bit_x_64 is
-   PORT
-   (
-      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-      wraddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_a    : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      rdaddress_b    : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      wren     : IN STD_LOGIC  := '1';
-      clock    : IN STD_LOGIC ;
-      qa    : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-      qb    : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
-   );
-end component;
-
-component ac_dac_ctrl_ramdq IS
-   PORT
-   (
-      address     : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
-      clock    : IN STD_LOGIC ;
-      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-      wren     : IN STD_LOGIC ;
-      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
-   );
-END component;
+--component ac_dac_ctrl_ramdq IS
+--   PORT
+--   (
+--      address     : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+--      clock    : IN STD_LOGIC ;
+--      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+--      wren     : IN STD_LOGIC ;
+--      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+--   );
+--END component;
 
 end package;
