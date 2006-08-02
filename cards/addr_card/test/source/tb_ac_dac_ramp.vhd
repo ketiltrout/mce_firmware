@@ -29,8 +29,11 @@
 -- testbench for the ac_dac_ctrl, very simple: assert enable and wait for done!
 --
 -- Revision history:
--- <date $Date: 2004/04/29 17:50:25 $>	- <initials $Author: mandana $>
--- $Log: tb_ac_dac_ctrl_test.vhd,v $
+-- <date $Date: 2004/05/04 00:10:45 $>	- <initials $Author: mandana $>
+-- $Log: tb_ac_dac_ramp.vhd,v $
+-- Revision 1.1  2004/05/04 00:10:45  mandana
+-- initial release
+--
 -- Revision 1.1  2004/04/29 17:50:25  mandana
 -- initial release
 --  
@@ -49,37 +52,69 @@ end TB_AC_DAC_RAMP;
 
 architecture BEH of TB_AC_DAC_RAMP is
 
-   component AC_DAC_RAMP
-      port(RST_I       : in std_logic ;
-           CLK_I       : in std_logic ;
-           EN_I        : in std_logic ;
-           DONE_O      : out std_logic ;
-           DAC_DAT_O   : out w_array11; 
-           DAC_CLK_O   : out std_logic_vector (40 downto 0) );
-
-   end component;
-
+component ac_dac_ramp
+port(rst_i       : in std_logic;
+     clk_i       : in std_logic;
+     clk_4_i     : in std_logic;
+     en_i        : in std_logic;
+     done_o      : out std_logic;
+     dac_dat0_o  : out std_logic_vector(13 downto 0);
+     dac_dat1_o  : out std_logic_vector(13 downto 0);
+     dac_dat2_o  : out std_logic_vector(13 downto 0);
+     dac_dat3_o  : out std_logic_vector(13 downto 0);
+     dac_dat4_o  : out std_logic_vector(13 downto 0);
+     dac_dat5_o  : out std_logic_vector(13 downto 0);
+     dac_dat6_o  : out std_logic_vector(13 downto 0);
+     dac_dat7_o  : out std_logic_vector(13 downto 0);
+     dac_dat8_o  : out std_logic_vector(13 downto 0);
+     dac_dat9_o  : out std_logic_vector(13 downto 0);
+     dac_dat10_o : out std_logic_vector(13 downto 0);
+     dac_clk_o   : out std_logic_vector(40 downto 0));   
+end component;
 
    constant PERIOD : time := 20 ns;
 
-   signal W_RST_I       : std_logic ;
-   signal W_CLK_I       : std_logic := '0';
-   signal W_EN_I        : std_logic ;
-   signal W_DONE_O      : std_logic ;
-   signal W_DAC_DAT_O   : w_array11;
-   signal W_DAC_CLK_O   : std_logic_vector ( 40 downto 0 ) ;
+   signal W_RST_I         : std_logic ;
+   signal W_CLK_I         : std_logic := '0';
+   signal W_CLK_4_I       : std_logic := '0';
+   signal W_EN_I          : std_logic ;
+   signal W_DONE_O        : std_logic ;
+   signal W_DAC_DAT0_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT1_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT2_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT3_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT4_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT5_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT6_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT7_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT8_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT9_O    : std_logic_vector(13 downto 0);
+   signal W_DAC_DAT10_O   : std_logic_vector(13 downto 0);
+   signal W_DAC_CLK_O     : std_logic_vector ( 40 downto 0 ) ;
 
 begin
 
    DUT : AC_DAC_RAMP
       port map(RST_I       => W_RST_I,
                CLK_I       => W_CLK_I,
+               CLK_4_i     => W_CLK_4_I,
                EN_I        => W_EN_I,
                DONE_O      => W_DONE_O,
-               DAC_DAT_O   => W_DAC_DAT_O,
+               DAC_DAT0_O   => W_DAC_DAT0_O,
+               DAC_DAT1_O   => W_DAC_DAT1_O,               
+               DAC_DAT2_O   => W_DAC_DAT2_O,               
+               DAC_DAT3_O   => W_DAC_DAT3_O,               
+               DAC_DAT4_O   => W_DAC_DAT4_O,               
+               DAC_DAT5_O   => W_DAC_DAT5_O,               
+               DAC_DAT6_O   => W_DAC_DAT6_O,               
+               DAC_DAT7_O   => W_DAC_DAT7_O,               
+               DAC_DAT8_O   => W_DAC_DAT8_O,               
+               DAC_DAT9_O   => W_DAC_DAT9_O,               
+               DAC_DAT10_O   => W_DAC_DAT10_O,               
                DAC_CLK_O   => W_DAC_CLK_O);
 
    W_CLK_I <= not W_CLK_I after PERIOD/2;
+   W_CLK_4_I <= not W_CLK_4_I after 2*PERIOD;
 
    STIMULI : process
    begin
