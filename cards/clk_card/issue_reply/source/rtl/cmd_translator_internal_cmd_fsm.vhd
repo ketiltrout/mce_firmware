@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.4 2005/11/15 03:17:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.5 2006/01/16 18:45:27 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,14 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2005/11/15 03:17:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_internal_cmd_fsm.vhd,v $
+-- Revision 1.5  2006/01/16 18:45:27  bburger
+-- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
+-- moved component declarations from above package files to cmd_translator
+-- renamed constants to work with new command_pack (new bus backplane constants)
+--
 -- Revision 1.4  2005/11/15 03:17:22  bburger
 -- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
 --
@@ -70,8 +75,10 @@ port(
       rst_i                : in  std_logic;
       clk_i                : in  std_logic;
 
-      -- inputs from cmd_translator top level
-      internal_cmd_start_i : in  std_logic;
+--      -- inputs from cmd_translator top level
+--      internal_cmd_start_i : in  std_logic;
+--      internal_cmd_en      : in std_logic;
+--      tes_sq_wave_en       : in std_logic;
   
       -- outputs to the macro-instruction arbiter
       card_addr_o          : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
@@ -101,7 +108,45 @@ architecture rtl of cmd_translator_internal_cmd_fsm is
    signal current_state  : state;
    signal next_state     : state;
 
+   signal internal_cmd_start           : std_logic; 
+   signal timer_rst                    : std_logic;
+   signal time                         : integer;
+
 begin
+
+   -------------------------------------------------------------------------------------------
+   -- timer reset logic for issuing internal commands
+   -------------------------------------------------------------------------------------------
+   process(rst_i, clk_i)
+   begin
+      if rst_i = '1' then
+         timer_rst               <= '1';
+         internal_cmd_start      <= '0';  
+      elsif clk_i'event and clk_i = '1' then 
+   ---------------------------------------------------------------------  
+   -- in order to disable internal commands, start commenting from here
+   ---------------------------------------------------------------------
+--      if time >= 400 then --1000000 then  -- 1x10^6 us = 1s
+--         timer_rst            <= '1';
+--         internal_cmd_start   <= '1';      
+--      else
+         timer_rst            <= '0';
+         internal_cmd_start   <= '0';      
+--      end if;
+   ---------------------------------------------------------------------  
+   -- end of comments for disabling internal commands.
+   ---------------------------------------------------------------------  
+      end if;
+   end process;
+ 
+   -------------------------------------------------------------------------------------------
+   -- timer for issuing internal commands
+   ------------------------------------------------------------------------------------------- 
+   timer : us_timer
+   port map(
+      clk           => clk_i,
+      timer_reset_i => timer_rst,
+      timer_count_o => time);
 
    -------------------------------------------------------------------------------------------
    -- state sequencer
@@ -118,11 +163,11 @@ begin
    -------------------------------------------------------------------------------------------
    -- assign next state
    -------------------------------------------------------------------------------------------       
-   process(internal_cmd_start_i, ack_i, current_state)
+   process(internal_cmd_start, ack_i, current_state)
    begin
       case current_state is
          when IDLE =>
-            if internal_cmd_start_i = '1' then
+            if internal_cmd_start = '1' then
                next_state <= ISSUE_INTRNL_CMD;
             else
                next_state <= IDLE;

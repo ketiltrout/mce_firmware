@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.6  2006/07/12 01:59:11  bburger
+# Bryce:  Fixed some mistakes in the .tcl file
+#
 # Revision 1.5  2006/07/11 18:46:03  bburger
 # Bryce:  Corrected the mictor debug port interfaces
 #
@@ -265,7 +268,7 @@ cmp add_assignment $top_name "" psclko LOCATION "Pin_E28"
 cmp add_assignment $top_name "" psdi LOCATION "Pin_F28"
 cmp add_assignment $top_name "" pscsi LOCATION "Pin_F27"
 cmp add_assignment $top_name "" psclki LOCATION "Pin_J22"
-cmp add_assignment $top_name "" n5vok LOCATION "Pin_AG25"
+# cmp add_assignment $top_name "" n5vok LOCATION "Pin_AG25"
 puts "   Assigned: Power supply interface pins."
 
 

@@ -78,7 +78,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       rst_n             : in std_logic;
       
       -- Manchester Clock PLL inputs:
-      inclk1            : in std_logic;
+      inclk15           : in std_logic;
 
       -- LVDS interface:
       lvds_cmd          : out std_logic;
@@ -129,6 +129,14 @@ architecture tb of tb_cc_rcs_bcs_ac is
       eeprom_so         : out std_logic;
       eeprom_sck        : out std_logic;
       eeprom_cs         : out std_logic;
+
+      psdo              : out std_logic;
+      pscso             : out std_logic;
+      psclko            : out std_logic;
+      psdi              : in std_logic;
+      pscsi             : in std_logic;
+      psclki            : in std_logic;
+--      n5vok             : in std_logic;
       
       -- miscellaneous ports:
       red_led           : out std_logic;
@@ -140,10 +148,10 @@ architecture tb of tb_cc_rcs_bcs_ac is
       slot_id           : in std_logic_vector(3 downto 0);
       
       -- debug ports:
-      mictor_o          : out std_logic_vector(15 downto 1);
-      mictorclk_o       : out std_logic;
-      mictor_e          : out std_logic_vector(15 downto 1);
-      mictorclk_e       : out std_logic;
+      mictor0_o         : out std_logic_vector(15 downto 0);
+      mictor0clk_o      : out std_logic;
+      mictor0_e         : out std_logic_vector(15 downto 0);
+      mictor0clk_e      : out std_logic;
       rs232_rx          : in std_logic;
       rs232_tx          : out std_logic;
       
@@ -325,6 +333,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal sync_en      : std_logic_vector(1 downto 0) := "00";
 
    constant clk_period          : TIME := 40 ns;    -- 50Mhz clock
+   constant spi_clk_period      : TIME := 666 ns;
    constant fibre_clk_period    : TIME := 40 ns;
      
    constant pci_dsp_dly         : TIME := 160 ns;   -- delay between tranmission of 4byte packets from PCI 
@@ -424,7 +433,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
 
    constant bc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_2       & x"00" & LED_ADDR;
    
-   constant all_row_len_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_CARDS         & x"00" & ROW_LEN_ADDR;    
+   constant all_row_len_cmd         : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & ROW_LEN_ADDR;    
    constant all_num_rows_cmd        : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & NUM_ROWS_ADDR;
    constant all_sample_delay_cmd    : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & SAMPLE_DLY_ADDR; 
    constant all_sample_num_cmd      : std_logic_vector(31 downto 0) := x"00" & ALL_FPGA_CARDS    & x"00" & SAMPLE_NUM_ADDR; 
@@ -453,40 +462,43 @@ architecture tb of tb_cc_rcs_bcs_ac is
    ------------------------------------------------
    -- For Bus Backplane Rev. A and B
    -- slot ID decode logic:
-   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
-   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
-   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
-   signal rc2_slot_id : std_logic_vector(3 downto 0) := "1010";
-   signal rc1_slot_id : std_logic_vector(3 downto 0) := "1011";
-   signal ac_slot_id  : std_logic_vector(3 downto 0) := "1111";
-   signal bc1_slot_id : std_logic_vector(3 downto 0) := "1110";
-   signal bc2_slot_id : std_logic_vector(3 downto 0) := "1101";
-   signal bc3_slot_id : std_logic_vector(3 downto 0) := "1100";
+--   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
+--   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
+--   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
+--   signal rc2_slot_id : std_logic_vector(3 downto 0) := "1010";
+--   signal rc1_slot_id : std_logic_vector(3 downto 0) := "1011";
+--   signal ac_slot_id  : std_logic_vector(3 downto 0) := "1111";
+--   signal bc1_slot_id : std_logic_vector(3 downto 0) := "1110";
+--   signal bc2_slot_id : std_logic_vector(3 downto 0) := "1101";
+--   signal bc3_slot_id : std_logic_vector(3 downto 0) := "1100";
 
    -- For Bus Backplane Rev. C
    -- slot ID decode logic:
---   signal ac_slot_id  : std_logic_vector(3 downto 0) := "0000";
---   signal bc1_slot_id : std_logic_vector(3 downto 0) := "0001";
---   signal bc2_slot_id : std_logic_vector(3 downto 0) := "0010";
---   signal bc3_slot_id : std_logic_vector(3 downto 0) := "0011";
---   signal rc1_slot_id : std_logic_vector(3 downto 0) := "0100";
---   signal rc2_slot_id : std_logic_vector(3 downto 0) := "0101";
---   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
---   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
---   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
+   signal ac_slot_id  : std_logic_vector(3 downto 0) := "0000";
+   signal bc1_slot_id : std_logic_vector(3 downto 0) := "0001";
+   signal bc2_slot_id : std_logic_vector(3 downto 0) := "0010";
+   signal bc3_slot_id : std_logic_vector(3 downto 0) := "0011";
+   signal rc1_slot_id : std_logic_vector(3 downto 0) := "0100";
+   signal rc2_slot_id : std_logic_vector(3 downto 0) := "0101";
+   signal rc3_slot_id : std_logic_vector(3 downto 0) := "0110";
+   signal rc4_slot_id : std_logic_vector(3 downto 0) := "0111";
+   signal cc_slot_id  : std_logic_vector(3 downto 0) := "1000";
 
    ------------------------------------------------
    -- Clock Card Signals
    -------------------------------------------------
    -- PLL input:
    signal inclk      : std_logic := '0';
-   signal inclk1     : std_logic := '1';
+   signal inclk15    : std_logic := '1';
    signal rst_n      : std_logic := '1';
    signal rst        : std_logic := '0';
    signal inclk_en   : std_logic := '1';
    signal inclk_conditioned : std_logic := '0';
    signal switch_to_xtal    : std_logic := '0';
    signal switch_to_manch   : std_logic := '0';
+   signal spi_clk    : std_logic := '0';
+   signal spi_clk_cond : std_logic := '0';
+   signal spi_clk_en : std_logic := '0';
    
    -- LVDS interface:
    signal lvds_cmd   : std_logic;
@@ -530,7 +542,15 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_eeprom_so  : std_logic;
    signal cc_eeprom_sck : std_logic;
    signal cc_eeprom_cs  : std_logic;
-   
+
+   signal cc_psdo       : std_logic;
+   signal cc_pscso      : std_logic;
+   signal cc_psclko     : std_logic;
+   signal cc_psdi       : std_logic := '0';
+   signal cc_pscsi      : std_logic := '0';
+   signal cc_psclki     : std_logic := '0';
+   signal cc_n5vok      : std_logic := '0';
+                     
    -- miscellaneous ports:
    signal cc_red_led    : std_logic;
    signal cc_ylw_led    : std_logic;
@@ -540,9 +560,9 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_wdog       : std_logic;
    
    -- debug ports:
-   signal cc_mictor_o    : std_logic_vector(15 downto 1);
+   signal cc_mictor_o    : std_logic_vector(15 downto 0);
    signal cc_mictorclk_o : std_logic;
-   signal cc_mictor_e    : std_logic_vector(15 downto 1);
+   signal cc_mictor_e    : std_logic_vector(15 downto 0);
    signal cc_mictorclk_e : std_logic;
    signal cc_rs232_rx    : std_logic := '0';
    signal cc_rs232_tx    : std_logic;
@@ -1029,7 +1049,8 @@ begin
    
    -- Clock generation
    inclk        <= not inclk        after clk_period/2;
-   inclk1       <= not inclk1       after clk_period/2;
+   inclk15      <= not inclk15      after clk_period/2;
+   spi_clk      <= not spi_clk      after spi_clk_period/2;
    fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
    
    -- Used for simulating the loss of the crystal clock
@@ -1109,7 +1130,7 @@ begin
          rst_n            => rst_n,
 
          -- Manchester Clock PLL inputs:
-         inclk1           => inclk1,
+         inclk15          => inclk15,
                           
          -- LVDS interface:
          lvds_cmd         => lvds_cmd,  
@@ -1158,7 +1179,15 @@ begin
          eeprom_so        => cc_eeprom_so, 
          eeprom_sck       => cc_eeprom_sck,
          eeprom_cs        => cc_eeprom_cs, 
-                          
+
+         psdo             => cc_psdo,  
+         pscso            => cc_pscso, 
+         psclko           => cc_psclko,
+         psdi             => cc_psdi,  
+         pscsi            => cc_pscsi, 
+         psclki           => spi_clk,--cc_psclki,
+--         n5vok            => cc_n5vok, 
+                             
          -- miscellaneous ports:
          red_led          => cc_red_led,
          ylw_led          => cc_ylw_led,
@@ -1169,10 +1198,10 @@ begin
          slot_id          => cc_slot_id,
                           
          -- debug ports:  
-         mictor_o         => cc_mictor_o,   
-         mictorclk_o      => cc_mictorclk_o,
-         mictor_e         => cc_mictor_e,   
-         mictorclk_e      => cc_mictorclk_e,
+         mictor0_o        => cc_mictor_o,   
+         mictor0clk_o     => cc_mictorclk_o,
+         mictor0_e        => cc_mictor_e,   
+         mictor0clk_e     => cc_mictorclk_e,
          rs232_rx         => cc_rs232_rx,
          rs232_tx         => cc_rs232_tx,
          
@@ -2088,6 +2117,93 @@ begin
 ------------------------------------------------------
 
 ------------------------------------------------------
+--  Testing New Fibre Protocol
+------------------------------------------------------
+
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 15 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 250 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 15 us;
+--
+
+      -- From Manchester = 2
+      command <= command_wb;
+      address_id <= cc_use_dv_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;      
+      
+      wait for 53 us;
+
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 250 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 15 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 600 us;
+--
+--      command <= command_go;
+--      address_id <= rc2_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+      wait for 600 us;
+
+
+------------------------------------------------------
 --  Testing Manchester Data Packets
 ------------------------------------------------------
 ----      manchester_data   : in std_logic;
@@ -2107,17 +2223,17 @@ begin
 --      load_command;
 --      load_checksum;      
 --      
+--      wait for 15 us;
+
+--      command <= command_wb;
+--      address_id <= rc1_gainp1_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
 --      wait for 53 us;
---
-----      command <= command_wb;
-----      address_id <= rc1_gainp1_cmd;
-----      data_valid <= X"00000001";
-----      data       <= X"00000002";
-----      load_preamble;
-----      load_command;
-----      load_checksum;      
-----      
-----      wait for 53 us;
 --
 --      command <= command_wb;
 --      address_id <= cc_ret_dat_s_cmd;
@@ -2127,7 +2243,7 @@ begin
 --      load_command;
 --      load_checksum;      
 --      
---      wait for 53 us;
+--      wait for 15 us;
 --
 --      command <= command_wb;
 --      address_id <= cc_data_rate_cmd;
@@ -2137,17 +2253,53 @@ begin
 --      load_command;
 --      load_checksum;      
 --      
---      wait for 53 us;
+--      wait for 15 us;
 --
 --      command <= command_wb;
---      address_id <= cc_num_rows_cmd;
+--      address_id <= all_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"000003E8";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 125 us;
+--      
+--      command <= command_rb;
+--      address_id <= all_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"000003E8";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 125 us;
+--
+--      cc_dip_sw3 <= '0';
+--      cc_dip_sw4 <= '1';
+--      
+--      command <= command_wb;
+--      address_id <= cc_row_len_cmd;
 --      data_valid <= X"00000001";
 --      data       <= X"00000004";
 --      load_preamble;
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 250 us;
+--
+--      cc_dip_sw3 <= '1';
+--      cc_dip_sw4 <= '0';
+--      
+--      command <= command_wb;
+--      address_id <= cc_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000004";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 250 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_num_rows_cmd;
@@ -2157,7 +2309,7 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 15 us;
 --
 --      command <= command_wb;
 --      address_id <= ac_num_rows_cmd;
@@ -2167,7 +2319,17 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 15 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_num_rows_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000004";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 15 us;
 --
 --      command <= command_wb;
 --      address_id <= cc_row_len_cmd;
@@ -2177,7 +2339,7 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 15 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_row_len_cmd;
@@ -2187,7 +2349,7 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 15 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_sample_num_cmd;
@@ -2197,7 +2359,17 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 15 us;
+--
+--      command <= command_rb;
+--      address_id <= rc1_sample_num_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--
+--      wait for 15 us;
 --
 --      command <= command_wb;
 --      address_id <= ac_row_len_cmd;
@@ -2207,7 +2379,7 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 15 us;
 --      
 --      command <= command_wb;
 --      address_id <= ac_row_order_cmd;
@@ -2217,7 +2389,7 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 15 us;
 --
 --      command <= command_wb;
 --      address_id <= ac_enbl_mux_cmd;
@@ -2227,7 +2399,7 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 53 us;
+--      wait for 15 us;
 --      
 --      command <= command_wb;
 --      address_id <= rc1_servo_mode_cmd;
@@ -2237,30 +2409,30 @@ begin
 --      load_command;
 --      load_checksum;     
 --      
---      wait for 53 us;
+--      wait for 15 us;
 --      
 --
-----      -- From Manchester = 2
-----      command <= command_wb;
-----      address_id <= cc_use_dv_cmd;
-----      data_valid <= X"00000001";
-----      data       <= X"00000002";
-----      load_preamble;
-----      load_command;
-----      load_checksum;      
-----      
-----      wait for 53 us;
----- 
-----      -- From Manchester = 2
-----      command <= command_wb;
-----      address_id <= cc_use_sync_cmd;
-----      data_valid <= X"00000001";
-----      data       <= X"00000002";
-----      load_preamble;
-----      load_command;
-----      load_checksum;      
-----      
-----      wait for 53 us;
+--      -- From Manchester = 2
+--      command <= command_wb;
+--      address_id <= cc_use_dv_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
+-- 
+--      -- From Manchester = 2
+--      command <= command_wb;
+--      address_id <= cc_use_sync_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      
+--      wait for 53 us;
 --      
 --      command <= command_go;
 --      address_id <= rc1_ret_dat_cmd;
@@ -2270,7 +2442,7 @@ begin
 --      load_command;
 --      load_checksum;
 --
---      wait for 3000 us;
+--      wait for 1000 us;
       
       
 
@@ -2318,9 +2490,9 @@ begin
 --
 --      wait for 50 us;
 ----      switch_to_manch
-----      switch_to_xtal <= '1';
-----      wait for 20 ns;
-----      switch_to_xtal <= '0';      
+--      switch_to_xtal <= '1';
+--      wait for 20 ns;
+--      switch_to_xtal <= '0';      
 --
 --      wait for 1000 us;
 
@@ -2890,15 +3062,15 @@ begin
 -- Internal commands must be disabled in cmd_translator
 -- The command timeout in reply_queue_sequencer must be set to 100us
 --
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;
-      
-      wait for 200 us;
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      
+--      wait for 100 us;
 --
 --      command <= command_wb;
 --      address_id <= rc1_led_cmd;
@@ -3218,7 +3390,7 @@ begin
 --   
 --   begin
 --
-----      manchester_sigdet <= '1';
+--      manchester_sigdet <= '1';
 --
 --      manchester_data_packet;
 --      manchester_sync_packet;

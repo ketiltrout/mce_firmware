@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.54 2006/07/26 01:19:26 bburger Exp $
+-- $Id: clk_card.vhd,v 1.55 2006/08/01 19:18:46 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.55  2006/08/01 19:18:46  bburger
+-- Bryce:  v0200000f
+--
 -- Revision 1.54  2006/07/26 01:19:26  bburger
 -- Bryce:  v0200000e
 --
@@ -153,7 +156,7 @@ entity clk_card is
       psdi              : in std_logic;
       pscsi             : in std_logic;
       psclki            : in std_logic;
-      n5vok             : in std_logic;
+--      n5vok             : in std_logic;
       
       -- miscellaneous ports:
       red_led           : out std_logic;
@@ -693,47 +696,33 @@ begin
                                 --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'               when others;
 
---cmp add_assignment $top_name "" psdo LOCATION "Pin_H21"
---cmp add_assignment $top_name "" pscso LOCATION "Pin_H22"
---cmp add_assignment $top_name "" psclko LOCATION "Pin_E28"
---cmp add_assignment $top_name "" psdi LOCATION "Pin_F28"
---cmp add_assignment $top_name "" pscsi LOCATION "Pin_F27"
---cmp add_assignment $top_name "" psclki LOCATION "Pin_J22"
---cmp add_assignment $top_name "" n5vok LOCATION "Pin_AG25"
---      psdo              : out std_logic;
---      pscso             : out std_logic;
---      psclko            : out std_logic;
---      psdi              : in std_logic;
---      pscsi             : in std_logic;
---      psclki            : in std_logic;
---      n5vok             : in std_logic;
 
-   psu_ctrl_inst: psu_ctrl 
-   port map(
-      -- Clock and Reset:
-      clk_i   => clk,     
-      clk_n_i => clk_n,     
-      rst_i   => rst,     
-      
-      -- Wishbone Interface:
-      dat_i   => data,     
-      addr_i  => addr,     
-      tga_i   => tga,     
-      we_i    => we,       
-      stb_i   => stb,      
-      cyc_i   => cyc,      
-      dat_o   => psu_ctrl_data,     
-      ack_o   => psu_ctrl_ack,     
-              
-      ------------------------------
-      -- SPI Interface
-      ------------------------------
-      mosi_i  => psdi,     
-      sclk_i  => psclki,     
-      ccss_i  => pscsi,     
-      miso_o  => psdo,     
-      sreq_o  => pscso     
-   );        
+--   psu_ctrl_inst: psu_ctrl 
+--   port map(
+--      -- Clock and Reset:
+--      clk_i   => clk,     
+--      clk_n_i => clk_n,     
+--      rst_i   => rst,     
+--      
+--      -- Wishbone Interface:
+--      dat_i   => data,     
+--      addr_i  => addr,     
+--      tga_i   => tga,     
+--      we_i    => we,       
+--      stb_i   => stb,      
+--      cyc_i   => cyc,      
+--      dat_o   => psu_ctrl_data,     
+--      ack_o   => psu_ctrl_ack,     
+--              
+--      ------------------------------
+--      -- SPI Interface
+--      ------------------------------
+--      mosi_i  => psdi,     
+--      sclk_i  => psclki,     
+--      ccss_i  => pscsi,     
+--      miso_o  => psdo,     
+--      sreq_o  => pscso     
+--   );        
 
    clk_switchover_inst: clk_switchover
    port map(

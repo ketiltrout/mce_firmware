@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.36 2006/07/11 00:48:03 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.37 2006/07/11 18:24:26 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/07/11 00:48:03 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/07/11 18:24:26 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.37  2006/07/11 18:24:26  bburger
+-- Bryce:  Added a debug port
+--
 -- Revision 1.36  2006/07/11 00:48:03  bburger
 -- Bryce:  Removed recirc-muxes, cleaned up all the registers.  This block is now a lean machine.
 --
@@ -122,7 +125,7 @@ architecture rtl of reply_translator is
    
    type fibre_state is        
       (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, ST_ER_REPLY, REPLY_ER, DATA_FRAME, LD_PREAMBLE1,  LD_PREAMBLE2,
-       LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, WAIT_Q_WORD1, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE);
+       LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, WAIT_Q_WORD1, WAIT_Q_WORD2, WAIT_Q_WORD3, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE);
        
    signal fibre_current_state : fibre_state;
    signal fibre_next_state    : fibre_state;
@@ -154,8 +157,8 @@ architecture rtl of reply_translator is
    signal packet_type       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); -- indicates reply or data packet - written to header word 3
    signal mop_rdy_reply     : std_logic;                                       -- asserted high when a mop is done and processing a reply packet
    signal mop_rdy_data      : std_logic;                                       -- asserted high when a mop is done and processing a data packet
-   signal checksum_clr      : std_logic;                                       -- signal asserted to reset packet checksum
-   signal checksum_ld       : std_logic;                                       -- signal assertd to update packet checksum with checksum_in value
+--   signal checksum_clr      : std_logic;                                       -- signal asserted to reset packet checksum
+--   signal checksum_ld       : std_logic;                                       -- signal assertd to update packet checksum with checksum_in value
    signal rb_packet_size    : integer;
    signal data_packet_size  : integer;
    
@@ -245,9 +248,13 @@ begin
          if(fibre_current_state = FIBRE_IDLE) then
             checksum <= (others => '0');
          elsif(fibre_current_state = LD_OKorER) then
-            checksum <= checksum xor status;
+--            if(mop_rdy_data = '0') then
+               checksum <= checksum xor status;
+--            end if;
          elsif(fibre_current_state = LD_CARD_PARAM) then
-            checksum <= checksum xor crd_add_par_id;
+--            if(mop_rdy_data = '0') then
+               checksum <= checksum xor crd_add_par_id;
+--            end if;
          elsif(fibre_current_state = LD_STATUS) then
             checksum <= checksum xor ok_or_er;
          elsif(fibre_current_state = LD_DATA) then
@@ -408,6 +415,12 @@ begin
       -- 
       ----------------------------------------
       when WAIT_Q_WORD1 =>
+         fibre_next_state <= WAIT_Q_WORD2;
+
+      when WAIT_Q_WORD2 =>
+         fibre_next_state <= WAIT_Q_WORD3;
+
+      when WAIT_Q_WORD3 =>
          -- and fibre_tx_busy_i = '0' Don't check for busy here, because its done in all other states.
          if (fibre_word_rdy_i  = '1') then 
             fibre_next_state <= LD_DATA;
@@ -548,8 +561,10 @@ begin
       ----------------------------------------
       when LD_OKorER =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= status;
-            fibre_tx_rdy_o <= '1';
+--            if(mop_rdy_data = '0') then
+               fibre_tx_dat_o <= status;
+               fibre_tx_rdy_o <= '1';
+--            end if;
          end if;   
 
       ----------------------------------------
@@ -557,8 +572,10 @@ begin
       ----------------------------------------
       when LD_CARD_PARAM =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= crd_add_par_id;
-            fibre_tx_rdy_o <= '1';
+--            if(mop_rdy_data = '0') then
+               fibre_tx_dat_o <= crd_add_par_id;
+               fibre_tx_rdy_o <= '1';
+--            end if;
          end if;   
            
       ----------------------------------------
@@ -581,8 +598,7 @@ begin
       ----------------------------------------
       when LD_DATA =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= fibre_word_i; 
-
+            fibre_tx_dat_o <= fibre_word_i;
             -- Do not transmit a data word if an RB was unsuccessful
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
             if(cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
@@ -604,6 +620,12 @@ begin
           end if;   
            
        when WAIT_Q_WORD1  => 
+          null;
+
+       when WAIT_Q_WORD2  => 
+          null;
+
+       when WAIT_Q_WORD3  => 
           null;
 
        when ACK_Q_WORD =>

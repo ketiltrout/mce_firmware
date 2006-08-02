@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.40 2006/06/03 02:29:15 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.41 2006/06/19 17:27:07 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/06/03 02:29:15 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/06/19 17:27:07 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.41  2006/06/19 17:27:07  bburger
+-- Bryce:  removed unused sync_pulse_i signal from interfaces
+--
 -- Revision 1.40  2006/06/03 02:29:15  bburger
 -- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
 --
@@ -387,7 +390,7 @@ architecture rtl of cmd_translator is
    port(
       rst_i                : in  std_logic;
       clk_i                : in  std_logic;
-      internal_cmd_start_i : in  std_logic;
+--      internal_cmd_start_i : in  std_logic;
       card_addr_o          : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
       parameter_id_o       : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
       data_size_o          : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
@@ -406,10 +409,7 @@ architecture rtl of cmd_translator is
    signal internal_cmd_instr_rdy       : std_logic; 
    signal internal_cmd_type            : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
 
-   signal internal_cmd_start           : std_logic; 
    signal internal_cmd_ack             : std_logic;   
-   signal timer_rst                    : std_logic;
-   signal time                         : integer;
    
    -------------------------------------------------------------------------------------------
    -- arbiter signals
@@ -503,8 +503,7 @@ architecture rtl of cmd_translator is
 begin
    -------------------------------------------------------------------------------------------
    -- logic for routing incoming de-composed fibre commands
-   -------------------------------------------------------------------------------------------
-   
+   -------------------------------------------------------------------------------------------   
    -- This FSM ensures that the reply_cmd_rcvd_ok_o signal is only asserted for one cycle per command.
    cmd_state_FF: process(clk_i, rst_i)
    begin
@@ -603,41 +602,6 @@ begin
       end if;
    end process data_req_reg;
 
-
-   -------------------------------------------------------------------------------------------
-   -- timer reset logic for issuing internal commands
-   -------------------------------------------------------------------------------------------
-   process(rst_i, clk_i)
-   begin
-      if rst_i = '1' then
-         timer_rst               <= '1';
-         internal_cmd_start      <= '0';  
-      elsif clk_i'event and clk_i = '1' then 
-   ---------------------------------------------------------------------  
-   -- in order to disable internal commands, start commenting from here
-   ---------------------------------------------------------------------
---      if time >= 400 then --1000000 then  -- 1x10^6 us = 1s
---         timer_rst            <= '1';
---         internal_cmd_start   <= '1';      
---      else
-         timer_rst            <= '0';
-         internal_cmd_start   <= '0';      
---      end if;
-   ---------------------------------------------------------------------  
-   -- end of comments for disabling internal commands.
-   ---------------------------------------------------------------------  
-      end if;
-   end process;
- 
-   -------------------------------------------------------------------------------------------
-   -- timer for issuing internal commands
-   ------------------------------------------------------------------------------------------- 
-   timer : us_timer
-   port map(
-      clk           => clk_i,
-      timer_reset_i => timer_rst,
-      timer_count_o => time);
-
    -------------------------------------------------------------------------------------------
    -- RETURN DATA command state machine
    ------------------------------------------------------------------------------------------- 
@@ -735,8 +699,8 @@ begin
       rst_i                  => rst_i,
       clk_i                  => clk_i,
 
-      -- inputs from cmd_translator top level
-      internal_cmd_start_i   => internal_cmd_start,
+--      -- inputs from cmd_translator top level
+--      internal_cmd_start_i   => internal_cmd_start,
 
       -- outputs to the macro-instruction arbiter
       card_addr_o            => internal_cmd_card_addr,
