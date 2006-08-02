@@ -29,8 +29,12 @@
 -- Test module for common items
 --
 -- Revision history:
--- <date $Date: 2005/11/21 20:05:00 $>	- <initials $Author: erniel $>
+-- <date $Date: 2005/11/22 00:01:19 $>	- <initials $Author: erniel $>
 -- $Log: ac_test.vhd,v $
+-- Revision 1.9  2005/11/22 00:01:19  erniel
+-- updated AC_test to version 2.0b:
+--      minor bug fix to ac_dac_ctrl_test
+--
 -- Revision 1.8  2005/11/21 20:05:00  erniel
 -- updated AC_test to version 2.0
 -- rewrote command interface logic (ac_test_idle, ac_test_reset are obsolete)
@@ -88,20 +92,22 @@ end ac_test;
 
 architecture rtl of ac_test is
 
-constant RESET_MSG_LEN    : integer := 17;
+constant RESET_MSG_LEN    : integer := 16;
 constant IDLE_MSG_LEN     : integer := 10;
-constant ERROR_MSG_LEN    : integer := 13;
-constant EASTER_MSG_LEN   : integer := 16;
+constant ERROR_MSG_LEN    : integer := 8;  
+constant RAMP_OFF_MSG_LEN : integer := 22;
 
-signal clk : std_logic;
-signal rst : std_logic;
+signal clk  : std_logic;
+signal clk_4: std_logic;
+signal rst  : std_logic;
 
 component ac_test_pll
 port(inclk0 : in std_logic;
-     c0 : out std_logic);
+     c0 : out std_logic;
+     c1 : out std_logic);
 end component;
 
-type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, TX_EASTER, RX_CMD1, RX_CMD2, FIXED_DAC_TEST, RAMP_DAC_TEST, WAIT_DAC_DONE);
+type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, RX_CMD1, RX_CMD2, FIXED_DAC_TEST, RAMP_OFF_MSG, RAMP_DAC_TEST, WAIT_DAC_DONE);
 signal pres_state : states;
 signal next_state : states;
 
@@ -138,7 +144,7 @@ signal tx_count_clr : std_logic;
 signal reset_msg  : std_logic_vector(7 downto 0);
 signal idle_msg   : std_logic_vector(7 downto 0);
 signal error_msg  : std_logic_vector(7 downto 0);
-signal easter_msg : std_logic_vector(7 downto 0);
+signal ramp_msg   : std_logic_vector(7 downto 0);
 
 signal cmd1    : std_logic_vector(7 downto 0);
 signal cmd2    : std_logic_vector(7 downto 0);
@@ -185,6 +191,7 @@ signal fix_dac_clk    : std_logic_vector(40 downto 0);
 component ac_dac_ramp
 port(rst_i       : in std_logic;
      clk_i       : in std_logic;
+     clk_4_i     : in std_logic;
      en_i        : in std_logic;
      done_o      : out std_logic;
      dac_dat0_o  : out std_logic_vector(13 downto 0);
@@ -224,7 +231,8 @@ begin
 
    clk0: ac_test_pll
    port map(inclk0 => inclk,
-            c0 => clk);
+            c0 => clk,
+            c1 => clk_4);
 
 
    --------------------------------------------------------
@@ -283,8 +291,9 @@ begin
             count_i => 0,
             count_o => tx_count);
 
-
-   with tx_count select
+   
+   with tx_count select 
+      -- reset message is AC Test v3.0
       reset_msg <= newline   when 0,
                    newline   when 1,
                    shift(a)  when 2,
@@ -297,13 +306,13 @@ begin
                    space     when 9,
                    v         when 10,
                    period    when 11, 
-                   two       when 12, 
+                   three     when 12, 
                    period    when 13,
                    zero      when 14,
-                   b         when 15,
                    newline   when others;
 
    with tx_count select
+      -- idle message is Command? 
       idle_msg <= newline      when 0,
                   shift(c)     when 1,
                   o            when 2,
@@ -316,38 +325,40 @@ begin
                   space        when others;
 
    with tx_count select
+      -- error message is error 
       error_msg <= tab         when 0,
-                   shift(y)    when 1,
-                   o           when 2,
-                   u           when 3,
-                   space       when 4,
-                   shift(e)    when 5,
-                   e           when 6,
-                   e           when 7,
-                   d           when 8,
-                   i           when 9,
-                   o           when 10,
-                   t           when 11,
-                   shift(one)  when others;
+                   e           when 1,
+                   r           when 2,
+                   r           when 3,
+                   o           when 4,
+                   r           when 5,
+                   space       when 6,
+                   newline  when others;
 
    with tx_count select
-      easter_msg <= r          when 0,
-                    n          when 1,
-                    i          when 2,
-                    e          when 3,
-                    space      when 4,
-                    i          when 5,
-                    s          when 6,
-                    space      when 7,
-                    shift(t)   when 8,
-                    h          when 9,
-                    e          when 10,
-                    space      when 11,
-                    shift(m)   when 12,
-                    a          when 13,
-                    n          when 14,
-                    shift(one) when others;
-
+      -- ramp_off message is turn off ramp first! 
+      ramp_msg  <= tab         when 0,
+                   t           when 1,
+                   u           when 2,
+                   r           when 3,
+                   n           when 4,
+                   space       when 5,
+                   o           when 6,
+                   f           when 7,
+                   f           when 8,
+                   space       when 9,
+                   r           when 10,  
+                   a 	       when 11,
+                   m	       when 12,
+                   p	       when 13,
+                   space       when 14,
+                   f	       when 15,
+                   i	       when 16,
+                   r	       when 17,
+                   s	       when 18,
+                   t	       when 19,
+                   shift(one)  when 20,                   
+                   newline  when others;
 
    --------------------------------------------------------
    -- Control logic
@@ -385,15 +396,8 @@ begin
                                    next_state <= TX_ERROR;
                                 end if;
 
-         when TX_EASTER =>      if(tx_count = EASTER_MSG_LEN - 1) then
-                                   next_state <= TX_IDLE;
-                                else
-                                   next_state <= TX_EASTER;
-                                end if;
-
          when RX_CMD1 =>        if(rx_rdy = '1') then
                                    case rx_data is
-                                      when e | shift(e) => next_state <= TX_EASTER;
                                       when f | shift(f) => next_state <= FIXED_DAC_TEST;
                                       when r | shift(r) => next_state <= RAMP_DAC_TEST;
                                       when escape =>       next_state <= RESET;
@@ -403,7 +407,17 @@ begin
                                    next_state <= RX_CMD1;
                                 end if;
 
-         when FIXED_DAC_TEST => next_state <= WAIT_DAC_DONE;
+         when FIXED_DAC_TEST => if(ramp_enabled = '0') then
+                                  next_state <= WAIT_DAC_DONE;
+                                else
+                                  next_state <= RAMP_OFF_MSG;
+                                end if;
+         
+         when RAMP_OFF_MSG  =>  if(tx_count = RAMP_OFF_MSG_LEN - 1) then
+                                   next_state <= TX_IDLE;
+                                else
+                                   next_state <= RAMP_OFF_MSG;
+                                end if;                     
 
          when RAMP_DAC_TEST =>  next_state <= WAIT_DAC_DONE;
 
@@ -418,7 +432,7 @@ begin
       end case;
    end process;
 
-   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, easter_msg, ramp_enabled)
+   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, ramp_enabled)
    begin
       rx_ack        <= '0';
       tx_rdy        <= '0';
@@ -467,16 +481,6 @@ begin
                             end if;
                             tx_data <= error_msg;
 
-         when TX_EASTER =>  if(tx_busy = '0') then
-                               tx_rdy       <= '1';
-                               tx_count_ena <= '1';
-                            end if;
-                            if(tx_count = EASTER_MSG_LEN - 1) then
-                               tx_count_ena <= '1';
-                               tx_count_clr <= '1';
-                            end if;
-                            tx_data <= easter_msg;
-
          when RX_CMD1 =>    rx_ack       <= '1';
                             tx_count_ena <= '1';
                             tx_count_clr <= '1';
@@ -485,6 +489,16 @@ begin
          when FIXED_DAC_TEST => if(ramp_enabled = '0') then   -- only turn on fixed dac when ramp is off
                                    fixed_dac_ena <= '1';
                                 end if;
+         when RAMP_OFF_MSG  => 
+                            if (tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = RAMP_OFF_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;   
+                            tx_data <= ramp_msg;
 
          when RAMP_DAC_TEST =>  ramp_dac_ena <= '1';
 
@@ -524,6 +538,7 @@ begin
    ac_dac_ramp1 : ac_dac_ramp
       port map(rst_i       => rst,
                clk_i       => clk,
+               clk_4_i     => clk_4,
                en_i        => ramp_dac_ena,
                done_o      => ramp_dac_done,
                
