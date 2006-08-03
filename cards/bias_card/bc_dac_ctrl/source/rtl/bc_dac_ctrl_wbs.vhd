@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.5 2005/03/05 01:37:20 mandana Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.6 2006/08/01 18:23:33 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.6  2006/08/01 18:23:33  bburger
+-- Bryce:  removed component declarations from header files and moved them to source files
+--
 -- Revision 1.5  2005/03/05 01:37:20  mandana
 -- fixed the problem with first data being read twice
 --
@@ -64,7 +67,6 @@ use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 library work;
-use work.ac_dac_ctrl_wbs_pack.all;
 use work.bc_dac_ctrl_pack.all;
 
 entity bc_dac_ctrl_wbs is        
@@ -111,21 +113,7 @@ architecture rtl of bc_dac_ctrl_wbs is
    type states is (IDLE, WR, RD1, RD2); 
    signal current_state    : states;
    signal next_state       : states;
-
-   component tpram_32bit_x_64
-   PORT
-   (
-      data        : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-      wraddress   : IN STD_LOGIC_VECTOR (COL_ADDR_WIDTH-1 DOWNTO 0);
-      rdaddress_a : IN STD_LOGIC_VECTOR (COL_ADDR_WIDTH-1 DOWNTO 0);
-      rdaddress_b : IN STD_LOGIC_VECTOR (COL_ADDR_WIDTH-1 DOWNTO 0);
-      wren        : IN STD_LOGIC  := '1';
-      clock       : IN STD_LOGIC ;
-      qa          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-      qb          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
-   );
-   end component;
-   
+  
 begin
    
    flux_fb_ram : tpram_32bit_x_64
