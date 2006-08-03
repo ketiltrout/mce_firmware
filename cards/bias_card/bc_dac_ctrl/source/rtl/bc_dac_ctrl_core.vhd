@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.8 2006/04/07 22:02:21 bburger Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.8.2.1 2006/06/06 21:10:54 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.8.2.1  2006/06/06 21:10:54  mandana
+-- fixed a critical warning with asynchronous bias_changed and flux_fb_changed
+--
 -- Revision 1.8  2006/04/07 22:02:21  bburger
 -- Bryce:  Bug Fix:  Added integer ranges to dac_count and clk_count.  Quartus 5.1 was messing up the synthsis without these ranges.
 --
@@ -70,12 +73,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
---use ieee.std_logic_unsigned.all;
 
 library sys_param;
-use sys_param.wishbone_pack.all;
-use sys_param.general_pack.all;
-use sys_param.data_types_pack.all;
 use sys_param.command_pack.all;
 
 library components;
@@ -83,7 +82,6 @@ use components.component_pack.all;
 
 library work;
 use work.bc_dac_ctrl_pack.all;
-use work.frame_timing_pack.all;
 
 entity bc_dac_ctrl_core is
    port
