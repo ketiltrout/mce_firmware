@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.37 2006/07/11 18:24:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.38 2006/08/02 16:24:41 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/07/11 18:24:26 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/08/02 16:24:41 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.38  2006/08/02 16:24:41  bburger
+-- Bryce:  trying to fixed occasional wb bugs in issue_reply
+--
 -- Revision 1.37  2006/07/11 18:24:26  bburger
 -- Bryce:  Added a debug port
 --
@@ -125,7 +128,7 @@ architecture rtl of reply_translator is
    
    type fibre_state is        
       (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, ST_ER_REPLY, REPLY_ER, DATA_FRAME, LD_PREAMBLE1,  LD_PREAMBLE2,
-       LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, WAIT_Q_WORD1, WAIT_Q_WORD2, WAIT_Q_WORD3, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE);
+       LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, WAIT_Q_WORD1, WAIT_Q_WORD2, WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE);
        
    signal fibre_current_state : fibre_state;
    signal fibre_next_state    : fibre_state;
@@ -421,6 +424,9 @@ begin
          fibre_next_state <= WAIT_Q_WORD3;
 
       when WAIT_Q_WORD3 =>
+         fibre_next_state <= WAIT_Q_WORD4;
+
+      when WAIT_Q_WORD4 =>
          -- and fibre_tx_busy_i = '0' Don't check for busy here, because its done in all other states.
          if (fibre_word_rdy_i  = '1') then 
             fibre_next_state <= LD_DATA;
@@ -472,7 +478,6 @@ begin
       fibre_tx_dat_o   <= (others => '0');      
       reply_argument   <= (others => '0');
       reply_status     <= (others => '0');      
-      reply_status     <= (others => '0');     
       
       case fibre_current_state is
       -- Idle state - no packets to process      
@@ -587,7 +592,7 @@ begin
             -- Do not transmit a status word if an RB was successful or if returning DATA
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
             if((cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (mop_rdy_data = '1')) then
-               null;
+               fibre_tx_rdy_o <= '0';
             else
                fibre_tx_rdy_o <= '1';
             end if;
@@ -602,7 +607,7 @@ begin
             -- Do not transmit a data word if an RB was unsuccessful
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
             if(cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
-               null;
+               fibre_tx_rdy_o <= '0';
             else
                fibre_tx_rdy_o <= '1';
             end if;
@@ -626,6 +631,9 @@ begin
           null;
 
        when WAIT_Q_WORD3  => 
+          null;
+
+       when WAIT_Q_WORD4  => 
           null;
 
        when ACK_Q_WORD =>
