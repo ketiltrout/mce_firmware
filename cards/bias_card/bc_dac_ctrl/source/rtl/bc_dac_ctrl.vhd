@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl.vhd,v 1.5 2005/01/04 19:19:47 bburger Exp $
+-- $Id: bc_dac_ctrl.vhd,v 1.6 2005/01/17 23:01:04 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,10 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl.vhd,v $
+-- Revision 1.6  2005/01/17 23:01:04  mandana
+-- removed mem_clk_i
+-- read from RAM is performed in 2 clk_i cycles, added an extra state for read
+--
 -- Revision 1.5  2005/01/04 19:19:47  bburger
 -- Mandana: changed mictor assignment to 0 to 31 and swapped odd and even pods
 --
@@ -55,8 +59,6 @@ use ieee.std_logic_arith.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
-use sys_param.general_pack.all;
-use sys_param.data_types_pack.all;
 use sys_param.command_pack.all;
 
 library components;
@@ -64,9 +66,6 @@ use components.component_pack.all;
 
 library work;
 use work.bc_dac_ctrl_pack.all;
-use work.bc_dac_ctrl_core_pack.all;
-use work.bc_dac_ctrl_wbs_pack.all;
-use work.frame_timing_pack.all;
 
 entity bc_dac_ctrl is
    port

@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.9 2006/03/02 20:14:41 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.10 2006/06/05 22:59:45 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.10  2006/06/05 22:59:45  mandana
+-- reorganized pack files and now uses all_cards_pack, leds are set to green on only
+--
 -- Revision 1.9  2006/03/02 20:14:41  mandana
 -- added frame_timing component declaration as a consequence of integrating new frame_timing block
 -- added FPGA_thermo component declaration
@@ -74,6 +77,47 @@ library work;
 use work.bc_dac_ctrl_pack.all;
 
 package bias_card_pack is
+
+component bc_dac_ctrl
+   port
+   (
+      -- DAC hardware interface:
+      -- There are 32 DAC channels, thus 32 serial data/cs/clk lines.
+      flux_fb_data_o    : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);   
+      flux_fb_ncs_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
+      flux_fb_clk_o     : out std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);      
+      bias_data_o       : out std_logic;
+      bias_ncs_o        : out std_logic;
+      bias_clk_o        : out std_logic;      
+      dac_nclr_o        : out std_logic;
+      
+      -- wishbone interface:
+      dat_i                   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                  : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                   : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                    : in std_logic;
+      stb_i                   : in std_logic;
+      cyc_i                   : in std_logic;
+      dat_o                   : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                   : out std_logic;
+      
+      -- frame_timing signals
+      update_bias_i     : in std_logic;
+      
+      -- Global Signals      
+      clk_i             : in std_logic;
+      rst_i             : in std_logic;
+      debug             : inout std_logic_vector(31 downto 0)      
+   );     
+end component;
+
+component bc_pll
+port(inclk0 : in std_logic;
+     c0 : out std_logic;
+     c1 : out std_logic;
+     c2 : out std_logic;
+     c3 : out std_logic);
+end component;
 
 component bias_card
    port(

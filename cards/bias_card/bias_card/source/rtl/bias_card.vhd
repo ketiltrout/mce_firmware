@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.25 2006/04/07 23:15:42 bburger Exp $
+-- $Id: bias_card.vhd,v 1.26 2006/06/05 22:59:45 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.26  2006/06/05 22:59:45  mandana
+-- reorganized pack files and now uses all_cards_pack, leds are set to green on only
+--
 -- Revision 1.25  2006/04/07 23:15:42  bburger
 -- Bryce:  Commital for v01030004
 --
@@ -250,13 +253,6 @@ signal slot_id_err       : std_logic;
 signal update_bias : std_logic; 
 
 signal debug       : std_logic_vector (31 downto 0);
-
-component bc_pll
-port(inclk0 : in std_logic;
-     c0 : out std_logic;
-     c1 : out std_logic;
-     c2 : out std_logic);
-end component;
 
 begin
    

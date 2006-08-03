@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_self_test.vhd,v 1.5 2005/02/01 01:08:52 mandana Exp $
+-- $Id: bias_card_self_test.vhd,v 1.1 2005/02/14 21:59:34 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Mandana Amiri
@@ -29,8 +29,11 @@
 -- self-test blocks to create the packets and feed them in to bias card
 --
 -- Revision history:
--- <date $Date: 2005/02/01 01:08:52 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/02/14 21:59:34 $>    - <initials $Author: mandana $>
 -- $Log: bias_card_self_test.vhd,v $
+-- Revision 1.1  2005/02/14 21:59:34  mandana
+-- moved from tb directory
+--
 -- Revision 1.5  2005/02/01 01:08:52  mandana
 -- added comment for the delay value, i, to be adjusted for simulation vs. hardware test
 --
@@ -61,11 +64,9 @@ use sys_param.wishbone_pack.all;
 use sys_param.data_types_pack.all;
 
 library work;
-use work.dispatch_pack.all;
-use work.leds_pack.all;
-use work.frame_timing_pack.all;
+use work.bias_card_pack.all;
+use work.all_cards_pack.all;
 use work.bc_dac_ctrl_pack.all;
-use work.async_pack.all;
 
 entity bias_card_self_test is
    port(
@@ -116,7 +117,8 @@ entity bias_card_self_test is
       dip_sw3    : in std_logic;
       dip_sw4    : in std_logic;
       wdog       : out std_logic;
---      slot_id    : in std_logic_vector(3 downto 0);
+   --   slot_id    : in std_logic_vector(3 downto 0);
+      card_id    : inout std_logic;
       
       -- debug ports:
       test       : inout std_logic_vector(16 downto 3);
@@ -135,8 +137,9 @@ signal dac_data_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 
 -- clocks
 signal clk      : std_logic;
-signal mem_clk  : std_logic;
+signal clk_25   : std_logic;
 signal comm_clk : std_logic;
+signal clk_n    : std_logic;
 
 signal rst      : std_logic;
 
@@ -158,6 +161,11 @@ signal bc_dac_ack        : std_logic;
 signal frame_timing_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 signal frame_timing_ack  : std_logic;
 signal slave_err         : std_logic;
+signal id_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal id_thermo_ack     : std_logic;
+signal eeprom_spi_out    : std_logic_vector( 2 downto 0);
+signal eeprom_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+signal eeprom_ack        : std_logic;
 
 -- frame_timing interface
 signal update_bias : std_logic; 
@@ -185,13 +193,6 @@ component packet_ram
 	);
 end component;
 
-component bc_pll
-port(inclk0 : in std_logic;
-     c0 : out std_logic;
-     c1 : out std_logic;
-     c2 : out std_logic);
-end component;
-
 begin
 
    bc_slot_id      <= "1110";
@@ -214,8 +215,9 @@ begin
    pll0: bc_pll
    port map(inclk0 => inclk,
             c0 => clk,
-            c1 => mem_clk,
-            c2 => comm_clk);
+            c1 => comm_clk,
+            c2 => clk_n,
+            c3 => clk_25);
             
    cmd0: dispatch
       port map(
@@ -236,8 +238,54 @@ begin
          ack_i                      => slave_ack,
          err_i                      => slave_err,      
          wdt_rst_o                  => wdog,
-         slot_i                     => bc_slot_id
+         slot_i                     => bc_slot_id,
+         dip_sw3                    => '1',
+         dip_sw4                    => '1'         
       );
+   eeprom_ctrl0: eeprom_ctrl
+      port map(
+         -- global signals      
+         rst_i                      => rst,                         
+         clk_25_i                   => clk_25,
+         clk_50_i                   => clk,
+              			
+         -- Wishbone signals to/from dispatch   
+         dat_i                      => data,
+         addr_i                     => addr,
+         tga_i                      => tga,
+         we_i                       => we,
+         stb_i                      => stb,
+         cyc_i                      => cyc,
+         dat_o                      => eeprom_data,
+         ack_o                      => eeprom_ack,
+            
+         -- SPI interface to AT25   =>
+         eeprom_spi_o               => eeprom_spi_out,
+         eeprom_spi_i               => eeprom_si
+      );   
+      -- breakout the signals
+      eeprom_so  <= eeprom_spi_out(0);
+      eeprom_sck <= eeprom_spi_out(1);
+      eeprom_cs  <= eeprom_spi_out(2);
+      
+   id_thermo0: id_thermo
+      port map(
+         clk_i                      => clk,
+         rst_i                      => rst,  
+         
+         -- Wishbone signals
+         dat_i 	                    => data, 
+         addr_i  		    => addr,
+         tga_i   		    => tga,
+         we_i    		    => we,
+         stb_i   		    => stb,
+         cyc_i   		    => cyc,
+         dat_o   		    => id_thermo_data,
+         ack_o   		    => id_thermo_ack,
+            
+         -- silicon id/temperature chip signals
+         data_io                    => card_id
+       );
             
    leds_slave: leds
       port map(
@@ -315,7 +363,7 @@ begin
          ack_o                      => frame_timing_ack,
          
          clk_i                      => clk,
-         mem_clk_i                  => mem_clk,
+         clk_n_i                    => clk_n,
          rst_i                      => rst,
          sync_i                     => lvds_sync
       );
@@ -325,6 +373,8 @@ begin
          led_data          when LED_ADDR,
          bc_dac_data       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_data when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         id_thermo_data    when CARD_ID_ADDR | CARD_TEMP_ADDR,
+         eeprom_data       when EEPROM_ADDR  | EEPROM_SRT_ADDR,
          (others => '0')   when others;
 
    with addr select
@@ -332,11 +382,15 @@ begin
          led_ack          when LED_ADDR,
          bc_dac_ack       when FLUX_FB_ADDR | BIAS_ADDR,
          frame_timing_ack when ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         id_thermo_ack    when CARD_ID_ADDR | CARD_TEMP_ADDR,
+         eeprom_ack       when EEPROM_ADDR  | EEPROM_SRT_ADDR,
          '0'              when others;
          
    with addr select
       slave_err <= 
-         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         '0'              when LED_ADDR | FLUX_FB_ADDR | BIAS_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | SAMPLE_DLY_ADDR | 
+                               SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR|
+                               CARD_ID_ADDR | CARD_TEMP_ADDR | EEPROM_ADDR  | EEPROM_SRT_ADDR, 
          '1'              when others;        
 -------------------------------------------------------------------------------
 

@@ -28,8 +28,11 @@
 -- Description:
 -- taken from 
 -- Revision history:
--- <date $Date: 2005/01/27 00:21:40 $>    - <initials $Author: mandana $>
+-- <date $Date: 2005/03/14 21:30:20 $>    - <initials $Author: bburger $>
 -- $Log: tb_clk_bias_card.vhd,v $
+-- Revision 1.5  2005/03/14 21:30:20  bburger
+-- bryce:  commital for a new tag:  cc_v01010003
+--
 -- Revision 1.4  2005/01/27 00:21:40  mandana
 -- ttl_nrx, ttl_tx, ttl_txena type change from vector to std_logic
 --
@@ -88,7 +91,7 @@ architecture tb of tb_clk_bias_card is
    signal fibre_tx_clk : std_logic := '0';
    signal fibre_rx_clk : std_logic := '0';
    signal lvds_clk_i   : std_logic := '0'; 
-   constant clk_period          : TIME := 20 ns;    -- 50Mhz clock
+   constant clk_period          : TIME := 40 ns;    -- 25Mhz clock
    constant comm_clk_period     : TIME := 5 ns;
    constant mem_clk_period      : TIME := 5 ns;
    constant fibre_clk_period    : TIME := 40 ns;
@@ -118,6 +121,8 @@ architecture tb of tb_clk_bias_card is
    constant flux_fdbck_cmd     : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & FLUX_FB_ADDR;
    constant bias_cmd           : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & BIAS_ADDR;
    constant led_cmd            : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & LED_ADDR;
+   constant eeprom_srt_cmd     : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & EEPROM_SRT_ADDR;
+   constant eeprom_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1        & x"00" & EEPROM_ADDR;
    constant sram1_strt_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD         & x"00" & SRAM1_STRT_ADDR;
    constant on_bias_cmd        : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & ON_BIAS_ADDR;
    constant off_bias_cmd       : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD       & x"00" & OFF_BIAS_ADDR;
@@ -421,67 +426,7 @@ begin
          rs232_rx   => bc_rs232_rx,
          rs232_tx   => bc_rs232_tx
       );     
-   
---   i_addr_card : addr_card
---      port map(
---         -- simulation signals
---         clk              => clk,         
---         mem_clk          => mem_clk,     
---         comm_clk         => comm_clk,       
---   
---         -- PLL input:
---         inclk            => inclk,
---         rst_n            => rst_n,
---         
---         -- LVDS interface:
---         lvds_cmd         => lvds_cmd,  
---         lvds_sync        => lvds_sync, 
---         lvds_spare       => lvds_spare,
---         lvds_txa         => lvds_reply_ac_a, 
---         lvds_txb         => lvds_reply_ac_b, 
---         
---         -- TTL interface:
---         ttl_nrx          => ttl_nrx,  
---         ttl_tx           => ttl_tx,   
---         ttl_txena        => ttl_txena,
---         
---         -- eeprom interface:
---         eeprom_si        => ac_eeprom_si, 
---         eeprom_so        => ac_eeprom_so, 
---         eeprom_sck       => ac_eeprom_sck,
---         eeprom_cs        => ac_eeprom_cs, 
---         
---         -- dac interface:
---         dac_data0        => dac_data0,  
---         dac_data1        => dac_data1,  
---         dac_data2        => dac_data2,  
---         dac_data3        => dac_data3,  
---         dac_data4        => dac_data4,  
---         dac_data5        => dac_data5,  
---         dac_data6        => dac_data6,  
---         dac_data7        => dac_data7,  
---         dac_data8        => dac_data8,  
---         dac_data9        => dac_data9,  
---         dac_data10       => dac_data10, 
---         dac_clk          => dac_clk,    
---         
---         -- miscellaneous ports:
---         red_led          => ac_red_led, 
---         ylw_led          => ac_ylw_led, 
---         grn_led          => ac_grn_led, 
---         dip_sw3          => ac_dip_sw3, 
---         dip_sw4          => ac_dip_sw4, 
---         wdog             => ac_wdog,    
---         slot_id          => ac_slot_id, 
---         
---         -- debug ports:
---         test             => test,       
---         mictor           => mictor,     
---         mictorclk        => mictorclk,  
---         rs232_rx         => ac_rs232_rx,
---         rs232_tx         => ac_rs232_tx
---   );
-   
+      
    -- set up hotlink receiver signals 
    fibre_rx_rvs    <= '0';  -- no violation
    fibre_rx_status <= '1';  -- status ok
@@ -492,15 +437,7 @@ begin
    -- Create test bench clock
    -------------------------------------------------
    inclk        <= not inclk        after clk_period/2;
---   clk          <= not clk          after clk_period/2;
---   comm_clk     <= not comm_clk     after comm_clk_period/2;
---   mem_clk      <= not mem_clk      after mem_clk_period/2;
---   fibre_clk    <= not fibre_clk    after fibre_clk_period/2;
---   fibre_tx_clk <= not fibre_tx_clk after fibre_tx_clk_period/2;
---   fibre_rx_clk <= not fibre_rx_clk after fibre_rx_clk_period/2;
---   lvds_clk_i   <= not lvds_clk_i   after lvds_clk_period/2;
-   fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
-   
+   fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;   
    ------------------------------------------------
    -- Create test bench stimuli
    -------------------------------------------------
@@ -816,10 +753,9 @@ begin
 --      
 --      wait for 50 us;
 ----------------------------------------------------------
--- bc_dac_ctrl commands
+-- all_cards commands for bc
 ------------------------------------------------------      
       -- turn LEDs off
-<<<<<<< tb_clk_bias_card.vhd
 --      command <= command_wb;
 --      address_id <= led_cmd;
 --      data_valid <= X"00000001"; --1 values
@@ -831,7 +767,6 @@ begin
 --      wait for 50 us;
       
       -- turn LEDs on
-=======
 --      command <= command_wb;
 --      address_id <= led_cmd;
 --      data_valid <= X"00000001"; --1 values
@@ -841,55 +776,42 @@ begin
 --      load_checksum;
       
 --      wait for 50 us;
---      
---      -- turn LEDs on
->>>>>>> 1.3
---      command <= command_wb;
---      address_id <= led_cmd;
---      data_valid <= X"00000001"; --1 values
---      data       <= X"00000007";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 50 us;
---      
---      -- load values to 32 flux DACs
-      command <= command_wb;
-      address_id <= flux_fdbck_cmd;
-      data_valid <= X"00000020"; --32 values
-      data       <= X"55AA55AA";
+-- 
+      -- read from eeprom
+      command <= command_rb;
+      address_id <= eeprom_cmd;
+      data_valid <= X"00000005"; --1 values
+      data       <= X"00000001";
       load_preamble;
       load_command;
       load_checksum;
       
-<<<<<<< tb_clk_bias_card.vhd
---      wait for 50 us;
-    
-    -- load values to 32 flux DACs
-      command <= command_wb;
-      address_id <= flux_fdbck_cmd;
-      data_valid <= X"00000020"; --32 values
-      data       <= X"55AA55AA";
-      load_preamble;
-      load_command;
-      load_checksum;
-    
-      wait for 150 us;
-=======
       wait for 50 us;
+----------------------------------------------------------
+-- bc_dac_ctrl commands
+------------------------------------------------------      
 
-     -- read back 32 flux DACs values
-     command <= command_rb;
-     address_id <= flux_fdbck_cmd;
-     data_valid <= X"00000020";
-     data       <= X"00000000";
-     load_preamble;
-     load_command;
-     load_checksum;
-     
+     -- load values to 32 flux DACs
+--      command <= command_wb;
+--      address_id <= flux_fdbck_cmd;
+--      data_valid <= X"00000020"; --32 values
+--      data       <= X"55AA55AA";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--    
+--      wait for 150 us;
+--
+--     -- read back 32 flux DACs values
+--     command <= command_rb;
+--     address_id <= flux_fdbck_cmd;
+--     data_valid <= X"00000020";
+--     data       <= X"00000000";
+--     load_preamble;
+--     load_command;
+--     load_checksum;
+--     
 --     wait for 50 us;
->>>>>>> 1.3
 
       --load values to the single Bias DAC
 --      command <= command_wb;
@@ -912,75 +834,7 @@ begin
       
 --      wait for 150 us;
  
---------------------------------------------------------
--- ac_dac_ctrl commands
-------------------------------------------------------      
       
-     -- This is a 'WB ac on_bias 0 1 2 .. 40' command
-     -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
---     command <= command_wb;
---     address_id <= on_bias_cmd;
---     data_valid <= X"00000029"; --41 values
---     data       <= X"00000000";
---     load_preamble;
---     load_command;
---     load_checksum;
-     
---     wait for 300 us;
---
---      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
---      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
---      command <= command_rb;
---      address_id <= on_bias_cmd;
---      data_valid <= X"00000029"; --41 values
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 400 us;
---
---      -- This is a 'WB ac on_bias 0 1 2 .. 40' command
---      -- This command should excercise the Address Card's wbs_ac_dac_ctrl block
---      command <= command_wb;
---      address_id <= row_order_cmd;
---      data_valid <= X"00000029"; --41 values
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 200 us;
---
---      command <= command_wb;
---      address_id <= enbl_mux_cmd;
---      data_valid <= X"00000001"; --1 value
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 120 us;
---
---      command <= command_wb;
---      address_id <= enbl_mux_cmd;
---      data_valid <= X"00000001"; --1 value
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 120 us;
---
---      command <= command_wb;
---      address_id <= enbl_mux_cmd;
---      data_valid <= X"00000001"; --1 value
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      
---      wait for 400 us;
 
       assert false report "Simulation done." severity FAILURE;
    end process stimuli;   
