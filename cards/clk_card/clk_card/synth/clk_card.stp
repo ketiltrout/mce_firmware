@@ -2,20 +2,9 @@
   <display_tree gui_logging_enabled="0">
     <display_branch instance="auto_signaltap_0" signal_set="USE_GLOBAL_TEMP" trigger="USE_GLOBAL_TEMP"/>
   </display_tree>
-  <instance entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
-    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="3"/>
-    <position_info>
-      <single attribute="active tab" value="0"/>
-      <single attribute="data horizontal scroll position" value="44"/>
-      <single attribute="data vertical scroll position" value="0"/>
-      <single attribute="setup horizontal scroll position" value="0"/>
-      <single attribute="setup vertical scroll position" value="0"/>
-      <single attribute="zoom level denominator" value="1"/>
-      <single attribute="zoom level numerator" value="4096"/>
-      <single attribute="zoom offset denominator" value="2"/>
-      <single attribute="zoom offset numerator" value="21"/>
-    </position_info>
-    <signal_set global_temp="1" name="signal_set: 2006/06/30 15:03:49  #0">
+  <instance compilation_mode="full" entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="4"/>
+    <signal_set global_temp="1" is_expanded="true" name="signal_set: 2006/06/30 15:03:49  #0">
       <clock name="clk_switchover:clk_switchover_inst|cc_pll:pll0|c0" polarity="posedge"/>
       <config ram_type="AUTO" reserved_data_nodes="0" reserved_trigger_nodes="0" sample_depth="16384" trigger_in_enable="no" trigger_out_enable="no"/>
       <top_entity/>
@@ -567,19 +556,32 @@
           <net is_signal_inverted="no" name="frame_timing:frame_timing_slave|restart_frame_aligned_o"/>
         </data_view>
       </presentation>
-      <trigger CRC="30226433" global_temp="1" name="trigger: 2006/06/30 15:03:49  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+      <trigger global_temp="1" is_expanded="true" name="trigger: 2006/06/30 15:03:49  #1" position="pre" segment_size="1" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
         <events>
           <level enabled="yes" type="basic">'fibre_rx_sc_nd' == either edge
+            
             <op_node/>
           </level>
         </events>
+        <power_up_trigger/>
       </trigger>
     </signal_set>
+    <position_info>
+      <single attribute="active tab" value="0"/>
+      <single attribute="data horizontal scroll position" value="44"/>
+      <single attribute="data vertical scroll position" value="0"/>
+      <single attribute="setup horizontal scroll position" value="0"/>
+      <single attribute="setup vertical scroll position" value="0"/>
+      <single attribute="zoom level denominator" value="1"/>
+      <single attribute="zoom level numerator" value="4096"/>
+      <single attribute="zoom offset denominator" value="2"/>
+      <single attribute="zoom offset numerator" value="21"/>
+    </position_info>
   </instance>
   <mnemonics/>
   <global_info>
     <single attribute="active instance" value="0"/>
     <multi attribute="column width" size="18" value="34,34,703,74,68,70,88,100,101,101,101,101,101,101,101,101,107,78"/>
-    <multi attribute="window position" size="9" value="1263,813,398,124,0,99,0,0,0"/>
+    <multi attribute="window position" size="9" value="776,407,398,124,0,99,0,0,1"/>
   </global_info>
 </session>

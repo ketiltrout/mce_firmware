@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.28 2006/07/01 00:05:31 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.29 2006/07/11 00:46:56 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.29  2006/07/11 00:46:56  bburger
+-- Bryce:  Removed the cmd_sent logic because that signal is irrelevant now that the interlock between cmd_queue and cmd_translator has been removed.
+--
 -- Revision 1.28  2006/07/01 00:05:31  bburger
 -- Bryce:  added active_clk, sync_box_err and sync_box_free_run interface signals -- and now these signals are reported in the data frame header.
 --
@@ -391,6 +394,10 @@ begin
          reg_o      => issue_sync_num
       );
       
+
+--   error_code_o <= "0" & error_code;
+
+   -- No need to register the error code here because it is registered in reply_queue_sequencer
    error_code_o <= "0" & status_q;
    status_reg : reg
       generic map(

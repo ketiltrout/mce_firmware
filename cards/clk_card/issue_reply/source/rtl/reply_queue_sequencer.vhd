@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.19  2006/07/07 00:43:23  bburger
+-- Bryce:  finished writing the logic for detecting timeouts due to execution errors vs. timeouts due to card not present.
+--
 -- Revision 1.18  2006/02/02 00:32:59  mandana
 -- datasize_reg_q calculations trimmed to less number of bits
 --
@@ -115,7 +118,7 @@ port(clk_i      : in std_logic;
 end component;
 
 type seq_states is (IDLE, WAIT_FOR_REPLY, READ_AC, READ_BC1, READ_BC2, READ_BC3, MATCHED, TIMED_OUT, 
-                    READ_RC1, READ_RC2, READ_RC3, READ_RC4, READ_CC, DONE, STATUS_WORD);
+                    READ_RC1, READ_RC2, READ_RC3, READ_RC4, READ_CC, DONE, STATUS_WORD, LATCH_ERROR, ERROR_WAIT1, ERROR_WAIT2);
 signal pres_state       : seq_states;
 signal next_state       : seq_states;
 
@@ -629,13 +632,22 @@ begin
                   rc2_rdy = '1' and 
                   rc3_rdy = '1' and 
                   rc4_rdy = '1')) then
-                  next_state <= MATCHED;
+                  next_state <= LATCH_ERROR;
                elsif(timeout = '1') then
                   next_state <= TIMED_OUT;
                else
                   next_state <= WAIT_FOR_REPLY;
                end if;
+			
+			when LATCH_ERROR =>
+               next_state <= ERROR_WAIT1;
+
+			when ERROR_WAIT1 =>
+               next_state <= ERROR_WAIT2;
                                     
+			when ERROR_WAIT2 =>
+               next_state <= MATCHED;
+
          when MATCHED =>        
                next_state <= STATUS_WORD;
                                          
@@ -759,7 +771,7 @@ begin
             end if;
 
          when TIMED_OUT =>      
-            next_state <= MATCHED;
+            next_state <= LATCH_ERROR;
          
          when STATUS_WORD =>
             -- If the status word is acknowledged
@@ -861,9 +873,15 @@ begin
       
          when WAIT_FOR_REPLY => 
             timeout_clr      <= '0';
+
+			when LATCH_ERROR =>
+            update_status    <= '1';
+
+			when ERROR_WAIT1 =>
+                                    
+			when ERROR_WAIT2 =>
                              
          when MATCHED =>        
-            update_status    <= '1';
             matched_o        <= '1';
          
          when READ_AC =>        

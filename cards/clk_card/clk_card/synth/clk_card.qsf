@@ -34,7 +34,7 @@
 set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION 4.2
+set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
@@ -497,8 +497,8 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC OFF
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
-set_global_assignment -name FITTER_EFFORT "FAST FIT"
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
 
 # Timing Analysis Assignments
 # ===========================
@@ -510,7 +510,7 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-
 
 # Simulator Assignments
 # =====================
-set_global_assignment -name GLITCH_INTERVAL 1
+set_global_assignment -name GLITCH_INTERVAL "1 ns"
 
 # Design Assistant Assignments
 # ============================
@@ -528,7 +528,7 @@ set_global_assignment -name USE_SIGNALTAP_FILE clk_card_reply_tx_bug.stp
 
 # LogicLock Region Assignments
 # ============================
-set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
+set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 # ---------------
 # start CLOCK(c0)
@@ -575,7 +575,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
+set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
 	set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 
 # end CLOCK(inclk)
@@ -587,7 +587,6 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 	# Timing Assignments
 	# ==================
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk14
-	set_instance_assignment -name SETUP_RELATIONSHIP "30 ns" -from "issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_*" -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|*"
 	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk15
 
 	# Analysis & Synthesis Assignments
