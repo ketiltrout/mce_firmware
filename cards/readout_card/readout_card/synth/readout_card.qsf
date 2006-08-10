@@ -471,7 +471,7 @@ set_global_assignment -name AUTO_ENABLE_SMART_COMPILE OFF
 
 # Fitter Assignments
 # ==================
-set_global_assignment -name DEVICE EP1S40F780C6
+set_global_assignment -name DEVICE EP1S30F780C5
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET OFF
 set_global_assignment -name CRC_ERROR_CHECKING ON
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
@@ -1204,3 +1204,4 @@ set_location_assignment PIN_C12 -to rx
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 set_global_assignment -name EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ON -section_id eda_simulation
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
+set_global_assignment -name CDF_FILE ../../../../../jrunner/nios.cdf
