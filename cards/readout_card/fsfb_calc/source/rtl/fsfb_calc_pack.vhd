@@ -34,6 +34,9 @@
 -- Revision history:
 -- 
 -- $Log: fsfb_calc_pack.vhd,v $
+-- Revision 1.13  2006/07/28 17:41:52  mandana
+-- introduced FILTER_GAIN_WIDTH parameter to divide by 32 between 2 filter biquads
+--
 -- Revision 1.12  2006/07/20 18:49:56  mandana
 -- merged from ACT_100Hz_cutoff branch which includes 4-pole filter
 -- changed FILTER_LOCK_LSB_POS to 12
@@ -112,7 +115,7 @@ package fsfb_calc_pack is
    constant FILTER_LOCK_LSB_POS    : integer := 12;            -- scaling factor for the input to the filter chain
                                                                -- a sliding window of the 66b result is used as the filter input
    constant FILTER_SCALE_LSB       : integer := 1;
-   constant FILTER_GAIN_WIDTH      : integer := 5;            -- 1/2^5 is the gain scaling between two filter stages.
+   constant FILTER_GAIN_WIDTH      : integer := 11;            -- 1/2^11 is the gain scaling between two filter stages.
  
    constant FILTER_INPUT_WIDTH     : integer := 29;            -- number of bits in the input NOT USED 
    constant FILTER_COEF_WIDTH      : integer := 15;            -- number of bits in the coefficient
