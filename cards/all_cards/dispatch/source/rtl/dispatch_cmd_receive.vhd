@@ -21,8 +21,8 @@
 --
 -- dispatch_cmd_receive.vhd
 --
--- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Project:       SCUBA-2
+-- Author:         Ernie Lin
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: dispatch_cmd_receive.vhd,v $
+-- Revision 1.22  2006/05/04 23:11:23  mandana
+-- added integer range for crc_num_words
+--
 -- Revision 1.21  2006/01/16 20:02:48  bburger
 -- Ernie:   Added dip_sw interfaces to introduce artifical crc rx/tx errors on the busbackplan.  This feature is for testing purposes only.
 --
@@ -119,7 +122,7 @@ use sys_param.command_pack.all;
 entity dispatch_cmd_receive is
 port(clk_i      : in std_logic;
      comm_clk_i : in std_logic;
-     rst_i      : in std_logic;		
+     rst_i      : in std_logic;     
      
      lvds_cmd_i : in std_logic;
      card_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -250,7 +253,8 @@ begin
                          (header1(BB_CARD_ADDRESS'range) = ALL_CARDS) or 
                          (header1(BB_CARD_ADDRESS'range) = ALL_FPGA_CARDS) or
                          (header1(BB_CARD_ADDRESS'range) = ALL_BIAS_CARDS and (card_i = BIAS_CARD_1 or card_i = BIAS_CARD_2 or card_i = BIAS_CARD_3)) or
-                         (header1(BB_CARD_ADDRESS'range) = ALL_READOUT_CARDS and (card_i = READOUT_CARD_1 or card_i = READOUT_CARD_2 or card_i = READOUT_CARD_3 or card_i = READOUT_CARD_4))
+                         (header1(BB_CARD_ADDRESS'range) = ALL_READOUT_CARDS and (card_i = READOUT_CARD_1 or card_i = READOUT_CARD_2 or card_i = READOUT_CARD_3 or card_i = READOUT_CARD_4)) or
+                         (header1(BB_CARD_ADDRESS'range) = POWER_SUPPLY_CARD and (card_i = CLOCK_CARD))
                     else '0';
 
    
