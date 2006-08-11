@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.55 2006/08/01 19:18:46 bburger Exp $
+-- $Id: clk_card.vhd,v 1.56 2006/08/02 16:24:30 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.56  2006/08/02 16:24:30  bburger
+-- Bryce:  trying to fixed occasional wb bugs in issue_reply
+--
 -- Revision 1.55  2006/08/01 19:18:46  bburger
 -- Bryce:  v0200000f
 --
@@ -214,7 +217,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0200000f";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000010";
    
    -- reset
    signal rst                : std_logic;
@@ -696,33 +699,32 @@ begin
                                 --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
          '1'               when others;
 
-
---   psu_ctrl_inst: psu_ctrl 
---   port map(
---      -- Clock and Reset:
---      clk_i   => clk,     
---      clk_n_i => clk_n,     
---      rst_i   => rst,     
---      
---      -- Wishbone Interface:
---      dat_i   => data,     
---      addr_i  => addr,     
---      tga_i   => tga,     
---      we_i    => we,       
---      stb_i   => stb,      
---      cyc_i   => cyc,      
---      dat_o   => psu_ctrl_data,     
---      ack_o   => psu_ctrl_ack,     
---              
---      ------------------------------
---      -- SPI Interface
---      ------------------------------
---      mosi_i  => psdi,     
---      sclk_i  => psclki,     
---      ccss_i  => pscsi,     
---      miso_o  => psdo,     
---      sreq_o  => pscso     
---   );        
+   psu_ctrl_inst: psu_ctrl 
+   port map(
+      -- Clock and Reset:
+      clk_i   => clk,     
+      clk_n_i => clk_n,     
+      rst_i   => rst,     
+      
+      -- Wishbone Interface:
+      dat_i   => data,     
+      addr_i  => addr,     
+      tga_i   => tga,     
+      we_i    => we,       
+      stb_i   => stb,      
+      cyc_i   => cyc,      
+      dat_o   => psu_ctrl_data,     
+      ack_o   => psu_ctrl_ack,     
+              
+      ------------------------------
+      -- SPI Interface
+      ------------------------------
+      mosi_i  => psdi,     
+      sclk_i  => psclki,     
+      ccss_i  => pscsi,     
+      miso_o  => psdo,     
+      sreq_o  => pscso     
+   );        
 
    clk_switchover_inst: clk_switchover
    port map(
