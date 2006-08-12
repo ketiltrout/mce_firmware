@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: psu_ctrl.vhd,v 1.3 2006/07/28 22:40:24 bburger Exp $
+-- $Id: psu_ctrl.vhd,v 1.4 2006/08/01 00:34:38 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: psu_ctrl.vhd,v $
+-- Revision 1.4  2006/08/01 00:34:38  bburger
+-- Bryce:  Interim committal -- this file is in progress
+--
 -- Revision 1.3  2006/07/28 22:40:24  bburger
 -- Bryce:  beginning simulation
 --
@@ -39,6 +42,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+--use ieee.std_logic_unsigned.all;
+use ieee.std_logic_arith.all;
+
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -78,13 +84,15 @@ end psu_ctrl;
 architecture top of psu_ctrl is
 
    -- The size in bits of the status header.
-   constant COMMAND_LENGTH    : integer   := 48;
+   constant COMMAND_LENGTH    : integer   := 64;
    constant STATUS_LENGTH     : integer   := 288;
 
-   constant HIGH              : std_logic := '1';
-   constant LOW               : std_logic := '0';
+   constant HIGH              : std_logic :='1';
+   constant LOW               : std_logic :='0';
    constant INT_ZERO          : integer   := 0;
    constant STATUS_ADDR_WIDTH : integer   := 6; 
+
+   constant SLV_ZERO          : std_logic_vector(WB_DATA_WIDTH-1 downto 0) := (others => '0');
 
    constant ASCII_C    : std_logic_vector(7 downto 0) := "01000011"; 
    constant ASCII_P    : std_logic_vector(7 downto 0) := "01010000"; 
@@ -123,6 +131,9 @@ architecture top of psu_ctrl is
    signal timeout_clr   : std_logic;
    signal timeout_count : integer;
    
+   signal req_reg       : std_logic_vector(3 downto 0);
+   signal req_reg_load  : std_logic;
+   
    -- SPI interface signals
    signal mosi      : std_logic;   -- Master Output/ Slave Input
    signal sclk      : std_logic;   -- Serial Clock
@@ -134,6 +145,7 @@ architecture top of psu_ctrl is
    -- RAM interface signals
    signal status_wren : std_logic;
    signal status_addr : std_logic_vector(STATUS_ADDR_WIDTH-1 downto 0);
+   signal bit_ctr_count_slv : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal status_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
    -- FSM inputs
@@ -152,29 +164,50 @@ architecture top of psu_ctrl is
    signal bit_ctr_count        : integer range 0 to STATUS_LENGTH;
    signal bit_ctr_ena          : std_logic; -- enables the counter which controls the enable line to the CRC block.  The counter should only be functional when there is a to calculate.
    signal bit_ctr_load         : std_logic; --Not part of the interface to the crc block; enables sh_reg and bit_ctr.
+   signal bit_capture          : std_logic;
    
    -- Shift Register Signals
    signal spi_tx_word         : std_logic_vector(COMMAND_LENGTH-1 downto 0);
+   signal spi_rx_word         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 begin
 
    ------------------------------------------------------------
    -- PSC Status RAM
    ------------------------------------------------------------
+   bit_ctr_count_slv <= std_logic_vector(conv_unsigned(bit_ctr_count, WB_DATA_WIDTH));
+   status_addr <= bit_ctr_count_slv(STATUS_ADDR_WIDTH+5-1 downto 5);
    status_ram : tpram_32bit_x_64
    port map
    (
-      data              => dat_i,
+      data              => spi_rx_word,
       wren              => status_wren,
-      wraddress         => tga_i      (STATUS_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
-      rdaddress_a       => status_addr(STATUS_ADDR_WIDTH-1 downto 0),
+      wraddress         => status_addr(STATUS_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
+      rdaddress_a       => tga_i      (STATUS_ADDR_WIDTH-1 downto 0),
       rdaddress_b       => tga_i      (STATUS_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
       clock             => clk_i,
       qa                => status_data,
       qb                => open
    );
 
-   sh_reg: shift_reg
+   sh_reg_rx: shift_reg
+   generic map(
+      WIDTH      => WB_DATA_WIDTH
+   )   
+   port map(
+      clk_i      => clk_i,
+      rst_i      => rst_i,
+      ena_i      => bit_capture,       
+      load_i     => bit_ctr_load,      
+      clr_i      => LOW,    
+      shr_i      => LOW,        
+      serial_i   => mosi, 
+      serial_o   => open,  
+      parallel_i => SLV_ZERO, 
+      parallel_o => spi_rx_word
+   );
+
+   sh_reg_tx: shift_reg
    generic map(
       WIDTH      => COMMAND_LENGTH
    )   
@@ -184,7 +217,7 @@ begin
       ena_i      => bit_ctr_ena,       
       load_i     => bit_ctr_load,      
       clr_i      => LOW,    
-      shr_i      => HIGH,        
+      shr_i      => LOW,        
       serial_i   => LOW, 
       serial_o   => miso_o,  
       parallel_i => spi_tx_word, 
@@ -225,24 +258,31 @@ begin
          cycle_pow_req <= '0';
          cut_pow_req   <= '0';
          update_status <= '0';
+         req_reg       <= (others => '0');
          
       elsif(clk_i'event and clk_i = '1') then
          if(brst_mce_set = '1') then
-            brst_mce_req  <= '1';
+            brst_mce_req <= '1';
          elsif(brst_mce_clr = '1') then
-            brst_mce_req  <= '0';
+            brst_mce_req <= '0';
+         else
+            brst_mce_req <= brst_mce_req;
          end if;
          
          if(cycle_pow_set = '1') then
             cycle_pow_req <= '1';
          elsif(cycle_pow_clr = '1') then
             cycle_pow_req <= '0';
+         else
+            cycle_pow_req <= cycle_pow_req;
          end if;
          
          if(cut_pow_set = '1') then
-            cut_pow_req   <= '1';
+            cut_pow_req <= '1';
          elsif(cut_pow_clr = '1') then
-            cut_pow_req   <= '0';
+            cut_pow_req <= '0';
+         else
+            cut_pow_req <= cut_pow_req;
          end if;
          
          -- Status Block is updated at 200 Hz
@@ -250,6 +290,14 @@ begin
             update_status <= '1';
          elsif(status_done = '1') then
             update_status <= '0';
+         else
+            update_status <= update_status;
+         end if;
+         
+         if(req_reg_load = '1') then
+            req_reg <= brst_mce_req & cycle_pow_req & cut_pow_req & update_status;
+         else
+            req_reg <= req_reg;
          end if;
          
       end if;
@@ -299,38 +347,38 @@ begin
       end if;
    end process state_FF;
    
-   out_state_NS: process(current_out_state, brst_mce_req, cycle_pow_req, cut_pow_req, update_status, bit_ctr_count, sclk)
+   out_state_NS: process(current_out_state, brst_mce_req, cycle_pow_req, cut_pow_req, update_status, bit_ctr_count, sclk, ccss)
    begin
       -- Default assignments
       next_out_state <= current_out_state;
       
       case current_out_state is
          when IDLE =>
-            if(brst_mce_req = '1') then
-               next_out_state <= TX_RX;
-            elsif(cycle_pow_req = '1') then
-               next_out_state <= TX_RX;
-            elsif(cut_pow_req = '1') then
-               next_out_state <= TX_RX;
-            elsif(update_status = '1') then
+            if(brst_mce_req = '1' or cycle_pow_req = '1' or cut_pow_req = '1' or update_status = '1') then
                next_out_state <= TX_RX;
             end if;
           
          -- For sending brst, power-cycle or power-shutdown commands and retrieving status block simultaneously
          when TX_RX =>
-            next_out_state <= CLK_LOW;
+            -- This statement prevents us from entering a tx/rx state if a transmission is in progress
+            -- and the sclk='0' requirment retimes this FSM to the PSUC clock.
+            if(ccss = '1' and sclk = '0') then
+               next_out_state <= CLK_LOW;
+            end if;
          
          when CLK_LOW =>
+            -- 3=brst_mce, 2=cycle_pow, 1=cut_pow, 0=update_status
+            -- We are done tx/rx after the falling edge of the last bit received
+            -- Note that for every command sent, the status block must be received in its entirety.
+            -- This is why we don't just wait until bit_ctr_count = COMMAND_LENGTH 
             if(bit_ctr_count = STATUS_LENGTH) then
                next_out_state <= DONE;
-            elsif(sclk = '1') then
+            elsif(ccss = '0' and sclk = '1') then
                next_out_state <= CLK_HIGH;
             end if;            
             
          when CLK_HIGH =>
-            if(bit_ctr_count = STATUS_LENGTH) then
-               next_out_state <= DONE;
-            elsif(sclk = '0') then
+            if(ccss = '0' and sclk = '0') then
                next_out_state <= CLK_LOW;
             end if;            
          
@@ -343,56 +391,90 @@ begin
       end case;
    end process out_state_NS;
 
-   out_state_out: process(current_out_state, brst_mce_req, cycle_pow_req, cut_pow_req, update_status, bit_ctr_count, sclk)
+   out_state_out: process(current_out_state, brst_mce_req, cycle_pow_req, cut_pow_req, update_status, bit_ctr_count, sclk, req_reg, ccss)
    begin
       -- Default assignments
       sreq_o        <= '0'; -- Active High?
       spi_tx_word   <= (others => '0');
-      bit_ctr_ena   <= '0';
-      bit_ctr_load  <= '0';
+      
+      bit_ctr_ena   <= '1';
+      bit_ctr_load  <= '1';
+      bit_capture   <= '0';
       
       brst_mce_clr  <= '0';
       cycle_pow_clr <= '0';
       cut_pow_clr   <= '0';
       timeout_clr   <= '0';
       status_done   <= '0';
+      
+      req_reg_load  <= '0';
+
+      status_wren   <= '0';
+--      status_addr   <= (others => '0');
 
       case current_out_state is         
          when IDLE  =>                   
+--            status_addr   <= (others => '0');
+            if(brst_mce_req = '1' or cycle_pow_req = '1' or cut_pow_req = '1' or update_status = '1') then
+               req_reg_load <= '1';
+            end if;
             
          -- For sending brst, power-cycle or power-shutdown commands only
          when TX_RX =>
-            bit_ctr_load <= '1';
-            bit_ctr_ena  <= '1';
-            if(brst_mce_req = '1') then
-               spi_tx_word  <= ASCII_R & ASCII_M & ASCII_R & ASCII_M & ASCII_R & ASCII_M;
-            elsif(cycle_pow_req = '1') then
-               spi_tx_word  <= ASCII_C & ASCII_P & ASCII_C & ASCII_P & ASCII_C & ASCII_P;
-            elsif(cut_pow_req = '1') then
-               spi_tx_word  <= ASCII_T & ASCII_O & ASCII_T & ASCII_O & ASCII_T & ASCII_O;
-            elsif(update_status = '1') then
+--            status_addr   <= (others => '0');
+            -- 3=brst_mce, 2=cycle_pow, 1=cut_pow, 0=update_status
+            if(req_reg(3) = '1') then
+               spi_tx_word  <= ASCII_R & ASCII_M & ASCII_R & ASCII_M & ASCII_R & ASCII_M & ASCII_R & ASCII_M;
+            elsif(req_reg(2) = '1') then
+               spi_tx_word  <= ASCII_C & ASCII_P & ASCII_C & ASCII_P & ASCII_C & ASCII_P & ASCII_C & ASCII_P;
+            elsif(req_reg(1) = '1') then
+               spi_tx_word  <= ASCII_T & ASCII_O & ASCII_T & ASCII_O & ASCII_T & ASCII_O & ASCII_T & ASCII_O;
+            elsif(req_reg(0) = '1') then
                spi_tx_word  <= (others => '0');
             end if;
 
          when CLK_LOW =>
-            sreq_o <= '1';
-            if(bit_ctr_count = STATUS_LENGTH) then
-               null;
-            elsif(sclk = '1') then
-               bit_ctr_ena <= '1';
-            end if;            
+            bit_ctr_ena  <= '0';
+            bit_ctr_load <= '0';
+            sreq_o       <= '1';   
 
+            -- If all the status bits have been received, don't capture crap
+            if(bit_ctr_count >= STATUS_LENGTH) then null;
+            -- Otherwise capture the next bit of the status block on the rising edge of sclk
+            elsif(ccss = '0' and sclk = '1') then
+               bit_capture   <= '1';
+            end if;
+            
          when CLK_HIGH =>
-            sreq_o <= '1';
+            bit_ctr_ena  <= '0';
+            bit_ctr_load <= '0';
+            sreq_o       <= '1';
+            
+            -- If all the command bits have been transmitted, we transmit zeros
+            if(bit_ctr_count >= STATUS_LENGTH) then null;
+            -- Otherwise latch out the next bit of the command on the falling edge of sclk
+            elsif(ccss = '0' and sclk = '0') then
+               bit_ctr_ena <= '1';
+
+               -- if we've captured 32 bits, then store the word in the status block RAM
+               -- we do this in the clk low state because counter is incremented as we enter this state
+               if(bit_ctr_count mod WB_DATA_WIDTH = 31) then
+                  status_wren <= '1';
+--                  status_addr <= status_addr + "000001";
+               end if;
+            end if;
          
+
          when DONE =>
-            if(brst_mce_req = '1') then
+--            status_addr   <= (others => '0');
+            -- 3=brst_mce, 2=cycle_pow, 1=cut_pow, 0=update_status
+            if(req_reg(3) = '1') then
                brst_mce_clr  <= '1';
-            elsif(cycle_pow_req = '1') then
+            elsif(req_reg(2) = '1') then
                cycle_pow_clr <= '1';
-            elsif(cut_pow_req = '1') then
+            elsif(req_reg(1) = '1') then
                cut_pow_clr   <= '1';
-            elsif(update_status = '1') then
+            elsif(req_reg(0) = '1') then
                timeout_clr <= '1';
                status_done <= '1';
             end if;
@@ -448,8 +530,6 @@ begin
       brst_mce_set  <= '0';
       cycle_pow_set <= '0';
       cut_pow_set   <= '0';
-      status_wren   <= '0';
-      status_addr   <= (others => '0');
       
       case current_state is         
          when IDLE  =>                   
