@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.20  2006/08/05 00:53:30  bburger
+-- Bryce:  v0200000f with bug correction
+--
 -- Revision 1.19  2006/07/07 00:43:23  bburger
 -- Bryce:  finished writing the logic for detecting timeouts due to execution errors vs. timeouts due to card not present.
 --
@@ -458,19 +461,37 @@ begin
       elsif(clk_i'event and clk_i = '1') then
          if(update_status = '1') then
             -- The Carnot Maps for this logic are Bryce Burger's SCUBA2 Logbook #8
+            -- no_reply_yet indicates that a card that was supposed to respond has not sent a reply yet
             no_reply_yet     <= (no_reply_yet and (((not cards_to_reply) and wrong_cards) or ((not cards_rdy) and (not wrong_cards))));
+            -- timeout_not_pop indicates that a card has timed out because it is not populated.  The Clock Card assumes a card is not populated until the first response from that card
             timeout_not_pop  <= (cards_to_reply and (not cards_rdy) and no_reply_yet and (not wrong_cards));
+            -- timeout_error can occur after the Clock Card has received a successful response from a card.
+            -- timeout_error indicates that the receiver has not received an answer from a card that was supposed to reply because it is populated. 
             timeout_error    <= (cards_to_reply and (not cards_rdy) and (not no_reply_yet) and (not wrong_cards)) or ((not cards_to_reply) and cards_rdy and wrong_cards);
+            -- wrong_cards indicates that the wrong card has responded to the command.
             wrong_cards      <= (half_done_error and (not cards_to_reply));
+            -- cumulative_error is any sort of error that is not due to a card not being populated or a wishbone error.
             cumulative_error <= card_error or timeout_error;
          end if;      
       end if;
    end process;
 
-   card_error       <= ac_error(1) & bc1_error(1) & bc2_error(1) & bc3_error(1) & rc1_error(1) & rc2_error(1) & rc3_error(1) & rc4_error(1) & cc_error(1) & '0';
-   half_done_error  <= ac_error(2) & bc1_error(2) & bc2_error(2) & bc3_error(2) & rc1_error(2) & rc2_error(2) & rc3_error(2) & rc4_error(2) & cc_error(2) & '0';
-   cards_rdy        <= ac_rdy & bc1_rdy & bc2_rdy & bc3_rdy & rc1_rdy & rc2_rdy & rc3_rdy & rc4_rdy & cc_rdy & '0';
-   cards_to_reply   <=
+   -- The card-error bit is set if the receiver has detected any sort of CRC error over the backplane in either direction
+   card_error <= 
+      ac_error(1) & bc1_error(1) & bc2_error(1) & bc3_error(1) & rc1_error(1) & rc2_error(1) & rc3_error(1) & rc4_error(1) & '0' & cc_error(1) when (card_addr_i = POWER_SUPPLY_CARD) else
+      ac_error(1) & bc1_error(1) & bc2_error(1) & bc3_error(1) & rc1_error(1) & rc2_error(1) & rc3_error(1) & rc4_error(1) & cc_error(1) & '0';
+   
+   -- The half-done bit is set if the receiver has started receiving something, but has not finished
+   half_done_error <= 
+      ac_error(2) & bc1_error(2) & bc2_error(2) & bc3_error(2) & rc1_error(2) & rc2_error(2) & rc3_error(2) & rc4_error(2) & '0' & cc_error(2) when (card_addr_i = POWER_SUPPLY_CARD) else
+      ac_error(2) & bc1_error(2) & bc2_error(2) & bc3_error(2) & rc1_error(2) & rc2_error(2) & rc3_error(2) & rc4_error(2) & cc_error(2) & '0';
+   
+   -- Note the two last bits are both "cc_rdy" because the Power Supply Controller is a sub-block of the Clock Card
+   cards_rdy <= 
+      ac_rdy & bc1_rdy & bc2_rdy & bc3_rdy & rc1_rdy & rc2_rdy & rc3_rdy & rc4_rdy & '0' & cc_rdy when (card_addr_i = POWER_SUPPLY_CARD) else
+      ac_rdy & bc1_rdy & bc2_rdy & bc3_rdy & rc1_rdy & rc2_rdy & rc3_rdy & rc4_rdy & cc_rdy & '0';
+   
+   cards_to_reply <=
       "0000000000" when (card_addr_i = NO_CARDS) else
       "0000000001" when (card_addr_i = POWER_SUPPLY_CARD) else
       "0000000010" when (card_addr_i = CLOCK_CARD) else
@@ -581,7 +602,7 @@ begin
    end process state_FF;
    
    state_NS: process(pres_state, timeout, cmd_valid_i, card_addr_i, err_rdy, cmd_type_i, ack_i,
-                     ac_rdy,  bc1_rdy,  bc2_rdy,  bc3_rdy,  rc1_rdy,  rc2_rdy,  rc3_rdy,  rc4_rdy,  cc_rdy)
+                     ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy)
    begin
       -- Default Assignments
       next_state <= pres_state;
@@ -595,24 +616,16 @@ begin
             end if;
                                  
          when WAIT_FOR_REPLY => 
-            if((card_addr_i = CLOCK_CARD and 
-                  cc_rdy = '1') or
-               (card_addr_i = ADDRESS_CARD and 
-                  ac_rdy = '1') or
-               (card_addr_i = BIAS_CARD_1 and 
-                  bc1_rdy = '1') or
-               (card_addr_i = BIAS_CARD_2 and 
-                  bc2_rdy = '1') or
-               (card_addr_i = BIAS_CARD_3 and 
-                  bc3_rdy = '1') or
-               (card_addr_i = READOUT_CARD_1 and 
-                  rc1_rdy = '1') or
-               (card_addr_i = READOUT_CARD_2 and 
-                  rc2_rdy = '1') or
-               (card_addr_i = READOUT_CARD_3 and 
-                  rc3_rdy = '1') or
-               (card_addr_i = READOUT_CARD_4 and 
-                  rc4_rdy = '1') or
+            if((card_addr_i = CLOCK_CARD and cc_rdy = '1') or
+               (card_addr_i = POWER_SUPPLY_CARD and cc_rdy = '1') or
+               (card_addr_i = ADDRESS_CARD and ac_rdy = '1') or
+               (card_addr_i = BIAS_CARD_1 and bc1_rdy = '1') or
+               (card_addr_i = BIAS_CARD_2 and bc2_rdy = '1') or
+               (card_addr_i = BIAS_CARD_3 and bc3_rdy = '1') or
+               (card_addr_i = READOUT_CARD_1 and rc1_rdy = '1') or
+               (card_addr_i = READOUT_CARD_2 and rc2_rdy = '1') or
+               (card_addr_i = READOUT_CARD_3 and rc3_rdy = '1') or
+               (card_addr_i = READOUT_CARD_4 and rc4_rdy = '1') or
                (card_addr_i = ALL_BIAS_CARDS and 
                   bc1_rdy = '1' and 
                   bc2_rdy = '1' and 
@@ -779,7 +792,7 @@ begin
                -- If there is data to read
                if(cmd_type_i = READ_CMD) then
                   case card_addr_i is
-                     when CLOCK_CARD => 
+                     when CLOCK_CARD | POWER_SUPPLY_CARD => 
                         next_state <= READ_CC;
                      when BIAS_CARD_1 | ALL_BIAS_CARDS =>    
                         next_state <= READ_BC1;
