@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_switchover.vhd,v 1.3 2006/06/19 17:22:47 bburger Exp $
+-- $Id: clk_switchover.vhd,v 1.4 2006/06/30 22:07:12 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_switchover.vhd,v $
+-- Revision 1.4  2006/06/30 22:07:12  bburger
+-- Bryce:  Corrected an error with the wren signal and added the active_clk status signal to the interface
+--
 -- Revision 1.3  2006/06/19 17:22:47  bburger
 -- Bryce:  added wishbone slave functionality
 --
@@ -48,7 +51,6 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 library sys_param;
---use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
 
 entity clk_switchover is
@@ -66,9 +68,6 @@ entity clk_switchover is
       rst_i               : in std_logic;
       xtal_clk_i          : in std_logic; -- Crystal Clock Input
       manch_clk_i         : in std_logic; -- Manchester Clock Input
-      manch_det_i         : in std_logic;
-      switch_to_xtal_i    : in std_logic;
-      switch_to_manch_i   : in std_logic;
       active_clk_o        : out std_logic;
       e2_o                : out std_logic;
       c0_o                : out std_logic;
@@ -103,11 +102,11 @@ architecture top of clk_switchover is
       );
    end component;   
 
-   constant XTAL_CLK               : std_logic := '1';
-   constant MANCH_CLK              : std_logic := '0';
+   constant XTAL_CLK               : std_logic := '0';
+   constant MANCH_CLK              : std_logic := '1';
 
    -- Clock Switchover and PLL signals/states
-   type states is (CRYSTAL_CLK, MANCHESTER_CLK, SWITCHING, RELOCKING);
+   type states is (CRYSTAL_CLK, MANCHESTER_CLK, SWITCHING_2_CRYSTAL, SWITCHING_2_MANCHESTER);
    signal ps, ns : states;
 
    signal activeclock     : std_logic;
@@ -255,31 +254,41 @@ begin
       end if;
    end process;
 
-   process(ps, xtal_clk_bad, manch_clk_bad, activeclock, select_clk_wren, input_data)-- switch_to_manch_i, switch_to_xtal_i,
+   process(ps, xtal_clk_bad, manch_clk_bad, activeclock, select_clk_wren, input_data)
    begin
       -- Default Assignment
       ns <= ps;
       
       case ps is
          when CRYSTAL_CLK => 
-            if(activeclock = XTAL_CLK) then
+            if(activeclock = MANCH_CLK) then
                ns <= MANCHESTER_CLK;
---            elsif(switch_to_manch_i = '1') then
             elsif(select_clk_wren = '1' and input_data = MANCH_CLK) then
                if(manch_clk_bad = '0') then
-                  ns <= CRYSTAL_CLK;
+                  ns <= SWITCHING_2_MANCHESTER;
                end if;
             end if;
 
-         when MANCHESTER_CLK =>   
+         -- This state is required because it takes 2 clock cycles for clkswitch being asserted to trigger a switch
+         when SWITCHING_2_MANCHESTER =>
             if(activeclock = MANCH_CLK) then
+               ns <= MANCHESTER_CLK;
+            end if;           
+
+         when MANCHESTER_CLK =>   
+            if(activeclock = XTAL_CLK) then
                ns <= CRYSTAL_CLK;
---            elsif(switch_to_xtal_i = '1') then
             elsif(select_clk_wren = '1' and input_data = XTAL_CLK) then
                if(xtal_clk_bad = '0') then
-                  ns <= MANCHESTER_CLK;
+                  ns <= SWITCHING_2_CRYSTAL;
                end if;
             end if;
+
+         -- This state is required because it takes 2 clock cycles for clkswitch being asserted to trigger a switch
+         when SWITCHING_2_CRYSTAL =>   
+            if(activeclock = XTAL_CLK) then
+               ns <= CRYSTAL_CLK;
+            end if;           
 
          when others =>      
             ns <= CRYSTAL_CLK;
@@ -287,28 +296,20 @@ begin
       end case;
    end process;
 
-   process(ps, xtal_clk_bad, activeclock, manch_clk_bad, select_clk_wren, input_data)-- switch_to_manch_i, switch_to_xtal_i,
+   process(ps)
    begin
       clkswitch <= '0';
 
       case ps is        
          when CRYSTAL_CLK => 
-            if(activeclock = XTAL_CLK) then
---            elsif(switch_to_manch_i = '1') then
-            elsif(select_clk_wren = '1' and input_data = MANCH_CLK) then
-               if(manch_clk_bad = '0') then
-                  clkswitch <= '1';
-               end if;
-            end if;
+
+         when SWITCHING_2_MANCHESTER =>
+            clkswitch <= '1';
 
          when MANCHESTER_CLK =>   
-            if(activeclock = MANCH_CLK) then
---            elsif(switch_to_xtal_i = '1') then
-            elsif(select_clk_wren = '1' and input_data = XTAL_CLK) then
-               if(xtal_clk_bad = '0') then
-                  clkswitch <= '1';
-               end if;
-            end if;
+
+         when SWITCHING_2_CRYSTAL =>   
+            clkswitch <= '1';
          
          when others => null;
          
