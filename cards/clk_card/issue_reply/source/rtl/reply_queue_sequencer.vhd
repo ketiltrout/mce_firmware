@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.21  2006/08/12 00:01:21  bburger
+-- Bryce:  Added Power Supply Controller communications flags to the status word
+--
 -- Revision 1.20  2006/08/05 00:53:30  bburger
 -- Bryce:  v0200000f with bug correction
 --
@@ -121,7 +124,7 @@ port(clk_i      : in std_logic;
 end component;
 
 type seq_states is (IDLE, WAIT_FOR_REPLY, READ_AC, READ_BC1, READ_BC2, READ_BC3, MATCHED, TIMED_OUT, 
-                    READ_RC1, READ_RC2, READ_RC3, READ_RC4, READ_CC, DONE, STATUS_WORD, LATCH_ERROR, ERROR_WAIT1, ERROR_WAIT2);
+                    READ_RC1, READ_RC2, READ_RC3, READ_RC4, READ_CC, DONE, STATUS_WORD, LATCH_ERROR, ERROR_WAIT1, ERROR_WAIT2, ERROR_WAIT3);
 signal pres_state       : seq_states;
 signal next_state       : seq_states;
 
@@ -448,7 +451,7 @@ begin
    -- Status Word Registers
    ---------------------------------------------------------   
 --   status <= no_reply_yet and cards_to_reply;
-   
+
    status_word_ff: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -459,19 +462,29 @@ begin
          timeout_error       <= (others => '0');
          cumulative_error    <= (others => '0');
       elsif(clk_i'event and clk_i = '1') then
-         if(update_status = '1') then
+         -- Cascaded logic
+         -- The states are for sequential stages of the logic
+         if(pres_state = LATCH_ERROR) then
             -- The Carnot Maps for this logic are Bryce Burger's SCUBA2 Logbook #8
+            -- wrong_cards indicates that the wrong card has responded to the command.
+            wrong_cards      <= (half_done_error and (not cards_to_reply));
+            -- cumulative_error is any sort of error that is not due to a card not being populated or a wishbone error.
+            cumulative_error <= card_error or timeout_error;
+         elsif(pres_state = ERROR_WAIT1) then
             -- no_reply_yet indicates that a card that was supposed to respond has not sent a reply yet
             no_reply_yet     <= (no_reply_yet and (((not cards_to_reply) and wrong_cards) or ((not cards_rdy) and (not wrong_cards))));
+         elsif(pres_state = ERROR_WAIT2) then
             -- timeout_not_pop indicates that a card has timed out because it is not populated.  The Clock Card assumes a card is not populated until the first response from that card
             timeout_not_pop  <= (cards_to_reply and (not cards_rdy) and no_reply_yet and (not wrong_cards));
             -- timeout_error can occur after the Clock Card has received a successful response from a card.
             -- timeout_error indicates that the receiver has not received an answer from a card that was supposed to reply because it is populated. 
             timeout_error    <= (cards_to_reply and (not cards_rdy) and (not no_reply_yet) and (not wrong_cards)) or ((not cards_to_reply) and cards_rdy and wrong_cards);
-            -- wrong_cards indicates that the wrong card has responded to the command.
-            wrong_cards      <= (half_done_error and (not cards_to_reply));
-            -- cumulative_error is any sort of error that is not due to a card not being populated or a wishbone error.
-            cumulative_error <= card_error or timeout_error;
+         else
+            no_reply_yet        <= no_reply_yet;
+            wrong_cards         <= wrong_cards;
+            timeout_not_pop     <= timeout_not_pop;
+            timeout_error       <= timeout_error;
+            cumulative_error    <= cumulative_error;
          end if;      
       end if;
    end process;
@@ -659,6 +672,9 @@ begin
                next_state <= ERROR_WAIT2;
                                     
 			when ERROR_WAIT2 =>
+               next_state <= ERROR_WAIT3;
+
+			when ERROR_WAIT3 =>
                next_state <= MATCHED;
 
          when MATCHED =>        
@@ -894,6 +910,8 @@ begin
                                     
 			when ERROR_WAIT2 =>
                              
+			when ERROR_WAIT3 =>
+
          when MATCHED =>        
             matched_o        <= '1';
          
