@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.35 2006/06/09 22:17:55 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.36 2006/06/19 17:27:07 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/06/09 22:17:55 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/06/19 17:27:07 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.36  2006/06/19 17:27:07  bburger
+-- Bryce:  removed unused sync_pulse_i signal from interfaces
+--
 -- Revision 1.35  2006/06/09 22:17:55  bburger
 -- Bryce:  Modified to output the correct frame sequence number -- internal or manchester
 --
@@ -339,7 +342,7 @@ begin
                ret_dat_stop_reg_en  <= '1'; -- grab ret_dat_stop_i;
                next_state           <= RETURN_DATA_LAST;
             elsif(external_dv_i = '1') then
-               if(current_seq_num = stop_seq_num_i) then
+               if(current_seq_num >= stop_seq_num_i) then
                   next_state        <= RETURN_DATA_LAST;
                else
                   next_state        <= RETURN_DATA;
@@ -352,7 +355,6 @@ begin
                next_state           <= RETURN_DATA_LAST;
             elsif (current_seq_num >= stop_seq_num_i) then
                next_state           <= RETURN_DATA_LAST;
-            
             else
                next_state           <= RETURN_DATA;
             end if;
@@ -375,7 +377,7 @@ begin
    -- Assign values
    ------------------------------------------------------------------------------------------- 
    process(current_state, ack_i, ret_dat_start, ret_dat_start_i, ret_dat_stop_reg, external_dv_i, 
-      sync_number_i, start_seq_num_i, current_seq_num_reg, current_sync_num_reg, data_rate_i, external_dv_num_i, dv_mode_i)
+      sync_number_i, start_seq_num_i, current_seq_num_reg, current_sync_num_reg, data_rate_i)
    begin
       -- default assignments
       ret_dat_cmd_valid                <= '0';
@@ -447,11 +449,11 @@ begin
                reg_en                  <= '1';
                current_sync_num        <= sync_number_i + 1;
                
-               if(dv_mode_i = DV_EXTERNAL_MANCHESTER) then
-                  current_seq_num      <= external_dv_num_i;
-               else
-                  current_seq_num      <= current_seq_num_reg + 1;
-               end if;
+--               if(dv_mode_i = DV_EXTERNAL_MANCHESTER) then
+--                  current_seq_num      <= external_dv_num_i;
+--               else
+               current_seq_num      <= current_seq_num_reg + 1;
+--               end if;
             end if;
          
          when RETURN_DATA_PAUSE =>
