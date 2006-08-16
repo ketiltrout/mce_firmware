@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: dv_rx.vhd,v 1.11 2006/05/30 00:53:37 bburger Exp $
+-- $Id: dv_rx.vhd,v 1.12 2006/06/30 22:08:21 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: dv_rx.vhd,v $
+-- Revision 1.12  2006/06/30 22:08:21  bburger
+-- Bryce:  Cleaned up the file, added sync_box_err and sync_box_free_run status signals to the interface
+--
 -- Revision 1.11  2006/05/30 00:53:37  bburger
 -- Bryce:  Interim committal
 --
@@ -106,7 +109,7 @@ architecture top of dv_rx is
    ---------------------------------------------------------
    -- Signal Declarations
    ---------------------------------------------------------
-   type states is (IDLE, FIBRE_DV_HIGH, FIBRE_DV_LOW, WAIT_FOR_SYNC, SYNC_ARRIVED, MANCH_DV_RCVD, MANCH_DV_ACK);   
+   type states is (IDLE, FIBRE_DV_HIGH, FIBRE_DV_LOW, MANCH_DV_RCVD, MANCH_DV_ACK);   
    signal current_state, next_state : states;
    
    type m_states is (IDLE, RX_1, RX_2, DONE);   
@@ -130,23 +133,29 @@ architecture top of dv_rx is
    signal manch_sync       : std_logic;
    signal manch_dv         : std_logic;
 
-   --00’, followed by a 32 bit number, followed by 6 spare bits
+   --00, followed by 6 spare bits, followed by a 32 bit number
    signal rx_buf_ena       : std_logic;
    
    signal sample_count     : std_logic_vector(7 downto 0);
    signal sample_count_ena : std_logic;
    signal sample_count_clr : std_logic;
 
+   signal dv_sequence_num  : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+   signal reg_en           : std_logic;
+   
 begin
 
    ---------------------------------------------------------
    -- Continuous Assignments
    ---------------------------------------------------------
+   -- manch_sync and manch_dv are active low
    manch_sync          <= manch_reg(39);
    manch_dv            <= manch_reg(38);
+   
+   -- sync_box_free_run_o, sync_box_err_o and dv_sequence_num_o bits are active high
    sync_box_free_run_o <= manch_reg(36);
    sync_box_err_o      <= manch_reg(35);
-   dv_sequence_num_o   <= manch_reg(31 downto 0);
+   dv_sequence_num_o   <= dv_sequence_num;
 
    ---------------------------------------------------------
    -- double synchronizer for dv_dat_i and manchester_dat_i:
@@ -167,15 +176,16 @@ begin
    process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
-         dv_dat         <= '0';      
-         manch_dat      <= '0';    
-         manch_det      <= '0';
-         manch_reg      <= (others => '0');
+         dv_dat          <= '0';      
+         manch_dat       <= '0';    
+         manch_det       <= '0';
+         manch_reg       <= (others => '0');
+         dv_sequence_num <= (others => '0');
          
       elsif(clk_i'event and clk_i = '1') then
-         dv_dat         <= dv_dat_temp;
-         manch_dat      <= manch_dat_temp;
-         manch_det      <= manch_det_temp;
+         dv_dat          <= dv_dat_temp;
+         manch_dat       <= manch_dat_temp;
+         manch_det       <= manch_det_temp;
          
          if (manch_reg_en = '1') then
             manch_reg <= manch_word;
@@ -183,6 +193,12 @@ begin
             manch_reg <= manch_reg;
          end if;
          
+			if(reg_en = '1') then
+			   dv_sequence_num <= manch_reg(DV_NUM_WIDTH-1 downto 0);
+			else
+			   dv_sequence_num <= dv_sequence_num;
+			end if;
+
       end if;
    end process;
 
@@ -190,9 +206,7 @@ begin
    -- Manchester receiver
    ---------------------------------------------------------
    rx_buffer: shift_reg
-   generic map(
-      WIDTH => MANCHESTER_WORD_WIDTH
-   )
+   generic map(WIDTH => MANCHESTER_WORD_WIDTH)
    port map(
       clk_i      => clk_i,
       rst_i      => rst_i,
@@ -217,9 +231,7 @@ begin
       clear_i => sample_count_clr,
       count_i => (others => '0'),
       count_o => sample_count
-   );
-   
-   
+   );   
 
    manch_ns: process(current_m_state, manch_dat, sample_count, manch_det)
    begin
@@ -338,14 +350,23 @@ begin
       end case;
    end process dv_ns;
    
-   dv_out: process(current_state, manch_dv)
+   dv_out: process(current_state, manch_dv, dv_mode_i, manch_rdy)
    begin
       -- Default Assignments
       dv_o       <= '0';
+      reg_en     <= '0';
     
       case current_state is
          
          when IDLE =>
+            if(dv_mode_i = DV_EXTERNAL_MANCHESTER) then
+               if(manch_rdy = '1') then
+						-- Latch the DV sequence number only if a DV pulse has been received
+						if(manch_dv = '0') then
+						   reg_en <= '1';
+						end if;
+               end if;
+            end if;
 
          when FIBRE_DV_HIGH =>
 
@@ -389,7 +410,7 @@ begin
       end case;
    end process sync_ns;
    
-   sync_out: process(current_s_state, manch_sync)
+   sync_out: process(current_s_state)
    begin
       -- Default Assignments
       sync_o <= '0';
@@ -400,7 +421,9 @@ begin
 
          when MANCH_SYNC_RCVD =>
             -- Manchester sync and DV are active low
-            sync_o <= not manch_sync;
+            -- The sync pulse is always included in the manchester packet.
+            -- So I can just assert sync_o, instead of sync_o <= not manch_sync
+            sync_o <= '1';
 
          when MANCH_SYNC_ACK =>
 
