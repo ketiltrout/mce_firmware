@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.56 2006/08/02 16:24:30 bburger Exp $
+-- $Id: clk_card.vhd,v 1.57 2006/08/11 23:57:43 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.57  2006/08/11 23:57:43  bburger
+-- Bryce:  Added the Power Supply Control Wishbone slave
+--
 -- Revision 1.56  2006/08/02 16:24:30  bburger
 -- Bryce:  trying to fixed occasional wb bugs in issue_reply
 --
@@ -84,7 +87,7 @@ use sys_param.data_types_pack.all;
 
 library work;
 use work.leds_pack.all;
-use work.fw_rev_pack.all;
+--use work.fw_rev_pack.all;
 use work.sync_gen_pack.all;
 use work.issue_reply_pack.all;
 use work.cc_reset_pack.all;
@@ -288,6 +291,10 @@ architecture top of clk_card is
    signal select_clk_ack      : std_logic;
    signal psu_ctrl_data       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal psu_ctrl_ack        : std_logic;
+
+   signal fw_rev_err              : std_logic;
+   signal id_thermo_err           : std_logic;
+   signal fpga_thermo_err         : std_logic;
    
    -- lvds_tx interface
    signal sync       : std_logic;
@@ -375,9 +382,6 @@ architecture top of clk_card is
       rst_i               : in std_logic;
       xtal_clk_i          : in std_logic; -- Crystal Clock Input
       manch_clk_i         : in std_logic; -- Manchester Clock Input
-      manch_det_i         : in std_logic;
-      switch_to_xtal_i    : in std_logic;
-      switch_to_manch_i   : in std_logic;
       active_clk_o        : out std_logic;
       e2_o                : out std_logic;
       c0_o                : out std_logic;
@@ -418,6 +422,25 @@ architecture top of clk_card is
    );
    end component;
    
+   component fw_rev
+   generic(REVISION :std_logic_vector (31 downto 0) := X"01010001");
+   port(
+      clk_i   : in std_logic;
+      rst_i   : in std_logic;     
+      
+      -- Wishbone signals
+      dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+      addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i    : in std_logic;
+      stb_i   : in std_logic;
+      cyc_i   : in std_logic;
+      err_o   : out std_logic;
+      dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+      ack_o   : out std_logic
+   );
+   end component;
+
    component fpga_thermo
    port(
       clk_i : in std_logic;
@@ -430,6 +453,7 @@ architecture top of clk_card is
       we_i    : in std_logic;
       stb_i   : in std_logic;
       cyc_i   : in std_logic;
+      err_o   : out std_logic;
       dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic;
       
@@ -451,6 +475,7 @@ architecture top of clk_card is
       we_i    : in std_logic;
       stb_i   : in std_logic;
       cyc_i   : in std_logic;
+      err_o   : out std_logic;
       dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
       ack_o   : out std_logic;
             
@@ -693,10 +718,13 @@ begin
          
    with addr select
       slave_err <= 
-         '0'               when FW_REV_ADDR | LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | 
-                                DATA_RATE_ADDR | CARD_ID_ADDR | CARD_TEMP_ADDR | FPGA_TEMP_ADDR |CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
+         '0'               when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | 
+                                DATA_RATE_ADDR | CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
                                 SELECT_CLK_ADDR | BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR, 
                                 --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+         fw_rev_err        when FW_REV_ADDR,
+         id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
+         fpga_thermo_err   when FPGA_TEMP_ADDR,
          '1'               when others;
 
    psu_ctrl_inst: psu_ctrl 
@@ -741,9 +769,6 @@ begin
       rst_i               => rst,
       xtal_clk_i          => inclk14, -- Crystal Clock Input
       manch_clk_i         => inclk15,  -- Manchester Clock Input
-      manch_det_i         => manchester_sigdet,
-      switch_to_xtal_i    => '0',--switch_to_xtal,
-      switch_to_manch_i   => '0',--switch_to_manch,
       active_clk_o        => active_clk,
       c0_o                => clk,
       c1_o                => clk_n,
@@ -836,6 +861,7 @@ begin
       we_i   => we,
       stb_i  => stb,
       cyc_i  => cyc,
+      err_o  => fw_rev_err,
       dat_o  => fw_rev_data,
       ack_o  => fw_rev_ack
    );
@@ -852,6 +878,7 @@ begin
       we_i    => we,
       stb_i   => stb,
       cyc_i   => cyc,
+      err_o   => id_thermo_err,
       dat_o   => id_thermo_data,
       ack_o   => id_thermo_ack,
          
@@ -871,6 +898,7 @@ begin
       we_i    => we,
       stb_i   => stb,
       cyc_i   => cyc,
+      err_o   => fpga_thermo_err,
       dat_o   => fpga_thermo_data,
       ack_o   => fpga_thermo_ack,
          
