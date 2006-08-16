@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.50 2006/07/01 00:04:25 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.51 2006/07/11 18:22:24 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/07/01 00:04:25 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/07/11 18:22:24 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.51  2006/07/11 18:22:24  bburger
+-- Bryce:  Added a debug port to reply_translator
+--
 -- Revision 1.50  2006/07/01 00:04:25  bburger
 -- Bryce:  added active_clk, sync_box_err and sync_box_free_run interface signals to reply_queue, clk_switchover and dv_rx blocks
 --
@@ -306,6 +309,7 @@ architecture rtl of issue_reply is
       -- dv_rx interface
       sync_box_err_i      : in std_logic;
       sync_box_free_run_i : in std_logic;
+      external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- Bus Backplane interface
       lvds_reply_ac_a   : in std_logic;
@@ -349,7 +353,6 @@ architecture rtl of issue_reply is
       fibre_word_ack_o        : out std_logic;                                                -- asserted to requeset next fibre word
       fibre_word_rdy_i        : in std_logic;
       mop_ack_o               : out std_logic;                                                 -- asserted to indicate to reply queue the the packet has been processed
-
       cmd_stop_i              : in std_logic;
       last_frame_i            : in std_logic;
       frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -689,6 +692,7 @@ begin
          -- dv_rx interface
          sync_box_err_i      => sync_box_err_i,
          sync_box_free_run_i => sync_box_free_run_i,
+         external_dv_num_i   => external_dv_num_i,
 
          -- Bus Backplane interface
          lvds_reply_ac_a     => lvds_reply_ac_a,
