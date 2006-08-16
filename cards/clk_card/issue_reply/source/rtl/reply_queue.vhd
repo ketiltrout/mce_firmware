@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.29 2006/07/11 00:46:56 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.30 2006/08/05 00:53:30 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.30  2006/08/05 00:53:30  bburger
+-- Bryce:  v0200000f with bug correction
+--
 -- Revision 1.29  2006/07/11 00:46:56  bburger
 -- Bryce:  Removed the cmd_sent logic because that signal is irrelevant now that the interlock between cmd_queue and cmd_translator has been removed.
 --
@@ -142,6 +145,7 @@ entity reply_queue is
       -- dv_rx interface
       sync_box_err_i      : in std_logic;
       sync_box_free_run_i : in std_logic;
+      external_dv_num_i   : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
 
       -- Bus Backplane interface
       lvds_reply_ac_a     : in std_logic;
@@ -230,7 +234,7 @@ architecture behav of reply_queue is
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
    type retire_states is (IDLE, LATCH_CMD, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, REPLY, 
       STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, 
-      TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM, TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS);
+      TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM, TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;   
 
@@ -529,6 +533,11 @@ begin
 
          when TX_SYNC_BOX_FR =>
             if(word_count >= 8) then
+               next_retire_state <= TX_DV_NUM;
+            end if;
+
+         when TX_DV_NUM =>
+            if(word_count >= 9) then
                next_retire_state <= TX_HEADER;
             end if;
 
@@ -562,7 +571,7 @@ begin
    
    cmd_sent_o <= matched;
    retire_state_out: process(present_retire_state, ack_i, data, active_clk, sync_box_err, sync_box_free_run, 
-      data_size, par_id, word_count, issue_sync_num, row_len_i, num_rows_i, data_rate_i, frame_seq_num)
+      data_size, par_id, word_count, issue_sync_num, row_len_i, num_rows_i, data_rate_i, frame_seq_num, external_dv_num_i)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -689,6 +698,14 @@ begin
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             data_o          <= "0000000000000000000000000000000" & sync_box_free_run;
+            ena_word_count  <= ack_i;            
+            cmd_rdy         <= '1';
+            cmd_valid_o     <= '1';
+
+         when TX_DV_NUM =>
+            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+            rdy_o           <= '1';
+            data_o          <= external_dv_num_i;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
