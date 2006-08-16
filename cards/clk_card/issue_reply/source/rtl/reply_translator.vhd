@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.38 2006/08/02 16:24:41 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.39 2006/08/03 03:23:14 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/08/02 16:24:41 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/08/03 03:23:14 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.39  2006/08/03 03:23:14  bburger
+-- Bryce:  Trying to fix a bug associated with the error code.  The error code is delayed by one command.
+--
 -- Revision 1.38  2006/08/02 16:24:41  bburger
 -- Bryce:  trying to fixed occasional wb bugs in issue_reply
 --
@@ -210,7 +213,7 @@ begin
             packet_size    <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
             packet_type    <= REPLY;
             status         <= reply_status;
-            crd_add_par_id <= param_id & card_addr;
+            crd_add_par_id <= card_addr & param_id;
             ok_or_er       <= reply_argument;
          
          elsif(fibre_current_state = REPLY_OK) then
@@ -221,7 +224,7 @@ begin
             end if;                 
             packet_type    <= REPLY;
             status         <= reply_status;
-            crd_add_par_id <= param_id & card_addr;
+            crd_add_par_id <= card_addr & param_id;
             ok_or_er       <= reply_argument;
          
          elsif(fibre_current_state = DATA_FRAME) then
