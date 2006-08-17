@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.30 2006/08/05 00:53:30 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.31 2006/08/16 18:08:32 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.31  2006/08/16 18:08:32  bburger
+-- Bryce:  Added the dv sequence number to data frame headers
+--
 -- Revision 1.30  2006/08/05 00:53:30  bburger
 -- Bryce:  v0200000f with bug correction
 --
@@ -568,10 +571,23 @@ begin
             
       end case;
    end process;
-   
+
+   with present_retire_state select
+      data_o <=
+         data                                   when TX_STATUS | TX_SEND_DATA | REPLY,
+         data_rate_i                            when TX_DATA_RATE,
+         conv_std_logic_vector(row_len_i,32)    when TX_ROW_LEN,
+         conv_std_logic_vector(num_rows_i,32)   when TX_NUM_ROWS,
+         issue_sync_num                         when TX_SYNC_NUM,
+         frame_seq_num                          when TX_FRAME_SEQUENCE_NUM,
+         x"0000000" & "000" & active_clk        when TX_ACTIVE_CLK,
+         x"0000000" & "000" & sync_box_err      when TX_SYNC_BOX_ERR,
+         x"0000000" & "000" & sync_box_free_run when TX_SYNC_BOX_FR,
+         external_dv_num_i                      when TX_DV_NUM,
+         (others => '0')                        when others;
+
    cmd_sent_o <= matched;
-   retire_state_out: process(present_retire_state, ack_i, data, active_clk, sync_box_err, sync_box_free_run, 
-      data_size, par_id, word_count, issue_sync_num, row_len_i, num_rows_i, data_rate_i, frame_seq_num, external_dv_num_i)
+   retire_state_out: process(present_retire_state, ack_i, data_size, par_id, word_count)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -586,7 +602,7 @@ begin
       
       size_o          <=  0 ;
       rdy_o           <= '0';
-      data_o          <= (others => '0');
+--      data_o          <= (others => '0');
       
       status_en       <= '0';
       
@@ -613,7 +629,7 @@ begin
             end if;
             
             rdy_o           <= '1';
-            data_o          <= data;
+--            data_o          <= data;
             word_ack        <= ack_i;
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -633,7 +649,7 @@ begin
          when TX_HEADER =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= (others => '0'); --head_q;
+--            data_o          <= (others => '0'); --head_q;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -641,7 +657,7 @@ begin
          when TX_DATA_RATE =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= data_rate_i;
+--            data_o          <= data_rate_i;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -649,7 +665,7 @@ begin
          when TX_ROW_LEN =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= conv_std_logic_vector(row_len_i,32);
+--            data_o          <= conv_std_logic_vector(row_len_i,32);
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -657,7 +673,7 @@ begin
          when TX_NUM_ROWS =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= conv_std_logic_vector(num_rows_i,32);
+--            data_o          <= conv_std_logic_vector(num_rows_i,32);
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -665,7 +681,7 @@ begin
          when TX_SYNC_NUM =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= issue_sync_num;
+--            data_o          <= issue_sync_num;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -673,7 +689,7 @@ begin
          when TX_FRAME_SEQUENCE_NUM =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= frame_seq_num;
+--            data_o          <= frame_seq_num;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -681,7 +697,7 @@ begin
          when TX_ACTIVE_CLK =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= "0000000000000000000000000000000" & active_clk;
+--            data_o          <= "0000000000000000000000000000000" & active_clk;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -689,7 +705,7 @@ begin
          when TX_SYNC_BOX_ERR =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= "0000000000000000000000000000000" & sync_box_err;
+--            data_o          <= "0000000000000000000000000000000" & sync_box_err;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -697,7 +713,7 @@ begin
          when TX_SYNC_BOX_FR =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= "0000000000000000000000000000000" & sync_box_free_run;
+--            data_o          <= "0000000000000000000000000000000" & sync_box_free_run;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
@@ -705,14 +721,14 @@ begin
          when TX_DV_NUM =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
-            data_o          <= external_dv_num_i;
+--            data_o          <= external_dv_num_i;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
 
          when TX_SEND_DATA =>
             size_o          <= data_size + NUM_RAM_HEAD_WORDS;
-            data_o          <= data;
+--            data_o          <= data;
             word_ack        <= ack_i;
             ena_word_count  <= ack_i;            
             cmd_rdy         <= '1';
@@ -725,7 +741,7 @@ begin
          when REPLY =>
             size_o          <= data_size;
             rdy_o           <= '1';
-            data_o          <= data;
+--            data_o          <= data;
             word_ack        <= ack_i;
             cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
