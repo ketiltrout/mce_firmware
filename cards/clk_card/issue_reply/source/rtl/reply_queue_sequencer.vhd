@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.22  2006/08/16 18:09:41  bburger
+-- Bryce:  pipelined the calculation of the status word into several stages to get rid of timing violations
+--
 -- Revision 1.21  2006/08/12 00:01:21  bburger
 -- Bryce:  Added Power Supply Controller communications flags to the status word
 --
@@ -848,9 +851,32 @@ begin
       end case;
    end process state_NS;
    
+   data_o <=
+      ac_data  when pres_state = READ_AC  and ac_rdy = '1'  else
+      bc1_data when pres_state = READ_BC1 and bc1_rdy = '1' else
+      bc2_data when pres_state = READ_BC2 and bc2_rdy = '1' else
+      bc3_data when pres_state = READ_BC3 and bc3_rdy = '1' else
+      rc1_data when pres_state = READ_RC1 and rc1_rdy = '1' else
+      rc2_data when pres_state = READ_RC2 and rc2_rdy = '1' else
+      rc3_data when pres_state = READ_RC3 and rc3_rdy = '1' else
+      rc4_data when pres_state = READ_RC4 and rc4_rdy = '1' else
+      cc_data  when pres_state = READ_CC  and cc_rdy = '1'  else
+      err_dat;
+
+--   rdy_o <=
+--      ac_rdy  when pres_state = READ_AC  and ac_rdy = '1'  else
+--      bc1_rdy when pres_state = READ_BC1 and bc1_rdy = '1' else
+--      bc2_rdy when pres_state = READ_BC2 and bc2_rdy = '1' else
+--      bc3_rdy when pres_state = READ_BC3 and bc3_rdy = '1' else
+--      rc1_rdy when pres_state = READ_RC1 and rc1_rdy = '1' else
+--      rc2_rdy when pres_state = READ_RC2 and rc2_rdy = '1' else
+--      rc3_rdy when pres_state = READ_RC3 and rc3_rdy = '1' else
+--      rc4_rdy when pres_state = READ_RC4 and rc4_rdy = '1' else
+--      cc_rdy  when pres_state = READ_CC  and cc_rdy = '1'  else
+--      err_rdy;
+
    state_Out: process(pres_state, ack_i, cmd_valid_i,
-                      ac_rdy,  bc1_rdy,  bc2_rdy,  bc3_rdy,  rc1_rdy,  rc2_rdy,  rc3_rdy,  rc4_rdy,  cc_rdy,  
-                      ac_data, bc1_data, bc2_data, bc3_data, rc1_data, rc2_data, rc3_data, rc4_data, cc_data)
+      ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy)
    begin
       update_status <= '0';
       
@@ -883,7 +909,6 @@ begin
       cc_ack        <= '0';
       cc_clear      <= '0';
       
-      data_o        <= (others => '0');
       rdy_o         <= '0';
       matched_o     <= '0';
       timeout_o     <= '0';
@@ -917,110 +942,90 @@ begin
          
          when READ_AC =>        
             if(ac_rdy = '1') then 
-               data_o        <= ac_data;
                rdy_o         <= ac_rdy;
                ac_ack        <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
 
          when READ_BC1 =>       
             if(bc1_rdy = '1') then 
-               data_o        <= bc1_data;
                rdy_o         <= bc1_rdy;
                bc1_ack       <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
 
          when READ_BC2 =>       
             if(bc2_rdy = '1') then 
-               data_o        <= bc2_data;
                rdy_o         <= bc2_rdy;
                bc2_ack       <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
 
          when READ_BC3 =>       
             if(bc3_rdy = '1') then 
-               data_o        <= bc3_data;
                rdy_o         <= bc3_rdy;
                bc3_ack       <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
 
          when READ_RC1 =>       
             if(rc1_rdy = '1') then 
-               data_o        <= rc1_data;
                rdy_o         <= rc1_rdy;
                rc1_ack       <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
             
          when READ_RC2 =>       
             if(rc2_rdy = '1') then 
-               data_o        <= rc2_data;
                rdy_o         <= rc2_rdy;
                rc2_ack       <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
             
          when READ_RC3 =>       
             if(rc3_rdy = '1') then 
-               data_o        <= rc3_data;
                rdy_o         <= rc3_rdy;
                rc3_ack       <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
             
          when READ_RC4 =>       
             if(rc4_rdy = '1') then 
-               data_o        <= rc4_data;
                rdy_o         <= rc4_rdy;
                rc4_ack       <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
             
          when READ_CC =>        
             if(cc_rdy = '1') then 
-               data_o        <= cc_data;
                rdy_o         <= cc_rdy;
                cc_ack        <= ack_i;
             else
-               data_o        <= err_dat;
                rdy_o         <= '1';
                err_count_ena <= ack_i;
             end if;
          
          when TIMED_OUT =>      
---            update_status    <= '1';
             timeout_o        <= '1';
             timeout_reg_set  <= '1';                                
 
          when STATUS_WORD =>
-            data_o           <= x"EFF1CACE";
             rdy_o            <= '1';
             
             -- Even if there is just a status word (no data) we don't have to pipe through the ack, because the DONE state below

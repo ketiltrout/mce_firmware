@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.39 2006/08/03 03:23:14 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.40 2006/08/16 18:10:57 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/08/03 03:23:14 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/08/16 18:10:57 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.40  2006/08/16 18:10:57  bburger
+-- Bryce:  card_addr and par_id are now combined in the correct order in replies
+--
 -- Revision 1.39  2006/08/03 03:23:14  bburger
 -- Bryce:  Trying to fix a bug associated with the error code.  The error code is delayed by one command.
 --
@@ -163,8 +166,10 @@ architecture rtl of reply_translator is
    signal packet_type       : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); -- indicates reply or data packet - written to header word 3
    signal mop_rdy_reply     : std_logic;                                       -- asserted high when a mop is done and processing a reply packet
    signal mop_rdy_data      : std_logic;                                       -- asserted high when a mop is done and processing a data packet
---   signal checksum_clr      : std_logic;                                       -- signal asserted to reset packet checksum
---   signal checksum_ld       : std_logic;                                       -- signal assertd to update packet checksum with checksum_in value
+   signal checksum_clr      : std_logic;                                       -- signal asserted to reset packet checksum
+   signal checksum_ld       : std_logic;                                       -- signal assertd to update packet checksum with checksum_in value
+   signal fibre_tx_dat      : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); -- transmit fifo data input
+
    signal rb_packet_size    : integer;
    signal data_packet_size  : integer;
    
@@ -244,50 +249,22 @@ begin
    end process register_packet;              
               
    ----------------------------------------------------------------------------
-   -- process to update calculated packet checksum
+   -- process to register cmd_code, card_addr, param_id from cmd_translator 
    ----------------------------------------------------------------------------
-   checksum_calculator: process(rst_i, clk_i)
+   register_cmd_code: process(clk_i, rst_i)
    begin
-      if(rst_i = '1') then
-         checksum <= (others => '0');
-      elsif(clk_i'EVENT AND clk_i = '1') then
-         if(fibre_current_state = FIBRE_IDLE) then
-            checksum <= (others => '0');
-         elsif(fibre_current_state = LD_OKorER) then
---            if(mop_rdy_data = '0') then
-               checksum <= checksum xor status;
---            end if;
-         elsif(fibre_current_state = LD_CARD_PARAM) then
---            if(mop_rdy_data = '0') then
-               checksum <= checksum xor crd_add_par_id;
---            end if;
-         elsif(fibre_current_state = LD_STATUS) then
-            checksum <= checksum xor ok_or_er;
-         elsif(fibre_current_state = LD_DATA) then
-            checksum <= checksum xor fibre_word_i;
-         else
-            checksum <= checksum;
-         end if;
-      end if;
-   end process checksum_calculator;   
-
-  ----------------------------------------------------------------------------
-  -- process to register cmd_code, card_addr, param_id from cmd_translator 
-  ----------------------------------------------------------------------------
-  register_cmd_code: process(clk_i, rst_i)
-  begin
-     if(rst_i = '1') then                  
-        cmd_code     <= (others => '0');  
-        card_addr    <= (others => '0');
-        param_id     <= (others => '0');   
-     elsif (clk_i'EVENT and clk_i = '1') then     
-        if ((cmd_rcvd_er_i = '1') or (cmd_rcvd_ok_i = '1')) then
-           cmd_code  <= cmd_code_i;
-           card_addr <= card_addr_i;
-           param_id  <= param_id_i;
-        end if;      
-     end if;     
-  end process register_cmd_code;     
+      if(rst_i = '1') then                  
+         cmd_code     <= (others => '0');  
+         card_addr    <= (others => '0');
+         param_id     <= (others => '0');   
+      elsif (clk_i'EVENT and clk_i = '1') then     
+         if ((cmd_rcvd_er_i = '1') or (cmd_rcvd_ok_i = '1')) then
+            cmd_code  <= cmd_code_i;
+            card_addr <= card_addr_i;
+            param_id  <= param_id_i;
+         end if;      
+      end if;     
+   end process register_cmd_code;     
               
    ---------------------------------------------------------------------------
    -- FIBRE FSM - writes fibre packets to transmit FIFO  
@@ -466,11 +443,60 @@ begin
       
    end process fibre_fsm_nextstate;
     
+   ----------------------------------------------------------------------------
+   -- process to update calculated packet checksum
+   ----------------------------------------------------------------------------
+--   checksum_calculator: process(rst_i, clk_i)
+--   begin
+--      if(rst_i = '1') then
+--         checksum <= (others => '0');
+--      elsif(clk_i'EVENT AND clk_i = '1') then
+--         if(fibre_current_state = FIBRE_IDLE and fibre_tx_busy_i = '0') then
+--            checksum <= (others => '0');
+--         elsif(fibre_current_state = LD_OKorER and fibre_tx_busy_i = '0') then
+--            checksum <= checksum xor status;
+--         elsif(fibre_current_state = LD_CARD_PARAM and fibre_tx_busy_i = '0') then
+--            checksum <= checksum xor crd_add_par_id;
+--         elsif(fibre_current_state = LD_STATUS and fibre_tx_busy_i = '0') then
+--            checksum <= checksum xor ok_or_er;
+--         elsif(fibre_current_state = LD_DATA and fibre_tx_busy_i = '0') then
+--            checksum <= checksum xor fibre_word_i;
+--         else
+--            checksum <= checksum;
+--         end if;
+--      end if;
+--   end process checksum_calculator;   
          
+   checksum_calculator: process(rst_i, clk_i)
+   begin
+      if(rst_i = '1') then
+         checksum <= (others => '0');
+      elsif(clk_i'EVENT AND clk_i = '1') then
+         if(checksum_clr = '1') then
+            checksum <= (others => '0');
+         elsif(checksum_ld = '1') then
+            checksum <= checksum xor fibre_tx_dat;
+         end if;
+      end if;
+   end process checksum_calculator;   
+
+   fibre_tx_dat_o <= fibre_tx_dat;
+   
+   with fibre_current_state select
+      fibre_tx_dat <=
+         FIBRE_PREAMBLE1 when LD_PREAMBLE1,
+         FIBRE_PREAMBLE2 when LD_PREAMBLE2,
+         packet_type     when LD_xxRP,
+         packet_size     when LD_PACKET_SIZE,
+         status          when LD_OKorER,
+         crd_add_par_id  when LD_CARD_PARAM,
+         ok_or_er        when LD_STATUS,
+         fibre_word_i    when LD_DATA,
+         checksum        when LD_CKSUM,
+         (others => '0') when others;
+
    -------------------------------------------------------------------------
-   reply_fsm_output : process (
-      fibre_current_state, checksum, mop_error_code_i, cmd_code, mop_rdy_data, fibre_tx_busy_i, 
-      status, crd_add_par_id, ok_or_er, packet_type, packet_size, fibre_word_i) 
+   reply_fsm_output : process (fibre_current_state, mop_error_code_i, cmd_code, mop_rdy_data, fibre_tx_busy_i) 
    ----------------------------------------------------------------------------
    begin
       fibre_fsm_busy   <= '1';  
@@ -478,16 +504,21 @@ begin
       fibre_word_ack_o <= '0';
       mop_ack_o        <= '0';
       arb_fsm_ack      <= '0';      
-      fibre_tx_dat_o   <= (others => '0');      
+--      fibre_tx_dat     <= (others => '0');      
       reply_argument   <= (others => '0');
       reply_status     <= (others => '0');      
+--      checksum         <= checksum;
+      checksum_ld      <= '0';
+      checksum_clr     <= '0';
       
       case fibre_current_state is
       -- Idle state - no packets to process      
       when FIBRE_IDLE =>               
          -- indicate no longer tranmitting packet
-         fibre_fsm_busy <= '0';     
-            
+         fibre_fsm_busy <= '0';    
+--         checksum       <= (others => '0');
+         checksum_clr   <= '1';
+   
       -- checksum error state  
       when CK_ER_REPLY =>              
          reply_status   <= cmd_code(15 downto 0) & ASCII_E & ASCII_R ;
@@ -520,7 +551,7 @@ begin
       ----------------------------------------
       when LD_PREAMBLE1 =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= FIBRE_PREAMBLE1;
+--            fibre_tx_dat   <= FIBRE_PREAMBLE1;
             fibre_tx_rdy_o <= '1';
          end if;   
            
@@ -530,7 +561,7 @@ begin
       ----------------------------------------
       when LD_PREAMBLE2 =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= FIBRE_PREAMBLE2;
+--            fibre_tx_dat   <= FIBRE_PREAMBLE2;
             fibre_tx_rdy_o <= '1';
          end if;   
            
@@ -541,7 +572,7 @@ begin
       ----------------------------------------
       when LD_xxRP =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= packet_type;
+--            fibre_tx_dat   <= packet_type;
             fibre_tx_rdy_o <= '1';
          end if;   
            
@@ -550,7 +581,7 @@ begin
       ----------------------------------------
       when LD_PACKET_SIZE =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= packet_size;
+--            fibre_tx_dat   <= packet_size;
             fibre_tx_rdy_o <= '1';
          end if;   
        
@@ -568,11 +599,11 @@ begin
       -- Frame Status Block
       ----------------------------------------
       when LD_OKorER =>
-         if(fibre_tx_busy_i = '0') then 
---            if(mop_rdy_data = '0') then
-               fibre_tx_dat_o <= status;
-               fibre_tx_rdy_o <= '1';
---            end if;
+         if(fibre_tx_busy_i = '0') then
+            checksum_ld    <= '1';
+--            checksum       <= checksum xor status;
+--            fibre_tx_dat   <= status;
+            fibre_tx_rdy_o <= '1';
          end if;   
 
       ----------------------------------------
@@ -580,10 +611,10 @@ begin
       ----------------------------------------
       when LD_CARD_PARAM =>
          if(fibre_tx_busy_i = '0') then 
---            if(mop_rdy_data = '0') then
-               fibre_tx_dat_o <= crd_add_par_id;
-               fibre_tx_rdy_o <= '1';
---            end if;
+            checksum_ld    <= '1';
+--            checksum       <= checksum xor crd_add_par_id;
+--            fibre_tx_dat   <= crd_add_par_id;
+            fibre_tx_rdy_o <= '1';
          end if;   
            
       ----------------------------------------
@@ -591,7 +622,9 @@ begin
       ----------------------------------------
       when LD_STATUS =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= ok_or_er;
+            checksum_ld    <= '1';
+--            checksum       <= checksum xor ok_or_er;
+--            fibre_tx_dat <= ok_or_er;
             -- Do not transmit a status word if an RB was successful or if returning DATA
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
             if((cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (mop_rdy_data = '1')) then
@@ -606,7 +639,9 @@ begin
       ----------------------------------------
       when LD_DATA =>
          if(fibre_tx_busy_i = '0') then 
-            fibre_tx_dat_o <= fibre_word_i;
+            checksum_ld    <= '1';
+--            checksum       <= checksum xor fibre_word_i;
+--            fibre_tx_dat <= fibre_word_i;
             -- Do not transmit a data word if an RB was unsuccessful
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
             if(cmd_code = READ_BLOCK and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then
@@ -621,7 +656,7 @@ begin
       ----------------------------------------
        when LD_CKSUM =>
           if(fibre_tx_busy_i = '0') then 
-             fibre_tx_dat_o <= checksum;
+--             fibre_tx_dat   <= checksum;
              fibre_tx_rdy_o <= '1';
              -- acknowledge that packet has finished - i.e. started txing checksum
              mop_ack_o      <= '1';    
