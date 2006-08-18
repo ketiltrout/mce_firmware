@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.57 2006/08/11 23:57:43 bburger Exp $
+-- $Id: clk_card.vhd,v 1.58 2006/08/16 17:50:39 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.58  2006/08/16 17:50:39  bburger
+-- Bryce:  The Clock Card now uses the err_o signals from fpga_thermo and id_thermo
+--
 -- Revision 1.57  2006/08/11 23:57:43  bburger
 -- Bryce:  Added the Power Supply Control Wishbone slave
 --
@@ -700,7 +703,7 @@ begin
          fpga_thermo_data  when FPGA_TEMP_ADDR,
          config_fpga_data  when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_data   when SELECT_CLK_ADDR,
-         psu_ctrl_data     when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
+--         psu_ctrl_data     when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
          (others => '0')   when others;
          
    with addr select
@@ -713,7 +716,7 @@ begin
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
          config_fpga_ack   when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
          select_clk_ack    when SELECT_CLK_ADDR,
-         psu_ctrl_ack      when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
+--         psu_ctrl_ack      when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
          '0'               when others;
          
    with addr select
@@ -727,32 +730,32 @@ begin
          fpga_thermo_err   when FPGA_TEMP_ADDR,
          '1'               when others;
 
-   psu_ctrl_inst: psu_ctrl 
-   port map(
-      -- Clock and Reset:
-      clk_i   => clk,     
-      clk_n_i => clk_n,     
-      rst_i   => rst,     
-      
-      -- Wishbone Interface:
-      dat_i   => data,     
-      addr_i  => addr,     
-      tga_i   => tga,     
-      we_i    => we,       
-      stb_i   => stb,      
-      cyc_i   => cyc,      
-      dat_o   => psu_ctrl_data,     
-      ack_o   => psu_ctrl_ack,     
-              
-      ------------------------------
-      -- SPI Interface
-      ------------------------------
-      mosi_i  => psdi,     
-      sclk_i  => psclki,     
-      ccss_i  => pscsi,     
-      miso_o  => psdo,     
-      sreq_o  => pscso     
-   );        
+--   psu_ctrl_inst: psu_ctrl 
+--   port map(
+--      -- Clock and Reset:
+--      clk_i   => clk,     
+--      clk_n_i => clk_n,     
+--      rst_i   => rst,     
+--      
+--      -- Wishbone Interface:
+--      dat_i   => data,     
+--      addr_i  => addr,     
+--      tga_i   => tga,     
+--      we_i    => we,       
+--      stb_i   => stb,      
+--      cyc_i   => cyc,      
+--      dat_o   => psu_ctrl_data,     
+--      ack_o   => psu_ctrl_ack,     
+--              
+--      ------------------------------
+--      -- SPI Interface
+--      ------------------------------
+--      mosi_i  => psdi,     
+--      sclk_i  => psclki,     
+--      ccss_i  => pscsi,     
+--      miso_o  => psdo,     
+--      sreq_o  => pscso     
+--   );        
 
    clk_switchover_inst: clk_switchover
    port map(
