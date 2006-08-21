@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.58 2006/08/16 17:50:39 bburger Exp $
+-- $Id: clk_card.vhd,v 1.58.2.1 2006/08/18 22:58:11 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.58.2.1  2006/08/18 22:58:11  bburger
+-- Bryce:  v0200000f, without the psuc for which development is concurrent
+--
 -- Revision 1.58  2006/08/16 17:50:39  bburger
 -- Bryce:  The Clock Card now uses the err_o signals from fpga_thermo and id_thermo
 --
@@ -223,7 +226,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000010";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"0200000f";
    
    -- reset
    signal rst                : std_logic;
