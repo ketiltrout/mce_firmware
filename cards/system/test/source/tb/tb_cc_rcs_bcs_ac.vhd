@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.26 2006/08/03 03:23:14 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.27 2006/08/18 22:59:18 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.27  2006/08/18 22:59:18  bburger
+-- Bryce:  v0200000f
+--
 -- Revision 1.26  2006/08/03 03:23:14  bburger
 -- Bryce:  Trying to fix a bug associated with the error code.  The error code is delayed by one command.
 --
@@ -425,6 +428,16 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_data_rate_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & DATA_RATE_ADDR;
 	constant cc_select_clk_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SELECT_CLK_ADDR;
 
+--   constant BRST_MCE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
+--   constant CYCLE_POW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
+--   constant CUT_POW_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
+--   constant PSC_STATUS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
+
+   constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
+   constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
+   constant psu_cut_pow_cmd         : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CUT_POW_ADDR;
+   constant psu_status_cmd          : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & PSC_STATUS_ADDR;
+
    constant bcs_flux_fdbck_cmd      : std_logic_vector(31 downto 0) := x"00" & ALL_BIAS_CARDS    & x"00" & FLUX_FB_ADDR;
    constant bcs_bias_cmd            : std_logic_vector(31 downto 0) := x"00" & ALL_BIAS_CARDS    & x"00" & BIAS_ADDR;
  
@@ -505,6 +518,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal switch_to_xtal    : std_logic := '0';
    signal switch_to_manch   : std_logic := '0';
    signal spi_clk    : std_logic := '0';
+   signal spi_data   : std_logic := '0';
    signal spi_clk_cond : std_logic := '0';
    signal spi_clk_en : std_logic := '0';
    
@@ -557,7 +571,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_pscso      : std_logic;
    signal cc_psclko     : std_logic;
    signal cc_psdi       : std_logic := '0';
-   signal cc_pscsi      : std_logic := '0';
+   signal cc_pscsi      : std_logic := '1';
    signal cc_psclki     : std_logic := '0';
    signal cc_n5vok      : std_logic := '0';
                      
@@ -1060,7 +1074,6 @@ begin
    -- Clock generation
    inclk        <= not inclk        after clk_period/2;
    inclk15      <= not inclk15      after clk_period/2;
-   spi_clk      <= not spi_clk      after spi_clk_period/2;
    fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
    
    -- Used for simulating the loss of the crystal clock
@@ -1193,7 +1206,9 @@ begin
          psdo             => cc_psdo,  
          pscso            => cc_pscso, 
          psclko           => cc_psclko,
-         psdi             => cc_psdi,  
+         
+         -- I'm putting a clock input on the data line to see what we get
+         psdi             => spi_data,--cc_psdi,  
          pscsi            => cc_pscsi, 
          psclki           => spi_clk,--cc_psclki,
 --         n5vok            => cc_n5vok, 
@@ -2256,6 +2271,58 @@ begin
 --
 --      wait for 600 us;
 
+------------------------------------------------------
+--  PSU Testing
+------------------------------------------------------
+--   constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
+--   constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
+--   constant psu_cut_pow_cmd         : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CUT_POW_ADDR;
+--   constant psu_status_cmd          : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & PSC_STATUS_ADDR;
+
+      command <= command_wb;
+      address_id <= psu_brst_mce_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 300 us;
+
+      command <= command_wb;
+      address_id <= psu_cycle_pow_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 300 us;
+
+      command <= command_wb;
+      address_id <= psu_cut_pow_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 300 us;
+
+      command <= command_rb;
+      address_id <= psu_status_cmd;
+      data_valid <= X"00000009";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 300 us;
+
+      command <= command_rb;
+      address_id <= psu_status_cmd;
+      data_valid <= X"00000009";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 300 us;
 
 ------------------------------------------------------
 --  Testing Manchester Data Packets
@@ -3261,7 +3328,31 @@ begin
       
       assert false report "Simulation done." severity FAILURE;
    end process stimuli;  
+
+   -- This process emulates the behaviour of the psuc's ccss control signal
+   -- This process runs concurrently to the command rx/tx process above
+   -- This process waits for sreq to be asserted by the clock card before asserting ccss
+   spi_clk      <= not spi_clk      after spi_clk_period/2;
+   spi_data     <= not spi_data     after spi_clk_period;
+   psuc : process   
+      
+      procedure wait_for_pscsi is
+      begin
+         wait for spi_clk_period;
+         if(cc_pscso = '1') then
+            cc_pscsi <= '0';
+         else
+            cc_pscsi <= '1';
+         end if;
+      end wait_for_pscsi;
    
+   begin
+   
+      loop
+         wait_for_pscsi;
+      end loop;
+   
+   end process psuc;
    
 --   manchester_input : process
 --   
