@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.1  2006/03/08 22:09:18  bench2
+# Mandana: changed revision to 01030002 to incorporate 100MHz lvds_rx
+#
 # Revision 1.14  2005/06/03 17:52:59  mandana
 # reverse the order for DAC0 to DAC15. Be careful: silkscreen and schematics are labeled wrong.
 #
@@ -200,6 +203,12 @@ cmp add_assignment $top_name "" smb_data LOCATION "Pin_W26"
 cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_W25"
 puts "   Assigned: SMB interface pins."
 
+# assign sa heater pins
+cmp add_assignment $top_name "" sa_htr1p LOCATION "Pin_T3"
+cmp add_assignment $top_name "" sa_htr1n LOCATION "Pin_T4"
+cmp add_assignment $top_name "" sa_htr2p LOCATION "Pin_T1"
+cmp add_assignment $top_name "" sa_htr2n LOCATION "Pin_U2"
+puts "   Assigned: SA Heater pins."
 
 # assign 2x8 test header pins
 cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_AE11"
