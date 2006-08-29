@@ -39,8 +39,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date$>    - <initials $Author$>
--- $Log$
+-- <date $Date: 2005/07/12 20:32:08 $>    - <initials $Author: mandana $>
+-- $Log: slow2fast_clk_domain_crosser.vhd,v $
+-- Revision 1.1  2005/07/12 20:32:08  mandana
+-- Initial Release
+--
 --
 
 library ieee;
@@ -69,6 +72,8 @@ architecture rtl of slow2fast_clk_domain_crosser is
 
    -- internal signal declarations
    signal input_meta:    std_logic;
+   signal input_temp:    std_logic;
+   
    -- FSM variables
    type state is (IDLE, ONESHOT, QUIET);                           
 
@@ -81,8 +86,10 @@ begin
    begin
       if (rst_i = '1') then
          input_meta <= '0';
+         input_temp <= '0';
       elsif(clk_fast'event and clk_fast = '1') then   
-         input_meta <= input_slow;
+         input_temp <= input_slow;
+         input_meta <= input_temp;
       end if;
    end process sample_fast;   
    
