@@ -1,10 +1,11 @@
 /***************************************************************************************/
 /* 	Scuba 2 Power Supply Controller - SC2_ELE_S565_102D
 		Tom Felton - Feb 22, 2006
- 		Stuart Hadfield - July/August 2006
-// Revision history: 
-// $Log$			 
+ 		Stuart Hadfield - July/August 2006		 
 /****************************************************************************************/
+// Revision history: 
+// $Log: scuba2ps.c,v $	
+
 /*	Refer to the following Data Sheets:
 		Processor - Atmel AT89C5131AM
 		Temperature Monitoring & Silicon ID - Dallas DS18S20-PAR
