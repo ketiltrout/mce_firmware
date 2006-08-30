@@ -40,6 +40,12 @@
 -- Revision history:
 -- 
 -- $Log: all_test.vhd,v $
+-- Revision 1.11  2006/08/30 22:53:42  mandana
+-- updated ports to comply with our generic bc_pin_assign.tcl in scripts directory 
+-- in an attempt to centralize one tcl file that gets update with board revisions. 
+-- pins affected are led, slot_id, rst_n, card_id, dip_sw.
+-- removed easter_msg
+--
 -- Revision 1.10  2005/11/02 21:22:05  erniel
 -- added header to file
 --
