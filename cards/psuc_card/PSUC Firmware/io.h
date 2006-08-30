@@ -2,7 +2,10 @@
 /*      I/O Assignments           */
 /****************************************/
 // Revision history: 
-// $Log: scuba2ps.c,v $	
+// $Log: io.h,v $
+// Revision 1.1  2006/08/29 21:06:06  stuartah
+// Initial CVS Build - Most Basic Functionality Implemented
+//	
 
 
 // AT89 I/O Pin Assignments
@@ -37,6 +40,11 @@ sbit SPARE2 =		P4^0;		// Bus Spare 1
 sbit SPARE1 =		P4^1;		// Bus Spare 2
 
 
+// PSU Data Block Settings
+#define CC_SPI_BLEN		36		// Bytes in SPI Block to Clock Card
+#define ACK_BYTE_POS	34		// ACK/NAK byte position - used instead of (CC_SPI_BLEN - 2) for optimization
+
+
 // I/O Pin Bit Masks - For DS18S20 Addressing
 #define PSUC_DS18S20 	0x04
 #define	DTEMP2_ID		0x08
@@ -44,10 +52,7 @@ sbit SPARE1 =		P4^1;		// Bus Spare 2
 #define PSU_DS18S20		0x20
 
 
-// SPI Interface
-#define CC_SPI_BLEN		36				// Bytes in SPI Block to Clock Card
-#define FIRST_VADC		12				// First Voltage ADC reading in byte 12
-#define FIRST_IADC		24				// First Current ADC reading in byte 24				
+// SPI Interface			
 #define ADC_SPI_BLEN	1				// Bytes in SPI Block to ADC
 #define SPI_MSTR		0x10			// SPCON Bit Set for Master
 #define SPI_CPOL0		~0x08			// SPCON Bit Set for Clock Polarity - Active low

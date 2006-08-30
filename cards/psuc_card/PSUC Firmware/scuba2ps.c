@@ -4,7 +4,10 @@
  		Stuart Hadfield - July/August 2006		 
 /****************************************************************************************/
 // Revision history: 
-// $Log: scuba2ps.c,v $	
+// $Log: scuba2ps.c,v $
+// Revision 1.2  2006/08/29 21:06:06  stuartah
+// Initial CVS Build - Most Basic Functionality Implemented
+//	
 
 /*	Refer to the following Data Sheets:
 		Processor - Atmel AT89C5131AM
@@ -179,6 +182,8 @@ void init(void) 	// still need to clean/fix this
 
 /* Initialize Variables */		// How much of this is needed???							
 	bcnt = 0;
+	running_checksum = 0;
+
 	while(i < CC_SPI_BLEN) {			// initialize data blocks to all zeros	
 		 	ps_data_blk[i] = 0;					
 			rcv_spi_blk[i] = 0;
@@ -253,23 +258,36 @@ void cycle_power (void)
 /****************************************************************************************
  * 	Send PSU Data Block to CC via SPI  	   *
  ***************************/
-
 void send_psu_data_block (void)
 {				
+	// Begin Transaction
 	spi_idx = 0;								// Start at beginning of data block
 	CCSS = 0;									// Select Clock Card (slave) to listen on SPI bus		
 		 	
-	while(spi_idx < CC_SPI_BLEN) {				// Send all 36 bytes
+	// Send first 34 of 36 bytes (need to calculate checksum based on ACK/NAK byte)
+	while(spi_idx < ACK_BYTE_POS) {				
 		SPDAT = ps_data_blk[spi_idx];  			// send byte #spi_idx
 		while(!spi_complete);					// wait for end of byte transmission
 		spi_complete = 0;						// clear software flag
 		spi_idx++;								// increment data block index
  	}
-		 	
+	
+	// Update ACK/NAK byte and send
+	parse_command();							// Sets ACK/NAK byte
+	SPDAT = ps_data_blk[ACK_BYTE_POS];  		// Send ACK/NAK byte
+	while(!spi_complete);						// wait for end of byte transmission
+	spi_complete = 0;							// clear software flag
+	
+	// Update Check byte and send
+	//*CHECK_BYTE = ~(running_checksum + ps_data_blk[ACK_BYTE_POS]) + 1;		// 2's compliment, so CHECK_BYTE + all other bytes = 0
+	COMPLETE_CHECKSUM;	
+	SPDAT = ps_data_blk[ACK_BYTE_POS + 1];  								// Send Check byte
+	while(!spi_complete);													// wait for end of byte transmission
+	spi_complete = 0;														// clear software flag
+		
+	// Finish Transaction
 	CCSS = 1;									// De-select Clock Card
 	cc_spi = FALSE;  							// Data Block Transmission Complete											
-	
-	parse_command();			//for now parse outside loop....later parse and update ACK/NAK mid-loop		************
 }
 
 /****************************************************************************************
@@ -398,14 +416,13 @@ void spi_isr (void) interrupt 9
 		   	spi_complete = 1;
 			break;
 
-
-		case 0x10:
-         //pg 96 in AT89 datsheet			/* put here for mode fault tasking */										   								
+	   	/* error cases -> refer to pg. 96 in AT89 datasheet */
+		case 0x10:							// mode fault
+         	// this does not apply as single master on SPI bus and SSDisable bit set in SPSTA register 													   								
 			break;
 	
-
-		case 0x40:
-         /*write collision*/				/* put here for overrun tasking */									 
+		case 0x40:				   			// write collision
+         	// write collision does NOT cause an interrupt therefore this should be elsewhere if needed													 
 			break;
 
 		default:
@@ -446,19 +463,43 @@ void update_data_block (void)
 	// Bookkeeping
 	*STATUS_WORD = 0;		   				// place for undefined status word - higher byte
 	*(STATUS_WORD+1) = 0;						// place for undefined status word - lower byte
-	 
-	*CHECK_BYTE = 0; //check_digit();		// checksum byte, calculated for either ACK/NAK cases
+	
+	// ***** these two lines can be optimized out ********
+	*ACK_NAK = 0;										
+	*CHECK_BYTE = 0;					
+	
+	// Check Digit Calculation
+	check_digit();					// updates running checksum total   //maybe move this line to beginning of send_dat_block to avoid unneccessary repetitions
+}
+
+/***************************************************************************************/
+/* Generate Check Digit    */ 
+/****************************************/
+// Implemented as checksum for now to optimize calculation speed (tradeoff for sub-optimal error detection)
+// Checksum byte totals 0 when summed with the other 35 bytes in the PSU data block  (ignoring addition overflow)
+// *** This function calculated total of first 34 bytes in checksum
+// *** Finish checksum calculation and set in data block using COMPLETE_CHECKSUM (AFTER ACK/NAK byte has been set)
+ 
+void check_digit (void)
+{
+	int j;
+	running_checksum = 0;
+
+	// sum PSU data block upto ACK/NAK byte
+	for(j = 0; j < ACK_BYTE_POS; j++) {
+		running_checksum += ps_data_blk[j];
+	}
 }
 
 /***************************************************************************************/
 /* Parse Command Received from CC    */ 
 /****************************************/
+// could to make this more robust - varying degrees of complexity in how to implement this
 
-// need to make this more robust
-
-void parse_command(void)		 //varying degree of complexity in how to implement this
+void parse_command(void)		 
 {
-	if ( commands_match(rcv_spi_blk, rcv_spi_blk+2,rcv_spi_blk+4) && command_valid(rcv_spi_blk) ) { //assumes commands are in first 6 bytes of received SPI block
+	//assume commands are in first 6 bytes of received SPI block, ordered and repeated thrice
+	if ( commands_match(rcv_spi_blk, rcv_spi_blk+2,rcv_spi_blk+4) && command_valid(rcv_spi_blk) ) { 
 		cc_command = rcv_spi_blk;	
 		*ACK_NAK = ACK;	
 	}	
@@ -510,9 +551,6 @@ bit command_valid (char *com_ptr)
 		return FALSE;
 }
 
-
-
-
 /***************************************************************************************/
 /* Get Fan Speeds    */ 
 /****************************************/
@@ -543,16 +581,6 @@ void get_fan_speeds (void)					 //incomp
 	time difference give time for 1 revolution
 	convert to RPM/16 (single byte) and return/assign
 }
-
-/***************************************************************************************/
-/* Generate Check Digit    */ 
-/****************************************/
- /* 
-char check_digit (void)
-{
-	//calc ACK case
-	//calc NAK case
-}			   		*/
 
 /****************************************************************************************
 /*  Millisecond Count Timer   	   */

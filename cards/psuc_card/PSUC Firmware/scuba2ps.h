@@ -2,7 +2,10 @@
 /* 	Scuba 2 Power Supply Controller - SC2_ELE_S565_102D		 
 /****************************************************************************************/
 // Revision history: 	
-// $Log: scuba2ps.c,v $	
+// $Log: scuba2ps.h,v $
+// Revision 1.1  2006/08/29 21:06:06  stuartah
+// Initial CVS Build - Most Basic Functionality Implemented
+//	
 
 /***** 	Compiler Directives / File Inclusions *****/
 #pragma db
@@ -37,8 +40,9 @@ void wait_time_x2us_plus3(unsigned char);
 // Send Serial Message
 void snd_msg (char *);
 
-// Update PSU Data Block Values
+// PSU Data Block Functions
 void update_data_block(void);
+void check_digit(void);
 
 // Command Parsing Functions
 void parse_command(void);
@@ -49,7 +53,7 @@ bit command_valid (char *);
 // void start_count_timer(void);
 // unsigned int stop_count_timer(void);
 // void get_fan_speeds(void);
-// char check_digit(void);
+// 
 
 
 /*********	Variables *********/
@@ -65,6 +69,7 @@ char data sio_rx_idx;								// Serial Received Message Pointer
 char *msg_ptr;									   	// Serial Message to Send Pointer
 unsigned char data bcnt;							// Count of Timer0 interrupts
 unsigned char data num_T1_ints;						// Number of Timer1 interrupts to allow before setting timeup_T1 
+unsigned char data running_checksum;				// Running total for checksum byte
 
 // Software flags
 bit cc_spi;											// Indicates Service Request from CC (via SPI)
@@ -75,12 +80,7 @@ bit timeup_T1;										// Set on Timer1 expiration (overlow)
 bit blink_en;										// Set to turn on LED blink while PSUC running
 
 
-/*******	Macros	*******/
-// General Macros/Parameters
-#define ENABLE_BLINK	blink_en = 1;
-#define DISABLE_BLINK   blink_en = 0;
-
-
+/********** PSU Data Block Settings  ***************/
 // PSU Data Block POINTERS - defining this way prevents pointers from being reassigned dynamically
 #define SILICON_ID 			ps_data_blk				// Read from DS18S20 LS 32 bits of 48
 #define SOFTWARE_VERSION 	(ps_data_blk+4)			// Software Version
@@ -103,3 +103,11 @@ bit blink_en;										// Set to turn on LED blink while PSUC running
 #define STATUS_WORD			(ps_data_blk+32)		// undefined place for status word
 #define ACK_NAK				(ps_data_blk+34)		// either ACK or NAK
 #define CHECK_BYTE			(ps_data_blk+35)		// checksum byte
+
+
+/*******	Macros	*******/
+// General Macros/Parameters
+#define ENABLE_BLINK			blink_en = 1;
+#define DISABLE_BLINK   		blink_en = 0;
+#define COMPLETE_CHECKSUM		*CHECK_BYTE = ~(running_checksum + ps_data_blk[ACK_BYTE_POS]) + 1;		// 2's compliment, so CHECK_BYTE + all other bytes = 0
+		
