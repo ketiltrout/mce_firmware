@@ -30,7 +30,7 @@
 -- odd number channels are quiet.
 --
 -- Revision history:
---
+-- $Log$
 -----------------------------------------------------------------------------
 
 library ieee, sys_param, components, work;
@@ -44,9 +44,6 @@ use sys_param.data_types_pack.all;
 
 use components.component_pack.all;
 
-use work.dac_ctrl_pack.all;
-use work.frame_timing_pack.all;
-
 -----------------------------------------------------------------------------
                      
 entity bc_dac_xtalk_test_wrapper is
@@ -54,8 +51,9 @@ entity bc_dac_xtalk_test_wrapper is
       -- basic signals
       rst_i     : in std_logic;    -- reset input
       clk_i     : in std_logic;    -- clock input
+      clk_4_i   : in std_logic;    -- clock div 4 input
       en_i      : in std_logic;    -- enable signal
-      mode      : in std_logic;    -- mode signal (0 indicates square wave on odd channels, 1 indicates square wave on even channels)
+      mode_i    : in std_logic;    -- mode signal (0 indicates square wave on odd channels, 1 indicates square wave on even channels)
       done_o    : out std_logic;   -- done ouput signal
       
       -- transmitter signals removed!
@@ -78,6 +76,9 @@ end;
 
 architecture rtl of bc_dac_xtalk_test_wrapper is
 
+constant TOGGLE_FREQ_FACTOR    : integer := 11;
+constant TOGLLE2SPI_FREQ_RATIO : integer := 2**(TOGGLE_FREQ_FACTOR - 2);
+
 -- DAC CTRL:
 -- State encoding and state variables:
 
@@ -89,20 +90,23 @@ signal next_state            : states;
 type   w_array3 is array (2 downto 0) of word16; 
 signal data     : w_array3;
 
-signal idx    : integer;
+signal idx      : integer range 0 to 2;
 signal data1    : word16;
 signal data2    : word16;
-signal idac     : integer;
-signal logic0   : std_logic;
-signal logic1   : std_logic;
-signal zero     : integer;
+signal idac     : integer range 0 to 16;
 signal clk_2    : std_logic;
-signal clk_count: std_logic_vector(10 downto 0);
+signal clk_count: std_logic_vector(TOGGLE_FREQ_FACTOR downto 0);
+
 signal send_dac32_start   : std_logic;
 signal send_dac_lvds_start: std_logic;
-signal dac_done           : std_logic_vector (32 downto 0);
-signal xtalk     : std_logic;
-signal cmd2_cond : std_logic;
+signal send_dac32_start_tuned   : std_logic;
+signal send_dac_lvds_start_tuned: std_logic;
+
+signal dac_done : std_logic_vector (32 downto 0);
+
+signal mode_reg : std_logic;
+signal xtalk    : std_logic;
+signal xtalk_reg: std_logic;
 
 -- parallel data signals for DAC
 -- subtype word is std_logic_vector (15 downto 0); 
@@ -110,25 +114,9 @@ type   w_array32 is array (32 downto 0) of word16;
 signal dac_data_p      : w_array32;
 
 begin
-   logic0 <= '0';
-   logic1 <= '1';
-   zero <= 0;
 
    spi_start_o <= send_dac32_start;
 
--- instantiate a counter to divide the clock by 2
---   clk_div_2: counter
---   generic map(MAX => 8)
---   port map(clk_i   => clk_i,
---            rst_i   => logic0, 
---            ena_i   => logic1,
---            load_i  => logic0,
---            down_i  => logic0,
---            count_i => zero,
---            count_o => clk_count);
---
---   clk_2   <= '1' when clk_count > 4 else '0';
-   
    process(rst_i, clk_i)
    begin
       if(rst_i = '1') then
@@ -138,27 +126,26 @@ begin
       end if;
    end process;
 
-   clk_2 <= clk_count(9);
+   clk_2 <= clk_count(TOGGLE_FREQ_FACTOR - 1);
 
   -- values tried on DAC Tests with fixed values                               
    data(0) <= "0000000000000000";--x0000     zero range
    data(1) <= "1111111111111111";--xffff     full range
    data(2) <= "1000000000000000";--x8000     half range
 
-   idx_counter: counter
-   generic map(MAX => 1,
-               STEP_SIZE => 1,
-               WRAP_AROUND => '1',
-               UP_COUNTER => '1')
-   port map(clk_i   => dac_done(0),
-            rst_i   => logic0, 
-            ena_i   => logic1,
-            load_i  => logic0,
-            count_i => zero,
-            count_o => idx);
-   
-   data1 <= data(idx) when mode = '1' else data(2);
-   data2 <= data(2)   when mode = '1' else data(idx);
+
+   process (rst_i, dac_done(0))
+   begin
+      if(rst_i = '1') then
+         idx <= 0;
+      elsif(dac_done(0)'event and dac_done(0) = '1') then
+         if (idx = 1) then 
+           idx <= 0;
+         else  
+           idx <= idx + 1;
+         end if;  
+      end if;
+   end process;
       
 ------------------------------------------------------------------------
 --
@@ -172,9 +159,9 @@ begin
       dac_write_spi :write_spi_with_cs
       generic map(DATA_LENGTH => 16)
       port map(--inputs
-         spi_clk_i        => clk_2,
+         spi_clk_i        => clk_4_i,
          rst_i            => rst_i,
-         start_i          => send_dac32_start,
+         start_i          => send_dac32_start_tuned,
          parallel_data_i  => dac_data_p(k),
        
          --outputs
@@ -195,9 +182,9 @@ begin
    generic map(DATA_LENGTH => 16)
 
    port map(--inputs
-      spi_clk_i        => clk_i,
+      spi_clk_i        => clk_4_i,
       rst_i            => rst_i,
-      start_i          => send_dac_lvds_start,
+      start_i          => send_dac_lvds_start_tuned,
       parallel_data_i  => dac_data_p(32),
     
       --outputs
@@ -217,11 +204,12 @@ begin
       end if;
    end process state_FF;
 ---------------------------------------------------------------   
-   state_NS: process(present_state, xtalk,data)
+   state_NS: process(present_state, xtalk_reg,data)
    begin
+      next_state <= present_state;
       case present_state is
          when IDLE =>     
-            if(xtalk = '1') then
+            if(xtalk_reg = '1') then
                next_state <= PUSH_DATA;
             else
                next_state <= IDLE;
@@ -235,64 +223,134 @@ begin
          
          when DONE =>
             next_state  <= IDLE;
+         
+         when others => 
+            next_state  <= IDLE;
                         
       end case;
    end process state_NS;
 -----------------------------------------------------------------   
-   state_out: process(present_state,data)
+   state_out: process(present_state,data, idx, mode_reg)
    begin
+      -- default values
+      send_dac32_start    <= '0';
+      send_dac_lvds_start <= '0';
+
       case present_state is
          when IDLE =>     
             for idac in 0 to 32 loop
-               dac_data_p(idac) <= "0000000000000000";
+               dac_data_p(idac) <= (others => '0');
             end loop;            
-            send_dac32_start    <= '0';
-            send_dac_lvds_start <= '0';
          
          when PUSH_DATA =>    
-            for idac in 0 to 15 loop
-               dac_data_p(idac*2)   <= data1;
-               dac_data_p(idac*2+1) <= data2;
-            end loop;
-            dac_data_p (32) <= data1;
-            send_dac32_start    <= '0';
-            send_dac_lvds_start <= '0';
+            if (mode_reg = '1') then 
+               for idac in 0 to 15 loop
+                  dac_data_p(idac*2)   <= data(idx);
+                  dac_data_p(idac*2+1) <= data(2);
+               end loop;   
+               dac_data_p (32) <= data(idx);
+            else   
+               for idac in 0 to 15 loop
+                  dac_data_p(idac*2)   <= data(2);
+                  dac_data_p(idac*2+1) <= data(idx);
+               end loop;
+               dac_data_p (32) <= data(2);
+            end if;                        
                           
          when SPI_START =>     
-            for idac in 0 to 15 loop
-               dac_data_p(idac*2)   <= data1;
-               dac_data_p(idac*2+1) <= data2;
-            end loop;
-            dac_data_p (32) <= data1;
+            if (mode_reg = '1') then 
+               for idac in 0 to 15 loop
+                  dac_data_p(idac*2)   <= data(idx);
+                  dac_data_p(idac*2+1) <= data(2);
+               end loop;   
+               dac_data_p (32) <= data(idx);
+            else   
+               for idac in 0 to 15 loop
+                  dac_data_p(idac*2)   <= data(2);
+                  dac_data_p(idac*2+1) <= data(idx);
+               end loop;
+               dac_data_p (32) <= data(2);
+            end if;            
+            
             send_dac32_start    <= '1';
             send_dac_lvds_start <= '1';
 
-          when DONE =>    
-            for idac in 0 to 15 loop
-               dac_data_p(idac*2)   <= data1;
-               dac_data_p(idac*2+1) <= data2;
-            end loop;
-            dac_data_p (32) <= data1;
-            send_dac32_start    <= '0';
-            send_dac_lvds_start <= '0';
-                                 
+         when DONE =>    
+            if (mode_reg = '1') then 
+               for idac in 0 to 15 loop
+                  dac_data_p(idac*2)   <= data(idx);
+                  dac_data_p(idac*2+1) <= data(2);
+               end loop;   
+               dac_data_p (32) <= data(idx);
+            else   
+               for idac in 0 to 15 loop
+                  dac_data_p(idac*2)   <= data(2);
+                  dac_data_p(idac*2+1) <= data(idx);
+               end loop;
+               dac_data_p (32) <= data(2);
+            end if;            
+            
+         when others =>
+            for idac in 0 to 32 loop
+               dac_data_p(idac) <= (others => '0');
+            end loop;            
+            
       end case;
    end process state_out;
-  
-   process(en_i)
+   
+    -- capture the slow spi start in the 12.5MHz clock domain
+   start_tune:slow2fast_clk_domain_crosser
+      generic map (NUM_TIMES_FASTER => TOGLLE2SPI_FREQ_RATIO)
+      port map(       
+         -- global signals
+         rst_i      => rst_i,
+         clk_slow   => clk_2,
+         clk_fast   => clk_4_i,
+         -- input/output 
+         input_slow => send_dac32_start,
+         output_fast=> send_dac32_start_tuned      
+      );
+
+   -- capture the slow spi start in the 12.5MHz clock domain
+   lvds_start_tune:slow2fast_clk_domain_crosser
+      generic map (NUM_TIMES_FASTER => TOGLLE2SPI_FREQ_RATIO)
+      port map(       
+         -- global signals
+         rst_i      => rst_i,
+         clk_slow   => clk_2,
+         clk_fast   => clk_4_i,
+         -- input/output 
+         input_slow => send_dac_lvds_start,
+         output_fast=> send_dac_lvds_start_tuned      
+      );
+   
+   on_off_control: process(en_i, rst_i, clk_i)
    begin
-      if(en_i = '1') then
-         xtalk <= not xtalk;
+      if (rst_i = '1') then
+         xtalk     <= '0';
+         xtalk_reg <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if (en_i = '1') then
+            xtalk <= not xtalk;
+            xtalk_reg <= xtalk;
+         end if;   
       end if;
    end process;
    
-   process(clk_2)
+   
+   issue_done: process(clk_i, rst_i)
    begin
-      if(clk_2'event and clk_2 = '1') then
+      if (rst_i = '1') then
+         done_o <= '0';
+         mode_reg <= '0';
+      elsif(clk_i'event and clk_i = '1') then
          done_o <= en_i;
+         if (en_i = '1') then
+            mode_reg <= mode_i;
+         end if;   
       end if;
    end process;
-
+   
  end;
  
 
