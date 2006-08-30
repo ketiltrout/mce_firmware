@@ -5,9 +5,9 @@ Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 9.855 ns
-From           : rx
-To             : rs232_rx:rx0|pres_state.recv
+Actual Time    : 6.649 ns
+From           : dip_sw4
+To             : dip_switch_test_wrapper:dip_test|data_reg[0]
 From Clock     : --
 To Clock       : inclk
 Failed Paths   : 0
@@ -15,9 +15,9 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 11.693 ns
-From           : id_thermo_test_wrapper:id_thermo_test|id_thermo:id_thermo_test|one_wire_master:master|binary_counter:timer_counter|count[4]
-To             : cardid
+Actual Time    : 8.749 ns
+From           : id_thermo_test_wrapper:id_thermo_test|id_thermo:id_thermo_test|one_wire_master:master|pres_state.read_slot
+To             : card_id
 From Clock     : inclk
 To Clock       : --
 Failed Paths   : 0
@@ -25,9 +25,9 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : -7.731 ns
-From           : cardid
-To             : id_thermo_test_wrapper:id_thermo_test|id_thermo:id_thermo_test|one_wire_master:master|shift_reg:rx_data_reg|reg[7]
+Actual Time    : -5.481 ns
+From           : slot_id[0]
+To             : slot_id_test_wrapper:slot_test|bp_slot_id:slot_id_test|slot_id_data[0]
 From Clock     : --
 To Clock       : inclk
 Failed Paths   : 0
@@ -35,29 +35,29 @@ Failed Paths   : 0
 Type           : Worst-case Minimum tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 5.641 ns
-From           : led1
-To             : led[1]
+Actual Time    : 5.004 ns
+From           : led0
+To             : red_led
 From Clock     : inclk
 To Clock       : --
 Failed Paths   : 0
 
 Type           : Clock Setup: 'all_test_pll:clk0|altpll:altpll_component|_clk0'
-Slack          : 5.361 ns
+Slack          : 5.708 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 107.78 MHz ( period = 9.278 ns )
-From           : rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_sk41:auto_generated|ram_block1a0~portb_address_reg5
-To             : rs232_tx:tx0|shift_reg:tx_buffer|reg[8]
+Actual Time    : 116.50 MHz ( period = 8.584 ns )
+From           : rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_7nb1:auto_generated|ram_block1a0~portb_address_reg5
+To             : rs232_tx:tx0|shift_reg:tx_buffer|reg[2]
 From Clock     : all_test_pll:clk0|altpll:altpll_component|_clk0
 To Clock       : all_test_pll:clk0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Clock Hold: 'all_test_pll:clk0|altpll:altpll_component|_clk0'
-Slack          : 0.605 ns
+Slack          : 0.445 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
-From           : slot_id_test_wrapper:slot_test|slot_id:slot_id_test|slot_id_data[3]
-To             : slot_id_test_wrapper:slot_test|data_reg[3]
+From           : id_thermo_test_wrapper:id_thermo_test|id_thermo:id_thermo_test|counter:byte_counter|count[2]
+To             : id_thermo_test_wrapper:id_thermo_test|id_thermo:id_thermo_test|counter:byte_counter|count[2]
 From Clock     : all_test_pll:clk0|altpll:altpll_component|_clk0
 To Clock       : all_test_pll:clk0|altpll:altpll_component|_clk0
 Failed Paths   : 0
