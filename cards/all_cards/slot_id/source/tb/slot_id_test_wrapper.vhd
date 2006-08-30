@@ -20,7 +20,7 @@
 --        Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: slot_id_test_wrapper.vhd,v 1.1 2004/04/14 21:45:53 jjacob Exp $>
+-- <revision control keyword substitutions e.g. $Id: slot_id_test_wrapper.vhd,v 1.2 2005/01/25 21:47:47 erniel Exp $>
 --
 -- Project:	      SCUBA-2
 -- Author:	       Jonathan Jacob
@@ -32,8 +32,11 @@
 -- and emulates the master (command FSM, for example) on the wishbone bus.
 --
 -- Revision history:
--- <date $Date: 2004/04/14 21:45:53 $>	-		<text>		- <initials $Author: jjacob $>
+-- <date $Date: 2005/01/25 21:47:47 $>	-		<text>		- <initials $Author: erniel $>
 -- $Log: slot_id_test_wrapper.vhd,v $
+-- Revision 1.2  2005/01/25 21:47:47  erniel
+-- for all_test with new rs232 blocks
+--
 -- Revision 1.1  2004/04/14 21:45:53  jjacob
 -- new directory structure
 --
@@ -54,13 +57,14 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 library work;
-use work.slot_id_pack.all;
+use work.all_cards_pack.all;
 
 library sys_param;
 use sys_param.wishbone_pack.all;
 -----------------------------------------------------------------------------
                      
 entity slot_id_test_wrapper is
+   generic ( SLOT_ID_BITS: integer := 4);
    port (
       -- basic signals
       rst_i     : in std_logic;    -- reset input
@@ -101,7 +105,7 @@ begin
 --
 ------------------------------------------------------------------------
 
-   slot_id_test : slot_id  
+   slot_id_test : bp_slot_id  
    port map(  
                slot_id_i         => slot_id_i, 
                -- wishbone signals
@@ -115,6 +119,7 @@ begin
                we_i              => '0',
                stb_i             => stb_o,
                ack_o             => ack_i,
+               err_o             => open,
                cyc_i             => cyc_o);
 
             
