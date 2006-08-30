@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.10 2004/11/15 20:03:41 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ctrl_test.vhd,v 1.11 2004/12/02 01:05:24 bench2 Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -32,8 +32,11 @@
 -- all the DACs at once.
 --
 -- Revision history:
--- <date $Date: 2004/11/15 20:03:41 $> - <initials $Author: bburger $>
+-- <date $Date: 2004/12/02 01:05:24 $> - <initials $Author: bench2 $>
 -- $Log: bc_dac_ctrl_test.vhd,v $
+-- Revision 1.11  2004/12/02 01:05:24  bench2
+-- commented frame_timing
+--
 -- Revision 1.10  2004/11/15 20:03:41  bburger
 -- Bryce :  Moved frame_timing to the 'work' library, and physically moved the files to "all_cards" directory
 --
@@ -77,9 +80,6 @@ use sys_param.data_types_pack.all;
 
 use components.component_pack.all;
 
-use work.dac_ctrl_pack.all;
---use work.frame_timing_pack.all;
-
 -----------------------------------------------------------------------------
                      
 entity bc_dac_ctrl_test_wrapper is
@@ -87,6 +87,7 @@ entity bc_dac_ctrl_test_wrapper is
       -- basic signals
       rst_i     : in std_logic;    -- reset input
       clk_i     : in std_logic;    -- clock input
+      clk_4_i   : in std_logic;    -- clock div 4 input
       en_i      : in std_logic;    -- enable signal
       done_o    : out std_logic;   -- done ouput signal
       
@@ -101,8 +102,8 @@ entity bc_dac_ctrl_test_wrapper is
       lvds_dac_ncs_o: out std_logic;
       lvds_dac_clk_o: out std_logic;
       
-      spi_start_o     : out std_logic;
-      lvds_spi_start_o: out std_logic      
+      spi_start_o     : out std_logic
+--      lvds_spi_start_o: out std_logic      
    );   
 end;  
 
@@ -110,28 +111,25 @@ end;
 
 architecture rtl of bc_dac_ctrl_test_wrapper is
 
+constant NUM_FIXED_VALUES : integer := 3;
+
 -- DAC CTRL:
 -- State encoding and state variables:
 
 -- controller states:
 type states is (IDLE, PUSH_DATA, SPI_START, DONE); 
-signal present_state         : states;
-signal next_state            : states;
-type   w_array11 is array (10 downto 0) of word16; 
-signal data     : w_array11;
-signal idac     : integer;
-signal ibus     : integer;
+signal present_state      : states;
+signal next_state         : states;
+type   w_array11 is array (NUM_FIXED_VALUES-1 downto 0) of word16; 
+signal data               : w_array11;
+signal idac               : integer range 0 to 32;
 
-signal logic0   : std_logic;
-signal logic1   : std_logic;
-signal zero     : integer;
-signal clk_2    : std_logic;
-signal clk_count: integer;
-signal val_clk  : std_logic;
-signal idx      : integer;
-signal send_dac32_start: std_logic;
+signal val_clk            : std_logic;
+signal idat               : integer range 0 to NUM_FIXED_VALUES;
+signal send_dac32_start   : std_logic;
 signal send_dac_LVDS_start: std_logic;
-signal dac_done        : std_logic_vector (32 downto 0);
+signal dac_done           : std_logic_vector (32 downto 0);
+signal en_slow            : std_logic;
 
 
 -- parallel data signals for DAC
@@ -140,40 +138,23 @@ type   w_array32 is array (32 downto 0) of word16;
 signal dac_data_p      : w_array32;
 
 begin
-   logic0 <= '0';
-   logic1 <= '1';
-   zero <= 0;
 
    spi_start_o <= send_dac32_start;
-   lvds_spi_start_o <= send_dac_LVDS_start;
+   --lvds_spi_start_o <= send_dac_LVDS_start;
    
--- instantiate a counter to divide the clock by 2
-   clk_div_2: counter
-   generic map(MAX => 4,
-               STEP_SIZE => 1,
-               WRAP_AROUND => '1',
-               UP_COUNTER => '1')
-   port map(clk_i   => clk_i,
-            rst_i   => '0',
-            ena_i   => '1',
-            load_i  => '0',
-            count_i => 0,
-            count_o => clk_count);
-   clk_2   <= '1' when clk_count > 2 else '0';
-     
--- instantiate a counter for idx to go through different values    
-   idx_count: counter
-   generic map(MAX => 9,
-               STEP_SIZE => 1,
-               WRAP_AROUND => '1',
-               UP_COUNTER => '1')
-   port map(clk_i   => val_clk,
-            rst_i   => logic0, -- '0' or rst_i? think!!!!!
-            ena_i   => logic1,
-            load_i  => logic0,
-            count_i =>  zero,
-            count_o => idx);
-
+   load_next_data: process(val_clk, rst_i)         
+   begin
+      if (rst_i = '1') then
+         idat <= 0;
+      elsif (val_clk'event and val_clk = '1') then
+           if (idat < NUM_FIXED_VALUES-1) then
+             idat <= idat + 1;
+           else
+             idat <= 0;
+           end if;
+      end if;
+   end process load_next_data;
+           
 ------------------------------------------------------------------------
 --
 -- Instantiate spi interface blocks, they all share the same start signal
@@ -186,7 +167,7 @@ begin
       dac_write_spi :write_spi_with_cs
       generic map(DATA_LENGTH => 16)
       port map(--inputs
-         spi_clk_i        => clk_2,
+         spi_clk_i        => clk_4_i,
          rst_i            => rst_i,
          start_i          => send_dac32_start,
          parallel_data_i  => dac_data_p(k),
@@ -225,30 +206,45 @@ begin
    data (0) <= "1111111111111111";--xffff     full scale
    data (1) <= "1000000000000000";--x8000     half range
    data (2) <= "0000000000000000";--x0000     
-   data (3) <= "0000000000000001";--x0001 
-   data (4) <= "0000000000000010";--x0002 
-   data (5) <= "0000000000000100";--x0004 
-   data (6) <= "0000000000001000";--x0008 
-   data (7) <= "0000000000010000";--x0010 
-   data (8) <= "0000000000100000";--x0020
-   data (9) <= "0000000001000000";--x0040
-  data (10) <= "0000000010000000";--x0080
+  -- since these are serial DACs, we opt to not go through walking 1 pattern 
+--   data (3) <= "0000000000000001";--x0001 
+--   data (4) <= "0000000000000010";--x0002 
+--   data (5) <= "0000000000000100";--x0004 
+--   data (6) <= "0000000000001000";--x0008 
+--   data (7) <= "0000000000010000";--x0010 
+--   data (8) <= "0000000000100000";--x0020
+--   data (9) <= "0000000001000000";--x0040
+--   data (10) <= "0000000010000000";--x0080
+   
+   -- capture the fast enable signal in the slow 12.5MHz clock domain
+   enable_extend:fast2slow_clk_domain_crosser
+      generic map (NUM_TIMES_FASTER => 4)
+      port map(       
+         -- global signals
+         rst_i      => rst_i,
+         clk_slow   => clk_4_i,
+         clk_fast   => clk_i  ,
+         -- input/output 
+         input_fast => en_i,
+         output_slow=> en_slow      
+      );
 
   -- state register:
-   state_FF: process(clk_2, rst_i)
+   state_FF: process(clk_4_i, rst_i)
    begin
       if(rst_i = '1') then 
          present_state <= IDLE;
-      elsif(clk_2'event and clk_2 = '1') then
+      elsif(clk_4_i'event and clk_4_i = '1') then
          present_state <= next_state;
       end if;
    end process state_FF;
 ---------------------------------------------------------------   
-   state_NS: process(present_state, en_i)
+   state_NS: process(present_state, en_slow)
    begin
+      next_state <= present_state;
       case present_state is
          when IDLE =>     
-            if(en_i = '1') then
+            if(en_slow = '1') then
                next_state <= PUSH_DATA;
             else
                next_state <= IDLE;
@@ -262,49 +258,43 @@ begin
          
          when DONE =>
             next_state  <= IDLE;
+            
+         when others =>
+            next_state <= IDLE;
                         
       end case;
    end process state_NS;
 -----------------------------------------------------------------   
-   state_out: process(present_state)
+   state_out: process(present_state,data)
    begin
+      for idac in 0 to 32 loop
+         dac_data_p(idac) <= data(idat);
+      end loop;
+      send_dac32_start    <= '0';
+      send_dac_lvds_start <= '0';
+      val_clk             <= '0';
+      done_o              <= '0';
+      
       case present_state is
          when IDLE =>     
-           for idac in 0 to 32 loop
-               dac_data_p(idac) <= "0000000000000000";
-            end loop;            
-            send_dac32_start    <= '0';
-            send_dac_lvds_start <= '0';
-            val_clk   <= '1';
-            done_o    <= '0';
-         
-         when PUSH_DATA =>    
             for idac in 0 to 32 loop
-               dac_data_p(idac) <= data(idx);
-            end loop;
-            send_dac32_start    <= '0';
-            send_dac_lvds_start <= '0';
-            val_clk   <= '0';
-       done_o    <= '0';
+               dac_data_p(idac) <= (others=> '0');
+            end loop;            
+            val_clk   <= '1';
+         
+         when PUSH_DATA =>
+            null;
                           
          when SPI_START =>     
-            for idac in 0 to 32 loop
-               dac_data_p(idac) <= data(idx);
-            end loop;
             send_dac32_start    <= '1';
             send_dac_lvds_start <= '1';
-            val_clk   <= '0';
-       done_o    <= '0';
-
-          when DONE =>    
-            for idac in 0 to 32 loop
-               dac_data_p(idac) <= data(idx);
-            end loop;
-            send_dac32_start    <= '0';
-            send_dac_lvds_start <= '0';
-            val_clk   <= '0';
-       done_o    <= '1';
-                                 
+            
+         when DONE =>    
+            done_o    <= '1';
+         
+         when others =>
+             null;
+             
       end case;
    end process state_out;
  end;
