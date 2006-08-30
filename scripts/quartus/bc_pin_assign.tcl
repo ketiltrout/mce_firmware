@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: bc_pin_assign.tcl,v $
+# Revision 1.15  2006/08/23 21:04:34  mandana
+# sa_heater pins added for Rev. D PCB
+#
 # Revision 1.14  2005/06/03 17:52:59  mandana
 # reverse the order for DAC0 to DAC15. Be careful: silkscreen and schematics are labeled wrong.
 #
@@ -208,8 +211,8 @@ cmp add_assignment $top_name "" sa_htr2n LOCATION "Pin_U2"
 puts "   Assigned: SA Heater pins."
 
 # assign 2x8 test header pins
-cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_AE11"
-cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_AD8"
+cmp add_assignment $top_name "" "test\[1\]" LOCATION "Pin_AE11"
+cmp add_assignment $top_name "" "test\[2\]" LOCATION "Pin_AD8"
 cmp add_assignment $top_name "" "test\[3\]" LOCATION "Pin_AF11"
 cmp add_assignment $top_name "" "test\[4\]" LOCATION "Pin_AF8"
 cmp add_assignment $top_name "" "test\[5\]" LOCATION "Pin_AG11"
@@ -222,9 +225,11 @@ cmp add_assignment $top_name "" "test\[11\]" LOCATION "Pin_AH10"
 cmp add_assignment $top_name "" "test\[12\]" LOCATION "Pin_AE9"
 cmp add_assignment $top_name "" "test\[13\]" LOCATION "Pin_AF9"
 cmp add_assignment $top_name "" "test\[14\]" LOCATION "Pin_AD10"
-cmp add_assignment $top_name "" "test\[15\]" LOCATION "Pin_AH9"
-cmp add_assignment $top_name "" "test\[16\]" LOCATION "Pin_AE10"
 puts "   Assigned: 2x8 test header pins."
+
+cmp add_assignment $top_name "" rx LOCATION "Pin_AH9"
+cmp add_assignment $top_name "" tx LOCATION "Pin_AE10"
+puts "   Assigned: rs232 pins."
 
 
 #assign mictor header pins (odd pod = 0-15, even pod = 16-31)
