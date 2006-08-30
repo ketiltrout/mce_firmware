@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.14  2004/07/21 22:30:15  erniel
+-- updated counter component
+--
 -- Revision 1.13  2004/06/25 17:20:50  bench2
 -- Mandana: Data and ncs lines for DAC15 had to be driven from test pins (originally wired to PLL clkin pins on FPGA)
 --
@@ -77,337 +80,578 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+library components;
+use components.component_pack.all;
+
 library work;
+use work.ascii_pack.all;
 use work.async_pack.all;
 use work.bc_test_pack.all;
 
 entity bc_test is
    port(
-      n_rst : in std_logic;
+      rst_n      : in std_logic;
       
       -- clock signals
-      inclk  : in std_logic;
-      outclk : out std_logic;
+      inclk      : in std_logic;
       
       -- RS232 interface
-      rs232_tx : out std_logic;
-      rs232_rx : in std_logic;
+      tx         : out std_logic;
+      rx         : in std_logic;
+      
+      -- sa_heater interface:
+      sa_htr1p   : out std_logic;
+      sa_htr1n   : out std_logic;
+      sa_htr2p   : out std_logic;
+      sa_htr2n   : out std_logic;      
             
       -- LVDS interfaces
-      lvds_txa  : out std_logic;
-      lvds_txb  : out std_logic;
+      lvds_txa   : out std_logic;
+      lvds_txb   : out std_logic;
       lvds_cmd   : in std_logic;
       lvds_sync  : in std_logic;
       lvds_spare : in std_logic;
       
       -- bc dac interface
-      dac_data  : out std_logic_vector (31 downto 0); 
-      dac_ncs  : out std_logic_vector (31 downto 0); 
-      dac_sclk  : out std_logic_vector (31 downto 0);
+      dac_data   : out std_logic_vector (31 downto 0); 
+      dac_ncs    : out std_logic_vector (31 downto 0); 
+      dac_sclk   : out std_logic_vector (31 downto 0);
 --      dac_nclr : out std_logic;
       
       lvds_dac_data : out std_logic;
-      lvds_dac_ncs : out std_logic;
+      lvds_dac_ncs  : out std_logic;
       lvds_dac_sclk : out std_logic;
+      
+      -- status pins
+      n7vok      : in std_logic;
+      n15vok     : in std_logic;
+      minus7vok  : in std_logic;
+      
       --test pins
-      test : out std_logic_vector(16 downto 3));
+      test       : out std_logic_vector(14 downto 1));
 end bc_test;
 
 architecture behaviour of bc_test is
    
-   component pll
-   port(inclk0 : in std_logic;
-        c0 : out std_logic;
-        c1 : out std_logic;
-        e3 : out std_logic);
-   end component;
+constant RESET_MSG_LEN    : integer := 16;
+constant IDLE_MSG_LEN     : integer := 10;
+constant ERROR_MSG_LEN    : integer := 8;  
+constant RAMP_OFF_MSG_LEN : integer := 22;
+constant RESULT_MSG_LEN   : integer := 6;
 
-   
-   signal zero : std_logic;
-   signal one : std_logic;
-   
-   signal clk : std_logic;   
-   signal rst : std_logic;
-   signal int_rst : std_logic;
-   
-   signal dip : std_logic_vector(1 downto 0);
-   signal dac_test_ncs: std_logic_vector(31 downto 0);
-   signal dac_test_sclk: std_logic_vector(31 downto 0);
-   signal dac_test_data: std_logic_vector(31 downto 0);
-   
+constant STATUS_WIDTH     : integer := 3;
 
-   -- transmitter signals
-   signal tx_clock : std_logic;
-   signal tx_busy  : std_logic;
-   signal tx_ack   : std_logic;
-   signal tx_data  : std_logic_vector(7 downto 0);
-   signal tx_we    : std_logic;
-   signal tx_stb   : std_logic;
-   
-   -- reciever signals
-   signal rx_clock : std_logic;
-   signal rx_valid : std_logic;
-   signal rx_error : std_logic;
-   signal rx_read  : std_logic;
-   signal rx_data  : std_logic_vector(7 downto 0);
-   signal rx_stb   : std_logic;
-   signal rx_ack   : std_logic;
-   
-   -- state constants
-   constant MAX_STATES : integer := 11;
+signal clk  : std_logic;
+signal clk_4: std_logic;
+signal rst  : std_logic;
 
-   constant INDEX_RESET      : integer := 0;
-   constant INDEX_IDLE       : integer := 1;
-   constant INDEX_TX_A       : integer := 2;
-   constant INDEX_TX_B       : integer := 3;
-   constant INDEX_RX_CMD     : integer := 4;
-   constant INDEX_RX_SYNC    : integer := 5;
-   constant INDEX_RX_SPARE   : integer := 6;     
-   constant INDEX_DEBUG      : integer := 7;
-   constant INDEX_DAC_FIX    : integer := 8;
-   constant INDEX_DAC_RAMP   : integer := 9;
-   constant INDEX_DAC_XTALK  : integer := 10;
-         
-   constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
-   constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
-   constant SEL_TX_A       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_A => '1', others => '0');
-   constant SEL_TX_B       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_B => '1', others => '0');
-   constant SEL_RX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CMD => '1', others => '0');
-   constant SEL_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
-   constant SEL_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0');         
-   constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-   constant SEL_DAC_FIX    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_FIX => '1', others => '0');
-   constant SEL_DAC_RAMP   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_RAMP => '1', others => '0');
-   constant SEL_DAC_XTALK  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_XTALK => '1', others => '0');
-   
-   constant DONE_NULL       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
-   constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
-   constant DONE_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
-   constant DONE_TX_A       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_A => '1', others => '0');
-   constant DONE_TX_B       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_B => '1', others => '0');
-   constant DONE_RX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_CMD => '1', others => '0');
-   constant DONE_RX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SYNC => '1', others => '0');
-   constant DONE_RX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_SPARE => '1', others => '0'); 
-   constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-   constant DONE_DAC_FIX    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_FIX => '1', others => '0');
-   constant DONE_DAC_RAMP   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_RAMP => '1', others => '0');
-   constant DONE_DAC_XTALK  : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DAC_XTALK => '1', others => '0');
+type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, RX_CMD1, RX_CMD2, 
+                FIXED_DAC_TEST, RAMP_OFF_MSG, RAMP_DAC_TEST, WAIT_DAC_DONE,
+                ODD_XTALK_DAC_TEST, EVEN_XTALK_DAC_TEST, SA_HTR1_TEST, SA_HTR2_TEST, 
+                STATUS_TEST, TX_STATUS);
+signal pres_state : states;
+signal next_state : states;
 
-   -- state signals
-   type states is (RESET, FETCH, DECODE, EXECUTE);
-   signal cmd_state : states;
-   
-   signal sel  : std_logic_vector(MAX_STATES - 1 downto 0);
-   signal done : std_logic_vector(MAX_STATES - 1 downto 0);
-   
-   signal cmd1 : std_logic_vector(7 downto 0);
-   signal cmd2 : std_logic_vector(7 downto 0);
-   
-   -- device return signals:
-   signal reset_data    : std_logic_vector(7 downto 0);
-   signal idle_data     : std_logic_vector(7 downto 0);
-   signal rx_cmd_data   : std_logic_vector(7 downto 0);
-   signal rx_sync_data  : std_logic_vector(7 downto 0);
-   signal rx_spare_data : std_logic_vector(7 downto 0);      
-   signal debug_data    : std_logic_vector(7 downto 0);
-   
-   signal reset_we      : std_logic;
-   signal idle_we       : std_logic;
-   signal rx_cmd_we     : std_logic;
-   signal rx_sync_we    : std_logic;
-   signal rx_spare_we   : std_logic;      
-   signal debug_we      : std_logic;
-   
-   signal reset_stb     : std_logic;
-   signal idle_stb      : std_logic;
-   signal rx_cmd_stb    : std_logic;
-   signal rx_sync_stb   : std_logic;
-   signal rx_spare_stb  : std_logic;   
-   signal debug_stb     : std_logic;
-   signal fix_dac_ncs   : std_logic_vector (31 downto 0);
-   signal fix_dac_sclk  : std_logic_vector (31 downto 0);
-   signal fix_dac_data  : std_logic_vector (31 downto 0);
+signal tx_data : std_logic_vector(7 downto 0);
+signal tx_rdy  : std_logic;
+signal tx_busy : std_logic;
+
+signal rx_data : std_logic_vector(7 downto 0);
+signal rx_ack  : std_logic;
+signal rx_rdy  : std_logic;
+
+signal tx_count : integer range 0 to 70;
+signal tx_count_ena : std_logic;
+signal tx_count_clr : std_logic;
+
+signal reset_msg  : std_logic_vector(7 downto 0);
+signal idle_msg   : std_logic_vector(7 downto 0);
+signal error_msg  : std_logic_vector(7 downto 0);
+signal ramp_msg   : std_logic_vector(7 downto 0);
+signal pass_msg   : std_logic_vector(7 downto 0);
+signal fail_msg   : std_logic_vector(7 downto 0);
+
+signal cmd1    : std_logic_vector(7 downto 0);
+signal cmd2    : std_logic_vector(7 downto 0);
+signal cmd1_ld : std_logic;
+signal cmd2_ld : std_logic;
+
+signal rst_cmd : std_logic;
+
+   signal fixed_dac_ena      : std_logic;
+   signal fixed_dac_done     : std_logic;
+   signal fix_dac_ncs        : std_logic_vector (31 downto 0);
+   signal fix_dac_sclk       : std_logic_vector (31 downto 0);
+   signal fix_dac_data       : std_logic_vector (31 downto 0);
    signal fix_lvds_dac_ncs   : std_logic;
    signal fix_lvds_dac_sclk  : std_logic;
    signal fix_lvds_dac_data  : std_logic;
+
+   signal ramp_dac_ena       : std_logic;
+   signal ramp_dac_done      : std_logic;
    signal ramp_dac_ncs       : std_logic_vector (31 downto 0);
    signal ramp_dac_sclk      : std_logic_vector (31 downto 0);
    signal ramp_dac_data      : std_logic_vector (31 downto 0);
    signal ramp_lvds_dac_ncs  : std_logic;
    signal ramp_lvds_dac_sclk : std_logic;
    signal ramp_lvds_dac_data : std_logic;
+   
+   signal xtalk_dac_ena      : std_logic;
+   signal xtalk_dac_done     : std_logic;
    signal xtalk_dac_ncs      : std_logic_vector (31 downto 0);
    signal xtalk_dac_sclk     : std_logic_vector (31 downto 0);
    signal xtalk_dac_data     : std_logic_vector (31 downto 0);
    signal xtalk_lvds_dac_ncs : std_logic;
    signal xtalk_lvds_dac_sclk: std_logic;
    signal xtalk_lvds_dac_data: std_logic;
-   
-   
-   signal test_data : std_logic_vector(31 downto 0);
-   signal lvds_spi_start : std_logic;
-   signal spi_start      : std_logic;
-   signal fix_spi_start  : std_logic;   
-   signal ramp_spi_start : std_logic;
-   signal xtalk_spi_start: std_logic;
+      
+   signal sa_htr1_ena        : std_logic;
+   signal sa_htr1_done       : std_logic;
 
-   signal rx_clk : std_logic;
-   signal dac_test_mode : std_logic_vector(1 downto 0);
+   signal sa_htr2_ena        : std_logic;
+   signal sa_htr2_done       : std_logic;
+
+   signal test_data          : std_logic_vector(31 downto 0);
+   signal lvds_spi_start     : std_logic;
+   signal spi_start          : std_logic;
+   signal fix_spi_start      : std_logic;   
+   signal ramp_spi_start     : std_logic;
+   signal xtalk_spi_start    : std_logic;
+
+   signal rx_clk             : std_logic;
+   signal dac_test_mode      : std_logic_vector(1 downto 0);
+   signal dac_test_mode_reg  : std_logic_vector (1 downto 0);
+   signal mode_reg_en        : std_logic; 
+
+   signal dac_test_ncs       : std_logic_vector(31 downto 0);
+   signal dac_test_sclk      : std_logic_vector(31 downto 0);
+   signal dac_test_data      : std_logic_vector(31 downto 0);
+
+   signal status_ena         : std_logic;
+   signal status_done        : std_logic;
+   signal status             : std_logic_vector(STATUS_WIDTH-1 downto 0);
+   signal status_reg         : std_logic; -- serial shift register of status
+   signal status_reg_ena     : std_logic;
+   signal status_reg_ld      : std_logic;
    
 begin
-   clk_gen : pll
-      port map(inclk0 => inclk,
-               c0 => clk,
-               c1 => rx_clk,
-               e3 => outclk);
+   rst <= not rst_n or rst_cmd;
 
-   -- RS232 interface start
-   receiver : async_rx
-      port map(rx_i => rs232_rx,
-               flag_o => rx_valid,
-               error_o => rx_error,
-               clk_i => rx_clock,
-               rst_i => rst,
-               dat_o => rx_data,
-               we_i => zero,
-               stb_i => rx_stb,
-               ack_o => rx_ack,
-               cyc_i => one);
+   clk0: bc_test_pll
+   port map(inclk0 => inclk,
+            c0 => clk,
+            c1 => clk_4);
 
-   transmitter : async_tx
-      port map(tx_o => rs232_tx,
-               busy_o => tx_busy,
-               clk_i => tx_clock,
-               rst_i => rst,
-               dat_i => tx_data,
-               we_i => tx_we,
-               stb_i => tx_stb,
-               ack_o => tx_ack,
-               cyc_i => one);
+
+   --------------------------------------------------------
+   -- RS-232 blocks
+   --------------------------------------------------------
+
+   rx0: rs232_rx
+   port map(clk_i   => clk,
+            rst_i   => rst,
+            dat_o   => rx_data,
+            rdy_o   => rx_rdy,
+            ack_i   => rx_ack,
+            rs232_i => rx);
+
+   tx0: rs232_tx
+   port map(clk_i   => clk,
+            rst_i   => rst,
+            dat_i   => tx_data,
+            rdy_i   => tx_rdy,
+            busy_o  => tx_busy,
+            rs232_o => tx);
+
+
+   --------------------------------------------------------
+   -- Command character storage
+   --------------------------------------------------------
+
+   cmdchar1 : reg
+   generic map(WIDTH => 8)
+   port map(clk_i  => clk,
+            rst_i  => rst,
+            ena_i  => cmd1_ld,
+            reg_i  => rx_data,
+            reg_o  => cmd1);
+
+   cmdchar2 : reg
+   generic map(WIDTH => 8)
+   port map(clk_i  => clk,
+            rst_i  => rst,
+            ena_i  => cmd2_ld,
+            reg_i  => rx_data,
+            reg_o  => cmd2);
+
+
+   --------------------------------------------------------
+   -- Message logic
+   --------------------------------------------------------
+
+   tx_char_counter: counter
+   generic map(MAX => 70,
+               WRAP_AROUND => '0')
+   port map(clk_i   => clk,
+            rst_i   => rst,
+            ena_i   => tx_count_ena,
+            load_i  => tx_count_clr,
+            count_i => 0,
+            count_o => tx_count);
+
    
-   aclock : async_clk
-      port map(clk_i => clk,
-               rst_i => rst,
-               txclk_o => tx_clock,
-               rxclk_o => rx_clock);
+   with tx_count select 
+      -- reset message is BC Test v2.0
+      reset_msg <= newline   when 0,
+                   newline   when 1,
+                   shift(b)  when 2,
+                   shift(c)  when 3,
+                   space     when 4,
+                   shift(t)  when 5,
+                   e         when 6,
+                   s         when 7,
+                   t         when 8,
+                   space     when 9,
+                   v         when 10,
+                   period    when 11, 
+                   two       when 12, 
+                   period    when 13,
+                   zero      when 14,
+                   newline   when others;
+
+   with tx_count select
+      -- idle message is Command? 
+      idle_msg <= newline      when 0,
+                  shift(c)     when 1,
+                  o            when 2,
+                  m            when 3,
+                  m            when 4,
+                  a            when 5,
+                  n            when 6,
+                  d            when 7,
+                  shift(slash) when 8,
+                  space        when others;
+
+   with tx_count select
+      -- error message is error 
+      error_msg <= tab         when 0,
+                   e           when 1,
+                   r           when 2,
+                   r           when 3,
+                   o           when 4,
+                   r           when 5,
+                   space       when 6,
+                   newline  when others;
+
+   with tx_count select
+      -- ramp_off message is turn off ramp first! 
+      ramp_msg  <= tab         when 0,
+                   t           when 1,
+                   u           when 2,
+                   r           when 3,
+                   n           when 4,
+                   space       when 5,
+                   o           when 6,
+                   f           when 7,
+                   f           when 8,
+                   space       when 9,
+                   r           when 10,  
+                   a 	       when 11,
+                   m	       when 12,
+                   p	       when 13,
+                   space       when 14,
+                   f	       when 15,
+                   i	       when 16,
+                   r	       when 17,
+                   s	       when 18,
+                   t	       when 19,
+                   shift(one)  when 20,                   
+                   newline  when others;
+
+   with tx_count select
+      -- power status read backs correct values, prints pass message
+      pass_msg  <= tab         when 3,
+                   shift(p)    when 4,
+                   a           when 5,
+                   s           when 6,
+                   s           when 7,
+                   shift(one)  when 8,
+                   newline  when others;
+
+   with tx_count select
+      -- power status read backs wrong values, prints fail message
+      fail_msg  <= tab         when 3,
+                   shift(F)    when 4,
+                   a           when 5,
+                   i           when 6,
+                   l           when 7,
+                   shift(one)  when 8,
+                   newline  when others;
+
+   --------------------------------------------------------
+   -- Overall test Control logic
+   --------------------------------------------------------
+
+   process(clk, rst_n)
+   begin
+      if(rst_n = '0') then
+         pres_state <= RESET;
+      elsif(clk = '1' and clk'event) then
+         pres_state <= next_state;
+      end if;
+   end process;
+
+   process(pres_state, rx_rdy, rx_data, tx_count, fixed_dac_done, ramp_dac_done, xtalk_dac_done, sa_htr1_done, sa_htr2_done)
+   begin
+      next_state <= pres_state;
+      case pres_state is
+         when RESET =>          next_state <= TX_RESET;
+
+         when TX_RESET =>       if(tx_count = RESET_MSG_LEN - 1) then
+                                   next_state <= TX_IDLE;
+                                else
+                                   next_state <= TX_RESET;
+                                end if;
+
+         when TX_IDLE =>        if(tx_count = IDLE_MSG_LEN - 1) then
+                                   next_state <= RX_CMD1;
+                                else
+                                   next_state <= TX_IDLE;
+                                end if;
+
+         when TX_ERROR =>       if(tx_count = ERROR_MSG_LEN - 1) then
+                                   next_state <= TX_IDLE;
+                                else
+                                   next_state <= TX_ERROR;
+                                end if;
+
+         when RX_CMD1 =>        if(rx_rdy = '1') then
+                                   case rx_data is
+                                      when f | shift(f) => next_state <= FIXED_DAC_TEST;
+                                      when r | shift(r) => next_state <= RAMP_DAC_TEST;
+                                      when o | shift(o) => next_state <= ODD_XTALK_DAC_TEST;                                      
+                                      when e | shift(e) => next_state <= EVEN_XTALK_DAC_TEST;
+                                      when a | shift(a) => next_state <= SA_HTR1_TEST;
+                                      when b | shift(b) => next_state <= SA_HTR2_TEST;
+                                      when s | shift(s) => next_state <= STATUS_TEST;
+                                      when escape =>       next_state <= RESET;
+                                      when others =>       next_state <= TX_ERROR;
+                                   end case;
+                                else
+                                   next_state <= RX_CMD1;
+                                end if;
+
+         when FIXED_DAC_TEST => next_state <= WAIT_DAC_DONE;                                
+         
+         when RAMP_OFF_MSG   =>  if(tx_count = RAMP_OFF_MSG_LEN - 1) then
+                                    next_state <= TX_IDLE;
+                                 else
+                                    next_state <= RAMP_OFF_MSG;
+                                 end if;                     
+
+         when RAMP_DAC_TEST  =>  next_state <= WAIT_DAC_DONE;
+
+         when WAIT_DAC_DONE  =>  if(fixed_dac_done = '1' or ramp_dac_done = '1' or xtalk_dac_done = '1') then
+                                    next_state <= TX_IDLE;
+                                 else
+                                    next_state <= WAIT_DAC_DONE;
+                                 end if;  
+
+         when EVEN_XTALK_DAC_TEST =>  next_state <= WAIT_DAC_DONE;
+         
+         when ODD_XTALK_DAC_TEST =>  next_state <= WAIT_DAC_DONE;
+         
+         when SA_HTR1_TEST   =>   next_state <= TX_IDLE;
+         
+         when SA_HTR2_TEST   =>   next_state <= TX_IDLE;                                
+         
+         when STATUS_TEST    =>   if(status_done = '1') then
+                                     next_state <= TX_STATUS;
+                                  else
+                                     next_state <= STATUS_TEST;
+                                  end if;
+         
+         when TX_STATUS      =>   if(tx_count = STATUS_WIDTH + RESULT_MSG_LEN - 1) then
+                                     next_state <= TX_IDLE;
+                                  else
+                                     next_state <= TX_STATUS;
+                                  end if;
+
+         when others         =>   next_state <= TX_IDLE;
+
+      end case;
+   end process;
+
+   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg)
+   begin
+      rx_ack        <= '0';
+      tx_rdy        <= '0';
+      tx_data       <= (others => '0');
+      tx_count_ena  <= '0';
+      tx_count_clr  <= '0';
+      cmd1_ld       <= '0';
+      cmd2_ld       <= '0';
       
-   -- RS232 interface end
+      rst_cmd       <= '0';
+      fixed_dac_ena <= '0';
+      ramp_dac_ena  <= '0';
+      xtalk_dac_ena <= '0';
+      dac_test_mode <= "00";
+      mode_reg_en   <= '0';
+      sa_htr1_ena   <= '0';
+      sa_htr2_ena   <= '0';
+      status_ena    <= '0';
+      status_reg_ld <= '0';
+      status_reg_ena<= '0';
+
+      case pres_state is
+         when RESET =>      tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+                            rst_cmd      <= '1';
+
+         when TX_RESET =>   if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = RESET_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            tx_data <= reset_msg;
+
+         when TX_IDLE =>    if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = IDLE_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;   
+                            tx_data <= idle_msg;
+
+         when TX_ERROR =>   if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = ERROR_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            tx_data <= error_msg;
+
+         when RX_CMD1 =>    rx_ack       <= '1';
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+                            cmd1_ld      <= '1';
+
+         when FIXED_DAC_TEST =>  fixed_dac_ena <= '1';
+                                 dac_test_mode <= "00";
+                                 mode_reg_en <= '1';
+                                
+         when RAMP_OFF_MSG  => 
+                            if (tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = RAMP_OFF_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;   
+                            tx_data <= ramp_msg;
+
+         when RAMP_DAC_TEST =>  
+                            ramp_dac_ena <= '1';
+                            dac_test_mode <= "01";
+                            mode_reg_en <= '1';
+
+         when ODD_XTALK_DAC_TEST =>  
+                            xtalk_dac_ena <= '1';
+                            dac_test_mode <= "10";
+                            mode_reg_en <= '1';
+                            
+         when EVEN_XTALK_DAC_TEST => 
+                            xtalk_dac_ena <= '1';
+                            dac_test_mode <= "11";
+                            mode_reg_en <= '1';
+
+         when SA_HTR1_TEST =>
+                            sa_htr1_ena   <= '1';
+
+         when SA_HTR2_TEST =>
+                            sa_htr2_ena   <= '1';
+         
+         when WAIT_DAC_DONE => null;
+         
+         when STATUS_TEST => status_ena      <= '1';
+                             status_reg_ena  <= '1';
+                             status_reg_ld   <= '1';
+                             tx_count_ena    <= '1';
+                             tx_count_clr    <= '1';
+
+         when TX_STATUS =>  if(tx_busy = '0') then
+                               tx_rdy          <= '1';
+                               status_reg_ena  <= '1';
+                               tx_count_ena    <= '1';
+                            end if;
+                            if(tx_count = STATUS_WIDTH + RESULT_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            if (tx_count < STATUS_WIDTH ) then
+                               tx_data <= bin2asc(status_reg);
+                            elsif (status = "010") then                              
+                               tx_data <= pass_msg;
+                            else
+                               tx_data <= fail_msg;
+                            end if;   
+                            
+         when others =>     null;
+
+      end case;
+   end process;
    
-   -- reset_state gives us our welcome string on startup
-   reset_state : bc_test_reset
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_RESET),
-               done_o    => done(INDEX_RESET),
-               
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => reset_data,
-               tx_we_o   => reset_we,
-               tx_stb_o  => reset_stb);
+   -------------------------------------------------------
+   --
+   -- Different test instantiations
+   --
+   -------------------------------------------------------
    
-   -- idle_state is special - it aquires commands for us to process
-   idle_state : bc_test_idle
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_IDLE),
-               done_o    => done(INDEX_IDLE),
-               
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => idle_data,
-               tx_we_o   => idle_we,
-               tx_stb_o  => idle_stb,
-               
-               rx_valid_i => rx_valid,
-               rx_ack_i  => rx_ack,
-               rx_stb_o  => rx_stb,
-               rx_data_i => rx_data,
-               
-               cmd1_o => cmd1,
-               cmd2_o => cmd2);
-      
-
-   tx_a : lvds_tx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_TX_A),
-               done_o    => done(INDEX_TX_A),
-               lvds_o    => lvds_txa);
-
-   tx_b : lvds_tx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_TX_B),
-               done_o    => done(INDEX_TX_B),
-               lvds_o    => lvds_txb);
-               
-               
-   -- LVDS receivers   
-   rx_cmd : lvds_rx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               rx_clk_i  => rx_clk,
-               en_i      => sel(INDEX_RX_CMD),
-               done_o    => done(INDEX_RX_CMD),
-               lvds_i    => lvds_cmd,
-            
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => rx_cmd_data,
-               tx_we_o   => rx_cmd_we,
-               tx_stb_o  => rx_cmd_stb);
-    
-   rx_sync : lvds_rx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               rx_clk_i  => rx_clk,
-               en_i      => sel(INDEX_RX_SYNC),
-               done_o    => done(INDEX_RX_SYNC),
-               lvds_i    => lvds_sync,
-            
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => rx_sync_data,
-               tx_we_o   => rx_sync_we,
-               tx_stb_o  => rx_sync_stb);
+   -- status test
+   status <= n7vok & minus7vok & n15vok;
    
-   rx_spare : lvds_rx_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               rx_clk_i  => rx_clk,
-               en_i      => sel(INDEX_RX_SPARE),
-               done_o    => done(INDEX_RX_SPARE),
-               lvds_i    => lvds_spare,
-            
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => rx_spare_data,
-               tx_we_o   => rx_spare_we,
-               tx_stb_o  => rx_spare_stb);
+   gen_status_done: process (rst, clk, status_ena)
+   begin
+      if (rst = '1') then
+         status_done <= '0';
+      elsif (clk'event and clk = '1') then
+            status_done <= status_ena;
+      end if;   
+   end process gen_status_done;
+   
+   status_reg1 : shift_reg
+   generic map(WIDTH => STATUS_WIDTH)
+   port map(clk_i      => clk,
+            rst_i      => rst,
+            ena_i      => status_reg_ena,
+            load_i     => status_reg_ld,
+            clr_i      => '0',
+            shr_i      => '0',
+            serial_i   => '0',
+            serial_o   => status_reg,
+            parallel_i => status,
+            parallel_o => open);
 
-               
-   debug_tx : rs232_data_tx
-      generic map(WIDTH => 32)
-      port map(clk_i   => clk,
-               rst_i   => rst,
-               data_i  => test_data,
-               start_i => sel(INDEX_DEBUG),
-               done_o  => done(INDEX_DEBUG),
 
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => debug_data,
-               tx_we_o   => debug_we,
-               tx_stb_o  => debug_stb); 
-               
+   
+   -- DAC fix-value test
    dac_fix : bc_dac_ctrl_test_wrapper
       port map(
                -- basic signals
                rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel(INDEX_DAC_FIX),
-               done_o    => done(INDEX_DAC_FIX),
+               clk_4_i   => clk_4,
+               en_i      => fixed_dac_ena,
+               done_o    => fixed_dac_done,
                
                -- transmitter signals removed!
                          
@@ -420,17 +664,21 @@ begin
                lvds_dac_ncs_o => fix_lvds_dac_ncs,
                lvds_dac_clk_o => fix_lvds_dac_sclk,
 
-               spi_start_o    => fix_spi_start,
-               lvds_spi_start_o => lvds_spi_start
+               spi_start_o    => fix_spi_start
+--               lvds_spi_start_o => lvds_spi_start
                );   
-
+   
+   
+   
+   -- DAC ramp test
    dac_ramp :  bc_dac_ramp_test_wrapper
       port map(
                -- basic signals
                rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel(INDEX_DAC_RAMP),
-               done_o    => done(INDEX_DAC_RAMP),
+               clk_4_i   => clk_4,
+               en_i      => ramp_dac_ena,
+               done_o    => ramp_dac_done,
                
                -- transmitter signals removed!
                          
@@ -446,14 +694,30 @@ begin
                spi_start_o  => ramp_spi_start
             );     
 
-    dac_xtalk :  bc_dac_xtalk_test_wrapper
+   -- mode register
+   process(clk, rst)
+   begin
+      if(rst = '1') then
+         dac_test_mode_reg <= "00";
+      elsif(clk'event and clk = '1') then
+         if (mode_reg_en = '1') then
+           dac_test_mode_reg <= dac_test_mode;
+         end if;
+      end if;
+   end process;
+   
+   
+   
+   -- DAC cross-talk test
+   dac_xtalk :  bc_dac_xtalk_test_wrapper
       port map(
                -- basic signals
                rst_i     => rst,
                clk_i     => clk,
-               en_i      => sel(INDEX_DAC_XTALK),
-               mode      => dac_test_mode(0),    -- dac_test_mode ="02" passes 0 to the block indicating odd channels square wave
-               done_o    => done(INDEX_DAC_XTALK),
+               clk_4_i   => clk_4,
+               en_i      => xtalk_dac_ena,
+               mode_i    => dac_test_mode(0),    -- dac_test_mode ="02" passes 0 to the block indicating odd channels square wave
+               done_o    => xtalk_dac_done,
                
                -- transmitter signals removed!
                          
@@ -468,189 +732,98 @@ begin
                
                spi_start_o  => xtalk_spi_start
             );     
-            
-   with dac_test_mode select
+   
+   
+   
+   -- SA_heater A Square-wave test
+   sa_htr1_toggle : bc_sa_htr_test
+      port map(
+               -- basic signals
+               rst_i     => rst,
+               clk_i     => clk,
+               en_i      => sa_htr1_ena,
+               done_o    => sa_htr1_done,
+
+               pos_o     => sa_htr1p,
+               neg_o     => sa_htr1n
+            );       
+   
+   -- SA_heater B Square-wave test
+   sa_htr2_toggle : bc_sa_htr_test
+      port map(
+               -- basic signals
+               rst_i     => rst,
+               clk_i     => clk,
+               en_i      => sa_htr2_ena,
+               done_o    => sa_htr2_done,
+               
+               pos_o     => sa_htr2p,
+               neg_o     => sa_htr2n
+            );       
+      
+   -- multiplex DAC lines for different test modes   
+   with dac_test_mode_reg select
       dac_test_data <= fix_dac_data       when "00",
                        ramp_dac_data      when "01",
                        xtalk_dac_data     when "10",
-                       xtalk_dac_data     when "11";
+                       xtalk_dac_data     when "11",
+                       fix_dac_data       when others;
                        
-   with dac_test_mode select
+   with dac_test_mode_reg select
       dac_test_sclk <= fix_dac_sclk       when "00",
                        ramp_dac_sclk      when "01",
                        xtalk_dac_sclk     when "10",
-                       xtalk_dac_sclk     when "11";
-   with dac_test_mode select
+                       xtalk_dac_sclk     when "11",
+                       fix_dac_sclk       when others;
+                       
+   with dac_test_mode_reg select
       dac_test_ncs  <= fix_dac_ncs        when "00",
                        ramp_dac_ncs       when "01",
                        xtalk_dac_ncs      when "10",
-                       xtalk_dac_ncs      when "11";
----- lvds signals
-   with dac_test_mode select
+                       xtalk_dac_ncs      when "11",
+                       fix_dac_ncs        when others;                       
+                       
+   -- lvds signals
+   with dac_test_mode_reg select
       lvds_dac_data <= fix_lvds_dac_data       when "00",
                        ramp_lvds_dac_data      when "01",
                        xtalk_lvds_dac_data     when "10",
-                       xtalk_lvds_dac_data     when "11";
+                       xtalk_lvds_dac_data     when "11",
+                       fix_lvds_dac_data       when others;                       
                        
-   with dac_test_mode select
+   with dac_test_mode_reg select
       lvds_dac_sclk <= fix_lvds_dac_sclk       when "00",
                        ramp_lvds_dac_sclk      when "01",
                        xtalk_lvds_dac_sclk     when "10",
-                       xtalk_lvds_dac_sclk     when "11";
+                       xtalk_lvds_dac_sclk     when "11",
+                       fix_lvds_dac_sclk       when others;                       
                        
-   with dac_test_mode select
+   with dac_test_mode_reg select
       lvds_dac_ncs  <= fix_lvds_dac_ncs        when "00",
                        ramp_lvds_dac_ncs       when "01",
                        xtalk_lvds_dac_ncs      when "10",
-                       xtalk_lvds_dac_ncs      when "11";
+                       xtalk_lvds_dac_ncs      when "11",
+                       fix_lvds_dac_ncs        when others;                       
                        
--- for directing to test pin purpose only!
-   with dac_test_mode select
+   -- for directing to test pin purpose only!
+   with dac_test_mode_reg select
       spi_start     <= fix_spi_start      when "00",
                        ramp_spi_start     when "01",
                        xtalk_spi_start    when "10",
-                       xtalk_spi_start    when "11";
+                       xtalk_spi_start    when "11",
+                       fix_spi_start      when others;
    
    dac_ncs <= dac_test_ncs;
    dac_sclk <= dac_test_sclk;
    dac_data <= dac_test_data;
-   
-   zero <= '0';
-   one <= '1';                         
-   rst <= not n_rst or int_rst;
-   test_data <= "10110000000010111111101011001110";  -- 0xB00BFACE
-   
-   -- functionality of async_mux:
-   
-   with sel select
-      tx_data <= reset_data    when SEL_RESET,
-                 idle_data     when SEL_IDLE,
-                 rx_cmd_data   when SEL_RX_CMD,
-                 rx_sync_data  when SEL_RX_SYNC,
-                 rx_spare_data when SEL_RX_SPARE,
-                 debug_data    when SEL_DEBUG,
-                 "00000000"    when others;
-   
-   with sel select
-      tx_we   <= reset_we      when SEL_RESET,
-                 idle_we       when SEL_IDLE,
-                 rx_cmd_we     when SEL_RX_CMD,
-                 rx_sync_we    when SEL_RX_SYNC,
-                 rx_spare_we   when SEL_RX_SPARE,
-                 debug_we      when SEL_DEBUG,
-                 '0'           when others; 
-   
-   with sel select
-      tx_stb  <= reset_stb     when SEL_RESET,
-                 idle_stb      when SEL_IDLE,
-                 rx_cmd_stb    when SEL_RX_CMD,
-                 rx_sync_stb   when SEL_RX_SYNC,
-                 rx_spare_stb  when SEL_RX_SPARE,
-                 debug_stb     when SEL_DEBUG,
-                 '0'           when others;
-   
-   -- cmd_proc is our main processing state machine
-   cmd_proc : process (rst, clk)
-   begin
-      if (rst = '1') then
-         int_rst <= '0';
-         sel <= SEL_RESET;
-         cmd_state <= RESET;
-         dac_test_mode  <= "00";
-      elsif Rising_Edge(clk) then
-         case cmd_state is
-            when RESET => 
-               -- wait for the reset state to complete
-               if (done = DONE_RESET) then
-                  cmd_state <= FETCH;
-               else
-                  cmd_state <= cmd_state;
-               end if;
-               sel <= SEL_RESET;
-               
-            when FETCH =>
-               -- wait for a command to be decoded
-               if (done = DONE_IDLE) then
-                  cmd_state <= DECODE;
-               else
-                  cmd_state <= cmd_state;
-               end if;
-               sel <= SEL_IDLE;
-               
-            when DECODE =>
-               -- activate the appropiate test module
-               cmd_state <= EXECUTE;
-               if(cmd1 = CMD_TX) then
-                  if(cmd2 = CMD_TX_A) then
-                     sel <= SEL_TX_A;
-                  elsif(cmd2 = CMD_TX_B) then
-                     sel <= SEL_TX_B;
-                  end if;
-               
-               elsif(cmd1 = CMD_RX) then
-                  if(cmd2 = CMD_RX_CMD) then
-                     sel <= SEL_RX_CMD;
-                  elsif(cmd2 = CMD_RX_SYNC) then
-                     sel <= SEL_RX_SYNC;
-                  elsif(cmd2 = CMD_RX_SPARE) then
-                     sel <= SEL_RX_SPARE;
-                  end if;
-                  
-               elsif(cmd1 = CMD_DEBUG) then
-                  sel <= SEL_DEBUG;
-                  
-               elsif(cmd1 = CMD_RESET) then
-                  int_rst <= '1';
-                  
-               elsif(cmd1 = CMD_DAC_FIX) then
-                  dac_test_mode <= "00";
-	              sel <= SEL_DAC_FIX;               
-                   
-               elsif(cmd1 = CMD_DAC_RAMP) then
-                  dac_test_mode <= "01";
-                  sel <= SEL_DAC_RAMP;               
-
-               elsif(cmd1 = CMD_DAC_XTALK) then
-                  if cmd2 = CMD_XTALK_ODD then
-                      dac_test_mode <= "10";
-                      sel <= SEL_DAC_XTALK;               
-                  elsif cmd2 = CMD_XTALK_EVEN then
-                      dac_test_mode <= "11";
-                      sel <= SEL_DAC_XTALK;               
-                  end if;  
-                  
-               else
-                  -- must not be implemented yet!
-                  sel <= (others => '0');
-                  cmd_state <= FETCH;                  
-               end if;
-               
-            when EXECUTE =>
-               -- wait for thet test to complete
-               if (done /= DONE_NULL) then
-                  int_rst <= '0';
-                  sel <= (others => '0');
-                  cmd_state <= FETCH;
-               end if;
-               
-            when others =>
-               sel <= (others => '0');
-               cmd_state <= RESET;
-         end case;
-      end if;
-   end process cmd_proc;
-
-   test(3) <= sel(INDEX_DAC_XTALK);
-   test(4) <= done(INDEX_DAC_XTALK);
+      
    test(5) <= dac_test_ncs(0);
    test(6) <= dac_test_ncs(1);
    test(7) <= dac_test_sclk(0);
-   test(8) <= dac_test_sclk(1);
-   test(9) <= dac_test_data(0);
-   test(10) <= dac_test_data(1);
+ --  test(8) <= dac_test_sclk(1);
+ --  test(9) <= dac_test_data(0);
+ --  test(10) <= dac_test_data(1);
    test(14) <= spi_start;
-   test(13) <= lvds_spi_start;
-   test(15) <= dac_test_ncs(15);
-   test(16) <= dac_test_data(15);
+ --  test(13) <= lvds_spi_start;
 
 end behaviour;
