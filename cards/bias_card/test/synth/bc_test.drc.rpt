@@ -1,0 +1,325 @@
+Design Assistant report for bc_test
+Wed Aug 30 14:17:40 2006
+Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Design Assistant Summary
+  3. Design Assistant Settings
+  4. Critical Violations
+  5. High Violations
+  6. Medium Violations
+  7. Information only Violations
+  8. Design Assistant Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2006 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
+applicable agreement for further details.
+
+
+
++-------------------------------------------------------------------------+
+; Design Assistant Summary                                                ;
++-----------------------------------+-------------------------------------+
+; Design Assistant Status           ; Analyzed - Wed Aug 30 14:17:40 2006 ;
+; Revision Name                     ; bc_test                             ;
+; Top-level Entity Name             ; bc_test                             ;
+; Family                            ; Stratix                             ;
+; Total Critical Violations         ; 1                                   ;
+; Total High Violations             ; 4                                   ;
+; Total Medium Violations           ; 10                                  ;
+; Total Information only Violations ; 85                                  ;
++-----------------------------------+-------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Design Assistant Settings                                                                                                                                                                                                                                                                       ;
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
+; Option                                                                                                                                                                                                                                                                           ; Setting      ;
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
+; Design Assistant mode                                                                                                                                                                                                                                                            ; Post-Fitting ;
+; Threshold value for clock net not mapped to clock spines rule                                                                                                                                                                                                                    ; 25           ;
+; Minimum number of node fan-out                                                                                                                                                                                                                                                   ; 30           ;
+; Maximum number of nodes to report                                                                                                                                                                                                                                                ; 50           ;
+; Gated clock should be implemented according to Altera standard scheme (C101)                                                                                                                                                                                                     ; On           ;
+; Logic cell should not be used to generate inverted clock (C102)                                                                                                                                                                                                                  ; On           ;
+; Input clock pin should fan out to only one set of clock gating logic (C103)                                                                                                                                                                                                      ; On           ;
+; Clock signal source should drive only input clock ports (C104)                                                                                                                                                                                                                   ; On           ;
+; Clock signal should be a global signal (C105) (Rule applies during post-fitting analysis. This rule applies during both post-fitting analysis and post-synthesis analysis if the design targets a MAX 3000 or MAX 7000 device. For more information, see the Help for the rule.) ; On           ;
+; Clock signal source should not drive registers that are triggered by different clock edges (C106)                                                                                                                                                                                ; On           ;
+; Combinational logic used as reset signal should be synchronized (R101)                                                                                                                                                                                                           ; On           ;
+; External reset should be synchronized using two cascaded registers (R102)                                                                                                                                                                                                        ; On           ;
+; External reset should be correctly synchronized (R103)                                                                                                                                                                                                                           ; On           ;
+; Reset signal that is generated in one clock domain and used in other, asynchronous clock domains should be correctly synchronized (R104)                                                                                                                                         ; On           ;
+; Reset signal that is generated in one clock domain and used in other, asynchronous clock domains should be synchronized (R105)                                                                                                                                                   ; On           ;
+; Nodes with more than specified number of fan-outs (T101)                                                                                                                                                                                                                         ; On           ;
+; Top nodes with highest fan-out (T102)                                                                                                                                                                                                                                            ; On           ;
+; Design should not contain combinational loops (A101)                                                                                                                                                                                                                             ; On           ;
+; Register output should not drive its own control signal directly or through combinational logic (A102)                                                                                                                                                                           ; On           ;
+; Design should not contain delay chains (A103)                                                                                                                                                                                                                                    ; On           ;
+; Design should not contain ripple clock structures (A104)                                                                                                                                                                                                                         ; On           ;
+; Pulses should not be implemented asynchronously (A105)                                                                                                                                                                                                                           ; On           ;
+; Multiple pulses should not be generated in design (A106)                                                                                                                                                                                                                         ; On           ;
+; Design should not contain SR latches (A107)                                                                                                                                                                                                                                      ; On           ;
+; Design should not contain latches (A108)                                                                                                                                                                                                                                         ; On           ;
+; Combinational logic should not directly drive write enable signal of asynchronous RAM (A109)                                                                                                                                                                                     ; On           ;
+; Design should not contain asynchronous memory (A110)                                                                                                                                                                                                                             ; On           ;
+; Output enable and input of same tri-state node should not be driven by same signal source (S101)                                                                                                                                                                                 ; On           ;
+; Synchronous port and reset port of same register should not be driven by same signal source (S102)                                                                                                                                                                               ; On           ;
+; Data bits are not synchronized when transferred between asynchronous clock domains (D101)                                                                                                                                                                                        ; On           ;
+; Multiple data bits that are transferred across asynchronous clock domains are synchronized, but not all bits may be aligned in receiving clock domain (D102)                                                                                                                     ; On           ;
+; Data bits are not correctly synchronized when transferred between asynchronous clock domains (D103)                                                                                                                                                                              ; On           ;
+; Only one VREF pin should be assigned to HardCopy test pin in an I/O bank (H101) (Rule does not apply to all HardCopy and HardCopy Stratix devices. This rule is used to analyze a design only when the rule applies to the design's target HardCopy or HardCopy Stratix device.) ; On           ;
+; PLL drives multiple clock network types (H102) (Rule does not apply to all HardCopy and HardCopy Stratix devices. This rule is used to analyze a design only when the rule applies to the design's target HardCopy or HardCopy Stratix device.)                                  ; On           ;
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+
+
+
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Critical Violations                                                                                                                                                          ;
++------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------+
+; Rule name                                                                    ; Name                                                                                          ;
++------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------+
+; Gated clock should be implemented according to Altera standard scheme (C101) ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|Selector0~39 ;
++------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------+
+; High Violations                                                                                                                       ;
++----------------------------------------------------------------------------------------------------+----------------------------------+
+; Rule name                                                                                          ; Name                             ;
++----------------------------------------------------------------------------------------------------+----------------------------------+
+; Combinational logic used as reset signal should be synchronized (R101)                             ; rst                              ;
+; Synchronous port and reset port of same register should not be driven by same signal source (S102) ; counter:tx_char_counter|count[1] ;
+; Synchronous port and reset port of same register should not be driven by same signal source (S102) ; counter:tx_char_counter|count[6] ;
+; Synchronous port and reset port of same register should not be driven by same signal source (S102) ; counter:tx_char_counter|count[2] ;
++----------------------------------------------------------------------------------------------------+----------------------------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Medium Violations                                                                                                                                                                                 ;
++---------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------+
+; Rule name                                                                                         ; Name                                                                                          ;
++---------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------+
+; Clock signal source should drive only input clock ports (C104)                                    ; bc_sa_htr_test:sa_htr2_toggle|clk_count[9]                                                    ;
+; Clock signal source should drive only input clock ports (C104)                                    ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.idle                                           ;
+; Clock signal source should drive only input clock ports (C104)                                    ; pres_state.ramp_dac_test                                                                      ;
+; Clock signal source should drive only input clock ports (C104)                                    ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|Selector0~39 ;
+; Clock signal source should drive only input clock ports (C104)                                    ; bc_sa_htr_test:sa_htr1_toggle|clk_count[10]                                                   ;
+; Clock signal source should drive only input clock ports (C104)                                    ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                ;
+; Clock signal source should drive only input clock ports (C104)                                    ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                ;
+; Clock signal source should not drive registers that are triggered by different clock edges (C106) ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                ;
+; Clock signal source should not drive registers that are triggered by different clock edges (C106) ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                ;
+; External reset should be synchronized using two cascaded registers (R102)                         ; rst_n                                                                                         ;
++---------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Information only Violations                                                                                                                                               ;
++----------------------------------------------------------+------------------------------------------------------------------------------------------------------+---------+
+; Rule name                                                ; Name                                                                                                 ; Fan-Out ;
++----------------------------------------------------------+------------------------------------------------------------------------------------------------------+---------+
+; Nodes with more than specified number of fan-outs (T101) ; rst                                                                                                  ; 2030    ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~600                                              ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~500                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; dac_test_mode_reg[0]                                                                                 ; 134     ;
+; Nodes with more than specified number of fan-outs (T101) ; dac_test_mode_reg[1]                                                                                 ; 134     ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.idle                                                 ; 50      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.spi_start                                          ; 105     ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta          ; 98      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.spi_start                                             ; 67      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.spi_start                                            ; 67      ;
+; Nodes with more than specified number of fan-outs (T101) ; ~GND                                                                                                 ; 46      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~27                                                   ; 252     ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~601                                              ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~501                                               ; 495     ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~26                                                   ; 237     ;
+; Nodes with more than specified number of fan-outs (T101) ; counter:tx_char_counter|count[0]                                                                     ; 31      ;
+; Nodes with more than specified number of fan-outs (T101) ; counter:tx_char_counter|count[1]                                                                     ; 35      ;
+; Nodes with more than specified number of fan-outs (T101) ; counter:tx_char_counter|count[3]                                                                     ; 39      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~602                                              ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; counter:tx_char_counter|count[2]                                                                     ; 32      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~603                                              ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~604                                              ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][10]~605                                              ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~606                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~607                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~608                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~609                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~610                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~611                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~612                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][2]~613                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[0]                                                       ; 35      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~614                                               ; 33      ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                       ; 154     ;
+; Nodes with more than specified number of fan-outs (T101) ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                       ; 2413    ;
+; Top nodes with highest fan-out (T102)                    ; bc_test_pll:clk0|altpll:altpll_component|_clk1                                                       ; 2413    ;
+; Top nodes with highest fan-out (T102)                    ; rst                                                                                                  ; 2030    ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~501                                               ; 495     ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~27                                                   ; 252     ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~26                                                   ; 237     ;
+; Top nodes with highest fan-out (T102)                    ; bc_test_pll:clk0|altpll:altpll_component|_clk0                                                       ; 154     ;
+; Top nodes with highest fan-out (T102)                    ; dac_test_mode_reg[1]                                                                                 ; 134     ;
+; Top nodes with highest fan-out (T102)                    ; dac_test_mode_reg[0]                                                                                 ; 134     ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.spi_start                                          ; 105     ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta          ; 98      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.spi_start                                            ; 67      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ctrl_test_wrapper:dac_fix|present_state.spi_start                                             ; 67      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|present_state.idle                                                 ; 50      ;
+; Top nodes with highest fan-out (T102)                    ; ~GND                                                                                                 ; 46      ;
+; Top nodes with highest fan-out (T102)                    ; counter:tx_char_counter|count[3]                                                                     ; 39      ;
+; Top nodes with highest fan-out (T102)                    ; counter:tx_char_counter|count[1]                                                                     ; 35      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[0]                                                       ; 35      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~611                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~601                                              ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~608                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~607                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~600                                              ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~612                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~606                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~603                                              ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][2]~613                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~614                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~609                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~602                                              ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~604                                              ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~500                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][10]~605                                              ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~610                                               ; 33      ;
+; Top nodes with highest fan-out (T102)                    ; counter:tx_char_counter|count[2]                                                                     ; 32      ;
+; Top nodes with highest fan-out (T102)                    ; counter:tx_char_counter|count[0]                                                                     ; 31      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|pres_state.idle                                                                         ; 29      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[7]                                                         ; 29      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[3]                                                         ; 28      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[4]                                                         ; 26      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[11]                                                        ; 25      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[6]                                                         ; 25      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[8]                                                         ; 24      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[10]                                                        ; 23      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[2]                                                         ; 23      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[1]                                                         ; 23      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[0]                                                         ; 22      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[9]                                                         ; 22      ;
+; Top nodes with highest fan-out (T102)                    ; rs232_rx:rx0|counter:sample_counter|count[5]                                                         ; 21      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:21:dac_write_spi|current_state.idle ; 20      ;
+; Top nodes with highest fan-out (T102)                    ; bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:13:dac_write_spi|current_state.idle ; 20      ;
++----------------------------------------------------------+------------------------------------------------------------------------------------------------------+---------+
+
+
++---------------------------+
+; Design Assistant Messages ;
++---------------------------+
+Info: *******************************************************************
+Info: Running Quartus II Design Assistant
+    Info: Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
+    Info: Processing started: Wed Aug 30 14:17:37 2006
+Info: Command: quartus_drc --read_settings_files=off --write_settings_files=off bc_test -c bc_test
+Critical Warning: Design Assistant warning: Gated clock should be implemented according to Altera standard scheme (C101). Found 1 node(s) related to this rule.
+    Critical Warning: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|Selector0~39"
+Critical Warning: Design Assistant warning: Combinational logic used as reset signal should be synchronized (R101). Found 1 node(s) related to this rule.
+    Critical Warning: Node  "rst"
+Critical Warning: Design Assistant warning: Synchronous port and reset port of same register should not be driven by same signal source (S102). Found 3 node(s) related to this rule.
+    Critical Warning: Node  "counter:tx_char_counter|count[1]"
+    Critical Warning: Node  "counter:tx_char_counter|count[6]"
+    Critical Warning: Node  "counter:tx_char_counter|count[2]"
+Warning: Design Assistant warning: Clock signal source should drive only input clock ports (C104). Found 7 nodes related to this rule.
+    Warning: Node  "bc_sa_htr_test:sa_htr2_toggle|clk_count[9]"
+    Warning: Node  "bc_dac_ctrl_test_wrapper:dac_fix|present_state.idle"
+    Warning: Node  "pres_state.ramp_dac_test"
+    Warning: Node  "bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi|Selector0~39"
+    Warning: Node  "bc_sa_htr_test:sa_htr1_toggle|clk_count[10]"
+    Warning: Node  "bc_test_pll:clk0|altpll:altpll_component|_clk0"
+    Warning: Node  "bc_test_pll:clk0|altpll:altpll_component|_clk1"
+Warning: Design Assistant warning: Clock signal source should not drive registers that are triggered by different clock edges (C106). Found 2 node(s) related to this rule.
+    Warning: Node  "bc_test_pll:clk0|altpll:altpll_component|_clk0"
+    Warning: Node  "bc_test_pll:clk0|altpll:altpll_component|_clk1"
+Warning: Design Assistant warning: External reset should be synchronized using two cascaded registers (R102). Found 1 node(s) related to this rule.
+    Warning: Node  "rst_n"
+Info: Design Assistant information: Nodes with more than specified number of fan-outs (T101). Found 35 node(s) with highest fan-out.
+    Info: Node "rst" has 2030 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~600" has 33 fan-out(s)
+    Info: Node "bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][15]~500" has 33 fan-out(s)
+    Info: Node "dac_test_mode_reg[0]" has 134 fan-out(s)
+    Info: Node "dac_test_mode_reg[1]" has 134 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|present_state.idle" has 50 fan-out(s)
+    Info: Node "bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.spi_start" has 105 fan-out(s)
+    Info: Node "bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta" has 98 fan-out(s)
+    Info: Node "bc_dac_ctrl_test_wrapper:dac_fix|present_state.spi_start" has 67 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|present_state.spi_start" has 67 fan-out(s)
+    Info: Node "~GND" has 46 fan-out(s)
+    Info: Node "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~27" has 252 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~601" has 33 fan-out(s)
+    Info: Node "bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~501" has 495 fan-out(s)
+    Info: Node "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~26" has 237 fan-out(s)
+    Info: Node "counter:tx_char_counter|count[0]" has 31 fan-out(s)
+    Info: Node "counter:tx_char_counter|count[1]" has 35 fan-out(s)
+    Info: Node "counter:tx_char_counter|count[3]" has 39 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~602" has 33 fan-out(s)
+    Info: Node "counter:tx_char_counter|count[2]" has 32 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~603" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~604" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][10]~605" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~606" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~607" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~608" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~609" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][5]~610" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~611" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~612" has 33 fan-out(s)
+    Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
+Info: Design Assistant information: Top nodes with highest fan-out (T102). Found 50 node(s) with highest fan-out.
+    Info: Node "bc_test_pll:clk0|altpll:altpll_component|_clk1" has 2413 fan-out(s)
+    Info: Node "rst" has 2030 fan-out(s)
+    Info: Node "bc_dac_ctrl_test_wrapper:dac_fix|dac_data_p[0][14]~501" has 495 fan-out(s)
+    Info: Node "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector514~27" has 252 fan-out(s)
+    Info: Node "bc_dac_xtalk_test_wrapper:dac_xtalk|Selector498~26" has 237 fan-out(s)
+    Info: Node "bc_test_pll:clk0|altpll:altpll_component|_clk0" has 154 fan-out(s)
+    Info: Node "dac_test_mode_reg[1]" has 134 fan-out(s)
+    Info: Node "dac_test_mode_reg[0]" has 134 fan-out(s)
+    Info: Node "bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.spi_start" has 105 fan-out(s)
+    Info: Node "bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune|input_meta" has 98 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|present_state.spi_start" has 67 fan-out(s)
+    Info: Node "bc_dac_ctrl_test_wrapper:dac_fix|present_state.spi_start" has 67 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|present_state.idle" has 50 fan-out(s)
+    Info: Node "~GND" has 46 fan-out(s)
+    Info: Node "counter:tx_char_counter|count[3]" has 39 fan-out(s)
+    Info: Node "counter:tx_char_counter|count[1]" has 35 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|data_ramp[0]" has 35 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][4]~611" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][14]~601" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][7]~608" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][8]~607" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][15]~600" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][3]~612" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][9]~606" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][12]~603" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][2]~613" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][1]~614" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][6]~609" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][13]~602" has 33 fan-out(s)
+    Info: Node "bc_dac_ramp_test_wrapper:dac_ramp|dac_data_p[0][11]~604" has 33 fan-out(s)
+    Info: Truncated list of Design Assistant messages to 30 messages. Go to sections under Design Assistant section of Compilation Report for complete lists of Design Assistant messages generated.
+Info: Design Assistant information: finished post-fitting analysis of current design -- generated 85 information messages and 15 warning messages
+Info: Quartus II Design Assistant was successful. 0 errors, 21 warnings
+    Info: Processing ended: Wed Aug 30 14:17:40 2006
+    Info: Elapsed time: 00:00:04
+
+

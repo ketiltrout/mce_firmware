@@ -1,0 +1,136 @@
+--------------------------------------------------------------------------------------
+Slow Model Timing Analyzer Summary
+--------------------------------------------------------------------------------------
+
+Type           : Worst-case tsu
+Slack          : N/A
+Required Time  : None
+Actual Time    : 10.742 ns
+From           : n7vok
+To             : rs232_tx:tx0|fifo:data_buffer|altsyncram:fifo_storage|altsyncram_umb1:auto_generated|ram_block1a0~porta_datain_reg4
+From Clock     : --
+To Clock       : inclk
+Failed Paths   : 0
+
+Type           : Worst-case tco
+Slack          : N/A
+Required Time  : None
+Actual Time    : 16.564 ns
+From           : bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.spi_start
+To             : dac_ncs[18]
+From Clock     : inclk
+To Clock       : --
+Failed Paths   : 0
+
+Type           : Worst-case th
+Slack          : N/A
+Required Time  : None
+Actual Time    : -5.609 ns
+From           : rx
+To             : rs232_rx:rx0|pres_state.idle
+From Clock     : --
+To Clock       : inclk
+Failed Paths   : 0
+
+Type           : Worst-case Minimum tco
+Slack          : N/A
+Required Time  : None
+Actual Time    : 3.898 ns
+From           : bc_test_pll:clk0|altpll:altpll_component|_clk1
+To             : dac_sclk[23]
+From Clock     : inclk
+To Clock       : --
+Failed Paths   : 0
+
+Type           : Slow Model Clock Setup: 'bc_test_pll:clk0|altpll:altpll_component|_clk0'
+Slack          : 3.684 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : bc_dac_ctrl_test_wrapper:dac_fix|idat[0]
+To             : bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:dac_write_lvds_spi|shift_reg:spi_shift|reg[6]
+From Clock     : bc_test_pll:clk0|altpll:altpll_component|_clk1
+To Clock       : bc_test_pll:clk0|altpll:altpll_component|_clk0
+Failed Paths   : 0
+
+Type           : Slow Model Clock Setup: 'bc_test_pll:clk0|altpll:altpll_component|_clk1'
+Slack          : 13.253 ns
+Required Time  : 12.50 MHz ( period = 80.000 ns )
+Actual Time    : N/A
+From           : bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.done
+To             : bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:10:dac_write_spi|shift_reg:spi_shift|reg[15]
+From Clock     : bc_test_pll:clk0|altpll:altpll_component|_clk0
+To Clock       : bc_test_pll:clk0|altpll:altpll_component|_clk1
+Failed Paths   : 0
+
+Type           : Slow Model Clock Hold: 'bc_test_pll:clk0|altpll:altpll_component|_clk0'
+Slack          : -2.359 ns
+Required Time  : 50.00 MHz ( period = 20.000 ns )
+Actual Time    : N/A
+From           : bc_dac_xtalk_test_wrapper:dac_xtalk|xtalk_reg
+To             : bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.idle
+From Clock     : bc_test_pll:clk0|altpll:altpll_component|_clk0
+To Clock       : bc_test_pll:clk0|altpll:altpll_component|_clk0
+Failed Paths   : 2
+
+Type           : Slow Model Clock Hold: 'bc_test_pll:clk0|altpll:altpll_component|_clk1'
+Slack          : 0.357 ns
+Required Time  : 12.50 MHz ( period = 80.000 ns )
+Actual Time    : N/A
+From           : bc_dac_xtalk_test_wrapper:dac_xtalk|idx[0]
+To             : bc_dac_xtalk_test_wrapper:dac_xtalk|idx[0]
+From Clock     : bc_test_pll:clk0|altpll:altpll_component|_clk1
+To Clock       : bc_test_pll:clk0|altpll:altpll_component|_clk1
+Failed Paths   : 0
+
+Type           : Slow Model Recovery: 'bc_test_pll:clk0|altpll:altpll_component|_clk0'
+Slack          : 5.859 ns
+Required Time  : 11.755 ns
+Actual Time    : 5.896 ns
+From           : pres_state.reset
+To             : bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:dac_write_lvds_spi|shift_reg:spi_shift|reg[15]
+From Clock     : bc_test_pll:clk0|altpll:altpll_component|_clk0
+To Clock       : bc_test_pll:clk0|altpll:altpll_component|_clk0
+Failed Paths   : 0
+
+Type           : Slow Model Recovery: 'bc_test_pll:clk0|altpll:altpll_component|_clk1'
+Slack          : 15.487 ns
+Required Time  : 20.410 ns
+Actual Time    : 4.923 ns
+From           : pres_state.reset
+To             : bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:11:dac_write_spi|current_state.idle
+From Clock     : bc_test_pll:clk0|altpll:altpll_component|_clk0
+To Clock       : bc_test_pll:clk0|altpll:altpll_component|_clk1
+Failed Paths   : 0
+
+Type           : Slow Model Removal: 'bc_test_pll:clk0|altpll:altpll_component|_clk0'
+Slack          : 0.380 ns
+Required Time  : 5.494 ns
+Actual Time    : 5.874 ns
+From           : pres_state.reset
+To             : bc_dac_xtalk_test_wrapper:dac_xtalk|present_state.push_data
+From Clock     : bc_test_pll:clk0|altpll:altpll_component|_clk0
+To Clock       : bc_test_pll:clk0|altpll:altpll_component|_clk0
+Failed Paths   : 0
+
+Type           : Slow Model Removal: 'bc_test_pll:clk0|altpll:altpll_component|_clk1'
+Slack          : 0.254 ns
+Required Time  : 24.256 ns
+Actual Time    : 24.510 ns
+From           : pres_state.reset
+To             : bc_dac_ctrl_test_wrapper:dac_fix|idat[1]
+From Clock     : bc_test_pll:clk0|altpll:altpll_component|_clk0
+To Clock       : bc_test_pll:clk0|altpll:altpll_component|_clk1
+Failed Paths   : 0
+
+Type           : Total number of failed paths
+Slack          : 
+Required Time  : 
+Actual Time    : 
+From           : 
+To             : 
+From Clock     : 
+To Clock       : 
+Failed Paths   : 2
+
+--------------------------------------------------------------------------------------
+
