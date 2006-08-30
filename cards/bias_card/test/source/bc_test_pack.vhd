@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: bc_test_pack.vhd,v $
+-- Revision 1.8  2004/06/23 19:41:46  bench2
+-- Mandana: added lvds_spi_start signal to be routed to test header
+--
 -- Revision 1.7  2004/06/21 18:32:28  bench2
 -- renamed all_test_idle to bc_test_idle
 --
@@ -61,137 +64,12 @@ use ieee.std_logic_arith.all;
 
 package bc_test_pack is
 
-   ------------------------------------------------------------------
-   --
-   -- Command Declarations
-   --
-   ------------------------------------------------------------------
-
-   -- One character commands ------------------------------------------
-      
-   constant CMD_RESET    : std_logic_vector(7 downto 0) := conv_std_logic_vector(27,8);    -- Esc
-   constant CMD_DAC_FIX  : std_logic_vector(7 downto 0) := conv_std_logic_vector(102,8);   -- f
-   constant CMD_DAC_RAMP : std_logic_vector(7 downto 0) := conv_std_logic_vector(100,8);   -- d   
-   constant CMD_DAC_XTALK : std_logic_vector(7 downto 0) := conv_std_logic_vector(120,8);   -- x   
-   constant CMD_DEBUG    : std_logic_vector(7 downto 0) := conv_std_logic_vector(68,8);    -- D
-                                                                                                              
-   -- Two character commands ------------------------------------------
-
-   constant CMD_TX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(116,8);   -- t                                  
-   constant CMD_TX_A     : std_logic_vector(7 downto 0) := conv_std_logic_vector(97,8);    -- a
-   constant CMD_TX_B     : std_logic_vector(7 downto 0) := conv_std_logic_vector(98,8);    -- b
-   constant CMD_RX       : std_logic_vector(7 downto 0) := conv_std_logic_vector(114,8);   -- r 
-   constant CMD_RX_CMD   : std_logic_vector(7 downto 0) := conv_std_logic_vector(99,8);    -- c
-   constant CMD_RX_SYNC  : std_logic_vector(7 downto 0) := conv_std_logic_vector(121,8);   -- y
-   constant CMD_RX_SPARE : std_logic_vector(7 downto 0) := conv_std_logic_vector(112,8);   -- p
-   constant CMD_XTALK_ODD : std_logic_vector(7 downto 0) := conv_std_logic_vector(48,8);  -- 0
-   constant CMD_XTALK_EVEN: std_logic_vector(7 downto 0) := conv_std_logic_vector(49,8);  -- 1
-      
-   ------------------------------------------------------------------
-   --
-   -- Component Declarations
-   --
-   ------------------------------------------------------------------
-                                                                     
-   -- reset state
-   component bc_test_reset
-      port (
-         -- basic signals
-         rst_i : in std_logic;   -- reset input
-         clk_i : in std_logic;   -- clock input
-         en_i : in std_logic;    -- enable signal
-         done_o : out std_logic; -- done output signal
-         
-         -- transmitter signals
-         tx_busy_i : in std_logic;  -- transmit busy flag
-         tx_ack_i : in std_logic;   -- transmit ack
-         tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-         tx_we_o : out std_logic;   -- transmit write flag
-         tx_stb_o : out std_logic   -- transmit strobe flag
-      );
-   end component;
-   
-   ------------------------------------------------------------------   
-   -- idle state
-   component bc_test_idle
-      port (
-         -- basic signals
-         rst_i : in std_logic;   -- reset input
-         clk_i : in std_logic;   -- clock input
-         en_i : in std_logic;    -- enable signal
-         done_o : out std_logic; -- done output signal
-         
-         -- transmitter signals
-         tx_busy_i : in std_logic;  -- transmit busy flag
-         tx_ack_i : in std_logic;   -- transmit ack
-         tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-         tx_we_o : out std_logic;   -- transmit write flag
-         tx_stb_o : out std_logic;   -- transmit strobe flag
-         
-         -- extended signals
-         cmd1_o : out std_logic_vector(7 downto 0); -- command char 1
-         cmd2_o : out std_logic_vector(7 downto 0); -- command char 2
-         
-         -- receiver signals
-         rx_valid_i : in std_logic;  -- receive data flag
-         rx_ack_i : in std_logic;   -- receive ack
-         rx_stb_o : out std_logic;  -- receive strobe
-         rx_data_i : in std_logic_vector(7 downto 0) -- receive data
-      );
-   end component;
-
-   ------------------------------------------------------------------
-   -- LVDS transmit
-   
-   component lvds_tx_test_wrapper
-      port(rst_i : in std_logic;   -- reset input
-           clk_i : in std_logic;   -- clock input
-           en_i : in std_logic;    -- enable signal
-           done_o : out std_logic; -- done ouput signal
-      
-           -- extended signals
-           lvds_o : out std_logic);
-   end component;
-   
-   ------------------------------------------------------------------
-   -- LVDS receive
-   
-   component lvds_rx_test_wrapper
-      port(rst_i : in std_logic;   -- reset input
-           clk_i : in std_logic;   -- clock input
-           rx_clk_i : in std_logic;
-           en_i : in std_logic;    -- enable signal
-           done_o : out std_logic; -- done ouput signal
-      
-           -- transmitter signals
-           tx_busy_i : in std_logic;  -- transmit busy flag
-           tx_ack_i : in std_logic;   -- transmit ack
-           tx_data_o : out std_logic_vector(7 downto 0);   -- transmit data
-           tx_we_o : out std_logic;   -- transmit write flag
-           tx_stb_o : out std_logic;  -- transmit strobe flag
-      
-           -- extended signals
-           lvds_i : in std_logic);
-   end component;
-
-   ------------------------------------------------------------------
-   -- RS232 transmit
-      
-   component rs232_data_tx
-      generic(WIDTH : in integer range 4 to 1024 := 8);
-      port(clk_i   : in std_logic;
-           rst_i   : in std_logic;
-           data_i  : in std_logic_vector(WIDTH-1 downto 0);
-           start_i : in std_logic;
-           done_o  : out std_logic;
-
-           tx_busy_i : in std_logic;
-           tx_ack_i  : in std_logic;
-           tx_data_o : out std_logic_vector(7 downto 0);
-           tx_we_o   : out std_logic;
-           tx_stb_o  : out std_logic);
-  end component;
-  
+  component bc_test_pll
+     port(inclk0 : in std_logic;
+          c0 : out std_logic;
+          c1 : out std_logic);
+     end component;
+ 
   ------------------------------------------------------------------
    -- BC DAC CTRL FIX values
   
@@ -200,6 +78,7 @@ package bc_test_pack is
         -- basic signals
           rst_i     : in std_logic;    -- reset input
           clk_i     : in std_logic;    -- clock input
+          clk_4_i   : in std_logic;    -- clock div 4 input
           en_i      : in std_logic;    -- enable signal
           done_o    : out std_logic;   -- done ouput signal
           
@@ -215,8 +94,8 @@ package bc_test_pack is
           lvds_dac_dat_o : out std_logic;
           lvds_dac_ncs_o : out std_logic;
           lvds_dac_clk_o : out std_logic;
-          spi_start_o    : out std_logic;
-          lvds_spi_start_o: out std_logic
+          spi_start_o    : out std_logic
+--          lvds_spi_start_o: out std_logic
           );   
   end component;  
   
@@ -229,7 +108,37 @@ component bc_dac_ramp_test_wrapper is
       -- basic signals
       rst_i     : in std_logic;    -- reset input
       clk_i     : in std_logic;    -- clock input
+      clk_4_i   : in std_logic;    -- clock div 4 input
       en_i      : in std_logic;    -- enable signal
+      done_o    : out std_logic;   -- done ouput signal
+      
+      -- transmitter signals removed!
+                
+      -- extended signals
+      dac_dat_o : out std_logic_vector (31 downto 0); 
+      dac_ncs_o : out std_logic_vector (31 downto 0); 
+      dac_clk_o : out std_logic_vector (31 downto 0);
+     
+      lvds_dac_dat_o: out std_logic;
+      lvds_dac_ncs_o: out std_logic;
+      lvds_dac_clk_o: out std_logic;
+      
+      spi_start_o   : out std_logic
+      
+   );   
+end component;  
+
+  ------------------------------------------------------------------
+  -- BC DAC XTALK
+
+component bc_dac_xtalk_test_wrapper is
+   port (
+      -- basic signals
+      rst_i     : in std_logic;    -- reset input
+      clk_i     : in std_logic;    -- clock input
+      clk_4_i   : in std_logic;    -- clock div 4 input
+      en_i      : in std_logic;    -- enable signal
+      mode_i    : in std_logic;    -- square wave on odd or even channels 
       done_o    : out std_logic;   -- done ouput signal
       
       -- transmitter signals removed!
@@ -249,31 +158,22 @@ component bc_dac_ramp_test_wrapper is
 end component;  
 
   ------------------------------------------------------------------
-  -- BC DAC XTALK
+  -- BC SA HTR 
 
-component bc_dac_xtalk_test_wrapper is
+component bc_sa_htr_test is
    port (
       -- basic signals
       rst_i     : in std_logic;    -- reset input
       clk_i     : in std_logic;    -- clock input
       en_i      : in std_logic;    -- enable signal
-      mode      : in std_logic;    -- square wave on odd or even channels 
       done_o    : out std_logic;   -- done ouput signal
-      
-      -- transmitter signals removed!
-                
-      -- extended signals
-      dac_dat_o : out std_logic_vector (31 downto 0); 
-      dac_ncs_o : out std_logic_vector (31 downto 0); 
-      dac_clk_o : out std_logic_vector (31 downto 0);
-     
-      lvds_dac_dat_o: out std_logic;
-      lvds_dac_ncs_o: out std_logic;
-      lvds_dac_clk_o: out std_logic;
-      
-      spi_start_o: out std_logic
+                     
+      -- extended signals     
+      pos_o     : out std_logic;
+      neg_o     : out std_logic
       
    );   
 end component;  
+
 
 end bc_test_pack;
