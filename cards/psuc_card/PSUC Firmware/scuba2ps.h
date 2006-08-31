@@ -3,6 +3,9 @@
 /****************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.2  2006/08/30 19:54:19  stuartah
+// Implemented checksum
+//
 // Revision 1.1  2006/08/29 21:06:06  stuartah
 // Initial CVS Build - Most Basic Functionality Implemented
 //	
@@ -19,8 +22,8 @@
 #include "i2c.c"
 #include "DS18S20.c"
 
+// Memory Parameters
 #define BUF_SIZE		10
-
 
 /***** 	Function Prototypes *****/
 // PSUC Initialization
@@ -36,6 +39,8 @@ void send_psu_data_block (void);
 // Timing Functions
 void wait_time (unsigned char);
 void wait_time_x2us_plus3(unsigned char);
+void start_pca_timer(void);
+int stop_pca_timer(void);
 
 // Send Serial Message
 void snd_msg (char *);
@@ -43,17 +48,12 @@ void snd_msg (char *);
 // PSU Data Block Functions
 void update_data_block(void);
 void check_digit(void);
+unsigned char get_fan_speeds(void);
 
 // Command Parsing Functions
 void parse_command(void);
 bit commands_match (char *, char *, char *);
 bit command_valid (char *);
-
-// ******************    *********************not yet implemented
-// void start_count_timer(void);
-// unsigned int stop_count_timer(void);
-// void get_fan_speeds(void);
-// 
 
 
 /*********	Variables *********/

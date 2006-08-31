@@ -5,6 +5,9 @@
 /****************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.3  2006/08/30 19:54:19  stuartah
+// Implemented checksum
+//
 // Revision 1.2  2006/08/29 21:06:06  stuartah
 // Initial CVS Build - Most Basic Functionality Implemented
 //	
@@ -144,12 +147,6 @@ void init(void) 	// still need to clean/fix this
    	TH1 = MS_RELOAD_5mS;
    	TMOD = 0x11;
 
-//LED Setup
-	LEDCON = 0xfC;				// LED1-3 10mA Current Source
-	LED_FAULT = 0;				// Off
-	LED_STATUS = 1;				// Off
-	LED_OUTON = 1;				// Off
-
 //Serial I/O Setup:  Using Internal Baud Rate Generator on 89C5131A.  Set to Serial Mode 1 at 9600 Baud using 24MHz Clock
     SCON = 0x50;			// 0101 0000
 	BDRCON = 0x1e; 		 	// 0001 1110
@@ -157,6 +154,19 @@ void init(void) 	// still need to clean/fix this
 	PCON = 0x80; 		 	// 1000 0000 Double Baud Rate all others default
 	BRL = 100;				// Baud rate reload - sets Baud rate to 9600
 	sio_rx_idx = 0;			// reset message pointer
+
+//PCA Counter Init
+	CKCON0 |= 0x20;		//500ns per PCA tick
+	CMOD |= 0x81;			// 0b 1000 000 Set PCA to stop counting during idle mode, disable PCA interrupts, and count Fclk-periph/6 (250ns period)
+	CCON |= 0x01;			// enable PCA interrupts 
+
+//LED Setup
+	LEDCON = 0xfC;				// LED1-3 10mA Current Source
+	LED_FAULT = 0;				// Off
+	LED_STATUS = 1;				// Off
+	LED_OUTON = 1;				// Off
+
+
 
 //SPI Setup - Sets up spi in master mode with Fclk Periph/16 as baud rate and without slave select pin.
 //SPCON = SPI_MSTR | SPI_EN | SPI_SSDIS | SPI_CPOL1 | SPI_1M5Hz;	// CPHA = 0, transfer on falling SCLK
@@ -176,6 +186,7 @@ void init(void) 	// still need to clean/fix this
 	ET0 = 1;          			// Enable Timer0 Interrupts
     ET1 = 1;			 		// Enable Timer1 Interrupts
     EA = 1; 					// Enable Global Interrupts
+	EC=1;						// Enable PCA Interrupts
 
 /* Initialize Devices */	
 	ds_initialize(PSUC_DS18S20);		  // alternatively could do convert_temp than wait 600ms on first one....
@@ -553,88 +564,77 @@ bit command_valid (char *com_ptr)
 
 /***************************************************************************************/
 /* Get Fan Speeds    */ 
-/****************************************/
-	   /*
-void get_fan_speeds (void)					 //incomp
+/***************************/
+//maybe count a few (or up to 60...) pulses than convert to RPM
+//need to use scope to see what pulses actually look at (ie high-low symmetrical) on PSUC end 
+//line default is LOW (at AT89 end)
+unsigned char get_fan_speeds (void)
 {
-	//use timer 2, 2 pulses = 1 fan period, count time and set values in ps_data_blk ??
-	//maybe count a few (or up to 60...) pulses than convert to RPM
-	//maybe use scope to see what pulses actually look at (ie high-low symmetrical) 
-	 
-	FAN1_SPD
-	FAN2_SPD
-
-	 // Fan Speeds
-	ps_data_blk[5] = ;		// RPM /16
-	ps_data_blk[6] = ;		// RPM /16
-
-
+	char *rpm_ptr;
+	unsigned int time_elapsed = 0;			// these value records the time elapsed for a full two fan periods
+	unsigned long rpm = 0;  					// 4 byte temporary variable
+	
+	// these two lines assure start of pulse
 	while(FAN1_SPD);		// wait for fan speed line to go low
-	while(!FAN1_SPD);		// wait for fan speed line to go high  these two lines assure start of pulse
+	while(!FAN1_SPD);		// wait for fan speed line to go high     // --may need some kind of counter/break here in case fan not connected (will hang int hsi case)
 
-	start timer
+   	start_count_timer();		//maybe replace these with #define statements
+	
+	// allow to two fan pulses to occur - 2 pulses per fan roatation - see datasheet
 	while(FAN1_SPD);		// wait for fan speed line to go low		 //this assumes constant fan speed...may want to count a few cycles
 	while(!FAN1_SPD);		// wait for fan speed line to go high
 	while(FAN1_SPD);		// wait for fan speed line to go low
 	while(!FAN1_SPD);		// wait for fan speed line to go high
-	stop timer
-	time difference give time for 1 revolution
-	convert to RPM/16 (single byte) and return/assign
+	
+	// get elapsed time (in uS)
+	time_elapsed = stop_count_timer();	      //maybe replace these with #define statements
+
+	//rpm = (1/ (time_elapsed)  (uS/ periods)) *(60 000 000 (us/min))		// may need error case here to prevent div by 0
+	rpm = 60000000 / time_elapsed;
+	rpm = rpm>>5;								// divide by 32=2^5 to scale to 1 byte
+	
+	rpm_ptr = &rpm;								// need to cast to CHAR pointer to grap lowest byte
+	
+	return *( rpm_ptr + 3);						// return lowest byte   
 }
 
 /****************************************************************************************
-/*  Millisecond Count Timer   	   */
+/*  PCA Timer (Counter)   	   */
 /***************************/
-  /*
-
-count_mode_T1 = CLEAR;	   header vars
-	count_overflows_T1 = 0;
-
-
-
-// not yet tested
-
-// could use timer2 instead...but does serial use this clock
-
-// **** this timer will work for a maximum of 32.7675 mS (= 0xFFFF bits * 0.5 us/bit)
-// can easily be modified to count longer if necessary
-
-void start_count_timer ( void )
+// used for calculating elapsed time between events
+void start_pca_timer ( void )
 {
-	// clear timer
-	TH1 = CLEAR;
-	TL1 = CLEAR;
-	num_T1_ints = 0;
-	count_mode_T1 = SET;						// use T1 as a counter
-	count_overflows_T1 = 0;
+ 	// reset PCA timer
+	CH = CLEAR;	
+   	CL = CLEAR;
 
-	// start timer
-	TR1 = ON;
+	// start PCA timer
+	CCON |= 0x40;
 }
-
-unsigned int stop_count_timer ( void )
+/***************************/
+// returns elapsed time since start_pca_timer in uS
+int stop_pca_timer ( void )
 {
-	unsigned int count = 0; 
-	
-	// stop timer
-	TR1 = OFF;
+	// stop PCA timer
+	CCON &= ~0x40;
 
-	count = TH1;								// load TH1 to lower byte
-	count =<< 8;							   	// shift to higher byte
-	count += TL1;								// load TL1 to lower byte
-
-//	count = (count / 2000) + (;						// convert to milliseconds
-		 //need to round here somehow......
-
-	count = count + 65535*count_overflows_T1;		// **************this will overflow -> need to fix****************************
-	//need to round here somehow......
-	
-	count_mode_T1 = CLEAR;						// back to timing mode
-	return count;								// return counted value
-
-
+	// return integer timer count in uS
+	return (CL + (0x0100*CH))/2;					// 500 us per click so divide register values by 2
 }
-			*/
+/****************************************************************************************/
 
+/****************************************************************************************
+ *  PCA Timer - Interrupt Service Routine		   	   *
+ *************************** */
+void pca_isr(void) interrupt 6 /* interrupt address is 0x0033 */
+// for now simply clear interrupt
+// will implement overflow error handling later
+{
+	CF = 0;					// clear interrupt
+	
+	//set error value to indicate rollover of PCA counter
+	// max count is 500ns * 0xFFFF = 32.77 miliseconds -> indicates ~30 revoltions per second	
+	//pca_interrupts++;
+}
 
 
