@@ -1,5 +1,5 @@
 Analysis & Synthesis report for bc_test
-Wed Aug 30 14:13:39 2006
+Wed Aug 30 16:47:24 2006
 Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
 
 
@@ -471,12 +471,12 @@ applicable agreement for further details.
 +-----------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                ;
 +-----------------------------+-----------------------------------------------+
-; Analysis & Synthesis Status ; Successful - Wed Aug 30 14:13:39 2006         ;
+; Analysis & Synthesis Status ; Successful - Wed Aug 30 16:47:24 2006         ;
 ; Quartus II Version          ; 6.0 Build 202 06/20/2006 SP 1 SJ Full Version ;
 ; Revision Name               ; bc_test                                       ;
 ; Top-level Entity Name       ; bc_test                                       ;
 ; Family                      ; Stratix                                       ;
-; Total logic elements        ; 3,467                                         ;
+; Total logic elements        ; 3,502                                         ;
 ; Total pins                  ; 129                                           ;
 ; Total virtual pins          ; 0                                             ;
 ; Total memory bits           ; 512                                           ;
@@ -612,36 +612,36 @@ applicable agreement for further details.
 +---------------------------------------------+------------------------------------------------+
 ; Resource                                    ; Usage                                          ;
 +---------------------------------------------+------------------------------------------------+
-; Total logic elements                        ; 3467                                           ;
-;     -- Combinational with no register       ; 927                                            ;
-;     -- Register only                        ; 38                                             ;
-;     -- Combinational with a register        ; 2502                                           ;
+; Total logic elements                        ; 3502                                           ;
+;     -- Combinational with no register       ; 938                                            ;
+;     -- Register only                        ; 54                                             ;
+;     -- Combinational with a register        ; 2510                                           ;
 ;                                             ;                                                ;
 ; Logic element usage by number of LUT inputs ;                                                ;
-;     -- 4 input functions                    ; 2133                                           ;
-;     -- 3 input functions                    ; 430                                            ;
-;     -- 2 input functions                    ; 658                                            ;
-;     -- 1 input functions                    ; 206                                            ;
+;     -- 4 input functions                    ; 2134                                           ;
+;     -- 3 input functions                    ; 431                                            ;
+;     -- 2 input functions                    ; 676                                            ;
+;     -- 1 input functions                    ; 205                                            ;
 ;     -- 0 input functions                    ; 2                                              ;
 ;         -- Combinational cells for routing  ; 0                                              ;
 ;                                             ;                                                ;
 ; Logic elements by mode                      ;                                                ;
-;     -- normal mode                          ; 3107                                           ;
-;     -- arithmetic mode                      ; 360                                            ;
+;     -- normal mode                          ; 3125                                           ;
+;     -- arithmetic mode                      ; 377                                            ;
 ;     -- qfbk mode                            ; 0                                              ;
 ;     -- register cascade mode                ; 0                                              ;
 ;     -- synchronous clear/load mode          ; 2                                              ;
-;     -- asynchronous clear/load mode         ; 2539                                           ;
+;     -- asynchronous clear/load mode         ; 2544                                           ;
 ;                                             ;                                                ;
-; Total registers                             ; 2540                                           ;
-; Total logic cells in carry chains           ; 466                                            ;
+; Total registers                             ; 2564                                           ;
+; Total logic cells in carry chains           ; 484                                            ;
 ; I/O pins                                    ; 129                                            ;
 ; Total memory bits                           ; 512                                            ;
 ; Total PLLs                                  ; 1                                              ;
 ; Maximum fan-out node                        ; bc_test_pll:clk0|altpll:altpll_component|_clk0 ;
-; Maximum fan-out                             ; 2573                                           ;
-; Total fan-out                               ; 16803                                          ;
-; Average fan-out                             ; 4.66                                           ;
+; Maximum fan-out                             ; 2598                                           ;
+; Total fan-out                               ; 16894                                          ;
+; Average fan-out                             ; 4.64                                           ;
 +---------------------------------------------+------------------------------------------------+
 
 
@@ -650,7 +650,7 @@ applicable agreement for further details.
 +-------------------------------------------------------+-------------+--------------+-------------+-------+------+--------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+----------------------------------------------------------------------------------------------------------------+
 ; Compilation Hierarchy Node                            ; Logic Cells ; LC Registers ; Memory Bits ; M512s ; M4Ks ; M-RAMs ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; DSP 36x36 ; Pins ; Virtual Pins ; LUT-Only LCs ; Register-Only LCs ; LUT/Register LCs ; Carry Chain LCs ; Packed LCs ; Full Hierarchy Name                                                                                            ;
 +-------------------------------------------------------+-------------+--------------+-------------+-------+------+--------+--------------+---------+-----------+-----------+------+--------------+--------------+-------------------+------------------+-----------------+------------+----------------------------------------------------------------------------------------------------------------+
-; |bc_test                                              ; 3467 (322)  ; 2540         ; 512         ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 129  ; 0            ; 927 (305)    ; 38 (3)            ; 2502 (14)        ; 466 (0)         ; 0 (0)      ; |bc_test                                                                                                       ;
+; |bc_test                                              ; 3502 (322)  ; 2564         ; 512         ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 129  ; 0            ; 938 (305)    ; 54 (3)            ; 2510 (14)        ; 484 (0)         ; 0 (0)      ; |bc_test                                                                                                       ;
 ;    |bc_dac_ctrl_test_wrapper:dac_fix|                 ; 939 (8)     ; 805          ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 134 (2)      ; 8 (2)             ; 797 (4)          ; 132 (0)         ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix                                                                      ;
 ;       |fast2slow_clk_domain_crosser:enable_extend|    ; 7 (7)       ; 7            ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 6 (6)             ; 1 (1)            ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix|fast2slow_clk_domain_crosser:enable_extend                           ;
 ;       |write_spi_with_cs:\gen_spi32:0:dac_write_spi|  ; 28 (12)     ; 24           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4 (4)        ; 0 (0)             ; 24 (8)           ; 4 (4)           ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:0:dac_write_spi                         ;
@@ -719,7 +719,7 @@ applicable agreement for further details.
 ;          |shift_reg:spi_shift|                        ; 16 (16)     ; 16           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 16 (16)          ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:9:dac_write_spi|shift_reg:spi_shift     ;
 ;       |write_spi_with_cs:dac_write_lvds_spi|          ; 28 (12)     ; 24           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4 (4)        ; 0 (0)             ; 24 (8)           ; 4 (4)           ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:dac_write_lvds_spi                                 ;
 ;          |shift_reg:spi_shift|                        ; 16 (16)     ; 16           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 16 (16)          ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:dac_write_lvds_spi|shift_reg:spi_shift             ;
-;    |bc_dac_ramp_test_wrapper:dac_ramp|                ; 961 (37)    ; 814          ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 147 (15)     ; 3 (3)             ; 811 (19)         ; 147 (15)        ; 0 (0)      ; |bc_test|bc_dac_ramp_test_wrapper:dac_ramp                                                                     ;
+;    |bc_dac_ramp_test_wrapper:dac_ramp|                ; 982 (58)    ; 834          ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 148 (16)     ; 19 (19)           ; 815 (23)         ; 151 (19)        ; 0 (0)      ; |bc_test|bc_dac_ramp_test_wrapper:dac_ramp                                                                     ;
 ;       |write_spi_with_cs:\gen_spi32:0:dac_write_spi|  ; 28 (12)     ; 24           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4 (4)        ; 0 (0)             ; 24 (8)           ; 4 (4)           ; 0 (0)      ; |bc_test|bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:0:dac_write_spi                        ;
 ;          |shift_reg:spi_shift|                        ; 16 (16)     ; 16           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 16 (16)          ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift    ;
 ;       |write_spi_with_cs:\gen_spi32:10:dac_write_spi| ; 28 (12)     ; 24           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4 (4)        ; 0 (0)             ; 24 (8)           ; 4 (4)           ; 0 (0)      ; |bc_test|bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:10:dac_write_spi                       ;
@@ -786,7 +786,7 @@ applicable agreement for further details.
 ;          |shift_reg:spi_shift|                        ; 16 (16)     ; 16           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 16 (16)          ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:\gen_spi32:9:dac_write_spi|shift_reg:spi_shift    ;
 ;       |write_spi_with_cs:dac_write_lvds_spi|          ; 28 (12)     ; 24           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 4 (4)        ; 0 (0)             ; 24 (8)           ; 4 (4)           ; 0 (0)      ; |bc_test|bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:dac_write_lvds_spi                                ;
 ;          |shift_reg:spi_shift|                        ; 16 (16)     ; 16           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 0 (0)             ; 16 (16)          ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_ramp_test_wrapper:dac_ramp|write_spi_with_cs:dac_write_lvds_spi|shift_reg:spi_shift            ;
-;    |bc_dac_xtalk_test_wrapper:dac_xtalk|              ; 940 (14)    ; 803          ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 137 (5)      ; 7 (5)             ; 796 (4)          ; 132 (0)         ; 0 (0)      ; |bc_test|bc_dac_xtalk_test_wrapper:dac_xtalk                                                                   ;
+;    |bc_dac_xtalk_test_wrapper:dac_xtalk|              ; 954 (28)    ; 807          ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 147 (15)     ; 7 (5)             ; 800 (8)          ; 146 (14)        ; 0 (0)      ; |bc_test|bc_dac_xtalk_test_wrapper:dac_xtalk                                                                   ;
 ;       |slow2fast_clk_domain_crosser:lvds_start_tune|  ; 2 (2)       ; 2            ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 0 (0)        ; 2 (2)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:lvds_start_tune                      ;
 ;       |slow2fast_clk_domain_crosser:start_tune|       ; 1 (1)       ; 0            ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 1 (1)        ; 0 (0)             ; 0 (0)            ; 0 (0)           ; 0 (0)      ; |bc_test|bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:start_tune                           ;
 ;       |write_spi_with_cs:\gen_spi32:0:dac_write_spi|  ; 27 (11)     ; 24           ; 0           ; 0     ; 0    ; 0      ; 0            ; 0       ; 0         ; 0         ; 0    ; 0            ; 3 (3)        ; 0 (0)             ; 24 (8)           ; 4 (4)           ; 0 (0)      ; |bc_test|bc_dac_xtalk_test_wrapper:dac_xtalk|write_spi_with_cs:\gen_spi32:0:dac_write_spi                      ;
@@ -2066,12 +2066,12 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +----------------------------------------------+-------+
 ; Statistic                                    ; Value ;
 +----------------------------------------------+-------+
-; Total registers                              ; 2540  ;
+; Total registers                              ; 2564  ;
 ; Number of registers using Synchronous Clear  ; 2     ;
 ; Number of registers using Synchronous Load   ; 0     ;
-; Number of registers using Asynchronous Clear ; 2506  ;
+; Number of registers using Asynchronous Clear ; 2511  ;
 ; Number of registers using Asynchronous Load  ; 33    ;
-; Number of registers using Clock Enable       ; 79    ;
+; Number of registers using Clock Enable       ; 83    ;
 ; Number of registers using Preset             ; 0     ;
 +----------------------------------------------+-------+
 
@@ -6128,7 +6128,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +------------------+-------+-----------------------------------------------------------------------------------------------+
 ; Parameter Name   ; Value ; Type                                                                                          ;
 +------------------+-------+-----------------------------------------------------------------------------------------------+
-; num_times_faster ; 512   ; Integer                                                                                       ;
+; num_times_faster ; 8192  ; Integer                                                                                       ;
 +------------------+-------+-----------------------------------------------------------------------------------------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings Tables in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
@@ -6138,7 +6138,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +------------------+-------+----------------------------------------------------------------------------------------------------+
 ; Parameter Name   ; Value ; Type                                                                                               ;
 +------------------+-------+----------------------------------------------------------------------------------------------------+
-; num_times_faster ; 512   ; Integer                                                                                            ;
+; num_times_faster ; 8192  ; Integer                                                                                            ;
 +------------------+-------+----------------------------------------------------------------------------------------------------+
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings Tables in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
@@ -6149,7 +6149,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
-    Info: Processing started: Wed Aug 30 14:12:00 2006
+    Info: Processing started: Wed Aug 30 16:45:28 2006
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off bc_test -c bc_test
 Info: Found 1 design units, including 0 entities, in source file ../../../library/sys_param/source/rtl/command_pack.vhd
     Info: Found design unit 1: command_pack
@@ -6229,28 +6229,28 @@ Info: Found 2 design units, including 1 entities, in source file ../source/bc_te
     Info: Found design unit 1: bc_test-behaviour
     Info: Found entity 1: bc_test
 Info: Elaborating entity "bc_test" for the top level hierarchy
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(174): object "cmd1" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(175): object "cmd2" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(209): object "sa_htr1_done" assigned a value but never read
-Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(212): object "sa_htr2_done" assigned a value but never read
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(468): signal "status_done" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(560): signal "ramp_msg" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(601): signal "status_reg" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(602): signal "status" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(603): signal "pass_msg" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
-Warning (10492): VHDL Process Statement warning at bc_test.vhd(605): signal "fail_msg" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
-Warning (10034): Output port "lvds_txa" at bc_test.vhd(109) has no driver
-Warning (10034): Output port "lvds_txb" at bc_test.vhd(110) has no driver
-Warning (10034): Output port "test[13]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[12]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[11]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[10]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[9]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[8]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[4]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[3]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[2]" at bc_test.vhd(131) has no driver
-Warning (10034): Output port "test[1]" at bc_test.vhd(131) has no driver
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(178): object "cmd1" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(179): object "cmd2" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(213): object "sa_htr1_done" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at bc_test.vhd(216): object "sa_htr2_done" assigned a value but never read
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(472): signal "status_done" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(564): signal "ramp_msg" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(605): signal "status_reg" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(606): signal "status" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(607): signal "pass_msg" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
+Warning (10492): VHDL Process Statement warning at bc_test.vhd(609): signal "fail_msg" is read inside the Process Statement but isn't in the Process Statement's sensivitity list
+Warning (10034): Output port "lvds_txa" at bc_test.vhd(113) has no driver
+Warning (10034): Output port "lvds_txb" at bc_test.vhd(114) has no driver
+Warning (10034): Output port "test[13]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[12]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[11]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[10]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[9]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[8]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[4]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[3]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[2]" at bc_test.vhd(135) has no driver
+Warning (10034): Output port "test[1]" at bc_test.vhd(135) has no driver
 Info: Elaborating entity "bc_test_pll" for hierarchy "bc_test_pll:clk0"
 Info: Found 1 design units, including 1 entities, in source file ../../../../../altera/quartus60/libraries/megafunctions/altpll.tdf
     Info: Found entity 1: altpll
@@ -6285,7 +6285,7 @@ Info: Elaborating entity "write_spi_with_cs" for hierarchy "bc_dac_ctrl_test_wra
 Info: Elaborating entity "shift_reg" for hierarchy "bc_dac_ctrl_test_wrapper:dac_fix|write_spi_with_cs:\gen_spi32:0:dac_write_spi|shift_reg:spi_shift"
 Info: Elaborating entity "fast2slow_clk_domain_crosser" for hierarchy "bc_dac_ctrl_test_wrapper:dac_fix|fast2slow_clk_domain_crosser:enable_extend"
 Info: Elaborating entity "bc_dac_ramp_test_wrapper" for hierarchy "bc_dac_ramp_test_wrapper:dac_ramp"
-Warning (10036): Verilog HDL or VHDL warning at bc_dac_ramp_test.vhd(91): object "dac_done" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at bc_dac_ramp_test.vhd(92): object "dac_done" assigned a value but never read
 Info: Elaborating entity "bc_dac_xtalk_test_wrapper" for hierarchy "bc_dac_xtalk_test_wrapper:dac_xtalk"
 Info: Elaborating entity "slow2fast_clk_domain_crosser" for hierarchy "bc_dac_xtalk_test_wrapper:dac_xtalk|slow2fast_clk_domain_crosser:start_tune"
 Info: Elaborating entity "bc_sa_htr_test" for hierarchy "bc_sa_htr_test:sa_htr1_toggle"
@@ -7395,10 +7395,10 @@ Warning: Reduced register "pres_state.ramp_off_msg" with stuck data_in port to s
 Warning: Reduced register "bc_dac_xtalk_test_wrapper:dac_xtalk|idx[1]" with stuck data_in port to stuck value GND
 Info: Resynthesizing 0 WYSIWYG logic cells and I/Os using "speed" technology mapper which leaves 12 WYSIWYG logic cells and I/Os untouched
 Info: Performing gate-level register retiming
-Info: Not allowed to move 1249 registers
+Info: Not allowed to move 1248 registers
     Info: Not allowed to move 1136 registers because they are fed by registers in a different clock domain
     Info: Not allowed to move 10 registers because they feed registers in a different clock domain
-    Info: Not allowed to move 103 registers because they feed clock or asynchronous control signals of other registers
+    Info: Not allowed to move 102 registers because they feed clock or asynchronous control signals of other registers
 Info: Quartus II software applied gate-level register retiming to 0 clock domains
 Warning: Output pins are stuck at VCC or GND
     Warning: Pin "lvds_txa" stuck at GND
@@ -7417,14 +7417,14 @@ Warning: Design contains 3 input pin(s) that do not drive logic
     Warning: No output dependent on input pin "lvds_cmd"
     Warning: No output dependent on input pin "lvds_sync"
     Warning: No output dependent on input pin "lvds_spare"
-Info: Implemented 3605 device resources after synthesis - the final resource count might be different
+Info: Implemented 3640 device resources after synthesis - the final resource count might be different
     Info: Implemented 9 input pins
     Info: Implemented 120 output pins
-    Info: Implemented 3467 logic cells
+    Info: Implemented 3502 logic cells
     Info: Implemented 8 RAM segments
     Info: Implemented 1 ClockLock PLLs
 Info: Quartus II Analysis & Synthesis was successful. 0 errors, 44 warnings
-    Info: Processing ended: Wed Aug 30 14:13:39 2006
-    Info: Elapsed time: 00:01:39
+    Info: Processing ended: Wed Aug 30 16:47:23 2006
+    Info: Elapsed time: 00:01:56
 
 
