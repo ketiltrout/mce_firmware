@@ -31,6 +31,10 @@
 -- Revision history:
 -- 
 -- $Log: bc_test.vhd,v $
+-- Revision 1.15  2006/08/30 21:21:32  mandana
+-- revamped to Ernie's new test firmware
+-- added tests for sa_heater lines and power status lines
+--
 -- Revision 1.14  2004/07/21 22:30:15  erniel
 -- updated counter component
 --
@@ -312,11 +316,11 @@ begin
                    s         when 7,
                    t         when 8,
                    space     when 9,
-                   v         when 10,
+                   v         when 10, -- text for version number 2.1
                    period    when 11, 
                    two       when 12, 
                    period    when 13,
-                   zero      when 14,
+                   one      when 14,
                    newline   when others;
 
    with tx_count select
