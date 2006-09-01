@@ -19,7 +19,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 -- 
--- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.7 2004/12/02 01:05:24 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: bc_dac_ramp_test.vhd,v 1.8 2006/08/30 20:59:20 mandana Exp $>
 
 --
 -- Project:       SCUBA-2
@@ -84,6 +84,7 @@ architecture rtl of bc_dac_ramp_test_wrapper is
 type states is (IDLE, PUSH_DATA, SPI_START, DONE); 
 signal present_state         : states;
 signal next_state            : states;
+signal data_ramp_fast        : std_logic_vector(19 downto 0);
 signal data_ramp             : std_logic_vector(15 downto 0);
 signal idac                  : integer range 0 to 32;
 signal send_dac32_start      : std_logic;
@@ -106,8 +107,9 @@ begin
          data_ramp <= (others => '0');
       elsif(clk_4_i'event and clk_4_i = '1') then
          if (ramp = '1') then
-            data_ramp <= data_ramp + 1;
+            data_ramp_fast <= data_ramp_fast + 1;   -- if tied to DAC inputs, then creates 200Hz ramp
          end if;   
+         data_ramp <= data_ramp_fast(19 downto 4);
       end if;
    end process;
      
@@ -223,10 +225,14 @@ begin
       end case;
    end process state_out;
    
-   process(en_i)
+   process(en_i, clk_i, rst_i)
    begin
-      if(en_i = '1') then
-         ramp <= not ramp;
+      if (rst_i = '1') then
+         ramp <= '0';
+      elsif(clk_i'event and clk_i = '1') then
+         if (en_i = '1') then
+            ramp <= not ramp;
+         end if;   
       end if;
    end process;
    
