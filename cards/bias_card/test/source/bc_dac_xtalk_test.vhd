@@ -30,7 +30,10 @@
 -- odd number channels are quiet.
 --
 -- Revision history:
--- $Log$
+-- $Log: bc_dac_xtalk_test.vhd,v $
+-- Revision 1.8  2006/08/30 21:20:46  mandana
+-- rewritten to a large degree: there are 3 clock domains. SPI runs off clk_4_i or 12.5MHz  and square wave is set to 3.25kHz. clock-domain crossing routines are utilized to resolve timing issues that existed in previous versions.
+--
 -----------------------------------------------------------------------------
 
 library ieee, sys_param, components, work;
@@ -76,7 +79,7 @@ end;
 
 architecture rtl of bc_dac_xtalk_test_wrapper is
 
-constant TOGGLE_FREQ_FACTOR    : integer := 11;
+constant TOGGLE_FREQ_FACTOR    : integer := 15;
 constant TOGLLE2SPI_FREQ_RATIO : integer := 2**(TOGGLE_FREQ_FACTOR - 2);
 
 -- DAC CTRL:
