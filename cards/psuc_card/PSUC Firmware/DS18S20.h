@@ -2,10 +2,13 @@
 /*       Silicon Serial Number / Temperature Sensor Functions - DS18S20        	*/
 /********************************************************************************/
 // Revision history: 
-// $Log: scuba2ps.c,v $	
+// $Log: DS18S20.h,v $
+// Revision 1.1  2006/08/29 21:06:06  stuartah
+// Initial CVS Build - Most Basic Functionality Implemented
+//	
 
 
-		/*****  Refer to DS18S20 Datasheet for Command and Timing Specs *****/
+/*****  Refer to DS18S20 Datasheet for Command and Timing Specs *****/
 /* 	The transaction sequence for accessing the DS18S20 is as follows:	(Refer to datasheets)
 Step 1. Initialization (reset pulse)
 Step 2. ROM Command (followed by any required data exchange)

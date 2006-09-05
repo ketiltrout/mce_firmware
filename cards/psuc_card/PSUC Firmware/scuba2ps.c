@@ -5,6 +5,9 @@
 /****************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.4  2006/08/31 19:30:38  stuartah
+// Added functionality for measuring fan speeds
+//
 // Revision 1.3  2006/08/30 19:54:19  stuartah
 // Implemented checksum
 //
@@ -19,17 +22,15 @@
 		EEPROM non-volatile memory - Atmel AT25128A
 
 	NOTE: THIS PROGRAM IS NO WHERE NEAR COMPLETE OR TESTED
-	The I/O pins are set correctly for this version (revF). The SIO routines, startup and LED
-	routines work.  I was working on the SPI interface but it is not working.(yet) TF   */
+	The I/O pins are set correctly for this version (revF).*/
 /****************************************************************************************/
 
 // Header File containing function prototypes and global variable declarations
 #include "scuba2ps.h"
 
 // Constant Variables
-char code asc_version[] =  "\n\rPSUC v2.10\n\r\0";
+char code asc_version[] =  "\n\rPSUC v2.10\n\r\0";				// Software Version Serial Message
 char code software_version_byte = 0x21;		 					// 1 byte Software Version 
-
 
 
 /****************************************************************************************
@@ -568,7 +569,7 @@ bit command_valid (char *com_ptr)
 //maybe count a few (or up to 60...) pulses than convert to RPM
 //need to use scope to see what pulses actually look at (ie high-low symmetrical) on PSUC end 
 //line default is LOW (at AT89 end)
-unsigned char get_fan_speeds (void)
+unsigned char get_fan_speed(void)
 {
 	char *rpm_ptr;
 	unsigned int time_elapsed = 0;			// these value records the time elapsed for a full two fan periods
@@ -578,7 +579,7 @@ unsigned char get_fan_speeds (void)
 	while(FAN1_SPD);		// wait for fan speed line to go low
 	while(!FAN1_SPD);		// wait for fan speed line to go high     // --may need some kind of counter/break here in case fan not connected (will hang int hsi case)
 
-   	start_count_timer();		//maybe replace these with #define statements
+   	start_pca_timer();		//maybe replace these with #define statements
 	
 	// allow to two fan pulses to occur - 2 pulses per fan roatation - see datasheet
 	while(FAN1_SPD);		// wait for fan speed line to go low		 //this assumes constant fan speed...may want to count a few cycles
@@ -587,7 +588,7 @@ unsigned char get_fan_speeds (void)
 	while(!FAN1_SPD);		// wait for fan speed line to go high
 	
 	// get elapsed time (in uS)
-	time_elapsed = stop_count_timer();	      //maybe replace these with #define statements
+	time_elapsed = stop_pca_timer();	      //maybe replace these with #define statements
 
 	//rpm = (1/ (time_elapsed)  (uS/ periods)) *(60 000 000 (us/min))		// may need error case here to prevent div by 0
 	rpm = 60000000 / time_elapsed;
@@ -625,16 +626,14 @@ int stop_pca_timer ( void )
 
 /****************************************************************************************
  *  PCA Timer - Interrupt Service Routine		   	   *
- *************************** */
-void pca_isr(void) interrupt 6 /* interrupt address is 0x0033 */
+ ***************************************************** */
+void pca_isr(void) interrupt 6 					/* interrupt address is 0x0033 */
 // for now simply clear interrupt
 // will implement overflow error handling later
 {
 	CF = 0;					// clear interrupt
 	
 	//set error value to indicate rollover of PCA counter
-	// max count is 500ns * 0xFFFF = 32.77 miliseconds -> indicates ~30 revoltions per second	
+	// max count is 500ns * 0xFFFF = 32.77 miliseconds -> indicates <~30 revoltions per second	
 	//pca_interrupts++;
 }
-
-

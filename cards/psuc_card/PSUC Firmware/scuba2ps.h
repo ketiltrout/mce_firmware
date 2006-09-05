@@ -3,6 +3,9 @@
 /****************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.3  2006/08/31 19:30:38  stuartah
+// Added functionality for measuring fan speeds
+//
 // Revision 1.2  2006/08/30 19:54:19  stuartah
 // Implemented checksum
 //
@@ -19,7 +22,7 @@
 #include <stdio.h>
 #include <intrins.h>
 #include "io.h"
-#include "i2c.c"
+#include "MAX1271.c"					
 #include "DS18S20.c"
 
 // Memory Parameters
@@ -48,7 +51,7 @@ void snd_msg (char *);
 // PSU Data Block Functions
 void update_data_block(void);
 void check_digit(void);
-unsigned char get_fan_speeds(void);
+unsigned char get_fan_speed(void);
 
 // Command Parsing Functions
 void parse_command(void);
