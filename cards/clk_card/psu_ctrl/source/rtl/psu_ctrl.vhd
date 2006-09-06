@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: psu_ctrl.vhd,v 1.4 2006/08/01 00:34:38 bburger Exp $
+-- $Id: psu_ctrl.vhd,v 1.5 2006/08/12 00:02:10 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: psu_ctrl.vhd,v $
+-- Revision 1.5  2006/08/12 00:02:10  bburger
+-- Bryce:  First simulated version of the Power Supply Controller Wishbone slave
+--
 -- Revision 1.4  2006/08/01 00:34:38  bburger
 -- Bryce:  Interim committal -- this file is in progress
 --
@@ -45,6 +48,8 @@ use ieee.std_logic_1164.all;
 --use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
 
+--library work;
+--use work.bc_dac_ctrl_wbs_pack.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -102,19 +107,17 @@ architecture top of psu_ctrl is
    constant ASCII_O    : std_logic_vector(7 downto 0) := "01001111"; 
    constant ASCII_NULL : std_logic_vector(7 downto 0) := "00000000"; 
 
-   component tpram_32bit_x_64
+   component ram_32bit_x_64
    PORT
    (
-      data        : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-      wraddress   : IN STD_LOGIC_VECTOR (STATUS_ADDR_WIDTH-1 DOWNTO 0);
-      rdaddress_a : IN STD_LOGIC_VECTOR (STATUS_ADDR_WIDTH-1 DOWNTO 0);
-      rdaddress_b : IN STD_LOGIC_VECTOR (STATUS_ADDR_WIDTH-1 DOWNTO 0);
-      wren        : IN STD_LOGIC  := '1';
-      clock       : IN STD_LOGIC ;
-      qa          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-      qb          : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+      clock    : IN STD_LOGIC ;
+      data     : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+      rdaddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      wraddress      : IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+      wren     : IN STD_LOGIC  := '1';
+      q     : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
    );
-   end component;
+   END component;
 
    -- FSM req/ ack signals
    signal brst_mce_req  : std_logic;
@@ -141,6 +144,8 @@ architecture top of psu_ctrl is
    signal mosi_temp : std_logic;   -- Master Output/ Slave Input
    signal sclk_temp : std_logic;   -- Serial Clock
    signal ccss_temp : std_logic;   -- Clock Card Slave Select
+   signal miso      : std_logic;   -- Master Input/ Slave Output
+   signal sreq      : std_logic;   -- Service Request
 
    -- RAM interface signals
    signal status_wren : std_logic;
@@ -169,6 +174,7 @@ architecture top of psu_ctrl is
    -- Shift Register Signals
    signal spi_tx_word         : std_logic_vector(COMMAND_LENGTH-1 downto 0);
    signal spi_rx_word         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal spi_rx_word2         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
 
 begin
 
@@ -177,17 +183,17 @@ begin
    ------------------------------------------------------------
    bit_ctr_count_slv <= std_logic_vector(conv_unsigned(bit_ctr_count, WB_DATA_WIDTH));
    status_addr <= bit_ctr_count_slv(STATUS_ADDR_WIDTH+5-1 downto 5);
-   status_ram : tpram_32bit_x_64
+   
+   spi_rx_word2 <= "00000000000000000000000000" & status_addr(STATUS_ADDR_WIDTH-1 downto 0);
+   status_ram : ram_32bit_x_64
    port map
    (
-      data              => spi_rx_word,
-      wren              => status_wren,
-      wraddress         => status_addr(STATUS_ADDR_WIDTH-1 downto 0), --raw_addr_counter,         
-      rdaddress_a       => tga_i      (STATUS_ADDR_WIDTH-1 downto 0),
-      rdaddress_b       => tga_i      (STATUS_ADDR_WIDTH-1 downto 0), --raw_addr_counter,
-      clock             => clk_i,
-      qa                => status_data,
-      qb                => open
+      clock     => clk_i,
+      data      => spi_rx_word,
+      rdaddress => tga_i      (STATUS_ADDR_WIDTH-1 downto 0),
+      wraddress => status_addr(STATUS_ADDR_WIDTH-1 downto 0),
+      wren      => status_wren,
+      q         => status_data
    );
 
    sh_reg_rx: shift_reg
@@ -206,7 +212,12 @@ begin
       parallel_i => SLV_ZERO, 
       parallel_o => spi_rx_word
    );
-
+   
+   -- miso is inverted by an on-board buffer before the signal gets to the PSUC
+   -- To rectify the signal received by the PSUC, it is inverted here as well.
+   miso_o <= not miso;
+   sreq_o <= not sreq;
+   
    sh_reg_tx: shift_reg
    generic map(
       WIDTH      => COMMAND_LENGTH
@@ -219,7 +230,7 @@ begin
       clr_i      => LOW,    
       shr_i      => LOW,        
       serial_i   => LOW, 
-      serial_o   => miso_o,  
+      serial_o   => miso,  
       parallel_i => spi_tx_word, 
       parallel_o => open
    );
@@ -261,6 +272,8 @@ begin
          req_reg       <= (others => '0');
          
       elsif(clk_i'event and clk_i = '1') then
+         
+         -- For brst_mce, cycle_pow and cut_pow, if a set arrives at the same time as a clr, the req line will remain asserted.
          if(brst_mce_set = '1') then
             brst_mce_req <= '1';
          elsif(brst_mce_clr = '1') then
@@ -286,10 +299,14 @@ begin
          end if;
          
          -- Status Block is updated at 200 Hz
-         if(timeout_count = 350) then
-            update_status <= '1';
-         elsif(status_done = '1') then
+         -- For update_status, if the timer is expired at the same time that status_done is asserted, update_status is deasserted. 
+         -- This is because it takes one cycle to reset the timer after timeout_clr is asserted (at the same time as status_done).
+         -- What this means is that timeout_count is >= 2000000 when status_done is asserted.
+         if(status_done = '1') then
             update_status <= '0';
+--         elsif(timeout_count >= 350) then
+         elsif(timeout_count >= 2000000) then
+            update_status <= '1';
          else
             update_status <= update_status;
          end if;
@@ -313,9 +330,23 @@ begin
          sclk_temp <= '0';
          ccss_temp <= '0';
       elsif(clk_n_i'event and clk_n_i = '1') then
-         mosi_temp <= mosi_i;
-         sclk_temp <= sclk_i;
-         ccss_temp <= ccss_i;
+
+         ------------------------------------------------------------
+         -- Notes on active-high/low signals
+         ------------------------------------------------------------
+         -- ccss is active-low from the PSUC before it is inverted by a buffer on the Clock Card
+         -- Here, ccss is re-inverted because this code was written to take ccss as active-low (same as PSUC).
+         --
+         -- mosi is an active-high data line before being inverted by a buffer on the Clock Card.
+         -- Here, mosi is re-inverted to rectify the signal.
+         --
+         -- sclk latches data in on rising edges before it is inverted by a buffer on the Clock Card.
+         -- Here, sclk is re-inverted because this code was written to detect rising edges.
+         ------------------------------------------------------------
+         
+         mosi_temp <= not mosi_i;
+         sclk_temp <= not sclk_i;
+         ccss_temp <= not ccss_i;
       end if;
    end process;
    
@@ -361,8 +392,8 @@ begin
          -- For sending brst, power-cycle or power-shutdown commands and retrieving status block simultaneously
          when TX_RX =>
             -- This statement prevents us from entering a tx/rx state if a transmission is in progress
-            -- and the sclk='0' requirment retimes this FSM to the PSUC clock.
-            if(ccss = '1' and sclk = '0') then
+            -- and the sclk='0' requirement retimes this FSM to the PSUC clock.
+            if(ccss = '1') then
                next_out_state <= CLK_LOW;
             end if;
          
@@ -394,34 +425,29 @@ begin
    out_state_out: process(current_out_state, brst_mce_req, cycle_pow_req, cut_pow_req, update_status, bit_ctr_count, sclk, req_reg, ccss)
    begin
       -- Default assignments
-      sreq_o        <= '0'; -- Active High?
-      spi_tx_word   <= (others => '0');
-      
+      -- sreq is active low on the PSUC, but is inverted by a buffer on the Clock Card.
+      -- Here, it is treated as active low but is again inverted before being output, to counteract the buffer.
+      sreq          <= '1';
+      spi_tx_word   <= (others => '0');      
       bit_ctr_ena   <= '1';
       bit_ctr_load  <= '1';
-      bit_capture   <= '0';
-      
+      bit_capture   <= '0';      
       brst_mce_clr  <= '0';
       cycle_pow_clr <= '0';
       cut_pow_clr   <= '0';
       timeout_clr   <= '0';
-      status_done   <= '0';
-      
+      status_done   <= '0';      
       req_reg_load  <= '0';
-
       status_wren   <= '0';
---      status_addr   <= (others => '0');
 
       case current_out_state is         
          when IDLE  =>                   
---            status_addr   <= (others => '0');
             if(brst_mce_req = '1' or cycle_pow_req = '1' or cut_pow_req = '1' or update_status = '1') then
                req_reg_load <= '1';
             end if;
             
          -- For sending brst, power-cycle or power-shutdown commands only
          when TX_RX =>
---            status_addr   <= (others => '0');
             -- 3=brst_mce, 2=cycle_pow, 1=cut_pow, 0=update_status
             if(req_reg(3) = '1') then
                spi_tx_word  <= ASCII_R & ASCII_M & ASCII_R & ASCII_M & ASCII_R & ASCII_M & ASCII_R & ASCII_M;
@@ -436,7 +462,7 @@ begin
          when CLK_LOW =>
             bit_ctr_ena  <= '0';
             bit_ctr_load <= '0';
-            sreq_o       <= '1';   
+            sreq         <= '0';   
 
             -- If all the status bits have been received, don't capture crap
             if(bit_ctr_count >= STATUS_LENGTH) then null;
@@ -448,7 +474,7 @@ begin
          when CLK_HIGH =>
             bit_ctr_ena  <= '0';
             bit_ctr_load <= '0';
-            sreq_o       <= '1';
+            sreq         <= '0';
             
             -- If all the command bits have been transmitted, we transmit zeros
             if(bit_ctr_count >= STATUS_LENGTH) then null;
@@ -460,13 +486,11 @@ begin
                -- we do this in the clk low state because counter is incremented as we enter this state
                if(bit_ctr_count mod WB_DATA_WIDTH = 31) then
                   status_wren <= '1';
---                  status_addr <= status_addr + "000001";
                end if;
             end if;
          
 
          when DONE =>
---            status_addr   <= (others => '0');
             -- 3=brst_mce, 2=cycle_pow, 1=cut_pow, 0=update_status
             if(req_reg(3) = '1') then
                brst_mce_clr  <= '1';
