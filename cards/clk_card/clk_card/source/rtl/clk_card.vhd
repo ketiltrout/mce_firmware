@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.57 2006/08/11 23:57:43 bburger Exp $
+-- $Id: clk_card.vhd,v 1.58 2006/08/16 17:50:39 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.58  2006/08/16 17:50:39  bburger
+-- Bryce:  The Clock Card now uses the err_o signals from fpga_thermo and id_thermo
+--
 -- Revision 1.57  2006/08/11 23:57:43  bburger
 -- Bryce:  Added the Power Supply Control Wishbone slave
 --
@@ -101,9 +104,6 @@ entity clk_card is
       rst_n             : in std_logic;
 
       -- Manchester Clock PLL inputs:
---      inclk1            : in std_logic;
---      inclk3            : in std_logic;
---      inclk5            : in std_logic;
       inclk15           : in std_logic;
       
       -- LVDS interface:
@@ -133,10 +133,6 @@ entity clk_card is
       manchester_data   : in std_logic;
       manchester_sigdet : in std_logic;
 
-      -- For Testbenching
---      switch_to_xtal    : in std_logic;
---      switch_to_manch   : in std_logic;
-      
       -- TTL interface:
       ttl_nrx1          : in std_logic;
       ttl_tx1           : out std_logic;
@@ -156,13 +152,11 @@ entity clk_card is
       eeprom_sck        : out std_logic;
       eeprom_cs         : out std_logic;
 
-      psdo              : out std_logic;
-      pscso             : out std_logic;
-      psclko            : out std_logic;
-      psdi              : in std_logic;
-      pscsi             : in std_logic;
-      psclki            : in std_logic;
---      n5vok             : in std_logic;
+      mosii             : in std_logic;
+      sclki             : in std_logic;
+      ccssi             : in std_logic;
+      misoo             : out std_logic;
+      sreqo             : out std_logic;
       
       -- miscellaneous ports:
       red_led           : out std_logic;
@@ -220,7 +214,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000010";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000011";
    
    -- reset
    signal rst                : std_logic;
@@ -747,11 +741,11 @@ begin
       ------------------------------
       -- SPI Interface
       ------------------------------
-      mosi_i  => psdi,     
-      sclk_i  => psclki,     
-      ccss_i  => pscsi,     
-      miso_o  => psdo,     
-      sreq_o  => pscso     
+      mosi_i  => mosii,     
+      sclk_i  => sclki,     
+      ccss_i  => ccssi,     
+      miso_o  => misoo,     
+      sreq_o  => sreqo     
    );        
 
    clk_switchover_inst: clk_switchover
