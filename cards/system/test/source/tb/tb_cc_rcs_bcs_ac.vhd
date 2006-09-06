@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.27 2006/08/18 22:59:18 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.28 2006/08/21 19:43:57 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.28  2006/08/21 19:43:57  bburger
+-- Bryce:  PSUC testing
+--
 -- Revision 1.27  2006/08/18 22:59:18  bburger
 -- Bryce:  v0200000f
 --
@@ -116,10 +119,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
       manchester_data   : in std_logic;
       manchester_sigdet : in std_logic;
       
-      -- For Testbenching
---      switch_to_xtal    : in std_logic;
---      switch_to_manch   : in std_logic;
-      
       -- TTL interface:
       ttl_nrx1          : in std_logic;
       ttl_tx1           : out std_logic;
@@ -139,13 +138,18 @@ architecture tb of tb_cc_rcs_bcs_ac is
       eeprom_sck        : out std_logic;
       eeprom_cs         : out std_logic;
 
-      psdo              : out std_logic;
-      pscso             : out std_logic;
-      psclko            : out std_logic;
-      psdi              : in std_logic;
-      pscsi             : in std_logic;
-      psclki            : in std_logic;
---      n5vok             : in std_logic;
+--      psdo              : in std_logic;
+--      pscso             : in std_logic;
+--      psclko            : in std_logic;
+--      psdi              : out std_logic;
+--      pscsi             : out std_logic;
+--      psclki            : out std_logic;
+
+      mosii             : in std_logic;
+      sclki             : in std_logic;
+      ccssi             : in std_logic;
+      misoo             : out std_logic;
+      sreqo             : out std_logic;
       
       -- miscellaneous ports:
       red_led           : out std_logic;
@@ -426,12 +430,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_use_dv_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_DV_ADDR;
    constant cc_use_sync_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_SYNC_ADDR;
    constant cc_data_rate_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & DATA_RATE_ADDR;
-	constant cc_select_clk_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SELECT_CLK_ADDR;
-
---   constant BRST_MCE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
---   constant CYCLE_POW_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"61";
---   constant CUT_POW_ADDR      : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"62";
---   constant PSC_STATUS_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"63";
+   constant cc_select_clk_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SELECT_CLK_ADDR;
 
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
@@ -517,8 +516,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal inclk_conditioned : std_logic := '0';
    signal switch_to_xtal    : std_logic := '0';
    signal switch_to_manch   : std_logic := '0';
-   signal spi_clk    : std_logic := '0';
-   signal spi_data   : std_logic := '0';
+--   signal spi_clk    : std_logic := '0';
+--   signal spi_data   : std_logic := '0';
    signal spi_clk_cond : std_logic := '0';
    signal spi_clk_en : std_logic := '0';
    
@@ -567,12 +566,19 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_eeprom_sck : std_logic;
    signal cc_eeprom_cs  : std_logic;
 
-   signal cc_psdo       : std_logic;
-   signal cc_pscso      : std_logic;
-   signal cc_psclko     : std_logic;
-   signal cc_psdi       : std_logic := '0';
-   signal cc_pscsi      : std_logic := '1';
-   signal cc_psclki     : std_logic := '0';
+--   signal cc_psdo       : std_logic;
+--   signal cc_pscso      : std_logic := '1';
+--   signal cc_psclko     : std_logic;
+--   signal cc_psdi       : std_logic := '0';
+--   signal cc_pscsi      : std_logic := '1';
+--   signal cc_psclki     : std_logic := '0';
+
+   signal cc_mosii      : std_logic := '0';
+   signal cc_sclki      : std_logic := '0';
+   signal cc_ccssi      : std_logic := '0';
+   signal cc_misoo      : std_logic;
+   signal cc_sreqo      : std_logic;
+   
    signal cc_n5vok      : std_logic := '0';
                      
    -- miscellaneous ports:
@@ -1181,8 +1187,6 @@ begin
          dv_pulse_fibre   => dv_pulse_fibre,
          manchester_data  => manchester_data,  
          manchester_sigdet => manchester_sigdet,
---         switch_to_xtal    => switch_to_xtal,
---         switch_to_manch   => switch_to_manch,
       
          -- TTL interface:
          ttl_nrx1         => bclr_n,
@@ -1203,15 +1207,20 @@ begin
          eeprom_sck       => cc_eeprom_sck,
          eeprom_cs        => cc_eeprom_cs, 
 
-         psdo             => cc_psdo,  
-         pscso            => cc_pscso, 
-         psclko           => cc_psclko,
-         
-         -- I'm putting a clock input on the data line to see what we get
-         psdi             => spi_data,--cc_psdi,  
-         pscsi            => cc_pscsi, 
-         psclki           => spi_clk,--cc_psclki,
---         n5vok            => cc_n5vok, 
+--         psdo             => cc_psdo,   
+--         pscso            => cc_pscso,  
+--         psclko           => cc_psclko, 
+--         
+--         -- I'm putting a clock input on the data line to see what we get
+--         psdi             => spi_data,--cc_psdi,  
+--         pscsi            => cc_pscsi, 
+--         psclki           => spi_clk,--cc_psclki,
+----         n5vok            => cc_n5vok, 
+         mosii            => cc_mosii,
+         sclki            => cc_sclki, 
+         ccssi            => cc_ccssi,
+         misoo            => cc_misoo,
+         sreqo            => cc_sreqo,
                              
          -- miscellaneous ports:
          red_led          => cc_red_led,
@@ -2141,50 +2150,50 @@ begin
 --  Testing Clock Selection Commands
 ------------------------------------------------------
 
-      command <= command_rb;
-      address_id <= cc_select_clk_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;          
-      wait for 20 us;
-
-      command <= command_wb;
-      address_id <= cc_select_clk_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;          
-      wait for 20 us;
-
-      command <= command_rb;
-      address_id <= cc_select_clk_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;          
-      wait for 20 us;
-
-      command <= command_wb;
-      address_id <= cc_select_clk_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;          
-      wait for 20 us;
-
-      command <= command_rb;
-      address_id <= cc_select_clk_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;          
-      wait for 20 us;
+--      command <= command_rb;
+--      address_id <= cc_select_clk_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;          
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_select_clk_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;          
+--      wait for 20 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_select_clk_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;          
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_select_clk_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;          
+--      wait for 20 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_select_clk_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;          
+--      wait for 20 us;
 ------------------------------------------------------
 --  Testing New Fibre Protocol
 ------------------------------------------------------
@@ -2279,49 +2288,50 @@ begin
 --   constant psu_cut_pow_cmd         : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CUT_POW_ADDR;
 --   constant psu_status_cmd          : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & PSC_STATUS_ADDR;
 
-      command <= command_wb;
-      address_id <= psu_brst_mce_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
+--      command <= command_rs;
+--      address_id <= psu_brst_mce_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 300 us;
+--
+--      command <= command_rs;
+--      address_id <= psu_cycle_pow_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 300 us;
+--
+--      command <= command_rs;
+--      address_id <= psu_cut_pow_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 300 us;
+--
+--      command <= command_rb;
+--      address_id <= psu_status_cmd;
+--      data_valid <= X"00000009";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 300 us;
+--
+--      command <= command_rb;
+--      address_id <= psu_status_cmd;
+--      data_valid <= X"00000009";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
       wait for 300 us;
-
-      command <= command_wb;
-      address_id <= psu_cycle_pow_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 300 us;
-
-      command <= command_wb;
-      address_id <= psu_cut_pow_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 300 us;
-
-      command <= command_rb;
-      address_id <= psu_status_cmd;
-      data_valid <= X"00000009";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 300 us;
-
-      command <= command_rb;
-      address_id <= psu_status_cmd;
-      data_valid <= X"00000009";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
       wait for 300 us;
 
 ------------------------------------------------------
@@ -3329,29 +3339,32 @@ begin
       assert false report "Simulation done." severity FAILURE;
    end process stimuli;  
 
+
+   --signal cc_mosii      : std_logic;
+   --signal cc_sclki      : std_logic;
+   --signal cc_ccssi      : std_logic;
+   --signal cc_misoo      : std_logic;
+   --signal cc_sreqo      : std_logic;
+
    -- This process emulates the behaviour of the psuc's ccss control signal
    -- This process runs concurrently to the command rx/tx process above
    -- This process waits for sreq to be asserted by the clock card before asserting ccss
-   spi_clk      <= not spi_clk      after spi_clk_period/2;
-   spi_data     <= not spi_data     after spi_clk_period;
+   cc_sclki <= not cc_sclki after spi_clk_period/2;
+   cc_mosii <= not cc_mosii after spi_clk_period;
+   
    psuc : process   
-      
-      procedure wait_for_pscsi is
+      procedure wait_for_sreq is
       begin
          wait for spi_clk_period;
-         if(cc_pscso = '1') then
-            cc_pscsi <= '0';
+         if(cc_sreqo = '1') then
+            cc_ccssi <= '1';
          else
-            cc_pscsi <= '1';
+            cc_ccssi <= '0';
          end if;
-      end wait_for_pscsi;
-   
+      end wait_for_sreq;
    begin
-   
-      loop
-         wait_for_pscsi;
+      loop wait_for_sreq;
       end loop;
-   
    end process psuc;
    
 --   manchester_input : process
