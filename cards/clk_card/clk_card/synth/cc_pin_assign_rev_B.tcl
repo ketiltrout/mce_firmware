@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.7  2006/08/02 16:24:30  bburger
+# Bryce:  trying to fixed occasional wb bugs in issue_reply
+#
 # Revision 1.6  2006/07/12 01:59:11  bburger
 # Bryce:  Fixed some mistakes in the .tcl file
 #
@@ -260,15 +263,15 @@ cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_R2"
 cmp add_assignment $top_name "" fibre_rx_refclk LOCATION "Pin_C15"
 puts "   Assigned: PLL and clock pins."
 
-
+   
 # assign power supply interface
-cmp add_assignment $top_name "" psdo LOCATION "Pin_H21"
-cmp add_assignment $top_name "" pscso LOCATION "Pin_H22"
-cmp add_assignment $top_name "" psclko LOCATION "Pin_E28"
-cmp add_assignment $top_name "" psdi LOCATION "Pin_F28"
-cmp add_assignment $top_name "" pscsi LOCATION "Pin_F27"
-cmp add_assignment $top_name "" psclki LOCATION "Pin_J22"
-# cmp add_assignment $top_name "" n5vok LOCATION "Pin_AG25"
+cmp add_assignment $top_name "" mosii LOCATION "Pin_H21"
+cmp add_assignment $top_name "" ccssi LOCATION "Pin_H22"
+cmp add_assignment $top_name "" sclki LOCATION "Pin_E28"
+cmp add_assignment $top_name "" misoo LOCATION "Pin_F28"
+cmp add_assignment $top_name "" sreqo LOCATION "Pin_F27"
+#cmp add_assignment $top_name "" psclki LOCATION "Pin_J22"
+#cmp add_assignment $top_name "" n5vok LOCATION "Pin_AG25"
 puts "   Assigned: Power supply interface pins."
 
 
