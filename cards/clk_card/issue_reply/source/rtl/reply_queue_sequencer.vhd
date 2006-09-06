@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.23  2006/08/18 22:33:09  bburger
+-- Bryce:  Removed data signals from FSM's and implemented data pipeline with combinatorial logic to give the data pipeline more slack and setup time.  As it was, the design was meeting timing in Quartus, but just marginally.  Now there is >1ns of slack for the data signals.
+--
 -- Revision 1.22  2006/08/16 18:09:41  bburger
 -- Bryce:  pipelined the calculation of the status word into several stages to get rid of timing violations
 --
@@ -93,6 +96,8 @@ port(
      lvds_reply_cc_a   : in std_logic;
       
      card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+     -- cmd_translator interface
+     cmd_code_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
      cmd_type_i        : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
      par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
 
@@ -618,7 +623,7 @@ begin
    end process state_FF;
    
    state_NS: process(pres_state, timeout, cmd_valid_i, card_addr_i, err_rdy, cmd_type_i, ack_i,
-                     ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy)
+                     ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy, cmd_code_i)
    begin
       -- Default Assignments
       next_state <= pres_state;
@@ -667,22 +672,25 @@ begin
                else
                   next_state <= WAIT_FOR_REPLY;
                end if;
-			
-			when LATCH_ERROR =>
+         
+         when LATCH_ERROR =>
                next_state <= ERROR_WAIT1;
 
-			when ERROR_WAIT1 =>
+         when ERROR_WAIT1 =>
                next_state <= ERROR_WAIT2;
                                     
-			when ERROR_WAIT2 =>
+         when ERROR_WAIT2 =>
                next_state <= ERROR_WAIT3;
 
-			when ERROR_WAIT3 =>
+         when ERROR_WAIT3 =>
                next_state <= MATCHED;
 
-         when MATCHED =>        
+         when MATCHED =>
+            if (cmd_code_i = RESET) then
+               next_state <= DONE;
+            else
                next_state <= STATUS_WORD;
-                                         
+            end if;                             
          when READ_AC =>        
             if(ac_rdy = '1' or err_rdy = '1') then
                next_state <= READ_AC;
@@ -928,14 +936,14 @@ begin
          when WAIT_FOR_REPLY => 
             timeout_clr      <= '0';
 
-			when LATCH_ERROR =>
+         when LATCH_ERROR =>
             update_status    <= '1';
 
-			when ERROR_WAIT1 =>
+         when ERROR_WAIT1 =>
                                     
-			when ERROR_WAIT2 =>
+         when ERROR_WAIT2 =>
                              
-			when ERROR_WAIT3 =>
+         when ERROR_WAIT3 =>
 
          when MATCHED =>        
             matched_o        <= '1';
