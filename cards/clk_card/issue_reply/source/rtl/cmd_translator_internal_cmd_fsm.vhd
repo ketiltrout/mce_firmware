@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.5 2006/01/16 18:45:27 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.6 2006/08/02 16:24:41 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/01/16 18:45:27 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/08/02 16:24:41 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_internal_cmd_fsm.vhd,v $
+-- Revision 1.6  2006/08/02 16:24:41  bburger
+-- Bryce:  trying to fixed occasional wb bugs in issue_reply
+--
 -- Revision 1.5  2006/01/16 18:45:27  bburger
 -- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
 -- moved component declarations from above package files to cmd_translator
@@ -87,7 +90,7 @@ port(
       data_o               : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
       data_clk_o           : out std_logic;                                               -- for clocking out the data
       instr_rdy_o          : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
-      cmd_type_o           : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_code_o           : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       
       -- input from the macro-instruction arbiter
       ack_i                : in  std_logic                                                -- acknowledgment from the arbiter that it is ready and has grabbed the data
@@ -189,10 +192,11 @@ begin
    -------------------------------------------------------------------------------------------
    -- assign outputs
    -------------------------------------------------------------------------------------------
+
    card_addr_o       <= READOUT_CARD_1  when current_state = ISSUE_INTRNL_CMD else (others => '0');
    parameter_id_o    <= LED_ADDR        when current_state = ISSUE_INTRNL_CMD else (others => '0');
    instr_rdy_o       <= '1'             when current_state = ISSUE_INTRNL_CMD else '0';
-   cmd_type_o        <= READ_CMD        when current_state = ISSUE_INTRNL_CMD else (others => '0');
+   cmd_code_o        <= READ_BLOCK;
    data_size_o       <= "00000101001"   when current_state = ISSUE_INTRNL_CMD else (others => '0');
    data_o            <= (others => '0');
    data_clk_o        <= '0';

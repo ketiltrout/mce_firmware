@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.36 2006/06/19 17:27:07 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.37 2006/08/16 18:06:37 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/06/19 17:27:07 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/08/16 18:06:37 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.37  2006/08/16 18:06:37  bburger
+-- Bryce:  cmd_transltor now treates frame sequence numbers and dv sequence numbers differently
+--
 -- Revision 1.36  2006/06/19 17:27:07  bburger
 -- Bryce:  removed unused sync_pulse_i signal from interfaces
 --
@@ -169,7 +172,7 @@ port(
       data_o                  : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
       data_clk_o              : out std_logic;                                               -- for clocking out the data
       instr_rdy_o             : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
-      cmd_type_o              : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_code_o              : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_o              : out std_logic;                      
       last_frame_o            : out std_logic;
       ret_dat_fsm_working_o   : out std_logic;                                               -- indicates the state machine is busy
@@ -217,7 +220,6 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal next_state                      : state;
    signal current_state                   : state;
  
---   signal mux_sel                         : std_logic;
    signal reg_en                          : std_logic;
    
    signal current_sync_num_reg_plus_1     : std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
@@ -399,8 +401,6 @@ begin
          when RETURN_DATA_IDLE =>
          
             if(ret_dat_start = '1') then
---               ret_dat_cmd_valid       <= '1';
---               instr_rdy_o             <= '1';
                ret_dat_fsm_working     <= '1';
                ret_dat_start_ack       <= '1';
                reg_en                  <= '1';           
@@ -448,12 +448,7 @@ begin
             if(external_dv_i = '1') then
                reg_en                  <= '1';
                current_sync_num        <= sync_number_i + 1;
-               
---               if(dv_mode_i = DV_EXTERNAL_MANCHESTER) then
---                  current_seq_num      <= external_dv_num_i;
---               else
                current_seq_num      <= current_seq_num_reg + 1;
---               end if;
             end if;
          
          when RETURN_DATA_PAUSE =>
@@ -589,23 +584,12 @@ begin
       if ret_dat_fsm_working = '1' then
          frame_seq_num_o  <= current_seq_num_reg;
          frame_sync_num_o <= current_sync_num_reg;
-
---         if(dv_mode_i = DV_INTERNAL) then
-            card_addr_o      <= card_addr_reg;
-            parameter_id_o   <= parameter_id_reg;
---         else
---            -- These statements override the values of the previous command, so that DV pulses cause this FSM to fetch data frames
---            card_addr_o      <= ALL_READOUT_CARDS;
---            parameter_id_o   <= RET_DAT_ADDR;
---         end if;
-         
+         card_addr_o      <= card_addr_reg;
+         parameter_id_o   <= parameter_id_reg;
          data_size_o      <= data_size;    
          data_o           <= data_reg;         
-         --this will always indicate data, whether or not a stop command was received, or it is the last frame
-         cmd_type_o       <= READ_CMD;         
-         -- not passing any data, so keep the data clock inactive
+         cmd_code_o       <= READ_BLOCK;
          data_clk_o       <= '0';              
-         
       else
          frame_seq_num_o  <= (others => '0');
          frame_sync_num_o <= (others => '0');
@@ -613,9 +597,8 @@ begin
          parameter_id_o   <= (others => '0');
          data_size_o      <= (others => '0');
          data_o           <= (others => '0');
-         cmd_type_o       <= (others => '0');  -- equivalent to a WB command, although we don't actually do WB cmds in this block
+         cmd_code_o       <= (others => '0');
          data_clk_o       <= '0';
-         
       end if;       
    end process;
 

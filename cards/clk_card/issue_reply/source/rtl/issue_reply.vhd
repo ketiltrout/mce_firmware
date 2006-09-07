@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.51 2006/07/11 18:22:24 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.52 2006/08/16 18:07:46 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/07/11 18:22:24 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/08/16 18:07:46 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.52  2006/08/16 18:07:46  bburger
+-- Bryce:  piped the dv sequence number to the reply queue for inclusion in data headers
+--
 -- Revision 1.51  2006/07/11 18:22:24  bburger
 -- Bryce:  Added a debug port to reply_translator
 --
@@ -189,7 +192,7 @@ architecture rtl of issue_reply is
       sync_number_i         : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
      
       -- signals from the arbiter to cmd_queue
-      cmd_type_o            : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);        -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_code_o            : out std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);        -- this is a re-mapping of the cmd_code into a 3-bit number
       card_addr_o           : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);        -- specifies which card the command is targetting
       parameter_id_o        : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);        -- comes from param_id_i, indicates which device(s) the command is targetting
       data_size_o           : out std_logic_vector (BB_DATA_SIZE_WIDTH-1 downto 0);        -- num_data_i, indicates number of 16-bit words of data
@@ -231,7 +234,7 @@ architecture rtl of issue_reply is
       card_addr_o     : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
       par_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
       data_size_o     : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-      cmd_type_o      : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+      cmd_code_o      : out std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       -- indicates a STOP command was recieved
       cmd_stop_o      : out std_logic;                                          
       -- indicates the last frame of data for a ret_dat command
@@ -249,7 +252,7 @@ architecture rtl of issue_reply is
       issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       mop_rdy_i       : in std_logic;
       mop_ack_o       : out std_logic; 
-      cmd_type_i      : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      cmd_code_i      : in std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;                                          
       last_frame_i    : in std_logic;                                          
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -275,7 +278,6 @@ architecture rtl of issue_reply is
       card_addr_i       : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
       par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
       data_size_i       : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);  
-      cmd_type_i        : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
       cmd_stop_i        : in std_logic;                                          
       last_frame_i      : in std_logic;                                          
       frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -286,6 +288,9 @@ architecture rtl of issue_reply is
       num_rows_i        : in integer;
       issue_sync_i      : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       
+      -- cmd_translator interface
+      cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
+
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o            : out integer;
       data_o            : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -296,7 +301,7 @@ architecture rtl of issue_reply is
       -- reply_translator interface (from reply_queue_retire)
       cmd_sent_i        : in std_logic;
       cmd_valid_o       : out std_logic;
-      cmd_code_o        : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      cmd_code_o        : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0); 
       param_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
       card_addr_o       : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
       stop_bit_o        : out std_logic;                                          
@@ -395,6 +400,8 @@ architecture rtl of issue_reply is
    signal reply_cmd_rcvd_er   : std_logic;
    signal reply_cmd_rcvd_ok   : std_logic;
    signal reply_cmd_code      : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   signal reply_cmd_code_b    : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   signal reply_cmd_code_c    : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal reply_param_id      : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0); 
    signal reply_card_id       : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
    signal sync_pulse          : std_logic;
@@ -515,7 +522,7 @@ begin
          -- signals to/from cmd_translator    
          cmd_rcvd_er_i     => reply_cmd_rcvd_er,
          cmd_rcvd_ok_i     => reply_cmd_rcvd_ok,
-         cmd_code_i        => reply_cmd_code,
+         cmd_code_i        => reply_cmd_code_c,
          card_addr_i       => reply_card_id,
          param_id_i        => reply_param_id,            
                          
@@ -560,7 +567,7 @@ begin
          -- output to fibre_rx
          ack_o               => cmd_ack,
          
-         -- outputs to u-op sequence generator         
+         -- outputs to cmd_queue         
          card_addr_o         => card_addr,
          parameter_id_o      => parameter_id,
          data_size_o         => data_size,
@@ -569,7 +576,7 @@ begin
          instr_rdy_o         => macro_instr_rdy,
          frame_seq_num_o     => frame_seq_num,
          frame_sync_num_o    => frame_sync_num,
-         cmd_type_o          => cmd_type,
+         cmd_code_o          => reply_cmd_code,
          cmd_stop_o          => cmd_stop,
          last_frame_o        => last_frame,       
          internal_cmd_o      => internal_cmd_issued,
@@ -582,7 +589,7 @@ begin
          -- reply_translator interface          
          reply_cmd_rcvd_er_o => reply_cmd_rcvd_er,
          reply_cmd_rcvd_ok_o => reply_cmd_rcvd_ok,
-         reply_cmd_code_o    => reply_cmd_code,
+         reply_cmd_code_o    => reply_cmd_code_c,
          reply_param_id_o    => reply_param_id,
          reply_card_id_o     => reply_card_id,         
          
@@ -614,12 +621,12 @@ begin
         card_addr_o     => card_addr_cr,    
         par_id_o        => par_id_cr,       
         data_size_o     => data_size_cr,    
-        cmd_type_o      => cmd_type_cr,     
         cmd_stop_o      => cmd_stop_cr,     
         last_frame_o    => last_frame_cr,   
         frame_seq_num_o => frame_seq_num_cr,
         internal_cmd_o  => internal_cmd_cr, 
         issue_sync_o    => issue_sync,
+        cmd_code_o      => reply_cmd_code_b,
         
         -- cmd_translator interface
         card_addr_i     => card_addr,
@@ -630,11 +637,11 @@ begin
         issue_sync_i    => frame_sync_num,
         mop_rdy_i       => macro_instr_rdy,
         mop_ack_o       => mop_ack,
-        cmd_type_i      => cmd_type,
         cmd_stop_i      => cmd_stop,
         last_frame_i    => last_frame,
         frame_seq_num_i => frame_seq_num,
         internal_cmd_i  => internal_cmd_issued,
+        cmd_code_i      => reply_cmd_code,
 
         -- lvds_tx interface
         tx_o            => lvds_cmd_o,
@@ -658,17 +665,17 @@ begin
          card_addr_i         => card_addr_cr,    
          par_id_i            => par_id_cr,       
          data_size_i         => data_size_cr,    
-         cmd_type_i          => cmd_type_cr,     
          cmd_stop_i          => cmd_stop_cr,     
          last_frame_i        => last_frame_cr,   
          frame_seq_num_i     => frame_seq_num_cr,
          internal_cmd_i      => internal_cmd_cr,
+         cmd_code_i          => reply_cmd_code_b,
          
          data_rate_i         => data_rate_i,
          row_len_i           => row_len_i,
          num_rows_i          => num_rows_i,
          issue_sync_i        => issue_sync,
-         
+
          -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
          size_o              => num_fibre_words,
          data_o              => fibre_word,

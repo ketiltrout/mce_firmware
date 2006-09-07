@@ -20,10 +20,10 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.41 2006/06/19 17:27:07 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.42 2006/08/02 16:24:41 bburger Exp $>
 --
 -- Project:       SCUBA-2
--- Author:         Jonathan Jacob
+-- Author:        Jonathan Jacob
 --
 -- Organisation:  UBC
 --
@@ -33,162 +33,11 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/06/19 17:27:07 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/08/02 16:24:41 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
--- Revision 1.41  2006/06/19 17:27:07  bburger
--- Bryce:  removed unused sync_pulse_i signal from interfaces
---
--- Revision 1.40  2006/06/03 02:29:15  bburger
--- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
---
--- Revision 1.39  2006/05/29 23:11:00  bburger
--- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
---
--- Revision 1.38  2006/03/23 23:14:07  bburger
--- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
---
--- Revision 1.37  2006/03/17 17:03:10  bburger
--- Bryce:  Added a register for preventing errant DV pulses from causing problems on the CC and in the DAS software
---
--- Revision 1.36  2006/03/16 00:19:17  bburger
--- Bryce:
--- - added ret_dat_req_i  and ret_dat_ack_o interfaces
--- - reply_cmd_rcvd_ok_o is now asserted for a single cycle instead of for as long as cmd_rdy_i is asserted
---
--- Revision 1.35  2006/03/11 03:45:11  bburger
--- Bryce:  polishing off dv_rx functionality -- fixing bugs
---
--- Revision 1.34  2006/03/09 00:57:10  bburger
--- Bryce:  Added the following signals to the interface:  dv_mode_i, external_dv_i, external_dv_num_i
---
--- Revision 1.33  2006/02/11 01:19:33  bburger
--- Bryce:  Added the following signal interfaces to implement responding to external dv pulses
--- data_req
--- data_ack
--- frame_num_external
---
--- Revision 1.32  2006/01/16 18:45:27  bburger
--- Ernie:  removed references to issue_reply_pack and cmd_translator_pack
--- moved component declarations from above package files to cmd_translator
--- renamed constants to work with new command_pack (new bus backplane constants)
---
--- Revision 1.31  2005/11/15 03:17:22  bburger
--- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
---
--- Revision 1.30  2005/09/28 23:35:22  bburger
--- Bryce:
--- removed ret_dat_s logic and interface signals, which are not used.
--- added a hardcoded data size in cmd_translator_ret_dat_fsm of 328 for data frames
---
--- Revision 1.29  2005/09/03 23:51:26  bburger
--- jjacob:
--- removed recirculation muxes and replaced with register enables, and cleaned up formatting
---
--- Revision 1.28  2005/07/23 01:39:25  bburger
--- Bryce:
--- Added a wishbone-accessible register to change the data rate.  The register default is one frame of data every ten frames (maximum rate).
--- Disabled internal commanding
---
--- Revision 1.27  2005/03/04 03:45:58  bburger
--- Bryce:  fixed bugs associated with ret_dat_s and ret_dat
---
--- Revision 1.26  2005/02/19 22:40:17  mandana
--- jjacob: registered all outputs going to cmd_queue
---
--- Revision 1.25  2004/12/16 18:53:05  bench2
--- Mandana: added comments on how to disable internal commands
---
--- Revision 1.24  2004/12/03 07:45:17  jjacob
--- debugging internal commands
---
--- Revision 1.23  2004/12/02 05:42:07  jjacob
--- added internal commands
---
--- Revision 1.22  2004/11/25 01:32:37  bburger
--- Bryce:
--- - Changed to cmd_code over the bus backplane to read/write only
--- - Added interface signals for internal commands
--- - RB command data-sizes are correctly handled
---
--- Revision 1.21  2004/10/14 00:38:43  bburger
--- Bryce:  cleaning up un-used signals
---
--- Revision 1.20  2004/10/08 20:51:08  bburger
--- Bryce: No explicit command code checking is done except for commands that that require special handling (ret_dat, ret_dat_s)
---
--- Revision 1.19  2004/10/08 19:45:26  bburger
--- Bryce:  Changed SYNC_NUM_WIDTH to 16, removed TIMEOUT_SYNC_WIDTH, added a command-code to cmd_queue, added two words of book-keeping information to the cmd_queue
---
--- Revision 1.18  2004/09/30 22:34:44  erniel
--- using new command_pack constants
---
--- Revision 1.17  2004/09/10 19:14:36  jjacob
--- modifed outputs to reply_translator to feedthrough values from fibre_rx
---
--- Revision 1.16  2004/09/09 18:25:38  jjacob
--- added 3 outputs:
--- >       cmd_type_o        :  out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
--- >       cmd_stop_o        :  out std_logic;                                          -- indicates a STOP command was recieved
--- >       last_frame_o      :  out std_logic;                                          -- indicates the last frame of data for a ret_dat command
---
--- Revision 1.15  2004/09/02 23:41:43  jjacob
--- cleaning up and formatting
---
--- Revision 1.14  2004/09/02 18:24:17  jjacob
--- cleaning up and formatting
---
--- Revision 1.13  2004/08/25 22:15:33  bburger
--- Bryce:  removed the dbl_buffer command
---
--- Revision 1.12  2004/08/11 00:08:25  jjacob
--- added the following signals for the reply_translator interface:
---       reply_cmd_rcvd_er_o         : out std_logic;
---       reply_cmd_rcvd_ok_o         : out std_logic;
---       reply_cmd_code_o            : out std_logic_vector (15 downto 0);
---       reply_param_id_o            : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
---       reply_card_id_o             : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)
---
--- and also added an input for the checksum error to route to the reply_cmd_rcvd_er_
---
--- Revision 1.11  2004/08/05 20:52:01  jjacob
--- added sync_number input to arbiter instatiation
---
--- Revision 1.10  2004/08/05 18:14:29  jjacob
--- changed frame_sync_num_o to use the parameter
--- SYNC_NUM_WIDTH
---
--- Revision 1.9  2004/07/28 23:39:05  jjacob
--- added:
--- library sys_param;
--- use sys_param.command_pack.all;
---
--- Revision 1.8  2004/07/05 23:38:56  jjacob
--- added ack_o signal to cmd_translator_ret_dat_fsm to control the
--- acknowledge signal back to the fibre_rx block
---
--- Revision 1.6  2004/06/21 16:57:24  jjacob
--- first stable version, doesn't yet have macro-instruction buffer, doesn't have
--- "quick" acknolwedgements for instructions that require them, no error
--- handling, basically no return path logic yet.  Have implemented ret_dat
--- instructions, and "simple" instructions.  Not all instructions are fully
--- implemented yet.
---
--- Revision 1.5  2004/06/09 23:32:47  jjacob
--- cleaned formatting
---
--- Revision 1.4  2004/06/08 00:14:10  jjacob
--- updating
---
--- Revision 1.3  2004/06/04 23:01:17  jjacob
--- daily update/ safety checkin
---
--- Revision 1.2  2004/06/03 23:39:39  jjacob
--- safety checkin
---
--- Revision 1.1  2004/05/28 15:53:25  jjacob
--- first version
---
+-- Revision 1.42  2006/08/02 16:24:41  bburger
+-- Bryce:  trying to fixed occasional wb bugs in issue_reply
 --
 -- 
 -----------------------------------------------------------------------------
@@ -243,7 +92,7 @@ port(
    sync_number_i         : in  std_logic_vector(          SYNC_NUM_WIDTH-1 downto 0);
    
    -- signals from the arbiter to cmd_queue
-   cmd_type_o            : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);        -- this is a re-mapping of the cmd_code into a 3-bit number
+   cmd_code_o            : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);        -- this is a re-mapping of the cmd_code into a 3-bit number
    card_addr_o           : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);        -- specifies which card the command is targetting
    parameter_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);        -- comes from param_id_i, indicates which device(s) the command is targetting
    data_size_o           : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);        -- num_data_i, indicates number of 16-bit words of data
@@ -280,7 +129,6 @@ architecture rtl of cmd_translator is
    signal ret_dat_start                : std_logic;
    signal ret_dat_stop                 : std_logic;
    signal arbiter_ret_dat_ack          : std_logic;
---   signal ret_dat_cmd_valid            : std_logic;
    signal ret_dat_ack                  : std_logic;
    signal ret_dat_cmd_stop             : std_logic;
    signal ret_dat_last_frame           : std_logic;
@@ -326,7 +174,7 @@ architecture rtl of cmd_translator is
       data_o                  : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
       data_clk_o              : out std_logic;
       instr_rdy_o             : out std_logic;
-      cmd_type_o              : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
+      cmd_code_o              : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_o              : out std_logic;                      
       last_frame_o            : out std_logic;
       ret_dat_fsm_working_o   : out std_logic;
@@ -340,7 +188,7 @@ architecture rtl of cmd_translator is
    signal ret_dat_cmd_data             : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru
    signal ret_dat_cmd_data_clk         : std_logic;
    signal ret_dat_cmd_instr_rdy        : std_logic; 
-   signal ret_dat_cmd_type             : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
+   signal ret_dat_cmd_code             : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    
    signal ret_dat_fsm_working          : std_logic;
    signal ret_dat_frame_seq_num        : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
@@ -349,38 +197,7 @@ architecture rtl of cmd_translator is
    -------------------------------------------------------------------------------------------
    -- 'simple command' signals to the arbiter
    -------------------------------------------------------------------------------------------
-   
-   component cmd_translator_simple_cmd_fsm
-   port(
-      rst_i             : in  std_logic;
-      clk_i             : in  std_logic;
-      card_addr_i       : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-      parameter_id_i    : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
-      data_size_i       : in  std_logic_vector (   FIBRE_DATA_SIZE_WIDTH-1 downto 0);
-      data_i            : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);
-      data_clk_i        : in  std_logic;
-      cmd_code_i        : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      --sync_pulse_i      : in  std_logic;
-      cmd_start_i       : in  std_logic;
-      cmd_stop_i        : in  std_logic;
-      card_addr_o       : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      parameter_id_o    : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-      data_size_o       : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-      data_o            : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-      data_clk_o        : out std_logic;
-      instr_rdy_o       : out std_logic;
-      cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
-      instr_ack_i       : in std_logic); 
-   end component;
-
    signal simple_cmd_ack               : std_logic;                                               -- ready signal
-   signal simple_cmd_card_addr         : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
-   signal simple_cmd_parameter_id      : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from param_id_i, indicates which device(s) the command is targetting
-   signal simple_cmd_data_size         : std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-   signal simple_cmd_data              : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru
-   signal simple_cmd_data_clk          : std_logic;
-   signal simple_cmd_instr_rdy         : std_logic;
-   signal simple_cmd_type              : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
 
    -------------------------------------------------------------------------------------------
    -- 'internal command' signals to the arbiter
@@ -397,7 +214,7 @@ architecture rtl of cmd_translator is
       data_o               : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
       data_clk_o           : out std_logic;
       instr_rdy_o          : out std_logic;
-      cmd_type_o           : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
+      cmd_code_o           : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       ack_i                : in  std_logic); 
    end component;
 
@@ -407,8 +224,7 @@ architecture rtl of cmd_translator is
    signal internal_cmd_data            : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  
    signal internal_cmd_data_clk        : std_logic; 
    signal internal_cmd_instr_rdy       : std_logic; 
-   signal internal_cmd_type            : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
-
+   signal internal_cmd_code            : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal internal_cmd_ack             : std_logic;   
    
    -------------------------------------------------------------------------------------------
@@ -428,7 +244,7 @@ architecture rtl of cmd_translator is
       ret_dat_data_clk_i             : in  std_logic; 
       ret_dat_instr_rdy_i            : in  std_logic; 
       ret_dat_fsm_working_i          : in  std_logic;
-      ret_dat_cmd_type_i             : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
+      ret_dat_cmd_code_i             : in  std_logic_vector( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       ret_dat_cmd_stop_i             : in  std_logic;
       ret_dat_last_frame_i           : in  std_logic;
       ret_dat_ack_o                  : out std_logic;
@@ -438,7 +254,7 @@ architecture rtl of cmd_translator is
       simple_cmd_data_i              : in  std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
       simple_cmd_data_clk_i          : in  std_logic;
       simple_cmd_instr_rdy_i         : in  std_logic;
-      simple_cmd_type_i              : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
+      simple_cmd_code_i              : in  std_logic_vector( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       simple_cmd_ack_o               : out std_logic;  
       internal_cmd_card_addr_i       : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
       internal_cmd_parameter_id_i    : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
@@ -446,7 +262,7 @@ architecture rtl of cmd_translator is
       internal_cmd_data_i            : in  std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_data_clk_i        : in  std_logic; 
       internal_cmd_instr_rdy_i       : in  std_logic; 
-      internal_cmd_type_i            : in  std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);
+      internal_cmd_code_i            : in  std_logic_vector( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       internal_cmd_ack_o             : out std_logic;  
       sync_number_i                  : in  std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);
       frame_seq_num_o                : out std_logic_vector (                     31 downto 0);
@@ -457,7 +273,7 @@ architecture rtl of cmd_translator is
       data_o                         : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
       data_clk_o                     : out std_logic; 
       instr_rdy_o                    : out std_logic; 
-      cmd_type_o                     : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  
+      cmd_code_o                     : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_o                     : out std_logic; 
       last_frame_o                   : out std_logic;  
       internal_cmd_o                 : out std_logic;  
@@ -470,7 +286,7 @@ architecture rtl of cmd_translator is
    signal data                         : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);       
    signal data_clk                     : std_logic;
    signal instr_rdy                    : std_logic;
-   signal cmd_type                     : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);   
+   signal cmd_code                     : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
    signal cmd_stop_cmd_queue           : std_logic; 
    signal last_frame                   : std_logic; 
    signal internal_cmd                 : std_logic;                                       
@@ -489,7 +305,7 @@ architecture rtl of cmd_translator is
    signal data_reg                     : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);       
    signal data_clk_reg                 : std_logic;
    signal instr_rdy_reg                : std_logic;
-   signal cmd_type_reg                 : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);   
+   signal cmd_code_reg                 : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0); 
    signal cmd_stop_reg                 : std_logic; 
    signal last_frame_reg               : std_logic; 
    signal internal_cmd_reg             : std_logic;                                       
@@ -644,7 +460,7 @@ begin
       data_clk_o             => ret_dat_cmd_data_clk,        -- for clocking out the data
       instr_rdy_o            => ret_dat_cmd_instr_rdy,       -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_o  => ret_dat_fsm_working,    
-      cmd_type_o             => ret_dat_cmd_type,            -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_code_o             => ret_dat_cmd_code,            -- this is a re-mapping of the cmd_code into a 3-bit number
       cmd_stop_o             => ret_dat_cmd_stop,                    
       last_frame_o           => ret_dat_last_frame,
       frame_seq_num_o        => ret_dat_frame_seq_num,
@@ -655,41 +471,6 @@ begin
       ack_o                  => ret_dat_ack
    ); 
 
-   -------------------------------------------------------------------------------------------
-   -- SIMPLE commands state machine
-   ------------------------------------------------------------------------------------------- 
-   i_simple_cmds : cmd_translator_simple_cmd_fsm
-   port map(
-      -- global inputs
-      rst_i                  => rst_i,
-      clk_i                  => clk_i,
-
-      -- inputs from cmd_translator top level      
-      card_addr_i            => card_id_i,                   -- specifies which card the command is targetting
-      parameter_id_i         => param_id_i,                  -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_i            => num_data_i,                  -- data_size_i, indicates number of 16-bit words of data
-      data_i                 => cmd_data_i,                  -- data will be passed straight thru in 16-bit words
-      data_clk_i             => data_clk_i,                  -- for clocking out the data
-      cmd_code_i             => cmd_code_i,
-      
-      -- other inputs
-      --sync_pulse_i           => sync_pulse_i,
-      cmd_start_i            => cmd_start,
-      cmd_stop_i             => cmd_stop,                    -- what's this for???
-  
-      -- outputs to the macro-instruction arbiter
-      card_addr_o            => simple_cmd_card_addr,        -- specifies which card the command is targetting
-      parameter_id_o         => simple_cmd_parameter_id,     -- comes from param_id_i, indicates which device(s) the command is targetting
-      data_size_o            => simple_cmd_data_size,        -- data_size_i, indicates number of 16-bit words of data
-      data_o                 => simple_cmd_data,             -- data will be passed straight thru in 16-bit words
-      data_clk_o             => simple_cmd_data_clk,         -- for clocking out the data
-      instr_rdy_o            => simple_cmd_instr_rdy,        -- ='1' when the data is valid, else it's '0'
-      cmd_type_o             => simple_cmd_type,
-      
-      -- input from the macro-instruction arbiter
-      instr_ack_i            => simple_cmd_ack               -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
-   );  
- 
    -------------------------------------------------------------------------------------------
    -- INTERNAL commands state machine
    ------------------------------------------------------------------------------------------- 
@@ -709,7 +490,7 @@ begin
       data_o                 => internal_cmd_data,
       data_clk_o             => internal_cmd_data_clk,
       instr_rdy_o            => internal_cmd_instr_rdy,
-      cmd_type_o             => internal_cmd_type,
+      cmd_code_o             => internal_cmd_code,
       
       -- input from the macro-instruction arbiter
       ack_i                  => internal_cmd_ack
@@ -735,22 +516,20 @@ begin
       ret_dat_data_clk_i             => ret_dat_cmd_data_clk ,      -- for clocking out the data
       ret_dat_instr_rdy_i            => ret_dat_cmd_instr_rdy,      -- ='1' when the data is valid, else it's '0'
       ret_dat_fsm_working_i          => ret_dat_fsm_working, 
-      ret_dat_cmd_type_i             => ret_dat_cmd_type,
+      ret_dat_cmd_code_i             => ret_dat_cmd_code,
       ret_dat_cmd_stop_i             => ret_dat_cmd_stop,                    
       ret_dat_last_frame_i           => ret_dat_last_frame,
       
       -- output to the 'return data' state machine
-      ret_dat_ack_o                  => arbiter_ret_dat_ack ,       -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
-
-      -- inputs from the 'simple commands' state machine
-      simple_cmd_card_addr_i         => simple_cmd_card_addr,       -- specifies which card the command is targetting
-      simple_cmd_parameter_id_i      => simple_cmd_parameter_id,    -- comes from param_id_i, indicates which device(s) the command is targetting
-      simple_cmd_data_size_i         => simple_cmd_data_size,       -- data_size_i, indicates number of 16-bit words of data
-      simple_cmd_data_i              => simple_cmd_data,            -- data will be passed straight thru in 16-bit words
-      simple_cmd_data_clk_i          => simple_cmd_data_clk,        -- for clocking out the data
-      simple_cmd_instr_rdy_i         => simple_cmd_instr_rdy,       -- ='1' when the data is valid, else it's '0'
-      simple_cmd_type_i              => simple_cmd_type, 
-      
+      ret_dat_ack_o                  => arbiter_ret_dat_ack,       -- acknowledgment from the macro-instr arbiter that it is ready and has grabbed the data
+      simple_cmd_card_addr_i         => card_id_i(BB_CARD_ADDRESS_WIDTH-1 downto 0),        -- specifies which card the command is targetting
+      simple_cmd_parameter_id_i      => param_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0),       -- comes from param_id_i, indicates which device(s) the command is targetting
+      simple_cmd_data_size_i         => num_data_i(BB_DATA_SIZE_WIDTH-1 downto 0),       -- data_size_i, indicates number of 16-bit words of data
+      simple_cmd_data_i              => cmd_data_i,       -- data will be passed straight thru in 16-bit words
+      simple_cmd_data_clk_i          => data_clk_i,       -- for clocking out the data
+      simple_cmd_instr_rdy_i         => cmd_start,        -- ='1' when the data is valid, else it's '0'
+      simple_cmd_code_i              => cmd_code_i, 
+ 
       -- output to simple cmd fsm
       simple_cmd_ack_o               => simple_cmd_ack, 
       
@@ -761,7 +540,7 @@ begin
       internal_cmd_data_i            => internal_cmd_data,
       internal_cmd_data_clk_i        => internal_cmd_data_clk,
       internal_cmd_instr_rdy_i       => internal_cmd_instr_rdy,
-      internal_cmd_type_i            => internal_cmd_type,
+      internal_cmd_code_i            => internal_cmd_code,
       
       -- output to the internal command state machine
       internal_cmd_ack_o             => internal_cmd_ack,
@@ -775,7 +554,7 @@ begin
       data_o                         => data,                       -- data will be passed straight thru in 16-bit words
       data_clk_o                     => data_clk,                   -- for clocking out the data
       instr_rdy_o                    => instr_rdy,                  -- ='1' when the data is valid, else it's '0'
-      cmd_type_o                     => cmd_type,
+      cmd_code_o                     => cmd_code,
       cmd_stop_o                     => cmd_stop_cmd_queue,                    
       last_frame_o                   => last_frame,
       internal_cmd_o                 => internal_cmd,
@@ -796,7 +575,7 @@ begin
          data_reg                    <= (others => '0');
          data_clk_reg                <= '0';
          instr_rdy_reg               <= '0';
-         cmd_type_reg                <= (others => '0');
+         cmd_code_reg                <= (others => '0');
          cmd_stop_reg                <= '0';
          last_frame_reg              <= '0';
          internal_cmd_reg            <= '0'; 
@@ -809,7 +588,7 @@ begin
          data_reg                    <= data;
          data_clk_reg                <= data_clk;
          instr_rdy_reg               <= instr_rdy;
-         cmd_type_reg                <= cmd_type;
+         cmd_code_reg                <= cmd_code;
          cmd_stop_reg                <= cmd_stop_cmd_queue;
          last_frame_reg              <= last_frame;
          internal_cmd_reg            <= internal_cmd;
@@ -825,6 +604,7 @@ begin
    ret_dat_ack_o                     <= '0';
    
    -- outputs to the reply_translator
+   -- this should be from the arbiter?
    reply_cmd_rcvd_er_o               <= cksum_err_i;
    reply_cmd_code_o                  <= cmd_code_i;
    reply_param_id_o                  <= param_id_i;
@@ -840,7 +620,7 @@ begin
    data_o                            <= data_reg;           
    data_clk_o                        <= data_clk_reg;      
    instr_rdy_o                       <= instr_rdy_reg;
-   cmd_type_o                        <= cmd_type_reg;   
+   cmd_code_o                        <= cmd_code_reg;
    cmd_stop_o                        <= cmd_stop_reg;
    last_frame_o                      <= last_frame_reg;
    internal_cmd_o                    <= internal_cmd_reg;

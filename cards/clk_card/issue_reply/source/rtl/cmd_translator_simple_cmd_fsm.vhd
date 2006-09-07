@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.12 2006/04/26 22:55:08 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_simple_cmd_fsm.vhd,v 1.13 2006/06/19 17:27:07 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/04/26 22:55:08 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/06/19 17:27:07 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_simple_cmd_fsm.vhd,v $
+-- Revision 1.13  2006/06/19 17:27:07  bburger
+-- Bryce:  removed unused sync_pulse_i signal from interfaces
+--
 -- Revision 1.12  2006/04/26 22:55:08  bburger
 -- Bryce:  Added a slave to Clock Card called config_fpga, which allows the user to toggle between factory and application configurations.
 -- In the process:
@@ -130,7 +133,7 @@ port(
       data_o            : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
       data_clk_o        : out std_logic;                                                -- for clocking out the data
       instr_rdy_o       : out std_logic;                                            -- ='1' when the instruction is valid, else it's '0'
-      cmd_type_o        : out std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);  -- this is a re-mapping of the cmd_code into a 3-bit number
+      cmd_code_o        : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       
       -- input from the instruction arbiter
       instr_ack_i       : in std_logic                                              -- acknowledgment from the arbiter that it is ready and has grabbed the data
@@ -140,29 +143,15 @@ end cmd_translator_simple_cmd_fsm;
 
 architecture rtl of cmd_translator_simple_cmd_fsm is
 begin
-
------------------------------------------------------------------------- 
---
-------------------------------------------------------------------------
-
+   ------------------------------------------------------------------------ 
+   -- The simple_cmd_fsm really doesn't do anything novel.  I'm going to remove it.
+   ------------------------------------------------------------------------
    card_addr_o    <= card_addr_i(BB_CARD_ADDRESS_WIDTH-1 downto 0)    when cmd_start_i = '1' else (others => '0');
    parameter_id_o <= parameter_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) when cmd_start_i = '1' else (others => '0');
    data_size_o    <= data_size_i(BB_DATA_SIZE_WIDTH-1 downto 0)       when cmd_start_i = '1' else (others => '0');
    data_o         <= data_i                                           when cmd_start_i = '1' else (others => '0');
    data_clk_o     <= data_clk_i                                       when cmd_start_i = '1' else '0';
    instr_rdy_o    <= '1'                                              when cmd_start_i = '1' else '0';
+   cmd_code_o <= cmd_code_i;
 
---   -- command packet types:
---   constant WRITE_BLOCK : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205742";
---   constant READ_BLOCK  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205242";
---   constant GO          : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"2020474F";
---   constant STOP        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205354";
---   constant RESET       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205253";
---   
---   -- reply packet types:
---   constant REPLY       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205250";
---   constant DATA        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20204441";
-   
-   cmd_type_o <= WRITE_CMD when (cmd_code_i = WRITE_BLOCK or cmd_code_i = GO or cmd_code_i = STOP or cmd_code_i = RESET) else READ_CMD;
-         
 end rtl;

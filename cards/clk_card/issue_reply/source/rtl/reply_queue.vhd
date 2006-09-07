@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.32 2006/08/17 01:45:36 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.33 2006/09/06 00:27:11 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.33  2006/09/06 00:27:11  bburger
+-- Bryce:  added support for reset commands.  their replies are now discarded when they arrive from the backplane because the clock card has already sent a generic reply.
+--
 -- Revision 1.32  2006/08/17 01:45:36  bburger
 -- Bryce:  Changed the data_o signal from being a clocked mux to a combinatorial mux to get rid of timing violations
 --
@@ -61,7 +64,6 @@ entity reply_queue is
       card_addr_i         : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
       par_id_i            : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
       data_size_i         : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);  
-      cmd_type_i          : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
       cmd_stop_i          : in std_logic;                                          
       last_frame_i        : in std_logic;                                          
       frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -71,10 +73,8 @@ entity reply_queue is
       row_len_i           : in integer;
       num_rows_i          : in integer;
       issue_sync_i        : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      cmd_code_i          : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
             
-      -- cmd_translator interface
-      cmd_code_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
-
       -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
       size_o              : out integer;
       data_o              : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -85,7 +85,7 @@ entity reply_queue is
       -- reply_translator interface (from reply_queue_retire)
       cmd_sent_i          : in std_logic;
       cmd_valid_o         : out std_logic;
-      cmd_code_o          : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      cmd_code_o          : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0); 
       param_id_o          : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
       card_addr_o         : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
       stop_bit_o          : out std_logic;                                          
@@ -131,8 +131,7 @@ architecture behav of reply_queue is
       
         card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
         -- cmd_translator interface
-        cmd_code_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
-        cmd_type_i        : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+        cmd_code_i        : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
         par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
 
         -- Bus Backplane interface
@@ -180,7 +179,6 @@ architecture behav of reply_queue is
    signal card_addr            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
    signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
    signal data_size_t          : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-   signal cmd_type             : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
    signal bit_status           : std_logic_vector(5 downto 0);
    signal bit_status_i         : std_logic_vector(5 downto 0);
    signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -317,18 +315,6 @@ begin
          reg_o      => data_size_t
       );
 
-   cmd_type_reg: reg
-      generic map(
-         WIDTH      => BB_COMMAND_TYPE_WIDTH
-      )
-      port map(
-         clk_i      => clk_i,
-         rst_i      => rst_i,
-         ena_i      => reg_en,
-         reg_i      => cmd_type_i,
-         reg_o      => cmd_type
-      );
-
    bit_status_i <= active_clk_i & sync_box_err_i & sync_box_free_run_i & internal_cmd_i & cmd_stop_i & last_frame_i;
    bit_status_reg: reg
       generic map(
@@ -366,9 +352,6 @@ begin
          reg_o      => issue_sync_num
       );
       
-
---   error_code_o <= "0" & error_code;
-
    -- No need to register the error code here because it is registered in reply_queue_sequencer
    error_code_o <= "0" & status_q;
    status_reg : reg
@@ -384,7 +367,7 @@ begin
       );      
 
    -- Some of the outputs to reply_translator and lvds_rx fifo's
-   cmd_code_o        <= cmd_type;
+   cmd_code_o        <= cmd_code;
    card_addr_o       <= card_addr;   
    last_frame_bit_o  <= bit_status(0);   
    stop_bit_o        <= bit_status(1);  
@@ -408,7 +391,7 @@ begin
    end process retire_state_FF;
 
    retire_state_NS: process(present_retire_state, cmd_to_retire_i, matched, ack_i, --status_q, --timeout, 
-      internal_cmd, word_rdy, word_count, data_size, par_id, cmd_sent_i, cmd_type, cmd_code)
+      internal_cmd, word_rdy, word_count, data_size, par_id, cmd_sent_i, cmd_code)
    begin
       -- Default Values
       next_retire_state <= present_retire_state;
@@ -446,7 +429,7 @@ begin
                if (par_id = RET_DAT_ADDR) then
                   next_retire_state <= TX_ROW_LEN;
                -- If this is a RB
-               elsif (cmd_type = READ_CMD) then
+               elsif (cmd_code = READ_BLOCK) then
                   next_retire_state <= REPLY;
                -- If this is a WB
                else
@@ -730,7 +713,6 @@ begin
          card_data_size_i  => data_size_t,  -- Add this to the pack file
          -- cmd_translator interface
          cmd_code_i        => cmd_code,
-         cmd_type_i        => cmd_type,
          par_id_i          => par_id, 
          
          -- fibre interface:

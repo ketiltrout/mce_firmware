@@ -32,34 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
--- Revision 1.23  2006/08/18 22:33:09  bburger
--- Bryce:  Removed data signals from FSM's and implemented data pipeline with combinatorial logic to give the data pipeline more slack and setup time.  As it was, the design was meeting timing in Quartus, but just marginally.  Now there is >1ns of slack for the data signals.
+-- Revision 1.24  2006/09/06 00:27:11  bburger
+-- Bryce:  added support for reset commands.  their replies are now discarded when they arrive from the backplane because the clock card has already sent a generic reply.
 --
--- Revision 1.22  2006/08/16 18:09:41  bburger
--- Bryce:  pipelined the calculation of the status word into several stages to get rid of timing violations
---
--- Revision 1.21  2006/08/12 00:01:21  bburger
--- Bryce:  Added Power Supply Controller communications flags to the status word
---
--- Revision 1.20  2006/08/05 00:53:30  bburger
--- Bryce:  v0200000f with bug correction
---
--- Revision 1.19  2006/07/07 00:43:23  bburger
--- Bryce:  finished writing the logic for detecting timeouts due to execution errors vs. timeouts due to card not present.
---
--- Revision 1.18  2006/02/02 00:32:59  mandana
--- datasize_reg_q calculations trimmed to less number of bits
---
--- Revision 1.17  2006/01/16 19:03:02  bburger
--- Bryce:
--- minor bug fixes for handling crc errors and timeouts
--- moved reply_queue_receive instantiations from reply_queue to reply_queue_sequencer
---
--- Revision 1.16  2005/11/15 03:17:22  bburger
--- Bryce: Added support to reply_queue_sequencer, reply_queue and reply_translator for timeouts and CRC errors from the bus backplane
---
--- Revision 1.15  2005/03/31 16:55:58  bburger
--- Bryce:  added special logic analyzer trigger signals for debugging
 --
 -----------------------------------------------------------------------------
 
@@ -97,8 +72,7 @@ port(
       
      card_data_size_i  : in std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
      -- cmd_translator interface
-     cmd_code_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
-     cmd_type_i        : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+     cmd_code_i        : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
      par_id_i          : in std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); 
 
      -- reply_queue_retire interface:
@@ -458,8 +432,6 @@ begin
    ---------------------------------------------------------
    -- Status Word Registers
    ---------------------------------------------------------   
---   status <= no_reply_yet and cards_to_reply;
-
    status_word_ff: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
@@ -622,7 +594,7 @@ begin
       end if;
    end process state_FF;
    
-   state_NS: process(pres_state, timeout, cmd_valid_i, card_addr_i, err_rdy, cmd_type_i, ack_i,
+   state_NS: process(pres_state, timeout, cmd_valid_i, card_addr_i, err_rdy, ack_i,
                      ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy, cmd_code_i)
    begin
       -- Default Assignments
@@ -817,7 +789,7 @@ begin
             -- If the status word is acknowledged
             if(ack_i = '1') then
                -- If there is data to read
-               if(cmd_type_i = READ_CMD) then
+               if(cmd_code_i = READ_BLOCK) then
                   case card_addr_i is
                      when CLOCK_CARD | POWER_SUPPLY_CARD => 
                         next_state <= READ_CC;
@@ -870,18 +842,6 @@ begin
       rc4_data when pres_state = READ_RC4 and rc4_rdy = '1' else
       cc_data  when pres_state = READ_CC  and cc_rdy = '1'  else
       err_dat;
-
---   rdy_o <=
---      ac_rdy  when pres_state = READ_AC  and ac_rdy = '1'  else
---      bc1_rdy when pres_state = READ_BC1 and bc1_rdy = '1' else
---      bc2_rdy when pres_state = READ_BC2 and bc2_rdy = '1' else
---      bc3_rdy when pres_state = READ_BC3 and bc3_rdy = '1' else
---      rc1_rdy when pres_state = READ_RC1 and rc1_rdy = '1' else
---      rc2_rdy when pres_state = READ_RC2 and rc2_rdy = '1' else
---      rc3_rdy when pres_state = READ_RC3 and rc3_rdy = '1' else
---      rc4_rdy when pres_state = READ_RC4 and rc4_rdy = '1' else
---      cc_rdy  when pres_state = READ_CC  and cc_rdy = '1'  else
---      err_rdy;
 
    state_Out: process(pres_state, ack_i, cmd_valid_i,
       ac_rdy, bc1_rdy, bc2_rdy, bc3_rdy, rc1_rdy, rc2_rdy, rc3_rdy, rc4_rdy, cc_rdy)

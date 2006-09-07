@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.94 2006/07/07 00:40:34 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.95 2006/07/11 00:45:15 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.95  2006/07/11 00:45:15  bburger
+-- Bryce:  Added an interlock to the cmd_queue with the reply_queue_sequencer so that the cmd_queue doesn't send out a command before the previous reply is received.
+--
 -- Revision 1.94  2006/07/07 00:40:34  bburger
 -- Bryce:  Removed unused signal uop_ack_i from a sensitivity list
 --
@@ -90,7 +93,7 @@ entity cmd_queue is
       card_addr_o     : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);
       par_id_o        : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);
       data_size_o     : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
-      cmd_type_o      : out std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+      cmd_code_o        : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       -- indicates a STOP command was recieved
       cmd_stop_o      : out std_logic;                                          
       -- indicates the last frame of data for a ret_dat command
@@ -108,7 +111,7 @@ entity cmd_queue is
       issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       mop_rdy_i       : in std_logic;
       mop_ack_o       : out std_logic; 
-      cmd_type_i      : in std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0); 
+      cmd_code_i      : in std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;                                          
       last_frame_i    : in std_logic;                                          
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -144,7 +147,11 @@ signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0)
 signal data_size            : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
 signal data_size_int_t      : integer;
 signal issue_sync           : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-signal cmd_type             : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
+signal cmd_code             : std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+signal bb_cmd_code          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);
+
+
+--signal cmd_type             : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
 signal bit_status           : std_logic_vector(2 downto 0);
 signal bit_status_i         : std_logic_vector(2 downto 0);
 signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -158,7 +165,6 @@ signal data_count           : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
 -- Data Queue I/O
 signal wren_sig             : std_logic;
 signal qa_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
---signal qb_sig               : std_logic_vector(QUEUE_WIDTH-1 downto 0);
 
 -- LVDS Tx Signals
 signal lvds_tx_word         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -175,13 +181,11 @@ signal crc_clr              : std_logic;
 signal crc_ena              : std_logic;
 signal crc_num_bits         : integer;
 signal crc_done             : std_logic;
---signal crc_valid            : std_logic;
 signal crc_checksum         : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal crc_reg              : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
 -- Shift Register signals:
 signal sh_reg_serial_o      : std_logic;
---signal sh_reg_parallel_o    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); --Dummy signal
 
 -- Miscellaneous Signals
 signal uop_send_expired     : std_logic;
@@ -218,7 +222,7 @@ begin
    card_addr_o     <= card_addr;
    par_id_o        <= par_id;
    data_size_o     <= data_size;
-   cmd_type_o      <= cmd_type;
+   cmd_code_o      <= cmd_code;
    last_frame_o    <= bit_status(0);
    cmd_stop_o      <= bit_status(1);
    internal_cmd_o  <= bit_status(2);
@@ -276,16 +280,16 @@ begin
          reg_o      => issue_sync
       );
 
-   cmd_type_reg: reg
+   cmd_code_reg: reg
       generic map(
-         WIDTH      => BB_COMMAND_TYPE_WIDTH
+         WIDTH      => FIBRE_PACKET_TYPE_WIDTH
       )
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
          ena_i      => reg_en,
-         reg_i      => cmd_type_i,
-         reg_o      => cmd_type
+         reg_i      => cmd_code_i,
+         reg_o      => cmd_code
       );
 
    bit_status_i <= internal_cmd_i & cmd_stop_i & last_frame_i;
@@ -423,7 +427,7 @@ begin
       end if;
    end process;
    
-   state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_type, uop_ack_i,
+   state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_code, uop_ack_i,
    uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state, par_id)
    begin
       next_state <= present_state;
@@ -433,10 +437,6 @@ begin
                next_state <= STORE_CMD_PARAM;
             end if;
          
-         --   -- command types:
-         --constant WRITE_CMD   : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "1";
-         --constant READ_CMD    : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "0";
-         
          --constant WRITE_BLOCK : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "000";
          --constant READ_BLOCK  : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "001";
          --constant START       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "010";
@@ -444,6 +444,12 @@ begin
          --constant RESET       : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "100";
          --constant DATA        : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0) := "101";
       
+         --constant WRITE_BLOCK : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205742";
+         --constant READ_BLOCK  : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205242";
+         --constant GO          : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"2020474F";
+         --constant STOP        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205354";
+         --constant RESET       : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0) := x"20205253";
+
          -----------------------------------------------------
          -- Store Command
          -----------------------------------------------------
@@ -451,7 +457,7 @@ begin
             next_state <= IS_THERE_DATA;
 
          when IS_THERE_DATA =>
-            if(cmd_type = READ_CMD or data_size = 0) then
+            if(cmd_code = READ_BLOCK or data_size = 0) then
                next_state <= DONE_STORE;
             else
                next_state <= STROBE_DETECT;
@@ -508,7 +514,7 @@ begin
                if(previous_state = HEADER_A) then
                   next_state <= HEADER_B;
                elsif(previous_state = HEADER_B) then
-                  if(cmd_type = READ_CMD or data_size = 0) then
+                  if(cmd_code = READ_BLOCK or data_size = 0) then
                      next_state <= CHECKSUM;
                   else
                      next_state <= DATA_WORD;
@@ -545,8 +551,8 @@ begin
          when CMD_ISSUED =>
             next_state <= WAIT_TO_RETIRE;
 
--- Removed 4 July 2006
--- Readded 10 July 2006 after i realized that the on safeguard that we need is between the cmd_queue and reply_queue
+         -- Removed 4 July 2006
+         -- Readded 10 July 2006 after i realized that the only safeguard that we need is between the cmd_queue and reply_queue
          -----------------------------------------------------
          -- Retire Command
          -----------------------------------------------------
@@ -563,11 +569,7 @@ begin
       end case;
    end process;
 
---   bb_cmd_code <= WRITE_CMD when 
---      (cmd_type = WRITE_BLOCK) or 
---      (cmd_type = RESET) or 
---      (cmd_type = GO) or 
---      (cmd_type = STOP) else READ_CMD;  -- READ_CMD = READ_BLOCK or DATA
+   bb_cmd_code <= READ_CMD when cmd_code = READ_BLOCK else WRITE_CMD;
 
    data_size_int_t <= conv_integer(data_size);
    misc_registers: process(clk_i, rst_i)
@@ -586,7 +588,7 @@ begin
          end if;
          
          if(present_state = WAIT_TO_ISSUE) then
-            if(cmd_type = READ_CMD) then
+            if(cmd_code = READ_BLOCK) then
                crc_num_bits <= (BB_NUM_CMD_HEADER_WORDS * QUEUE_WIDTH);
             else
                crc_num_bits <= ((BB_NUM_CMD_HEADER_WORDS + data_size_int_t) * QUEUE_WIDTH);
@@ -596,7 +598,7 @@ begin
          end if;
          
          if(present_state = HEADER_A) then
-            lvds_tx_word <= BB_PREAMBLE & cmd_type & data_size;
+            lvds_tx_word <= BB_PREAMBLE & bb_cmd_code & data_size;
          elsif(present_state = HEADER_B) then
             lvds_tx_word <= card_addr & par_id & x"0000";
          elsif(present_state = DATA_WORD) then
