@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.28 2006/08/21 19:43:57 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.29 2006/09/06 19:57:34 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.29  2006/09/06 19:57:34  bburger
+-- Bryce:  PSUC communications simulation added
+--
 -- Revision 1.28  2006/08/21 19:43:57  bburger
 -- Bryce:  PSUC testing
 --
@@ -2194,40 +2197,45 @@ begin
 --      load_command;
 --      load_checksum;          
 --      wait for 20 us;
+
 ------------------------------------------------------
 --  Testing New Fibre Protocol
 ------------------------------------------------------
+      command <= command_rs;
+      address_id <= psu_cycle_pow_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 300 us;
 
---      command <= command_wb;
---      address_id <= cc_led_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000007";
---      load_preamble;
---      load_command;
---      load_checksum;      
---      
---      wait for 15 us;
---
---      command <= command_wb;
---      address_id <= ac_led_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000007";
---      load_preamble;
---      load_command;
---      load_checksum;      
---      
---      wait for 250 us;
---
+      command <= command_wb;
+      address_id <= cc_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000007";
+      load_preamble;
+      load_command;
+      load_checksum;            
+      wait for 15 us;
+
+      command <= command_wb;
+      address_id <= ac_led_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000007";
+      load_preamble;
+      load_command;
+      load_checksum;            
+      wait for 250 us;
+
 --      command <= command_rb;
 --      address_id <= cc_led_cmd;
 --      data_valid <= X"00000001";
 --      data       <= X"00000007";
 --      load_preamble;
 --      load_command;
---      load_checksum;      
---      
+--      load_checksum;            
 --      wait for 15 us;
---
 --
 --      -- From Manchester = 2
 --      command <= command_wb;
@@ -2236,8 +2244,7 @@ begin
 --      data       <= X"00000002";
 --      load_preamble;
 --      load_command;
---      load_checksum;      
---      
+--      load_checksum;            
 --      wait for 53 us;
 --
 --      command <= command_wb;
@@ -2246,30 +2253,27 @@ begin
 --      data       <= X"00000007";
 --      load_preamble;
 --      load_command;
---      load_checksum;      
---      
---      wait for 250 us;
---
---      command <= command_rb;
---      address_id <= cc_row_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000000";
---      load_preamble;
---      load_command;
---      load_checksum;
---
+--      load_checksum;            
 --      wait for 15 us;
---
---      command <= command_go;
---      address_id <= rc1_ret_dat_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---
---      wait for 600 us;
---
+
+      command <= command_rb;
+      address_id <= cc_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 15 us;
+
+      command <= command_go;
+      address_id <= rc1_ret_dat_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 1200 us;
+
 --      command <= command_go;
 --      address_id <= rc2_ret_dat_cmd;
 --      data_valid <= X"00000001";
@@ -2277,7 +2281,6 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---
 --      wait for 600 us;
 
 ------------------------------------------------------
@@ -2331,8 +2334,8 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
-      wait for 300 us;
-      wait for 300 us;
+--      wait for 300 us;
+--      wait for 300 us;
 
 ------------------------------------------------------
 --  Testing Manchester Data Packets
