@@ -5,6 +5,9 @@
 /****************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.5  2006/09/05 20:06:20  stuartah
+// Changed i2c.c to MAX1271.c (code for interfacing ADCs, does not use i2c protocol)
+//
 // Revision 1.4  2006/08/31 19:30:38  stuartah
 // Added functionality for measuring fan speeds
 //
@@ -47,25 +50,18 @@ main()
 
    	// Initial Power-Up
 	sequence_on();									// Run Power-On sequence
-	reset_MCE();									// redundant but just to be sure
+	reset_MCE();									// redundant but just to be sure  //likely want to remove this to avoid subrack reset if PSUC firmware reset
    	ENABLE_BLINK;
        
 
   /***  Main Loop - Periodically update PSU data block, respond to Clock Card / RS232 Commands  ***/
 	while(TRUE) {								
 
-	  	// Time to re-poll data
-	  	if ( poll_data == SET ) {				// polling rate needs to be same or faster than CC request rate			
-	  	 	update_data_block();
-			poll_data = CLEAR;					// Data Poll Complete
-	  	}
-
 	  	// Serial I/O message ready to parse
 	  	if ( sio_msg_complete == SET ) {					
 	     	sio_msg_complete = CLEAR;
-		 	sio_rx_idx = 0;							// reset message pointer
+		 	sio_rx_idx = 0;								// reset message pointer
 	  	 	switch ( sio_rxbuf[0] ) {					// parse message
-				
 				case 'R':								// Reset MCE Command
 			   		reset_MCE();
 			   		break;
@@ -82,15 +78,20 @@ main()
 		// Listen for data request from clock card
 		cc_spi = ~SREQ;									// SREQ active low
 
-	  	// Act on command from Clock Card
+	  	// Time to re-poll data
+	  	if ( poll_data == SET ) {						// polling rate needs to be same or faster than CC request rate			
+	  	 	update_data_block();
+			poll_data = CLEAR;							// Data Poll Complete
+	  	}
+		
+		// Send data block if it has been requested
+		if ( cc_spi == TRUE)		 			   
+	  	  	send_psu_data_block();						// Time to send SPI Data to Clock Card		
+		
+		// Act on command from Clock Card
 	  	if ( cc_command != NULL )		
 		 	switch ( *cc_command ) {					// parse message	
 				
-				case 0:									// default Status Command with ACK
-					if ( cc_spi == TRUE)														 			   
-	  	  				send_psu_data_block();
-					break;				
-
 				case 'C':								// Cycle Power Command
 					cycle_power();
 					cc_command = NULL;
@@ -106,15 +107,12 @@ main()
 					cc_command = NULL;
 					break;
 
-		    	default:
+		    	default:								// Status Request or erroneous command.  Difference is ACK/NAK.
 					cc_command = NULL;
 			   		break;  
 		}
-														
-		else if ( cc_spi == TRUE)						// default Status Command with NAK		 			   
-	  	  	send_psu_data_block();						// Time to send SPI Data to Clock Card
-	}
 
+	}
 }
 
 /****************************************************************************************
@@ -123,13 +121,14 @@ main()
 
 void init(void) 	// still need to clean/fix this
 {
-	int i = 0;		// temporary index
+	int i = 0;					// temporary index
 
+/**************		Hardware Setup		**************/
 //IO Port Setup 1=Input (or Special Function) 0=Output	-----these values seeem erroneous and redundant...CSare active low
    	P0 = 0x60;		//0110 0000
    	P1 = 0xed;		//1110 1101
-   	P2 = 0x3c;		//0011 1100			   // go over / fix all these values!!!!!!!!!
-   	P3 = 0xd7;		//1101 0111
+   	P2 = 0x3c;		//0011 1100			   	//nCOre and nPSUON should both init to OFF
+   	P3 = 0xd7;		//1101 0111			   // go over / fix all these values!!!!!!!!!
 
 //EEPROM setup
 	CS_EEPROM = 1;				//EEPROM active low	 ->redundant, done above
@@ -138,28 +137,27 @@ void init(void) 	// still need to clean/fix this
 	SREQ = 1;	 //active low
 	CCSS=1;		 //active low
 
-//Counter/Timer 0 used as a Timer in Mode 1.  Interrupt Rate: 32mS
-   	TR0 = ON;
+//Counter/Timer 0 used as a Timer in Mode 1.  Interrupt Rate: 32mS	
 	TH0 = 0;
-   	TL0 = 135;
-   
+   	TL0 = 135;		// why this value here?
+   	TR0 = ON;				// start timer 0
+
 //Counter/Timer 1 used as a Timer in Mode 1.  Interrupt Rate: 5e-3 Sec
    	TL1 = LS_RELOAD_5mS;
    	TH1 = MS_RELOAD_5mS;
    	TMOD = 0x11;
 
 //Serial I/O Setup:  Using Internal Baud Rate Generator on 89C5131A.  Set to Serial Mode 1 at 9600 Baud using 24MHz Clock
-    SCON = 0x50;			// 0101 0000
-	BDRCON = 0x1e; 		 	// 0001 1110
-	CKCON0 = 0x7f;		 	// X2 set but 12 clocks per peripheral cycle -> 500ns pert tick
-	PCON = 0x80; 		 	// 1000 0000 Double Baud Rate all others default
-	BRL = 100;				// Baud rate reload - sets Baud rate to 9600
-	sio_rx_idx = 0;			// reset message pointer
+    SCON = 0x50;				// 0101 0000
+	BDRCON = 0x1e; 		 		// 0001 1110
+	CKCON0 = 0x7f;		 		// X2 set but 12 clocks per peripheral cycle -> 500ns pert tick
+	PCON = 0x80; 		 		// 1000 0000 Double Baud Rate all others default
+	BRL = 100;					// Baud rate reload - sets Baud rate to 9600
 
 //PCA Counter Init
-	CKCON0 |= 0x20;		//500ns per PCA tick
-	CMOD |= 0x81;			// 0b 1000 000 Set PCA to stop counting during idle mode, disable PCA interrupts, and count Fclk-periph/6 (250ns period)
-	CCON |= 0x01;			// enable PCA interrupts 
+	CKCON0 |= 0x20;				// sets to 500ns per PCA tick
+	CMOD |= 0x81;				// 1000 0001 Set PCA to stop counting during idle mode, disable PCA interrupts, and count Fclk-periph/6 (250ns period)
+	CCON |= 0x01;				// enable PCA interrupts 
 
 //LED Setup
 	LEDCON = 0xfC;				// LED1-3 10mA Current Source
@@ -167,55 +165,61 @@ void init(void) 	// still need to clean/fix this
 	LED_STATUS = 1;				// Off
 	LED_OUTON = 1;				// Off
 
-
-
 //SPI Setup - Sets up spi in master mode with Fclk Periph/16 as baud rate and without slave select pin.
 //SPCON = SPI_MSTR | SPI_EN | SPI_SSDIS | SPI_CPOL1 | SPI_1M5Hz;	// CPHA = 0, transfer on falling SCLK
     SPCON |= SPI_MSTR;         	// Master mode    
-//	SPCON |= SPI_6MHz;			// Fclk Periph/4 (6MHz)
-    SPCON |= SPI_1M5Hz;			// Fclk Periph/16 (1.5Mhz)		 //note any faster will screw up ADC code
+	//SPCON |= SPI_6MHz;			// Fclk Periph/4 (6MHz)
+    SPCON |= SPI_1M5Hz;			// Fclk Periph/16 (1.5Mhz)
 	SPCON &= SPI_CPOL0;        	// CPOL = 0, Clk idle state 0
     SPCON &= SPI_CPHA0;        	// CPHA = 0, sample data on Clk rising edge
     SPCON |= SPI_SSDIS;			// Disable SS
     SPCON |= SPI_EN;           	// Run SPI
-    spi_idx = 0;				// Pointer for SPI data output
-	spi_complete = CLEAR;			// SPI transmission/reception complete status bit
-
+    
 //Interrupt Setup
 	ES = 1;			 			// Enable SIO Interrupts
 	IEN1 |= 0x04;               // Enable SPI Interrupts
 	ET0 = 1;          			// Enable Timer0 Interrupts
     ET1 = 1;			 		// Enable Timer1 Interrupts
     EA = 1; 					// Enable Global Interrupts
-	EC=1;						// Enable PCA Interrupts
+	EC = 1;						// Enable all PCA Interrupts
 
-/* Initialize Devices */	
-	ds_initialize(PSUC_DS18S20);		  // alternatively could do convert_temp than wait 600ms on first one....
 
-/* Initialize Variables */		// How much of this is needed???							
-	bcnt = 0;
-	running_checksum = 0;
-
-	while(i < CC_SPI_BLEN) {			// initialize data blocks to all zeros	
-		 	ps_data_blk[i] = 0;					
-			rcv_spi_blk[i] = 0;
-			i++;
-	}
-	
-
-	// Initialize flags
+/**************** 	Initialize Variables 	********************/		// Some of this is redundant							
+// Initialize flags
 	poll_data = SET; 			// Initial data poll
-	
 	cc_spi = CLEAR;				// Clear remaining flags
-//	spi_complete = CLEAR;
+	spi_complete = CLEAR;		// SPI transmission/reception complete status bit
 	sio_msg_complete = CLEAR;
 	timeup_T1 = CLEAR;
 	DISABLE_BLINK;		  		// Initially disable LED blink
+		
+// Initialize other variables	
+	spi_idx = 0;				// Reset pointer for SPI data output
+	sio_rx_idx = 0;				// reset serial message pointer
+	bcnt = 0;
+	num_T1_ints = 0;
+	running_checksum = 0;
 	
+// Initialize pointers
+	cc_command = NULL;
+	msg_ptr = NULL;
+		
+// Initialize data blocks to all zeros
+	for(i=0; i < CC_SPI_BLEN; i++) {				
+		 	ps_data_blk[i] = 0;					
+			rcv_spi_blk[i] = 0;
+	}
+	for(i=0; i < BUF_SIZE; i++) {				
+		 	sio_rxbuf[i] = 0;	
+	}
 	
-	// Initialize PSU data block - these aspects of data block set only once
+// Initialize PSU data block - these aspects of data block set only once
 	ds_get_4byte_id(PSU_DS18S20, SILICON_ID);	 // assign ID to PSU block
 	*SOFTWARE_VERSION = software_version_byte; 	 // Software Version	byte
+
+
+/*****************		Initialize Devices 		***************/	
+	ds_initialize(PSUC_DS18S20);		  // alternatively could do convert_temp than wait 600ms on first one....
 		
 }
 
@@ -286,6 +290,7 @@ void send_psu_data_block (void)
 	
 	// Update ACK/NAK byte and send
 	parse_command();							// Sets ACK/NAK byte
+
 	SPDAT = ps_data_blk[ACK_BYTE_POS];  		// Send ACK/NAK byte
 	while(!spi_complete);						// wait for end of byte transmission
 	spi_complete = 0;							// clear software flag
@@ -605,7 +610,7 @@ unsigned char get_fan_speed(void)
 // used for calculating elapsed time between events
 void start_pca_timer ( void )
 {
- 	// reset PCA timer
+ 	// reset PCA timer values
 	CH = CLEAR;	
    	CL = CLEAR;
 

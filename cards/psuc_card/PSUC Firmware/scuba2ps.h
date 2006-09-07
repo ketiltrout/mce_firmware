@@ -3,6 +3,9 @@
 /****************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.4  2006/09/05 20:06:20  stuartah
+// Changed i2c.c to MAX1271.c (code for interfacing ADCs, does not use i2c protocol)
+//
 // Revision 1.3  2006/08/31 19:30:38  stuartah
 // Added functionality for measuring fan speeds
 //
@@ -110,7 +113,7 @@ bit blink_en;										// Set to turn on LED blink while PSUC running
 
 /*******	Macros	*******/
 // General Macros/Parameters
-#define ENABLE_BLINK			blink_en = 1;
-#define DISABLE_BLINK   		blink_en = 0;
+#define ENABLE_BLINK			blink_en = SET;
+#define DISABLE_BLINK   		blink_en = CLEAR;
 #define COMPLETE_CHECKSUM		*CHECK_BYTE = ~(running_checksum + ps_data_blk[ACK_BYTE_POS]) + 1;		// 2's compliment, so CHECK_BYTE + all other bytes = 0
 		

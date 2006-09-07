@@ -2,14 +2,12 @@
 /*      I2C Function Library            */
 /****************************************/
 // Revision history: 
-// $Log: i2c.c,v $
-// Revision 1.1  2006/08/29 21:06:06  stuartah
-// Initial CVS Build - Most Basic Functionality Implemented
-//	
-
+// $Log: MAX1271.c,v $
+// Revision 1.1  2006/09/05 20:02:48  stuartah
+// Renamed from i2c.c (doesn't use I2C protocol)
+	
 //#include <reg52.h>
 //#include <intrins.h>
-//#include "c:\Software Dev\8051\include\i2c.h"
 //#include "io.h"
 
 //idea: get rid of for loops and do everything manually to make clocking uniform (optimize)
