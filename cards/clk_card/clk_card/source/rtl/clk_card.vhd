@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.58 2006/08/16 17:50:39 bburger Exp $
+-- $Id: clk_card.vhd,v 1.59 2006/09/06 00:20:54 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.59  2006/09/06 00:20:54  bburger
+-- Bryce:  Changed top-level signals to match the PSUC names.  Note:  now some of the CC signals do not match the schematic.
+--
 -- Revision 1.58  2006/08/16 17:50:39  bburger
 -- Bryce:  The Clock Card now uses the err_o signals from fpga_thermo and id_thermo
 --
@@ -90,7 +93,6 @@ use sys_param.data_types_pack.all;
 
 library work;
 use work.leds_pack.all;
---use work.fw_rev_pack.all;
 use work.sync_gen_pack.all;
 use work.issue_reply_pack.all;
 use work.cc_reset_pack.all;
