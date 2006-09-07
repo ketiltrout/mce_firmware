@@ -35,114 +35,6 @@ set_parameter -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:26:57  NOVEMBER 25, 2004"
 set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
-set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_pack.vhd
-set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_core_pack.vhd
-set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_wbs_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply_pack.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
-set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset_pack.vhd
-set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs_pack.vhd
-set_global_assignment -name VHDL_FILE ../../dv_rx/source/rtl/dv_rx_pack.vhd
-set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switchover_pack.vhd
-set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switchover.vhd
-set_global_assignment -name VHDL_FILE ../../config_fpga/source/rtl/config_fpga.vhd
-set_global_assignment -name VHDL_FILE ../../dv_rx/source/rtl/dv_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/clock_domain_interface.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fast2slow_clk_domain_crosser.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/grey_counter.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/ring_counter.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slow2fast_clk_domain_crosser.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
-set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
-set_global_assignment -name VHDL_FILE ../../pll/source/rtl/cc_pll.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_receive.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_sequencer.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_accumulator.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
-set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen.vhd
-set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_core.vhd
-set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_wbs.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_tpram.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_arbiter.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_ret_dat_fsm.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_control.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_fifo.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_protocol.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_control.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_fifo.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator.vhd
-set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator_frame_head_ram.vhd
-set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/async_fifo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter_xstep.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/hex2ascii.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/lfsr.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/ns_timer.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/prand.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/rs232_data_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slave_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/sync_fifo_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/sync_fifo_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri_state_buf.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri_state_buf_vec.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/wb_slave.vhd
-set_global_assignment -name VHDL_FILE ../source/rtl/clk_card.vhd
-set_global_assignment -name SIGNALTAP_FILE clk_card.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_new.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_fit.stp
-set_global_assignment -name SIGNALTAP_FILE clock_card_b.stp
-set_global_assignment -name SIGNALTAP_FILE clock_card_d.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_vd.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_more.stp
-set_global_assignment -name SIGNALTAP_FILE clk_card_reply_tx_bug.stp
 
 # Pin & Location Assignments
 # ==========================
@@ -497,8 +389,8 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name FITTER_EFFORT "FAST FIT"
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
 
 # Timing Analysis Assignments
 # ===========================
@@ -523,8 +415,8 @@ set_global_assignment -name RESET_RULE_IMSYNCH_ASYNCH_DOMAIN OFF
 
 # SignalTap II Assignments
 # ========================
-set_global_assignment -name ENABLE_SIGNALTAP ON
-set_global_assignment -name USE_SIGNALTAP_FILE clk_card_checksum.stp
+set_global_assignment -name ENABLE_SIGNALTAP OFF
+set_global_assignment -name USE_SIGNALTAP_FILE clk_card.stp
 
 # LogicLock Region Assignments
 # ============================
@@ -596,322 +488,123 @@ set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
 # end ENTITY(clk_card)
 # --------------------
 
+set_global_assignment -name SEED 2
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
+set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_pack.vhd
+set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_core_pack.vhd
+set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_wbs_pack.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_pack.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_ram40_pack.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_pack.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_pack.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_pack.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply_pack.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
+set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset_pack.vhd
+set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs_pack.vhd
+set_global_assignment -name VHDL_FILE ../../dv_rx/source/rtl/dv_rx_pack.vhd
+set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switchover_pack.vhd
+set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/tpram_32bit_x_64.vhd
+set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/ram_32bit_x_64.vhd
+set_global_assignment -name VHDL_FILE ../../psu_ctrl/source/rtl/psu_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../clk_switchover/source/rtl/clk_switchover.vhd
+set_global_assignment -name VHDL_FILE ../../config_fpga/source/rtl/config_fpga.vhd
+set_global_assignment -name VHDL_FILE ../../dv_rx/source/rtl/dv_rx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/clock_domain_interface.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fast2slow_clk_domain_crosser.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/grey_counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/ring_counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/serial_crc.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slow2fast_clk_domain_crosser.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
+set_global_assignment -name VHDL_FILE ../../ret_dat/source/rtl/ret_dat_wbs.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
+set_global_assignment -name VHDL_FILE ../../pll/source/rtl/cc_pll.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_receive.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_sequencer.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_queue_accumulator.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
+set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen.vhd
+set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_core.vhd
+set_global_assignment -name VHDL_FILE ../../sync_gen/source/rtl/sync_gen_wbs.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue_tpram.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_queue.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_arbiter.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_ret_dat_fsm.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_simple_cmd_fsm.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/cmd_translator_internal_cmd_fsm.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_control.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_fifo.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_rx_protocol.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_control.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/fibre_tx_fifo.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/issue_reply.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator.vhd
+set_global_assignment -name VHDL_FILE ../../issue_reply/source/rtl/reply_translator_frame_head_ram.vhd
+set_global_assignment -name VHDL_FILE ../../cc_reset/source/rtl/cc_reset.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/async_fifo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter_xstep.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/hex2ascii.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/lfsr.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/ns_timer.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/prand.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/rs232_data_tx.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slave_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/sync_fifo_rx.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/sync_fifo_tx.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri_state_buf.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri_state_buf_vec.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/wb_slave.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/clk_card.vhd
+set_global_assignment -name SIGNALTAP_FILE clk_card.stp
+set_global_assignment -name SIGNALTAP_FILE clk_card_new.stp
+set_global_assignment -name SIGNALTAP_FILE clk_card_fit.stp
+set_global_assignment -name SIGNALTAP_FILE clock_card_b.stp
+set_global_assignment -name SIGNALTAP_FILE clock_card_d.stp
+set_global_assignment -name SIGNALTAP_FILE clk_card_vd.stp
+set_global_assignment -name SIGNALTAP_FILE clk_card_more.stp
+set_global_assignment -name SIGNALTAP_FILE clk_card_reply_tx_bug.stp
 set_global_assignment -name SIGNALTAP_FILE clk_card_dv_rx.stp
-set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|c0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=AUTO" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=536899072" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|activeclock" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|clkbad0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|clkbad1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|clkloss" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|clkswitch" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|locked" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "clk_switchover:clk_switchover_inst|ps.crystal_clk" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "clk_switchover:clk_switchover_inst|ps.manchester_clk" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "dv_rx:dv_rx_inst|current_state.fibre_dv_high" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "dv_rx:dv_rx_inst|current_state.fibre_dv_low" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[12] -to "dv_rx:dv_rx_inst|current_state.idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[13] -to "dv_rx:dv_rx_inst|current_state.manch_dv_ack" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[14] -to "dv_rx:dv_rx_inst|current_state.manch_dv_rcvd" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|activeclock" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|clkbad0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|clkbad1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|clkloss" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|clkswitch" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "clk_switchover:clk_switchover_inst|cc_pll:pll0|locked" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "clk_switchover:clk_switchover_inst|ps.crystal_clk" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "clk_switchover:clk_switchover_inst|ps.manchester_clk" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "dv_rx:dv_rx_inst|current_state.fibre_dv_high" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "dv_rx:dv_rx_inst|current_state.fibre_dv_low" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "dv_rx:dv_rx_inst|current_state.idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "dv_rx:dv_rx_inst|current_state.manch_dv_ack" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[14] -to "dv_rx:dv_rx_inst|current_state.manch_dv_rcvd" -section_id auto_signaltap_0
 set_global_assignment -name SIGNALTAP_FILE "../../../../../Documents and Settings/Bryce/Desktop/ACT Firmware/clk_card_dv_rx.stp"
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "clk_switchover:clk_switchover_inst|ps.switching_2_crystal" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "clk_switchover:clk_switchover_inst|ps.switching_2_manchester" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "clk_switchover:clk_switchover_inst|ps.switching_2_crystal" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "clk_switchover:clk_switchover_inst|ps.switching_2_manchester" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BIT_CNTR_BITS=8" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=4096" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_MEM_ADDRESS_BITS=12" -section_id auto_signaltap_0
 set_global_assignment -name SIGNALTAP_FILE clk_card_checksum.stp
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[15] -to "dv_rx:dv_rx_inst|dv_o" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[16] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[17] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[18] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[19] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[20] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[21] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[22] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[23] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[24] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[25] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[26] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[27] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[28] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[29] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[30] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[31] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[32] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[33] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[34] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[35] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[36] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[37] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[38] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[39] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[40] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[41] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[42] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[43] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[44] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[45] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[46] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[47] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[48] -to "dv_rx:dv_rx_inst|manch_dat_i" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[49] -to "dv_rx:dv_rx_inst|manch_det_i" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[50] -to "dv_rx:dv_rx_inst|sync_o" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[51] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[52] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_1st" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[53] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_dv_pause" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[54] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[55] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_last" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[56] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_last_pause" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[57] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_pause" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[58] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_single_frame" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[59] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_single_frame_pause1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[60] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_single_frame_pause2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[61] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[62] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[63] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[64] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[65] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[66] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[67] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[68] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[69] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[70] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[71] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[72] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[73] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[74] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[75] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[76] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[77] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[78] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[79] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[80] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[81] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[82] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[83] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[84] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[85] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[86] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[87] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[88] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[89] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[90] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[91] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[92] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[93] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|rdy_i" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[94] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[95] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[96] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[97] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[98] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[99] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[100] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[101] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[102] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[103] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[104] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[105] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[106] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[107] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[108] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[109] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[110] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[111] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[112] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[113] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[114] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[115] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[116] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[117] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[118] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[119] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[120] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[121] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[122] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[123] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[124] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[125] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[126] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ack_q_word" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[127] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ck_er_reply" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[128] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.data_frame" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[129] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.done" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[130] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.fibre_idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[131] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_card_param" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[132] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[133] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_data" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[134] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_okorer" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[135] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_packet_size" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[136] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_preamble1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[137] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_preamble2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[138] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_status" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[139] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_xxrp" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[140] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_er" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[141] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_go_rs" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[142] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_ok" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[143] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.st_er_reply" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[144] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[145] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[146] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word3" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[147] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word4" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[15] -to "dv_rx:dv_rx_inst|dv_o" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[16] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[17] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[18] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[19] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[20] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[21] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[22] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[23] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[24] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[25] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[26] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[27] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[28] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[29] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[30] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[31] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[32] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[33] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[34] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[35] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[36] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[37] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[38] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[39] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[40] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[41] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[42] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[43] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[44] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[45] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[46] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[47] -to "dv_rx:dv_rx_inst|dv_sequence_num_o[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[48] -to "dv_rx:dv_rx_inst|manch_dat_i" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[49] -to "dv_rx:dv_rx_inst|manch_det_i" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[50] -to "dv_rx:dv_rx_inst|sync_o" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[51] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[52] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_1st" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[53] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_dv_pause" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[54] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[55] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_last" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[56] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_last_pause" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[57] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_pause" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[58] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_single_frame" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[59] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_single_frame_pause1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[60] -to "issue_reply:issue_reply0|cmd_translator:i_cmd_translator|cmd_translator_ret_dat_fsm:i_return_data_cmd|current_state.return_data_single_frame_pause2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[61] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[62] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[63] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[64] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[65] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[66] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[67] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[68] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[69] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[70] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[71] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[72] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[73] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[74] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[75] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[76] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[77] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[78] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[79] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[80] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[81] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[82] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[83] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[84] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[85] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[86] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[87] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[88] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[89] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[90] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[91] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[92] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dat_i[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[93] -to "issue_reply:issue_reply0|fibre_tx:i_fibre_tx|rdy_i" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[94] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[95] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[96] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[97] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[98] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[99] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[100] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[101] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[102] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[103] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[104] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[105] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[106] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[107] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[108] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[109] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[110] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[111] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[112] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[113] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[114] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[115] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[116] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[117] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[118] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[119] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[120] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[121] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[122] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[123] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[124] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[125] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|checksum[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[126] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ack_q_word" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[127] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ck_er_reply" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[128] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.data_frame" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[129] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.done" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[130] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.fibre_idle" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[131] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_card_param" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[132] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_cksum" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[133] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_data" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[134] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_okorer" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[135] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_packet_size" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[136] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_preamble1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[137] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_preamble2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[138] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_status" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[139] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.ld_xxrp" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[140] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_er" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[141] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_go_rs" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[142] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.reply_ok" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[143] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.st_er_reply" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[144] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[145] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[146] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word3" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[147] -to "issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_current_state.wait_q_word4" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=148" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=148" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=465" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=48801" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=41754" -section_id auto_signaltap_0
+set_location_assignment PIN_F28 -to misoo
+set_location_assignment PIN_F27 -to sreqo
+set_location_assignment PIN_H21 -to mosii
+set_location_assignment PIN_H22 -to ccssi
+set_location_assignment PIN_E28 -to sclki
