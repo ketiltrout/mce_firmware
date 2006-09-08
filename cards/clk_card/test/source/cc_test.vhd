@@ -31,594 +31,788 @@
 -- Revision history:
 -- 
 -- $Log: cc_test.vhd,v $
+-- Revision 1.4  2004/07/02 17:37:46  mandana
+-- Mandana: walking 0/1 tests combined
+--
 -- Revision 1.3  2004/06/09 22:13:38  erniel
 -- initial version
 --
 --
 -----------------------------------------------------------------------------
 
-
 library ieee;
 use ieee.std_logic_1164.all;
 
+library components;
+use components.component_pack.all;
+
 library work;
+use work.ascii_pack.all;
 use work.async_pack.all;
 use work.cc_test_pack.all;
 
 entity cc_test is
    port(
-      n_rst : in std_logic;
+      rst_n      : in std_logic;
       
       -- clock signals
-      inclk : in std_logic;
-      outclk : out std_logic;
+      inclk14    : in std_logic;
+      outclk     : out std_logic;
       
       -- RS232 interface
-      rs232_tx : out std_logic;
-      rs232_rx : in std_logic;
+      tx         : out std_logic;
+      rx         : in std_logic;
       
       -- box id interface
-      box_id_in : in std_logic;
+      box_id_in  : in std_logic;
       box_id_out : out std_logic;
       box_id_ena : out std_logic;
             
       -- array id interface
-      array_id : in std_logic_vector(2 downto 0);
+      array_id   : in std_logic_vector(2 downto 0);
+      
+      -- power status pins
+      nplus7vok  : in std_logic;
       
       -- LVDS interfaces
-      lvds_cmd : out std_logic;
-      lvds_sync : out std_logic;
+      lvds_clk   : out std_logic;
+      lvds_cmd   : out std_logic;
+      lvds_sync  : out std_logic;
       lvds_spare : out std_logic;
 
-      lvds_rx0a : in std_logic;
-      lvds_rx0b : in std_logic;
-      lvds_rx1a : in std_logic;
-      lvds_rx1b : in std_logic;
-      lvds_rx2a : in std_logic;
-      lvds_rx2b : in std_logic;
-      lvds_rx3a : in std_logic;
-      lvds_rx3b : in std_logic;
-      lvds_rx4a : in std_logic;
-      lvds_rx4b : in std_logic;
-      lvds_rx5a : in std_logic;
-      lvds_rx5b : in std_logic;
-      lvds_rx6a : in std_logic;
-      lvds_rx6b : in std_logic;      
-      lvds_rx7a : in std_logic;
-      lvds_rx7b : in std_logic;
+      lvds_rx0a  : in std_logic;
+      lvds_rx0b  : in std_logic;
+      lvds_rx1a  : in std_logic;
+      lvds_rx1b  : in std_logic;
+      lvds_rx2a  : in std_logic;
+      lvds_rx2b  : in std_logic;
+      lvds_rx3a  : in std_logic;
+      lvds_rx3b  : in std_logic;
+      lvds_rx4a  : in std_logic;
+      lvds_rx4b  : in std_logic;
+      lvds_rx5a  : in std_logic;
+      lvds_rx5b  : in std_logic;
+      lvds_rx6a  : in std_logic;
+      lvds_rx6b  : in std_logic;      
+      lvds_rx7a  : in std_logic;
+      lvds_rx7b  : in std_logic;
       
       -- SRAM bank 1 interface
       sram0_addr : out std_logic_vector(19 downto 0);
       sram0_data : inout std_logic_vector(15 downto 0);
       sram0_nbhe : out std_logic;
       sram0_nble : out std_logic;
-      sram0_noe : out std_logic;
-      sram0_nwe : out std_logic;
-      sram0_ncs : out std_logic;
+      sram0_noe  : out std_logic;
+      sram0_nwe  : out std_logic;
+      sram0_nce1 : out std_logic;
+      sram0_ce2  : out std_logic;
       
       -- SRAM bank 1 interface
       sram1_addr : out std_logic_vector(19 downto 0);
       sram1_data : inout std_logic_vector(15 downto 0);
       sram1_nbhe : out std_logic;
       sram1_nble : out std_logic;
-      sram1_noe : out std_logic;
-      sram1_nwe : out std_logic;
-      sram1_ncs : out std_logic;
+      sram1_noe  : out std_logic;
+      sram1_nwe  : out std_logic;
+      sram1_nce1 : out std_logic;
+      sram1_ce2  : out std_logic;
       
       -- EEPROM interface
-      eeprom_si : in std_logic;
-      eeprom_so : out std_logic;
+      eeprom_si  : in std_logic;
+      eeprom_so  : out std_logic;
       eeprom_sck : out std_logic;
-      eeprom_cs : out std_logic;
-      test      : out std_logic_vector(38 downto 11));
+      eeprom_cs  : out std_logic;
       
       -- Fibre interface
+      -- fibre pins
+      fibre_tx_data   : out std_logic_vector(7 downto 0);
+      fibre_tx_clkW   : out std_logic;
+      fibre_tx_ena    : out std_logic;
+      fibre_tx_rp     : in std_logic;
+      fibre_tx_sc_nd  : out std_logic;
+      fibre_tx_enn    : out std_logic;
+      -- fibre_tx_svs is tied to gnd on board
+      -- fibre_tx_enn is tied to vcc on board
+      -- fibre_tx_mode is tied to gnd on board
+      fibre_tx_foto   : out std_logic;
+      fibre_tx_bisten : out std_logic;
+      
+      fibre_rx_data   : in std_logic_vector(7 downto 0);
+      fibre_rx_clkr   : in std_logic;
+      fibre_rx_refclk : out std_logic;
+      fibre_rx_error  : in std_logic;
+      fibre_rx_rdy    : in std_logic;
+      fibre_rx_status : in std_logic;
+      fibre_rx_sc_nd  : in std_logic;
+      fibre_rx_rvs    : in std_logic;
+      fibre_rx_rf     : out std_logic; --  is tied to vcc on board, we lifted the pin and routed it to P10.22
+      fibre_rx_a_nb   : out std_logic;
+      fibre_rx_bisten : out std_logic;
+      mictor0_o       : out std_logic_vector(15 downto 0)
+   );   
       
 end cc_test;
 
 architecture behaviour of cc_test is
    
+constant RESET_MSG_LEN    : integer := 16;
+constant IDLE_MSG_LEN     : integer := 10;
+constant ERROR_MSG_LEN    : integer := 8;  
+constant RAMP_OFF_MSG_LEN : integer := 22;
+constant RESULT_MSG_LEN   : integer := 6;
+
+constant STATUS_WIDTH     : integer := 1;
+constant ARRAY_ID_WIDTH   : integer := 3;
+
+signal clk  : std_logic;
+signal clk_n: std_logic;
+signal rst  : std_logic;
+
+type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, RX_CMD1, RX_CMD2, 
+                FO_TEST, TX_FO, SRAM0_TEST, TX_SRAM0, SRAM1_TEST, TX_SRAM1, 
+                ARRAY_ID_TEST, TX_ARRAY_ID, STATUS_TEST, TX_STATUS);
+signal pres_state : states;
+signal next_state : states;
+
+signal tx_data : std_logic_vector(7 downto 0);
+signal tx_rdy  : std_logic;
+signal tx_busy : std_logic;
+
+signal rx_data : std_logic_vector(7 downto 0);
+signal rx_ack  : std_logic;
+signal rx_rdy  : std_logic;
+
+signal tx_count : integer range 0 to 70;
+signal tx_count_ena : std_logic;
+signal tx_count_clr : std_logic;
+
+signal reset_msg  : std_logic_vector(7 downto 0);
+signal idle_msg   : std_logic_vector(7 downto 0);
+signal error_msg  : std_logic_vector(7 downto 0);
+signal pass_msg   : std_logic_vector(7 downto 0);
+signal fail_msg   : std_logic_vector(7 downto 0);
+
+signal cmd1    : std_logic_vector(7 downto 0);
+signal cmd2    : std_logic_vector(7 downto 0);
+signal cmd1_ld : std_logic;
+signal cmd2_ld : std_logic;
+
+signal rst_cmd : std_logic;   
+
+   signal status_ena         : std_logic;
+   signal status_done        : std_logic;
+   signal status             : std_logic;
+
+   signal array_id_ena       : std_logic;
+   signal array_id_done      : std_logic;
+   signal array_id_reg       : std_logic;
+   signal array_id_reg_ena   : std_logic;
+   signal array_id_reg_ld    : std_logic;
+
+   signal sram0_ena          : std_logic;
+   signal sram0_done         : std_logic;
+   signal pass0              : std_logic;
+   signal fail0              : std_logic;
+   signal pass0_reg          : std_logic;
+   signal fail0_reg          : std_logic;
+   signal sram0_fault        : integer range 0 to 20;
+   
+   signal sram1_ena          : std_logic;
+   signal sram1_done         : std_logic;
+   signal pass1              : std_logic;
+   signal fail1              : std_logic;
+   signal pass1_reg          : std_logic;
+   signal fail1_reg          : std_logic;
+   signal sram1_fault        : integer range 0 to 20;
+   
+   signal fo_test_ena        : std_logic;
+   signal fo_test_done       : std_logic;
+   signal rx_data1           : std_logic_vector(7 downto 0);
+   signal rx_data2           : std_logic_vector(7 downto 0);
+   signal rx_data3           : std_logic_vector(7 downto 0);
+  
+   signal fibre_clk          : std_logic;
+   
    -- pll output allocation:
-   --    c0 = FPGA system clock
-   --    c1 = Asynchronous Transfer clock
-   --    e0 = backplane LVDS clock
-   --    e1 = fibre transmitter
-   --    e2 = fibre receiver
-   --    e3 = PLL observation
-   
---   component pll
---   port(inclk0 : in std_logic;
---        c0 : out std_logic;
- --       c1 : out std_logic;
- --       e0 : out std_logic;
-  --      e1 : out std_logic;
-  --      e2 : out std_logic;
-   --     e3 : out std_logic);
- --  end component;
-component pll IS
-	PORT
-	(
-		inclk0		: IN STD_LOGIC ;
-		c1              : OUT STD_LOGIC;
-		e0		: OUT STD_LOGIC 
-	);
-END component;
-
-   -- clock signals
-   signal clk : std_logic;         -- general system clock (50 MHz)
-   signal clk2 : std_logic;   -- special clock to async xfer modules (200 MHz)
-   
-   signal zero : std_logic;
-   signal one : std_logic;
-   
---   signal clk : std_logic;   
-   signal rst : std_logic;
-   signal cmd_rst : std_logic;
-   
-   signal dip : std_logic_vector(1 downto 0);
-
-   -- transmitter signals
-   signal tx_clock : std_logic;
-   signal tx_busy  : std_logic;
-   signal tx_ack   : std_logic;
-   signal tx_data  : std_logic_vector(7 downto 0);
-   signal tx_we    : std_logic;
-   signal tx_stb   : std_logic;
-   
-   -- reciever signals
-   signal rx_clock : std_logic;
-   signal rx_valid : std_logic;
-   signal rx_error : std_logic;
-   signal rx_read  : std_logic;
-   signal rx_data  : std_logic_vector(7 downto 0);
-   signal rx_stb   : std_logic;
-   signal rx_ack   : std_logic;
-   
-   -- state constants
-   constant MAX_STATES : integer := 30;
-
-   constant INDEX_RESET      : integer := 0;
-   constant INDEX_IDLE       : integer := 1;
-   constant INDEX_BOX_ID     : integer := 2;
-   constant INDEX_ARRAY_ID   : integer := 3;
-   constant INDEX_EEPROM     : integer := 4;
-   constant INDEX_TX_CMD     : integer := 5;
-   constant INDEX_TX_SYNC    : integer := 6;
-   constant INDEX_TX_SPARE   : integer := 7;
-   constant INDEX_RX_0A      : integer := 8;
-   constant INDEX_RX_0B      : integer := 9;
-   constant INDEX_RX_1A      : integer := 10;
-   constant INDEX_RX_1B      : integer := 11;
-   constant INDEX_RX_2A      : integer := 12;
-   constant INDEX_RX_2B      : integer := 13;
-   constant INDEX_RX_3A      : integer := 14;
-   constant INDEX_RX_3B      : integer := 15;
-   constant INDEX_RX_4A      : integer := 16;
-   constant INDEX_RX_4B      : integer := 17;
-   constant INDEX_RX_5A      : integer := 18;
-   constant INDEX_RX_5B      : integer := 19;
-   constant INDEX_RX_6A      : integer := 20;
-   constant INDEX_RX_6B      : integer := 21;
-   constant INDEX_RX_7A      : integer := 22;
-   constant INDEX_RX_7B      : integer := 23; 
-   constant INDEX_SRAM_1     : integer := 24;
-   constant INDEX_SRAM_2     : integer := 25;
-   constant INDEX_FIBRE_BIST : integer := 26;
-   constant INDEX_FIBRE_TX   : integer := 27;  
-   constant INDEX_FIBRE_RX   : integer := 28;
-   constant INDEX_DEBUG      : integer := 29;
-      
-   constant SEL_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
-   constant SEL_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
-   constant SEL_BOX_ID     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_BOX_ID => '1', others => '0');
-   constant SEL_ARRAY_ID   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_ARRAY_ID => '1', others => '0');
-   constant SEL_EEPROM     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_EEPROM => '1', others => '0');
-   constant SEL_TX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_CMD => '1', others => '0');
-   constant SEL_TX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_SYNC => '1', others => '0');
-   constant SEL_TX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_SPARE => '1', others => '0');
-   constant SEL_RX_0A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_0A => '1', others => '0');
-   constant SEL_RX_0B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_0B => '1', others => '0');
-   constant SEL_RX_1A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_1A => '1', others => '0');
-   constant SEL_RX_1B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_1B => '1', others => '0');
-   constant SEL_RX_2A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_2A => '1', others => '0');
-   constant SEL_RX_2B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_2B => '1', others => '0');
-   constant SEL_RX_3A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_3A => '1', others => '0');
-   constant SEL_RX_3B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_3B => '1', others => '0');
-   constant SEL_RX_4A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_4A => '1', others => '0');
-   constant SEL_RX_4B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_4B => '1', others => '0');
-   constant SEL_RX_5A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_5A => '1', others => '0');
-   constant SEL_RX_5B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_5B => '1', others => '0');
-   constant SEL_RX_6A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_6A => '1', others => '0');
-   constant SEL_RX_6B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_6B => '1', others => '0');
-   constant SEL_RX_7A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_7A => '1', others => '0');
-   constant SEL_RX_7B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_7B => '1', others => '0');
-   constant SEL_SRAM_1     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_1 => '1', others => '0'); 
-   constant SEL_SRAM_2     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_2 => '1', others => '0');   
-   constant SEL_FIBRE_BIST : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_FIBRE_BIST => '1', others => '0'); 
-   constant SEL_FIBRE_TX   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_FIBRE_TX => '1', others => '0'); 
-   constant SEL_FIBRE_RX   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_FIBRE_RX => '1', others => '0'); 
-   constant SEL_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-   
-   constant WAIT_DONE       : std_logic_vector(MAX_STATES - 1 downto 0) := (others => '0');
-   constant DONE_RESET      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RESET => '1', others => '0');
-   constant DONE_IDLE       : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_IDLE => '1', others => '0');
-   constant DONE_BOX_ID     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_BOX_ID => '1', others => '0');
-   constant DONE_ARRAY_ID   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_ARRAY_ID => '1', others => '0');
-   constant DONE_EEPROM     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_EEPROM => '1', others => '0');
-   constant DONE_TX_CMD     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_CMD => '1', others => '0');
-   constant DONE_TX_SYNC    : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_SYNC => '1', others => '0');
-   constant DONE_TX_SPARE   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_TX_SPARE => '1', others => '0');
-   constant DONE_RX_0A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_0A => '1', others => '0');
-   constant DONE_RX_0B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_0B => '1', others => '0');
-   constant DONE_RX_1A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_1A => '1', others => '0');
-   constant DONE_RX_1B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_1B => '1', others => '0');
-   constant DONE_RX_2A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_2A => '1', others => '0');
-   constant DONE_RX_2B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_2B => '1', others => '0');
-   constant DONE_RX_3A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_3A => '1', others => '0');
-   constant DONE_RX_3B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_3B => '1', others => '0');
-   constant DONE_RX_4A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_4A => '1', others => '0');
-   constant DONE_RX_4B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_4B => '1', others => '0');
-   constant DONE_RX_5A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_5A => '1', others => '0');
-   constant DONE_RX_5B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_5B => '1', others => '0');
-   constant DONE_RX_6A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_6A => '1', others => '0');
-   constant DONE_RX_6B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_6B => '1', others => '0');
-   constant DONE_RX_7A      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_7A => '1', others => '0');
-   constant DONE_RX_7B      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_RX_7B => '1', others => '0');
-   constant DONE_SRAM_1     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_1 => '1', others => '0'); 
-   constant DONE_SRAM_2     : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_SRAM_2 => '1', others => '0');   
-   constant DONE_FIBRE_BIST : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_FIBRE_BIST => '1', others => '0'); 
-   constant DONE_FIBRE_TX   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_FIBRE_TX => '1', others => '0'); 
-   constant DONE_FIBRE_RX   : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_FIBRE_RX => '1', others => '0');
-   constant DONE_DEBUG      : std_logic_vector(MAX_STATES - 1 downto 0) := (INDEX_DEBUG => '1', others => '0');
-
-   -- state signals
-   type states is (RESET, FETCH, DECODE, EXECUTE);
-   signal cmd_state : states;
-   
-   signal sel  : std_logic_vector(MAX_STATES - 1 downto 0);
-   signal done : std_logic_vector(MAX_STATES - 1 downto 0);
-   
-   signal cmd1 : std_logic_vector(7 downto 0);
-   signal cmd2 : std_logic_vector(7 downto 0);
-   signal cmd3 : std_logic_vector(7 downto 0);
-   
-   -- device return signals:
-   signal reset_data    : std_logic_vector(7 downto 0);
-   signal idle_data     : std_logic_vector(7 downto 0);
-   signal dip_data      : std_logic_vector(7 downto 0);
-   signal array_id_data : std_logic_vector(7 downto 0);     
-   signal slot_id_data  : std_logic_vector(7 downto 0);
-   signal card_id_data  : std_logic_vector(7 downto 0);
-   signal debug_data    : std_logic_vector(7 downto 0);
-   
-   signal reset_we      : std_logic;
-   signal idle_we       : std_logic;
-   signal dip_we        : std_logic;  
-   signal array_id_we   : std_logic;   
-   signal slot_id_we    : std_logic;
-   signal card_id_we    : std_logic;
-   signal debug_we      : std_logic;
-   
-   signal reset_stb     : std_logic;
-   signal idle_stb      : std_logic;
-   signal dip_stb       : std_logic;
-   signal array_id_stb  : std_logic;  
-   signal slot_id_stb   : std_logic;
-   signal card_id_stb   : std_logic;
-   signal debug_stb     : std_logic;
-   
-   signal test_data : std_logic_vector(39 downto 0);
-   
-   signal dummy0,dummy1 : std_logic;
-   signal pass0,pass1,pass   : std_logic;
-   signal fail0,fail1,fail   : std_logic;
-   
+   --    c0 = FPGA system clock (50MHz)
+   --    c1 = 180deg phase shift of system clock (50MHz)
+   --    c2 = Asynchronous Transfer clock (100MHz)
+   --    c3 = fibre clock (25MHz)
+   --    e0 = fibre transmit clock
+   --    e1 = fibre rx refclk
+   --    e2 = Backplane lvds clock
    
 begin
-   clk_gen : pll
-      port map(inclk0 => inclk,
-               c1 => clk,
-               e0 => outclk);
+   rst <= not rst_n or rst_cmd;
 
-   -- RS232 interface start
-   receiver : async_rx
-      port map(rx_i => rs232_rx,
-               flag_o => rx_valid,
-               error_o => rx_error,
-               clk_i => rx_clock,
-               rst_i => rst,
-               dat_o => rx_data,
-               we_i => zero,
-               stb_i => rx_stb,
-               ack_o => rx_ack,
-               cyc_i => one);
+   clk0: cc_test_pll
+   port map(
+            inclk0 => inclk14,
+            c0     => clk,
+            c1     => clk_n,
+            c2     => open,
+            c3     => fibre_clk,
+            e0     => fibre_tx_clkw, 
+            e1     => fibre_rx_refclk,   
+            e2     => lvds_clk 
+         );
 
-   transmitter : async_tx
-      port map(tx_o => rs232_tx,
-               busy_o => tx_busy,
-               clk_i => tx_clock,
-               rst_i => rst,
-               dat_i => tx_data,
-               we_i => tx_we,
-               stb_i => tx_stb,
-               ack_o => tx_ack,
-               cyc_i => one);
+
+   --------------------------------------------------------
+   -- RS-232 blocks
+   --------------------------------------------------------
+
+   rx0: rs232_rx
+   port map(clk_i   => clk,
+            rst_i   => rst,
+            dat_o   => rx_data,
+            rdy_o   => rx_rdy,
+            ack_i   => rx_ack,
+            rs232_i => rx);
+
+   tx0: rs232_tx
+   port map(clk_i   => clk,
+            rst_i   => rst,
+            dat_i   => tx_data,
+            rdy_i   => tx_rdy,
+            busy_o  => tx_busy,
+            rs232_o => tx);
+
+
+   --------------------------------------------------------
+   -- Command character storage
+   --------------------------------------------------------
+
+   cmdchar1 : reg
+   generic map(WIDTH => 8)
+   port map(clk_i  => clk,
+            rst_i  => rst,
+            ena_i  => cmd1_ld,
+            reg_i  => rx_data,
+            reg_o  => cmd1);
+
+   cmdchar2 : reg
+   generic map(WIDTH => 8)
+   port map(clk_i  => clk,
+            rst_i  => rst,
+            ena_i  => cmd2_ld,
+            reg_i  => rx_data,
+            reg_o  => cmd2);
+
+
+   --------------------------------------------------------
+   -- Message logic
+   --------------------------------------------------------
+
+   tx_char_counter: counter
+   generic map(MAX => 70,
+               WRAP_AROUND => '0')
+   port map(clk_i   => clk,
+            rst_i   => rst,
+            ena_i   => tx_count_ena,
+            load_i  => tx_count_clr,
+            count_i => 0,
+            count_o => tx_count);
+
    
-   aclock : async_clk
-      port map(clk_i => clk,
-               rst_i => rst,
-               txclk_o => tx_clock,
-               rxclk_o => rx_clock);
+   with tx_count select 
+      -- reset message is BC Test v2.0
+      reset_msg <= newline   when 0,
+                   newline   when 1,
+                   shift(c)  when 2,
+                   shift(c)  when 3,
+                   space     when 4,
+                   shift(t)  when 5,
+                   e         when 6,
+                   s         when 7,
+                   t         when 8,
+                   space     when 9,
+                   v         when 10, -- text for version number 2.0
+                   period    when 11, 
+                   two       when 12, 
+                   period    when 13,
+                   zero      when 14,
+                   newline   when others;
+
+   with tx_count select
+      -- idle message is Command? 
+      idle_msg <= newline      when 0,
+                  shift(c)     when 1,
+                  o            when 2,
+                  m            when 3,
+                  m            when 4,
+                  a            when 5,
+                  n            when 6,
+                  d            when 7,
+                  shift(slash) when 8,
+                  space        when others;
+
+   with tx_count select
+      -- error message is error 
+      error_msg <= tab         when 0,
+                   e           when 1,
+                   r           when 2,
+                   r           when 3,
+                   o           when 4,
+                   r           when 5,
+                   space       when 6,
+                   newline  when others;
+
+   with tx_count select
+      -- power status read backs correct values, prints pass message
+      pass_msg  <= tab         when 0,
+                   shift(p)    when 1,
+                   a           when 2,
+                   s           when 3,
+                   s           when 4,
+                   shift(one)  when 5,
+                   newline  when others;
+
+   with tx_count select
+      -- power status read backs wrong values, prints fail message
+      fail_msg  <= tab         when 0,
+                   shift(F)    when 1,
+                   a           when 2,
+                   i           when 3,
+                   l           when 4,
+                   shift(one)  when 5,
+                   newline  when others;
+
+   --------------------------------------------------------
+   -- Overall test Control logic
+   --------------------------------------------------------
+
+   process(clk, rst_n)
+   begin
+      if(rst_n = '0') then
+         pres_state <= RESET;
+      elsif(clk = '1' and clk'event) then
+         pres_state <= next_state;
+      end if;
+   end process;
+
+   process(pres_state, rx_rdy, rx_data, tx_count, array_id_done, status_done, sram0_done, sram1_done, fo_test_done)
+   begin
+      next_state <= pres_state;
+      case pres_state is
+         when RESET =>          next_state <= TX_RESET;
+
+         when TX_RESET =>       if(tx_count = RESET_MSG_LEN - 1) then
+                                   next_state <= TX_IDLE;
+                                else
+                                   next_state <= TX_RESET;
+                                end if;
+
+         when TX_IDLE =>        if(tx_count = IDLE_MSG_LEN - 1) then
+                                   next_state <= RX_CMD1;
+                                else
+                                   next_state <= TX_IDLE;
+                                end if;
+
+         when TX_ERROR =>       if(tx_count = ERROR_MSG_LEN - 1) then
+                                   next_state <= TX_IDLE;
+                                else
+                                   next_state <= TX_ERROR;
+                                end if;
+
+         when RX_CMD1 =>        if(rx_rdy = '1') then
+                                   case rx_data is
+                                      when a | shift(a) => next_state <= ARRAY_ID_TEST;
+                                      when r | shift(r) => next_state <= RX_CMD2;
+                                      when f | shift(f) => next_state <= FO_TEST;
+                                      when s | shift(s) => next_state <= STATUS_TEST;
+                                      when escape =>       next_state <= RESET;
+                                      when others =>       next_state <= TX_ERROR;
+                                   end case;
+                                else
+                                   next_state <= RX_CMD1;
+                                end if;
+
+         when RX_CMD2 =>        if(rx_rdy = '1') then
+                                   case rx_data is
+                                      when zero         => next_state <= SRAM0_TEST;
+                                      when one          => next_state <= SRAM1_TEST;
+                                      when escape       => next_state <= RESET;
+                                      when others       => next_state <= TX_ERROR;
+                                   end case;
+                                else
+                                   next_state <= RX_CMD2;
+                                end if;
+         
+         when ARRAY_ID_TEST =>  if(array_id_done = '1') then
+                                   next_state <= TX_ARRAY_ID;
+                                else
+                                   next_state <= ARRAY_ID_TEST;
+                                end if;
+
+         when TX_ARRAY_ID =>    if(tx_count = ARRAY_ID_WIDTH - 1) then
+                                   next_state <= TX_IDLE;
+                                else
+                                   next_state <= TX_ARRAY_ID;
+                                end if;
+         
+         when STATUS_TEST    =>   if(status_done = '1') then
+                                     next_state <= TX_STATUS;
+                                  else
+                                     next_state <= STATUS_TEST;
+                                  end if;
+         
+         when TX_STATUS      =>   if(tx_count = RESULT_MSG_LEN - 1) then
+                                     next_state <= TX_IDLE;
+                                  else
+                                     next_state <= TX_STATUS;
+                                  end if;
+         
+         when SRAM0_TEST     =>   if (sram0_done = '1') then
+                                     next_state <= TX_SRAM0;
+                                  else
+                                     next_state <= SRAM0_TEST;
+                                  end if;
+                                  
+         when TX_SRAM0       =>   if (tx_count = RESULT_MSG_LEN - 1) then
+                                     next_state <= TX_IDLE;
+                                  else
+                                     next_state <= TX_SRAM0;
+                                  end if;   
+         
+         when SRAM1_TEST     =>   if (sram1_done = '1') then
+                                     next_state <= TX_SRAM1;
+                                  else
+                                     next_state <= SRAM1_TEST;
+                                  end if;
+                                  
+         when TX_SRAM1       =>   if (tx_count = RESULT_MSG_LEN - 1) then
+                                     next_state <= TX_IDLE;
+                                  else
+                                     next_state <= TX_SRAM1;
+                                  end if;   
+         
+         when FO_TEST        =>   if (fo_test_done = '1') then 
+                                     next_state <= TX_FO;
+                                  else
+                                     next_state <= FO_TEST;
+                                  end if;   
+         when TX_FO          =>   if (tx_count = 23) then
+                                     next_state <= TX_IDLE;
+                                  else
+                                     next_state <= TX_FO;
+                                  end if;                                   
+
+         when others         =>   next_state <= TX_IDLE;
+
+      end case;
+   end process;
+
+   process(pres_state, tx_busy, tx_count, reset_msg, idle_msg, error_msg, pass_msg, fail_msg, 
+           array_id_reg, status, pass0, fail0, pass1, fail1)
+   begin
+      rx_ack        <= '0';
+      tx_rdy        <= '0';
+      tx_data       <= (others => '0');
+      tx_count_ena  <= '0';
+      tx_count_clr  <= '0';
+      cmd1_ld       <= '0';
+      cmd2_ld       <= '0';
       
-   -- RS232 interface end
-   
-   -- reset_state gives us our welcome string on startup
-   reset_state : cc_test_reset
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_RESET),
-               done_o    => done(INDEX_RESET),
-               
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => reset_data,
-               tx_we_o   => reset_we,
-               tx_stb_o  => reset_stb);
-   
-   -- idle_state is special - it aquires commands for us to process
-   idle_state : cc_test_idle
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_IDLE),
-               done_o    => done(INDEX_IDLE),
-               
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => idle_data,
-               tx_we_o   => idle_we,
-               tx_stb_o  => idle_stb,
-               
-               rx_valid_i => rx_valid,
-               rx_ack_i  => rx_ack,
-               rx_stb_o  => rx_stb,
-               rx_data_i => rx_data,
-               
-               cmd1_o => cmd1,
-               cmd2_o => cmd2,
-               cmd3_o => cmd3);
-     
---   boxid : box_id_test_wrapper
---      port map(rst_i     => rst,
---               clk_i     => clk,
---               en_i      => sel(INDEX_BOX_ID),
---               done_o    => done(INDEX_BOX_ID),
---               data_bi   => box_id,
---               
---               tx_busy_i => tx_busy,
---               tx_ack_i  => tx_ack,
---               tx_data_o => box_id_data,
---               tx_we_o   => box_id_we,
---               tx_stb_o  => box_id_stb);    
---   
---   box_id <= box_id_out when box_id_ena = '1', else box_id_in;
-               
-   arrayid : array_id_test_wrapper
-      port map(rst_i     => rst,
-               clk_i     => clk,
-               en_i      => sel(INDEX_ARRAY_ID),
-               done_o    => done(INDEX_ARRAY_ID),
+      rst_cmd       <= '0';
+      sram0_ena     <= '0';
+      sram1_ena     <= '0';
+      fo_test_ena   <= '0';
+      status_ena    <= '0';
+      array_id_ena  <= '0';
+      array_id_reg_ld <= '0';
+      array_id_reg_ena<= '0';
       
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => array_id_data,
-               tx_we_o   => array_id_we,
-               tx_stb_o  => array_id_stb,
-     
-               array_id_i => array_id);
-               
-   debug_tx : rs232_data_tx
-      generic map(WIDTH => 40)
-      port map(clk_i   => clk,
-               rst_i   => rst,
-               data_i  => test_data,
-               start_i => sel(INDEX_DEBUG),
-               done_o  => done(INDEX_DEBUG),
+      sram0_ena     <= '0';
+      sram1_ena     <= '0';
+      fo_test_ena   <= '0';
 
-               tx_busy_i => tx_busy,
-               tx_ack_i  => tx_ack,
-               tx_data_o => debug_data,
-               tx_we_o   => debug_we,
-               tx_stb_o  => debug_stb); 
-   
-   sram1 : sram_test_wrapper 
-      port map(-- test control signals
-               rst_i    => rst,
-               clk_i    => clk,
-               en_i     => sel(INDEX_SRAM_1),
-               done_o   => done(INDEX_SRAM_1),
-                
-               -- RS232 signals
-                
-               -- physical pins
-               addr_o   => sram0_addr,
-               data_bi  => sram0_data,
-               n_ble_o  => sram0_nbhe,
-               n_bhe_o  => sram0_nble,
-               n_oe_o   => sram0_noe, 
-               n_ce1_o  => sram0_ncs, 
-               ce2_o    => dummy0, 
-               n_we_o   => sram0_nwe,
-               pass     => pass0,
-               fail     => fail0);
+      case pres_state is
+         when RESET =>      tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+                            rst_cmd      <= '1';
 
-   sram2 : sram_test_wrapper 
-      port map(-- test control signals
-               rst_i    => rst,
-               clk_i    => clk,
-               en_i     => sel(INDEX_SRAM_2),
-               done_o   => done(INDEX_SRAM_2),
-                
-               -- RS232 signals
-                
-               -- physical pins
-               addr_o   => sram1_addr,
-               data_bi  => sram1_data,
-               n_ble_o  => sram1_nbhe,
-               n_bhe_o  => sram1_nble,
-               n_oe_o   => sram1_noe, 
-               n_ce1_o  => sram1_ncs, 
-               ce2_o    => dummy1, 
-               n_we_o   => sram1_nwe,
-               pass     => pass1,
-               fail     => fail1);
-   fail <= fail1 or fail0;
-   pass <= pass1 or pass0;
-   zero <= '0';
-   one <= '1';                         
-   rst <= not n_rst or cmd_rst;
-   test_data <= "1011101011011010010101011011101010111110";  -- 0xBADA55BABE
+         when TX_RESET =>   if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = RESET_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            tx_data <= reset_msg;
+
+         when TX_IDLE =>    if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = IDLE_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;   
+                            tx_data <= idle_msg;
+
+         when TX_ERROR =>   if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = ERROR_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            tx_data <= error_msg;
+
+         when RX_CMD1 =>    rx_ack       <= '1';
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+                            cmd1_ld      <= '1';
+
+         when RX_CMD2 =>    rx_ack       <= '1';
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+                            cmd2_ld      <= '1';
+
+         when ARRAY_ID_TEST =>
+                            array_id_ena <= '1';
+                            array_id_reg_ena <= '1';
+                            array_id_reg_ld  <= '1';
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+
+         when TX_ARRAY_ID =>    
+                            if(tx_busy = '0') then
+                               tx_rdy       <= '1';
+                               array_id_reg_ena <= '1';
+                               tx_count_ena <= '1';
+                            end if;
+                            if(tx_count = ARRAY_ID_WIDTH - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            tx_data <= bin2asc(array_id_reg);
+         
+         when STATUS_TEST => status_ena      <= '1';
+                             --status_reg_ena  <= '1';
+                             --status_reg_ld   <= '1';
+                             tx_count_ena    <= '1';
+                             tx_count_clr    <= '1';
+
+         when TX_STATUS =>  if(tx_busy = '0') then
+                               tx_rdy          <= '1';
+                               tx_count_ena    <= '1';
+                            end if;
+                            if(tx_count = RESULT_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            if (status = '0') then                              
+                               tx_data <= pass_msg;
+                            else
+                               tx_data <= fail_msg;
+                            end if;   
+                            
+         when SRAM0_TEST => sram0_ena <= '1';                            
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+         
+         when TX_SRAM0 =>  if(tx_busy = '0') then
+                               tx_rdy          <= '1';
+                               tx_count_ena    <= '1';
+                            end if;
+                            if(tx_count = RESULT_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            if (pass0_reg = '1' and fail0_reg = '0') then                              
+                               tx_data <= pass_msg;
+                            else
+                               tx_data <= fail_msg;
+                            end if;   
+         
+         when SRAM1_TEST => sram1_ena <= '1';
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';
+                            
+         when TX_SRAM1 =>  if(tx_busy = '0') then
+                               tx_rdy          <= '1';
+                               tx_count_ena    <= '1';
+                            end if;
+                            if(tx_count = RESULT_MSG_LEN - 1) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            if (pass1_reg = '1' and fail1_reg = '0') then                              
+                               tx_data <= pass_msg;
+                            else
+                               tx_data <= fail_msg;
+                            end if;   
+         
+         when FO_TEST =>    fo_test_ena  <= '1';
+                            tx_count_ena <= '1';
+                            tx_count_clr <= '1';      
+                            
+         when TX_FO  =>     if(tx_busy = '0') then
+                               tx_rdy          <= '1';
+                               tx_count_ena    <= '1';
+                            end if;
+                            if(tx_count = 23) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            if (tx_count < 4) then
+                               tx_data <= hex2asc(rx_data1(3 downto 0));
+                            elsif (tx_count <8) then
+                               tx_data <= hex2asc(rx_data1(7 downto 4));
+                            elsif (tx_count < 12) then  
+                               tx_data <= hex2asc(rx_data2(3 downto 0));
+                            elsif (tx_count < 16) then  
+                               tx_data <= hex2asc(rx_data2(7 downto 4));
+                            elsif (tx_count < 20) then  
+			       tx_data <= hex2asc(rx_data3(3 downto 0));
+			    else
+                               tx_data <= hex2asc(rx_data3(7 downto 4));
+                            end if;
+                            
+         when others =>     null;
+
+      end case;
+   end process;
    
-   -- functionality of async_mux:
+   -------------------------------------------------------
+   --
+   -- Different test instantiations
+   --
+   -------------------------------------------------------     
    
-   with sel select
-      tx_data <= reset_data    when SEL_RESET,
-                 idle_data     when SEL_IDLE,
-                 debug_data    when SEL_DEBUG,
-                 "00000000"    when others;
+   -- status test , to expand status to include more information, append them to status and register them,
+   status <= nplus7vok;
    
-   with sel select
-      tx_we   <= reset_we      when SEL_RESET,
-                 idle_we       when SEL_IDLE,
-                 debug_we      when SEL_DEBUG,
-                 '0'           when others; 
-   
-   with sel select
-      tx_stb  <= reset_stb     when SEL_RESET,
-                 idle_stb      when SEL_IDLE,
-                 debug_stb     when SEL_DEBUG,
-                 '0'           when others;
-   
-   -- cmd_proc is our main processing state machine
-   cmd_proc : process (rst, clk)
+   -- generate done signals for array_id and status tests
+   gen_status_done: process (rst, clk)
    begin
       if (rst = '1') then
-         cmd_rst <= '0';
-         sel <= SEL_RESET;
-         cmd_state <= RESET;
-      elsif Rising_Edge(clk) then
-         case cmd_state is
-            when RESET => 
-               -- wait for the reset state to complete
-               if (done = DONE_RESET) then
-                  cmd_state <= FETCH;
-               else
-                  cmd_state <= cmd_state;
-               end if;
-               sel <= SEL_RESET;
+         status_done   <= '0';
+         array_id_done <= '0';
+      elsif (clk'event and clk = '1') then
+         status_done   <= status_ena;
+         array_id_done <= array_id_ena;
+      end if;   
+   end process gen_status_done;
+   
+   array_id_reg1 : shift_reg
+   generic map(WIDTH => ARRAY_ID_WIDTH)
+   port map(clk_i      => clk,
+            rst_i      => rst,
+            ena_i      => array_id_reg_ena,
+            load_i     => array_id_reg_ld,
+            clr_i      => '0',
+            shr_i      => '0',
+            serial_i   => '0',
+            serial_o   => array_id_reg,
+            parallel_i => array_id,
+            parallel_o => open);
                
-            when FETCH =>
-               -- wait for a command to be decoded
-               if (done = DONE_IDLE) then
-                  cmd_state <= DECODE;
-               else
-                  cmd_state <= cmd_state;
-               end if;
-               sel <= SEL_IDLE;
                
-            when DECODE =>
-               -- activate the appropiate test module
-               cmd_state <= EXECUTE;
-               if(cmd1 = CMD_SRAM and cmd2 = CMD_SRAM_1) then
-                  sel <= SEL_SRAM_1;
-               elsif(cmd1 = CMD_SRAM and cmd2 = CMD_SRAM_2) then
-                  sel <= SEL_SRAM_2;
-               elsif(cmd1 = CMD_TX and cmd2 = CMD_TX_CMD) then
-                  sel <= SEL_TX_CMD;
-               elsif(cmd1 = CMD_TX and cmd2 = CMD_TX_SYNC) then
-                  sel <= SEL_TX_SYNC;
-               elsif(cmd1 = CMD_TX and cmd2 = CMD_TX_SPARE) then
-                  sel <= SEL_TX_SPARE;
-                              
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_0 and cmd3 = CMD_RX_A) then
-                  sel <= SEL_RX_0A;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_0 and cmd3 = CMD_RX_B) then
-                  sel <= SEL_RX_0B;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_1 and cmd3 = CMD_RX_A) then
-                  sel <= SEL_RX_1A;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_1 and cmd3 = CMD_RX_B) then
-                  sel <= SEL_RX_1B;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_2 and cmd3 = CMD_RX_A) then
-                  sel <= SEL_RX_2A;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_2 and cmd3 = CMD_RX_B) then
-                  sel <= SEL_RX_2B;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_3 and cmd3 = CMD_RX_A) then
-                  sel <= SEL_RX_3A;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_3 and cmd3 = CMD_RX_B) then
-                  sel <= SEL_RX_3B;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_4 and cmd3 = CMD_RX_A) then
-                  sel <= SEL_RX_4A;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_4 and cmd3 = CMD_RX_B) then
-                  sel <= SEL_RX_4B;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_5 and cmd3 = CMD_RX_A) then
-                  sel <= SEL_RX_5A;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_5 and cmd3 = CMD_RX_B) then
-                  sel <= SEL_RX_5B;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_6 and cmd3 = CMD_RX_A) then
-                  sel <= SEL_RX_6A;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_6 and cmd3 = CMD_RX_B) then
-                  sel <= SEL_RX_6B;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_7 and cmd3 = CMD_RX_A) then
-                  sel <= SEL_RX_7A;
-               elsif(cmd1 = CMD_RX and cmd2 = CMD_RX_7 and cmd3 = CMD_RX_B) then
-                  sel <= SEL_RX_7B;
-                     
-                  
-               elsif(cmd1 = CMD_FIBRE and cmd2 = CMD_FIBRE_BIST) then
-                  sel <= SEL_FIBRE_BIST;
-               elsif(cmd1 = CMD_FIBRE and cmd2 = CMD_FIBRE_TX) then
-                  sel <= SEL_FIBRE_TX;
-               elsif(cmd1 = CMD_FIBRE and cmd2 = CMD_FIBRE_RX) then
-                  sel <= SEL_FIBRE_RX;                     
-                  
-               elsif(cmd1 = CMD_BOX_ID) then
-                  sel <= SEL_BOX_ID;
-                  
-               elsif(cmd1 = CMD_ARRAY_ID) then
-                  sel <= SEL_ARRAY_ID;
-                  
-               elsif(cmd1 = CMD_EEPROM) then
-                  sel <= SEL_EEPROM;
+   sram0 : sram_test
+      port map(-- test control signals
+         rst_i    => rst,
+         clk_i    => clk,
+         en_i     => sram0_ena,
+         done_o   => sram0_done,
+          
+         -- physical pins
+         addr_o   => sram0_addr,
+         data_bi  => sram0_data,
+         n_ble_o  => sram0_nbhe,
+         n_bhe_o  => sram0_nble,
+         n_oe_o   => sram0_noe, 
+         n_ce1_o  => sram0_nce1, 
+         ce2_o    => sram0_ce2, 
+         n_we_o   => sram0_nwe,
+--         idx_o    => sram0_fault,
+         pass_o   => pass0,
+         fail_o   => fail0);
 
-               elsif(cmd1 = CMD_DEBUG) then
-                  sel <= SEL_DEBUG;
-                  
-               elsif(cmd1 = CMD_RESET) then
-                  cmd_rst <= '1';
-                  
-               else
-                  -- must not be implemented yet!
-                  sel <= (others => '0');
-                  cmd_state <= FETCH;                  
-               end if;
-               
-            when EXECUTE =>
-               -- wait for thet test to complete
-               if (done /= WAIT_DONE) then
-                  cmd_rst <= '0';
-                  sel <= (others => '0');
-                  cmd_state <= FETCH;
-               end if;
-               
-            when others =>
-               sel <= (others => '0');
-               cmd_state <= RESET;
-         end case;
+   sram1 : sram_test
+      port map(-- test control signals
+         rst_i    => rst,
+         clk_i    => clk,
+         en_i     => sram1_ena,
+         done_o   => sram1_done,
+          
+         -- physical pins
+         addr_o   => sram1_addr,
+         data_bi  => sram1_data,
+         n_ble_o  => sram1_nbhe,
+         n_bhe_o  => sram1_nble,
+         n_oe_o   => sram1_noe, 
+         n_ce1_o  => sram1_nce1, 
+         ce2_o    => sram1_ce2, 
+         n_we_o   => sram1_nwe,
+--         idx_o    => sram1_fault,
+         pass_o   => pass1,
+         fail_o   => fail1);
+   
+   fo_test0: fo_bist 
+      port map(
+         rst_i    => rst,
+         clk_i    => clk,
+         clk_n_i  => clk_n,
+         en_i     => fo_test_ena,
+         done_o   => fo_test_done,
+         
+         -- fibre pins
+         fibre_tx_data_o   => fibre_tx_data,
+         fibre_tx_clkW_o   => open, --fibre_tx_clkW,
+         fibre_tx_ena_o    => fibre_tx_ena, 
+         fibre_tx_rp_o     => fibre_tx_rp,  
+         fibre_tx_sc_nd_o  => fibre_tx_sc_nd,
+         fibre_tx_enn_o    => fibre_tx_enn,
+         -- fibre_tx_svs is tied to gnd on board
+         -- fibre_tx_enn is tied to vcc on board
+         -- fibre_tx_mode is tied to gnd on board
+         fibre_tx_foto_o   => fibre_tx_foto,
+         fibre_tx_bisten_o => fibre_tx_bisten,
+         
+         fibre_rx_data_i   => fibre_rx_data,
+         --fibre_rx_refclk => --fibre_rx_refcl
+         fibre_rx_clkr_i   => fibre_rx_clkr,
+         fibre_rx_error_i  => fibre_rx_error,
+         fibre_rx_rdy_i    => fibre_rx_rdy,  
+         fibre_rx_status_i => fibre_rx_status,
+         fibre_rx_sc_nd_i  => fibre_rx_sc_nd,
+         fibre_rx_rvs_i    => fibre_rx_rvs, 
+         fibre_rx_rf_o     => fibre_rx_rf,   
+         fibre_rx_a_nb_o   => fibre_rx_a_nb, 
+         fibre_rx_bisten_o => fibre_rx_bisten,
+
+         rx_data1_o        => rx_data1,
+         rx_data2_o        => rx_data2,
+         rx_data3_o        => rx_data3,
+             
+         --test pins
+         mictor_o => mictor0_o(12 downto 0)
+         );
+
+   result_reg: process(rst, clk)
+   begin
+      if (rst = '1') then
+         pass0_reg <= '0';
+         fail0_reg <= '0';
+         pass1_reg <= '0';
+         fail1_reg <= '0';
+      elsif (clk'event and clk = '1') then
+         if (sram0_ena = '1') then
+            pass0_reg <= pass0;
+            fail0_reg <= fail0;
+         end if;
+         if (sram1_ena = '1') then
+	    pass1_reg <= pass1;
+	    fail1_reg <= fail1;
+         end if;
       end if;
-   end process cmd_proc;
-   test(26) <= pass0 or pass1;
-   test(28) <= fail0 or fail1;
-   test(30) <= sel(INDEX_SRAM_1) or sel(INDEX_SRAM_2);
-   test(32) <= sram0_data(1);
---   test(34) <= dummy;
-
+   end process result_reg;
+   
+         
+   
 end behaviour;
