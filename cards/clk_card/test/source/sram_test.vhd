@@ -18,19 +18,38 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- sram_test_wrapper.vhd
+-- sram_test.vhd
 --
--- <revision control keyword substitutions e.g. $Id: sram_test.vhd,v 1.2 2004/07/01 00:22:51 mandana Exp $>
+-- <revision control keyword substitutions e.g. $Id: sram_test.vhd,v 1.3 2005/11/01 00:42:46 mandana Exp $>
 --
 -- Project:	      SCUBA-2
--- Author:	       Ernie Lin
+-- Author:	       Mandana Amiri
 -- Organisation:  UBC
 --
 -- Description:
--- This file implements the test wrapper for the SRAM
+-- Test U31 and U32 1Mx16 SRAMs on Clock Card.
+-- The test procedure is:
+-- walking 1 test:
+-- write x00 to address 00
+-- for address bit 0 to 19
+--   write xAA to address X (where only 1 bit is set to 1 in X)
+--   read back from address 00
+--   read back from address X
+-- end loop
+-- now walking-0 test:
+-- write x00 to address 00
+-- for address bit 0 to 19
+--   write x55 to address Y (where only 1 bit is set to 0 in Y)
+--   read back from address 00
+--   read back from address X
+-- end loop
+-- set fail_o or pass_o accordingly
 --
 -- Revision history:
 -- $Log: sram_test.vhd,v $
+-- Revision 1.3  2005/11/01 00:42:46  mandana
+-- updated the interface to shift_reg and counter in order to compile rc_test
+--
 -- Revision 1.2  2004/07/01 00:22:51  mandana
 -- Mandana: walking 0/1 tests combined
 --
@@ -53,14 +72,14 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-library sys_param;
-use sys_param.wishbone_pack.all;
-use sys_param.data_types_pack.all;
+--library sys_param;
+--use sys_param.wishbone_pack.all;
+--use sys_param.data_types_pack.all;
 
 library components;
 use components.component_pack.all;
                      
-entity sram_test_wrapper is
+entity sram_test is
 port(-- test control signals
      rst_i  : in std_logic;    
      clk_i  : in std_logic;    
@@ -78,34 +97,32 @@ port(-- test control signals
      n_ce1_o : out std_logic;
      ce2_o   : out std_logic;
      n_we_o  : out std_logic;
-     pass    : out std_logic;
-     fail    : out std_logic);
-end sram_test_wrapper;
+--     idx_o   : out integer;
+     pass_o  : out std_logic;
+     fail_o  : out std_logic);
+end sram_test;
 
 
-architecture rtl of sram_test_wrapper is
+architecture rtl of sram_test is
 
--- test wrapper state encoding and variables:
+-- test state encoding and variables:
 type states is (IDLE, WR0_PREP, WR0, WR_PREP, WR, RD0_PREP, RD0, RD0_DONE, RD_PREP, RD, RD_DONE, NXT, FAILED, PASSED, DONE);
 signal present_state : states;
 signal next_state    : states;
 
-signal slr_clk       : std_logic;
+signal slr_en        : std_logic;
 signal slr_load      : std_logic;
-signal slr_data      : std_logic_vector(19 downto 0);
 
-signal zero, one     : std_logic;
-signal zero_int      : integer;
-
-signal mem_data      : word16;
-signal walking_addr  : std_logic_vector(19 downto 0);
+signal mem_data      : std_logic_vector (15 downto 0);
 signal fix_addr      : std_logic_vector(19 downto 0);
 signal cur_addr      : std_logic_vector(19 downto 0);
+signal walking_addr : std_logic_vector(19 downto 0);
 
 signal slr_filler    : std_logic;
-signal idx           : integer;
-signal sel_pattern   : std_logic;
+signal idx           : integer range 0 to 20;
+signal sel_pattern   : std_logic := '0';
 signal passtemp      : std_logic;
+signal iteration     : std_logic;
 
 signal dummy         : std_logic;
 
@@ -115,51 +132,55 @@ begin
    slr_inst : shift_reg 
       generic map (WIDTH => 20)
       port map (
-           clk_i      => slr_clk,
+           clk_i      => clk_i,
            rst_i      => rst_i,
-           ena_i      => one,
+           ena_i      => slr_en,
            load_i     => slr_load,
-           clr_i      => zero,
-           shr_i      => zero,
+           clr_i      => '0',
+           shr_i      => '0',
            serial_i   => slr_filler,
            serial_o   => dummy,
-           parallel_i => slr_data,
+           parallel_i => walking_addr,
            parallel_o => cur_addr
    );     		      
 
-zero <= '0';
-one  <= '1';
-zero_int <= 0;
---sel_pattern <= '0';
--- index counter to trace the bit location, not really needed since we can find out from 
--- bit location, ma
-   idx_count: counter
-   generic map(MAX => 20, UP_COUNTER => '0')
-   port map(clk_i   => slr_clk,
-            rst_i   => rst_i,
-            ena_i   => one,
-            load_i  => slr_load,
-            count_i => zero_int,
-            count_o => idx);
-
-mem_data     <= "1010101010101010" when sel_pattern = '0' else "0101010101010101";
-fix_addr     <= "00000000000000000000" when sel_pattern = '0' else "11111111111111111111";
-walking_addr <= "00000000000000000001" when sel_pattern = '0' else "11111111111111111110";
-slr_filler   <= '0' when sel_pattern = '0' else '1';
+   --sel_pattern <= '0';
+   -- index counter to trace the bit location, not really needed since we can find out from 
+   -- bit location, ma
+   
+   idx_count: process (rst_i, clk_i)
+   begin
+      if (rst_i = '1') then
+         idx <= 0;
+      elsif (clk_i'event and clk_i = '1') then
+         if (slr_en = '1') then
+            if (slr_load = '1') then 
+               idx <= 0;
+            else   
+               idx <= idx + 1;
+            end if;   
+         end if;
+      end if;
+   end process idx_count;
+   
+   mem_data     <= "1010101010101010"     when sel_pattern = '0' else "0101010101010101";
+   fix_addr     <= "00000000000000000000" when sel_pattern = '0' else "11111111111111111111";
+   walking_addr <= "00000000000000000001" when sel_pattern = '0' else "11111111111111111110";
+   slr_filler   <= '0'                    when sel_pattern = '0' else '1';
 
    -- state register:
    state_FF: process(clk_i, rst_i, en_i)
    begin
       if(rst_i = '1' or en_i = '0') then 
          present_state <= IDLE;
---         sel_pattern   <= '0';
       elsif(clk_i'event and clk_i = '1') then
          present_state <= next_state;
       end if;
    end process state_FF;
    
-   state_NS: process(present_state, en_i, idx)
+   state_NS: process(present_state, en_i, data_bi, idx, sel_pattern, mem_data)
    begin
+      next_state <= present_state;
       case present_state is
          when IDLE =>     
             if(en_i = '1') then
@@ -184,7 +205,7 @@ slr_filler   <= '0' when sel_pattern = '0' else '1';
             next_state <= RD0;
          
          when RD0 =>                  
-            if data_bi = "0000000000000000" then
+            if (data_bi = "0000000000000000") then
 	       next_state <= RD0_DONE;
 	    else
 	       next_state <= FAILED;
@@ -197,7 +218,7 @@ slr_filler   <= '0' when sel_pattern = '0' else '1';
             next_state <= RD;
          
          when RD =>                  
-            if data_bi = mem_data then
+            if (data_bi = mem_data) then
 	       next_state <= RD_DONE;
 	    else
 	       next_state <= FAILED;
@@ -207,7 +228,7 @@ slr_filler   <= '0' when sel_pattern = '0' else '1';
             next_state <= NXT;
          
          when NXT =>
-            if (idx = 20) then
+            if (idx = 19) then
                next_state <= PASSED;
             else
                next_state <= WR_PREP;
@@ -231,93 +252,59 @@ slr_filler   <= '0' when sel_pattern = '0' else '1';
       end case;
    end process state_NS;
    
-   state_out: process(present_state)
+   state_out: process(present_state, en_i, idx, fix_addr, cur_addr, mem_data)
    begin
+      -- default assignments
+      slr_load  <= '0';
+      slr_en    <= '0';
+      addr_o    <= fix_addr;
+      data_bi   <= (others => '0');
+      addr_o    <= (others => '0');
+      n_ble_o   <= '1';
+      n_bhe_o   <= '1';
+      n_oe_o    <= '1';
+      n_ce1_o   <= '1';
+      ce2_o     <= '0';
+      n_we_o    <= '1';
+      passtemp  <= '0';    
+      iteration <= '0';
+      fail_o    <= '0';
+      done_o    <= '0';
+      
       case present_state is
          when IDLE =>   
-            slr_data  <= walking_addr;                     
-            slr_load  <= '1';
-            slr_clk   <= '1';
-            addr_o    <= (others => '0');
---            data_bi   <= '0';
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
-
+--            if (en_i = '1') then
+--               slr_en   <= '1';            
+--            else
+               slr_en   <= '1';
+               slr_load <= '1';
+--            end if;
+            
          when WR0_PREP =>  
-            slr_data  <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= fix_addr;
-            data_bi   <= "0000000000000000";
             n_ble_o   <= '0';
             n_bhe_o   <= '0';
-            n_oe_o    <= '1';
             n_ce1_o   <= '0';
             ce2_o     <= '1';
             n_we_o    <= '0';
-            passtemp<='0';            
-            fail      <= '0';
-            done_o    <= '0';                       
-            
+                  
          when WR0 =>  
-            slr_data  <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= fix_addr;
-            data_bi   <= "0000000000000000";
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
-            passtemp  <='0';            
-            fail      <= '0';
-            done_o    <= '0';
             
          when WR_PREP =>  
-            slr_data  <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= cur_addr;
             data_bi   <= mem_data;
             n_ble_o   <= '0';
             n_bhe_o   <= '0';
-            n_oe_o    <= '1';
             n_ce1_o   <= '0';
             ce2_o     <= '1';
             n_we_o    <= '0';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';                       
             
          when WR =>  
-            slr_data  <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= cur_addr;
             data_bi   <= mem_data;
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
                                     
          when RD0_PREP =>
-            slr_data  <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= fix_addr;
             data_bi   <= (others => 'Z');
             n_ble_o   <= '0';
@@ -325,15 +312,8 @@ slr_filler   <= '0' when sel_pattern = '0' else '1';
             n_oe_o    <= '0';
             n_ce1_o   <= '0';
             ce2_o     <= '1';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
             
          when RD0 =>        
-            slr_data   <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= fix_addr;
             data_bi   <= (others => 'Z');
             n_ble_o   <= '0';
@@ -341,31 +321,14 @@ slr_filler   <= '0' when sel_pattern = '0' else '1';
             n_oe_o    <= '0';
             n_ce1_o   <= '0';
             ce2_o     <= '1';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
                           
          when RD0_DONE =>        
-            slr_data   <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= fix_addr;
 --            data_bi   <= "1010101010101010";
-            n_ble_o   <= '0';
-            n_bhe_o   <= '0';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
+--            n_ble_o   <= '0';
+--            n_bhe_o   <= '0';
             
          when RD_PREP =>
-            slr_data  <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= cur_addr;
             data_bi   <= (others => 'Z');
             n_ble_o   <= '0';
@@ -373,15 +336,8 @@ slr_filler   <= '0' when sel_pattern = '0' else '1';
             n_oe_o    <= '0';
             n_ce1_o   <= '0';
             ce2_o     <= '1';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
             
          when RD =>        
-            slr_data   <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= cur_addr;
             data_bi   <= (others => 'Z');
             n_ble_o   <= '0';
@@ -389,121 +345,61 @@ slr_filler   <= '0' when sel_pattern = '0' else '1';
             n_oe_o    <= '0';
             n_ce1_o   <= '0';
             ce2_o     <= '1';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
             
          when RD_DONE =>        
-            slr_data   <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= cur_addr;
 --            data_bi   <= "1010101010101010";
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
          
          when NXT =>
-            slr_data   <= walking_addr;  
-            if (idx = 20) then
+            if (idx = 19) then
                slr_load  <= '1'; 
             else   
                slr_load  <= '0';
             end if;
-            slr_clk   <= '1';
+            slr_en    <= '1';
             addr_o    <= cur_addr;
             data_bi   <= mem_data;
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';                    
             
          when FAILED=>     
-            slr_data  <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= cur_addr;
             data_bi   <= (others => 'Z');
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
-            passtemp  <= '0'; 
-            fail      <= '1';
+            fail_o    <= '1';
             done_o    <= '1';
          
          when PASSED =>
-            slr_data   <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= cur_addr;
             data_bi   <= (others => 'Z');
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
             passtemp  <= '1';            
-            fail      <= '0';
-            done_o <= '0'; -- tempo
+            iteration <= '1';
             
          when DONE =>
-            slr_data   <= walking_addr;                     
-            slr_load  <= '0';
-            slr_clk   <= '0';
             addr_o    <= cur_addr;
             data_bi   <= (others => 'Z');
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
             passtemp  <= '1';            
-            fail      <= '0';
             done_o    <= '1';         
+
          when others =>   
-            slr_data  <= walking_addr;                     
+            slr_en    <= '1';
             slr_load  <= '1';
-            slr_clk   <= '1';
             addr_o    <= cur_addr;
---            data_bi   <= '0';
-            n_ble_o   <= '1';
-            n_bhe_o   <= '1';
-            n_oe_o    <= '1';
-            n_ce1_o   <= '1';
-            ce2_o     <= '0';
-            n_we_o    <= '1';
-            passtemp  <= '0';            
-            fail      <= '0';
-            done_o    <= '0';
                                                       
       end case;
    end process state_out;
    
-   sel_process: process (passtemp)
+   sel_process: process (rst_i, clk_i)
    begin
---      if (rst_i = '1') then
---         sel_pattern <= '0';         
-     -- els
-      if(passtemp'event and passtemp = '0') then 
-         sel_pattern <= not sel_pattern;
+      if (rst_i = '1') then
+         sel_pattern <= '0';         
+      elsif(clk_i'event and clk_i= '1') then 
+         if (iteration = '1') then
+            sel_pattern <= not sel_pattern;
+         else
+            sel_pattern <= sel_pattern;
+         end if;   
       end if;
    end process;   
-   pass <= passtemp;
+   
+   pass_o <= passtemp;
+--   idx_o  <= idx;
+   
 end rtl;
