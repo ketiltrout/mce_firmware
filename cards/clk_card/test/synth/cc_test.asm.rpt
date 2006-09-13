@@ -1,5 +1,5 @@
 Assembler report for cc_test
-Fri Sep 08 14:57:14 2006
+Wed Sep 13 16:29:27 2006
 Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
 
 
@@ -44,7 +44,7 @@ applicable agreement for further details.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Fri Sep 08 14:57:14 2006 ;
+; Assembler Status      ; Successful - Wed Sep 13 16:29:27 2006 ;
 ; Revision Name         ; cc_test                               ;
 ; Top-level Entity Name ; cc_test                               ;
 ; Family                ; Stratix                               ;
@@ -57,9 +57,9 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------------+----------+---------------+
 ; Option                                                                         ; Setting  ; Default Value ;
 +--------------------------------------------------------------------------------+----------+---------------+
-; Use smart compilation                                                          ; On       ; Off           ;
 ; Configuration device                                                           ; Epc2     ; Auto          ;
 ; Auto-restart configuration after error                                         ; Off      ; On            ;
+; Use smart compilation                                                          ; Off      ; Off           ;
 ; Generate Serial Vector Format File (.svf) for Target Device                    ; Off      ; Off           ;
 ; Generate a JEDEC STAPL Format File (.jam) for Target Device                    ; Off      ; Off           ;
 ; Generate an uncompressed Jam STAPL Byte Code 2.0 File (.jbc) for Target Device ; Off      ; Off           ;
@@ -107,7 +107,7 @@ applicable agreement for further details.
 +----------------+---------------------------------------------------------------------+
 ; Device         ; EP1S30F780C5                                                        ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                          ;
-; Checksum       ; 0x00495B9E                                                          ;
+; Checksum       ; 0x00413452                                                          ;
 +----------------+---------------------------------------------------------------------+
 
 
@@ -118,7 +118,7 @@ applicable agreement for further details.
 +----------------+---------------------------------------------------------------------+
 ; Device         ; EPC2                                                                ;
 ; JTAG usercode  ; 0x00000000                                                          ;
-; Checksum       ; 0x00161C42                                                          ;
+; Checksum       ; 0x00160B0A                                                          ;
 +----------------+---------------------------------------------------------------------+
 
 
@@ -129,7 +129,7 @@ applicable agreement for further details.
 +----------------+-----------------------------------------------------------------------+
 ; Device         ; EPC2                                                                  ;
 ; JTAG usercode  ; 0x00000000                                                            ;
-; Checksum       ; 0x000A57B9                                                            ;
+; Checksum       ; 0x000A84E0                                                            ;
 +----------------+-----------------------------------------------------------------------+
 
 
@@ -140,7 +140,7 @@ applicable agreement for further details.
 +----------------+-----------------------------------------------------------------------+
 ; Device         ; EPC2                                                                  ;
 ; JTAG usercode  ; 0x00000000                                                            ;
-; Checksum       ; 0x000D850E                                                            ;
+; Checksum       ; 0x000DAF5A                                                            ;
 +----------------+-----------------------------------------------------------------------+
 
 
@@ -151,7 +151,7 @@ applicable agreement for further details.
 +----------------+-----------------------------------------------------------------------+
 ; Device         ; EPC2                                                                  ;
 ; JTAG usercode  ; 0x00000000                                                            ;
-; Checksum       ; 0x000DCE12                                                            ;
+; Checksum       ; 0x000E6444                                                            ;
 +----------------+-----------------------------------------------------------------------+
 
 
@@ -162,7 +162,7 @@ applicable agreement for further details.
 +----------------+-----------------------------------------------------------------------+
 ; Device         ; EPC2                                                                  ;
 ; JTAG usercode  ; 0x00000000                                                            ;
-; Checksum       ; 0x000D13A1                                                            ;
+; Checksum       ; 0x000D461D                                                            ;
 +----------------+-----------------------------------------------------------------------+
 
 
@@ -173,7 +173,7 @@ applicable agreement for further details.
 +----------------+-----------------------------------------------------------------------+
 ; Device         ; EPC2                                                                  ;
 ; JTAG usercode  ; 0x00000000                                                            ;
-; Checksum       ; 0x000C966E                                                            ;
+; Checksum       ; 0x00229951                                                            ;
 +----------------+-----------------------------------------------------------------------+
 
 
@@ -184,7 +184,7 @@ applicable agreement for further details.
 +----------------+-----------------------------------------------------------------------+
 ; Device         ; EPC2                                                                  ;
 ; JTAG usercode  ; 0x00000000                                                            ;
-; Checksum       ; 0x02B92C24                                                            ;
+; Checksum       ; 0x02BA79D5                                                            ;
 +----------------+-----------------------------------------------------------------------+
 
 
@@ -194,11 +194,11 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
     Info: Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
-    Info: Processing started: Fri Sep 08 14:57:05 2006
+    Info: Processing started: Wed Sep 13 16:29:18 2006
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off cc_test -c cc_test
 Info: Assembler is generating device programming files
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-    Info: Processing ended: Fri Sep 08 14:57:14 2006
-    Info: Elapsed time: 00:00:10
+    Info: Processing ended: Wed Sep 13 16:29:27 2006
+    Info: Elapsed time: 00:00:09
 
 

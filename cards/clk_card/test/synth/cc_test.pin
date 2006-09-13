@@ -73,7 +73,7 @@ RESERVED_INPUT               : A6        :        :                   :         
 RESERVED_INPUT               : A7        :        :                   :         : 4         :                
 RESERVED_INPUT               : A8        :        :                   :         : 4         :                
 RESERVED_INPUT               : A9        :        :                   :         : 4         :                
-RESERVED_INPUT               : A10       :        :                   :         : 4         :                
+manchester_sigdet            : A10       : input  : LVTTL             :         : 4         : Y              
 RESERVED_INPUT               : A11       :        :                   :         : 4         :                
 VCCIO4                       : A12       : power  :                   : 3.3V    : 4         :                
 RESERVED_INPUT               : A13       :        :                   :         : 4         :                
@@ -95,7 +95,7 @@ sram1_data[7]                : AA1       : bidir  : LVTTL             :         
 sram1_data[8]                : AA2       : bidir  : LVTTL             :         : 6         : Y              
 sram1_data[9]                : AA3       : bidir  : LVTTL             :         : 6         : Y              
 sram1_data[10]               : AA4       : bidir  : LVTTL             :         : 6         : Y              
-fibre_rx_error               : AA5       : input  : LVTTL             :         : 6         : N              
+RESERVED_INPUT               : AA5       :        :                   :         : 6         :                
 RESERVED_INPUT               : AA6       :        :                   :         : 6         :                
 RESERVED_INPUT               : AA7       :        :                   :         : 6         :                
 RESERVED_INPUT               : AA8       :        :                   :         : 6         :                
@@ -109,7 +109,7 @@ RESERVED_INPUT               : AA15      :        :                   :         
 GND                          : AA16      : gnd    :                   :         :           :                
 GND+                         : AA17      :        :                   :         : 8         :                
 RESERVED_INPUT               : AA18      :        :                   :         : 8         :                
-lvds_rx0b                    : AA19      : input  : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : AA19      :        :                   :         : 8         :                
 RESERVED_INPUT               : AA20      :        :                   :         : 8         :                
 RESERVED_INPUT               : AA21      :        :                   :         : 1         :                
 RESERVED_INPUT               : AA22      :        :                   :         : 1         :                
@@ -141,10 +141,10 @@ RESERVED_INPUT               : AB19      :        :                   :         
 RESERVED_INPUT               : AB20      :        :                   :         : 8         :                
 RESERVED_INPUT               : AB21      :        :                   :         : 8         :                
 RESERVED_INPUT               : AB22      :        :                   :         : 8         :                
-RESERVED_INPUT               : AB23      :        :                   :         : 1         :                
+lvds_rx2b                    : AB23      : input  : LVTTL             :         : 1         : N              
 RESERVED_INPUT               : AB24      :        :                   :         : 1         :                
 RESERVED_INPUT               : AB25      :        :                   :         : 1         :                
-RESERVED_INPUT               : AB26      :        :                   :         : 1         :                
+outclk                       : AB26      : output : LVTTL             :         : 1         : N              
 RESERVED_INPUT               : AB27      :        :                   :         : 1         :                
 RESERVED_INPUT               : AB28      :        :                   :         : 1         :                
 sram1_data[15]               : AC1       : bidir  : LVTTL             :         : 6         : Y              
@@ -165,7 +165,7 @@ GND                          : AC15      : gnd    :                   :         
 MSEL0                        : AC16      :        :                   :         : 8         :                
 GND+                         : AC17      :        :                   :         : 8         :                
 PLL_ENA                      : AC18      :        :                   :         : 8         :                
-RESERVED_INPUT               : AC19      :        :                   :         : 8         :                
+lvds_rx3b                    : AC19      : input  : LVTTL             :         : 8         : N              
 RESERVED_INPUT               : AC20      :        :                   :         : 8         :                
 RESERVED_INPUT               : AC21      :        :                   :         : 8         :                
 RESERVED_INPUT               : AC22      :        :                   :         : 8         :                
@@ -224,7 +224,7 @@ mictor0_o[13]                : AE18      : output : LVTTL             :         
 mictor0_o[7]                 : AE19      : output : LVTTL             :         : 8         : Y              
 mictor0_o[3]                 : AE20      : output : LVTTL             :         : 8         : Y              
 mictor0_o[0]                 : AE21      : output : LVTTL             :         : 8         : Y              
-RESERVED_INPUT               : AE22      :        :                   :         : 8         :                
+lvds_rx5a                    : AE22      : input  : LVTTL             :         : 8         : N              
 RESERVED_INPUT               : AE23      :        :                   :         : 8         :                
 RESERVED_INPUT               : AE24      :        :                   :         : 8         :                
 RESERVED_INPUT               : AE25      :        :                   :         : 8         :                
@@ -270,7 +270,7 @@ fibre_rx_data[7]             : AG8       : input  : LVTTL             :         
 fibre_rx_data[0]             : AG9       : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AG10      :        :                   :         : 7         :                
 RESERVED_INPUT               : AG11      :        :                   :         : 7         :                
-RESERVED_INPUT               : AG12      :        :                   :         : 7         :                
+dv_pulse_fibre               : AG12      : input  : LVTTL             :         : 7         : Y              
 RESERVED_INPUT               : AG13      :        :                   :         : 7         :                
 VCCA_PLL6                    : AG14      : power  :                   : 1.5V    :           :                
 RESERVED_INPUT               : AG15      :        :                   :         : 12        :                
@@ -280,11 +280,11 @@ mictor0_o[14]                : AG18      : output : LVTTL             :         
 mictor0_o[10]                : AG19      : output : LVTTL             :         : 8         : Y              
 RESERVED_INPUT               : AG20      :        :                   :         : 8         :                
 mictor0_o[1]                 : AG21      : output : LVTTL             :         : 8         : Y              
-lvds_rx4b                    : AG22      : input  : LVTTL             :         : 8         : N              
+RESERVED_INPUT               : AG22      :        :                   :         : 8         :                
 RESERVED_INPUT               : AG23      :        :                   :         : 8         :                
 RESERVED_INPUT               : AG24      :        :                   :         : 8         :                
-lvds_rx3a                    : AG25      : input  : LVTTL             :         : 8         : N              
-RESERVED_INPUT               : AG26      :        :                   :         : 8         :                
+RESERVED_INPUT               : AG25      :        :                   :         : 8         :                
+lvds_rx7a                    : AG26      : input  : LVTTL             :         : 8         : N              
 GND                          : AG27      : gnd    :                   :         :           :                
 VCCIO1                       : AG28      : power  :                   : 3.3V    : 1         :                
 VCCIO7                       : AH2       : power  :                   : 3.3V    : 7         :                
@@ -309,16 +309,16 @@ mictor0_o[6]                 : AH20      : output : LVTTL             :         
 mictor0_o[5]                 : AH21      : output : LVTTL             :         : 8         : Y              
 RESERVED_INPUT               : AH22      :        :                   :         : 8         :                
 RESERVED_INPUT               : AH23      :        :                   :         : 8         :                
-RESERVED_INPUT               : AH24      :        :                   :         : 8         :                
+lvds_rx2a                    : AH24      : input  : LVTTL             :         : 8         : N              
 RESERVED_INPUT               : AH25      :        :                   :         : 8         :                
-RESERVED_INPUT               : AH26      :        :                   :         : 8         :                
+lvds_rx6b                    : AH26      : input  : LVTTL             :         : 8         : N              
 VCCIO8                       : AH27      : power  :                   : 3.3V    : 8         :                
 VCCIO5                       : B1        : power  :                   : 3.3V    : 5         :                
 GND                          : B2        : gnd    :                   :         :           :                
 RESERVED_INPUT               : B3        :        :                   :         : 4         :                
 RESERVED_INPUT               : B4        :        :                   :         : 4         :                
-lvds_rx7a                    : B5        : input  : LVTTL             :         : 4         : N              
-lvds_rx5b                    : B6        : input  : LVTTL             :         : 4         : N              
+RESERVED_INPUT               : B5        :        :                   :         : 4         :                
+RESERVED_INPUT               : B6        :        :                   :         : 4         :                
 RESERVED_INPUT               : B7        :        :                   :         : 4         :                
 RESERVED_INPUT               : B8        :        :                   :         : 4         :                
 RESERVED_INPUT               : B9        :        :                   :         : 4         :                
@@ -330,9 +330,9 @@ TEMPDIODEp                   : B14       :        :                   :         
 RESERVED_INPUT               : B15       :        :                   :         : 10        :                
 RESERVED_INPUT               : B16       :        :                   :         : 3         :                
 RESERVED_INPUT               : B17       :        :                   :         : 3         :                
-RESERVED_INPUT               : B18       :        :                   :         : 3         :                
+fibre_rx_error               : B18       : input  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : B19       :        :                   :         : 3         :                
-RESERVED_INPUT               : B20       :        :                   :         : 3         :                
+lvds_rx4b                    : B20       : input  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : B21       :        :                   :         : 3         :                
 RESERVED_INPUT               : B22       :        :                   :         : 3         :                
 RESERVED_INPUT               : B23       :        :                   :         : 3         :                
@@ -344,7 +344,7 @@ VCCIO2                       : B28       : power  :                   : 3.3V    
 sram0_addr[0]                : C1        : output : LVTTL             :         : 5         : Y              
 sram0_addr[1]                : C2        : output : LVTTL             :         : 5         : Y              
 GND                          : C3        : gnd    :                   :         :           :                
-RESERVED_INPUT               : C4        :        :                   :         : 4         :                
+lvds_rx1b                    : C4        : input  : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : C5        :        :                   :         : 4         :                
 RESERVED_INPUT               : C6        :        :                   :         : 4         :                
 RESERVED_INPUT               : C7        :        :                   :         : 4         :                
@@ -360,11 +360,11 @@ RESERVED_INPUT               : C16       :        :                   :         
 RESERVED_INPUT               : C17       :        :                   :         : 3         :                
 RESERVED_INPUT               : C18       :        :                   :         : 3         :                
 RESERVED_INPUT               : C19       :        :                   :         : 3         :                
-lvds_rx6b                    : C20       : input  : LVTTL             :         : 3         : N              
+RESERVED_INPUT               : C20       :        :                   :         : 3         :                
 RESERVED_INPUT               : C21       :        :                   :         : 3         :                
 RESERVED_INPUT               : C22       :        :                   :         : 3         :                
 RESERVED_INPUT               : C23       :        :                   :         : 3         :                
-RESERVED_INPUT               : C24       :        :                   :         : 3         :                
+lvds_rx7b                    : C24       : input  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : C25       :        :                   :         : 3         :                
 GND                          : C26       : gnd    :                   :         :           :                
 RESERVED_INPUT               : C27       :        :                   :         : 2         :                
@@ -375,7 +375,7 @@ NC                           : D3        :        :                   :         
 NC                           : D4        :        :                   :         :           :                
 RESERVED_INPUT               : D5        :        :                   :         : 4         :                
 RESERVED_INPUT               : D6        :        :                   :         : 4         :                
-RESERVED_INPUT               : D7        :        :                   :         : 4         :                
+lvds_rx0b                    : D7        : input  : LVTTL             :         : 4         : N              
 RESERVED_INPUT               : D8        :        :                   :         : 4         :                
 RESERVED_INPUT               : D9        :        :                   :         : 4         :                
 RESERVED_INPUT               : D10       :        :                   :         : 4         :                
@@ -406,7 +406,7 @@ RESERVED_INPUT               : E6        :        :                   :         
 GND                          : E7        : gnd    :                   :         :           :                
 RESERVED_INPUT               : E8        :        :                   :         : 4         :                
 GND                          : E9        : gnd    :                   :         :           :                
-RESERVED_INPUT               : E10       :        :                   :         : 4         :                
+manchester_data              : E10       : input  : LVTTL             :         : 4         : Y              
 GND                          : E11       : gnd    :                   :         :           :                
 RESERVED_INPUT               : E12       :        :                   :         : 4         :                
 RESERVED_INPUT               : E13       :        :                   :         : 4         :                
@@ -417,9 +417,9 @@ RESERVED_INPUT               : E17       :        :                   :         
 GND                          : E18       : gnd    :                   :         :           :                
 RESERVED_INPUT               : E19       :        :                   :         : 3         :                
 GND                          : E20       : gnd    :                   :         :           :                
-RESERVED_INPUT               : E21       :        :                   :         : 3         :                
+lvds_rx6a                    : E21       : input  : LVTTL             :         : 3         : N              
 GND                          : E22       : gnd    :                   :         :           :                
-RESERVED_INPUT               : E23       :        :                   :         : 3         :                
+lvds_rx3a                    : E23       : input  : LVTTL             :         : 3         : N              
 GND                          : E24       : gnd    :                   :         :           :                
 NC                           : E25       :        :                   :         :           :                
 NC                           : E26       :        :                   :         :           :                
@@ -434,10 +434,10 @@ sram0_addr[9]                : F6        : output : LVTTL             :         
 RESERVED_INPUT               : F7        :        :                   :         : 4         :                
 RESERVED_INPUT               : F8        :        :                   :         : 4         :                
 RESERVED_INPUT               : F9        :        :                   :         : 4         :                
-RESERVED_INPUT               : F10       :        :                   :         : 4         :                
-lvds_rx3b                    : F11       : input  : LVTTL             :         : 4         : N              
+lvds_rx0a                    : F10       : input  : LVTTL             :         : 4         : N              
+RESERVED_INPUT               : F11       :        :                   :         : 4         :                
 RESERVED_INPUT               : F12       :        :                   :         : 4         :                
-altera_reserved_tms          : F13       : input  : LVTTL             :         : 4         : N              
+TMS                          : F13       : input  :                   :         : 4         :                
 VCCA_PLL5                    : F14       : power  :                   : 1.5V    :           :                
 VCC_PLL5_OUTA                : F15       : power  :                   : 3.3V    : 9         :                
 DCLK                         : F16       :        :                   :         : 3         :                
@@ -463,9 +463,9 @@ RESERVED_INPUT               : G7        :        :                   :         
 RESERVED_INPUT               : G8        :        :                   :         : 4         :                
 RESERVED_INPUT               : G9        :        :                   :         : 4         :                
 RESERVED_INPUT               : G10       :        :                   :         : 4         :                
-lvds_rx4a                    : G11       : input  : LVTTL             :         : 4         : N              
+RESERVED_INPUT               : G11       :        :                   :         : 4         :                
 RESERVED_INPUT               : G12       :        :                   :         : 4         :                
-altera_reserved_tdi          : G13       : input  : LVTTL             :         : 4         : N              
+TDI                          : G13       : input  :                   :         : 4         :                
 GNDA_PLL5                    : G14       : gnd    :                   :         :           :                
 GND                          : G15       : gnd    :                   :         :           :                
 VCC_PLL5_OUTB                : G16       : power  :                   : 3.3V    : 10        :                
@@ -491,14 +491,14 @@ sram0_addr[14]               : H7        : output : LVTTL             :         
 sram0_addr[15]               : H8        : output : LVTTL             :         : 5         : Y              
 RESERVED_INPUT               : H9        :        :                   :         : 4         :                
 RESERVED_INPUT               : H10       :        :                   :         : 4         :                
-lvds_rx2b                    : H11       : input  : LVTTL             :         : 4         : N              
+RESERVED_INPUT               : H11       :        :                   :         : 4         :                
 ~DATA0~ / RESERVED_INPUT     : H12       : input  : LVTTL             :         : 4         : N              
-altera_reserved_tdo          : H13       : output : LVTTL             :         : 4         : N              
+TDO                          : H13       : output :                   :         : 4         :                
 RESERVED_INPUT               : H14       :        :                   :         : 9         :                
 RESERVED_INPUT               : H15       :        :                   :         : 9         :                
 GND                          : H16       : gnd    :                   :         :           :                
 RESERVED_INPUT               : H17       :        :                   :         : 3         :                
-RESERVED_INPUT               : H18       :        :                   :         : 3         :                
+lvds_rx1a                    : H18       : input  : LVTTL             :         : 3         : N              
 RESERVED_INPUT               : H19       :        :                   :         : 3         :                
 RESERVED_INPUT               : H20       :        :                   :         : 3         :                
 RESERVED_INPUT               : H21       :        :                   :         : 2         :                
@@ -519,7 +519,7 @@ sram0_nble                   : J7        : output : LVTTL             :         
 sram0_noe                    : J8        : output : LVTTL             :         : 5         : Y              
 RESERVED_INPUT               : J9        :        :                   :         : 4         :                
 RESERVED_INPUT               : J10       :        :                   :         : 4         :                
-lvds_rx0a                    : J11       : input  : LVTTL             :         : 4         : N              
+RESERVED_INPUT               : J11       :        :                   :         : 4         :                
 RESERVED_INPUT               : J12       :        :                   :         : 4         :                
 RESERVED_INPUT               : J13       :        :                   :         : 4         :                
 VCCIO4                       : J14       : power  :                   : 3.3V    : 4         :                
@@ -540,7 +540,7 @@ RESERVED_INPUT               : J28       :        :                   :         
 RESERVED_INPUT               : K1        :        :                   :         : 5         :                
 RESERVED_INPUT               : K2        :        :                   :         : 5         :                
 RESERVED_INPUT               : K3        :        :                   :         : 5         :                
-lvds_rx1a                    : K4        : input  : LVTTL             :         : 5         : N              
+RESERVED_INPUT               : K4        :        :                   :         : 5         :                
 sram0_addr[18]               : K5        : output : LVTTL             :         : 5         : Y              
 sram0_addr[19]               : K6        : output : LVTTL             :         : 5         : Y              
 RESERVED_INPUT               : K7        :        :                   :         : 5         :                
@@ -548,11 +548,11 @@ RESERVED_INPUT               : K8        :        :                   :         
 GND                          : K9        : gnd    :                   :         :           :                
 RESERVED_INPUT               : K10       :        :                   :         : 4         :                
 RESERVED_INPUT               : K11       :        :                   :         : 4         :                
-altera_reserved_tck          : K12       : input  : LVTTL             :         : 4         : N              
+TCK                          : K12       : input  :                   :         : 4         :                
 GND+                         : K13       :        :                   :         : 4         :                
 fibre_tx_clkW                : K14       : output : LVTTL             :         : 9         : Y              
 RESERVED_INPUT               : K15       :        :                   :         : 9         :                
-RESERVED_INPUT               : K16       :        :                   :         : 10        :                
+lvds_rx4a                    : K16       : input  : LVTTL             :         : 10        : N              
 inclk14                      : K17       : input  : LVTTL             :         : 3         : Y              
 RESERVED_INPUT               : K18       :        :                   :         : 3         :                
 RESERVED_INPUT               : K19       :        :                   :         : 3         :                
@@ -576,7 +576,7 @@ sram0_data[11]               : L8        : bidir  : LVTTL             :         
 sram0_data[14]               : L9        : bidir  : LVTTL             :         : 5         : Y              
 sram0_data[15]               : L10       : bidir  : LVTTL             :         : 5         : Y              
 RESERVED_INPUT               : L11       :        :                   :         : 4         :                
-altera_reserved_ntrst        : L12       : input  : LVTTL             :         : 4         : N              
+TRST                         : L12       : input  :                   :         : 4         :                
 RESERVED_INPUT               : L13       :        :                   :         : 4         :                
 GND                          : L14       : gnd    :                   :         :           :                
 GND                          : L15       : gnd    :                   :         :           :                
@@ -584,7 +584,7 @@ nCONFIG                      : L16       :        :                   :         
 RESERVED_INPUT               : L17       :        :                   :         : 3         :                
 RESERVED_INPUT               : L18       :        :                   :         : 3         :                
 RESERVED_INPUT               : L19       :        :                   :         : 2         :                
-outclk                       : L20       : output : LVTTL             :         : 2         : N              
+RESERVED_INPUT               : L20       :        :                   :         : 2         :                
 RESERVED_INPUT               : L21       :        :                   :         : 2         :                
 box_id_out                   : L22       : output : LVTTL             :         : 2         : Y              
 box_id_in                    : L23       : input  : LVTTL             :         : 2         : Y              
@@ -594,7 +594,7 @@ RESERVED_INPUT               : L26       :        :                   :         
 RESERVED_INPUT               : L27       :        :                   :         : 2         :                
 RESERVED_INPUT               : L28       :        :                   :         : 2         :                
 VCCIO5                       : M1        : power  :                   : 3.3V    : 5         :                
-RESERVED_INPUT               : M2        :        :                   :         : 5         :                
+lvds_rx5b                    : M2        : input  : LVTTL             :         : 5         : N              
 RESERVED_INPUT               : M3        :        :                   :         : 5         :                
 RESERVED_INPUT               : M4        :        :                   :         : 5         :                
 RESERVED_INPUT               : M5        :        :                   :         : 5         :                
@@ -617,12 +617,12 @@ RESERVED_INPUT               : M21       :        :                   :         
 RESERVED_INPUT               : M22       :        :                   :         : 2         :                
 RESERVED_INPUT               : M23       :        :                   :         : 2         :                
 RESERVED_INPUT               : M24       :        :                   :         : 2         :                
-lvds_rx7b                    : M25       : input  : LVTTL             :         : 2         : N              
+RESERVED_INPUT               : M25       :        :                   :         : 2         :                
 RESERVED_INPUT               : M26       :        :                   :         : 2         :                
 RESERVED_INPUT               : M27       :        :                   :         : 2         :                
 VCCIO2                       : M28       : power  :                   : 3.3V    : 2         :                
 RESERVED_INPUT               : N1        :        :                   :         : 5         :                
-lvds_rx5a                    : N2        : input  : LVTTL             :         : 5         : N              
+GND+                         : N2        :        :                   :         : 5         :                
 RESERVED_INPUT               : N3        :        :                   :         : 5         :                
 RESERVED_INPUT               : N4        :        :                   :         : 5         :                
 RESERVED_INPUT               : N5        :        :                   :         : 5         :                
@@ -757,9 +757,9 @@ RESERVED_INPUT               : U21       :        :                   :         
 RESERVED_INPUT               : U22       :        :                   :         : 1         :                
 RESERVED_INPUT               : U23       :        :                   :         : 1         :                
 RESERVED_INPUT               : U24       :        :                   :         : 1         :                
-lvds_rx1b                    : U25       : input  : LVTTL             :         : 1         : N              
+RESERVED_INPUT               : U25       :        :                   :         : 1         :                
 RESERVED_INPUT               : U26       :        :                   :         : 1         :                
-lvds_rx2a                    : U27       : input  : LVTTL             :         : 1         : N              
+RESERVED_INPUT               : U27       :        :                   :         : 1         :                
 VCCIO1                       : U28       : power  :                   : 3.3V    : 1         :                
 sram1_addr[14]               : V1        : output : LVTTL             :         : 6         : Y              
 sram1_addr[15]               : V2        : output : LVTTL             :         : 6         : Y              
@@ -798,7 +798,7 @@ sram1_data[3]                : W6        : bidir  : LVTTL             :         
 RESERVED_INPUT               : W7        :        :                   :         : 6         :                
 RESERVED_INPUT               : W8        :        :                   :         : 6         :                
 GND                          : W9        : gnd    :                   :         :           :                
-lvds_rx6a                    : W10       : input  : LVTTL             :         : 7         : N              
+RESERVED_INPUT               : W10       :        :                   :         : 7         :                
 RESERVED_INPUT               : W11       :        :                   :         : 7         :                
 RESERVED_INPUT               : W12       :        :                   :         : 7         :                
 GND+                         : W13       :        :                   :         : 7         :                
