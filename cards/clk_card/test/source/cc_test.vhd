@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: cc_test.vhd,v $
+-- Revision 1.5  2006/09/08 22:13:07  mandana
+-- updated to latest cc_test communication
+--
 -- Revision 1.4  2004/07/02 17:37:46  mandana
 -- Mandana: walking 0/1 tests combined
 --
@@ -148,6 +151,12 @@ entity cc_test is
       fibre_rx_rf     : out std_logic; --  is tied to vcc on board, we lifted the pin and routed it to P10.22
       fibre_rx_a_nb   : out std_logic;
       fibre_rx_bisten : out std_logic;
+      
+      -- DV interface:
+      dv_pulse_fibre    : in std_logic;
+      manchester_data   : in std_logic;
+      manchester_sigdet : in std_logic;
+      
       mictor0_o       : out std_logic_vector(15 downto 0)
    );   
       
@@ -170,7 +179,8 @@ signal rst  : std_logic;
 
 type states is (RESET, TX_RESET, TX_IDLE, TX_ERROR, RX_CMD1, RX_CMD2, 
                 FO_TEST, TX_FO, SRAM0_TEST, TX_SRAM0, SRAM1_TEST, TX_SRAM1, 
-                ARRAY_ID_TEST, TX_ARRAY_ID, STATUS_TEST, TX_STATUS);
+                ARRAY_ID_TEST, TX_ARRAY_ID, STATUS_TEST, TX_STATUS,
+                DV_TEST, TX_DV);
 signal pres_state : states;
 signal next_state : states;
 
@@ -230,8 +240,15 @@ signal rst_cmd : std_logic;
    signal rx_data1           : std_logic_vector(7 downto 0);
    signal rx_data2           : std_logic_vector(7 downto 0);
    signal rx_data3           : std_logic_vector(7 downto 0);
+   signal fo_data_ascii      : std_logic_vector(7 downto 0);
   
    signal fibre_clk          : std_logic;
+   
+   signal dv_test_ena        : std_logic;
+   signal dv_test_done       : std_logic;
+   signal manch_data         : std_logic_vector(MANCH_WIDTH -1 downto 0);
+   signal manch_data_ascii   : std_logic_vector(7 downto 0);
+   
    
    -- pll output allocation:
    --    c0 = FPGA system clock (50MHz)
@@ -327,11 +344,11 @@ begin
                    s         when 7,
                    t         when 8,
                    space     when 9,
-                   v         when 10, -- text for version number 2.0
+                   v         when 10, -- text for version number 2.1
                    period    when 11, 
                    two       when 12, 
                    period    when 13,
-                   zero      when 14,
+                   one       when 14,
                    newline   when others;
 
    with tx_count select
@@ -377,7 +394,27 @@ begin
                    l           when 4,
                    shift(one)  when 5,
                    newline  when others;
+                   
+   with tx_count select
+      fo_data_ascii <= tab when 0,
+                 hex2asc(rx_data1(3 downto 0)) when 1,
+                 hex2asc(rx_data1(7 downto 4)) when 2,
+                 hex2asc(rx_data2(3 downto 0)) when 3,
+                 hex2asc(rx_data2(7 downto 4)) when 4,
+                 hex2asc(rx_data3(3 downto 0)) when 5,
+                 hex2asc(rx_data3(7 downto 4)) when 6,
+                 newline when others;
 
+   with tx_count select
+      manch_data_ascii <= tab when 0,
+                 hex2asc(manch_data(3 downto 0)) when 1,
+                 hex2asc(manch_data(7 downto 4)) when 2,
+                 hex2asc(manch_data(11 downto 8)) when 3,
+                 hex2asc(manch_data(15 downto 12)) when 4,
+                 hex2asc(manch_data(19 downto 16)) when 5,
+                 hex2asc(manch_data(23 downto 20)) when 6,
+                 newline when others;
+   
    --------------------------------------------------------
    -- Overall test Control logic
    --------------------------------------------------------
@@ -421,6 +458,7 @@ begin
                                       when r | shift(r) => next_state <= RX_CMD2;
                                       when f | shift(f) => next_state <= FO_TEST;
                                       when s | shift(s) => next_state <= STATUS_TEST;
+                                      when v | shift(v) => next_state <= DV_TEST;
                                       when escape =>       next_state <= RESET;
                                       when others =>       next_state <= TX_ERROR;
                                    end case;
@@ -492,11 +530,23 @@ begin
                                   else
                                      next_state <= FO_TEST;
                                   end if;   
-         when TX_FO          =>   if (tx_count = 23) then
+         when TX_FO          =>   if (tx_count = 6) then
                                      next_state <= TX_IDLE;
                                   else
                                      next_state <= TX_FO;
                                   end if;                                   
+         
+         when DV_TEST        =>   if (dv_test_done = '1') then
+                                     next_state <= TX_DV;                                  
+                                  else
+                                     next_state <= DV_TEST;
+                                  end if; 
+                                  
+         when TX_DV          =>   if (tx_count =  6) then
+                                     next_state <= TX_IDLE;
+                                  else 
+                                     next_state <= TX_DV;
+                                  end if;                                  
 
          when others         =>   next_state <= TX_IDLE;
 
@@ -526,6 +576,7 @@ begin
       sram0_ena     <= '0';
       sram1_ena     <= '0';
       fo_test_ena   <= '0';
+      dv_test_ena   <= '0';
 
       case pres_state is
          when RESET =>      tx_count_ena <= '1';
@@ -655,23 +706,25 @@ begin
                                tx_rdy          <= '1';
                                tx_count_ena    <= '1';
                             end if;
-                            if(tx_count = 23) then
+                            if(tx_count = 6) then
                                tx_count_ena <= '1';
                                tx_count_clr <= '1';
                             end if;
-                            if (tx_count < 4) then
-                               tx_data <= hex2asc(rx_data1(3 downto 0));
-                            elsif (tx_count <8) then
-                               tx_data <= hex2asc(rx_data1(7 downto 4));
-                            elsif (tx_count < 12) then  
-                               tx_data <= hex2asc(rx_data2(3 downto 0));
-                            elsif (tx_count < 16) then  
-                               tx_data <= hex2asc(rx_data2(7 downto 4));
-                            elsif (tx_count < 20) then  
-			       tx_data <= hex2asc(rx_data3(3 downto 0));
-			    else
-                               tx_data <= hex2asc(rx_data3(7 downto 4));
+                            tx_data <= fo_data_ascii;
+         
+         when DV_TEST =>    dv_test_ena <= '1';
+                            tx_count_ena    <= '1';
+                            tx_count_clr    <= '1';
+         
+         when TX_DV  =>     if(tx_busy = '0') then
+                               tx_rdy          <= '1';
+                               tx_count_ena    <= '1';
                             end if;
+                            if(tx_count =  6) then
+                               tx_count_ena <= '1';
+                               tx_count_clr <= '1';
+                            end if;
+                            tx_data <= manch_data_ascii;
                             
          when others =>     null;
 
@@ -813,6 +866,23 @@ begin
       end if;
    end process result_reg;
    
+   
+   dv_rx_test0: dv_rx_test 
+      port map(
+         -- Clock and Reset:
+         clk_i      => clk,
+         clk_n_i    => clk_n,
+         rst_i      => rst,         
+         en_i       => dv_test_ena,         
+         done_o     => dv_test_done,         
          
+         -- Fibre Interface:
+         manch_det_i=> manchester_sigdet,         
+         manch_dat_i=> manchester_data,         
+         dv_dat_i   => dv_pulse_fibre,         
+         
+         -- Test output
+         dat_o      => manch_data
+      );         
    
 end behaviour;
