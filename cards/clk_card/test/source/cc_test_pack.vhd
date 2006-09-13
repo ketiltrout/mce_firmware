@@ -31,6 +31,9 @@
 -- Revision History:
 --
 -- $Log: cc_test_pack.vhd,v $
+-- Revision 1.3  2006/09/08 20:25:51  mandana
+-- added fo_bist and sram_test, integrated with Rev. 2 cc_test
+--
 -- Revision 1.2  2004/07/02 17:20:37  mandana
 -- Mandana: walking 0/1 tests combined
 --
@@ -46,6 +49,7 @@ use ieee.std_logic_arith.all;
 
 package cc_test_pack is
    
+   constant MANCH_WIDTH    : integer := 24;
    -- pll output allocation:
    --    c0 = FPGA system clock (50MHz)
    --    c1 = 180deg phase shift of system clock (50MHz)
@@ -142,6 +146,24 @@ package cc_test_pack is
    end component;
 
    ------------------------------------------------------------------
-   -- EEPROM   
-   
+   -- dv_rx   
+   component dv_rx_test
+   port(
+         -- Clock and Reset:
+         clk_i               : in std_logic;
+         clk_n_i             : in std_logic;
+         rst_i               : in std_logic;
+         en_i                : in std_logic;
+         done_o              : out std_logic;
+         
+         -- Fibre Interface:
+         manch_det_i         : in std_logic;
+         manch_dat_i         : in std_logic;
+         dv_dat_i            : in std_logic;
+         
+         -- Test output
+         dat_o               : out std_logic_vector (23 downto 0)      
+   );     
+   end component;
+
 end cc_test_pack;
