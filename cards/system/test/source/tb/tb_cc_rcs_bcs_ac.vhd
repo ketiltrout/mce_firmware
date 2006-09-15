@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.29 2006/09/06 19:57:34 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.30 2006/09/07 22:31:12 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.30  2006/09/07 22:31:12  bburger
+-- Bryce:  more test cases for psuc testing
+--
 -- Revision 1.29  2006/09/06 19:57:34  bburger
 -- Bryce:  PSUC communications simulation added
 --
@@ -2199,35 +2202,58 @@ begin
 --      wait for 20 us;
 
 ------------------------------------------------------
---  Testing New Fibre Protocol
+--  For Measuring the time needed for the longest command possible (58 words)
+--  Used for specifying MIN_WINDOW
 ------------------------------------------------------
-      command <= command_rs;
-      address_id <= psu_cycle_pow_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
+      command <= command_wb;
+      address_id <= cc_led_cmd;
+      data_valid <= X"0000003A";
+      data       <= X"00000007";
+      load_preamble;
+      load_command;
+      load_checksum;            
+      wait for 125 us;
+
+      command <= command_rb;
+      address_id <= cc_row_len_cmd;
+      data_valid <= X"0000003A";
+      data       <= X"00000000";
       load_preamble;
       load_command;
       load_checksum;
-      wait for 300 us;
+      wait for 125 us;
 
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;            
-      wait for 15 us;
 
-      command <= command_wb;
-      address_id <= ac_led_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;            
-      wait for 250 us;
-
+------------------------------------------------------
+--  Testing New Fibre Protocol
+------------------------------------------------------
+--      command <= command_rs;
+--      address_id <= psu_cycle_pow_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 300 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"0000003A";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;            
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= ac_led_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;            
+--      wait for 250 us;
+-- 
 --      command <= command_rb;
 --      address_id <= cc_led_cmd;
 --      data_valid <= X"00000001";
@@ -2255,25 +2281,25 @@ begin
 --      load_command;
 --      load_checksum;            
 --      wait for 15 us;
-
-      command <= command_rb;
-      address_id <= cc_row_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 15 us;
-
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 1200 us;
-
+--
+--      command <= command_rb;
+--      address_id <= cc_row_len_cmd;
+--      data_valid <= X"0000003A";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 1200 us;
+--
 --      command <= command_go;
 --      address_id <= rc2_ret_dat_cmd;
 --      data_valid <= X"00000001";
