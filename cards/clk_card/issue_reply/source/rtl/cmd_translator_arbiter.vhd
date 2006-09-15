@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.26 2006/03/23 23:14:07 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.27 2006/09/07 22:25:22 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/03/23 23:14:07 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/07 22:25:22 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.27  2006/09/07 22:25:22  bburger
+-- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
+--
 -- Revision 1.26  2006/03/23 23:14:07  bburger
 -- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
 --
@@ -158,6 +161,7 @@ use components.component_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
+use work.issue_reply_pack.all;
 
 entity cmd_translator_arbiter is
 port(
@@ -166,6 +170,7 @@ port(
      clk_i                          : in  std_logic;
 
      -- inputs from the 'return data' state machine
+     internal_cmd_window_i          : in  integer;
      ret_dat_frame_seq_num_i        : in  std_logic_vector (                     31 downto 0);
      ret_dat_frame_sync_num_i       : in  std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);
      ret_dat_card_addr_i            : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
@@ -240,15 +245,11 @@ architecture rtl of cmd_translator_arbiter is
    -------------------------------------------------------------------------------------------
    -- signals
    ------------------------------------------------------------------------------------------- 
-   signal instr_rdy           : std_logic;
-   signal instr_rdy_reg       : std_logic;
-   signal instr_rdy_1st_stg   : std_logic;
-   signal instr_rdy_mux_sel   : std_logic;
+   signal instr_rdy                 : std_logic;
+   signal instr_rdy_reg             : std_logic;
+   signal instr_rdy_1st_stg         : std_logic;
+   signal instr_rdy_mux_sel         : std_logic;
    
-   signal m_op_seq_num_reg          : std_logic_vector ( 7 downto 0);
-   signal m_op_seq_num_mux          : std_logic_vector ( 7 downto 0);
-   signal m_op_seq_num_reg_en       : std_logic;
-
    signal data_mux_sel              : std_logic_vector ( 1 downto 0); --'00' routes simple cmds thru, '01' is for ret_dat cmds, "10" for internal
    signal simple_cmd_ack_mux_sel    : std_logic;
    signal ret_dat_ack_mux_sel       : std_logic;
@@ -290,7 +291,7 @@ architecture rtl of cmd_translator_arbiter is
    signal frame_seq_num_reg         : std_logic_vector (                     31 downto 0);
    signal frame_sync_num_reg        : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);
    signal internal_cmd_reg          : std_logic;
- 
+   
 begin
    -------------------------------------------------------------------------------------------
    -- arbiter state machine state sequencer
@@ -307,16 +308,16 @@ begin
    -------------------------------------------------------------------------------------------
    -- assign next states
    -------------------------------------------------------------------------------------------    
-   process(current_state, simple_cmd_instr_rdy_i, ret_dat_instr_rdy_i, internal_cmd_instr_rdy_i)
+   process(current_state, simple_cmd_instr_rdy_i, ret_dat_instr_rdy_i, internal_cmd_instr_rdy_i, internal_cmd_window_i)
    begin
       case current_state is
          when IDLE =>
             -- Priority is given to ret_dat commands
-            if ret_dat_instr_rdy_i = '1' then
+            if(ret_dat_instr_rdy_i = '1') then
                next_state <= RET_DAT_RDY;
-            elsif simple_cmd_instr_rdy_i = '1' then
+            elsif(simple_cmd_instr_rdy_i = '1' and internal_cmd_window_i >= MIN_WINDOW)then
                next_state <= SIMPLE_CMD_RDY;
-            elsif internal_cmd_instr_rdy_i = '1' then
+            elsif(internal_cmd_instr_rdy_i = '1' and internal_cmd_window_i >= MIN_WINDOW) then
                next_state <= INTRNL_CMD_RDY;
             else
                next_state <= IDLE;

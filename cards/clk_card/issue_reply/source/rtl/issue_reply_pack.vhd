@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.44 2006/03/09 01:04:37 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.45 2006/03/16 00:21:28 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.45  2006/03/16 00:21:28  bburger
+-- Bryce:  removed the issue_reply component declaration
+--
 -- Revision 1.44  2006/03/09 01:04:37  bburger
 -- Bryce:
 -- - cmd_translator interface now takes the following signals:  dv_mode_i, external_dv_i, external_dv_num_i
@@ -81,5 +84,10 @@ library work;
 use work.sync_gen_pack.all;
 
 package issue_reply_pack is
+
+   -- Measured in clock cycles, this is the minumum amount of cycles necessary for an internal/ simple command
+   -- For a 58-word WB command, 100 us are required from receiving the last word of the command to sending the last word of the reply
+   -- For a 58-word RB command, 105 us are required from receiving the last word of the command to sending the last word of the reply.
+   constant MIN_WINDOW : integer := 110000; -- ns
 
 end issue_reply_pack;

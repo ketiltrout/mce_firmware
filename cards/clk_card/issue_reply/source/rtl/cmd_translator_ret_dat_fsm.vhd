@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.37 2006/08/16 18:06:37 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.38 2006/09/07 22:25:22 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/08/16 18:06:37 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/07 22:25:22 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.38  2006/09/07 22:25:22  bburger
+-- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
+--
 -- Revision 1.37  2006/08/16 18:06:37  bburger
 -- Bryce:  cmd_transltor now treates frame sequence numbers and dv sequence numbers differently
 --
@@ -129,6 +132,7 @@ use components.component_pack.all;
 library work;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
+use work.issue_reply_pack.all;
 
 entity cmd_translator_ret_dat_fsm is
 port(
@@ -154,8 +158,8 @@ port(
       ret_dat_ack_o           : out std_logic;
 
       -- other inputs
-      --sync_pulse_i            : in  std_logic;
       sync_number_i           : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);  -- a counter of synch pulses 
+      internal_cmd_window_o   : out integer;
       ret_dat_start_i         : in  std_logic;
       ret_dat_stop_i          : in  std_logic;
       row_len_i               : in integer;
@@ -232,6 +236,10 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    
    signal data_size                       : std_logic_vector (BB_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
    signal data_size_int                   : integer;
+   
+   signal prod_rl_nm                      : integer;
+   signal diff_csn_sn                     : integer;
+   signal window                          : integer;
 
    -------------------------------------------------------------------------------------------
    -- constants
@@ -239,7 +247,6 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    -- signals for generating the sync and sequence numbers
    constant INPUT_NUM_SEL             : std_logic := '1';
    constant CURRENT_NUM_PLUS_1_SEL    : std_logic := '0';
-   constant RET_DAT_NUM_WORDS         : std_logic_vector(FIBRE_DATA_SIZE_WIDTH-1 downto 0) := x"00000148";  -- 328 words
 
 begin
 
@@ -448,7 +455,7 @@ begin
             if(external_dv_i = '1') then
                reg_en                  <= '1';
                current_sync_num        <= sync_number_i + 1;
-               current_seq_num      <= current_seq_num_reg + 1;
+               current_seq_num         <= current_seq_num_reg + 1;
             end if;
          
          when RETURN_DATA_PAUSE =>
@@ -499,7 +506,19 @@ begin
          data_reg                <= (others=>'0');
          parameter_id_reg        <= (others=>'0');
          card_addr_reg           <= (others=>'0');
+--         row_len                 <= 0;
+--         num_rows                <= 0;
+         prod_rl_nm              <= 0;
+         diff_csn_sn             <= 0;
+         window                  <= 0;
+
       elsif clk_i'event and clk_i='1' then
+--         row_len                 <= row_len_i;
+--         num_rows                <= num_rows_i;
+         prod_rl_nm              <= row_len_i * num_rows_i;
+         diff_csn_sn             <= conv_integer(current_sync_num - sync_number_i);
+         window                  <= prod_rl_nm * diff_csn_sn;
+
          if reg_en = '1' then
             current_sync_num_reg    <= current_sync_num;
             current_seq_num_reg     <= current_seq_num;
@@ -567,17 +586,20 @@ begin
    -------------------------------------------------------------------------------------------
    -- START and STOP acknowledgments
    -------------------------------------------------------------------------------------------       
-   ret_dat_stop_ack            <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i = '1' else '0';
+   ret_dat_stop_ack       <= '1' when current_state = RETURN_DATA_LAST and ret_dat_stop_i = '1' else '0';
+   
+   -- Unless we are in IDLE, we calculate a value.
+   internal_cmd_window_o  <= (MIN_WINDOW + 1) when (current_state = RETURN_DATA_IDLE) else window;
+   
    
    -------------------------------------------------------------------------------------------
    -- assign outputs
    -------------------------------------------------------------------------------------------
-   ack_o                   <= ret_dat_stop_ack or ret_dat_start_ack;
-   ret_dat_cmd_valid_o     <= ret_dat_cmd_valid;
-   ret_dat_fsm_working_o   <= ret_dat_fsm_working;
-   
-   data_size_int           <= NO_CHANNELS * num_rows_i;
-   data_size               <= conv_std_logic_vector(data_size_int,11);
+   ack_o                  <= ret_dat_stop_ack or ret_dat_start_ack;
+   ret_dat_cmd_valid_o    <= ret_dat_cmd_valid;
+   ret_dat_fsm_working_o  <= ret_dat_fsm_working;
+   data_size_int          <= NO_CHANNELS * num_rows_i;
+   data_size              <= conv_std_logic_vector(data_size_int,11);
 
    process(ret_dat_fsm_working, current_seq_num_reg, current_sync_num_reg, card_addr_reg, parameter_id_reg, data_reg, data_size)
    begin
