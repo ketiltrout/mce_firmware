@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.25  2006/09/07 22:25:22  bburger
+-- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
+--
 -- Revision 1.24  2006/09/06 00:27:11  bburger
 -- Bryce:  added support for reset commands.  their replies are now discarded when they arrive from the backplane because the clock card has already sent a generic reply.
 --
@@ -819,11 +822,7 @@ begin
             end if;
             
          when DONE =>           
-            if(cmd_valid_i = '0') then
-               next_state <= IDLE;
-            else
-               next_state <= DONE;
-            end if;
+            next_state <= IDLE;
          
          when others =>
             next_state <= IDLE;

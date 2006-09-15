@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.33 2006/09/06 00:27:11 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.34 2006/09/07 22:25:22 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.34  2006/09/07 22:25:22  bburger
+-- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
+--
 -- Revision 1.33  2006/09/06 00:27:11  bburger
 -- Bryce:  added support for reset commands.  their replies are now discarded when they arrive from the backplane because the clock card has already sent a generic reply.
 --
@@ -390,8 +393,8 @@ begin
       end if;
    end process retire_state_FF;
 
-   retire_state_NS: process(present_retire_state, cmd_to_retire_i, matched, ack_i, --status_q, --timeout, 
-      internal_cmd, word_rdy, word_count, data_size, par_id, cmd_sent_i, cmd_code)
+   retire_state_NS: process(present_retire_state, cmd_to_retire_i, matched, ack_i, --status_q, --timeout, , cmd_sent_i
+      internal_cmd, word_rdy, word_count, data_size, par_id, cmd_code)
    begin
       -- Default Values
       next_retire_state <= present_retire_state;
@@ -503,26 +506,23 @@ begin
             end if;
 
          when TX_SEND_DATA =>
-            if(word_count >= data_size + NUM_RAM_HEAD_WORDS) then
-               next_retire_state <= WAIT_FOR_ACK;
+            if(word_rdy = '0') then
+               next_retire_state <= IDLE;
             end if;
 
          when REPLY =>
             if(word_rdy = '0') then
-               next_retire_state <= WAIT_FOR_ACK;
+               next_retire_state <= IDLE;
             end if;
             
-         when WAIT_FOR_ACK =>
-            if(cmd_sent_i = '1') then
-               next_retire_state <= IDLE;
-            end if;            
-
          when others =>
             next_retire_state <= IDLE;
             
       end case;
    end process;
 
+   -- There should be a snapshot of each of these parameters for each command.
+   -- In particular, external_dv_num_i should be registered by cmd_queue at the time of issue..maybe..
    with present_retire_state select
       data_o <=
          data                                   when TX_STATUS | TX_SEND_DATA | REPLY,
@@ -538,7 +538,7 @@ begin
          (others => '0')                        when others;
 
    cmd_sent_o <= matched;
-   retire_state_out: process(present_retire_state, ack_i, data_size, par_id, word_count)
+   retire_state_out: process(present_retire_state, ack_i, data_size, par_id, word_rdy)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -567,7 +567,6 @@ begin
             cmd_rdy         <= '1';
 
          when WAIT_FOR_MATCH =>
-            cmd_rdy         <= '1';
             status_en       <= '1';
             
          when TX_STATUS =>           
@@ -579,109 +578,64 @@ begin
             
             rdy_o           <= '1';
             word_ack        <= ack_i;
-            cmd_rdy         <= '1';
             cmd_valid_o     <= '1';
          
          when STORE_HEADER_WORD =>
-            cmd_rdy         <= '1';
             head_wren       <= '1';
             ena_word_count  <= '1';
 
          when NEXT_HEADER_WORD =>
-            cmd_rdy         <= '1';
             word_ack        <= '1';
 
          when DONE_HEADER_STORE =>
 
          when TX_HEADER =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
             
          when TX_DATA_RATE =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_ROW_LEN =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_NUM_ROWS =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_SYNC_NUM =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_FRAME_SEQUENCE_NUM =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_ACTIVE_CLK =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_SYNC_BOX_ERR =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_SYNC_BOX_FR =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_DV_NUM =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
 
          when TX_SEND_DATA =>
-            size_o          <= data_size + NUM_RAM_HEAD_WORDS;
+            rdy_o           <= word_rdy;
             word_ack        <= ack_i;
-            ena_word_count  <= ack_i;            
-            cmd_rdy         <= '1';
-
-            if(word_count < data_size + NUM_RAM_HEAD_WORDS) then
-               rdy_o           <= '1';
-               cmd_valid_o     <= '1';
-            end if;
 
          when REPLY =>
-            size_o          <= data_size;
-            rdy_o           <= '1';
+            rdy_o           <= word_rdy;
             word_ack        <= ack_i;
-            cmd_rdy         <= '1';
-            cmd_valid_o     <= '1';
-
-         when WAIT_FOR_ACK =>
            
          when others =>
             null;
