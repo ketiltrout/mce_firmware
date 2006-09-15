@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign.tcl,v $
+# Revision 1.17  2005/12/01 20:49:47  bburger
+# Bryce:  Added different sections for the fibre optic fibre_rx_clkr input.  Depending on the version of firmware and hardware, you will have to choose which line to uncomment
+#
 # Revision 1.16  2005/10/21 20:40:36  erniel
 # minor name changes to fibre clocks
 #
@@ -99,9 +102,9 @@
 #############################################################################
 
 # print welcome message
-puts "\n\nClock Card Pin Assignment Script v1.0"
-puts "-------------------------------------"
-puts "\n(for clock card rev. AA)"
+puts "\n\nClock Card Pin Assignment Script v.1.18"
+puts "-------------------------------------------"
+puts "\n(for clock card rev. B)"
 
 
 # include Quartus Tcl API
@@ -224,10 +227,10 @@ cmp add_assignment $top_name "" fibre_tx_clkW LOCATION "Pin_K14"
 #cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_AE10"
 
 # For CC Rev B before the new fibre_rx/fibre_tx firmware is in place
-cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_G22"
+#cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_G22"
 
 # For CC Rev B after the new fibre_rx/fibre_tx firmware is in place
-#cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_R2"
+cmp add_assignment $top_name "" fibre_rx_clkr LOCATION "Pin_R2"
 
 cmp add_assignment $top_name "" fibre_rx_refclk LOCATION "Pin_C15"
 puts "   Assigned: PLL and clock pins."
@@ -240,9 +243,10 @@ cmp add_assignment $top_name "" psclko LOCATION "Pin_E28"
 cmp add_assignment $top_name "" psdi LOCATION "Pin_F28"
 cmp add_assignment $top_name "" pscsi LOCATION "Pin_F27"
 cmp add_assignment $top_name "" psclki LOCATION "Pin_J22"
-cmp add_assignment $top_name "" n5vok LOCATION "Pin_AG25"
 puts "   Assigned: Power supply interface pins."
 
+cmp add_assignment $top_name "" nplus7vok LOCATION "Pin_C10"
+puts "   Assigned: Power supply status pin."
 
 # assign SMB pins
 cmp add_assignment $top_name "" smb_clk LOCATION "Pin_AB21"
@@ -251,7 +255,7 @@ cmp add_assignment $top_name "" smb_nalert LOCATION "Pin_Y20"
 puts "   Assigned: SMB interface pins."
 
 
-# assign mictor0 (Bank 7/8 Debug) test header pins
+# assign mictor0 (P10, Bank 8) test header pins
 cmp add_assignment $top_name "" "mictor0_o\[0\]" LOCATION "Pin_AE21"
 cmp add_assignment $top_name "" "mictor0_o\[1\]" LOCATION "Pin_AG21"
 cmp add_assignment $top_name "" "mictor0_o\[2\]" LOCATION "Pin_AF21"
@@ -269,9 +273,9 @@ cmp add_assignment $top_name "" "mictor0_o\[13\]" LOCATION "Pin_AE18"
 cmp add_assignment $top_name "" "mictor0_o\[14\]" LOCATION "Pin_AG18"
 cmp add_assignment $top_name "" "mictor0_o\[15\]" LOCATION "Pin_AF17"
 cmp add_assignment $top_name "" "mictor0clk_o" LOCATION "Pin_AG17"
-puts "   Assigned: Mictor 0 (Bank 7/8 Debug) ODD pod."
+puts "   Assigned: Mictor 0 (P10, Bank 8) ODD pod."
 
-cmp add_assignment $top_name "" "mictor0_o\[0\]" LOCATION "Pin_AD21"
+cmp add_assignment $top_name "" "mictor0_e\[0\]" LOCATION "Pin_AD21"
 cmp add_assignment $top_name "" "mictor0_e\[1\]" LOCATION "Pin_AG22"
 cmp add_assignment $top_name "" "mictor0_e\[2\]" LOCATION "Pin_AH22"
 cmp add_assignment $top_name "" "mictor0_e\[3\]" LOCATION "Pin_AF22"
@@ -288,10 +292,10 @@ cmp add_assignment $top_name "" "mictor0_e\[13\]" LOCATION "Pin_AH25"
 cmp add_assignment $top_name "" "mictor0_e\[14\]" LOCATION "Pin_AG25"
 cmp add_assignment $top_name "" "mictor0_e\[15\]" LOCATION "Pin_AH26"
 cmp add_assignment $top_name "" "mictor0clk_e" LOCATION "Pin_AG26"
-puts "   Assigned: Mictor 0 (Bank 7/8 Debug) EVEN pod."
+puts "   Assigned: Mictor 0 (P10, Bank 8) EVEN pod."
 
 
-# assign mictor1 (Bank 8 Debug) test header pins
+# assign Mictor1 (P11, Bank 7 & 8) test header pins
 cmp add_assignment $top_name "" "mictor1_o\[0\]" LOCATION "Pin_V11"
 cmp add_assignment $top_name "" "mictor1_o\[1\]" LOCATION "Pin_Y9"
 cmp add_assignment $top_name "" "mictor1_o\[2\]" LOCATION "Pin_Y10"
@@ -309,7 +313,7 @@ cmp add_assignment $top_name "" "mictor1_o\[13\]" LOCATION "Pin_AD13"
 cmp add_assignment $top_name "" "mictor1_o\[14\]" LOCATION "Pin_AE13"
 cmp add_assignment $top_name "" "mictor1_o\[15\]" LOCATION "Pin_AF13"
 cmp add_assignment $top_name "" "mictor1clk_o" LOCATION "Pin_AD12"
-puts "   Assigned: Mictor 1 (Bank 8 Debug) ODD pod."
+puts "   Assigned: Mictor 1 (P11, Bank 7 & 8) ODD pod."
 
 cmp add_assignment $top_name "" "mictor1_o\[0\]" LOCATION "Pin_AA18"
 cmp add_assignment $top_name "" "mictor1_e\[1\]" LOCATION "Pin_Y18"
@@ -328,12 +332,12 @@ cmp add_assignment $top_name "" "mictor1_e\[13\]" LOCATION "Pin_AD17"
 cmp add_assignment $top_name "" "mictor1_e\[14\]" LOCATION "Pin_AE17"
 cmp add_assignment $top_name "" "mictor1_e\[15\]" LOCATION "Pin_AE12"
 cmp add_assignment $top_name "" "mictor1clk_e" LOCATION "Pin_AG13"
-puts "   Assigned: Mictor 1 (Bank 8 Debug) EVEN pod."
+puts "   Assigned: Mictor 1 (P11, Bank 7 & 8) EVEN pod."
 
 
 # assign RS232 pins
-cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_C12"
-cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_B12"
+cmp add_assignment $top_name "" rx LOCATION "Pin_C12"
+cmp add_assignment $top_name "" tx LOCATION "Pin_B12"
 puts "   Assigned: RS-232 interface pins."
 
 
@@ -477,15 +481,25 @@ puts "   Assigned: Fibre receiver interface pins."
 
 
 # assign manchester fibre interface
-cmp add_assignment $top_name "" manchester_data LOCATION "Pin_AF11"
-cmp add_assignment $top_name "" manchester_sigdet LOCATION "Pin_AE11"
+cmp add_assignment $top_name "" manchester_data LOCATION "Pin_E10"
+cmp add_assignment $top_name "" manchester_sigdet LOCATION "Pin_A10"
 puts "   Assigned: Manchester fibre interface pins."
 
 
-#Data valid pulse
+# Data valid pulse
 cmp add_assignment $top_name "" dv_pulse_fibre LOCATION "Pin_AG12"
 puts "   Assigned: Data valid pulse interface pins."
 
+# configuration device selection
+cmp add_assignment $top_name "" fpga_tdo LOCATION "Pin_A18"
+cmp add_assignment $top_name "" fpga_tck LOCATION "Pin_C18"
+cmp add_assignment $top_name "" fpga_tms LOCATION "Pin_D18"
+cmp add_assignment $top_name "" epc_tdo LOCATION "Pin_A19"
+cmp add_assignment $top_name "" jtag_sel LOCATION "Pin_B19"
+cmp add_assignment $top_name "" nbb_jtag LOCATION "Pin_C19"
+cmp add_assignment $top_name "" nreconf LOCATION "Pin_E19"
+cmp add_assignment $top_name "" nepc_sel LOCATION "Pin_D19"
+puts "   Assigned: Configuration device selection pins."
 
 # recompile to commit
 puts "\nInfo: Recompiling to commit assignments..."
