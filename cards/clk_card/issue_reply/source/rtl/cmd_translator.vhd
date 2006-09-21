@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.43 2006/09/07 22:25:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.44 2006/09/15 00:36:11 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/07 22:25:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/15 00:36:11 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.44  2006/09/15 00:36:11  bburger
+-- Bryce:  Added internal_cmd_window between ret_dat_fsm and arbiter_fsm
+--
 -- Revision 1.43  2006/09/07 22:25:22  bburger
 -- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
 --
@@ -84,11 +87,19 @@ port(
    start_seq_num_i       : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
    stop_seq_num_i        : in  std_logic_vector(        PACKET_WORD_WIDTH-1 downto 0);
    data_rate_i           : in  std_logic_vector(           SYNC_NUM_WIDTH-1 downto 0);
+   ret_dat_req_i         : in std_logic;
+   ret_dat_ack_o         : out std_logic;
+
    dv_mode_i             : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
    external_dv_i         : in std_logic;
    external_dv_num_i     : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-   ret_dat_req_i         : in std_logic;
-   ret_dat_ack_o         : out std_logic;
+
+   -- ret_dat_wbs interface
+   tes_bias_toggle_en_i   : in std_logic;
+   tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   status_cmd_en_i        : in std_logic;
 
    -- other inputs 
    sync_pulse_i          : in  std_logic;
@@ -107,6 +118,7 @@ port(
    internal_cmd_o        : out std_logic;                                       
    row_len_i             : in integer;
    num_rows_i            : in integer;
+   tes_bias_step_level_o : out std_logic;
    
    -- input from the cmd_queue
    ack_i                 : in  std_logic;                                                     -- acknowledge signal from the micro-instruction sequence generator
@@ -207,17 +219,27 @@ architecture rtl of cmd_translator is
    
    component cmd_translator_internal_cmd_fsm
    port(
-      rst_i                : in  std_logic;
-      clk_i                : in  std_logic;
---      internal_cmd_start_i : in  std_logic;
-      card_addr_o          : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
-      parameter_id_o       : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
-      data_size_o          : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
-      data_o               : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
-      data_clk_o           : out std_logic;
-      instr_rdy_o          : out std_logic;
-      cmd_code_o           : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      ack_i                : in  std_logic); 
+      rst_i                  : in  std_logic;
+      clk_i                  : in  std_logic;
+
+      sync_number_i          : in  std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
+
+      -- ret_dat_wbs interface
+      tes_bias_toggle_en_i   : in std_logic;
+      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      status_cmd_en_i        : in std_logic;
+
+      card_addr_o            : out std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      parameter_id_o         : out std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);
+      data_size_o            : out std_logic_vector (   BB_DATA_SIZE_WIDTH-1 downto 0);
+      data_o                 : out std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
+      data_clk_o             : out std_logic;
+      instr_rdy_o            : out std_logic;
+      cmd_code_o             : out std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+      tes_bias_step_level_o  : out std_logic;
+      ack_i                  : in  std_logic); 
    end component;
 
    signal internal_cmd_card_addr       : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
@@ -279,6 +301,8 @@ architecture rtl of cmd_translator is
       cmd_stop_o                     : out std_logic; 
       last_frame_o                   : out std_logic;  
       internal_cmd_o                 : out std_logic;  
+      tes_bias_step_level_i          : in std_logic;
+      tes_bias_step_level_o          : out std_logic;
       ack_i                          : in  std_logic);      
    end component;
 
@@ -294,6 +318,9 @@ architecture rtl of cmd_translator is
    signal internal_cmd                 : std_logic;                                       
    signal frame_seq_num                : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
    signal frame_sync_num               : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0);   
+   signal tes_bias_step_level          : std_logic;
+   signal tes_bias_step_level2         : std_logic;
+   signal tes_bias_step_level_reg      : std_logic;
    
    -------------------------------------------------------------------------------------------
    -- registered arbiter output signals
@@ -403,22 +430,25 @@ begin
       end if;
    end process;
 
-   -- Custom register that indicates fresh ret_dat commands
-   dat_req <= data_req;
-   data_req_reg: process(clk_i, rst_i)
-   begin
-      if(rst_i = '1') then
-         data_req <= '0';
-      elsif(clk_i'event and clk_i = '1') then
-         if(ret_dat_start = '1') then
-            data_req <= '1';
-         elsif(dat_ack = '1' or ret_dat_stop = '1') then
-            data_req <= '0';
-         else
-            data_req <= data_req;
-         end if;
-      end if;
-   end process data_req_reg;
+
+   -- Get rid of this
+   dat_req <= '0';
+--   -- Custom register that indicates fresh ret_dat commands
+--   dat_req <= data_req;
+--   data_req_reg: process(clk_i, rst_i)
+--   begin
+--      if(rst_i = '1') then
+--         data_req <= '0';
+--      elsif(clk_i'event and clk_i = '1') then
+--         if(ret_dat_start = '1') then
+--            data_req <= '1';
+--         elsif(dat_ack = '1' or ret_dat_stop = '1') then
+--            data_req <= '0';
+--         else
+--            data_req <= data_req;
+--         end if;
+--      end if;
+--   end process data_req_reg;
 
    -------------------------------------------------------------------------------------------
    -- RETURN DATA command state machine
@@ -483,8 +513,14 @@ begin
       rst_i                  => rst_i,
       clk_i                  => clk_i,
 
---      -- inputs from cmd_translator top level
---      internal_cmd_start_i   => internal_cmd_start,
+      sync_number_i          => sync_number_i,
+
+      -- ret_dat_wbs interface
+      tes_bias_toggle_en_i   => tes_bias_toggle_en_i,
+      tes_bias_high_i        => tes_bias_high_i,
+      tes_bias_low_i         => tes_bias_low_i,
+      tes_bias_toggle_rate_i => tes_bias_toggle_rate_i,
+      status_cmd_en_i        => status_cmd_en_i,
 
       -- outputs to the macro-instruction arbiter
       card_addr_o            => internal_cmd_card_addr,
@@ -494,6 +530,7 @@ begin
       data_clk_o             => internal_cmd_data_clk,
       instr_rdy_o            => internal_cmd_instr_rdy,
       cmd_code_o             => internal_cmd_code,
+      tes_bias_step_level_o  => tes_bias_step_level,
       
       -- input from the macro-instruction arbiter
       ack_i                  => internal_cmd_ack
@@ -558,6 +595,8 @@ begin
       cmd_stop_o                     => cmd_stop_cmd_queue,                    
       last_frame_o                   => last_frame,
       internal_cmd_o                 => internal_cmd,
+      tes_bias_step_level_i          => tes_bias_step_level,
+      tes_bias_step_level_o          => tes_bias_step_level2,
       ack_i                          => ack_i                       -- acknowledgment from the cmd_queue that it is ready and has grabbed the data
    ); 
 
@@ -578,7 +617,8 @@ begin
          last_frame_reg              <= '0';
          internal_cmd_reg            <= '0'; 
          frame_seq_num_reg           <= (others => '0');   
-         frame_sync_num_reg          <= (others => '0');   
+         frame_sync_num_reg          <= (others => '0'); 
+         tes_bias_step_level_reg     <= '0';
       elsif clk_i'event and clk_i = '1' then
          card_addr_reg               <= card_addr;
          parameter_id_reg            <= parameter_id;
@@ -592,6 +632,7 @@ begin
          internal_cmd_reg            <= internal_cmd;
          frame_seq_num_reg           <= frame_seq_num;
          frame_sync_num_reg          <= frame_sync_num;
+         tes_bias_step_level_reg     <= tes_bias_step_level2;
       end if;
     end process;
 
@@ -624,5 +665,6 @@ begin
    internal_cmd_o                    <= internal_cmd_reg;
    frame_seq_num_o                   <= frame_seq_num_reg;
    frame_sync_num_o                  <= frame_sync_num_reg;
+   tes_bias_step_level_o             <= tes_bias_step_level_reg;
 
 end rtl; 

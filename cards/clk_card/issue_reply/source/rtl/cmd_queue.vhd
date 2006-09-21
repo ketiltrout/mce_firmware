@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.95 2006/07/11 00:45:15 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.96 2006/09/07 22:25:22 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.96  2006/09/07 22:25:22  bburger
+-- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
+--
 -- Revision 1.95  2006/07/11 00:45:15  bburger
 -- Bryce:  Added an interlock to the cmd_queue with the reply_queue_sequencer so that the cmd_queue doesn't send out a command before the previous reply is received.
 --
@@ -101,6 +104,7 @@ entity cmd_queue is
       frame_seq_num_o : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_o  : out std_logic;
       issue_sync_o    : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      tes_bias_step_level_o : out std_logic;
 
       -- cmd_translator interface
       card_addr_i     : in std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); 
@@ -116,6 +120,7 @@ entity cmd_queue is
       last_frame_i    : in std_logic;                                          
       frame_seq_num_i : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i  : in std_logic;
+      tes_bias_step_level_i : in std_logic;
 
       -- lvds_tx interface
       tx_o            : out std_logic;  
@@ -152,10 +157,11 @@ signal bb_cmd_code          : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0)
 
 
 --signal cmd_type             : std_logic_vector(BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
-signal bit_status           : std_logic_vector(2 downto 0);
-signal bit_status_i         : std_logic_vector(2 downto 0);
+signal bit_status           : std_logic_vector(3 downto 0);
+signal bit_status_i         : std_logic_vector(3 downto 0);
 signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 signal reg_en               : std_logic;
+signal sync_num_reg_en      : std_logic;
 
 -- Data Word Counter
 signal data_count_clr       : std_logic;
@@ -219,14 +225,15 @@ begin
    -----------------------------------------------------
    -- Outputs
    -----------------------------------------------------
-   card_addr_o     <= card_addr;
-   par_id_o        <= par_id;
-   data_size_o     <= data_size;
-   cmd_code_o      <= cmd_code;
-   last_frame_o    <= bit_status(0);
-   cmd_stop_o      <= bit_status(1);
-   internal_cmd_o  <= bit_status(2);
-   frame_seq_num_o <= frame_seq_num;
+   card_addr_o           <= card_addr;
+   par_id_o              <= par_id;
+   data_size_o           <= data_size;
+   cmd_code_o            <= cmd_code;
+   last_frame_o          <= bit_status(0);
+   cmd_stop_o            <= bit_status(1);
+   internal_cmd_o        <= bit_status(2);
+   tes_bias_step_level_o <= bit_status(3);
+   frame_seq_num_o       <= frame_seq_num;
 
    -----------------------------------------------------
    -- Registers
@@ -275,7 +282,7 @@ begin
       port map(
          clk_i      => clk_i,
          rst_i      => rst_i,
-         ena_i      => reg_en,
+         ena_i      => sync_num_reg_en,
          reg_i      => issue_sync_i,
          reg_o      => issue_sync
       );
@@ -292,10 +299,10 @@ begin
          reg_o      => cmd_code
       );
 
-   bit_status_i <= internal_cmd_i & cmd_stop_i & last_frame_i;
+   bit_status_i <= tes_bias_step_level_i & internal_cmd_i & cmd_stop_i & last_frame_i;
    bit_status_reg: reg
       generic map(
-         WIDTH      => 3
+         WIDTH      => 4
       )
       port map(
          clk_i      => clk_i,
@@ -642,6 +649,7 @@ begin
       crc_clr              <= '0';
       uop_rdy_o            <= '0';
       crc_ena              <= '0';
+      sync_num_reg_en      <= '0';
       
       case present_state is
          when IDLE =>
@@ -658,6 +666,7 @@ begin
          
          when IS_THERE_DATA =>
             -- Asserting mop_ack_o causes cmd_translator to begin passing data through to cmd_queue.
+            -- Assert mop_ack_o here if there is data.
             if(data_size /= 0) then
                mop_ack_o         <= '1';
             end if;
@@ -673,9 +682,13 @@ begin
          when DONE_STORE =>
             -- If there is no data with the m-op, then asserting mop_ack_o in the IS_THERE_DATA state would be too soon
             -- In this case, by delaying its assertion until DONE_STORE, we ensure that the cmd_translator doesn't try to insert the next m_op too quickly.
-            if(data_size = 0) then
-               mop_ack_o         <= '1';
-            end if;
+--            if(data_size = 0) then
+            -- Assert mop_ack_o if there isn't data, or for a second time if there is data.
+            mop_ack_o         <= '1';
+--            end if;
+         
+         -- Strobe the sliding sync number
+         sync_num_reg_en <= '1';
          
          -----------------------------------------------------
          -- Issue Command
