@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.34 2006/09/07 22:25:22 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.35 2006/09/15 00:48:36 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.35  2006/09/15 00:48:36  bburger
+-- Bryce:  Cleaned up the data word acknowledgement chain to speed things up.  Untested in hardware.  Data packets are un-simulated
+--
 -- Revision 1.34  2006/09/07 22:25:22  bburger
 -- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
 --
@@ -45,6 +48,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
@@ -58,6 +62,7 @@ use work.cmd_queue_ram40_pack.all;
 use work.cmd_queue_pack.all;
 use work.sync_gen_pack.all;
 use work.frame_timing_pack.all;
+use work.issue_reply_pack.all;
 
 entity reply_queue is
    port(
@@ -71,6 +76,7 @@ entity reply_queue is
       last_frame_i        : in std_logic;                                          
       frame_seq_num_i     : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
       internal_cmd_i      : in std_logic;
+      tes_bias_step_level_i : in std_logic;
       
       data_rate_i         : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       row_len_i           : in integer;
@@ -170,6 +176,7 @@ architecture behav of reply_queue is
    signal matched              : std_logic;
    signal cmd_rdy              : std_logic;
    signal internal_cmd         : std_logic;
+   signal tes_bias_step_level  : std_logic;
    
    signal data_size            : integer;
    signal data                 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
@@ -182,8 +189,8 @@ architecture behav of reply_queue is
    signal card_addr            : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
    signal par_id               : std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0); -- The parameter id of the m-op
    signal data_size_t          : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0); -- The number of bytes of data in the m-op
-   signal bit_status           : std_logic_vector(5 downto 0);
-   signal bit_status_i         : std_logic_vector(5 downto 0);
+   signal bit_status           : std_logic_vector(6 downto 0);
+   signal bit_status_i         : std_logic_vector(6 downto 0);
    signal frame_seq_num        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal issue_sync_num       : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal reg_en               : std_logic;
@@ -191,18 +198,20 @@ architecture behav of reply_queue is
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
    type retire_states is (IDLE, LATCH_CMD, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, REPLY, 
       STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, 
-      TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM, TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM);
+      TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM, TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL);
    signal present_retire_state : retire_states;
    signal next_retire_state    : retire_states;   
 
    -- signals for header RAM
-   signal head_address         : std_logic_vector (5 downto 0);
-   signal head_q               : std_logic_vector (31 downto 0);
+   signal head_address         : std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
+   signal head_offset          : std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
+
+   signal head_q               : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal head_wren            : std_logic;
   
    -- signals for recirculation MUX to register RAM output.
-   signal head_q_reg           : std_logic_vector (31 downto 0);    -- register RAM output
-   signal head_q_mux           : std_logic_vector (31 downto 0); 
+   signal head_q_reg           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);    -- register RAM output
+   signal head_q_mux           : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0); 
    signal head_q_mux_sel       : std_logic;
   
    signal ena_word_count       : std_logic;    
@@ -213,16 +222,13 @@ architecture behav of reply_queue is
    signal status_en            : std_logic;
    signal status_q             : std_logic_vector(30 downto 0);
  
-   -- number of frame header words stored in RAM
-   constant NUM_RAM_HEAD_WORDS : integer := 41 ;
-
    component reply_translator_frame_head_ram 
    port(
-      address  : in  std_logic_vector (5 downto 0);
+      address  : in  std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
       clock    : in  std_logic ;
-      data     : in  std_logic_vector (31 downto 0);
+      data     : in  std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
       wren     : in  std_logic ;
-      q        : out std_logic_vector (31 downto 0)
+      q        : out std_logic_vector (PACKET_WORD_WIDTH-1 downto 0)
    );
    end component;   
 
@@ -233,15 +239,20 @@ begin
    --------------------------------------------------------------------
    -- RAM to save frame header info
    ------------------------------------------------------------------- 
-      port map(
+   port map(
       address  => head_address,
       clock    => clk_i,
       data     => data,
       wren     => head_wren,
       q        => head_q
-      );
+   );
    
-   head_address  <= conv_std_logic_vector(word_count,6);   
+   head_offset <= 
+      FPGA_TEMP_OFFSET when par_id = FPGA_TEMP_ADDR else
+      CARD_TEMP_OFFSET when par_id = CARD_TEMP_ADDR else
+      PSC_STATUS_OFFSET when par_id = PSC_STATUS_ADDR else (others => '0');
+      
+   head_address <= head_offset + conv_std_logic_vector(word_count, 6);
 
    -- register RAM output with recirculation mux
    head_q_mux_sel <= '0';
@@ -318,10 +329,18 @@ begin
          reg_o      => data_size_t
       );
 
-   bit_status_i <= active_clk_i & sync_box_err_i & sync_box_free_run_i & internal_cmd_i & cmd_stop_i & last_frame_i;
+   bit_status_i <= 
+      tes_bias_step_level_i & 
+      active_clk_i & 
+      sync_box_err_i & 
+      sync_box_free_run_i & 
+      internal_cmd_i & 
+      cmd_stop_i & 
+      last_frame_i;
+   
    bit_status_reg: reg
       generic map(
-         WIDTH      => 6
+         WIDTH      => 7
       )
       port map(
          clk_i      => clk_i,
@@ -370,16 +389,17 @@ begin
       );      
 
    -- Some of the outputs to reply_translator and lvds_rx fifo's
-   cmd_code_o        <= cmd_code;
-   card_addr_o       <= card_addr;   
-   last_frame_bit_o  <= bit_status(0);   
-   stop_bit_o        <= bit_status(1);  
-   internal_cmd      <= bit_status(2);   
-   sync_box_free_run <= bit_status(3);   
-   sync_box_err      <= bit_status(4);   
-   active_clk        <= bit_status(5);   
-   frame_seq_num_o   <= frame_seq_num;
-   param_id_o        <= par_id;
+   cmd_code_o          <= cmd_code;
+   card_addr_o         <= card_addr;   
+   last_frame_bit_o    <= bit_status(0);   
+   stop_bit_o          <= bit_status(1);  
+   internal_cmd        <= bit_status(2);   
+   sync_box_free_run   <= bit_status(3);   
+   sync_box_err        <= bit_status(4);   
+   active_clk          <= bit_status(5);
+   tes_bias_step_level <= bit_status(6);
+   frame_seq_num_o     <= frame_seq_num;
+   param_id_o          <= par_id;
 
    ---------------------------------------------------------
    -- Retire FSM:
@@ -419,12 +439,19 @@ begin
                   -- If we match the replies to a reset command, we discard them.
                   next_retire_state <= IDLE;
                elsif(internal_cmd = '1') then
-                  -- If this is an internal command, store the data
-                  next_retire_state <= STORE_HEADER_WORD;
+                  if(cmd_code = READ_BLOCK) then
+                     -- If this is an internal command, store the data
+                     next_retire_state <= STORE_HEADER_WORD;
+                  else
+                     next_retire_state <= INTERNAL_WB;
+                  end if;
                else
                   next_retire_state <= TX_STATUS;
                end if;
             end if;
+            
+         when INTERNAL_WB =>
+            next_retire_state <= DONE_HEADER_STORE;         
          
          when TX_STATUS =>
             if (ack_i = '1') then
@@ -495,6 +522,11 @@ begin
 
          when TX_DV_NUM =>
             if(word_count >= 9) then
+               next_retire_state <= TX_TES_BIAS_LEVEL;
+            end if;
+
+         when TX_TES_BIAS_LEVEL =>
+            if(word_count >= 10) then
                next_retire_state <= TX_HEADER;
             end if;
 
@@ -525,17 +557,18 @@ begin
    -- In particular, external_dv_num_i should be registered by cmd_queue at the time of issue..maybe..
    with present_retire_state select
       data_o <=
-         data                                   when TX_STATUS | TX_SEND_DATA | REPLY,
-         data_rate_i                            when TX_DATA_RATE,
-         conv_std_logic_vector(row_len_i,32)    when TX_ROW_LEN,
-         conv_std_logic_vector(num_rows_i,32)   when TX_NUM_ROWS,
-         issue_sync_num                         when TX_SYNC_NUM,
-         frame_seq_num                          when TX_FRAME_SEQUENCE_NUM,
-         x"0000000" & "000" & active_clk        when TX_ACTIVE_CLK,
-         x"0000000" & "000" & sync_box_err      when TX_SYNC_BOX_ERR,
-         x"0000000" & "000" & sync_box_free_run when TX_SYNC_BOX_FR,
-         external_dv_num_i                      when TX_DV_NUM,
-         (others => '0')                        when others;
+         data                                     when TX_STATUS | TX_SEND_DATA | REPLY,
+         data_rate_i                              when TX_DATA_RATE,
+         conv_std_logic_vector(row_len_i,32)      when TX_ROW_LEN,
+         conv_std_logic_vector(num_rows_i,32)     when TX_NUM_ROWS,
+         issue_sync_num                           when TX_SYNC_NUM,
+         frame_seq_num                            when TX_FRAME_SEQUENCE_NUM,
+         x"0000000" & "000" & active_clk          when TX_ACTIVE_CLK,
+         x"0000000" & "000" & sync_box_err        when TX_SYNC_BOX_ERR,
+         x"0000000" & "000" & sync_box_free_run   when TX_SYNC_BOX_FR,
+         external_dv_num_i                        when TX_DV_NUM,
+         x"0000000" & "000" & tes_bias_step_level when TX_TES_BIAS_LEVEL,
+         (others => '0')                          when others;
 
    cmd_sent_o <= matched;
    retire_state_out: process(present_retire_state, ack_i, data_size, par_id, word_rdy)
@@ -557,7 +590,7 @@ begin
       
       case present_retire_state is
          when IDLE =>
-            ena_word_count  <= '0';
+--            ena_word_count  <= '0';
             load_word_count <= '1';
          
          when LATCH_CMD =>
@@ -580,6 +613,9 @@ begin
             word_ack        <= ack_i;
             cmd_valid_o     <= '1';
          
+         when INTERNAL_WB =>
+            word_ack        <= '1';
+
          when STORE_HEADER_WORD =>
             head_wren       <= '1';
             ena_word_count  <= '1';
@@ -626,6 +662,10 @@ begin
             ena_word_count  <= ack_i;            
 
          when TX_DV_NUM =>
+            rdy_o           <= '1';
+            ena_word_count  <= ack_i;            
+
+         when TX_TES_BIAS_LEVEL =>
             rdy_o           <= '1';
             ena_word_count  <= ack_i;            
 
