@@ -389,8 +389,8 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_global_assignment -name FITTER_EFFORT "FAST FIT"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
 
 # Timing Analysis Assignments
 # ===========================
@@ -427,7 +427,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id c0
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id c0
 
 # end CLOCK(c0)
 # -------------
@@ -437,7 +437,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id c1
+set_global_assignment -name FMAX_REQUIREMENT "50 MHz" -section_id c1
 
 # end CLOCK(c1)
 # -------------
@@ -447,7 +447,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id c3
+set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id c3
 
 # end CLOCK(c3)
 # -------------
@@ -457,7 +457,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id ext_clk
+set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id ext_clk
 
 # end CLOCK(ext_clk)
 # ------------------
@@ -468,7 +468,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 	# Timing Assignments
 	# ==================
 set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
-	set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
+set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
@@ -478,8 +478,8 @@ set_global_assignment -name DUTY_CYCLE 50 -section_id inclk
 
 	# Timing Assignments
 	# ==================
-	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk14
-	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk15
+set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk14
+set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk15
 
 	# Analysis & Synthesis Assignments
 	# ================================
@@ -608,3 +608,4 @@ set_location_assignment PIN_F27 -to sreqo
 set_location_assignment PIN_H21 -to mosii
 set_location_assignment PIN_H22 -to ccssi
 set_location_assignment PIN_E28 -to sclki
+set_global_assignment -name ENABLE_CLOCK_LATENCY ON
