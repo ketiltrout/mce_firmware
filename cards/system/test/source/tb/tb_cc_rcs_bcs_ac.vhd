@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.30 2006/09/07 22:31:12 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.31 2006/09/15 00:51:02 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.31  2006/09/15 00:51:02  bburger
+-- Bryce:  new section added for testing maximum length commands
+--
 -- Revision 1.30  2006/09/07 22:31:12  bburger
 -- Bryce:  more test cases for psuc testing
 --
@@ -430,13 +433,19 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_row_len_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ROW_LEN_ADDR;    
    constant cc_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & NUM_ROWS_ADDR;
    constant cc_ret_dat_s_cmd        : std_logic_vector(31 downto 0) := X"00020053";  -- card id=0, ret_dat_s command
-   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"00000002";   
+   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"00000008";   
    constant cc_led_cmd              : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & LED_ADDR;
    constant cc_array_id_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ARRAY_ID_ADDR;
    constant cc_use_dv_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_DV_ADDR;
    constant cc_use_sync_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_SYNC_ADDR;
    constant cc_data_rate_cmd        : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & DATA_RATE_ADDR;
    constant cc_select_clk_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & SELECT_CLK_ADDR;
+
+   constant cc_tes_tgl_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_EN_ADDR;
+   constant cc_tes_tgl_max_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MAX_ADDR;
+   constant cc_tes_tgl_min_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MIN_ADDR;
+   constant cc_tes_tgl_rate_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_RATE_ADDR;
+   constant cc_int_cmd_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & INT_CMD_EN_ADDR;
 
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
@@ -1507,86 +1516,86 @@ begin
 --         mictor         => rc2_mictor
 --      );
 --
---   i_readout_card1: readout_card
---      generic map (
---         CARD => READOUT_CARD_1
---      )
---      port map (
---         rst_n          => rst_n,
---         inclk          => lvds_clk,
---         adc1_dat       => rc1_adc1_dat,
---         adc2_dat       => rc1_adc2_dat,
---         adc3_dat       => rc1_adc3_dat,
---         adc4_dat       => rc1_adc4_dat,
---         adc5_dat       => rc1_adc5_dat,
---         adc6_dat       => rc1_adc6_dat,
---         adc7_dat       => rc1_adc7_dat,
---         adc8_dat       => rc1_adc8_dat,
---         adc1_ovr       => rc1_adc1_ovr,
---         adc2_ovr       => rc1_adc2_ovr,
---         adc3_ovr       => rc1_adc3_ovr,
---         adc4_ovr       => rc1_adc4_ovr,
---         adc5_ovr       => rc1_adc5_ovr,
---         adc6_ovr       => rc1_adc6_ovr,
---         adc7_ovr       => rc1_adc7_ovr,
---         adc8_ovr       => rc1_adc8_ovr,
---         adc1_rdy       => rc1_adc1_rdy,
---         adc2_rdy       => rc1_adc2_rdy,
---         adc3_rdy       => rc1_adc3_rdy,
---         adc4_rdy       => rc1_adc4_rdy,
---         adc5_rdy       => rc1_adc5_rdy,
---         adc6_rdy       => rc1_adc6_rdy,
---         adc7_rdy       => rc1_adc7_rdy,
---         adc8_rdy       => rc1_adc8_rdy,
---         adc1_clk       => rc1_adc1_clk,
---         adc2_clk       => rc1_adc2_clk,
---         adc3_clk       => rc1_adc3_clk,
---         adc4_clk       => rc1_adc4_clk,
---         adc5_clk       => rc1_adc5_clk,
---         adc6_clk       => rc1_adc6_clk,
---         adc7_clk       => rc1_adc7_clk,
---         adc8_clk       => rc1_adc8_clk,
---         dac_FB1_dat    => rc1_dac_FB1_dat,
---         dac_FB2_dat    => rc1_dac_FB2_dat,
---         dac_FB3_dat    => rc1_dac_FB3_dat,
---         dac_FB4_dat    => rc1_dac_FB4_dat,
---         dac_FB5_dat    => rc1_dac_FB5_dat,
---         dac_FB6_dat    => rc1_dac_FB6_dat,
---         dac_FB7_dat    => rc1_dac_FB7_dat,
---         dac_FB8_dat    => rc1_dac_FB8_dat,
---         dac_FB_clk     => rc1_dac_FB_clk,
---         dac_clk        => rc1_dac_clk,
---         dac_dat        => rc1_dac_dat,
---         bias_dac_ncs   => rc1_bias_dac_ncs,
---         offset_dac_ncs => rc1_offset_dac_ncs,
---         lvds_cmd       => lvds_cmd,
---         lvds_sync      => lvds_sync,
---         lvds_spare     => lvds_spare,
---         lvds_txa       => rc1_lvds_txa,
---         lvds_txb       => rc1_lvds_txb,
---
---         ttl_dir1       => rc1_ttl_dir1,
---         ttl_in1        => bclr_n, 
---         ttl_out1       => open,
---                           
---         ttl_dir2       => rc1_ttl_dir2,
---         ttl_in2        => rc1_ttl_in2, 
---         ttl_out2       => open,
---                           
---         ttl_dir3       => rc1_ttl_dir3,
---         ttl_in3        => rc1_ttl_in3, 
---         ttl_out3       => open,
---                      
---         red_led        => rc1_red_led,
---         ylw_led        => rc1_ylw_led,
---         grn_led        => rc1_grn_led,
---         dip_sw3        => rc1_dip_sw3,
---         dip_sw4        => rc1_dip_sw4,
---         wdog           => rc1_wdog,
---         slot_id        => rc1_slot_id,
---         card_id        => rc1_card_id,
---         mictor         => rc1_mictor
---      );
+   i_readout_card1: readout_card
+      generic map (
+         CARD => READOUT_CARD_1
+      )
+      port map (
+         rst_n          => rst_n,
+         inclk          => lvds_clk,
+         adc1_dat       => rc1_adc1_dat,
+         adc2_dat       => rc1_adc2_dat,
+         adc3_dat       => rc1_adc3_dat,
+         adc4_dat       => rc1_adc4_dat,
+         adc5_dat       => rc1_adc5_dat,
+         adc6_dat       => rc1_adc6_dat,
+         adc7_dat       => rc1_adc7_dat,
+         adc8_dat       => rc1_adc8_dat,
+         adc1_ovr       => rc1_adc1_ovr,
+         adc2_ovr       => rc1_adc2_ovr,
+         adc3_ovr       => rc1_adc3_ovr,
+         adc4_ovr       => rc1_adc4_ovr,
+         adc5_ovr       => rc1_adc5_ovr,
+         adc6_ovr       => rc1_adc6_ovr,
+         adc7_ovr       => rc1_adc7_ovr,
+         adc8_ovr       => rc1_adc8_ovr,
+         adc1_rdy       => rc1_adc1_rdy,
+         adc2_rdy       => rc1_adc2_rdy,
+         adc3_rdy       => rc1_adc3_rdy,
+         adc4_rdy       => rc1_adc4_rdy,
+         adc5_rdy       => rc1_adc5_rdy,
+         adc6_rdy       => rc1_adc6_rdy,
+         adc7_rdy       => rc1_adc7_rdy,
+         adc8_rdy       => rc1_adc8_rdy,
+         adc1_clk       => rc1_adc1_clk,
+         adc2_clk       => rc1_adc2_clk,
+         adc3_clk       => rc1_adc3_clk,
+         adc4_clk       => rc1_adc4_clk,
+         adc5_clk       => rc1_adc5_clk,
+         adc6_clk       => rc1_adc6_clk,
+         adc7_clk       => rc1_adc7_clk,
+         adc8_clk       => rc1_adc8_clk,
+         dac_FB1_dat    => rc1_dac_FB1_dat,
+         dac_FB2_dat    => rc1_dac_FB2_dat,
+         dac_FB3_dat    => rc1_dac_FB3_dat,
+         dac_FB4_dat    => rc1_dac_FB4_dat,
+         dac_FB5_dat    => rc1_dac_FB5_dat,
+         dac_FB6_dat    => rc1_dac_FB6_dat,
+         dac_FB7_dat    => rc1_dac_FB7_dat,
+         dac_FB8_dat    => rc1_dac_FB8_dat,
+         dac_FB_clk     => rc1_dac_FB_clk,
+         dac_clk        => rc1_dac_clk,
+         dac_dat        => rc1_dac_dat,
+         bias_dac_ncs   => rc1_bias_dac_ncs,
+         offset_dac_ncs => rc1_offset_dac_ncs,
+         lvds_cmd       => lvds_cmd,
+         lvds_sync      => lvds_sync,
+         lvds_spare     => lvds_spare,
+         lvds_txa       => rc1_lvds_txa,
+         lvds_txb       => rc1_lvds_txb,
+
+         ttl_dir1       => rc1_ttl_dir1,
+         ttl_in1        => bclr_n, 
+         ttl_out1       => open,
+                           
+         ttl_dir2       => rc1_ttl_dir2,
+         ttl_in2        => rc1_ttl_in2, 
+         ttl_out2       => open,
+                           
+         ttl_dir3       => rc1_ttl_dir3,
+         ttl_in3        => rc1_ttl_in3, 
+         ttl_out3       => open,
+                      
+         red_led        => rc1_red_led,
+         ylw_led        => rc1_ylw_led,
+         grn_led        => rc1_grn_led,
+         dip_sw3        => rc1_dip_sw3,
+         dip_sw4        => rc1_dip_sw4,
+         wdog           => rc1_wdog,
+         slot_id        => rc1_slot_id,
+         card_id        => rc1_card_id,
+         mictor         => rc1_mictor
+      );
 --
 --   i_bias_card3: bias_card
 --      port map
@@ -1647,64 +1656,64 @@ begin
 --         rs232_tx      => bc3_rs232_tx
 --      );   
 --
---   i_bias_card2: bias_card
---      port map
---      (
---         -- PLL input:
---         inclk         => lvds_clk,
---         rst_n         => rst_n,
---         
---         -- LVDS interface:
---         lvds_cmd      => lvds_cmd,  
---         lvds_sync     => lvds_sync, 
---         lvds_spare    => lvds_spare,
---         lvds_txa      => lvds_reply_bc2_a, 
---         lvds_txb      => lvds_reply_bc2_b, 
---         
---         -- TTL interface:
---         ttl_nrx1      => bclr_n,  
---         ttl_tx1       => open,   
---         ttl_txena1    => bc2_ttl_txena1,
---
---         ttl_nrx2      => bc2_ttl_nrx2,  
---         ttl_tx2       => open,   
---         ttl_txena2    => bc2_ttl_txena2,
---
---         ttl_nrx3      => bc2_ttl_nrx3,  
---         ttl_tx3       => open,   
---         ttl_txena3    => bc2_ttl_txena3,
---         
---         -- eeprom ice:nterface:
---         eeprom_si     => bc2_eeprom_si, 
---         eeprom_so     => bc2_eeprom_so, 
---         eeprom_sck    => bc2_eeprom_sck,
---         eeprom_cs     => bc2_eeprom_cs, 
---         
---         -- dac interface:
---         dac_ncs       => bc2_dac_ncs,      
---         dac_sclk      => bc2_dac_sclk,     
---         dac_data      => bc2_dac_data,         
---         lvds_dac_ncs  => bc2_lvds_dac_ncs, 
---         lvds_dac_sclk => bc2_lvds_dac_sclk,
---         lvds_dac_data => bc2_lvds_dac_data,
---         dac_nclr      => bc2_dac_nclr,     
---         
---         -- miscellaneous ports:
---         red_led       => bc2_red_led, 
---         ylw_led       => bc2_ylw_led, 
---         grn_led       => bc2_grn_led, 
---         dip_sw3       => bc2_dip_sw3, 
---         dip_sw4       => bc2_dip_sw4, 
---         wdog          => bc2_wdog,    
---         slot_id       => bc2_slot_id, 
---         
---         -- debug ports:
---         test          => bc2_test,       
---         mictor        => bc2_mictor,     
---         mictorclk     => bc2_mictorclk,  
---         rs232_rx      => bc2_rs232_rx,
---         rs232_tx      => bc2_rs232_tx
---      );     
+   i_bias_card2: bias_card
+      port map
+      (
+         -- PLL input:
+         inclk         => lvds_clk,
+         rst_n         => rst_n,
+         
+         -- LVDS interface:
+         lvds_cmd      => lvds_cmd,  
+         lvds_sync     => lvds_sync, 
+         lvds_spare    => lvds_spare,
+         lvds_txa      => lvds_reply_bc2_a, 
+         lvds_txb      => lvds_reply_bc2_b, 
+         
+         -- TTL interface:
+         ttl_nrx1      => bclr_n,  
+         ttl_tx1       => open,   
+         ttl_txena1    => bc2_ttl_txena1,
+
+         ttl_nrx2      => bc2_ttl_nrx2,  
+         ttl_tx2       => open,   
+         ttl_txena2    => bc2_ttl_txena2,
+
+         ttl_nrx3      => bc2_ttl_nrx3,  
+         ttl_tx3       => open,   
+         ttl_txena3    => bc2_ttl_txena3,
+         
+         -- eeprom ice:nterface:
+         eeprom_si     => bc2_eeprom_si, 
+         eeprom_so     => bc2_eeprom_so, 
+         eeprom_sck    => bc2_eeprom_sck,
+         eeprom_cs     => bc2_eeprom_cs, 
+         
+         -- dac interface:
+         dac_ncs       => bc2_dac_ncs,      
+         dac_sclk      => bc2_dac_sclk,     
+         dac_data      => bc2_dac_data,         
+         lvds_dac_ncs  => bc2_lvds_dac_ncs, 
+         lvds_dac_sclk => bc2_lvds_dac_sclk,
+         lvds_dac_data => bc2_lvds_dac_data,
+         dac_nclr      => bc2_dac_nclr,     
+         
+         -- miscellaneous ports:
+         red_led       => bc2_red_led, 
+         ylw_led       => bc2_ylw_led, 
+         grn_led       => bc2_grn_led, 
+         dip_sw3       => bc2_dip_sw3, 
+         dip_sw4       => bc2_dip_sw4, 
+         wdog          => bc2_wdog,    
+         slot_id       => bc2_slot_id, 
+         
+         -- debug ports:
+         test          => bc2_test,       
+         mictor        => bc2_mictor,     
+         mictorclk     => bc2_mictorclk,  
+         rs232_rx      => bc2_rs232_rx,
+         rs232_tx      => bc2_rs232_tx
+      );     
 --
 --   i_bias_card1: bias_card
 --      port map
@@ -2153,9 +2162,98 @@ begin
       wait for 5 us;
 
 ------------------------------------------------------
+--  For testing internal commands
+------------------------------------------------------
+--   constant cc_tes_tgl_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_EN_ADDR;
+--   constant cc_tes_tgl_max_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MAX_ADDR;
+--   constant cc_tes_tgl_min_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MIN_ADDR;
+--   constant cc_tes_tgl_rate_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_RATE_ADDR;
+--   constant cc_int_cmd_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & INT_CMD_EN_ADDR;
+
+      command <= command_wb;
+      address_id <= all_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000080";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+      
+      command <= command_wb;
+      address_id <= all_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000004";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+
+      command    <= command_wb;
+      address_id <= cc_tes_tgl_max_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00002222";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command    <= command_wb;
+      address_id <= cc_tes_tgl_min_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00001111";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command    <= command_wb;
+      address_id <= cc_tes_tgl_rate_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000040";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command    <= command_wb;
+      address_id <= cc_tes_tgl_en_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command <= command_wb;
+      address_id <= cc_ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"00000002";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command <= command_wb;
+      address_id <= cc_data_rate_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000020";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command <= command_go;
+      address_id <= rc1_ret_dat_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 10000 us;
+
+------------------------------------------------------
 --  Testing Clock Selection Commands
 ------------------------------------------------------
-
 --      command <= command_rb;
 --      address_id <= cc_select_clk_cmd;
 --      data_valid <= X"00000001";
@@ -2205,24 +2303,23 @@ begin
 --  For Measuring the time needed for the longest command possible (58 words)
 --  Used for specifying MIN_WINDOW
 ------------------------------------------------------
-      command <= command_wb;
-      address_id <= cc_led_cmd;
-      data_valid <= X"0000003A";
-      data       <= X"00000007";
-      load_preamble;
-      load_command;
-      load_checksum;            
-      wait for 125 us;
-
-      command <= command_rb;
-      address_id <= cc_row_len_cmd;
-      data_valid <= X"0000003A";
-      data       <= X"00000000";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
+--      command <= command_wb;
+--      address_id <= cc_led_cmd;
+--      data_valid <= X"0000003A";
+--      data       <= X"00000007";
+--      load_preamble;
+--      load_command;
+--      load_checksum;            
+--      wait for 125 us;
+--
+--      command <= command_rb;
+--      address_id <= cc_row_len_cmd;
+--      data_valid <= X"0000003A";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
 
 ------------------------------------------------------
 --  Testing New Fibre Protocol
