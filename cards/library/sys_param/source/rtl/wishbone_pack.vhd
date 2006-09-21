@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/06/19 17:28:24 $> - <initials $Author: bburger $>
+-- <date $Date: 2006/08/01 18:33:43 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.30  2006/08/01 18:33:43  bburger
+-- Bryce:  Added new PSU commands
+--
 -- Revision 1.29  2006/06/19 17:28:24  bburger
 -- Bryce:  added a new command called SELECT_CLK_ADDR
 --
@@ -268,6 +271,11 @@ package wishbone_pack is
    constant DATA_RATE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
    constant SELECT_CLK_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A2";
+   constant TES_TGL_EN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A3";
+   constant TES_TGL_MAX_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A4";
+   constant TES_TGL_MIN_ADDR  : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A5";
+   constant TES_TGL_RATE_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A6";
+   constant INT_CMD_EN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A7";
 
    -- Power Card Specific
    constant BRST_MCE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
