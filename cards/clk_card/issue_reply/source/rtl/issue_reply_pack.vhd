@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.45 2006/03/16 00:21:28 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.46 2006/09/15 00:36:11 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.46  2006/09/15 00:36:11  bburger
+-- Bryce:  Added internal_cmd_window between ret_dat_fsm and arbiter_fsm
+--
 -- Revision 1.45  2006/03/16 00:21:28  bburger
 -- Bryce:  removed the issue_reply component declaration
 --
@@ -90,4 +93,18 @@ package issue_reply_pack is
    -- For a 58-word RB command, 105 us are required from receiving the last word of the command to sending the last word of the reply.
    constant MIN_WINDOW : integer := 110000; -- ns
 
+   -- Data sizes for internal commands
+   constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000100000"; -- 32 words
+   constant FPGA_TEMP_DATA_SIZE  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word  
+   constant CARD_TEMP_DATA_SIZE  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word  
+   constant PSC_STATUS_DATA_SIZE : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000001001"; --  9 words
+
+   -- number of frame header words stored in RAM
+   constant NUM_RAM_HEAD_WORDS : integer := 41;
+   constant RAM_HEAD_ADDR_WIDTH : integer := 6;
+
+   constant FPGA_TEMP_OFFSET  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000000"; --  1 word  
+   constant CARD_TEMP_OFFSET  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001001";
+   constant PSC_STATUS_OFFSET : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010010"; --  9 words
+   
 end issue_reply_pack;
