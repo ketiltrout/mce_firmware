@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.8 2006/03/23 23:14:07 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.9 2006/05/29 23:11:00 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.9  2006/05/29 23:11:00  bburger
+-- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
+--
 -- Revision 1.8  2006/03/23 23:14:07  bburger
 -- Bryce:  added "use work.frame_timing_pack.all;" after moving the location of some constants from sync_gen_pack
 --
@@ -77,26 +80,34 @@ use work.frame_timing_pack.all;
 entity ret_dat_wbs is        
    port
    (
-      -- cmd_translator interface:
-      start_seq_num_o : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      stop_seq_num_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      data_rate_o     : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      ret_dat_req_o   : out std_logic;
-      ret_dat_ack_i   : in std_logic;
+      -- to ret_dat fsm (cmd_translator):
+      start_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      ret_dat_req_o          : out std_logic;
+      ret_dat_ack_i          : in std_logic;
+      frame_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      
+      -- to internal_cmd_fsm (cmd_translator):
+      tes_bias_toggle_en_o   : out std_logic;
+      tes_bias_high_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      status_cmd_en_o        : out std_logic;
 
       -- global interface
-      clk_i          : in std_logic;
-      rst_i          : in std_logic; 
+      clk_i                  : in std_logic;
+      rst_i                  : in std_logic; 
       
       -- wishbone interface:
-      dat_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i         : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i          : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i           : in std_logic;
-      stb_i          : in std_logic;
-      cyc_i          : in std_logic;
-      dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o          : out std_logic
+      dat_i                  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                 : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                  : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                   : in std_logic;
+      stb_i                  : in std_logic;
+      cyc_i                  : in std_logic;
+      dat_o                  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                  : out std_logic
    );     
 end ret_dat_wbs;
 
@@ -105,18 +116,27 @@ architecture rtl of ret_dat_wbs is
    -- FSM inputs
    signal wr_cmd            : std_logic;
    signal rd_cmd            : std_logic;
---   signal master_wait       : std_logic;
 
    -- RAM/Register signals
    signal start_wren        : std_logic;   
    signal stop_wren         : std_logic;
    signal data_rate_wren    : std_logic;
+   signal tes_tgl_en_wren   : std_logic;
+   signal tes_tgl_max_wren  : std_logic;
+   signal tes_tgl_min_wren  : std_logic;
+   signal tes_tgl_rate_wren : std_logic;
+   signal int_cmd_en_wren   : std_logic;
    
    signal start_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal stop_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal data_rate_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_tgl_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_tgl_max_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_tgl_min_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_tgl_rate_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal int_cmd_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
-   signal data_req          : std_logic;
+--   signal data_req          : std_logic;
    
    -- WBS states:
    type states is (IDLE, WR, RD); 
@@ -151,12 +171,77 @@ begin
          reg_o             => stop_data
       );
 
-   -- Custom register that gets set to DEF_DATA_RATE upon reset
+   tes_bias_toggle_en_o <= '0' when tes_tgl_en_data = x"00000000" else '1';
+   tes_toggle_enable_reg : reg
+      generic map(
+         WIDTH             => WB_DATA_WIDTH
+      )
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => tes_tgl_en_wren,
+         reg_i             => dat_i,
+         reg_o             => tes_tgl_en_data
+      );
+
+   tes_bias_high_o <= tes_tgl_max_data;
+   tes_toggle_max_reg : reg
+      generic map(
+         WIDTH             => WB_DATA_WIDTH
+      )
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => tes_tgl_max_wren,
+         reg_i             => dat_i,
+         reg_o             => tes_tgl_max_data
+      );
+   
+   tes_bias_low_o <= tes_tgl_min_data;
+   tes_toggle_min_reg : reg
+      generic map(
+         WIDTH             => WB_DATA_WIDTH
+      )
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => tes_tgl_min_wren,
+         reg_i             => dat_i,
+         reg_o             => tes_tgl_min_data
+      );
+   
+   tes_bias_toggle_rate_o <= tes_tgl_rate_data;
+   tes_toggle_rate_reg : reg
+      generic map(
+         WIDTH             => WB_DATA_WIDTH
+      )
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => tes_tgl_rate_wren,
+         reg_i             => dat_i,
+         reg_o             => tes_tgl_rate_data
+      );
+
+   status_cmd_en_o <= '0' when int_cmd_en_data = x"00000000" else '1';
+   internal_command_enable_reg : reg
+      generic map(
+         WIDTH             => WB_DATA_WIDTH
+      )
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => int_cmd_en_wren,
+         reg_i             => dat_i,
+         reg_o             => int_cmd_en_data
+      );
+      
+   -- Custom register that gets set to DEFAULT_DATA_RATE upon reset
    data_rate_o <= data_rate_data(SYNC_NUM_WIDTH-1 downto 0);
    data_rate_reg: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then
-         data_rate_data <= DEF_DATA_RATE;
+         data_rate_data <= DEFAULT_DATA_RATE;
       elsif(clk_i'event and clk_i = '1') then
          if(data_rate_wren = '1') then
             data_rate_data <= dat_i;
@@ -231,15 +316,22 @@ begin
    state_out: process(current_state, stb_i, addr_i, tga_i, next_state)
    begin
       -- Default assignments
-      start_wren      <= '0';
-      stop_wren       <= '0';
-      data_rate_wren  <= '0';
-      ack_o           <= '0';
+      start_wren        <= '0';
+      stop_wren         <= '0';
+      data_rate_wren    <= '0';
+      
+      tes_tgl_en_wren   <= '0';
+      tes_tgl_max_wren  <= '0';
+      tes_tgl_min_wren  <= '0';
+      tes_tgl_rate_wren <= '0';
+      int_cmd_en_wren   <= '0';      
+      
+      ack_o             <= '0';
      
       case current_state is         
          when IDLE  =>                   
             ack_o <= '0';
-            
+
          when WR =>
             if(stb_i = '1') then
                if(addr_i = RET_DAT_S_ADDR) then
@@ -253,9 +345,24 @@ begin
                elsif(addr_i = DATA_RATE_ADDR) then
                   data_rate_wren <= '1';
                   ack_o <= '1';
+               elsif(addr_i = TES_TGL_EN_ADDR) then
+                  tes_tgl_en_wren <= '1';
+                  ack_o <= '1';
+               elsif(addr_i = TES_TGL_MAX_ADDR) then
+                  tes_tgl_max_wren <= '1';
+                  ack_o <= '1';
+               elsif(addr_i = TES_TGL_MIN_ADDR) then
+                  tes_tgl_min_wren <= '1';
+                  ack_o <= '1';
+               elsif(addr_i = TES_TGL_RATE_ADDR) then
+                  tes_tgl_rate_wren <= '1';
+                  ack_o <= '1';
+               elsif(addr_i = INT_CMD_EN_ADDR) then
+                  int_cmd_en_wren <= '1';
+                  ack_o <= '1';
                end if;
             end if;
-         
+
          when RD =>
             if(next_state /= IDLE) then
                ack_o <= '1';
@@ -272,18 +379,28 @@ begin
 ------------------------------------------------------------
    
    dat_o <= 
-      start_data     when (addr_i = RET_DAT_S_ADDR and tga_i = x"00000000") else
-      stop_data      when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
-      data_rate_data when (addr_i = DATA_RATE_ADDR) else (others => '0');
-   
---   master_wait <= '1' when (stb_i = '0' and cyc_i = '1') else '0';   
-           
+      start_data        when (addr_i = RET_DAT_S_ADDR and tga_i = x"00000000") else
+      stop_data         when (addr_i = RET_DAT_S_ADDR and tga_i /= x"00000000") else
+      data_rate_data    when (addr_i = DATA_RATE_ADDR) else
+      tes_tgl_en_data   when (addr_i = TES_TGL_EN_ADDR) else
+      tes_tgl_max_data  when (addr_i = TES_TGL_MAX_ADDR) else
+      tes_tgl_min_data  when (addr_i = TES_TGL_MIN_ADDR) else
+      tes_tgl_rate_data when (addr_i = TES_TGL_RATE_ADDR) else
+      int_cmd_en_data   when (addr_i = INT_CMD_EN_ADDR) else
+      (others => '0');
+
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
-      (addr_i = RET_DAT_S_ADDR or addr_i = DATA_RATE_ADDR) else '0'; 
+      (addr_i = RET_DAT_S_ADDR   or addr_i = DATA_RATE_ADDR    or
+       addr_i = TES_TGL_EN_ADDR  or addr_i = TES_TGL_MAX_ADDR  or
+       addr_i = TES_TGL_MIN_ADDR or addr_i = TES_TGL_RATE_ADDR or
+       addr_i = INT_CMD_EN_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
-      (addr_i = RET_DAT_S_ADDR or addr_i = DATA_RATE_ADDR) else '0'; 
+      (addr_i = RET_DAT_S_ADDR   or addr_i = DATA_RATE_ADDR    or
+       addr_i = TES_TGL_EN_ADDR  or addr_i = TES_TGL_MAX_ADDR  or
+       addr_i = TES_TGL_MIN_ADDR or addr_i = TES_TGL_RATE_ADDR or
+       addr_i = INT_CMD_EN_ADDR) else '0'; 
       
 end rtl;

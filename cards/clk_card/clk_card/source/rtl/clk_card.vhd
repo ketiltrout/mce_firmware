@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.59 2006/09/06 00:20:54 bburger Exp $
+-- $Id: clk_card.vhd,v 1.60 2006/09/07 22:30:23 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.60  2006/09/07 22:30:23  bburger
+-- Bryce:  cleaned up the file by removing code that was commented out
+--
 -- Revision 1.59  2006/09/06 00:20:54  bburger
 -- Bryce:  Changed top-level signals to match the PSUC names.  Note:  now some of the CC signals do not match the schematic.
 --
@@ -216,7 +219,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000011";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000012";
    
    -- reset
    signal rst                : std_logic;
@@ -235,18 +238,23 @@ architecture top of clk_card is
    signal num_rows           : integer;
    
    -- ret_dat_wbs interface
-   signal start_seq_num      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal stop_seq_num       : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   signal data_rate          : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-   signal data_req           : std_logic;
-   signal data_ack           : std_logic;
-   signal dv_mode            : std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-   signal external_dv        : std_logic;
-   signal external_dv_num    : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-   signal sync_mode          : std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
-   signal external_sync      : std_logic;
-   signal ret_dat_req        : std_logic;
-   signal ret_dat_done       : std_logic;
+   signal start_seq_num        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal stop_seq_num         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal data_rate            : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal data_req             : std_logic;
+   signal data_ack             : std_logic;
+   signal dv_mode              : std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+   signal external_dv          : std_logic;
+   signal external_dv_num      : std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+   signal sync_mode            : std_logic_vector(SYNC_SELECT_WIDTH-1 downto 0);
+   signal external_sync        : std_logic;
+   signal ret_dat_req          : std_logic;
+   signal ret_dat_done         : std_logic;
+   signal tes_bias_toggle_en   : std_logic;
+   signal tes_bias_high        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_bias_low         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal tes_bias_toggle_rate : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+   signal status_cmd_en        : std_logic;
    
    -- wishbone bus (from master)
    signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -569,92 +577,109 @@ architecture top of clk_card is
    
    component ret_dat_wbs is        
    port(
-      -- cmd_translator interface:
-      start_seq_num_o : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      stop_seq_num_o  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      data_rate_o     : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      ret_dat_req_o   : out std_logic;
-      ret_dat_ack_i   : in std_logic;
-   
+      -- to ret_dat fsm (cmd_translator):
+      start_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_o            : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      ret_dat_req_o          : out std_logic;
+      ret_dat_ack_i          : in std_logic;
+      frame_seq_num_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      
+      -- to internal_cmd_fsm (cmd_translator):
+      tes_bias_toggle_en_o   : out std_logic;
+      tes_bias_high_o        : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      status_cmd_en_o        : out std_logic;
+
       -- global interface
-      clk_i          : in std_logic;
-      rst_i          : in std_logic; 
+      clk_i                  : in std_logic;
+      rst_i                  : in std_logic; 
       
       -- wishbone interface:
-      dat_i          : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      addr_i         : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
-      tga_i          : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
-      we_i           : in std_logic;
-      stb_i          : in std_logic;
-      cyc_i          : in std_logic;
-      dat_o          : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      ack_o          : out std_logic
+      dat_i                  : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      addr_i                 : in std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+      tga_i                  : in std_logic_vector(WB_TAG_ADDR_WIDTH-1 downto 0);
+      we_i                   : in std_logic;
+      stb_i                  : in std_logic;
+      cyc_i                  : in std_logic;
+      dat_o                  : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      ack_o                  : out std_logic
    );     
    end component;
    
    component issue_reply
    port(
       -- for testing
-      debug_o           : out std_logic_vector (31 downto 0);
+      debug_o                : out std_logic_vector (31 downto 0);
    
       -- global signals
-      rst_i             : in std_logic;
-      clk_i             : in std_logic;
-      comm_clk_i        : in std_logic;
+      rst_i                  : in std_logic;
+      clk_i                  : in std_logic;
+      comm_clk_i             : in std_logic;
    
       -- inputs from the bus backplane
-      lvds_reply_ac_a   : in std_logic;  
-      lvds_reply_bc1_a  : in std_logic;
-      lvds_reply_bc2_a  : in std_logic;
-      lvds_reply_bc3_a  : in std_logic;
-      lvds_reply_rc1_a  : in std_logic;
-      lvds_reply_rc2_a  : in std_logic;
-      lvds_reply_rc3_a  : in std_logic; 
-      lvds_reply_rc4_a  : in std_logic;
-      lvds_reply_cc_a   : in std_logic;
+      lvds_reply_ac_a        : in std_logic;  
+      lvds_reply_bc1_a       : in std_logic;
+      lvds_reply_bc2_a       : in std_logic;
+      lvds_reply_bc3_a       : in std_logic;
+      lvds_reply_rc1_a       : in std_logic;
+      lvds_reply_rc2_a       : in std_logic;
+      lvds_reply_rc3_a       : in std_logic; 
+      lvds_reply_rc4_a       : in std_logic;
+      lvds_reply_cc_a        : in std_logic;
       
       -- inputs from the fibre receiver 
-      fibre_clkr_i      : in std_logic;
-      rx_data_i         : in std_logic_vector (7 DOWNTO 0);
-      nRx_rdy_i         : in std_logic;
-      rvs_i             : in std_logic;
-      rso_i             : in std_logic;
-      rsc_nRd_i         : in std_logic;        
-      cksum_err_o       : out std_logic;
+      fibre_clkr_i           : in std_logic;
+      rx_data_i              : in std_logic_vector (7 DOWNTO 0);
+      nRx_rdy_i              : in std_logic;
+      rvs_i                  : in std_logic;
+      rso_i                  : in std_logic;
+      rsc_nRd_i              : in std_logic;        
+      cksum_err_o            : out std_logic;
    
       -- interface to fibre transmitter
-      tx_data_o         : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
-      tsc_nTd_o         : out std_logic;                          -- hotlink tx special char/ data sel
-      nFena_o           : out std_logic;                          -- hotlink tx enable
+      tx_data_o              : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
+      tsc_nTd_o              : out std_logic;                          -- hotlink tx special char/ data sel
+      nFena_o                : out std_logic;                          -- hotlink tx enable
    
       -- 25MHz clock for fibre_tx_control
-      fibre_clkw_i      : in std_logic;                           -- in phase with 25MHz hotlink clock
+      fibre_clkw_i           : in std_logic;                           -- in phase with 25MHz hotlink clock
    
       -- lvds_tx interface
-      lvds_cmd_o        : out std_logic;                          -- transmitter output pin
+      lvds_cmd_o             : out std_logic;                          -- transmitter output pin
    
-      -- ret_dat_wbs interface:
-      start_seq_num_i   : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      stop_seq_num_i    : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-      data_rate_i       : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
-      dv_mode_i         : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
-      external_dv_i     : in std_logic;
-      external_dv_num_i : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
-      ret_dat_req_i     : in std_logic;
-      ret_dat_ack_o     : out std_logic;
+      -- ret_dat_wbs interface
+      start_seq_num_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      stop_seq_num_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      data_rate_i            : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      ret_dat_req_i          : in std_logic;
+      ret_dat_ack_o          : out std_logic;
+
+      -- sync_gen interface
+      dv_mode_i              : in std_logic_vector(DV_SELECT_WIDTH-1 downto 0);
+      external_dv_i          : in std_logic;
+      external_dv_num_i      : in std_logic_vector(DV_NUM_WIDTH-1 downto 0);
+
+      -- ret_dat_wbs interface
+      tes_bias_toggle_en_i   : in std_logic;
+      tes_bias_high_i        : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+      tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
+      status_cmd_en_i        : in std_logic;
    
       -- clk_switchover interface
-      active_clk_i        : in std_logic;
+      active_clk_i           : in std_logic;
    
       -- dv_rx interface
-      sync_box_err_i      : in std_logic;
-      sync_box_free_run_i : in std_logic;
+      sync_box_err_i         : in std_logic;
+      sync_box_free_run_i    : in std_logic;
    
       -- sync_gen interface
-      row_len_i         : in integer;
-      num_rows_i        : in integer;
-      sync_pulse_i      : in std_logic;
-      sync_number_i     : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
+      row_len_i              : in integer;
+      num_rows_i             : in integer;
+      sync_pulse_i           : in std_logic;
+      sync_number_i          : in std_logic_vector (SYNC_NUM_WIDTH-1 downto 0)
    );    
    end component;
    
@@ -691,7 +716,7 @@ begin
          fw_rev_data       when FW_REV_ADDR,              
          led_data          when LED_ADDR,
          sync_gen_data     when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
-         ret_dat_data      when RET_DAT_S_ADDR | DATA_RATE_ADDR,
+         ret_dat_data      when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR,
          id_thermo_data    when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_data  when FPGA_TEMP_ADDR,
          config_fpga_data  when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
@@ -704,7 +729,7 @@ begin
          fw_rev_ack        when FW_REV_ADDR,
          led_ack           when LED_ADDR,
          sync_gen_ack      when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
-         ret_dat_ack       when RET_DAT_S_ADDR | DATA_RATE_ADDR,
+         ret_dat_ack       when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR,
          id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
          fpga_thermo_ack   when FPGA_TEMP_ADDR,
          config_fpga_ack   when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
@@ -716,8 +741,8 @@ begin
       slave_err <= 
          '0'               when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | 
                                 DATA_RATE_ADDR | CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
-                                SELECT_CLK_ADDR | BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR, 
-                                --| SAMPLE_DLY_ADDR | SAMPLE_NUM_ADDR | FB_DLY_ADDR | ROW_DLY_ADDR | RESYNC_ADDR | FLX_LP_INIT_ADDR,
+                                SELECT_CLK_ADDR | BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR | 
+                                TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR,
          fw_rev_err        when FW_REV_ADDR,
          id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
          fpga_thermo_err   when FPGA_TEMP_ADDR,
@@ -1025,15 +1050,24 @@ begin
       -- lvds_tx interface
       lvds_cmd_o        => cmd,
 
-      -- ret_dat_wbs interface:
+      -- ret_dat signals (from ret_dat_wbs)
       start_seq_num_i   => start_seq_num,
       stop_seq_num_i    => stop_seq_num,
       data_rate_i       => data_rate,
+      ret_dat_req_i     => ret_dat_req,
+      ret_dat_ack_o     => ret_dat_done,
+
+      -- ret_dat signals (from dv_rx)
       dv_mode_i         => dv_mode,
       external_dv_i     => external_dv,
       external_dv_num_i => external_dv_num,
-      ret_dat_req_i     => ret_dat_req,
-      ret_dat_ack_o     => ret_dat_done,
+
+      -- internal command signals (from ret_dat_wbs)
+      tes_bias_toggle_en_i   => tes_bias_toggle_en,
+      tes_bias_high_i        => tes_bias_high,
+      tes_bias_low_i         => tes_bias_low,
+      tes_bias_toggle_rate_i => tes_bias_toggle_rate,
+      status_cmd_en_i        => status_cmd_en,
 
       -- clk_switchover interface
       active_clk_i      => active_clk,
@@ -1064,26 +1098,33 @@ begin
    ret_dat_param: ret_dat_wbs       
    port map
    (
-      -- cmd_translator interface:
-      start_seq_num_o => start_seq_num,
-      stop_seq_num_o  => stop_seq_num,
-      data_rate_o     => data_rate,
-      ret_dat_req_o   => ret_dat_req,
-      ret_dat_ack_i   => ret_dat_done,
+      -- ret_dat command signals (to cmd_translator)
+      start_seq_num_o        => start_seq_num,
+      stop_seq_num_o         => stop_seq_num,
+      data_rate_o            => data_rate,
+      ret_dat_req_o          => ret_dat_req,
+      ret_dat_ack_i          => ret_dat_done,
+
+      -- internal command signals (to cmd_translator)
+      tes_bias_toggle_en_o   => tes_bias_toggle_en,
+      tes_bias_high_o        => tes_bias_high,
+      tes_bias_low_o         => tes_bias_low,
+      tes_bias_toggle_rate_o => tes_bias_toggle_rate,
+      status_cmd_en_o        => status_cmd_en,
 
       -- global interface
-      clk_i           => clk,
-      rst_i           => rst, 
+      clk_i                  => clk,
+      rst_i                  => rst, 
       
       -- wishbone interface:
-      dat_i           => data,         
-      addr_i          => addr,         
-      tga_i           => tga,
-      we_i            => we,          
-      stb_i           => stb,          
-      cyc_i           => cyc,       
-      dat_o           => ret_dat_data,
-      ack_o           => ret_dat_ack
+      dat_i                  => data,         
+      addr_i                 => addr,         
+      tga_i                  => tga,
+      we_i                   => we,          
+      stb_i                  => stb,          
+      cyc_i                  => cyc,       
+      dat_o                  => ret_dat_data,
+      ack_o                  => ret_dat_ack
    );
       
 end top;
