@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: readout_card.vhd,v $
+-- Revision 1.49  2006/08/10 21:35:42  mandana
+-- revision 03000105 for FILTER_GAIN_WIDTH = 11, i.e. divide by 2048 between filter stages
+--
 -- Revision 1.48  2006/07/28 17:18:01  mandana
 -- revision 03000104 for FILTER_LOCK_LSB_POS set to 12 and divide by 32 added between filter stages.
 --
@@ -325,9 +328,10 @@ architecture top of readout_card is
 --               rr is the minor revision number
 --               BBBB is the build number
 
-constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000105"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
+constant RC_REVISION: std_logic_vector (31 downto 0) := X"03000012"; -- filter coefs set for princeton fc/fs=100Hz/10kHz
                                                                      -- move to Q6.0 SP1 after using Altera's Quartus.ini file
                                                                      -- filter 1/2^11 scaling between biquad stages 
+                                                                     -- added read port for adc_offset
 -- Global signals
 signal clk                     : std_logic;  -- system clk
 signal comm_clk                : std_logic;  -- communication clk
