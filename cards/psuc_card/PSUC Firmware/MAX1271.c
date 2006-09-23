@@ -3,6 +3,9 @@
 /****************************************/
 // Revision history: 
 // $Log: MAX1271.c,v $
+// Revision 1.2  2006/09/07 20:37:01  stuartah
+// Cleaned up init() and re-organized main loop structure
+//
 // Revision 1.1  2006/09/05 20:02:48  stuartah
 // Renamed from i2c.c (doesn't use I2C protocol)
 	
@@ -27,7 +30,7 @@ void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeli
    	unsigned char bit_cnt, *temp_char_ptr;
    	unsigned int adc_reading=0;					
    
-   	//  MISO = 1;                               // port bit set for input		//need this	 ???????
+   	  MISO = 1;                               // port bit set for input		//need this	 ???????  YES	   //need to clear at end?
    	
 	// SPEN = 0:  SPI must be disabled to manually control SCLK
 	SPCON &= ~0x40;             						
@@ -75,17 +78,18 @@ void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeli
      	}
    	SCLK = 0;									// this edge latches bit
    	//_nop_();
-   	adc_reading = adc_reading<<1;                // rotate reading
+   //	adc_reading = adc_reading<<1;                // rotate reading
 
    	// get next 11 bits
    	for ( bit_cnt=1 ; bit_cnt<=11 ; bit_cnt++ ) {
+		adc_reading = adc_reading<<1;                // rotate reading
       	SCLK = 1;                                 
       	if ( MISO == 1) {
          	++adc_reading;									
 		 	//need delays in here????  else {_nop_();} ?
          	}
       	SCLK = 0;                                 // loads next bit
-      	adc_reading = adc_reading<<1;             // rotate reading
+      	//adc_reading = adc_reading<<1;             // rotate reading			 removed from here so last bit not shifted
    }
    
    	// de-select ADC
@@ -93,6 +97,10 @@ void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeli
    		CS_VADC = 1;
    	else
    		CS_IADC = 1;	   
+
+
+	MISO = 0; 							//clear port
+	//MISO = 1;								
 
   	// re-enable SPI
 	SPCON |= 0x40;								
