@@ -66,6 +66,10 @@
 --
 -- Revision history:
 -- $Log: pid_ram_admin.vhd,v $
+-- Revision 1.2  2005/12/13 00:48:01  mandana
+-- removed range checking to remove substancial extra logic, RTL takes care of range checking
+-- modified sign_8_xtnd_to_32 to sign_xtnd_to_32 to work with PIDZ_DATA_WIDTH instead of 8
+--
 -- Revision 1.1  2005/09/15 00:03:59  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -193,7 +197,7 @@ begin  -- rtl
   dat_ch6_o <= sign_xtnd_to_32(qb6);
   dat_ch7_o <= sign_xtnd_to_32(qb7);
   
-  i_bank_ch0 : ram_8x64
+  i_bank_ch0 : ram_10x64
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -210,7 +214,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch1 : ram_8x64
+  i_bank_ch1 : ram_10x64
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -228,7 +232,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
   
-  i_bank_ch2 : ram_8x64
+  i_bank_ch2 : ram_10x64
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -246,7 +250,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch3 : ram_8x64
+  i_bank_ch3 : ram_10x64
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -264,7 +268,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch4 : ram_8x64
+  i_bank_ch4 : ram_10x64
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -282,7 +286,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch5 : ram_8x64
+  i_bank_ch5 : ram_10x64
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -300,7 +304,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch6 : ram_8x64
+  i_bank_ch6 : ram_10x64
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
@@ -318,7 +322,7 @@ begin  -- rtl
                                         -- ram to limit changes.
 
 
-  i_bank_ch7 : ram_8x64
+  i_bank_ch7 : ram_10x64
     port map (
     data        => dat,                             -- from dispatch
     wraddress   => tga_i(PIDZ_ADDR_WIDTH-1 downto 0), -- from dispatch
