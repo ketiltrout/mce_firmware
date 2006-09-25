@@ -32,6 +32,10 @@
 -- Revision history:
 -- 
 -- $Log: wbs_fb_data_pack.vhd,v $
+-- Revision 1.4  2005/12/13 00:49:40  mandana
+-- changed sign_xtnd_8_to_32 to a generic version of sign_xtnd_to_32 that works with PIDZ_DATA_WIDTH instead of 8.
+-- removed unused function sign_xtnd_14_to_32
+--
 -- Revision 1.3  2005/09/14 23:48:41  bburger
 -- bburger:
 -- Integrated flux-jumping into flux_loop
@@ -89,16 +93,16 @@ package wbs_fb_data_pack is
   end component;
 
 
-  component ram_8x64
+  component ram_10x64
     port (
-      data        : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
+      data        : IN  STD_LOGIC_VECTOR (9 DOWNTO 0);
       wraddress   : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
       rdaddress_a : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
       rdaddress_b : IN  STD_LOGIC_VECTOR (5 DOWNTO 0);
       wren        : IN  STD_LOGIC := '1';
       clock       : IN  STD_LOGIC;
-      qa          : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-      qb          : OUT STD_LOGIC_VECTOR (7 DOWNTO 0));
+      qa          : OUT STD_LOGIC_VECTOR (9 DOWNTO 0);
+      qb          : OUT STD_LOGIC_VECTOR (9 DOWNTO 0));
   end component;
 
   component ram_14x64
