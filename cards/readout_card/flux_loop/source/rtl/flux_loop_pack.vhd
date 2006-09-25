@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: flux_loop_pack.vhd,v $
+-- Revision 1.9  2006/02/15 21:34:23  mandana
+-- added fltr_rst_i port
+--
 -- Revision 1.8  2005/12/12 22:20:03  mandana
 -- removed the unused flux_jumping_en_i port
 -- changed fsfb_fltr_dat_o port definition to fltr_queue_data_width-1
@@ -87,7 +90,7 @@ package flux_loop_pack is
   constant ADC_OFFSET_ADDR_WIDTH  : integer := 6;                    -- memory used has 2**6 locations 
   
   constant PIDZ_ADDR_WIDTH        : integer := 6;                    -- Note that same memory storage element is used for PIDZ and ADC_OFFSET and FLUX_QUANTA
-  constant PIDZ_DATA_WIDTH        : integer := 8;
+  constant PIDZ_DATA_WIDTH        : integer := 10;
   constant PIDZ_MAX               : integer := (2**(PIDZ_DATA_WIDTH-1))-1;
   constant PIDZ_MIN               : integer := -(2**(PIDZ_DATA_WIDTH-1));
   
