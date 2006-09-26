@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.7 2006/09/07 22:25:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.8 2006/09/21 16:11:02 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/07 22:25:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/21 16:11:02 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_internal_cmd_fsm.vhd,v $
+-- Revision 1.8  2006/09/21 16:11:02  bburger
+-- Bryce:  Upgraded the functionality to allow issuing multiple different internal commands.
+--
 -- Revision 1.7  2006/09/07 22:25:22  bburger
 -- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
 --
@@ -135,7 +138,7 @@ architecture rtl of cmd_translator_internal_cmd_fsm is
    
    signal timer_rst           : std_logic;
    signal time                : integer;
-   signal data_clk            : std_logic;
+--   signal data_clk            : std_logic;
 
 begin
 
@@ -152,12 +155,12 @@ begin
          tes_bias_toggle_req     <= '0';
          next_toggle_sync        <= (others => '0');
          toggle_which_way        <= '1';
-         data_clk                <= '0';
+--         data_clk                <= '0';
          toggle_en_delayed       <= '0';
 
       elsif clk_i'event and clk_i = '1' then 
          
-         data_clk          <= not data_clk;
+--         data_clk          <= not data_clk;
          toggle_en_delayed <= tes_bias_toggle_en_i;
          timer_rst         <= '0';
          
@@ -267,7 +270,7 @@ begin
    end process next_state_fsm;
    
    out_state_fsm: process(tes_bias_toggle_req, ack_i, internal_status_req, toggle_which_way, 
-      tes_bias_low_i, tes_bias_high_i, current_state, data_clk)
+      tes_bias_low_i, tes_bias_high_i, current_state, sync_number_i, next_toggle_sync)
    begin
       
       tes_bias_toggle_ack <= '0';
@@ -321,7 +324,8 @@ begin
                instr_rdy_o       <= '1';             
                cmd_code_o        <= WRITE_BLOCK;
                data_size_o       <= TES_BIAS_DATA_SIZE; -- 32 words
-               data_clk_o        <= data_clk;
+               -- cmd_queue is level-sensitive, not edge-sensitive.
+               data_clk_o        <= '1';
                
                if(toggle_which_way = '0') then 
                   data_o         <= tes_bias_low_i;
