@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.28 2006/09/15 00:36:11 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.29 2006/09/21 16:09:43 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/15 00:36:11 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/21 16:09:43 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.29  2006/09/21 16:09:43  bburger
+-- Bryce:  Added support for the TES Bias Step internal commands
+--
 -- Revision 1.28  2006/09/15 00:36:11  bburger
 -- Bryce:  Added internal_cmd_window between ret_dat_fsm and arbiter_fsm
 --
@@ -234,6 +237,7 @@ port(
       tes_bias_step_level_o          : out std_logic;
        
       -- input from the cmd_queue
+      busy_i                         : in std_logic;
       ack_i                          : in std_logic                                                 -- acknowledgment from the cmd_queue that it is ready and has grabbed the data
    ); 
      
@@ -244,8 +248,7 @@ architecture rtl of cmd_translator_arbiter is
    -------------------------------------------------------------------------------------------
    -- type definitions
    ------------------------------------------------------------------------------------------- 
-   type   state is (IDLE, INTRNL_CMD_RDY, SIMPLE_CMD_RDY, SIMPLE_CMD_PAUSE, RET_DAT_RDY, RET_DAT_PAUSE, RET_DAT_RDY_SIMPLE_CMD_PENDING, 
-                    RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT, RDY_HIGH, RDY_LOW1, RDY_LOW2, RDY_LOW_WAIT);
+   type state is (IDLE, INTRNL_CMD_RDY, SIMPLE_CMD_RDY, RET_DAT_RDY, BUSY);
                     
    -------------------------------------------------------------------------------------------
    -- signals
@@ -314,8 +317,9 @@ begin
    -------------------------------------------------------------------------------------------
    -- assign next states
    -------------------------------------------------------------------------------------------    
-   process(current_state, simple_cmd_instr_rdy_i, ret_dat_instr_rdy_i, internal_cmd_instr_rdy_i, internal_cmd_window_i)
+   process(current_state, simple_cmd_instr_rdy_i, ret_dat_instr_rdy_i, internal_cmd_instr_rdy_i, internal_cmd_window_i, busy_i)
    begin
+      next_state <= current_state;
       case current_state is
          when IDLE =>
             -- Priority is given to ret_dat commands
@@ -325,50 +329,28 @@ begin
                next_state <= INTRNL_CMD_RDY;
             elsif(ret_dat_instr_rdy_i = '1') then
                next_state <= RET_DAT_RDY;
-            else
-               next_state <= IDLE;
             end if;
       
          when INTRNL_CMD_RDY =>
-            if internal_cmd_instr_rdy_i = '1' then
-               next_state <= INTRNL_CMD_RDY;
-            else
-               next_state <= IDLE;
+            if(internal_cmd_instr_rdy_i = '0') then
+               next_state <= BUSY;
             end if;
             
          when SIMPLE_CMD_RDY =>
-            if simple_cmd_instr_rdy_i = '1' then
-               next_state <= SIMPLE_CMD_RDY;
-            elsif ret_dat_instr_rdy_i = '1' then
-               next_state <= SIMPLE_CMD_PAUSE;
-            else
-               next_state <= IDLE;
+            if(simple_cmd_instr_rdy_i = '0') then
+               next_state <= BUSY;
             end if;
-            
-         when SIMPLE_CMD_PAUSE =>
-            next_state    <= RET_DAT_RDY;
             
          when RET_DAT_RDY =>
-            if simple_cmd_instr_rdy_i = '1' then
-               next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING;
-            elsif ret_dat_instr_rdy_i = '1' then
-               next_state <= RET_DAT_RDY;
-            else
-               next_state <= IDLE;
+            if(ret_dat_instr_rdy_i = '0') then
+               next_state <= BUSY;
             end if; 
             
-         when RET_DAT_RDY_SIMPLE_CMD_PENDING =>
-            if ret_dat_instr_rdy_i = '1' and simple_cmd_instr_rdy_i = '1' then -- wait for current ret_dat m_op to finish
-               next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING;
-            elsif ret_dat_instr_rdy_i = '0' and simple_cmd_instr_rdy_i = '1' then
-               next_state <= RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT;
-            else
+         when BUSY =>
+            if(busy_i = '0') then
                next_state <= IDLE;
             end if;
-            
-         when RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT =>
-            next_state    <= SIMPLE_CMD_RDY;
-                    
+         
          when others => 
             next_state    <= IDLE;
          
@@ -378,66 +360,35 @@ begin
    -------------------------------------------------------------------------------------------
    -- assign state values
    -------------------------------------------------------------------------------------------      
-   process(current_state, simple_cmd_instr_rdy_i, ret_dat_instr_rdy_i, ret_dat_pending,
-           internal_cmd_instr_rdy_i)           
+   process(current_state)
+   --, simple_cmd_instr_rdy_i, ret_dat_instr_rdy_i, ret_dat_pending,
+   --        internal_cmd_instr_rdy_i)           
    begin
       -- defaults
       data_mux_sel               <= "00";  --"00" routes simple cmds thru, "01" is for ret_dat cmds, "10" for internal
       simple_cmd_ack_mux_sel     <= '0';
       ret_dat_ack_mux_sel        <= '0';
       internal_cmd_ack_mux_sel   <= '0';
-      instr_rdy_mux_sel    <= '0'; 
+      instr_rdy_mux_sel          <= '0'; 
       ret_dat_pending_mux_sel    <= '0';
       ret_dat_pending_reg_en     <= '0';
    
       case current_state is 
          when IDLE =>
-            if internal_cmd_instr_rdy_i = '1' then
-               data_mux_sel                   <= "10";
-               internal_cmd_ack_mux_sel       <= '1';
-            end if;
             
          when INTRNL_CMD_RDY =>
             data_mux_sel                      <= "10";
             internal_cmd_ack_mux_sel          <= '1';
       
          when SIMPLE_CMD_RDY =>
-            if simple_cmd_instr_rdy_i = '1' then
-               simple_cmd_ack_mux_sel         <= '1';
-            elsif ret_dat_instr_rdy_i = '1' then
-               if ret_dat_pending = '1' then 
-                  data_mux_sel                <= "01";
-                  instr_rdy_mux_sel     <= '1';
-               else
-                  data_mux_sel                <= "01";
-                  ret_dat_ack_mux_sel         <= '1';
-               end if;
-            else
-               simple_cmd_ack_mux_sel         <= '1';
-            end if;
-            
-         when SIMPLE_CMD_PAUSE =>
-            instr_rdy_mux_sel           <= '1';
-
-         when RET_DAT_PAUSE =>
-            data_mux_sel                      <= "01";
+            data_mux_sel                      <= "00";
+            simple_cmd_ack_mux_sel            <= '1';
 
          when RET_DAT_RDY =>        
-            if ret_dat_instr_rdy_i = '1' then
-               data_mux_sel                   <= "01";
-            end if; 
-            ret_dat_ack_mux_sel               <= '1';
-          
-         when RET_DAT_RDY_SIMPLE_CMD_PENDING =>
             data_mux_sel                      <= "01";
             ret_dat_ack_mux_sel               <= '1';
-             
-         when RET_DAT_RDY_SIMPLE_CMD_PENDING_WAIT =>
-            ret_dat_pending_mux_sel           <= '1';
-            ret_dat_pending_reg_en            <= '1';
-                  
+
          when others =>              
-            simple_cmd_ack_mux_sel            <= '1';
             
       end case;
    end process;

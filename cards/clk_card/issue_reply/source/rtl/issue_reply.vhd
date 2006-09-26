@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.53 2006/09/07 22:25:22 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.54 2006/09/21 16:14:26 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/07 22:25:22 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/21 16:14:26 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.54  2006/09/21 16:14:26  bburger
+-- Bryce:  Added interfaces for the TES Bias Step internal commands
+--
 -- Revision 1.53  2006/09/07 22:25:22  bburger
 -- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
 --
@@ -226,6 +229,7 @@ architecture rtl of issue_reply is
       tes_bias_step_level_o : out std_logic;
       
       -- input from the cmd_queue
+      busy_i                : in std_logic;
       ack_i                 : in  std_logic;                                                     -- acknowledge signal from the micro-instruction sequence generator
 
       -- outputs to the cmd_queue
@@ -272,6 +276,7 @@ architecture rtl of issue_reply is
       data_clk_i      : in std_logic; 
       issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       mop_rdy_i       : in std_logic;
+      busy_o          : out std_logic;
       mop_ack_o       : out std_logic; 
       cmd_code_i      : in std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;                                          
@@ -452,6 +457,7 @@ architecture rtl of issue_reply is
    signal frame_sync_num      : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal frame_seq_num       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal macro_instr_rdy     : std_logic; 
+   signal busy                : std_logic;
    signal mop_ack             : std_logic; 
    signal cmd_stop            : std_logic;
    signal last_frame          : std_logic;      
@@ -610,6 +616,7 @@ begin
          tes_bias_step_level_o => tes_bias_step_level,
          
          --input from the u-op sequence generator
+         busy_i              => busy,
          ack_i               => mop_ack,
          
          -- reply_translator interface          
@@ -670,6 +677,7 @@ begin
         data_clk_i      => data_clk2,
         issue_sync_i    => frame_sync_num,
         mop_rdy_i       => macro_instr_rdy,
+        busy_o          => busy,
         mop_ack_o       => mop_ack,
         cmd_stop_i      => cmd_stop,
         last_frame_i    => last_frame,

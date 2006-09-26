@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.44 2006/09/15 00:36:11 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.45 2006/09/21 16:09:14 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/15 00:36:11 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/21 16:09:14 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.45  2006/09/21 16:09:14  bburger
+-- Bryce:  Added support for the TES Bias Step internal commands
+--
 -- Revision 1.44  2006/09/15 00:36:11  bburger
 -- Bryce:  Added internal_cmd_window between ret_dat_fsm and arbiter_fsm
 --
@@ -122,6 +125,8 @@ port(
    
    -- input from the cmd_queue
    ack_i                 : in  std_logic;                                                     -- acknowledge signal from the micro-instruction sequence generator
+   busy_i                : in std_logic;
+
 
    -- outputs to the cmd_queue
    frame_seq_num_o       : out std_logic_vector(       PACKET_WORD_WIDTH-1 downto 0);
@@ -303,6 +308,7 @@ architecture rtl of cmd_translator is
       internal_cmd_o                 : out std_logic;  
       tes_bias_step_level_i          : in std_logic;
       tes_bias_step_level_o          : out std_logic;
+      busy_i                         : in std_logic;
       ack_i                          : in  std_logic);      
    end component;
 
@@ -597,6 +603,7 @@ begin
       internal_cmd_o                 => internal_cmd,
       tes_bias_step_level_i          => tes_bias_step_level,
       tes_bias_step_level_o          => tes_bias_step_level2,
+      busy_i                         => busy_i,
       ack_i                          => ack_i                       -- acknowledgment from the cmd_queue that it is ready and has grabbed the data
    ); 
 

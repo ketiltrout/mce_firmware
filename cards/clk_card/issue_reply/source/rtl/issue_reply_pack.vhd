@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.46 2006/09/15 00:36:11 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.47 2006/09/21 16:15:16 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.47  2006/09/21 16:15:16  bburger
+-- Bryce:  added constants for internal commands
+--
 -- Revision 1.46  2006/09/15 00:36:11  bburger
 -- Bryce:  Added internal_cmd_window between ret_dat_fsm and arbiter_fsm
 --
@@ -91,7 +94,7 @@ package issue_reply_pack is
    -- Measured in clock cycles, this is the minumum amount of cycles necessary for an internal/ simple command
    -- For a 58-word WB command, 100 us are required from receiving the last word of the command to sending the last word of the reply
    -- For a 58-word RB command, 105 us are required from receiving the last word of the command to sending the last word of the reply.
-   constant MIN_WINDOW : integer := 110000; -- ns
+   constant MIN_WINDOW : integer := 5500;--110000/20ns; -- ns
 
    -- Data sizes for internal commands
    constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000100000"; -- 32 words
