@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.96 2006/09/07 22:25:22 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.97 2006/09/21 16:08:38 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.97  2006/09/21 16:08:38  bburger
+-- Bryce:  Added support for the TES Bias Step internal commands
+--
 -- Revision 1.96  2006/09/07 22:25:22  bburger
 -- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
 --
@@ -114,7 +117,8 @@ entity cmd_queue is
       data_clk_i      : in std_logic; 
       issue_sync_i    : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       mop_rdy_i       : in std_logic;
-      mop_ack_o       : out std_logic; 
+      mop_ack_o       : out std_logic;
+      busy_o          : out std_logic;
       cmd_code_i      : in std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       cmd_stop_i      : in std_logic;                                          
       last_frame_i    : in std_logic;                                          
@@ -634,7 +638,7 @@ begin
       end if;
    end process;
 
-   state_out: process(present_state, data_clk_i, data_size, bit_ctr_count, previous_state)
+   state_out: process(present_state, data_clk_i, bit_ctr_count, previous_state, cmd_code)
    begin   
       --defaults
       reg_en               <= '0';
@@ -650,6 +654,7 @@ begin
       uop_rdy_o            <= '0';
       crc_ena              <= '0';
       sync_num_reg_en      <= '0';
+      busy_o               <= '1';
       
       case present_state is
          when IDLE =>
@@ -657,6 +662,7 @@ begin
             crc_clr              <= '1';
             crc_ena              <= '1';
             update_prev_state    <= '1';
+            busy_o               <= '0';
          
          -----------------------------------------------------
          -- Store Command
@@ -667,7 +673,7 @@ begin
          when IS_THERE_DATA =>
             -- Asserting mop_ack_o causes cmd_translator to begin passing data through to cmd_queue.
             -- Assert mop_ack_o here if there is data.
-            if(data_size /= 0) then
+            if(cmd_code /= READ_BLOCK) then --data_size /= 0) then
                mop_ack_o         <= '1';
             end if;
          
