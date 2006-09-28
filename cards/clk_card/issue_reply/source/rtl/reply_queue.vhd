@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.35 2006/09/15 00:48:36 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.36 2006/09/21 16:16:59 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,12 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.36  2006/09/21 16:16:59  bburger
+-- Bryce:
+-- - parameterized some literals
+-- - added support for WB internal commands (TES Bias Step)
+-- - added a TES Bias Level bit to the data packet status header
+--
 -- Revision 1.35  2006/09/15 00:48:36  bburger
 -- Bryce:  Cleaned up the data word acknowledgement chain to speed things up.  Untested in hardware.  Data packets are un-simulated
 --
@@ -436,7 +442,8 @@ begin
          when WAIT_FOR_MATCH =>
             if(matched = '1') then
                if(cmd_code = RESET) then
-                  -- If we match the replies to a reset command, we discard them.
+                  -- If we match the replies to a reset command, we forget about it,
+                  -- and allow the next reply to overwrite the reset's reply.
                   next_retire_state <= IDLE;
                elsif(internal_cmd = '1') then
                   if(cmd_code = READ_BLOCK) then
@@ -570,8 +577,8 @@ begin
          x"0000000" & "000" & tes_bias_step_level when TX_TES_BIAS_LEVEL,
          (others => '0')                          when others;
 
-   cmd_sent_o <= matched;
-   retire_state_out: process(present_retire_state, ack_i, data_size, par_id, word_rdy)
+--   cmd_sent_o <= matched;
+   retire_state_out: process(present_retire_state, ack_i, data_size, par_id, word_rdy, cmd_code, matched)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -587,6 +594,7 @@ begin
       rdy_o           <= '0';
       
       status_en       <= '0';
+      cmd_sent_o      <= '0';
       
       case present_retire_state is
          when IDLE =>
@@ -601,6 +609,12 @@ begin
 
          when WAIT_FOR_MATCH =>
             status_en       <= '1';
+            
+            if(matched = '1') then
+               if(cmd_code = RESET) then
+                  cmd_sent_o <= '1';
+               end if;
+            end if;            
             
          when TX_STATUS =>           
             if(par_id = RET_DAT_ADDR) then
@@ -624,6 +638,7 @@ begin
             word_ack        <= '1';
 
          when DONE_HEADER_STORE =>
+            cmd_sent_o <= '1';
 
          when TX_HEADER =>
             rdy_o           <= '1';
@@ -673,9 +688,17 @@ begin
             rdy_o           <= word_rdy;
             word_ack        <= ack_i;
 
+            if(word_rdy = '0') then
+               cmd_sent_o <= '1';
+            end if;
+
          when REPLY =>
             rdy_o           <= word_rdy;
             word_ack        <= ack_i;
+
+            if(word_rdy = '0') then
+               cmd_sent_o <= '1';
+            end if;
            
          when others =>
             null;

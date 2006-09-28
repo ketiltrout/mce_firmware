@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.41 2006/08/18 22:33:09 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.42 2006/09/15 00:48:36 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/08/18 22:33:09 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/09/15 00:48:36 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.42  2006/09/15 00:48:36  bburger
+-- Bryce:  Cleaned up the data word acknowledgement chain to speed things up.  Untested in hardware.  Data packets are un-simulated
+--
 -- Revision 1.41  2006/08/18 22:33:09  bburger
 -- Bryce:  Removed data signals from FSM's and implemented data pipeline with combinatorial logic to give the data pipeline more slack and setup time.  As it was, the design was meeting timing in Quartus, but just marginally.  Now there is >1ns of slack for the data signals.
 --
@@ -512,6 +515,7 @@ begin
       reply_status     <= (others => '0');      
       checksum_ld      <= '0';
       checksum_clr     <= '0';
+      mop_ack_o        <= '0';
       
       case fibre_current_state is
       -- Idle state - no packets to process      
@@ -645,19 +649,20 @@ begin
       ----------------------------------------
       -- Checksum word
       ----------------------------------------
-       when LD_CKSUM =>
-          if(fibre_tx_busy_i = '0') then 
-             fibre_tx_rdy_o <= '1';
-          end if;   
-           
-       when WAIT_Q_WORD1  => 
+      when LD_CKSUM =>
+         if(fibre_tx_busy_i = '0') then 
+            fibre_tx_rdy_o <= '1';
+         end if;   
+          
+      when WAIT_Q_WORD1  => 
 
-       when WAIT_Q_WORD4  => 
+      when WAIT_Q_WORD4  => 
 
-       when DONE => 
-       
-       when others =>
-           
+      when DONE => 
+         mop_ack_o <= '1';
+      
+      when others =>
+          
       end case;      
       
    end process reply_fsm_output;
