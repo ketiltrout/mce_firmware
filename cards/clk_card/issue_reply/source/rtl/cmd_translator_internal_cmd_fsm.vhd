@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.8 2006/09/21 16:11:02 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.9 2006/09/26 02:16:44 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/21 16:11:02 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/26 02:16:44 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_internal_cmd_fsm.vhd,v $
+-- Revision 1.9  2006/09/26 02:16:44  bburger
+-- Bryce:  cleaned up unnecessary signals
+--
 -- Revision 1.8  2006/09/21 16:11:02  bburger
 -- Bryce:  Upgraded the functionality to allow issuing multiple different internal commands.
 --
@@ -303,7 +306,7 @@ begin
                parameter_id_o    <= BIAS_ADDR;        
                instr_rdy_o       <= '1';             
                cmd_code_o        <= WRITE_BLOCK;
-               data_size_o       <= TES_BIAS_DATA_SIZE; -- 32 words
+               data_size_o       <= TES_BIAS_DATA_SIZE; -- 1 word
                data_clk_o        <= '0';
                
                if(toggle_which_way = '0') then 
@@ -323,7 +326,7 @@ begin
                parameter_id_o    <= BIAS_ADDR;        
                instr_rdy_o       <= '1';             
                cmd_code_o        <= WRITE_BLOCK;
-               data_size_o       <= TES_BIAS_DATA_SIZE; -- 32 words
+               data_size_o       <= TES_BIAS_DATA_SIZE; -- 1 word
                -- cmd_queue is level-sensitive, not edge-sensitive.
                data_clk_o        <= '1';
                

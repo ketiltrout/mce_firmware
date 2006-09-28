@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.47 2006/09/21 16:15:16 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.48 2006/09/26 02:16:05 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.48  2006/09/26 02:16:05  bburger
+-- Bryce: added busy_i interface for arbitration between ret_dat, internal and simple commands
+--
 -- Revision 1.47  2006/09/21 16:15:16  bburger
 -- Bryce:  added constants for internal commands
 --
@@ -97,7 +100,7 @@ package issue_reply_pack is
    constant MIN_WINDOW : integer := 5500;--110000/20ns; -- ns
 
    -- Data sizes for internal commands
-   constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000100000"; -- 32 words
+   constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word 
    constant FPGA_TEMP_DATA_SIZE  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word  
    constant CARD_TEMP_DATA_SIZE  : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word  
    constant PSC_STATUS_DATA_SIZE : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000001001"; --  9 words
