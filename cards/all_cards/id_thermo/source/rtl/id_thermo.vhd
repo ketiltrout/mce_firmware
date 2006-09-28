@@ -21,7 +21,7 @@
 --
 -- id_thermo.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.6  2006/05/05 19:21:04  mandana
+-- added err_o to the interface to issue a wishbone error for write commands
+--
 -- Revision 1.5  2005/10/21 20:07:40  erniel
 -- valid flag now controls termination of wishbone cycle
 --
@@ -65,7 +68,7 @@ port(clk_i : in std_logic;
      rst_i : in std_logic;
      
      -- Wishbone signals
-     dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+     dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
      addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
      we_i    : in std_logic;
@@ -481,10 +484,12 @@ begin
          
          when SEND_TEMP => if(valid = '1') then
                               ack_o <= '1';
+                              -- sign extension to 32-bit since thermo is 16-bit and wishbone data is 32-bit
+                              -- Want temperature in degree-resolution (not 0.5-degree resolution)
+                              -- Range is from -55 to +85 degress Celcius.
                               dat_o <= thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
                                        thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & thermo(15) & 
-                                       thermo(15 downto 0);  
-                                       -- sign extension to 32-bit since thermo is 16-bit and wishbone data is 32-bit
+                                       thermo(15) & thermo(15 downto 1);  
                            end if;
          
          when WB_ERROR => err_o <= '1';                  
