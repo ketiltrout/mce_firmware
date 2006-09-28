@@ -21,7 +21,7 @@
 --
 -- fpga_thermo.vhd
 --
--- Project:	      SCUBA-2
+-- Project:       SCUBA-2
 -- Author:        Ernie Lin
 -- Organisation:  UBC
 --
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: fpga_thermo.vhd,v $
+-- Revision 1.2  2006/05/05 19:19:08  mandana
+-- added err_o to the interface to issue a wishbone error for write commands
+--
 -- Revision 1.1  2006/01/23 18:18:16  erniel
 -- initial version
 --
@@ -52,7 +55,7 @@ port(clk_i : in std_logic;
      rst_i : in std_logic;
 
      -- wishbone signals
-     dat_i 	 : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+     dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
      addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
      tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
      we_i    : in std_logic;
@@ -266,7 +269,10 @@ begin
       case wb_ps is         
          when SEND_TEMP => if(valid = '1') then
                               ack_o <= '1';
-                              dat_o(7 downto 0) <= thermo;   -- upper bits set to '0' by default assignment
+                              dat_o <= thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & 
+                                       thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & 
+                                       thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & thermo(7) & 
+                                       thermo(7 downto 0);   -- upper bits set to '0' by default assignment
                            end if;
          
          when WB_ERROR  => err_o <= '1';
