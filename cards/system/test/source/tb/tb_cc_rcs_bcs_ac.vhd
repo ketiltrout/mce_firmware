@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.31 2006/09/15 00:51:02 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.32 2006/09/21 16:20:57 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.32  2006/09/21 16:20:57  bburger
+-- Bryce:  Added support for testing TES Bias Step internal commands
+--
 -- Revision 1.31  2006/09/15 00:51:02  bburger
 -- Bryce:  new section added for testing maximum length commands
 --
@@ -433,7 +436,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_row_len_cmd          : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ROW_LEN_ADDR;    
    constant cc_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & NUM_ROWS_ADDR;
    constant cc_ret_dat_s_cmd        : std_logic_vector(31 downto 0) := X"00020053";  -- card id=0, ret_dat_s command
-   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"00000008";   
+   signal   ret_dat_s_stop          : std_logic_vector(31 downto 0) := X"0000000F";   
    constant cc_led_cmd              : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & LED_ADDR;
    constant cc_array_id_cmd         : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & ARRAY_ID_ADDR;
    constant cc_use_dv_cmd           : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & USE_DV_ADDR;
@@ -2240,7 +2243,7 @@ begin
       load_preamble;
       load_command;
       load_checksum;
-      wait for 20 us;
+      wait for 600 us;
 
       command <= command_go;
       address_id <= rc1_ret_dat_cmd;

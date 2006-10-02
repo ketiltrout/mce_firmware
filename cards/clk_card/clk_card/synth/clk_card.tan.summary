@@ -5,9 +5,9 @@ Timing Analyzer Summary
 Type           : Worst-case tsu
 Slack          : N/A
 Required Time  : None
-Actual Time    : 17.799 ns
-From           : sclki
-To             : psu_ctrl:psu_ctrl_inst|sclk_temp
+Actual Time    : 18.595 ns
+From           : ccssi
+To             : psu_ctrl:psu_ctrl_inst|ccss_temp
 From Clock     : --
 To Clock       : inclk14
 Failed Paths   : 0
@@ -15,9 +15,9 @@ Failed Paths   : 0
 Type           : Worst-case tco
 Slack          : N/A
 Required Time  : None
-Actual Time    : 11.520 ns
+Actual Time    : 12.884 ns
 From           : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|dcfifo_ktl1:auto_generated|alt_sync_fifo_fem:sync_fifo|dpram_kv01:dpram4|altsyncram_arh1:altsyncram14|ram_block15a0~portb_address_reg5
-To             : mictor0_e[2]
+To             : mictor0_e[0]
 From Clock     : inclk14
 To Clock       : --
 Failed Paths   : 0
@@ -25,35 +25,35 @@ Failed Paths   : 0
 Type           : Worst-case th
 Slack          : N/A
 Required Time  : None
-Actual Time    : -3.769 ns
-From           : fibre_rx_data[2]
-To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_9ia1:auto_generated|dpram_7vr:fiforam|altsyncram_9nf1:altsyncram3|ram_block4a0~porta_datain_reg4
+Actual Time    : -3.738 ns
+From           : fibre_rx_data[1]
+To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_9ia1:auto_generated|dpram_7vr:fiforam|altsyncram_9nf1:altsyncram3|ram_block4a0~porta_datain_reg1
 From Clock     : --
 To Clock       : fibre_rx_clkr
 Failed Paths   : 0
 
 Type           : Clock Setup: 'clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk0'
-Slack          : 1.737 ns
+Slack          : 2.162 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 60.51 MHz ( period = 16.526 ns )
-From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc1|fifo:packet_buffer|altsyncram:fifo_storage|altsyncram_psb1:auto_generated|ram_block1a20~portb_address_reg10
-To             : issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word[29]
+Actual Time    : 63.79 MHz ( period = 15.676 ns )
+From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc3|fifo:packet_buffer|altsyncram:fifo_storage|altsyncram_psb1:auto_generated|ram_block1a25~portb_address_reg10
+To             : issue_reply:issue_reply0|reply_translator:i_reply_translator|fibre_word[25]
 From Clock     : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk0
 To Clock       : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
 Type           : Clock Setup: 'clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk2'
-Slack          : 3.609 ns
+Slack          : 3.982 ns
 Required Time  : 100.00 MHz ( period = 10.000 ns )
-Actual Time    : 156.47 MHz ( period = 6.391 ns )
+Actual Time    : 166.17 MHz ( period = 6.018 ns )
 From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver|binary_counter:sample_counter|count[0]
-To             : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver|dcfifo:data_buffer|dcfifo_hql1:auto_generated|alt_sync_fifo_aem:sync_fifo|dpram_iv01:dpram4|altsyncram_6rh1:altsyncram14|ram_block15a7~porta_datain_reg13
+To             : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_bc2|lvds_rx:lvds_receiver|dcfifo:data_buffer|dcfifo_hql1:auto_generated|alt_sync_fifo_aem:sync_fifo|dpram_iv01:dpram4|altsyncram_6rh1:altsyncram14|ram_block15a11~porta_datain_reg17
 From Clock     : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk2
 To Clock       : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk2
 Failed Paths   : 0
 
 Type           : Clock Setup: 'clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk1'
-Slack          : 9.222 ns
+Slack          : 9.223 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
 From           : sync_gen:sync_gen0|sync_gen_core:sgc|current_state.send_bit0
@@ -63,9 +63,9 @@ To Clock       : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_co
 Failed Paths   : 0
 
 Type           : Clock Setup: 'fibre_rx_clkr'
-Slack          : 16.486 ns
+Slack          : 15.804 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
-Actual Time    : 284.58 MHz ( period = 3.514 ns )
+Actual Time    : 238.32 MHz ( period = 4.196 ns )
 From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_9ia1:auto_generated|a_fefifo_h3d:write_state|b_full
 To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_9ia1:auto_generated|a_graycounter_v16:wrptr_g|power_modified_counter_values[7]
 From Clock     : fibre_rx_clkr
@@ -73,7 +73,7 @@ To Clock       : fibre_rx_clkr
 Failed Paths   : 0
 
 Type           : Clock Setup: 'clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk3'
-Slack          : 18.743 ns
+Slack          : 18.742 ns
 Required Time  : 25.00 MHz ( period = 40.000 ns )
 Actual Time    : N/A
 From           : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|dcfifo_ktl1:auto_generated|alt_sync_fifo_fem:sync_fifo|dffe7a[1]
@@ -92,38 +92,38 @@ From Clock     : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_co
 To Clock       : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk0
 Failed Paths   : 0
 
-Type           : Clock Hold: 'clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk3'
-Slack          : 0.540 ns
-Required Time  : 25.00 MHz ( period = 40.000 ns )
-Actual Time    : N/A
-From           : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|dcfifo_ktl1:auto_generated|alt_sync_fifo_fem:sync_fifo|dffe7a[6]
-To             : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|dcfifo_ktl1:auto_generated|alt_sync_fifo_fem:sync_fifo|dffe8a[6]
-From Clock     : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk0
-To Clock       : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk3
-Failed Paths   : 0
-
 Type           : Clock Hold: 'clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk2'
-Slack          : 0.543 ns
+Slack          : 0.542 ns
 Required Time  : 100.00 MHz ( period = 10.000 ns )
 Actual Time    : N/A
-From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver|lvds_temp
-To             : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_ac|lvds_rx:lvds_receiver|lvds
+From           : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver|dcfifo:data_buffer|dcfifo_hql1:auto_generated|alt_sync_fifo_aem:sync_fifo|cntr_808:cntr1|safe_q[0]
+To             : issue_reply:issue_reply0|reply_queue:i_reply_queue|reply_queue_sequencer:rq_seq|reply_queue_receive:rx_rc3|lvds_rx:lvds_receiver|dcfifo:data_buffer|dcfifo_hql1:auto_generated|alt_sync_fifo_aem:sync_fifo|dffe7a[0]
 From Clock     : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk2
 To Clock       : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk2
+Failed Paths   : 0
+
+Type           : Clock Hold: 'clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk3'
+Slack          : 0.542 ns
+Required Time  : 25.00 MHz ( period = 40.000 ns )
+Actual Time    : N/A
+From           : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|dcfifo_ktl1:auto_generated|alt_sync_fifo_fem:sync_fifo|dffe7a[0]
+To             : issue_reply:issue_reply0|fibre_tx:i_fibre_tx|dcfifo:fibre_tx_buffer|dcfifo_ktl1:auto_generated|alt_sync_fifo_fem:sync_fifo|dffe8a[0]
+From Clock     : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk0
+To Clock       : clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk3
 Failed Paths   : 0
 
 Type           : Clock Hold: 'fibre_rx_clkr'
 Slack          : 0.544 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
-From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_9ia1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe10|dffe11a[0]
-To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_9ia1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe10|dffe12a[0]
+From           : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_9ia1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe10|dffe11a[5]
+To             : issue_reply:issue_reply0|fibre_rx:i_fibre_rx|fibre_rx_fifo:I0|sync_fifo_rx:SFIFO|dcfifo:dcfifo_component|dcfifo_9ia1:auto_generated|alt_synch_pipe_oc8:dffpipe_ws_dgrp|dffpipe_id9:dffpipe10|dffe12a[5]
 From Clock     : fibre_rx_clkr
 To Clock       : fibre_rx_clkr
 Failed Paths   : 0
 
 Type           : Clock Hold: 'clk_switchover:clk_switchover_inst|cc_pll:pll0|altpll:altpll_component|_clk1'
-Slack          : 10.668 ns
+Slack          : 10.667 ns
 Required Time  : 50.00 MHz ( period = 20.000 ns )
 Actual Time    : N/A
 From           : sync_gen:sync_gen0|sync_gen_core:sgc|current_state.send_bit0
