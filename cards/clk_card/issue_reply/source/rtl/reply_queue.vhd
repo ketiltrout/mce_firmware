@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.36 2006/09/21 16:16:59 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.37 2006/09/28 00:34:18 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.37  2006/09/28 00:34:18  bburger
+-- Bryce:  now asserts cmd_sent_o/ mop_ack_o only when there is no data left in the queues.  This prevents short responses interfering with long ones.
+--
 -- Revision 1.36  2006/09/21 16:16:59  bburger
 -- Bryce:
 -- - parameterized some literals
@@ -473,6 +476,9 @@ begin
                   next_retire_state <= WAIT_FOR_ACK;
                end if;
             end if;
+         
+         when WAIT_FOR_ACK =>
+            next_retire_state <= IDLE;         
 
          when STORE_HEADER_WORD =>
             next_retire_state <= NEXT_HEADER_WORD;
@@ -627,6 +633,9 @@ begin
             word_ack        <= ack_i;
             cmd_valid_o     <= '1';
          
+         when WAIT_FOR_ACK =>
+            cmd_sent_o <= '1';
+
          when INTERNAL_WB =>
             word_ack        <= '1';
 
