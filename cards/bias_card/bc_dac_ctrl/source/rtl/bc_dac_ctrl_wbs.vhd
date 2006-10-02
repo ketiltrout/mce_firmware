@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bc_dac_ctrl_wbs.vhd,v 1.6 2006/08/01 18:23:33 bburger Exp $
+-- $Id: bc_dac_ctrl_wbs.vhd,v 1.7 2006/08/03 19:00:52 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,10 @@
 --
 -- Revision history:
 -- $Log: bc_dac_ctrl_wbs.vhd,v $
+-- Revision 1.7  2006/08/03 19:00:52  mandana
+-- removed reference to ac_dac_ctrl_pack file
+-- moved ram component declaraion to bc_dac_ctrl_pack
+--
 -- Revision 1.6  2006/08/01 18:23:33  bburger
 -- Bryce:  removed component declarations from header files and moved them to source files
 --
@@ -109,6 +113,9 @@ architecture rtl of bc_dac_ctrl_wbs is
    signal bias_wren        : std_logic;
    signal bias_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
+   signal addr             : std_logic_vector(WB_ADDR_WIDTH-1 downto 0);
+
+   
    -- WBS states:
    type states is (IDLE, WR, RD1, RD2); 
    signal current_state    : states;
@@ -150,6 +157,17 @@ begin
          reg_o             => bias_data
       );
 
+   addr_reg: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then
+         addr <= (others => '0');
+      elsif(clk_i'event and clk_i = '1') then
+         addr <= addr;
+         if(cyc_i = '1') then
+            addr <= addr_i;
+         end if;
+      end if;
+   end process addr_reg;
 
 ------------------------------------------------------------
 --  WB FSM
@@ -201,7 +219,7 @@ begin
    end process state_NS;
    
    -- Output states for DAC controller   
-   state_out: process(current_state, stb_i, addr_i, cyc_i)
+   state_out: process(current_state, stb_i, addr_i, cyc_i, addr)
    begin
       -- Default assignments
       flux_fb_wren      <= '0';
@@ -227,8 +245,11 @@ begin
             
             -- This is so that the bias block does not update bias during every frame - only when the values are changed
             if(cyc_i = '0') then
-               flux_fb_changed_o <= '1';
-               bias_changed_o    <= '1';
+               if(addr = FLUX_FB_ADDR) then
+                  flux_fb_changed_o <= '1';
+               elsif(addr = BIAS_ADDR) then
+                  bias_changed_o    <= '1';
+               end if;
             end if;
             
          when RD1 =>
@@ -237,10 +258,11 @@ begin
          when RD2 =>
             ack_o  <= '1';
             
-            if(cyc_i = '0') then
-               flux_fb_changed_o <= '1';
-               bias_changed_o    <= '1';
-            end if;
+-- I don't know why this was here..
+--            if(cyc_i = '0') then
+--               flux_fb_changed_o <= '1';
+--               bias_changed_o    <= '1';
+--            end if;
          
          when others =>
             null;
