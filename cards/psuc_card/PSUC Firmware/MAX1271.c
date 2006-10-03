@@ -3,6 +3,9 @@
 /****************************************/
 // Revision history: 
 // $Log: MAX1271.c,v $
+// Revision 1.3  2006/09/23 00:32:49  stuartah
+// Fixed bug (last read bit was shifted erroneously)
+//
 // Revision 1.2  2006/09/07 20:37:01  stuartah
 // Cleaned up init() and re-organized main loop structure
 //
@@ -22,7 +25,6 @@
 /************************************************/
 
 unsigned char bdata adc_data;
-sbit ADC_LS_DBIT = adc_data^0;			 //dont need this line???
 sbit ADC_MS_DBIT = adc_data^7;												 //should these be bit or sbit???
 		 		  
 void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeling version
@@ -30,10 +32,10 @@ void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeli
    	unsigned char bit_cnt, *temp_char_ptr;
    	unsigned int adc_reading=0;					
    
-   	  MISO = 1;                               // port bit set for input		//need this	 ???????  YES	   //need to clear at end?
+   	  MISO = 1;  //**need this                             // port bit set for input		//need this	 ???????  YES	   //need to clear at end?
    	
 	// SPEN = 0:  SPI must be disabled to manually control SCLK
-	SPCON &= ~0x40;             						
+	SPCON &= ~SPI_EN;             						
    
    	adc_data = chan + mode;	  							// higher 4 bits determine channel, lower 4 bits determine mode
    	SCLK = 0;									// make sure CLK is low -- probably dont need this
@@ -99,11 +101,11 @@ void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeli
    		CS_IADC = 1;	   
 
 
-	MISO = 0; 							//clear port
-	//MISO = 1;								
-
+//	MISO = 0; 							//clear port
+	MISO = 1;	//???							
+	MOSI=1;	   //????
   	// re-enable SPI
-	SPCON |= 0x40;								
+	SPCON |= SPI_EN;								
    
   	// return (adc_reading);
   	temp_char_ptr = &adc_reading;	 				// need CHAR ptr to access individual bytes of int adc_reading

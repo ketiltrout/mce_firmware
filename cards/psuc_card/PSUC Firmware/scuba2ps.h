@@ -3,6 +3,9 @@
 /****************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.5  2006/09/07 20:37:01  stuartah
+// Cleaned up init() and re-organized main loop structure
+//
 // Revision 1.4  2006/09/05 20:06:20  stuartah
 // Changed i2c.c to MAX1271.c (code for interfacing ADCs, does not use i2c protocol)
 //
@@ -33,7 +36,7 @@
 
 /***** 	Function Prototypes *****/
 // PSUC Initialization
-void init(void);
+void init(void);  
 
 // PSU Commands
 void sequence_on(void);

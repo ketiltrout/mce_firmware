@@ -3,6 +3,9 @@
 /********************************************************************************/
 // Revision history: 
 // $Log: DS18S20.h,v $
+// Revision 1.2  2006/09/05 20:06:20  stuartah
+// Changed i2c.c to MAX1271.c (code for interfacing ADCs, does not use i2c protocol)
+//
 // Revision 1.1  2006/08/29 21:06:06  stuartah
 // Initial CVS Build - Most Basic Functionality Implemented
 //	
@@ -19,7 +22,6 @@ Step 4. Read returned bytes													*/
 /*********  Function Prototypes  **************/
 // External Functions/Variables	(defined in scuba2ps.c)
 extern void wait_time_x2us_plus3(unsigned char); 	 		// Waits (2*Value + 3) microseconds
-//extern unsigned char serial_number[6];		//erase				// PSU data block ID is lower 4 bytes
 
 // 'Public' Functions - ONLY these functions should be called externally
 void ds_initialize( char );									// Initializes DS18S20
@@ -37,6 +39,7 @@ static unsigned char ds_read_byte(void);							// Reads Byte
 static void ds_write_bit(bit);										// Writes Bit
 static bit ds_read_bit(void);										// Reads Bit
 static bit read_bus(void);											// Physical bus line bit read
+
 
 /**************  DS18S20 Comands  *****************/
 #define READ_ROM 			0x33							// Note: READROM command only works with a single device on the bus

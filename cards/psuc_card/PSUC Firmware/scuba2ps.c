@@ -5,6 +5,9 @@
 /****************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.6  2006/09/07 20:37:01  stuartah
+// Cleaned up init() and re-organized main loop structure
+//
 // Revision 1.5  2006/09/05 20:06:20  stuartah
 // Changed i2c.c to MAX1271.c (code for interfacing ADCs, does not use i2c protocol)
 //
@@ -28,12 +31,16 @@
 	The I/O pins are set correctly for this version (revF).*/
 /****************************************************************************************/
 
+/* Version 2.2 
+Polling and communication functionality seems to be working	*/
+
+
 // Header File containing function prototypes and global variable declarations
 #include "scuba2ps.h"
 
 // Constant Variables
 char code asc_version[] =  "\n\rPSUC v2.10\n\r\0";				// Software Version Serial Message
-char code software_version_byte = 0x21;		 					// 1 byte Software Version 
+char code software_version_byte = 0x22;		 					// 1 byte Software Version 
 
 
 /****************************************************************************************
@@ -50,7 +57,8 @@ main()
 
    	// Initial Power-Up
 	sequence_on();									// Run Power-On sequence
-	reset_MCE();									// redundant but just to be sure  //likely want to remove this to avoid subrack reset if PSUC firmware reset
+
+	//reset_MCE();		// redundant but just to be sure  //likely want to remove this to avoid subrack reset if PSUC firmware reset
    	ENABLE_BLINK;
        
 
@@ -69,6 +77,10 @@ main()
 				case 'V':								// Respond with Software Version
 			   		snd_msg(asc_version);
 			   		break;
+
+		/*		case 'D':								// Respond with PSU data block
+					snd_msg(ps_data_block);		// ************ problem with this is NULL in datablock will terminate transmission 
+					break;		*/			
 		    
 				default:
 			   		break;
@@ -82,12 +94,17 @@ main()
 	  	if ( poll_data == SET ) {						// polling rate needs to be same or faster than CC request rate			
 	  	 	update_data_block();
 			poll_data = CLEAR;							// Data Poll Complete
+		
+		//send_psu_data_block();  //testing
+
 	  	}
 		
 		// Send data block if it has been requested
-		if ( cc_spi == TRUE)		 			   
-	  	  	send_psu_data_block();						// Time to send SPI Data to Clock Card		
-		
+		if ( cc_spi == TRUE) {		 			   
+	  	  	send_psu_data_block();						// Time to send SPI Data to Clock Card
+			cc_spi = FALSE;  							// Data Block Transmission Complete			
+		}
+	
 		// Act on command from Clock Card
 	  	if ( cc_command != NULL )		
 		 	switch ( *cc_command ) {					// parse message	
@@ -134,8 +151,12 @@ void init(void) 	// still need to clean/fix this
 	CS_EEPROM = 1;				//EEPROM active low	 ->redundant, done above
 	CS_VADC = 1;
 	CS_IADC = 1;				// this is SS pin and needs to be set low for SPI //seems to be okay now
-	SREQ = 1;	 //active low
+	//SREQ = 1;	 //active low
+	SREQ = 0;						//needed to not overload buffer U5
+	MISO = 1; //=0?
+			MOSI= 1;
 	CCSS=1;		 //active low
+
 
 //Counter/Timer 0 used as a Timer in Mode 1.  Interrupt Rate: 32mS	
 	TH0 = 0;
@@ -155,9 +176,9 @@ void init(void) 	// still need to clean/fix this
 	BRL = 100;					// Baud rate reload - sets Baud rate to 9600
 
 //PCA Counter Init
-	CKCON0 |= 0x20;				// sets to 500ns per PCA tick
-	CMOD |= 0x81;				// 1000 0001 Set PCA to stop counting during idle mode, disable PCA interrupts, and count Fclk-periph/6 (250ns period)
-	CCON |= 0x01;				// enable PCA interrupts 
+//	CKCON0 |= 0x20;				// sets to 500ns per PCA tick
+//	CMOD |= 0x81;				// 1000 0001 Set PCA to stop counting during idle mode, disable PCA interrupts, and count Fclk-periph/6 (250ns period)
+//	CCON |= 0x01;				// enable PCA interrupts 
 
 //LED Setup
 	LEDCON = 0xfC;				// LED1-3 10mA Current Source
@@ -181,7 +202,7 @@ void init(void) 	// still need to clean/fix this
 	ET0 = 1;          			// Enable Timer0 Interrupts
     ET1 = 1;			 		// Enable Timer1 Interrupts
     EA = 1; 					// Enable Global Interrupts
-	EC = 1;						// Enable all PCA Interrupts
+//	EC = 1;						// Enable all PCA Interrupts
 
 
 /**************** 	Initialize Variables 	********************/		// Some of this is redundant							
@@ -214,13 +235,12 @@ void init(void) 	// still need to clean/fix this
 	}
 	
 // Initialize PSU data block - these aspects of data block set only once
-	ds_get_4byte_id(PSU_DS18S20, SILICON_ID);	 // assign ID to PSU block
+	ds_get_4byte_id(PSUC_DS18S20, SILICON_ID);	 // assign ID to PSU block
 	*SOFTWARE_VERSION = software_version_byte; 	 // Software Version	byte
 
 
 /*****************		Initialize Devices 		***************/	
-	ds_initialize(PSUC_DS18S20);		  // alternatively could do convert_temp than wait 600ms on first one....
-		
+//	ds_initialize(PSU_DS18S20);		  // alternatively could do convert_temp than wait 600ms on first one....		
 }
 
 /****************************************************************************************
@@ -303,8 +323,7 @@ void send_psu_data_block (void)
 	spi_complete = 0;														// clear software flag
 		
 	// Finish Transaction
-	CCSS = 1;									// De-select Clock Card
-	cc_spi = FALSE;  							// Data Block Transmission Complete											
+	CCSS = 1;									// De-select Clock Card	 				
 }
 
 /****************************************************************************************
@@ -335,11 +354,8 @@ void wait_time_x2us_plus3 (unsigned char time_us_div2)		// 1.25 us to call funct
 	}												// 500ns delay to begining of loop
 	_nop_();										// 250 ns delay to make total delay an integer
 } 													// 500 ns to return from function
-
 // from above numbers, delay = time_us_div2 * (1.25+ 0.25 + 0.5) + 1.25+ 0.25 + 1 + 0.5 = 2*time_us_div2 + 3 (in uS)
 
-
- 
 /***************************************************************************************/
 /* Send Serial Message     */ 
 /***************************/
@@ -458,12 +474,13 @@ void update_data_block (void)
 //	get_fan_speeds();
 
 	// DS18S20 - Temperatures													   //averaging???
-	ds_get_temperature(PSU_DS18S20, PSU_TEMP_1);								// temperature 1 
-	ds_get_temperature(DTEMP1_ID, PSU_TEMP_2);								// temperature 2 
-	ds_get_temperature(DTEMP2_ID, PSU_TEMP_3);								// temperature 3 from DS18S20
+	ds_get_temperature(PSUC_DS18S20, PSU_TEMP_1);								// temperature 1 
+//	ds_get_temperature(PSUC_DS18S20, PSU_TEMP_2);								// temperature 2 
+//	ds_get_temperature(DTEMP2_ID, PSU_TEMP_3);								// temperature 3 from DS18S20
 
 	// ADC - Voltage Readings
-	read_adc(ADC_CH5, ADC_UNI_10V, VOLTAGE, ADC_OFFSET);			// Grounded ADC input channel reading
+//	read_adc(ADC_CH5, ADC_BI_5V, VOLTAGE, ADC_OFFSET);			// Grounded ADC input channel reading	 // this reading bipolar only
+	
 	read_adc(ADC_CH0, ADC_UNI_10V, VOLTAGE, V_VCORE);			// +Vcore supply scaled 0 to +2V
 	read_adc(ADC_CH1, ADC_UNI_10V, VOLTAGE, V_VLVD);			// +Vlvd supply scaled 0 to +2V
 	read_adc(ADC_CH2, ADC_UNI_10V, VOLTAGE, V_VAH);			// +Vah supply scaled 0 to +2V
@@ -476,7 +493,8 @@ void update_data_block (void)
 	read_adc(ADC_CH2, ADC_UNI_10V, CURRENT, I_VAH);			// Current +Vah supply scaled
 	read_adc(ADC_CH3, ADC_UNI_10V, CURRENT, I_VA_PLUS);			// Current +Va supply scaled
 	read_adc(ADC_CH4, ADC_UNI_10V, CURRENT, I_VA_MINUS);			// Current -Va supply scaled	 
-																							
+
+	SCLK = 1;							//****needed for SPI in send_psu_data_block to work																						
 	// Bookkeeping
 	*STATUS_WORD = 0;		   				// place for undefined status word - higher byte
 	*(STATUS_WORD+1) = 0;						// place for undefined status word - lower byte
@@ -500,7 +518,7 @@ void update_data_block (void)
 void check_digit (void)
 {
 	int j;
-	running_checksum = 0;
+	running_checksum = 0;	   					//reset checksum
 
 	// sum PSU data block upto ACK/NAK byte
 	for(j = 0; j < ACK_BYTE_POS; j++) {
@@ -568,9 +586,20 @@ bit command_valid (char *com_ptr)
 		return FALSE;
 }
 
+
+
+
+
+
+
+
+
+
+//Code in Progress
+
 /***************************************************************************************/
 /* Get Fan Speeds    */ 
-/***************************/
+/***************************
 //maybe count a few (or up to 60...) pulses than convert to RPM
 //need to use scope to see what pulses actually look at (ie high-low symmetrical) on PSUC end 
 //line default is LOW (at AT89 end)
@@ -606,7 +635,7 @@ unsigned char get_fan_speed(void)
 
 /****************************************************************************************
 /*  PCA Timer (Counter)   	   */
-/***************************/
+/***************************
 // used for calculating elapsed time between events
 void start_pca_timer ( void )
 {
@@ -617,7 +646,7 @@ void start_pca_timer ( void )
 	// start PCA timer
 	CCON |= 0x40;
 }
-/***************************/
+/***************************
 // returns elapsed time since start_pca_timer in uS
 int stop_pca_timer ( void )
 {
@@ -631,8 +660,8 @@ int stop_pca_timer ( void )
 
 /****************************************************************************************
  *  PCA Timer - Interrupt Service Routine		   	   *
- ***************************************************** */
-void pca_isr(void) interrupt 6 					/* interrupt address is 0x0033 */
+ ***************************************************** *
+void pca_isr(void) interrupt 6 					/* interrupt address is 0x0033 
 // for now simply clear interrupt
 // will implement overflow error handling later
 {
@@ -641,4 +670,4 @@ void pca_isr(void) interrupt 6 					/* interrupt address is 0x0033 */
 	//set error value to indicate rollover of PCA counter
 	// max count is 500ns * 0xFFFF = 32.77 miliseconds -> indicates <~30 revoltions per second	
 	//pca_interrupts++;
-}
+}	  */

@@ -2,7 +2,10 @@
 /*       Silicon Serial Number / Temperature Sensor Functions - DS18S20        	*/
 /********************************************************************************/
 // Revision history: 
-// $Log: scuba2ps.c,v $	
+// $Log: DS18S20.c,v $
+// Revision 1.1  2006/08/29 21:06:06  stuartah
+// Initial CVS Build - Most Basic Functionality Implemented
+//	
 
 
 /* 	The transaction sequence for accessing the DS18S20 is as follows:	(Refer to datasheets)
@@ -229,6 +232,7 @@ static bit ds_read_bit(void)  				// read ONLY works after master has written a 
 /***************************************************************************************/
 /*  Physical Bit Read    */ 
 /***************************/
+//reads bit from input specified by adr_mask
 static bit read_bus(void)
 {
 	if( (P2 & adr_mask) == 0 )
