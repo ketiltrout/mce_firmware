@@ -5,6 +5,9 @@
 /****************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.7  2006/10/03 05:59:12  stuartah
+// Tested in Subrack, Basic Command working
+//
 // Revision 1.6  2006/09/07 20:37:01  stuartah
 // Cleaned up init() and re-organized main loop structure
 //
@@ -240,7 +243,10 @@ void init(void) 	// still need to clean/fix this
 
 
 /*****************		Initialize Devices 		***************/	
-//	ds_initialize(PSU_DS18S20);		  // alternatively could do convert_temp than wait 600ms on first one....		
+	//check for presence of DS18S20 temperature sensors	
+	temp1_present = ds_initialize(PSU_DS18S20);  // alternatively could do convert_temp than wait 600ms on first one....		
+	temp2_present =	ds_initialize(DTEMP1_ID);
+	temp3_present =	ds_initialize(DTEMP2_ID);	
 }
 
 /****************************************************************************************
@@ -412,7 +418,7 @@ void timer0_isr (void) interrupt 1 using 3
 	if ( bcnt == BRATE320mS) {
       	bcnt = 0;
 	  	poll_data = SET;				// poll data every 320ms
-	  	if (blink_en == SET);
+	  	if (blink_en == SET)
 	   		LED_FAULT = ~LED_FAULT;		//toggle LED every 320ms if enabled
    }
 }
@@ -473,14 +479,20 @@ void update_data_block (void)
 	// Fan Speeds
 //	get_fan_speeds();
 
-	// DS18S20 - Temperatures													   //averaging???
-	ds_get_temperature(PSUC_DS18S20, PSU_TEMP_1);								// temperature 1 
-//	ds_get_temperature(PSUC_DS18S20, PSU_TEMP_2);								// temperature 2 
-//	ds_get_temperature(DTEMP2_ID, PSU_TEMP_3);								// temperature 3 from DS18S20
+	// DS18S20 - Temperatures - read only if present							 //averaging???
+	if (temp1_present){
+		ds_get_temperature(PSU_DS18S20, PSU_TEMP_1);  		// temperature 1 
+	}
+	else														//for now read PSU DS if connected else read PSUC DS
+		ds_get_temperature(PSUC_DS18S20, PSU_TEMP_1);
+			
+	if (temp2_present)
+		ds_get_temperature(DTEMP1_ID, PSU_TEMP_2);			// temperature 2 
+	if (temp3_present)
+		ds_get_temperature(DTEMP2_ID, PSU_TEMP_3);			// temperature 3
 
 	// ADC - Voltage Readings
-//	read_adc(ADC_CH5, ADC_BI_5V, VOLTAGE, ADC_OFFSET);			// Grounded ADC input channel reading	 // this reading bipolar only
-	
+	read_adc(ADC_CH5, ADC_BI_5V, VOLTAGE, ADC_OFFSET);			// Grounded ADC input channel reading	 // this reading bipolar only
 	read_adc(ADC_CH0, ADC_UNI_10V, VOLTAGE, V_VCORE);			// +Vcore supply scaled 0 to +2V
 	read_adc(ADC_CH1, ADC_UNI_10V, VOLTAGE, V_VLVD);			// +Vlvd supply scaled 0 to +2V
 	read_adc(ADC_CH2, ADC_UNI_10V, VOLTAGE, V_VAH);			// +Vah supply scaled 0 to +2V

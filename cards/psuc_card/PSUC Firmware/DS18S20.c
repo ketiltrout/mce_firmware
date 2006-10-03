@@ -3,6 +3,9 @@
 /********************************************************************************/
 // Revision history: 
 // $Log: DS18S20.c,v $
+// Revision 1.2  2006/10/03 05:59:12  stuartah
+// Tested in Subrack, Basic Command working
+//
 // Revision 1.1  2006/08/29 21:06:06  stuartah
 // Initial CVS Build - Most Basic Functionality Implemented
 //	
@@ -31,14 +34,19 @@ unsigned char adr_mask;					// sbits CANNOT be passed between functions...theref
 /***************************************************************************************/
 /*  Initialize DS18S20    */ 					//need this??????
 /****************************/
-void ds_initialize( char mask )
+bit ds_initialize( char mask )
 {
+	bit present = 0;
+	
 	// Initialize
 	adr_mask = mask;
-	ds_reset();								// for now ignore presence pulse (assume always detected)
+	present = ds_reset();			
 
    	//	Send CONVERT T command 				// initial convert takes about a second
-	ds_convert_T();
+	if(present)
+		ds_convert_T();
+
+	return present;
 }
 
 /***************************************************************************************/
@@ -156,9 +164,9 @@ static bit ds_reset(void)
 	
 	//detect presence pulse
 	WAIT_TIME_I;							// wait for presence pulse
-	presence = read_bus();						// sample for presence pulse
+	presence = ~read_bus();					// sample for presence pulse, indicated by bus being pulled LOW
 	WAIT_TIME_J;							// reset sequence recovery time
-	return presence;
+	return presence;						// return presence indicator
 }
 
 /***************************************************************************************/

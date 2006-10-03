@@ -3,6 +3,9 @@
 /****************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.6  2006/10/03 05:59:12  stuartah
+// Tested in Subrack, Basic Command working
+//
 // Revision 1.5  2006/09/07 20:37:01  stuartah
 // Cleaned up init() and re-organized main loop structure
 //
@@ -87,6 +90,7 @@ bit sio_msg_complete;								// Indicates Serial (RS232) message received
 bit poll_data;										// Set when time to update PS data block
 bit timeup_T1;										// Set on Timer1 expiration (overlow)								
 bit blink_en;										// Set to turn on LED blink while PSUC running
+bit temp1_present, temp2_present, temp3_present;	// Indicates if DS18S20s temperature sensors actually connected
 
 
 /********** PSU Data Block Settings  ***************/

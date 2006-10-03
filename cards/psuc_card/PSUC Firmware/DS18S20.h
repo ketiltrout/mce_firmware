@@ -3,6 +3,9 @@
 /********************************************************************************/
 // Revision history: 
 // $Log: DS18S20.h,v $
+// Revision 1.3  2006/10/03 05:59:12  stuartah
+// Tested in Subrack, Basic Command working
+//
 // Revision 1.2  2006/09/05 20:06:20  stuartah
 // Changed i2c.c to MAX1271.c (code for interfacing ADCs, does not use i2c protocol)
 //
@@ -24,7 +27,7 @@ Step 4. Read returned bytes													*/
 extern void wait_time_x2us_plus3(unsigned char); 	 		// Waits (2*Value + 3) microseconds
 
 // 'Public' Functions - ONLY these functions should be called externally
-void ds_initialize( char );									// Initializes DS18S20
+bit ds_initialize( char );									// Initializes DS18S20
 void ds_get_4byte_id( char, char* target);					// Reads Silicon ID, sets target value
 void ds_get_temperature( char, char* target);				// Reads temperature from DS memory, sets target value
 
