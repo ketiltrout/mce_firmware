@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card.vhd,v 1.26 2006/06/05 22:59:45 mandana Exp $
+-- $Id: bias_card.vhd,v 1.27 2006/08/03 19:06:31 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 -- Revision history:
 -- 
 -- $Log: bias_card.vhd,v $
+-- Revision 1.27  2006/08/03 19:06:31  mandana
+-- reorganized pack files, bc_dac_ctrl_core_pack, bc_dac_ctrl_wbs_pack, frame_timing_pack are all obsolete
+--
 -- Revision 1.26  2006/06/05 22:59:45  mandana
 -- reorganized pack files and now uses all_cards_pack, leds are set to green on only
 --
@@ -182,15 +185,15 @@ entity bias_card is
       wdog       : out std_logic;
       slot_id    : in std_logic_vector(3 downto 0);
       card_id    : inout std_logic;
-      smb_clk           : out std_logic;
-      smb_data          : inout std_logic;      
+      smb_clk    : out std_logic;
+      smb_data   : inout std_logic;      
       
       -- debug ports:
-      test       : inout std_logic_vector(16 downto 3);
+      test       : inout std_logic_vector(14 downto 1);
       mictor     : out std_logic_vector(31 downto 0);
       mictorclk  : out std_logic_vector(2 downto 1);
-      rs232_rx   : in std_logic;
-      rs232_tx   : out std_logic
+      rx         : in std_logic;
+      tx         : out std_logic
    );
 end bias_card;
 
@@ -200,7 +203,7 @@ architecture top of bias_card is
 --               RR is the major revision number
 --               rr is the minor revision number
 --               BBBB is the build number
-constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030005"; -- 03 signifies backplane Rev. C slot IDs
+constant BC_REVISION: std_logic_vector (31 downto 0) := X"01030006"; -- 03 signifies backplane Rev. C slot IDs
 
 signal dac_ncs_temp : std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
 signal dac_sclk_temp: std_logic_vector(NUM_FLUX_FB_DACS-1 downto 0);
@@ -275,7 +278,8 @@ begin
    port map(inclk0 => inclk,
             c0 => clk,
             c1 => comm_clk,
-            c2 => clk_n);
+            c2 => clk_n,
+            c3 => open);
             
    cmd0: dispatch
       port map(                                                                  
