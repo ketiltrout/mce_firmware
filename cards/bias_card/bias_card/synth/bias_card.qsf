@@ -28,7 +28,7 @@
 set_global_assignment -name SMART_RECOMPILE OFF
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "4.1 SP2"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:26:51  DECEMBER 15, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION "5.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -487,7 +487,7 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 	# Timing Assignments
 	# ==================
-	set_global_assignment -name FMAX_REQUIREMENT "25.0 MHz" -section_id inclk
+set_global_assignment -name FMAX_REQUIREMENT "25 MHz" -section_id inclk
 
 # end CLOCK(inclk)
 # ----------------
@@ -510,12 +510,12 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 	# Timing Assignments
 	# ==================
-	set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
+set_instance_assignment -name CLOCK_SETTINGS inclk -to inclk
 
 # end ENTITY(bias_card)
 # ---------------------
 
-set_global_assignment -name FITTER_EFFORT "FAST FIT"
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
 set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
@@ -587,3 +587,16 @@ set_global_assignment -name VHDL_FILE ../source/rtl/bias_card.vhd
 set_global_assignment -name HEX_FILE ../source/tb/bias_card_wb.hex
 set_global_assignment -name SIGNALTAP_FILE bias.stp
 set_global_assignment -name SIGNALTAP_FILE bias_card.stp
+set_location_assignment PIN_T3 -to sa_htr1p
+set_location_assignment PIN_T4 -to sa_htr1n
+set_location_assignment PIN_T1 -to sa_htr2p
+set_location_assignment PIN_U2 -to sa_htr2n
+set_location_assignment PIN_AE11 -to test[1]
+set_location_assignment PIN_AD8 -to test[2]
+set_location_assignment PIN_AH9 -to rx
+set_location_assignment PIN_AE10 -to tx
+set_global_assignment -name ENABLE_CLOCK_LATENCY ON
+set_global_assignment -name STRATIX_OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name OPTIMIZE_FAST_CORNER_TIMING ON
+set_global_assignment -name DO_COMBINED_ANALYSIS ON
+set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON

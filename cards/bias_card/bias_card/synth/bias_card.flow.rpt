@@ -1,6 +1,6 @@
 Flow report for bias_card
-Fri May 12 14:44:19 2006
-Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
+Wed Oct 04 11:47:49 2006
+Version 6.0 Build 202 06/20/2006 Service Pack 1 SJ Full Version
 
 
 ---------------------
@@ -9,8 +9,9 @@ Version 5.1 Build 213 01/19/2006 Service Pack 1 SJ Full Version
   1. Legal Notice
   2. Flow Summary
   3. Flow Settings
-  4. Flow Elapsed Time
-  5. Flow Log
+  4. Flow Non-Default Global Settings
+  5. Flow Elapsed Time
+  6. Flow Log
 
 
 
@@ -36,15 +37,15 @@ applicable agreement for further details.
 +--------------------------------------------------------------------------+
 ; Flow Summary                                                             ;
 +--------------------------+-----------------------------------------------+
-; Flow Status              ; Analyzed - Fri May 12 14:44:19 2006           ;
-; Quartus II Version       ; 5.1 Build 213 01/19/2006 SP 1 SJ Full Version ;
+; Flow Status              ; Analyzed - Wed Oct 04 11:47:49 2006           ;
+; Quartus II Version       ; 6.0 Build 202 06/20/2006 SP 1 SJ Full Version ;
 ; Revision Name            ; bias_card                                     ;
 ; Top-level Entity Name    ; bias_card                                     ;
 ; Family                   ; Stratix                                       ;
 ; Device                   ; EP1S10F780C5                                  ;
 ; Timing Models            ; Final                                         ;
 ; Met timing requirements  ; Yes                                           ;
-; Total logic elements     ; 2,330 / 10,570 ( 22 % )                       ;
+; Total logic elements     ; 2,240 / 10,570 ( 21 % )                       ;
 ; Total pins               ; 186 / 427 ( 44 % )                            ;
 ; Total virtual pins       ; 0                                             ;
 ; Total memory bits        ; 69,632 / 920,448 ( 8 % )                      ;
@@ -59,10 +60,33 @@ applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 05/12/2006 14:39:43 ;
+; Start date & time ; 10/04/2006 11:45:03 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; bias_card           ;
 +-------------------+---------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Flow Non-Default Global Settings                                                                          ;
++--------------------------------------------+---------------+---------------+-------------+----------------+
+; Assignment Name                            ; Value         ; Default Value ; Entity Name ; Section Id     ;
++--------------------------------------------+---------------+---------------+-------------+----------------+
+; AUTO_ENABLE_SMART_COMPILE                  ; Off           ; --            ; --          ; --             ;
+; DO_COMBINED_ANALYSIS                       ; On            ; Off           ; --          ; --             ;
+; EDA_GENERATE_FUNCTIONAL_NETLIST            ; On            ; --            ; --          ; eda_simulation ;
+; EDA_INCLUDE_VHDL_CONFIGURATION_DECLARATION ; On            ; --            ; --          ; eda_simulation ;
+; EDA_MAP_ILLEGAL_CHARACTERS                 ; On            ; --            ; --          ; eda_simulation ;
+; EDA_OUTPUT_DATA_FORMAT                     ; Vhdl          ; --            ; --          ; eda_simulation ;
+; ENABLE_CLOCK_LATENCY                       ; On            ; Off           ; --          ; --             ;
+; ENABLE_DRC_SETTINGS                        ; On            ; Off           ; --          ; --             ;
+; ENABLE_RECOVERY_REMOVAL_ANALYSIS           ; On            ; Off           ; --          ; --             ;
+; ENABLE_SIGNALTAP                           ; Off           ; --            ; --          ; --             ;
+; OPTIMIZE_FAST_CORNER_TIMING                ; On            ; Off           ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_EFFORT                  ; Extra         ; Normal        ; --          ; --             ;
+; PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION    ; On            ; Off           ; --          ; --             ;
+; STRATIX_OPTIMIZATION_TECHNIQUE             ; Speed         ; Balanced      ; --          ; --             ;
+; USE_SIGNALTAP_FILE                         ; bias_card.stp ; --            ; --          ; --             ;
++--------------------------------------------+---------------+---------------+-------------+----------------+
 
 
 +-------------------------------------+
@@ -70,12 +94,12 @@ applicable agreement for further details.
 +----------------------+--------------+
 ; Module Name          ; Elapsed Time ;
 +----------------------+--------------+
-; Analysis & Synthesis ; 00:02:06     ;
-; Fitter               ; 00:01:54     ;
-; Assembler            ; 00:00:10     ;
-; Timing Analyzer      ; 00:00:09     ;
-; Design Assistant     ; 00:00:07     ;
-; Total                ; 00:04:26     ;
+; Analysis & Synthesis ; 00:01:03     ;
+; Fitter               ; 00:01:10     ;
+; Assembler            ; 00:00:05     ;
+; Timing Analyzer      ; 00:00:08     ;
+; Design Assistant     ; 00:00:10     ;
+; Total                ; 00:02:36     ;
 +----------------------+--------------+
 
 
