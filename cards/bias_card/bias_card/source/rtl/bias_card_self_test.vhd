@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_self_test.vhd,v 1.1 2005/02/14 21:59:34 mandana Exp $
+-- $Id: bias_card_self_test.vhd,v 1.2 2006/08/03 19:06:31 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Mandana Amiri
@@ -29,8 +29,11 @@
 -- self-test blocks to create the packets and feed them in to bias card
 --
 -- Revision history:
--- <date $Date: 2005/02/14 21:59:34 $>    - <initials $Author: mandana $>
+-- <date $Date: 2006/08/03 19:06:31 $>    - <initials $Author: mandana $>
 -- $Log: bias_card_self_test.vhd,v $
+-- Revision 1.2  2006/08/03 19:06:31  mandana
+-- reorganized pack files, bc_dac_ctrl_core_pack, bc_dac_ctrl_wbs_pack, frame_timing_pack are all obsolete
+--
 -- Revision 1.1  2005/02/14 21:59:34  mandana
 -- moved from tb directory
 --
@@ -67,6 +70,7 @@ library work;
 use work.bias_card_pack.all;
 use work.all_cards_pack.all;
 use work.bc_dac_ctrl_pack.all;
+use work.async_pack.all;
 
 entity bias_card_self_test is
    port(
@@ -124,8 +128,8 @@ entity bias_card_self_test is
       test       : inout std_logic_vector(16 downto 3);
       mictor     : out std_logic_vector(31 downto 0);
       mictorclk  : out std_logic_vector(2 downto 1);
-      rs232_rx   : in std_logic;
-      rs232_tx   : out std_logic
+      rx   : in std_logic;
+      tx   : out std_logic
    );
 end bias_card_self_test;
 
@@ -242,31 +246,31 @@ begin
          dip_sw3                    => '1',
          dip_sw4                    => '1'         
       );
-   eeprom_ctrl0: eeprom_ctrl
-      port map(
-         -- global signals      
-         rst_i                      => rst,                         
-         clk_25_i                   => clk_25,
-         clk_50_i                   => clk,
-              			
-         -- Wishbone signals to/from dispatch   
-         dat_i                      => data,
-         addr_i                     => addr,
-         tga_i                      => tga,
-         we_i                       => we,
-         stb_i                      => stb,
-         cyc_i                      => cyc,
-         dat_o                      => eeprom_data,
-         ack_o                      => eeprom_ack,
-            
-         -- SPI interface to AT25   =>
-         eeprom_spi_o               => eeprom_spi_out,
-         eeprom_spi_i               => eeprom_si
-      );   
-      -- breakout the signals
-      eeprom_so  <= eeprom_spi_out(0);
-      eeprom_sck <= eeprom_spi_out(1);
-      eeprom_cs  <= eeprom_spi_out(2);
+--   eeprom_ctrl0: eeprom_ctrl
+--      port map(
+--         -- global signals      
+--         rst_i                      => rst,                         
+--         clk_25_i                   => clk_25,
+--         clk_50_i                   => clk,
+--              			
+--         -- Wishbone signals to/from dispatch   
+--         dat_i                      => data,
+--         addr_i                     => addr,
+--         tga_i                      => tga,
+--         we_i                       => we,
+--         stb_i                      => stb,
+--         cyc_i                      => cyc,
+--         dat_o                      => eeprom_data,
+--         ack_o                      => eeprom_ack,
+--            
+--         -- SPI interface to AT25   =>
+--         eeprom_spi_o               => eeprom_spi_out,
+--         eeprom_spi_i               => eeprom_si
+--      );   
+--      -- breakout the signals
+--      eeprom_so  <= eeprom_spi_out(0);
+--      eeprom_sck <= eeprom_spi_out(1);
+--      eeprom_cs  <= eeprom_spi_out(2);
       
    id_thermo0: id_thermo
       port map(
