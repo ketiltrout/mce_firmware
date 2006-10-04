@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.7.2.2 2006/02/15 19:45:51 mandana Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.7.2.3 2006/07/17 19:18:39 mandana Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.7.2.3  2006/07/17 19:18:39  mandana
+-- added test case 2 for DAC reset values
+--
 -- Revision 1.7.2.2  2006/02/15 19:45:51  mandana
 -- adapted latest clock card component declaration, changed inclk to inclk14 on clk_card instantiation
 --
@@ -91,6 +94,9 @@ architecture tb of tb_cc_rcs_bcs_ac is
       inclk14           : in std_logic;
       rst_n             : in std_logic;
       
+      -- Manchester Clock PLL inputs:
+      inclk1            : in std_logic;
+
       -- LVDS interface:
       lvds_cmd          : out std_logic;
       lvds_sync         : out std_logic;
@@ -116,6 +122,9 @@ architecture tb of tb_cc_rcs_bcs_ac is
       -- DV interface:
       dv_pulse_fibre    : in std_logic;
       manchester_data   : in std_logic;
+      manchester_sigdet : in std_logic;
+      switch_to_xtal    : in std_logic;
+      switch_to_manch   : in std_logic;
       
       -- TTL interface:
       ttl_nrx1          : in std_logic;
@@ -399,8 +408,17 @@ architecture tb of tb_cc_rcs_bcs_ac is
    -------------------------------------------------
    -- PLL input:
    signal inclk      : std_logic := '0';
+   signal inclk1     : std_logic := '1';
    signal rst_n      : std_logic := '1';
    signal rst        : std_logic := '0';
+   signal inclk_en   : std_logic := '1';
+   signal inclk_conditioned : std_logic := '0';
+   signal switch_to_xtal    : std_logic := '0';
+   signal switch_to_manch   : std_logic := '0';
+--   signal spi_clk    : std_logic := '0';
+--   signal spi_data   : std_logic := '0';
+   signal spi_clk_cond : std_logic := '0';
+   signal spi_clk_en : std_logic := '0';
    
    -- LVDS interface:
    signal lvds_cmd   : std_logic;
@@ -427,8 +445,12 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal rc4_lvds_txb : std_logic := '1';
    
    -- DV interface:
-   signal dv_pulse_fibre  : std_logic := '0';
-   signal manchester_data : std_logic := '0';
+   signal dv_pulse_fibre  : std_logic := '1';
+   -- manchester_data is active low
+   signal manchester_data : std_logic := '1';
+   -- manchester_sigdet is active high
+   signal manchester_sigdet : std_logic := '1';
+
    
    -- TTL interface:
    signal cc_ttl_txena1 : std_logic := '0';
@@ -924,12 +946,23 @@ begin
       '0'          when sync_en = "01" else
       noisy_sync   when sync_en = "10";
    
+	   -- Clock generation
+   inclk        <= not inclk        after clk_period/2;
+   inclk1       <= not inclk1       after clk_period/2;
+   fibre_rx_ckr <= not fibre_rx_ckr after fibre_clk_period/2;
+   
+   -- Used for simulating the loss of the crystal clock
+   inclk_conditioned <= inclk_en and inclk;
+
    i_clk_card : clk_card
       port map
       (
          -- PLL input:
-         inclk14          => inclk,
+         inclk14          => inclk_conditioned,
          rst_n            => rst_n,
+                          
+         -- Manchester Clock PLL inputs:
+         inclk1           => inclk1,
                           
          -- LVDS interface:
          lvds_cmd         => lvds_cmd,  
@@ -956,7 +989,10 @@ begin
          -- DV interface:
          dv_pulse_fibre   => dv_pulse_fibre,
          manchester_data  => manchester_data,  
-      
+         manchester_sigdet => manchester_sigdet,
+         switch_to_xtal    => switch_to_xtal,
+         switch_to_manch   => switch_to_manch,
+         
          -- TTL interface:
          ttl_nrx1         => bclr_n,
          ttl_tx1          => bclr,
@@ -1451,64 +1487,64 @@ begin
 --         rs232_tx      => bc2_rs232_tx
 --      );     
 --
---   i_bias_card1: bias_card
---      port map
---      (
---         -- PLL input:
---         inclk         => lvds_clk,
---         rst_n         => rst_n,
---         
---         -- LVDS interface:
---         lvds_cmd      => lvds_cmd,  
---         lvds_sync     => lvds_sync, 
---         lvds_spare    => lvds_spare,
---         lvds_txa      => lvds_reply_bc1_a, 
---         lvds_txb      => lvds_reply_bc1_b, 
---         
---         -- TTL interface:
---         ttl_nrx1      => bclr_n,  
---         ttl_tx1       => open,   
---         ttl_txena1    => bc1_ttl_txena1,
---
---         ttl_nrx2      => bc1_ttl_nrx2,  
---         ttl_tx2       => open,   
---         ttl_txena2    => bc1_ttl_txena2,
---
---         ttl_nrx3      => bc1_ttl_nrx3,  
---         ttl_tx3       => open,   
---         ttl_txena3    => bc1_ttl_txena3,
---         
---         -- eeprom ice:nterface:
---         eeprom_si     => bc1_eeprom_si, 
---         eeprom_so     => bc1_eeprom_so, 
---         eeprom_sck    => bc1_eeprom_sck,
---         eeprom_cs     => bc1_eeprom_cs, 
---         
---         -- dac interface:
---         dac_ncs       => bc1_dac_ncs,      
---         dac_sclk      => bc1_dac_sclk,     
---         dac_data      => bc1_dac_data,         
---         lvds_dac_ncs  => bc1_lvds_dac_ncs, 
---         lvds_dac_sclk => bc1_lvds_dac_sclk,
---         lvds_dac_data => bc1_lvds_dac_data,
---         dac_nclr      => bc1_dac_nclr,     
---         
---         -- miscellaneous ports:
---         red_led       => bc1_red_led, 
---         ylw_led       => bc1_ylw_led, 
---         grn_led       => bc1_grn_led, 
---         dip_sw3       => bc1_dip_sw3, 
---         dip_sw4       => bc1_dip_sw4, 
---         wdog          => bc1_wdog,    
---         slot_id       => bc1_slot_id, 
---         
---         -- debug ports:
---         test          => bc1_test,       
---         mictor        => bc1_mictor,     
---         mictorclk     => bc1_mictorclk,  
---         rs232_rx      => bc1_rs232_rx,
---         rs232_tx      => bc1_rs232_tx
---      );     
+   i_bias_card1: bias_card
+      port map 
+      (
+         -- PLL input:
+         inclk         => lvds_clk,
+         rst_n         => rst_n,
+         
+         -- LVDS interface:
+         lvds_cmd      => lvds_cmd,  
+         lvds_sync     => lvds_sync, 
+         lvds_spare    => lvds_spare,
+         lvds_txa      => lvds_reply_bc1_a, 
+         lvds_txb      => lvds_reply_bc1_b, 
+         
+         -- TTL interface:
+         ttl_nrx1      => bclr_n,  
+         ttl_tx1       => open,   
+         ttl_txena1    => bc1_ttl_txena1,
+
+         ttl_nrx2      => bc1_ttl_nrx2,  
+         ttl_tx2       => open,   
+         ttl_txena2    => bc1_ttl_txena2,
+
+         ttl_nrx3      => bc1_ttl_nrx3,  
+         ttl_tx3       => open,   
+         ttl_txena3    => bc1_ttl_txena3,
+         
+         -- eeprom ice:nterface:
+         eeprom_si     => bc1_eeprom_si, 
+         eeprom_so     => bc1_eeprom_so, 
+         eeprom_sck    => bc1_eeprom_sck,
+         eeprom_cs     => bc1_eeprom_cs, 
+         
+         -- dac interface:
+         dac_ncs       => bc1_dac_ncs,      
+         dac_sclk      => bc1_dac_sclk,     
+         dac_data      => bc1_dac_data,         
+         lvds_dac_ncs  => bc1_lvds_dac_ncs, 
+         lvds_dac_sclk => bc1_lvds_dac_sclk,
+         lvds_dac_data => bc1_lvds_dac_data,
+         dac_nclr      => bc1_dac_nclr,     
+         
+         -- miscellaneous ports:
+         red_led       => bc1_red_led, 
+         ylw_led       => bc1_ylw_led, 
+         grn_led       => bc1_grn_led, 
+         dip_sw3       => bc1_dip_sw3, 
+         dip_sw4       => bc1_dip_sw4, 
+         wdog          => bc1_wdog,    
+         slot_id       => bc1_slot_id, 
+         
+         -- debug ports:
+         test          => bc1_test,       
+         mictor        => bc1_mictor,     
+         mictorclk     => bc1_mictorclk,  
+         rx            => bc1_rs232_rx,
+         tx            => bc1_rs232_tx
+      );     
 --
 --   i_addr_card : addr_card
 --      port map
@@ -1993,6 +2029,60 @@ begin
 ------------------------------------------------------      
        
    begin
+----------------------------------------------------------
+-- Test Case 3: Bias Card - bc_dac_ctrl commands Test
+-- wb bcs flux_fb x55aa55aa ....
+-- rb bcs flux_fb
+-- wb bcs bias x21
+-- wb bcs flux_fb x88888888 ....
+--
+------------------------------------------------------      
+      do_reset;
+      wait for 5 us;
+      
+      -- load values to 32 flux DACs
+      command <= command_wb;
+      address_id <= bcs_flux_fdbck_cmd;
+      data_valid <= X"00000020"; --32 values
+      data       <= X"55AA55AA";
+      load_preamble;
+      load_command;
+      load_checksum;
+    
+      wait for 150 us;
+
+      -- read back 32 flux DACs values
+      command <= command_rb;
+      address_id <= bcs_flux_fdbck_cmd;
+      data_valid <= X"00000020";
+      data       <= X"00000000";
+      load_preamble;
+      load_command;
+      load_checksum;
+     
+      wait for 50 us;
+
+      --load values to the single Bias DAC
+      command <= command_wb;
+      address_id <= bcs_bias_cmd;
+      data_valid <= X"00000001"; --1 value
+      data       <= X"00000021";
+      load_preamble;
+      load_command;
+      load_checksum;
+    
+      wait for 50 us;
+
+      command <= command_wb;
+      address_id <= bcs_flux_fdbck_cmd;
+      data_valid <= X"00000020"; --32 values
+      data       <= X"88888888";
+      load_preamble;
+      load_command;
+      load_checksum;
+    
+      wait for 150 us;
+   
 --------------------------------------------------------
 -- Test Case 2: Reset FB DAC values test
 -- wb rc3 servo_mode 1
@@ -2000,46 +2090,46 @@ begin
 -- wb rc3 flx_lp_init 1
 ------------------------------------------------------      
       
-      do_reset;
-      wait for 5 us;
-
-      command <= command_wb;
-      address_id <= rc1_servo_mode_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;      
-      report "End of writing servo_mode command";
-      
-      wait for 50 us;
-
-      command <= command_wb;
-      address_id <= rc1_fb_const_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000065";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing fb_const command";
-      
-      command <= command_wb;
-      address_id <= rc1_flx_lp_init_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      report "End of writing flx_lp_init command";
-      
-      wait for 50 us;
-
-      wait for 200 us;
-      
-      do_reset;
-      
-      wait for 100 us;
-      wait for 100 us;
+--      do_reset;
+--      wait for 5 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_servo_mode_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;      
+--      report "End of writing servo_mode command";
+--      
+--      wait for 50 us;
+--
+--      command <= command_wb;
+--      address_id <= rc1_fb_const_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000065";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing fb_const command";
+--      
+--      command <= command_wb;
+--      address_id <= rc1_flx_lp_init_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      report "End of writing flx_lp_init command";
+--      
+--      wait for 50 us;
+--
+--      wait for 200 us;
+--      
+--      do_reset;
+--      
+--      wait for 100 us;
+--      wait for 100 us;
 --------------------------------------------------------
 -- Test Case 1: Filter Test
 -- wb rc3 sample_dly 6
