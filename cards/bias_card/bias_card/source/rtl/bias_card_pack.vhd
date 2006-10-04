@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: bias_card_pack.vhd,v 1.10 2006/06/05 22:59:45 mandana Exp $
+-- $Id: bias_card_pack.vhd,v 1.11 2006/08/03 19:06:31 mandana Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: bias_card_pack.vhd,v $
+-- Revision 1.11  2006/08/03 19:06:31  mandana
+-- reorganized pack files, bc_dac_ctrl_core_pack, bc_dac_ctrl_wbs_pack, frame_timing_pack are all obsolete
+--
 -- Revision 1.10  2006/06/05 22:59:45  mandana
 -- reorganized pack files and now uses all_cards_pack, leds are set to green on only
 --
@@ -174,8 +177,8 @@ component bias_card
       test       : inout std_logic_vector(16 downto 3);
       mictor     : out std_logic_vector(31 downto 0);
       mictorclk  : out std_logic_vector(2 downto 1);
-      rs232_rx   : in std_logic;
-      rs232_tx   : out std_logic
+      rx         : in std_logic;
+      tx         : out std_logic
    );     
 end component;
   
@@ -238,8 +241,8 @@ component bias_card_self_test
       test       : inout std_logic_vector(16 downto 3);
       mictor     : out std_logic_vector(31 downto 0);
       mictorclk  : out std_logic_vector(2 downto 1);
-      rs232_rx   : in std_logic;
-      rs232_tx   : out std_logic
+      rx   : in std_logic;
+      tx   : out std_logic
    );
 end component;
 
