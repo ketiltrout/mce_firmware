@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 
--- $Id: bc_dac_ctrl_core.vhd,v 1.8.2.1 2006/06/06 21:10:54 mandana Exp $
+-- $Id: bc_dac_ctrl_core.vhd,v 1.8.2.2 2006/08/03 19:20:17 mandana Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 -- 
 -- Revision history:
 -- $Log: bc_dac_ctrl_core.vhd,v $
+-- Revision 1.8.2.2  2006/08/03 19:20:17  mandana
+-- reorganized pack files, bc_dac_ctrl_core_pack, bc_dac_ctrl_wbs_pack, frame_timing_pack are all obsolete
+--
 -- Revision 1.8.2.1  2006/06/06 21:10:54  mandana
 -- fixed a critical warning with asynchronous bias_changed and flux_fb_changed
 --
@@ -143,8 +146,8 @@ architecture rtl of bc_dac_ctrl_core is
    signal bias_start             : std_logic;
    
    -- Counter for the Flux Feedback DACs
-   signal dac_count_clk          : std_logic;
-   signal dac_count_rst          : std_logic;
+   signal dac_count_ena          : std_logic;
+   signal dac_count_clr          : std_logic;
    signal dac_count              : integer range 0 to NUM_FLUX_FB_DACS;
    
    -- SPI counter signals for clock division
@@ -160,8 +163,6 @@ begin
    debug (11) <= update_bias_i;
    debug (12) <= flux_fb_done;
    debug (13) <= flux_fb_start;
-   debug (14) <= dac_count_rst;
-   debug (15) <= dac_count_clk;
    debug (21 downto 16) <= std_logic_vector(conv_unsigned(dac_count, COL_ADDR_WIDTH));
    
 -- instantiate a counter to divide the clock by 2
@@ -178,22 +179,22 @@ begin
             count_o => clk_count);
    clk_div2   <= '1' when clk_count > 1 else '0';
 
-   dac_counter: counter 
-   generic map
-   (
-        MAX => NUM_FLUX_FB_DACS,  -- an intentional out of range!
-        STEP_SIZE => 1,
-        WRAP_AROUND => '1',
-        UP_COUNTER => '1')        
-   port map
-   (
-      clk_i   => dac_count_clk,
-      rst_i   => dac_count_rst,
-      ena_i   => '1',
-      load_i  => '0',
-      count_i => 0,
-      count_o => dac_count
-   );
+   dac_counter: process (clk_i, rst_i)
+   begin
+      if (rst_i = '1') then
+         dac_count <= 0;
+      elsif (clk_i'event and clk_i = '1') then
+         if (dac_count_clr = '1') then
+            dac_count <= 0;
+         elsif (dac_count_ena = '1') then
+            if (dac_count < NUM_FLUX_FB_DACS) then             
+               dac_count <= dac_count + 1;
+            else
+               dac_count <= 0;
+            end if;   
+         end if;           
+      end if;
+   end process dac_counter;   
    
    state_FF : process(clk_i, rst_i)
    begin
@@ -267,8 +268,8 @@ begin
    flux_fb_state_out : process(flux_fb_current_state, dac_count, flux_fb_data, flux_fb_ncs, flux_fb_clk)
    begin
       -- Default assignments
-      dac_count_clk  <= '0';
-      dac_count_rst  <= '0';
+      dac_count_ena  <= '0';
+      dac_count_clr  <= '0';
       flux_fb_start  <= '0';
       flux_fb_data_o <= (others => '0');    
       flux_fb_ncs_o  <= (others => '1');
@@ -278,10 +279,10 @@ begin
       case flux_fb_current_state is 
          
          when IDLE =>
-            dac_count_rst             <= '1';
+            dac_count_clr             <= '1';
          
          when PENDING =>          
-            dac_count_rst             <= '1';
+            dac_count_clr             <= '1';
 
          when LOAD1 =>
             flux_fb_data_o(dac_count) <= flux_fb_data;
@@ -310,7 +311,7 @@ begin
             end if;
 
          when NEXT_DAC2 =>
-            dac_count_clk             <= '1';            
+            dac_count_ena             <= '1';            
          
          when others => 
             null;
