@@ -27,8 +27,11 @@
 --
 -- Description:
 -- Revision history:
--- <date $Date: 2005/02/01 01:09:39 $>    - <initials $Author: mandana $>
+-- <date $Date: 2006/03/02 19:05:06 $>    - <initials $Author: mandana $>
 -- $Log: tb_bias_card_self_test.vhd,v $
+-- Revision 1.4  2006/03/02 19:05:06  mandana
+-- took out non-bias-card related signals
+--
 -- Revision 1.3  2005/02/01 01:09:39  mandana
 -- slot_id and ttl_nrx1 are now hard coded in the self_test module
 --
@@ -202,8 +205,8 @@ begin
          test       => test,       
          mictor     => mictor,     
          mictorclk  => mictorclk,  
-         rs232_rx   => bc_rs232_rx,
-         rs232_tx   => bc_rs232_tx
+         rx   => bc_rs232_rx,
+         tx   => bc_rs232_tx
       );     
       
     --   bc_slot_id      <= "1110";
