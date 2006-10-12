@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.32 2006/09/21 16:20:57 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.33 2006/10/02 18:58:53 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.33  2006/10/02 18:58:53  bburger
+-- Bryce:  v01000012
+--
 -- Revision 1.32  2006/09/21 16:20:57  bburger
 -- Bryce:  Added support for testing TES Bias Step internal commands
 --
@@ -177,8 +180,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
       mictor0clk_o      : out std_logic;
       mictor0_e         : out std_logic_vector(15 downto 0);
       mictor0clk_e      : out std_logic;
-      rs232_rx          : in std_logic;
-      rs232_tx          : out std_logic;
+      rx          : in std_logic;
+      tx          : out std_logic;
       
       -- interface to HOTLINK fibre receiver      
       fibre_rx_refclk   : out std_logic;
@@ -342,8 +345,8 @@ architecture tb of tb_cc_rcs_bcs_ac is
       test       : inout std_logic_vector(16 downto 3);
       mictor     : out std_logic_vector(31 downto 0);
       mictorclk  : out std_logic_vector(2 downto 1);
-      rs232_rx   : in std_logic;
-      rs232_tx   : out std_logic
+      rx   : in std_logic;
+      tx   : out std_logic
    );
    end component;
  
@@ -468,6 +471,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant ac_num_rows_cmd         : std_logic_vector(31 downto 0) := x"00" & ADDRESS_CARD      & x"00" & NUM_ROWS_ADDR;
    
    constant bc1_flux_fb_cmd         : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & FLUX_FB_ADDR;
+   constant bc1_bias_cmd            : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_1       & x"00" & BIAS_ADDR;
 
    constant bc2_led_cmd             : std_logic_vector(31 downto 0) := x"00" & BIAS_CARD_2       & x"00" & LED_ADDR;
    
@@ -1254,8 +1258,8 @@ begin
          mictor0clk_o     => cc_mictorclk_o,
          mictor0_e        => cc_mictor_e,   
          mictor0clk_e     => cc_mictorclk_e,
-         rs232_rx         => cc_rs232_rx,
-         rs232_tx         => cc_rs232_tx,
+         rx               => cc_rs232_rx,
+         tx               => cc_rs232_tx,
          
          -- interface to HOTLINK fibre receiver         
          fibre_rx_refclk  => open,
@@ -1655,70 +1659,11 @@ begin
 --         test          => bc3_test,       
 --         mictor        => bc3_mictor,     
 --         mictorclk     => bc3_mictorclk,  
---         rs232_rx      => bc3_rs232_rx,
---         rs232_tx      => bc3_rs232_tx
+--         rx            => bc3_rs232_rx,
+--         tx            => bc3_rs232_tx
 --      );   
 --
-   i_bias_card2: bias_card
-      port map
-      (
-         -- PLL input:
-         inclk         => lvds_clk,
-         rst_n         => rst_n,
-         
-         -- LVDS interface:
-         lvds_cmd      => lvds_cmd,  
-         lvds_sync     => lvds_sync, 
-         lvds_spare    => lvds_spare,
-         lvds_txa      => lvds_reply_bc2_a, 
-         lvds_txb      => lvds_reply_bc2_b, 
-         
-         -- TTL interface:
-         ttl_nrx1      => bclr_n,  
-         ttl_tx1       => open,   
-         ttl_txena1    => bc2_ttl_txena1,
-
-         ttl_nrx2      => bc2_ttl_nrx2,  
-         ttl_tx2       => open,   
-         ttl_txena2    => bc2_ttl_txena2,
-
-         ttl_nrx3      => bc2_ttl_nrx3,  
-         ttl_tx3       => open,   
-         ttl_txena3    => bc2_ttl_txena3,
-         
-         -- eeprom ice:nterface:
-         eeprom_si     => bc2_eeprom_si, 
-         eeprom_so     => bc2_eeprom_so, 
-         eeprom_sck    => bc2_eeprom_sck,
-         eeprom_cs     => bc2_eeprom_cs, 
-         
-         -- dac interface:
-         dac_ncs       => bc2_dac_ncs,      
-         dac_sclk      => bc2_dac_sclk,     
-         dac_data      => bc2_dac_data,         
-         lvds_dac_ncs  => bc2_lvds_dac_ncs, 
-         lvds_dac_sclk => bc2_lvds_dac_sclk,
-         lvds_dac_data => bc2_lvds_dac_data,
-         dac_nclr      => bc2_dac_nclr,     
-         
-         -- miscellaneous ports:
-         red_led       => bc2_red_led, 
-         ylw_led       => bc2_ylw_led, 
-         grn_led       => bc2_grn_led, 
-         dip_sw3       => bc2_dip_sw3, 
-         dip_sw4       => bc2_dip_sw4, 
-         wdog          => bc2_wdog,    
-         slot_id       => bc2_slot_id, 
-         
-         -- debug ports:
-         test          => bc2_test,       
-         mictor        => bc2_mictor,     
-         mictorclk     => bc2_mictorclk,  
-         rs232_rx      => bc2_rs232_rx,
-         rs232_tx      => bc2_rs232_tx
-      );     
---
---   i_bias_card1: bias_card
+--   i_bias_card2: bias_card
 --      port map
 --      (
 --         -- PLL input:
@@ -1729,53 +1674,112 @@ begin
 --         lvds_cmd      => lvds_cmd,  
 --         lvds_sync     => lvds_sync, 
 --         lvds_spare    => lvds_spare,
---         lvds_txa      => lvds_reply_bc1_a, 
---         lvds_txb      => lvds_reply_bc1_b, 
+--         lvds_txa      => lvds_reply_bc2_a, 
+--         lvds_txb      => lvds_reply_bc2_b, 
 --         
 --         -- TTL interface:
 --         ttl_nrx1      => bclr_n,  
 --         ttl_tx1       => open,   
---         ttl_txena1    => bc1_ttl_txena1,
+--         ttl_txena1    => bc2_ttl_txena1,
 --
---         ttl_nrx2      => bc1_ttl_nrx2,  
+--         ttl_nrx2      => bc2_ttl_nrx2,  
 --         ttl_tx2       => open,   
---         ttl_txena2    => bc1_ttl_txena2,
+--         ttl_txena2    => bc2_ttl_txena2,
 --
---         ttl_nrx3      => bc1_ttl_nrx3,  
+--         ttl_nrx3      => bc2_ttl_nrx3,  
 --         ttl_tx3       => open,   
---         ttl_txena3    => bc1_ttl_txena3,
+--         ttl_txena3    => bc2_ttl_txena3,
 --         
 --         -- eeprom ice:nterface:
---         eeprom_si     => bc1_eeprom_si, 
---         eeprom_so     => bc1_eeprom_so, 
---         eeprom_sck    => bc1_eeprom_sck,
---         eeprom_cs     => bc1_eeprom_cs, 
+--         eeprom_si     => bc2_eeprom_si, 
+--         eeprom_so     => bc2_eeprom_so, 
+--         eeprom_sck    => bc2_eeprom_sck,
+--         eeprom_cs     => bc2_eeprom_cs, 
 --         
 --         -- dac interface:
---         dac_ncs       => bc1_dac_ncs,      
---         dac_sclk      => bc1_dac_sclk,     
---         dac_data      => bc1_dac_data,         
---         lvds_dac_ncs  => bc1_lvds_dac_ncs, 
---         lvds_dac_sclk => bc1_lvds_dac_sclk,
---         lvds_dac_data => bc1_lvds_dac_data,
---         dac_nclr      => bc1_dac_nclr,     
+--         dac_ncs       => bc2_dac_ncs,      
+--         dac_sclk      => bc2_dac_sclk,     
+--         dac_data      => bc2_dac_data,         
+--         lvds_dac_ncs  => bc2_lvds_dac_ncs, 
+--         lvds_dac_sclk => bc2_lvds_dac_sclk,
+--         lvds_dac_data => bc2_lvds_dac_data,
+--         dac_nclr      => bc2_dac_nclr,     
 --         
 --         -- miscellaneous ports:
---         red_led       => bc1_red_led, 
---         ylw_led       => bc1_ylw_led, 
---         grn_led       => bc1_grn_led, 
---         dip_sw3       => bc1_dip_sw3, 
---         dip_sw4       => bc1_dip_sw4, 
---         wdog          => bc1_wdog,    
---         slot_id       => bc1_slot_id, 
+--         red_led       => bc2_red_led, 
+--         ylw_led       => bc2_ylw_led, 
+--         grn_led       => bc2_grn_led, 
+--         dip_sw3       => bc2_dip_sw3, 
+--         dip_sw4       => bc2_dip_sw4, 
+--         wdog          => bc2_wdog,    
+--         slot_id       => bc2_slot_id, 
 --         
 --         -- debug ports:
---         test          => bc1_test,       
---         mictor        => bc1_mictor,     
---         mictorclk     => bc1_mictorclk,  
---         rs232_rx      => bc1_rs232_rx,
---         rs232_tx      => bc1_rs232_tx
+--         test          => bc2_test,       
+--         mictor        => bc2_mictor,     
+--         mictorclk     => bc2_mictorclk,  
+--         rx            => bc2_rs232_rx,
+--         tx            => bc2_rs232_tx
 --      );     
+--
+   i_bias_card1: bias_card
+      port map
+      (
+         -- PLL input:
+         inclk         => lvds_clk,
+         rst_n         => rst_n,
+         
+         -- LVDS interface:
+         lvds_cmd      => lvds_cmd,  
+         lvds_sync     => lvds_sync, 
+         lvds_spare    => lvds_spare,
+         lvds_txa      => lvds_reply_bc1_a, 
+         lvds_txb      => lvds_reply_bc1_b, 
+         
+         -- TTL interface:
+         ttl_nrx1      => bclr_n,  
+         ttl_tx1       => open,   
+         ttl_txena1    => bc1_ttl_txena1,
+
+         ttl_nrx2      => bc1_ttl_nrx2,  
+         ttl_tx2       => open,   
+         ttl_txena2    => bc1_ttl_txena2,
+
+         ttl_nrx3      => bc1_ttl_nrx3,  
+         ttl_tx3       => open,   
+         ttl_txena3    => bc1_ttl_txena3,
+         
+         -- eeprom ice:nterface:
+         eeprom_si     => bc1_eeprom_si, 
+         eeprom_so     => bc1_eeprom_so, 
+         eeprom_sck    => bc1_eeprom_sck,
+         eeprom_cs     => bc1_eeprom_cs, 
+         
+         -- dac interface:
+         dac_ncs       => bc1_dac_ncs,      
+         dac_sclk      => bc1_dac_sclk,     
+         dac_data      => bc1_dac_data,         
+         lvds_dac_ncs  => bc1_lvds_dac_ncs, 
+         lvds_dac_sclk => bc1_lvds_dac_sclk,
+         lvds_dac_data => bc1_lvds_dac_data,
+         dac_nclr      => bc1_dac_nclr,     
+         
+         -- miscellaneous ports:
+         red_led       => bc1_red_led, 
+         ylw_led       => bc1_ylw_led, 
+         grn_led       => bc1_grn_led, 
+         dip_sw3       => bc1_dip_sw3, 
+         dip_sw4       => bc1_dip_sw4, 
+         wdog          => bc1_wdog,    
+         slot_id       => bc1_slot_id, 
+         
+         -- debug ports:
+         test          => bc1_test,       
+         mictor        => bc1_mictor,     
+         mictorclk     => bc1_mictorclk,  
+         rx            => bc1_rs232_rx,
+         tx            => bc1_rs232_tx
+      );     
 --
 --   i_addr_card : addr_card
 --      port map
@@ -2164,6 +2168,60 @@ begin
       do_reset;
       wait for 5 us;
 
+------------------------------------------------------
+--  Test Case xx: For testing bias card commands
+--  wb bc1 flux_fb 3 ..
+--  wb bc1 bias 3 
+--  rb bc1 flux_fb 
+--  rb bc1 bias
+--  wb bc1 flux_fb 100 ...
+------------------------------------------------------
+--      command <= command_wb;
+--      address_id <= bc1_flux_fb_cmd;
+--      data_valid <= X"00000020";
+--      data       <= X"00000003";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--      
+--      command <= command_wb;
+--      address_id <= bc1_bias_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000008";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_rb;
+--      address_id <= bc1_flux_fb_cmd;
+--      data_valid <= X"00000020";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 50 us;
+--      
+--      command <= command_rb;
+--      address_id <= bc1_bias_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000000";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= bc1_flux_fb_cmd;
+--      data_valid <= X"00000020";
+--      data       <= X"00000064";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 200 us;
+            
+      
 ------------------------------------------------------
 --  For testing internal commands
 ------------------------------------------------------
