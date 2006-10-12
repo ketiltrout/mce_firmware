@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ac_dac_ctrl_wbs.vhd,v 1.5 2005/03/31 01:09:26 bburger Exp $
+-- $Id: ac_dac_ctrl_wbs.vhd,v 1.6 2006/08/01 18:20:51 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: ac_dac_ctrl_wbs.vhd,v $
+-- Revision 1.6  2006/08/01 18:20:51  bburger
+-- Bryce:  removed component declarations from header files and moved them to source files
+--
 -- Revision 1.5  2005/03/31 01:09:26  bburger
 -- Bryce:  fixed a RB bug
 --
@@ -292,8 +295,6 @@ begin
       row_order_data  when ROW_ORDER_ADDR,
       (others => '0') when others;
    
-   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
-           
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
       (addr_i = ON_BIAS_ADDR or addr_i = OFF_BIAS_ADDR or addr_i = ENBL_MUX_ADDR or addr_i = ROW_ORDER_ADDR) else '0'; 
