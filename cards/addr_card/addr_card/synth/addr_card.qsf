@@ -33,72 +33,7 @@
 # ========================
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 4.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:26:58  DECEMBER 15, 2004"
-set_global_assignment -name LAST_QUARTUS_VERSION 4.2
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_pack.vhd
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_core_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
-set_global_assignment -name VHDL_FILE ../../../clk_card/sync_gen/source/rtl/sync_gen_pack.vhd
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_ramdq.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_crc_test.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_data_buf.vhd
-set_global_assignment -name VHDL_FILE ../../pll/source/rtl/ac_pll.vhd
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_core.vhd
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd
-set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/tpram_32bit_x_64.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core.vhd
-set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/async_fifo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter_xstep.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/crc.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/hex2ascii.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/init_1_wire.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/lfsr.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/ns_timer.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/prand.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/rs232_data_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slave_ctrl.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/sync_fifo_rx.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/sync_fifo_tx.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri_state_buf.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri_state_buf_vec.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
-set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/wb_slave.vhd
-set_global_assignment -name VHDL_FILE ../source/rtl/addr_card_pack.vhd
-set_global_assignment -name VHDL_FILE ../source/rtl/addr_card.vhd
-set_global_assignment -name SIGNALTAP_FILE addr_card.stp
+set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
 
 # Pin & Location Assignments
 # ==========================
@@ -436,7 +371,7 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-
 
 # Simulator Assignments
 # =====================
-set_global_assignment -name GLITCH_INTERVAL "1 "
+set_global_assignment -name GLITCH_INTERVAL "1 ns"
 
 # Design Assistant Assignments
 # ============================
@@ -454,7 +389,7 @@ set_global_assignment -name USE_SIGNALTAP_FILE addr_card.stp
 
 # LogicLock Region Assignments
 # ============================
-set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
+set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT OFF
 
 # ------------------
 # start CLOCK(inclk)
@@ -471,7 +406,70 @@ set_global_assignment -name LOGICLOCK_INCREMENTAL_COMPILE_ASSIGNMENT off
 
 	# Project-Wide Assignments
 	# ========================
-	set_parameter -name "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|tpram_32bit_x_64:off_ram|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_0hf1:auto_generated|ram_block1a13~portb_address_reg5" "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|reg:\\gen_dac_data_reg:10:dac_data_reg|reg_o[11]" -to None -comment "ac_pll:pll0|altpll:altpll_component|_clk0"
+set_parameter -name "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_wbs:wbi|tpram_32bit_x_64:off_ram|alt3pram:alt3pram_component|altdpram:altdpram_component1|altsyncram:ram_block|altsyncram_0hf1:auto_generated|ram_block1a13~portb_address_reg5" "ac_dac_ctrl:ac_dac_ctrl_slave|ac_dac_ctrl_core:acdcc|reg:\\gen_dac_data_reg:10:dac_data_reg|reg_o[11]" -to None -comment "ac_pll:pll0|altpll:altpll_component|_clk0"
 
 # end ENTITY(addr_card)
 # ---------------------
+
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/parallel_crc.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/binary_counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/command_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/wishbone_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/data_types_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/sys_param/source/rtl/general_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/component_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/slot_id/source/rtl/slot_id_pack.vhd
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs_pack.vhd
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_core_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/ascii_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/async_pack.vhd
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../clk_card/sync_gen/source/rtl/sync_gen_pack.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/smb_master.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/one_wire_master.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/id_thermo/source/rtl/id_thermo.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fpga_thermo/source/rtl/fpga_thermo.vhd
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_ramdq.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/leds/source/rtl/leds.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/fw_rev/source/rtl/fw_rev.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_rx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/async/source/rtl/lvds_tx.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_reply_transmit.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_wishbone.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/dispatch/source/rtl/dispatch_cmd_receive.vhd
+set_global_assignment -name VHDL_FILE ../../pll/source/rtl/ac_pll.vhd
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_core.vhd
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/ac_dac_ctrl_wbs.vhd
+set_global_assignment -name VHDL_FILE ../../ac_dac_ctrl/source/rtl/tpram_32bit_x_64.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_core.vhd
+set_global_assignment -name VHDL_FILE ../../../all_cards/frame_timing/source/rtl/frame_timing_wbs.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/write_spi_with_cs.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/async_fifo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/counter_xstep.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/fifo.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/hex2ascii.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/lfsr.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/ns_timer.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/prand.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/rs232_data_tx.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/shift_reg.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/slave_ctrl.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/sync_fifo_rx.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/sync_fifo_tx.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri_state_buf.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/tri_state_buf_vec.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/us_timer.vhd
+set_global_assignment -name VHDL_FILE ../../../library/components/source/rtl/wb_slave.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/addr_card_pack.vhd
+set_global_assignment -name VHDL_FILE ../source/rtl/addr_card.vhd
+set_global_assignment -name SIGNALTAP_FILE addr_card.stp

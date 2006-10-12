@@ -2,8 +2,8 @@
   <display_tree gui_logging_enabled="0">
     <display_branch instance="auto_signaltap_0" signal_set="USE_GLOBAL_TEMP" trigger="USE_GLOBAL_TEMP"/>
   </display_tree>
-  <instance entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
-    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="3"/>
+  <instance compilation_mode="full" entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="4"/>
     <signal_set global_temp="1" is_expanded="true" name="signal_set: 2006/03/01 16:14:10  #0">
       <clock name="ac_pll:pll0|altpll:altpll_component|_clk0" polarity="posedge"/>
       <config ram_type="AUTO" reserved_data_nodes="0" reserved_trigger_nodes="0" sample_depth="4096" trigger_in_enable="no" trigger_out_enable="no"/>
@@ -487,6 +487,7 @@
             <op_node/>
           </level>
         </events>
+        <power_up_trigger/>
       </trigger>
     </signal_set>
     <position_info>
@@ -499,6 +500,6 @@
   <global_info>
     <single attribute="active instance" value="0"/>
     <multi attribute="column width" size="18" value="34,34,438,74,68,70,88,100,101,101,101,101,101,101,101,101,107,78"/>
-    <multi attribute="window position" size="7" value="1146,819,374,125,356,50,61"/>
+    <multi attribute="window position" size="9" value="1341,741,398,124,356,50,124,0,0"/>
   </global_info>
 </session>
