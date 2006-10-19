@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.60 2006/09/07 22:30:23 bburger Exp $
+-- $Id: clk_card.vhd,v 1.61 2006/09/21 16:19:14 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.61  2006/09/21 16:19:14  bburger
+-- Bryce:  Added support for the TES Bias Step internal commands
+--
 -- Revision 1.60  2006/09/07 22:30:23  bburger
 -- Bryce:  cleaned up the file by removing code that was commented out
 --
@@ -174,6 +177,9 @@ entity clk_card is
       card_id           : inout std_logic;
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
+      box_id_in         : inout std_logic;
+      box_id_out        : out std_logic;
+      box_id_ena        : out std_logic;
       
       -- debug ports:
       mictor0_o         : out std_logic_vector(15 downto 0);
@@ -184,8 +190,9 @@ entity clk_card is
       mictor1clk_o      : out std_logic;
       mictor1_e         : out std_logic_vector(15 downto 0);
       mictor1clk_e      : out std_logic;
-      rs232_rx          : in std_logic;
-      rs232_tx          : out std_logic;
+      
+      rx                : in std_logic;
+      tx                : out std_logic;
       
       -- interface to HOTLINK fibre receiver      
       fibre_rx_data     : in std_logic_vector (7 downto 0);  
@@ -219,7 +226,7 @@ architecture top of clk_card is
    --               RR is the major revision number
    --               rr is the minor revision number
    --               BBBB is the build number
-   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000012";
+   constant CC_REVISION: std_logic_vector (31 downto 0) := X"02000013";
    
    -- reset
    signal rst                : std_logic;
@@ -255,6 +262,7 @@ architecture top of clk_card is
    signal tes_bias_low         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal tes_bias_toggle_rate : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    signal status_cmd_en        : std_logic;
+   signal crc_err_en           : std_logic;
    
    -- wishbone bus (from master)
    signal data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -287,6 +295,8 @@ architecture top of clk_card is
    signal ret_dat_ack         : std_logic;
    signal id_thermo_data      : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal id_thermo_ack       : std_logic;
+   signal box_id_thermo_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
+   signal box_id_thermo_ack   : std_logic;
    signal fpga_thermo_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal fpga_thermo_ack     : std_logic;
    signal config_fpga_data    : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -298,6 +308,7 @@ architecture top of clk_card is
 
    signal fw_rev_err              : std_logic;
    signal id_thermo_err           : std_logic;
+   signal box_id_thermo_err       : std_logic;
    signal fpga_thermo_err         : std_logic;
    
    -- lvds_tx interface
@@ -468,6 +479,9 @@ architecture top of clk_card is
    end component;
    
    component id_thermo
+   generic(
+      tristate    : string := "INTERNAL";  -- valid values are "INTERNAL" and "EXTERNAL".
+      card_or_box : string := "CARD");     -- valid values are "CARD" and "BOX".
    port(
       clk_i : in std_logic;
       rst_i : in std_logic;
@@ -484,7 +498,9 @@ architecture top of clk_card is
       ack_o   : out std_logic;
             
       -- silicon id/temperature chip signals
-      data_io : inout std_logic
+      data_io : inout std_logic;
+      data_o  : out std_logic;
+      wren_o  : out std_logic
    );
    end component;
    
@@ -591,6 +607,7 @@ architecture top of clk_card is
       tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       status_cmd_en_o        : out std_logic;
+      crc_err_en_o           : out std_logic;
 
       -- global interface
       clk_i                  : in std_logic;
@@ -667,6 +684,7 @@ architecture top of clk_card is
       tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       status_cmd_en_i        : in std_logic;
+      crc_err_en_i           : in std_logic;
    
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -713,40 +731,45 @@ begin
 
    with addr select
       slave_data <=
-         fw_rev_data       when FW_REV_ADDR,              
-         led_data          when LED_ADDR,
-         sync_gen_data     when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
-         ret_dat_data      when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR,
-         id_thermo_data    when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         fpga_thermo_data  when FPGA_TEMP_ADDR,
-         config_fpga_data  when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
-         select_clk_data   when SELECT_CLK_ADDR,
-         psu_ctrl_data     when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
-         (others => '0')   when others;
+         fw_rev_data        when FW_REV_ADDR,              
+         led_data           when LED_ADDR,
+         sync_gen_data      when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
+         ret_dat_data       when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | 
+                                 TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
+         id_thermo_data     when CARD_TEMP_ADDR | CARD_ID_ADDR,
+         box_id_thermo_data when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         fpga_thermo_data   when FPGA_TEMP_ADDR,
+         config_fpga_data   when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
+         select_clk_data    when SELECT_CLK_ADDR,
+         psu_ctrl_data      when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
+         (others => '0')    when others;
          
    with addr select
       slave_ack <= 
-         fw_rev_ack        when FW_REV_ADDR,
-         led_ack           when LED_ADDR,
-         sync_gen_ack      when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
-         ret_dat_ack       when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR,
-         id_thermo_ack     when CARD_TEMP_ADDR | CARD_ID_ADDR,
-         fpga_thermo_ack   when FPGA_TEMP_ADDR,
-         config_fpga_ack   when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
-         select_clk_ack    when SELECT_CLK_ADDR,
-         psu_ctrl_ack      when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
-         '0'               when others;
+         fw_rev_ack         when FW_REV_ADDR,
+         led_ack            when LED_ADDR,
+         sync_gen_ack       when USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR,
+         ret_dat_ack        when RET_DAT_S_ADDR | DATA_RATE_ADDR | TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | 
+                                 TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
+         id_thermo_ack      when CARD_TEMP_ADDR | CARD_ID_ADDR,
+         box_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         fpga_thermo_ack    when FPGA_TEMP_ADDR,
+         config_fpga_ack    when CONFIG_FAC_ADDR | CONFIG_APP_ADDR,
+         select_clk_ack     when SELECT_CLK_ADDR,
+         psu_ctrl_ack       when BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR,
+         '0'                when others;
          
    with addr select
       slave_err <= 
-         '0'               when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | 
-                                DATA_RATE_ADDR | CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
-                                SELECT_CLK_ADDR | BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR | 
-                                TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR,
-         fw_rev_err        when FW_REV_ADDR,
-         id_thermo_err     when CARD_ID_ADDR | CARD_TEMP_ADDR,
-         fpga_thermo_err   when FPGA_TEMP_ADDR,
-         '1'               when others;
+         '0'                when LED_ADDR | USE_DV_ADDR | ROW_LEN_ADDR | NUM_ROWS_ADDR | USE_SYNC_ADDR | RET_DAT_S_ADDR | 
+                                 DATA_RATE_ADDR | CONFIG_FAC_ADDR | CONFIG_APP_ADDR |
+                                 SELECT_CLK_ADDR | BRST_MCE_ADDR | CYCLE_POW_ADDR | CUT_POW_ADDR | PSC_STATUS_ADDR | 
+                                 TES_TGL_EN_ADDR | TES_TGL_MAX_ADDR | TES_TGL_MIN_ADDR | TES_TGL_RATE_ADDR | INT_CMD_EN_ADDR | CRC_ERR_EN_ADDR,
+         fw_rev_err         when FW_REV_ADDR,
+         id_thermo_err      when CARD_ID_ADDR | CARD_TEMP_ADDR,
+         box_id_thermo_ack  when BOX_TEMP_ADDR | BOX_ID_ADDR,
+         fpga_thermo_err    when FPGA_TEMP_ADDR,
+         '1'                when others;
 
    psu_ctrl_inst: psu_ctrl 
    port map(
@@ -904,9 +927,37 @@ begin
       ack_o   => id_thermo_ack,
          
       -- silicon id/temperature chip signals
-      data_io => card_id
+      data_io => card_id,
+      data_o  => open,
+      wren_o  => open
    );
          
+   id_thermo1: id_thermo
+   generic map(
+      tristate => "EXTERNAL",
+      card_or_box => "BOX")
+   port map(
+      clk_i   => clk,
+      rst_i   => rst,  
+      
+      -- Wishbone signals
+      dat_i   => data, 
+      addr_i  => addr,
+      tga_i   => tga,
+      we_i    => we,
+      stb_i   => stb,
+      cyc_i   => cyc,
+      err_o   => box_id_thermo_err,
+      dat_o   => box_id_thermo_data,
+      ack_o   => box_id_thermo_ack,
+         
+      -- silicon id/temperature chip signals
+      data_io => box_id_in,
+      data_o  => box_id_out,
+      wren_o  => box_id_ena
+   );
+
+
    fpga_thermo0: fpga_thermo
    port map(
       clk_i   => clk,
@@ -1068,6 +1119,7 @@ begin
       tes_bias_low_i         => tes_bias_low,
       tes_bias_toggle_rate_i => tes_bias_toggle_rate,
       status_cmd_en_i        => status_cmd_en,
+      crc_err_en_i           => crc_err_en,
 
       -- clk_switchover interface
       active_clk_i      => active_clk,
@@ -1111,6 +1163,7 @@ begin
       tes_bias_low_o         => tes_bias_low,
       tes_bias_toggle_rate_o => tes_bias_toggle_rate,
       status_cmd_en_o        => status_cmd_en,
+      crc_err_en_o           => crc_err_en,
 
       -- global interface
       clk_i                  => clk,
