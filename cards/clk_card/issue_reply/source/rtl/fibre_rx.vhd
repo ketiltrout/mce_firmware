@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5 2004/11/24 01:15:52 bench2 Exp $>
+-- <revision control keyword substitutions e.g. $Id: fibre_rx.vhd,v 1.5.2.1 2006/01/16 18:56:11 bburger Exp $>
 --
 -- Project: Scuba 2
 -- Author: David Atkinson
@@ -33,8 +33,13 @@
 -- 3. fibre_rx_protocol
 --
 -- Revision history:
--- <date $Date: 2004/11/24 01:15:52 $> - <text> - <initials $Author: bench2 $>
+-- <date $Date: 2006/01/16 18:56:11 $> - <text> - <initials $Author: bburger $>
 -- $Log: fibre_rx.vhd,v $
+-- Revision 1.5.2.1  2006/01/16 18:56:11  bburger
+-- Ernie:
+-- replacedFIBRE_CMD_CODE_WIDTH with FIBRE_PACKET_TYPE_WIDTH
+-- Added component declarations
+--
 -- Revision 1.5  2004/11/24 01:15:52  bench2
 -- Greg: Broke apart issue reply and created pack files for all of its sub-components
 --
@@ -70,7 +75,7 @@ entity fibre_rx is
       cmd_ack_i    : in     std_logic;                                         -- command acknowledge
       
       cmd_code_o   : out    std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);   -- command code  
-      card_id_o    : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
+      card_addr_o  : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
       param_id_o   : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- parameter id
       num_data_o   : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- number of valid 32 bit data words
       cmd_data_o   : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- 32bit valid data word
@@ -148,7 +153,7 @@ begin
       cmd_ack_i   =>   cmd_ack_i,
          
       cmd_code_o  =>   cmd_code_o,
-      card_id_o   =>   card_id_o,
+      card_id_o   =>   card_addr_o,
       param_id_o  =>   param_id_o,
       num_data_o  =>   num_data_o,
       cmd_data_o  =>   cmd_data_o,
