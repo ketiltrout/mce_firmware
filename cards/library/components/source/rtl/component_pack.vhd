@@ -20,7 +20,7 @@
 --
 -- component_pack
 --
--- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.33 2006/01/20 21:23:18 erniel Exp $>
+-- <revision control keyword substitutions e.g. $Id: component_pack.vhd,v 1.34 2006/02/20 23:41:28 bburger Exp $>
 --
 -- Project:    SCUBA-2
 -- Author:     Jon Jacob
@@ -32,6 +32,9 @@
 -- Revision history:
 --
 -- $Log: component_pack.vhd,v $
+-- Revision 1.34  2006/02/20 23:41:28  bburger
+-- Bryce:  re-instated component declarations for crc, sync_fifo_rx and sync_fifo_tx for backwards compatibility with previous versions of issue_reply and dispatch
+--
 -- Revision 1.33  2006/01/20 21:23:18  erniel
 -- added SMBus Master component
 --
@@ -495,6 +498,7 @@ package component_pack is
 ------------------------------------------------------------ 
 
    component one_wire_master
+   generic(tristate : string := "INTERNAL");  -- valid values are "INTERNAL" and "EXTERNAL".
    port(clk_i         : in std_logic;
         rst_i         : in std_logic;
      
