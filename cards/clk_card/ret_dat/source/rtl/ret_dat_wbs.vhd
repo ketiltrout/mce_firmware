@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: ret_dat_wbs.vhd,v 1.9 2006/05/29 23:11:00 bburger Exp $
+-- $Id: ret_dat_wbs.vhd,v 1.10 2006/09/21 16:18:18 bburger Exp $
 --
 -- Project:       SCUBA2
 -- Author:        Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: ret_dat_wbs.vhd,v $
+-- Revision 1.10  2006/09/21 16:18:18  bburger
+-- Bryce:  Added support for the TES Bias Step internal commands
+--
 -- Revision 1.9  2006/05/29 23:11:00  bburger
 -- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
 --
@@ -94,6 +97,7 @@ entity ret_dat_wbs is
       tes_bias_low_o         : out std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       tes_bias_toggle_rate_o : out std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       status_cmd_en_o        : out std_logic;
+      crc_err_en_o           : out std_logic;
 
       -- global interface
       clk_i                  : in std_logic;
@@ -126,6 +130,7 @@ architecture rtl of ret_dat_wbs is
    signal tes_tgl_min_wren  : std_logic;
    signal tes_tgl_rate_wren : std_logic;
    signal int_cmd_en_wren   : std_logic;
+   signal crc_err_en_wren   : std_logic;
    
    signal start_data        : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal stop_data         : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
@@ -135,8 +140,7 @@ architecture rtl of ret_dat_wbs is
    signal tes_tgl_min_data  : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal tes_tgl_rate_data : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    signal int_cmd_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
-   
---   signal data_req          : std_logic;
+   signal crc_err_en_data   : std_logic_vector(WB_DATA_WIDTH-1 downto 0);
    
    -- WBS states:
    type states is (IDLE, WR, RD); 
@@ -169,6 +173,19 @@ begin
          ena_i             => stop_wren,
          reg_i             => dat_i,
          reg_o             => stop_data
+      );
+
+   crc_err_en_o <= '0' when crc_err_en_data = x"00000000" else '1';
+   crc_error_enable_reg : reg
+      generic map(
+         WIDTH             => WB_DATA_WIDTH
+      )
+      port map(
+         clk_i             => clk_i,
+         rst_i             => rst_i,
+         ena_i             => crc_err_en_wren,
+         reg_i             => dat_i,
+         reg_o             => crc_err_en_data
       );
 
    tes_bias_toggle_en_o <= '0' when tes_tgl_en_data = x"00000000" else '1';
@@ -324,7 +341,8 @@ begin
       tes_tgl_max_wren  <= '0';
       tes_tgl_min_wren  <= '0';
       tes_tgl_rate_wren <= '0';
-      int_cmd_en_wren   <= '0';      
+      int_cmd_en_wren   <= '0';
+      crc_err_en_wren   <= '0';
       
       ack_o             <= '0';
      
@@ -360,6 +378,9 @@ begin
                elsif(addr_i = INT_CMD_EN_ADDR) then
                   int_cmd_en_wren <= '1';
                   ack_o <= '1';
+               elsif(addr_i = CRC_ERR_EN_ADDR) then
+                  crc_err_en_wren <= '1';
+                  ack_o <= '1';
                end if;
             end if;
 
@@ -387,6 +408,7 @@ begin
       tes_tgl_min_data  when (addr_i = TES_TGL_MIN_ADDR) else
       tes_tgl_rate_data when (addr_i = TES_TGL_RATE_ADDR) else
       int_cmd_en_data   when (addr_i = INT_CMD_EN_ADDR) else
+      crc_err_en_data   when (addr_i = CRC_ERR_EN_ADDR) else
       (others => '0');
 
    rd_cmd  <= '1' when 
@@ -394,13 +416,13 @@ begin
       (addr_i = RET_DAT_S_ADDR   or addr_i = DATA_RATE_ADDR    or
        addr_i = TES_TGL_EN_ADDR  or addr_i = TES_TGL_MAX_ADDR  or
        addr_i = TES_TGL_MIN_ADDR or addr_i = TES_TGL_RATE_ADDR or
-       addr_i = INT_CMD_EN_ADDR) else '0'; 
+       addr_i = INT_CMD_EN_ADDR or addr_i = CRC_ERR_EN_ADDR) else '0'; 
       
    wr_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '1') and 
       (addr_i = RET_DAT_S_ADDR   or addr_i = DATA_RATE_ADDR    or
        addr_i = TES_TGL_EN_ADDR  or addr_i = TES_TGL_MAX_ADDR  or
        addr_i = TES_TGL_MIN_ADDR or addr_i = TES_TGL_RATE_ADDR or
-       addr_i = INT_CMD_EN_ADDR) else '0'; 
+       addr_i = INT_CMD_EN_ADDR or addr_i = CRC_ERR_EN_ADDR) else '0'; 
       
 end rtl;
