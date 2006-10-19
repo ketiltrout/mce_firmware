@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.54 2006/09/21 16:14:26 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.55 2006/09/26 02:16:05 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/21 16:14:26 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/26 02:16:05 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.55  2006/09/26 02:16:05  bburger
+-- Bryce: added busy_i interface for arbitration between ret_dat, internal and simple commands
+--
 -- Revision 1.54  2006/09/21 16:14:26  bburger
 -- Bryce:  Added interfaces for the TES Bias Step internal commands
 --
@@ -129,6 +132,7 @@ entity issue_reply is
       tes_bias_low_i         : in std_logic_vector(WB_DATA_WIDTH-1 downto 0);
       tes_bias_toggle_rate_i : in std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
       status_cmd_en_i        : in std_logic;
+      crc_err_en_i           : in std_logic;
    
       -- clk_switchover interface
       active_clk_i           : in std_logic;
@@ -162,7 +166,7 @@ architecture rtl of issue_reply is
       cmd_ack_i    : in     std_logic;                                         -- command acknowledge
       
       cmd_code_o   : out    std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);   -- command code  
-      card_id_o    : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
+      card_addr_o  : out    std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- card id
       param_id_o   : out    std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);     -- parameter id
       num_data_o   : out    std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);  -- number of valid 32 bit data words
       cmd_data_o   : out    std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);       -- 32bit valid data word
@@ -183,7 +187,7 @@ architecture rtl of issue_reply is
       card_id_i             : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);       -- specifies which card the command is targetting
       cmd_code_i            : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
       cmd_data_i            : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);       -- the data
-      cksum_err_i           : in  std_logic;
+--      cksum_err_i           : in  std_logic;
       cmd_rdy_i             : in  std_logic;                                                    -- indicates the fibre_rx outputs are valid
       data_clk_i            : in  std_logic;                                                    -- used to clock the data out
       num_data_i            : in  std_logic_vector (    FIBRE_DATA_SIZE_WIDTH-1 downto 0);      -- number of 16-bit data words to be clocked out, possibly number of bytes
@@ -371,6 +375,8 @@ architecture rtl of issue_reply is
       rst_i                   : in  std_logic;                                               -- global reset
       clk_i                   : in  std_logic;                                               -- global clock
 
+      crc_err_en_i           : in std_logic;
+
       -- signals to/from cmd_translator    
       cmd_rcvd_er_i           : in  std_logic;                                               -- command received on fibre with checksum error
       cmd_rcvd_ok_i           : in  std_logic;                                               -- command received on fibre - no checksum error
@@ -415,7 +421,7 @@ architecture rtl of issue_reply is
    end component;
 
    -- inputs from fibre_rx 
-   signal card_id             : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
+   signal card_addr           : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
    signal cmd_code            : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
    signal cksum_err           : std_logic;
    signal cmd_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- the data 
@@ -449,7 +455,7 @@ architecture rtl of issue_reply is
    signal tes_bias_step_level : std_logic;
 
    -- cmd_translator to cmd_queue interface
-   signal card_addr           : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal card_addr2          : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
    signal parameter_id        : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0); 
    signal data_size           : std_logic_vector (BB_DATA_SIZE_WIDTH-1 downto 0);
    signal data                : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
@@ -490,32 +496,32 @@ begin
    -- fibre receiver
    ------------------------------------------------------------------------
    i_fibre_rx : fibre_rx
-      port map( 
-         rst_i        => rst_i,
-         clk_i        => clk_i,
-         
-         -- inputs from the fibre
-         fibre_clkr_i => fibre_clkr_i,
-         nrx_rdy_i    => nrx_rdy_i,
-         rvs_i        => rvs_i,
-         rso_i        => rso_i,
-         rsc_nrd_i    => rsc_nrd_i,
-         rx_data_i    => rx_data_i,
-         
-         -- input from cmd_translator
-         cmd_ack_i    => cmd_ack,                  -- command acknowledge
-         
-         -- outputs to cmd_translator
-         cmd_code_o   => cmd_code,                   -- command code
-         card_id_o    => card_id,                    -- card id
-         param_id_o   => param_id,                   -- parameter id
-         num_data_o   => num_data,                   -- number of valid 32 bit data words
-         cmd_data_o   => cmd_data,                   -- 32bit valid data word
-         cmd_rdy_o    => cmd_rdy,                    -- checksum error flag
-         data_clk_o   => data_clk,                   -- data clock
-         
-         cksum_err_o  => cksum_err
-      );
+   port map( 
+      rst_i        => rst_i,
+      clk_i        => clk_i,
+      
+      -- inputs from the fibre
+      fibre_clkr_i => fibre_clkr_i,
+      nrx_rdy_i    => nrx_rdy_i,
+      rvs_i        => rvs_i,
+      rso_i        => rso_i,
+      rsc_nrd_i    => rsc_nrd_i,
+      rx_data_i    => rx_data_i,
+      
+      -- input from cmd_translator
+      cmd_ack_i    => cmd_ack,                  -- command acknowledge
+      
+      -- outputs to cmd_translator
+      cmd_code_o   => cmd_code,                   -- command code
+      card_addr_o  => card_addr,                  -- card id
+      param_id_o   => param_id,                   -- parameter id
+      num_data_o   => num_data,                   -- number of valid 32 bit data words
+      cmd_data_o   => cmd_data,                   -- 32bit valid data word
+      cmd_rdy_o    => cmd_rdy,                    -- checksum error flag
+      data_clk_o   => data_clk,                   -- data clock
+      
+      cksum_err_o  => cksum_err
+   );
 
    cksum_err_o <= cksum_err;
 
@@ -523,243 +529,251 @@ begin
    -- fibre transmitter
    ------------------------------------------------------------------------
    i_fibre_tx : fibre_tx
-      port map(        
-         clk_i         => clk_i,
-         rst_i         => rst_i,
-         
-         dat_i         => fibre_tx_dat,
-         rdy_i         => fibre_tx_rdy,
-         busy_o        => fibre_tx_busy,
-     
-         fibre_clk_i   => fibre_clkw_i,
-         fibre_clkw_o  => open,
-         fibre_data_o  => tx_data_o,
-         fibre_sc_nd_o => tsc_nTd_o,
-         fibre_nena_o  => nFena_o
-      );
+   port map(        
+      clk_i         => clk_i,
+      rst_i         => rst_i,
+      
+      dat_i         => fibre_tx_dat,
+      rdy_i         => fibre_tx_rdy,
+      busy_o        => fibre_tx_busy,
+   
+      fibre_clk_i   => fibre_clkw_i,
+      fibre_clkw_o  => open,
+      fibre_data_o  => tx_data_o,
+      fibre_sc_nd_o => tsc_nTd_o,
+      fibre_nena_o  => nFena_o
+   );
 
    ------------------------------------------------------------------------
    -- reply_translator
    ------------------------------------------------------------------------ 
    i_reply_translator : reply_translator
-      port map(
-         -- for testing
-         debug_o           => debug_o,
+   port map(
+      -- for testing
+      debug_o           => debug_o,
 
-         -- global inputs 
-         rst_i             => rst_i,
-         clk_i             => clk_i,
+      -- global inputs 
+      rst_i             => rst_i,
+      clk_i             => clk_i,
+      crc_err_en_i      => crc_err_en_i,
 
-         -- signals to/from cmd_translator    
-         cmd_rcvd_er_i     => reply_cmd_rcvd_er,
-         cmd_rcvd_ok_i     => reply_cmd_rcvd_ok,
-         cmd_code_i        => reply_cmd_code_c,
-         card_addr_i       => reply_card_id,
-         param_id_i        => reply_param_id,            
-                         
-         -- signals to/from reply queue
-         mop_rdy_i         => m_op_rdy,  
-         mop_error_code_i  => m_op_error_code, 
-         fibre_word_i      => fibre_word,
-         num_fibre_words_i => num_fibre_words,
-         fibre_word_ack_o  => fibre_word_ack,
-         fibre_word_rdy_i  => fibre_word_rdy,
-         mop_ack_o         => m_op_ack,    
-         
-         cmd_stop_i        => reply_cmd_stop,
-         last_frame_i      => reply_last_frame,
-         frame_seq_num_i   => reply_frame_seq_num,
+      -- signals to/from cmd_translator    
+      cmd_rcvd_er_i     => cksum_err,
+      cmd_rcvd_ok_i     => cmd_rdy,
+      cmd_code_i        => cmd_code,
+      card_addr_i       => card_addr,
+      param_id_i        => param_id,            
 
-         -- signals to / from fibre_tx
-         fibre_tx_rdy_o    => fibre_tx_rdy,
-         fibre_tx_busy_i   => fibre_tx_busy,   
-         fibre_tx_dat_o    => fibre_tx_dat
-      );      
+--      -- signals to/from cmd_translator    
+--      cmd_rcvd_er_i     => reply_cmd_rcvd_er,
+--      cmd_rcvd_ok_i     => reply_cmd_rcvd_ok,
+--      cmd_code_i        => reply_cmd_code_c,
+--      card_addr_i       => reply_card_id,
+--      param_id_i        => reply_param_id,            
+
+      -- signals to/from reply queue
+      mop_rdy_i         => m_op_rdy,  
+      mop_error_code_i  => m_op_error_code, 
+      fibre_word_i      => fibre_word,
+      num_fibre_words_i => num_fibre_words,
+      fibre_word_ack_o  => fibre_word_ack,
+      fibre_word_rdy_i  => fibre_word_rdy,
+      mop_ack_o         => m_op_ack,    
+      
+      cmd_stop_i        => reply_cmd_stop,
+      last_frame_i      => reply_last_frame,
+      frame_seq_num_i   => reply_frame_seq_num,
+
+      -- signals to / from fibre_tx
+      fibre_tx_rdy_o    => fibre_tx_rdy,
+      fibre_tx_busy_i   => fibre_tx_busy,   
+      fibre_tx_dat_o    => fibre_tx_dat
+   );      
 
    ------------------------------------------------------------------------
    -- command translator
    ------------------------------------------------------------------------
    i_cmd_translator : cmd_translator
-      port map(
-         -- global inputs
-         rst_i               => rst_i,
-         clk_i               => clk_i,
-         
-         -- inputs from fibre_rx
-         card_id_i           => card_id,
-         cmd_code_i          => cmd_code,
-         cmd_data_i          => cmd_data,
-         cksum_err_i         => cksum_err,
-         cmd_rdy_i           => cmd_rdy,
-         data_clk_i          => data_clk,
-         num_data_i          => num_data,
-         param_id_i          => param_id,
-         
-         -- output to fibre_rx
-         ack_o               => cmd_ack,
-         
-         -- outputs to cmd_queue         
-         card_addr_o         => card_addr,
-         parameter_id_o      => parameter_id,
-         data_size_o         => data_size,
-         data_o              => data,
-         data_clk_o          => data_clk2,
-         instr_rdy_o         => macro_instr_rdy,
-         frame_seq_num_o     => frame_seq_num,
-         frame_sync_num_o    => frame_sync_num,
-         cmd_code_o          => reply_cmd_code,
-         cmd_stop_o          => cmd_stop,
-         last_frame_o        => last_frame,       
-         internal_cmd_o      => internal_cmd_issued,
-         row_len_i           => row_len_i,
-         num_rows_i          => num_rows_i,
-         tes_bias_step_level_o => tes_bias_step_level,
-         
-         --input from the u-op sequence generator
-         busy_i              => busy,
-         ack_i               => mop_ack,
-         
-         -- reply_translator interface          
-         reply_cmd_rcvd_er_o => reply_cmd_rcvd_er,
-         reply_cmd_rcvd_ok_o => reply_cmd_rcvd_ok,
-         reply_cmd_code_o    => reply_cmd_code_c,
-         reply_param_id_o    => reply_param_id,
-         reply_card_id_o     => reply_card_id,         
-         
-         start_seq_num_i     => start_seq_num_i,
-         stop_seq_num_i      => stop_seq_num_i,
-         data_rate_i         => data_rate_i,
-         dv_mode_i           => dv_mode_i,        
-         external_dv_i       => external_dv_i,    
-         external_dv_num_i   => external_dv_num_i,
-         ret_dat_req_i       => ret_dat_req_i,
-         ret_dat_ack_o       => ret_dat_ack_o,
+   port map(
+      -- global inputs
+      rst_i               => rst_i,
+      clk_i               => clk_i,
+      
+      -- inputs from fibre_rx
+      card_id_i           => card_addr,
+      cmd_code_i          => cmd_code,
+      cmd_data_i          => cmd_data,
+--      cksum_err_i         => cksum_err,
+      cmd_rdy_i           => cmd_rdy,
+      data_clk_i          => data_clk,
+      num_data_i          => num_data,
+      param_id_i          => param_id,
+      
+      -- output to fibre_rx
+      ack_o               => cmd_ack,
+      
+      -- outputs to cmd_queue         
+      card_addr_o         => card_addr2,
+      parameter_id_o      => parameter_id,
+      data_size_o         => data_size,
+      data_o              => data,
+      data_clk_o          => data_clk2,
+      instr_rdy_o         => macro_instr_rdy,
+      frame_seq_num_o     => frame_seq_num,
+      frame_sync_num_o    => frame_sync_num,
+      cmd_code_o          => reply_cmd_code,
+      cmd_stop_o          => cmd_stop,
+      last_frame_o        => last_frame,       
+      internal_cmd_o      => internal_cmd_issued,
+      row_len_i           => row_len_i,
+      num_rows_i          => num_rows_i,
+      tes_bias_step_level_o => tes_bias_step_level,
+      
+      --input from the u-op sequence generator
+      busy_i              => busy,
+      ack_i               => mop_ack,
+      
+      -- reply_translator interface          
+--      reply_cmd_rcvd_er_o => reply_cmd_rcvd_er,
+--      reply_cmd_rcvd_ok_o => reply_cmd_rcvd_ok,
+--      reply_cmd_code_o    => reply_cmd_code_c,
+--      reply_param_id_o    => reply_param_id,
+--      reply_card_id_o     => reply_card_id,         
+      
+      start_seq_num_i     => start_seq_num_i,
+      stop_seq_num_i      => stop_seq_num_i,
+      data_rate_i         => data_rate_i,
+      dv_mode_i           => dv_mode_i,        
+      external_dv_i       => external_dv_i,    
+      external_dv_num_i   => external_dv_num_i,
+      ret_dat_req_i       => ret_dat_req_i,
+      ret_dat_ack_o       => ret_dat_ack_o,
 
-         -- ret_dat_wbs interface
-         tes_bias_toggle_en_i   => tes_bias_toggle_en_i,
-         tes_bias_high_i        => tes_bias_high_i,
-         tes_bias_low_i         => tes_bias_low_i,
-         tes_bias_toggle_rate_i => tes_bias_toggle_rate_i,
-         status_cmd_en_i        => status_cmd_en_i,
+      -- ret_dat_wbs interface
+      tes_bias_toggle_en_i   => tes_bias_toggle_en_i,
+      tes_bias_high_i        => tes_bias_high_i,
+      tes_bias_low_i         => tes_bias_low_i,
+      tes_bias_toggle_rate_i => tes_bias_toggle_rate_i,
+      status_cmd_en_i        => status_cmd_en_i,
 
-         sync_pulse_i        => sync_pulse_i,
-         sync_number_i       => sync_number_i
-      );
+      sync_pulse_i        => sync_pulse_i,
+      sync_number_i       => sync_number_i
+   );
 
    ------------------------------------------------------------------------
    -- command queue (u-op sequence generator)
    ------------------------------------------------------------------------               
    i_cmd_queue : cmd_queue
-     port map(
-        -- for testing
-        debug_o         => open,
-        timer_trigger_o => open,
+   port map(
+      -- for testing
+      debug_o         => open,
+      timer_trigger_o => open,
 
-        -- reply_queue interface
-        uop_rdy_o       => uop_rdy,
-        uop_ack_i       => uop_ack,
-        card_addr_o     => card_addr_cr,    
-        par_id_o        => par_id_cr,       
-        data_size_o     => data_size_cr,    
-        cmd_stop_o      => cmd_stop_cr,     
-        last_frame_o    => last_frame_cr,   
-        frame_seq_num_o => frame_seq_num_cr,
-        internal_cmd_o  => internal_cmd_cr, 
-        issue_sync_o    => issue_sync,
-        cmd_code_o      => reply_cmd_code_b,
-        tes_bias_step_level_o => tes_bias_step_level2,
+      -- reply_queue interface
+      uop_rdy_o       => uop_rdy,
+      uop_ack_i       => uop_ack,
+      card_addr_o     => card_addr_cr,    
+      par_id_o        => par_id_cr,       
+      data_size_o     => data_size_cr,    
+      cmd_stop_o      => cmd_stop_cr,     
+      last_frame_o    => last_frame_cr,   
+      frame_seq_num_o => frame_seq_num_cr,
+      internal_cmd_o  => internal_cmd_cr, 
+      issue_sync_o    => issue_sync,
+      cmd_code_o      => reply_cmd_code_b,
+      tes_bias_step_level_o => tes_bias_step_level2,
 
-        -- cmd_translator interface
-        card_addr_i     => card_addr,
-        par_id_i        => parameter_id,
-        data_size_i     => data_size,
-        data_i          => data,
-        data_clk_i      => data_clk2,
-        issue_sync_i    => frame_sync_num,
-        mop_rdy_i       => macro_instr_rdy,
-        busy_o          => busy,
-        mop_ack_o       => mop_ack,
-        cmd_stop_i      => cmd_stop,
-        last_frame_i    => last_frame,
-        frame_seq_num_i => frame_seq_num,
-        internal_cmd_i  => internal_cmd_issued,
-        cmd_code_i      => reply_cmd_code,
-        tes_bias_step_level_i  => tes_bias_step_level,
+      -- cmd_translator interface
+      card_addr_i     => card_addr2,
+      par_id_i        => parameter_id,
+      data_size_i     => data_size,
+      data_i          => data,
+      data_clk_i      => data_clk2,
+      issue_sync_i    => frame_sync_num,
+      mop_rdy_i       => macro_instr_rdy,
+      busy_o          => busy,
+      mop_ack_o       => mop_ack,
+      cmd_stop_i      => cmd_stop,
+      last_frame_i    => last_frame,
+      frame_seq_num_i => frame_seq_num,
+      internal_cmd_i  => internal_cmd_issued,
+      cmd_code_i      => reply_cmd_code,
+      tes_bias_step_level_i  => tes_bias_step_level,
 
-        -- lvds_tx interface
-        tx_o            => lvds_cmd_o,
+      -- lvds_tx interface
+      tx_o            => lvds_cmd_o,
 
-        -- frame_timing interface
-        sync_num_i      => sync_number_i,
+      -- frame_timing interface
+      sync_num_i      => sync_number_i,
 
-        -- Clock lines
-        clk_i           => clk_i,
-        rst_i           => rst_i
-     );
+      -- Clock lines
+      clk_i           => clk_i,
+      rst_i           => rst_i
+   );
 
    ------------------------------------------------------------------------
    -- reply queue
    ------------------------------------------------------------------------
    i_reply_queue : reply_queue
-      port map(
-         -- cmd_queue interface
-         cmd_to_retire_i     => uop_rdy,
-         cmd_sent_o          => uop_ack,
-         card_addr_i         => card_addr_cr,    
-         par_id_i            => par_id_cr,       
-         data_size_i         => data_size_cr,    
-         cmd_stop_i          => cmd_stop_cr,     
-         last_frame_i        => last_frame_cr,   
-         frame_seq_num_i     => frame_seq_num_cr,
-         internal_cmd_i      => internal_cmd_cr,
-         cmd_code_i          => reply_cmd_code_b,
-         tes_bias_step_level_i => tes_bias_step_level2,
-         
-         data_rate_i         => data_rate_i,
-         row_len_i           => row_len_i,
-         num_rows_i          => num_rows_i,
-         issue_sync_i        => issue_sync,
+   port map(
+      -- cmd_queue interface
+      cmd_to_retire_i     => uop_rdy,
+      cmd_sent_o          => uop_ack,
+      card_addr_i         => card_addr_cr,    
+      par_id_i            => par_id_cr,       
+      data_size_i         => data_size_cr,    
+      cmd_stop_i          => cmd_stop_cr,     
+      last_frame_i        => last_frame_cr,   
+      frame_seq_num_i     => frame_seq_num_cr,
+      internal_cmd_i      => internal_cmd_cr,
+      cmd_code_i          => reply_cmd_code_b,
+      tes_bias_step_level_i => tes_bias_step_level2,
+      
+      data_rate_i         => data_rate_i,
+      row_len_i           => row_len_i,
+      num_rows_i          => num_rows_i,
+      issue_sync_i        => issue_sync,
 
-         -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
-         size_o              => num_fibre_words,
-         data_o              => fibre_word,
-         error_code_o        => m_op_error_code,
-         cmd_valid_o         => m_op_rdy,
-         rdy_o               => fibre_word_rdy,
-         ack_i               => fibre_word_ack,
-         
-         -- reply_translator interface (from reply_queue_retire)
-         cmd_sent_i          => m_op_ack,
-         cmd_code_o          => open, --m_op_cmd_code,
-         param_id_o          => open, --m_op_param_id,
-         card_addr_o         => open, --m_op_card_id,
-         stop_bit_o          => reply_cmd_stop,
-         last_frame_bit_o    => reply_last_frame,
-         frame_seq_num_o     => reply_frame_seq_num,
+      -- reply_translator interface (from reply_queue, i.e. these signals are de-multiplexed from retire and sequencer)
+      size_o              => num_fibre_words,
+      data_o              => fibre_word,
+      error_code_o        => m_op_error_code,
+      cmd_valid_o         => m_op_rdy,
+      rdy_o               => fibre_word_rdy,
+      ack_i               => fibre_word_ack,
+      
+      -- reply_translator interface (from reply_queue_retire)
+      cmd_sent_i          => m_op_ack,
+      cmd_code_o          => open, --m_op_cmd_code,
+      param_id_o          => open, --m_op_param_id,
+      card_addr_o         => open, --m_op_card_id,
+      stop_bit_o          => reply_cmd_stop,
+      last_frame_bit_o    => reply_last_frame,
+      frame_seq_num_o     => reply_frame_seq_num,
 
-         -- clk_switchover interface
-         active_clk_i        => active_clk_i,
+      -- clk_switchover interface
+      active_clk_i        => active_clk_i,
    
-         -- dv_rx interface
-         sync_box_err_i      => sync_box_err_i,
-         sync_box_free_run_i => sync_box_free_run_i,
-         external_dv_num_i   => external_dv_num_i,
+      -- dv_rx interface
+      sync_box_err_i      => sync_box_err_i,
+      sync_box_free_run_i => sync_box_free_run_i,
+      external_dv_num_i   => external_dv_num_i,
 
-         -- Bus Backplane interface
-         lvds_reply_ac_a     => lvds_reply_ac_a,
-         lvds_reply_bc1_a    => lvds_reply_bc1_a,
-         lvds_reply_bc2_a    => lvds_reply_bc2_a,
-         lvds_reply_bc3_a    => lvds_reply_bc3_a,
-         lvds_reply_rc1_a    => lvds_reply_rc1_a,
-         lvds_reply_rc2_a    => lvds_reply_rc2_a,
-         lvds_reply_rc3_a    => lvds_reply_rc3_a,
-         lvds_reply_rc4_a    => lvds_reply_rc4_a,
-         lvds_reply_cc_a     => lvds_reply_cc_a,
-         
-         -- Global signals
-         clk_i               => clk_i,
-         comm_clk_i          => comm_clk_i,
-         rst_i               => rst_i
-      );
+      -- Bus Backplane interface
+      lvds_reply_ac_a     => lvds_reply_ac_a,
+      lvds_reply_bc1_a    => lvds_reply_bc1_a,
+      lvds_reply_bc2_a    => lvds_reply_bc2_a,
+      lvds_reply_bc3_a    => lvds_reply_bc3_a,
+      lvds_reply_rc1_a    => lvds_reply_rc1_a,
+      lvds_reply_rc2_a    => lvds_reply_rc2_a,
+      lvds_reply_rc3_a    => lvds_reply_rc3_a,
+      lvds_reply_rc4_a    => lvds_reply_rc4_a,
+      lvds_reply_cc_a     => lvds_reply_cc_a,
+      
+      -- Global signals
+      clk_i               => clk_i,
+      comm_clk_i          => comm_clk_i,
+      rst_i               => rst_i
+   );
 
 end rtl; 
