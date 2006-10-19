@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/09/21 16:20:22 $> - <initials $Author: bburger $>
+-- <date $Date: 2006/09/28 00:34:58 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.32  2006/09/28 00:34:58  bburger
+-- Bryce:  added a command for box_temp
+--
 -- Revision 1.31  2006/09/21 16:20:22  bburger
 -- Bryce:  added constants for TES Bias internal commands
 --
@@ -280,6 +283,7 @@ package wishbone_pack is
    constant TES_TGL_RATE_ADDR : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A6";
    constant INT_CMD_EN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A7";
    constant BOX_TEMP_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A8";
+   constant CRC_ERR_EN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A9";
 
    -- Power Card Specific
    constant BRST_MCE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
