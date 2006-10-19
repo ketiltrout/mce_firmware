@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.48 2006/09/26 02:16:05 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.49 2006/09/28 00:32:25 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.49  2006/09/28 00:32:25  bburger
+-- Bryce:  Caught a bug that specified the TES_BIAS_DATA_SIZE = 32.
+--
 -- Revision 1.48  2006/09/26 02:16:05  bburger
 -- Bryce: added busy_i interface for arbitration between ret_dat, internal and simple commands
 --
@@ -97,6 +100,7 @@ package issue_reply_pack is
    -- Measured in clock cycles, this is the minumum amount of cycles necessary for an internal/ simple command
    -- For a 58-word WB command, 100 us are required from receiving the last word of the command to sending the last word of the reply
    -- For a 58-word RB command, 105 us are required from receiving the last word of the command to sending the last word of the reply.
+   -- Acutally, this needs to take into account timeouts from internal commands!!  
    constant MIN_WINDOW : integer := 5500;--110000/20ns; -- ns
 
    -- Data sizes for internal commands
