@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.33 2006/10/02 18:58:53 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.34 2006/10/12 20:14:27 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.34  2006/10/12 20:14:27  bburger
+-- Bryce:  psuc testing
+--
 -- Revision 1.33  2006/10/02 18:58:53  bburger
 -- Bryce:  v01000012
 --
@@ -174,6 +177,9 @@ architecture tb of tb_cc_rcs_bcs_ac is
       dip_sw4           : in std_logic;
       wdog              : out std_logic;
       slot_id           : in std_logic_vector(3 downto 0);
+      box_id_in         : in std_logic;
+      box_id_out        : out std_logic;
+      box_id_ena        : out std_logic;
       
       -- debug ports:
       mictor0_o         : out std_logic_vector(15 downto 0);
@@ -452,6 +458,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
    constant cc_tes_tgl_min_cmd      : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_MIN_ADDR;
    constant cc_tes_tgl_rate_cmd     : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & TES_TGL_RATE_ADDR;
    constant cc_int_cmd_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & INT_CMD_EN_ADDR;
+   constant cc_crc_err_en_cmd       : std_logic_vector(31 downto 0) := x"00" & CLOCK_CARD        & x"00" & CRC_ERR_EN_ADDR;
 
    constant psu_brst_mce_cmd        : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & BRST_MCE_ADDR;
    constant psu_cycle_pow_cmd       : std_logic_vector(31 downto 0) := x"00" & POWER_SUPPLY_CARD & x"00" & CYCLE_POW_ADDR;
@@ -1252,6 +1259,9 @@ begin
          dip_sw4          => cc_dip_sw4,
          wdog             => cc_wdog,  
          slot_id          => cc_slot_id,
+         box_id_in        => '1',
+         box_id_out       => open,
+         box_id_ena       => open,
                           
          -- debug ports:  
          mictor0_o        => cc_mictor_o,   
@@ -2285,6 +2295,15 @@ begin
       load_checksum;
       wait for 20 us;
 
+--      command    <= command_wb;
+--      address_id <= cc_crc_err_en_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+
       command <= command_wb;
       address_id <= cc_ret_dat_s_cmd;
       data_valid <= X"00000002";
@@ -2302,7 +2321,7 @@ begin
       load_command;
       load_checksum;
       wait for 600 us;
-
+      
       command <= command_go;
       address_id <= rc1_ret_dat_cmd;
       data_valid <= X"00000001";
