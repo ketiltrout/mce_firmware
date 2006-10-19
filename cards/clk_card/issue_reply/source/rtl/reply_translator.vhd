@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.42 2006/09/15 00:48:36 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.43 2006/09/28 00:34:18 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/09/15 00:48:36 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/09/28 00:34:18 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.43  2006/09/28 00:34:18  bburger
+-- Bryce:  now asserts cmd_sent_o/ mop_ack_o only when there is no data left in the queues.  This prevents short responses interfering with long ones.
+--
 -- Revision 1.42  2006/09/15 00:48:36  bburger
 -- Bryce:  Cleaned up the data word acknowledgement chain to speed things up.  Untested in hardware.  Data packets are un-simulated
 --
@@ -92,6 +95,8 @@ port(
    rst_i             : in  std_logic;                                               -- global reset
    clk_i             : in  std_logic;                                               -- global clock
 
+   crc_err_en_i      : in std_logic;
+
    -- signals to/from cmd_translator    
    cmd_rcvd_er_i     : in  std_logic;                                               -- command received on fibre with checksum error
    cmd_rcvd_ok_i     : in  std_logic;                                               -- command received on fibre - no checksum error
@@ -145,6 +150,8 @@ architecture rtl of reply_translator is
    signal fibre_current_state : fibre_state;
    signal fibre_next_state    : fibre_state;
    
+   type states is (IDLE, CMD_READY, CMD_WAITING);   
+   signal current_state, next_state : states;
    ----------------------------------------------------------------------------------------------------------------
    --                                  Arbitration FSM
    ----------------------------------------------------------------------------------------------------------------
@@ -197,6 +204,98 @@ begin
    frame_status(31 downto 2) <= (others => '0');
    frame_status(1)           <= cmd_stop_i;
    frame_status(0)           <= last_frame_i;   
+   
+--   -------------------------------------------------------------------------------------------
+--   -- logic acknowledging reset and stop commands
+--   -------------------------------------------------------------------------------------------   
+--   -- This FSM ensures that the reply_cmd_rcvd_ok_o signal is only asserted for one cycle per command.
+--   cmd_state_FF: process(clk_i, rst_i)
+--   begin
+--      if(rst_i = '1') then
+--         current_state <= IDLE;
+--      elsif(clk_i'event and clk_i = '1') then
+--         current_state <= next_state;
+--      end if;
+--   end process;
+--
+--   cmd_state_NS: process(current_state, cmd_rcvd_ok_i)
+--   begin
+--      next_state <= current_state;      
+--      case current_state is         
+--         when IDLE =>
+--            if (cmd_rcvd_ok_i = '1') then
+--               next_state <= CMD_READY;
+--            end if;         
+--         when CMD_READY =>
+--            next_state <= CMD_WAITING;         
+--         when CMD_WAITING =>
+--            if (cmd_rcvd_ok_i = '0') then
+--               next_state <= IDLE;
+--            end if;         
+--         when others =>
+--            next_state <= IDLE;      
+--      end case;
+--   end process;    
+--   
+--   cmd_state_out: process(current_state)
+--   begin
+--      reply_cmd_rcvd_ok_o <= '0';
+--      
+--      case current_state is
+--         when IDLE =>
+--         when CMD_READY =>
+--            reply_cmd_rcvd_ok_o <= '1';
+--         when CMD_WAITING =>
+--         when others =>
+--      end case;
+--   end process;
+
+   ---------------------------------------------------------------------------
+   -- ARBITRATION FSM 
+   ----------------------------------------------------------------------------
+   arb_fsm_clocked : process(clk_i, rst_i)
+   begin         
+      if (rst_i = '1') then
+         arb_current_state <= ARB_IDLE;
+      elsif (clk_i'EVENT AND clk_i = '1') then
+         arb_current_state <= arb_next_state;
+      end if;
+   end process arb_fsm_clocked; 
+             
+   arb_fsm_nextstate : process (arb_current_state, fibre_fsm_busy, cmd_rcvd_er_i, cmd_code, arb_fsm_ack)
+   begin      
+      arb_next_state <= arb_current_state;
+
+      case arb_current_state is      
+      when ARB_IDLE =>         
+         if (fibre_fsm_busy = '1' and cmd_rcvd_er_i = '1' and cmd_code = ASCII_S & ASCII_T ) then
+            arb_next_state <= ARB_ST_ERR;
+         end if; 
+           
+      when ARB_ST_ERR => 
+         if arb_fsm_ack = '1' then 
+            arb_next_state <= ARB_IDLE;
+         end if;
+      
+      when others =>
+         arb_next_state <= ARB_IDLE;   
+         
+      end case;      
+   end process arb_fsm_nextstate;            
+   
+   arb_fsm_output : process(arb_current_state)
+   begin      
+      stop_err_rdy <= '0' ;     
+      case arb_current_state is
+         when ARB_IDLE =>      
+            stop_err_rdy <= '0' ;
+                       
+         when ARB_ST_ERR =>       
+            stop_err_rdy <= '1' ;
+            
+      end case;      
+   end process arb_fsm_output;            
+
    
    ----------------------------------------------------------------------------
    -- process to register recircualtion MUX outputs 
@@ -329,7 +428,7 @@ begin
    debug_o(0) <= mop_rdy_data;
    
    fibre_fsm_nextstate : process (fibre_current_state, cmd_rcvd_ok_i, cmd_rcvd_er_i, mop_rdy_reply,
-      cmd_code_i, fibre_tx_busy_i, stop_err_rdy, fibre_word_rdy_i, mop_rdy_data, mop_error_code_i, mop_rdy)
+      cmd_code_i, fibre_tx_busy_i, stop_err_rdy, fibre_word_rdy_i, mop_rdy_data, mop_rdy)
    begin
       -- Default Assignments
       fibre_next_state <= fibre_current_state;
@@ -346,11 +445,13 @@ begin
          elsif (stop_err_rdy = '1') then                 -- if we missed a stop command with checksum error during data readout
             fibre_next_state <= ST_ER_REPLY;     
          -- Normal (non_data) reply no error
-         elsif (mop_rdy = '1' and mop_rdy_reply = '1' and mop_error_code_i = FIBRE_NO_ERROR_STATUS) then 
+         elsif (mop_rdy = '1' and mop_rdy_reply = '1') then 
             fibre_next_state <= REPLY_OK;
-         -- Normal (non-data) reply with error
-         elsif (mop_rdy = '1' and mop_rdy_reply = '1' and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then 
-            fibre_next_state <= REPLY_ER; 
+--         elsif (mop_rdy = '1' and mop_rdy_reply = '1' and mop_error_code_i = FIBRE_NO_ERROR_STATUS) then 
+--            fibre_next_state <= REPLY_OK;
+--         -- Normal (non-data) reply with error
+--         elsif (mop_rdy = '1' and mop_rdy_reply = '1' and mop_error_code_i /= FIBRE_NO_ERROR_STATUS) then 
+--            fibre_next_state <= REPLY_ER; 
          -- Data packet
          elsif (mop_rdy = '1' and mop_rdy_data = '1') then
             fibre_next_state <= DATA_FRAME;
@@ -483,7 +584,11 @@ begin
          if(checksum_clr = '1') then
             checksum <= (others => '0');
          elsif(checksum_ld = '1') then
-            checksum <= checksum xor fibre_tx_dat;
+            if(packet_type = DATA and crc_err_en_i = '1') then
+               checksum <= x"ABCDABCD";
+            else
+               checksum <= checksum xor fibre_tx_dat;
+            end if;
          end if;
       end if;
    end process checksum_calculator;   
@@ -526,27 +631,27 @@ begin
    
       -- checksum error state  
       when CK_ER_REPLY =>              
-         reply_status   <= cmd_code(15 downto 0) & ASCII_E & ASCII_R ;
+         reply_status   <= cmd_code(15 downto 0) & ASCII_E & ASCII_R;
          reply_argument <= FIBRE_CHECKSUM_ERR;
       
       -- checksum error for ST command received during readout...now process
       when ST_ER_REPLY =>              
-         reply_status   <= cmd_code(15 downto 0) & ASCII_E & ASCII_R ;
+         reply_status   <= cmd_code(15 downto 0) & ASCII_E & ASCII_R;
          reply_argument <= FIBRE_CHECKSUM_ERR;
          arb_fsm_ack    <= '1';   
             
       -- command is reset or go....so generate an instant reply...      
       when REPLY_GO_RS =>              
-         reply_status   <= cmd_code(15 downto 0) & ASCII_O & ASCII_K ;
+         reply_status   <= cmd_code(15 downto 0) & ASCII_O & ASCII_K;
          reply_argument <= (others => '0');
            
       when REPLY_OK =>   
-         reply_status   <= cmd_code(15 downto 0) & ASCII_O & ASCII_K ;
+         reply_status   <= cmd_code(15 downto 0) & ASCII_O & ASCII_K;
          -- this will be error code x"00" - i.e. success.              
          reply_argument <= mop_error_code_i;        
             
       when REPLY_ER =>   
-         reply_status   <= cmd_code(15 downto 0) & ASCII_E & ASCII_R ;
+         reply_status   <= cmd_code(15 downto 0) & ASCII_E & ASCII_R;
          reply_argument <= mop_error_code_i;                 
        
       when DATA_FRAME =>       
@@ -666,52 +771,5 @@ begin
       end case;      
       
    end process reply_fsm_output;
- 
-   
-   ---------------------------------------------------------------------------
-   -- ARBITRATION FSM 
-   ----------------------------------------------------------------------------
-   arb_fsm_clocked : process(clk_i, rst_i)
-   begin         
-      if (rst_i = '1') then
-         arb_current_state <= ARB_IDLE;
-      elsif (clk_i'EVENT AND clk_i = '1') then
-         arb_current_state <= arb_next_state;
-      end if;
-   end process arb_fsm_clocked; 
-             
-   arb_fsm_nextstate : process (arb_current_state, fibre_fsm_busy, cmd_rcvd_er_i, cmd_code, arb_fsm_ack)
-   begin      
-      arb_next_state <= arb_current_state;
-
-      case arb_current_state is      
-      when ARB_IDLE =>         
-         if (fibre_fsm_busy = '1' and cmd_rcvd_er_i = '1' and cmd_code = ASCII_S & ASCII_T ) then
-            arb_next_state <= ARB_ST_ERR;
-         end if; 
-           
-      when ARB_ST_ERR => 
-         if arb_fsm_ack = '1' then 
-            arb_next_state <= ARB_IDLE;
-         end if;
-      
-      when others =>
-         arb_next_state <= ARB_IDLE;   
          
-      end case;      
-   end process arb_fsm_nextstate;            
-   
-   arb_fsm_output : process(arb_current_state)
-   begin      
-      stop_err_rdy <= '0' ;     
-      case arb_current_state is
-         when ARB_IDLE =>      
-            stop_err_rdy <= '0' ;
-                       
-         when ARB_ST_ERR =>       
-            stop_err_rdy <= '1' ;
-            
-      end case;      
-   end process arb_fsm_output;            
-        
 end rtl;
