@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.29 2006/09/21 16:09:43 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.30 2006/09/26 02:16:05 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/21 16:09:43 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/26 02:16:05 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.30  2006/09/26 02:16:05  bburger
+-- Bryce: added busy_i interface for arbitration between ret_dat, internal and simple commands
+--
 -- Revision 1.29  2006/09/21 16:09:43  bburger
 -- Bryce:  Added support for the TES Bias Step internal commands
 --
@@ -160,6 +163,7 @@ use ieee.std_logic_unsigned.all;
 
 library sys_param;
 use sys_param.command_pack.all;
+use sys_param.wishbone_pack.all;
 
 library components;
 use components.component_pack.all;
@@ -301,6 +305,8 @@ architecture rtl of cmd_translator_arbiter is
    signal internal_cmd_reg          : std_logic;
    signal tes_bias_step_level_reg   : std_logic;
    
+   signal simple_cmd_instr_rdy      : std_logic;
+   
 begin
    -------------------------------------------------------------------------------------------
    -- arbiter state machine state sequencer
@@ -317,13 +323,15 @@ begin
    -------------------------------------------------------------------------------------------
    -- assign next states
    -------------------------------------------------------------------------------------------    
-   process(current_state, simple_cmd_instr_rdy_i, ret_dat_instr_rdy_i, internal_cmd_instr_rdy_i, internal_cmd_window_i, busy_i)
+   simple_cmd_instr_rdy <= '1' when (simple_cmd_instr_rdy_i = '1' and simple_cmd_parameter_id_i /= RET_DAT_ADDR) else '0';
+   
+   process(current_state, simple_cmd_instr_rdy, ret_dat_instr_rdy_i, internal_cmd_instr_rdy_i, internal_cmd_window_i, busy_i)
    begin
       next_state <= current_state;
       case current_state is
          when IDLE =>
             -- Priority is given to ret_dat commands
-            if(simple_cmd_instr_rdy_i = '1' and internal_cmd_window_i >= MIN_WINDOW)then
+            if(simple_cmd_instr_rdy = '1' and internal_cmd_window_i >= MIN_WINDOW)then
                next_state <= SIMPLE_CMD_RDY;
             elsif(internal_cmd_instr_rdy_i = '1' and internal_cmd_window_i >= MIN_WINDOW) then
                next_state <= INTRNL_CMD_RDY;
@@ -337,7 +345,7 @@ begin
             end if;
             
          when SIMPLE_CMD_RDY =>
-            if(simple_cmd_instr_rdy_i = '0') then
+            if(simple_cmd_instr_rdy = '0') then
                next_state <= BUSY;
             end if;
             
@@ -361,8 +369,6 @@ begin
    -- assign state values
    -------------------------------------------------------------------------------------------      
    process(current_state)
-   --, simple_cmd_instr_rdy_i, ret_dat_instr_rdy_i, ret_dat_pending,
-   --        internal_cmd_instr_rdy_i)           
    begin
       -- defaults
       data_mux_sel               <= "00";  --"00" routes simple cmds thru, "01" is for ret_dat cmds, "10" for internal
@@ -432,7 +438,7 @@ begin
    
    sync_number_plus_1      <= sync_number_i + 1;
 
-   instr_rdy_1st_stg <= simple_cmd_instr_rdy_i when data_mux_sel = "00" else 
+   instr_rdy_1st_stg <= simple_cmd_instr_rdy when data_mux_sel = "00" else 
                         ret_dat_instr_rdy_i    when data_mux_sel = "01" else
                         internal_cmd_instr_rdy_i;
                               
