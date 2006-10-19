@@ -22,7 +22,7 @@
 -- id_thermo.vhd
 --
 -- Project:       SCUBA-2
--- Author:        Ernie Lin
+-- Author:        Ernie Lin/ Bryce Burger
 -- Organisation:  UBC
 --
 -- Description:
@@ -31,6 +31,9 @@
 -- Revision history:
 -- 
 -- $Log: id_thermo.vhd,v $
+-- Revision 1.7  2006/09/28 00:30:59  bburger
+-- Bryce:  Reduced the resolution of data_o from 0.5 degrees C to 1 degree C to match the output of other slaves.
+--
 -- Revision 1.6  2006/05/05 19:21:04  mandana
 -- added err_o to the interface to issue a wishbone error for write commands
 --
@@ -64,22 +67,28 @@ library sys_param;
 use sys_param.wishbone_pack.all;
 
 entity id_thermo is
-port(clk_i : in std_logic;
-     rst_i : in std_logic;
-     
-     -- Wishbone signals
-     dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
-     addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
-     tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
-     we_i    : in std_logic;
-     stb_i   : in std_logic;
-     cyc_i   : in std_logic;
-     err_o   : out std_logic;
-     dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
-     ack_o   : out std_logic;
-        
-     -- silicon id/temperature chip signals
-     data_io : inout std_logic);
+generic(
+   tristate    : string := "INTERNAL";  -- valid values are "INTERNAL" and "EXTERNAL".
+   card_or_box : string := "CARD");     -- valid values are "CARD" and "BOX".
+port( 
+   clk_i : in std_logic;
+   rst_i : in std_logic;
+   
+   -- Wishbone signals
+   dat_i   : in std_logic_vector (WB_DATA_WIDTH-1 downto 0); 
+   addr_i  : in std_logic_vector (WB_ADDR_WIDTH-1 downto 0);
+   tga_i   : in std_logic_vector (WB_TAG_ADDR_WIDTH-1 downto 0);
+   we_i    : in std_logic;
+   stb_i   : in std_logic;
+   cyc_i   : in std_logic;
+   err_o   : out std_logic;
+   dat_o   : out std_logic_vector (WB_DATA_WIDTH-1 downto 0);
+   ack_o   : out std_logic;
+      
+   -- silicon id/temperature chip signals
+   data_io : inout std_logic;
+   data_o  : out std_logic;
+   wren_o  : out std_logic);
 end id_thermo;
 
 architecture behav of id_thermo is
@@ -135,6 +144,7 @@ signal valid_ld   : std_logic;
 begin
 
    master : one_wire_master
+   generic map(tristate => tristate)
    port map(clk_i         => clk_i,
             rst_i         => rst_i,
             master_data_i => slave_cmd,
@@ -146,8 +156,8 @@ begin
             ready_o       => slave_ready,
             ndetect_o     => slave_ndetect,
             slave_data_io => data_io,
-            slave_data_o  => open,
-            slave_wren_o  => open);
+            slave_data_o  => data_o,
+            slave_wren_o  => wren_o);
 
    byte_counter : counter
    generic map(MAX => 9)
@@ -157,7 +167,6 @@ begin
             load_i  => byte_count_clr,
             count_i => 0,
             count_o => byte_count);
-
 
    -- Silicon ID registers (6 x 1 byte registers)
 
@@ -466,9 +475,9 @@ begin
       end case;
    end process wishbone_NS;
    
-   read_id_cmd <=   '1' when (addr_i = CARD_ID_ADDR   and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
-   read_temp_cmd <= '1' when (addr_i = CARD_TEMP_ADDR and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
-   write_cmd   <=   '1' when ((addr_i = CARD_TEMP_ADDR or addr_i = CARD_ID_ADDR) and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
+   read_id_cmd   <= '1' when (((card_or_box = "CARD" and addr_i = CARD_ID_ADDR) or (card_or_box = "BOX" and addr_i = BOX_ID_ADDR)) and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   read_temp_cmd <= '1' when (((card_or_box = "CARD" and addr_i = CARD_TEMP_ADDR) or (card_or_box = "BOX" and addr_i = BOX_TEMP_ADDR)) and stb_i = '1' and cyc_i = '1' and we_i = '0') else '0';
+   write_cmd     <= '1' when ((addr_i = CARD_TEMP_ADDR or addr_i = CARD_ID_ADDR or addr_i = BOX_ID_ADDR or addr_i = BOX_TEMP_ADDR) and stb_i = '1' and cyc_i = '1' and we_i = '1') else '0';
    
    wishbone_out: process(wb_ps, id, thermo, valid)
    begin
