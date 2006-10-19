@@ -32,6 +32,9 @@
 # Revision history:
 #
 # $Log: cc_pin_assign_rev_B.tcl,v $
+# Revision 1.8  2006/09/06 00:21:51  bburger
+# Bryce:  Renamed some of the PSUC interface signals to match their functionality.  The CC schematic names were poor.
+#
 # Revision 1.7  2006/08/02 16:24:30  bburger
 # Bryce:  trying to fixed occasional wb bugs in issue_reply
 #
@@ -125,6 +128,7 @@
 #
 #
 #############################################################################
+
 
 # print welcome message
 puts "\n\nClock Card Pin Assignment Script v1.0"
@@ -270,10 +274,10 @@ cmp add_assignment $top_name "" ccssi LOCATION "Pin_H22"
 cmp add_assignment $top_name "" sclki LOCATION "Pin_E28"
 cmp add_assignment $top_name "" misoo LOCATION "Pin_F28"
 cmp add_assignment $top_name "" sreqo LOCATION "Pin_F27"
-#cmp add_assignment $top_name "" psclki LOCATION "Pin_J22"
-#cmp add_assignment $top_name "" n5vok LOCATION "Pin_AG25"
 puts "   Assigned: Power supply interface pins."
 
+cmp add_assignment $top_name "" nplus7vok LOCATION "Pin_C10"
+puts "   Assigned: Power supply status pin."
 
 # assign SMB pins
 cmp add_assignment $top_name "" smb_clk LOCATION "Pin_AB21"
@@ -363,8 +367,14 @@ puts "   Assigned: Mictor 1 (P11, Bank 7 & 8) EVEN pod."
 
 
 # assign RS232 pins
-cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_C12"
-cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_B12"
+#cmp add_assignment $top_name "" rs232_rx LOCATION "Pin_C12"
+#cmp add_assignment $top_name "" rs232_tx LOCATION "Pin_B12"
+#puts "   Assigned: RS-232 interface pins."
+
+
+# assign RS232 pins
+cmp add_assignment $top_name "" rx LOCATION "Pin_C12"
+cmp add_assignment $top_name "" tx LOCATION "Pin_B12"
 puts "   Assigned: RS-232 interface pins."
 
 
