@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.34 2006/10/12 20:14:27 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.35 2006/10/19 22:14:22 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,50 +28,8 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
--- Revision 1.34  2006/10/12 20:14:27  bburger
--- Bryce:  psuc testing
---
--- Revision 1.33  2006/10/02 18:58:53  bburger
--- Bryce:  v01000012
---
--- Revision 1.32  2006/09/21 16:20:57  bburger
--- Bryce:  Added support for testing TES Bias Step internal commands
---
--- Revision 1.31  2006/09/15 00:51:02  bburger
--- Bryce:  new section added for testing maximum length commands
---
--- Revision 1.30  2006/09/07 22:31:12  bburger
--- Bryce:  more test cases for psuc testing
---
--- Revision 1.29  2006/09/06 19:57:34  bburger
--- Bryce:  PSUC communications simulation added
---
--- Revision 1.28  2006/08/21 19:43:57  bburger
--- Bryce:  PSUC testing
---
--- Revision 1.27  2006/08/18 22:59:18  bburger
--- Bryce:  v0200000f
---
--- Revision 1.26  2006/08/03 03:23:14  bburger
--- Bryce:  Trying to fix a bug associated with the error code.  The error code is delayed by one command.
---
--- Revision 1.25  2006/08/02 16:23:02  bburger
--- Bryce:  trying to fixed occasional wb bugs in issue_reply
---
--- Revision 1.23  2006/06/09 22:17:55  bburger
--- Bryce:  Modified to output the correct frame sequence number -- internal or manchester
---
--- Revision 1.22  2006/06/03 02:29:15  bburger
--- Bryce:  The size of data packets returned is now based on num_rows*NUM_CHANNELS
---
--- Revision 1.21  2006/05/30 00:53:37  bburger
--- Bryce:  Interim committal
---
--- Revision 1.20  2006/05/19 00:57:48  bburger
--- Bryce:  Committal for backup
---
--- Revision 1.19  2006/03/17 16:54:43  bburger
--- Bryce:  refined test routine for testing dv_rx
+-- Revision 1.35  2006/10/19 22:14:22  bburger
+-- Bryce:  Added interface signals for BOX_ID to clock card
 --
 -------------------------------------------------------
 
@@ -156,13 +114,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
       eeprom_sck        : out std_logic;
       eeprom_cs         : out std_logic;
 
---      psdo              : in std_logic;
---      pscso             : in std_logic;
---      psclko            : in std_logic;
---      psdi              : out std_logic;
---      pscsi             : out std_logic;
---      psclki            : out std_logic;
-
       mosii             : in std_logic;
       sclki             : in std_logic;
       ccssi             : in std_logic;
@@ -177,7 +128,7 @@ architecture tb of tb_cc_rcs_bcs_ac is
       dip_sw4           : in std_logic;
       wdog              : out std_logic;
       slot_id           : in std_logic_vector(3 downto 0);
-      box_id_in         : in std_logic;
+      box_id_in         : inout std_logic;
       box_id_out        : out std_logic;
       box_id_ena        : out std_logic;
       
@@ -594,13 +545,6 @@ architecture tb of tb_cc_rcs_bcs_ac is
    signal cc_eeprom_so  : std_logic;
    signal cc_eeprom_sck : std_logic;
    signal cc_eeprom_cs  : std_logic;
-
---   signal cc_psdo       : std_logic;
---   signal cc_pscso      : std_logic := '1';
---   signal cc_psclko     : std_logic;
---   signal cc_psdi       : std_logic := '0';
---   signal cc_pscsi      : std_logic := '1';
---   signal cc_psclki     : std_logic := '0';
 
    signal cc_mosii      : std_logic := '0';
    signal cc_sclki      : std_logic := '0';
@@ -1236,15 +1180,6 @@ begin
          eeprom_sck       => cc_eeprom_sck,
          eeprom_cs        => cc_eeprom_cs, 
 
---         psdo             => cc_psdo,   
---         pscso            => cc_pscso,  
---         psclko           => cc_psclko, 
---         
---         -- I'm putting a clock input on the data line to see what we get
---         psdi             => spi_data,--cc_psdi,  
---         pscsi            => cc_pscsi, 
---         psclki           => spi_clk,--cc_psclki,
-----         n5vok            => cc_n5vok, 
          mosii            => cc_mosii,
          sclki            => cc_sclki, 
          ccssi            => cc_ccssi,
@@ -1259,9 +1194,9 @@ begin
          dip_sw4          => cc_dip_sw4,
          wdog             => cc_wdog,  
          slot_id          => cc_slot_id,
-         box_id_in        => '1',
+         box_id_in        => open,
          box_id_out       => open,
-         box_id_ena       => open,
+         box_id_ena       => open, 
                           
          -- debug ports:  
          mictor0_o        => cc_mictor_o,   
@@ -2259,41 +2194,41 @@ begin
       load_checksum;
       wait for 125 us;
 
-      command    <= command_wb;
-      address_id <= cc_tes_tgl_max_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00002222";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command    <= command_wb;
-      address_id <= cc_tes_tgl_min_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00001111";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command    <= command_wb;
-      address_id <= cc_tes_tgl_rate_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000040";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command    <= command_wb;
-      address_id <= cc_tes_tgl_en_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
+--      command    <= command_wb;
+--      address_id <= cc_tes_tgl_max_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00002222";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command    <= command_wb;
+--      address_id <= cc_tes_tgl_min_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00001111";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command    <= command_wb;
+--      address_id <= cc_tes_tgl_rate_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000040";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command    <= command_wb;
+--      address_id <= cc_tes_tgl_en_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
 
 --      command    <= command_wb;
 --      address_id <= cc_crc_err_en_cmd;
