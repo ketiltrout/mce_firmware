@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.40 2006/09/21 16:13:48 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.41 2006/10/19 22:02:43 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/21 16:13:48 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/19 22:02:43 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.41  2006/10/19 22:02:43  bburger
+-- Bryce:  Re-wrote to simplify and support stop ret_dat commands
+--
 -- Revision 1.40  2006/09/21 16:13:48  bburger
 -- Bryce:
 -- - cleaned up the fsm,
@@ -273,7 +276,7 @@ begin
             end if;         
 
          when ONE_MORE =>
-            -- The only difference between FIRST and ONE_MORE is the assertion of load_sync_num
+            -- The only difference between FIRST and ONE_MORE is the assertion of load_sync_num in FIRST
             instr_rdy_o   <= '1';
             
             if(seq_num = stop_seq_num_i) then
