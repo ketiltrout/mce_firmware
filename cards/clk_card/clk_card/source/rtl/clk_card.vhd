@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: clk_card.vhd,v 1.61 2006/09/21 16:19:14 bburger Exp $
+-- $Id: clk_card.vhd,v 1.62 2006/10/19 21:56:42 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: clk_card.vhd,v $
+-- Revision 1.62  2006/10/19 21:56:42  bburger
+-- Bryce:  Added interfaces to support the crc_err_en command
+--
 -- Revision 1.61  2006/09/21 16:19:14  bburger
 -- Bryce:  Added support for the TES Bias Step internal commands
 --
@@ -177,6 +180,7 @@ entity clk_card is
       card_id           : inout std_logic;
       smb_clk           : out std_logic;
       smb_data          : inout std_logic;
+      
       box_id_in         : inout std_logic;
       box_id_out        : out std_logic;
       box_id_ena        : out std_logic;
@@ -653,7 +657,6 @@ architecture top of clk_card is
       rvs_i                  : in std_logic;
       rso_i                  : in std_logic;
       rsc_nRd_i              : in std_logic;        
-      cksum_err_o            : out std_logic;
    
       -- interface to fibre transmitter
       tx_data_o              : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
@@ -1088,7 +1091,6 @@ begin
       rvs_i             => fibre_rx_rvs,
       rso_i             => fibre_rx_status,
       rsc_nRd_i         => fibre_rx_sc_nd,
-      cksum_err_o       => open,
    
       -- fibre transmitter interface
       tx_data_o         => fib_tx_data,     -- byte of data to be transmitted

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.55 2006/09/26 02:16:05 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.56 2006/10/19 22:07:02 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/26 02:16:05 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/19 22:07:02 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.56  2006/10/19 22:07:02  bburger
+-- Bryce:  added interfaces to support crc_err_en and stop ret_dat commands
+--
 -- Revision 1.55  2006/09/26 02:16:05  bburger
 -- Bryce: added busy_i interface for arbitration between ret_dat, internal and simple commands
 --
@@ -101,7 +104,6 @@ entity issue_reply is
       rvs_i                  : in std_logic;
       rso_i                  : in std_logic;
       rsc_nRd_i              : in std_logic;        
-      cksum_err_o            : out std_logic;
    
       -- interface to fibre transmitter
       tx_data_o              : out std_logic_vector (7 downto 0);      -- byte of data to be transmitted
@@ -522,8 +524,6 @@ begin
       
       cksum_err_o  => cksum_err
    );
-
-   cksum_err_o <= cksum_err;
 
    ------------------------------------------------------------------------
    -- fibre transmitter
