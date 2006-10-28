@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.44 2006/10/19 22:09:40 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.45 2006/10/24 17:13:29 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,52 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/10/19 22:09:40 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/10/24 17:13:29 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
--- Revision 1.44  2006/10/19 22:09:40  bburger
--- Bryce:  Added support for crc_err_en and changed code so that "xxOK" is reported out during internal MCE communications errors.
+-- Revision 1.45  2006/10/24 17:13:29  bburger
+-- Bryce:  Added support for stop commands
 --
--- Revision 1.43  2006/09/28 00:34:18  bburger
--- Bryce:  now asserts cmd_sent_o/ mop_ack_o only when there is no data left in the queues.  This prevents short responses interfering with long ones.
---
--- Revision 1.42  2006/09/15 00:48:36  bburger
--- Bryce:  Cleaned up the data word acknowledgement chain to speed things up.  Untested in hardware.  Data packets are un-simulated
---
--- Revision 1.41  2006/08/18 22:33:09  bburger
--- Bryce:  Removed data signals from FSM's and implemented data pipeline with combinatorial logic to give the data pipeline more slack and setup time.  As it was, the design was meeting timing in Quartus, but just marginally.  Now there is >1ns of slack for the data signals.
---
--- Revision 1.40  2006/08/16 18:10:57  bburger
--- Bryce:  card_addr and par_id are now combined in the correct order in replies
---
--- Revision 1.39  2006/08/03 03:23:14  bburger
--- Bryce:  Trying to fix a bug associated with the error code.  The error code is delayed by one command.
---
--- Revision 1.38  2006/08/02 16:24:41  bburger
--- Bryce:  trying to fixed occasional wb bugs in issue_reply
---
--- Revision 1.37  2006/07/11 18:24:26  bburger
--- Bryce:  Added a debug port
---
--- Revision 1.36  2006/07/11 00:48:03  bburger
--- Bryce:  Removed recirc-muxes, cleaned up all the registers.  This block is now a lean machine.
---
--- Revision 1.35  2006/07/07 23:45:52  bburger
--- Bryce:  removing the recirculation muxes
---
--- Revision 1.34  2006/07/07 00:44:20  bburger
--- Bryce:  Added some signals to the interface to enable tapping them with SignalTap
---
--- Revision 1.33  2006/07/01 00:07:03  bburger
--- Bryce:  Renamed states in the fsm to make it clearer what the fsm is doing
---
--- Revision 1.32  2006/06/19 17:47:40  bburger
--- Bryce:  completely re-wrote reply_translator to interface to the 32-bit fibre_tx block that ernie re-wrote
---
--- Revision 1.31  2006/05/29 23:11:00  bburger
--- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
---
--- 
 -----------------------------------------------------------------------------
 
 library ieee;
@@ -105,9 +65,15 @@ port(
    cmd_code_i        : in std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);  -- fibre command code
    card_addr_i       : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- fibre command card id
    param_id_i        : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
-       
-   -- signals to/from reply queue 
-   mop_rdy_i         : in std_logic;                                               -- macro op response ready to be processed
+   c_cmd_code_i      : in std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
+   c_card_addr_i     : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   c_param_id_i      : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);           
+
+   -- signals to/from reply queue
+   r_cmd_code_i      : in std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
+   r_card_addr_i     : in std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   r_param_id_i      : in std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);   
+   r_cmd_rdy_i       : in std_logic;                                               -- macro op response ready to be processed
    mop_error_code_i  : in std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);    -- macro op success (others => '0') else error code
    fibre_word_i      : in std_logic_vector (PACKET_WORD_WIDTH-1     downto 0);     -- packet word read from reply queue
    num_fibre_words_i : in integer;                                                -- indicate number of packet words to be read from reply queue
@@ -154,9 +120,6 @@ architecture rtl of reply_translator is
    signal packet_size       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- this value is written to the packet header word 4
    signal reply_status      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- this word is writen to reply word 1 to indicate if 'OK' or 'ER' 
    signal packet_type       : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- indicates reply or data packet - written to header word 3
-   signal mop_rdy           : std_logic;
-   signal mop_rdy_reply     : std_logic;                                       -- asserted high when a mop is done and processing a reply packet
-   signal mop_rdy_data      : std_logic;                                       -- asserted high when a mop is done and processing a data packet
    signal checksum_clr      : std_logic;                                       -- signal asserted to reset packet checksum
    signal checksum_ld       : std_logic;                                       -- signal assertd to update packet checksum with checksum_in value
    signal fibre_tx_dat      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); -- transmit fifo data input
@@ -168,141 +131,92 @@ architecture rtl of reply_translator is
    signal arb_fsm_ack       : std_logic;                                  
    signal reply_argument    : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     -- signal mapped to reply word 3 (except success RB)
    signal frame_status      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0); 
-   signal cmd_code          : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1     downto 0);
-   signal card_addr         : std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-   signal param_id          : std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
    signal fibre_word        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);     -- packet word read from reply queue
    
-   signal cmd_rdy           : std_logic;          
-   signal cmd_err           : std_logic;          
-   signal cmd_ack           : std_logic;        
+   signal c_cmd_rdy         : std_logic;          
+   signal c_cmd_err         : std_logic;          
+   signal c_cmd_ack         : std_logic;        
+   signal c_cmd_code        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   signal c_card_addr       : std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal c_param_id        : std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
+   
+   signal r_cmd_rdy         : std_logic;          
+   signal r_cmd_err         : std_logic;   
+   signal r_cmd_ack         : std_logic;
+   signal r_cmd_code        : std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+   signal r_card_addr       : std_logic_vector(FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+   signal r_param_id        : std_logic_vector(FIBRE_PARAMETER_ID_WIDTH-1 downto 0);
 
 begin
 
-   ----------------------------------------
+   ----------------------------------------------------------------------------
    -- Logic Analyzer Signals 
-   ----------------------------------------
+   ----------------------------------------------------------------------------
    debug_o                   <= (others => '0');   
+   
+   ----------------------------------------------------------------------------
+   -- Frame Status Word.  This will be removed when this is incorporated in the housekeeping header from reply_queue 
+   ----------------------------------------------------------------------------
    frame_status(31 downto 2) <= (others => '0');
    frame_status(1)           <= cmd_stop_i;
    frame_status(0)           <= last_frame_i;   
    
    ----------------------------------------------------------------------------
-   -- process to register the correct packet information 
-   ----------------------------------------------------------------------------
-   register_packet: process(clk_i, rst_i)
-   begin
-      if (rst_i = '1') then        
-         packet_size    <= (others => '0');
-         packet_type    <= (others => '0');
-         status         <= (others => '0');
-         crd_add_par_id <= (others => '0');
-         ok_or_er       <= (others => '0');
-
-      elsif (clk_i'event and clk_i = '1') then     
-         if(fibre_current_state = CK_ER_REPLY or 
-            fibre_current_state = ST_ER_REPLY or 
-            fibre_current_state = REPLY_GO_RS or
-            fibre_current_state = REPLY_ER) then
-            packet_size    <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
-            packet_type    <= REPLY;
-            status         <= reply_status;
-            crd_add_par_id <= card_addr & param_id;
-            ok_or_er       <= reply_argument;
-         
-         elsif(fibre_current_state = REPLY_OK) then
-            if (cmd_code = READ_BLOCK) then 
-               packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);    
-            else
-               packet_size <= conv_std_logic_vector(NUM_REPLY_WORDS,32); 
-            end if;                 
-            packet_type    <= REPLY;
-            status         <= reply_status;
-            crd_add_par_id <= card_addr & param_id;
-            ok_or_er       <= reply_argument;
-         
-         elsif(fibre_current_state = DATA_FRAME) then
-            packet_size    <= conv_std_logic_vector(data_packet_size,PACKET_WORD_WIDTH);
-            packet_type    <= DATA;
-            status         <= frame_status;
-            crd_add_par_id <= frame_seq_num_i;
-            ok_or_er       <= ok_or_er;
-         else
-            packet_size    <= packet_size;    
-            packet_type    <= packet_type;   
-            status         <= status; 
-            crd_add_par_id <= crd_add_par_id; 
-            ok_or_er       <= ok_or_er;  
-         end if;
-      end if;
-   end process register_packet;              
-              
-   ----------------------------------------------------------------------------
-   -- process to register cmd_code, card_addr, param_id from cmd_translator 
+   -- register inputs from cmd_translator 
    ----------------------------------------------------------------------------
    register_cmd_code: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then                  
-         cmd_code     <= (others => '0');  
-         card_addr    <= (others => '0');
-         param_id     <= (others => '0');   
-         fibre_word   <= (others => '0');
-         cmd_rdy      <= '0';
-         cmd_err      <= '0';
+         fibre_word           <= (others => '0');
+         c_cmd_code           <= (others => '0');  
+         c_card_addr          <= (others => '0');
+         c_param_id           <= (others => '0');   
+         c_cmd_rdy            <= '0';
+         c_cmd_err            <= '0';
          
       elsif (clk_i'EVENT and clk_i = '1') then     
          fibre_word <= fibre_word_i;
          
-         if((cmd_rcvd_er_i = '1') or (cmd_rcvd_ok_i = '1')) then
-            cmd_code  <= cmd_code_i;
-            card_addr <= card_addr_i;
-            param_id  <= param_id_i;
-         end if;      
-
-         if(cmd_rcvd_ok_i = '1') then
-            cmd_rdy      <= '1';
-         elsif(cmd_rcvd_er_i = '1') then
-            cmd_err      <= '1';
-         elsif(cmd_ack = '1') then
-            cmd_rdy      <= '0';
-            cmd_err      <= '0';
+         if(cmd_rcvd_er_i = '1') then
+            c_cmd_err         <= '1';
+            c_cmd_code        <= c_cmd_code_i;
+            c_card_addr       <= c_card_addr_i;
+            c_param_id        <= c_param_id_i;         
+         elsif(cmd_rcvd_ok_i = '1') then
+            c_cmd_rdy         <= '1';
+            c_cmd_code        <= c_cmd_code_i;
+            c_card_addr       <= c_card_addr_i;
+            c_param_id        <= c_param_id_i;         
+         elsif(c_cmd_ack = '1') then
+            c_cmd_rdy         <= '0';
+            c_cmd_err         <= '0';
          end if;
 
       end if;     
    end process register_cmd_code;     
 
    ----------------------------------------------------------------------------
-   -- process to register inputs from the reply_queue 
+   -- register inputs from the reply_queue 
    ----------------------------------------------------------------------------
    register_reply_queue: process(clk_i, rst_i)
    begin
       if(rst_i = '1') then                  
-         mop_rdy_reply    <= '0';
-         mop_rdy_data     <= '0';
-         rb_packet_size   <=  0;
-         data_packet_size <=  0;
-         mop_rdy          <= '0';
+         rb_packet_size       <=  0;
+         data_packet_size     <=  0;
+         r_cmd_rdy            <= '0';
+         r_cmd_code           <= (others => '0');  
+         r_card_addr          <= (others => '0');
+         r_param_id           <= (others => '0');   
       
       elsif (clk_i'EVENT and clk_i = '1') then     
-         
-         mop_rdy <= mop_rdy_i;
-         if(mop_rdy_i = '1') then
-            
-            rb_packet_size   <= num_fibre_words_i + 3;   
-            data_packet_size <= num_fibre_words_i + 3 ;     
-            
-            if(cmd_code = WRITE_BLOCK or cmd_code = READ_BLOCK) then
-               mop_rdy_reply <= '1';
-            else
-               mop_rdy_reply <= '0';
-            end if;
-            
-            if(cmd_code = GO) then
-               mop_rdy_data  <= '1';
-            else
-               mop_rdy_data  <= '0';
-            end if;
-            
+         r_cmd_rdy            <= r_cmd_rdy_i;
+
+         if(r_cmd_rdy_i = '1') then            
+            r_cmd_code        <= r_cmd_code_i; 
+            r_card_addr       <= r_card_addr_i;
+            r_param_id        <= r_param_id_i; 
+            rb_packet_size    <= num_fibre_words_i + 3;   
+            data_packet_size  <= num_fibre_words_i + 3 ;                 
          end if;
       end if;     
    end process register_reply_queue;     
@@ -314,7 +228,7 @@ begin
    begin
       if(rst_i = '1') then
          checksum <= (others => '0');
-      elsif(clk_i'EVENT AND clk_i = '1') then
+      elsif(clk_i'EVENT and clk_i = '1') then
          if(checksum_clr = '1') then
             checksum <= (others => '0');
          elsif(checksum_ld = '1') then
@@ -328,7 +242,7 @@ begin
    end process checksum_calculator; 
    
    ----------------------------------------------------------------------------
-   -- Data Pipeline
+   -- Data Pipeline MUX
    ----------------------------------------------------------------------------
    fibre_tx_dat_o <= fibre_tx_dat;   
    with fibre_current_state select
@@ -350,36 +264,51 @@ begin
    ----------------------------------------------------------------------------
    fibre_fsm_clocked : process(clk_i, rst_i)
    begin         
-      if (rst_i = '1') then
+      if(rst_i = '1') then
          fibre_current_state <= FIBRE_IDLE;
-      elsif (clk_i'EVENT AND clk_i = '1') then
+      elsif(clk_i'EVENT AND clk_i = '1') then
          fibre_current_state <= fibre_next_state;
       end if;
    end process fibre_fsm_clocked;
 
 
-   fibre_fsm_nextstate : process (fibre_current_state, cmd_rdy, cmd_err, mop_rdy_reply,
-      cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, mop_rdy_data, mop_rdy)
+   fibre_fsm_nextstate : process (fibre_current_state, c_cmd_rdy, c_cmd_err,
+      r_cmd_code, c_cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, r_cmd_rdy)
    begin
       -- Default Assignments
       fibre_next_state <= fibre_current_state;
       
       case fibre_current_state is
       when FIBRE_IDLE =>
-         -- Error in received command packet
-         if (cmd_err = '1') then
+         -- The problem here is that the stop command changes the command code 
+         -- and now the reply_translator doesn't know what its getting from the reply_queue so it doesn't ack anymore
+         -- The reply_translator needs to ignore new command codes during data taking.  The best way to do this is probably to register command code, 
+         -- and use that for the duration of the data run (and all other commands too)
+         -- We may need two registers here, for the cmd_translator to handle quick replies from the cmd_translator and normal replies from the reply_queue
+         -- There is also the issue of getting a stop command in the middle of a packet that is being replied to..
+         
+         if(c_cmd_err = '1') then
+           -- Error in received command packet
             fibre_next_state <= CK_ER_REPLY;
-         -- Quick response required for GO and RS commands
-         elsif (cmd_rdy = '1' and (cmd_code = GO or cmd_code = RESET)) then                                            
-            fibre_next_state <= REPLY_GO_RS;            
-         elsif (mop_rdy = '1' and mop_rdy_reply = '1') then 
+         elsif(c_cmd_rdy = '1' and (c_cmd_code = GO or c_cmd_code = RESET)) then                                            
+            -- Quick response required for GO and RS commands
+            fibre_next_state <= REPLY_GO_RS;
+         elsif(c_cmd_rdy = '1') then
+            -- Acknowledge all other commands (like STOP, WB, RB) and stay in this state
+            fibre_next_state <= FIBRE_IDLE;
+         elsif(r_cmd_rdy = '1' and (r_cmd_code = WRITE_BLOCK or r_cmd_code = READ_BLOCK)) then 
+            -- No housekeeping header required
             fibre_next_state <= REPLY_OK;
-         -- Data packet
-         elsif (mop_rdy = '1' and mop_rdy_data = '1') then
+         elsif(r_cmd_rdy = '1' and r_cmd_code = GO) then
+            -- Housekeeping header required
             fibre_next_state <= DATA_FRAME;
+         elsif(r_cmd_rdy = '1') then
+            -- Clear other possible commands (like STOP, RS) and stay in this state
+            -- Don't really need this, but just to be sure.
+            fibre_next_state <= FIBRE_IDLE;
          end if;           
          
-      when  CK_ER_REPLY | REPLY_GO_RS | REPLY_OK | ST_ER_REPLY | DATA_FRAME | REPLY_ER =>          
+      when CK_ER_REPLY | REPLY_GO_RS | REPLY_OK | ST_ER_REPLY | DATA_FRAME | REPLY_ER =>          
           fibre_next_state <= LD_PREAMBLE1;          
 
       ----------------------------------------
@@ -491,9 +420,61 @@ begin
       end case;
       
    end process fibre_fsm_nextstate;
-    
 
-   reply_fsm_output : process (fibre_current_state, mop_error_code_i, cmd_code, mop_rdy_data, fibre_tx_busy_i, cmd_err, cmd_rdy) 
+
+   ----------------------------------------------------------------------------
+   -- process to register the correct packet information 
+   ----------------------------------------------------------------------------
+   register_packet: process(clk_i, rst_i)
+   begin
+      if(rst_i = '1') then        
+         packet_size    <= (others => '0');
+         packet_type    <= (others => '0');
+         status         <= (others => '0');
+         crd_add_par_id <= (others => '0');
+         ok_or_er       <= (others => '0');
+
+      elsif(clk_i'event and clk_i = '1') then     
+         if(fibre_current_state = CK_ER_REPLY or 
+            fibre_current_state = ST_ER_REPLY or 
+            fibre_current_state = REPLY_GO_RS or
+            fibre_current_state = REPLY_ER) then
+            
+            packet_size    <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
+            packet_type    <= REPLY;
+            status         <= reply_status;
+            crd_add_par_id <= card_addr & param_id;
+            ok_or_er       <= reply_argument;
+         
+         elsif(fibre_current_state = REPLY_OK) then
+            if (cmd_code = READ_BLOCK) then 
+               packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);    
+            else
+               packet_size <= conv_std_logic_vector(NUM_REPLY_WORDS,32); 
+            end if;                 
+            packet_type    <= REPLY;
+            status         <= reply_status;
+            crd_add_par_id <= card_addr & param_id;
+            ok_or_er       <= reply_argument;
+         
+         elsif(fibre_current_state = DATA_FRAME) then
+            packet_size    <= conv_std_logic_vector(data_packet_size,PACKET_WORD_WIDTH);
+            packet_type    <= DATA;
+            status         <= frame_status;
+            crd_add_par_id <= frame_seq_num_i;
+            ok_or_er       <= ok_or_er;
+         else
+            packet_size    <= packet_size;    
+            packet_type    <= packet_type;   
+            status         <= status; 
+            crd_add_par_id <= crd_add_par_id; 
+            ok_or_er       <= ok_or_er;  
+         end if;
+      end if;
+   end process register_packet;
+   
+
+   reply_fsm_output : process (fibre_current_state, mop_error_code_i, c_cmd_code, r_cmd_code, fibre_tx_busy_i, c_cmd_err, c_cmd_rdy) 
    begin
       fibre_tx_rdy_o   <= '0';
       fibre_word_ack_o <= '0';
@@ -503,21 +484,35 @@ begin
       checksum_ld      <= '0';
       checksum_clr     <= '0';
       mop_ack_o        <= '0'; -- For commands from reply_queue
-      cmd_ack          <= '0'; -- For commands from cmd_translator
+      c_cmd_ack        <= '0'; -- For commands from cmd_translator
+      r_cmd_ack        <= '0'; -- For commands from cmd_translator
       
       case fibre_current_state is
+      
       -- Idle state - no packets to process      
       when FIBRE_IDLE =>               
          checksum_clr   <= '1';
-         
          -- We can acknowledge the fibre_rx block immediately, because we've latched all the info we need
-         if (cmd_err = '1') then
-            -- A checksum error was received by fibre_rx
-            cmd_ack          <= '1'; 
-         elsif (cmd_rdy = '1' and (cmd_code = GO or cmd_code = RESET)) then                                            
-            -- A GO or RESET command was received by fibre_rx and requires immediate response
-            cmd_ack          <= '1'; 
-         end if;   
+         if(c_cmd_err = '1') then
+           -- Error in received command packet
+            c_cmd_ack          <= '1'; 
+         elsif(c_cmd_rdy = '1' and (c_cmd_code = GO or c_cmd_code = RESET)) then                                            
+            -- Quick response required for GO and RS commands
+            c_cmd_ack          <= '1'; 
+         elsif(c_cmd_rdy = '1') then
+            -- Acknowledge all other commands (like STOP, WB, RB) and stay in this state
+            c_cmd_ack          <= '1'; 
+         elsif(r_cmd_rdy = '1' and (r_cmd_code = WRITE_BLOCK or r_cmd_code = READ_BLOCK)) then 
+            -- No housekeeping header required
+            r_cmd_ack          <= '1'; 
+         elsif(r_cmd_rdy = '1' and r_cmd_code = GO) then
+            -- Housekeeping header required
+            r_cmd_ack          <= '1'; 
+         elsif(r_cmd_rdy = '1') then
+            -- Clear other possible commands (like STOP, RS) and stay in this state
+            -- Don't really need this, but just to be sure.
+            r_cmd_ack          <= '1'; 
+         end if;           
 
       -- checksum error state  
       when CK_ER_REPLY =>              
@@ -618,7 +613,7 @@ begin
             checksum_ld      <= '1';
             -- Do not transmit a status word if an RB was successful or if returning DATA
             -- Don't ask me why this is, but it's a stupid feature of the fibre protocol
-            if((cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (mop_rdy_data = '1')) then
+            if((cmd_code = READ_BLOCK and mop_error_code_i = FIBRE_NO_ERROR_STATUS) or (r_cmd_code = GO)) then
                fibre_tx_rdy_o <= '0';
             else
                fibre_tx_rdy_o <= '1';
