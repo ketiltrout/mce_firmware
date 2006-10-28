@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.49 2006/09/28 00:32:25 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.50 2006/10/19 22:19:32 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.50  2006/10/19 22:19:32  bburger
+-- Bryce:  Interim committal
+--
 -- Revision 1.49  2006/09/28 00:32:25  bburger
 -- Bryce:  Caught a bug that specified the TES_BIAS_DATA_SIZE = 32.
 --
@@ -97,11 +100,15 @@ use work.sync_gen_pack.all;
 
 package issue_reply_pack is
 
-   -- Measured in clock cycles, this is the minumum amount of cycles necessary for an internal/ simple command
+   -- Measured in clock cycles, CMD_TIMEOUT_LIMIT is slightly more than the amount of cycles necessary for an internal/ simple command to execute
    -- For a 58-word WB command, 100 us are required from receiving the last word of the command to sending the last word of the reply
    -- For a 58-word RB command, 105 us are required from receiving the last word of the command to sending the last word of the reply.
-   -- Acutally, this needs to take into account timeouts from internal commands!!  
-   constant MIN_WINDOW : integer := 5500;--110000/20ns; -- ns
+   constant CMD_TIMEOUT_LIMIT : integer := 110; --us
+   constant DATA_TIMEOUT_LIMIT : integer := 650; --us
+
+   -- The minimum window for transmitting an internal command needs to be slightly more than CMD_TIMEOUT_LIMIT
+   -- To account for the time needed to prime the cmd_translator
+   constant MIN_WINDOW : integer := (CMD_TIMEOUT_LIMIT+5)*1000/20; -- # clock cycles = 110us*1000/20ns;
 
    -- Data sizes for internal commands
    constant TES_BIAS_DATA_SIZE   : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000000001"; --  1 word 
