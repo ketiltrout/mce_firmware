@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.41 2006/10/19 22:02:43 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.42 2006/10/24 17:07:00 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/10/19 22:02:43 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/24 17:07:00 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.42  2006/10/24 17:07:00  bburger
+-- Bryce:  Commented code
+--
 -- Revision 1.41  2006/10/19 22:02:43  bburger
 -- Bryce:  Re-wrote to simplify and support stop ret_dat commands
 --
@@ -124,7 +127,7 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    -------------------------------------------------------------------------------------------
    -- type definitions
    ------------------------------------------------------------------------------------------- 
-   type state is (IDLE, UPDATE_FOR_NEXT, FIRST, ONE_MORE);
+   type state is (IDLE, UPDATE_FOR_NEXT, FIRST, ONE_MORE, STOP);
    signal next_state                      : state;
    signal current_state                   : state;
                                            
@@ -146,8 +149,8 @@ architecture rtl of cmd_translator_ret_dat_fsm is
    signal load_seq_num                    : std_logic;
    signal next_seq_num                    : std_logic;
    
-   signal data_size                       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);  -- num_data_i, indicates number of 16-bit words of data
-   signal data_size_int                   : integer;
+   signal data_size                       : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);
+   signal data_size_int                   : integer range 0 to (2**BB_DATA_SIZE_WIDTH)-1;
    
    signal prod_rl_nm                      : integer;
    signal diff_csn_sn                     : integer;
@@ -178,13 +181,16 @@ begin
    -- State machine for issuing ret_dat macro-ops.
    -- Next State logic
    ------------------------------------------------------------------------------------------- 
-   process(current_state, ret_dat_req, seq_num, stop_seq_num_i, ack_i, dv_mode_i, external_dv_i)
+   process(current_state, dv_mode_i, ret_dat_req, external_dv_i, ack_i, seq_num, stop_seq_num_i)
    begin
       next_state <= current_state;
    
       case current_state is
          when IDLE =>
-            if(ret_dat_req = '1') then
+            if(dv_mode_i = DV_INTERNAL and ret_dat_req = '1') then
+               next_state <= FIRST;
+            -- Issue the first ret_dat command on the next DV pulse
+            elsif(dv_mode_i /= DV_INTERNAL and ret_dat_req = '1' and external_dv_i = '1') then
                next_state <= FIRST;
             end if;
             
@@ -198,15 +204,28 @@ begin
          when UPDATE_FOR_NEXT =>
             -- We stay in this state for one cycle if we're in internal-dv mode, otherwise we wait for the next dv-pulse.
             if(dv_mode_i = DV_INTERNAL) then
-               next_state <= ONE_MORE;
+               if(ret_dat_req = '1') then
+                  next_state <= ONE_MORE;
+               else
+                  next_state <= STOP;
+               end if;
             elsif(dv_mode_i /= DV_INTERNAL and external_dv_i = '1') then
-               next_state <= ONE_MORE;
+               if(ret_dat_req = '1') then
+                  next_state <= ONE_MORE;
+               else
+                  next_state <= STOP;
+               end if;
             end if;         
          
          when ONE_MORE =>
             if(ack_i = '1' and seq_num /= stop_seq_num_i) then
                next_state <= UPDATE_FOR_NEXT;
             elsif(ack_i = '1' and seq_num = stop_seq_num_i) then
+               next_state <= IDLE;
+            end if;
+            
+         when STOP =>
+            if(ack_i = '1') then
                next_state <= IDLE;
             end if;
          
@@ -246,7 +265,7 @@ begin
 
          when FIRST =>
             -- Slide the sync number until the arbiter takes the first data command.
-            -- This is to correct for internal commands that are clogging up the cmd_queue, and causing delays
+            -- This is to correct for internal commands that clog up the cmd_queue and cause delays
             load_sync_num <= '1';
             instr_rdy_o   <= '1';
             
@@ -260,11 +279,8 @@ begin
                end if;
             end if;
             
-            if(ret_dat_req = '0') then
-               cmd_stop_o <= '1';
-            end if;               
-
          when UPDATE_FOR_NEXT =>
+            -- Either of these conditions are only met on the last clock period in this state.
             if(dv_mode_i = DV_INTERNAL) then
                next_sync_num <= '1';
                next_seq_num  <= '1';
@@ -289,9 +305,15 @@ begin
                end if;
             end if;
             
-            if(ret_dat_req = '0') then
-               cmd_stop_o <= '1';
-            end if;               
+         when STOP =>
+            instr_rdy_o  <= '1';
+            last_frame_o <= '1';
+            cmd_stop_o   <= '1';
+            if(ack_i = '1') then
+               -- Don't need to assert ret_dat_ack, because ret_dat_rdy is already low due to stop command
+               -- De-assert instr_rdy_o immediately to prevent cmd_queue from re-latching it
+               instr_rdy_o <= '0';
+            end if;
  
          when others =>            
       end case;
@@ -300,10 +322,6 @@ begin
    -------------------------------------------------------------------------------------------
    -- registers
    ------------------------------------------------------------------------------------------- 
-   -- cmd_stop_o only get latched by cmd_queue when it receives a ret_dat command
-   -- if ret_dat_req will only be low when the cmd_queue receives a ret_dat command if a ST was received
---   cmd_stop_o <= not ret_dat_req;
-   
    process(rst_i, clk_i)
    begin
       if rst_i = '1' then
@@ -323,7 +341,7 @@ begin
          if(sync_num = sync_number_i + 1 or current_state = IDLE) then 
             diff_csn_sn          <= 0;
          else
-            diff_csn_sn          <= conv_integer(sync_num - sync_number_i) - 1;
+            diff_csn_sn          <= conv_integer(unsigned(sync_num - sync_number_i)) - 1;
          end if;
          window                  <= prod_rl_nm * diff_csn_sn;
 
@@ -334,6 +352,7 @@ begin
             data_reg             <= data_i;
          end if;
          
+         ack_o <= '0';
          -- Track GO/ST ret_dat commands
          if(cmd_rdy_i = '1' and parameter_id_i(BB_PARAMETER_ID_WIDTH-1 downto 0) = RET_DAT_ADDR) then
             -- Acknowledge the GO/ST command from fibre_rx, to clear it for a new command.
@@ -374,7 +393,7 @@ begin
    ret_dat_fsm_working_o  <= ret_dat_fsm_working;
 
    data_size_int          <= NO_CHANNELS * num_rows_i;
-   data_size              <= conv_std_logic_vector(data_size_int,11);
+   data_size              <= conv_std_logic_vector(data_size_int,BB_DATA_SIZE_WIDTH);
 
    process(ret_dat_fsm_working, seq_num, sync_num, card_addr_reg, parameter_id_reg, data_reg, data_size, window)
    begin
