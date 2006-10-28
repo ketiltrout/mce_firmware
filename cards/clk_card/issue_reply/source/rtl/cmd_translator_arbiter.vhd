@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.30 2006/09/26 02:16:05 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_arbiter.vhd,v 1.31 2006/10/19 22:01:51 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/26 02:16:05 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/19 22:01:51 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_arbiter.vhd,v $
+-- Revision 1.31  2006/10/19 22:01:51  bburger
+-- Bryce:  moved logic for detecting simple commands from cmd_translator to cmd_translator_arbiter
+--
 -- Revision 1.30  2006/09/26 02:16:05  bburger
 -- Bryce: added busy_i interface for arbitration between ret_dat, internal and simple commands
 --
@@ -252,7 +255,7 @@ architecture rtl of cmd_translator_arbiter is
    -------------------------------------------------------------------------------------------
    -- type definitions
    ------------------------------------------------------------------------------------------- 
-   type state is (IDLE, INTRNL_CMD_RDY, SIMPLE_CMD_RDY, RET_DAT_RDY, BUSY);
+   type state is (IDLE, LOAD_INTERNAL_CMD, LOAD_SIMPLE_CMD, LOAD_DATA_CMD, BUSY);
                     
    -------------------------------------------------------------------------------------------
    -- signals
@@ -314,7 +317,7 @@ begin
    process(rst_i, clk_i)
    begin
       if rst_i = '1' then
-         current_state <= SIMPLE_CMD_RDY;
+         current_state <= LOAD_SIMPLE_CMD;
       elsif clk_i'event and clk_i = '1' then
          current_state <= next_state;
       end if;
@@ -332,24 +335,24 @@ begin
          when IDLE =>
             -- Priority is given to ret_dat commands
             if(simple_cmd_instr_rdy = '1' and internal_cmd_window_i >= MIN_WINDOW)then
-               next_state <= SIMPLE_CMD_RDY;
+               next_state <= LOAD_SIMPLE_CMD;
             elsif(internal_cmd_instr_rdy_i = '1' and internal_cmd_window_i >= MIN_WINDOW) then
-               next_state <= INTRNL_CMD_RDY;
+               next_state <= LOAD_INTERNAL_CMD;
             elsif(ret_dat_instr_rdy_i = '1') then
-               next_state <= RET_DAT_RDY;
+               next_state <= LOAD_DATA_CMD;
             end if;
       
-         when INTRNL_CMD_RDY =>
+         when LOAD_INTERNAL_CMD =>
             if(internal_cmd_instr_rdy_i = '0') then
                next_state <= BUSY;
             end if;
             
-         when SIMPLE_CMD_RDY =>
+         when LOAD_SIMPLE_CMD =>
             if(simple_cmd_instr_rdy = '0') then
                next_state <= BUSY;
             end if;
             
-         when RET_DAT_RDY =>
+         when LOAD_DATA_CMD =>
             if(ret_dat_instr_rdy_i = '0') then
                next_state <= BUSY;
             end if; 
@@ -382,15 +385,15 @@ begin
       case current_state is 
          when IDLE =>
             
-         when INTRNL_CMD_RDY =>
+         when LOAD_INTERNAL_CMD =>
             data_mux_sel                      <= "10";
             internal_cmd_ack_mux_sel          <= '1';
       
-         when SIMPLE_CMD_RDY =>
+         when LOAD_SIMPLE_CMD =>
             data_mux_sel                      <= "00";
             simple_cmd_ack_mux_sel            <= '1';
 
-         when RET_DAT_RDY =>        
+         when LOAD_DATA_CMD =>        
             data_mux_sel                      <= "01";
             ret_dat_ack_mux_sel               <= '1';
 
