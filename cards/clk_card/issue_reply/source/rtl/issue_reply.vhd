@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.56 2006/10/19 22:07:02 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.57 2006/10/24 17:07:52 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/10/19 22:07:02 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/24 17:07:52 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.57  2006/10/24 17:07:52  bburger
+-- Bryce:  removed unused signal from issue_reply interface
+--
 -- Revision 1.56  2006/10/19 22:07:02  bburger
 -- Bryce:  added interfaces to support crc_err_en and stop ret_dat commands
 --
@@ -382,9 +385,14 @@ architecture rtl of issue_reply is
       -- signals to/from cmd_translator    
       cmd_rcvd_er_i           : in  std_logic;                                               -- command received on fibre with checksum error
       cmd_rcvd_ok_i           : in  std_logic;                                               -- command received on fibre - no checksum error
-      cmd_code_i              : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);  -- fibre command code
-      card_addr_i             : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);  -- fibre command card id
-      param_id_i              : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);  -- fibre command parameter id
+      c_cmd_code_i            : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
+      c_card_addr_i           : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+      c_param_id_i            : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);           
+
+      -- signals to/from reply queue
+      r_cmd_code_i            : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
+      r_card_addr_i           : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
+      r_param_id_i            : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);   
           
       -- signals to/from reply queue 
       mop_rdy_i               : in  std_logic;                                                 -- macro op response ready to be processed
@@ -422,15 +430,16 @@ architecture rtl of issue_reply is
    );
    end component;
 
+
    -- inputs from fibre_rx 
-   signal card_addr           : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
-   signal cmd_code            : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
+   signal c_cmd_code          : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
+   signal c_param_id          : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+   signal c_card_addr         : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
    signal cksum_err           : std_logic;
    signal cmd_data            : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);         -- the data 
    signal cmd_rdy             : std_logic;                                            -- indicates the fibre_rx outputs are valid
    signal data_clk            : std_logic;                                            -- used to clock the data out
    signal num_data            : std_logic_vector (FIBRE_DATA_SIZE_WIDTH-1 downto 0);    -- number of 16-bit data words to be clocked out, possibly number of bytes
-   signal param_id            : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
    signal cmd_type            : std_logic_vector (BB_COMMAND_TYPE_WIDTH-1 downto 0);       -- this is a re-mapping of the cmd_code into a 3-bit number
    signal cmd_ack             : std_logic;   -- acknowledge signal from cmd_translator to fibre_rx  
    signal reply_cmd_rcvd_er   : std_logic;
@@ -444,6 +453,9 @@ architecture rtl of issue_reply is
    signal issue_sync          : std_logic_vector(SYNC_NUM_WIDTH-1 downto 0);
    
    -- reply_queue interface
+   signal r_cmd_code          : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
+   signal r_param_id          : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+   signal r_card_addr         : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
    signal uop_rdy             : std_logic;
    signal uop_ack             : std_logic;
    signal card_addr_cr        : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
@@ -511,84 +523,19 @@ begin
       rx_data_i    => rx_data_i,
       
       -- input from cmd_translator
-      cmd_ack_i    => cmd_ack,                  -- command acknowledge
+      cmd_ack_i    => cmd_ack,               
       
       -- outputs to cmd_translator
-      cmd_code_o   => cmd_code,                   -- command code
-      card_addr_o  => card_addr,                  -- card id
-      param_id_o   => param_id,                   -- parameter id
-      num_data_o   => num_data,                   -- number of valid 32 bit data words
-      cmd_data_o   => cmd_data,                   -- 32bit valid data word
-      cmd_rdy_o    => cmd_rdy,                    -- checksum error flag
-      data_clk_o   => data_clk,                   -- data clock
+      cmd_code_o   => cmd_code,              
+      card_addr_o  => card_addr,             
+      param_id_o   => param_id,              
+      num_data_o   => num_data,              
+      cmd_data_o   => cmd_data,              
+      cmd_rdy_o    => cmd_rdy,               
+      data_clk_o   => data_clk,              
       
       cksum_err_o  => cksum_err
    );
-
-   ------------------------------------------------------------------------
-   -- fibre transmitter
-   ------------------------------------------------------------------------
-   i_fibre_tx : fibre_tx
-   port map(        
-      clk_i         => clk_i,
-      rst_i         => rst_i,
-      
-      dat_i         => fibre_tx_dat,
-      rdy_i         => fibre_tx_rdy,
-      busy_o        => fibre_tx_busy,
-   
-      fibre_clk_i   => fibre_clkw_i,
-      fibre_clkw_o  => open,
-      fibre_data_o  => tx_data_o,
-      fibre_sc_nd_o => tsc_nTd_o,
-      fibre_nena_o  => nFena_o
-   );
-
-   ------------------------------------------------------------------------
-   -- reply_translator
-   ------------------------------------------------------------------------ 
-   i_reply_translator : reply_translator
-   port map(
-      -- for testing
-      debug_o           => debug_o,
-
-      -- global inputs 
-      rst_i             => rst_i,
-      clk_i             => clk_i,
-      crc_err_en_i      => crc_err_en_i,
-
-      -- signals to/from cmd_translator    
-      cmd_rcvd_er_i     => cksum_err,
-      cmd_rcvd_ok_i     => cmd_rdy,
-      cmd_code_i        => cmd_code,
-      card_addr_i       => card_addr,
-      param_id_i        => param_id,            
-
---      -- signals to/from cmd_translator    
---      cmd_rcvd_er_i     => reply_cmd_rcvd_er,
---      cmd_rcvd_ok_i     => reply_cmd_rcvd_ok,
---      cmd_code_i        => reply_cmd_code_c,
---      card_addr_i       => reply_card_id,
---      param_id_i        => reply_param_id,            
-
-      -- signals to/from reply queue
-      mop_rdy_i         => m_op_rdy,  
-      mop_error_code_i  => m_op_error_code, 
-      fibre_word_i      => fibre_word,
-      num_fibre_words_i => num_fibre_words,
-      fibre_word_ack_o  => fibre_word_ack,
-      fibre_word_rdy_i  => fibre_word_rdy,
-      mop_ack_o         => m_op_ack,    
-      
-      cmd_stop_i        => reply_cmd_stop,
-      last_frame_i      => reply_last_frame,
-      frame_seq_num_i   => reply_frame_seq_num,
-
-      -- signals to / from fibre_tx
-      fibre_tx_rdy_o    => fibre_tx_rdy,
-      fibre_tx_busy_i   => fibre_tx_busy,   
-      fibre_tx_dat_o    => fibre_tx_dat
-   );      
 
    ------------------------------------------------------------------------
    -- command translator
@@ -603,7 +550,6 @@ begin
       card_id_i           => card_addr,
       cmd_code_i          => cmd_code,
       cmd_data_i          => cmd_data,
---      cksum_err_i         => cksum_err,
       cmd_rdy_i           => cmd_rdy,
       data_clk_i          => data_clk,
       num_data_i          => num_data,
@@ -632,13 +578,6 @@ begin
       --input from the u-op sequence generator
       busy_i              => busy,
       ack_i               => mop_ack,
-      
-      -- reply_translator interface          
---      reply_cmd_rcvd_er_o => reply_cmd_rcvd_er,
---      reply_cmd_rcvd_ok_o => reply_cmd_rcvd_ok,
---      reply_cmd_code_o    => reply_cmd_code_c,
---      reply_param_id_o    => reply_param_id,
---      reply_card_id_o     => reply_card_id,         
       
       start_seq_num_i     => start_seq_num_i,
       stop_seq_num_i      => stop_seq_num_i,
@@ -744,9 +683,9 @@ begin
       
       -- reply_translator interface (from reply_queue_retire)
       cmd_sent_i          => m_op_ack,
-      cmd_code_o          => open, --m_op_cmd_code,
-      param_id_o          => open, --m_op_param_id,
-      card_addr_o         => open, --m_op_card_id,
+      cmd_code_o          => r_cmd_code,
+      param_id_o          => r_param_id,
+      card_addr_o         => r_card_addr,
       stop_bit_o          => reply_cmd_stop,
       last_frame_bit_o    => reply_last_frame,
       frame_seq_num_o     => reply_frame_seq_num,
@@ -774,6 +713,68 @@ begin
       clk_i               => clk_i,
       comm_clk_i          => comm_clk_i,
       rst_i               => rst_i
+   );
+
+   ------------------------------------------------------------------------
+   -- reply_translator
+   ------------------------------------------------------------------------ 
+   i_reply_translator : reply_translator
+   port map(
+      -- for testing
+      debug_o           => debug_o,
+
+      -- global inputs 
+      rst_i             => rst_i,
+      clk_i             => clk_i,
+      crc_err_en_i      => crc_err_en_i,
+
+      -- signals to/from cmd_translator    
+      cmd_rcvd_er_i     => cksum_err,
+      cmd_rcvd_ok_i     => cmd_rdy,
+      c_cmd_code_i      => c_cmd_code,
+      c_card_addr_i     => c_card_addr,
+      c_param_id_i      => c_param_id,            
+
+      -- signals to/from reply queue
+      r_cmd_code_i      => r_cmd_code,
+      r_card_addr_i     => r_card_addr,
+      r_param_id_i      => r_param_id,         
+
+      mop_rdy_i         => m_op_rdy,  
+      mop_error_code_i  => m_op_error_code, 
+      fibre_word_i      => fibre_word,
+      num_fibre_words_i => num_fibre_words,
+      fibre_word_ack_o  => fibre_word_ack,
+      fibre_word_rdy_i  => fibre_word_rdy,
+      mop_ack_o         => m_op_ack,    
+
+      cmd_stop_i        => reply_cmd_stop,
+      last_frame_i      => reply_last_frame,
+      frame_seq_num_i   => reply_frame_seq_num,
+
+      -- signals to / from fibre_tx
+      fibre_tx_rdy_o    => fibre_tx_rdy,
+      fibre_tx_busy_i   => fibre_tx_busy,   
+      fibre_tx_dat_o    => fibre_tx_dat
+   );      
+
+   ------------------------------------------------------------------------
+   -- fibre transmitter
+   ------------------------------------------------------------------------
+   i_fibre_tx : fibre_tx
+   port map(        
+      clk_i         => clk_i,
+      rst_i         => rst_i,
+      
+      dat_i         => fibre_tx_dat,
+      rdy_i         => fibre_tx_rdy,
+      busy_o        => fibre_tx_busy,
+   
+      fibre_clk_i   => fibre_clkw_i,
+      fibre_clkw_o  => open,
+      fibre_data_o  => tx_data_o,
+      fibre_sc_nd_o => tsc_nTd_o,
+      fibre_nena_o  => nFena_o
    );
 
 end rtl; 
