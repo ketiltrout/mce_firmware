@@ -29,8 +29,11 @@
 -- 
 --
 -- Revision history:
--- <date $Date: 2005/01/17 23:29:54 $> - <initials $Author: mandana $>
+-- <date $Date: 2006/04/28 21:38:51 $> - <initials $Author: mandana $>
 -- $Log: write_spi_with_cs.vhd,v $
+-- Revision 1.6  2006/04/28 21:38:51  mandana
+-- added integer range for count
+--
 -- Revision 1.5  2005/01/17 23:29:54  mandana
 -- fixed a bug with the data load
 --
@@ -87,7 +90,6 @@ signal n_spi_clk     : std_logic;
 
 signal reset_counter : std_logic;
 signal count         : integer range 0 to DATA_LENGTH;
-signal spi_ncs       : std_logic;
 
 -- shift register signals
 signal shift_reg_data : std_logic;
