@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.26  2006/09/15 00:48:36  bburger
+-- Bryce:  Cleaned up the data word acknowledgement chain to speed things up.  Untested in hardware.  Data packets are un-simulated
+--
 -- Revision 1.25  2006/09/07 22:25:22  bburger
 -- Bryce:  replace cmd_type (1-bit: read/write) interfaces and funtionality with cmd_code (32-bit: read_block/ write_block/ start/ stop/ reset) interface because reply_queue_sequencer needed to know to discard replies to reset commands
 --
@@ -52,6 +55,9 @@ use sys_param.wishbone_pack.all;
 
 library components;
 use components.component_pack.all;
+
+library work;
+use work.issue_reply_pack.all;
 
 entity reply_queue_sequencer is
 port(
@@ -147,10 +153,6 @@ signal update_status    : std_logic;
 ---------------------------------------------------------
 constant err_dat        : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0) := x"FFFFFFFF";
 constant ZEROS          : std_logic_vector(16-BB_DATA_SIZE_WIDTH-1 downto 0) := (others => '0'); 
-
--- reply_queue timeout limit (in microseconds):
-constant CMD_TIMEOUT_LIMIT : integer := 100;
-constant DATA_TIMEOUT_LIMIT : integer := 650;
 
 -- output that indicates that there is an error word ready
 -- is asserted for each card that must reply only as long as needed to clock out the correct number of error words
