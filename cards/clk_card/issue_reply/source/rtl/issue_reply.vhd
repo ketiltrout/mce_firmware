@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.57 2006/10/24 17:07:52 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.58 2006/10/28 00:05:37 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/10/24 17:07:52 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/28 00:05:37 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.58  2006/10/28 00:05:37  bburger
+-- Bryce:  Added signals between reply_queue and reply_translator
+--
 -- Revision 1.57  2006/10/24 17:07:52  bburger
 -- Bryce:  removed unused signal from issue_reply interface
 --
@@ -391,8 +394,8 @@ architecture rtl of issue_reply is
 
       -- signals to/from reply queue
       r_cmd_code_i            : in  std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1  downto 0);
-      r_card_addr_i           : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);
-      r_param_id_i            : in  std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);   
+      r_card_addr_i           : in  std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);
+      r_param_id_i            : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);   
           
       -- signals to/from reply queue 
       mop_rdy_i               : in  std_logic;                                                 -- macro op response ready to be processed
@@ -454,8 +457,8 @@ architecture rtl of issue_reply is
    
    -- reply_queue interface
    signal r_cmd_code          : std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);                       -- the least significant 16-bits from the fibre packet
-   signal r_param_id          : std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
-   signal r_card_addr         : std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
+   signal r_param_id          : std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);       -- the parameter ID
+   signal r_card_addr         : std_logic_vector (BB_CARD_ADDRESS_WIDTH-1 downto 0);    -- specifies which card the command is targetting
    signal uop_rdy             : std_logic;
    signal uop_ack             : std_logic;
    signal card_addr_cr        : std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0); -- The card address of the m-op
@@ -526,9 +529,9 @@ begin
       cmd_ack_i    => cmd_ack,               
       
       -- outputs to cmd_translator
-      cmd_code_o   => cmd_code,              
-      card_addr_o  => card_addr,             
-      param_id_o   => param_id,              
+      cmd_code_o   => c_cmd_code,              
+      card_addr_o  => c_card_addr,             
+      param_id_o   => c_param_id,              
       num_data_o   => num_data,              
       cmd_data_o   => cmd_data,              
       cmd_rdy_o    => cmd_rdy,               
@@ -547,13 +550,13 @@ begin
       clk_i               => clk_i,
       
       -- inputs from fibre_rx
-      card_id_i           => card_addr,
-      cmd_code_i          => cmd_code,
+      card_id_i           => c_card_addr,
+      cmd_code_i          => c_cmd_code,
       cmd_data_i          => cmd_data,
       cmd_rdy_i           => cmd_rdy,
       data_clk_i          => data_clk,
       num_data_i          => num_data,
-      param_id_i          => param_id,
+      param_id_i          => c_param_id,
       
       -- output to fibre_rx
       ack_o               => cmd_ack,
