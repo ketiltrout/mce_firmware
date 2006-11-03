@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.59 2006/10/31 01:40:15 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.60 2006/11/03 01:07:23 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/10/31 01:40:15 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/11/03 01:07:23 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.60  2006/11/03 01:07:23  bburger
+-- Bryce:  corrected some port-map discrepancies
+--
 -- Revision 1.59  2006/10/31 01:40:15  bburger
 -- Bryce:  fixed some port mismatches
 --
@@ -198,7 +201,6 @@ architecture rtl of issue_reply is
       card_id_i             : in  std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0);       -- specifies which card the command is targetting
       cmd_code_i            : in  std_logic_vector ( FIBRE_PACKET_TYPE_WIDTH-1 downto 0);       -- the least significant 16-bits from the fibre packet
       cmd_data_i            : in  std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);       -- the data
---      cksum_err_i           : in  std_logic;
       cmd_rdy_i             : in  std_logic;                                                    -- indicates the fibre_rx outputs are valid
       data_clk_i            : in  std_logic;                                                    -- used to clock the data out
       num_data_i            : in  std_logic_vector (    FIBRE_DATA_SIZE_WIDTH-1 downto 0);      -- number of 16-bit data words to be clocked out, possibly number of bytes
@@ -250,14 +252,6 @@ architecture rtl of issue_reply is
       -- outputs to the cmd_queue
       frame_seq_num_o       : out std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);
       frame_sync_num_o      : out std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0)
-
-      -- outputs to reply_translator for commands that require quick acknowldgements
---      reply_cmd_rcvd_er_o   : out std_logic;
---      reply_cmd_rcvd_ok_o   : out std_logic;
---      reply_cmd_code_o      : out std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
---      reply_param_id_o      : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);        -- the parameter ID
---      reply_card_id_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)         -- specifies which card the command is targetting
-
    ); 
    end component;
 
