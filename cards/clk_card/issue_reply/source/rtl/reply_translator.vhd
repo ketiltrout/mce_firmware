@@ -20,7 +20,7 @@
 --
 -- reply_translator
 --
--- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.47 2006/10/31 01:40:53 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: reply_translator.vhd,v 1.48 2006/11/03 01:10:53 bburger Exp $>
 --
 -- Project:          SCUBA-2
 -- Author:           David Atkinson/ Bryce Burger
@@ -30,9 +30,12 @@
 -- <description text>
 --
 -- Revision history:
--- <date $Date: 2006/10/31 01:40:53 $> - <text> - <initials $Author: bburger $>
+-- <date $Date: 2006/11/03 01:10:53 $> - <text> - <initials $Author: bburger $>
 --
 -- $Log: reply_translator.vhd,v $
+-- Revision 1.48  2006/11/03 01:10:53  bburger
+-- Bryce:  Added support for the DATA cmd_code
+--
 -- Revision 1.47  2006/10/31 01:40:53  bburger
 -- Bryce:  finished implementing support for STOP commands.  Needs simulation.
 --
@@ -87,6 +90,9 @@ port(
    last_frame_i      : in std_logic;
    frame_seq_num_i   : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
+   -- input from the cmd_queue
+   busy_i            : in std_logic;
+
    -- signals to / from fibre_tx
    fibre_tx_rdy_o    : out std_logic;                                               -- transmit fifo full
    fibre_tx_busy_i   : in std_logic;                                                -- transmit fifo write request
@@ -117,9 +123,9 @@ architecture rtl of reply_translator is
    -- fibre transmit FIFO (fibre_tx_fifo) 
    
    type fibre_state is        
-      (FIBRE_IDLE, CK_ER_REPLY, REPLY_GO_RS, REPLY_OK, DATA_FRAME, LD_PREAMBLE1,  LD_PREAMBLE2,
+      (FIBRE_IDLE, CMD_ERROR_REPLY, QUICK_REPLY, STANDARD_REPLY, DATA_PACKET, LD_PREAMBLE1,  LD_PREAMBLE2,
        LD_xxRP, LD_PACKET_SIZE, LD_OKorER, LD_CARD_PARAM, LD_STATUS, WAIT_Q_WORD1, WAIT_Q_WORD2, 
-       WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE, ACK_C_NOP, ACK_R_NOP);
+       WAIT_Q_WORD3, WAIT_Q_WORD4, LD_DATA, ACK_Q_WORD, LD_CKSUM, DONE, SKIP_COMMAND, SKIP_REPLY);
        
    signal fibre_current_state : fibre_state;
    signal fibre_next_state    : fibre_state;
@@ -288,8 +294,8 @@ begin
    end process fibre_fsm_clocked;
 
 
-   fibre_fsm_nextstate : process (fibre_current_state, c_cmd_rdy, c_cmd_err,
-      r_cmd_code, c_cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, r_cmd_rdy)
+   fibre_fsm_nextstate : process (fibre_current_state, c_cmd_rdy, c_cmd_err, busy_i,
+      r_cmd_code, c_cmd_code, fibre_tx_busy_i, fibre_word_rdy_i, r_cmd_rdy, cmd_stop_i)
    begin
       -- Default Assignments
       fibre_next_state <= fibre_current_state;
@@ -305,36 +311,40 @@ begin
          
          if(c_cmd_err = '1') then
            -- Error in received command packet
-            fibre_next_state <= CK_ER_REPLY;
+            fibre_next_state <= CMD_ERROR_REPLY;
          -- Commands received by fibre_rx will always be service first because they may require immediate response
          elsif(c_cmd_rdy = '1' and (c_cmd_code = GO or c_cmd_code = RESET)) then                                            
             -- Quick response required for GO and RS commands
-            fibre_next_state <= REPLY_GO_RS;
-         elsif(c_cmd_rdy = '1') then
-            -- Acknowledge all other commands (STOP, WB, RB) and stay in this state because no quick response is required.
-            fibre_next_state <= ACK_C_NOP;
+            fibre_next_state <= QUICK_REPLY;
+         elsif(c_cmd_rdy = '1' and c_cmd_code = STOP and busy_i = '0' and cmd_stop_i = '1') then                                            
+            -- Delayed response required for STOP commands, after last data frame
+            -- Wait until the cmd_queue busy signal is deasserted after a data packet that has the stop bit set.
+            fibre_next_state <= QUICK_REPLY;
+         elsif(c_cmd_rdy = '1' and (c_cmd_code = WRITE_BLOCK or c_cmd_code = READ_BLOCK)) then
+            -- Acknowledge all other commands (WB, RB) and stay in this state because no quick response is required.
+            fibre_next_state <= SKIP_COMMAND;
          -- Then replies from the reply_queue are serviced.
          elsif(r_cmd_rdy = '1' and (r_cmd_code = WRITE_BLOCK or r_cmd_code = READ_BLOCK)) then 
             -- No housekeeping header required
             -- Note that it doesn't matter what the Errno word is, we return xxOK.
-            fibre_next_state <= REPLY_OK;
+            fibre_next_state <= STANDARD_REPLY;
          elsif(r_cmd_rdy = '1' and r_cmd_code = DATA) then
             -- Housekeeping header required
             -- Note that it doesn't matter what the Errno word is, we return xxOK.
-            fibre_next_state <= DATA_FRAME;
+            fibre_next_state <= DATA_PACKET;
          elsif(r_cmd_rdy = '1') then
             -- Clear other possible commands (like STOP, RS) and stay in this state
             -- STOP and RS commands should never make to the reply_translator through this route, but just to be safe.
-            fibre_next_state <= ACK_R_NOP;
+            fibre_next_state <= SKIP_REPLY;
          end if;           
          
-      when ACK_C_NOP =>
+      when SKIP_COMMAND =>
          fibre_next_state <= FIBRE_IDLE;
       
-      when ACK_R_NOP =>
+      when SKIP_REPLY =>
          fibre_next_state <= FIBRE_IDLE;
 
-      when CK_ER_REPLY | REPLY_GO_RS | REPLY_OK | DATA_FRAME =>          
+      when CMD_ERROR_REPLY | QUICK_REPLY | STANDARD_REPLY | DATA_PACKET =>          
          fibre_next_state <= LD_PREAMBLE1;          
 
       ----------------------------------------
@@ -460,21 +470,21 @@ begin
          ok_or_er       <= (others => '0');
 
       elsif(clk_i'event and clk_i = '1') then     
-         if(fibre_current_state = CK_ER_REPLY) then
+         if(fibre_current_state = CMD_ERROR_REPLY) then
             packet_size    <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
             packet_type    <= REPLY;
             crd_add_par_id <= c_card_addr & c_param_id;
             status         <= c_cmd_code(15 downto 0) & ASCII_E & ASCII_R;
             ok_or_er       <= FIBRE_CHECKSUM_ERR;
          
-         elsif(fibre_current_state = REPLY_GO_RS) then            
+         elsif(fibre_current_state = QUICK_REPLY) then            
             packet_size    <= conv_std_logic_vector(NUM_REPLY_WORDS,32);
             packet_type    <= REPLY;
             crd_add_par_id <= c_card_addr & c_param_id;
             status         <= c_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
             ok_or_er       <= (others => '0');
          
-         elsif(fibre_current_state = REPLY_OK) then
+         elsif(fibre_current_state = STANDARD_REPLY) then
             if (r_cmd_code = READ_BLOCK or r_cmd_code = DATA) then 
                packet_size <= conv_std_logic_vector(rb_packet_size,PACKET_WORD_WIDTH);    
             else
@@ -486,7 +496,7 @@ begin
             status         <= r_cmd_code(15 downto 0) & ASCII_O & ASCII_K;
             ok_or_er       <= mop_error_code_i;        
          
-         elsif(fibre_current_state = DATA_FRAME) then
+         elsif(fibre_current_state = DATA_PACKET) then
             packet_size    <= conv_std_logic_vector(data_packet_size,PACKET_WORD_WIDTH);
             packet_type    <= DATA;
             crd_add_par_id <= frame_seq_num_i;
@@ -523,30 +533,30 @@ begin
 
       -- From fibre_rx
       -- Checksum error has occurred  
-      when ACK_C_NOP =>
+      when SKIP_COMMAND =>
          c_cmd_ack <= '1';
       
-      when ACK_R_NOP =>
+      when SKIP_REPLY =>
          r_cmd_ack <= '1';
 
-      when CK_ER_REPLY =>              
-         c_cmd_ack <= '1'; -- go to CK_ER_REPLY
+      when CMD_ERROR_REPLY =>              
+         c_cmd_ack <= '1'; -- go to CMD_ERROR_REPLY
          c_or_r    <= SERVICING_COMMAND;
 
       -- From fibre_rx
       -- command is reset or go....so generate an instant reply...      
-      when REPLY_GO_RS =>              
-         c_cmd_ack <= '1'; -- go to CK_ER_REPLY
+      when QUICK_REPLY =>              
+         c_cmd_ack <= '1'; -- go to CMD_ERROR_REPLY
          c_or_r    <= SERVICING_COMMAND;
            
       -- From reply_queue
-      when REPLY_OK =>   
-         r_cmd_ack <= '1'; -- go to DATA_FRAME 
+      when STANDARD_REPLY =>   
+         r_cmd_ack <= '1'; -- go to DATA_PACKET 
          c_or_r    <= SERVICING_REPLY;
 
       -- From reply_queue
-      when DATA_FRAME =>       
-         r_cmd_ack <= '1'; -- go to DATA_FRAME 
+      when DATA_PACKET =>       
+         r_cmd_ack <= '1'; -- go to DATA_PACKET 
          c_or_r    <= SERVICING_REPLY;
       
       ----------------------------------------

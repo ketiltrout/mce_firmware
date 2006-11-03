@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.60 2006/11/03 01:07:23 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.61 2006/11/03 01:11:29 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/11/03 01:07:23 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/11/03 01:11:29 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.61  2006/11/03 01:11:29  bburger
+-- Bryce:  spring cleaning!!!
+--
 -- Revision 1.60  2006/11/03 01:07:23  bburger
 -- Bryce:  corrected some port-map discrepancies
 --
@@ -406,6 +409,9 @@ architecture rtl of issue_reply is
       last_frame_i            : in std_logic;
       frame_seq_num_i         : in std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
 
+      -- input from the cmd_queue
+      busy_i                  : in std_logic;
+
       -- signals to / from fibre_tx
       fibre_tx_busy_i         : in std_logic;                                             -- transmit fifo full
       fibre_tx_rdy_o          : out std_logic;                                            -- transmit fifo write request
@@ -720,22 +726,22 @@ begin
    ------------------------------------------------------------------------ 
    i_reply_translator : reply_translator
    port map(
-      -- for testing
+      -- For testing
       debug_o           => debug_o,
 
-      -- global inputs 
+      -- Global inputs 
       rst_i             => rst_i,
       clk_i             => clk_i,
       crc_err_en_i      => crc_err_en_i,
 
-      -- signals to/from cmd_translator    
+      -- Signals to/from cmd_translator    
       cmd_rcvd_er_i     => cksum_err,
       cmd_rcvd_ok_i     => cmd_rdy,
       c_cmd_code_i      => c_cmd_code,
       c_card_addr_i     => c_card_addr,
       c_param_id_i      => c_param_id,            
 
-      -- signals to/from reply queue
+      -- Signals to/from reply queue
       r_cmd_code_i      => r_cmd_code,
       r_card_addr_i     => r_card_addr,
       r_param_id_i      => r_param_id,       
@@ -745,13 +751,15 @@ begin
       num_fibre_words_i => num_fibre_words,
       fibre_word_ack_o  => fibre_word_ack,
       fibre_word_rdy_i  => fibre_word_rdy,
-      mop_ack_o         => m_op_ack,    
-
+      mop_ack_o         => m_op_ack,  
       cmd_stop_i        => reply_cmd_stop,
       last_frame_i      => reply_last_frame,
       frame_seq_num_i   => reply_frame_seq_num,
 
-      -- signals to / from fibre_tx
+      -- Signals from cmd_queue
+      busy_i            => busy,
+      
+      -- Signals to / from fibre_tx
       fibre_tx_rdy_o    => fibre_tx_rdy,
       fibre_tx_busy_i   => fibre_tx_busy,   
       fibre_tx_dat_o    => fibre_tx_dat

@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.46 2006/09/26 02:16:05 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator.vhd,v 1.47 2006/10/19 21:59:55 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/26 02:16:05 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/19 21:59:55 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator.vhd,v $
+-- Revision 1.47  2006/10/19 21:59:55  bburger
+-- Bryce: added support for the crc_err_en command,  and for the stop ret_dat command
+--
 -- Revision 1.46  2006/09/26 02:16:05  bburger
 -- Bryce: added busy_i interface for arbitration between ret_dat, internal and simple commands
 --
@@ -350,10 +353,6 @@ architecture rtl of cmd_translator is
    signal frame_seq_num_reg            : std_logic_vector (    PACKET_WORD_WIDTH-1 downto 0);
    signal frame_sync_num_reg           : std_logic_vector (       SYNC_NUM_WIDTH-1 downto 0); 
 
---   signal data_req                     : std_logic;
---   signal dat_req                      : std_logic;
---   signal dat_ack                      : std_logic;
-
 begin
 
    -------------------------------------------------------------------------------------------
@@ -378,18 +377,12 @@ begin
       dv_mode_i              => dv_mode_i,        
       external_dv_i          => external_dv_i,    
       external_dv_num_i      => external_dv_num_i,
---      ret_dat_req_i          => dat_req,
---      ret_dat_ack_o          => dat_ack,
 
       -- other inputs
-      --sync_pulse_i           => sync_pulse_i,
       sync_number_i          => sync_number_i,               -- a counter of synch pulses 
       internal_cmd_window_o  => ret_dat_internal_cmd_window,
       cmd_code_i             => cmd_code_i,
       cmd_rdy_i              => cmd_rdy_i,
---      ret_dat_start_i        => '0',
---      ret_dat_stop_i         => '0',
---      ret_dat_cmd_valid_o    => open, --ret_dat_cmd_valid,
       row_len_i              => row_len_i,
       num_rows_i             => num_rows_i,
 
