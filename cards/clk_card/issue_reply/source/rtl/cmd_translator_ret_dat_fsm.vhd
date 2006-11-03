@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.42 2006/10/24 17:07:00 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_ret_dat_fsm.vhd,v 1.43 2006/10/28 00:04:42 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/10/24 17:07:00 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/28 00:04:42 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_ret_dat_fsm.vhd,v $
+-- Revision 1.43  2006/10/28 00:04:42  bburger
+-- Bryce:  added range to an integer, and fixed a bug to do with external dv pulses
+--
 -- Revision 1.42  2006/10/24 17:07:00  bburger
 -- Bryce:  Commented code
 --
@@ -404,7 +407,7 @@ begin
          parameter_id_o        <= parameter_id_reg;
          data_size_o           <= data_size;    
          data_o                <= data_reg;         
-         cmd_code_o            <= READ_BLOCK;
+         cmd_code_o            <= DATA;
          data_clk_o            <= '0';  
          internal_cmd_window_o <= window;         
       else

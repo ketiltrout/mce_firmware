@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.37 2006/09/28 00:34:18 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.38 2006/10/02 18:45:28 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.38  2006/10/02 18:45:28  bburger
+-- Bryce:  explicity cased the "WAIT_FOR_ACK" state
+--
 -- Revision 1.37  2006/09/28 00:34:18  bburger
 -- Bryce:  now asserts cmd_sent_o/ mop_ack_o only when there is no data left in the queues.  This prevents short responses interfering with long ones.
 --
@@ -188,7 +191,7 @@ architecture behav of reply_queue is
    signal tes_bias_step_level  : std_logic;
    
    signal data_size            : integer;
-   signal data                 : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal data_bus             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal error_code           : std_logic_vector(30 downto 0);
    signal word_rdy             : std_logic; -- word is valid
    signal word_ack             : std_logic;
@@ -251,7 +254,7 @@ begin
    port map(
       address  => head_address,
       clock    => clk_i,
-      data     => data,
+      data     => data_bus,
       wren     => head_wren,
       q        => head_q
    );
@@ -449,7 +452,7 @@ begin
                   -- and allow the next reply to overwrite the reset's reply.
                   next_retire_state <= IDLE;
                elsif(internal_cmd = '1') then
-                  if(cmd_code = READ_BLOCK) then
+                  if(cmd_code = READ_BLOCK or cmd_code = DATA) then
                      -- If this is an internal command, store the data
                      next_retire_state <= STORE_HEADER_WORD;
                   else
@@ -469,7 +472,7 @@ begin
                if (par_id = RET_DAT_ADDR) then
                   next_retire_state <= TX_ROW_LEN;
                -- If this is a RB
-               elsif (cmd_code = READ_BLOCK) then
+               elsif (cmd_code = READ_BLOCK or cmd_code = DATA) then
                   next_retire_state <= REPLY;
                -- If this is a WB
                else
@@ -546,7 +549,7 @@ begin
          when TX_HEADER =>
             -- The "- 1" is to compensate for single words sent at the end of the header
             -- i.e. sync_num (TX_SYNC_NUM)
-            if(word_count >= NUM_RAM_HEAD_WORDS) then
+            if(word_count >= NUM_RAM_HEAD_WORDS-1) then
                next_retire_state <= TX_SEND_DATA;
             end if;
 
@@ -570,7 +573,7 @@ begin
    -- In particular, external_dv_num_i should be registered by cmd_queue at the time of issue..maybe..
    with present_retire_state select
       data_o <=
-         data                                     when TX_STATUS | TX_SEND_DATA | REPLY,
+         data_bus                                 when TX_STATUS | TX_SEND_DATA | REPLY,
          data_rate_i                              when TX_DATA_RATE,
          conv_std_logic_vector(row_len_i,32)      when TX_ROW_LEN,
          conv_std_logic_vector(num_rows_i,32)     when TX_NUM_ROWS,
@@ -744,7 +747,7 @@ begin
          -- fibre interface:
          size_o            => data_size,
          error_o           => error_code,
-         data_o            => data,
+         data_o            => data_bus,
          rdy_o             => word_rdy,
          ack_i             => word_ack,
         

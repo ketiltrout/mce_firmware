@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.27  2006/10/28 00:10:07  bburger
+-- Bryce:  Moved some command timeout constants from here to issue_reply_pack
+--
 -- Revision 1.26  2006/09/15 00:48:36  bburger
 -- Bryce:  Cleaned up the data word acknowledgement chain to speed things up.  Untested in hardware.  Data packets are un-simulated
 --
@@ -794,7 +797,7 @@ begin
             -- If the status word is acknowledged
             if(ack_i = '1') then
                -- If there is data to read
-               if(cmd_code_i = READ_BLOCK) then
+               if(cmd_code_i = READ_BLOCK or cmd_code_i = DATA) then
                   case card_addr_i is
                      when CLOCK_CARD | POWER_SUPPLY_CARD => 
                         next_state <= READ_CC;

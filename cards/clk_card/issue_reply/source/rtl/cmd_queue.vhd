@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.97 2006/09/21 16:08:38 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.98 2006/09/26 02:14:19 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.98  2006/09/26 02:14:19  bburger
+-- Bryce:  Added the busy_o inteface to delay the arbiter in priming itself with a new ret_dat command -- which will allow us to issued infrequent commands like internal commands at timed intervals without interference from ret_dat fsm
+--
 -- Revision 1.97  2006/09/21 16:08:38  bburger
 -- Bryce:  Added support for the TES Bias Step internal commands
 --
@@ -468,7 +471,7 @@ begin
             next_state <= IS_THERE_DATA;
 
          when IS_THERE_DATA =>
-            if(cmd_code = READ_BLOCK or data_size = 0) then
+            if(cmd_code = READ_BLOCK or cmd_code = DATA) then -- or data_size = 0
                next_state <= DONE_STORE;
             else
                next_state <= STROBE_DETECT;
@@ -525,7 +528,7 @@ begin
                if(previous_state = HEADER_A) then
                   next_state <= HEADER_B;
                elsif(previous_state = HEADER_B) then
-                  if(cmd_code = READ_BLOCK or data_size = 0) then
+                  if(cmd_code = READ_BLOCK or cmd_code = DATA) then -- or data_size = 0
                      next_state <= CHECKSUM;
                   else
                      next_state <= DATA_WORD;
@@ -580,7 +583,7 @@ begin
       end case;
    end process;
 
-   bb_cmd_code <= READ_CMD when cmd_code = READ_BLOCK else WRITE_CMD;
+   bb_cmd_code <= READ_CMD when (cmd_code = READ_BLOCK or cmd_code = DATA) else WRITE_CMD;
 
    data_size_int_t <= conv_integer(data_size);
    misc_registers: process(clk_i, rst_i)
@@ -599,7 +602,7 @@ begin
          end if;
          
          if(present_state = WAIT_TO_ISSUE) then
-            if(cmd_code = READ_BLOCK) then
+            if(cmd_code = READ_BLOCK or cmd_code = DATA) then
                crc_num_bits <= (BB_NUM_CMD_HEADER_WORDS * QUEUE_WIDTH);
             else
                crc_num_bits <= ((BB_NUM_CMD_HEADER_WORDS + data_size_int_t) * QUEUE_WIDTH);
@@ -673,7 +676,7 @@ begin
          when IS_THERE_DATA =>
             -- Asserting mop_ack_o causes cmd_translator to begin passing data through to cmd_queue.
             -- Assert mop_ack_o here if there is data.
-            if(cmd_code /= READ_BLOCK) then --data_size /= 0) then
+            if(cmd_code /= READ_BLOCK and cmd_code /= DATA) then --data_size /= 0) then
                mop_ack_o         <= '1';
             end if;
          
