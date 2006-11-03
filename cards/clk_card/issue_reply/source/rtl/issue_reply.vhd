@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.58 2006/10/28 00:05:37 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: issue_reply.vhd,v 1.59 2006/10/31 01:40:15 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:        Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/10/28 00:05:37 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/10/31 01:40:15 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: issue_reply.vhd,v $
+-- Revision 1.59  2006/10/31 01:40:15  bburger
+-- Bryce:  fixed some port mismatches
+--
 -- Revision 1.58  2006/10/28 00:05:37  bburger
 -- Bryce:  Added signals between reply_queue and reply_translator
 --
@@ -246,14 +249,14 @@ architecture rtl of issue_reply is
 
       -- outputs to the cmd_queue
       frame_seq_num_o       : out std_logic_vector (       PACKET_WORD_WIDTH-1 downto 0);
-      frame_sync_num_o      : out std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0);
+      frame_sync_num_o      : out std_logic_vector (          SYNC_NUM_WIDTH-1 downto 0)
 
       -- outputs to reply_translator for commands that require quick acknowldgements
-      reply_cmd_rcvd_er_o   : out std_logic;
-      reply_cmd_rcvd_ok_o   : out std_logic;
-      reply_cmd_code_o      : out std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
-      reply_param_id_o      : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);        -- the parameter ID
-      reply_card_id_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)         -- specifies which card the command is targetting
+--      reply_cmd_rcvd_er_o   : out std_logic;
+--      reply_cmd_rcvd_ok_o   : out std_logic;
+--      reply_cmd_code_o      : out std_logic_vector (FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
+--      reply_param_id_o      : out std_logic_vector (FIBRE_PARAMETER_ID_WIDTH-1 downto 0);        -- the parameter ID
+--      reply_card_id_o       : out std_logic_vector (FIBRE_CARD_ADDRESS_WIDTH-1 downto 0)         -- specifies which card the command is targetting
 
    ); 
    end component;
@@ -398,7 +401,7 @@ architecture rtl of issue_reply is
       r_param_id_i            : in  std_logic_vector (BB_PARAMETER_ID_WIDTH-1 downto 0);   
           
       -- signals to/from reply queue 
-      mop_rdy_i               : in  std_logic;                                                 -- macro op response ready to be processed
+      r_cmd_rdy_i             : in  std_logic;                                                 -- macro op response ready to be processed
       mop_error_code_i        : in  std_logic_vector (PACKET_WORD_WIDTH-1      downto 0);      -- macro op success (others => '0') else error code
       fibre_word_i            : in  std_logic_vector (PACKET_WORD_WIDTH-1     downto 0);      -- packet word read from reply queue
       num_fibre_words_i       : in  integer ;                                                 -- indicate number of packet words to be read from reply queue
@@ -741,9 +744,8 @@ begin
       -- signals to/from reply queue
       r_cmd_code_i      => r_cmd_code,
       r_card_addr_i     => r_card_addr,
-      r_param_id_i      => r_param_id,         
-
-      mop_rdy_i         => m_op_rdy,  
+      r_param_id_i      => r_param_id,       
+      r_cmd_rdy_i       => m_op_rdy,  
       mop_error_code_i  => m_op_error_code, 
       fibre_word_i      => fibre_word,
       num_fibre_words_i => num_fibre_words,
