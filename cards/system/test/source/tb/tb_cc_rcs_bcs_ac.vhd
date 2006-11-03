@@ -15,7 +15,7 @@
 -- Vancouver BC, V6T 1Z1
 -- 
 --
--- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.36 2006/10/24 17:17:59 bburger Exp $
+-- $Id: tb_cc_rcs_bcs_ac.vhd,v 1.37 2006/10/28 00:12:25 bburger Exp $
 --
 -- Project:      Scuba 2
 -- Author:       Bryce Burger
@@ -28,6 +28,9 @@
 --
 -- Revision history:
 -- $Log: tb_cc_rcs_bcs_ac.vhd,v $
+-- Revision 1.37  2006/10/28 00:12:25  bburger
+-- Bryce:  Added several more test cases
+--
 -- Revision 1.36  2006/10/24 17:17:59  bburger
 -- Bryce:  Nothing new
 --
@@ -2224,41 +2227,41 @@ begin
 ------------------------------------------------------
 --  2:  A Single Data Packet
 ------------------------------------------------------
---      command <= command_wb;
---      address_id <= all_row_len_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000080";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 125 us;
---      
---      command <= command_wb;
---      address_id <= all_num_rows_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000004";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 125 us;
---
---      command <= command_wb;
---      address_id <= cc_ret_dat_s_cmd;
---      data_valid <= X"00000002";
---      data       <= X"0000000F";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 20 us;
---
---      command <= command_go;
---      address_id <= rc1_ret_dat_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 500 us;
+      command <= command_wb;
+      address_id <= all_row_len_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000080";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+      
+      command <= command_wb;
+      address_id <= all_num_rows_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000004";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 125 us;
+
+      command <= command_wb;
+      address_id <= cc_ret_dat_s_cmd;
+      data_valid <= X"00000002";
+      data       <= X"0000000F";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 20 us;
+
+      command <= command_go;
+      address_id <= rc1_ret_dat_cmd;
+      data_valid <= X"00000001";
+      data       <= X"00000001";
+      load_preamble;
+      load_command;
+      load_checksum;
+      wait for 500 us;
 
 ------------------------------------------------------
 --  3:  DV Pulses from Fibre Input -- only 2 frames should be returned
@@ -2523,59 +2526,59 @@ begin
 --  6:  Testing Stop Commands.  
 --  The appropriate bits should be set in the last packet
 ------------------------------------------------------
-      command <= command_wb;
-      address_id <= all_row_len_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000080";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-      
-      command <= command_wb;
-      address_id <= all_num_rows_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000004";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 125 us;
-
-      command <= command_wb;
-      address_id <= cc_ret_dat_s_cmd;
-      data_valid <= X"00000002";
-      data       <= X"00000002";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-
-      command <= command_wb;
-      address_id <= cc_data_rate_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000010";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 20 us;
-      
-      command <= command_go;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us;
-
-      command <= command_st;
-      address_id <= rc1_ret_dat_cmd;
-      data_valid <= X"00000001";
-      data       <= X"00000001";
-      load_preamble;
-      load_command;
-      load_checksum;
-      wait for 500 us;
+--      command <= command_wb;
+--      address_id <= all_row_len_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000080";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--      
+--      command <= command_wb;
+--      address_id <= all_num_rows_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000004";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 125 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_ret_dat_s_cmd;
+--      data_valid <= X"00000002";
+--      data       <= X"00000002";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--
+--      command <= command_wb;
+--      address_id <= cc_data_rate_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000010";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 20 us;
+--      
+--      command <= command_go;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 500 us;
+--
+--      command <= command_st;
+--      address_id <= rc1_ret_dat_cmd;
+--      data_valid <= X"00000001";
+--      data       <= X"00000001";
+--      load_preamble;
+--      load_command;
+--      load_checksum;
+--      wait for 2000 us;
 
 ------------------------------------------------------
 --  Testing Clock Selection Commands
@@ -2650,15 +2653,6 @@ begin
 ------------------------------------------------------
 --  Testing New Fibre Protocol
 ------------------------------------------------------
---      command <= command_rs;
---      address_id <= psu_cycle_pow_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000001";
---      load_preamble;
---      load_command;
---      load_checksum;
---      wait for 300 us;
---
 --      command <= command_wb;
 --      address_id <= cc_led_cmd;
 --      data_valid <= X"0000003A";
@@ -2685,16 +2679,6 @@ begin
 --      load_command;
 --      load_checksum;            
 --      wait for 15 us;
---
---      -- From Manchester = 2
---      command <= command_wb;
---      address_id <= cc_use_dv_cmd;
---      data_valid <= X"00000001";
---      data       <= X"00000002";
---      load_preamble;
---      load_command;
---      load_checksum;            
---      wait for 53 us;
 --
 --      command <= command_wb;
 --      address_id <= cc_led_cmd;
@@ -2730,7 +2714,7 @@ begin
 --      load_preamble;
 --      load_command;
 --      load_checksum;
---      wait for 600 us;
+--      wait for 1200 us;
 
 ------------------------------------------------------
 --  PSU Testing
