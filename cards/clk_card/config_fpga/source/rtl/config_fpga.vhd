@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: config_fpga.vhd,v 1.2 2006/04/29 00:52:36 bburger Exp $
+-- $Id: config_fpga.vhd,v 1.3 2006/05/29 23:11:00 bburger Exp $
 --
 -- Project:       SCUBA-2
 -- Author:        Bryce Burger
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: config_fpga.vhd,v $
+-- Revision 1.3  2006/05/29 23:11:00  bburger
+-- Bryce: Removed unused signals to simplify code and remove warnings from Quartus II
+--
 -- Revision 1.2  2006/04/29 00:52:36  bburger
 -- Bryce:
 -- - fw_rev:  added a 'when others' statement to a state machine
@@ -51,6 +54,9 @@ use ieee.std_logic_1164.all;
 library sys_param;
 use sys_param.command_pack.all;
 use sys_param.wishbone_pack.all;
+
+library components;
+use components.component_pack.all;
 
 entity config_fpga is
    port(
@@ -76,24 +82,34 @@ end config_fpga;
 
 architecture top of config_fpga is
    
+   type out_states is (IDLE, SEL_FAC, SEL_APP, CONFIG_FAC, CONFIG_APP); 
+   signal current_out_state : out_states;
+   signal next_out_state    : out_states;
+
    -- FSM inputs
-   signal wr_cmd          : std_logic;
-   signal rd_cmd          : std_logic;
---   signal master_wait     : std_logic;
+   signal wr_cmd        : std_logic;
+   signal rd_cmd        : std_logic;
 
    -- WBS states:
    type states is (IDLE, WR, RD); 
-   signal current_state   : states;
-   signal next_state      : states;
+   signal current_state : states;
+   signal next_state    : states;
 
-   type out_states is (IDLE, SEL_FAC, SEL_APP, CONFIG_FAC, CONFIG_APP); 
-   signal current_out_state   : out_states;
-   signal next_out_state      : out_states;
-
-   signal config_n    : std_logic;
-   signal epc16_sel_n : std_logic;
+   signal config_n      : std_logic;
+   signal epc16_sel_n   : std_logic;
    
+   signal timeout_clr   : std_logic;
+   signal timeout_count : integer;
+
 begin
+
+   timeout_timer : us_timer
+   port map
+   (
+      clk => clk_i,
+      timer_reset_i => timeout_clr,
+      timer_count_o => timeout_count
+   );
 
    ------------------------------------------------------------
    --  WB FSM
@@ -111,7 +127,7 @@ begin
       end if;
    end process state_FF;
    
-   out_state_NS: process(current_out_state, config_n, epc16_sel_n)
+   out_state_NS: process(current_out_state, config_n, epc16_sel_n, timeout_count)
    begin
       -- Default assignments
       next_out_state <= current_out_state;
@@ -125,16 +141,24 @@ begin
             end if;                  
             
          when SEL_FAC =>     
-            next_out_state <= CONFIG_FAC;            
-
+            if(timeout_count > 1024) then
+               next_out_state <= CONFIG_FAC;            
+            end if;
+            
          when CONFIG_FAC =>     
-            -- Stay in this state indefinately
+            if(timeout_count > 1024) then
+               next_out_state <= IDLE;            
+            end if;
          
          when SEL_APP =>     
-            next_out_state <= CONFIG_APP;            
+            if(timeout_count > 1024) then
+               next_out_state <= CONFIG_APP;            
+            end if;
 
          when CONFIG_APP =>     
-            -- Stay in this state indefinately
+            if(timeout_count > 1024) then
+               next_out_state <= IDLE;            
+            end if;
 
          when others =>
             next_out_state <= IDLE;
@@ -142,28 +166,49 @@ begin
       end case;
    end process out_state_NS;
 
-   out_state_out: process(current_out_state)
+   out_state_out: process(current_out_state, timeout_count)
    begin
       -- Default assignments
       config_n_o    <= '1';  -- '0' triggers reconfiguration
       epc16_sel_n_o <= '1';  -- '1'=Factory, '0'=Application
+      timeout_clr   <= '1';
      
       case current_out_state is         
          when IDLE  =>                   
             
          when SEL_FAC =>     
-            epc16_sel_n_o <= '1';  -- '1'=Factory, '0'=Application
+            epc16_sel_n_o <= '1';
+
+            if(timeout_count <= 1024) then
+               -- Allow for a long settling time for the epc16_sel_n_o signal
+               timeout_clr   <= '0';
+            end if;
          
          when CONFIG_FAC =>     
-            config_n_o    <= '0';  -- '0' triggers reconfiguration
-            epc16_sel_n_o <= '1';  -- '1'=Factory, '0'=Application
+            config_n_o    <= '0';  
+            epc16_sel_n_o <= '1';  
+
+            if(timeout_count <= 1024) then
+               -- Allow for a long settling time for the epc16_sel_n_o signal
+               timeout_clr   <= '0';
+            end if;
 
          when SEL_APP =>     
-            epc16_sel_n_o <= '0';  -- '1'=Factory, '0'=Application
+            epc16_sel_n_o <= '0';  
+
+            if(timeout_count <= 1024) then
+               -- Allow for a long settling time for the epc16_sel_n_o signal
+               timeout_clr   <= '0';
+            end if;
          
          when CONFIG_APP =>     
-            config_n_o    <= '0';  -- '0' triggers reconfiguration
-            epc16_sel_n_o <= '0';  -- '1'=Factory, '0'=Application
+            config_n_o    <= '0';  
+            epc16_sel_n_o <= '0';  
+
+            if(timeout_count <= 1024) then
+               -- Allow for a long settling time for the epc16_sel_n_o signal
+               timeout_clr   <= '0';
+            end if;
 
          when others =>
          
@@ -237,8 +282,6 @@ begin
    ------------------------------------------------------------  
    dat_o <= (others => '0');
    
---   master_wait <= '1' when ( stb_i = '0' and cyc_i = '1') else '0';   
-           
    rd_cmd  <= '1' when 
       (stb_i = '1' and cyc_i = '1' and we_i = '0') and 
       (addr_i = CONFIG_FAC_ADDR or addr_i = CONFIG_APP_ADDR) else '0'; 
