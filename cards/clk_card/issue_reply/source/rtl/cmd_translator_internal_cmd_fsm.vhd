@@ -20,7 +20,7 @@
 
 -- 
 --
--- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.9 2006/09/26 02:16:44 bburger Exp $>
+-- <revision control keyword substitutions e.g. $Id: cmd_translator_internal_cmd_fsm.vhd,v 1.10 2006/09/28 00:32:24 bburger Exp $>
 --
 -- Project:       SCUBA-2
 -- Author:         Jonathan Jacob
@@ -33,9 +33,12 @@
 --
 -- Revision history:
 -- 
--- <date $Date: 2006/09/26 02:16:44 $> -     <text>      - <initials $Author: bburger $>
+-- <date $Date: 2006/09/28 00:32:24 $> -     <text>      - <initials $Author: bburger $>
 --
 -- $Log: cmd_translator_internal_cmd_fsm.vhd,v $
+-- Revision 1.10  2006/09/28 00:32:24  bburger
+-- Bryce:  Caught a bug that specified the TES_BIAS_DATA_SIZE = 32.
+--
 -- Revision 1.9  2006/09/26 02:16:44  bburger
 -- Bryce:  cleaned up unnecessary signals
 --
@@ -103,15 +106,15 @@ port(
       -- outputs to the macro-instruction arbiter
       card_addr_o            : out std_logic_vector(BB_CARD_ADDRESS_WIDTH-1 downto 0);  -- specifies which card the command is targetting
       parameter_id_o         : out std_logic_vector(BB_PARAMETER_ID_WIDTH-1 downto 0);  -- comes from reg_addr_i, indicates which device(s) the command is targetting
-      data_size_o            : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);  -- data_size_i, indicates number of 16-bit words of data
-      data_o                 : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);  -- data will be passed straight thru in 16-bit words
-      data_clk_o             : out std_logic;                                               -- for clocking out the data
-      instr_rdy_o            : out std_logic;                                               -- ='1' when the data is valid, else it's '0'
+      data_size_o            : out std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0);     -- data_size_i, indicates number of 16-bit words of data
+      data_o                 : out std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);      -- data will be passed straight thru in 16-bit words
+      data_clk_o             : out std_logic;                                           -- for clocking out the data
+      instr_rdy_o            : out std_logic;                                           -- ='1' when the data is valid, else it's '0'
       cmd_code_o             : out std_logic_vector(FIBRE_PACKET_TYPE_WIDTH-1 downto 0);
       tes_bias_step_level_o  : out std_logic;
       
       -- input from the macro-instruction arbiter
-      ack_i                  : in  std_logic                                                -- acknowledgment from the arbiter that it is ready and has grabbed the data
+      ack_i                  : in  std_logic                                            -- acknowledgment from the arbiter that it is ready and has grabbed the data
    );  
      
 end cmd_translator_internal_cmd_fsm;
@@ -141,7 +144,6 @@ architecture rtl of cmd_translator_internal_cmd_fsm is
    
    signal timer_rst           : std_logic;
    signal time                : integer;
---   signal data_clk            : std_logic;
 
 begin
 
@@ -158,12 +160,10 @@ begin
          tes_bias_toggle_req     <= '0';
          next_toggle_sync        <= (others => '0');
          toggle_which_way        <= '1';
---         data_clk                <= '0';
          toggle_en_delayed       <= '0';
 
       elsif clk_i'event and clk_i = '1' then 
          
---         data_clk          <= not data_clk;
          toggle_en_delayed <= tes_bias_toggle_en_i;
          timer_rst         <= '0';
          
@@ -181,6 +181,7 @@ begin
             toggle_which_way     <= not toggle_which_way;
          end if;
          
+         -- If it's time to toggle, or we detect a rising edge on the toggle enable line.
          if(update_nts = '1' or (toggle_en_delayed = '0' and tes_bias_toggle_en_i = '1')) then
             next_toggle_sync <= sync_number_i + tes_bias_toggle_rate_i;
          end if;
@@ -212,58 +213,46 @@ begin
    -------------------------------------------------------------------------------------------
    -- assign next state
    -------------------------------------------------------------------------------------------       
-   next_state_fsm: process(internal_status_req, tes_bias_toggle_req, ack_i, current_state)
+   next_state_fsm: process(internal_status_req, tes_bias_toggle_req, ack_i, current_state, tes_bias_toggle_en_i)
    begin
       next_state <= current_state;
       
       case current_state is
          when IDLE =>
-            if(internal_status_req = '1' or tes_bias_toggle_req = '1') then
+            if(tes_bias_toggle_en_i = '1' and tes_bias_toggle_req = '1') then
                next_state <= TES_BIAS;
-            end if;
-            
-         when TES_BIAS =>
-            if(tes_bias_toggle_req = '1') then
-               if(ack_i = '1') then
-                  next_state <= LATCH_TES_BIAS_DATA;
-               end if;
-            else
+            -- If toggling is enabled, internal commands are disabled to preserve the timing of the toggle commands
+            elsif(tes_bias_toggle_en_i = '0' and internal_status_req = '1') then
                next_state <= FPGA_TEMP;
+            end if;
+
+         when TES_BIAS =>
+            if(ack_i = '1') then
+               next_state <= LATCH_TES_BIAS_DATA;
             end if;
 
          when LATCH_TES_BIAS_DATA =>
             if(ack_i = '1') then
-               next_state <= FPGA_TEMP;
+               next_state <= IDLE;
             end if;
 
          when FPGA_TEMP =>
-            if(internal_status_req = '1') then
-               if(ack_i = '1') then
-                  next_state <= CARD_TEMP;
-               end if;
-            else
+            if(ack_i = '1') then
                next_state <= CARD_TEMP;
             end if;
             
          when CARD_TEMP =>
-            if(internal_status_req = '1') then
-               if(ack_i = '1') then
-                  next_state <= PSC_STATUS;
-               end if;
-            else
+            if(ack_i = '1') then
                next_state <= PSC_STATUS;
             end if;
 
          when PSC_STATUS =>
-            if(internal_status_req = '1') then
-               if(ack_i = '1') then
-                  next_state <= IDLE;
-               end if;
-            else
-               next_state <= IDLE;
+            if(ack_i = '1') then
+               next_state <= DONE;
             end if;
 
          when DONE =>
+            next_state <= IDLE;
          
          
          when others =>
@@ -315,9 +304,6 @@ begin
                   data_o         <= tes_bias_high_i;
                end if;
                
---               if(ack_i = '1') then
---                  tes_bias_toggle_ack <= '1';
---               end if;
             end if;
 
          when LATCH_TES_BIAS_DATA =>
@@ -382,6 +368,8 @@ begin
             end if;
 
          when DONE =>
+            internal_status_ack  <= '1';
+
          when others =>
           
       end case;   
