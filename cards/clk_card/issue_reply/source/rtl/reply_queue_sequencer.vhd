@@ -32,6 +32,9 @@
 -- Revision history:
 -- 
 -- $Log: reply_queue_sequencer.vhd,v $
+-- Revision 1.28  2006/11/03 01:10:53  bburger
+-- Bryce:  Added support for the DATA cmd_code
+--
 -- Revision 1.27  2006/10/28 00:10:07  bburger
 -- Bryce:  Moved some command timeout constants from here to issue_reply_pack
 --
@@ -587,8 +590,8 @@ begin
             timer_count_o => timeout_count);
    
    timeout <= '1' when 
-      (par_id_i /= RET_DAT_ADDR and timeout_count >= CMD_TIMEOUT_LIMIT) or
-      (par_id_i = RET_DAT_ADDR and timeout_count >= DATA_TIMEOUT_LIMIT) else '0';  -- TIMEOUT_LIMIT is defined in reply_queue_pack   
+      (cmd_code_i /= DATA and timeout_count >= CMD_TIMEOUT_LIMIT) or
+      (cmd_code_i = DATA and timeout_count >= DATA_TIMEOUT_LIMIT) else '0';  -- TIMEOUT_LIMIT is defined in reply_queue_pack   
       
    ---------------------------------------------------------
    -- Sequencer FSM

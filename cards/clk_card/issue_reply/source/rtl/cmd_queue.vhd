@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.98 2006/09/26 02:14:19 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.99 2006/11/03 01:10:53 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.99  2006/11/03 01:10:53  bburger
+-- Bryce:  Added support for the DATA cmd_code
+--
 -- Revision 1.98  2006/09/26 02:14:19  bburger
 -- Bryce:  Added the busy_o inteface to delay the arbiter in priming itself with a new ret_dat command -- which will allow us to issued infrequent commands like internal commands at timed intervals without interference from ret_dat fsm
 --
@@ -442,7 +445,7 @@ begin
    end process;
    
    state_NS: process(present_state, mop_rdy_i, data_size, data_clk_i, data_count, cmd_code, uop_ack_i,
-   uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state, par_id)
+   uop_send_expired, issue_sync, timeout_sync, sync_num_i, lvds_tx_busy, bit_ctr_count, previous_state)
    begin
       next_state <= present_state;
       case present_state is
@@ -498,7 +501,8 @@ begin
          -- Issue Command
          -----------------------------------------------------
          when WAIT_TO_ISSUE =>
-            if(par_id /= RET_DAT_ADDR) then
+--            if(par_id /= RET_DAT_ADDR) then
+            if(cmd_code /= DATA) then
                next_state <= HEADER_A;
 -- If a data command has timed out, then a flag must be included in the header
 -- This is to indicate that the timing has jitter..
