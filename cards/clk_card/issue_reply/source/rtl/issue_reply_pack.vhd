@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: issue_reply_pack.vhd,v 1.50 2006/10/19 22:19:32 bburger Exp $
+-- $Id: issue_reply_pack.vhd,v 1.51 2006/10/28 00:06:46 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Greg Dennis
@@ -29,6 +29,9 @@
 --
 -- Revision history:
 -- $Log: issue_reply_pack.vhd,v $
+-- Revision 1.51  2006/10/28 00:06:46  bburger
+-- Bryce:  Changed the command timeout limits
+--
 -- Revision 1.50  2006/10/19 22:19:32  bburger
 -- Bryce:  Interim committal
 --
@@ -117,11 +120,12 @@ package issue_reply_pack is
    constant PSC_STATUS_DATA_SIZE : std_logic_vector(BB_DATA_SIZE_WIDTH-1 downto 0) := "00000001001"; --  9 words
 
    -- number of frame header words stored in RAM
-   constant NUM_RAM_HEAD_WORDS : integer := 41;
-   constant RAM_HEAD_ADDR_WIDTH : integer := 6;
+   constant NUM_RAM_HEAD_WORDS  : integer := 41;
+   constant RAM_HEAD_ADDR_WIDTH : integer :=  6;
 
-   constant FPGA_TEMP_OFFSET  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "000000"; --  1 word  
-   constant CARD_TEMP_OFFSET  : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "001001";
-   constant PSC_STATUS_OFFSET : std_logic_vector(RAM_HEAD_ADDR_WIDTH-1 downto 0) := "010010"; --  9 words
+   constant FPGA_TEMP_SIZE  : integer := 10; -- Includes space for fpga_temp errno word
+   constant CARD_TEMP_SIZE  : integer := 10; -- Includes space for fpga_temp errno word
+   constant PSC_STATUS_SIZE : integer :=  8; -- Includes space for card_temp errno word
+   constant BOX_TEMP_SIZE   : integer :=  2; -- Includes space for fpga_temp errno word
    
 end issue_reply_pack;
