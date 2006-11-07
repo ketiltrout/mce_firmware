@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: reply_queue.vhd,v 1.38 2006/10/02 18:45:28 bburger Exp $
+-- $Id: reply_queue.vhd,v 1.39 2006/11/03 01:10:53 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger, Ernie Lin
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: reply_queue.vhd,v $
+-- Revision 1.39  2006/11/03 01:10:53  bburger
+-- Bryce:  Added support for the DATA cmd_code
+--
 -- Revision 1.38  2006/10/02 18:45:28  bburger
 -- Bryce:  explicity cased the "WAIT_FOR_ACK" state
 --
@@ -192,6 +195,7 @@ architecture behav of reply_queue is
    
    signal data_size            : integer;
    signal data_bus             : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
+   signal header_data_bus      : std_logic_vector(PACKET_WORD_WIDTH-1 downto 0);
    signal error_code           : std_logic_vector(30 downto 0);
    signal word_rdy             : std_logic; -- word is valid
    signal word_ack             : std_logic;
@@ -208,7 +212,7 @@ architecture behav of reply_queue is
    signal reg_en               : std_logic;
 
    -- Retire FSM:  waits for replies from the Bus Backplane, and retires pending instructions in the the command queue
-   type retire_states is (IDLE, LATCH_CMD, HEADERA, HEADERB, HEADERC, HEADERD, RECEIVED, WAIT_FOR_MATCH, REPLY, 
+   type retire_states is (IDLE, LATCH_CMD, RECEIVED, WAIT_FOR_MATCH, REPLY, STORE_ERRNO_HEADER_WORD,
       STORE_HEADER_WORD, NEXT_HEADER_WORD, DONE_HEADER_STORE, TX_HEADER, TX_SYNC_NUM, TX_ACTIVE_CLK, TX_SYNC_BOX_ERR, TX_SYNC_BOX_FR, 
       TX_DATA_RATE, TX_ROW_LEN, TX_NUM_ROWS, TX_FRAME_SEQUENCE_NUM, TX_SEND_DATA, WAIT_FOR_ACK, TX_STATUS, TX_DV_NUM, INTERNAL_WB, TX_TES_BIAS_LEVEL);
    signal present_retire_state : retire_states;
@@ -216,7 +220,7 @@ architecture behav of reply_queue is
 
    -- signals for header RAM
    signal head_address         : std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
-   signal head_offset          : std_logic_vector (RAM_HEAD_ADDR_WIDTH-1 downto 0);
+   signal head_offset          : integer;
 
    signal head_q               : std_logic_vector (PACKET_WORD_WIDTH-1 downto 0);
    signal head_wren            : std_logic;
@@ -233,6 +237,11 @@ architecture behav of reply_queue is
  
    signal status_en            : std_logic;
    signal status_q             : std_logic_vector(30 downto 0);
+   
+   signal fpga_temp_stale      : std_logic;
+   signal card_temp_stale      : std_logic;
+   signal psu_status_stale     : std_logic;
+   signal box_temp_stale       : std_logic;
  
    component reply_translator_frame_head_ram 
    port(
@@ -247,37 +256,64 @@ architecture behav of reply_queue is
 begin   
 
    --------------------------------------------------------------------
-   i_reply_translator_frame_head_ram : reply_translator_frame_head_ram
-   --------------------------------------------------------------------
    -- RAM to save frame header info
    ------------------------------------------------------------------- 
+
+   i_reply_translator_frame_head_ram : reply_translator_frame_head_ram
    port map(
       address  => head_address,
       clock    => clk_i,
-      data     => data_bus,
+      data     => header_data_bus,
       wren     => head_wren,
       q        => head_q
    );
    
    head_offset <= 
-      FPGA_TEMP_OFFSET when par_id = FPGA_TEMP_ADDR else
-      CARD_TEMP_OFFSET when par_id = CARD_TEMP_ADDR else
-      PSC_STATUS_OFFSET when par_id = PSC_STATUS_ADDR else (others => '0');
+      0                                                  when par_id = FPGA_TEMP_ADDR else
+      FPGA_TEMP_SIZE                                     when par_id = CARD_TEMP_ADDR else
+      FPGA_TEMP_SIZE + CARD_TEMP_SIZE                    when par_id = PSC_STATUS_ADDR else 
+      FPGA_TEMP_SIZE + CARD_TEMP_SIZE + PSC_STATUS_SIZE  when par_id = BOX_TEMP_ADDR else 0;
       
-   head_address <= head_offset + conv_std_logic_vector(word_count, 6);
+   head_address <= conv_std_logic_vector(word_count + head_offset, 6);
 
    -- register RAM output with recirculation mux
    head_q_mux_sel <= '0';
-   head_q_mux    <= head_q when head_q_mux_sel = '1' else head_q_reg;   
+   head_q_mux     <= head_q when head_q_mux_sel = '1' else head_q_reg;   
    
-   register_ram_q : process (rst_i, clk_i)      
+
+   register_0 : process (rst_i, clk_i)      
    begin
-   if rst_i = '1' then
-         head_q_reg <= (others => '0');   
+      if(rst_i = '1') then
+         head_q_reg       <= (others => '0');
+         
+         fpga_temp_stale  <= '1';
+         card_temp_stale  <= '1';
+         psu_status_stale <= '1';
+         box_temp_stale   <= '1';
+         
       elsif (clk_i'EVENT and clk_i = '1') then
          head_q_reg <= head_q_mux;
+         
+         -- Keep track of what fields have been updated since the last data packet.
+         if(internal_cmd = '1') then
+            if(par_id = FPGA_TEMP_ADDR) then
+               fpga_temp_stale  <= '0';
+            elsif(par_id = CARD_TEMP_ADDR) then
+               card_temp_stale  <= '0';
+            elsif(par_id = PSC_STATUS_ADDR) then
+               psu_status_stale <= '0';
+            elsif(par_id = BOX_TEMP_ADDR) then
+               box_temp_stale   <= '0';
+            end if;
+         -- Clear the flags after having send the header.
+         elsif(present_retire_state = TX_SEND_DATA) then 
+            fpga_temp_stale  <= '1';
+            card_temp_stale  <= '1';
+            psu_status_stale <= '1';
+            box_temp_stale   <= '1';
+         end if;
       end if;
-   end process register_ram_q;   
+   end process register_0;   
    
    word_count_new <= word_count + 1;
    word_cntr: process(clk_i, rst_i)
@@ -341,15 +377,27 @@ begin
          reg_o      => data_size_t
       );
 
+
+   -------------------------------------------------------------------
+   -- Bit Status Logic and Registers
+   ------------------------------------------------------------------- 
    bit_status_i <= 
+      internal_cmd_i & 
       tes_bias_step_level_i & 
       active_clk_i & 
       sync_box_err_i & 
       sync_box_free_run_i & 
-      internal_cmd_i & 
       cmd_stop_i & 
       last_frame_i;
    
+   internal_cmd        <= bit_status(6);   
+   tes_bias_step_level <= bit_status(5);
+   active_clk          <= bit_status(4);
+   sync_box_err        <= bit_status(3);   
+   sync_box_free_run   <= bit_status(2);   
+   stop_bit_o          <= bit_status(1);  
+   last_frame_bit_o    <= bit_status(0);   
+
    bit_status_reg: reg
       generic map(
          WIDTH      => 7
@@ -402,17 +450,10 @@ begin
 
    -- Some of the outputs to reply_translator and lvds_rx fifo's
    cmd_code_o          <= cmd_code;
-   card_addr_o         <= card_addr;   
-   last_frame_bit_o    <= bit_status(0);   
-   stop_bit_o          <= bit_status(1);  
-   internal_cmd        <= bit_status(2);   
-   sync_box_free_run   <= bit_status(3);   
-   sync_box_err        <= bit_status(4);   
-   active_clk          <= bit_status(5);
-   tes_bias_step_level <= bit_status(6);
+   card_addr_o         <= card_addr;
    frame_seq_num_o     <= frame_seq_num;
    param_id_o          <= par_id;
-
+   
    ---------------------------------------------------------
    -- Retire FSM:
    ---------------------------------------------------------
@@ -425,8 +466,8 @@ begin
       end if;
    end process retire_state_FF;
 
-   retire_state_NS: process(present_retire_state, cmd_to_retire_i, matched, ack_i, --status_q, --timeout, , cmd_sent_i
-      internal_cmd, word_rdy, word_count, data_size, par_id, cmd_code)
+   retire_state_NS: process(present_retire_state, cmd_to_retire_i, matched, ack_i,
+      internal_cmd, word_rdy, word_count, data_size, cmd_code)
    begin
       -- Default Values
       next_retire_state <= present_retire_state;
@@ -454,7 +495,7 @@ begin
                elsif(internal_cmd = '1') then
                   if(cmd_code = READ_BLOCK or cmd_code = DATA) then
                      -- If this is an internal command, store the data
-                     next_retire_state <= STORE_HEADER_WORD;
+                     next_retire_state <= STORE_ERRNO_HEADER_WORD;
                   else
                      next_retire_state <= INTERNAL_WB;
                   end if;
@@ -469,10 +510,10 @@ begin
          when TX_STATUS =>
             if (ack_i = '1') then
                -- If is a data frame
-               if (par_id = RET_DAT_ADDR) then
+               if(cmd_code = DATA) then
                   next_retire_state <= TX_ROW_LEN;
                -- If this is a RB
-               elsif (cmd_code = READ_BLOCK or cmd_code = DATA) then
+               elsif(cmd_code = READ_BLOCK) then
                   next_retire_state <= REPLY;
                -- If this is a WB
                else
@@ -483,11 +524,16 @@ begin
          when WAIT_FOR_ACK =>
             next_retire_state <= IDLE;         
 
+         when STORE_ERRNO_HEADER_WORD =>
+            next_retire_state <= STORE_HEADER_WORD;         
+         
          when STORE_HEADER_WORD =>
             next_retire_state <= NEXT_HEADER_WORD;
 
          when NEXT_HEADER_WORD =>
-            if (word_rdy = '1') and (word_count < data_size) then 
+            -- data_size + 1 compensates for the errno word we store for every internal command
+            -- it's doubtful whether i need both of these conditions here..
+            if(word_rdy = '1') and (word_count < data_size + 1) then 
                next_retire_state <= STORE_HEADER_WORD;
             else 
                next_retire_state <= DONE_HEADER_STORE;
@@ -586,8 +632,7 @@ begin
          x"0000000" & "000" & tes_bias_step_level when TX_TES_BIAS_LEVEL,
          (others => '0')                          when others;
 
---   cmd_sent_o <= matched;
-   retire_state_out: process(present_retire_state, ack_i, data_size, par_id, word_rdy, cmd_code, matched)
+   retire_state_out: process(present_retire_state, ack_i, data_size, word_rdy, cmd_code, matched, data_bus, error_code)
    begin   
       -- Default values
       reg_en          <= '0';
@@ -605,9 +650,10 @@ begin
       status_en       <= '0';
       cmd_sent_o      <= '0';
       
+      header_data_bus <= (others => '0');
+      
       case present_retire_state is
          when IDLE =>
---            ena_word_count  <= '0';
             load_word_count <= '1';
          
          when LATCH_CMD =>
@@ -626,7 +672,7 @@ begin
             end if;            
             
          when TX_STATUS =>           
-            if(par_id = RET_DAT_ADDR) then
+            if(cmd_code = DATA) then
                size_o       <= data_size + NUM_RAM_HEAD_WORDS;
             else
                size_o       <= data_size;
@@ -642,7 +688,13 @@ begin
          when INTERNAL_WB =>
             word_ack        <= '1';
 
+         when STORE_ERRNO_HEADER_WORD =>
+            header_data_bus <= '0' & error_code;
+            head_wren       <= '1';
+            ena_word_count  <= '1';
+
          when STORE_HEADER_WORD =>
+            header_data_bus <= data_bus;
             head_wren       <= '1';
             ena_word_count  <= '1';
 
