@@ -18,7 +18,7 @@
 -- UBC,   University of British Columbia, Physics & Astronomy Department,
 --        Vancouver BC, V6T 1Z1
 --
--- $Id: cmd_queue.vhd,v 1.99 2006/11/03 01:10:53 bburger Exp $
+-- $Id: cmd_queue.vhd,v 1.100 2006/11/07 23:47:19 bburger Exp $
 --
 -- Project:    SCUBA2
 -- Author:     Bryce Burger
@@ -30,6 +30,9 @@
 --
 -- Revision history:
 -- $Log: cmd_queue.vhd,v $
+-- Revision 1.100  2006/11/07 23:47:19  bburger
+-- Bryce:  fixed a poorly coded conditiont that checked param_id instead of cmd_code
+--
 -- Revision 1.99  2006/11/03 01:10:53  bburger
 -- Bryce:  Added support for the DATA cmd_code
 --
@@ -501,7 +504,6 @@ begin
          -- Issue Command
          -----------------------------------------------------
          when WAIT_TO_ISSUE =>
---            if(par_id /= RET_DAT_ADDR) then
             if(cmd_code /= DATA) then
                next_state <= HEADER_A;
 -- If a data command has timed out, then a flag must be included in the header
@@ -680,7 +682,7 @@ begin
          when IS_THERE_DATA =>
             -- Asserting mop_ack_o causes cmd_translator to begin passing data through to cmd_queue.
             -- Assert mop_ack_o here if there is data.
-            if(cmd_code /= READ_BLOCK and cmd_code /= DATA) then --data_size /= 0) then
+            if(cmd_code /= READ_BLOCK and cmd_code /= DATA) then
                mop_ack_o         <= '1';
             end if;
          
@@ -695,10 +697,8 @@ begin
          when DONE_STORE =>
             -- If there is no data with the m-op, then asserting mop_ack_o in the IS_THERE_DATA state would be too soon
             -- In this case, by delaying its assertion until DONE_STORE, we ensure that the cmd_translator doesn't try to insert the next m_op too quickly.
---            if(data_size = 0) then
             -- Assert mop_ack_o if there isn't data, or for a second time if there is data.
             mop_ack_o         <= '1';
---            end if;
          
          -- Strobe the sliding sync number
          sync_num_reg_en <= '1';
