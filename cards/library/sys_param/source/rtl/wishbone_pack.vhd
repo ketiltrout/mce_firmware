@@ -28,8 +28,11 @@
 --
 --
 -- Revision history:
--- <date $Date: 2006/10/19 22:13:09 $> - <initials $Author: bburger $>
+-- <date $Date: 2006/11/03 23:15:58 $> - <initials $Author: bburger $>
 -- $Log: wishbone_pack.vhd,v $
+-- Revision 1.34  2006/11/03 23:15:58  bburger
+-- Bryce:  New commands for remote JTAG configuration
+--
 -- Revision 1.33  2006/10/19 22:13:09  bburger
 -- Bryce:  Added the crc_err_en command
 --
@@ -266,16 +269,10 @@ package wishbone_pack is
    constant CONFIG_APP_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"52";
    constant RET_DAT_S_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"53";
    constant USE_DV_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"54";
-   constant VRFY_SRAM1_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"55";
-   constant VRFY_SRAM2_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"56";
    constant ARRAY_ID_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"58";
    constant BOX_ID_ADDR       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"59";
-   constant SRAM1_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5A";
-   constant SRAM2_ADDR        : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5B";
-   constant SRAM1_CONT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
-   constant SRAM2_CONT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5D";
-   constant SRAM1_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
-   constant SRAM2_STRT_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5F";
+   constant SRAM_WRITE_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5C";
+   constant SRAM_ADDR_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"5E";
    constant DATA_RATE_ADDR    : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A0";
    constant USE_SYNC_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A1";
    constant SELECT_CLK_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A2";
@@ -287,7 +284,6 @@ package wishbone_pack is
    constant BOX_TEMP_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A8";
    constant CRC_ERR_EN_ADDR   : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"A9";
    constant CONFIG_JTAG       : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AA";
-   constant CONFIG_JTAG_S     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"AB";
 
    -- Power Card Specific
    constant BRST_MCE_ADDR     : std_logic_vector(WB_ADDR_WIDTH-1 downto 0) := x"60";
