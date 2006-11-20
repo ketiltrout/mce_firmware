@@ -1,8 +1,16 @@
-/***************************************************************************************/
-/*      I2C Function Library            */
-/****************************************/
+/************************************************************************************************/
+/*      ADC Interface - Maxim MAX1271           */
+/*********************************************************
+MAX1271 ADC Interfacing Function
+	Manually implements SPI transaction (lack of SSTRB signal means data must be clocked manually)	 	
+	Currently SCLK almost uniform...timing seems okay....
+	Timing verified for extreme case of switching consecutively between +/- maximum input levels 
+*************************************************************************************************/
 // Revision history: 
 // $Log: MAX1271.c,v $
+// Revision 1.4  2006/10/03 05:58:49  stuartah
+// Tested in Subrack, Basic Command working
+//
 // Revision 1.3  2006/09/23 00:32:49  stuartah
 // Fixed bug (last read bit was shifted erroneously)
 //
@@ -11,36 +19,31 @@
 //
 // Revision 1.1  2006/09/05 20:02:48  stuartah
 // Renamed from i2c.c (doesn't use I2C protocol)
-	
-//#include <reg52.h>
-//#include <intrins.h>
-//#include "io.h"
+/**************************************************************/
 
-//idea: get rid of for loops and do everything manually to make clocking uniform (optimize)
-//idea: implement pipelined command/read
-//currently SCLK almost uniform...timing seems okay....could tweak further
+unsigned char bdata adc_data;  						// bit adressable variable
+sbit ADC_MS_DBIT = adc_data^7;						
 
-/***************************************************************************************/
-/*      ADC Functions - Maxim MAX1271       	*/
-/************************************************/
 
-unsigned char bdata adc_data;
-sbit ADC_MS_DBIT = adc_data^7;												 //should these be bit or sbit???
-		 		  
-void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeling version
+/****************************************************************************************
+ *  Read ADC 	*
+ ************** */
+// non-pipeling implementation
+ 		 		  
+void read_adc(char chan, char mode, bit adc_sel, char *target)		   	
 {   
    	unsigned char bit_cnt, *temp_char_ptr;
    	unsigned int adc_reading=0;					
    
-   	  MISO = 1;  //**need this                             // port bit set for input		//need this	 ???????  YES	   //need to clear at end?
+   	MISO = 1;                             			// port bit set for input (**must have this)
    	
-	// SPEN = 0:  SPI must be disabled to manually control SCLK
-	SPCON &= ~SPI_EN;             						
+	//SPI must be disabled to manually control SCLK
+	SPCON &= ~SPI_EN;             					// SPEN = 0:	
    
-   	adc_data = chan + mode;	  							// higher 4 bits determine channel, lower 4 bits determine mode
-   	SCLK = 0;									// make sure CLK is low -- probably dont need this
-   	_nop_();									// delay for hardware	....are these still needed?
-   	_nop_();									// why nop???	 needed?
+   	adc_data = chan + mode;	  						// higher 4 bits determine channel, lower 4 bits determine mode
+   	SCLK = 0;										// make sure CLK is low
+   	_nop_();										// delay for hardware
+   	_nop_();
 
    	// select ONE ADC only - done with adc_sel bit as sbit/sfr types cannot be passed into functions
    	if (adc_sel == VOLTAGE)						
@@ -50,48 +53,43 @@ void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeli
    
    	// Send Control Byte - shift out 8 bits (8 clock cycles)
    	for (bit_cnt=1 ; bit_cnt <=8; bit_cnt++) {	
-     	MOSI = ADC_MS_DBIT;								// starts conversion, data clocked in to ADC on rising clock edge
-      	SCLK = 1;                                 		// loads data bit
+     	MOSI = ADC_MS_DBIT;							// starts conversion, data clocked in to ADC on rising clock edge
+      	SCLK = 1;                                 	// loads data bit
 	  	adc_data = adc_data<<1;
 	  	SCLK = 0;
-	 	// _nop_();
-	  	//wait()????
   	}
    
-   	MOSI = 0;                                     // don't start new conversion
+   	MOSI = 0;                                     	// don't start new conversion
    
-  	/***	Wait For Ready  ----  need to change, no SSTRB pin connection **/	   			// while ( ADC_STRB == 0 );	          
+  	/***	Wait For Ready  ----  need to change, no SSTRB pin connection **/	   			// while ( ADC_STRB == LOW );	          
 	// Need 5 clock cycle delay in place of waiting for SSTRB signal to assert.  
 	// ADC starts shifting out data on 14th clock signal.
   	for (bit_cnt=1 ; bit_cnt <=5; bit_cnt++) {	  										
 	 	SCLK = 1;
-	  	_nop_();									//include for uniform timing
-	  	//_nop_();										
+	  	_nop_();									
+	  	//_nop_();									// include for uniform timing	
 	  	SCLK = 0;
 	  	_nop_();
-	  	//_nop_();									//include for uniform timing
+	  	//_nop_();									// include for uniform timing
   	}
 
    	/***	 now clock in 12 data bits	***/	  			
-	// get first bit										//why is first bit separate?  for timing	
+	// get first bit	
    	SCLK = 1;
    	if ( MISO == 1) {                          		// MSB is ready at DOUT
      	++adc_reading;
-     	}
-   	SCLK = 0;									// this edge latches bit
-   	//_nop_();
-   //	adc_reading = adc_reading<<1;                // rotate reading
+     }
+   	SCLK = 0;										// this edge latches bit
 
-   	// get next 11 bits
-   	for ( bit_cnt=1 ; bit_cnt<=11 ; bit_cnt++ ) {
+   	// get last 11 bits
+	for ( bit_cnt=1 ; bit_cnt<=11 ; bit_cnt++ ) {
 		adc_reading = adc_reading<<1;                // rotate reading
       	SCLK = 1;                                 
       	if ( MISO == 1) {
-         	++adc_reading;									
-		 	//need delays in here????  else {_nop_();} ?
-         	}
-      	SCLK = 0;                                 // loads next bit
-      	//adc_reading = adc_reading<<1;             // rotate reading			 removed from here so last bit not shifted
+         	++adc_reading;
+		}									
+		//else _nop_();								// include for uniform timing
+      	SCLK = 0;                                 	// loads next bit
    }
    
    	// de-select ADC
@@ -100,14 +98,14 @@ void read_adc(char chan, char mode, bit adc_sel, char *target)		   	// no pipeli
    	else
    		CS_IADC = 1;	   
 
-
-//	MISO = 0; 							//clear port
-	MISO = 1;	//???							
-	MOSI=1;	   //????
+ 	// clear ports						
+	MISO = 1;													
+	MOSI=1;
+		   
   	// re-enable SPI
 	SPCON |= SPI_EN;								
    
-  	// return (adc_reading);
+  	// return adc_reading;
   	temp_char_ptr = &adc_reading;	 				// need CHAR ptr to access individual bytes of int adc_reading
   	*target = *temp_char_ptr;						// higher order byte
   	*(target+1) = *(temp_char_ptr+1);				// lower order byte

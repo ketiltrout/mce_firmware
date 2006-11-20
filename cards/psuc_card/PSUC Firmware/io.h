@@ -1,12 +1,15 @@
-/***************************************************************************************/
+/*************************************************************************************/
 /*      I/O Assignments           */
-/****************************************/
+/**********************************/
 // Revision history: 
 // $Log: io.h,v $
+// Revision 1.2  2006/08/30 19:54:19  stuartah
+// Implemented checksum
+//
 // Revision 1.1  2006/08/29 21:06:06  stuartah
 // Initial CVS Build - Most Basic Functionality Implemented
 //	
-
+/************************************************************************************/
 
 // AT89 I/O Pin Assignments
 sbit BUS_SP2 =		P0^5;		// Bus Spare 1
@@ -84,7 +87,7 @@ sbit SPARE1 =		P4^1;		// Bus Spare 2
 
 // Timing Parameters
 #define MS_RELOAD_5mS	216  			// timing confirmed with 24MHz Clock
-#define LS_RELOAD_5mS	239	 			//  Timing register loaded with 0xFFFF - (216)(239) = 0xD8FF = 10000, implies 500ns delay per click 
+#define LS_RELOAD_5mS	239	 			// Timing register loaded with 0xFFFF - (216)(239) = 0xD8FF = 10000, implies 500ns delay per click 
 #define T5mS			1
 #define T15mS			3
 #define T25mS			5
@@ -104,7 +107,7 @@ sbit SPARE1 =		P4^1;		// Bus Spare 2
 
 #define ADC_UNI_5V	0x1
 #define ADC_BI_5V	0x5
-#define ADC_UNI_10V	0x9					//default mode
+#define ADC_UNI_10V	0x9					// default mode used
 #define ADC_BI_10V	0xd
 
 #define VOLTAGE 	0

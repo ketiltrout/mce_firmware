@@ -3,6 +3,9 @@
 /********************************************************************************/
 // Revision history: 
 // $Log: DS18S20.h,v $
+// Revision 1.4  2006/10/03 07:38:34  stuartah
+// Added presence detection of DS18S20s
+//
 // Revision 1.3  2006/10/03 05:59:12  stuartah
 // Tested in Subrack, Basic Command working
 //
@@ -13,9 +16,8 @@
 // Initial CVS Build - Most Basic Functionality Implemented
 //	
 
-
 /*****  Refer to DS18S20 Datasheet for Command and Timing Specs *****/
-/* 	The transaction sequence for accessing the DS18S20 is as follows:	(Refer to datasheets)
+/* 	The transaction sequence for accessing the DS18S20 is as follows:
 Step 1. Initialization (reset pulse)
 Step 2. ROM Command (followed by any required data exchange)
 Step 3. DS18S20 Function Command (followed by any required data exchange)  
@@ -24,12 +26,12 @@ Step 4. Read returned bytes													*/
 
 /*********  Function Prototypes  **************/
 // External Functions/Variables	(defined in scuba2ps.c)
-extern void wait_time_x2us_plus3(unsigned char); 	 		// Waits (2*Value + 3) microseconds
+extern void wait_time_x2us_plus3(unsigned char); 	 				// Waits (2*Value + 3) microseconds
 
 // 'Public' Functions - ONLY these functions should be called externally
-bit ds_initialize( char );									// Initializes DS18S20
-void ds_get_4byte_id( char, char* target);					// Reads Silicon ID, sets target value
-void ds_get_temperature( char, char* target);				// Reads temperature from DS memory, sets target value
+bit ds_initialize( char );											// Initializes DS18S20
+void ds_get_4byte_id( char, char* target);							// Reads Silicon ID, sets target value
+void ds_get_temperature( char, char* target);						// Reads temperature from DS memory, sets target value
 
 // The following functions are declared as 'static' to make them 'private'
 // Command Functions
@@ -45,7 +47,7 @@ static bit read_bus(void);											// Physical bus line bit read
 
 
 /**************  DS18S20 Comands  *****************/
-#define READ_ROM 			0x33							// Note: READROM command only works with a single device on the bus
+#define READ_ROM 			0x33									// Note: READROM command only works with a single device on the bus	(as in current PSUC design)
 #define SKIP_ROM			0xCC
 #define CONVERT_T 			0x44
 #define READ_SCRATCHPAD 	0xBE	 

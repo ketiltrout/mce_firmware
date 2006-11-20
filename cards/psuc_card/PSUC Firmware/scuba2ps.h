@@ -1,8 +1,11 @@
-/***************************************************************************************/
+/************************************************************************************/
 /* 	Scuba 2 Power Supply Controller - SC2_ELE_S565_102D		 
-/****************************************************************************************/
+/************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.7  2006/10/03 07:38:34  stuartah
+// Added presence detection of DS18S20s
+//
 // Revision 1.6  2006/10/03 05:59:12  stuartah
 // Tested in Subrack, Basic Command working
 //
@@ -30,42 +33,40 @@
 #include <at89c5131.h>
 #include <stdio.h>
 #include <intrins.h>
-#include "io.h"
-#include "MAX1271.c"					
-#include "DS18S20.c"
+#include "io.h"										// contains IO port settings and global decalarations
+#include "MAX1271.c"							   	// code for interfacing with MAX1271 ADCs
+#include "DS18S20.c"								// code for interfacing with DS18S20 Digital ID / Temperature Sensor
 
 // Memory Parameters
-#define BUF_SIZE		10
+#define BUF_SIZE		10							// received serial message buffer size (commands always smaller than this length in bytes)
 
 /***** 	Function Prototypes *****/
 // PSUC Initialization
-void init(void);  
+void init(void);  	  								// initializes hardware and software variables
 
 // PSU Commands
-void sequence_on(void);
-void sequence_off(void);
-void reset_MCE(void);
-void cycle_power(void);
-void send_psu_data_block (void);
+void sequence_on(void);								// powers on MCE
+void sequence_off(void);							// powers off MCE
+void reset_MCE(void);								// resets MCE
+void cycle_power(void);								// cycle MCE power
+void send_psu_data_block (void);					// send PSU datablock to CC via SPI
 
 // Timing Functions
-void wait_time (unsigned char);
-void wait_time_x2us_plus3(unsigned char);
-void start_pca_timer(void);
-int stop_pca_timer(void);
+void wait_time (unsigned char);						// waits input*5ms
+void wait_time_x2us_plus3(unsigned char);			// waits input*2us + 3us
 
 // Send Serial Message
-void snd_msg (char *);
+void snd_msg (char *);								// sends message over serial port (RS232)
 
 // PSU Data Block Functions
-void update_data_block(void);
-void check_digit(void);
-unsigned char get_fan_speed(void);
+void update_data_block(void);						// updates voltage/current/temperature readings
+void check_digit(void);								// calculates basis for checksum (without ACK/NAK added)
+//unsigned char get_fan_speed(void);				// currently not implemented
 
 // Command Parsing Functions
-void parse_command(void);
-bit commands_match (char *, char *, char *);
-bit command_valid (char *);
+void parse_command(void);							// reads CC command from first 6 bytes received from SPI transaction
+bit commands_match (char *, char *, char *);		// checks command received in triplicate
+bit command_valid (char *);							// checks command received is a valid command
 
 
 /*********	Variables *********/
