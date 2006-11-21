@@ -3,6 +3,9 @@
 /************************************************************************************/
 // Revision history: 	
 // $Log: scuba2ps.h,v $
+// Revision 1.8  2006/11/20 23:22:00  stuartah
+// Cleaned code, improved commenting, implemented changes for PSUC rev. G
+//
 // Revision 1.7  2006/10/03 07:38:34  stuartah
 // Added presence detection of DS18S20s
 //
@@ -36,6 +39,8 @@
 #include "io.h"										// contains IO port settings and global decalarations
 #include "MAX1271.c"							   	// code for interfacing with MAX1271 ADCs
 #include "DS18S20.c"								// code for interfacing with DS18S20 Digital ID / Temperature Sensor
+#include "soft_reset.h"
+
 
 // Memory Parameters
 #define BUF_SIZE		10							// received serial message buffer size (commands always smaller than this length in bytes)

@@ -5,6 +5,9 @@
 /************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.10  2006/11/21 21:25:41  stuartah
+// Implemented Timer2 as external interrupt
+//
 // Revision 1.9  2006/11/20 23:22:00  stuartah
 // Cleaned code, improved commenting, implemented changes for PSUC rev. G
 //
@@ -65,7 +68,7 @@ main()
 	snd_msg(asc_version);	
 
    	// Initial Power-Up
-	sequence_on();					
+	sequence_on();				
 	ENABLE_BLINK;
 	//reset_MCE();						// ** This line disables initial subrack reset **
    	  
@@ -419,9 +422,7 @@ void timer1_isr (void) interrupt 3 using 3
 void timer2_isr (void) interrupt 5 using 0
 {
 	TF2=0;										// clear interrupt
-	
-	blink_en =~ blink_en;
-	//soft_reset();
+	soft_reset();								// reset program counter to jump point ( past init() )
 }
 
 
