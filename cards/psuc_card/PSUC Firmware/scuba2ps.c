@@ -5,6 +5,9 @@
 /************************************************************************************/
 // Revision history: 
 // $Log: scuba2ps.c,v $
+// Revision 1.9  2006/11/20 23:22:00  stuartah
+// Cleaned code, improved commenting, implemented changes for PSUC rev. G
+//
 // Revision 1.8  2006/10/03 07:38:34  stuartah
 // Added presence detection of DS18S20s
 //
@@ -170,6 +173,14 @@ void init(void)
    	TH1 = MS_RELOAD_5mS;
    	TMOD = 0x11;
 
+	// Timer 2 used as count up counter for soft reset function, triggered when external reset button pushed
+	T2CON = 0x02;       		// 0b00000010 -- set for counter operation, external trigger on T2 pin
+	TH2 = 0xFF;					// set counter so single external trigger causes interrupt -> soft reset
+	TL2 = 0xFF;
+	RCAP2H = 0xFF;				// same auto-reload values				
+	RCAP2L = 0xFF;
+	TR2 = 1;					// start timer 2
+
 	// Serial I/O Setup:  Using Internal Baud Rate Generator on 89C5131A.  Set to Serial Mode 1 at 9600 Baud using 24MHz Clock
     SCON = 0x50;				// 0101 0000
 	BDRCON = 0x1e; 		 		// 0001 1110
@@ -203,6 +214,7 @@ void init(void)
 	IEN1 |= 0x04;               // Enable SPI Interrupts
 	ET0 = 1;          			// Enable Timer0 Interrupts
     ET1 = 1;			 		// Enable Timer1 Interrupts
+	ET2 = 1;					// Enable Timer2 Interrupts
     EA = 1; 					// Enable Global Interrupts
 	//EC = 1;					// Enable all PCA Interrupts
 
@@ -398,6 +410,20 @@ void timer1_isr (void) interrupt 3 using 3
 	  TH1 = MS_RELOAD_5mS;
    }
 }
+
+/***************************************************************************************/
+/* Timer2 Service Routine     			*/ 
+/****************************************/
+// Interrupt occurs ONLY when external SOFT RESET button pushed
+
+void timer2_isr (void) interrupt 5 using 0
+{
+	TF2=0;										// clear interrupt
+	
+	blink_en =~ blink_en;
+	//soft_reset();
+}
+
 
 /***************************************************************************************/
 /* Send Serial Message     */ 
